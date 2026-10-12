@@ -5,7 +5,7 @@
 
 /* box_margin is declared as an array (externs.h) so that the load is treated as a member access and orders after the state_2 store. */
 
-void func_80144830(Object *object)
+void init_object_position_and_sequence_from_table(Object *object)
 {
   u16 margin;
   u8 t = object->state_2;
@@ -19,5 +19,5 @@ void func_80144830(Object *object)
   object->field_90 = (void *) 0x800fb100;
   object->pos_x = margin + 0xc0;
   set_sequence_from_table_5(object, 0x41, table_8017c7f8);
-  func_801448c4(object);
+  advance_state_2_on_sequence_end_set_depth(object);
 }

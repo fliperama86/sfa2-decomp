@@ -11,6 +11,6 @@ void call_table_handler_by_table_index_2_slot28(Object *obj) {
     obj->field_01 = 1;
 }
 
-void func_8001d82c_slot28(Object *object) {
+void call_handler_by_state_1_11_slot28(Object *object) {
     data_8003c2e4_slot28[object->state_1](object);
 }

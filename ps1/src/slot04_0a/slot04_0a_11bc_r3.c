@@ -29,7 +29,7 @@ int try_start_meter_state_8_move_4_slot04_0a(Object *obj) {
         clear_sixteen_slot_words_slot04_0a(obj);
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142718(obj);
+        set_direction_index_from_buttons_mask_a(obj);
     }
     return r;
 }
@@ -47,7 +47,7 @@ int try_start_meter_state_8_move_5_slot04_0a(Object *obj) {
         clear_sixteen_slot_words_slot04_0a(obj);
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142778(obj);
+        set_direction_index_from_buttons_mask_b(obj);
     }
     return r;
 }

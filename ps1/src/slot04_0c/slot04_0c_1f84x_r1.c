@@ -5,7 +5,7 @@
 
 void spawn_children_per_direction_index(Object *, int, int);
 
-void func_801b1f84_slot04_0c(Object *obj) {
+void spawn_direction_children_on_low_flag_byte_a_slot04_0c(Object *obj) {
     if ((u8)obj->step_flags) {
         obj->state_3 = obj->state_3 + 1;
         if (obj->field_4b == 0) {

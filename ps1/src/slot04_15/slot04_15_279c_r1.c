@@ -12,19 +12,19 @@ extern ObjectFn data_801c3130_slot04_15[];
 
 void spawn_children_per_direction_index(Object *object, int a, int b);
 void set_position_from_other_box(Object *object);
-void func_801428e4(Object *object);
-void func_80145d20(Object *object);
+void update_meter_by_mode_or_table(Object *object);
+void spawn_three_child_objects_at_object_spawn(Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void update_sequence_by_pressed_bytes(Object *object);
 void spawn_effect_at_object_offset(Object *object, u8 a, int dx, int dy);
 int drain_gauge_by_other_input(Object *object);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void set_sequence_by_side(Object *object, int index);
-void func_801b33c8_slot04_15(Object *object);
+void call_table_function_by_state_3_16_slot04_15(Object *object);
 void move_x_by_facing_with_accel_slot04_15(Object *obj);
-void func_801b2ea4_slot04_15(Object *obj);
-void func_801b303c_slot04_15(Object *obj);
-void func_801b30c8_slot04_15(Object *obj, s16 a);
+void call_table_function_by_state_3_15_slot04_15(Object *obj);
+void release_or_drain_gauge_then_advance_slot04_15(Object *obj);
+void flip_facing_launch_and_hit_other_slot04_15(Object *obj, s16 a);
 
 void slide_with_deceleration_and_launch_slot04_15(Object *obj) {
     int i;
@@ -134,20 +134,20 @@ void update_sequence_or_end_set_other_code_slot04_15(Object *obj) {
     }
 }
 
-void func_801b2ae8_slot04_15(Object *obj) {
+void call_table_function_by_state_3_13_slot04_15(Object *obj) {
     data_801c3114_slot04_15[obj->state_3](obj);
 }
 
-void func_801b2b28_slot04_15(Object *obj) {
+void start_effects_and_sequence_by_direction_index_slot04_15(Object *obj) {
     obj->field_157 = 1;
     obj->state_3++;
-    func_80145d20(obj);
-    func_801428e4(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x3b);
 }
 
-void func_801b2b90_slot04_15(Object *obj) {
+void update_sequence_then_spawn_children_on_flag_slot04_15(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         int a = -1;
@@ -179,7 +179,7 @@ void start_dash_on_step_end_slot04_15(Object *obj) {
     }
 }
 
-void func_801b2c94_slot04_15(Object *obj) {
+void update_sequence_set_accel_x_then_move_x_slot04_15(Object *obj) {
     u16 a;
 
     update_sequence(obj);
@@ -192,7 +192,7 @@ void func_801b2c94_slot04_15(Object *obj) {
     move_x_by_facing_with_accel_slot04_15(obj);
 }
 
-void func_801b2cf0_slot04_15(Object *obj) {
+void update_sequence_move_or_finish_notify_other_slot04_15(Object *obj) {
     update_sequence(obj);
     if ((s16)obj->step_flags >= 0) {
         move_x_by_facing_with_accel_slot04_15(obj);
@@ -214,11 +214,11 @@ void move_x_by_facing_with_accel_slot04_15(Object *obj) {
     }
 }
 
-void func_801b2d94_slot04_15(Object *obj) {
+void call_table_function_by_state_3_14_slot04_15(Object *obj) {
     data_801c3128_slot04_15[obj->state_3](obj);
 }
 
-void func_801b2dd4_slot04_15(Object *obj) {
+void start_sequence_1c_decrement_remaining_count_slot04_15(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3++;
     if (obj->field_49 == 0) {
@@ -238,17 +238,17 @@ void update_sequence_or_finish_sequence_4_slot04_15(Object *obj) {
 
 void call_handler_by_input_dir_second_2_slot04_15(Object *obj) {
     if (obj->input_dir_second != 0) {
-        func_801b33c8_slot04_15(obj);
+        call_table_function_by_state_3_16_slot04_15(obj);
     } else {
-        func_801b2ea4_slot04_15(obj);
+        call_table_function_by_state_3_15_slot04_15(obj);
     }
 }
 
-void func_801b2ea4_slot04_15(Object *obj) {
+void call_table_function_by_state_3_15_slot04_15(Object *obj) {
     data_801c3130_slot04_15[obj->state_3](obj);
 }
 
-void func_801b2ee4_slot04_15(Object *obj) {
+void start_state_gauge_sound_and_snap_to_other_box_slot04_15(Object *obj) {
     obj->gauge = 0xb4;
     obj->countdown = 0;
     ((Slot04bObj *)obj)->field_1cd = 0;
@@ -259,7 +259,7 @@ void func_801b2ee4_slot04_15(Object *obj) {
     set_position_from_other_box(obj);
 }
 
-void func_801b2f54_slot04_15(Object *obj) {
+void update_hold_sequence_damage_other_on_flag_slot04_15(Object *obj) {
     Slot04bObj *o = (Slot04bObj *)obj;
     u16 t;
     int k;
@@ -280,20 +280,20 @@ void func_801b2f54_slot04_15(Object *obj) {
         }
         if ((u8)apply_damage_to_other_return_defeated(obj, k, 0) != 0) {
             play_side_sound_at(obj, obj->side, 0x16);
-            func_801b30c8_slot04_15(obj, -0x200);
+            flip_facing_launch_and_hit_other_slot04_15(obj, -0x200);
         } else {
             o->countdown = o->countdown + 1;
-            func_801b303c_slot04_15(obj);
+            release_or_drain_gauge_then_advance_slot04_15(obj);
         }
     } else {
-        func_801b303c_slot04_15(obj);
+        release_or_drain_gauge_then_advance_slot04_15(obj);
     }
 }
 
-void func_801b303c_slot04_15(Object *obj) {
+void release_or_drain_gauge_then_advance_slot04_15(Object *obj) {
     if (*(u8 *)&obj->countdown != 0) {
         if (obj->other->field_15b == 0) {
-            func_801b30c8_slot04_15(obj, 2);
+            flip_facing_launch_and_hit_other_slot04_15(obj, 2);
         } else if ((u8)drain_gauge_by_other_input(obj) != 0) {
             obj->state_3 = obj->state_3 + 1;
             set_sequence_by_side_and_mode(obj, 0x19);
@@ -302,7 +302,7 @@ void func_801b303c_slot04_15(Object *obj) {
     }
 }
 
-void func_801b30c8_slot04_15(Object *obj, s16 a) {
+void flip_facing_launch_and_hit_other_slot04_15(Object *obj, s16 a) {
     int x = 0x40000;
     int t;
 

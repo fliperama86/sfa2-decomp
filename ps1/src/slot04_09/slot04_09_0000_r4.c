@@ -16,7 +16,7 @@ void update_sequence_play_sound_flag_1_slot04_09(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b0488_slot04_09(Object *obj) {
+void update_sequence_sound_and_spawn_on_flag_bytes_slot04_09(Object *obj) {
     u16 t = obj->step_flags;
     u16 u;
 
@@ -32,7 +32,7 @@ void func_801b0488_slot04_09(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b04f8_slot04_09(Object *obj) {
+void update_sequence_sound_and_spawn_pair_on_flags_slot04_09(Object *obj) {
     u16 t = obj->step_flags;
     u16 u;
 

@@ -8,7 +8,7 @@ extern u32 data_800517d8_slot28[];
 extern Slot28Rec51e94 data_80051e94_slot28;
 void init_four_textured_screen_quads_slot28(Object *obj);
 void link_two_quads_into_ordering_table_slot28(Object *obj);
-void func_80027f78_slot28(Object *obj);
+void add_indexed_item_to_table_if_value_at_least_5_slot28(Object *obj);
 
 void load_image_by_index_and_start_countdown_slot28(Object *obj) {
     HudState *h;
@@ -20,10 +20,10 @@ void load_image_by_index_and_start_countdown_slot28(Object *obj) {
     start_fade_mode_c01_and_wait();
 }
 
-void func_80027f0c_slot28(Object *obj) {
+void link_quads_and_next_substep_when_timer_negative_slot28(Object *obj) {
     HudState *h;
     int t;
-    func_80027f78_slot28(obj);
+    add_indexed_item_to_table_if_value_at_least_5_slot28(obj);
     link_two_quads_into_ordering_table_slot28(obj);
     h = data_8018f5a0;
     t = h->countdown_timer - 1;
@@ -35,7 +35,7 @@ void func_80027f0c_slot28(Object *obj) {
     }
 }
 
-void func_80027f78_slot28(Object *obj) {
+void add_indexed_item_to_table_if_value_at_least_5_slot28(Object *obj) {
     int t = (s8)data_8016e685;
     int idx;
     if (t >= 5) {

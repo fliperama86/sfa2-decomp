@@ -5,7 +5,7 @@
 
 void spawn_three_child_objects(Object *obj) {
     Object *p[3];
-    /* s3 gets no value in this function: the three stores of it below write what the register holds on entry, as the original's instructions do. Nothing is claimed here about what that is. func_80142c70 has the same local. */
+    /* s3 gets no value in this function: the three stores of it below write what the register holds on entry, as the original's instructions do. Nothing is claimed here about what that is. init_object_after_hit_and_spawn_three_effects has the same local. */
     s16 s3;
 
     if (data_80197f10 >= 3) {

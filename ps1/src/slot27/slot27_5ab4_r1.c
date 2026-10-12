@@ -15,7 +15,7 @@ extern u16 data_80055f30;
 extern u16 data_80055f34;
 void start_frame_list_set_image_row_slot27(Object *obj, s16 *p);
 
-void func_80015ab4_slot27(Object *obj) {
+void init_table_placed_object_with_image_upload_slot27(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
     int i;

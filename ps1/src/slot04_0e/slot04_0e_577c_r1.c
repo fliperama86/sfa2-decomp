@@ -16,12 +16,12 @@ void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 void set_variant_index_from_input_pair_slot04_0e(Object *obj);
 u8 call_handler_by_limit_hi_returning_slot04_0e(Object *obj);
 void call_handler_by_handler_index_if_active_slot04_0e(Slot04bObj *obj);
-u8 func_801b5b44_slot04_0e(Object *obj);
-void func_801b5e34_slot04_0e(Object *obj);
+u8 get_pressed_bits_test_or_handler_result_slot04_0e(Object *obj);
+void set_variant_velocity_start_sequence_slot04_0e(Object *obj);
 void clear_active_flag_and_finish_state_slot04_0e(Object *obj);
 void start_state_1_sequence_unless_paused_slot04_0e(Object *obj);
 
-void func_801b577c_slot04_0e(Object *o) {
+void save_counter_or_count_down_then_push_other_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if (obj->field_134 != 0) {
@@ -34,11 +34,11 @@ void func_801b577c_slot04_0e(Object *o) {
     push_other_by_vel_x(o);
 }
 
-void func_801b57e8_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_18_slot04_0e(Object *obj) {
     data_801c612c_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b5828_slot04_0e(Object *o) {
+void start_horizontal_dash_with_direction_sequence_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u16 a;
 
@@ -69,7 +69,7 @@ void update_move_or_start_input_sequence_slot04_0e(Object *o) {
     BytePair t;
     u16 a;
 
-    if (obj->mode == 0 && func_801b5b44_slot04_0e(o)) {
+    if (obj->mode == 0 && get_pressed_bits_test_or_handler_result_slot04_0e(o)) {
         t = get_direction_pair_from_pressed_bits(o);
         o->variant_index = t.first;
         o->state_3++;
@@ -113,7 +113,7 @@ void launch_from_variant_table_then_update_slot04_0e(Object *o) {
     update_sequence(o);
 }
 
-void func_801b5a70_slot04_0e(Object *obj) {
+void move_land_start_sequence_thirty_seven_slot04_0e(Object *obj) {
     apply_velocity_and_accel_to_position_slot04_0e(obj);
     if (obj->ground_y >= obj->pos_y) {
         update_sequence(obj);
@@ -137,7 +137,7 @@ void update_sequence_or_end_move_a_2_slot04_0e(Object *obj) {
     }
 }
 
-u8 func_801b5b44_slot04_0e(Object *obj) {
+u8 get_pressed_bits_test_or_handler_result_slot04_0e(Object *obj) {
     u8 r;
 
     if (obj->mode_flag_2 != 0) {
@@ -148,11 +148,11 @@ u8 func_801b5b44_slot04_0e(Object *obj) {
     return r;
 }
 
-void func_801b5b90_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_19_slot04_0e(Object *obj) {
     data_801c6170_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b5bd0_slot04_0e(Object *o) {
+void enter_next_state_meter_handler_set_sequence_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int a;
 
@@ -187,7 +187,7 @@ void launch_on_mode_set_slot04_0e(Object *o) {
     update_sequence(o);
 }
 
-void func_801b5ccc_slot04_0e(Object *o) {
+void move_until_landing_start_landing_sequence_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int a;
 
@@ -212,7 +212,7 @@ void func_801b5ccc_slot04_0e(Object *o) {
     }
 }
 
-void func_801b5d88_slot04_0e(Object *o) {
+void update_sequence_or_dispatch_by_state_flag_slot04_0e(Object *o) {
     s8 t;
 
     if (((Slot04bObj *)o)->mode == 0 && ((Slot04bObj *)o)->state_flag == 0) {
@@ -227,7 +227,7 @@ void func_801b5d88_slot04_0e(Object *o) {
         } else if (t & 0x80) {
             start_state_1_sequence_unless_paused_slot04_0e(o);
         } else {
-            func_801b5e34_slot04_0e(o);
+            set_variant_velocity_start_sequence_slot04_0e(o);
         }
     }
 }

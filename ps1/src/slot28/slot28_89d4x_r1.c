@@ -14,9 +14,9 @@ extern u8 data_80032ec8_slot28[];
 extern SequenceStep *data_80034518_slot28[];
 extern SequenceStep *data_80034520_slot28[];
 extern SequenceStep *data_80034530_slot28[];
-void func_80019190_slot28(void);
-void func_80019130_slot28(Object *obj);
-void func_80019100_slot28(Object *obj, int arg);
+void release_active_objects_in_table_3_slot28(void);
+void init_object_data_pointers_a_5_slot28(Object *obj);
+void set_sequence_of_fourth_hud_object_5_slot28(Object *obj, int arg);
 
 void start_pass_scrolling_objects_spawn_slot28(Object *obj) {
     Object *b;
@@ -24,10 +24,10 @@ void start_pass_scrolling_objects_spawn_slot28(Object *obj) {
     if (obj->field_f0 == 0) {
         data_8018f5a0->countdown_timer = 0x12c;
         data_8018f5a0->pass_index += 1;
-        func_80019190_slot28();
+        release_active_objects_in_table_3_slot28();
         set_sequence_from_table_5(data_8005197c_slot28.p, 0, data_80034518_slot28);
         b = data_80051980_slot28[0];
-        func_80019130_slot28(b);
+        init_object_data_pointers_a_5_slot28(b);
         b->pos_x = 0x60;
         b->pos_y = 0x20;
         b->spawn_x = 0x10;
@@ -37,7 +37,7 @@ void start_pass_scrolling_objects_spawn_slot28(Object *obj) {
         set_sequence_from_table_5(b, 0, data_80034520_slot28);
         b = (Object *)pop_block_from_pool();
         if (b != 0) {
-            func_80019130_slot28(b);
+            init_object_data_pointers_a_5_slot28(b);
             data_80051994_slot28.p = b;
             b->pos_x = -0xa0;
             b->pos_y = 0x20;
@@ -91,6 +91,6 @@ void start_pass_scrolling_objects_spawn_slot28(Object *obj) {
             b->box_tables = (BoxTables *)data_80034530_slot28;
         }
         start_fade_mode_1a01_and_wait();
-        func_80019100_slot28(obj, 3);
+        set_sequence_of_fourth_hud_object_5_slot28(obj, 3);
     }
 }

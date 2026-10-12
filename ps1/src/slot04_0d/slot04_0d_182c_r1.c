@@ -10,14 +10,14 @@ extern s32 data_801c2774_slot04_0d[];
 
 void spawn_offset_effect_and_play_sounds(Object *object);
 void push_other_by_vel_x(Object *object);
-void func_80142c70(Object *object);
+void init_object_after_hit_and_spawn_three_effects(Object *object);
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 void spawn_effect_objects_at_offset(Object *object, int x, int y);
 void reset_side_table_and_fields(Object *object);
 void spawn_object_type_6d_for_side(Object *object);
 void set_other_sequence_3_when_close(Object *object);
 void start_action_if_buttons_pressed(Object *object);
-void func_801b3b6c_slot04_0d(Object *object);
+void clear_object_tail_byte_block_slot04_0d(Object *object);
 void tick_countdown_or_save_counter_slot04_0d(Object *object);
 void apply_gravity_vertical_motion_slot04_0d(Object *object);
 
@@ -39,7 +39,7 @@ void update_sequence_spawn_effects_on_flag_slot04_0d(Object *obj) {
         reset_side_table_and_fields(obj);
         spawn_object_type_6d_for_side(obj);
         set_other_sequence_3_when_close(obj);
-        func_801b3b6c_slot04_0d(obj);
+        clear_object_tail_byte_block_slot04_0d(obj);
     }
     update_sequence(obj);
 }
@@ -79,7 +79,7 @@ void update_counter_and_countdown_low_byte_slot04_0d(Object *o) {
             o->state_2 = 3;
             o->state_3 = 1;
         }
-        func_80142c70(o);
+        init_object_after_hit_and_spawn_three_effects(o);
     }
 }
 
@@ -96,11 +96,11 @@ void tick_countdown_or_save_counter_slot04_0d(Object *o) {
     push_other_by_vel_x(o);
 }
 
-void func_801b1a64_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_7_slot04_0d(Object *obj) {
     data_801c2a28_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b1aa4_slot04_0d(Object *obj) {
+void update_sequence_effect_on_flag_then_start_next_slot04_0d(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t >= 0) {
@@ -158,11 +158,11 @@ void update_sequence_or_finish_notify_other_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b1c5c_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_8_slot04_0d(Object *obj) {
     data_801c2a38_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b1c9c_slot04_0d(Object *obj) {
+void update_sequence_effect_on_flag_then_start_alt_slot04_0d(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t >= 0) {
@@ -185,7 +185,7 @@ void update_sequence_or_finish_sequence_2_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b1d4c_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_9_slot04_0d(Object *obj) {
     data_801c2a40_slot04_0d[obj->state_3](obj);
 }
 
@@ -234,7 +234,7 @@ void move_or_launch_from_table_by_mode_slot04_0d(Object *o) {
     }
 }
 
-void func_801b1ef8_slot04_0d(Object *obj) {
+void update_airborne_with_x_accel_until_landing_slot04_0d(Object *obj) {
     int d;
 
     apply_gravity_vertical_motion_slot04_0d(obj);

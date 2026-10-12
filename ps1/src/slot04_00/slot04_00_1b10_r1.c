@@ -19,7 +19,7 @@ void update_step_count_loop_with_sound_slot04_00(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b1ba4_slot04_00(Object *obj) {
+void update_fall_or_land_with_sound_slot04_00(Object *obj) {
     if (move_with_gravity_and_check_ground_slot04_00(obj) != 0) {
         play_object_sound_by_kind(obj);
         obj->pos_y_frac = 0;

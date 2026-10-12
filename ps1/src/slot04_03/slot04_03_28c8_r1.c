@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b28c8_slot04_03(Object *obj) {
+void branch_on_end_or_repeat_counter_variant_a_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
     u8 c;
 
@@ -27,7 +27,7 @@ void func_801b28c8_slot04_03(Object *obj) {
     }
 }
 
-void func_801b298c_slot04_03(Object *obj) {
+void branch_on_end_or_repeat_counter_variant_b_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
     u8 c;
 

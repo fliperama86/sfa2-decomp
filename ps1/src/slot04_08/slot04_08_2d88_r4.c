@@ -5,7 +5,7 @@
 
 extern u16 data_801c3e98_slot04_08;
 
-void func_801b3104_slot04_08(Object *obj) {
+void move_x_to_target_then_set_sequence_by_direction_slot04_08(Object *obj) {
     s16 d;
     u16 lim = 0xa0;
     Object *other;

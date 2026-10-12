@@ -13,16 +13,16 @@ extern Object *data_800519c4_slot28[];
 extern ObjectRef data_800519c8_slot28;
 extern Object *data_80051998_slot28[];
 extern ObjectRef data_8005199c_slot28;
-void func_8001a958_slot28(Object *o, int arg);
-void func_8001a988_slot28(Object *o);
-void func_8001a9e8_slot28(void);
+void set_sequence_of_fourth_hud_object_6_slot28(Object *o, int arg);
+void init_object_data_pointers_a_6_slot28(Object *o);
+void release_active_objects_in_table_4_slot28(void);
 
 void advance_slot28_scene_spawn_two_objects_slot28(Object *obj) {
     Object *s;
     if (data_80190949 != 0 && obj->field_f0 == 0) {
         data_8018f5a0->pass_index++;
         data_8018f5a0->countdown_timer = 0x1e0;
-        func_8001a9e8_slot28();
+        release_active_objects_in_table_4_slot28();
         set_sequence_from_table_5(data_800519c0_slot28.p, 1, data_80036694_slot28);
         s = data_800519c4_slot28[0];
         s->pos_y = -0x60;
@@ -34,7 +34,7 @@ void advance_slot28_scene_spawn_two_objects_slot28(Object *obj) {
         do {
             s = (Object *)pop_block_from_pool();
             if (s != 0) {
-                func_8001a988_slot28(s);
+                init_object_data_pointers_a_6_slot28(s);
                 s->pos_x = 0xc0;
                 s->pos_y = 0x90;
                 s->countdown = 0x40;
@@ -70,7 +70,7 @@ void advance_slot28_scene_spawn_two_objects_slot28(Object *obj) {
                 data_8005199c_slot28.p = s;
             }
         } while (0);
-        func_8001a958_slot28(obj, 4);
+        set_sequence_of_fourth_hud_object_6_slot28(obj, 4);
         start_fade_mode_1a01_and_wait();
     }
 }

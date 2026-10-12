@@ -4,7 +4,7 @@
 #include "externs.h"
 
 /*
- * What it does (inferred, not original names): a sibling of func_8013fc18.
+ * What it does (inferred, not original names): a sibling of apply_forced_state_if_other_in_reach_or_block.
  * It tests whether the object's "other" object (field_40, also stored in
  * the global ref_other) is within horizontal reach of a, and if so returns
  * what apply_forced_state_to_other_object(object) returns, truncated to a byte; every refusal
@@ -13,13 +13,13 @@
  * object's other_lock is set; its frame record has no box flag (box_a, box_b
  * and box_c all 0); the frame record's handler_index is not 0; the distance is
  * greater than limit; the other object's active_state is set. The distance is
- * as in func_8013fc18, except that the box is the entry number box_index of
+ * as in apply_forced_state_if_other_in_reach_or_block, except that the box is the entry number box_index of
  * the other object's array of 6-byte boxes (its field_148): the object's x
  * plus a (negated when the object's facing_side is set), minus the other
  * object's x plus the box's half-width (origin minus extent, negated when
  * the other's saved_facing is set), as a signed 16-bit number made positive.
  */
-int func_8013f474(Object *object, int a, s16 limit) {
+int apply_forced_state_if_other_in_limit(Object *object, int a, s16 limit) {
     FrameRecord *rec;
     Box6 *box;
     int d;

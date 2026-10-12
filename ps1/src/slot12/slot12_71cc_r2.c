@@ -43,6 +43,6 @@ void set_slot12_end_prim_and_hud_positions_slot12(Object *o) {
     } while (i < 4);
 }
 
-void func_800173e8_slot12(Object *obj) {
+void release_object_to_pool_table_11_slot12(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

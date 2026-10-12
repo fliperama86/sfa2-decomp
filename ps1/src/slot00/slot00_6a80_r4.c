@@ -24,7 +24,7 @@ void reverse_vel_x_set_vel_y_on_countdown_slot00(Object *o) {
     advance_sequence_checked(o);
 }
 
-void func_80076ef0_slot00(Object *o) {
+void call_state_1_table_handler_then_cull_check_slot00(Object *o) {
     data_8007980c_slot00[o->state_1](o);
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }

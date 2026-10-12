@@ -6,7 +6,7 @@
 #include "protos.h"
 
 
-void func_8014b340(Object *object) {
+void read_script_input_words_and_set_state(Object *object) {
     u16 v;
     s16 w;
     u16 t;

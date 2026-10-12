@@ -23,7 +23,7 @@ void update_countdown_state_then_reset_states_slot04_07(Object *obj) {
         obj->state_1 = 0;
         obj->state_3 = 1;
         set_side_flag(obj);
-        func_80142c70(obj);
+        init_object_after_hit_and_spawn_three_effects(obj);
     } else {
         if (obj->pressed_bits != 0) {
             if (((Slot04aObj *)obj)->field_27d == 0) {

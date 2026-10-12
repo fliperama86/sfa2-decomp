@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b3fd0_slot04_0a(Object *obj) {
+int move_by_velocity_return_new_vel_y_slot04_0a(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     obj->vel_x = obj->vel_x + obj->accel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;

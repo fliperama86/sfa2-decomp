@@ -21,7 +21,7 @@ void update_layer_by_mode_then_cam_and_scroll_slot06_07(Slot06Layer *layer) {
     update_cam_and_store_scroll_y_diff();
 }
 
-void func_801e8610_slot06_07(Slot06Layer *layer) {
+void set_layer_tile_map_param_580e_and_rect_bounds_slot06_07(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ebed0_slot06_07;
     layer->data_table = data_801ebed0_slot06_07;
     layer->packed_param = 0x580e;

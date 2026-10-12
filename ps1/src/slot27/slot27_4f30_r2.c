@@ -5,7 +5,7 @@
 
 extern s16 data_80028128_slot27[];
 
-void func_80015070_slot27(Object *obj) {
+void set_position_from_other_plus_table_offset_slot27(Object *obj) {
     int *x = data_8019045c;
     int *y = data_80190464;
     *y = (*(Config **)&data_80190458)->table_index * 4;

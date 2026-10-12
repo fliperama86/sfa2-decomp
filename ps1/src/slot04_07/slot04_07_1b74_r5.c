@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b41c4_slot04_07(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_07(Object *obj);
 
 void update_fall_until_ground_state_5_slot04_07(Object *obj) {
     int y;
-    func_801b41c4_slot04_07(obj);
+    move_by_velocity_return_new_vel_y_slot04_07(obj);
     y = obj->ground_y;
     if (y > obj->pos_y) {
         update_sequence(obj);

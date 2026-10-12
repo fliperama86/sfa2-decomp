@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b35d4_slot04_04(Object *obj) {
+void set_facing_from_input_or_position_and_start_slot04_04(Object *obj) {
     obj->state_3++;
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     add_to_meter_clamped(obj, 3);
@@ -18,7 +18,7 @@ void func_801b35d4_slot04_04(Object *obj) {
     set_sequence_by_side_and_mode(obj, 0x18);
 }
 
-void func_801b3684_slot04_04(Object *obj) {
+void hit_other_with_sound_on_flag_byte_then_update_slot04_04(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         play_side_sound_at(obj, obj->side, 0xc);

@@ -33,7 +33,7 @@ void script_branch_if_other_active_state_1(Object *object) {
     }
 }
 
-void func_8014ba30(Object *object) {
+void read_script_or_skip_if_other_flag_set(Object *object) {
     if (object->other->field_157 != 0) {
         read_script_word_and_dispatch(object);
     } else {
@@ -41,7 +41,7 @@ void func_8014ba30(Object *object) {
     }
 }
 
-void func_8014ba78(Object *object) {
+void read_script_or_skip_if_other_flag_b_set(Object *object) {
     if (object->other->field_15b != 0) {
         read_script_word_and_dispatch(object);
     } else {

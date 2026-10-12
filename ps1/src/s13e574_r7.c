@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8013f04c(u8 *p, s16 mask, int value, s16 limit, u16 bits) {
+int update_input_counter_pair_with_limit(u8 *p, s16 mask, int value, s16 limit, u16 bits) {
     if (bits & mask) {
         p[0] = value;
         p[1]++;

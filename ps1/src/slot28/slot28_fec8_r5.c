@@ -16,8 +16,8 @@ extern SequenceStep *data_80043848_slot28[];
 extern SequenceStep *data_80043858_slot28[];
 extern SequenceStep *data_80043860_slot28[];
 extern SequenceStep *data_80043870_slot28[];
-void func_800210cc_slot28(void);
-void func_80021090_slot28(Object *obj);
+void clear_ten_entry_table_10_slot28(void);
+void init_object_data_pointers_a_12_slot28(Object *obj);
 
 void init_slot28_scene_b_objects_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
@@ -25,13 +25,13 @@ void init_slot28_scene_b_objects_slot28(Object *obj) {
     int one = 1;
     h->countdown_timer = 0xb4;
     h->step_index_2++;
-    func_80151020(0x306);
-    func_800210cc_slot28();
+    set_menu_command_one_and_wait_pending(0x306);
+    clear_ten_entry_table_10_slot28();
     start_fade_mode_1_and_wait();
     data_80190568 = one;
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80021090_slot28(b);
+        init_object_data_pointers_a_12_slot28(b);
         data_80051b40_slot28.p = b;
         b->pos_x = -8;
         b->pos_y = -8;
@@ -44,7 +44,7 @@ void init_slot28_scene_b_objects_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80021090_slot28(b);
+        init_object_data_pointers_a_12_slot28(b);
         data_80051b54_slot28.p = b;
         b->pos_x = -8;
         b->pos_y = -8;
@@ -56,7 +56,7 @@ void init_slot28_scene_b_objects_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80021090_slot28(b);
+        init_object_data_pointers_a_12_slot28(b);
         data_80051b44_slot28[0] = b;
         b->pos_x = 0x58;
         b->pos_y = 0x20;
@@ -68,7 +68,7 @@ void init_slot28_scene_b_objects_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80021090_slot28(b);
+        init_object_data_pointers_a_12_slot28(b);
         data_80051b48_slot28.p = b;
         b->pos_x = 0x58;
         b->pos_y = -0x60;
@@ -80,7 +80,7 @@ void init_slot28_scene_b_objects_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80021090_slot28(b);
+        init_object_data_pointers_a_12_slot28(b);
         data_80051b50_slot28.p = b;
         b->spawn_y = 0x1e0;
         b->pos_x = 0x28;

@@ -7,7 +7,7 @@ extern u8 data_801c7798_slot04_11[];
 extern u8 data_801c77a8_slot04_11[];
 extern ObjectFn data_801c77b8_slot04_11[];
 
-void func_801b5874_slot04_11(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_slot04_11(Object *obj);
 void call_handler_by_state_3_for_kinds_slot04_11(Object *obj);
 u8 mirror_value_by_facing_side_slot04_11(Object *obj, int a);
 u8 get_random_table_byte_slot04_11(Object *obj);
@@ -24,7 +24,7 @@ void update_land_check_step_count_sequence_slot04_11(Object *obj) {
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         play_object_sound_by_kind(obj);
-        if (obj->step_count_2 < obj->step_limit && ((c = game_state.config)->mode_flag_b | c->mode_flag_c | c->mode_flag_a) == 0 && func_8012f56c(obj) == 0) {
+        if (obj->step_count_2 < obj->step_limit && ((c = game_state.config)->mode_flag_b | c->mode_flag_c | c->mode_flag_a) == 0 && is_other_object_state_0_and_1_six_one(obj) == 0) {
             obj->state_3 = 4;
             set_sequence_by_side_and_mode(obj, 0x4c);
         } else {
@@ -40,7 +40,7 @@ void update_sequence_or_end_with_other_code_5_2_slot04_11(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b5874_slot04_11(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_11(obj);
     } else {
         update_sequence(obj);
     }
@@ -69,11 +69,11 @@ u8 get_random_table_byte_slot04_11(Object *obj) {
     return data_801c77a8_slot04_11[get_random_byte() & 0xf];
 }
 
-void func_801b4a1c_slot04_11(Object *obj) {
+void call_state_3_handler_for_two_kinds_slot04_11(Object *obj) {
     call_handler_by_state_3_for_kinds_slot04_11(obj);
 }
 
-void func_801b4a3c_slot04_11(Object *obj) {
+void call_table_function_by_state_3_9_slot04_11(Object *obj) {
     data_801c77b8_slot04_11[obj->state_3](obj);
 }
 

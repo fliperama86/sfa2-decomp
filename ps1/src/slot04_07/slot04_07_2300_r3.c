@@ -7,9 +7,9 @@ extern u8 data_801c1f80_slot04_07[];
 
 void start_move_with_countdown_and_sound_slot04_07(Object *obj) {
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     obj->countdown = 0x400;
     play_sound_at(obj, obj->side, 0x31c);
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x49);

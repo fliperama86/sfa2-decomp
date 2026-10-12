@@ -5,7 +5,7 @@
 
 void apply_velocity_and_acceleration_slot04_0a(Object *object);
 
-void func_801b3c74_slot04_0a(Object *obj) {
+void clear_vel_y_start_sequence_with_meter_gain_slot04_0a(Object *obj) {
     obj->state_3++;
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->vel_y = 0;
@@ -44,6 +44,6 @@ void move_until_ground_then_land_slot04_0a(Object *obj) {
     if (obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
-        func_80131638(obj);
+        land_reset_fields_and_choose_next_state(obj);
     }
 }

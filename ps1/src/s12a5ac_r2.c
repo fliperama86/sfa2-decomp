@@ -5,7 +5,7 @@
 
 
 
-void func_8012a8dc(Object *object) {
+void call_state_3_handler_table_b(Object *object) {
     handler_table_19b0[object->state_3](object);
 }
 

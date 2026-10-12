@@ -6,7 +6,7 @@
 void push_other_x_if_hit_check_slot04_08(Object *obj);
 extern u16 data_801c3e98_slot04_08;
 
-void func_801b2d88_slot04_08(Object *obj) {
+void move_x_toward_target_then_set_sequence_sub_slot04_08(Object *obj) {
     s16 d;
     u16 lim = 0x80;
     u16 t;

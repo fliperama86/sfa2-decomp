@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b41c4_slot04_07(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_07(Object *obj);
 
-void func_801b3ecc_slot04_07(Object *obj) {
+void advance_state_3_stop_set_countdown_sequence_slot04_07(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     add_to_meter_clamped(obj, 4);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
@@ -28,8 +28,8 @@ void count_down_countdown_advance_state_3_slot04_07(Object *obj) {
     }
 }
 
-void func_801b3f90_slot04_07(Object *obj) {
-    if (func_801b41c4_slot04_07(obj) >= 0 || obj->pos_y < obj->ground_y) {
+void update_fall_land_restore_y_and_damage_other_slot04_07(Object *obj) {
+    if (move_by_velocity_return_new_vel_y_slot04_07(obj) >= 0 || obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;

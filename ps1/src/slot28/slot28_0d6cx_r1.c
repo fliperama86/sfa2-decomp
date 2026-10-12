@@ -6,7 +6,7 @@
 extern Object *data_80051b18_slot28[];
 extern ObjectRef data_80051b50_slot28;
 
-void func_80020d6c_slot28(Object *obj) {
+void start_countdown_and_next_pass_on_field_negative_slot28(Object *obj) {
     Object *p;
     p = data_80051b50_slot28.p;
     if (((Slot28Obj *)p)->field_3a < 0) {

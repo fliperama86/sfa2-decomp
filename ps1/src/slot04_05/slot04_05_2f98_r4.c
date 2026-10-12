@@ -5,7 +5,7 @@
 
 void clear_slots_bytes_slot04_05(Object *obj);
 
-void func_801b32c8_slot04_05(Object *obj) {
+void update_sequence_with_effect_spawn_on_step_flag_b_slot04_05(Object *obj) {
     int a;
     if ((s16)obj->step_flags & 0xff00) {
         a = 2;

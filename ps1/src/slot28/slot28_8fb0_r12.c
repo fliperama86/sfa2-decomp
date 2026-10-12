@@ -11,6 +11,6 @@ void advance_state_0_on_variant_index_set_2_slot28(Object *obj) {
     }
 }
 
-void func_80019920_slot28(Object *object) {
+void call_handler_by_state_1_6_slot28(Object *object) {
     data_80035414_slot28[object->state_1](object);
 }

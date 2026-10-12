@@ -8,12 +8,12 @@ extern SequenceStep *data_8007eb48_slot2b[];
 
 void set_sequence_from_table_index_entry_slot2b(Object *o);
 
-void func_800788f0_slot2b(Object *o) {
+void copy_field_from_target_and_set_table_sequence_slot2b(Object *o) {
     o->field_0e = data_8007ef34_slot2b->field_0e;
     set_sequence_from_table_index_entry_slot2b(o);
 }
 
-void func_8007891c_slot2b(Object *o) {
+void set_sequence_from_table_index_entry_2_slot2b(Object *o) {
     set_sequence_from_table_index_entry_slot2b(o);
 }
 
@@ -27,10 +27,10 @@ void start_hop_toward_other_shift_6_slot2b(Object *o) {
     o->accel_x = 0;
     o->vel_y = 0x30000;
     o->accel_y = 0xffff6000;
-    func_80138070(o, 4);
+    set_sequence_by_sound_side(o, 4);
 }
 
-void func_800789e0_slot2b(Object *o) {
+void set_countdown_40_and_start_table_sequence_slot2b(Object *o) {
     o->field_0e = data_8007ef34_slot2b->field_0e;
     ((Slot2bObj *)o)->countdown_timer = 0x28;
     set_sequence_from_table_index_entry_slot2b(o);

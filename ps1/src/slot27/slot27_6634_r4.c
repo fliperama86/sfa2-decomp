@@ -19,10 +19,10 @@ void slide_x_right_to_limit_slot27(Object *obj) {
         obj->pos_x = m + 0x153;
         game_state.timer_or_bits |= 1;
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_80016a54_slot27(Object *obj) {
+void release_object_to_pool_table_11_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 

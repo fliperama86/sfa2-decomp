@@ -5,7 +5,7 @@
 
 extern void (*data_80032a5c_slot28[])(Object *);
 
-void func_80017f34_slot28(Object *object) {
+void call_handler_by_state_1_slot28(Object *object) {
     data_80032a5c_slot28[object->state_1](object);
 }
 
@@ -23,6 +23,6 @@ void update_countdown_with_decreasing_reload_slot28(Object *o) {
     }
 }
 
-void func_80017fd4_slot28(Object *obj) {
+void set_object_flag_byte_to_one_slot28(Object *obj) {
     obj->field_01 = 1;
 }

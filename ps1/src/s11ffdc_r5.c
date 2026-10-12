@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80120c14(GameState *g) {
+void update_pending_flag_from_table_bit(GameState *g) {
     unsigned char i;
     unsigned n;
     unsigned w;
@@ -31,6 +31,6 @@ void call_handler_by_stage_0_1(GameState *state) {
     if (v == 0) {
         reset_game_state_for_round(state);
     } else if (v == 1) {
-        func_80120f98(state);
+        call_handler_by_phase_index_unless_flags_set(state);
     }
 }

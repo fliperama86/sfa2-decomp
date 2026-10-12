@@ -33,7 +33,7 @@ int has_meter_30_and_no_link_slot04_02(Object *obj) {
     return r;
 }
 
-int func_801b1804_slot04_02(Object *obj) {
+int is_meter_at_least_threshold_slot04_02(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -48,7 +48,7 @@ int has_meter_30_active_and_no_link_slot04_02(Object *obj) {
     return r;
 }
 
-int func_801b1854_slot04_02(Object *obj) {
+int is_meter_full_slot04_02(Object *obj) {
     return (s16)obj->meter >= 0x90;
 }
 

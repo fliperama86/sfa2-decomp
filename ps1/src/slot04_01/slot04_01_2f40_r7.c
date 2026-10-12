@@ -5,7 +5,7 @@
 
 extern s32 data_801bf120_slot04_01[];
 
-void func_801b3640_slot04_01(Object *obj) {
+void start_jump_facing_from_input_top_bit_slot04_01(Object *obj) {
     int i = 0;
 
     obj->state_3++;

@@ -11,7 +11,7 @@ void call_handler_by_state_2_slot00(Object *obj) {
     data_8007a11c_slot00[obj->state_2](obj);
 }
 
-void func_800789a4_slot00(Object *obj) {
+void count_down_to_state_2_move_and_advance_slot00(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {
         obj->countdown = 8;

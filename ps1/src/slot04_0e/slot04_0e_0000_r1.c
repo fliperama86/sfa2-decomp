@@ -22,9 +22,9 @@ void set_sequence_by_side(Object *object, int arg);
 int apply_vel_y_to_other_position_slot04_0e(Object *obj, Object *other);
 void set_sequence_by_index_per_side_slot04_0e(Object *obj, int a);
 void advance_sequence_with_changed_flag_slot04_0e(Object *obj);
-void func_801b0bb8_slot04_0e(Object *obj);
+void call_copy_image_rows_and_load_image_slot04_0e(Object *obj);
 void store_image_row_and_queue_job_slot04_0e(Object *obj);
-void func_801b0cd0_slot04_0e(Object *obj);
+void copy_sixteen_entries_to_image_row_queue_job_slot04_0e(Object *obj);
 void copy_sixteen_table_entries_by_image_row_slot04_0e(Object *obj);
 void load_velocities_from_table_slot04_0e(Object *obj);
 
@@ -191,7 +191,7 @@ void update_sequence_with_mode_actions_slot04_0e(Object *obj) {
         }
     } else if (((Slot04bObj *)obj)->mode == 2) {
         ((Slot04bObj *)obj)->mode = 0;
-        func_801b0cd0_slot04_0e(obj);
+        copy_sixteen_entries_to_image_row_queue_job_slot04_0e(obj);
     } else if (((Slot04bObj *)obj)->mode == 3) {
         ((Slot04bObj *)obj)->mode = 0;
         play_side_sound_at(obj, obj->field_02, 0x15);
@@ -199,7 +199,7 @@ void update_sequence_with_mode_actions_slot04_0e(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b0618_slot04_0e(Object *obj) {
+void call_handler_by_state_3_then_update_sequence_slot04_0e(Object *obj) {
     data_801c5ee0_slot04_0e[obj->state_3](obj);
     update_sequence(obj);
 }
@@ -239,7 +239,7 @@ void spawn_child_when_mode_is_one_type_two_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b0780_slot04_0e(Object *obj) {
+void advance_state_3_and_copy_entries_when_mode_2_slot04_0e(Object *obj) {
     if (((Slot04bObj *)obj)->mode == 2) {
         ((Slot04bObj *)obj)->mode = 0;
         obj->state_3 = obj->state_3 + 1;
@@ -278,7 +278,7 @@ void update_other_object_fall_until_ground_slot04_0e(Object *obj) {
         o->pos_y = ((Slot04bObj *)o)->ground_y;
         ((Slot04bObj *)obj)->countdown = 4;
         set_sequence_by_index_per_side_slot04_0e(o, 0x14);
-        func_801b0bb8_slot04_0e(o);
+        call_copy_image_rows_and_load_image_slot04_0e(o);
         load_velocities_from_table_slot04_0e(obj);
     }
 }

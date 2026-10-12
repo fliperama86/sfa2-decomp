@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2350_slot04_06(Object *obj) {
+void start_jump_motion_sequence_with_counters_cleared_slot04_06(Object *obj) {
     obj->substate_index = 0;
     obj->field_12d = 0;
     obj->step_count_2 = 0;

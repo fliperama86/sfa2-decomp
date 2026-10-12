@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 void reset_object_to_state_1_0_0_2_sequence_1(Object *object);
-int func_80146888(Object *object);
+int spawn_random_offset_effect_index_two(Object *object);
 
 void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 void clear_active_flag_and_finish_state_slot04_0e(Object *obj);
 void start_state_1_sequence_unless_paused_slot04_0e(Object *obj);
-void func_801b6098_slot04_0e(Object *obj);
+void start_hop_velocities_or_land_by_flag_slot04_0e(Object *obj);
 void land_on_ground_set_state_3_seven_slot04_0e(Object *obj);
 
 void clear_active_flag_and_finish_state_slot04_0e(Object *obj) {
@@ -42,7 +42,7 @@ void update_move_with_bound_push_check_slot04_0e(Object *o) {
 
     apply_velocity_and_accel_to_position_slot04_0e(o);
     if (o->active_flag != 0) {
-        func_801b6098_slot04_0e(o);
+        start_hop_velocities_or_land_by_flag_slot04_0e(o);
     } else {
         obj->field_47 = obj->field_47 - 1;
         if (obj->field_47 & 0x80) {
@@ -53,11 +53,11 @@ void update_move_with_bound_push_check_slot04_0e(Object *o) {
                 t = 1;
             }
             if (o->bound_push_flag == t) {
-                func_801b6098_slot04_0e(o);
+                start_hop_velocities_or_land_by_flag_slot04_0e(o);
             } else {
                 obj->countdown = (obj->countdown + 1) & 7;
                 if (obj->countdown == 0) {
-                    func_80146888(o);
+                    spawn_random_offset_effect_index_two(o);
                 }
                 update_sequence(o);
             }
@@ -65,7 +65,7 @@ void update_move_with_bound_push_check_slot04_0e(Object *o) {
     }
 }
 
-void func_801b6098_slot04_0e(Object *obj) {
+void start_hop_velocities_or_land_by_flag_slot04_0e(Object *obj) {
     if (obj->field_49 != 0) {
         land_on_ground_set_state_3_seven_slot04_0e(obj);
     } else {

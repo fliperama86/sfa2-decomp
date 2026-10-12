@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_8001336c_slot01(u8 a);
+int try_spawn_pooled_object_once_with_arg_slot01(u8 a);
 
 void store_five_images_then_next_substep_slot01(void) {
     Rect r;
@@ -37,7 +37,7 @@ void store_five_images_then_next_substep_slot01(void) {
     r.h = 0x20;
     func_80158028(&r, (u8 *)data_801a2be4 + 0xc00);
     func_80157d9c(0);
-    if (func_8001336c_slot01(3) != 0) {
+    if (try_spawn_pooled_object_once_with_arg_slot01(3) != 0) {
         data_8018f5a0->substep_index++;
         game_state.busy_flag = 0xff;
     }

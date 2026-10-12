@@ -11,7 +11,7 @@ void call_kind_handler_and_copy_fields_b(void) {
     data_801aa602 = data_801aa5fa;
 }
 
-void func_801362f4(Sprite *sprite) {
+void init_sprite_wide_and_consume_pending(Sprite *sprite) {
     init_sprite_position_wide(sprite, 0x1c0, 0);
     if (sprite->pending != 0) {
         sprite->pending = 0;

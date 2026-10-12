@@ -7,13 +7,13 @@ void add_to_meter_clamped(Object *object, short delta);
 void spawn_effect_at_object_offset(Object *object, u8 a, int dx, int dy);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void clear_two_byte_blocks_of_object_slot04_11(Object *obj);
-Object *func_801b5914_slot04_11(Object *obj);
+Object *get_table_object_by_field_slot04_11(Object *obj);
 
 extern ObjectFn data_801c7804_slot04_11[];
 extern ObjectFn data_801c780c_slot04_11[];
 extern u8 data_801c7818_slot04_11[];
 
-void func_801b51ec_slot04_11(Object *obj) {
+void clear_two_memory_blocks_of_object_slot04_11(Object *obj) {
     clear_two_byte_blocks_of_object_slot04_11(obj);
 }
 
@@ -21,7 +21,7 @@ void call_handler_by_input_dir_second_slot04_11(Object *obj) {
     data_801c7804_slot04_11[obj->input_dir_second >> 1](obj);
 }
 
-void func_801b5250_slot04_11(Object *obj) {
+void call_table_function_by_state_3_13_slot04_11(Object *obj) {
     data_801c780c_slot04_11[obj->state_3](obj);
 }
 
@@ -31,7 +31,7 @@ void start_sequence_1a_set_facing_slot04_11(Object *obj) {
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     play_side_sound_at(obj, obj->side, 8);
     obj->facing_side = 0;
-    if (!(obj->mode_flag_2 != 0 ? (s16)((u16)func_801b5914_slot04_11(obj)->pos_x + 0xc0) < obj->pos_x : (obj->input_bits & 0x8000) != 0)) {
+    if (!(obj->mode_flag_2 != 0 ? (s16)((u16)get_table_object_by_field_slot04_11(obj)->pos_x + 0xc0) < obj->pos_x : (obj->input_bits & 0x8000) != 0)) {
         obj->facing_side++;
     }
     set_sequence_by_side_and_mode(obj, 0x1a);

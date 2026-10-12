@@ -10,7 +10,7 @@ void reset_countdown_and_set_indicator_boxes_slot04_17(Object *obj);
 void init_side_record_and_box_tables_slot04_17(Object *obj);
 void queue_palette_upload_and_copy_for_side_slot04_17(Object *obj);
 
-void func_801b6224_slot04_17(Object *o) {
+void update_on_value_change_or_spawn_after_countdown_slot04_17(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     Object *n;
     u8 k = ref_other.p->field_28c;

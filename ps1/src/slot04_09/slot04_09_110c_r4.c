@@ -19,7 +19,7 @@ int try_start_meter_move_4_slot04_09(Object *obj) {
         obj->step_count_2 = 0;
         obj->step_limit = 0;
         obj->facing_side = obj->saved_facing;
-        func_80142718(obj);
+        set_direction_index_from_buttons_mask_a(obj);
     }
     return r;
 }
@@ -44,7 +44,7 @@ int try_start_meter_move_5_unless_linked_slot04_09(Object *obj) {
             obj->step_count_2 = 0;
             obj->step_limit = 0;
             obj->facing_side = obj->saved_facing;
-            func_80142718(obj);
+            set_direction_index_from_buttons_mask_a(obj);
         }
     }
     return r;

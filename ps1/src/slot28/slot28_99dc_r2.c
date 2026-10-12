@@ -13,8 +13,8 @@ extern Object *data_800519c4_slot28[];
 extern ObjectRef data_800519c8_slot28;
 extern ObjectRef data_800519d0_slot28;
 extern ObjectRef data_800519d4_slot28;
-void func_8001a988_slot28(Object *obj);
-void func_8001a9c4_slot28(void);
+void init_object_data_pointers_a_6_slot28(Object *obj);
+void clear_ten_entry_table_4_slot28(void);
 
 void init_scene_objects_and_start_fade_in_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
@@ -22,14 +22,14 @@ void init_scene_objects_and_start_fade_in_slot28(Object *obj) {
     Object *o;
     h->countdown_timer = 0xb4;
     h->step_index_2++;
-    func_80151020(0x501);
+    set_menu_command_one_and_wait_pending(0x501);
     one = 1;
-    func_8001a9c4_slot28();
+    clear_ten_entry_table_4_slot28();
     start_fade_mode_1_and_wait();
     data_80190568 = one;
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001a988_slot28(o);
+        init_object_data_pointers_a_6_slot28(o);
         data_800519c0_slot28.p = o;
         o->pos_y = -8;
         o->pos_x = 0;
@@ -42,7 +42,7 @@ void init_scene_objects_and_start_fade_in_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001a988_slot28(o);
+        init_object_data_pointers_a_6_slot28(o);
         data_800519d4_slot28.p = o;
         o->pos_y = -8;
         o->pos_x = 0;
@@ -54,7 +54,7 @@ void init_scene_objects_and_start_fade_in_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001a988_slot28(o);
+        init_object_data_pointers_a_6_slot28(o);
         data_800519c4_slot28[0] = o;
         o->pos_x = 0x60;
         o->pos_y = -0x60;
@@ -66,7 +66,7 @@ void init_scene_objects_and_start_fade_in_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001a988_slot28(o);
+        init_object_data_pointers_a_6_slot28(o);
         data_800519c8_slot28.p = o;
         o->pos_x = 0x60;
         o->pos_y = 0x20;
@@ -78,7 +78,7 @@ void init_scene_objects_and_start_fade_in_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001a988_slot28(o);
+        init_object_data_pointers_a_6_slot28(o);
         data_800519d0_slot28.p = o;
         o->spawn_y = 0x1e0;
         o->pos_x = 0x28;
@@ -93,7 +93,7 @@ void init_scene_objects_and_start_fade_in_slot28(Object *obj) {
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
         SequenceStep **t = data_80036690_slot28 + 6;
-        func_8001a988_slot28(o);
+        init_object_data_pointers_a_6_slot28(o);
         o->pos_x = 0xa8;
         o->pos_y = 0x90;
         o->spawn_x = 0x60;

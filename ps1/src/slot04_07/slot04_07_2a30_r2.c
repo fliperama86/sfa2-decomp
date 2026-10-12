@@ -6,7 +6,7 @@
 extern Slot04_07Rec1fdc data_801c1fdc_slot04_07[];
 extern Slot04_07Rec1ff4 data_801c1ff4_slot04_07[];
 
-int func_801b41c4_slot04_07(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_07(Object *obj);
 
 void update_rising_then_start_next_sequence_slot04_07(Object *obj) {
     int k;
@@ -14,7 +14,7 @@ void update_rising_then_start_next_sequence_slot04_07(Object *obj) {
     update_sequence(obj);
     if (!(obj->step_flags & 0x80)) {
         obj->active_state = 1;
-        if (func_801b41c4_slot04_07(obj) < 0) {
+        if (move_by_velocity_return_new_vel_y_slot04_07(obj) < 0) {
             if ((u8)obj->step_flags != 0) {
                 k = 0;
                 if (obj->field_49 != 0) {

@@ -5,7 +5,7 @@
 
 
 
-void func_80136b34(Cam *cam) {
+void increment_cam_field_clear_field_and_load_sources(Cam *cam) {
     cam->field_04++;
     cam->field_70 = 0;
     load_cam_sources_and_call_kind_handler(cam);

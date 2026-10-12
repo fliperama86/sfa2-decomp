@@ -10,7 +10,7 @@ void call_handler_by_state_1_slot04_01(Object *obj) {
     data_801bf254_slot04_01[obj->state_1](obj);
 }
 
-void func_801b3d3c_slot04_01(Object *o) {
+void call_state_1_table_handler_then_cull_check_slot04_01(Object *o) {
     data_801bf268_slot04_01[o->state_1](o);
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }

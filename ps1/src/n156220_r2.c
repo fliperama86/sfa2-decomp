@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801565b8(void *a, Object *object) {
+void count_down_timer_or_reload_and_next_phase(void *a, Object *object) {
     s16 t = *(s16 *)&object->countdown_timer;
     if (t != 0) {
         object->countdown_timer = t - 1;

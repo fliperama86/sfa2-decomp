@@ -6,7 +6,7 @@
 extern ObjectFn data_80015dc0_slot01[];
 
 void load_velocities_from_table_3_slot01(Object *obj) {
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void release_object_record_8_slot01(Object *obj) {

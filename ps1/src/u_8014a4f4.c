@@ -25,7 +25,7 @@ int read_script_word_and_run_opcode(Object *object)
   {
     call_script_switch_by_arg(object);
   }
-  func_8014a5c0(object);
+  call_script_opcode_table_by_high_byte(object);
   object->script_ptr = (s32) data_80189460;
   t = object->script_mode;
   if (t == 0)

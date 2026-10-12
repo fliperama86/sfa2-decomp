@@ -40,7 +40,7 @@ void update_slot_input_step_with_timer(Object *object, int index, int arg)
   if (!(mask & entry))
   {
   call_c8:
-    func_8013f2c8(object);
+    clear_global_flag_ignoring_object(object);
     return;
   }
   if (entry & 1)

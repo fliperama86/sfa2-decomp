@@ -35,7 +35,7 @@ void update_phase_or_init_object_pools(GameState *state) {
     }
 }
 
-void func_801238f4(GameState *state) {
+void reset_hud_steps_or_call_fallback(GameState *state) {
     HudState *h;
     if (data_8016e68b == 0) {
         func_80010e60();

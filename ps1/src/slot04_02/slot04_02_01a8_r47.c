@@ -7,7 +7,7 @@ u8 is_pos_x_beyond_box_margin_slot04_02(Object *obj);
 void hit_other_on_flag_then_update_sequence_slot04_02(Object *obj);
 u8 move_by_velocity_return_vel_y_negative_slot04_02(Object *obj);
 
-void func_801b5ce8_slot04_02(Object *obj) {
+void start_arc_move_facing_by_input_or_position_slot04_02(Object *obj) {
     Object *o = obj->other;
     int t;
     obj->state_3 = obj->state_3 + 1;

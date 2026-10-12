@@ -62,12 +62,12 @@ void call_handler_by_state_2_slot04_14(Object *obj) {
     data_801c6168_slot04_14[obj->state_2](obj);
 }
 
-void func_801b0168_slot04_14(Object *obj) {
+void advance_state_2_set_side_sequence_slot04_14(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     set_sequence_by_side(obj, 0x30);
 }
 
-void func_801b0194_slot04_14(Object *obj) {
+void update_sequence_spawn_on_flag_or_reset_states_slot04_14(Object *obj) {
     s16 t = obj->step_flags;
     Object *c;
     u8 e;
@@ -107,7 +107,7 @@ void call_handler_by_input_dir_second_slot04_14(Object *obj) {
     data_801c617c_slot04_14[obj->input_dir_second >> 1](obj);
 }
 
-void func_801b0314_slot04_14(Object *obj) {
+void call_table_function_by_state_3_slot04_14(Object *obj) {
     data_801c6184_slot04_14[obj->state_3](obj);
 }
 
@@ -116,7 +116,7 @@ void update_range_check_or_seq_27_with_hold_slot04_14(Object *obj) {
 
     obj->state_3 = obj->state_3 + 1;
     if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
-        if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x14, 0x14) != 0) {
             set_object_states_0_to_3_slot04_14(obj, 1, 2, 0, 0);
             return;
         }
@@ -158,7 +158,7 @@ void update_sequence_with_step_flag_x_shift_slot04_14(Object *obj) {
     }
 }
 
-void func_801b0500_slot04_14(Object *obj) {
+void call_table_function_by_state_3_2_slot04_14(Object *obj) {
     data_801c6190_slot04_14[obj->state_3](obj);
 }
 
@@ -167,7 +167,7 @@ void update_state_or_start_jump_with_velocity_slot04_14(Object *obj) {
 
     obj->state_3 = obj->state_3 + 1;
     if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
-        if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x14, 0x14) != 0) {
             set_object_states_0_to_3_slot04_14(obj, 1, 2, 0, 0);
             return;
         }

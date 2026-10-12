@@ -15,7 +15,7 @@ void add_vel_x_and_accel_x_to_position_words_slot0b(Object *obj) {
     *(int *)&obj->pos_y_frac = *(int *)&obj->pos_y_frac + obj->accel_x;
 }
 
-void func_801e1b64_slot0b(void) {
+void call_handler_by_state_if_flag_set_slot0b(void) {
     u8 *p = &data_801ae02c;
     if (*p != 0) {
         data_801e4d5c_slot0b[data_801ae02e]((Object *)p);

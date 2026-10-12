@@ -4,20 +4,20 @@
 #include "../externs.h"
 
 extern void (*data_800284d8_slot12[])(Object *);
-void func_80015850_slot12(Object *obj);
-void func_800158b0_slot12(Object *obj);
+void build_cell_name_hex_win_records_slot12_index_0_slot12(Object *obj);
+void build_cell_name_hex_win_records_slot12_index_1_slot12(Object *obj);
 void spawn_variant_2_object_if_offset_slot12(Object *obj, int a);
 
 void start_countdown_and_spawn_effects_slot12(Object *obj) {
     u8 t = obj->state_1;
     obj->countdown = 0x1e;
     obj->state_1 = t + 1;
-    func_80015850_slot12(obj);
+    build_cell_name_hex_win_records_slot12_index_0_slot12(obj);
     spawn_variant_2_object_if_offset_slot12(obj, 0);
     game_state.field_2bc = 1;
 }
 
-void func_8001554c_slot12(Object *obj) {
+void count_down_and_build_slot12_cell_records_slot12(Object *obj) {
     s16 t;
     int a;
     int b;
@@ -34,14 +34,14 @@ void func_8001554c_slot12(Object *obj) {
         obj->countdown = t;
         if (t != 0) {
             if ((t & 3) == 0) {
-                func_800158b0_slot12(obj);
+                build_cell_name_hex_win_records_slot12_index_1_slot12(obj);
                 return;
             }
         } else {
             obj->state_1 = obj->state_1 + 1;
             game_state.field_2bc = 4;
         }
-        func_80015850_slot12(obj);
+        build_cell_name_hex_win_records_slot12_index_0_slot12(obj);
     }
 }
 

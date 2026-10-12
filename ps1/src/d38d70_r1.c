@@ -20,7 +20,7 @@ static inline void row_fill(u8 *row, u8 value) {
  * to 0..31) selects one pattern byte, stored into list_offset of each player
  * whose mode_flag_2 is not 0.
  */
-void func_80138d70(GameState *state) {
+void set_player_list_offset_from_random_pattern(GameState *state) {
     u8 pattern[40];
     int i;
     int j;

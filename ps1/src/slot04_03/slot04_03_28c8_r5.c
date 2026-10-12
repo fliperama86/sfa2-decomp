@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2e64_slot04_03(Object *obj) {
+void update_sequence_spawn_effect_on_step_flags_slot04_03(Object *obj) {
     if (obj->step_flags != 0) {
         obj->state_3++;
         spawn_offset_effect_and_play_sounds(obj);
@@ -12,7 +12,7 @@ void func_801b2e64_slot04_03(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b2ec0_slot04_03(Object *obj) {
+void start_alt_sequence_when_step_flags_negative_slot04_03(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_3++;
         set_sequence_by_side_and_mode(obj, 0x42);

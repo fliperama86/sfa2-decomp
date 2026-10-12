@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void push_other_x_if_hit_check_slot04_08(Object *obj) {
-    if ((u8)func_80146888(obj)) {
+    if ((u8)spawn_random_offset_effect_index_two(obj)) {
         if (obj->facing_side != 0) {
             ref_other.p->pos_x -= 0x20;
         } else {
@@ -13,7 +13,7 @@ void push_other_x_if_hit_check_slot04_08(Object *obj) {
     }
 }
 
-void func_801b4310_slot04_08(Object *obj) {
+void clear_slots_and_trailing_byte_arrays_slot04_08(Object *obj) {
     int z = 0;
     int i;
     u8 *p;

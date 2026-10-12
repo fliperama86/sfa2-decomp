@@ -17,7 +17,7 @@ int start_meter_move_15a_2_if_meter_ready_slot04_03(Object *obj) {
         obj->substate_index = 0;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142778(obj);
+        set_direction_index_from_buttons_mask_b(obj);
     }
 }
 
@@ -32,7 +32,7 @@ int start_meter_move_15a_3_if_meter_ready_slot04_03(Object *obj) {
         obj->field_15a = 3;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142778(obj);
+        set_direction_index_from_buttons_mask_b(obj);
     }
 }
 
@@ -47,7 +47,7 @@ int start_meter_move_15a_4_if_unlinked_slot04_03(Object *obj) {
         obj->field_15a = 4;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142718(obj);
+        set_direction_index_from_buttons_mask_a(obj);
     }
 }
 

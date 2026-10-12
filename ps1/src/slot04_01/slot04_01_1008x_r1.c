@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* The form of func_801b1548_slot04_07 of another character file, with four
+/* The form of enter_state_7_set_other_lock_sequence_by_mode_a_slot04_07 of another character file, with four
    other constants and three of its statements in another order. */
-void func_801b1008_slot04_01(Object *obj) {
+void set_states_and_other_lock_then_sequence_c_slot04_01(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;

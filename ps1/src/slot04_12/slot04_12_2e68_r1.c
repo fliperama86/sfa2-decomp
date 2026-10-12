@@ -5,7 +5,7 @@
 
 Block172 *pop_block_from_pool(void);
 
-void func_801b2e68_slot04_12(Object *obj) {
+void spawn_two_pooled_objects_on_linked_step_flag_slot04_12(Object *obj) {
     Object *p;
     s16 t;
     u16 f;

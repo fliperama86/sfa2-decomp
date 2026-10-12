@@ -7,12 +7,12 @@ extern s32 data_801befe8_slot04_01[];
 
 void set_pos_y_from_table_and_run_step_events_slot04_01(Object *object);
 
-void func_801b1fa8_slot04_01(Object *o) {
+void start_vertical_motion_by_direction_index_slot04_01(Object *o) {
     int a;
 
     o->state_3++;
-    func_80145d20(o);
-    func_801428e4(o);
+    spawn_three_child_objects_at_object_spawn(o);
+    update_meter_by_mode_or_table(o);
     set_flag_225_add_direction_to_counter(&game_state, o);
     a = o->direction_index >> 1;
     o->accel_y = -0x6000;
@@ -20,7 +20,7 @@ void func_801b1fa8_slot04_01(Object *o) {
     set_sequence_by_side_and_mode(o, a + 0x38);
 }
 
-void func_801b2034_slot04_01(Object *o) {
+void update_sequence_then_advance_state_3_on_flag_slot04_01(Object *o) {
     update_sequence(o);
     if ((u8)o->step_flags != 0) {
         o->state_3++;
@@ -33,7 +33,7 @@ void func_801b2034_slot04_01(Object *o) {
     }
 }
 
-void func_801b2098_slot04_01(Object *o) {
+void update_sequence_until_end_then_set_sequence_slot04_01(Object *o) {
     update_sequence(o);
     if ((s16)o->step_flags & 0x8000) {
         o->active_state = 1;

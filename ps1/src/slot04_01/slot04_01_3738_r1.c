@@ -29,7 +29,7 @@ void check_landing_set_state_param_slot04_01(Object *obj) {
     }
 }
 
-void func_801b383c_slot04_01(Object *obj) {
+void update_sequence_or_flip_facing_and_reset_b_slot04_01(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {

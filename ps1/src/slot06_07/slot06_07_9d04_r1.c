@@ -15,7 +15,7 @@ extern u8 data_801ee1bc_slot06_07[];
 extern ObjectFn data_801ee1cc_slot06_07[];
 extern ObjectFn data_801ee1dc_slot06_07[];
 
-void func_801e9cf4_slot06_07(Object *obj) {
+void update_random_sequence_unless_flags_then_push_slot06_07(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         advance_or_pick_random_sequence_slot06_07(obj);
     }
@@ -58,7 +58,7 @@ void call_handler_by_state_1_and_advance_slot06_07(Object *obj) {
         data_801ee1dc_slot06_07[obj->state_1](obj);
         advance_sequence_checked(obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void start_sequence_when_target_is_left_slot06_07(Object *obj) {

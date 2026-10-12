@@ -23,7 +23,7 @@ u8 tick_countdown_spawn_random_effect_slot04_14(Object *obj);
 void start_sequence_3b_with_other_sound_slot04_14(Object *obj);
 void hit_other_and_spawn_on_defeat_slot04_14(Object *obj);
 
-void func_801b3db8_slot04_14(Object *obj) {
+void start_meter_spend_spawn_three_children_slot04_14(Object *obj) {
     obj->direction_index = 4;
     obj->field_255 = 4;
     obj->active_flag_3 = 0;
@@ -55,7 +55,7 @@ void update_sequence_dash_spawn_on_flag_slot04_14(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b3ee4_slot04_14(Object *obj) {
+void count_down_high_byte_then_advance_state_3_slot04_14(Object *obj) {
     obj->countdown = (s16)obj->countdown - 0x100;
     if (obj->countdown & 0x8000) {
         obj->field_165 = 0;
@@ -70,7 +70,7 @@ void move_by_vel_x_until_countdown_or_contact_slot04_14(Object *obj) {
     if ((obj->countdown & 0xff) != 0) {
         *(s32 *)&obj->pos_x_frac += obj->vel_x;
         if (((obj->bound_push_flag >> obj->variant_index) & 1) == 0) {
-            if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
+            if ((u8)try_force_other_state_if_box_in_range(obj, -0x14, 0x14) != 0) {
                 start_sequence_3b_with_other_sound_slot04_14(obj);
             } else {
                 update_sequence(obj);
@@ -97,7 +97,7 @@ void count_down_low_byte_then_advance_state_3_slot04_14(Object *obj) {
     }
 }
 
-void func_801b409c_slot04_14(Object *obj) {
+void update_white_flash_countdown_then_hit_other_slot04_14(Object *obj) {
     Object *p = obj->other;
 
     fill_palette_banks_white();
@@ -138,7 +138,7 @@ void hit_other_and_spawn_on_defeat_slot04_14(Object *obj) {
     }
 }
 
-void func_801b4240_slot04_14(Object *obj) {
+void call_table_function_by_state_3_15_slot04_14(Object *obj) {
     data_801c63c4_slot04_14[obj->state_3](obj);
 }
 
@@ -168,7 +168,7 @@ void update_sequence_or_reset_state_on_end_slot04_14(Object *obj) {
     }
 }
 
-void func_801b4348_slot04_14(Object *obj) {
+void call_table_function_by_state_3_16_slot04_14(Object *obj) {
     data_801c63cc_slot04_14[obj->state_3](obj);
 }
 
@@ -197,15 +197,15 @@ void move_x_update_sequence_or_finish_slot04_14(Object *obj) {
     }
 }
 
-void func_801b4464_slot04_14(Object *obj) {
+void call_table_function_by_state_3_17_slot04_14(Object *obj) {
     data_801c63d4_slot04_14[obj->state_3](obj);
 }
 
-void func_801b44a4_slot04_14(Object *obj) {
+void call_table_function_by_state_3_18_slot04_14(Object *obj) {
     data_801c6420_slot04_14[obj->state_3](obj);
 }
 
-void func_801b44e4_slot04_14(Object *obj) {
+void start_state_3_sequence_choice_by_flag_add_meter_slot04_14(Object *obj) {
     int one = 1;
     int a;
 
@@ -238,7 +238,7 @@ void load_velocities_from_table_on_step_flag_slot04_14(Object *obj) {
     }
 }
 
-void func_801b4634_slot04_14(Object *obj) {
+void move_with_accel_advance_state_3_on_step_flag_slot04_14(Object *obj) {
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;

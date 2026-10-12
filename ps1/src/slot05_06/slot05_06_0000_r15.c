@@ -16,7 +16,7 @@ int set_direction_index_2_return_true_slot05_06(Object *obj) {
     return 1;
 }
 
-int func_801c9338_slot05_06(Object *obj) {
+int is_meter_at_least_threshold_slot05_06(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -24,7 +24,7 @@ int return_true_always_slot05_06(Object *obj) {
     return 1;
 }
 
-int func_801c9354_slot05_06(Object *obj) {
+int is_meter_at_least_threshold_2_slot05_06(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -45,7 +45,7 @@ int has_remaining_count_slot05_06(Object *obj) {
     return obj->remaining_count != 0;
 }
 
-int func_801c93c4_slot05_06(Object *obj) {
+int is_meter_at_least_threshold_3_slot05_06(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -53,6 +53,6 @@ void func_801c93d8_slot05_06(Object *obj) {
     data_801dd2b4_slot05_06[obj->field_15a](obj);
 }
 
-void func_801c9418_slot05_06(Object *obj) {
+void call_table_function_by_state_3_7_slot05_06(Object *obj) {
     data_801dd2e4_slot05_06[obj->state_3](obj);
 }

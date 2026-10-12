@@ -7,7 +7,7 @@ void land_on_ground_set_state_3_seven_slot04_0a(Object *obj);
 u16 apply_velocity_and_check_ground_slot04_0a(Object *obj);
 void nudge_pos_x_from_input_bits_slot04_0a(Object *obj);
 
-void func_801b1ce8_slot04_0a(Object *obj) {
+void start_air_move_on_input_while_rising_slot04_0a(Object *obj) {
     u16 t;
     int k;
 

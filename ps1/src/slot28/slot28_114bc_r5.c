@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80022098_slot28(Object *obj) {
+void move_down_until_pos_y_limit_advance_state_1_slot28(Object *obj) {
     *(int *)&obj->pos_y_frac += 0x8000;
     if (obj->pos_y >= 0xc0) {
         obj->pos_y = 0xc0;

@@ -11,9 +11,9 @@ extern Slot04_0eRec62b4 data_801c62b4_slot04_0e[];
    follows this one: parent points back at the object, pos_x is the
    object's plus the high half of offset_x of the record that the object's
    side selects, pos_y is the object's ground_y. It fills the slot as
-   func_801b420c_slot04_0e does, with variant_index 0x4e where that one has 0x4b,
+   spawn_ground_child_and_set_sequence_slot04_0e does, with variant_index 0x4e where that one has 0x4b,
    and writes nothing to the object itself. */
-void func_801b4a3c_slot04_0e(Object *obj) {
+void spawn_ground_child_every_eighth_frame_slot04_0e(Object *obj) {
     Slot04_0eRec62b4 *r = &data_801c62b4_slot04_0e[obj->side];
     Object *c;
 

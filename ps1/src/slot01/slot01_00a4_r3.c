@@ -9,7 +9,7 @@ extern Object *data_80055f40_slot01;
 void count_down_timer_then_next_substep_slot01(void) {
     int t = game_state.timer_or_bits - 1;
     game_state.timer_or_bits = t;
-    if ((s16)t < 0 || func_801252f0() != 0) {
+    if ((s16)t < 0 || is_pad_pressed_for_side_bits_or_mode() != 0) {
         data_8018f5a0->substep_index++;
         game_state.status_flags = 0xff;
         if (game_state.mode != 0) {

@@ -17,7 +17,7 @@ void start_sequence_15_if_player_state_2_is_8_slot06_0c(Object *obj);
 void set_position_from_variant_table_slot06_0c(Object *obj);
 void set_sequence_by_variant_index_threshold_slot06_0c(Object *obj);
 
-void func_801e9d74_slot06_0c(Object *obj, u16 unused) {
+void select_sequence_by_vel_x_code_facing_right_slot06_0c(Object *obj, u16 unused) {
     int i;
 
     if (((s16)obj->step_flags & 0xff00) == 0) {
@@ -56,7 +56,7 @@ void call_handler_by_state_2_2_slot06_0c(Object *obj, int arg) {
     data_801eaba4_slot06_0c[obj->state_2](obj, arg);
 }
 
-void func_801e9e9c_slot06_0c(Object *obj, u16 arg) {
+void update_state_by_arg_with_player_state_checks_slot06_0c(Object *obj, u16 arg) {
     int i;
 
     if (arg == 1) {
@@ -123,7 +123,7 @@ void start_sequence_from_arg_table_or_advance_slot06_0c(Object *obj, u16 arg) {
     }
 }
 
-void func_801ea0ac_slot06_0c(Object *obj, u16 unused) {
+void select_sequence_by_vel_x_code_facing_left_slot06_0c(Object *obj, u16 unused) {
     int i;
 
     if (((s16)obj->step_flags & 0xff00) == 0) {
@@ -249,7 +249,7 @@ void update_object_variant_by_scroll_slot06_0c(Object *obj) {
         }
         advance_sequence_checked(obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void set_position_from_variant_table_slot06_0c(Object *obj) {

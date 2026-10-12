@@ -16,7 +16,7 @@ void set_flag_ff_and_advance_hud_step_2_slot27(void) {
     h->step_index_2++;
 }
 
-void func_800104c4_slot27(void) {
+void advance_step_2_spawn_three_and_set_countdown_slot27(void) {
     data_8018f5a0->step_index_2++;
     spawn_three_pool_objects_slot27();
     game_state.busy_flag = 0;
@@ -24,7 +24,7 @@ void func_800104c4_slot27(void) {
     game_state.countdown_2 = 0x2b;
 }
 
-void func_80010514_slot27(void) {
+void count_down_then_spawn_five_and_fill_rows_white_slot27(void) {
     int t = game_state.countdown_2 - 1;
     game_state.countdown_2 = t;
     if ((s16)t == 0) {

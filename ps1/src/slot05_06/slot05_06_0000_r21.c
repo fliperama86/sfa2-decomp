@@ -45,6 +45,6 @@ void update_air_motion_or_land_clear_flag_4_slot05_06(Object *o) {
     }
 }
 
-void func_801c9c1c_slot05_06(Object *obj) {
+void call_table_function_by_state_3_8_slot05_06(Object *obj) {
     data_801dd368_slot05_06[obj->state_3](obj);
 }

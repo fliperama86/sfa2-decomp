@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801c0884_slot04_0a[];
 
-void func_801b49c8_slot04_0a(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_2_slot04_0a(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
@@ -23,6 +23,6 @@ void update_sequence_or_finish_on_flag_4_slot04_0a(Object *obj) {
     }
 }
 
-void func_801b4a68_slot04_0a(Object *obj) {
+void call_table_function_by_state_3_22_slot04_0a(Object *obj) {
     data_801c0884_slot04_0a[obj->state_3](obj);
 }

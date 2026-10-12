@@ -20,7 +20,7 @@ void start_hit_sequence_base_7_or_4(Object *object) {
     if (object->field_6b == 0) func_8012cca8(object);
 }
 
-void func_8012c72c(Object *object) {
+void set_sequence_from_hit_type_base_and_capped_step(Object *object) {
     u16 base;
     int step;
     object->field_60 = 0;

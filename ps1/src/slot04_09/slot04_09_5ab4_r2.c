@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5ba0_slot04_09(Object *o) {
+void spawn_fourth_frame_child_index_zero_slot04_09(Object *o) {
     Object *p;
     u16 y;
     if ((game_state.frame_counter & 3) == 0) {
@@ -31,7 +31,7 @@ void func_801b5ba0_slot04_09(Object *o) {
     }
 }
 
-void func_801b5c6c_slot04_09(Object *o) {
+void spawn_fourth_frame_child_index_four_slot04_09(Object *o) {
     Object *p;
     u16 y;
     if ((game_state.frame_counter & 3) == 0) {

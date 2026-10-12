@@ -10,5 +10,5 @@ void init_object_mode_3(Object *object) {
     object->field_207 = 0;
     object->field_208 = 0;
     object->field_209 = 0;
-    func_8014a1ec(object);
+    dispatch_script_mode_with_one_time_init(object);
 }

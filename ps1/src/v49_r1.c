@@ -30,7 +30,7 @@ void update_slot_dpad_match_repeat(Object *object, u8 index, u8 arg) {
             goto apply;
         }
     }
-    func_8013f2c8(object);
+    clear_global_flag_ignoring_object(object);
     return;
 apply:
     object->slots[index].repeat_count--;

@@ -11,11 +11,11 @@ void clear_player_field_cf(void) {
     player_right.table_column = 0;
 }
 
-void func_801385a0(GameState *state) {
+void update_script_indices_and_counters_unless_mode3(GameState *state) {
     if (!(state->mode == 3 && state->mode3_active_flag == 0)) {
         update_script_index_for_both_players(state);
         tick_counter_a_add_delta_8(state);
-        func_8013886c(state);
+        clamp_meter_value_to_byte_range(state);
         set_counter_shifted_from_counter_c(state);
         set_player_table_column_from_object(state);
     }

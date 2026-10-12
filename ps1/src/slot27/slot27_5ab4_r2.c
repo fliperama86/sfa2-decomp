@@ -8,6 +8,6 @@ extern u8 data_8001aa14_slot27[];
 extern s16 data_8002b386_slot27;
 void advance_frame_list_set_image_row_slot27(Object *obj);
 
-void func_80015dc0_slot27(Object *obj) {
+void release_object_to_pool_table_9_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e8c60_slot06_06(Slot06Layer *layer) {
+void compute_layer_accumulators_div_by_88_equal_runs_slot06_06(Slot06Layer *layer) {
     int i;
     int n;
 

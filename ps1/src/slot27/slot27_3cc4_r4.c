@@ -33,7 +33,7 @@ void update_variant_from_other_kind_and_mode_slot27(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_800141f0_slot27(Object *obj) {
+void sync_active_state_palette_and_advance_sequence_slot27(Object *obj) {
     u8 d = obj->other->field_d4;
 
     if (obj->active_state != d) {

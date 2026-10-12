@@ -19,7 +19,7 @@ void add_vel_x_to_chosen_object_until_zero_slot27(Object *obj) {
     }
 }
 
-void func_80013570_slot27(Object *obj) {
+void add_y_offset_to_health_and_sync_palette_slot27(Object *obj) {
     s32 *t = (s32 *)data_8019045c;
     s32 *u;
     s16 v;

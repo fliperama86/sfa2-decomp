@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011f38c(Object *o) {
+void clear_object_and_push_on_free_stack(Object *o) {
     release_stream_pair_cells(o);
     clear_bytes(o, 0xac);
     o->spawn_flag = 0;

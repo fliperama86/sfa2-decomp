@@ -16,7 +16,7 @@ void update_airborne_then_land_and_hit_other_slot04_02(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         play_object_sound_by_kind(obj);
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
         i = obj->direction_index & 0xfe;
         game_state.state_param = data_801c6518_slot04_02[i];
         if ((u8)apply_damage_to_other_return_defeated(obj, *(s16 *)(data_801c6520_slot04_02 + i), 0) != 0) {

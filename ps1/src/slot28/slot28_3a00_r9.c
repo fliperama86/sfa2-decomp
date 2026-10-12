@@ -3,5 +3,5 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80015a68_slot28(Object *obj) {
+void ignore_object_empty_3_slot28(Object *obj) {
 }

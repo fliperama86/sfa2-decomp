@@ -14,7 +14,7 @@ void clear_selection_state_values_slot04_sel(void) {
     data_801b9c20_slot04_sel = 0;
 }
 
-void func_801b6674_slot04_sel(void) {
+void call_select_handler_for_both_players_slot04_sel(void) {
     Object *l = &player_left;
     Object *r = l + 1;
     u8 *b = data_801b9db8_slot04_sel;

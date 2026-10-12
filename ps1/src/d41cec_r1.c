@@ -43,7 +43,7 @@ u8 try_start_effect_by_state(Object *object) {
     if ((game_state.config->mode_flag_b | game_state.config->mode_flag_c | game_state.config->mode_flag_a) != 0) {
         return 0;
     }
-    if ((func_8012f56c(object) & 0xff) != 0) {
+    if ((is_other_object_state_0_and_1_six_one(object) & 0xff) != 0) {
         return 0;
     }
     if (!checked) {

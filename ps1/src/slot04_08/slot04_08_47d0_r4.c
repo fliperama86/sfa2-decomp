@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4c20_slot04_08(Object *obj, Object *other) {
+void follow_other_position_and_advance_sequence_slot04_08(Object *obj, Object *other) {
     if (other->field_15a != 0 || other->state_2 != 7 || other->state_3 == 4) {
         obj->state_0++;
     }

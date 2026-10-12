@@ -5,7 +5,7 @@
 
 void set_sequence_by_sound_side_slot00(Object *obj, int index);
 
-void func_80078340_slot00(Object *obj) {
+void init_facing_motion_and_set_sound_side_sequence_slot00(Object *obj) {
     obj->countdown = 0x10;
     obj->vel_y = 0x60;
     obj->accel_y = 0x60;
@@ -36,7 +36,7 @@ void init_motion_and_start_sequence_9_slot00(Object *obj) {
     set_sequence_by_sound_side_slot00(obj, 9);
 }
 
-void func_80078438_slot00(Object *obj) {
+void set_sequence_by_sound_side_index_b_slot00(Object *obj) {
     set_sequence_by_sound_side_slot00(obj, 0xb);
 }
 

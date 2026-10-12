@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014e758(Object *object) {
+int is_other_state_one_with_frame_boxes(Object *object) {
     return is_state_one_with_frame_boxes(object->other) != 0;
 }
 

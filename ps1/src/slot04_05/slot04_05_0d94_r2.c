@@ -15,7 +15,7 @@ int try_start_meter_move_15a_4_slot04_05(Object *obj) {
         obj->field_15a = 4;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142778(obj);
+        set_direction_index_from_buttons_mask_b(obj);
     }
     return r;
 }
@@ -32,7 +32,7 @@ int try_start_meter_move_state_8_type_5_slot04_05(Object *obj) {
         obj->field_15a = 5;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142718(obj);
+        set_direction_index_from_buttons_mask_a(obj);
     }
     return r;
 }

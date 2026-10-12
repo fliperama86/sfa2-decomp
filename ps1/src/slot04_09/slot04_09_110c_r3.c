@@ -24,7 +24,7 @@ int try_start_move_2_slot04_09(Object *obj) {
     return r;
 }
 
-int func_801b1474_slot04_09(Object *obj) {
+int try_enter_action_move_without_meter_cost_slot04_09(Object *obj) {
     int r = 0;
 
     if (try_action_clearing_both_flags(obj)) {

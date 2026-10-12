@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern s16 data_801c4180_slot04_04[];
-int func_801b3a40_slot04_04(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_04(Object *obj);
 void init_jump_velocity_by_screen_position_slot04_04(Object *obj);
 
 void set_sequence_by_direction_and_variant_slot04_04(Object *obj) {
@@ -20,13 +20,13 @@ void set_sequence_by_direction_and_variant_slot04_04(Object *obj) {
     set_sequence_by_side_and_mode(obj, (s16)(a + (obj->direction_index >> 1)));
 }
 
-void func_801b0a40_slot04_04(Object *obj) {
+void update_jump_flag_start_or_land_on_ground_slot04_04(Object *obj) {
     if (obj->step_limit == 0) {
         if (obj->active_flag != 0) {
             init_jump_velocity_by_screen_position_slot04_04(obj);
-        } else if (func_801b3a40_slot04_04(obj) < 0 && !(obj->pos_y < obj->ground_y)) {
+        } else if (move_by_velocity_return_new_vel_y_slot04_04(obj) < 0 && !(obj->pos_y < obj->ground_y)) {
             play_object_sound_by_kind(obj);
-            func_80131638(obj);
+            land_reset_fields_and_choose_next_state(obj);
         } else {
             update_sequence(obj);
         }

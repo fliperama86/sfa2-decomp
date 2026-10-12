@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3d14_slot04_02(Object *obj) {
+void start_meter_spend_spawn_three_children_slot04_02(Object *obj) {
     obj->direction_index = 4;
     obj->field_255 = 4;
     obj->active_flag_3 = 0;

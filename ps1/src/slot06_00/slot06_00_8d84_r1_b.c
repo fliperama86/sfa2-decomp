@@ -22,7 +22,7 @@ void update_alternating_scroll_object_slot06_00(Object *obj) {
         *(u32 *)&obj->pos_y_frac = r->pos_y_a;
         obj->sequence = r->sequence_start;
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void release_object_record_slot06_00(Object *obj) {

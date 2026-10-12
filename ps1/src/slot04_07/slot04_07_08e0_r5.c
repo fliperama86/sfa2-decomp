@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0c18_slot04_07(Object *obj) {
+void advance_state_3_set_flag_and_direction_sequence_slot04_07(Object *obj) {
     obj->state_3++;
     ((Slot04aObj *)obj)->field_1ca = 0;
     obj->active_flag_3 = 1;
     set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b0c4c_slot04_07(Object *obj) {
+void update_sequence_reset_state_3_on_input_match_slot04_07(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {

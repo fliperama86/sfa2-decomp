@@ -6,7 +6,7 @@
 void wait_countdown_or_set_state_index_5(GameState *state) {
     Entity *entity = (Entity *)state;
     if (entity->a9_flag == 0) {
-        if ((u8)func_80125394() == 0) {
+        if ((u8)is_pad_pressed_for_leader_bits_or_mode() == 0) {
             int v = entity->countdown_timer - 1;
             entity->countdown_timer = v;
             if ((s16)v >= 0) {

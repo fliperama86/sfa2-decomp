@@ -6,7 +6,7 @@
 extern ObjectFn data_801c5af8_slot04_0f[];
 
 void start_action_if_buttons_pressed(Object *object);
-void func_801b470c_slot04_0f(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_slot04_0f(Object *obj);
 
 void spawn_linked_object_type_0f_on_step_flag_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
@@ -48,11 +48,11 @@ void spawn_linked_object_type_0f_on_step_flag_slot04_0f(Object *o) {
     }
 }
 
-void func_801b2644_slot04_0f(Object *o) {
+void update_sequence_with_timer_or_reset_on_end_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if ((s16)o->step_flags < 0) {
-        func_801b470c_slot04_0f(o);
+        call_reset_object_to_state_1_0_sequence_0_slot04_0f(o);
     } else {
         if (obj->field_47 != 0) {
             obj->field_47--;
@@ -67,6 +67,6 @@ void func_801b2644_slot04_0f(Object *o) {
     }
 }
 
-void func_801b26cc_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_8_slot04_0f(Object *obj) {
     data_801c5af8_slot04_0f[obj->state_3](obj);
 }

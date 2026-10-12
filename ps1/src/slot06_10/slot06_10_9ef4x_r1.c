@@ -26,7 +26,7 @@ extern Slot06Tile data_801f6800_slot06_10[200][2];
    0xc), x and y are read without a first value. Nothing is claimed here
    about whether such a call happens, or about what the original's registers
    hold then. */
-void func_801e9ef4_slot06_10(Object *object) {
+void draw_tiled_sprite_grid_from_sequence_data_slot06_10(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

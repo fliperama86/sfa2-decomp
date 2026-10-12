@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80149920(Object *object) {
+void init_object_at_side_position_from_parent_meter(Object *object) {
   u8 v;
   object->pos_x = 0x20;
   object->pos_y = 0xd2;
@@ -25,7 +25,7 @@ void func_80149920(Object *object) {
   object->variant_index_2 = v;
 }
 
-void func_801499c4(Object *object) {
+void update_variant_index_from_parent_meter(Object *object) {
   Object *other;
   u8 v;
   u8 a;
@@ -35,7 +35,7 @@ void func_801499c4(Object *object) {
   b = ((u8 *) other)[0x4d] | ((u8 *) other)[0x4e];
   a = other->state_0 | data_801ae02c;
   if (a | b) {
-    func_80149aa8(object);
+    set_state_0_to_end_clear_flag_byte(object);
   } else {
     ref_other.p = object->parent;
     v = *(u8 *) &ref_other.p->meter + 0x1e;

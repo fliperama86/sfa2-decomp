@@ -14,12 +14,12 @@ extern ObjectFn data_801c6674_slot04_14[];
 extern ObjectFn data_801c667c_slot04_14[];
 extern ObjectFn data_801c7868_slot04_14[];
 
-void func_801b72b8_slot04_14(Object *obj, u8 index);
+void set_sequence_entry_by_sound_side_table_slot04_14(Object *obj, u8 index);
 void increment_state_0_slot04_14(Object *obj);
-void func_801b74b0_slot04_14(Object *obj);
+void set_sequence_from_variant_index_by_parent_side_slot04_14(Object *obj);
 void copy_parent_position_offset_by_facing_slot04_14(Object *obj);
 void reset_and_push_block_object_type_8(Slab172 *o);
-void func_8011f38c(Object *o);
+void clear_object_and_push_on_free_stack(Object *o);
 void call_state_2_handler_267c_unless_paused(Object *o);
 void call_state_2_handler_2684_unless_paused(Object *o);
 
@@ -32,18 +32,18 @@ void move_until_near_ground_then_switch_state_slot04_14(Object *o) {
         o->state_3 = 0;
         o->state_2 = 0;
         o->state_1 = 0;
-        func_801b72b8_slot04_14(o, 9);
+        set_sequence_entry_by_sound_side_table_slot04_14(o, 9);
     } else {
         *(s32 *)&o->pos_x_frac += o->vel_x;
         *(s32 *)&o->pos_y_frac -= o->vel_y;
     }
 }
 
-void func_801b6ecc_slot04_14(Object *o) {
+void call_state_2_handler_unless_paused_slot04_14(Object *o) {
     call_state_2_handler_267c_unless_paused(o);
 }
 
-void func_801b6eec_slot04_14(Object *o) {
+void call_state_2_handler_unless_paused_2_slot04_14(Object *o) {
     call_state_2_handler_2684_unless_paused(o);
 }
 
@@ -51,7 +51,7 @@ void call_handler_by_state_2_4_slot04_14(Object *o) {
     if ((game_state.field_65 | game_state.field_a8) == 0) {
         data_801c6650_slot04_14[o->state_2](o);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void flip_facing_and_set_sequence_from_table_slot04_14(Object *o) {
@@ -61,12 +61,12 @@ void flip_facing_and_set_sequence_from_table_slot04_14(Object *o) {
     o->facing_side ^= 1;
     t = data_801c6658_slot04_14[o->vel_table_index];
     if (t != 0) {
-        func_801b72b8_slot04_14(o, t);
+        set_sequence_entry_by_sound_side_table_slot04_14(o, t);
     }
     advance_sequence_checked(o);
 }
 
-void func_801b6fec_slot04_14(Object *o) {
+void count_down_then_reset_states_negate_vel_x_slot04_14(Object *o) {
     o->countdown = (s16)o->countdown - 1;
     if ((s16)o->countdown == 0) {
         o->state_0 = 1;
@@ -84,7 +84,7 @@ void call_handler_by_state_2_5_slot04_14(Object *o) {
     if ((game_state.field_65 | game_state.field_a8) == 0) {
         data_801c665c_slot04_14[o->state_2](o);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void flip_facing_and_set_sequence_from_table_2_slot04_14(Object *o) {
@@ -94,7 +94,7 @@ void flip_facing_and_set_sequence_from_table_2_slot04_14(Object *o) {
     o->facing_side ^= 1;
     t = data_801c6664_slot04_14[o->vel_table_index];
     if (t != 0) {
-        func_801b72b8_slot04_14(o, t);
+        set_sequence_entry_by_sound_side_table_slot04_14(o, t);
     }
     advance_sequence_checked(o);
 }
@@ -113,14 +113,14 @@ void count_down_then_reset_states_load_vel_y_slot04_14(Object *o) {
     advance_sequence_checked(o);
 }
 
-void func_801b71a8_slot04_14(Object *o) {
+void call_state_1_table_handler_then_cull_check_slot04_14(Object *o) {
     data_801c6674_slot04_14[o->state_1](o);
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void advance_state_1_set_sequence_9_slot04_14(Object *o) {
     o->state_1 = o->state_1 + 1;
-    func_801b72b8_slot04_14(o, 9);
+    set_sequence_entry_by_sound_side_table_slot04_14(o, 9);
 }
 
 void set_state_0_to_3_on_negative_step_flags_slot04_14(Object *o) {
@@ -142,7 +142,7 @@ void release_object_and_unlink_from_parent_slot04_14(Object *o) {
     reset_and_push_block_object_type_8((Slab172 *)o);
 }
 
-void func_801b72b8_slot04_14(Object *obj, u8 index) {
+void set_sequence_entry_by_sound_side_table_slot04_14(Object *obj, u8 index) {
     SequenceStep *e = seqs_a4_left[index + 0x20];
     if (obj->sound_side != 0) {
         e = seqs_154_right[index + 0x20];
@@ -183,7 +183,7 @@ void update_child_follow_parent_frame_param_slot04_14(Object *o) {
             o->field_01 = 1;
             if (o->variant_index != s) {
                 o->variant_index = s;
-                func_801b74b0_slot04_14(o);
+                set_sequence_from_variant_index_by_parent_side_slot04_14(o);
             } else {
                 advance_sequence_checked(o);
             }
@@ -200,10 +200,10 @@ void unlink_from_parent_and_release_object_slot04_14(Object *o) {
     if (p->linked_object == (u32)o) {
         p->linked_object = 0;
     }
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }
 
-void func_801b74b0_slot04_14(Object *o) {
+void set_sequence_from_variant_index_by_parent_side_slot04_14(Object *o) {
     if (o->parent->side == 0) {
         set_sequence_from_table_5(o, o->variant_index, data_1f8000b4);
     } else {

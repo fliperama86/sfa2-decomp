@@ -5,7 +5,7 @@
 
 void update_timer_or_record_hit_count_slot04_06(Object *obj);
 
-void func_801b4198_slot04_06(Object *obj) {
+void update_countdown_then_finish_or_continue_b_slot04_06(Object *obj) {
     obj->hit_count_3++;
     update_sequence(obj);
     ((Slot04bObj *)obj)->countdown--;
@@ -18,6 +18,6 @@ void func_801b4198_slot04_06(Object *obj) {
             obj->state_2 = 3;
             obj->state_3 = 1;
         }
-        func_80142c70(obj);
+        init_object_after_hit_and_spawn_three_effects(obj);
     }
 }

@@ -20,7 +20,7 @@ extern Slot06Tile data_801ef554_slot06_0e[2][0xd0];
  * ot_index. Unlike the flat models of slot06_00, there is no test of the
  * row against a row count.
  */
-void func_801e84cc_slot06_0e(void) {
+void draw_tile_map_16px_tiles_slot06_0e(void) {
     Chan *c;
     u32 w;
     int y;
@@ -63,7 +63,7 @@ void func_801e84cc_slot06_0e(void) {
     ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
     for (i = 0; i < 16; i++, row++) {
         cc = col;
-        /* Stand-in, not recovered source: the three-way test below, whose three arms are the same statement and whose two conditions are those of the sibling func_801e9738_slot06_0e, reproduces the original's choice of registers. Without it this function differs from the original in 56 instruction slots. */
+        /* Stand-in, not recovered source: the three-way test below, whose three arms are the same statement and whose two conditions are those of the sibling draw_tile_map_layer_sprites_32px_slot06_0e, reproduces the original's choice of registers. Without it this function differs from the original in 56 instruction slots. */
         /* Inferred: the compiler joins arms that came out as the same code after it has given the registers, and deletes the tests with what computed them, so the original's instructions show no test; the references in the arms still counted when the registers were given. Which tests the original source had cannot be read from the listing; the sibling's are the nearest evidence. */
         if (((Slot06Layer *)c)->scroll_y < 0x100) {
             line = c->map_data + ((row >> 15) & 1) + ((row & 0xf) << 6);

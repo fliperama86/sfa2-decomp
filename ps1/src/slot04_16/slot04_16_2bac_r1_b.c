@@ -26,7 +26,7 @@ void update_sequence_or_end_move_a_slot04_16(Object *obj) {
     }
 }
 
-void func_801b3024_slot04_16(Object *obj) {
+void call_table_function_by_state_3_13_slot04_16(Object *obj) {
     data_801ca1e8_slot04_16[obj->state_3](obj);
 }
 
@@ -109,11 +109,11 @@ void update_sequence_or_end_move_a_2_slot04_16(Object *obj) {
     }
 }
 
-void func_801b3414_slot04_16(Object *obj) {
+void call_table_function_by_state_3_14_slot04_16(Object *obj) {
     data_801ca1f8_slot04_16[obj->state_3](obj);
 }
 
-void func_801b3454_slot04_16(Object *o) {
+void add_meter_start_direction_sequence_slot04_16(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int one = 1;
 
@@ -144,7 +144,7 @@ void check_range_then_start_hit_sequence_slot04_16(Object *obj) {
     d = obj->other_state_code != 0;
     d <<= 4;
     d += 0x26;
-    if ((u8)func_8013f8c4(obj, -0x26, (s16)(x - d)) == 0) {
+    if ((u8)try_force_other_state_if_box_in_range(obj, -0x26, (s16)(x - d)) == 0) {
         obj->state_3 = 7;
         update_sequence(obj);
     } else {
@@ -201,7 +201,7 @@ void move_until_vel_y_negative_set_accel_y_slot04_16(Object *obj) {
     }
 }
 
-void func_801b383c_slot04_16(Object *obj) {
+void update_fall_land_clear_active_state_slot04_16(Object *obj) {
     if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         update_sequence(obj);
     } else {

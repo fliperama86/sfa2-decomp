@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b286c_slot04_08(Object *obj) {
+void count_down_then_hit_other_set_active_state_slot04_08(Object *obj) {
     Object *other;
 
     obj->countdown = (s16)obj->countdown - 1;

@@ -5,9 +5,9 @@
 
 extern u8 data_801c4210_slot04_04[];
 void update_direction_hold_sequence_slot04_04(Object *obj);
-void func_801b1a54_slot04_04(Object *obj);
+void update_sequence_until_exit_then_next_state_slot04_04(Object *obj);
 
-void func_801b16d0_slot04_04(Object *obj) {
+void begin_state_3_sequence_by_direction_index_slot04_04(Object *obj) {
     int a;
 
     obj->active_flag_4 = 1;
@@ -33,7 +33,7 @@ void update_sequence_or_enter_next_state_3_slot04_04(Object *obj) {
             update_direction_hold_sequence_slot04_04(obj);
         } else {
             obj->countdown = data_801c4210_slot04_04[obj->input_dir_second];
-            func_801b1a54_slot04_04(obj);
+            update_sequence_until_exit_then_next_state_slot04_04(obj);
         }
     }
 }

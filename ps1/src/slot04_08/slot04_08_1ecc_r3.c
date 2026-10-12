@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b20e0_slot04_08(Object *obj) {
+void count_down_then_hit_other_and_launch_self_slot04_08(Object *obj) {
     Object *p;
     obj->countdown = (s16)obj->countdown - 1;
     if (obj->countdown & 0x8000) {

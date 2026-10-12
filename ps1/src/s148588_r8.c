@@ -5,7 +5,7 @@
 
 
 
-void func_801490dc(Block172 *block) {
+void call_table_function_by_state_0_8(Block172 *block) {
     Object *object = (Object *)block;
     table_8017cef0[object->state_0](object);
 }
@@ -27,6 +27,6 @@ void wait_countdown_then_advance_state_0(Object *object) {
         if (object->parent->field_7e == 0) {
             object->state_0 = object->state_0 + 1;
         }
-        func_8011ffdc(object);
+        clear_or_set_flag_by_pos_x_limit(object);
     }
 }

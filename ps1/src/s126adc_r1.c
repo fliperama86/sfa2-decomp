@@ -14,7 +14,7 @@ void set_side_bit_and_dispatch_by_phase(GameState *state, Object *object) {
     else if (object->phase_index == 0)
         init_countdown_and_advance_phase(state, object);
     else if (object->phase_index == 1)
-        func_80126bcc(state, object);
+        add_bcd_cost_on_pad_press_or_count_down(state, object);
 }
 
 void init_countdown_and_advance_phase(GameState *state, Object *object) {

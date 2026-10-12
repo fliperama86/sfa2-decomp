@@ -16,7 +16,7 @@ void update_fade_step_counter_up(GameState *state) {
     state->step_delay_timer = n;
     if ((s16)n == 0) {
         state->step_delay_timer = 1;
-        func_80125dc0(4, 0x20, state->step_counter, 0);
+        scale_palette_rows_from_backup_bank(4, 0x20, state->step_counter, 0);
         queue_image_upload_job(4, 7);
         state->step_counter++;
         if ((s16)state->step_counter >= 0x20) {

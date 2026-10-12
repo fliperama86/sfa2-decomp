@@ -13,7 +13,7 @@ void tick_slot_timer_and_check_input(Object *object, u8 index, u8 arg) {
     } else {
         entry = table_8017a8cc[arg * 7 + object->slots[index].entry_index];
         if ((entry & 0xf000) != (object->input_word & 0xf000)) {
-            func_8013f2c8(object);
+            clear_global_flag_ignoring_object(object);
         } else {
             if (entry & 1) {
                 object->slots[index].stage++;
@@ -33,11 +33,11 @@ void count_down_slot_timer_check_button(Object *object, u8 index, u8 arg) {
     if ((object->pressed_bits | object->released_bits) & 0x100) {
         reset_slot_stage_set_result(object, index, arg);
     } else {
-        func_8013f2c8(object);
+        clear_global_flag_ignoring_object(object);
     }
 }
 
-u8 func_8013d4cc(Object *object, u8 index, u8 arg) {
+u8 call_slot_stage_handler_in_first_table_2(Object *object, u8 index, u8 arg) {
     table_8017abc4[object->slots[index].stage](object, index, arg);
     return data_80188f44;
 }

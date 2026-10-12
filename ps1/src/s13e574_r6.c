@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_8013ee80(Object *object, int index, u8 arg) {
+int call_slot_stage_handler_in_fourth_table_2(Object *object, int index, u8 arg) {
     table_8017ac14[object->slots[(u8)index].stage](object, (u8)index, arg);
     return data_80188f44;
 }

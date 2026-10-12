@@ -16,6 +16,6 @@ void update_sequence_or_finish_on_flag_slot04_08(Object *obj) {
     }
 }
 
-void func_801b4790_slot04_08(Object *obj) {
+void call_table_function_by_state_3_17_slot04_08(Object *obj) {
     data_801c3dec_slot04_08[obj->state_3](obj);
 }

@@ -61,7 +61,7 @@ int advance_stream_record(Stream *stream) {
     return 1;
 }
 
-void func_80150244(Stream *stream) {
+void pause_cd_and_set_stream_state_2(Stream *stream) {
     stream->state = 0;
     func_8015c990(0);
     while (func_8015cc44(9, 0, 0) == 0) {

@@ -19,7 +19,7 @@ void show_object_and_release_on_step_flags_slot27(Object *obj) {
     }
 }
 
-void func_80014a34_slot27(Object *obj) {
+void call_state_1_handler_from_slot27_table_b_7_slot27(Object *obj) {
     data_80027d0c_slot27[obj->state_1](obj);
 }
 
@@ -34,6 +34,6 @@ void place_by_other_side_and_start_sequence_slot27(Object *obj) {
         }
         set_sequence_from_table_5(obj, other->kind, data_800280bc_slot27);
         obj->sound_side = other->kind;
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     }
 }

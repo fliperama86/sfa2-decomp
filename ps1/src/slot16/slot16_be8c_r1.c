@@ -41,12 +41,12 @@ void set_sequence_by_direction_index_slot16(Object *object) {
     set_sequence_by_side_and_mode(object, (object->direction_index >> 1) + t);
 }
 
-void func_8007bf74_slot16(Object *object) {
+void set_active_flag_3_and_call_direction_sequence_slot16(Object *object) {
     object->active_flag_3 = 1;
     set_sequence_and_tables_from_direction(object);
 }
 
-void func_8007bf98_slot16(Object *object) {
+void reset_object_to_state_1_sequence_0_slot16(Object *object) {
     reset_object_to_state_1_0_sequence_0(object);
 }
 

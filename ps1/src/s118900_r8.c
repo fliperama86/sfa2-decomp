@@ -15,6 +15,6 @@ void release_table_index_cell_runs(AnimObj *a) {
     } while (n < 9);
 }
 
-void func_80119d88(AnimObj *a) {
+void queue_block_jobs_for_stream_difference(AnimObj *a) {
     queue_compressed_block_jobs(a, data_80183bb0[a->stream_index] - data_80183ad0[a->stream_index]);
 }

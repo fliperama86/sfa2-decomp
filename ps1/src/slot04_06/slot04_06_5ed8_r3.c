@@ -14,7 +14,7 @@ void init_timer_depth_and_load_velocities_slot04_06(Object *obj) {
     load_velocities_from_table_by_index_slot04_06(obj);
 }
 
-void func_801b6218_slot04_06(Object *obj) {
+void set_sequence_from_table_index_by_sound_side_slot04_06(Object *obj) {
     SequenceStep **table;
     u8 a = obj->table_index + 0x11;
 

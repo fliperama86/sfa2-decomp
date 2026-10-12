@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3b50_slot04_07(Object *obj) {
+void update_input_sequence_attack_with_gauge_drain_slot04_07(Object *obj) {
     int k;
 
     if (obj->mode_flag_2 == 0) {

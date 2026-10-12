@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern Slot0bFrame data_801e4c30_slot0b[];
-void func_801e1598_slot0b(Slot0bObj *obj, int arg);
+void set_sequence_and_init_list_cells_tpage_clut_slot0b(Slot0bObj *obj, int arg);
 void call_step_on_anim_member_slot0b(Slot0bObj *obj);
 
 void start_step_motion_on_anim_end_slot0b(Slot0bObj *obj) {
@@ -24,7 +24,7 @@ void start_step_motion_on_anim_end_slot0b(Slot0bObj *obj) {
             obj->fy_step = -obj->fy_step;
             obj->fy_step_accel = -obj->fy_step_accel;
         }
-        func_801e1598_slot0b(obj, obj->entry_index + 2);
+        set_sequence_and_init_list_cells_tpage_clut_slot0b(obj, obj->entry_index + 2);
     }
     call_step_on_anim_member_slot0b(obj);
 }

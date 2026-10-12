@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-void func_8014594c(Block172 *block) {
+void call_table_function_by_state_0_2(Block172 *block) {
     Object *object = (Object *)block;
     table_8017c978[object->state_0](object);
 }
 
-void func_8014598c(Object *object) {
+void start_sequence_by_group_and_advance_state_0(Object *object) {
     object->field_01 = 0;
     object->state_0++;
     if (object->field_0e == 4) {

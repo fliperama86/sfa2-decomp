@@ -40,6 +40,6 @@ u8 is_within_limit_and_y_range_of_other(Object *object) {
     }
 }
 
-u8 func_80149d48(Object *object) {
+u8 check_enemy_unit_or_other_in_range(Object *object) {
     return is_enemy_unit_or_other_in_range(object);
 }

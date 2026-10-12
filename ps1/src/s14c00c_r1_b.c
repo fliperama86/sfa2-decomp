@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014c178(Object *object) {
+void branch_script_if_other_above_ground_offset(Object *object) {
     u16 v = *data_80189460++;
     Object *other = object->other;
     if ((u16)(other->ground_y - v) >= (u16)other->pos_y) {
@@ -14,7 +14,7 @@ void func_8014c178(Object *object) {
     }
 }
 
-void func_8014c1e8(Object *object) {
+void branch_script_if_other_link_entry_is_0_or_4(Object *object) {
     Object *ref;
     u8 v;
     if (object->other->link_flags == 0 || (ref = (Object *)object->other->linked_object_3) == 0

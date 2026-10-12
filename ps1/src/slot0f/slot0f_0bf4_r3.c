@@ -8,8 +8,8 @@ long _card_clear(long chan);
 long _card_load(long chan);
 int wait_for_event_0_to_3_slot0f(int *p);
 int wait_for_event_4_to_6_slot0f(int *p);
-void func_800e1148_slot0f(int *p);
-void func_800e119c_slot0f(int *p);
+void test_events_first_four_of_array_slot0f(int *p);
+void test_events_fifth_to_seventh_of_array_slot0f(int *p);
 
 int check_memory_card_status_slot0f(int chan) {
     int *p = data_8018fef8;
@@ -22,7 +22,7 @@ int check_memory_card_status_slot0f(int chan) {
             continue;
         }
         r = wait_for_event_0_to_3_slot0f(p);
-        func_800e1148_slot0f(p);
+        test_events_first_four_of_array_slot0f(p);
         tries--;
         if (r != 1 && r != 2) {
             tries = 0;
@@ -40,7 +40,7 @@ int check_memory_card_status_slot0f(int chan) {
     if (r == 3) {
         tries = 0x14;
         for (;;) {
-            func_800e119c_slot0f(p);
+            test_events_fifth_to_seventh_of_array_slot0f(p);
 poll:
             if (_card_clear(chan) != 1) {
                 goto poll;
@@ -70,7 +70,7 @@ poll:
             func_8015fb30(0);
         }
         r = wait_for_event_0_to_3_slot0f(p);
-        func_800e1148_slot0f(p);
+        test_events_first_four_of_array_slot0f(p);
         tries--;
         if (r != 1 && r != 2) {
             tries = 0;

@@ -17,11 +17,11 @@ void update_sequence_or_finish_on_flag_slot04_0b(Object *obj) {
     }
 }
 
-void func_801b42ac_slot04_0b(Object *obj) {
+void call_table_function_by_state_3_18_slot04_0b(Object *obj) {
     data_801c2f44_slot04_0b[obj->state_3](obj);
 }
 
-void func_801b42ec_slot04_0b(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_slot04_0b(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;

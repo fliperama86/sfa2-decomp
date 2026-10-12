@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b4be8_slot04_04(Object *obj);
+int move_by_velocity_return_new_vel_y_2_slot04_04(Object *obj);
 
 void update_airborne_motion_and_land_slot04_04(Object *obj) {
     obj->field_157 = 0;
-    if (func_801b4be8_slot04_04(obj) < 0 && obj->ground_y <= obj->pos_y) {
+    if (move_by_velocity_return_new_vel_y_2_slot04_04(obj) < 0 && obj->ground_y <= obj->pos_y) {
         obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
         obj->active_state = 0;

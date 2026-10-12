@@ -8,7 +8,7 @@ extern u8 data_80079a00_slot2b[];
 extern Object *data_8007ef28_slot2b;
 void call_handler_by_state_1_2_slot2b(Object *o);
 
-void func_80078168_slot2b(Object *o) {
+void init_moving_object_from_shared_data_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
     o->variant_index_2 = 0xff;
     o->state_0++;
@@ -33,7 +33,7 @@ void func_80078168_slot2b(Object *o) {
     } else {
         o->frames = data_1f800158;
     }
-    func_80138070(o, 4);
+    set_sequence_by_sound_side(o, 4);
     call_handler_by_state_1_2_slot2b(o);
 }
 

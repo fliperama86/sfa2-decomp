@@ -20,7 +20,7 @@ void init_move_left_from_right_sequence_9(Object *object) {
     object->vel_x = 0xfff40000;
     object->accel_x = -0x8000;
     object->state_2++;
-    func_80144ee4(object, 9);
+    set_sequence_from_effect_table(object, 9);
 }
 
 void accelerate_until_countdown_set_pos_x_b(Object *object) {
@@ -40,7 +40,7 @@ void choose_next_state_when_sequence_ends(Object *object) {
             advance_state_0_2(object);
         } else {
             object->state_2 = 3;
-            func_80144ee4(object, 0xe);
+            set_sequence_from_effect_table(object, 0xe);
         }
     }
 }

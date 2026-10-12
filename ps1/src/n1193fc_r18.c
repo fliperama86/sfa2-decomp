@@ -5,7 +5,7 @@
 
 extern u16 data_801a6966;
 
-void func_8012572c(void) {
+void noop_empty_function_7(void) {
 }
 
 int get_input_mapped_value_or_default(Object *object, int arg) {
@@ -23,5 +23,5 @@ int get_input_mapped_value_or_default(Object *object, int arg) {
     return a;
 }
 
-void func_801257c8(void) {
+void noop_empty_function_8(void) {
 }

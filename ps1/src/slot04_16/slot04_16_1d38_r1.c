@@ -4,11 +4,11 @@
 #include "../externs.h"
 
 u8 try_action_clearing_both_flags(Object *object);
-void func_80142718(Object *object);
-void func_80142778(Object *object);
+void set_direction_index_from_buttons_mask_a(Object *object);
+void set_direction_index_from_buttons_mask_b(Object *object);
 void set_direction_index_from_buttons_group_b(Object *object);
 
-u8 func_801b1d38_slot04_16(Object *obj) {
+u8 try_enter_state_8_action_b_with_meter_slot04_16(Object *obj) {
     u8 r = 0;
 
     if ((s16)obj->meter >= 0x30 && func_80141788(obj)) {
@@ -20,13 +20,13 @@ u8 func_801b1d38_slot04_16(Object *obj) {
         obj->field_15a = 0xb;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142718(obj);
+        set_direction_index_from_buttons_mask_a(obj);
         return 1;
     }
     return r;
 }
 
-u8 func_801b1dc4_slot04_16(Object *obj) {
+u8 try_start_meter_action_type_a_both_flags_slot04_16(Object *obj) {
     u8 r = 0;
 
     if ((s16)obj->meter >= 0x30 && func_80141788(obj) && try_action_clearing_both_flags(obj)) {
@@ -38,7 +38,7 @@ u8 func_801b1dc4_slot04_16(Object *obj) {
         obj->field_15a = 0xa;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142778(obj);
+        set_direction_index_from_buttons_mask_b(obj);
         return 1;
     }
     return r;

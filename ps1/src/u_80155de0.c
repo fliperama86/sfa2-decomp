@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80155de0(Actor *a, Object *b)
+void add_table_score_to_player_on_hit(Actor *a, Object *b)
 {
   Object *o = &player_left;
   s8 side;

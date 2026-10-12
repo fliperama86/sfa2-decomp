@@ -9,7 +9,7 @@ void spawn_child_object_above_self_slot2b(Object *o);
 void spawn_child_object_at_random_offset_slot2b(Object *o);
 void set_state_0_to_2_and_clear_substates_slot2b(Object *o);
 
-void func_800783bc_slot2b(Object *o) {
+void move_then_advance_or_spawn_three_children_at_end_slot2b(Object *o) {
     apply_velocity_and_acceleration_slot2b(o);
     if ((s16)o->step_flags >= 0) {
         advance_sequence_checked(o);
@@ -18,7 +18,7 @@ void func_800783bc_slot2b(Object *o) {
         spawn_child_object_above_self_slot2b(o);
         spawn_child_object_at_random_offset_slot2b(o);
         spawn_child_object_at_random_offset_slot2b(o);
-        func_80138070(o, (o->vel_table_index >> 1) + 0xc);
+        set_sequence_by_sound_side(o, (o->vel_table_index >> 1) + 0xc);
     }
 }
 

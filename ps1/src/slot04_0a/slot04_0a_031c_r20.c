@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b49c8_slot04_0a(Object *obj);
+void advance_state_3_restore_facing_set_sequence_2_slot04_0a(Object *obj);
 void update_sequence_or_finish_on_flag_4_slot04_0a(Object *obj);
 
-void func_801b4988_slot04_0a(Object *obj) {
+void call_init_or_update_finish_flag_four_slot04_0a(Object *obj) {
     if (obj->state_3 == 0) {
-        func_801b49c8_slot04_0a(obj);
+        advance_state_3_restore_facing_set_sequence_2_slot04_0a(obj);
     } else {
         update_sequence_or_finish_on_flag_4_slot04_0a(obj);
     }

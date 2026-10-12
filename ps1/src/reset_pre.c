@@ -5,7 +5,7 @@
 
 
 
-void func_80128c48(void) {
+void update_saved_facing_for_both_players(void) {
     update_saved_facing_from_other_x(&player_left);
     update_saved_facing_from_other_x(&player_left + 1);
 }
@@ -33,7 +33,7 @@ void clear_flags_when_player_frames_inactive(void) {
     if (player_right.frame->active == 0) data_80198225 = 0;
 }
 
-void func_80128d58(void) {
+void set_box_distance_x_for_both_players(void) {
     set_box_distance_x(&player_left, &player_left + 1);
     set_box_distance_x(&player_left + 1, &player_left);
 }
@@ -66,7 +66,7 @@ void update_player_left_object(void) {
     update_object_input_and_timers(&player_left);
 }
 
-void func_80128e7c(void) {
+void update_input_and_timers_for_both_players(void) {
     update_object_input_and_timers(&player_left);
     update_object_input_and_timers(&player_left + 1);
 }
@@ -88,10 +88,10 @@ void update_object_input_and_timers(Object *object) {
         object->countdown_timer_2--;
         if (object->countdown_timer_2 == 0) object->accum_count = 0;
     }
-    func_80128fc4(object);
+    call_state_0_handler_and_play_frame_sound(object);
 }
 
-void func_80128fc4(Object *object) {
+void call_state_0_handler_and_play_frame_sound(Object *object) {
     handlers_04[object->state_0](object);
     play_frame_sound(object);
 }

@@ -28,7 +28,7 @@ void set_next_order_value_by_direction(Object *object, u8 index) {
     data_80188f4c = order.v[game_state.step_value &= 3];
 }
 
-int func_8013de2c(Object *object, u8 index, u8 arg) {
+int call_slot_stage_handler_in_second_table(Object *object, u8 index, u8 arg) {
     u8 r;
     table_8017abd8[object->slots[index].stage](object, index, arg);
     r = data_80188f44;

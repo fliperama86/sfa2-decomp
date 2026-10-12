@@ -35,7 +35,7 @@ void update_layer_wrap_offset_value_slot06_12(Slot06Layer *layer) {
 void noop_empty_function_slot06_12(void) {
 }
 
-void func_801e8cc4_slot06_12(Slot06Layer *layer) {
+void noop_layer_function_slot06_12(Slot06Layer *layer) {
 }
 
 void noop_empty_function_2_slot06_12(void) {
@@ -71,7 +71,7 @@ void scroll_layer_parallax_quarter_x_slot06_12(Slot06Layer *layer) {
     layer->field_26 = d;
 }
 
-void func_801e8dcc_slot06_12(Slot06Layer *layer) {
+void set_layer_tile_map_params_b_slot06_12(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801edd2c_slot06_12;
     layer->data_table = data_801edd2c_slot06_12;
     layer->packed_param = 0x5c08;

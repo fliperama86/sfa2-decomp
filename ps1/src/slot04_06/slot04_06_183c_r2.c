@@ -18,7 +18,7 @@ void update_fall_and_land_with_damage_slot04_06(Object *o) {
         update_sequence(o);
     } else {
         o->state_3++;
-        func_80146960(o);
+        spawn_two_effects_at_other_ground(o);
         t = o->direction_index >> 1;
         if (o->field_49 != 0) {
             t += 3;
@@ -41,7 +41,7 @@ void update_fall_and_land_with_damage_slot04_06(Object *o) {
     }
 }
 
-void func_801b1a88_slot04_06(Object *o) {
+void count_down_byte_advance_state_3_update_sequence_slot04_06(Object *o) {
     ((Slot04aObj *)o)->field_1c2 += 0xff;
     if (((Slot04aObj *)o)->field_1c2 & 0x80) {
         o->state_3++;

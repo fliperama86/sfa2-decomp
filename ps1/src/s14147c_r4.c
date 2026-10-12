@@ -4,9 +4,9 @@
 #include "protos.h"
 
 
-void func_80142718(Object *object) {
+void set_direction_index_from_buttons_mask_a(Object *object) {
     if (object->field_4b != 0) {
-        func_80142940(object);
+        set_direction_index_four_then_update_meter(object);
     } else {
         u16 v = object->pressed_bits;
         game_state.field_354 = v;
@@ -15,9 +15,9 @@ void func_80142718(Object *object) {
     }
 }
 
-void func_80142778(Object *object) {
+void set_direction_index_from_buttons_mask_b(Object *object) {
     if (object->field_4b != 0) {
-        func_80142940(object);
+        set_direction_index_four_then_update_meter(object);
     } else {
         u16 v = object->pressed_bits;
         game_state.field_354 = v;

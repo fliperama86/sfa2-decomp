@@ -12,9 +12,9 @@ extern Object *data_80051a18_slot28[];
 extern ObjectRef data_80051a40_slot28;
 extern Object *data_80051a44_slot28[];
 extern ObjectRef data_80051a48_slot28;
-void func_8001d548_slot28(Object *obj, int idx);
-void func_8001d578_slot28(Object *obj);
-void func_8001d5d8_slot28(void);
+void set_sequence_of_fourth_hud_object_8_slot28(Object *obj, int idx);
+void init_object_data_pointers_a_8_slot28(Object *obj);
+void release_active_objects_in_table_6_slot28(void);
 
 void setup_slot28_pass_objects_and_fade_slot28(Object *obj) {
     Object *o;
@@ -24,10 +24,10 @@ void setup_slot28_pass_objects_and_fade_slot28(Object *obj) {
     if (obj->field_f0 == 0) {
         data_8018f5a0->countdown_timer = 0x258;
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
-        func_8001d5d8_slot28();
+        release_active_objects_in_table_6_slot28();
         o = (Object *)pop_block_from_pool();
         if (o != 0) {
-            func_8001d578_slot28(o);
+            init_object_data_pointers_a_8_slot28(o);
             data_80051a48_slot28.p = o;
             o->pos_x = 0x60;
             o->pos_y = -0x60;
@@ -104,7 +104,7 @@ void setup_slot28_pass_objects_and_fade_slot28(Object *obj) {
         o->pos_x = 0x58;
         o->pos_y = 0x10;
         o->ot_depth = 5;
-        func_8001d548_slot28(obj, 4);
+        set_sequence_of_fourth_hud_object_8_slot28(obj, 4);
         start_fade_mode_1a01_and_wait();
     }
 }

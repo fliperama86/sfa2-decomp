@@ -6,7 +6,7 @@
 extern SequenceStep *data_801c4550_slot04_04[];
 extern u8 data_801c4554_slot04_04[];
 extern u8 data_801c4590_slot04_04[];
-void func_801b3e74_slot04_04(Object *obj);
+void call_state_1_table_handler_then_cull_check_2_slot04_04(Object *obj);
 
 void init_child_object_from_parent_slot04_04(Object *obj) {
     Object *parent;
@@ -22,5 +22,5 @@ void init_child_object_from_parent_slot04_04(Object *obj) {
     obj->active_state = 0;
     obj->health = 0xff;
     set_sequence_entry(obj, data_801c4550_slot04_04[0]);
-    func_801b3e74_slot04_04(obj);
+    call_state_1_table_handler_then_cull_check_2_slot04_04(obj);
 }

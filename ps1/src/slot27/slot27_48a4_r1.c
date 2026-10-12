@@ -15,7 +15,7 @@ void add_angle_step_and_advance_state_1_slot27(Object *o) {
             o->state_1++;
         }
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void hide_and_advance_state_1_slot27(Object *obj) {
@@ -23,11 +23,11 @@ void hide_and_advance_state_1_slot27(Object *obj) {
     obj->state_1++;
 }
 
-void func_80014940_slot27(Object *obj) {
+void release_object_to_pool_table_5_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_80014960_slot27(Object *obj) {
+void call_state_1_handler_from_slot27_table_b_6_slot27(Object *obj) {
     data_80027cfc_slot27[obj->state_1](obj);
 }
 

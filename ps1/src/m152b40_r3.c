@@ -14,7 +14,7 @@ void update_effect_by_state_tables(Effect *effect) {
     if (game_state.mode_flag != 0) {
         clear_field_and_increment_step_count(effect);
     } else if ((s16)target->health & 0x8000) {
-        func_801538f0(effect);
+        show_round_text_by_owner_effect_code(effect);
     } else {
         table_80180304[effect->state_index](effect);
         if (effect->field_04 == 0) {

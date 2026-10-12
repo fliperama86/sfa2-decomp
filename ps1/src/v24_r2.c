@@ -10,7 +10,7 @@
 void reset_object_fields(Object *o) {
     u8 *p;
     u8 z;
-    func_80119b34(o);
+    clear_anim_obj_stream_index(o);
     o->state_0 = 0;
     o->state_1 = 0;
     o->state_2 = 0;

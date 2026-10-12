@@ -10,7 +10,7 @@ void clear_side_record_counters_slot27(void);
 void set_sequence_and_position_by_other_kind_slot27(Object *obj);
 void load_palette_anim_from_table_index_slot27(Object *obj);
 
-void func_80011aac_slot27(Object *obj) {
+void init_selection_object_for_active_other_side_slot27(Object *obj) {
     int *state = (int *)data_8019045c;
     int *mask = data_80190464;
 

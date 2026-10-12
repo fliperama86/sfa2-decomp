@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011bc84(Slab172 *p) {
+void reload_stream_cells_then_build_sprite_quads(Slab172 *p) {
     u16 *cur = (u16 *)(((p->sequence->data_ptr >> 1) << 1) + p->stream_base);
     u16 *old;
     u16 *q;
@@ -17,7 +17,7 @@ void func_8011bc84(Slab172 *p) {
             } else {
                 drop_second_stream_cell_run(p, cur);
             }
-            func_80119d88(p);
+            queue_block_jobs_for_stream_difference(p);
             q = get_sequence_data_address(p);
             if (*q != 0 && q != cur) {
                 unpack_cell_list_into_stream_cells(p, q);
@@ -25,7 +25,7 @@ void func_8011bc84(Slab172 *p) {
                 drop_second_stream_cell_run(p, q);
             }
         } else {
-            func_80119d88(p);
+            queue_block_jobs_for_stream_difference(p);
             q = get_sequence_data_address(p);
             if (*q != 0 && q != old) {
                 unpack_cell_list_into_stream_cells(p, q);

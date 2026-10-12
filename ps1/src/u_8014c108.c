@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8014c108(Object *object)
+void branch_script_if_other_below_ground_offset(Object *object)
 {
   u16 v = *(data_80189460++);
   Object *other = object->other;

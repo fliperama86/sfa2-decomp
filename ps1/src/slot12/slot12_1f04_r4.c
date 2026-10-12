@@ -19,7 +19,7 @@ void copy_object_state_to_shared_object_slot12(Object *obj) {
     init_polyft4_cell_arrays_slot12();
 }
 
-void func_800122cc_slot12(Object *obj) {
+void consume_step_flags_low_byte_and_play_sound_slot12(Object *obj) {
     u8 v;
 
     if (!(game_state.field_44 & 0x80)) {

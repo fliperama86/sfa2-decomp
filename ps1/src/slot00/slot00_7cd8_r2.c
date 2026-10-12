@@ -6,7 +6,7 @@
 extern u16 data_8007a044_slot00[];
 extern u8 data_8007a064_slot00[];
 
-void func_80077ddc_slot00(Object *obj, s16 *out) {
+void fill_record_with_random_table_value_and_x_jitter_slot00(Object *obj, s16 *out) {
     int r = get_random_byte() & 0xff;
     out[4] = 0;
     out[5] = data_8007a044_slot00[(r & 0xe) + 1];

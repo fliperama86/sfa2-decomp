@@ -9,7 +9,7 @@ extern u8 data_80051b5c_slot28;
 extern u8 data_80051b60_slot28;
 extern ObjectRef data_80051b48_slot28;
 
-void func_80020fa4_slot28(Object *obj) {
+void toggle_marker_x_by_input_mask_with_delay_slot28(Object *obj) {
     int m;
     int i = data_80051b58_slot28;
     if (i != 0) {

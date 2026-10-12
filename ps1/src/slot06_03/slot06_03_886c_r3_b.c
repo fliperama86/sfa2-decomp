@@ -8,7 +8,7 @@ extern Slot06TileW data_801f62c0_slot06_03[2][0x75];
 
 void init_draw_mode_prim_4(Tx *tx);
 
-void func_801e92b4_slot06_03(Slot06Layer *layer) {
+void set_layer_tile_map_and_scale_f_slot06_03(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ee410_slot06_03;
     layer->data_table = data_801ee410_slot06_03;
     layer->packed_param = 0x6404;
@@ -16,7 +16,7 @@ void func_801e92b4_slot06_03(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e92e0_slot06_03(void) {
+void init_two_banks_of_gray_32x32_sprite_prims_slot06_03(void) {
     Slot06TileW *p;
     int i;
     int k;

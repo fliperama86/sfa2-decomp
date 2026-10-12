@@ -12,7 +12,7 @@ void load_options_from_saved_data_slot0f(void);
 void noop_empty_function_slot0f(void);
 void store_and_darken_palette_row_slot0f(void);
 
-void func_800e27ec_slot0f(void) {
+void init_option_cells_and_load_saved_options_slot0f(void) {
     HudState *h = data_8018f5a0;
     int i;
     data_800f0200_slot0f = 0;

@@ -5,7 +5,7 @@
 
 void move_by_velocity_until_ground_then_reset_slot04_02(Object *obj);
 
-void func_801b0878_slot04_02(Object *obj) {
+void set_downward_dash_velocity_and_move_slot04_02(Object *obj) {
     obj->vel_y = -0x4c000;
     obj->state_3 = obj->state_3 + 1;
     if (obj->facing_side != 0) {

@@ -18,7 +18,7 @@ void init_position_c0_70_and_set_sequence_f(Object *object) {
     object->pos_x = 0xc0;
     object->pos_y = 0x70;
     object->state_2 = object->state_2 + 1;
-    func_80144ee4(object, 0xf);
+    set_sequence_from_effect_table(object, 0xf);
     on_step_flag_advance_state_2_play_sound(object);
 }
 

@@ -35,7 +35,7 @@ void wait_mode_3_then_set_vel_x_and_move_slot04_0b(Object *o) {
     *(s32 *)&o->pos_x_frac += o->vel_x;
 }
 
-void func_801b23f8_slot04_0b(Object *o) {
+void update_x_move_advance_on_mode_flag_slot04_0b(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     u16 t = o->step_flags;
 

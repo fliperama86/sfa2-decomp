@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4310_slot04_08(Object *obj);
+void clear_slots_and_trailing_byte_arrays_slot04_08(Object *obj);
 
 void trigger_spawns_on_step_flag_high_byte_slot04_08(Object *obj) {
     if ((s16)obj->step_flags & 0xff00) {
@@ -14,7 +14,7 @@ void trigger_spawns_on_step_flag_high_byte_slot04_08(Object *obj) {
         reset_side_table_and_fields(obj);
         spawn_object_type_6d_for_side(obj);
         set_other_sequence_3_when_close(obj);
-        func_801b4310_slot04_08(obj);
+        clear_slots_and_trailing_byte_arrays_slot04_08(obj);
     }
     update_sequence(obj);
 }

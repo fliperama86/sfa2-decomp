@@ -21,7 +21,7 @@ void copy_top_rank_data_by_side(Object *dest, Object *object) {
     }
 }
 
-void func_801571f4(Block172 *block) {
+void call_table_function_by_state_0_12(Block172 *block) {
     Object *object = (Object *)block;
     table_8018191c[object->state_0](object);
 }

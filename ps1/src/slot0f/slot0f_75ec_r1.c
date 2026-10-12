@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e78e0_slot0f(Object *obj);
-void func_800e7940_slot0f(Object *obj);
+void build_cell_name_hex_win_records_index_0_slot0f(Object *obj);
+void build_cell_name_hex_win_records_index_1_slot0f(Object *obj);
 extern void (*data_800f01bc_slot0f[])(Object *);
 
-void func_800e75ec_slot0f(Object *obj) {
+void count_down_and_build_cell_records_on_2bc_match_slot0f(Object *obj) {
     s16 t;
     int a;
     int b;
@@ -24,14 +24,14 @@ void func_800e75ec_slot0f(Object *obj) {
         obj->countdown = t;
         if (t != 0) {
             if ((t & 3) == 0) {
-                func_800e7940_slot0f(obj);
+                build_cell_name_hex_win_records_index_1_slot0f(obj);
                 return;
             }
         } else {
             obj->state_1 = obj->state_1 + 1;
             game_state.field_2bc = 4;
         }
-        func_800e78e0_slot0f(obj);
+        build_cell_name_hex_win_records_index_0_slot0f(obj);
     }
 }
 
@@ -44,14 +44,14 @@ void count_down_and_update_when_2bc_is_2_slot0f(Object *obj) {
         obj->countdown = t;
         if (t != 0) {
             if ((t & 3) == 0) {
-                func_800e7940_slot0f(obj);
+                build_cell_name_hex_win_records_index_1_slot0f(obj);
                 return;
             }
         } else {
             obj->state_1 = 2;
             *p = 0xb;
         }
-        func_800e78e0_slot0f(obj);
+        build_cell_name_hex_win_records_index_0_slot0f(obj);
     }
 }
 

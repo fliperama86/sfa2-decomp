@@ -184,7 +184,7 @@ A_NM = {
     "game_c": [
         T(0x80120000, "done_fn"), D("res_def"), D("dup", "B"),
         U("LibNamed"), U("AsmFn"), U("FailFn"), U("mystery"), U("old_name"),
-        U("lib_by_addr"), U("lib_plain"), U("func_80118900"), U("res_var"), U("func_80150020"), U("func_80170100"),
+        U("lib_by_addr"), U("lib_plain"), U("noop_empty_function"), U("res_var"), U("func_80150020"), U("func_80170100"),
         U("weakdef"), U("vdef"), U("lowt"),
     ],
     "mod_c": [
@@ -206,7 +206,7 @@ A_ROWS = [
     ("LibAsmSdk", "library by name", "80150020", "-", "1", "-"),
     ("LibNamed", "library by name", "80150000", "-", "2", "-"),
     ("cnt_0c", "module data", "80141000", "0c", "1", "-"),
-    ("func_80118900", "game function", "80118900", "-", "1", "-"),
+    ("noop_empty_function", "game function", "80118900", "-", "1", "-"),
     ("func_80130010_slot04", "module function", "80130010", "slot04", "1", "-"),
     ("func_80150020", "library by address", "80150020", "-", "1", "LibAsmSdk"),
     ("func_80170100", "library by address", "80170100", "-", "1", "-"),
@@ -247,7 +247,7 @@ A_REASON = {
     "LibAsmSdk": "declared by an sdk unit whose source is not C",
     "LibNamed": "declared by an sdk unit, also a row of library.tsv; needed by two units",
     "cnt_0c": "image 0c, symbol file address",
-    "func_80118900": "no image, address from the name is a row of game.tsv",
+    "noop_empty_function": "no image, address from the name is a row of game.tsv",
     "func_80130010_slot04": "image and func_, address a row of game.tsv does not matter",
     "func_80150020": "func_ name, library row, an sdk unit declares there: other name, counted named",
     "func_80170100": "func_ name, library row, no sdk unit: the unnamed one",

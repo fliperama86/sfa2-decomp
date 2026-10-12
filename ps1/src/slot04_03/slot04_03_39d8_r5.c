@@ -8,7 +8,7 @@ extern SequenceStep **data_801c0aac_slot04_03;
 
 void follow_parent_frame_param_sequence_slot04_03(Object *obj, Object *p);
 
-void func_801b3eec_slot04_03(Object *obj, Object *p) {
+void init_follower_copy_parent_fields_and_follow_slot04_03(Object *obj, Object *p) {
     obj->state_0++;
     obj->field_1c = p->field_1c;
     obj->field_0c = p->field_0c;

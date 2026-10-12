@@ -5,8 +5,8 @@
 
 extern Object *data_800518fc_slot28[];
 extern ObjectRef data_80051900_slot28;
-void func_80016e7c_slot28(void);
-void func_80016e28_slot28(Object *obj, int arg);
+void release_active_objects_in_table_slot28(void);
+void set_sequence_of_fourth_hud_object_3_slot28(Object *obj, int arg);
 
 /* The local n holds the byte read from the object and then the half counter of the hud. Written with one local for each, this function differs from the original in 6 instruction slots. The local c holds the constant that is stored in the hud; written with the literal at the store, the function differs in 7. */
 void advance_hud_pass_to_stage_2_slot28(Object *obj) {
@@ -19,10 +19,10 @@ void advance_hud_pass_to_stage_2_slot28(Object *obj) {
         h->countdown_timer = c;
         n = h->pass_index + 1;
         h->pass_index = n;
-        func_80016e7c_slot28();
+        release_active_objects_in_table_slot28();
         data_800518fc_slot28[0]->field_01 = 0;
         data_80051900_slot28.p->field_01 = 0;
-        func_80016e28_slot28(obj, 2);
+        set_sequence_of_fourth_hud_object_3_slot28(obj, 2);
         start_fade_mode_1a01_and_wait();
     }
 }

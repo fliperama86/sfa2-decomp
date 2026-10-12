@@ -12,11 +12,11 @@ int try_start_meter_move_3_slot05_06(Object *obj) {
     obj->state_3 = 0;
     obj->field_15a = 3;
     obj->facing_side = obj->saved_facing;
-    func_80142718(obj);
+    set_direction_index_from_buttons_mask_a(obj);
     return 1;
 }
 
-int func_801c8de4_slot05_06(Object *o) {
+int try_start_meter_action_lock_variant_a_slot05_06(Object *o) {
     if (!(u8)try_spend_meter_for_action(o)) return 0;
     o->state_0 = 1;
     o->state_1 = 0;

@@ -5,9 +5,9 @@
 
 extern SequenceStep *data_80031c98_slot28[];
 extern Object *data_80051910_slot28[];
-void func_80017944_slot28(Object *obj, int arg);
-void func_80017974_slot28(Object *obj);
-void func_800179d4_slot28(void);
+void set_sequence_of_fourth_hud_object_4_slot28(Object *obj, int arg);
+void init_object_data_pointers_a_4_slot28(Object *obj);
+void release_active_objects_in_table_2_slot28(void);
 
 void advance_hud_pass_spawn_three_objects_slot28(Object *obj) {
     Object *o;
@@ -16,10 +16,10 @@ void advance_hud_pass_spawn_three_objects_slot28(Object *obj) {
         h = data_8018f5a0;
         h->countdown_timer = 0x258;
         h->pass_index += 1;
-        func_800179d4_slot28();
+        release_active_objects_in_table_2_slot28();
         o = (Object *)pop_block_from_pool();
         if (o != 0) {
-            func_80017974_slot28(o);
+            init_object_data_pointers_a_4_slot28(o);
             data_80051910_slot28[11] = o;
             o->pos_x = 0x60;
             o->pos_y = 0x20;
@@ -29,7 +29,7 @@ void advance_hud_pass_spawn_three_objects_slot28(Object *obj) {
             o->ot_depth = 4;
             set_sequence_from_table_5(o, 0, data_80031c98_slot28);
         }
-        func_80017944_slot28(obj, 1);
+        set_sequence_of_fourth_hud_object_4_slot28(obj, 1);
         o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->active_count = 1;

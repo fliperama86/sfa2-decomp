@@ -16,7 +16,7 @@ void release_object_when_countdown_expires_slot28(Object *obj) {
     }
 }
 
-void func_80017908_slot28(Object *obj) {
+void set_flag_advance_substep_when_not_waiting_slot28(Object *obj) {
     if (game_state.wait_flag == 0) {
         data_80051950_slot28 = 1;
         data_8018f5a0->substep_index++;

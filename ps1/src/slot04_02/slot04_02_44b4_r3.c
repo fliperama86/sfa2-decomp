@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4ad8_slot04_02(Object *obj) {
+void start_hop_from_other_box_position_slot04_02(Object *obj) {
     Object *p;
 
     obj->state_3 = 6;

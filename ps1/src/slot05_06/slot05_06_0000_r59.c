@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void call_handler_by_input_dir_second_2_slot05_06(Object *obj);
-void func_801cd6d8_slot05_06(Object *obj);
+void call_direction_handler_by_input_dir_second_2_slot05_06(Object *obj);
 
 void spawn_child_index_5_and_count_timer_slot05_06(Object *obj) {
     GameState *g = &game_state;
@@ -49,7 +49,7 @@ void clear_slots_bytes_slot05_06(Object *obj) {
 
 void call_handler_by_input_dir_0_nonzero_2_slot05_06(Object *obj) {
     if (obj->input_dir_0 != 0) {
-        func_801cd6d8_slot05_06(obj);
+        call_direction_handler_by_input_dir_second_2_slot05_06(obj);
     } else {
         call_handler_by_input_dir_second_2_slot05_06(obj);
     }

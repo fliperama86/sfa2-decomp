@@ -17,7 +17,7 @@ void hide_object_and_advance_state_0_slot27(Object *obj) {
 }
 
 void load_velocities_from_table_2_slot27(Object *obj) {
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }
 
 void offset_position_by_selection_slot27(Object *obj) {

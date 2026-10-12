@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 u8 try_action_clearing_both_flags(Object *object);
-void func_80142718(Object *object);
+void set_direction_index_from_buttons_mask_a(Object *object);
 void set_object_states_0_to_3_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
 extern ObjectFnInt data_801c61b0_slot04_14[];
@@ -12,7 +12,7 @@ extern ObjectFn data_801c61f0_slot04_14[];
 extern ObjectFn data_801c6230_slot04_14[];
 extern ObjectFn data_801c6270_slot04_14[];
 
-u8 func_801b16b4_slot04_14(Object *obj) {
+u8 try_start_meter_action_state_8_slot04_14(Object *obj) {
     u8 r = 0;
 
     if ((s16)obj->meter >= 0x30) {
@@ -20,20 +20,20 @@ u8 func_801b16b4_slot04_14(Object *obj) {
             return 0;
         }
         if (obj->active_state != 0) {
-            r = func_801418bc(obj);
+            r = try_action_unless_state_bytes_match(obj);
             if (r != 0) {
                 obj->field_4b = obj->field_25c;
                 set_object_states_0_to_3_slot04_14(obj, 1, 0, 8, 0);
                 obj->field_15a = 9;
                 obj->active_flag_3 = 1;
-                func_80142718(obj);
+                set_direction_index_from_buttons_mask_a(obj);
             }
         }
     }
     return r;
 }
 
-u8 func_801b1764_slot04_14(Object *obj) {
+u8 try_enter_state_7_with_action_code_ten_slot04_14(Object *obj) {
     u8 r;
 
     if (obj->field_7e != 0 || obj->link_flags == 0) {
@@ -89,7 +89,7 @@ int has_meter_30_and_no_link_slot04_14(Object *obj) {
     return r;
 }
 
-int func_801b18d0_slot04_14(Object *obj) {
+int is_meter_at_least_threshold_slot04_14(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -104,7 +104,7 @@ int has_meter_30_active_and_no_link_slot04_14(Object *obj) {
     return r;
 }
 
-int func_801b1920_slot04_14(Object *obj) {
+int is_meter_full_slot04_14(Object *obj) {
     return (s16)obj->meter >= 0x90;
 }
 
@@ -120,6 +120,6 @@ void func_801b1980_slot04_14(Object *obj) {
     data_801c6230_slot04_14[obj->field_15a](obj);
 }
 
-void func_801b19c0_slot04_14(Object *obj) {
+void call_table_function_by_state_3_4_slot04_14(Object *obj) {
     data_801c6270_slot04_14[obj->state_3](obj);
 }

@@ -13,7 +13,7 @@ void set_sequence_from_table_by_table_index_slot28(Object *obj) {
     set_sequence_from_table_index_slot28(obj, (SeqRec **)data_8002e190_slot28, obj->table_index);
 }
 
-void func_80015edc_slot28(Object *obj) {
+void advance_state_0_on_variant_and_step_sequence_slot28(Object *obj) {
     if (obj->variant_index != 0) {
         obj->state_0++;
     }

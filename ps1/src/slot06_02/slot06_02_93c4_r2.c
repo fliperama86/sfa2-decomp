@@ -10,7 +10,7 @@ void call_handler_by_state_0_slot06_02(Object *obj) {
     data_801ef0d8_slot06_02[obj->state_0](obj);
 }
 
-void func_801e9d64_slot06_02(Object *obj) {
+void init_object_velocity_from_position_and_sequence_slot06_02(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->spawn_mode = 4;
@@ -35,7 +35,7 @@ void set_object_position_from_camera_bounds_slot06_02(Object *obj) {
     b = a >> 2;
     a += b;
     *(s32 *)&obj->pos_y_frac = 0xf80000 - (obj->vel_y - a);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void release_object_record_slot06_02(Object *obj) {

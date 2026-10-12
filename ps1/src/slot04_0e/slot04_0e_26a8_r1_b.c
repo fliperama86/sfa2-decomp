@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2f58_slot04_0e(Object *obj);
+void land_on_ground_start_sequence_forty_eight_slot04_0e(Object *obj);
 void set_direction_bytes_from_byte_pair_slot04_0e(Object *obj);
 
-void func_801b2f58_slot04_0e(Object *obj) {
+void land_on_ground_start_sequence_forty_eight_slot04_0e(Object *obj) {
     obj->state_3 = 6;
     obj->active_state = 0;
     obj->pos_y_frac = 0;

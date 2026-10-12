@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8012c5cc(Object *object) {
+void set_hit_sequence_by_hit_type_and_move_other(Object *object) {
     int step;
     u16 index;
     object->facing_side = object->saved_facing;

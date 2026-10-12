@@ -29,7 +29,7 @@ void call_handler_by_state_1_with_player_zone_slot06_0c(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         data_801eab78_slot06_0c[obj->state_1](obj, (u16)classify_object_x_against_players_slot06_0c(obj));
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void update_facing_side_or_start_sequence_slot06_0c(Object *obj, int arg) {

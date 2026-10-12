@@ -20,7 +20,7 @@ extern Poly28 data_801f2504_slot06_08[2][0x108];
  * coordinates, a texture page word and a clut word from the second half of
  * the tile cell, linked into the list head selected by the layer's field_8a.
  */
-void func_801e8bd8_slot06_08(void) {
+void build_perspective_layer_tile_quads_slot06_08(void) {
     Slot06Layer *c = (Slot06Layer *)data_801aa5d4;
     /* Plain C: v holds the layer's field_1c here and a row's y value in the second pass (one variable for two values; the second use is labelled below). */
     int v;

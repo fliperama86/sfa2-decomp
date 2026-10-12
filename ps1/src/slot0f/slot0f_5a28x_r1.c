@@ -6,7 +6,7 @@
 extern s16 data_800f728c_slot0f[16];
 extern u16 data_800f77ac_slot0f;
 int fade_palette_step_slot0f(u8 a, int b, u16 *dst, u16 *src);
-void func_800e5364_slot0f(void);
+void queue_image_job_from_pooled_table_slot0f(void);
 void func_800e52e0_slot0f(void);
 void advance_hud_state_index_and_reset_slot0f(Slot0fObj *obj);
 void reset_phase_step_and_object_fields_slot0f(Slot0fObj *obj, int flag);

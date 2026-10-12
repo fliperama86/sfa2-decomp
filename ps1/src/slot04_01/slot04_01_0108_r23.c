@@ -7,5 +7,5 @@ void clear_linked_object_and_release_slot04_01(Object *o, Object *p) {
     if ((s32)o == p->linked_object) {
         p->linked_object = 0;
     }
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }

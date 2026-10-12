@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8007632c_slot00(Object *obj) {
+void advance_state_3_start_attack_param_sequence_slot00(Object *obj) {
     obj->state_3++;
     obj->active_flag_3 = 1;
     obj->facing_side = obj->saved_facing;

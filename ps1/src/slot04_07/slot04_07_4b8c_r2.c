@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b41c4_slot04_07(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_07(Object *obj);
 
 void update_fall_land_at_saved_y_slot04_07(Object *obj) {
     Slot04aObj *o = (Slot04aObj *)obj;
 
-    if (func_801b41c4_slot04_07(obj) >= 0 || obj->ground_y > obj->pos_y) {
+    if (move_by_velocity_return_new_vel_y_slot04_07(obj) >= 0 || obj->ground_y > obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = 1;

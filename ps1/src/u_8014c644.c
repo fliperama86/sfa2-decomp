@@ -8,10 +8,10 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8014c644(Object *object)
+void set_states_if_enemy_near_random_bit(Object *object)
 {
   u32 *table;
-  if (func_80149d48(object))
+  if (check_enemy_unit_or_other_in_range(object))
   {
     object->field_208 = 6;
     object->state_0 = 1;

@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801211dc(GameState *state) {
+void load_side_command_once_else_call_next(GameState *state) {
     if (data_8018f5a0->pass_index == 0) {
         Object *object;
         data_8018f5a0->pass_index++;
-        object = func_80125060((Object *)state);
+        object = get_player_by_mode_id((Object *)state);
         state->object = object;
         load_command_6_for_side_and_wait(object->kind, object->side);
     } else {
@@ -15,7 +15,7 @@ void func_801211dc(GameState *state) {
     }
 }
 
-void func_8012124c(GameState *unused) {
+void call_func_ignoring_argument(GameState *unused) {
     func_80010b2c();
 }
 
@@ -46,6 +46,6 @@ void load_focus_object_sound_then_set_phase_4(GameState *state) {
     }
 }
 
-void func_80121378(GameState *state) {
+void call_handler_by_step_index(GameState *state) {
     table_8016e760[data_8018f5a0->step_index](state);
 }

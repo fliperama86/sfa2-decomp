@@ -26,5 +26,5 @@ void unlink_from_parent_list_and_release_slot01(Object *obj) {
         }
         p++;
     }
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }

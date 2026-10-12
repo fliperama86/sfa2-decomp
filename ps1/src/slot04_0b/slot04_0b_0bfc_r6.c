@@ -20,7 +20,7 @@ int try_start_move_state_8_type_6_slot04_0b(Object *obj) {
             obj->active_flag_3 = 1;
             obj->field_6b = 0;
             obj->facing_side = obj->saved_facing;
-            func_80142718(obj);
+            set_direction_index_from_buttons_mask_a(obj);
         }
     }
     return r;

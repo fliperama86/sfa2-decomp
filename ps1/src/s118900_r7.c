@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80119b34(AnimObj *a) {
+void clear_anim_obj_stream_index(AnimObj *a) {
     a->stream_index = 0;
 }

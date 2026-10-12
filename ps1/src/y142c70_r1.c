@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80142c70(Object *object) {
+void init_object_after_hit_and_spawn_three_effects(Object *object) {
     Object *p[3];
     Object *o;
     u8 s2;

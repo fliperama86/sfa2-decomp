@@ -9,7 +9,7 @@ void dispatch_by_phase_index_or_flags(GameState *state, Object *object) {
     else if (object->phase_index == 0)
         advance_phase_and_set_wait_flag_c(state, object);
     else
-        func_801266c8(state, object);
+        start_object_play_when_pad_bit_800_pressed(state, object);
 }
 
 void advance_phase_and_set_wait_flag_c(GameState *state, Object *object) {
@@ -17,7 +17,7 @@ void advance_phase_and_set_wait_flag_c(GameState *state, Object *object) {
     set_wait_flag(object, 0xc);
 }
 
-void func_801266c8(GameState *state, Object *object) {
+void start_object_play_when_pad_bit_800_pressed(GameState *state, Object *object) {
     set_wait_flag(object, 0xc);
     if (is_side_pad_bit_800_pressed(state, object)) {
         object->step_index = 2;
@@ -69,7 +69,7 @@ void update_join_phase_0(GameState *state, Object *object) {
 }
 
 void update_state_flags_and_call_helpers(GameState *state, Object *object) {
-    if (state->side_bits != 3) func_801388a8(state, object);
+    if (state->side_bits != 3) subtract_cost_and_add_random_delta_to_counter(state, object);
     state->active_flag = 0xff;
     if (state->field_80 == 0) state->state_2c_flag = 0;
     init_object_and_clear_wait_flag(state, object);

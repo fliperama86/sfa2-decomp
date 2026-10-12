@@ -5,7 +5,7 @@
 
 extern SequenceStep *data_801ed480_slot06_08[];
 
-void func_801ea2f0_slot06_08(Object *obj) {
+void init_object_parent_player_set_sequence_4_5_slot06_08(Object *obj) {
     int idx;
     int k;
     obj->spawn_mode = 4;

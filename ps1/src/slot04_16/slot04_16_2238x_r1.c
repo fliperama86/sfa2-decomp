@@ -5,7 +5,7 @@
 
 int try_spend_meter_for_action(Object *object);
 
-int func_801b2238_slot04_16(Object *obj) {
+int try_spend_meter_enter_state_7_action_3_slot04_16(Object *obj) {
     if (try_spend_meter_for_action(obj) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 0;

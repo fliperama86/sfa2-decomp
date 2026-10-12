@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b44b4_slot04_02(Object *obj) {
+void start_sequence_with_meter_gain_one_slot04_02(Object *obj) {
     int one = 1;
     int a;
 

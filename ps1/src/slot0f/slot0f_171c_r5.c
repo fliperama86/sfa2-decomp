@@ -7,7 +7,7 @@ extern void (*data_800e87bc_slot0f[])(Object *);
 int load_memory_card_file_slot0f(int a);
 void update_two_option_selection_slot0f(Object *o);
 
-void func_800e1b84_slot0f(Object *o) {
+void load_card_file_when_countdown_ends_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     s8 t;
     if (obj->countdown != 0) {
@@ -29,7 +29,7 @@ void func_800e1c04_slot0f(Object *o) {
     data_800e87bc_slot0f[(s8)o->field_01](o);
 }
 
-void func_800e1c44_slot0f(Object *o) {
+void enter_two_option_prompt_first_selected_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     o->field_01 += 1;
     obj->field_0c = 0;

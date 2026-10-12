@@ -40,7 +40,7 @@ void init_background_layers_slot06_00(void) {
     noop_with_byte_pointer_slot06_00(data_801904d8);
 }
 
-void func_801e80f0_slot06_00(void) {
+void init_gray_tile_and_large_sprite_prims_slot06_00(void) {
     init_tile_sprites_gray_2x114_slot06_00();
     init_two_tile_sprite_arrays_gray_slot06_00();
     init_large_tile_sprite_prims_slot06_00();

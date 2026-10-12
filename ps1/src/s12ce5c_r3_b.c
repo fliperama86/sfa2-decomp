@@ -5,7 +5,7 @@
 
 
 
-void func_8012d394(Object *object) {
+void set_state_1_1_2_0_or_enter_state_1_6_2(Object *object) {
     if ((s16)object->health < 0) {
         enter_state_1_6_and_set_sequence(object);
     } else {

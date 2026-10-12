@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2c94_slot04_01(Object *obj) {
+void start_sequence_by_active_state_with_setup_slot04_01(Object *obj) {
     int a = 0x2b;
     obj->state_3 = obj->state_3 + 1;
     save_facing_and_set_x_motion(obj);

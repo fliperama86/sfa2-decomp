@@ -10,10 +10,10 @@ extern ObjectFn data_801c62a4_slot04_0f[];
 extern ObjectRef data_80190458;
 
 void reset_and_push_block_object_type_8(Slab172 *o);
-void func_8011ffdc(Object *o);
+void clear_or_set_flag_by_pos_x_limit(Object *o);
 void call_handler_by_state_1_unless_paused_slot04_0f(Object *obj);
 void advance_or_reset_states_on_frame_param_slot04_0f(Object *obj);
-void func_801b5b4c_slot04_0f(Object *obj);
+void spawn_pooled_block_with_table_velocity_slot04_0f(Object *obj);
 
 void init_child_object_with_tables_slot04_0f(Object *obj) {
     obj->ot_depth = 0;
@@ -36,7 +36,7 @@ void call_handler_by_state_1_unless_paused_slot04_0f(Object *obj) {
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
         data_801c62a4_slot04_0f[obj->state_1](obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void advance_state_0_on_frame_param_zero_slot04_0f(Object *obj) {
@@ -44,7 +44,7 @@ void advance_state_0_on_frame_param_zero_slot04_0f(Object *obj) {
         obj->state_0 = obj->state_0 + 1;
     }
     advance_sequence_checked(obj);
-    func_801b5b4c_slot04_0f(obj);
+    spawn_pooled_block_with_table_velocity_slot04_0f(obj);
 }
 
 void advance_or_reset_states_on_frame_param_slot04_0f(Object *obj) {
@@ -59,18 +59,18 @@ void advance_or_reset_states_on_frame_param_slot04_0f(Object *obj) {
         obj->health = 0xff;
     }
     advance_sequence_checked(obj);
-    func_801b5b4c_slot04_0f(obj);
+    spawn_pooled_block_with_table_velocity_slot04_0f(obj);
 }
 
-void func_801b5aac_slot04_0f(Object *obj) {
+void call_advance_or_reset_states_on_frame_param_slot04_0f(Object *obj) {
     advance_or_reset_states_on_frame_param_slot04_0f(obj);
 }
 
-void func_801b5acc_slot04_0f(Object *obj) {
+void call_advance_or_reset_states_on_frame_param_2_slot04_0f(Object *obj) {
     advance_or_reset_states_on_frame_param_slot04_0f(obj);
 }
 
-void func_801b5aec_slot04_0f(Object *obj) {
+void call_advance_or_reset_states_on_frame_param_3_slot04_0f(Object *obj) {
     advance_or_reset_states_on_frame_param_slot04_0f(obj);
 }
 

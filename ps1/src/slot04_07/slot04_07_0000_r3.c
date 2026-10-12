@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b41c4_slot04_07(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_07(Object *obj);
 
 void spawn_three_children_and_land_at_ground_slot04_07(Object *obj) {
     u16 t = obj->step_flags;
@@ -30,7 +30,7 @@ void spawn_three_children_and_land_at_ground_slot04_07(Object *obj) {
             }
         }
     }
-    func_801b41c4_slot04_07(obj);
+    move_by_velocity_return_new_vel_y_slot04_07(obj);
     if (obj->vel_y >= 0 || (i = obj->ground_y, obj->pos_y < i)) {
         update_sequence(obj);
     } else {

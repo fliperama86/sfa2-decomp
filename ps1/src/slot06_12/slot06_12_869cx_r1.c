@@ -5,7 +5,7 @@
 
 void load_layer_timer_and_flags_from_tables_slot06_12(Slot06Layer *layer);
 
-void func_801e869c_slot06_12(Slot06Layer *layer) {
+void update_layer_timer_table_and_camera_slot06_12(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         layer->countdown_timer -= 1;
         if (layer->countdown_timer == 0) {

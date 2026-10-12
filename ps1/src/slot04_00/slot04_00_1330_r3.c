@@ -13,7 +13,7 @@ void finish_sequence_set_other_code_5_slot04_00(Object *obj) {
     }
 }
 
-void func_801b1600_slot04_00(Object *obj) {
+void update_sequence_or_launch_on_step_flag_bit_slot04_00(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {

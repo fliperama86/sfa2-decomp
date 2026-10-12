@@ -10,7 +10,7 @@ void build_scaled_rotated_quads_from_layout_slot0b(ModObj *obj, void *a, int b, 
 void nop_mod_object_handler_2_slot0b(ModObj *obj) {
 }
 
-void func_801e0848_slot0b(Object *o) {
+void build_owner_quads_unless_flag_set_mode_slot0b(Object *o) {
     Object *p = ((ModObj *)o)->owner_object;
     ModObj *obj = (ModObj *)o;
     if (data_801ae02c != 0) {

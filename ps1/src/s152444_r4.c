@@ -7,7 +7,7 @@
 void switch_to_next_table_entry_and_wait(void) {
     GameState *state = &game_state;
 
-    func_80136dc4();
+    store_all_slot_image_rects_and_queue_jobs();
     game_state.loop_mode = 1;
     load_table_entry_or_wait_then_close_vab(state);
     *(u32 *)0x1f800014 = *(u32 *)0x1f800014 + 1;
@@ -20,5 +20,5 @@ void switch_to_next_table_entry_and_wait(void) {
             request_sound_command_and_switch_thread(1);
         } while (state->wait_flag != 0);
     }
-    func_80119198(3);
+    set_snd_ctl_thread_entry_and_close(3);
 }

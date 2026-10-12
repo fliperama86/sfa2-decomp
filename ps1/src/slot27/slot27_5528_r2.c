@@ -8,7 +8,7 @@ void spawn_child_object_with_kind_index_slot27(Object *obj);
 
 void call_handler_by_state_1_slot01_slot27(Object *object) {
     data_80028510_slot27[object->state_1](object);
-    func_8011ffdc(object);
+    clear_or_set_flag_by_pos_x_limit(object);
 }
 
 void move_pos_y_to_target_by_eight_slot27(Object *obj) {

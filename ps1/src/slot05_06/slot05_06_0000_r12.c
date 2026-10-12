@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801c8ee4_slot05_06(Object *o) {
+int try_start_meter_action_lock_variant_b_slot05_06(Object *o) {
     if (!(u8)try_spend_meter_for_action(o)) return 0;
     o->state_0 = 1;
     o->state_1 = 0;

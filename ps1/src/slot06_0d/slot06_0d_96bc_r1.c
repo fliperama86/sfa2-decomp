@@ -16,7 +16,7 @@ void call_handler_by_state_0_slot06_0d(Object *obj) {
     data_801ea520_slot06_0d[obj->state_0](obj);
 }
 
-void func_801e96fc_slot06_0d(Object *o) {
+void init_object_and_start_sequence_by_count_index_slot06_0d(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
     int i = 1;
     o->spawn_mode = 4;

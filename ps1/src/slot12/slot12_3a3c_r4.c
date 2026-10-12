@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern u8 data_80024414_slot12[];
-void func_80013e24_slot12(int idx);
+void queue_image_job_from_slot0f_table_entry_slot12(int idx);
 
 void func_80013d80_slot12(void) {
     Rect rect;
@@ -22,5 +22,5 @@ void func_80013d80_slot12(void) {
 }
 
 void call_image_job_with_index_0_slot12(Object *obj) {
-    func_80013e24_slot12(0);
+    queue_image_job_from_slot0f_table_entry_slot12(0);
 }

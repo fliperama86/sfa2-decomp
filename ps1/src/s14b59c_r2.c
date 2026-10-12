@@ -3,8 +3,8 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014bcd8(Object *object) {
-    if (func_80149d48(object)) {
+void read_script_if_enemy_in_range_else_skip(Object *object) {
+    if (check_enemy_unit_or_other_in_range(object)) {
         read_script_word_and_dispatch(object);
     } else {
         skip_script_block_then_read_opcode(object);
@@ -39,7 +39,7 @@ void branch_script_if_other_active_variant_ff(Object *object) {
 }
 
 void branch_script_if_other_check_true(Object *object) {
-    if ((u8)func_8014e758(object)) {
+    if ((u8)is_other_state_one_with_frame_boxes(object)) {
         read_script_word_and_dispatch(object);
     } else {
         skip_script_block_then_read_opcode(object);

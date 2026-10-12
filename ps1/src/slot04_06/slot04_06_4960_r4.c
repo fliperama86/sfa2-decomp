@@ -13,7 +13,7 @@ void set_side_bits_and_place_other_on_hit_slot04_06(Object *obj) {
         game_state_second.side_bits = game_state.side_bits_2 | (1 << obj->side);
     }
     if (((Slot04aObj *)obj)->mode == 1) {
-        r = func_80146918(obj);
+        r = spawn_table_effect_at_object_index_four(obj);
         if (r) {
             x = 7;
             negate_value_if_facing_side_zero_slot04_06(obj, &x);

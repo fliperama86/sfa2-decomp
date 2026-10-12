@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80126bcc(GameState *state, Object *object) {
+void add_bcd_cost_on_pad_press_or_count_down(GameState *state, Object *object) {
     s32 v;
     update_countdown_timer_on_pad_input(state, object);
     if (is_pad_button_pressed_3(state, object) == 0) {

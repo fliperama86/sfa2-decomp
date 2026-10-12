@@ -15,7 +15,7 @@ void advance_state_by_mode_flag_a(GameState *state) {
         entity->countdown_timer = 0x1e;
         func_80156084();
         call_handler_by_data_index();
-        func_8012304c(entity);
+        set_selected_value_by_input_threshold(entity);
     } else {
         ((HudBig *)data_8018f5a0)->state_index = 5;
         entity->countdown_timer = 0xa0;
@@ -23,7 +23,7 @@ void advance_state_by_mode_flag_a(GameState *state) {
     }
 }
 
-void func_8012304c(Entity *entity) {
+void set_selected_value_by_input_threshold(Entity *entity) {
     if (entity->threshold_input < 0x500) {
         entity->selected_value = 4;
     } else {

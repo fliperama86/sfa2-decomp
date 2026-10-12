@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1548_slot04_07(Object *obj) {
+void enter_state_7_set_other_lock_sequence_by_mode_a_slot04_07(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;

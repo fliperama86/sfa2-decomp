@@ -25,7 +25,7 @@ int is_active_state_set_slot04_01(Object *obj) {
     return obj->active_state != 0;
 }
 
-int func_801b10d8_slot04_01(Object *obj) {
+int is_meter_at_least_threshold_slot04_01(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -41,7 +41,7 @@ void func_801b1138_slot04_01(Object *obj) {
     data_801bef28_slot04_01[obj->field_15a](obj);
 }
 
-void func_801b1178_slot04_01(Object *obj) {
+void call_state_3_table_then_play_step_flags_sound_2_slot04_01(Object *obj) {
     data_801bef54_slot04_01[obj->state_3](obj);
     play_side_sound_from_step_flags_slot04_01(obj);
 }

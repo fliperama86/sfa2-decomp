@@ -5,7 +5,7 @@
 
 extern u16 data_801c3e98_slot04_08;
 
-void func_801b2f6c_slot04_08(Object *obj) {
+void update_motion_repeat_sequence_then_branch_end_slot04_08(Object *obj) {
     int k;
 
     if (((Slot04aObj *)obj)->sub_index != 2) {
@@ -34,7 +34,7 @@ void func_801b2f6c_slot04_08(Object *obj) {
     }
 }
 
-void func_801b3078_slot04_08(Object *obj) {
+void start_slide_when_step_flags_negative_slot04_08(Object *obj) {
     int x;
 
     if ((s16)obj->step_flags & 0x8000) {

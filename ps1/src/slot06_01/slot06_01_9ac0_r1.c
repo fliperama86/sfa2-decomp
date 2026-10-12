@@ -18,7 +18,7 @@ void call_state_1_handler_or_alt_with_accel_y_slot06_01(Object *obj) {
         }
         data_801ea95c_slot06_01[obj->state_1](obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void inc_state_1_set_countdown_then_advance_slot06_01(Object *obj) {
@@ -49,7 +49,7 @@ void pick_next_sequence_at_countdown_zero_slot06_01(Object *obj) {
 
 void call_handler_by_state_1_then_offset_slot06_01(Object *obj) {
     data_801ea988_slot06_01[obj->state_1](obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void increment_state_1_at_sequence_end_slot06_01(Object *obj) {

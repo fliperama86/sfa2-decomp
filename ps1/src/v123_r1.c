@@ -27,7 +27,7 @@ void update_airborne_motion_simple_or_land(Object *object)
     object->active_state = 0;
     object->active_flag_3 = 0;
     play_object_sound_by_kind(object);
-    if (object->mode_flag_2 == 0 && func_8012f970(object))
+    if (object->mode_flag_2 == 0 && find_nearby_enemy_and_get_flag(object))
     {
       enter_state_2_6_by_button_input(object);
     }

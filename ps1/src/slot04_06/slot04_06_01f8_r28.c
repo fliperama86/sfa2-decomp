@@ -10,11 +10,11 @@ void call_handler_by_direction_index_8_slot04_06(Object *obj) {
     data_801c5598_slot04_06[obj->direction_index >> 1](obj);
 }
 
-void func_801b5880_slot04_06(Object *obj) {
+void call_table_function_by_state_3_24_slot04_06(Object *obj) {
     data_801c55a4_slot04_06[obj->state_3](obj);
 }
 
-void func_801b58c0_slot04_06(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_2_slot04_06(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;

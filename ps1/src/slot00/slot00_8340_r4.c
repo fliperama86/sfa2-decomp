@@ -27,7 +27,7 @@ void set_countdown_ten_and_advance_state_2_slot00(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_800787c0_slot00(Object *obj) {
+void count_down_then_set_hit_fields_and_advance_slot00(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {
         obj->field_60 = 0x13;

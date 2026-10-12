@@ -11,7 +11,7 @@ void call_handler_by_hud_step_index_2_3_slot27(void) {
     data_80017c04_slot27[data_8018f5a0->step_index_2]();
 }
 
-void func_800109b4_slot27(void) {
+void advance_step_2_reset_pass_and_spawn_two_slot27(void) {
     HudState *h = data_8018f5a0;
     h->step_index_2++;
     h->pass_index = 0;

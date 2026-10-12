@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0a48_slot04_05(Object *obj) {
+void start_sequence_on_input_bit_or_from_direction_slot04_05(Object *obj) {
     obj->state_3++;
     if (obj->direction_index == 2 && obj->field_25f == 0 && (obj->input_bits_2 & 0x8000) != 0) {
         obj->active_flag_3 = 1;

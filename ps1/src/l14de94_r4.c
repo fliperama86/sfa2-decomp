@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80150294(Stream *stream) {
+void dispatch_pending_stream_entries(Stream *stream) {
     StreamEntry *e;
     int n = 0;
     while (stream->entries[stream->read_index].pending_flag != 0) {
@@ -21,9 +21,9 @@ void func_80150294(Stream *stream) {
         stream->state = 3;
     }
     if (++stream->timeout_count >= 0xb5 && stream->state == 1) {
-        func_8014f76c(stream);
+        close_slots_and_seek_cd_position(stream);
     }
     if (stream->error_code != 0) {
-        func_8014f76c(stream);
+        close_slots_and_seek_cd_position(stream);
     }
 }

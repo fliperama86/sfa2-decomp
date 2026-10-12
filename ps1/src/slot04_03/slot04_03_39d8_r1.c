@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b39d8_slot04_03(Object *obj) {
+void hit_other_on_flag_byte_or_reset_at_end_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
@@ -17,7 +17,7 @@ void func_801b39d8_slot04_03(Object *obj) {
     }
 }
 
-void func_801b3a5c_slot04_03(Object *obj) {
+void clear_slots_and_trailing_byte_ranges_slot04_03(Object *obj) {
     int z = 0;
     int i;
     u8 *p;

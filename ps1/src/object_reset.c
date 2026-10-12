@@ -81,10 +81,10 @@ void reset_object(Object *object) {
     player_left.field_02 = 0;
     player_right.field_02 = 1;
     select_box_tables(object);
-    func_80138d70(&game_state);
+    set_player_list_offset_from_random_pattern(&game_state);
     set_side_field_0d(object);
     set_object_field_from_kind(object);
-    func_80129428(object);
+    call_copy_image_rows_and_load_image(object);
     object->facing_side = 1;
     object->saved_facing = 1;
     object->field_0c = 0xff;
@@ -122,7 +122,7 @@ void set_object_spawn_by_side(Object *object) {
     }
 }
 
-void func_80129428(Object *object) {
+void call_copy_image_rows_and_load_image(Object *object) {
     copy_image_rows_and_load_image(object);
 }
 

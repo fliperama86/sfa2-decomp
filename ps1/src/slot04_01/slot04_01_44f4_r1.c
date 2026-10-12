@@ -5,7 +5,7 @@
 
 void func_801b1138_slot04_01(Object *obj);
 
-void func_801b44f4_slot04_01(Object *obj) {
+void set_direction_sequence_or_limit_state_switch_slot04_01(Object *obj) {
     int a = 0xc;
     int one;
 

@@ -50,7 +50,7 @@ void init_object_spawn_and_call_three_setups_slot06_03(Object *obj) {
     set_random_variant_sequence_slot06_03(obj);
 }
 
-void func_801e96cc_slot06_03(Object *obj) {
+void move_object_respawn_randomly_when_above_top_slot06_03(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         *(u32 *)&obj->pos_x_frac += obj->vel_x;
         *(u32 *)&obj->pos_y_frac += obj->vel_y;
@@ -63,7 +63,7 @@ void func_801e96cc_slot06_03(Object *obj) {
         }
         advance_sequence_checked(obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void release_object_record_slot06_03(Object *obj) {
@@ -173,7 +173,7 @@ void call_handler_by_state_0_3_slot06_03(Object *obj) {
     data_801ea6a8_slot06_03[obj->state_0](obj);
 }
 
-void func_801e9bc0_slot06_03(Object *obj) {
+void init_object_spawn_and_sequence_from_table_slot06_03(Object *obj) {
     obj->field_0f = 1;
     obj->base_x = 0x2c0;
     obj->base_y = 0x100;
@@ -196,7 +196,7 @@ void set_object_position_from_tick_table_slot06_03(Object *obj) {
     if (a != 0) {
         advance_sequence_checked(obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void release_object_record_3_slot06_03(Object *obj) {

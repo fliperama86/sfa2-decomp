@@ -20,7 +20,7 @@ void rise_by_vel_y_and_advance_sequence_slot05_06(Object *obj) {
         obj->state_0++;
     }
     advance_sequence_checked(obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void load_velocities_from_table_5_slot05_06(Object *obj) {

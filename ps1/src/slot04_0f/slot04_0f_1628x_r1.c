@@ -5,7 +5,7 @@
 
 int try_spend_meter_for_action(Object *object);
 
-int func_801b1628_slot04_0f(Object *o) {
+int try_start_meter_action_with_other_lock_nine_slot04_0f(Object *o) {
     if (!try_spend_meter_for_action(o)) return 0;
     o->state_0 = 1;
     o->state_1 = 0;

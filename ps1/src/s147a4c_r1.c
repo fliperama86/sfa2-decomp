@@ -5,12 +5,12 @@
 
 
 
-void func_80147a4c(Block172 *block) {
+void call_fns_cbd0_by_state_0(Block172 *block) {
     Object *object = (Object *)block;
     fns_cbd0[object->state_0](object);
 }
 
-void func_80147a8c(Object *object) {
+void init_variant_and_start_sequence_from_table(Object *object) {
     object->ot_depth = 0;
     object->state_0++;
     object->variant_index_2 = bytes_cbe0[object->table_index + object->variant_index];
@@ -21,7 +21,7 @@ void call_handler_by_table_index_2(Object *object) {
     fns_cbe8[object->table_index](object);
 }
 
-void func_80147b24(Object *object) {
+void call_handler_by_state_1_then_follow_parent(Object *object) {
     fns_cbf4[object->state_1](object);
     set_position_from_parent(object);
     set_flag_and_push_if_mode_8(object);
@@ -33,7 +33,7 @@ void start_countdown_29_and_advance_sequence(Object *object) {
     advance_sequence_checked(object);
 }
 
-void func_80147bb0(Object *object) {
+void count_down_then_next_state_1_sequence(Object *object) {
     int v = object->countdown - 1;
     object->countdown = v;
     if ((s16)v < 0) {
@@ -53,7 +53,7 @@ void advance_sequence_until_flags_negative(Object *object) {
     }
 }
 
-void func_80147c50(Object *object) {
+void call_fns_cc00_by_state_1_then_push(Object *object) {
     fns_cc00[object->state_1](object);
     set_flag_and_push_if_mode_8(object);
 }
@@ -102,11 +102,11 @@ void count_down_then_advance_state_1(Object *object) {
     }
 }
 
-void func_80147df8(Object *object) {
+void call_count_down_then_advance_state_1(Object *object) {
     count_down_then_advance_state_1(object);
 }
 
-void func_80147e18(Object *object) {
+void count_down_follow_parent_then_advance_state(Object *object) {
     int v = object->countdown - 1;
     object->countdown = v;
     if ((s16)v < 0) {
@@ -135,7 +135,7 @@ void advance_state_0_reset_state_1(Object *object) {
     object->state_1 = 0;
 }
 
-void func_80147f04(Object *object) {
+void call_fns_cc18_by_state_1_then_push(Object *object) {
     fns_cc18[object->state_1](object);
     set_flag_and_push_if_mode_8(object);
 }
@@ -143,10 +143,10 @@ void func_80147f04(Object *object) {
 void set_countdown_5_and_advance_state_1_alt(Object *object) {
     object->countdown = 5;
     object->state_1++;
-    func_80147f88(object);
+    place_at_parent_offset_and_advance_sequence(object);
 }
 
-void func_80147f88(Object *object) {
+void place_at_parent_offset_and_advance_sequence(Object *object) {
     place_object_at_parent_with_offset_table(object);
     advance_sequence_checked(object);
 }
@@ -178,22 +178,22 @@ void count_down_then_advance_or_offset(Object *object) {
     }
 }
 
-void func_801480b0(Object *object) {
+void advance_state_0_or_follow_parent_sequence(Object *object) {
     if ((s16)object->step_flags < 0) {
         object->state_1 = 0;
         object->state_0++;
     } else {
-        func_80147f88(object);
+        place_at_parent_offset_and_advance_sequence(object);
     }
 }
 
 /* The parameter is passed on to reset_and_push_object_to_pool_table, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table fns_cbd0 holds this function and is declared with this parameter. */
-void func_801480f4(Object *p) {
+void push_object_to_pool_table_wrapper_8(Object *p) {
     reset_and_push_object_to_pool_table((Slab172 *)p);
 }
 
 /* The parameter is passed on to reset_and_push_object_to_pool_table, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table fns_cbd0 holds this function and is declared with this parameter. */
-void func_80148114(Object *p) {
+void push_object_to_pool_table_wrapper_9(Object *p) {
     reset_and_push_object_to_pool_table((Slab172 *)p);
 }
 

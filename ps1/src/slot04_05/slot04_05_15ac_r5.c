@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1b44_slot04_05(Object *obj) {
+void update_sequence_effect_on_flag_or_start_launch_slot04_05(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
@@ -23,7 +23,7 @@ void func_801b1b44_slot04_05(Object *obj) {
     }
 }
 
-void func_801b1be0_slot04_05(Object *obj) {
+void apply_vertical_velocity_with_accel_override_slot04_05(Object *obj) {
     if (obj->field_49 != 0 && (obj->vel_y & 0x8000)) {
         obj->accel_y = 0xffff0000;
     }

@@ -3,38 +3,38 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b0de0_slot04_02(Object *obj);
-u8 func_801b0c0c_slot04_02(Object *obj);
+u8 try_enter_state_7_with_action_code_c_if_counted_slot04_02(Object *obj);
+u8 try_enter_meter_action_state_8_slot04_02(Object *obj);
 u8 try_start_meter_full_state_slot04_02(Object *obj);
-u8 func_801b15e8_slot04_02(Object *obj);
+u8 try_start_meter_action_state_8_slot04_02(Object *obj);
 u8 try_start_meter_move_5_unlinked_slot04_02(Object *obj);
 u8 try_start_meter_move_7_slot04_02(Object *obj);
 u8 try_enter_move_state_with_same_variant_slot04_02(Object *obj);
 u8 try_start_action_08_opposite_variant_slot04_02(Object *obj);
-u8 func_801b1314_slot04_02(Object *obj);
-u8 func_801b0d08_slot04_02(Object *obj);
-u8 func_801b1698_slot04_02(Object *obj);
-u8 func_801b1384_slot04_02(Object *obj);
-u8 func_801b148c_slot04_02(Object *obj);
-u8 func_801b0d74_slot04_02(Object *obj);
-u8 func_801b10ac_slot04_02(Object *obj);
-u8 func_801b11e0_slot04_02(Object *obj);
+u8 try_enter_state_7_with_action_code_zero_slot04_02(Object *obj);
+u8 try_enter_state_7_with_action_code_e_slot04_02(Object *obj);
+u8 try_enter_state_7_with_action_code_ten_slot04_02(Object *obj);
+u8 try_enter_move_state_grounded_or_airborne_slot04_02(Object *obj);
+u8 try_enter_move_state_with_input_direction_slot04_02(Object *obj);
+u8 try_enter_state_7_with_action_code_d_slot04_02(Object *obj);
+u8 try_start_meter_spend_action_with_sequence_slot04_02(Object *obj);
+u8 try_start_meter_spend_action_state_5_slot04_02(Object *obj);
 
 void select_slot04_02_action_from_inputs_slot04_02(Object *obj) {
-    if (get_pressed_bit_8(obj) && func_801b0de0_slot04_02(obj)) return;
-    if ((u8)is_pressed_bits_in_table(obj) && func_801b0c0c_slot04_02(obj)) return;
-    if (func_8013d158(obj, 0, 0x1e) && try_start_meter_full_state_slot04_02(obj)) return;
-    if ((u8)func_8013cc48(obj, 1, 0x18) && func_801b15e8_slot04_02(obj)) return;
-    if ((u8)func_8013cb70(obj, 2, 0x26) && try_start_meter_move_5_unlinked_slot04_02(obj)) return;
-    if ((u8)func_8013cbdc(obj, 3, 0x14) && try_start_meter_move_7_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 4, 0x1b) && try_enter_move_state_with_same_variant_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 5, 0x1c) && try_start_action_08_opposite_variant_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 6, 4) && func_801b1314_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 7, 0xf) && func_801b0d08_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 8, 0x12) && func_801b1698_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 9, 0) && func_801b1384_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 10, 3) && func_801b148c_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 11, 2) && func_801b0d74_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 12, 0xe) && func_801b10ac_slot04_02(obj)) return;
-    if ((u8)func_8013cac8(obj, 13, 0xd)) func_801b11e0_slot04_02(obj);
+    if (get_pressed_bit_8(obj) && try_enter_state_7_with_action_code_c_if_counted_slot04_02(obj)) return;
+    if ((u8)is_pressed_bits_in_table(obj) && try_enter_meter_action_state_8_slot04_02(obj)) return;
+    if (get_slot_result_via_first_stage_table_2(obj, 0, 0x1e) && try_start_meter_full_state_slot04_02(obj)) return;
+    if ((u8)call_second_table_stage_unless_0c_pair(obj, 1, 0x18) && try_start_meter_action_state_8_slot04_02(obj)) return;
+    if ((u8)call_second_table_stage_unless_c0_pair(obj, 2, 0x26) && try_start_meter_move_5_unlinked_slot04_02(obj)) return;
+    if ((u8)call_second_table_stage_unless_30_pair(obj, 3, 0x14) && try_start_meter_move_7_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 4, 0x1b) && try_enter_move_state_with_same_variant_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 5, 0x1c) && try_start_action_08_opposite_variant_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 6, 4) && try_enter_state_7_with_action_code_zero_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 7, 0xf) && try_enter_state_7_with_action_code_e_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 8, 0x12) && try_enter_state_7_with_action_code_ten_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 9, 0) && try_enter_move_state_grounded_or_airborne_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 10, 3) && try_enter_move_state_with_input_direction_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 11, 2) && try_enter_state_7_with_action_code_d_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 12, 0xe) && try_start_meter_spend_action_with_sequence_slot04_02(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 13, 0xd)) try_start_meter_spend_action_state_5_slot04_02(obj);
 }

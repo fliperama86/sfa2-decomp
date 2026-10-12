@@ -5,7 +5,7 @@
 
 void update_sequence_or_end_set_other_code_slot04_06(Object *object);
 
-void func_801b3db0_slot04_06(Object *obj) {
+void start_sequence_3c_and_decrement_remaining_slot04_06(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3++;
     if (obj->field_49 == 0) {

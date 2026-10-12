@@ -7,7 +7,7 @@ int get_usable_memory_card_mask_slot0f(void);
 void update_menu_selection_with_enabled_mask_slot0f(Object *o);
 void reset_state_index_and_handler_indices_slot0f(Object *o);
 
-void func_800e186c_slot0f(Object *o) {
+void enter_card_slot_select_with_ot_depth_one_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     o->field_01 += 1;
     o->image_row = get_usable_memory_card_mask_slot0f();

@@ -12,7 +12,7 @@ void call_handler_by_state_0_slot06_09(Object *obj) {
     data_801ec944_slot06_09[obj->state_0](obj);
 }
 
-void func_801e9b58_slot06_09(Object *obj) {
+void init_object_and_start_sequence_by_table_index_slot06_09(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->spawn_mode = 4;

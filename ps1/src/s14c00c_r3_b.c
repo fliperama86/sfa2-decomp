@@ -6,7 +6,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014cba4(Object *object) {
+void read_or_enter_script_by_random_bit(Object *object) {
     if (test_random_bit_in_table(object, (u32 *)table_8017d450) != 0) {
         read_script_word_or_restore_script(object);
     } else {
@@ -14,7 +14,7 @@ void func_8014cba4(Object *object) {
     }
 }
 
-void func_8014cbf8(Object *object) {
+void clear_or_restore_script_by_mode_word(Object *object) {
     if (object->field_20c == 0) {
         clear_three_script_bytes(object);
     } else if (object->field_20c == 2) {
@@ -52,7 +52,7 @@ void check_script_wait_countdown_3(Object *object) {
     }
 }
 
-void func_8014cda0(Object *object) {
+void init_mode_2_or_clear_bytes_if_flag_set(Object *object) {
     if ((u8)roll_random_bit_check_from_kind_table(object) != 0) {
         init_object_mode_2(object);
     } else if (object->state_2 == 0 || object->field_157 != 0) {
@@ -60,7 +60,7 @@ void func_8014cda0(Object *object) {
     }
 }
 
-void func_8014ce0c(Object *object) {
+void init_mode_2_or_clear_bytes_if_flag_clear(Object *object) {
     if ((u8)roll_random_bit_check_from_kind_table(object) != 0) {
         init_object_mode_2(object);
     } else if (object->state_2 == 0 || object->field_157 == 0) {
@@ -90,7 +90,7 @@ void check_script_wait_other_height_limit(Object *object) {
     }
 }
 
-void func_8014cf80(Object *object) {
+void check_script_cond_countdown_and_set_state(Object *object) {
     if ((u8)roll_random_bit_check_from_kind_table(object) != 0) {
         init_object_mode_2(object);
     } else if (object->countdown_3 == 0 || --object->countdown_3 == 0) {

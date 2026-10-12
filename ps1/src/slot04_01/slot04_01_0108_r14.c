@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2720_slot04_01(Object *obj) {
+void update_vertical_motion_advance_at_negative_vel_y_slot04_01(Object *obj) {
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->vel_y < 0) {

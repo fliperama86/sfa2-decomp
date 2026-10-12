@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80019510_slot28(Object *obj) {
+void move_down_to_y_limit_then_advance_state_1_slot28(Object *obj) {
     *(u16 *)&obj->pos_y += 0x10;
     if (obj->pos_y >= 0x61) {
         obj->countdown = 4;
@@ -12,7 +12,7 @@ void func_80019510_slot28(Object *obj) {
     }
 }
 
-void func_80019554_slot28(Object *obj) {
+void count_down_then_set_spawn_y_advance_state_1_slot28(Object *obj) {
     int t = obj->countdown - 1;
     obj->countdown = t;
     if ((s16)t == 0) {

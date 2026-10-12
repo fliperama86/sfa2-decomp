@@ -13,7 +13,7 @@ void call_handler_by_state_0_4_slot0f(Object *obj) {
     data_800eff9c_slot0f[obj->state_0](obj);
 }
 
-void func_800e6f6c_slot0f(Object *o) {
+void init_object_position_sequence_and_two_prims_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     obj->pos_x = 0xc0;
     obj->base_y = 0x80;

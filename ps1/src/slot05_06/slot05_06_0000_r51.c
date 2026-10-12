@@ -14,11 +14,11 @@ void update_sequence_or_end_set_other_code_slot05_06(Object *obj) {
     }
 }
 
-void func_801cc660_slot05_06(Object *obj) {
+void call_table_function_by_state_3_19_slot05_06(Object *obj) {
     data_801dd4ec_slot05_06[obj->state_3](obj);
 }
 
-void func_801cc6a0_slot05_06(Object *obj) {
+void start_sequence_adding_meter_3_choose_facing_slot05_06(Object *obj) {
     obj->state_3++;
     add_to_meter_clamped(obj, 3);
     play_sound_at(obj->other, obj->other->side, 0x31a);

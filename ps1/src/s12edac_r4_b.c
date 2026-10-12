@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-void func_8012f8c4(Object *object) {
+void set_win_state_or_state_4_sequence(Object *object) {
     int arg;
 
     if (game_state.field_4d != 0) {
         set_win_or_lose_state_by_health(object);
-    } else if (func_8012f56c(object)) {
+    } else if (is_other_object_state_0_and_1_six_one(object)) {
         set_win_state_and_store_result_byte(object);
     } else {
         object->state_0 = 1;
@@ -30,7 +30,7 @@ void func_8012f8c4(Object *object) {
     }
 }
 
-unsigned char func_8012f970(Object *object) {
+unsigned char find_nearby_enemy_and_get_flag(Object *object) {
     data_80186000 = 0;
     if (object->field_7e == 0) {
         find_nearby_enemy_unit_set_flag(object);

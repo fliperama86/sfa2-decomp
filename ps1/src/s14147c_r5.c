@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801428e4(Object *object) {
+void update_meter_by_mode_or_table(Object *object) {
     if (object->mode_flag_2 != 0) {
         update_meter_by_direction_index(object);
     } else {
@@ -12,7 +12,7 @@ void func_801428e4(Object *object) {
     }
 }
 
-void func_80142940(Object *object) {
+void set_direction_index_four_then_update_meter(Object *object) {
     object->direction_index = 4;
     object->field_255 = 4;
     update_meter_by_direction_index(object);

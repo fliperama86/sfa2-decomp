@@ -5,7 +5,7 @@
 
 void move_x_by_vel_x_facing_then_accelerate_slot04_06(Object *object);
 
-void func_801b3ed4_slot04_06(Object *obj) {
+void start_decelerating_motion_on_sequence_end_slot04_06(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_3++;
         obj->vel_x = 0xa0000;

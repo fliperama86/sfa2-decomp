@@ -11,20 +11,20 @@ extern s32 data_801ce428_slot04_17[];
 extern u8 data_801ce42c_slot04_17[][4];
 extern u16 data_801ce448_slot04_17[];
 
-int func_8013fd98(Object *object, s16 a, s16 b, s16 c, u16 d);
+int check_range_set_other_state_if_boxed(Object *object, s16 a, s16 b, s16 c, u16 d);
 void start_action_if_buttons_pressed(Object *object);
 Block172 *pop_block_from_pool(void);
-void func_801428e4(Object *object);
+void update_meter_by_mode_or_table(Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
-void func_80145d20(Object *object);
+void spawn_three_child_objects_at_object_spawn(Object *object);
 void spawn_children_per_direction_index(Object *object, int a, int b);
-void func_801b2e28_slot04_17(Object *o);
-void func_801b57f0_slot04_17(Object *obj);
-void func_801b5810_slot04_17(Object *obj);
+void apply_table_params_and_spawn_or_adjust_count_slot04_17(Object *o);
+void call_reset_object_to_state_1_0_sequence_0_slot04_17(Object *obj);
+void call_reset_object_to_state_1_0_0_2_sequence_1_slot04_17(Object *obj);
 int apply_velocity_and_acceleration_slot04_17(Object *obj);
 void move_forward_check_hit_on_other_slot04_17(Object *obj);
 
-void func_801b2a74_slot04_17(Object *obj) {
+void update_fall_land_with_sound_and_sequence_slot04_17(Object *obj) {
     if (apply_velocity_and_acceleration_slot04_17(obj) < 0 && obj->pos_y >= obj->ground_y) {
         play_object_sound_by_kind(obj);
         obj->pos_y_frac = 0;
@@ -38,30 +38,30 @@ void func_801b2a74_slot04_17(Object *obj) {
     }
 }
 
-void func_801b2b00_slot04_17(Object *obj) {
+void update_sequence_or_set_other_state_code_5_3_slot04_17(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b5810_slot04_17(obj);
+        call_reset_object_to_state_1_0_0_2_sequence_1_slot04_17(obj);
     } else {
         start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }
 
-void func_801b2b74_slot04_17(Object *obj) {
+void call_table_function_by_state_3_5_slot04_17(Object *obj) {
     data_801ce3ec_slot04_17[obj->state_3](obj);
 }
 
-void func_801b2bb4_slot04_17(Object *obj) {
+void advance_state_and_set_sequence_by_half_direction_slot04_17(Object *obj) {
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x50);
 }
 
-void func_801b2c18_slot04_17(Object *obj) {
+void update_sequence_and_finish_on_flag_bit_slot04_17(Object *obj) {
     int v;
 
     update_sequence(obj);
@@ -110,19 +110,19 @@ void update_active_flag_hit_or_end_sequence_slot04_17(Object *obj) {
         obj->active_flag = 0;
         ref_other.p = obj->other;
         if (ref_other.p->hit_type != 0xff && (s16)ref_other.p->health >= 0) {
-            func_801b2e28_slot04_17(obj);
+            apply_table_params_and_spawn_or_adjust_count_slot04_17(obj);
         }
     }
     if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b57f0_slot04_17(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_17(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b2e28_slot04_17(Object *o) {
+void apply_table_params_and_spawn_or_adjust_count_slot04_17(Object *o) {
     Object *p;
     int i;
     u8 c;
@@ -169,15 +169,15 @@ void func_801b2e28_slot04_17(Object *o) {
     }
 }
 
-void func_801b2ffc_slot04_17(Object *obj) {
+void call_table_function_by_state_3_6_slot04_17(Object *obj) {
     data_801ce410_slot04_17[obj->state_3](obj);
 }
 
-void func_801b303c_slot04_17(Object *obj) {
+void advance_state_and_set_sequence_by_direction_slot04_17(Object *obj) {
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     set_sequence_by_side_and_mode(obj, obj->direction_index + 0x53);
 }
 
@@ -261,7 +261,7 @@ void move_forward_check_hit_on_other_slot04_17(Object *obj) {
     if (obj->active_flag != 0) {
         ref_other.p = obj->other;
         if (p->field_163 == 0 && *(u16 *)&p->state_0 == 0x101 &&
-            (u8)func_8013fd98(obj, 0, 0x40, 8, 8) != 0) {
+            (u8)check_range_set_other_state_if_boxed(obj, 0, 0x40, 8, 8) != 0) {
             obj->vel_x = 0xc0000;
             obj->accel_x = -0x8000;
             obj->state_3++;

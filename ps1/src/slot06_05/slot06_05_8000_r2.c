@@ -19,7 +19,7 @@ void update_layer_by_mode_then_cam_slot06_05(Slot06Layer *layer) {
     save_cam_prev_pos_and_set_table_ptr((Cam *)layer);
 }
 
-void func_801e863c_slot06_05(Slot06Layer *layer) {
+void set_layer_tile_map_param_580a_width_scale_slot06_05(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ea938_slot06_05;
     layer->data_table = data_801ea938_slot06_05;
     layer->packed_param = 0x580a;
@@ -27,7 +27,7 @@ void func_801e863c_slot06_05(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8668_slot06_05(void) {
+void init_two_banks_373_tile_prims_gray_slot06_05(void) {
     int i;
     int j;
     Slot06Tile *r;

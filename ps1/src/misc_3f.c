@@ -9,7 +9,7 @@ void reset_slot_stage_clear_result(Object *object, int index, int unused) {
     data_80188f44 = 0;
 }
 
-void func_8013f2c8(Object *unused) {
+void clear_global_flag_ignoring_object(Object *unused) {
     data_80188f44 = 0;
 }
 

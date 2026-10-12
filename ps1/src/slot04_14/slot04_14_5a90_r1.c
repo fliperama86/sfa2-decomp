@@ -17,7 +17,7 @@ u8 is_pos_x_beyond_box_margin_slot04_14(Object *obj);
 void set_sequence_by_side(Object *object, int arg);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 
-void func_801b5a90_slot04_14(Object *obj) {
+void call_table_function_by_state_3_20_slot04_14(Object *obj) {
     data_801c64ec_slot04_14[obj->state_3](obj);
 }
 
@@ -54,11 +54,11 @@ void update_sequence_or_flip_facing_and_reset_slot04_14(Object *obj) {
     }
 }
 
-void func_801b5c34_slot04_14(Object *obj) {
+void call_table_function_by_state_3_21_slot04_14(Object *obj) {
     data_801c64f8_slot04_14[obj->state_3](obj);
 }
 
-void func_801b5c74_slot04_14(Object *obj) {
+void start_arc_move_facing_by_input_or_position_slot04_14(Object *obj) {
     Object *o = obj->other;
     int t;
     obj->state_3 = obj->state_3 + 1;
@@ -166,7 +166,7 @@ void call_handler_by_state_2_3_slot04_14(Object *obj) {
     data_801c6538_slot04_14[obj->state_2](obj);
 }
 
-void func_801b60cc_slot04_14(Object *obj) {
+void advance_state_2_when_countdown_timer_zero_slot04_14(Object *obj) {
     if (game_state.countdown_timer == 0) {
         obj->state_2 = obj->state_2 + 1;
     }

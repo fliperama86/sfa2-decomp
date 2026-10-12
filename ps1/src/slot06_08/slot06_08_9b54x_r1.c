@@ -20,7 +20,7 @@ extern Slot06Tile data_801f8344_slot06_08[2][0x90];
    it takes a record from the table, fills in position, texture
    coordinates, texture page and a command word, and links the record into
    the list head selected by the object. */
-void func_801e9b54_slot06_08(Object *object) {
+void draw_object_sprite_grid_with_layer_offset_slot06_08(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

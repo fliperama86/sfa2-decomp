@@ -27,7 +27,7 @@ void func_800e1af4_slot0f(Object *o) {
     data_800e87a8_slot0f[(s8)o->field_01](o);
 }
 
-void func_800e1b34_slot0f(Object *o) {
+void enter_card_slot_select_with_ot_depth_two_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     o->field_01 += 1;
     o->image_row = get_usable_memory_card_mask_slot0f();

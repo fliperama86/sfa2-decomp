@@ -5,7 +5,7 @@
 
 extern SequenceStep *data_801eb960_slot06_01[];
 
-void func_801e9cf0_slot06_01(Object *obj) {
+void set_facing_and_sequence_by_parent_distance_slot06_01(Object *obj) {
     int idx = 0x14;
     s16 d;
     s16 e;

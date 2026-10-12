@@ -10,7 +10,7 @@ void finish_countdown_and_start_next_round(GameState *state)
   int s0;
   int t;
   u8 v;
-  if ((u8)func_80125394() == 0)
+  if ((u8)is_pad_pressed_for_leader_bits_or_mode() == 0)
   {
     t = entity->countdown_timer;
     t--;
@@ -45,7 +45,7 @@ void finish_countdown_and_start_next_round(GameState *state)
     v = entity->field_40;
     data_801a6938 = 0;
     data_801abf08 = v;
-    func_80123534(entity);
+    update_pair_selection_or_reset_by_mode_flag_a(entity);
   }
   else
     if ((entity->a9_flag != 0) || (entity->field_87 != 0))
@@ -56,7 +56,7 @@ void finish_countdown_and_start_next_round(GameState *state)
     }
     else
     {
-      func_80123534(entity);
+      update_pair_selection_or_reset_by_mode_flag_a(entity);
     }
   }
   else
@@ -67,7 +67,7 @@ void finish_countdown_and_start_next_round(GameState *state)
       fill_zero_entries_with_8_up_to_count(&player_left, s0);
       fill_zero_entries_with_8_up_to_count((&player_left) + 1, s0);
     }
-    func_8011eae4();
+    clear_arrays_and_init_pools_and_sprite_tables();
     call_handler_by_kind_index_a();
     entity->active_flag_2 = 1;
     entity->pass_count++;
@@ -76,6 +76,6 @@ void finish_countdown_and_start_next_round(GameState *state)
       set_capped_value_and_ot_indices(entity);
     }
     init_hud_primitives();
-    func_801285e0();
+    spawn_position_table_objects_and_list_objects();
   }
 }

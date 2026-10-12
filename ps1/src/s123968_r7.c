@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_80125268(void) {
+int is_any_enabled_pad_button_pressed(void) {
     u8 result = 0;
     if (game_state.mode & 1) {
         result = is_pad_button_pressed() != 0;

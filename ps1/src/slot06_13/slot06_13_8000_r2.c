@@ -27,7 +27,7 @@ void init_layer_tile_map_fields_slot06_13(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e85c8_slot06_13(void) {
+void init_two_rows_of_gray_tile_prims_b_slot06_13(void) {
     int i;
     int j;
     Slot06Tile *r;

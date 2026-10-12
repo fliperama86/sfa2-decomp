@@ -5,14 +5,14 @@
 
 extern s32 data_801c4344_slot04_04[];
 
-void func_801b2468_slot04_04(Object *obj) {
+void start_motion_from_direction_table_seq_half_index_slot04_04(Object *obj) {
     u16 a;
 
     obj->state_3++;
     obj->countdown = *(u8 *)&obj->countdown + 0x400;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     obj->vel_x = data_801c4344_slot04_04[obj->direction_index * 2];
     obj->accel_x = data_801c4344_slot04_04[obj->direction_index * 2 + 1];
     obj->vel_y = data_801c4344_slot04_04[obj->direction_index * 2 + 2];
@@ -21,7 +21,7 @@ void func_801b2468_slot04_04(Object *obj) {
     set_sequence_by_side_and_mode(obj, a);
 }
 
-void func_801b2548_slot04_04(Object *obj) {
+void count_down_high_byte_then_spawn_children_slot04_04(Object *obj) {
     obj->countdown = (s16)obj->countdown - 0x100;
     if ((obj->countdown & 0xff00) == 0) {
         obj->state_3++;

@@ -13,18 +13,18 @@ void call_handler_by_state_0_slot06_11(Object *obj) {
     data_801e9da0_slot06_11[obj->state_0](obj);
 }
 
-void func_801e8d64_slot06_11(Object *obj) {
+void clear_flag_byte_and_increment_state_0_slot06_11(Object *obj) {
     obj->field_01 = 0;
     obj->state_0++;
 }
 
-void func_801e8d78_slot06_11(Object *obj) {
+void call_handler_by_state_1_if_not_paused_slot06_11(Object *obj) {
     if (game_state.field_65 == 0) {
         data_801e9db0_slot06_11[obj->state_1](obj);
     }
 }
 
-void func_801e8dc4_slot06_11(Object *obj) {
+void start_countdown_sequence_on_random_chance_slot06_11(Object *obj) {
     if ((get_random_byte() & 0x1f) == 5) {
         obj->countdown = (get_random_byte() & 3) + 2;
         obj->step_flags = 1;
@@ -59,7 +59,7 @@ void start_countdown_and_toggle_layer_flags_slot06_11(Object *obj) {
     *q ^= 0x200;
 }
 
-void func_801e8f10_slot06_11(Object *obj) {
+void count_down_then_toggle_layer_flag_bits_slot06_11(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown == 0) {
         u16 *p = (u16 *)(data_801aa5d4 + 0x4a);

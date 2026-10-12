@@ -11,5 +11,5 @@ void release_object_unlink_global_link_slot04_06(Object *o) {
     if ((s32)o == p->linked_object) {
         p->linked_object = 0;
     }
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }

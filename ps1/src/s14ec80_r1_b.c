@@ -15,8 +15,8 @@ void load_command_5_for_kind_and_wait(int a) {
     g->loop_mode = 1;
     set_voice_thread_entry_and_open(2, 7);
     request_sound_command_and_switch_thread(1);
-    func_8014f3b8(5, a);
-    func_8014f3b8(5, game_state.kind_index + 0x15);
+    start_cd_track_wait_with_thread_switch(5, a);
+    start_cd_track_wait_with_thread_switch(5, game_state.kind_index + 0x15);
     g->loop_mode = 0;
     while (g->wait_flag) {
         request_sound_command_and_switch_thread(1);
@@ -30,7 +30,7 @@ void load_command_6_for_side_and_wait(int a, int b) {
     request_sound_command_and_switch_thread(1);
     b ^= 1;
     close_vab_and_sep(b);
-    func_8014f3b8(6, b * 21 + a);
+    start_cd_track_wait_with_thread_switch(6, b * 21 + a);
     g->loop_mode = 0;
     while (g->wait_flag) {
         request_sound_command_and_switch_thread(1);
@@ -43,7 +43,7 @@ void load_command_7_and_wait(int a) {
     set_voice_thread_entry_and_open(2, 7);
     request_sound_command_and_switch_thread(1);
     close_vab_and_sep(3);
-    func_8014f3b8(7, a);
+    start_cd_track_wait_with_thread_switch(7, a);
     g->loop_mode = 0;
     while (g->wait_flag) {
         request_sound_command_and_switch_thread(1);

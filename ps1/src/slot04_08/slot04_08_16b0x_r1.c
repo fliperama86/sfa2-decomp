@@ -5,7 +5,7 @@
 
 extern u16 data_801c3e98_slot04_08;
 
-void func_801b16b0_slot04_08(Object *obj) {
+void move_x_spawn_children_until_bound_reached_slot04_08(Object *obj) {
     u16 t;
     s16 a;
     Object *p;

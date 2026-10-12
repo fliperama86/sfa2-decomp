@@ -13,7 +13,7 @@ void update_air_move_and_land(Object *object) {
         object->active_flag_3 = 0;
         object->active_state = 0;
         play_object_sound_by_kind(object);
-        if (func_8012f970(object) != 0) {
+        if (find_nearby_enemy_and_get_flag(object) != 0) {
             enter_state_2_6_by_button_input(object);
         } else {
             set_sequence_by_side(object, 0x11);

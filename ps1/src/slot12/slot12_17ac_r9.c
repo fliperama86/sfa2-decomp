@@ -5,7 +5,7 @@
 
 extern ObjectFn table_80022e14_slot12[];
 
-void func_80011ea4_slot12(Object *obj) {
+void release_object_to_pool_table_2_slot12(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 

@@ -16,7 +16,7 @@ void choose_recovery_sequence_or_state(Object *object) {
     if ((object->kind != 6 && object->kind != 0xf) ||
         object->field_163 != 0 || object->hit_flag != 0 || (s16)object->health < 0 ||
         ((game_state.config->mode_flag_b | game_state.config->mode_flag_c) | game_state.config->mode_flag_a) != 0 ||
-        func_8012f56c(object) || !test_random_bit_in_table(object, data_8017d898)) {
+        is_other_object_state_0_and_1_six_one(object) || !test_random_bit_in_table(object, data_8017d898)) {
         set_sequence_by_side_and_mode_2(object, 0x14);
     } else {
         object->state_0 = 1;

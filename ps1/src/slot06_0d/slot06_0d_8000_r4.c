@@ -10,7 +10,7 @@ extern Slot06TileW data_801f51dc_slot06_0d[2][0x5a];
 extern u16 data_80190542;
 
 void func_8015c09c(void *prim);
-void func_801369b0(Cam *cam);
+void init_cam_position_with_fixed_origin(Cam *cam);
 void init_draw_mode_prim_4(Tx *tx);
 
 void init_layer_tile_map_fields_slot06_0d(Slot06Layer *layer) {
@@ -49,7 +49,7 @@ void update_layer_by_mode_quarter_scroll_slot06_0d(Slot06Layer *layer) {
     s16 e;
 
     if (layer->mode == 0) {
-        func_801369b0((Cam *)layer);
+        init_cam_position_with_fixed_origin((Cam *)layer);
     } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;
@@ -68,7 +68,7 @@ void update_layer_by_mode_quarter_scroll_slot06_0d(Slot06Layer *layer) {
     }
 }
 
-void func_801e936c_slot06_0d(Slot06Layer *layer) {
+void set_layer_tile_map_param_6414_width_scale_slot06_0d(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ed1e4_slot06_0d;
     layer->data_table = data_801ed1e4_slot06_0d;
     layer->packed_param = 0x6414;

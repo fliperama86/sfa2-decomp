@@ -15,7 +15,7 @@ void call_handler_by_state_0_2_slot27(Object *object) {
     data_80026ed0_slot27[object->state_0](object);
 }
 
-void func_80013f24_slot27(Object *object) {
+void call_state_1_handler_from_slot27_table_a_4_slot27(Object *object) {
     data_80026ee0_slot27[object->state_1](object);
 }
 

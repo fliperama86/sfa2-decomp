@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8012a804(Object *object) {
+void update_walk_or_restart_walk_sequence_with_speed(Object *object) {
     int index;
     s32 speed;
     if ((u8)is_facing_differs_from_saved(object) == 0) {
@@ -26,5 +26,5 @@ void func_8012a804(Object *object) {
         speed = -speed;
     }
     object->vel_x = speed;
-    func_8012a684(object);
+    choose_idle_state_transition_or_update(object);
 }

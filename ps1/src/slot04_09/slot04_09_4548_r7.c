@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5c6c_slot04_09(Object *obj);
+void spawn_fourth_frame_child_index_four_slot04_09(Object *obj);
 
-void func_801b4d84_slot04_09(Object *obj) {
+void update_sequence_or_reset_at_sequence_end_slot04_09(Object *obj) {
     s16 t = obj->step_flags;
     if (t & 0x8000) {
         obj->pos_x_frac = 0;
@@ -15,7 +15,7 @@ void func_801b4d84_slot04_09(Object *obj) {
             obj->active_flag_4 = 0;
             start_action_if_buttons_pressed(obj);
         } else {
-            func_801b5c6c_slot04_09(obj);
+            spawn_fourth_frame_child_index_four_slot04_09(obj);
         }
         update_sequence(obj);
     }

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801260ac(u8 bank, u8 count, u8 row) {
+void copy_palette_rows_from_backup_bank(u8 bank, u8 count, u8 row) {
     u8 i, j;
     for (i = 0; i < count; i++, row++)
         for (j = 0; j < 16; j++)

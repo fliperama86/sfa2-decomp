@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800199a4_slot28(Object *obj) {
+void ignore_object_empty_16_slot28(Object *obj) {
 }
 
-void func_800199ac_slot28(Object *obj) {
+void ignore_object_empty_17_slot28(Object *obj) {
 }
 
-void func_800199b4_slot28(Object *obj) {
+void ignore_object_empty_18_slot28(Object *obj) {
 }

@@ -91,7 +91,7 @@ void update_sequence_with_countdown_or_finish_slot04_0d(Object *o) {
     }
 }
 
-void func_801b1780_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_6_slot04_0d(Object *obj) {
     data_801c2a18_slot04_0d[obj->state_3](obj);
 }
 

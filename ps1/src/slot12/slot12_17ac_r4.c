@@ -18,6 +18,6 @@ void move_y_by_table_until_countdown_ends_slot12(Object *obj) {
 void noop_slot00_slot12(Object *obj) {
 }
 
-void func_80011a58_slot12(Object *obj) {
+void release_object_to_pool_table_slot12(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

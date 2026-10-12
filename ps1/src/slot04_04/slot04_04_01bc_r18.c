@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern u8 data_801c4220_slot04_04[];
-void func_801b19bc_slot04_04(Object *obj);
+void count_down_then_update_or_start_end_sequence_slot04_04(Object *obj);
 void start_end_direction_sequence_slot04_04(Object *obj);
-void func_801b1a54_slot04_04(Object *obj);
+void update_sequence_until_exit_then_next_state_slot04_04(Object *obj);
 
 void update_direction_hold_sequence_slot04_04(Object *obj) {
     s16 a;
@@ -18,9 +18,9 @@ void update_direction_hold_sequence_slot04_04(Object *obj) {
 
     s = (obj->step_flags << 16) >> 24;
     if (obj->mode_flag_2 != 0) {
-        func_801b1a54_slot04_04(obj);
+        update_sequence_until_exit_then_next_state_slot04_04(obj);
     } else {
-        if ((*(u32 *)&game_state.leader_bits & 0xffff00) != 0 || game_state.field_04 != 0 || (u8)func_8012f56c(obj)) {
+        if ((*(u32 *)&game_state.leader_bits & 0xffff00) != 0 || game_state.field_04 != 0 || (u8)is_other_object_state_0_and_1_six_one(obj)) {
             start_end_direction_sequence_slot04_04(obj);
             return;
         }
@@ -33,7 +33,7 @@ void update_direction_hold_sequence_slot04_04(Object *obj) {
             }
         }
         if ((obj->pressed_bits & 0x68) == 0) {
-            func_801b19bc_slot04_04(obj);
+            count_down_then_update_or_start_end_sequence_slot04_04(obj);
             return;
         }
         if (obj->pressed_bits & 0x40) {
@@ -44,7 +44,7 @@ void update_direction_hold_sequence_slot04_04(Object *obj) {
             a = 4;
         }
         if ((s16)obj->countdown <= data_801c4220_slot04_04[a >> 1]) {
-            func_801b19bc_slot04_04(obj);
+            count_down_then_update_or_start_end_sequence_slot04_04(obj);
             return;
         }
         obj->countdown = 0xf;

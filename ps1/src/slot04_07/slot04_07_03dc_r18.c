@@ -6,7 +6,7 @@
 extern void (*data_801c20e8_slot04_07[])(Object *, Object *);
 void follow_parent_frame_param_sequence_slot04_07(Object *obj, Object *parent);
 
-int func_801b41c4_slot04_07(Object *obj) {
+int move_by_velocity_return_new_vel_y_slot04_07(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     obj->vel_x = obj->vel_x + obj->accel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;

@@ -10,7 +10,7 @@ Object *pop_object_from_second_pool(void) {
     if (n != 0) {
         o = data_801a68f0[n];
         data_801a4fec = n - 1;
-        func_80119b34((AnimObj *)o);
+        clear_anim_obj_stream_index((AnimObj *)o);
         result = o;
     } else {
         result = 0;

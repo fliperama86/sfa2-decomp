@@ -4,15 +4,15 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80124ecc(void)
+void blink_item_loop_until_button_with_palette_dim(void)
 {
   int n;
   int v;
   int new_var;
-  func_80125dc0(0, 0x20, 0xd, 0);
-  func_80125dc0(1, 0x20, 0xd, 0);
-  func_80125dc0(2, 0x20, 0xd, 0);
-  func_80125dc0(3, 0x20, 0xd, 0);
+  scale_palette_rows_from_backup_bank(0, 0x20, 0xd, 0);
+  scale_palette_rows_from_backup_bank(1, 0x20, 0xd, 0);
+  scale_palette_rows_from_backup_bank(2, 0x20, 0xd, 0);
+  scale_palette_rows_from_backup_bank(3, 0x20, 0xd, 0);
   queue_five_jobs();
   game_state.loop_mode = 0;
   v = 0x700;
@@ -27,7 +27,7 @@ void func_80124ecc(void)
   do
   {
     v = 0x1a;
-    if ((u8)func_80125268() != 0)
+    if ((u8)is_any_enabled_pad_button_pressed() != 0)
     {
       set_menu_command_by_code(6, 2);
       break;
@@ -45,10 +45,10 @@ void func_80124ecc(void)
     request_sound_command_and_switch_thread(1);
   }
   while (new_var = n--);
-  func_801260ac(0, 0x20, 0);
-  func_801260ac(1, 0x20, 0);
+  copy_palette_rows_from_backup_bank(0, 0x20, 0);
+  copy_palette_rows_from_backup_bank(1, 0x20, 0);
   ;
-  func_801260ac(2, 0x20, 0);
-  func_801260ac(3, 0x20, 0);
+  copy_palette_rows_from_backup_bank(2, 0x20, 0);
+  copy_palette_rows_from_backup_bank(3, 0x20, 0);
   queue_five_jobs();
 }

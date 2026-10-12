@@ -5,7 +5,7 @@
 
 extern s32 data_801c2568_slot04_0b[];
 
-void func_801b15d0_slot04_0b(Object *obj) {
+void start_table_velocity_move_with_sounds_slot04_0b(Object *obj) {
     int a;
 
     a = 0x26;

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3550_slot04_0b(Object *obj);
+void update_hit_loop_damage_other_with_gauge_drain_slot04_0b(Object *obj);
 
 void start_gauge_attack_sequence_slot04_0b(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
@@ -20,6 +20,6 @@ void update_sequence_until_flag_2_slot04_0b(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3++;
-        func_801b3550_slot04_0b(obj);
+        update_hit_loop_damage_other_with_gauge_drain_slot04_0b(obj);
     }
 }

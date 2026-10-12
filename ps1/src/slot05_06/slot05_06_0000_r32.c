@@ -17,7 +17,7 @@ void update_fall_and_land_with_damage_spawn_slot05_06(Object *obj) {
         move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
         if ((s8)spawn_object_variant_5_from_object(obj) != 0) {
             t = 0x80;
             negate_value_if_facing_side_zero_slot05_06(obj, (u16 *)&t);

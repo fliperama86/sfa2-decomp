@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80010eb8_slot01(void) {
+void init_screen_tables_and_hide_display_slot01(void) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     int unused[2];
     init_sprite_tables();
@@ -16,12 +16,12 @@ void func_80010eb8_slot01(void) {
     player_left.field_01 = 0;
     player_right.field_01 = 0;
     game_state.field_dc &= 0xffc0;
-    func_8011eae4();
-    func_80136e90();
-    func_80136ed0();
-    func_801260ac(1, 0x20, 0);
-    func_801260ac(2, 0x20, 0);
-    func_801260ac(3, 0x20, 0);
+    clear_arrays_and_init_pools_and_sprite_tables();
+    store_player_left_image_rows_from_field();
+    store_player_right_image_rows_from_field();
+    copy_palette_rows_from_backup_bank(1, 0x20, 0);
+    copy_palette_rows_from_backup_bank(2, 0x20, 0);
+    copy_palette_rows_from_backup_bank(3, 0x20, 0);
     queue_image_upload_job(0, 6);
     queue_image_upload_job(1, 0);
     queue_image_upload_job(2, 1);

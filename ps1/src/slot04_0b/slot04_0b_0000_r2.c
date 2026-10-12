@@ -5,12 +5,12 @@
 
 u8 move_ballistic_and_check_ground_slot04_0b(Object *obj);
 
-void func_801b037c_slot04_0b(Object *obj) {
+void inc_state_3_side_sequence_forty_eight_slot04_0b(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     set_sequence_by_side(obj, 0x30);
 }
 
-void func_801b03a8_slot04_0b(Object *obj) {
+void advance_state_3_at_sequence_end_set_sequence_slot04_0b(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_3 = obj->state_3 + 1;
         set_sequence_by_side(obj, 0x10);
@@ -19,7 +19,7 @@ void func_801b03a8_slot04_0b(Object *obj) {
     }
 }
 
-void func_801b03f8_slot04_0b(Object *obj) {
+void start_jump_velocities_at_sequence_end_slot04_0b(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->vel_y = 0x80000;
         obj->accel_x = 0;
@@ -37,7 +37,7 @@ void func_801b03f8_slot04_0b(Object *obj) {
     }
 }
 
-void func_801b047c_slot04_0b(Object *obj) {
+void move_ballistic_then_land_on_ground_slot04_0b(Object *obj) {
     if (move_ballistic_and_check_ground_slot04_0b(obj) == 0) {
         obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;

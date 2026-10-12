@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b23c8_slot04_01(Object *o) {
+void start_horizontal_motion_with_sound_slot04_01(Object *o) {
     *(s32 *)&o->vel_x = 0x80000;
     o->accel_x = -0x8000;
     o->state_3++;
-    func_80145d20(o);
-    func_801428e4(o);
+    spawn_three_child_objects_at_object_spawn(o);
+    update_meter_by_mode_or_table(o);
     set_flag_225_add_direction_to_counter(&game_state, o);
     play_side_sound_at(o, o->side, 0xd);
     set_sequence_by_side_and_mode(o, (o->direction_index >> 1) + 0x28);

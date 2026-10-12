@@ -8,7 +8,7 @@ extern u16 data_801ecbc4_slot06_0f[];
 extern u16 data_80190542;
 
 void init_first_layer_tile_map_slot06_0f(Slot06Layer *layer);
-void func_801e8220_slot06_0f(void);
+void init_tile_prim_rows_gray_draw_mode_slot06_0f(void);
 void init_layer_tile_map_0f_with_bounds_slot06_0f(Slot06Layer *layer);
 void init_layer_tile_map_fields_slot06_0f(Slot06Layer *layer);
 void init_layer_tile_map_params_short_slot06_0f(Slot06Layer *layer);
@@ -45,8 +45,8 @@ void init_four_layers_tile_maps_slot06_0f(void) {
     init_layer_tile_map_params_short_slot06_0f((Slot06Layer *)data_801904d8);
 }
 
-void func_801e80f0_slot06_0f(void) {
-    func_801e8220_slot06_0f();
+void init_slot_tile_sprite_and_poly_buffers_gray_l_slot06_0f(void) {
+    init_tile_prim_rows_gray_draw_mode_slot06_0f();
     init_two_tile_prim_tables_gray_slot06_0f();
     init_two_buffers_of_32px_sprite_prims_slot06_0f();
     init_poly_ft4_buffers_gray_slot06_0f();
@@ -85,7 +85,7 @@ void init_first_layer_tile_map_slot06_0f(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8220_slot06_0f(void) {
+void init_tile_prim_rows_gray_draw_mode_slot06_0f(void) {
     int i;
     int j;
     Slot06Tile *r;

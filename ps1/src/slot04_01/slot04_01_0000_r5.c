@@ -14,7 +14,7 @@ void start_or_continue_move_by_state_3_slot04_01(Object *obj) {
     }
 }
 
-void func_801b06dc_slot04_01(Object *obj) {
+void set_direction_sequence_or_air_range_check_slot04_01(Object *obj) {
     int t = 0xc;
     int one = 1;
 

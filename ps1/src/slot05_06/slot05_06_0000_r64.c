@@ -11,18 +11,18 @@ void call_handler_by_direction_index_8_slot05_06(Object *obj) {
     data_801dd594_slot05_06[obj->direction_index >> 1](obj);
 }
 
-void func_801cd87c_slot05_06(Object *obj) {
+void call_table_function_by_state_3_24_slot05_06(Object *obj) {
     data_801dd5a0_slot05_06[obj->state_3](obj);
 }
 
-void func_801cd8bc_slot05_06(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_2_slot05_06(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801cd8f4_slot05_06(Object *obj) {
+void update_sequence_or_reset_on_negative_flags_4_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
@@ -33,6 +33,6 @@ void func_801cd8f4_slot05_06(Object *obj) {
     }
 }
 
-void func_801cd958_slot05_06(Object *obj) {
+void call_table_function_by_state_3_25_slot05_06(Object *obj) {
     data_801dd5a8_slot05_06[obj->state_3](obj);
 }

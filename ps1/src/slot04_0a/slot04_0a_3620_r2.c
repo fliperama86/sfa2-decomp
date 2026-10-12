@@ -5,7 +5,7 @@
 
 void clear_twenty_slot_words_slot04_0a(Object *object);
 
-void func_801b37fc_slot04_0a(Object *obj) {
+void update_sequence_spawn_effects_on_high_flag_b_slot04_0a(Object *obj) {
     int a = 0;
     int b;
     if ((s16)obj->step_flags & 0xff00) {

@@ -5,7 +5,7 @@
 
 
 
-int func_80142424(Object *object, Box32 *box, s16 elapsed) {
+int select_inputs_from_threshold_mask(Object *object, Box32 *box, s16 elapsed) {
     s16 mask;
     s16 i, shift;
     mask = build_mask_of_reached_thresholds(object, elapsed);

@@ -3,16 +3,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4c28_slot04_0b(Object *obj);
+void update_two_track_position_toward_ground_slot04_0b(Object *obj);
 void set_sequence_from_other_side_table_slot04_0b(Object *obj, int index);
 void set_position_relative_to_ref_other_slot04_0b(Object *obj, int dx, int dy);
 
-void func_801b4acc_slot04_0b(Object *obj) {
+void set_image_row_offset_ref_position_sequence_b_slot04_0b(Object *obj) {
     obj->image_row = 0x1f;
     obj->state_1++;
     set_position_relative_to_ref_other_slot04_0b(obj, 0xe, 0xe);
     set_sequence_from_other_side_table_slot04_0b(obj, 0x14);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void init_arc_motion_when_other_flag_clear_slot04_0b(Object *obj) {
@@ -39,8 +39,8 @@ void init_arc_motion_when_other_flag_clear_slot04_0b(Object *obj) {
         *(s16 *)&obj->countdown = -0xa0;
         obj->accel_x = *(s32 *)&obj->pos_y_frac - 0x340000;
         obj->accel_y = *(s32 *)&obj->pos_y_frac - 0x4d0000;
-        func_801b4c28_slot04_0b(obj);
+        update_two_track_position_toward_ground_slot04_0b(obj);
     } else {
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     }
 }

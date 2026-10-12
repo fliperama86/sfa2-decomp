@@ -5,13 +5,13 @@
 
 void set_sequence_from_other_side_table_slot04_0b(Object *o, int index);
 
-void func_801b46b8_slot04_0b(Object *o) {
+void start_object_at_ref_position_with_side_sequence_slot04_0b(Object *o) {
     o->state_1++;
     o->ot_depth = 0;
     o->pos_x = ref_other.p->pos_x;
     o->pos_y = ref_other.p->pos_y;
     set_sequence_from_other_side_table_slot04_0b(o, 0x19);
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void advance_state_when_ref_step_flag_set_slot04_0b(Object *o) {
@@ -19,6 +19,6 @@ void advance_state_when_ref_step_flag_set_slot04_0b(Object *o) {
         o->state_1 = 0;
         o->state_0++;
     } else {
-        func_8011ffdc(o);
+        clear_or_set_flag_by_pos_x_limit(o);
     }
 }

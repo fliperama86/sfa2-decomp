@@ -13,7 +13,7 @@ void init_child_sequence_from_parent_side_slot04_01(Object *obj) {
     }
 }
 
-void func_801b46dc_slot04_01(Object *obj) {
+void update_child_follow_parent_x_alternate_flag_slot04_01(Object *obj) {
     Object *p = obj->parent;
     int a;
 

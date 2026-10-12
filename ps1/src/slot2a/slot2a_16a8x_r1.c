@@ -7,7 +7,7 @@ extern u8 data_801e5160_slot2a[];
 extern Slot2aSlot data_801e5164_slot2a[][2];
 extern u16 *data_801e52c8_slot2a;
 
-void func_801e16a8_slot2a(Object *obj) {
+void link_selector_records_into_ordering_table_slot2a(Object *obj) {
     u32 *link = (u32 *)data_801987c8 + 1;
     Rec14 *rec;
     u32 tail;

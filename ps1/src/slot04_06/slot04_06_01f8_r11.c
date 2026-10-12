@@ -5,6 +5,6 @@
 
 extern ObjectFn data_801c53b0_slot04_06[];
 
-void func_801b2234_slot04_06(Object *obj) {
+void call_table_function_by_state_3_10_slot04_06(Object *obj) {
     data_801c53b0_slot04_06[obj->state_3](obj);
 }

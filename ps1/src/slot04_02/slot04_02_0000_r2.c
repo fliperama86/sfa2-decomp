@@ -5,7 +5,7 @@
 
 void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-void func_801b0118_slot04_02(Object *obj) {
+void update_sequence_with_flag_sound_or_reset_states_slot04_02(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t < 0) {

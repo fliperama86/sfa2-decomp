@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3d94_slot04_02(Object *o) {
+void update_countdown_spawn_children_when_mode_set_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     o->countdown = (s16)o->countdown - 0x100;
@@ -26,7 +26,7 @@ void func_801b3d94_slot04_02(Object *o) {
     update_sequence(o);
 }
 
-void func_801b3e40_slot04_02(Object *o) {
+void count_down_high_byte_then_advance_state_3_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     o->countdown = (s16)o->countdown - 0x100;
@@ -39,7 +39,7 @@ void func_801b3e40_slot04_02(Object *o) {
     update_sequence(o);
 }
 
-void func_801b3eac_slot04_02(Object *o) {
+void count_down_high_byte_advance_state_3_if_nonzero_slot04_02(Object *o) {
     o->countdown = (s16)o->countdown - 0x100;
     if ((o->countdown & 0xff00) != 0) {
         o->state_3++;

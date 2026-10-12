@@ -32,8 +32,8 @@ void update_sequence_with_input_check(Object *object);
 void spawn_object_for_kind_0f_player_slot06_0f(void);
 
 void call_handler_by_direction_index_slot04_0f(Object *obj);
-void func_801b06fc_slot04_0f(Object *obj);
-void func_801b09a4_slot04_0f(Object *obj);
+void call_table_function_by_state_3_3_slot04_0f(Object *obj);
+void call_table_function_by_state_3_4_slot04_0f(Object *obj);
 void call_side_routine_and_set_side_flag_slot04_0f(Object *obj);
 void update_mode_change_select_row_slot04_0f(Object *obj);
 void update_sequence_check_input_or_reset_slot04_0f(Object *obj);
@@ -111,7 +111,7 @@ void call_handler_by_input_dir_0_slot04_0f(Object *obj) {
 void call_handler_by_input_dir_second_slot04_0f(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second != 0) {
-        func_801b06fc_slot04_0f(obj);
+        call_table_function_by_state_3_3_slot04_0f(obj);
     } else {
         call_handler_by_direction_index_slot04_0f(obj);
     }
@@ -121,7 +121,7 @@ void call_handler_by_direction_index_slot04_0f(Object *obj) {
     data_801c5974_slot04_0f[obj->direction_index >> 1](obj);
 }
 
-void func_801b030c_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_slot04_0f(Object *obj) {
     data_801c5980_slot04_0f[obj->state_3](obj);
 }
 
@@ -151,11 +151,11 @@ void select_sequence_by_input_bits_a_slot04_0f(Object *o) {
     }
 }
 
-void func_801b0418_slot04_0f(Object *obj) {
+void call_update_sequence_with_input_check_slot04_0f(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
-void func_801b0438_slot04_0f(Object *obj) {
+void call_update_sequence_check_input_or_reset_slot04_0f(Object *obj) {
     update_sequence_check_input_or_reset_slot04_0f(obj);
 }
 
@@ -189,7 +189,7 @@ void set_state_3_two_unless_step_flag_one_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b0570_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_2_slot04_0f(Object *obj) {
     data_801c59a4_slot04_0f[obj->state_3](obj);
 }
 
@@ -201,7 +201,7 @@ void start_move_or_switch_state_by_input_slot04_0f(Object *o) {
     o->state_3 = o->state_3 + 1;
     p = &obj->saved_pos_x_frac;
     obj->field_337 = 0;
-    if (o->direction_index != 0 && (o->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(o, -0x14, 0x14) != 0) {
+    if (o->direction_index != 0 && (o->input_bits_2 & 0xa000) != 0 && (u8)try_force_other_state_if_box_in_range(o, -0x14, 0x14) != 0) {
         o->state_0 = 1;
         o->state_1 = 2;
         o->state_2 = 0;
@@ -223,19 +223,19 @@ void start_move_or_switch_state_by_input_slot04_0f(Object *o) {
     }
 }
 
-void func_801b06bc_slot04_0f(Object *obj) {
+void call_update_sequence_with_input_check_2_slot04_0f(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
-void func_801b06dc_slot04_0f(Object *obj) {
+void call_update_sequence_check_input_or_reset_2_slot04_0f(Object *obj) {
     update_sequence_check_input_or_reset_slot04_0f(obj);
 }
 
-void func_801b06fc_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_3_slot04_0f(Object *obj) {
     data_801c59b8_slot04_0f[obj->state_3](obj);
 }
 
-void func_801b073c_slot04_0f(Object *o) {
+void start_sequence_from_direction_or_meter_input_a_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int k;
 
@@ -256,11 +256,11 @@ void func_801b073c_slot04_0f(Object *o) {
     }
 }
 
-void func_801b0800_slot04_0f(Object *obj) {
+void call_update_sequence_with_input_check_3_slot04_0f(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
-void func_801b0820_slot04_0f(Object *obj) {
+void call_update_sequence_check_input_or_reset_3_slot04_0f(Object *obj) {
     update_sequence_check_input_or_reset_slot04_0f(obj);
 }
 
@@ -269,11 +269,11 @@ void call_state_3_handler_or_alt_by_input_dir_slot04_0f(Object *obj) {
     if (obj->input_dir_second == 0) {
         data_801c59cc_slot04_0f[obj->state_3](obj);
     } else {
-        func_801b09a4_slot04_0f(obj);
+        call_table_function_by_state_3_4_slot04_0f(obj);
     }
 }
 
-void func_801b08a0_slot04_0f(Object *o) {
+void start_sequence_from_direction_or_meter_input_b_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int k;
 
@@ -294,14 +294,14 @@ void func_801b08a0_slot04_0f(Object *o) {
     }
 }
 
-void func_801b0964_slot04_0f(Object *obj) {
+void call_update_sequence_with_input_check_4_slot04_0f(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
-void func_801b0984_slot04_0f(Object *obj) {
+void call_update_sequence_check_input_or_reset_4_slot04_0f(Object *obj) {
     update_sequence_check_input_or_reset_slot04_0f(obj);
 }
 
-void func_801b09a4_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_4_slot04_0f(Object *obj) {
     data_801c59e0_slot04_0f[obj->state_3](obj);
 }

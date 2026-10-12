@@ -4,9 +4,9 @@
 #include "protos.h"
 
 
-void func_8014630c(Object *object) {
+void update_attached_sequence_unless_pause_flag_b(Object *object) {
     if (game_state.config->pause_flag_b != 0) {
-        func_8011ffdc(object);
+        clear_or_set_flag_by_pos_x_limit(object);
         return;
     }
     if ((s16)object->step_flags < 0) {
@@ -14,11 +14,11 @@ void func_8014630c(Object *object) {
     }
     follow_parent_position_with_frame_offset(object);
     advance_sequence_checked(object);
-    func_8011ffdc(object);
+    clear_or_set_flag_by_pos_x_limit(object);
 }
 
 /* The parameter is passed on to reset_and_push_object_to_pool_table, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table fn_table_8017c9e0 holds this function and is declared with this parameter. */
-void func_80146374(Object *p) {
+void push_object_to_pool_table_wrapper_5(Object *p) {
     reset_and_push_object_to_pool_table((Slab172 *)p);
 }
 

@@ -7,7 +7,7 @@ void call_handler_by_handler_index_b_slot0f(Object *o);
 extern Slot0fObj data_800f857c_slot0f;
 extern void (*data_800e8778_slot0f[])(Object *);
 
-void func_800e1640_slot0f(void) {
+void loop_menu_object_until_loop_flag_clear_slot0f(void) {
     Slot0fObj *o = &data_800f857c_slot0f;
     data_800f857c_slot0f.field_03 = 0;
     data_800f857c_slot0f.field_02 = 0;

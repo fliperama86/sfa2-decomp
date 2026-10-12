@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 extern void (*data_800ebc68_slot0f[])(Object *);
-void func_800e5b30_slot0f(int flag);
+void queue_image_job_from_slot0f_table_entry_slot0f(int flag);
 void set_phase_two_clear_step_slot0f(Object *obj);
 void func_800e5874_slot0f(Object *obj);
 
 void call_image_job_with_index_0_slot0f(Object *obj) {
-    func_800e5b30_slot0f(0);
+    queue_image_job_from_slot0f_table_entry_slot0f(0);
 }
 
 void call_step_handler_and_update_blocks_slot0f(Object *obj) {

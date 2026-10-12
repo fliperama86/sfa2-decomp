@@ -5,7 +5,7 @@
 
 extern Object *data_8002d574_slot12;
 
-void func_8001047c_slot12(void) {
+void spawn_two_blocks_and_advance_substep_index_slot12(void) {
     Object *o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;

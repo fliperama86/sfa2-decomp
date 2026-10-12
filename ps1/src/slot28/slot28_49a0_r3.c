@@ -7,10 +7,10 @@ extern ObjectRef data_800518c8_slot28;
 extern Object *data_800518bc_slot28[];
 extern SequenceStep *data_8002bddc_slot28[];
 
-void func_8001581c_slot28(Object *obj, int arg);
+void set_sequence_of_fourth_hud_object_2_slot28(Object *obj, int arg);
 void release_four_stored_objects_slot28(Object *obj);
 
-void func_80014f80_slot28(Object *obj) {
+void start_countdown_when_object_field_negative_slot28(Object *obj) {
     if (((Slot28Obj *)data_800518c8_slot28.p)->field_3a < 0) {
         data_8018f5a0->countdown_timer = 0xc0;
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
@@ -28,7 +28,7 @@ void count_down_then_advance_pass_and_call_slot28(Object *obj) {
     }
 }
 
-void func_80015028_slot28(Object *obj) {
+void advance_pass_and_start_fade_1a01_if_idle_slot28(Object *obj) {
     Object *o;
     HudState *h;
     if (obj->field_f0 == 0) {
@@ -45,7 +45,7 @@ void func_80015028_slot28(Object *obj) {
         o->image_row = 0;
         o->field_01 = 1;
         set_sequence_from_table_5(o, 0, data_8002bddc_slot28);
-        func_8001581c_slot28(obj, 4);
+        set_sequence_of_fourth_hud_object_2_slot28(obj, 4);
         set_menu_command_by_code(1, 0x402);
         start_fade_mode_1a01_and_wait();
     }

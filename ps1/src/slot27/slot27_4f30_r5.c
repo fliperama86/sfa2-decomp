@@ -33,7 +33,7 @@ void increment_state_0_3_slot27(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
 }
 
-void func_800154c8_slot27(Object *obj) {
+void release_object_to_pool_table_8_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 

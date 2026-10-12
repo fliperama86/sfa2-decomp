@@ -10,18 +10,18 @@ void set_position_from_other_box(Object *object);
 void spawn_effect_at_object_offset(Object *object, u8 a, int dx, int dy);
 void set_sequence_and_tables_from_direction(Object *object);
 
-void func_801b5874_slot04_11(Object *obj);
-Object *func_801b5914_slot04_11(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_slot04_11(Object *obj);
+Object *get_table_object_by_field_slot04_11(Object *obj);
 
 void update_sequence_or_load_velocity_table_2_slot04_11(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
-        func_801b5874_slot04_11(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_11(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b5508_slot04_11(Object *obj) {
+void call_table_function_by_state_3_14_slot04_11(Object *obj) {
     data_801c7838_slot04_11[obj->state_3](obj);
 }
 
@@ -32,7 +32,7 @@ void start_sequence_1b_set_facing_position_slot04_11(Object *obj) {
     play_side_sound_at(obj, obj->side, 8);
     obj->facing_side = 0;
     if (obj->mode_flag_2 != 0) {
-        if (func_801b5914_slot04_11(obj)->pos_x + 0xc0 >= obj->pos_x) {
+        if (get_table_object_by_field_slot04_11(obj)->pos_x + 0xc0 >= obj->pos_x) {
             goto inc;
         }
     } else if ((obj->input_bits & 0x8000) == 0) {
@@ -62,13 +62,13 @@ void update_sequence_with_flag_hit_and_sound_slot04_11(Object *obj) {
 
 void update_sequence_or_load_velocity_table_3_slot04_11(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
-        func_801b5874_slot04_11(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_11(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b5740_slot04_11(Object *obj) {
+void enable_active_flag_3_and_select_sequence_slot04_11(Object *obj) {
     obj->active_flag_3 = 1;
     set_sequence_and_tables_from_direction(obj);
 }

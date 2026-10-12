@@ -15,10 +15,10 @@ void update_state_with_input_branches_b(Object *object) {
             return;
         }
         if ((u8)is_input_bit_1000_held(object) != 0) {
-            func_80130280(object);
+            enter_state_1_3_with_input_variant_and_sequence(object);
             return;
         }
-        if (func_8012f970(object) != 0) {
+        if (find_nearby_enemy_and_get_flag(object) != 0) {
             object->state_3 = 0;
             object->field_157 = 0;
             object->facing_side = object->saved_facing;
@@ -26,7 +26,7 @@ void update_state_with_input_branches_b(Object *object) {
             return;
         }
         if ((u8)is_only_horizontal_input_held(object) != 0) {
-            func_8012f838(object);
+            start_move_state_1_0_2_1_with_sequence_by_input(object);
             return;
         }
         if ((s16)object->step_flags < 0) {

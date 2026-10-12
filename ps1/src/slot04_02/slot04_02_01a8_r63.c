@@ -23,7 +23,7 @@ void call_handler_by_table_index_and_advance_slot04_02(Object *o) {
         advance_sequence_checked(o);
         set_state_0_if_x_outside_margin_narrow(o);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void apply_velocity_with_inverted_y_slot04_02(Object *o) {

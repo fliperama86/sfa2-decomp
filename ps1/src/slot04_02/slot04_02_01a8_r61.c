@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void increment_state_0_slot04_02(Object *obj);
-void func_801b6e68_slot04_02(Object *obj);
+void set_sequence_from_variant_index_by_parent_side_slot04_02(Object *obj);
 void copy_parent_position_offset_by_facing_slot04_02(Object *obj);
 
 void init_object_from_parent_fields_slot04_02(Object *o) {
@@ -36,7 +36,7 @@ void update_child_follow_parent_frame_param_slot04_02(Object *o) {
             o->field_01 = 1;
             if (o->variant_index != s) {
                 o->variant_index = s;
-                func_801b6e68_slot04_02(o);
+                set_sequence_from_variant_index_by_parent_side_slot04_02(o);
             } else {
                 advance_sequence_checked(o);
             }

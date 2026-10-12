@@ -29,7 +29,7 @@ void init_entity_from_other_object(ObjectView *entity, Object *other) {
     entity->field_8e = 0;
 }
 
-void func_80123a64(GameState *state) {
+void clear_hud_and_entity_fields_then_switch_entry(GameState *state) {
     ObjectView *entity = (ObjectView *)state;
     HudBig *hud = (HudBig *)data_8018f5a0;
     hud->field_48 = 0;
@@ -63,18 +63,18 @@ void fill_zero_entries_with_8_up_to_count(ObjectView *entity, s16 count) {
     }
 }
 
-void func_80123b20(ObjectView *entity, ObjectView *other) {
+void set_other_marker_and_play_side_sound_3(ObjectView *entity, ObjectView *other) {
     other->field_116 = 0xff;
     play_side_sound_at((Object *)entity, entity->side, 3);
 }
 
-void func_80123b4c(ObjectView *entity, Object *other) {
+void clear_flag_if_mode_3_or_other_flag_or_zero(ObjectView *entity, Object *other) {
     if (entity->mode == 3 || other->mode_flag_2 != 0 || entity->field_60 == 0) {
         entity->field_77 = 0;
     }
 }
 
-void func_80123b88(ObjectView *entity) {
+void set_random_flag_by_chance_when_table_index_6(ObjectView *entity) {
     entity->random_flag = 0;
     if (entity->table_index == 6) {
         if ((get_random_byte() & 0x3f) == 0) {

@@ -14,15 +14,15 @@ int is_link_flags_zero_slot04_04(Object *obj) {
     return obj->link_flags == 0;
 }
 
-int func_801b15c8_slot04_04(Object *obj) {
+int is_meter_at_least_threshold_slot04_04(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b15dc_slot04_04(Object *obj) {
+int is_meter_at_least_threshold_2_slot04_04(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b15f0_slot04_04(Object *obj) {
+int is_meter_at_least_threshold_3_slot04_04(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 

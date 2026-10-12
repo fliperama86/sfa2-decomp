@@ -14,26 +14,26 @@ void queue_five_jobs(void) {
 
 void update_object_motion_unless_paused(Object *object) {
     if ((game_state.config->pause_flag_a | game_state.config->pause_flag_b) != 0) {
-        func_8011ffdc(object);
+        clear_or_set_flag_by_pos_x_limit(object);
     } else {
         *(s32 *)&object->pos_x_frac += object->vel_x;
         *(u32 *)&object->pos_y_frac -= object->vel_y;
         advance_sequence_checked(object);
         set_state_0_if_x_outside_margin_narrow(object);
-        func_8011ffdc(object);
+        clear_or_set_flag_by_pos_x_limit(object);
     }
 }
 
 void call_state_2_handler_267c_unless_paused(Object *object) {
     if ((game_state.config->pause_flag_a | game_state.config->pause_flag_b) != 0) {
-        func_8011ffdc(object);
+        clear_or_set_flag_by_pos_x_limit(object);
     } else {
         handlers_267c[object->state_2](object);
-        func_8011ffdc(object);
+        clear_or_set_flag_by_pos_x_limit(object);
     }
 }
 
-void func_80137c54(Object *object) {
+void advance_state_2_set_countdown_high_and_sequence(Object *object) {
     object->state_2++;
     object->countdown = (object->countdown & 0xff) | 0x200;
     advance_sequence_checked(object);

@@ -5,7 +5,7 @@
 
 
 
-void func_801369b0(Cam *cam) {
+void init_cam_position_with_fixed_origin(Cam *cam) {
     init_cam_position_and_consume_pending(cam, 0x1c0, 0);
 }
 

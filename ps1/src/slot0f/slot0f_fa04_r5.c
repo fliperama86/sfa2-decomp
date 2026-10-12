@@ -6,7 +6,7 @@
 extern void (*data_800e8404_slot0f[])(GameState *, Menu *);
 void reset_hud_state_and_sound_by_arg_slot0f(Object *obj, int a);
 void call_handler_by_step_index_slot0f(void);
-void func_800e1640_slot0f(void);
+void loop_menu_object_until_loop_flag_clear_slot0f(void);
 
 void call_menu_handler_by_mode_index_slot0f(GameState *state, Menu *menu) {
     data_800e8404_slot0f[(s8)menu->mode_index](state, menu);
@@ -39,5 +39,5 @@ void call_step_handler_by_step_index_slot0f(GameState *state, Menu *menu) {
 
 void decrement_phase_and_call_loop_slot0f(GameState *state, Menu *menu) {
     data_8018f5a0->phase_index--;
-    func_800e1640_slot0f();
+    loop_menu_object_until_loop_flag_clear_slot0f();
 }

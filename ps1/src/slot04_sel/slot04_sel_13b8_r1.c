@@ -13,9 +13,9 @@ extern u8 data_801b7350_slot04_sel[];
 extern Slot04SelRec7648 data_801b7648_slot04_sel;
 extern u8 data_801b9ce8_slot04_sel;
 extern u8 data_801b9cec_slot04_sel;
-void func_801b1a8c_slot04_sel(Object *obj, Slot04SelRec *r, int c);
+void update_selection_index_wrap_by_side_buttons_slot04_sel(Object *obj, Slot04SelRec *r, int c);
 
-void func_801b13b8_slot04_sel(Object *obj, Slot04SelRec *r) {
+void update_side_second_menu_cursor_and_confirm_slot04_sel(Object *obj, Slot04SelRec *r) {
     TextBuf *s3 = data_801b7618_slot04_sel[obj->side];
     TextItem *s2 = data_801b749c_slot04_sel[obj->side];
 
@@ -23,7 +23,7 @@ void func_801b13b8_slot04_sel(Object *obj, Slot04SelRec *r) {
         if (((game_state.side_mask >> obj->side) & 1) != 0) {
             data_801b9ce8_slot04_sel = r->second_cursor_index;
             data_801b9cec_slot04_sel = r->field_0b;
-            func_801b1a8c_slot04_sel(obj, r, 1);
+            update_selection_index_wrap_by_side_buttons_slot04_sel(obj, r, 1);
             r->second_cursor_index = data_801b9ce8_slot04_sel;
             r->field_0b = data_801b9cec_slot04_sel;
             s2->x = data_801b6e80_slot04_sel[obj->side];

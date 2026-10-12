@@ -13,7 +13,7 @@ extern void *data_80021b34_slot12[][2];
 void set_sequence_and_copy_to_shared_object_slot12(Object *obj, int a);
 void copy_object_state_to_shared_object_slot12(Object *obj);
 
-void func_80011f04_slot12(Object *obj) {
+void init_object_from_shared_kind_and_set_sequence_slot12(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
     int a;

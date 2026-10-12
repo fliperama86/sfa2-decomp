@@ -21,7 +21,7 @@ void update_sequence_or_end_move_a_slot04_10(Object *obj) {
     }
 }
 
-void func_801b2fec_slot04_10(Object *obj) {
+void call_table_function_by_state_3_13_slot04_10(Object *obj) {
     data_801c6a54_slot04_10[obj->state_3](obj);
 }
 

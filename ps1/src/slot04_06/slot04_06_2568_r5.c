@@ -3,16 +3,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2b84_slot04_06(Object *obj);
+void set_state_3_dash_velocity_sound_sequence_slot04_06(Object *obj);
 
-void func_801b2a88_slot04_06(Object *obj) {
+void update_sequence_then_hit_other_at_end_slot04_06(Object *obj) {
     Slot04aObj *s = (Slot04aObj *)obj;
     Object *other;
 
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else if (obj->direction_index == 4) {
-        func_801b2b84_slot04_06(obj);
+        set_state_3_dash_velocity_sound_sequence_slot04_06(obj);
     } else {
         other = obj->other;
         other->field_15b = 1;
@@ -31,7 +31,7 @@ void func_801b2a88_slot04_06(Object *obj) {
     }
 }
 
-void func_801b2b84_slot04_06(Object *obj) {
+void set_state_3_dash_velocity_sound_sequence_slot04_06(Object *obj) {
     Slot04aObj *s = (Slot04aObj *)obj;
 
     obj->state_3 = 0x13;

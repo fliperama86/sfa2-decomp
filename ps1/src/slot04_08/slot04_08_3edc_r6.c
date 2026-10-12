@@ -5,5 +5,5 @@
 
 void clear_other_link_and_release_object_slot04_08(Object *obj, Object *other) {
     other->linked_object = 0;
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }

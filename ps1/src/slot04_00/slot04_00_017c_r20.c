@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801c056c_slot04_00[];
 
-void func_801b3314_slot04_00(Object *o) {
+void call_state_2_handler_unless_paused_slot04_00(Object *o) {
     call_state_2_handler_2684_unless_paused(o);
 }
 
@@ -17,7 +17,7 @@ void load_velocities_from_table_5_slot04_00(Object *obj) {
     call_handler_2694_by_state_2(obj);
 }
 
-void func_801b3374_slot04_00(Object *o) {
+void call_state_1_table_handler_then_cull_check_slot04_00(Object *o) {
     data_801c056c_slot04_00[o->state_1](o);
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }

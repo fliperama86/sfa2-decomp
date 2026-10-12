@@ -17,9 +17,9 @@ extern SequenceStep *data_8004bd7c_slot28[];
 extern SequenceStep *data_8004bd84_slot28[];
 extern u8 data_8004ab90_slot28[];
 extern u8 data_8004aed8_slot28[];
-void func_80025114_slot28(Object *o);
-void func_80025174_slot28(void);
-void func_800250e4_slot28(Object *o, int arg);
+void init_object_data_pointers_a_16_slot28(Object *o);
+void release_active_objects_in_table_14_slot28(void);
+void set_sequence_of_fourth_hud_object_16_slot28(Object *o, int arg);
 
 void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
     HudState *h;
@@ -29,7 +29,7 @@ void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
         h = data_8018f5a0;
         h->countdown_timer = 0x258;
         h->pass_index++;
-        func_80025174_slot28();
+        release_active_objects_in_table_14_slot28();
         set_sequence_from_table_5(data_80051c4c_slot28.p, 1, data_8004bd74_slot28);
         p = data_80051c50_slot28[0];
         p->pos_y = 0x20;
@@ -38,7 +38,7 @@ void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
         p->field_01 = one;
         p = (Object *)pop_block_from_pool();
         if (p != 0) {
-            func_80025114_slot28(p);
+            init_object_data_pointers_a_16_slot28(p);
             p->pos_x = 0xb4;
             p->pos_y = 0x2d;
             p->spawn_x = 0x60;
@@ -50,7 +50,7 @@ void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
         }
         p = (Object *)pop_block_from_pool();
         if (p != 0) {
-            func_80025114_slot28(p);
+            init_object_data_pointers_a_16_slot28(p);
             p->pos_x = 0xbb;
             p->pos_y = 0x2f;
             p->spawn_x = 0x60;
@@ -62,7 +62,7 @@ void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
         }
         p = (Object *)pop_block_from_pool();
         if (p != 0) {
-            func_80025114_slot28(p);
+            init_object_data_pointers_a_16_slot28(p);
             p->pos_x = 0xc8;
             p->pos_y = 0x3e;
             p->spawn_x = 0x60;
@@ -74,7 +74,7 @@ void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
         }
         p = (Object *)pop_block_from_pool();
         if (p != 0) {
-            func_80025114_slot28(p);
+            init_object_data_pointers_a_16_slot28(p);
             p->pos_x = 0xd9;
             p->pos_y = 0x4e;
             p->spawn_x = 0x60;
@@ -86,7 +86,7 @@ void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
         }
         p = (Object *)pop_block_from_pool();
         if (p != 0) {
-            func_80025114_slot28(p);
+            init_object_data_pointers_a_16_slot28(p);
             p->pos_x = 0xf3;
             p->pos_y = 0x63;
             p->spawn_x = 0x60;
@@ -98,7 +98,7 @@ void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
         }
         p = (Object *)pop_block_from_pool();
         if (p != 0) {
-            func_80025114_slot28(p);
+            init_object_data_pointers_a_16_slot28(p);
             p->pos_x = 0xb8;
             p->pos_y = 0xa0;
             p->spawn_x = 0x60;
@@ -125,7 +125,7 @@ void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
             ((Slot28Obj *)p)->sequence_ptr = data_8004bd84_slot28;
             data_80051c3c_slot28.p = p;
         }
-        func_800250e4_slot28(obj, 3);
+        set_sequence_of_fourth_hud_object_16_slot28(obj, 3);
         start_fade_mode_1a01_and_wait();
     }
 }

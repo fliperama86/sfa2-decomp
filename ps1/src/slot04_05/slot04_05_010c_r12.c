@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b34f8_slot04_05(Object *object);
-void func_801b36f4_slot04_05(Object *object);
+void call_table_function_by_state_3_19_slot04_05(Object *object);
+void call_table_function_by_state_3_20_slot04_05(Object *object);
 
 void count_down_countdown_high_byte_slot04_05(Object *obj) {
     int a;

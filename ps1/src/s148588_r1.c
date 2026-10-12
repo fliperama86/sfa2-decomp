@@ -5,7 +5,7 @@
 
 
 
-void func_80148588(Block172 *block) {
+void call_table_function_by_state_0_5(Block172 *block) {
     Object *object = (Object *)block;
     table_8017cd28[object->state_0](object);
 }

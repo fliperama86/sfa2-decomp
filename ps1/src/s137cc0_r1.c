@@ -13,11 +13,11 @@ void call_state_2_handler_2684_unless_paused(Object *object) {
         handlers_2684[object->state_2](object);
     }
     if ((object->countdown >> 8) & 0x92) {
-        func_8011ffdc(object);
+        clear_or_set_flag_by_pos_x_limit(object);
     }
 }
 
-void func_80137d48(Object *object) {
+void advance_state_2_set_countdown_bits_and_sequence(Object *object) {
     object->state_2++;
     object->countdown = (u8)object->countdown | 0x1800;
     advance_sequence_checked(object);
@@ -40,5 +40,5 @@ void call_state_2_handler_268c_unless_paused(Object *object) {
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
         handlers_268c[object->state_2](object);
     }
-    func_8011ffdc(object);
+    clear_or_set_flag_by_pos_x_limit(object);
 }

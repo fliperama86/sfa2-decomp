@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801521a0(int a, u8 b, s16 c, s16 d) {
+void add_16x16_sprite_prim_from_byte(int a, u8 b, s16 c, s16 d) {
     if (b != 0) {
         Cmd *cmd = data_8018d13c;
         u8 lo = (b & 0xf) << 4;
@@ -22,7 +22,7 @@ void func_801521a0(int a, u8 b, s16 c, s16 d) {
     }
 }
 
-void func_80152220(Block172 *block) {
+void call_table_function_by_state_0_10(Block172 *block) {
     Object *object = (Object *)block;
     table_8018023c[object->state_0](object);
 }

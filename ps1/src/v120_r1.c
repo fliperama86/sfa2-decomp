@@ -15,11 +15,11 @@ void close_sounds_and_load_command_4(int a)
   close_vab_and_sep(2);
   if (a == 0)
   {
-    func_8014f3b8(4, 2);
+    start_cd_track_wait_with_thread_switch(4, 2);
   }
   else
   {
-    func_8014f3b8(4, 1);
+    start_cd_track_wait_with_thread_switch(4, 1);
   }
   g->loop_mode = 0;
   while (g->wait_flag)

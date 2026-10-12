@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_8001336c_slot01(u8 arg);
+int try_spawn_pooled_object_once_with_arg_slot01(u8 arg);
 
 void spawn_object_and_loop_while_busy_slot01(void) {
-    if (func_8001336c_slot01(1)) {
+    if (try_spawn_pooled_object_once_with_arg_slot01(1)) {
         game_state.busy_flag = 0xff;
     }
     while (game_state.busy_flag != 0) {
@@ -17,8 +17,8 @@ void spawn_object_and_loop_while_busy_slot01(void) {
     }
 }
 
-void func_80010790_slot01(void) {
-    if (func_8001336c_slot01(0)) {
+void start_job_zero_and_advance_substep_slot01(void) {
+    if (try_spawn_pooled_object_once_with_arg_slot01(0)) {
         HudState *h = data_8018f5a0;
         game_state.busy_flag = 0xff;
         h->substep_index++;

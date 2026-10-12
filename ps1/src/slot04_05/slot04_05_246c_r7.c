@@ -5,7 +5,7 @@
 
 int move_x_by_vel_x_facing_and_accelerate_slot04_05(Object *object);
 
-void func_801b2e04_slot04_05(Object *obj) {
+void update_sequence_then_set_vel_x_on_flag_2_slot04_05(Object *obj) {
     u8 t;
     update_sequence(obj);
     t = obj->step_flags;
@@ -19,7 +19,7 @@ void func_801b2e04_slot04_05(Object *obj) {
     }
 }
 
-void func_801b2e74_slot04_05(Object *o) {
+void update_slide_with_input_branch_or_start_jump_slot04_05(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     s16 t = o->step_flags;
     if (t & 0x8000) {

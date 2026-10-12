@@ -6,7 +6,7 @@
 #include "protos.h"
 
 
-void func_80138358(GameState *state) {
+void init_counters_from_index_table(GameState *state) {
     int value = table_6cf0[state->table_index_2];
 
     counter_a = 0x780;
@@ -15,12 +15,12 @@ void func_80138358(GameState *state) {
     counter_c = value << 3;
 }
 
-void func_8013839c(GameState *state) {
+void update_table_columns_unless_mode3_inactive(GameState *state) {
     if (state->mode == 3 && state->mode3_active_flag == 0) {
         set_table_columns_by_win_counts(state);
     } else {
         update_counter_limit_from_table(state);
-        func_8013886c(state);
+        clamp_meter_value_to_byte_range(state);
         set_counter_shifted_from_counter_c(state);
         set_player_table_column_from_object(state);
     }

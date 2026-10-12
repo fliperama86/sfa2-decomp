@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3bbc_slot04_0b(Object *o) {
+void call_state_2_handler_unless_paused_slot04_0b(Object *o) {
     call_state_2_handler_2684_unless_paused(o);
 }
 

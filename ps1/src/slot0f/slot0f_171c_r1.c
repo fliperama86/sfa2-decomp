@@ -6,7 +6,7 @@
 extern u8 data_800e8790_slot0f[];
 extern void (*data_800e8794_slot0f[])(Object *);
 
-void func_800e171c_slot0f(Object *o) {
+void select_three_choice_and_reset_states_on_pad_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u16 b = o->pos_x_frac;
     if (b & 0x5000) {

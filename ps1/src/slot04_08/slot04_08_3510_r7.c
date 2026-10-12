@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3e74_slot04_08(Object *obj, Object *unused) {
+void enter_state_set_gauge_start_sequence_1a_sound_slot04_08(Object *obj, Object *unused) {
     Slot04aObj *o = (Slot04aObj *)obj;
 
     obj->state_3 = obj->state_3 + 1;

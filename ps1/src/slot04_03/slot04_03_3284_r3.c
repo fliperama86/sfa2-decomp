@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3530_slot04_03(Object *obj) {
+void move_until_ground_then_damage_other_slot04_03(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     obj->vel_x = obj->vel_x + obj->accel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
@@ -26,7 +26,7 @@ void func_801b3530_slot04_03(Object *obj) {
     }
 }
 
-void func_801b3664_slot04_03(Object *obj) {
+void set_other_hit_reaction_on_step_flags_then_update_slot04_03(Object *obj) {
     if (obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         set_other_hit_reaction_state_0(obj, 0, 0xa, -0x200, 0, 0, 0);

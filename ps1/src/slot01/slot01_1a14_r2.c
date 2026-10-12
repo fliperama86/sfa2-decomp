@@ -22,10 +22,10 @@ void update_object_by_state_1_table_slot01(Object *obj) {
             advance_record_list_and_set_spawn_y_slot01(obj);
         }
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_80011dc0_slot01(Object *obj) {
+void count_down_spawn_linked_object_and_add_vel_x_slot01(Object *obj) {
     int t = obj->countdown - 1;
     obj->countdown = t;
     if ((s16)t < 0) {

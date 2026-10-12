@@ -28,7 +28,7 @@ void init_palette_buffers_from_table_slot0f(int a) {
     func_800e52e0_slot0f();
 }
 
-void func_800e5258_slot0f(void) {
+void fill_and_copy_20x16_halfword_tables_slot0f(void) {
     int j;
     int i;
     u16 *src;

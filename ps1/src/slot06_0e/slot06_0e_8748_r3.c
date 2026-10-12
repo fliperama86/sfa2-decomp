@@ -88,7 +88,7 @@ void update_layer_state_and_follow_main_layer_slot06_0e(Slot06Layer *layer) {
     layer->field_26 = e;
 }
 
-void func_801e9554_slot06_0e(Slot06Layer *layer) {
+void scroll_layer_y_until_limit_advance_state_slot06_0e(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         if (layer->field_8b == 0) {
             *(s32 *)&layer->pos_y += 0x8000;
@@ -99,7 +99,7 @@ void func_801e9554_slot06_0e(Slot06Layer *layer) {
     }
 }
 
-void func_801e95b4_slot06_0e(Slot06Layer *layer) {
+void scroll_layer_y_then_advance_state_set_timer_slot06_0e(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         *(s32 *)&layer->pos_y += 0x8000;
         if ((s16)layer->pos_y_int >= 0x700) {
@@ -123,7 +123,7 @@ void increment_layer_state_index_slot06_0e(Slot06Layer *layer) {
     layer->state_index++;
 }
 
-void func_801e9658_slot06_0e(Slot06Layer *layer) {
+void set_layer_byte_to_full_slot06_0e(Slot06Layer *layer) {
     layer->field_8b = 0xff;
 }
 
@@ -135,7 +135,7 @@ void init_layer_tile_map_0e_front_slot06_0e(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e9690_slot06_0e(void) {
+void init_two_banks_of_gray_32x32_sprite_prims_slot06_0e(void) {
     Slot06TileW *p;
     int i;
     int k;

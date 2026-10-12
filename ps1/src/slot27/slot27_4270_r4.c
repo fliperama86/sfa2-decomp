@@ -22,7 +22,7 @@ void move_y_offset_and_spawn_at_limit_slot27(Object *o) {
             }
         }
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void move_y_offset_until_limit_slot27(Object *o) {
@@ -36,7 +36,7 @@ void move_y_offset_until_limit_slot27(Object *o) {
             obj->field_05 = obj->field_05 + 1;
         }
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void func_80014730_slot27(Object *obj) {

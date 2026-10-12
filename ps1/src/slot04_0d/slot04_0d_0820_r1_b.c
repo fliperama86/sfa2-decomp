@@ -5,15 +5,15 @@
 
 u8 get_pressed_bit_8(Object *object);
 int is_pressed_bits_in_table(Object *object);
-int func_8013cb70(Object *object, u8 index, u8 arg);
-int func_8013cbdc(Object *object, u8 index, u8 arg);
-int func_8013cc48(Object *object, u8 index, u8 arg);
-int func_8013cac8(Object *object, u8 index, u8 arg);
+int call_second_table_stage_unless_c0_pair(Object *object, u8 index, u8 arg);
+int call_second_table_stage_unless_30_pair(Object *object, u8 index, u8 arg);
+int call_second_table_stage_unless_0c_pair(Object *object, u8 index, u8 arg);
+int call_slot_stage_handler_a(Object *object, u8 index, u8 arg);
 u8 try_action_clearing_both_flags(Object *object);
 int is_not_state_2_five(Object *object);
 int try_spend_meter_for_action(Object *object);
-void func_80142718(Object *object);
-void func_80142778(Object *object);
+void set_direction_index_from_buttons_mask_a(Object *object);
+void set_direction_index_from_buttons_mask_b(Object *object);
 void set_direction_index_from_buttons_group_b(Object *object);
 
 /* functions of other units of this module */
@@ -26,22 +26,22 @@ int try_start_meter_move_seven_slot04_0d(Object *obj);
 int try_start_state_seven_move_four_slot04_0d(Object *obj);
 int try_start_move_state_7_type_0_slot04_0d(Object *obj);
 int try_start_state_seven_move_five_slot04_0d(Object *obj);
-int func_801b0d08_slot04_0d(Object *obj);
-int func_801b0db0_slot04_0d(Object *obj);
-void func_801b0d48_slot04_0d(Object *obj);
-void func_801b0df0_slot04_0d(Object *obj);
+int try_spend_meter_and_start_action_slot04_0d(Object *obj);
+int try_spend_meter_and_start_action_2_slot04_0d(Object *obj);
+void enter_state_2_seven_variant_two_sequence_slot04_0d(Object *obj);
+void enter_state_2_seven_variant_three_sequence_slot04_0d(Object *obj);
 
 void select_slot04_0d_action_from_inputs_slot04_0d(Object *obj) {
     if (get_pressed_bit_8(obj) && (u8)try_start_state_seven_move_nine_slot04_0d(obj)) return;
     if ((u8)is_pressed_bits_in_table(obj) && (u8)try_start_meter_move_type_1_slot04_0d(obj)) return;
-    if ((u8)func_8013cb70(obj, 0, 0x18) && (u8)try_start_meter_move_six_slot04_0d(obj)) return;
-    if ((u8)func_8013cbdc(obj, 1, 0x15) && (u8)try_start_meter_move_seven_slot04_0d(obj)) return;
-    if ((u8)func_8013cc48(obj, 2, 0x17) && (u8)try_start_meter_move_eight_slot04_0d(obj)) return;
-    if ((u8)func_8013cac8(obj, 3, 4) && (u8)try_start_state_seven_move_four_slot04_0d(obj)) return;
-    if ((u8)func_8013cac8(obj, 4, 0) && (u8)try_start_move_state_7_type_0_slot04_0d(obj)) return;
-    if ((u8)func_8013cac8(obj, 5, 3) && (u8)try_start_state_seven_move_five_slot04_0d(obj)) return;
-    if ((u8)func_8013cac8(obj, 6, 0xd) && (u8)func_801b0d08_slot04_0d(obj)) return;
-    if ((u8)func_8013cac8(obj, 7, 0xe)) func_801b0db0_slot04_0d(obj);
+    if ((u8)call_second_table_stage_unless_c0_pair(obj, 0, 0x18) && (u8)try_start_meter_move_six_slot04_0d(obj)) return;
+    if ((u8)call_second_table_stage_unless_30_pair(obj, 1, 0x15) && (u8)try_start_meter_move_seven_slot04_0d(obj)) return;
+    if ((u8)call_second_table_stage_unless_0c_pair(obj, 2, 0x17) && (u8)try_start_meter_move_eight_slot04_0d(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 3, 4) && (u8)try_start_state_seven_move_four_slot04_0d(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 4, 0) && (u8)try_start_move_state_7_type_0_slot04_0d(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 5, 3) && (u8)try_start_state_seven_move_five_slot04_0d(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 6, 0xd) && (u8)try_spend_meter_and_start_action_slot04_0d(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 7, 0xe)) try_spend_meter_and_start_action_2_slot04_0d(obj);
 }
 
 int try_start_move_state_7_type_0_slot04_0d(Object *obj) {
@@ -63,7 +63,7 @@ int try_start_meter_move_type_1_slot04_0d(Object *obj) {
     if ((s16)obj->meter < 0x30) return 0;
     if (obj->active_state != 0) {
         if (obj->field_7e != 0) return 0;
-        if (!(u8)func_801418bc(obj)) return 0;
+        if (!(u8)try_action_unless_state_bytes_match(obj)) return 0;
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 8;
@@ -82,15 +82,15 @@ int try_start_meter_move_type_1_slot04_0d(Object *obj) {
     return 1;
 }
 
-int func_801b0d08_slot04_0d(Object *obj) {
+int try_spend_meter_and_start_action_slot04_0d(Object *obj) {
     if ((u8)try_spend_meter_for_action(obj)) {
-        func_801b0d48_slot04_0d(obj);
+        enter_state_2_seven_variant_two_sequence_slot04_0d(obj);
         return 1;
     }
     return 0;
 }
 
-void func_801b0d48_slot04_0d(Object *obj) {
+void enter_state_2_seven_variant_two_sequence_slot04_0d(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
@@ -108,15 +108,15 @@ void func_801b0d48_slot04_0d(Object *obj) {
     set_sequence_by_side_and_mode(obj, 0x2e);
 }
 
-int func_801b0db0_slot04_0d(Object *obj) {
+int try_spend_meter_and_start_action_2_slot04_0d(Object *obj) {
     if ((u8)try_spend_meter_for_action(obj)) {
-        func_801b0df0_slot04_0d(obj);
+        enter_state_2_seven_variant_three_sequence_slot04_0d(obj);
         return 1;
     }
     return 0;
 }
 
-void func_801b0df0_slot04_0d(Object *obj) {
+void enter_state_2_seven_variant_three_sequence_slot04_0d(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
@@ -189,7 +189,7 @@ b:
         obj->field_15a = 6;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142718(obj);
+        set_direction_index_from_buttons_mask_a(obj);
     return 1;
 }
 
@@ -206,6 +206,6 @@ b:
     obj->field_15a = 7;
     obj->active_flag_3 = 1;
     obj->facing_side = obj->saved_facing;
-    func_80142778(obj);
+    set_direction_index_from_buttons_mask_b(obj);
     return 1;
 }

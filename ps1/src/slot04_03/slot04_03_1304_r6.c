@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1938_slot04_03(Object *obj) {
+void spawn_children_on_step_flag_low_byte_else_update_slot04_03(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3++;
         obj->step_flags &= 0xff00;

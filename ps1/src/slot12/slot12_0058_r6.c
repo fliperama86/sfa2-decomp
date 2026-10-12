@@ -7,7 +7,7 @@ extern int data_8002d57c_slot12;
 void play_sounds_at_countdown_timer_values_slot12(void);
 int spawn_object_once_with_arg_slot12(u8 a);
 
-void func_80010550_slot12(void) {
+void wait_flag_clear_then_fill_columns_white_slot12(void) {
     while (data_8018db10) {
         update_blocks();
         update_active_slab172_entries();
@@ -18,7 +18,7 @@ void func_80010550_slot12(void) {
     data_8018f5a0->substep_index++;
 }
 
-void func_800105cc_slot12(void) {
+void spawn_object_arg_3_and_run_five_frames_slot12(void) {
     data_8002d57c_slot12 = 1;
     if (spawn_object_once_with_arg_slot12(3)) {
         int n = 4;

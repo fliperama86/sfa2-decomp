@@ -5,7 +5,7 @@
 
 extern s32 data_801c7c98_slot04_09[];
 
-void func_801b1d40_slot04_09(Object *obj) {
+void enter_state_add_meter_start_sequence_by_flag_slot04_09(Object *obj) {
     int n = 0x1f;
 
     obj->step_count = 0;

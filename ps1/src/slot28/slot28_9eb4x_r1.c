@@ -9,7 +9,7 @@ extern u8 data_800357d8_slot28[];
 extern ObjectRef data_8005199c_slot28;
 extern ObjectRef data_800519a0_slot28;
 extern ObjectRef data_800519d0_slot28;
-void func_8001a958_slot28(Object *obj, int arg);
+void set_sequence_of_fourth_hud_object_6_slot28(Object *obj, int arg);
 
 void spawn_object_when_sequence_ends_slot28(Object *obj) {
     Object *p;
@@ -38,7 +38,7 @@ void spawn_object_when_sequence_ends_slot28(Object *obj) {
             ((Slot28Obj *)p)->sequence_ptr = data_80036690_slot28 + 6;
             data_800519a0_slot28.p = p;
         }
-        func_8001a958_slot28(obj, 1);
+        set_sequence_of_fourth_hud_object_6_slot28(obj, 1);
         set_menu_command_by_code(6, 1);
     }
 }

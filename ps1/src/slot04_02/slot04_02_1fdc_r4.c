@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2604_slot04_02(Object *obj) {
+void init_meter_gain_with_sequence_slot04_02(Object *obj) {
     obj->state_3++;
     add_to_meter_clamped(obj, 3);
     add_one_to_ec4_if_object_unflagged(&game_state, obj);

@@ -29,7 +29,7 @@ void store_preset_image_9_slot27(Object *o) {
     func_80158028(&r, data_801a3fe4);
 }
 
-void func_80017558_slot27(Object *o) {
+void store_image_rect_y_140_set_preset_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Rect r;
 
@@ -42,7 +42,7 @@ void func_80017558_slot27(Object *o) {
     func_80158028(&r, data_801a3fe4);
 }
 
-void func_800175b0_slot27(Object *o) {
+void store_image_rect_y_160_set_preset_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Rect r;
 

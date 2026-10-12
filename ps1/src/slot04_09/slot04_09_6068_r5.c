@@ -9,7 +9,7 @@ void unlink_from_parent_and_release_object_slot04_09(Object *o, Object *p) {
     if ((s32)o == *(s32 *)&p->linked_object_2) {
         *(s32 *)&p->linked_object_2 = 0;
     }
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }
 
 void set_position_from_parent_table_offset_slot04_09(Object *obj, Object *parent, int i) {

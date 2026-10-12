@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3ae0_slot04_07(Object *obj) {
+void advance_state_3_add_meter_init_gauge_counters_slot04_07(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     add_to_meter_clamped(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);

@@ -6,12 +6,12 @@
 void set_sequence_from_other_side_table_slot04_0b(Object *obj, int index);
 void set_position_relative_to_ref_other_slot04_0b(Object *obj, int dx, int dy);
 
-void func_801b47b8_slot04_0b(Object *obj) {
+void set_image_row_offset_ref_position_sequence_a_slot04_0b(Object *obj) {
     obj->image_row = 0x10;
     obj->state_1++;
     set_position_relative_to_ref_other_slot04_0b(obj, 6, 0);
     set_sequence_from_other_side_table_slot04_0b(obj, 0x16);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void spawn_pooled_object_on_ref_step_flag_slot04_0b(Object *obj) {
@@ -39,5 +39,5 @@ void spawn_pooled_object_on_ref_step_flag_slot04_0b(Object *obj) {
             n->spawn_y = 0x1e0;
         }
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }

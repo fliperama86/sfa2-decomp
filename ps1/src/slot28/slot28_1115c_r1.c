@@ -8,7 +8,7 @@ extern u16 data_800439b4_slot28[];
 extern u16 data_80043db4_slot28[];
 extern void (*data_800445f8_slot28[])(Object *);
 
-void func_8002115c_slot28(Object *obj) {
+void copy_three_word_tables_to_row_pairs_8_slot28(Object *obj) {
     int i;
     for (i = 0; i < 0x200; i++) {
         data_801a27e4_rows[0][i] = data_800441b4_slot28[i];
@@ -24,6 +24,6 @@ void func_8002115c_slot28(Object *obj) {
     }
 }
 
-void func_80021230_slot28(Object *object) {
+void call_handler_by_state_0_12_slot28(Object *object) {
     data_800445f8_slot28[object->state_0](object);
 }

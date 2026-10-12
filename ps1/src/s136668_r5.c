@@ -28,14 +28,14 @@ void init_draw_mode_prim_4(Tx *tx) {
     func_8015c23c(tx, &tx->prim_data);
 }
 
-void func_80136dc4(void) {
-    func_80136dfc();
+void store_all_slot_image_rects_and_queue_jobs(void) {
+    store_image_rects_and_queue_upload_jobs();
     store_image_rect_d0_1e0_slot_1();
     store_image_rect_e0_1e0_slot_2();
     store_image_rect_f0_1e0_slot_3();
 }
 
-void func_80136dfc(void) {
+void store_image_rects_and_queue_upload_jobs(void) {
     store_image_rect_b0_1f0_to_table();
     store_image_rect_c0_1e0_slot_0();
     store_image_rect_160_1f0_slot_4();
@@ -46,15 +46,15 @@ void func_80136dfc(void) {
 }
 
 void call_left_and_right_func_pair(void) {
-    func_80136e90();
-    func_80136ed0();
+    store_player_left_image_rows_from_field();
+    store_player_right_image_rows_from_field();
 }
 
-void func_80136e90(void) {
+void store_player_left_image_rows_from_field(void) {
     store_image_rows_to_table(&player_left, 0x10, 0x100, player_left.field_d4 * 5 + 0x1e0);
 }
 
-void func_80136ed0(void) {
+void store_player_right_image_rows_from_field(void) {
     store_image_rows_to_table(&player_right, 0xb, 0x120, player_right.field_d4 * 5 + 0x1e0);
 }
 

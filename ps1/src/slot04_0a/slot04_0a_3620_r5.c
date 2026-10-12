@@ -11,7 +11,7 @@ void flip_facing_on_step_flag_2_slot04_0a(Object *obj) {
     }
 }
 
-void func_801b3bf0_slot04_0a(Object *obj) {
+void finish_sequence_clear_status_flag_and_reset_slot04_0a(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->status_flag = 0;
         reset_object_to_state_1_0_sequence_0(obj);

@@ -5,7 +5,7 @@
 
 
 
-void func_8012a5ac(Object *object) {
+void clear_flag_call_state_3_handler_table_a(Object *object) {
     object->field_16a = 0;
     handler_table_19a8[object->state_3](object);
 }
@@ -26,5 +26,5 @@ void start_motion_sequence_with_table_speed(Object *object) {
         speed = -speed;
     }
     object->vel_x = speed;
-    func_8012a684(object);
+    choose_idle_state_transition_or_update(object);
 }

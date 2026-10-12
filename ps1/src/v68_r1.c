@@ -16,11 +16,11 @@ void start_hit_reaction_by_hit_type(Object *object)
     object->kind10_flag = 0;
     if (object->side != 0)
     {
-      func_80136ed0();
+      store_player_right_image_rows_from_field();
     }
     else
     {
-      func_80136e90();
+      store_player_left_image_rows_from_field();
     }
     queue_image_row_upload_job(object);
   }
@@ -43,7 +43,7 @@ void start_hit_reaction_by_hit_type(Object *object)
   set_side_field_0d(object);
   if (object->hit_type == 0xff)
   {
-    func_8012c7b4(object);
+    select_sequence_by_action_timer_and_active_state(object);
   }
   else
   {
@@ -74,7 +74,7 @@ void start_hit_reaction_by_hit_type(Object *object)
     k = m;
     if ((((k <= (3 - 1)) || (k == 6)) || (((unsigned) (m - 8)) < 2)) || (k == 0xe))
     {
-      func_8012c5cc(new_var);
+      set_hit_sequence_by_hit_type_and_move_other(new_var);
     }
     else
       if (k == 0x1a)
@@ -84,7 +84,7 @@ void start_hit_reaction_by_hit_type(Object *object)
     else
       if ((k == 0x12) || (k == 0x18))
     {
-      func_8012c72c(new_var);
+      set_sequence_from_hit_type_base_and_capped_step(new_var);
     }
     else
       if (k == 0x19)
@@ -117,17 +117,17 @@ void start_hit_reaction_by_hit_type(Object *object)
         new_var->field_69 += 1;
         if ((new_var->field_60 == 2) && (k == 0xc))
         {
-          func_8012c990(new_var);
+          start_sequence_with_variant_zero_spawns_once(new_var);
         }
         else
           if ((new_var->field_60 == 2) && (k == 0xd))
         {
-          func_8012cac8(new_var);
+          start_sequence_with_variant_two_spawns_once(new_var);
         }
         else
           if ((new_var->field_60 == 2) && (k == 0x11))
         {
-          func_8012cc6c(new_var);
+          spawn_three_objects_and_set_sequence_x21(new_var);
         }
         else
         {

@@ -30,23 +30,23 @@ void reset_fields_and_clear_position_fracs(ObjectView *a, Object *b, Object *c);
        flag), clears round_count, field_19f, hit_count_2, field_1a1 and field_1a2
        of both players, calls call_side_func_then_queue_job on each player, clears
        game_state.pending_flag and field_6d, calls set_selected_flag_by_index with
-       data_8016e801 and func_80124ae8 with data_8016e802, and copies
+       data_8016e801 and set_table_index_3_from_table with data_8016e802, and copies
        data_8016e803 to the input block's selection. Then by mode:
          1: calls reset_fields_and_clear_position_fracs(game_state, left, right); sets the input
             block's field_01 to 1; data_801ae028 = 0x88; saves the three
             bytes data_8016e801..803 in data_80185fbc, fc0, fc4; calls
-            set_selected_flag_by_index and func_80124ae8 again with the first two;
+            set_selected_flag_by_index and set_table_index_3_from_table again with the first two;
             game_state.round_time = 0x63; selection = data_8016e803 again; and
             zeroes the 4096 halfwords of the input block's buffer;
          2: calls reset_fields_and_clear_position_fracs(game_state, left, right); sets the input
             block's field_00 to 1; calls set_selected_flag_by_index with data_80185fbc
-            and func_80124ae8 with data_80185fc0; game_state.round_time =
+            and set_table_index_3_from_table with data_80185fc0; game_state.round_time =
             0x63; selection = data_80185fc4;
          3: clears both c bytes; sets the HUD block's phase_index to 1 and
             step_index, substep_index, step_index_2 and pass_index to 0; game_state
             alt_flag = 1, mode = 0, side_mask = side_bits;
          any other value: nothing more. */
-void func_80124304(void) {
+void update_option_menu_and_apply_selected_mode(void) {
     int i;
     u16 blank;
     InputBlock *p;
@@ -97,7 +97,7 @@ void func_80124304(void) {
             g->pending_flag = 0;
             g->field_6d = 0;
             set_selected_flag_by_index(data_8016e801);
-            func_80124ae8(data_8016e802);
+            set_table_index_3_from_table(data_8016e802);
             p->selection = data_8016e803;
             if (data_8016e800 == 1) {
                 reset_fields_and_clear_position_fracs((ObjectView *)g, l, r);
@@ -107,7 +107,7 @@ void func_80124304(void) {
                 data_80185fc0 = data_8016e802;
                 data_80185fc4 = data_8016e803;
                 set_selected_flag_by_index(data_8016e801);
-                func_80124ae8(data_8016e802);
+                set_table_index_3_from_table(data_8016e802);
                 g->round_time = 0x63;
                 p->selection = data_8016e803;
                 for (i = 0xfff; i >= 0; i--) {
@@ -117,7 +117,7 @@ void func_80124304(void) {
                 reset_fields_and_clear_position_fracs((ObjectView *)g, l, r);
                 p->field_00 = 1;
                 set_selected_flag_by_index(data_80185fbc);
-                func_80124ae8(data_80185fc0);
+                set_table_index_3_from_table(data_80185fc0);
                 g->round_time = 0x63;
                 p->selection = data_80185fc4;
             } else if (data_8016e800 == 3) {

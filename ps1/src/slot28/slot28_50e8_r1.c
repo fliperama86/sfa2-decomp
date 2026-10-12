@@ -15,7 +15,7 @@ void release_four_stored_objects_slot28(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)data_8005189c_slot28.p);
 }
 
-void func_80015140_slot28(Object *obj) {
+void count_down_to_zero_then_advance_pass_gated_slot28(Object *obj) {
     HudState *h;
     int t;
     if (data_80190949 != 0 && obj->field_f0 == 0) {

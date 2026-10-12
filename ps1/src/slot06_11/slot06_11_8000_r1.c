@@ -12,7 +12,7 @@ void draw_tile_layer_1_16px_slot06_11(void);
 void draw_tilemap_layer_32px_9x13_slot06_11(void);
 void noop_empty_function_2_slot06_11(void);
 void init_first_layer_tile_map_slot06_11(Slot06Layer *layer);
-void func_801e8568_slot06_11(Slot06Layer *layer);
+void set_layer_tile_map_param_580e_width_scale_slot06_11(Slot06Layer *layer);
 void init_layer_tile_map_fields_slot06_11(Slot06Layer *layer);
 void noop_byte_pointer_slot06_11(u8 *p);
 void init_two_tile_tables_gray_color_slot06_11(void);
@@ -39,12 +39,12 @@ void draw_background_layers_by_flags_slot06_11(void) {
 
 void init_background_layers_slot06_11(void) {
     init_first_layer_tile_map_slot06_11((Slot06Layer *)data_801aa544);
-    func_801e8568_slot06_11((Slot06Layer *)data_801aa5d4);
+    set_layer_tile_map_param_580e_width_scale_slot06_11((Slot06Layer *)data_801aa5d4);
     init_layer_tile_map_fields_slot06_11((Slot06Layer *)cam_obj);
     noop_byte_pointer_slot06_11(data_801904d8);
 }
 
-void func_801e80f0_slot06_11(void) {
+void init_gray_tile_groups_and_sprites_with_noop_slot06_11(void) {
     init_two_tile_tables_gray_color_slot06_11();
     init_two_tile_groups_gray_slot06_11();
     init_two_banks_of_48_sprite_prims_slot06_11();

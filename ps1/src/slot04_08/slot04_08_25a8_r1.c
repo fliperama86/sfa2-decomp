@@ -22,7 +22,7 @@ void start_next_sequence_from_step_table_slot04_08(Object *obj) {
     }
 }
 
-void func_801b2650_slot04_08(Object *obj) {
+void deal_step_indexed_damage_on_step_flag_byte_slot04_08(Object *obj) {
 
     u16 t = obj->step_flags;
     int m = -0x100;
@@ -30,7 +30,7 @@ void func_801b2650_slot04_08(Object *obj) {
     if ((t & 0xff) != 0) {
         obj->step_flags = t & m;
         game_state.state_param = 0x18;
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
         play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x319);
         apply_damage_to_other_return_defeated(obj, (s16)(data_801c3cc4_slot04_08[(s16)(obj->direction_index * 2 + (((Slot04aObj *)obj)->step_index + 0xffff))] | m), 0);
         obj->state_3++;

@@ -5,7 +5,7 @@
 
 extern u8 data_801ca3fc_slot04_16[];
 
-void func_801b4d14_slot04_16(Object *obj) {
+void set_table_value_when_flag_high_byte_clear_slot04_16(Object *obj) {
     s16 i;
 
     update_sequence(obj);

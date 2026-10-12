@@ -51,7 +51,7 @@ func_80118908:
     lui   $ra, 0x8018
     lw    $ra, 0x3904($ra)
     nop
-    jal   func_801189c4
+    jal   init_system_and_loop_frames_forever
     nop
     break 0, 1
 .size func_80118908, . - func_80118908

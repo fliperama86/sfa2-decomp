@@ -10,7 +10,7 @@ extern u16 data_800e99b0_slot0f[];
 void update_blink_counter_and_queue_entries_slot0f(int a, int b);
 void build_tilemap_row_primitives_slot0f(Chan *c, Strip1c *buf, int count);
 
-void func_800e4988_slot0f(void) {
+void tick_timer_and_build_two_tilemap_layers_slot0f(void) {
     Chan *c;
     data_800f7268_slot0f--;
     if (data_800f7268_slot0f == 0) {

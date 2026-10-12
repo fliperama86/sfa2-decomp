@@ -20,7 +20,7 @@ void fill_palette_banks_white(void) {
             data_801a27e4_rows[3][i * 16 + j] = 0x7fff;
             data_801a27e4_rows[4][i * 16 + j] = 0x7fff;
         }
-    func_801260ac(0, 1, 0x15);
-    func_801260ac(0, 1, 0x17);
+    copy_palette_rows_from_backup_bank(0, 1, 0x15);
+    copy_palette_rows_from_backup_bank(0, 1, 0x17);
     queue_five_jobs();
 }

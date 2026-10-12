@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1d4c_slot04_02(Object *obj) {
+void start_sequence_by_direction_index_field49_c_slot04_02(Object *obj) {
     u16 a;
 
     obj->active_flag_4 = 1;

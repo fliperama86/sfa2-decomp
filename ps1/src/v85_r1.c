@@ -22,12 +22,12 @@ void func_8012cca8(Object *object) {
             object->field_24e = 0;
         }
         object->field_6b = 0;
-        func_8012ce5c(object);
+        call_table_function_by_mode_byte(object);
         return;
     }
     ref_other.p = object->other;
     if (ref_other.p->field_7e) {
-        func_8012f0e0(object);
+        move_pos_x_by_countdown_parity(object);
     }
     if (object->active_state == 0) {
         v = bytes_801700b0[object->field_6b];

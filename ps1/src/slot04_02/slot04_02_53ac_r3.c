@@ -33,7 +33,7 @@ void start_state_spawn_child_set_sequence_slot04_02(Object *obj) {
     set_sequence_by_side(obj, a);
 }
 
-void func_801b5884_slot04_02(Object *obj) {
+void update_sequence_spawn_effects_on_step_flag_slot04_02(Object *obj) {
     int a;
     int b;
     if ((s16)obj->step_flags != 0) {

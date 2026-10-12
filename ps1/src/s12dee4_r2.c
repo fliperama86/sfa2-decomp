@@ -5,7 +5,7 @@
 
 
 
-void func_8012e00c(Object *object) {
+void call_state_3_handler_from_table_a(Object *object) {
     handlers_1a6c[object->state_3](object);
 }
 
@@ -36,11 +36,11 @@ void update_airborne_or_bounce_land(Object *object) {
     }
 }
 
-void func_8012e0fc(Object *object) {
+void call_state_3_handler_from_table_b(Object *object) {
     handlers_1a74[object->state_3](object);
 }
 
 void advance_state_3_and_call_step_2(Object *object) {
     object->state_3 = object->state_3 + 1;
-    func_8012e168(object);
+    update_pos_x_table_step_then_pick_sequence(object);
 }

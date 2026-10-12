@@ -8,7 +8,7 @@
    derives it from the store address. */
 
 
-void func_80138ec4(void) {
+void check_collisions_unless_paused(void) {
     game_state.config = &game_state_second;
     if (game_state.config->pause_flag_b == 0 &&
         (player_left.field_165 | player_right.field_165) == 0) {

@@ -8,17 +8,17 @@ extern ObjectFn data_801c6050_slot04_0e[];
 void start_action_if_buttons_pressed(Object *object);
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 
-void func_801b2f58_slot04_0e(Object *obj);
+void land_on_ground_start_sequence_forty_eight_slot04_0e(Object *obj);
 void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 u8 is_second_input_direction_active_slot04_0e(Object *obj);
-void func_801b6afc_slot04_0e(Object *obj);
+void halve_vel_x_add_meter_set_sequence_slot04_0e(Object *obj);
 BytePair get_input_byte_pair_or_stored_pair_slot04_0e(Slot04bObj *obj);
 u8 call_handler_by_limit_hi_returning_slot04_0e(Object *obj);
 
 void set_direction_bytes_from_byte_pair_slot04_0e(Object *obj);
 void nudge_pos_x_by_input_bits_slot04_0e(Object *obj, int arg);
 void start_direction_sequence_or_special_slot04_0e(Object *obj);
-void func_801b339c_slot04_0e(Object *obj);
+void update_air_motion_land_or_pick_landing_sequence_slot04_0e(Object *obj);
 
 void update_airborne_move_and_land_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
@@ -33,7 +33,7 @@ void update_airborne_move_and_land_slot04_0e(Object *o) {
         o->field_28a = 1;
         start_direction_sequence_or_special_slot04_0e(o);
     } else if (o->ground_y < o->pos_y) {
-        func_801b2f58_slot04_0e(o);
+        land_on_ground_start_sequence_forty_eight_slot04_0e(o);
     } else {
         update_sequence(o);
     }
@@ -43,13 +43,13 @@ void move_with_input_nudge_update_or_land_slot04_0e(Object *obj) {
     apply_velocity_and_accel_to_position_slot04_0e(obj);
     nudge_pos_x_by_input_bits_slot04_0e(obj, 5);
     if (obj->ground_y < obj->pos_y) {
-        func_801b2f58_slot04_0e(obj);
+        land_on_ground_start_sequence_forty_eight_slot04_0e(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b3160_slot04_0e(Object *obj) {
+void update_sequence_or_clear_flag_and_end_move_slot04_0e(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         start_action_if_buttons_pressed(obj);
         update_sequence(obj);
@@ -75,7 +75,7 @@ void start_direction_sequence_or_special_slot04_0e(Object *obj) {
     u16 h;
 
     if (is_second_input_direction_active_slot04_0e(obj) != 0) {
-        func_801b6afc_slot04_0e(obj);
+        halve_vel_x_add_meter_set_sequence_slot04_0e(obj);
     } else {
         h = obj->direction_index >> 1;
         add_to_meter_clamped(obj, h);
@@ -104,15 +104,15 @@ void set_direction_bytes_from_byte_pair_slot04_0e(Object *o) {
     }
 }
 
-void func_801b32f8_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_8_slot04_0e(Object *obj) {
     data_801c6050_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b3338_slot04_0e(Object *obj) {
+void start_fall_lower_accel_y_and_update_air_motion_slot04_0e(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3++;
     add_to_meter_clamped(obj, 2);
     obj->accel_y -= 0x6000;
     add_one_to_ec4_if_object_unflagged(&game_state, obj);
-    func_801b339c_slot04_0e(obj);
+    update_air_motion_land_or_pick_landing_sequence_slot04_0e(obj);
 }

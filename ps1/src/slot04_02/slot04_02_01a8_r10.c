@@ -15,13 +15,13 @@ u8 try_start_meter_move_7_slot04_02(Object *obj) {
             obj->field_15a = 7;
             obj->active_flag_3 = 1;
             obj->facing_side = obj->saved_facing;
-            func_80142718(obj);
+            set_direction_index_from_buttons_mask_a(obj);
         }
     }
     return r;
 }
 
-u8 func_801b10ac_slot04_02(Object *obj) {
+u8 try_start_meter_spend_action_with_sequence_slot04_02(Object *obj) {
     int r = 1;
 
     if (obj->mode_flag_2 == 0) {

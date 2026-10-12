@@ -6,7 +6,7 @@
 
 
 /* Form found by automatic permutation search, then cleaned by hand. */
-void func_80156c80(GameState *state, Object *object) {
+void add_rank_item_for_phase_2_or_3(GameState *state, Object *object) {
     u8 index;
 
     if (object->score_rank + object->field_121 < 12) {

@@ -24,7 +24,7 @@ void land_at_saved_pos_y_set_state_3_four_slot04_0a(Object *obj);
  * also when no bit was set or vel_y was too large, it calls
  * update_sequence.
  */
-void func_801b2f1c_slot04_0a(Object *obj) {
+void update_air_land_or_start_jump_on_pressed_bits_slot04_0a(Object *obj) {
     int a;
     int x;
     u8 b;

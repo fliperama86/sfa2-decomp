@@ -15,7 +15,7 @@ void advance_hud_step_2_set_countdown_8_slot27(void) {
     }
 }
 
-void func_80010c4c_slot27(void) {
+void alternate_row_effect_until_countdown_2_expires_slot27(void) {
     u16 *c;
     int t;
     if (game_state.countdown_2 & 1) {

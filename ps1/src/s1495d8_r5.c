@@ -13,7 +13,7 @@ u8 check_object_pair_condition(Object *a, Object *b) {
 
 u8 is_other_in_x_range_and_field_zero(Object *a, Object *b, s16 *c, int d) {
     if ((u16)((u16)b->pos_x - (u16)a->pos_x + 0x80) <= 0x100) {
-        return func_80149f14(b) != 0;
+        return is_input_matched_flag_clear(b) != 0;
     } else {
         return 0;
     }

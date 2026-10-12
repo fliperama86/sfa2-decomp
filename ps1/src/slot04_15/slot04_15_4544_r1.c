@@ -71,15 +71,15 @@ void call_handler_by_direction_index_3_slot04_15(Object *obj) {
     data_801c3cb0_slot04_15[obj->direction_index >> 1](obj);
 }
 
-void func_801b46fc_slot04_15(Object *object) {
+void call_handler_by_state_3_slot04_15(Object *object) {
     data_801c3cbc_slot04_15[object->state_3](object);
 }
 
-void func_801b473c_slot04_15(Object *obj) {
+void restore_facing_force_other_short_or_set_sequence_slot04_15(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
-        if (func_8013f8c4(obj, -0x11, 0x14) & 0xff) {
+        if (try_force_other_state_if_box_in_range(obj, -0x11, 0x14) & 0xff) {
             obj->state_0 = 1;
             obj->state_1 = 2;
             obj->state_2 = 0;
@@ -102,16 +102,16 @@ void update_sequence_reset_state_3_on_check_slot04_15(Object *obj) {
     }
 }
 
-void func_801b4830_slot04_15(Object *object) {
+void call_handler_by_state_3_2_slot04_15(Object *object) {
     data_801c3cc4_slot04_15[object->state_3](object);
 }
 
-void func_801b4870_slot04_15(Object *obj) {
+void enter_state_or_start_direction_sequence_set_flag_slot04_15(Object *obj) {
     u8 one;
 
     obj->state_3++;
     if (obj->hit_flag_a != 0) {
-        if (func_8013f8c4(obj, -0x11, 0x14) & 0xff) {
+        if (try_force_other_state_if_box_in_range(obj, -0x11, 0x14) & 0xff) {
             obj->state_0 = 1;
             obj->state_1 = 2;
             obj->state_2 = 0;
@@ -142,7 +142,7 @@ void update_sequence_with_facing_x_nudge_slot04_15(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b4974_slot04_15(Object *obj) {
+void update_sequence_or_reset_on_negative_flags_slot04_15(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
@@ -157,17 +157,17 @@ void call_handler_by_direction_index_4_slot04_15(Object *obj) {
     data_801c3cd0_slot04_15[obj->direction_index >> 1](obj);
 }
 
-void func_801b4a1c_slot04_15(Object *object) {
+void call_handler_by_state_3_3_slot04_15(Object *object) {
     data_801c3cdc_slot04_15[object->state_3](object);
 }
 
-void func_801b4a5c_slot04_15(Object *obj) {
+void restore_facing_check_range_or_start_sequence_slot04_15(Object *obj) {
     u8 one;
 
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
-        if (func_8013f8c4(obj, -0x11, 0x14) & 0xff) {
+        if (try_force_other_state_if_box_in_range(obj, -0x11, 0x14) & 0xff) {
             obj->state_0 = 1;
             obj->state_1 = 2;
             obj->state_2 = 0;
@@ -199,7 +199,7 @@ void update_sequence_reset_state_3_on_check_2_slot04_15(Object *obj) {
     }
 }
 
-void func_801b4b9c_slot04_15(Object *obj) {
+void update_sequence_with_flagged_x_frac_nudge_slot04_15(Object *obj) {
     s16 t = obj->step_flags;
     s16 d;
 
@@ -222,18 +222,18 @@ void call_handler_by_half_direction_index_slot04_15(Object *obj) {
     data_801c3ce8_slot04_15[obj->direction_index >> 1](obj);
 }
 
-void func_801b4c58_slot04_15(Object *obj) {
+void call_table_function_by_state_3_17_slot04_15(Object *obj) {
     data_801c3cf4_slot04_15[obj->state_3](obj);
 }
 
-void func_801b4c98_slot04_15(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_slot04_15(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b4cd0_slot04_15(Object *obj) {
+void update_sequence_or_reset_on_negative_flags_2_slot04_15(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
@@ -244,7 +244,7 @@ void func_801b4cd0_slot04_15(Object *obj) {
     }
 }
 
-void func_801b4d34_slot04_15(Object *obj) {
+void start_sequence_by_variant_with_meter_sound_slot04_15(Object *obj) {
     u16 t;
     obj->state_3 = 3;
     obj->active_flag_3 = 1;
@@ -258,5 +258,5 @@ void func_801b4d34_slot04_15(Object *obj) {
     }
     t = (obj->direction_index >> 1) + t;
     set_sequence_by_side_and_mode(obj, t);
-    func_80120af8(obj);
+    play_sound_from_table_by_direction_index(obj);
 }

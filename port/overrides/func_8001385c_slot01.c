@@ -3,10 +3,10 @@
  * of the C of the unit slot01_3440_r3.c; the PS1 build does not use this
  * file, and the unit keeps the exact C.
  *
- * What is different from the unit's C: the call of func_8011ffdc is written
+ * What is different from the unit's C: the call of clear_or_set_flag_by_pos_x_limit is written
  * with the argument `obj`. The unit calls it with none.
  *
- * Why: func_8011ffdc reads a0 (`lh v0,0x12(a0)` at 8011ffec). On the console
+ * Why: clear_or_set_flag_by_pos_x_limit reads a0 (`lh v0,0x12(a0)` at 8011ffec). On the console
  * a0 holds at that call (jal at 8001388c) what the earlier call left in it,
  * and that is this function's own first parameter. The earlier call is
  * through the table data_80015a64_slot01 of the module slot01 (jalr v0 at
@@ -24,7 +24,7 @@
  * for a PC, the callee would read something else.
  *
  * What the function does (inferred): it calls the entry of the table that
- * state_1 selects with the object, then func_8011ffdc with the object.
+ * state_1 selects with the object, then clear_or_set_flag_by_pos_x_limit with the object.
  *
  * Contract:
  *   Argument: obj (a0), a pointer to an object; no result.
@@ -35,7 +35,7 @@
  *     behind it (entry 2).
  *   Callees: the table and its three entries are the image's own and run as
  *     the original code in the test, so that what they leave in a0 is what
- *     the console's code leaves. func_8011ffdc (1 argument) is replaced in
+ *     the console's code leaves. clear_or_set_flag_by_pos_x_limit (1 argument) is replaced in
  *     the test by a recorder that logs its argument and returns 0. What it
  *     does is outside the test. The test watches the whole object at the
  *     recorder's call.
@@ -51,5 +51,5 @@ extern void (*data_80015a64_slot01[])(Object *obj);
 
 void func_8001385c_slot01(Object *obj) {
     data_80015a64_slot01[obj->state_1](obj);
-    ((void (*)(Object *))func_8011ffdc)(obj);
+    ((void (*)(Object *))clear_or_set_flag_by_pos_x_limit)(obj);
 }

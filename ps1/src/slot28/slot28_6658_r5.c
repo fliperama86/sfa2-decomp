@@ -6,9 +6,9 @@
 extern Object *data_800518d0_slot28[];
 extern ObjectRef data_80051908_slot28;
 extern SequenceStep *data_8002fca8_slot28[];
-void func_80016e28_slot28(Object *obj, int arg);
+void set_sequence_of_fourth_hud_object_3_slot28(Object *obj, int arg);
 
-void func_80016cc0_slot28(Object *o) {
+void advance_pass_set_final_sequences_on_object_done_slot28(Object *o) {
     Object *p = data_80051908_slot28.p;
     if (((Slot28Obj *)p)->field_3a < 0) {
         p = (Object *)data_8018f5a0;
@@ -28,7 +28,7 @@ void func_80016cc0_slot28(Object *o) {
         } else {
             set_sequence_from_table_5(p, 0xf, data_8002fca8_slot28);
         }
-        func_80016e28_slot28(o, 5);
+        set_sequence_of_fourth_hud_object_3_slot28(o, 5);
     }
 }
 

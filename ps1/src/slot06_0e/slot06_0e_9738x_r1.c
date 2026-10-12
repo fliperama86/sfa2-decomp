@@ -20,7 +20,7 @@ extern Slot06TileW data_801f6734_slot06_0e[2][0x75];
  * coordinates, palette, command word), linked into the list head chosen by
  * the layer's ot_index. There is no test of the row against a row count.
  */
-void func_801e9738_slot06_0e(void) {
+void draw_tile_map_layer_sprites_32px_slot06_0e(void) {
     Chan *c = &data_801aa544[2];
     int pos;
     int y;

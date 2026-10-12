@@ -11,7 +11,7 @@ void init_cam_object_then_advance_state_slot06_02(Object *obj);
 void update_object_table_timer_and_parallax_slot06_02(Object *obj);
 void set_sequence_index_from_table_slot06_02(Object *obj);
 
-void func_801e93c4_slot06_02(Slot06Layer *layer) {
+void set_layer_tile_map_and_scale_c_slot06_02(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eaf18_slot06_02;
     layer->data_table = data_801eaf18_slot06_02;
     layer->packed_param = 0x5816;

@@ -13,7 +13,7 @@ extern ObjectFn data_801be1d0_slot04_0c[];
 extern ObjectFn data_801be1d8_slot04_0c[];
 
 Block172 *pop_block_from_pool(void);
-void func_8011ffdc(Object *object);
+void clear_or_set_flag_by_pos_x_limit(Object *object);
 void set_sequence_by_side(Object *object, int arg);
 void update_object_motion_unless_paused(Object *object);
 void call_state_2_handler_2684_unless_paused(Object *object);
@@ -141,7 +141,7 @@ void init_child_object_from_parent_slot04_0c(Object *object) {
     } else {
         ((Slot04bObj *)object)->data_pointer = *(int *)0x1f800158;
     }
-    func_80138070(object, object->vel_table_index >> 1);
+    set_sequence_by_sound_side(object, object->vel_table_index >> 1);
     set_countdown_2_from_table_slot04_0c(object);
     call_handler_by_state_1_slot04_0c(object);
 }
@@ -174,10 +174,10 @@ void call_state_2_handler_unless_paused_slot04_0c(Object *object) {
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
         data_801be1d0_slot04_0c[object->state_2](object);
     }
-    func_8011ffdc(object);
+    clear_or_set_flag_by_pos_x_limit(object);
 }
 
-void func_801b3ca4_slot04_0c(Object *object) {
+void advance_state_2_set_box_tables_and_sequence_slot04_0c(Object *object) {
     object->state_2 = object->state_2 + 1;
     set_box_tables_by_vel_index_and_health_slot04_0c(object);
     object->countdown = 2;
@@ -196,21 +196,21 @@ void count_down_then_reset_states_and_advance_slot04_0c(Object *object) {
     advance_sequence_checked(object);
 }
 
-void func_801b3d3c_slot04_0c(Object *object) {
+void call_state_2_handler_2684_wrapper_slot04_0c(Object *object) {
     call_state_2_handler_2684_unless_paused(object);
 }
 
-void func_801b3d5c_slot04_0c(Object *object) {
+void set_countdown_2_then_call_state_2_handler_slot04_0c(Object *object) {
     set_countdown_2_from_table_slot04_0c(object);
     call_state_2_handler_268c_unless_paused(object);
 }
 
-void func_801b3d8c_slot04_0c(Object *object) {
+void set_countdown_2_then_call_alt_state_2_handler_slot04_0c(Object *object) {
     set_countdown_2_from_table_slot04_0c(object);
     call_handler_2694_by_state_2(object);
 }
 
 void call_handler_by_state_1_slot01_slot04_0c(Object *object) {
     data_801be1d8_slot04_0c[object->state_1](object);
-    func_8011ffdc(object);
+    clear_or_set_flag_by_pos_x_limit(object);
 }

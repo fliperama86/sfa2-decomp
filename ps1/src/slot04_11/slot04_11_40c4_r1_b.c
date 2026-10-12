@@ -6,7 +6,7 @@
 int apply_velocity_and_acceleration_slot04_11(Object *obj);
 void latch_pressed_bits_into_input_bits_slot04_11(Object *obj);
 
-void func_801b45a8_slot04_11(Object *obj) {
+void update_rise_latch_input_land_or_switch_sequence_slot04_11(Object *obj) {
     latch_pressed_bits_into_input_bits_slot04_11(obj);
     apply_velocity_and_acceleration_slot04_11(obj);
     if (obj->pos_y >= obj->ground_y) {

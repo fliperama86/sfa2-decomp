@@ -5,7 +5,7 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_8012e600(Object *object)
+void attach_object_to_other_frame_box(Object *object)
 {
   Box6 *box;
   SequenceStep *next;

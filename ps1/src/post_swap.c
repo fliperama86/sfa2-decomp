@@ -5,7 +5,7 @@
 
 
 
-void func_80132070(Object *object) {
+void set_sequence_x28_if_state_7_0_1_and_active(Object *object) {
     if ((*(u32 *)&object->state_0 & 0xffffff) == 0x70001 &&
         object->field_15a == 1 && object->field_7e == 0 &&
         object->active_flag != 0) {
@@ -18,10 +18,10 @@ int is_input_and_state_check_passed(Object *object) {
     int result;
     if (object->mode_flag_2 != 0) {
         result = 0;
-    } else if (!(u8)func_8013d0fc(object)) {
+    } else if (!(u8)is_input_masked_equal_to_one_of_two_patterns_b(object)) {
         result = 0;
     } else {
-        result = (u8)func_801418bc(object) != 0;
+        result = (u8)try_action_unless_state_bytes_match(object) != 0;
     }
     return result;
 }

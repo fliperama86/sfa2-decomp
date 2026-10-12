@@ -5,7 +5,7 @@
 
 extern u8 data_801dd404_slot05_06[];
 
-void func_801ca568_slot05_06(Object *obj) {
+void count_down_then_launch_and_damage_other_slot05_06(Object *obj) {
     Slot04aObj *s = (Slot04aObj *)obj;
 
     s->field_1c2 = s->field_1c2 - 1;

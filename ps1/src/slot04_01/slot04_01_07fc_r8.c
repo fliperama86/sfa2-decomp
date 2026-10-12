@@ -5,7 +5,7 @@
 
 extern s32 data_801bef6c_slot04_01[];
 
-void func_801b11cc_slot04_01(Object *o) {
+void start_move_with_table_velocity_pair_slot04_01(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int h;
     int a = 0x1d;

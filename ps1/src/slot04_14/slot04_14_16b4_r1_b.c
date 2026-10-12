@@ -6,7 +6,7 @@
 void start_action_if_buttons_pressed(Object *object);
 void spawn_offset_effect_and_play_sounds(Object *object);
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
-void func_801b1d8c_slot04_14(Object *obj);
+void apply_vel_y_with_accel_y_override_slot04_14(Object *obj);
 
 extern ObjectFn data_801c62b8_slot04_14[];
 extern ObjectFn data_801c62c4_slot04_14[];
@@ -21,8 +21,8 @@ void advance_state_3_when_mode_zero_slot04_14(Object *o) {
     update_sequence(o);
 }
 
-void func_801b1b48_slot04_14(Object *obj) {
-    func_801b1d8c_slot04_14(obj);
+void update_airborne_motion_land_with_sound_slot04_14(Object *obj) {
+    apply_vel_y_with_accel_y_override_slot04_14(obj);
     if (obj->pos_y < obj->ground_y) {
         if (obj->facing_side != 0) {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
@@ -47,7 +47,7 @@ void update_fall_until_landing_or_mode_set_slot04_14(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     s16 y;
 
-    func_801b1d8c_slot04_14(o);
+    apply_vel_y_with_accel_y_override_slot04_14(o);
     y = o->ground_y;
     if (o->pos_y < y) {
         if (obj->mode != 0) {
@@ -64,7 +64,7 @@ void update_fall_until_landing_or_mode_set_slot04_14(Object *o) {
     update_sequence(o);
 }
 
-void func_801b1c8c_slot04_14(Object *obj) {
+void update_sequence_or_finish_clearing_pos_y_frac_slot04_14(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->other->other_state_code = 5;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
@@ -75,7 +75,7 @@ void func_801b1c8c_slot04_14(Object *obj) {
     }
 }
 
-void func_801b1cfc_slot04_14(Object *obj) {
+void update_sequence_with_effect_then_set_jump_motion_slot04_14(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
@@ -94,7 +94,7 @@ void func_801b1cfc_slot04_14(Object *obj) {
     }
 }
 
-void func_801b1d8c_slot04_14(Object *obj) {
+void apply_vel_y_with_accel_y_override_slot04_14(Object *obj) {
     if (obj->field_49 != 0 && obj->vel_y < 0) {
         obj->accel_y = 0xffff0000;
     }
@@ -102,11 +102,11 @@ void func_801b1d8c_slot04_14(Object *obj) {
     obj->vel_y = obj->vel_y + obj->accel_y;
 }
 
-void func_801b1dd8_slot04_14(Object *obj) {
+void call_table_function_by_state_3_5_slot04_14(Object *obj) {
     data_801c62b8_slot04_14[obj->state_3](obj);
 }
 
-void func_801b1e18_slot04_14(Object *obj) {
+void start_sequence_by_direction_index_field49_c_slot04_14(Object *obj) {
     u16 a;
 
     obj->active_flag_4 = 1;
@@ -184,6 +184,6 @@ void update_sequence_with_high_byte_countdown_slot04_14(Object *obj) {
     }
 }
 
-void func_801b2068_slot04_14(Object *obj) {
+void call_table_function_by_state_3_6_slot04_14(Object *obj) {
     data_801c62c4_slot04_14[obj->state_3](obj);
 }

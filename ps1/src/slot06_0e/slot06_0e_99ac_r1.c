@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801eb8dc_slot06_0e[];
 
-void func_801e99ec_slot06_0e(Object *obj);
+void init_object_params_and_four_sequence_cursors_slot06_0e(Object *obj);
 void call_handler_by_state_1_0_or_1_slot06_0e(Object *obj);
 int update_cursors_by_scroll_x_range_slot06_0e(Object *obj);
 void noop_slot00_slot06_0e(Object *obj);
@@ -15,7 +15,7 @@ void call_handler_by_state_0_slot06_0e(Object *obj) {
     data_801eb8dc_slot06_0e[obj->state_0](obj);
 }
 
-void func_801e99ec_slot06_0e(Object *o) {
+void init_object_params_and_four_sequence_cursors_slot06_0e(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
     Slot06Pal *p0 = (Slot06Pal *)((u8 *)obj + 0x30);
     Slot06Pal *p1 = (Slot06Pal *)((u8 *)obj + 0x40);

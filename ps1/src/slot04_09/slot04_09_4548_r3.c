@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b477c_slot04_09(Object *obj) {
+void set_other_lock_and_spawn_effect_sequence_slot04_09(Object *obj) {
     obj->other_lock = 0x14;
     obj->field_157 = 0;
     obj->state_3++;

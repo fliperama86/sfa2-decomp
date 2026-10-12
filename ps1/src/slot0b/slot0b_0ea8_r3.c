@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern u16 data_801e4b40_slot0b[];
-void func_801e1598_slot0b(Slot0bObj *obj, int arg);
+void set_sequence_and_init_list_cells_tpage_clut_slot0b(Slot0bObj *obj, int arg);
 void call_step_on_anim_member_slot0b(Slot0bObj *obj);
 
 void init_moving_object_with_mirrored_variant_slot0b(Object *obj) {
@@ -36,6 +36,6 @@ void init_moving_object_with_mirrored_variant_slot0b(Object *obj) {
         obj->vel_y = -obj->vel_y;
         obj->accel_y = -obj->accel_y;
     }
-    func_801e1598_slot0b((Slot0bObj *)obj, obj->table_index);
+    set_sequence_and_init_list_cells_tpage_clut_slot0b((Slot0bObj *)obj, obj->table_index);
     call_step_on_anim_member_slot0b((Slot0bObj *)obj);
 }

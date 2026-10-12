@@ -13,11 +13,11 @@ int drain_gauge_by_other_input(Object *object);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void set_sequence_by_side(Object *object, int arg);
 void reset_object_to_state_1_0_0_2_sequence_1(Object *object);
-void func_801b30c0_slot04_0d(Object *obj, s16 a);
-void func_801b3034_slot04_0d(Object *obj);
+void flip_facing_launch_and_hit_other_slot04_0d(Object *obj, s16 a);
+void release_or_drain_gauge_then_advance_slot04_0d(Object *obj);
 void apply_velocity_with_gravity_slot04_0d(Object *obj);
 
-void func_801b2f4c_slot04_0d(Object *obj) {
+void update_hold_sequence_damage_other_on_flag_slot04_0d(Object *obj) {
     Slot04bObj *o = (Slot04bObj *)obj;
     u16 t;
     int k;
@@ -38,20 +38,20 @@ void func_801b2f4c_slot04_0d(Object *obj) {
         }
         if ((u8)apply_damage_to_other_return_defeated(obj, k, 0) != 0) {
             play_side_sound_at(obj, obj->side, 0x16);
-            func_801b30c0_slot04_0d(obj, -0x200);
+            flip_facing_launch_and_hit_other_slot04_0d(obj, -0x200);
         } else {
             o->countdown = o->countdown + 1;
-            func_801b3034_slot04_0d(obj);
+            release_or_drain_gauge_then_advance_slot04_0d(obj);
         }
     } else {
-        func_801b3034_slot04_0d(obj);
+        release_or_drain_gauge_then_advance_slot04_0d(obj);
     }
 }
 
-void func_801b3034_slot04_0d(Object *obj) {
+void release_or_drain_gauge_then_advance_slot04_0d(Object *obj) {
     if (*(u8 *)&obj->countdown != 0) {
         if (obj->other->field_15b == 0) {
-            func_801b30c0_slot04_0d(obj, 2);
+            flip_facing_launch_and_hit_other_slot04_0d(obj, 2);
         } else if ((u8)drain_gauge_by_other_input(obj) != 0) {
             obj->state_3 = obj->state_3 + 1;
             set_sequence_by_side_and_mode(obj, 0x19);
@@ -60,7 +60,7 @@ void func_801b3034_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b30c0_slot04_0d(Object *obj, s16 a) {
+void flip_facing_launch_and_hit_other_slot04_0d(Object *obj, s16 a) {
     int x = 0x40000;
     int t;
 
@@ -93,7 +93,7 @@ void follow_other_box_then_spawn_hit_effect_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b31e8_slot04_0d(Object *obj) {
+void update_sequence_stop_and_hit_other_on_flag_slot04_0d(Object *obj) {
     Object *o;
 
     update_sequence(obj);
@@ -111,7 +111,7 @@ void func_801b31e8_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b3284_slot04_0d(Object *obj) {
+void fall_until_ground_then_land_sequence_a_slot04_0d(Object *obj) {
     apply_velocity_with_gravity_slot04_0d(obj);
     if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);
@@ -147,11 +147,11 @@ void update_airborne_sequence_land_on_ground_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b33c0_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_16_slot04_0d(Object *obj) {
     data_801c2ac8_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b3400_slot04_0d(Object *obj) {
+void start_state_sound_input_facing_snap_to_other_box_slot04_0d(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     add_to_meter_clamped(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
@@ -163,7 +163,7 @@ void func_801b3400_slot04_0d(Object *obj) {
     set_position_from_other_box(obj);
 }
 
-void func_801b347c_slot04_0d(Object *obj) {
+void update_sequence_launch_other_on_flag_slot04_0d(Object *obj) {
     Object *o;
     int x;
 
@@ -192,7 +192,7 @@ void func_801b347c_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b3590_slot04_0d(Object *obj) {
+void fall_until_near_ground_then_start_sequence_slot04_0d(Object *obj) {
     apply_velocity_with_gravity_slot04_0d(obj);
     if (((Slot04bObj *)obj)->saved_pos_x < 0 || obj->pos_y < (s16)(obj->ground_y - 0x50)) {
         update_sequence(obj);
@@ -202,7 +202,7 @@ void func_801b3590_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b360c_slot04_0d(Object *obj) {
+void fall_until_ground_then_land_sequence_b_slot04_0d(Object *obj) {
     apply_velocity_with_gravity_slot04_0d(obj);
     if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);

@@ -12,7 +12,7 @@ void set_sequence_by_direction_and_variant_slot04_04(Object *obj);
    1), clears step_limit and active_flag and starts sequence 0x1d (variant_index not 0)
    or 0x1c. Otherwise it hands over to the module's function
    set_sequence_by_direction_and_variant_slot04_04. */
-void func_801b0904_slot04_04(Object *obj) {
+void start_sequence_1c_1d_or_default_dir_sequence_slot04_04(Object *obj) {
     /* The call of set_sequence_by_direction_and_variant_slot04_04 stands in two arms, once for each test that leads to it. With one arm for both (`if (obj->direction_index == 2 && (obj->input_bits_2 & 0xf000) == 0x4000) { ... } else { ... }`) this function differs from the original in 6 instruction slots. */
     if (obj->direction_index != 2) {
         set_sequence_by_direction_and_variant_slot04_04(obj);

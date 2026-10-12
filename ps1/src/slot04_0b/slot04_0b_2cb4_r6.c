@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3550_slot04_0b(Object *obj) {
+void update_hit_loop_damage_other_with_gauge_drain_slot04_0b(Object *obj) {
     Object *o = obj->other;
     int a;
 

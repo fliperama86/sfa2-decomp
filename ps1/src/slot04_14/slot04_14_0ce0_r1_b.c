@@ -6,14 +6,14 @@
 u8 try_action_clearing_both_flags(Object *object);
 /* function of another unit of this module */
 void set_object_states_0_to_3_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
-void func_80142718(Object *object);
+void set_direction_index_from_buttons_mask_a(Object *object);
 void set_direction_index_from_buttons_group_b(Object *object);
 
-u8 func_801b1558_slot04_14(Object *obj) {
+u8 try_enter_move_state_with_input_direction_slot04_14(Object *obj) {
     u8 r;
 
     if (obj->active_state != 0) {
-        r = func_801418bc(obj);
+        r = try_action_unless_state_bytes_match(obj);
         if (!r) return;
         obj->field_15a = 3;
         set_object_states_0_to_3_slot04_14(obj, 1, 0, 7, 0);
@@ -42,7 +42,7 @@ u8 try_start_meter_move_5_unlinked_slot04_14(Object *obj) {
             obj->field_15a = 5;
             obj->active_flag_3 = 1;
             obj->facing_side = obj->saved_facing;
-            func_80142718(obj);
+            set_direction_index_from_buttons_mask_a(obj);
         }
     }
     return r;

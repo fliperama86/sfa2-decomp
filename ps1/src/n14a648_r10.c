@@ -3,5 +3,5 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801503f0(Stream *unused, StreamEntry *unused2) {
+void noop_stream_entry_function(Stream *unused, StreamEntry *unused2) {
 }

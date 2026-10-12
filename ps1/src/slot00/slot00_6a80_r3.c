@@ -12,5 +12,5 @@ void call_handler_by_state_2_unless_paused_c_2_slot00(Object *o) {
     if (config->pause_flag_a == 0 && config->pause_flag_b == 0) {
         data_800797f4_slot00[o->state_2](o);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }

@@ -5,7 +5,7 @@
 
 extern s32 data_801c6334_slot04_02[];
 
-void func_801b2310_slot04_02(Object *o) {
+void add_directional_vel_x_boost_and_set_sequence_slot04_02(Object *o) {
     s32 t;
     u16 a;
 

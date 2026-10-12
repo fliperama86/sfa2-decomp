@@ -5,7 +5,7 @@
 
 void set_states_and_other_lock_sequence_1a_b_slot04_00(Object *obj);
 
-int func_801b0dd0_slot04_00(Object *obj) {
+int try_spend_meter_then_set_lock_sequence_slot04_00(Object *obj) {
     int r = 0;
 
     if ((u8)try_spend_meter_for_action(obj)) {

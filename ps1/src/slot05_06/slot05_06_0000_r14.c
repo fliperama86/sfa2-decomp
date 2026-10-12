@@ -24,7 +24,7 @@ int try_start_meter_move_15a_9_slot05_06(Object *obj) {
 
 int try_enter_state_8_kind_9_slot05_06(Object *obj) {
     if (obj->field_7e != 0) return 0;
-    if (!(u8)func_801418bc(obj)) return 0;
+    if (!(u8)try_action_unless_state_bytes_match(obj)) return 0;
     obj->state_0 = 1;
     obj->state_2 = 8;
     obj->state_1 = 0;

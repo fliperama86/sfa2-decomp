@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4160_slot04_05(Object *obj);
-void func_801b4240_slot04_05(Object *obj);
+void call_table_function_by_state_3_23_slot04_05(Object *obj);
+void call_table_function_by_state_3_24_slot04_05(Object *obj);
 extern ObjectFn data_801c166c_slot04_05[];
 
 void update_sequence_or_finish_on_flag_2_slot04_05(Object *obj) {
@@ -21,17 +21,17 @@ void update_sequence_or_finish_on_flag_2_slot04_05(Object *obj) {
 void call_handler_by_input_dir_1_slot04_05(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second == 0) {
-        func_801b4160_slot04_05(obj);
+        call_table_function_by_state_3_23_slot04_05(obj);
     } else {
-        func_801b4240_slot04_05(obj);
+        call_table_function_by_state_3_24_slot04_05(obj);
     }
 }
 
-void func_801b4160_slot04_05(Object *obj) {
+void call_table_function_by_state_3_23_slot04_05(Object *obj) {
     data_801c166c_slot04_05[obj->state_3](obj);
 }
 
-void func_801b41a0_slot04_05(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_slot04_05(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;

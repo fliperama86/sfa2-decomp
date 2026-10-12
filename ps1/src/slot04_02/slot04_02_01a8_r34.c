@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4608_slot04_02(Object *obj) {
+void move_with_accel_advance_state_3_on_step_flag_slot04_02(Object *obj) {
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;

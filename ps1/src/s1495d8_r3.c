@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80149aa8(Object *object) {
+void set_state_0_to_end_clear_flag_byte(Object *object) {
     object->state_0 = 2;
     object->field_01 = 0;
 }

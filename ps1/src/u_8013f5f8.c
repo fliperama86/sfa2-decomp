@@ -11,7 +11,7 @@
    now matches. Tried: locals x/bb/t, in-place a/b, ternary, local pointer to
    ref_other.p (CSEs to the stored value), switch, || versus && forms. */
 /* Form found by automatic permutation search. */
-int func_8013f5f8(Object *object, int a, int b)
+int force_other_state_inline_if_in_range(Object *object, int a, int b)
 {
   FrameRecord *rec;
   Box6 *box;

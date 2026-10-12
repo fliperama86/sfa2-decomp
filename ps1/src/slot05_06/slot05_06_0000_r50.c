@@ -5,7 +5,7 @@
 
 extern u8 data_801dd4e4_slot05_06[];
 
-void func_801cc478_slot05_06(Object *obj) {
+void force_state_on_other_add_meter_6_sequence_slot05_06(Object *obj) {
     obj->state_3++;
     obj->active_flag_4 = 1;
     ref_other.p = obj->other;

@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e78e0_slot0f(Object *obj);
+void build_cell_name_hex_win_records_index_0_slot0f(Object *obj);
 
 void spawn_three_pooled_objects_from_obj_slot0f(Object *obj) {
     Object *p;
     FrameRecord *fr;
     u8 t = obj->state_1;
     obj->state_1 = t + 1;
-    func_800e78e0_slot0f(obj);
+    build_cell_name_hex_win_records_index_0_slot0f(obj);
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;

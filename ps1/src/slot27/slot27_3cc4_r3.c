@@ -24,6 +24,6 @@ void start_sequence_if_side_bit_set_2_slot27(Object *obj) {
     }
 }
 
-void func_800140e0_slot27(Object *object) {
+void call_state_1_handler_from_slot27_table_a_5_slot27(Object *object) {
     data_80026ee8_slot27[object->state_1](object);
 }

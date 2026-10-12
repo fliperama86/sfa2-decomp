@@ -5,11 +5,11 @@
 
 extern void (*data_80037488_slot28[])(Object *);
 
-void func_8001aee0_slot28(Object *obj) {
+void set_object_flag_byte_to_one_2_slot28(Object *obj) {
     obj->field_01 = 1;
 }
 
-void func_8001aeec_slot28(Object *obj) {
+void call_state_1_handler_d_and_show_4_slot28(Object *obj) {
     data_80037488_slot28[obj->state_1](obj);
     obj->field_01 = 1;
 }

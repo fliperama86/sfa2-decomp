@@ -21,7 +21,7 @@ extern SequenceStep **data_1f8000f0;
 extern SequenceStep **data_1f8001a0;
 
 void reset_and_push_block_object_type_8(Slab172 *o);
-void func_8011ffdc(Object *o);
+void clear_or_set_flag_by_pos_x_limit(Object *o);
 
 void call_handler_by_state_0_slot04_12(Object *obj);
 void call_handler_by_state_1_slot04_12(Object *obj);
@@ -68,7 +68,7 @@ void init_child_projectile_from_parent_slot04_12(Object *obj) {
     } else {
         ((Slot04bObj *)obj)->data_pointer = *(int *)0x1f800158;
     }
-    func_80138070(obj, obj->vel_table_index >> 1);
+    set_sequence_by_sound_side(obj, obj->vel_table_index >> 1);
     call_handler_by_state_1_slot04_12(obj);
 }
 
@@ -82,7 +82,7 @@ void start_sequence_3_then_advance_slot04_12(Object *obj) {
     } else {
         obj->state_1 = obj->state_1 + 1;
         obj->parent->linked_object_3 = 0;
-        func_80138070(obj, 3);
+        set_sequence_by_sound_side(obj, 3);
     }
 }
 
@@ -125,10 +125,10 @@ void init_child_object_from_parent_slot04_12(Object *obj) {
 
 void call_handler_by_state_1_then_offset_slot04_12(Object *obj) {
     data_801c4e40_slot04_12[obj->state_1](obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_801b3eac_slot04_12(Object *obj) {
+void advance_state_0_if_parent_frame_param_zero_slot04_12(Object *obj) {
     if (obj->parent->frame->frame_param == 0) {
         obj->state_0 = obj->state_0 + 1;
     }

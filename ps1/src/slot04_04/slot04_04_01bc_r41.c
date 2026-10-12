@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b377c_slot04_04(Object *obj) {
+void set_facing_and_countdown_then_start_sequence_slot04_04(Object *obj) {
     obj->state_3++;
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     add_to_meter_clamped(obj, 4);

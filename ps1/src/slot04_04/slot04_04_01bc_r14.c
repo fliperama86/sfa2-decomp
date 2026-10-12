@@ -5,7 +5,7 @@
 
 void start_action_variant_9_lock_other_slot04_04(Object *obj);
 
-int func_801b1328_slot04_04(Object *obj) {
+int spend_meter_and_start_variant_nine_lock_slot04_04(Object *obj) {
     int r = 0;
 
     if ((u8)try_spend_meter_for_action(obj)) {

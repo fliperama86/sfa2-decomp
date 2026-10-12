@@ -12,7 +12,7 @@ extern TextBuf *data_801b8570_slot04_sel[];
 extern TextBuf *data_801b85e8_slot04_sel[];
 extern u8 data_801b9d30_slot04_sel;
 extern u8 data_801b9d34_slot04_sel;
-void func_801b4774_slot04_sel(Object *obj, Slot04SelRec9d38 *rec, u16 kind);
+void move_selection_index_by_buttons_with_wrap_slot04_sel(Object *obj, Slot04SelRec9d38 *rec, u16 kind);
 
 void update_column_selection_for_side_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     TextBuf *a = data_801b8540_slot04_sel[obj->side];
@@ -22,7 +22,7 @@ void update_column_selection_for_side_slot04_sel(Object *obj, Slot04SelRec9d38 *
     if (rec->field_07 == 0 && ((game_state.side_mask >> obj->side) & 1)) {
         data_801b9d30_slot04_sel = rec->saved_index_a;
         data_801b9d34_slot04_sel = rec->field_07;
-        func_801b4774_slot04_sel(obj, rec, 7);
+        move_selection_index_by_buttons_with_wrap_slot04_sel(obj, rec, 7);
         rec->saved_index_a = data_801b9d30_slot04_sel;
         rec->field_07 = data_801b9d34_slot04_sel;
         b->pos_x = data_801b7d98_slot04_sel[obj->side] + a->stride * data_801b9d30_slot04_sel;

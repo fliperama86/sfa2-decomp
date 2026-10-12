@@ -17,7 +17,7 @@ void start_sequence_2d_with_table_step_timer_slot04_06(Object *obj) {
     obj->step_timer = *(u16 *)(data_801c54cc_slot04_06 + (obj->direction_index & 0xfe));
 }
 
-void func_801b4358_slot04_06(Object *obj) {
+void update_sequence_or_start_direction_sequence_slot04_06(Object *obj) {
     if (((Slot04aObj *)obj)->mode != 0) {
         ((Slot04aObj *)obj)->mode = 0;
         obj->step_timer = *(u16 *)(data_801c54d4_slot04_06 + (obj->direction_index & 0xfe));

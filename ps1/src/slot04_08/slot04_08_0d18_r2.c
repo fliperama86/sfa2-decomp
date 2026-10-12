@@ -17,18 +17,18 @@ int start_meter_move_15a_3_choose_direction_slot04_08(Object *obj) {
         if (obj->field_25c != 0) {
             if (((obj->pressed_bits | obj->released_bits) & 0x30) != 0) {
                 obj->input_dir_second = 0;
-                func_80142718(obj);
+                set_direction_index_from_buttons_mask_a(obj);
             } else {
                 obj->input_dir_second = 2;
-                func_80142778(obj);
+                set_direction_index_from_buttons_mask_b(obj);
             }
         } else {
             if (((obj->pressed_bits | obj->released_bits) & 0x6a) != 0) {
                 obj->input_dir_second = 2;
-                func_80142778(obj);
+                set_direction_index_from_buttons_mask_b(obj);
             } else {
                 obj->input_dir_second = 0;
-                func_80142718(obj);
+                set_direction_index_from_buttons_mask_a(obj);
             }
         }
     }
@@ -45,6 +45,6 @@ int start_meter_move_15a_4_clear_substate_slot04_08(Object *obj) {
         obj->active_flag_3 = 1;
         obj->substate_index = 0;
         obj->facing_side = obj->saved_facing;
-        func_80142718(obj);
+        set_direction_index_from_buttons_mask_a(obj);
     }
 }

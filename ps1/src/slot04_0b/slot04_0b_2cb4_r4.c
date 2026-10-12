@@ -5,7 +5,7 @@
 
 void clear_slots_bytes_slot04_0b(Object *obj);
 
-void func_801b3268_slot04_0b(Object *obj) {
+void spawn_effects_and_reset_side_on_high_flag_byte_slot04_0b(Object *obj) {
     int a = -0x24;
     int b = 0x64;
 

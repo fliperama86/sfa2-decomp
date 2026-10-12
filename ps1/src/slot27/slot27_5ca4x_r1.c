@@ -12,12 +12,12 @@ void update_slot27_object_by_flags_slot27(Object *obj) {
     Object *b;
     if (obj->field_60 != 0) {
         advance_sequence_checked(obj);
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else if (obj->state_1 != 0) {
         if (game_state.field_04 != 0) {
             obj->state_0++;
         }
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else if (data_8002b386_slot27 < 0) {
         obj->state_1++;
         b = (Object *)pop_block_from_pool();

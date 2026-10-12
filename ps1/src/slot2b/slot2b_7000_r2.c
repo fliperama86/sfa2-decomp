@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80077104_slot2b(Object *obj) {
+void restore_facing_and_check_range_or_continue_slot2b(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0xd, 0x14) != 0) {
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0xd, 0x14) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

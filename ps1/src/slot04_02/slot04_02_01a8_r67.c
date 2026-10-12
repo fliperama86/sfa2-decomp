@@ -14,7 +14,7 @@ extern void *data_801c772c_slot04_02[];
 extern void *data_801c7730_slot04_02[];
 void set_data_table_ptr_from_table_slot04_02(Object *obj, void **tbl);
 
-void func_801b7660_slot04_02(Object *obj) {
+void advance_state_1_set_sequence_by_table_index_slot04_02(Object *obj) {
     int a = 0x10;
 
     obj->state_1++;
@@ -24,7 +24,7 @@ void func_801b7660_slot04_02(Object *obj) {
     set_sequence_a_by_sound_side_slot04_02(obj, a);
 }
 
-void func_801b76ac_slot04_02(Object *obj) {
+void reset_states_on_negative_step_flags_then_advance_slot04_02(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         set_object_states_0_to_3_3_slot04_02(obj, 3, 0, 0, 0);
     }

@@ -12,7 +12,7 @@ void check_script_wait_countdown_or_push(Object *object) {
     }
 }
 
-void func_8014d66c(Object *object) {
+void check_script_wait_countdown_limit_ge_or_push(Object *object) {
     if ((u8)roll_random_bit_check_from_kind_table(object)) {
         init_object_mode_2(object);
     } else if (object->state_2 == 0 || object->countdown_3 == 0
@@ -22,7 +22,7 @@ void func_8014d66c(Object *object) {
     }
 }
 
-void func_8014d720(Object *object) {
+void check_script_wait_countdown_limit_lt_or_push(Object *object) {
     if ((u8)roll_random_bit_check_from_kind_table(object)) {
         init_object_mode_2(object);
     } else if (object->state_2 == 0 || object->countdown_3 == 0

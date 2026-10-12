@@ -31,6 +31,6 @@ void draw_background_sprite_advance_state_slot12(Object *obj) {
     }
 }
 
-void func_80017520_slot12(Object *obj) {
+void release_object_to_pool_table_12_slot12(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

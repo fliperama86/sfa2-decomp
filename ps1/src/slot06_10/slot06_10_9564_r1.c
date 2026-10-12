@@ -109,7 +109,7 @@ void call_state_1_handler_with_player_b_slot06_10(Object *obj) {
         }
         data_801ea9a8_slot06_10[obj->state_1](obj, p);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void wait_for_other_x_then_start_sequence_6_slot06_10(Object *obj, Object *p) {
@@ -215,7 +215,7 @@ void call_state_1_handler_by_facing_side_slot06_10(Object *obj) {
         }
         data_801ea9c4_slot06_10[obj->state_1](obj, p);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void advance_state_1_if_x_order_ascending_slot06_10(Object *obj, Object *other) {

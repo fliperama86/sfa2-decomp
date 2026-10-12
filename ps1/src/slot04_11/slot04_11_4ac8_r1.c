@@ -10,14 +10,14 @@ void reset_side_table_and_fields(Object *object);
 void spawn_object_type_6d_for_side(Object *object);
 void set_other_sequence_3_when_close(Object *object);
 void push_other_by_vel_x(Object *object);
-void func_80142c70(Object *object);
+void init_object_after_hit_and_spawn_three_effects(Object *object);
 void spawn_effect_objects_at_offset(Object *object, int x, int y);
 void set_sequence_by_side(Object *object, int index);
-void func_801b4b8c_slot04_11(Object *obj);
+void call_table_function_by_state_3_10_slot04_11(Object *obj);
 void spawn_effect_by_kind_and_active_state_slot04_11(Object *obj);
-void func_801b5174_slot04_11(Object *obj);
+void spawn_effect_objects_offset_by_active_state_slot04_11(Object *obj);
 void clear_two_byte_blocks_of_object_slot04_11(Object *obj);
-void func_801b5874_slot04_11(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_slot04_11(Object *obj);
 int apply_facing_velocity_with_x_stop_slot04_11(Object *obj);
 
 extern ObjectFn data_801c77c0_slot04_11[];
@@ -27,7 +27,7 @@ extern ObjectFn data_801c77f4_slot04_11[];
 
 void update_sequence_or_load_velocity_table_slot04_11(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
-        func_801b5874_slot04_11(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_11(obj);
     } else {
         update_sequence(obj);
     }
@@ -35,17 +35,17 @@ void update_sequence_or_load_velocity_table_slot04_11(Object *obj) {
 
 void update_sequence_by_kind_or_end_slot04_11(Object *obj) {
     if (obj->kind == 0x13) {
-        func_801b4b8c_slot04_11(obj);
+        call_table_function_by_state_3_10_slot04_11(obj);
     } else if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b5874_slot04_11(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_11(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b4b8c_slot04_11(Object *obj) {
+void call_table_function_by_state_3_10_slot04_11(Object *obj) {
     data_801c77c0_slot04_11[obj->state_3](obj);
 }
 
@@ -64,7 +64,7 @@ void update_sequence_with_motion_and_x_step_slot04_11(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b5874_slot04_11(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_11(obj);
     } else {
         update_sequence(obj);
         if ((obj->step_flags & 0x80) == 0) {
@@ -82,7 +82,7 @@ void update_sequence_with_motion_and_x_step_slot04_11(Object *obj) {
     }
 }
 
-void func_801b4cb4_slot04_11(Object *obj) {
+void call_table_function_by_state_3_11_slot04_11(Object *obj) {
     data_801c77c8_slot04_11[obj->state_3](obj);
 }
 
@@ -115,13 +115,13 @@ void update_sequence_or_end_with_other_code_5_3_slot04_11(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b5874_slot04_11(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_11(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b4e74_slot04_11(Object *obj) {
+void call_table_function_by_state_3_12_slot04_11(Object *obj) {
     data_801c77f4_slot04_11[obj->state_3](obj);
 }
 
@@ -185,7 +185,7 @@ void update_countdown_hold_sequence_slot04_11(Object *obj) {
             obj->state_2 = 3;
             obj->state_3 = 1;
         }
-        func_80142c70(obj);
+        init_object_after_hit_and_spawn_three_effects(obj);
     } else {
         if (((Slot04bObj *)obj)->field_134 != 0) {
             if (((Slot04bObj *)obj)->saved_count == 0) {
@@ -203,7 +203,7 @@ void spawn_effect_by_kind_and_active_state_slot04_11(Object *obj) {
     int b;
 
     if (obj->kind == 0x13) {
-        func_801b5174_slot04_11(obj);
+        spawn_effect_objects_offset_by_active_state_slot04_11(obj);
     } else {
         a = -3;
         b = 0x4f;
@@ -215,7 +215,7 @@ void spawn_effect_by_kind_and_active_state_slot04_11(Object *obj) {
     }
 }
 
-void func_801b5174_slot04_11(Object *obj) {
+void spawn_effect_objects_offset_by_active_state_slot04_11(Object *obj) {
     if (obj->active_state != 0) {
         spawn_effect_objects_at_offset(obj, -0xe, 0x47);
     } else {

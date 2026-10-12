@@ -14,7 +14,7 @@ void move_until_x_80_then_next_state_1_slot28(Object *obj) {
     }
 }
 
-void func_8002045c_slot28(Object *obj) {
+void move_until_pos_x_limit_then_start_arc_slot28(Object *obj) {
     apply_velocity_and_accel_slot28(obj);
     if (obj->pos_x >= 0x89) {
         obj->pos_x = 0x88;

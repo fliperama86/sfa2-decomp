@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b0a38_slot04_08(Object *obj) {
+int try_enter_state_7_dir_second_6_variant_a_slot04_08(Object *obj) {
     int r = 0;
     u8 one;
 
@@ -23,7 +23,7 @@ int func_801b0a38_slot04_08(Object *obj) {
     return r;
 }
 
-int func_801b0ab4_slot04_08(Object *obj) {
+int try_enter_state_7_dir_second_0_variant_a_slot04_08(Object *obj) {
     int r = 0;
     u8 one;
 
@@ -43,7 +43,7 @@ int func_801b0ab4_slot04_08(Object *obj) {
     return r;
 }
 
-int func_801b0b2c_slot04_08(Object *obj) {
+int try_enter_state_7_dir_second_2_variant_a_slot04_08(Object *obj) {
     int r = 0;
     u8 one;
 

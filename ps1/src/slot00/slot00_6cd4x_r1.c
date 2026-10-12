@@ -6,7 +6,7 @@
 extern ObjectFn data_800797f4_slot00[];
 void select_box_tables_slot00_slot00(Object *obj);
 
-void func_80076cd4_slot00(Object *o) {
+void count_down_then_reverse_vel_x_and_reset_states_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
     int v;
     u8 t;

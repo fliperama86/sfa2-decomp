@@ -30,7 +30,7 @@ void reset_to_phase_7_when_no_side_bits_slot12(void) {
         game_state.countdown_timer_2 = 0;
         h->pass_index = 0;
         game_state.field_cc = 0;
-        func_8011eae4();
+        clear_arrays_and_init_pools_and_sprite_tables();
         close_voice_thread(1);
     }
 }

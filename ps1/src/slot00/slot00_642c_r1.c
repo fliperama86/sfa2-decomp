@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8007642c_slot00(Object *o) {
+void start_sideways_velocity_on_flag_and_update_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
     if (obj->active_flag != 0) {
         o->state_3++;
@@ -28,7 +28,7 @@ void update_slide_push_other_object_slot00(Object *o) {
         o->pos_x_frac = 0;
     }
     if ((game_state.frame_counter & 3) == 0) {
-        if (func_80148e84(o) & 0xff) {
+        if (spawn_random_offset_object_variant_zero(o) & 0xff) {
             if (o->facing_side == 0) {
                 ref_other.p->pos_x -= 0x30;
             } else {

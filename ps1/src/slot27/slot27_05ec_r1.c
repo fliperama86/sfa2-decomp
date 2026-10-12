@@ -24,7 +24,7 @@ void advance_step_and_reset_selection_b0_set_slot27(void) {
     game_state.b2_count = 0;
 }
 
-void func_80010694_slot27(void) {
+void advance_step_index_2_and_spawn_block_objects_slot27(void) {
     HudState *h = data_8018f5a0;
     Block172 *b;
     data_80029324_slot27 = 0xff;

@@ -6,7 +6,7 @@
 int format_memory_card_and_check_slot0f(int a);
 void update_two_option_selection_slot0f(Object *o);
 
-void func_800e1c70_slot0f(Object *o) {
+void confirm_two_option_countdown_or_exit_to_zero_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u16 b;
     update_two_option_selection_slot0f(o);
@@ -34,7 +34,7 @@ void func_800e1c70_slot0f(Object *o) {
     }
 }
 
-void func_800e1d2c_slot0f(Object *o) {
+void format_card_when_countdown_ends_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     s8 t;
     if (obj->countdown != 0) {

@@ -9,17 +9,17 @@ void call_handler_by_state_2_slot2b(Object *o) {
     if ((game_state.field_65 | game_state.field_a8) == 0) {
         data_8007994c_slot2b[o->state_2](o);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
-void func_80077ca4_slot2b(Object *o) {
+void flip_facing_and_set_sequence_by_vel_index_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
     s->countdown_timer = 2;
     o->state_2++;
     o->facing_side ^= 1;
     o->active_flag = 0;
     call_kind_9_handler_for_player(o);
-    func_80138070(o, (o->vel_table_index >> 1) + 6);
+    set_sequence_by_sound_side(o, (o->vel_table_index >> 1) + 6);
 }
 
 void countdown_reset_states_flip_vel_x_slot2b(Object *o) {

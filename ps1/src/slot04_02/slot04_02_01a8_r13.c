@@ -5,11 +5,11 @@
 
 void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-u8 func_801b148c_slot04_02(Object *obj) {
+u8 try_enter_move_state_with_input_direction_slot04_02(Object *obj) {
     u8 r;
 
     if (obj->active_state != 0) {
-        r = func_801418bc(obj);
+        r = try_action_unless_state_bytes_match(obj);
         if (!r) return;
         obj->field_15a = 3;
         set_object_states_0_to_3_slot04_02(obj, 1, 0, 7, 0);
@@ -38,7 +38,7 @@ u8 try_start_meter_move_5_unlinked_slot04_02(Object *obj) {
             obj->field_15a = 5;
             obj->active_flag_3 = 1;
             obj->facing_side = obj->saved_facing;
-            func_80142718(obj);
+            set_direction_index_from_buttons_mask_a(obj);
         }
     }
     return r;

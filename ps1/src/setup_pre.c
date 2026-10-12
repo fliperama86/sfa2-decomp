@@ -6,7 +6,7 @@
 
 
 
-void func_8013060c(Object *object) {
+void push_ring_value_then_call_scratch_fn_by_side(Object *object) {
     push_object_value_to_side_ring(object);
     object->field_262 = 0x10;
     if (object->field_267 == 0) {

@@ -8,7 +8,7 @@ extern Poly28 data_801f4c40_slot06_03[2][0x48];
 
 void func_8015c09c(void *prim);
 
-void func_801e9124_slot06_03(Slot06Layer *layer) {
+void set_layer_tile_map_and_scale_e_slot06_03(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ec410_slot06_03;
     layer->data_table = data_801ec410_slot06_03;
     layer->packed_param = 0x581a;

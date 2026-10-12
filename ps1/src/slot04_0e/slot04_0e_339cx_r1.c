@@ -12,7 +12,7 @@
    (target minus pos_y, as a signed halfword) picks a sequence: 0x3b below
    0x11, 0x3a below 0x21, and for a larger distance the current sequence
    simply steps on (update_sequence). */
-void func_801b339c_slot04_0e(Object *o) {
+void update_air_motion_land_or_pick_landing_sequence_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     s16 d;
     int seq;

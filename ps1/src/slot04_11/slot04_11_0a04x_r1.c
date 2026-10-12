@@ -8,9 +8,9 @@ void set_direction_index_from_buttons_group_a(Object *object);
 
 /* functions of other units of this module */
 
-int func_801b0a04_slot04_11(Object *obj);
+int try_start_move_zero_kind_seventeen_slot04_11(Object *obj);
 
-int func_801b0a04_slot04_11(Object *obj) {
+int try_start_move_zero_kind_seventeen_slot04_11(Object *obj) {
     if (obj->kind != 0x11) return 0;
     if (try_action_clearing_both_flags(obj)) {
         obj->state_0 = 1;

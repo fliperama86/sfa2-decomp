@@ -10,7 +10,7 @@ void call_handler_by_state_3_set_flag_2_slot04_03(Object *obj) {
     data_801c0a20_slot04_03[obj->state_3](obj);
 }
 
-void func_801b46e8_slot04_03(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_slot04_03(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;

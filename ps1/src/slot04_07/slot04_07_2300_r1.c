@@ -24,7 +24,7 @@ void func_801b2338_slot04_07(Object *obj) {
     }
 }
 
-void func_801b2378_slot04_07(Object *obj) {
+void set_rising_velocities_and_sequence_by_flag_slot04_07(Object *obj) {
     obj->state_3 = 3;
     obj->active_state = 1;
     obj->vel_x = 0x70000;

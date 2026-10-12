@@ -34,7 +34,7 @@ int wait_for_event_4_to_6_slot0f(int *p) {
     }
 }
 
-void func_800e1148_slot0f(int *p) {
+void test_events_first_four_of_array_slot0f(int *p) {
     func_8015785c(p[0]);
     func_8015785c(p[1]);
     func_8015785c(p[2]);

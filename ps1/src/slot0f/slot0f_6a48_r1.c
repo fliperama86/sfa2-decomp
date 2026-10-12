@@ -11,7 +11,7 @@ void init_hud_slot_two_digit_text_slot0f(Object *obj, HudSlot *c, s16 i);
 void format_decimal_padded_slot0f(u8 *buf, unsigned int n, int pos, int flags);
 void copy_string_with_prefix_and_terminator_slot0f(char *src, char *dst);
 
-void func_800e6a48_slot0f(Object *obj) {
+void init_four_two_digit_hud_slots_slot0f(Object *obj) {
     int i;
 
     for (i = 0; i < 4; i++) {

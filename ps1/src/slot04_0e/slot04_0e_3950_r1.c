@@ -11,17 +11,17 @@ extern u8 data_801c60ac_slot04_0e[];
 extern SequenceStep data_801c0a00_slot04_0e[];
 extern Slot04_0eRec62b4 data_801c62b4_slot04_0e[];
 
-void func_801428e4(Object *object);
-void func_80145d20(Object *object);
+void update_meter_by_mode_or_table(Object *object);
+void spawn_three_child_objects_at_object_spawn(Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void spawn_children_per_direction_index(Object *object, int a, int b);
 
 void spawn_child_object_from_pool_slot04_0e(Object *obj);
 void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
-s16 func_8013fc18(Object *obj, int a, int b);
+s16 apply_forced_state_if_other_in_reach_or_block(Object *obj, int a, int b);
 void spawn_effect_at_other_then_next_spawn_slot04_0e(Object *obj);
-void func_801b420c_slot04_0e(Object *obj);
-void func_801b4a3c_slot04_0e(Object *obj);
+void spawn_ground_child_and_set_sequence_slot04_0e(Object *obj);
+void spawn_ground_child_every_eighth_frame_slot04_0e(Object *obj);
 void spawn_object_in_front_store_in_record_slot04_0e(Object *obj);
 
 void update_dash_sequence_set_velocity_x_slot04_0e(Object *obj) {
@@ -65,7 +65,7 @@ void update_dash_sequence_set_velocity_x_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b3aa0_slot04_0e(Object *obj) {
+void move_and_spawn_children_until_counter_expires_slot04_0e(Object *obj) {
     apply_velocity_and_accel_to_position_slot04_0e(obj);
     if ((u8)obj->step_flags == 1) {
         if (((Slot04bObj *)obj)->countdown == 2) {
@@ -123,21 +123,21 @@ void spawn_child_object_from_pool_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b3c9c_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_12_slot04_0e(Object *obj) {
     data_801c6088_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b3cdc_slot04_0e(Object *obj) {
+void clear_side_record_start_seq_sixty_seven_slot04_0e(Object *obj) {
     Slot04_0eRec62b4 *r;
 
     obj->state_3++;
     r = &data_801c62b4_slot04_0e[obj->side];
     r->offset_x = 0;
     r->object = 0;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     if (((Slot04bObj *)obj)->field_1da == 0) {
-        func_80145d20(obj);
+        spawn_three_child_objects_at_object_spawn(obj);
     }
     set_sequence_by_side_and_mode(obj, 0x43);
 }
@@ -182,7 +182,7 @@ void update_sequence_set_table_velocity_x_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b3eb0_slot04_0e(Object *obj) {
+void update_record_offset_and_check_hit_slot04_0e(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
     Slot04_0eRec62b4 *r;
@@ -201,9 +201,9 @@ void func_801b3eb0_slot04_0e(Object *obj) {
         return;
     }
     r->offset_x += obj->vel_x;
-    func_801b4a3c_slot04_0e(obj);
+    spawn_ground_child_every_eighth_frame_slot04_0e(obj);
     if ((s16)obj->step_flags < 0) {
-        func_801b420c_slot04_0e(obj);
+        spawn_ground_child_and_set_sequence_slot04_0e(obj);
         return;
     }
     pos = r->offset_x;
@@ -213,7 +213,7 @@ void func_801b3eb0_slot04_0e(Object *obj) {
     pos |= u;
     d = (pos >> 16) - *(u16 *)(data_801aa5d4 + 0x12);
     if (d >= 0x181) {
-        func_801b420c_slot04_0e(obj);
+        spawn_ground_child_and_set_sequence_slot04_0e(obj);
         return;
     }
     pos = r->offset_x;
@@ -224,7 +224,7 @@ void func_801b3eb0_slot04_0e(Object *obj) {
         w <<= 16;
         pos |= w;
     }
-    res = func_8013fc18(obj, pos >> 16, *(s16 *)(data_801c60ac_slot04_0e + (obj->direction_index & 0xfe)));
+    res = apply_forced_state_if_other_in_reach_or_block(obj, pos >> 16, *(s16 *)(data_801c60ac_slot04_0e + (obj->direction_index & 0xfe)));
     if (res == 0) {
         update_sequence(obj);
         return;

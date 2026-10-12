@@ -3,9 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011ead4(void) {
+void noop_empty_function_4(void) {
 }
 
-void func_8011eadc(void) {
+void noop_empty_function_5(void) {
 }
 

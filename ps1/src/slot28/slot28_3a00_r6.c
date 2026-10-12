@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80015764_slot28(Object *obj) {
+void count_down_then_fade_and_advance_pass_2_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;

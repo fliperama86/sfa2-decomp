@@ -12,7 +12,7 @@ void move_down_and_follow_other_kind_slot27(Object *o) {
         o->sound_side = other->kind;
         set_sequence_from_table_5(o, other->kind, data_800280bc_slot27);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
     if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
         *(u16 *)&o->pos_y += 8;
         if (*(u16 *)&o->pos_y >= 0x2c1) {
@@ -26,6 +26,6 @@ void increment_state_0_2_slot27(Object *obj) {
     obj->state_0++;
 }
 
-void func_80014bfc_slot27(Object *obj) {
+void release_object_to_pool_table_6_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

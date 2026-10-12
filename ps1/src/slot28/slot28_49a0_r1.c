@@ -20,7 +20,7 @@ extern SequenceStep *data_8002be28_slot28[];
 extern u8 data_8002acc4_slot28[];
 extern u8 data_8002b024_slot28[];
 
-void func_80014d58_slot28(Object *obj);
+void init_object_data_pointers_a_2_slot28(Object *obj);
 
 void func_800149a0_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
@@ -33,7 +33,7 @@ void func_800149a0_slot28(Object *obj) {
     data_80190568 = one;
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80014d58_slot28(o);
+        init_object_data_pointers_a_2_slot28(o);
         data_800518b8_slot28.p = o;
         o->pos_y = -8;
         o->pos_x = 0;
@@ -46,7 +46,7 @@ void func_800149a0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80014d58_slot28(o);
+        init_object_data_pointers_a_2_slot28(o);
         data_800518cc_slot28.p = o;
         o->pos_y = -8;
         o->pos_x = 0;
@@ -58,7 +58,7 @@ void func_800149a0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80014d58_slot28(o);
+        init_object_data_pointers_a_2_slot28(o);
         data_800518bc_slot28[0] = o;
         o->pos_x = 0x60;
         o->pos_y = 0x21;
@@ -70,7 +70,7 @@ void func_800149a0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80014d58_slot28(o);
+        init_object_data_pointers_a_2_slot28(o);
         data_800518c8_slot28.p = o;
         o->spawn_y = 0x1e0;
         o->pos_x = 0x28;
@@ -102,7 +102,7 @@ void func_800149a0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80014d58_slot28(o);
+        init_object_data_pointers_a_2_slot28(o);
         o->ot_depth = 4;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
@@ -114,7 +114,7 @@ void func_800149a0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80014d58_slot28(o);
+        init_object_data_pointers_a_2_slot28(o);
         o->ot_depth = 3;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
@@ -126,7 +126,7 @@ void func_800149a0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80014d58_slot28(o);
+        init_object_data_pointers_a_2_slot28(o);
         o->ot_depth = 3;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
@@ -143,6 +143,6 @@ void func_800149a0_slot28(Object *obj) {
         o->table_index = 0;
         data_800518a0_slot28.p = o;
     }
-    func_80151020(0x206);
+    set_menu_command_one_and_wait_pending(0x206);
     start_fade_mode_c01_and_wait();
 }

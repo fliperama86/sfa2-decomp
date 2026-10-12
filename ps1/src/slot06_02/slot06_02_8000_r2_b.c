@@ -24,7 +24,7 @@ void init_layer_with_map_801eaf18_and_rect_slot06_02(Slot06Layer *layer) {
     layer->field_1c = 0x48;
 }
 
-void func_801e8844_slot06_02(void) {
+void init_two_banks_282_tile_prims_gray_slot06_02(void) {
     int i;
     int j;
     Slot06Tile *r;

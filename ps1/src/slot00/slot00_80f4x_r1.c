@@ -6,7 +6,7 @@
 extern s32 data_8007a0ac_slot00[];
 void set_sequence_by_sound_side_slot00(Object *obj, int mode);
 
-void func_800780f4_slot00(Object *obj) {
+void init_motion_from_table_and_set_sequence_2_slot00(Object *obj) {
     obj->field_a4 = 2;
     obj->field_a5 = 0;
     obj->vel_y = data_8007a0ac_slot00[obj->table_index * 2];

@@ -38,7 +38,7 @@ int try_start_move_variant_same_facing_slot04_0f(Object *o) {
 
     if (o->active_state != 0) {
         if (p->timer != 0) return 0;
-        ok = (u8)func_801418bc(o);
+        ok = (u8)try_action_unless_state_bytes_match(o);
     } else {
         ok = try_action_clearing_both_flags(o);
     }
@@ -63,7 +63,7 @@ int try_start_move_variant_flipped_facing_slot04_0f(Object *o) {
 
     if (o->active_state != 0) {
         if (p->timer != 0) return 0;
-        ok = (u8)func_801418bc(o);
+        ok = (u8)try_action_unless_state_bytes_match(o);
     } else {
         ok = try_action_clearing_both_flags(o);
     }
@@ -177,18 +177,18 @@ int set_slot_17_stage_from_inputs_slot04_0f(Object *obj) {
     return return_true_always_slot04_0f(obj);
 }
 
-int func_801b1b38_slot04_0f(Object *obj) {
+int has_meter_and_no_link_flags_slot04_0f(Object *obj) {
     if ((s16)obj->meter < 0x30) return 0;
     if (obj->link_flags != 0) return 0;
     return return_true_always_slot04_0f(obj);
 }
 
-int func_801b1b7c_slot04_0f(Object *obj) {
+int has_no_link_flags_slot04_0f(Object *obj) {
     if (obj->link_flags != 0) return 0;
     return return_true_always_slot04_0f(obj);
 }
 
-int func_801b1bac_slot04_0f(Object *obj) {
+int has_meter_at_least_threshold_slot04_0f(Object *obj) {
     if ((s16)obj->meter < 0x30) return 0;
     return return_true_always_slot04_0f(obj);
 }

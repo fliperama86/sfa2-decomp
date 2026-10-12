@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void init_strips_and_load_three_images_slot0f(void);
-void func_800e4988_slot0f(void);
+void tick_timer_and_build_two_tilemap_layers_slot0f(void);
 void reset_hud_state_and_sound_by_arg_slot0f(Object *obj, int a);
 
 void update_slot0f_button_or_timeout_exit_slot0f(GameState *state, Menu *menu) {
@@ -23,5 +23,5 @@ void update_slot0f_button_or_timeout_exit_slot0f(GameState *state, Menu *menu) {
             reset_hud_state_and_sound_by_arg_slot0f((Object *)state, 1);
         }
     }
-    func_800e4988_slot0f();
+    tick_timer_and_build_two_tilemap_layers_slot0f();
 }

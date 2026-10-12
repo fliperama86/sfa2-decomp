@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801c8984_slot05_06(Object *obj) {
+void set_sequence_from_direction_and_variant_b_slot05_06(Object *obj) {
     u16 x;
 
     obj->state_3 = 3;

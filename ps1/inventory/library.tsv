@@ -1,9 +1,9 @@
 80157090	228	replace_blocked_name	unidentified	1	-
 80157174	128	copy_top_rank_data_by_side	unidentified	1	-
-801571f4	64	func_801571f4	unidentified	0	-
+801571f4	64	call_table_function_by_state_0_12	unidentified	0	-
 80157234	60	init_object_depth_and_advance_state_0_2	unidentified	0	-
 80157270	240	update_child_countdown_follow_parent	unidentified	0	-
-80157360	32	func_80157360	unidentified	0	-
+80157360	32	push_object_to_pool_table_wrapper_13	unidentified	0	-
 80157380	588	spawn_three_child_objects	unidentified	0	-
 801575cc	12	CloseEvent	system	2	folder
 801575dc	16	EnterCriticalSection	system	9	folder

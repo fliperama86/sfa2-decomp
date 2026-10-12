@@ -25,7 +25,7 @@ void call_handler_by_state_3_set_flag_slot04_14(Object *obj) {
     data_801c61a0_slot04_14[obj->state_3](obj);
 }
 
-void func_801b07bc_slot04_14(Object *obj) {
+void set_flag_3_and_state_3_call_direction_start_slot04_14(Object *obj) {
     int one = 1;
 
     obj->active_flag_3 = one;
@@ -33,7 +33,7 @@ void func_801b07bc_slot04_14(Object *obj) {
     set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b07e4_slot04_14(Object *obj) {
+void start_directional_sequence_with_special_state_slot04_14(Object *obj) {
     u16 x;
 
     obj->input_dir_0 = 4;
@@ -56,11 +56,11 @@ void func_801b07e4_slot04_14(Object *obj) {
     }
 }
 
-void func_801b0908_slot04_14(Object *obj) {
+void call_table_function_by_state_3_3_slot04_14(Object *obj) {
     data_801c61a8_slot04_14[obj->state_3](obj);
 }
 
-void func_801b0948_slot04_14(Object *obj) {
+void set_launch_velocity_by_facing_and_move_slot04_14(Object *obj) {
     obj->vel_y = -0x4c000;
     obj->vel_x = -0x40000;
     obj->state_3 = obj->state_3 + 1;

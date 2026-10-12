@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2b50_slot04_0b(Object *obj) {
+void advance_state_3_and_start_fixed_sequence_slot04_0b(Object *obj) {
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     set_sequence_by_side_and_mode(obj, 0x2c);
 }
 
-void func_801b2bac_slot04_0b(Object *obj) {
+void spawn_ff_children_on_high_byte_step_flag_slot04_0b(Object *obj) {
     if ((s16)obj->step_flags & 0xff00) {
         obj->state_3++;
         if (obj->field_4b != 0) {

@@ -6,7 +6,7 @@
 extern SequenceStep **data_801c3ea4_slot04_08;
 extern SequenceStep **data_801c3ea8_slot04_08;
 
-void func_801b4ac0_slot04_08(Object *obj, Object *other) {
+void init_child_from_other_and_set_table_sequence_slot04_08(Object *obj, Object *other) {
     u8 b;
     u16 h;
 

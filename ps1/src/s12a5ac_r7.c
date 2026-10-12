@@ -5,7 +5,7 @@
 
 
 
-void func_8012b590(Object *object) {
+void call_state_3_handler_and_tick_versus_counter(Object *object) {
     object->field_16a = 0;
     handler_table_19d8[object->state_3](object);
     if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {

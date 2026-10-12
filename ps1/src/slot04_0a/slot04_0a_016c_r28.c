@@ -17,7 +17,7 @@ void load_velocities_from_table_7_slot04_0a(Object *obj) {
     call_state_2_handler_267c_unless_paused(obj);
 }
 
-void func_801b41e0_slot04_0a(Object *o) {
+void call_state_2_handler_unless_paused_slot04_0a(Object *o) {
     call_state_2_handler_2684_unless_paused(o);
 }
 

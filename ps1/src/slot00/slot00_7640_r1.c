@@ -6,7 +6,7 @@
 extern ObjectFn data_80079ff8_slot00[];
 void add_delta_to_parent_if_counter_zero_slot00(Object *obj, short delta);
 
-void func_80077640_slot00(Object *obj) {
+void advance_state_0_add_delta_and_play_side_sound_slot00(Object *obj) {
     Object *p = obj->parent;
     obj->state_0++;
     add_delta_to_parent_if_counter_zero_slot00(obj, 5);

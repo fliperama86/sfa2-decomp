@@ -19,7 +19,7 @@ void move_with_gravity_until_landing_slot04_03(Object *obj) {
     }
 }
 
-void func_801b465c_slot04_03(Object *obj) {
+void update_sequence_or_set_other_code_8_and_reset_slot04_03(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {

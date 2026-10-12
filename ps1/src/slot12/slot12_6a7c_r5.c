@@ -5,14 +5,14 @@
 
 void count_entries_with_high_bit_set_slot12(Object *obj);
 void count_entries_with_value_c_to_f_slot12(Object *obj);
-void func_80016ee0_slot12(Object *obj);
+void count_entry_bytes_at_least_threshold_into_value_slot12(Object *obj);
 void count_entries_with_value_7_or_b_slot12(Object *obj);
 extern Slot12Count data_8002c3a8_slot12[4];
 
 void count_record_bytes_into_four_counters_slot12(Object *obj) {
     count_entries_with_high_bit_set_slot12(obj);
     count_entries_with_value_c_to_f_slot12(obj);
-    func_80016ee0_slot12(obj);
+    count_entry_bytes_at_least_threshold_into_value_slot12(obj);
     count_entries_with_value_7_or_b_slot12(obj);
 }
 

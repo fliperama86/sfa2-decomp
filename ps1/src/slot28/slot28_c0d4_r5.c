@@ -10,14 +10,14 @@ void start_sequence_11_when_variant_set_slot28(Object *o) {
     }
 }
 
-void func_8001c8a0_slot28(Object *o) {
+void advance_sequence_next_state_1_on_flag_byte_slot28(Object *o) {
     if (*(u8 *)&((Slot28Obj *)o)->field_3a != 0) {
         o->state_1++;
     }
     advance_sequence_checked(o);
 }
 
-void func_8001c8e0_slot28(Object *o) {
+void advance_state_0_on_negative_flags_and_sequence_slot28(Object *o) {
     if ((o->step_flags << 16) < 0) {
         o->state_0++;
     }

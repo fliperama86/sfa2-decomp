@@ -14,7 +14,7 @@ void shift_pos_x_by_parent_kind_table(Object *object) {
     object->pos_x = delta + object->pos_x;
 }
 
-void func_801498e0(Block172 *block) {
+void call_block_handler_by_state_0(Block172 *block) {
     Object *object = (Object *)block;
     data_8017cf6c[object->state_0](object);
 }

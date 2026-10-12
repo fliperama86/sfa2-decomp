@@ -7,7 +7,7 @@ void move_x_by_facing_with_decel_slot04_03(Object *obj);
 
 extern u8 data_801c0674_slot04_03[];
 
-void func_801b1df0_slot04_03(Object *obj) {
+void update_sequence_with_flag_triggered_sound_step_slot04_03(Object *obj) {
     u8 i;
 
     update_sequence(obj);

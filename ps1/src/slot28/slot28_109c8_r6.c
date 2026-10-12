@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80021270_slot28(Object *obj) {
+void init_object_clear_bytes_and_start_sequence_slot28(Object *obj) {
     obj->field_0e = 0;
     obj->field_0c = 0;
     obj->facing_side = 0;

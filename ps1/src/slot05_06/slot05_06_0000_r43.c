@@ -29,6 +29,6 @@ void hit_other_then_reset_on_sequence_end_slot05_06(Object *obj) {
     }
 }
 
-void func_801cbb2c_slot05_06(Object *obj) {
+void call_table_function_by_state_3_13_slot05_06(Object *obj) {
     data_801dd484_slot05_06[obj->state_3](obj);
 }

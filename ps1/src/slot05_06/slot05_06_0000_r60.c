@@ -21,14 +21,14 @@ void call_handler_by_direction_index_5_slot05_06(Object *obj) {
     data_801dd54c_slot05_06[obj->direction_index >> 1](obj);
 }
 
-void func_801cd2dc_slot05_06(Object *obj) {
+void call_table_function_by_state_3_20_slot05_06(Object *obj) {
     data_801dd558_slot05_06[obj->state_3](obj);
 }
 
-void func_801cd31c_slot05_06(Object *obj) {
+void restore_facing_enter_state_1_2_on_hit_range_slot05_06(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x18, 0x14) != 0) {
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x18, 0x14) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

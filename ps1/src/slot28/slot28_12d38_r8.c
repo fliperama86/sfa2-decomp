@@ -11,11 +11,11 @@ extern Object *data_80051be4_slot28[];
 extern u16 data_8004a610_slot28[];
 extern u16 data_8004a210_slot28[];
 
-void func_80023be0_slot28(Object *obj, int arg) {
+void set_sequence_of_fourth_hud_object_15_slot28(Object *obj, int arg) {
     set_sequence_from_table_5(data_80051c10_slot28[3], arg, data_8004a0d0_slot28);
 }
 
-void func_80023c10_slot28(Object *obj) {
+void init_object_data_pointers_a_15_slot28(Object *obj) {
     int one = 1;
     obj->active_count = one;
     obj->field_02 = 0xa5;
@@ -26,14 +26,14 @@ void func_80023c10_slot28(Object *obj) {
     obj->data_ptr_b = data_800490f4_slot28;
 }
 
-void func_80023c4c_slot28(void) {
+void clear_ten_entry_table_13_slot28(void) {
     int i;
     for (i = 9; i >= 0; i--) {
         data_80051be4_slot28[i] = 0;
     }
 }
 
-void func_80023c70_slot28(void) {
+void release_active_objects_in_table_13_slot28(void) {
     int i;
     for (i = 0; i < 10; i++) {
         Object *p = data_80051be4_slot28[i];

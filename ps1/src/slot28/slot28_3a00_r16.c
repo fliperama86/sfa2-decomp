@@ -5,7 +5,7 @@
 
 extern Object *data_800518fc_slot28[];
 
-void func_800167d8_slot28(Object *obj) {
+void advance_pass_when_sequence_ends_a_4_slot28(Object *obj) {
     if (*(s16 *)&data_800518fc_slot28[3]->step_flags < 0) {
         HudState *h = data_8018f5a0;
         h->pass_index = h->pass_index + 1;

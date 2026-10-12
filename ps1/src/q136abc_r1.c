@@ -7,7 +7,7 @@ void update_cam_and_store_scroll_y_diff(void) {
     Cam *cam = (Cam *)data_801904d8;
     int a, b;
     if (data_801904d8[4] == 0) {
-        func_80136b34(cam);
+        increment_cam_field_clear_field_and_load_sources(cam);
     } else if (data_801904d8[4] == 1) {
         load_cam_sources_and_call_kind_handler(cam);
     }

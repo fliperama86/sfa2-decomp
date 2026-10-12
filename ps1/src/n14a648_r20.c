@@ -3,8 +3,8 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8015405c(void) {
+void noop_empty_function_15(void) {
 }
 
-void func_80154064(void) {
+void noop_empty_function_16(void) {
 }

@@ -5,13 +5,13 @@
 
 
 
-void func_8013600c(void) {
+void call_kind_handlers_b_a_then_cam(void) {
     call_kind_handler_and_copy_fields_b();
     call_kind_handler_and_copy_fields_a();
     call_cam_kind_handler_and_save_pos();
 }
 
-void func_8013603c(void) {
+void call_kind_handlers_b_cam_then_a(void) {
     call_kind_handler_and_copy_fields_b();
     call_cam_kind_handler_and_save_pos();
     call_kind_handler_and_copy_fields_a();

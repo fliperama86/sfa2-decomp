@@ -15,7 +15,7 @@ void advance_state_3_on_mode_and_update_slot04_06(Object *o) {
     update_sequence(o);
 }
 
-void func_801b21a8_slot04_06(Object *o) {
+void update_slide_or_reset_on_status_flag_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     if (obj->status_flags & 0x80) {

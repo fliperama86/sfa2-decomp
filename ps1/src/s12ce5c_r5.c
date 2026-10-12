@@ -21,7 +21,7 @@ void update_airborne_or_land(Object *object) {
     }
 }
 
-void func_8012dc58(Object *object) {
+void move_by_vel_x_then_return_to_state_1_1_2_0(Object *object) {
     if ((s16)object->step_flags >= 0 || (object->countdown = (s16)object->countdown - 1, (s16)object->countdown != 0)) {
         *(s32 *)&object->pos_x_frac += object->vel_x;
         update_sequence(object);
@@ -57,7 +57,7 @@ void count_down_then_set_state_3_to_5(Object *object) {
 
 void enter_state_1_8_if_check_passes(Object *object) {
     if (object->hit_flag == 0) {
-        if ((u8)func_8013cac8(object, 0xf, 0xd) == 0) {
+        if ((u8)call_slot_stage_handler_a(object, 0xf, 0xd) == 0) {
             enter_state_1_8_if_kind_6_and_ready(object);
         } else if (is_state_01010101_and_ready(object) != 0) {
             object->state_0 = 1;
@@ -71,7 +71,7 @@ void enter_state_1_8_if_check_passes(Object *object) {
 }
 
 void enter_state_1_8_if_kind_6_and_ready(Object *object) {
-    if (object->kind == 6 && (u8)func_8013cac8(object, 0xe, 8) != 0 && is_state_01010101_and_ready(object) != 0) {
+    if (object->kind == 6 && (u8)call_slot_stage_handler_a(object, 0xe, 8) != 0 && is_state_01010101_and_ready(object) != 0) {
         object->state_0 = 1;
         object->state_1 = 8;
         object->state_2 = 0;

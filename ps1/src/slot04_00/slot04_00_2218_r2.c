@@ -10,13 +10,13 @@ void start_upward_launch_state_3_slot04_00(Object *obj) {
     obj->vel_y = 0x40000;
     obj->accel_y = -0x6000;
     obj->vel_x = 0;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     set_sequence_by_side_and_mode(obj, 0x28);
 }
 
-void func_801b2438_slot04_00(Object *obj) {
+void update_sequence_spawn_effects_on_step_flag_byte_slot04_00(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3++;
         if (obj->field_4b == 0) {
@@ -31,7 +31,7 @@ void func_801b2438_slot04_00(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b24c0_slot04_00(Object *obj) {
+void finish_sequence_play_sound_set_other_lock_slot04_00(Object *obj) {
     int i = 0;
 
     update_sequence(obj);

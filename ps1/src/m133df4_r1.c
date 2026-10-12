@@ -33,7 +33,7 @@ void write_player_color_bytes_to_table(u8 *base, s16 index) {
     base[(index << 4) + 0x6a] = 0;
 }
 
-void func_80133ed0(u8 *base, s16 index) {
+void write_right_color_triplets_by_value(u8 *base, s16 index) {
     if (player_right.field_165 == 1 && game_state.field_31 == 0) {
         return;
     }
@@ -64,7 +64,7 @@ void func_80133ed0(u8 *base, s16 index) {
     base[(index << 4) + 0x10a] = 0;
 }
 
-void func_80133fd8(u8 *base, s16 index) {
+void write_left_color_triplets_by_value(u8 *base, s16 index) {
     if (player_left.field_165 == 1 && game_state.field_31 == 0) {
         return;
     }

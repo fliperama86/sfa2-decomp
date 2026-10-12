@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2df8_slot04_07(Object *obj) {
+void start_sequence_with_sound_and_clear_flags_slot04_07(Object *obj) {
     obj->state_3++;
     ((Slot04aObj *)obj)->once_flag = 0;
     ((Slot04aObj *)obj)->seen_flag = 0;
-    func_80145d20(obj);
-    func_801428e4(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     play_sound_at(obj, obj->side, 0x31c);
     set_sequence_by_side_and_mode(obj, 0x40);

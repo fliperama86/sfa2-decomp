@@ -5,12 +5,12 @@
 
 void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-void func_801b0464_slot04_02(Object *obj) {
+void update_range_check_or_jump_seq_40_with_hold_slot04_02(Object *obj) {
     int one = 1;
 
     obj->state_3 = obj->state_3 + 1;
     if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
-        if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x14, 0x14) != 0) {
             set_object_states_0_to_3_slot04_02(obj, 1, 2, 0, 0);
             return;
         }

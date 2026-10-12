@@ -22,7 +22,7 @@ void func_800e52e0_slot0f(void) {
     }
 }
 
-void func_800e5364_slot0f(void) {
+void queue_image_job_from_pooled_table_slot0f(void) {
     Rect rect;
     Job *job = (Job *)alloc_pooled_b();
     if (job != 0) {

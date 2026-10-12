@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-int func_8013fe54(Object *object, s16 a, s16 b, s16 c, u16 d)
+int check_range_set_other_state_if_unlocked(Object *object, s16 a, s16 b, s16 c, u16 d)
 {
   FrameRecord *frame;
   u8 new_var;

@@ -8,10 +8,10 @@ void update_phase_by_pass_index(GameState *state) {
         if (((Attacker *)state)->phase != 0) {
             if (data_8018f5a0->pass_index == 0) {
                 data_8018f5a0->pass_index++;
-                func_80125dc0(0, 0x20, 0xd, 0);
-                func_80125dc0(1, 0x20, 0xd, 0);
-                func_80125dc0(2, 0x20, 0xd, 0);
-                func_80125dc0(3, 0x20, 0xd, 0);
+                scale_palette_rows_from_backup_bank(0, 0x20, 0xd, 0);
+                scale_palette_rows_from_backup_bank(1, 0x20, 0xd, 0);
+                scale_palette_rows_from_backup_bank(2, 0x20, 0xd, 0);
+                scale_palette_rows_from_backup_bank(3, 0x20, 0xd, 0);
                 queue_five_jobs();
                 data_801ac6a8[0] = 0;
                 ((Attacker *)state)->phase = 0x80;

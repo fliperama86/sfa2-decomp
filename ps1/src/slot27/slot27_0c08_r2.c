@@ -10,7 +10,7 @@ void count_down_then_reset_to_step_index_2_slot27(void) {
     int t = *c - 1;
     *c = t;
     if ((s16)t == 0) {
-        func_8011eae4();
+        clear_arrays_and_init_pools_and_sprite_tables();
         restore_rows_from_backup_and_queue_jobs_slot27();
         data_8018f5a0->step_index = 2;
         data_8018f5a0->substep_index = 0;

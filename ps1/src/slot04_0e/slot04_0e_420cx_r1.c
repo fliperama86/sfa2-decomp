@@ -12,7 +12,7 @@ extern Slot04_0eRec62b4 data_801c62b4_slot04_0e[];
    offset_x of the record that the object's side selects, pos_y is the
    object's ground_y. It ends by calling set_sequence_by_side_and_mode on the object with
    0x49. */
-void func_801b420c_slot04_0e(Object *obj) {
+void spawn_ground_child_and_set_sequence_slot04_0e(Object *obj) {
     Slot04_0eRec62b4 *rec;
     Object *p;
 

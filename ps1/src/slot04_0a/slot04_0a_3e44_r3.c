@@ -34,6 +34,6 @@ void init_object_at_parent_offset_slot04_0a(Object *obj) {
     } else {
         ((Slot04aObj *)obj)->scratchpad_value = *(int *)0x1f800158;
     }
-    func_80138070(obj, obj->vel_table_index >> 1);
+    set_sequence_by_sound_side(obj, obj->vel_table_index >> 1);
 }
 

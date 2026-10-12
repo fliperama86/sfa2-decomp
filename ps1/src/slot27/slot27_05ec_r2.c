@@ -28,7 +28,7 @@ void alternate_row_effect_until_timer_expires_slot27(void) {
     }
 }
 
-void func_800107c8_slot27(void) {
+void advance_step_2_and_restore_rows_from_backup_slot27(void) {
     data_8018f5a0->step_index_2++;
     restore_rows_from_backup_and_queue_jobs_slot27();
 }

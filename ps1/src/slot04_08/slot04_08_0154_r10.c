@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3700_slot04_08(Object *obj) {
+void advance_state_3_and_spawn_effect_with_sounds_2_slot04_08(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     spawn_offset_effect_and_play_sounds(obj);
 }

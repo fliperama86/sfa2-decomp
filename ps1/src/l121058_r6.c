@@ -33,7 +33,7 @@ void update_round_timer_and_end_round(GameState *state) {
             a->a6_flag = 1;
         } else {
             update_round_winner(a, mode);
-            func_801229b4(a);
+            add_hit_value_to_both_scores_if_countdown(a);
         }
         if (a->field_4d == 0) {
             a->timer_init = 0x3c;

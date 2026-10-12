@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1210_slot04_03(Object *obj) {
+int is_unlinked_with_meter_at_least_threshold_slot04_03(Object *obj) {
     if (obj->link_flags == 0) {
         if ((s16)obj->meter >= 0x30) {
             return 1;

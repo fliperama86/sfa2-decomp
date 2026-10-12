@@ -10,7 +10,7 @@ void reset_side_table_and_fields(Object *object);
 void spawn_object_type_6d_for_side(Object *object);
 void set_other_sequence_3_when_close(Object *object);
 void push_other_by_vel_x(Object *object);
-void func_80142c70(Object *object);
+void init_object_after_hit_and_spawn_three_effects(Object *object);
 void spawn_effect_objects_at_offset(Object *object, int x, int y);
 void add_to_meter_clamped(Object *object, short delta);
 void set_sequence_by_side(Object *object, int arg);
@@ -18,15 +18,15 @@ void spawn_effect_at_object_offset(Object *object, u8 a, int dx, int dy);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void latch_pressed_bits_into_input_bits_slot04_17(Object *obj);
 u8 get_random_table_byte_slot04_17(Object *obj);
-void func_801b4b18_slot04_17(Object *obj);
-void func_801b5100_slot04_17(Object *obj);
+void call_table_function_by_state_3_10_slot04_17(Object *obj);
+void spawn_effect_objects_offset_by_active_state_slot04_17(Object *obj);
 void spawn_effect_by_kind_and_active_state_slot04_17(Object *obj);
 void clear_two_byte_blocks_slot04_17(Object *obj);
 int apply_velocity_and_acceleration_slot04_17(Object *obj);
 int apply_facing_velocity_with_x_stop_slot04_17(Object *obj);
-void func_801b57f0_slot04_17(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_slot04_17(Object *obj);
 void call_handler_by_state_3_for_kinds_slot04_17(Object *obj);
-Object *func_801b5890_slot04_17(Object *obj);
+Object *get_table_object_by_field_slot04_17(Object *obj);
 
 extern u8 data_801ce6cc_slot04_17[];
 extern u8 data_801ce6dc_slot04_17[];
@@ -49,7 +49,7 @@ void update_land_check_step_count_sequence_slot04_17(Object *obj) {
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         play_object_sound_by_kind(obj);
-        if (obj->step_count_2 < obj->step_limit && ((c = game_state.config)->mode_flag_b | c->mode_flag_c | c->mode_flag_a) == 0 && func_8012f56c(obj) == 0) {
+        if (obj->step_count_2 < obj->step_limit && ((c = game_state.config)->mode_flag_b | c->mode_flag_c | c->mode_flag_a) == 0 && is_other_object_state_0_and_1_six_one(obj) == 0) {
             obj->state_3 = 4;
             set_sequence_by_side_and_mode(obj, 0x4c);
         } else {
@@ -65,7 +65,7 @@ void update_sequence_or_end_with_other_code_5_2_slot04_17(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b57f0_slot04_17(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_17(obj);
     } else {
         update_sequence(obj);
     }
@@ -94,11 +94,11 @@ u8 get_random_table_byte_slot04_17(Object *obj) {
     return data_801ce6dc_slot04_17[get_random_byte() & 0xf];
 }
 
-void func_801b49a8_slot04_17(Object *obj) {
+void call_state_3_handler_for_two_kinds_slot04_17(Object *obj) {
     call_handler_by_state_3_for_kinds_slot04_17(obj);
 }
 
-void func_801b49c8_slot04_17(Object *obj) {
+void call_table_function_by_state_3_9_slot04_17(Object *obj) {
     data_801ce6ec_slot04_17[obj->state_3](obj);
 }
 
@@ -113,7 +113,7 @@ void start_state_decrement_remaining_count_slot04_17(Object *obj) {
 
 void update_sequence_or_load_velocity_table_slot04_17(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
-        func_801b57f0_slot04_17(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_17(obj);
     } else {
         update_sequence(obj);
     }
@@ -121,17 +121,17 @@ void update_sequence_or_load_velocity_table_slot04_17(Object *obj) {
 
 void update_sequence_by_kind_or_end_slot04_17(Object *obj) {
     if (obj->kind == 0x13) {
-        func_801b4b18_slot04_17(obj);
+        call_table_function_by_state_3_10_slot04_17(obj);
     } else if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b57f0_slot04_17(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_17(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b4b18_slot04_17(Object *obj) {
+void call_table_function_by_state_3_10_slot04_17(Object *obj) {
     data_801ce6f4_slot04_17[obj->state_3](obj);
 }
 
@@ -150,7 +150,7 @@ void update_sequence_with_motion_and_x_step_slot04_17(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b57f0_slot04_17(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_17(obj);
     } else {
         update_sequence(obj);
         if ((obj->step_flags & 0x80) == 0) {
@@ -168,7 +168,7 @@ void update_sequence_with_motion_and_x_step_slot04_17(Object *obj) {
     }
 }
 
-void func_801b4c40_slot04_17(Object *obj) {
+void call_table_function_by_state_3_11_slot04_17(Object *obj) {
     data_801ce6fc_slot04_17[obj->state_3](obj);
 }
 
@@ -201,13 +201,13 @@ void update_sequence_or_end_with_other_code_5_3_slot04_17(Object *obj) {
     if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
-        func_801b57f0_slot04_17(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_17(obj);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b4e00_slot04_17(Object *obj) {
+void call_table_function_by_state_3_12_slot04_17(Object *obj) {
     data_801ce728_slot04_17[obj->state_3](obj);
 }
 
@@ -271,7 +271,7 @@ void update_countdown_hold_sequence_slot04_17(Object *obj) {
             obj->state_2 = 3;
             obj->state_3 = 1;
         }
-        func_80142c70(obj);
+        init_object_after_hit_and_spawn_three_effects(obj);
     } else {
         if (((Slot04bObj *)obj)->field_134 != 0) {
             if (((Slot04bObj *)obj)->saved_count == 0) {
@@ -289,7 +289,7 @@ void spawn_effect_by_kind_and_active_state_slot04_17(Object *obj) {
     int b;
 
     if (obj->kind == 0x13) {
-        func_801b5100_slot04_17(obj);
+        spawn_effect_objects_offset_by_active_state_slot04_17(obj);
     } else {
         a = -3;
         b = 0x4f;
@@ -301,7 +301,7 @@ void spawn_effect_by_kind_and_active_state_slot04_17(Object *obj) {
     }
 }
 
-void func_801b5100_slot04_17(Object *obj) {
+void spawn_effect_objects_offset_by_active_state_slot04_17(Object *obj) {
     if (obj->active_state != 0) {
         spawn_effect_objects_at_offset(obj, -0xe, 0x47);
     } else {
@@ -325,7 +325,7 @@ void clear_two_byte_blocks_slot04_17(Object *obj) {
     }
 }
 
-void func_801b5178_slot04_17(Object *obj) {
+void clear_two_byte_blocks_of_object_slot04_17(Object *obj) {
     clear_two_byte_blocks_slot04_17(obj);
 }
 
@@ -333,7 +333,7 @@ void call_handler_by_input_dir_second_slot04_17(Object *obj) {
     data_801ce738_slot04_17[obj->input_dir_second >> 1](obj);
 }
 
-void func_801b51dc_slot04_17(Object *obj) {
+void call_table_function_by_state_3_13_slot04_17(Object *obj) {
     data_801ce740_slot04_17[obj->state_3](obj);
 }
 
@@ -343,7 +343,7 @@ void start_sequence_1a_set_facing_slot04_17(Object *obj) {
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     play_side_sound_at(obj, obj->side, 8);
     obj->facing_side = 0;
-    if (!(obj->mode_flag_2 != 0 ? (s16)((u16)func_801b5890_slot04_17(obj)->pos_x + 0xc0) < obj->pos_x : (obj->input_bits & 0x8000) != 0)) {
+    if (!(obj->mode_flag_2 != 0 ? (s16)((u16)get_table_object_by_field_slot04_17(obj)->pos_x + 0xc0) < obj->pos_x : (obj->input_bits & 0x8000) != 0)) {
         obj->facing_side++;
     }
     set_sequence_by_side_and_mode(obj, 0x1a);

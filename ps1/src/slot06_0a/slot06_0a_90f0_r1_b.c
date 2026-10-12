@@ -73,10 +73,10 @@ void call_state_1_handler_unless_paused_slot06_0a(Object *obj) {
         }
         data_801ed470_slot06_0a[obj->state_1](obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_801e9488_slot06_0a(Object *obj) {
+void check_near_target_and_player_state_then_advance_slot06_0a(Object *obj) {
     start_sequence_when_target_near_x_slot06_0a(obj);
     set_sequence_8_on_player_state_2_eight_slot06_0a(obj);
     advance_sequence_checked(obj);
@@ -109,10 +109,10 @@ void on_sequence_end_set_state_1_zero_seq_7_slot06_0a(Object *obj) {
 
 void call_handler_by_state_1_then_offset_slot06_0a(Object *obj) {
     data_801ed480_slot06_0a[obj->state_1](obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_801e95fc_slot06_0a(Object *obj) {
+void start_sequence_if_target_near_then_advance_slot06_0a(Object *obj) {
     start_sequence_when_target_near_x_slot06_0a(obj);
     advance_sequence_checked(obj);
 }

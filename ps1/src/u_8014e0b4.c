@@ -27,7 +27,7 @@ int find_matching_script_condition_bit(Object *object)
   data_8018946c = 0;
   if (flags & 1)
   {
-    if ((u8)func_8014e25c(object) != 0)
+    if ((u8)is_other_state_one_with_boxes_in_limit(object) != 0)
     {
       goto done;
     }

@@ -44,5 +44,5 @@ void move_by_vel_x_until_offset_then_advance_slot04_04(Object *obj) {
     }
     advance_sequence_checked(obj);
     set_state_0_if_x_outside_margin_narrow(obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }

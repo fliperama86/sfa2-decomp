@@ -16,14 +16,14 @@ void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u3
 void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 u8 call_handler_by_limit_hi_returning_slot04_0e(Object *obj);
 BytePair get_input_byte_pair_or_stored_pair_slot04_0e(Slot04bObj *obj);
-void func_801b6374_slot04_0e(Object *obj);
-void func_801b650c_slot04_0e(Object *obj);
+void call_table_function_by_state_3_20_slot04_0e(Object *obj);
+void call_table_function_by_state_3_21_slot04_0e(Object *obj);
 void spawn_object_with_variant_and_velocity_slot04_0e(Object *obj, u8 a, int b, int c);
 void copy_sixteen_table_entries_by_image_row_slot04_0e(Object *obj);
 void load_velocities_from_table_slot04_0e(Object *obj);
 u8 is_attack_param_d_nonzero_slot04_0e(Object *obj);
 
-void func_801b6168_slot04_0e(Object *obj) {
+void advance_state_when_step_flags_negative_slot04_0e(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
@@ -85,13 +85,13 @@ void set_variant_index_from_input_pair_slot04_0e(Object *obj) {
 
 void call_handler_by_input_dir_second_2_slot04_0e(Object *obj) {
     if (obj->input_dir_second != 0) {
-        func_801b650c_slot04_0e(obj);
+        call_table_function_by_state_3_21_slot04_0e(obj);
     } else {
-        func_801b6374_slot04_0e(obj);
+        call_table_function_by_state_3_20_slot04_0e(obj);
     }
 }
 
-void func_801b6374_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_20_slot04_0e(Object *obj) {
     data_801c61ac_slot04_0e[obj->state_3](obj);
 }
 
@@ -114,7 +114,7 @@ set:
     set_sequence_by_side_and_mode(obj, 0x18);
 }
 
-void func_801b645c_slot04_0e(Object *obj) {
+void update_sequence_and_hit_other_on_flag_byte_slot04_0e(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         set_other_hit_reaction_state_0(obj, 0, 5, 0x10, 0, 1, 0);
@@ -131,7 +131,7 @@ void update_sequence_or_flip_facing_finish_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b650c_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_21_slot04_0e(Object *obj) {
     data_801c61b8_slot04_0e[obj->state_3](obj);
 }
 
@@ -241,7 +241,7 @@ void move_update_sequence_advance_on_flag_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b6918_slot04_0e(Object *obj) {
+void move_then_hit_other_on_flag_byte_slot04_0e(Object *obj) {
     Object *o;
 
     apply_velocity_and_accel_to_position_slot04_0e(obj);
@@ -301,7 +301,7 @@ u8 is_attack_param_d_nonzero_slot04_0e(Object *obj) {
     return obj->attack_param_d != 0;
 }
 
-void func_801b6afc_slot04_0e(Object *obj) {
+void halve_vel_x_add_meter_set_sequence_slot04_0e(Object *obj) {
     obj->vel_x = obj->vel_x >> 1;
     add_to_meter_clamped(obj, 1);
     set_sequence_by_side_and_mode(obj, 0x1a);

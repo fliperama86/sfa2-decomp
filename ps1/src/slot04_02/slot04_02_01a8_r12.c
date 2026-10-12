@@ -5,7 +5,7 @@
 
 void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-u8 func_801b1314_slot04_02(Object *obj) {
+u8 try_enter_state_7_with_action_code_zero_slot04_02(Object *obj) {
     u8 r = try_action_clearing_both_flags(obj);
 
     if (r) {
@@ -18,13 +18,13 @@ u8 func_801b1314_slot04_02(Object *obj) {
     return r;
 }
 
-u8 func_801b1384_slot04_02(Object *obj) {
+u8 try_enter_move_state_grounded_or_airborne_slot04_02(Object *obj) {
     u8 r;
     int t;
 
     if (obj->field_7e == 0 && obj->link_flags != 0) return 0;
     if (obj->active_state != 0) {
-        r = func_801418bc(obj);
+        r = try_action_unless_state_bytes_match(obj);
         if (!r) return;
         t = (u16)obj->ground_y;
         t -= 0x30;

@@ -29,7 +29,7 @@ void set_state_one_if_linked_object_3(Object *object) {
 }
 
 void set_state_one_unless_other_check(Object *object) {
-    if ((u8)func_8014e758(object)) {
+    if ((u8)is_other_state_one_with_frame_boxes(object)) {
         read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 0;
@@ -97,7 +97,7 @@ void set_state_if_script_value_at_least_limit(Object *object) {
 }
 
 void set_state_one_unless_other_check_d(Object *object) {
-    if ((u8)func_8014e718(object)) {
+    if ((u8)is_other_state_one_with_boxes_and_code_zero(object)) {
         read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 0;
@@ -106,7 +106,7 @@ void set_state_one_unless_other_check_d(Object *object) {
     }
 }
 
-void func_8014adb8(Object *object) {
+void set_states_if_direction_found_else_read_script(Object *object) {
     if (select_direction_from_distance_table(object)) {
         object->field_208 = 3;
         object->field_209 = 0;
@@ -138,7 +138,7 @@ void set_state_one_unless_set(Object *object) {
     }
 }
 
-void func_8014ae88(Object *object) {
+void call_script_table_by_arg_half(Object *object) {
     table_8017d010[object->script_arg >> 1](object);
 }
 

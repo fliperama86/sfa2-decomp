@@ -12,13 +12,13 @@ extern ObjectFn data_801cea24_slot04_17[];
 extern ObjectRef data_80190458;
 extern ObjectRef data_80190414;
 
-void func_8011f38c(Object *o);
+void clear_object_and_push_on_free_stack(Object *o);
 void set_sequence_and_tables_from_direction(Object *obj);
 void reset_object_to_state_1_0_0_2_sequence_1(Object *obj);
 void func_801b63fc(Object *obj);
 
 void copy_kind_table_to_scratch_by_side_slot04_17(Object *obj);
-void func_801b7684_slot04_17(Object *obj);
+void enable_active_flag_3_and_select_sequence_3_slot04_17(Object *obj);
 void shift_pos_x_by_step_flags_low_bits_slot04_17(Object *obj);
 
 void follow_ref_other_and_advance_sequence_slot04_17(Object *obj);
@@ -26,9 +26,9 @@ void set_position_from_ref_other_with_offset_slot04_17(Object *obj);
 void set_kind_13_or_dispatch_by_input_dir_slot04_17(Object *obj);
 void call_handler_by_state_3_clear_field_3_slot04_17(Object *obj);
 void call_handler_by_state_3_set_flag_3_slot04_17(Object *obj);
-void func_801b7088_slot04_17(Object *obj);
-void func_801b70ac_slot04_17(Object *obj);
-void func_801b70cc_slot04_17(Object *obj);
+void set_active_flag_3_and_call_direction_sequence_slot04_17(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_3_slot04_17(Object *obj);
+void call_reset_object_to_state_1_0_0_2_sequence_1_3_slot04_17(Object *obj);
 void set_kind_11_or_call_by_input_dir_slot04_17(Object *obj);
 
 void call_handler_by_state_0_with_parent_refs_slot04_17(Object *obj) {
@@ -72,7 +72,7 @@ void unlink_from_four_slots_and_release_slot04_17(Object *o) {
         }
         p++;
     } while (--i != 0);
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }
 
 void set_position_from_ref_other_with_offset_slot04_17(Object *obj) {
@@ -103,11 +103,11 @@ void call_handler_by_state_3_clear_field_3_slot04_17(Object *obj) {
     data_801cea00_slot04_17[obj->state_3](obj);
 }
 
-void func_801b6dd8_slot04_17(Object *obj) {
+void restore_facing_enter_state_or_call_start_helper_slot04_17(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    if (obj->direction_index == 0 || obj->hit_flag_a == 0 || (u8)func_8013f8c4(obj, -0x17, 0x14) == 0) {
-        func_801b7088_slot04_17(obj);
+    if (obj->direction_index == 0 || obj->hit_flag_a == 0 || (u8)try_force_other_state_if_box_in_range(obj, -0x17, 0x14) == 0) {
+        set_active_flag_3_and_call_direction_sequence_slot04_17(obj);
     } else {
         obj->state_0 = 1;
         obj->state_1 = 2;
@@ -118,7 +118,7 @@ void func_801b6dd8_slot04_17(Object *obj) {
 
 void update_sequence_reset_state_3_on_check_slot04_17(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_801b70ac_slot04_17(obj);
+        call_reset_object_to_state_1_0_sequence_0_3_slot04_17(obj);
     } else {
         if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
@@ -135,12 +135,12 @@ void call_handler_by_state_3_set_flag_3_slot04_17(Object *obj) {
 void advance_state_3_restore_facing_slot04_17(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
-    func_801b7088_slot04_17(obj);
+    set_active_flag_3_and_call_direction_sequence_slot04_17(obj);
 }
 
 void update_sequence_reset_state_3_on_check_2_slot04_17(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_801b70cc_slot04_17(obj);
+        call_reset_object_to_state_1_0_0_2_sequence_1_3_slot04_17(obj);
     } else {
         if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
@@ -149,7 +149,7 @@ void update_sequence_reset_state_3_on_check_2_slot04_17(Object *obj) {
     }
 }
 
-void func_801b6fa0_slot04_17(Object *object) {
+void switch_to_kind_or_start_meter_sequence_slot04_17(Object *object) {
     int t;
 
     if (object->attack_param_d != 0) {
@@ -177,16 +177,16 @@ void func_801b6fa0_slot04_17(Object *object) {
     set_sequence_by_side_and_mode(object, (object->direction_index >> 1) + t);
 }
 
-void func_801b7088_slot04_17(Object *object) {
+void set_active_flag_3_and_call_direction_sequence_slot04_17(Object *object) {
     object->active_flag_3 = 1;
     set_sequence_and_tables_from_direction(object);
 }
 
-void func_801b70ac_slot04_17(Object *obj) {
+void call_reset_object_to_state_1_0_sequence_0_3_slot04_17(Object *obj) {
     reset_object_to_state_1_0_sequence_0(obj);
 }
 
-void func_801b70cc_slot04_17(Object *obj) {
+void call_reset_object_to_state_1_0_0_2_sequence_1_3_slot04_17(Object *obj) {
     reset_object_to_state_1_0_0_2_sequence_1(obj);
 }
 
@@ -210,13 +210,13 @@ void call_handler_by_state_3_clear_field_4_slot04_17(Object *obj) {
 void update_state_or_switch_to_state_1_2_slot04_17(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x17, 0x14) != 0) {
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x17, 0x14) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;
         obj->state_3 = 0;
     } else {
-        func_801b7684_slot04_17(obj);
+        enable_active_flag_3_and_select_sequence_3_slot04_17(obj);
         shift_pos_x_by_step_flags_low_bits_slot04_17(obj);
     }
 }

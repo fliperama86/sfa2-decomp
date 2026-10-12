@@ -5,7 +5,7 @@
 
 
 
-void func_80153154(void) {
+void call_kind_table_for_two_effects(void) {
     Effect *first = data_8018d210;
     Effect *second;
 

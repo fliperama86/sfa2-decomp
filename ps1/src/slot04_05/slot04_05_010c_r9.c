@@ -15,11 +15,11 @@ int return_true_always_slot04_05(Object *obj) {
     return 1;
 }
 
-int func_801b14a4_slot04_05(Object *obj) {
+int is_meter_at_least_threshold_slot04_05(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b14b8_slot04_05(Object *obj) {
+int is_meter_at_least_threshold_2_slot04_05(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -27,7 +27,7 @@ int has_remaining_count_slot04_05(Object *obj) {
     return obj->remaining_count != 0;
 }
 
-int func_801b14d8_slot04_05(Object *obj) {
+int is_meter_at_least_threshold_3_slot04_05(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 

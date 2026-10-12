@@ -16,11 +16,11 @@ void move_other_by_kind_table_on_hit(Object *object)
     u8 hit;
     if (!(get_random_byte() & 1))
     {
-      hit = func_80146840(object);
+      hit = spawn_random_offset_effect_index_zero(object);
     }
     else
     {
-      hit = func_80146864(object);
+      hit = spawn_random_offset_effect_index_one(object);
     }
     if (hit)
     {

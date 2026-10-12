@@ -5,7 +5,7 @@
 
 extern Slot12Img data_80024450_slot12[];
 
-void func_80013e24_slot12(int idx) {
+void queue_image_job_from_slot0f_table_entry_slot12(int idx) {
     Rect rect;
     Slot12Img *img = &data_80024450_slot12[idx];
     Job *job = (Job *)alloc_pooled_b();

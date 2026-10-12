@@ -38,6 +38,6 @@ void reset_phase_indices_on_timer_expiry_slot12(void) {
         game_state.countdown_timer_2 = 0;
         data_8018f5a0->pass_index = 0;
         game_state.field_cc = 0;
-        func_8011eae4();
+        clear_arrays_and_init_pools_and_sprite_tables();
     }
 }

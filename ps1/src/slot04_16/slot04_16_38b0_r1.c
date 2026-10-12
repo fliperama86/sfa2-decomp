@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-void func_80146960(Object *object);
+void spawn_two_effects_at_other_ground(Object *object);
 void update_launch_attack_by_step_flag_table_slot04_16(Object *obj) {
     s16 a[12] = { 0x17, 0, 0x1b, 0, 0x1f, 0x12, 0x14, 0xf, 0x16, 0xf, 0x18, 0xf };
     s16 b[3] = { 0x20, 0x21, 0x22 };
@@ -44,7 +44,7 @@ void update_launch_attack_by_step_flag_table_slot04_16(Object *obj) {
     } else {
         obj->step_flags = t & 0xff00;
         game_state.config->setup_value = (obj->direction_index << 2) + 0x3c;
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
         update_sequence(obj);
         k = obj->field_49 != 0 ? 6 : 0; p = (s16 *)((obj->direction_index + k) * 2 + (u32)a);
         if ((u8)apply_damage_to_other_return_defeated(obj, p[0], p[1]) != 0) {

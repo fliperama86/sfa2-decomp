@@ -5,7 +5,7 @@
 
 extern u8 data_801c3c60_slot04_08[];
 
-void func_801b1f8c_slot04_08(Object *obj) {
+void deal_damage_and_spawn_on_defeat_at_step_flag_slot04_08(Object *obj) {
     u16 t;
     Object *p;
     t = obj->step_flags;
@@ -13,7 +13,7 @@ void func_801b1f8c_slot04_08(Object *obj) {
         if ((t & 0x80) == 0) {
             obj->step_flags = t & 0xff00;
             game_state.state_param = 0x18;
-            func_80146960(obj);
+            spawn_two_effects_at_other_ground(obj);
         }
         obj->state_3 = obj->state_3 + 1;
         apply_damage_to_other_return_defeated(obj, *(s16 *)(data_801c3c60_slot04_08 + (obj->direction_index & 0xfe)), 0);

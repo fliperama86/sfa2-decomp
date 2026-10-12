@@ -20,7 +20,7 @@ void update_object_by_table_index_handler_slot00(Object *obj) {
     }
 }
 
-void func_8007853c_slot00(Object *obj) {
+void blink_copy_parent_and_call_state_2_handler_slot00(Object *obj) {
     Object *p = obj->parent;
     if (p->field_01 != 0) {
         obj->field_a4 = obj->field_a4 - 1;

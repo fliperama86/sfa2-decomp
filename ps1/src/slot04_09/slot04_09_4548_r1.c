@@ -5,9 +5,9 @@
 
 void spawn_three_pooled_objects_slot04_09(Object *obj);
 
-void func_801b4548_slot04_09(Object *obj) {
+void spawn_three_objects_and_start_sequence_slot04_09(Object *obj) {
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     spawn_three_pooled_objects_slot04_09(obj);
     set_sequence_by_side_and_mode(obj, 0x2f);

@@ -20,7 +20,7 @@ void clear_script_bytes_if_idle_or_flag_5_off(Object *object) {
     if (object->state_2 == 0 || object->active_flag_5 == 0) clear_three_script_bytes(object);
 }
 
-void func_8014d95c(Object *object) {
+void clear_three_bytes_if_state_is_1_and_2_zero(Object *object) {
     if (*(u16 *)&object->state_0 == 1 && object->state_2 == 0) clear_three_script_bytes(object);
 }
 

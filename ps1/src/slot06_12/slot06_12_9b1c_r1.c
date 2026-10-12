@@ -51,7 +51,7 @@ void call_handler_by_table_index_slot06_12(Object *obj) {
     }
 }
 
-void func_801e9c80_slot06_12(Object *obj) {
+void update_table_index_and_respawn_if_nonzero_slot06_12(Object *obj) {
     set_table_index_from_accel_x_high_bits_slot06_12(obj);
     if (data_801904cc != 0) {
         set_object_spawn_position_and_sequence_slot06_12(obj);
@@ -71,7 +71,7 @@ void update_object_with_step_x_shift_slot06_12(Object *obj) {
     set_flag_and_push_if_mode_8(obj);
 }
 
-void func_801e9d40_slot06_12(Object *obj) {
+void respawn_on_negative_step_flags_then_advance_slot06_12(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         set_table_index_from_accel_x_high_bits_slot06_12(obj);
         set_object_spawn_position_and_sequence_slot06_12(obj);

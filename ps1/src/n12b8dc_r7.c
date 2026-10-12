@@ -3,5 +3,5 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80136ffc(void) {
+void noop_empty_function_10(void) {
 }

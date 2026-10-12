@@ -13,7 +13,7 @@ extern s32 data_801c6288_slot04_14[];
  * direction_index, into vel_x, vel_y, accel_x and accel_y, and starts
  * sequence 0x1b (0x61 when field_49 is not 0) plus direction_index / 2.
  */
-void func_801b1a00_slot04_14(Object *obj) {
+void start_move_with_velocities_from_direction_table_slot04_14(Object *obj) {
     /* The index is a u8 formed in two statements: with int idx, nothing else changed, this function differs from the original in 51 instruction slots; with idx = obj->direction_index * 2 in one statement inside the wrapper, also 51. */
     u8 idx;
     u16 a;

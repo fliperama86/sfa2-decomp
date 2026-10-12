@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void update_gauge_from_pressed_bits(Object *object);
-int func_801468f4(Object *object);
+int spawn_table_effect_at_object_index_two(Object *object);
 void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
 void negate_value_if_facing_side_zero_slot05_06(Object *obj, u16 *p);
 int spawn_object_copying_position_slot05_06(Object *obj);
@@ -48,10 +48,10 @@ void update_object_state_with_knockback_slot05_06(Object *obj) {
         return;
     }
     /* Stand-in, not recovered source: the test of kind against 2 written a second time, which is never true here, reproduces the original's order of instructions. Without it this function differs from the original in 19 instruction slots. */
-    /* The tested value is kind, already known not to be 2 (the first test returned): the original still has `bne v0,v1,...` with v1 still 2, then `li v0,0x18`, the store of 0x18 to state_param and `jal func_80146960`. The bytes do not say which condition the source had. */
+    /* The tested value is kind, already known not to be 2 (the first test returned): the original still has `bne v0,v1,...` with v1 still 2, then `li v0,0x18`, the store of 0x18 to state_param and `jal spawn_two_effects_at_other_ground`. The bytes do not say which condition the source had. */
     if (kind == 2) {
         game_state.state_param = 0x18;
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
     }
     if (obj->vel_x >= 0) {
         move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
@@ -81,7 +81,7 @@ void update_object_state_with_knockback_slot05_06(Object *obj) {
             /* The knock-back block (b2) and the final call are shared by three paths through gotos, as in the original; written with nested ifs and a flag this function differs from the original in 30 instruction lines. */
             if (((Slot04aObj *)obj)->table_value == 1) {
                 /* The result is read as a signed byte; without the cast this function differs from the original in 20 instruction lines. */
-                if ((s8)func_801468f4(obj) != 0) {
+                if ((s8)spawn_table_effect_at_object_index_two(obj) != 0) {
                     goto b2;
                 }
                 goto call;
@@ -90,14 +90,14 @@ void update_object_state_with_knockback_slot05_06(Object *obj) {
             if ((d &= 0xf) != 0) {
                 goto alt;
             }
-            hit = func_80148e84(obj);
+            hit = spawn_random_offset_object_variant_zero(obj);
 test:
             if (hit != 0) {
                 goto b2;
             }
             goto call;
 alt:
-            hit = func_80148ea8(obj);
+            hit = spawn_random_offset_object_variant_one(obj);
             goto test;
 b2:
             d = 0x60;

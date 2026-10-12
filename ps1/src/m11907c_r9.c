@@ -15,10 +15,10 @@ void update_player_inputs_and_handlers(void) {
     }
     if (game_state.field_31 == 0) {
         p = &player_left;
-        func_8011f774(p);
+        count_down_cursor_timer_a_and_set_cursor(p);
         call_handler_by_side(p, table_80185cf4);
         p++;
-        func_8011f774(p);
+        count_down_cursor_timer_a_and_set_cursor(p);
         call_handler_by_side(p, table_80185e50);
     }
 }

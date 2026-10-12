@@ -5,7 +5,7 @@
 
 extern u16 data_801c7514_slot04_11[];
 
-int func_8013fd98(Object *object, s16 a, s16 b, s16 c, u16 d);
+int check_range_set_other_state_if_boxed(Object *object, s16 a, s16 b, s16 c, u16 d);
 void update_dash_grab_or_end_slot04_11(Object *obj);
 
 void update_dash_grab_or_end_slot04_11(Object *obj) {
@@ -25,7 +25,7 @@ void update_dash_grab_or_end_slot04_11(Object *obj) {
     if (obj->active_flag != 0) {
         ref_other.p = obj->other;
         if (ref_other.p->field_163 == 0 && *(u16 *)&ref_other.p->state_0 == 0x101
-            && (u8)func_8013fd98(obj, 0, 0x40, 8, 8)) {
+            && (u8)check_range_set_other_state_if_boxed(obj, 0, 0x40, 8, 8)) {
             obj->vel_x = 0xc0000;
             obj->state_3++;
             obj->accel_x = -0x8000;

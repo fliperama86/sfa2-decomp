@@ -26,12 +26,12 @@ void reset_hud_indices_and_state_counters_slot0f(GameState *state, int flag) {
     state->timer_or_bits = 0;
     state->countdown_timer_2 = 0;
     state->field_cc = 0;
-    func_8011eb14();
+    clear_players_arrays_state_and_init_pools();
     stop_all_keys_clear_table();
     stop_sep_by_word(0x200);
     set_menu_command_by_code(4, 0);
     if (flag != 0) {
         play_sound_at(0, 0, 0x205);
     }
-    func_80119198(6);
+    set_snd_ctl_thread_entry_and_close(6);
 }

@@ -9,7 +9,7 @@ extern u16 data_800367f4_slot28[];
 extern u16 data_80036bf4_slot28[];
 extern void (*data_8003742c_slot28[])(Object *);
 
-void func_8001a9e8_slot28(void) {
+void release_active_objects_in_table_4_slot28(void) {
     int i;
     for (i = 0; i < 10; i++) {
         Object *p = data_80051998_slot28[i];
@@ -20,7 +20,7 @@ void func_8001a9e8_slot28(void) {
     }
 }
 
-void func_8001aa54_slot28(Object *obj) {
+void copy_three_word_tables_to_row_pairs_4_slot28(Object *obj) {
     int i;
     for (i = 0; i < 0x200; i++) {
         data_801a27e4_rows[0][i] = data_80036ff4_slot28[i];
@@ -36,6 +36,6 @@ void func_8001aa54_slot28(Object *obj) {
     }
 }
 
-void func_8001ab28_slot28(Object *object) {
+void call_handler_by_state_0_7_slot28(Object *object) {
     data_8003742c_slot28[object->state_0](object);
 }

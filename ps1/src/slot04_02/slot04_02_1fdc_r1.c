@@ -7,7 +7,7 @@ extern s32 data_801c6300_slot04_02[];
 extern s32 data_801c630c_slot04_02[];
 extern u16 data_801c6318_slot04_02[];
 
-void func_801b1fdc_slot04_02(Object *obj) {
+void start_jump_with_direction_tables_and_meter_slot04_02(Object *obj) {
     int i = 1;
 
     obj->active_flag_4 = i;

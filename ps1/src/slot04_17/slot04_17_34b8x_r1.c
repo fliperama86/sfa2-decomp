@@ -7,7 +7,7 @@ extern u8 data_801ce44c_slot04_17[];
 extern s16 data_801ce454_slot04_17[];
 
 int apply_damage_to_other_return_defeated(Object *object, int a, int b);
-void func_801b3784_slot04_17(Object *obj);
+void spawn_game_state_object_when_step_limit_clear_slot04_17(Object *obj);
 
 void update_slide_and_apply_hit_steps_b_slot04_17(Object *obj) {
     Object *p;
@@ -47,7 +47,7 @@ void update_slide_and_apply_hit_steps_b_slot04_17(Object *obj) {
             p = obj->other;
             if ((s16)p->health < 0) {
                 play_sound_at(p, p->side, 0x339);
-                func_801b3784_slot04_17(obj);
+                spawn_game_state_object_when_step_limit_clear_slot04_17(obj);
             } else {
                 play_sound_at(p, p->side, 0x306);
             }
@@ -64,7 +64,7 @@ void update_slide_and_apply_hit_steps_b_slot04_17(Object *obj) {
         spawn_effect_at_other_offset(obj, 6, data_801ce454_slot04_17[j], data_801ce454_slot04_17[j + 1]);
         if (apply_damage_to_other_return_defeated(obj, i, y) != 0) {
             play_sound_at(p, p->side, 0x339);
-            func_801b3784_slot04_17(obj);
+            spawn_game_state_object_when_step_limit_clear_slot04_17(obj);
         } else {
             p = obj->other;
             play_sound_at(p, p->side, 0x306);

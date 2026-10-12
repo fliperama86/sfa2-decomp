@@ -7,7 +7,7 @@ extern Slot01State55e94 data_80055e94_slot01;
 extern Slot01Rec152ec data_800152e4_slot01;
 void set_record_cursor_and_spawn_y_slot01(Object *obj, Slot01Rec152ec *a1);
 
-void func_80011e28_slot01(Object *obj) {
+void update_x_shake_until_vel_x_zero_slot01(Object *obj) {
     Object *o = obj;
     int t = o->countdown - 1;
     o->countdown = t;

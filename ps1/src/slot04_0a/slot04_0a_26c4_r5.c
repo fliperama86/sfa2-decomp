@@ -5,7 +5,7 @@
 
 void apply_velocity_and_acceleration_slot04_0a(Object *obj);
 
-void func_801b2b60_slot04_0a(Object *obj) {
+void move_until_ground_then_start_landing_sequence_slot04_0a(Object *obj) {
     s16 y;
     int a;
     apply_velocity_and_acceleration_slot04_0a(obj);
@@ -47,7 +47,7 @@ void set_slide_velocity_when_mode_set_slot04_0a(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b2c4c_slot04_0a(Object *obj) {
+void slide_until_vel_x_zero_and_update_sequence_slot04_0a(Object *obj) {
     SequenceStep *p;
     FrameRecord *fr;
     *(s32 *)&obj->pos_x_frac += obj->vel_x;

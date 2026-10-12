@@ -14,7 +14,7 @@ void apply_velocity_and_acceleration_2_slot2b(Object *o);
  * the object's pos_y the object has landed: it is set on the floor, its
  * state is reset and a sequence is started. Otherwise advance_sequence_checked runs.
  */
-void func_800793d4_slot2b(Object *o) {
+void update_fall_until_ground_then_start_sequence_slot2b(Object *o) {
     s16 y;
 
     apply_velocity_and_acceleration_2_slot2b(o);

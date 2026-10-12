@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b66fc_slot04_06(Object *obj);
+int move_by_velocity_return_y_minus_ground_slot04_06(Object *obj);
 
-void func_801b6440_slot04_06(Object *obj) {
-    if ((func_801b66fc_slot04_06(obj) << 16) > 0) {
+void start_bounce_below_ground_advance_sequence_slot04_06(Object *obj) {
+    if ((move_by_velocity_return_y_minus_ground_slot04_06(obj) << 16) > 0) {
         obj->vel_x = 0x2000;
         if ((obj->facing_side ^ (obj->table_index & 1)) != 0) {
             obj->vel_x = -0x2000;

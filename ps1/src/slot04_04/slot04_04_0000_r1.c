@@ -7,7 +7,7 @@ extern u8 data_801b4e04_slot04_04[];
 extern u8 data_801b7384_slot04_04[];
 extern u32 data_801c40b0_slot04_04[];
 
-void func_801b0000_slot04_04(Object *obj) {
+void init_object_tables_and_spawn_two_children_slot04_04(Object *obj) {
     u32 *dst;
     u32 i;
     Object *c;

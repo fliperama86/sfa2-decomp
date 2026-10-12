@@ -5,9 +5,9 @@
 
 /* Declared here because the published headers lack them (inferred). */
 void set_state_0_to_2_slot04_14(Object *obj);
-void func_801b8430_slot04_14(Object *obj, u8 arg);
+void copy_palette_table_by_arg_and_queue_upload_slot04_14(Object *obj, u8 arg);
 
-void func_801b81f8_slot04_14(Object *obj) {
+void init_child_object_from_parent_with_palette_copy_slot04_14(Object *obj) {
     Object *other;
     u8 palette;
 
@@ -38,13 +38,13 @@ void func_801b81f8_slot04_14(Object *obj) {
             palette++;
         }
         obj->table_index = palette;
-        func_801b8430_slot04_14(obj, palette);
+        copy_palette_table_by_arg_and_queue_upload_slot04_14(obj, palette);
         if (other->side == 0) {
             set_sequence_from_table_5(obj, 8, data_1f8000b4);
         } else {
             set_sequence_from_table_5(obj, 8, data_1f800164);
         }
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else {
         set_state_0_to_2_slot04_14(obj);
     }

@@ -5,7 +5,7 @@
 
 void apply_vertical_motion_with_fall_accel_slot04_0b(Object *obj);
 
-void func_801b16f8_slot04_0b(Object *obj) {
+void move_x_by_vel_x_until_negative_slot04_0b(Object *obj) {
     if (obj->vel_x >= 0) {
         apply_vertical_motion_with_fall_accel_slot04_0b(obj);
         if (obj->facing_side == 0) {

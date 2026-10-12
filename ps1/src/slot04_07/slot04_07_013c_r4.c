@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0e08_slot04_07(Object *obj) {
+void update_sequence_reset_state_3_on_input_match_2_slot04_07(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {

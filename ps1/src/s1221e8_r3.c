@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801229b4(Entity *entity) {
+void add_hit_value_to_both_scores_if_countdown(Entity *entity) {
     u8 s0;
     u16 v;
     if (entity->countdown != 0) {
@@ -25,7 +25,7 @@ void advance_state_and_set_countdown_timer_2(GameState *state) {
     ((Entity *)state)->field_116 = 0;
     ((Entity *)state)->countdown_timer_2 = 0x32;
     if (((Entity *)state)->countdown != 0) {
-        func_80123b20(((Entity *)state)->field_7c, (Entity *)state);
+        set_other_marker_and_play_side_sound_3(((Entity *)state)->field_7c, (Entity *)state);
     } else if (((Entity *)state)->field_4d == 0 && ((Entity *)state)->nonzero_flag != 0) {
         ((Entity *)state)->countdown_timer_2 = 0x14;
     }

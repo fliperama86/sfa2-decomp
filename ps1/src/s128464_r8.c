@@ -11,7 +11,7 @@ void update_sequence_or_set_step_flags_kind_6(Object *object) {
     }
 }
 
-void func_8012a154(Object *object) {
+void clear_flag_call_state_3_handler_set_a(Object *object) {
     object->field_16a = 0;
     handlers_07[object->state_3](object);
 }

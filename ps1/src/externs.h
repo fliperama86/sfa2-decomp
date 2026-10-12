@@ -728,7 +728,7 @@ extern u8 data_801aa5d4[];
 extern u8 data_801aa5d8[4];
 extern s32 data_801aa5e4[];
 /* An array of which units read element 0. Declared as one word, the unit
-   of func_80144830 differs from the original in 22 instruction slots; the
+   of init_object_position_and_sequence_from_table differs from the original in 22 instruction slots; the
    comment there says what the array form does. */
 extern u16 box_margin[];
 extern u16 data_801aa5ea[];

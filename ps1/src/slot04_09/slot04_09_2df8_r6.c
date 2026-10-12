@@ -4,13 +4,13 @@
 #include "../externs.h"
 
 void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
-void func_801b5ba0_slot04_09(Object *obj);
+void spawn_fourth_frame_child_index_zero_slot04_09(Object *obj);
 
 void update_jump_rise_hit_check_variant_slot04_09(Object *obj) {
     Object *p;
 
     stop_x_motion_against_facing_then_move_slot04_09(obj);
-    func_801b5ba0_slot04_09(obj);
+    spawn_fourth_frame_child_index_zero_slot04_09(obj);
     p = obj->other;
     if (obj->vel_y > 0) {
         if (p->active_state != 0) {
@@ -30,7 +30,7 @@ void update_jump_rise_hit_check_variant_slot04_09(Object *obj) {
                 } else {
                     update_sequence(obj);
                 }
-            } else if (func_8013fe54(obj, -0x20, 0x20, 0, 0x30) != 0) {
+            } else if (check_range_set_other_state_if_unlocked(obj, -0x20, 0x20, 0, 0x30) != 0) {
                 obj->step_count = 0xff;
                 obj->countdown = 4;
                 obj->state_3++;

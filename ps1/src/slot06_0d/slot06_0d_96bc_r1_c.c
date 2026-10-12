@@ -9,7 +9,7 @@ extern u8 data_801ea558_slot06_0d[];
 extern SequenceStep *data_801eb1b0_slot06_0d[];
 
 void set_sequence_from_table_index_or_random_slot06_0d(Object *obj);
-void func_8011f38c(Object *o);
+void clear_object_and_push_on_free_stack(Object *o);
 
 void release_object_record_2_slot06_0d(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
@@ -35,7 +35,7 @@ void init_child_from_parent_position_slot06_0d(Object *obj) {
     set_sequence_from_table_index_or_random_slot06_0d(obj);
 }
 
-void func_801e9cf0_slot06_0d(Object *obj) {
+void call_state_1_handler_and_copy_parent_position_slot06_0d(Object *obj) {
     Object *p = obj->parent;
     if (game_state.field_65 == 0) {
         data_801ea550_slot06_0d[obj->state_1](obj);
@@ -84,5 +84,5 @@ void unlink_from_parent_and_release_object_slot06_0d(Object *obj) {
     } else if (p->linked_object_b == (u32)obj) {
         p->linked_object_b = 0;
     }
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }

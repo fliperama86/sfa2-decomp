@@ -29,5 +29,5 @@ void call_handler_by_state_2_unless_paused_a_slot00(Object *obj) {
     if (game_state.field_65 == 0 && game_state.field_a8 == 0) {
         data_800797d4_slot00[obj->state_2](obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }

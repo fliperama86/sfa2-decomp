@@ -6,7 +6,7 @@
 
 #define UNIT_INDEX (*(u8 *)&game_state.field_354)
 
-void func_8011b594(void) {
+void update_enabled_units_by_handler_index(void) {
     u8 k;
     for (UNIT_INDEX = 0; UNIT_INDEX < 16; UNIT_INDEX++) {
         k = UNIT_INDEX;
@@ -14,7 +14,7 @@ void func_8011b594(void) {
             if (units_2c20[k].handler_index == 0x17) {
                 build_block_primitives(&units_2c20[k]);
             } else {
-                func_8011bc84((Slab172 *)&units_2c20[k]);
+                reload_stream_cells_then_build_sprite_quads((Slab172 *)&units_2c20[k]);
             }
         }
     }

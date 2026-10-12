@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_8014e54c(Object *object) {
+u8 update_script_block_skip_counter(Object *object) {
     u8 t;
     if (data_80189468 == 0) {
         object->field_224++;

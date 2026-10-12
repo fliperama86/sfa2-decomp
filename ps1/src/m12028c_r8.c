@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80124220(void) {
+void finish_palette_scale_and_reset_players_for_menu(void) {
     scale_palette_rows_and_refresh();
     data_80185fae[0] = 0;
     data_80185fae[3] = 0;

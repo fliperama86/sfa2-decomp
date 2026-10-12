@@ -3,17 +3,17 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80121ef0(Object *unused) {
+void count_down_timer_2_then_set_step_index_d(Object *unused) {
     if (game_state.busy_flag == 0) {
         game_state.countdown_timer_2 = (s16)game_state.countdown_timer_2 - 1;
         if ((s16)game_state.countdown_timer_2 < 0) {
             data_8018f5a0->step_index_2 = 0xd;
-            func_80124ecc();
+            blink_item_loop_until_button_with_palette_dim();
         }
     }
 }
 
-void func_80121f48(Object *unused) {
+void set_step_index_2_if_not_busy(Object *unused) {
     if (game_state.busy_flag == 0) {
         data_8018f5a0->step_index_2 = 0xb;
     }

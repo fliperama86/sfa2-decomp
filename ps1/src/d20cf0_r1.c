@@ -11,14 +11,14 @@ void init_player_object(Object *object, u8 a1, u16 a2);
 extern u8 table_8016e730[];
 
 /* Inferred, not original names: starts a round. It counts a step in the status
-   block data_8018f5a0, runs func_8011eb14, resets many fields of the game state,
+   block data_8018f5a0, runs clear_players_arrays_state_and_init_pools, resets many fields of the game state,
    loads others from table_8016e664 and the bytes data_8016e685 to data_8016e688
    (table_value_b gets 0xff when data_8016e688 is not 0) and from data_801a8067 and
    data_801a83fb, calls set_sound_mono_or_stereo with setup_param, sets field_110, head_a and
    head_b to -1 and the mode fields to fixed values, takes a random byte
    (get_random_byte masked with 0x78) into random_value, prepares both players with
    init_player_object and, for each bit of side_bits (1 left, 2 right), sets a few more
-   fields of that player, then calls func_80138358 and clears three bytes. */
+   fields of that player, then calls init_counters_from_index_table and clears three bytes. */
 void reset_game_state_for_round(GameState *state) {
     Object *l;
     Object *r;
@@ -27,7 +27,7 @@ void reset_game_state_for_round(GameState *state) {
     int none;
     unsigned char rnd;
     data_8018f5a0->state_index++;
-    func_8011eb14();
+    clear_players_arrays_state_and_init_pools();
     /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
     /* With 0 written at its uses this function differs from the original in 25 instruction lines. */
     zero = 0;
@@ -101,7 +101,7 @@ void reset_game_state_for_round(GameState *state) {
     }
     state->selection = zero;
     state->table_index_3 = table_8016e730[state->table_index];
-    func_80138358(state);
+    init_counters_from_index_table(state);
     data_801a6938 = zero;
     data_801a6984[0] = 0;
     data_801a6985 = zero;

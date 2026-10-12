@@ -19,16 +19,16 @@ void reset_side_table_and_fields(Object *object);
 void spawn_object_type_6d_for_side(Object *object);
 void set_other_sequence_3_when_close(Object *object);
 void push_other_by_vel_x(Object *object);
-void func_80142c70(Object *object);
+void init_object_after_hit_and_spawn_three_effects(Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 
 void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 void apply_step_flags_byte_to_pos_x_slot04_0e(Object *obj);
-void func_801b5088_slot04_0e(Object *obj);
-void func_801b577c_slot04_0e(Object *obj);
+void clear_two_object_words_slot04_0e(Object *obj);
+void save_counter_or_count_down_then_push_other_slot04_0e(Object *obj);
 void clear_80_bytes_at_tail_slot04_0e(Object *obj);
 
-void func_801b5088_slot04_0e(Object *obj) {
+void clear_two_object_words_slot04_0e(Object *obj) {
     int z = 0;
     u32 *p = (u32 *)((u8 *)obj + 0x2b0);
     u8 i = 0;
@@ -39,11 +39,11 @@ void func_801b5088_slot04_0e(Object *obj) {
     } while (i < 2);
 }
 
-void func_801b50b4_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_14_slot04_0e(Object *obj) {
     data_801c60fc_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b50f4_slot04_0e(Object *obj) {
+void decrement_remaining_start_seq_sixty_six_slot04_0e(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3++;
     obj->field_157 = 0;
@@ -53,7 +53,7 @@ void func_801b50f4_slot04_0e(Object *obj) {
     set_sequence_by_side_and_mode(obj, 0x42);
 }
 
-void func_801b5144_slot04_0e(Object *obj) {
+void spawn_object_on_step_flag_then_update_sequence_slot04_0e(Object *obj) {
     Object *p;
     int t;
     u8 d;
@@ -99,11 +99,11 @@ void update_sequence_or_clear_and_reset_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b52a0_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_15_slot04_0e(Object *obj) {
     data_801c6108_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b52e0_slot04_0e(Object *obj) {
+void start_seq_sixty_four_with_offset_effect_slot04_0e(Object *obj) {
     ((Slot04bObj *)obj)->table_value = 0x19;
     obj->field_157 = 0;
     obj->state_3++;
@@ -120,11 +120,11 @@ void update_sequence_or_finish_state_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b5380_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_16_slot04_0e(Object *obj) {
     data_801c6110_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b53c0_slot04_0e(Object *obj) {
+void start_seq_sixty_five_with_offset_effect_slot04_0e(Object *obj) {
     ((Slot04bObj *)obj)->table_value = 0x19;
     obj->field_157 = 0;
     obj->state_3++;
@@ -163,7 +163,7 @@ void move_and_land_restore_facing_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b550c_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_17_slot04_0e(Object *obj) {
     data_801c611c_slot04_0e[obj->state_3](obj);
 }
 
@@ -225,12 +225,12 @@ void count_down_then_set_cursor_timer_slot04_0e(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b56e8_slot04_0e(Object *obj) {
+void count_down_update_sequence_or_finish_slot04_0e(Object *obj) {
     obj->hit_count_3++;
     update_sequence(obj);
     ((Slot04bObj *)obj)->countdown--;
     if (((Slot04bObj *)obj)->countdown != 0) {
-        func_801b577c_slot04_0e(obj);
+        save_counter_or_count_down_then_push_other_slot04_0e(obj);
     } else {
         if (obj->active_state != 0) {
             obj->state_0 = 1;
@@ -238,6 +238,6 @@ void func_801b56e8_slot04_0e(Object *obj) {
             obj->state_2 = 3;
             obj->state_3 = 1;
         }
-        func_80142c70(obj);
+        init_object_after_hit_and_spawn_three_effects(obj);
     }
 }

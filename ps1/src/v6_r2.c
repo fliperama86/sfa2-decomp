@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8012cf1c(Object *object) {
+void update_table_step_with_input_branches(Object *object) {
     int index;
     if (apply_table_step_to_pos_x(object) != 0) {
         object->state_3 = object->state_3 + 1;

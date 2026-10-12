@@ -8,17 +8,17 @@ void call_phase_handler_mode_0_slot0f(Object *obj);
 void call_phase_handler_mode_1_slot0f(Object *obj);
 void call_object_handler_by_phase_index_slot0f(Object *obj);
 void init_strips_and_load_three_images_slot0f(void);
-void func_800e4988_slot0f(void);
+void tick_timer_and_build_two_tilemap_layers_slot0f(void);
 
-void func_800df8b0_slot0f(GameState *state) {
+void call_phase_handler_mode_0_with_state_slot0f(GameState *state) {
     call_phase_handler_mode_0_slot0f((Object *)state);
 }
 
-void func_800df8d0_slot0f(GameState *state) {
+void call_phase_handler_mode_1_with_state_slot0f(GameState *state) {
     call_phase_handler_mode_1_slot0f((Object *)state);
 }
 
-void func_800df8f0_slot0f(GameState *state) {
+void call_object_handler_by_phase_index_with_state_slot0f(GameState *state) {
     call_object_handler_by_phase_index_slot0f((Object *)state);
 }
 
@@ -39,7 +39,7 @@ void count_down_step_then_advance_state_index_slot0f(GameState *state) {
         data_8018f5a0->phase_index = 0;
         data_8018f5a0->state_index++;
     }
-    func_800e4988_slot0f();
+    tick_timer_and_build_two_tilemap_layers_slot0f();
 }
 
 void clear_scratch_word_10_and_state_index_slot0f(GameState *state) {

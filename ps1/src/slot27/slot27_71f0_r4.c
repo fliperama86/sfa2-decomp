@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80017608_slot27(Object *o) {
+void store_image_rect_y_180_set_preset_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Rect r;
 
@@ -16,7 +16,7 @@ void func_80017608_slot27(Object *o) {
     func_80158028(&r, data_801a3fe4);
 }
 
-void func_80017660_slot27(Object *o) {
+void store_image_rect_y_1a0_set_preset_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Rect r;
 
@@ -29,7 +29,7 @@ void func_80017660_slot27(Object *o) {
     func_80158028(&r, data_801a3fe4);
 }
 
-void func_800176b8_slot27(Object *o) {
+void store_image_rect_y_1c0_set_preset_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Rect r;
 

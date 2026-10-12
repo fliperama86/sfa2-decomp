@@ -6,10 +6,10 @@
 
 void add_clamped_value(GameState *state, int delta) {
     data_80188ec4 += delta;
-    func_8013886c(state);
+    clamp_meter_value_to_byte_range(state);
 }
 
-void func_8013886c(GameState *state) {
+void clamp_meter_value_to_byte_range(GameState *state) {
     if ((s16)data_80188ec4 < 0) {
         data_80188ec4 = 0;
     } else if ((s16)data_80188ec4 >= 0x100) {
@@ -17,18 +17,18 @@ void func_8013886c(GameState *state) {
     }
 }
 
-void func_801388a8(GameState *state, Object *object) {
+void subtract_cost_and_add_random_delta_to_counter(GameState *state, Object *object) {
     int cost;
 
     if (state->field_0a == 0) {
-        func_8013839c(state);
+        update_table_columns_unless_mode3_inactive(state);
         data_80188ecc = 1;
     }
     cost = 0x48;
     if (object->cost_index < 0x10) cost = table_80176d70[object->cost_index];
     data_80188ec4 = data_80188ec4 - cost;
     add_clamped_value(state, table_80176d80[get_random_byte() & 0x1f] - 0x18);
-    func_8013886c(state);
+    clamp_meter_value_to_byte_range(state);
 }
 
 void update_ec4_from_round_time_and_health(GameState *state) {
@@ -68,7 +68,7 @@ void update_ec4_from_round_time_and_health(GameState *state) {
         add_clamped_value(state, a);
     }
     adjust_counter_c_by_table_and_random(state);
-    func_8013886c(state);
+    clamp_meter_value_to_byte_range(state);
     set_counter_shifted_from_counter_c(state);
 }
 

@@ -27,7 +27,7 @@ void call_handler_2694_by_state_2(Object *object) {
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
         handlers_2694[object->state_2](object);
     }
-    func_8011ffdc(object);
+    clear_or_set_flag_by_pos_x_limit(object);
 }
 
 void flip_facing_set_variant_and_advance(Object *object) {
@@ -37,7 +37,7 @@ void flip_facing_set_variant_and_advance(Object *object) {
     call_kind_9_handler_for_player(object);
     object->countdown = (u8)object->countdown | 0x200;
     if ((object->variant_index_2 & 0x80) == 0) {
-        func_80138070(object, object->variant_index_2);
+        set_sequence_by_sound_side(object, object->variant_index_2);
     }
     advance_sequence_checked(object);
 }
@@ -57,7 +57,7 @@ void tick_countdown_and_reverse_x_motion(Object *object) {
     advance_sequence_checked(object);
 }
 
-void func_80138070(Object *object, u8 index) {
+void set_sequence_by_sound_side(Object *object, u8 index) {
     if (object->sound_side == 0) {
         object->sequence = seqs_a4_left[index];
     } else {
@@ -78,6 +78,6 @@ void call_kind_9_handler_for_player(Object *object) {
 }
 
 /* The parameter is passed on to reset_and_push_object_to_pool_table, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The tables table_801726bc, table_80172980 and table_801729e4 hold this function and are declared with this parameter. */
-void func_80138144(Block172 *p) {
+void reset_block_and_push_to_pool_table(Block172 *p) {
     reset_and_push_object_to_pool_table((Slab172 *)p);
 }

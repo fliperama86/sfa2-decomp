@@ -20,9 +20,9 @@ void read_script_word_and_dispatch(Object *object)
   w = object->script_opcode_high;
   if (w != 0xff)
   {
-    func_8014a5c0(object);
+    call_script_opcode_table_by_high_byte(object);
     return;
   }
   call_script_switch_by_arg(object);
-  func_8014a5c0(object);
+  call_script_opcode_table_by_high_byte(object);
 }

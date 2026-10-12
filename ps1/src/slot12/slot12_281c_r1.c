@@ -17,7 +17,7 @@ void call_handler_by_state_0_with_tile_update_slot12(Object *obj) {
     }
 }
 
-void func_800128b4_slot12(Object *obj) {
+void init_tile_bar_object_with_flip_by_table_index_slot12(Object *obj) {
     obj->countdown = 0x30;
     obj->pos_x = 0xc0;
     *(s32 *)&obj->pos_y_frac = 0;

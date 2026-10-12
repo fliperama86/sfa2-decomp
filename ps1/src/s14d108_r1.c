@@ -20,7 +20,7 @@ void check_script_cond_no_link(Object *object) {
 void check_script_cond_other_check(Object *object) {
     if ((u8)roll_random_bit_check_from_kind_table(object)) {
         init_object_mode_2(object);
-    } else if ((u8)func_8014e758(object)) {
+    } else if ((u8)is_other_state_one_with_frame_boxes(object)) {
         clear_three_script_bytes(object);
     }
 }
@@ -48,7 +48,7 @@ void check_script_wait_countdown_or_limit_lt(Object *object) {
 void check_script_cond_other_check_2(Object *object) {
     if ((u8)roll_random_bit_check_from_kind_table(object)) {
         init_object_mode_2(object);
-    } else if ((u8)func_8014e718(object)) {
+    } else if ((u8)is_other_state_one_with_boxes_and_code_zero(object)) {
         clear_three_script_bytes(object);
     }
 }

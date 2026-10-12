@@ -9,7 +9,7 @@ extern s16 data_80026a9e_slot27[];
 void load_palette_anim_from_table_index_slot27(Object *obj);
 void set_side_bit_in_pass_index_slot27(Object *obj);
 
-void func_80013198_slot27(Object *obj) {
+void start_selection_slide_or_advance_state_1_slot27(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     if (data_8018f5a0->field_54 == 0) {
