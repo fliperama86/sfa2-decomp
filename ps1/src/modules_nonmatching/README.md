@@ -56,13 +56,12 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_800e0a1c_slot0f`.
+None at present: every function of this folder has a fixtures file.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
 func_80012990_slot01 replay: fixtures 2, passed 2, failed 0
-func_800e0850_slot0f replay: fixtures 9, passed 9, failed 0
 func_800e4ab0_slot0f replay: fixtures 3, passed 3, failed 0
 func_801e0ce8_slot0b replay: fixtures 2, passed 2, failed 0
 ```
@@ -70,23 +69,15 @@ func_801e0ce8_slot0b replay: fixtures 2, passed 2, failed 0
 ## The recorded lines
 
 The three blocks are a record, not an instruction. They are what the
-commands printed for each function when it was last run. For all functions
-but `func_800e0850_slot0f` and `func_800e0a1c_slot0f` that is one run of
-the whole folder on 2026-10-10, with `--all` in place of FUNC; the page
-keeps those lines as printed. The lines of the two functions named are from
-their own runs on 2026-10-10 (seed 1 in the test and the write audit; their
-seed 7 runs also printed `different 0` and `outside 0`). From now on a
-function's lines change only when that function is run again.
+commands printed for each function when it was last run. That is one run
+of the whole folder on 2026-10-10, with `--all` in place of FUNC; the page keeps those lines as printed. From now on a function's lines
+change only when that function is run again.
 
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
 func_80012990_slot01: built 312 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80012990_slot01 coverage: 112 of 112 instruction slots of the original executed
-func_800e0850_slot0f: built 412 bytes, original 460 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_800e0850_slot0f coverage: 115 of 115 instruction slots of the original executed
-func_800e0a1c_slot0f: built 276 bytes, original 300 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_800e0a1c_slot0f coverage: 75 of 75 instruction slots of the original executed
 func_800e4ab0_slot0f: built 540 bytes, original 608 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800e4ab0_slot0f coverage: 152 of 152 instruction slots of the original executed
 func_801e0ce8_slot0b: built 304 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -98,10 +89,6 @@ The control (`--cases 2000 --control FUNC`):
 ```
 func_80012990_slot01 control: different 2000 of 2000 (expected more than 0)
   altered: a byte store of the primitive moved by one byte, instruction slot 24
-func_800e0850_slot0f control: different 585 of 2000 (expected more than 0)
-  altered: write length changed to 0x2001, instruction slot 84
-func_800e0a1c_slot0f control: different 314 of 2000 (expected more than 0)
-  altered: a returned 2 becomes 3, instruction slot 61
 func_800e4ab0_slot0f control: different 649 of 2000 (expected more than 0)
   altered: y store moved to the x offset, instruction slot 83
 func_801e0ce8_slot0b control: different 1997 of 2000 (expected more than 0)
@@ -112,8 +99,6 @@ The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
 func_80012990_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_800e0850_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_800e0a1c_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e4ab0_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e0ce8_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```

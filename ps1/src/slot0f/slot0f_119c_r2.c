@@ -10,14 +10,18 @@ void func_800e1618_slot0f(u8 *src, u8 *dst);
 
 extern u8 *data_800e8504_slot0f;
 
-void func_800e12cc_slot0f(long fd, void *buf, long n) {
+/* Returns the last result of the call it repeats: both callers use it. */
+long func_800e12cc_slot0f(long fd, void *buf, long n) {
     int i = 0x78;
+    long r;
     do {
         func_8015fb30(0);
-        if (write(fd, buf, n) != -1) {
+        r = write(fd, buf, n);
+        if (r != -1) {
             break;
         }
     } while (--i != 0);
+    return r;
 }
 
 void func_800e1348_slot0f(void) {

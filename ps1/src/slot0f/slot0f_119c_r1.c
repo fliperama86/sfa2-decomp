@@ -12,22 +12,30 @@ void func_800e119c_slot0f(int *p) {
     func_8015785c(p[6]);
 }
 
-void func_800e11e4_slot0f(const char *name, int flags) {
+/* Returns the last result of the call it repeats: both callers use it. */
+int func_800e11e4_slot0f(const char *name, int flags) {
     int i = 0x78;
+    int fd;
     do {
         func_8015fb30(0);
-        if (open(name, flags) != -1) {
+        fd = open(name, flags);
+        if (fd != -1) {
             break;
         }
     } while (--i != 0);
+    return fd;
 }
 
-void func_800e1250_slot0f(long fd, void *buf, long n) {
+/* Returns the last result of the call it repeats: both callers use it. */
+long func_800e1250_slot0f(long fd, void *buf, long n) {
     int i = 0x78;
+    long r;
     do {
         func_8015fb30(0);
-        if (read(fd, buf, n) != -1) {
+        r = read(fd, buf, n);
+        if (r != -1) {
             break;
         }
     } while (--i != 0);
+    return r;
 }
