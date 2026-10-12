@@ -16,3 +16,10 @@ above `FixupFlipUV`, where the patch's HUD pixel-grid block replaces the call);
 the lines it adds are the same, its header names the new commit, and
 `psyzbuild.py` applies it at 10 places. `test_psyzbuild.py` (header of the real
 patch) follows the new commit and passes. PsyZ builds for macOS (about 30 s).
+
+Checked on the Mac build: the same input script drove a fight to the same frame (a pause)
+with each PsyZ and the window was captured. The two pictures differ in 5,228 of 1,310,720
+pixels, all in the stage floor and the rows below it; the pause's own blinking text, the
+only difference between two captures of the same PsyZ, is a box of 12 rows elsewhere. In the
+floor the old PsyZ shows isolated wrong-colored pixels along tile edges that the new one
+does not. One scene of one stage; the Windows program was not run.
