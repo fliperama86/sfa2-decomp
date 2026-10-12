@@ -29,8 +29,9 @@ void func_80120408(void) {
     }
 }
 
-void func_80120444(int a, unsigned char b) {
-    func_8016936c(data_80190a44[a + 8], table_8016e6e0[a][b * 2] & 0xfff);
+/* b is a full word of which the low byte is used: func_8013b0c4 passes a halfword without masking it. Declared as a byte parameter, that caller differs from the original in 26 instruction slots. */
+void func_80120444(int a, int b) {
+    func_8016936c(data_80190a44[a + 8], table_8016e6e0[a][(b & 0xff) * 2] & 0xfff);
 }
 
 void stop_sep_by_word(int a) {
