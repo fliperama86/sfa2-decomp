@@ -46,6 +46,9 @@ extern void port_tick(void);
 
 extern const struct port_library port_cd_library[];
 
+/* The experimental setting fast_disc (see "FAST DISC" in cd.c): on, a data read delivers up to 256 sectors a tick instead of the
+ * console's rate. Kept across port_cd_init. Off by default. */
+void port_cd_set_fast(int on);
 /* Give the layer the open image and reset it. 0, or -1 with a line in err. */
 int  port_cd_init(struct port_disc *disc);
 /* Deliver: complete pending commands, then the sectors of a read in progress

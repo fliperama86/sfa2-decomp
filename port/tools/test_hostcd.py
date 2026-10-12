@@ -33,7 +33,9 @@ not applied, a handler that pauses or starts a read, the depth counter, CdInit);
 the buffer CdGetSector is given: its
 start or its end outside the PS1's RAM, a count that overflows 32 bits, a
 negative count, the last bytes of RAM (accepted), each ending the program
-with a line and status 6 before a byte is copied; the guard by which the drive
+with a line and status 6 before a byte is copied; the setting fast_disc (a data read delivers up to 256 sectors a tick, at either speed;
+off by default and after being switched off the console's rate again; the rate kept in a read with the XA bit and in one with the runtime's own
+ready handler; the ring guard, a pause from the handler, the end of the image and the polling reader unchanged); the guard by which the drive
 waits for the game's ring (the fill for all 49 pairs of places, places outside 1
 to 7, held vblanks and the carry, a fill that reaches 4 within a row, the 30
 held vblanks and the forced row, and the loads and calls that are not guarded).
@@ -205,6 +207,7 @@ int main(int argc, char **argv)
         rest += n;
         if (!strcmp(cmd, "cdinit")) printf("R %d\n", port_CdInit());
         else if (!strcmp(cmd, "autotick")) autotick = atoi(rest);
+        else if (!strcmp(cmd, "fast")) port_cd_set_fast(atoi(rest));   /* the experimental setting fast_disc */
         else if (!strcmp(cmd, "ticks")) printf("T %d\n", ticks);
         else if (!strcmp(cmd, "tick")) { int k = atoi(rest); while (k-- > 0) { frames++; port_cd_tick(); } }
         else if (!strcmp(cmd, "tickc")) { int k = atoi(rest); while (k-- > 0) { int before = h_count; frames++; port_cd_tick(); printf("V %d\n", h_count - before); } }   /* ticks one at a time, each with the sectors it gave the handler */
@@ -1220,6 +1223,58 @@ FILL = (
 FORCED_LINE = "cd: the game's ring looked full for 30 vblanks; delivering"
 
 
+def fast_cases(root: Path, exe: Path):
+    """The setting fast_disc: a data read is not held to the console's rate (up to 256 sectors a tick)."""
+    img = root / "fast.bin"
+    make_image(img, 1200)
+    head = "cdinit\ncb 1\nhandler 80100000 0\n"      # the handler takes no piece: only its calls are counted
+    dbl, sgl = "ctl N e 80\n", "ctl N e 00\n"
+
+    def counts(script, image=img):
+        rc, lines = run(exe, image, script)
+        return rc, [int(l.split()[1]) for l in lines if l.startswith("V ")]
+
+    rc, v = counts(head + dbl + "readn 0\ntickc 10\n")
+    yield check("without the setting the rate is the console's (the default; 2, 3, 2, 3 ...)", rc == 0 and v == [2, 3, 2, 3, 2, 3, 2, 3, 2, 3], f"{v}")
+    rc, v = counts("fast 1\n" + head + dbl + "readn 0\ntickc 3\n")
+    yield check("fast, double speed: 256 sectors a tick", rc == 0 and v == [256, 256, 256], f"{v}")
+    rc, v = counts("fast 1\n" + head + sgl + "readn 0\ntickc 3\n")
+    yield check("fast, single speed: 256 sectors a tick too", rc == 0 and v == [256, 256, 256], f"{v}")
+    # the setting outlives port_cd_init (main.c sets it after the init; the rig sets it before: both orders work) and a CdInit
+    rc, v = counts(head + "fast 1\ncdinit\ncb 1\nhandler 80100000 0\n" + dbl + "readn 0\ntickc 2\n")
+    yield check("the setting is kept by CdInit", rc == 0 and v == [256, 256], f"{v}")
+    rc, v = counts("fast 1\n" + head + dbl + "readn 0\ntickc 1\nfast 0\nreadn 600\ntickc 4\n")
+    yield check("switched off, the next read is at the console's rate again (2, 3, 2, 3)", rc == 0 and v == [256, 2, 3, 2, 3], f"{v}")
+    # the sectors are the right ones, in order, none lost or repeated across the rows
+    rc, lines = run(exe, img, "fast 1\ncdinit\ncb 1\nhandler 80100000 512\n" + dbl + "readn 100\ntickc 2\n")
+    sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
+    yield check("fast: 512 sectors from 100, in order, none lost or repeated", rc == 0 and sec == list(range(100, 612)), f"{len(sec)} {sec[:3]} {sec[-3:]}")
+    # the end of the image: 300 sectors, 256 and then 44 and the disc error (the handler's error call is not a sector)
+    small = root / "fastsmall.bin"
+    make_image(small, 300)
+    rc, v = counts("fast 1\n" + head + dbl + "readn 0\ntickc 3\n", small)
+    yield check("fast: the read runs off the end of the image: 256, 44 sectors, then nothing", rc == 0 and v == [256, 44, 0], f"{v}")
+    # a pause from the handler ends the row at once
+    rc, v = counts("fast 1\n" + head + dbl + "stopafter 5\nreadn 0\ntickc 2\n")
+    yield check("fast: the handler's Pause after 5 sectors ends the row (5, then nothing)", rc == 0 and v == [5, 0], f"{v}")
+    # the rate stays in a read with the XA bit (the game's music): mode 0xc8 on data sectors
+    p0 = hexs(*pos_of(0), 0)
+    rc, v = counts("fast 1\n" + head + f"ctl N e c8\nctl N 1b {p0}\ntickc 6\n")
+    yield check("fast: a read with the mode's XA bit keeps the console's rate (2, 3, 2, 3 ...)", rc == 0 and v == [2, 3, 2, 3, 2, 3], f"{v}")
+    # the rate stays in a read whose ready handler is the runtime's own (the movies' stream)
+    rc, v = counts("fast 1\n" + "cdinit\nhost 1\n" + dbl + "readn 0\ntickc 6\n")
+    yield check("fast: a read with the runtime's own ready handler keeps the console's rate (2, 3, 2, 3 ...)", rc == 0 and v == [2, 3, 2, 3, 2, 3], f"{v}")
+    # the game's stream handler: the ring guard still holds. Fill 0 at the start, the handler steps the writer: 4 sectors, then held
+    rc, v = counts("fast 1\ncdinit\ncb 2\nhandler 80100000 0\n" + dbl + "adv 1\nring 1 1\nreadn 0\ntickc 3\n")
+    yield check("fast: the ring guard holds the row at a fill of 4 (4 sectors, then none while the ring is full)", rc == 0 and v == [4, 0, 0], f"{v}")
+    rc, v = counts("fast 1\ncdinit\ncb 2\nhandler 80100000 0\n" + dbl + "adv 1\nring 1 1\nreadn 0\ntickc 1\nring 1 6\ntickc 1\n")
+    yield check("fast: the reader moves on (fill 2): the next row is 2 sectors, then the guard holds again (4, 2)", rc == 0 and v == [4, 2], f"{v}")
+    # a polling reader (no handler): one sector waits for the poll, as before
+    rc, lines = run(exe, img, "fast 1\ncdinit\n" + dbl + "readn 0\ntick 1\nready 1\ngs 80100000 4\ntick 1\nready 1\ngs 80100000 4\n")
+    g = [l.split()[2] for l in lines if l.startswith("G ")]
+    yield check("fast: a polling reader still gets one sector at a time (sector 0, then 1)", rc == 0 and g == ["first=0", "first=1"], f"{rc} {g}")
+
+
 def guard_cases(root: Path, exe: Path):
     img = root / "guard.bin"
     make_image(img, 400)
@@ -1579,6 +1634,7 @@ def seam_cases(root: Path, exe: Path):
 def groups(root: Path, exe: Path):
     yield read_cases(root, exe)
     yield rate_cases(root, exe)
+    yield fast_cases(root, exe)
     yield guard_cases(root, exe)
     yield pieces_cases(root, exe)
     yield pause_cases(root, exe)

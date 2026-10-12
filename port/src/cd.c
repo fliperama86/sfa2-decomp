@@ -158,6 +158,14 @@
  * Not covered, and no code of the game does it: a reader that polls with the XA bit set loses the sectors of a vblank's row that
  * comes before its first poll.
  *
+ * FAST DISC (the experimental setting fast_disc, off by default; port_cd_set_fast). With it on, the rate above does not apply to a
+ * read of data: a vblank's row may hold up to FAST_ROW sectors, and ends earlier where it always did (the read ended or was paused,
+ * a polling reader has not taken the last sector, the ring guard below holds). The carry is set to that many sectors' cost at
+ * every vblank instead of growing by 5. The rate stays in these reads: one with the mode's XA bit (0x40) set (the game's music:
+ * the position it reports must follow the sound), and one whose ready handler is the runtime's own (port_cd_host_ready: the
+ * movies' stream, whose queue halts the program when it is full). The game installs no other handler than its stream handler
+ * (guarded below) and none (it polls), so a faster row cannot lap a ring or a queue that the game does not already guard.
+ * Commands are not made faster: a Setloc or a SeekL still completes at the next vblank.
  * THE DRIVE WAITS FOR THE GAME'S RING (a game-specific exception: this layer reads the game's memory).
  * The rate above is the console's and nothing more. The game reads a streamed load into a ring of seven places that its main loop
  * empties once per pass. On the console a pass fits in a frame or two. Here a pass can take several frames of the wall clock (a
@@ -209,6 +217,7 @@ void (*port_cd_call)(unsigned handler, int intr, unsigned char *result);
 #define GUARD_HANDLER 0x8014f918u   /* update_stream_control_by_mode: the ready handler of a streamed load */
 #define GUARD_FILL    4u            /* the fill at which the drive waits */
 #define GUARD_HOLD    30u           /* vblanks held in a row before the next row is delivered regardless */
+#define FAST_ROW      256u          /* the most sectors a vblank's row holds in a fast read (see "FAST DISC") */
 
 static struct {
     struct port_disc *disc;
@@ -242,6 +251,7 @@ static struct {
     int *word_source;               /* for each word of RAM: the sector of the image its bytes came from, -1 if none */
     unsigned char filter_file, filter_channel;   /* the last Setfilter */
 } cd;
+static int fast_disc;               /* the setting; outside `cd` so that port_cd_init's reset keeps it */
 
 /* ---- the streamed audio ------------------------------------------------------------------------------------------------
  * A sector of compressed audio that the game plays (the mode's XA bit 0x40 and the sector's audio bit; with the mode's filter
@@ -1064,7 +1074,8 @@ void port_cd_tick(void)
     cd.in_delivery = 1;
     regardless = !cd.unguarded && cd.guard_run >= GUARD_HOLD;   /* 1: this row is delivered regardless (2 once it was needed) */
     cost = (cd.mode & 0x80) ? 2u : 4u;   /* read here: after the pending commands are settled, before any handler runs */
-    cd.carry += 5;
+    if (fast_disc && !(cd.mode & 0x40) && !cd.host_ready) cd.carry = cost * FAST_ROW;   /* see "FAST DISC" */
+    else cd.carry += 5;
     while (cd.carry >= cost) {
         if (ring_full(&regardless)) {   /* the sector waits: the drive waits and does not catch up */
             held = 1;
@@ -1089,6 +1100,11 @@ void port_cd_tick(void)
         }
     }
     cd.in_delivery = 0;
+}
+
+void port_cd_set_fast(int on)
+{
+    fast_disc = !!on;
 }
 
 int port_cd_init(struct port_disc *disc)

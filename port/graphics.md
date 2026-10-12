@@ -59,6 +59,7 @@ CLI overrides address these same settings, with the last override winning:
 | UI sampling | `--pixel-perfect-ui` | `--ps1-rendering` |
 | Native canvas | `--arcade-video` | `--ps1-video` |
 | Common UI position | `--center-ui` | `--ps1-ui-layout` |
+| Disc read speed (not graphics) | `--fast-disc` | `--ps1-disc-speed` |
 
 Overrides apply after loading, regardless of where `--settings` appears.
 The original-sampling option selects the prior port path, not a claim of
