@@ -59,9 +59,9 @@ void func_8013b0c4(Object *object, Object *other, Box32 *g)
         /* out_40 of the rectangle data_80188ed0 (offset 0x40, inside that record) is read through a cast; the plain form data_80188ed0.out_40 differs from the original in 38 instruction slots. */
         x0 = *(s16 *)((char *)&data_80188ed0 + 0x40);
         /* out_3c of the rectangle data_80188ed0 (offset 0x3c, inside that record) is read through a cast; the plain form data_80188ed0.out_3c differs from the original in 36 instruction slots. */
-        /* The pos_x sum is kept in idx, the variable that holds the pos_y sum below; as a plain expression without idx it differs from the original in 36 instruction slots. */
+        /* Stand-in, not recovered source: the assignment to idx inside the store below, whose value nothing reads, reproduces the original's choice of registers. Without it this function differs from the original in 36 instruction slots. */
         ref_other.p->pos_x = (idx = (((*(s16 *)((char *)&data_80188ed0 + 0x3c)) - x0) >> 1) + x0);
-        /* The pos_y sum is kept in idx as well; as a plain expression without idx it differs from the original in 2 instruction slots. */
+        /* Stand-in, not recovered source: the assignment to idx inside the store below, whose value nothing reads, reproduces the original's choice of registers. Without it this function differs from the original in 2 instruction slots. */
         ref_other.p->pos_y = (idx = ((((s16)data_80188ed0.out_44) - ((s16)data_80188ed0.out_48)) >> 1) + ((s16)data_80188ed0.out_48));
         ref_other.p->field_48 = 0;
         if (other->field_61 & 0x80) {
