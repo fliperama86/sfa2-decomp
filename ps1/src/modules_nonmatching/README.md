@@ -61,7 +61,6 @@ Functions of this folder without a fixtures file, by reason:
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
-func_80011688_slot12 replay: fixtures 2, passed 2, failed 0
 func_80012990_slot01 replay: fixtures 2, passed 2, failed 0
 func_8001389c_slot28 replay: fixtures 1, passed 1, failed 0
 func_8001606c_slot12 replay: fixtures 2, passed 2, failed 0
@@ -86,8 +85,6 @@ function's lines change only when that function is run again.
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
-func_80011688_slot12: built 260 bytes, original 260 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80011688_slot12 coverage: 65 of 65 instruction slots of the original executed
 func_80012714_slot01: built 568 bytes, original 636 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80012714_slot01 coverage: 159 of 159 instruction slots of the original executed
 func_80012990_slot01: built 312 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -115,8 +112,6 @@ func_801e0ce8_slot0b coverage: 112 of 112 instruction slots of the original exec
 The control (`--cases 2000 --control FUNC`):
 
 ```
-func_80011688_slot12 control: different 1906 of 2000 (expected more than 0)
-  altered: last channel step 2 changed to 3, instruction slot 24
 func_80012714_slot01 control: different 1323 of 2000 (expected more than 0)
   altered: a shift right by 4 changed to 3, instruction slot 40
 func_80012990_slot01 control: different 2000 of 2000 (expected more than 0)
@@ -144,7 +139,6 @@ func_801e0ce8_slot0b control: different 1997 of 2000 (expected more than 0)
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
-func_80011688_slot12 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012714_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012990_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8001389c_slot28 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
