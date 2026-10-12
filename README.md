@@ -13,6 +13,12 @@ bytes and the remaining route to delivery.
 The picture is drawn on every push to `main` from the published
 [function inventory](ps1/inventory/README.md) and the build configuration.
 
+[![Names given: the share of functions, fields and data symbols that have a name instead of a placeholder](https://fliperama86.github.io/sfa2-decomp/names.svg)](ps1/docs/names.md#how-many-have-a-name)
+
+That line is counted on the same push by
+[`ps1/tools/namestats.py`](ps1/tools/namestats.py). The names are inferred
+from the code; none is an original symbol.
+
 ## Current evidence
 
 The [PS1 pilot](ps1/docs/matching-pilot.md) rebuilds three connected functions
