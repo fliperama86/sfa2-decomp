@@ -33,6 +33,8 @@ void port_gpu_present(void);
 /* Startup flags from shared settings. No GPU/window initialization here.
  * Returns -1 if an enhancement is requested in a build without PsyZ. */
 int port_gpu_set_video_options(int pixel_perfect_ui,int arcade_video);
+/* Default-off common UI centering, active only in the wider game canvas. */
+int port_gpu_set_ui_layout(int enabled);
 
 /* The video memory, 1024 x 512 halfwords, into a buffer of the caller's own
  * (not the game's). 0, or -1 (buffer untouched) when the graphics were not used yet

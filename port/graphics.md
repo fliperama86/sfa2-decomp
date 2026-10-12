@@ -1,13 +1,14 @@
 # Optional graphics and settings
 
-The normal port has one build and one settings model. Both experimental
-graphics options default off, preserving the existing PS1 canvas and sampling.
+The normal port has one build and one settings model. All experimental
+graphics settings default off, preserving the existing PS1 canvas and sampling.
 No arcade ROM or replacement artwork is required for these options.
 
 ```ini
 [experimental]
 pixel_perfect_ui = false
 arcade_video = false
+center_ui = false
 ```
 
 `pixel_perfect_ui` corrects **super-meter and life-frame tile sampling**. It maps
@@ -32,6 +33,18 @@ presentation. It does not recenter the HUD or provide true 16:9. Fractional
 window scaling can still give uneven physical pixel sizes even with correct
 native texture sampling. Changing the canvas does not turn on pixel-perfect UI.
 
+`center_ui` is a **WIP common-UI layout** option. When the wider game canvas is
+active, it centers the original 368-wide UI coordinates in 384 pixels by moving
+selected copies eight pixels right. It does not stretch or move Y, the fight
+scene or camera. It covers resident HUD tiles/fills/strips and common text,
+including shared text used by menus. It has no effect without the wider canvas
+or in movies/other display modes, and does not turn on sampling corrections.
+Screen-specific menu/overlay artwork is not covered yet, so this is not complete
+all-UI or arcade-placement equivalence. Further small reviewed increments use
+the same default-off flag. True16:9 and edge anchoring for that width are future
+work. Original game RAM/geometry stays unchanged; translation is in copied SDK
+packets. Both sampling and layout compose without changing health-bar widths.
+
 ## Configuration
 
 At startup the port reads `settings.ini` in the working directory. A missing
@@ -45,6 +58,7 @@ CLI overrides address these same settings, with the last override winning:
 | --- | --- | --- |
 | UI sampling | `--pixel-perfect-ui` | `--ps1-rendering` |
 | Native canvas | `--arcade-video` | `--ps1-video` |
+| Common UI position | `--center-ui` | `--ps1-ui-layout` |
 
 Overrides apply after loading, regardless of where `--settings` appears.
 The original-sampling option selects the prior port path, not a claim of
@@ -77,6 +91,7 @@ Fast tests, no private input or running game:
 python port/tools/test_settings.py
 python port/tools/test_video.py
 python port/tools/test_psyzbuild.py
+python port/tools/test_ui_layout.py
 ```
 
 `video_gpu_test.c` is a separate generated-pixel fixture for an already built
@@ -89,8 +104,16 @@ and an already built SDK to check selection against generated mapped RAM. It
 exits without video/audio initialization and needs no game or disc. Tests do not
 prove full-game equivalence.
 
+`test_ui_layout.py` checks synthetic packet geometry, the actual copied-packet
+seam with a mock SDK sink, and disabled/unsupported behavior without an SDK.
+`ui_layout_gpu_test.c` separately links the whole GPU bridge and a built SDK:
+generated HUD/text/world pixels, both frame tables and all eight flag states,
+unchanged source RAM and an other-mode gate. Its readback checks placement and
+color classes, not exact texture RGB quantization. It is windowed and silent,
+requires no game/disc, and does not repeat the earlier backend fixtures.
+
 ## Next reviewed increments
 
-Super/life sampling and the independent canvas are integrated. Next is UI
-centering/anchoring for the wider canvas, kept small, reviewed and opt-in behind
-a settings flag. True16:9 is not implemented.
+Super/life sampling, the independent canvas and common-UI centering are
+integrated. Extend the WIP layout flag to separately identified screen-specific
+artwork in small reviewed increments. True16:9 is not implemented.

@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     int audio_device = PORT_AUDIO_DEFAULT;
     const char *input_path = NULL;
     const char *settings_path = "settings.ini";
-    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1;
+    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1;
     int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
     struct port_install installed;
     unsigned gp;
@@ -126,6 +126,8 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--show-settings") == 0) show_settings=1;
         else if (strcmp(argv[i], "--pixel-perfect-ui") == 0) ui_override=1;
         else if (strcmp(argv[i], "--ps1-rendering") == 0) ui_override=0;
+        else if (strcmp(argv[i], "--center-ui") == 0) center_override=1;
+        else if (strcmp(argv[i], "--ps1-ui-layout") == 0) center_override=0;
         else if (strcmp(argv[i], "--arcade-video") == 0) canvas_override=1;
         else if (strcmp(argv[i], "--ps1-video") == 0) canvas_override=0;
         else if (strcmp(argv[i], "--trace") == 0) trace = 1;
@@ -147,10 +149,11 @@ int main(int argc, char **argv)
         if(port_settings_load(settings_path,&port_settings,!explicit_settings,err,sizeof err))return refuse(err);
         if(ui_override>=0)port_settings.pixel_perfect_ui=ui_override;
         if(canvas_override>=0)port_settings.arcade_video=canvas_override;
+        if(center_override>=0)port_settings.center_ui=center_override;
         if(show_settings) {
             if(disc_path || list)return refuse("--show-settings takes no disc or --list-library");
-            printf("[experimental]\npixel_perfect_ui = %s\narcade_video = %s\n",
-                port_settings.pixel_perfect_ui?"true":"false",port_settings.arcade_video?"true":"false");
+            printf("[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\n",
+                port_settings.pixel_perfect_ui?"true":"false",port_settings.arcade_video?"true":"false",port_settings.center_ui?"true":"false");
             return 0;
         }
     }
@@ -163,7 +166,8 @@ int main(int argc, char **argv)
         fflush(stdout);
         return 2;
     }
-    if(port_gpu_set_video_options(port_settings.pixel_perfect_ui,port_settings.arcade_video))
+    if(port_gpu_set_video_options(port_settings.pixel_perfect_ui,port_settings.arcade_video) ||
+       port_gpu_set_ui_layout(port_settings.center_ui))
         return refuse("experimental graphics require the patched PsyZ SDL_GPU backend");
     if (trace != (trace_path != NULL)) return refuse("--trace and --trace-file FILE go together");
     if (trace_path && !(trace_file = fopen(trace_path, "w"))) return refuse("cannot open the trace file");

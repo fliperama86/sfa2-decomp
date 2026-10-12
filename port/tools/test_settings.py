@@ -38,13 +38,14 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             exe = path / 'startup'
             subprocess.run(['gcc', '-std=c11', '-O1', '-I', str(ROOT / 'port/src'),
                 str(path / 'test.c'), str(ROOT / 'port/src/settings.c'), '-o', str(exe)], check=True, timeout=15)
-            def run(args, expected, ui=None, canvas=None):
+            def run(args, expected, ui=None, canvas=None, center=False):
                 result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
                     cwd=path, capture_output=True, text=True, timeout=3)
                 self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
                 if expected == 0:
                     self.assertIn('pixel_perfect_ui = ' + ('true' if ui else 'false'), result.stdout)
                     self.assertIn('arcade_video = ' + ('true' if canvas else 'false'), result.stdout)
+                    self.assertIn('center_ui = ' + ('true' if center else 'false'), result.stdout)
             run([], 0, False, False)
             config = path / 'settings.ini'
             config.write_text('[experimental]\npixel_perfect_ui = true\narcade_video = false\n')
@@ -55,6 +56,11 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             run(['--pixel-perfect-ui', '--ps1-rendering'], 0, False, False)
             run(['--ps1-rendering', '--settings', str(config)], 0, False, False)
             run(['--settings', str(config), '--arcade-video'], 0, True, True)
+            run(['--center-ui'], 0, True, False, True)
+            run(['--center-ui', '--ps1-ui-layout'], 0, True, False, False)
+            config.write_text('[experimental]\npixel_perfect_ui = true\ncenter_ui = true\n')
+            run(['--ps1-ui-layout', '--settings', str(config)], 0, True, False, False)
+            run(['--settings', str(config), '--arcade-video'], 0, True, True, True)
             run(['--settings', 'missing.ini'], 2)
             config.write_text('[experimental]\narcade_video = typo\n')
             run([], 2)

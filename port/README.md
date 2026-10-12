@@ -1,8 +1,9 @@
 # Port
 
-Experimental graphics now use the normal port and shared settings, with both
+Experimental graphics now use the normal port and shared settings, with all
 options off by default. See [graphics and settings](graphics.md) for super/life
-pixel-grid sampling, the independently optional arcade canvas and scoped checks.
+pixel-grid sampling, the independently optional arcade canvas, WIP common-UI
+centering and scoped checks.
 
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
 Linux. **The game does not run on macOS or Linux, and on Windows it is

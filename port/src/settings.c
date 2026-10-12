@@ -24,7 +24,7 @@
 #define UNLINK unlink
 #endif
 struct port_settings port_settings;
-void port_settings_defaults(struct port_settings *out) { out->pixel_perfect_ui=0;out->arcade_video=0; }
+void port_settings_defaults(struct port_settings *out) { out->pixel_perfect_ui=0;out->arcade_video=0;out->center_ui=0; }
 static int failure(char *err,size_t size,unsigned line,const char *why)
 {
     if(err && size) {
@@ -57,13 +57,14 @@ static int line_read(char *text,unsigned row,int *section,unsigned *seen,
     *equal=0;key=trim(s);value=trim(equal+1);
     if(!strcmp(key,"pixel_perfect_ui"))bit=1;
     else if(!strcmp(key,"arcade_video"))bit=2;
+    else if(!strcmp(key,"center_ui"))bit=4;
     else return failure(err,size,row,"unknown key");
     if(*seen&(unsigned)bit)return failure(err,size,row,"duplicate key");
     if(!strcmp(value,"true"))b=1;
     else if(!strcmp(value,"false"))b=0;
     else return failure(err,size,row,"expected true or false");
     *seen|=(unsigned)bit;
-    if(bit==1)next->pixel_perfect_ui=b;else next->arcade_video=b;
+    if(bit==1)next->pixel_perfect_ui=b;else if(bit==2)next->arcade_video=b;else next->center_ui=b;
     return 0;
 }
 int port_settings_read(FILE *file,struct port_settings *out,char *err,size_t size)
@@ -100,15 +101,16 @@ int port_settings_save(const char *path,const struct port_settings *value,char *
 {
     char *tmp;size_t n=strlen(path);int fd,bad=0;FILE *file;
     if((value->pixel_perfect_ui!=0 && value->pixel_perfect_ui!=1) ||
-       (value->arcade_video!=0 && value->arcade_video!=1))return failure(err,size,0,"invalid value for save");
+       (value->arcade_video!=0 && value->arcade_video!=1) ||
+       (value->center_ui!=0 && value->center_ui!=1))return failure(err,size,0,"invalid value for save");
     tmp=malloc(n+5);if(!tmp)return failure(err,size,0,"out of memory");
     memcpy(tmp,path,n);memcpy(tmp+n,".tmp",5);
     fd=OPEN_NEW(tmp);
     if(fd<0) { free(tmp);return failure(err,size,0,"cannot create exclusive temporary file"); }
     file=FDOPEN(fd,"wb");
     if(!file) { CLOSE(fd);UNLINK(tmp);free(tmp);return failure(err,size,0,"cannot open temporary stream"); }
-    if(fprintf(file,"[experimental]\npixel_perfect_ui = %s\narcade_video = %s\n",
-       value->pixel_perfect_ui?"true":"false",value->arcade_video?"true":"false")<0)bad=1;
+    if(fprintf(file,"[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\n",
+       value->pixel_perfect_ui?"true":"false",value->arcade_video?"true":"false",value->center_ui?"true":"false")<0)bad=1;
     if(fclose(file))bad=1;
     if(!bad) {
 #ifdef _WIN32
