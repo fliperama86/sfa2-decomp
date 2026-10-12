@@ -43,7 +43,7 @@ void func_801e9738_slot06_0e(void) {
     u16 f16;
     int yy;
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
-    int pad[2];
+    int unused[2];
     px = c->scroll_x;
     blank = c->field_1e;
     pos = c->scroll_y;
