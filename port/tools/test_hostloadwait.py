@@ -8,6 +8,9 @@ pass and not otherwise; `finish` runs once after the last pass, and not when it 
 table of the two overrides (names, notes, the setting each is tied to) and the gate: library.c installs a row only while its setting is not 0
 (checked on the source of library.c's loop, which has no test rig of its own that reaches it).
 
+The loading screen's two collapsed states (port_loadscreen_start, port_loadscreen_fadeout) on made-up fields: what each leaves, from several
+starting values, and that only the first calls the palette routine.
+
 What is NOT tested here: the game's own routines that the two overrides call by address (they run in the game), and a load on a real disc.
 Those need the linked program. It needs `cc`; without it this file says so and ends with status 2.
 """
@@ -27,11 +30,15 @@ DRIVER = r'''
 #include "loadwait.h"
 #include "port.h"
 #include "settings.h"
+#include "port_tables.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 struct port_settings port_settings;
+const struct port_function port_functions[] = { { 0, 0, "none", 0, 0 } };
+const unsigned port_function_count = 0;
+void port_halt(int status, const char *fmt, ...) { (void)status; (void)fmt; exit(70); }
 void port_cd_tick(void) {}
 void port_tick(void) {}
 extern const struct port_override port_loadwait_overrides[];
@@ -64,11 +71,78 @@ int main(int argc, char **argv)
 }
 '''
 
+SCREEN = r'''
+#include "loadwait.h"
+#include "port.h"
+#include "settings.h"
+#include "port_tables.h"
+#include <stdio.h>
+#include <stdlib.h>
+struct port_settings port_settings;
+const struct port_function port_functions[] = { { 0, 0, "none", 0, 0 } };
+const unsigned port_function_count = 0;
+void port_halt(int status, const char *fmt, ...) { (void)status; (void)fmt; exit(70); }
+void port_cd_tick(void) {}
+void port_tick(void) {}
+static int palette_calls;
+static void pal(void) { palette_calls++; }
+int main(int argc, char **argv)
+{
+    unsigned short state = (unsigned short)atoi(argv[2]), counter = 0x1234, delay = 77;
+    unsigned char wait = 0x55;
+    unsigned text = 0x8016da10u;
+    if (argc != 3) return 64;
+    struct port_loadscreen_fields f = { &state, &counter, &delay, &wait, &text, 0x8016da1eu, pal };
+    if (argv[1][0] == 's') port_loadscreen_start(&f); else port_loadscreen_fadeout(&f);
+    printf("S state=%u counter=%u delay=%u wait=%u text=%x palette=%d\n", state, counter, delay, wait, text, palette_calls);
+    return 0;
+}
+'''
+
+FADE = r'''
+#include "loadwait.h"
+#include "port.h"
+#include "settings.h"
+#include "port_tables.h"
+#include <stdio.h>
+#include <stdlib.h>
+struct port_settings port_settings;
+const struct port_function port_functions[] = { { 0, 0, "none", 0, 0 } };
+const unsigned port_function_count = 0;
+void port_halt(int status, const char *fmt, ...) { (void)status; (void)fmt; exit(70); }
+void port_cd_tick(void) {}
+void port_tick(void) {}
+static unsigned calls, done_at, last_bank, last_mode;
+static int last_amount;
+static unsigned step(void *ctx, unsigned bank, int amount, unsigned mode)
+{
+    (void)ctx;
+    calls++;
+    last_bank = bank; last_amount = amount; last_mode = mode;
+    return done_at && calls >= done_at;
+}
+int main(int argc, char **argv)
+{
+    unsigned r;
+    if (argc != 4) return 64;
+    done_at = (unsigned)atoi(argv[3]);
+    r = port_fade_to_end(step, 0, 2, -1, (unsigned)atoi(argv[1]));
+    printf("F mode=%s result=%u calls=%u bank=%u amount=%d lastmode=%u\n", argv[1], r, calls, last_bank, last_amount, last_mode);
+    (void)argv[2];
+    return 0;
+}
+'''
+
 TABLE = r'''
 #include "port.h"
 #include "settings.h"
+#include "port_tables.h"
 #include <stdio.h>
+#include <stdlib.h>
 struct port_settings port_settings;
+const struct port_function port_functions[] = { { 0, 0, "none", 0, 0 } };
+const unsigned port_function_count = 0;
+void port_halt(int status, const char *fmt, ...) { (void)status; (void)fmt; exit(70); }
 void port_cd_tick(void) {}
 void port_tick(void) {}
 extern const struct port_override port_loadwait_overrides[];
@@ -118,9 +192,25 @@ def cases(root: Path, cc: str):
     for n, want in ((255, 0), (256, 1), (257, 1), (511, 1), (512, 2), (3000, 11)):
         r = run(loop, str(n), "1")[0]
         yield check(f"{n} passes: the real clock step runs {want} time(s) (every 256th pass)", f"passes={n} ticks={want} " in r, r)
+    screen = build(root, cc, SCREEN, "screen")
+    for st in (0, 1, 5):
+        r = run(screen, "s", str(st))[0]
+        yield check(f"state 0 collapsed, state index {st}: index {st + 2}, delay 1, counter 32, wait flag 0x80, one palette call, text on the empty string",
+                    r == f"S state={st + 2} counter=32 delay=1 wait=128 text=8016da1e palette=1", r)
+    for st in (3, 4):
+        r = run(screen, "f", str(st))[0]
+        yield check(f"state 3 collapsed, state index {st}: index {st + 1}, delay 1, counter 0xffff, wait flag and text untouched, no palette call",
+                    r == f"S state={st + 1} counter=65535 delay=1 wait=85 text=8016da10 palette=0", r)
+    fade = build(root, cc, FADE, "fade")
+    for mode, done_at, want_calls, want_result in (("0", "32", 32, 1), ("1", "32", 32, 1), ("0", "1", 1, 1), ("0", "0", 256, 0), ("2", "0", 1, 0), ("3", "5", 1, 0), ("2", "1", 1, 1)):
+        r = run(fade, mode, "x", done_at)[0]
+        yield check(f"fade mode {mode}, the routine says done at call {done_at}: {want_calls} call(s), result {want_result}, arguments passed on",
+                    r == f"F mode={mode} result={want_result} calls={want_calls} bank=2 amount=-1 lastmode={mode}", r)
     table = build(root, cc, TABLE, "table")
     t = run(table)
-    yield check("two overrides, each with a routine, a note and the setting fast_loads", t[-1] == "N 2" and t[:2] == ["O start_cd_track_wait_with_thread_switch 1 1 1", "O start_cd_track_and_wait_updating_control 1 1 1"], f"{t}")
+    yield check("five overrides, each with a routine, a note and the setting fast_loads",
+                t[-1] == "N 5" and t[:5] == ["O start_cd_track_wait_with_thread_switch 1 1 1", "O start_cd_track_and_wait_updating_control 1 1 1",
+                                              "O start_hud_stage_step_sequence 1 1 1", "O update_fade_step_counter_down 1 1 1", "O fade_palette_bank 1 1 1"], f"{t}")
     # the gate in library.c: the install loop skips a row whose setting is 0
     lib = (SRC / "library.c").read_text()
     gate = "if (override_at(k)->enabled && !*override_at(k)->enabled) continue;"

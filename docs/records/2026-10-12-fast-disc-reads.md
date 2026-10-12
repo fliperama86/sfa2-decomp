@@ -29,3 +29,7 @@ module after the logo at 13.0 s instead of 16.4 s (the rest is the logo movies).
 character select, the other loads. Not run: `test_hostlaunch.py`, `test_hostmodules.py` and
 `test_hostprograms.py` (they need a Windows cross compiler). Unknown: whether skipping the main
 thread's frames and the vblank handlers during a load changes anything the game later depends on.
+
+Also in this change: `--volume PERCENT`, a command-line option for the sound output's gain (0 to 100, default 100). PsyZ's patch gains
+`Psyz_Sfa2SetVolume`, which sets SDL's gain on PsyZ's one audio stream; the port calls it through `port_iopage_set_volume`. Checked: the option's
+parsing (`test_settings.py`) and the patch's application (`psyzbuild.py`, 12 places). Not measured: the loudness at the speakers.

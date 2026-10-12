@@ -253,6 +253,8 @@ void port_interrupt_set_return(unsigned ip);
 #define PORT_AUDIO_OFF     0
 #define PORT_AUDIO_ASKED   1
 int  port_iopage_init(const char *audio_dump, int audio_device, int trace, char *err, size_t errsize);   /* audio_dump: a file name or NULL; audio_device: PORT_AUDIO_* */
+/* The gain of the sound output, 0 to 100 percent (--volume). With PsyZ it is set on PsyZ's one audio stream (port/psyz.patch); the audio dump is not changed. No effect in a build without PsyZ. */
+void port_iopage_set_volume(int percent);
 int  port_iopage_read(unsigned addr, unsigned size, unsigned *value, char *why, size_t whysize);
 int  port_iopage_check_write(unsigned addr, unsigned size, char *why, size_t whysize);
 int  port_iopage_write(unsigned addr, unsigned size, unsigned value, char *why, size_t whysize);

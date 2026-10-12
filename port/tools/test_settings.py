@@ -48,6 +48,18 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
                     self.assertIn('center_ui = ' + ('true' if center else 'false'), result.stdout)
                     self.assertIn('fast_loads = ' + ('true' if fast else 'false'), result.stdout)
             run([], 0, False, False)
+            def volume(args, expected, line=None):
+                result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
+                    cwd=path, capture_output=True, text=True, timeout=3)
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                if line: self.assertIn(line, result.stdout.splitlines())
+            volume([], 0, 'volume = 100')
+            volume(['--volume', '20'], 0, 'volume = 20')
+            volume(['--volume', '0'], 0, 'volume = 0')
+            volume(['--volume', '100'], 0, 'volume = 100')
+            volume(['--volume', '20', '--volume', '55'], 0, 'volume = 55')
+            for bad in (['--volume'], ['--volume', '101'], ['--volume', '-1'], ['--volume', 'x'], ['--volume', ''], ['--volume', '20x'], ['--volume', '1.5']):
+                volume(bad, 2)
             config = path / 'settings.ini'
             config.write_text('[experimental]\npixel_perfect_ui = true\narcade_video = false\n')
             run([], 0, True, False)
