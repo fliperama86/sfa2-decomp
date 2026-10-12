@@ -25,3 +25,10 @@ and palettes). The disc's stand-alone programs (logo, opening movie) are not
 built into the guest yet: without `--skip-programs` the run stops by name at
 the first; with it the game loops through their calls. No picture of the game
 proper, no sound and no input are shown.
+
+Later the same day: the logo's and the opening's programs and the game's sound library are built into the guest image (`hostbuild.py --guest
+--psyz`; the table of the runtime has the programs' mains as guest addresses, their setup and teardown as host calls with the symbols' addresses,
+and `port_bounds`, the runtime routines that the programs' library names are bound to, found by the stubs the image holds). Run against the
+user's disc without `--skip-programs`: the logo's movie decoded (196 frames), the title, the player select, a stage and a fight driven by an
+input script (a hit counter, the score rising, the pause) drew through PsyZ on Metal; the dump of the chip's model had music and the streamed
+audio; the user heard the sound through the Mac's output. Not tried: the other modes, a controller, long runs.

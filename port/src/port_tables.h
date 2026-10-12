@@ -19,6 +19,9 @@ extern const struct port_absent   port_absents[];   extern const unsigned port_a
 struct port_builtin_program { const char *name; const char *file; const unsigned char *sha256; void *main; void (*setup)(void); void (*teardown)(void); };
 
 extern const struct port_builtin_program port_programs[];  extern const unsigned port_program_count;
+/* The macOS build (port/mac): the routines of the runtime that the guest image calls by the stubs it has for them (`name` is the stub's symbol). */
+struct port_bound { const char *name; void *host; };
+extern const struct port_bound port_bounds[];  extern const unsigned port_bound_count;
 extern const unsigned char port_program_sha256[32];  /* the executable's SHA-256 pinned by the build configuration */
 
 #endif

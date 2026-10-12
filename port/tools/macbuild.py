@@ -38,10 +38,10 @@ def runtime_sources() -> list[Path]:
     return files + [MAC / "platform.c", MAC / "guest.c", MAC / "vm.c", MAC / "elf.c"]
 
 
-def compile_args(source: Path, obj: Path, psyz: dict | None) -> list[str]:
-    extra: list[str] = []
+def compile_args(source: Path, obj: Path, psyz: dict | None, sound: bool = False) -> list[str]:
+    extra: list[str] = ["-DPORT_SOUND_LIBRARY_C"] if sound and source.name != "port_tables.c" and not source.name.startswith("guest_tables") else []
     if psyz and source.name in PSYZ_FILES:
-        extra = ["-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in psyz["define"]), "-isystem", psyz["include"]]
+        extra += ["-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in psyz["define"]), "-isystem", psyz["include"]]
     return ["clang", *CFLAGS, *extra, "-c", "-o", str(obj), str(source)]
 
 
@@ -58,6 +58,7 @@ def run(args: argparse.Namespace) -> int:
         print(f"macbuild.py: cannot read {args.psyz / 'psyz.json'}: {err}; run `python3 port/tools/psyzbuild.py --cc clang --build {args.psyz}` first", file=sys.stderr)
         return 2
     out: Path = args.out
+    sound = (guest / "gen" / "sound_library").is_file()   # hostbuild.py --guest --psyz made the guest with the game's sound library
     (out / "obj").mkdir(parents=True, exist_ok=True)
     sources = runtime_sources() + [tables]
     jobs = []
@@ -67,7 +68,7 @@ def run(args: argparse.Namespace) -> int:
 
     def compile_one(job: tuple[Path, Path]) -> str:
         s, obj = job
-        proc = subprocess.run(compile_args(s, obj, psyz), capture_output=True, text=True)
+        proc = subprocess.run(compile_args(s, obj, psyz, sound), capture_output=True, text=True)
         return proc.stderr if proc.returncode != 0 or proc.stderr.strip() else ""
 
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
@@ -89,7 +90,7 @@ def run(args: argparse.Namespace) -> int:
         print(sign.stderr.strip(), file=sys.stderr)
         return 1
     shutil.copyfile(elf, out / "guest.elf")
-    print(f"built: {exe} ({len(jobs)} files), guest image {out / 'guest.elf'}")
+    print(f"built: {exe} ({len(jobs)} files{', with the game\'s sound library' if sound else ''}), guest image {out / 'guest.elf'}")
     return 1 if bad else 0
 
 

@@ -1379,12 +1379,13 @@ def program_row(item: Listed) -> ProgramRow:
     return ProgramRow(program.name, program.disc.rsplit("/", 1)[-1].lower(), program.sha256, item.main, item.setup, item.teardown)
 
 
-def render_calls(rows: list[ProgramRow]) -> list[str]:
+def render_calls(rows: list[ProgramRow], addresses: dict[str, int] | None = None) -> list[str]:
     """The declarations and the generated routines `port_program_setup_N` and `port_program_teardown_N` of the programs
-    (N: the program's place in the table) that make the listed calls in order, a symbol's address or 0 as the one argument."""
+    (N: the program's place in the table) that make the listed calls in order, a symbol's address or 0 as the one argument.
+    `addresses` (the guest image: the address of each symbol) writes the address itself where the Windows program names the linked symbol."""
     routines = sorted({c.routine for r in rows for c in r.setup + r.teardown})
     symbols = sorted({c.symbol for r in rows for c in r.setup + r.teardown if c.symbol})
-    out = [f"extern void {x}(unsigned);\n" for x in routines] + [f"extern unsigned char ps1_{x}[];\n" for x in symbols]
+    out = [f"extern void {x}(unsigned);\n" for x in routines] + ([] if addresses is not None else [f"extern unsigned char ps1_{x}[];\n" for x in symbols])
     if out:
         out.append("\n")
     for n, row in enumerate(rows):
@@ -1392,35 +1393,35 @@ def render_calls(rows: list[ProgramRow]) -> list[str]:
             if not calls:
                 continue
             out.append(f"static void port_program_{kind}_{n}(void)\n{{\n")
-            out.extend(f"    {c.routine}(" + (f"(unsigned)(unsigned long)ps1_{c.symbol}" if c.symbol else "0") + ");\n" for c in calls)
+            out.extend(f"    {c.routine}(" + ((f"0x%08xu" % addresses[c.symbol] if addresses is not None else f"(unsigned)(unsigned long)ps1_{c.symbol}") if c.symbol else "0") + ");\n" for c in calls)
             out.append("}\n\n")
     return out
 
 
 def render_tables(images: list[dict], functions: list[tuple], absents: list[tuple], sha256: str, archives: dict[str, list[str]] | None = None,
                   overridden: frozenset[str] | set[str] = frozenset(), programs: list[ProgramRow] | None = None,
-                  impl_at: dict[str, int] | None = None) -> str:
+                  impl_at: dict[str, int] | None = None, bound: dict[str, str] | None = None, data_at: dict[str, int] | None = None) -> str:
     """`archives` (image name to archive names) adds the archive list of each image that has one. `overridden` holds
     the names of the functions whose row is flagged: the C behind the row is an override of the port's own. `programs`
     gives `port_programs`, the table of the programs that are built in; it is always written, empty for no list or an empty one
     (the runtime's Exec reads it). `impl_at` (the guest image: the address of each `impl_NAME` symbol) writes each row's routine as
-    that address, cast to a pointer, and declares none; a program row is refused there, for the programs are not built into the guest yet."""
+    that address, cast to a pointer, and declares none, and so does each program row's `main` (its `impl_` name is a key of `impl_at`); `data_at` gives the
+    address of each program symbol that a setup or teardown call names; `bound` (the names of the programs' library that the host serves: name to routine)
+    writes `port_bounds`, the routines by the name of the stubs that the guest image has for them."""
     archives = archives or {}
     programs_rows = programs or []
-    if impl_at is not None and programs_rows:
-        raise Problem("the programs are not built into the guest image yet")
     out = ['/* Written by hostbuild.py; not to be edited. */\n', '#include "port_tables.h"\n\n']
     for impl in dict.fromkeys(f[2] for f in functions) if impl_at is None else ():
         out.append(f"extern void {impl}(void);\n")
     out.append("\n")
-    for impl in dict.fromkeys(f"impl_{r.main}" for r in programs_rows):
+    for impl in dict.fromkeys(f"impl_{r.main}" for r in programs_rows) if impl_at is None else ():
         out.append(f"extern void {impl}(void);\n")
     if programs_rows:
         out.append("\n")
         for n, r in enumerate(programs_rows):
             out.append(f"static const unsigned char port_programs_sha256_{n}[32] = {{ " + ", ".join("0x%02x" % b for b in bytes.fromhex(r.sha256)) + " };\n")
         out.append("\n")
-        out.extend(render_calls(programs_rows))
+        out.extend(render_calls(programs_rows, data_at if impl_at is not None else None))
     for n, i in enumerate(images):
         out.append(f"static const unsigned char port_sha256_{n}[32] = {{ " + ", ".join("0x%02x" % b for b in bytes.fromhex(i["sha256"])) + " };\n")
     if images:
@@ -1452,11 +1453,19 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
         "{ 0x%08xu, %s, %d, %d }" % (a[1], c_string(a[2]), a[0], a[3]) for a in absents
     ], "{ 0, 0, 0, 0 }")
     table("port_builtin_program", "port_programs", [
-        "{ %s, %s, port_programs_sha256_%d, (void *)impl_%s, %s, %s }" % (
-            c_string(r.name), c_string(r.file), n, r.main,
+        "{ %s, %s, port_programs_sha256_%d, (void *)%s, %s, %s }" % (
+            c_string(r.name), c_string(r.file), n, ("impl_" + r.main) if impl_at is None else "0x%08xu" % impl_at["impl_" + r.main],
             f"port_program_setup_{n}" if r.setup else "0", f"port_program_teardown_{n}" if r.teardown else "0")
         for n, r in enumerate(programs_rows)
     ], "{ 0, 0, 0, 0, 0, 0 }", "port_program_count")
+    if impl_at is not None:
+        routines_bound = sorted(set((bound or {}).values()))
+        out.extend(f"extern void {x}(void);\n" for x in routines_bound)
+        out.append("const struct port_bound port_bounds[] = {\n")
+        out.extend(f"    {{ {c_string(x)}, (void *){x} }},\n" for x in routines_bound)
+        if not routines_bound:
+            out.append("    { 0, 0 },\n")
+        out.append(f"}};\nconst unsigned port_bound_count = {len(routines_bound)};\n\n")
     digest = bytes.fromhex(sha256)
     out.append("const unsigned char port_program_sha256[32] = {\n")
     for i in range(0, 32, 8):
@@ -1775,14 +1784,15 @@ def default_ld(cc: str) -> str:
 
 def finish_guest(args: argparse.Namespace, build: Path, objects: list[str], names_path: Path, link_names: dict[str, int], aliases: list[str],
                  bound: dict[str, str], replaced_names: list[str], functions: list[tuple], absents: list[tuple], images: list[dict], sha256: str,
-                 archives: dict[str, list[str]], overridden: set[str], out: list[str], failed: bool) -> int:
+                 archives: dict[str, list[str]], overridden: set[str], out: list[str], failed: bool, programs: list[ProgramRow] = (),
+                 program_functions: list[str] = (), data_at: dict[str, int] | None = None, sound_library: bool = False) -> int:
     """The end of a `--guest` build: link the objects (and the stubs of the routines the host serves) into the image at the PS1's
     addresses, verify it as the Windows program is verified, and write the table of the runtime with the address of each routine.
     The image is ELF, 32-bit, AArch64; see guestlink.py."""
     nm_tool = args.nm or default_nm(args.cc)
     ld_tool = args.ld or default_ld(args.cc)
     objs = [build / "obj" / f"{n}.o" for n in objects]
-    stubs = guestlink.render_host_stubs(sorted(set(bound.values())))
+    stubs = guestlink.render_host_stubs(sorted(set(bound.values())), guestlink.BOUND_BASE)
     if stubs:
         asm, obj = build / "gen" / "hoststubs.s", build / "rt" / "hoststubs.o"
         write_text(asm, stubs)
@@ -1803,16 +1813,21 @@ def finish_guest(args: argparse.Namespace, build: Path, objects: list[str], name
         raise Failure("nm did not run on the linked file")
     misses = guestlink.elf_misses(exe.read_bytes())
     misses += verify_rows(functions)
-    misses += verify_link(nm.stdout, link_names, aliases, [f[3] for f in functions], False, replaced_names, bound)
+    misses += verify_link(nm.stdout, link_names, aliases, [f[3] for f in functions] + list(program_functions), False, replaced_names, bound)
     if misses:
         raise Failure("the linked file does not verify:\n" + "\n".join(misses))
     try:
-        impl_at = guestlink.symbol_addresses(nm.stdout, "")
-        impl_at = {name: impl_at[name] for name in {f[2] for f in functions}}
+        found = {"impl_" + k: v for k, v in guestlink.symbol_addresses(nm.stdout, "impl_").items()}
+        impl_at = {name: found[name] for name in {f[2] for f in functions} | {"impl_" + p.main for p in programs}}
     except (KeyError, ValueError) as err:
         raise Failure(f"the linked file lacks a routine of the table: {err}")
     tables_path = build / "gen" / "guest_tables.c"
-    write_text(tables_path, render_tables(images, functions, absents, sha256, archives, overridden, [], impl_at))
+    write_text(tables_path, render_tables(images, functions, absents, sha256, archives, overridden, list(programs), impl_at, bound, data_at or {}))
+    marker = build / "gen" / "sound_library"
+    if sound_library:
+        write_text(marker, "the guest image holds the game's sound library (macbuild.py compiles the runtime with PORT_SOUND_LIBRARY_C)\n")
+    else:
+        marker.unlink(missing_ok=True)
     out.append(f"linked: {shown(exe)}, verified")
     out.append(f"tables: {shown(tables_path)}")
     return 1 if failed else 0
@@ -1875,9 +1890,11 @@ def read_psyz(folder: Path) -> tuple[dict, str]:
         raise Problem(f"{path} is not a psyz.json (it needs include, define and link)")
     if not Path(include).is_dir():
         raise Problem(f"{path} names the include folder {include}, which does not exist")
+    previous = ""
     for item in link:
-        if not str(item).startswith("-") and not Path(item).is_file():
+        if not str(item).startswith("-") and previous not in ("-framework", "-weak_framework", "-Xlinker") and not Path(item).is_file():   # macOS: the name after `-framework` is not a file
             raise Problem(f"{path} names the library {item}, which does not exist")
+        previous = str(item)
     return info, str(info.get("commit", "unknown"))
 
 
@@ -1886,9 +1903,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     args.build = args.build or REPO / ("port/build/guest" if args.guest else "port/build/host")
     args.out = args.out or ("guest.elf" if args.guest else "sfa2.exe")
     if args.guest:
-        if args.psyz:
-            raise Problem("--guest does not take --psyz yet (the sound library is not built into the guest)")
-        TARGET_FLAGS[:] = guestlink.TARGET_FLAGS
+        TARGET_FLAGS[:] = guestlink.TARGET_FLAGS   # with --psyz the game's sound library is compiled into the guest as well (PsyZ's headers only)
     config_path: Path = args.config
     config = hostcheck.read_config(config_path)
     fields_path, header = hostcheck.read_types(config, config_path)
@@ -1928,7 +1943,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
 
     # The programs that the port's list builds in.
     programs_root = config_path.parent / "programs"
-    listed = [] if args.guest else read_programs_list(args.programs, programs_root / "programs.toml")
+    listed = read_programs_list(args.programs, programs_root / "programs.toml")
     program_names = plan_program_names(listed, names)
     program_jobs_all: list[Job] = []
     for item in listed:
@@ -2115,9 +2130,10 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     if stray:
         raise Failure("\n".join(stray[:20]) + (f"\n... and {len(stray) - 20} more" if len(stray) > 20 else ""))
     if args.guest:
-        objects = sorted([o.job.name for o in built] + [f"{o.job.name}{pl.suffix}" for o in built for pl in o.seconds])
+        objects = sorted([o.job.name for o in built] + [f"{o.job.name}{pl.suffix}" for o in built for pl in o.seconds] + [o.job.name for o in program_outcomes])
         return finish_guest(args, build, objects, names_path, link_names, all_aliases, program_names.bound, replaced_names, functions, absents,
-                            selection.images, baseline_hash, image_archives, overridden, out, bool(failed))
+                            selection.images, baseline_hash, image_archives, overridden, out, bool(failed), [program_row(x) for x in listed],
+                            program_names.functions, program_names.data, sound_library)
     tables_path = build / "gen" / "port_tables.c"
     write_text(tables_path, render_tables(selection.images, functions, absents, baseline_hash, image_archives, overridden, [program_row(x) for x in listed]))
 

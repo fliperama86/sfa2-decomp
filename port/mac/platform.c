@@ -114,11 +114,12 @@ void port_interrupt_set_return(unsigned ip) { (void)ip; }
 #define HOST_MAX 4096
 static struct host_entry { const void *fn; const char *name; } hosts[HOST_MAX];
 static unsigned host_count;
+static struct host_entry bounds[0x1000];
 
 static uint64_t dispatch(uint64_t a0, uint64_t a1, uint64_t a2, uint64_t a3, uint64_t a4, uint64_t a5, uint64_t a6, uint64_t a7)
 {
     unsigned n = vm_hostcall_number();
-    if (n >= PORT_MAC_STOP_BASE && n < PORT_MAC_HOST_BASE) {
+    if (n >= PORT_MAC_STOP_BASE && n < PORT_MAC_BOUND_BASE) {
         unsigned row = n - PORT_MAC_STOP_BASE;
         extern void port_stop(unsigned returned);
         extern void port_module_stop(unsigned returned);
@@ -129,7 +130,7 @@ static uint64_t dispatch(uint64_t a0, uint64_t a1, uint64_t a2, uint64_t a3, uin
         return 0;
     }
     {
-        const struct host_entry *e = &hosts[n - PORT_MAC_HOST_BASE];
+        const struct host_entry *e = n >= PORT_MAC_BOUND_BASE && n < PORT_MAC_BOUND_BASE + 0x1000 ? &bounds[n - PORT_MAC_BOUND_BASE] : &hosts[n - PORT_MAC_HOST_BASE];
         if (trace_calls) port_trace_line("%s 0x%x 0x%x 0x%x 0x%x", e->name, (unsigned)a0, (unsigned)a1, (unsigned)a2, (unsigned)a3);
         return ((vm_hostcall_fn)e->fn)(a0, a1, a2, a3, a4, a5, a6, a7);
     }
@@ -151,7 +152,7 @@ void port_mac_put_branch(unsigned char *ram, unsigned address, unsigned target)
 void port_mac_put_hvc(unsigned char *ram, unsigned address, unsigned number)
 {
     put_word(ram, address, 0xd4000002u | (number << 5));
-    if (number >= PORT_MAC_STOP_BASE && number < PORT_MAC_HOST_BASE) vm_hostcall_set(number, "stop", dispatch);
+    if (number >= PORT_MAC_STOP_BASE && number < PORT_MAC_BOUND_BASE) vm_hostcall_set(number, "stop", dispatch);
 }
 
 void port_mac_put_host(unsigned char *ram, unsigned address, const void *host, const char *name)
@@ -221,6 +222,23 @@ int port_map(char *err, size_t errsize)
             snprintf(err, errsize, "the guest image %s is not the one this program was built with (%s)", port_mac_image_path, port_functions[i].name);
             return -1;
         }
+    }
+    for (i = 0; i < port_bound_count; i++) {      /* the stubs the image has for the routines that its programs' library names are bound to */
+        uint32_t address = 0, word = 0;
+        unsigned number;
+        if (elf_find(&image, port_bounds[i].name, &address) != 0 || !vm_g(address, 4)) {
+            snprintf(err, errsize, "the guest image has no stub for %s", port_bounds[i].name);
+            return -1;
+        }
+        memcpy(&word, vm_g(address, 4), 4);
+        number = (word >> 5) & 0xffff;
+        if ((word & 0xffe0001fu) != 0xd4000002u || number < PORT_MAC_BOUND_BASE || number >= PORT_MAC_BOUND_BASE + 0x1000) {
+            snprintf(err, errsize, "the stub of %s in the guest image is not an hvc of the programs' range (word 0x%08x)", port_bounds[i].name, word);
+            return -1;
+        }
+        bounds[number - PORT_MAC_BOUND_BASE].fn = port_bounds[i].host;
+        bounds[number - PORT_MAC_BOUND_BASE].name = port_bounds[i].name;
+        vm_hostcall_set(number, port_bounds[i].name, dispatch);
     }
     stack = vm_alloc(0x100000, 4096);
     if (!stack) {

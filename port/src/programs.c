@@ -95,7 +95,11 @@ int port_program_exec(const char *disc_name, unsigned sector, unsigned size, voi
     port_callbacks_program_start();
     port_trace_line("program %s: start", row->name);
     if (row->setup) row->setup();
+#ifdef PORT_GUEST_VM
+    port_call0((port_fn)(uintptr_t)row->main);   /* the program's main is guest code: its address is in the table */
+#else
     ((void (*)(void))row->main)();
+#endif
     if (row->teardown) row->teardown();
     port_trace_line("program %s: returned", row->name);
     port_press_report(row->name);   /* one line: what the program's movie made of the decoder */

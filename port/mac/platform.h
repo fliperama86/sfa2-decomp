@@ -9,8 +9,10 @@
 
 /* The numbers of the `hvc` stubs that the runtime writes in the game's memory (see README.md). A function without C: PORT_MAC_STOP_BASE plus the
  * row of port_absents. A host routine of the library or an override: PORT_MAC_HOST_BASE plus the order of its registration. */
-#define PORT_MAC_STOP_BASE 0x4000u
+#define PORT_MAC_STOP_BASE 0x4000u     /* up to PORT_MAC_BOUND_BASE */
 #define PORT_MAC_HOST_BASE 0x8000u
+/* The stubs of the guest image for the routines of the runtime that the programs' library names are bound to (port_bounds): from this number up. */
+#define PORT_MAC_BOUND_BASE 0x7000u
 
 /* The range of the guest's own compiled code (the image's executable segments), for the checks of addresses that the game hands over. */
 extern unsigned port_mac_text_begin, port_mac_text_end;
