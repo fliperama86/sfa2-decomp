@@ -309,6 +309,35 @@ the object to, although they do not use it, got an unused parameter in
 their definition instead, and every caller is written plainly.
 `grep -rn "The call of" src` lists the uses.
 
+One call is accepted through a cast that changes the type of the
+callee's RESULT, by the owner's decision of 2026-10-11 on pull request
+306. It is an exception for this one callee, not a pattern.
+`get_random_byte` is defined and declared with a byte result (`u8`), and
+its prototype stays that. `func_80140b5c` calls it through a type that
+returns `int`, with this comment directly above the call, whose first
+sentence is fixed and whose second gives what was measured, and a second
+comment beside it:
+
+```c
+/* The call of get_random_byte goes through a type that returns int although the callee returns a byte: the original does not narrow the result at the call. Written plainly, this function differs from the original in 11 instruction slots. */
+/* Not portable C: a call through a type that is not compatible with the callee's definition. It relies on the PS1's calling convention, under which the callee leaves its byte zero-extended in the whole result register. */
+w = ((int (*)(void))get_random_byte)();
+```
+
+What it relies on: the C standard does not define a call through a
+function type whose result type differs from the definition's. On the
+PS1 the callee loads its byte with a byte load into the result register,
+so the register holds the same value whether the caller narrows it or
+not. Another calling convention need not give that. Rules for its use:
+only this callee; only where the plain call was measured and the
+function is exact with the cast and not without it; the shared prototype
+is not changed for it; the record says for the PC program that the value
+depends on the calling convention (a C file of the port calls the
+routine plainly, which gives the same value wherever the result is used
+as a byte or less). A cast of another callee's result type is not
+covered: it needs the owner's word again.
+`grep -rn "goes through a type that returns" src` lists the uses.
+
 ### Other stand-ins
 
 By the owner's instruction of 2026-10-11: "loosen it up a bit for what

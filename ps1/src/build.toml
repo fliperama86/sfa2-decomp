@@ -289,6 +289,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s131ab4x_r1"
+source = "s131ab4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80131ab4", address = 0x80131ab4, size = 456 },
+]
+
+[[unit]]
 name = "pre_swap_b_b"
 source = "pre_swap_b_b.c"
 flags = ["-O2", "-G0"]
@@ -4192,6 +4200,14 @@ source = "l1409d8_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801409d8", address = 0x801409d8, size = 388 },
+]
+
+[[unit]]
+name = "s140b5cx_r1"
+source = "s140b5cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80140b5c", address = 0x80140b5c, size = 380 },
 ]
 
 [[unit]]
@@ -24926,6 +24942,15 @@ source = "slot01/slot01_20ac_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_800126f8_slot01", address = 0x800126f8, size = 28 },
+]
+
+[[unit]]
+name = "slot01_2714x_r1"
+image = "slot01"
+source = "slot01/slot01_2714x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80012714_slot01", address = 0x80012714, size = 636 },
 ]
 
 [[unit]]

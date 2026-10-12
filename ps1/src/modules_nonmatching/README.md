@@ -56,7 +56,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_80012714_slot01`, `func_800e0a1c_slot0f`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_800e0a1c_slot0f`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
@@ -81,8 +81,6 @@ function's lines change only when that function is run again.
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
-func_80012714_slot01: built 568 bytes, original 636 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80012714_slot01 coverage: 159 of 159 instruction slots of the original executed
 func_80012990_slot01: built 312 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80012990_slot01 coverage: 112 of 112 instruction slots of the original executed
 func_800e0850_slot0f: built 412 bytes, original 460 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -98,8 +96,6 @@ func_801e0ce8_slot0b coverage: 112 of 112 instruction slots of the original exec
 The control (`--cases 2000 --control FUNC`):
 
 ```
-func_80012714_slot01 control: different 1323 of 2000 (expected more than 0)
-  altered: a shift right by 4 changed to 3, instruction slot 40
 func_80012990_slot01 control: different 2000 of 2000 (expected more than 0)
   altered: a byte store of the primitive moved by one byte, instruction slot 24
 func_800e0850_slot0f control: different 585 of 2000 (expected more than 0)
@@ -115,7 +111,6 @@ func_801e0ce8_slot0b control: different 1997 of 2000 (expected more than 0)
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
-func_80012714_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012990_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e0850_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e0a1c_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
