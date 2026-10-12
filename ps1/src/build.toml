@@ -130,6 +130,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s13f474x_r1"
+source = "s13f474x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013f474", address = 0x8013f474, size = 388 },
+]
+
+[[unit]]
 name = "misc_4a"
 source = "misc_4a.c"
 flags = ["-O2", "-G0"]
@@ -286,6 +294,14 @@ source = "pre_swap_b.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80131854", address = 0x80131854, size = 608 },
+]
+
+[[unit]]
+name = "s131ab4x_r1"
+source = "s131ab4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80131ab4", address = 0x80131ab4, size = 456 },
 ]
 
 [[unit]]
@@ -3774,6 +3790,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s11acbcx_r1"
+source = "s11acbcx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011acbc", address = 0x8011acbc, size = 2264 },
+]
+
+[[unit]]
 name = "m11907c_r7"
 source = "m11907c_r7.c"
 flags = ["-O2", "-G0"]
@@ -4184,6 +4208,14 @@ source = "l1409d8_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801409d8", address = 0x801409d8, size = 388 },
+]
+
+[[unit]]
+name = "s140b5cx_r1"
+source = "s140b5cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80140b5c", address = 0x80140b5c, size = 380 },
 ]
 
 [[unit]]
@@ -12775,6 +12807,15 @@ source = "slot06_00/slot06_00_8d84_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801e8d84_slot06_00", address = 0x801e8d84, size = 64 },
+]
+
+[[unit]]
+name = "slot06_00_8dc4x_r1"
+image = "slot06_00"
+source = "slot06_00/slot06_00_8dc4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8dc4_slot06_00", address = 0x801e8dc4, size = 432 },
 ]
 
 [[unit]]
@@ -41276,6 +41317,24 @@ source = "slot0f/slot0f_07b8x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_800e07b8_slot0f", address = 0x800e07b8, size = 152 },
+]
+
+[[unit]]
+name = "slot0f_0850x_r1"
+image = "slot0f"
+source = "slot0f/slot0f_0850x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800e0850_slot0f", address = 0x800e0850, size = 460 },
+]
+
+[[unit]]
+name = "slot0f_0a1cx_r1"
+image = "slot0f"
+source = "slot0f/slot0f_0a1cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800e0a1c_slot0f", address = 0x800e0a1c, size = 300 },
 ]
 
 [[unit]]

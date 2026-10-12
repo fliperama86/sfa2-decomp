@@ -19,7 +19,7 @@ void init_block172_pool(void)
   data_801a27d4 = 8;
   data_801a27cc = 8;
   data_80197f10 = 0x27;
-  *cursor = data_801a89f4;
+  *cursor = (Block172 *)data_801a89f4;
   do
   {
     slot = cursor;

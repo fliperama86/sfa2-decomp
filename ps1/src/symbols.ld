@@ -1625,18 +1625,14 @@ func_80158d84 = 0x80158d84;
 func_8013245c = 0x8013245c;
 func_8013a3a8 = 0x8013a3a8;
 func_80151324 = 0x80151324;
-func_80131ab4 = 0x80131ab4;
 func_80158d28 = 0x80158d28;
 func_8015764c = 0x8015764c;
 func_8013c6ac = 0x8013c6ac;
 func_801452ec = 0x801452ec;
 func_80158fe8 = 0x80158fe8;
 func_8011c724 = 0x8011c724;
-func_8013f474 = 0x8013f474;
 func_80157784 = 0x80157784;
 func_80158f1c = 0x80158f1c;
-func_8011acbc = 0x8011acbc;
-func_80140b5c = 0x80140b5c;
 func_8013b0c4 = 0x8013b0c4;
 func_80157720 = 0x80157720;
 
@@ -2148,8 +2144,6 @@ data_801e1bdc_slot2a = 0x801e1bdc;
 data_801e2318_slot2a = 0x801e2318;
 
 /* Added by src.u_slot0f_f378. */
-func_800e0850_slot0f = 0x800e0850;
-func_800e0a1c_slot0f = 0x800e0a1c;
 func_800e4ab0_slot0f = 0x800e4ab0;
 data_800e83a8_slot0f = 0x800e83a8;
 data_800e83b4_slot0f = 0x800e83b4;
@@ -2426,7 +2420,6 @@ data_800f01e8_slot0f = 0x800f01e8;
 /* Added by src.u_slot0f_fc28x. */
 
 /* Added by src.u_slot06_00_8000. */
-func_801e8dc4_slot06_00 = 0x801e8dc4;
 data_801ec390_slot06_00 = 0x801ec390;
 data_801e9f90_slot06_00 = 0x801e9f90;
 data_801edc80_slot06_00 = 0x801edc80;
