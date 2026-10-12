@@ -12234,6 +12234,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot0f_4ab0x_r1"
+image = "slot0f"
+source = "slot0f/slot0f_4ab0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800e4ab0_slot0f", address = 0x800e4ab0, size = 608 },
+]
+
+[[unit]]
 name = "slot0f_4800_r5"
 image = "slot0f"
 source = "slot0f/slot0f_4800_r5.c"
