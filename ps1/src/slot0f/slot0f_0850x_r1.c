@@ -35,7 +35,7 @@ void func_800e13dc_slot0f(void);
  */
 int func_800e0850_slot0f(int mode, s16 *name) {
     Slot0fRec8504 *hdr = data_800e8504_slot0f;
-    /* A second name of hdr: the original copies the header's address at entry and passes the copy to the write. With the write taking hdr, this function differs from the original in 27 instruction slots. */
+    /* Stand-in, not recovered source: the local buf, which is only a copy of hdr, reproduces the original's choice of registers. Without it this function differs from the original in 27 instruction slots. */
     void *buf = hdr;
     /* The buffer's address in a local: the original loads it into a register at entry and forms the path from that register. With data_8018fef8 written at each use, this function differs from the original in 27 instruction slots. */
     int *base = data_8018fef8;
