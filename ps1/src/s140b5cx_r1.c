@@ -26,7 +26,8 @@ int func_80140b5c(Object *object, s16 a, int b) {
     if (a != -1) {
         ref_other.p->field_64 = table_801777d4[object->field_cf + ((a & 0x1f) << 5)];
         s = b << 5;
-        /* Stand-in, not recovered source: the call of get_random_byte through a type that returns int reproduces the original's choice of registers. Without it this function differs from the original in 11 instruction slots. */
+        /* The call of get_random_byte goes through a type that returns int although the callee returns a byte: the original does not narrow the result at the call. Written plainly, this function differs from the original in 11 instruction slots. */
+        /* Not portable C: a call through a type that is not compatible with the callee's definition. It relies on the PS1's calling convention, under which the callee leaves its byte zero-extended in the whole result register. */
         /* The original keeps the value of the function's last part in a0 and masks it to a byte at each of its uses. That value is the variable w, which first takes this call's result. With the routine's declared byte result the compiler knows that w never exceeds a byte: it drops the masks and uses v0 (372 bytes). The original's caller did not know the width of the result (inferred: no prototype in scope there, or one that returns int). Only the low five bits of the result are used, so the function computes the same with the plain call. */
         w = ((int (*)(void))get_random_byte)();
         /* The OR's value and, further down, the row index share the local t. With the row index written at the table (t used once) this function differs from the original in 8 instruction slots: the value then gets its register together with the shift behind it. */
