@@ -511,6 +511,19 @@ def copy_source(source: Path, dest: Path) -> None:
         shutil.copytree(source / rel, dest / rel, symlinks=True, ignore=shutil.ignore_patterns(".git", ".github"))
 
 
+def install_video_header(work: Path, patch_text: str) -> None:
+    """Stage project-owned policy only when its explicit backend patch is used."""
+    if any(fp.path == "psyz/src/platform/sdl3_gpu.c" for fp in parse_patch(patch_text)):
+        target = work / "psyz/src/platform/port_video.h"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(PORT / "src/video.h", target)
+
+
+def video_api_metadata(work: Path) -> dict:
+    """The explicit header install is the ABI marker for the optional patch."""
+    return {"port_video_api": 1} if (work / "psyz/src/platform/port_video.h").is_file() else {}
+
+
 def build(args: argparse.Namespace, out: list[str]) -> None:
     source: Path = args.psyz
     patch_path: Path = args.patch
@@ -534,6 +547,7 @@ def build(args: argparse.Namespace, out: list[str]) -> None:
 
     copy_source(source, work)
     done = apply_patch(patch_text, work)
+    install_video_header(work, patch_text)
     commit = commit_of(source)
     out.append(f"psyz: {commit}")
     out.append(f"patch: {patch_path.name} applied at {len(done)} place{'' if len(done) == 1 else 's'}")
@@ -563,7 +577,9 @@ def build(args: argparse.Namespace, out: list[str]) -> None:
     if len(libs) != 1 or not Path(libs[0]).is_file():
         raise Failure(f"the probe's link line has {len(libs)} libpsyz.a, and it must have exactly one that exists")
     include = work / "psyz" / "include"
-    (build_dir / "psyz.json").write_text(json.dumps({"include": str(include), "define": ["__psyz"], "link": items, "commit": commit}, indent=2) + "\n")
+    metadata = {"include": str(include), "define": ["__psyz"], "link": items, "commit": commit}
+    metadata.update(video_api_metadata(work))
+    (build_dir / "psyz.json").write_text(json.dumps(metadata, indent=2) + "\n")
     out.append(f"library: {libs[0]}")
     out.append(f"include: {include}")
     out.append("link: " + " ".join(items))

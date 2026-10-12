@@ -84,6 +84,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "video.h"
 
 #ifndef PORT_HAVE_PSYZ
 
@@ -91,6 +92,7 @@ const struct port_library  port_gpu_library[]   = { { 0, 0, 0 } };
 void port_gpu_present(void) {}
 int  port_gpu_read_frame(unsigned short *pixels) { (void)pixels; return -1; }
 int  port_gpu_display_enabled(void) { return 0; }
+int port_gpu_set_video_options(int ui,int arcade) { return ui || arcade ? -1 : 0; }
 
 #else
 
@@ -236,6 +238,13 @@ static void begin(void)
  * which write or read one register, are served without them (below). The game's start-up (its function at
  * 0x80118d10) calls SetDispMask(0) and then ResetGraph(0). */
 static int reset_done;
+static int pixel_perfect_ui, arcade_video;
+int port_gpu_set_video_options(int ui,int arcade)
+{
+    if((ui || arcade) && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
+    Psyz_Sfa2SetPixelPerfectUi(ui);
+    pixel_perfect_ui=!!ui;arcade_video=!!arcade;return 0;
+}
 static int display_on;   /* the display enable the layer last sent (GP1 command 03) */
 
 int port_gpu_display_enabled(void) { return display_on; }
@@ -592,7 +601,11 @@ static DISPENV *host_PutDispEnv(DISPENV *env)
     begin();
     need_reset("PutDispEnv");
     game_span("PutDispEnv", env, sizeof *env);
-    return PutDispEnv(env);
+    {
+        DISPENV *result=PutDispEnv(env);
+        Psyz_Sfa2SetArcadeCanvas(port_video_canvas_allowed(env->disp.w,env->disp.h,env->isrgb24,arcade_video));
+        return result;
+    }
 }
 
 /* library code at 0x80158300. The game's list is followed and handed to PsyZ in
@@ -652,6 +665,8 @@ static void host_AddPrim(uint32_t *ot, uint32_t *p)
 {
     list_node("AddPrim", ot);
     list_node("AddPrim", p);
+    /* Select only the game's super-meter tile pool/OT, not every textured quad. */
+    port_video_tag_super((uint32_t)(uintptr_t)ot,(uint32_t)(uintptr_t)p,(unsigned char *)p,pixel_perfect_ui);
     set_link(p, *ot);
     set_link(ot, phys(p));
 }

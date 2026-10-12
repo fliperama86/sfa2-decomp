@@ -30,6 +30,9 @@ extern const struct port_library port_gpu_library[];    /* ends with a null name
  * `stop: window closed`. Does nothing until the game has used a graphics
  * routine. Declared in port.h too; the same prototype. */
 void port_gpu_present(void);
+/* Startup flags from shared settings. No GPU/window initialization here.
+ * Returns -1 if an enhancement is requested in a build without PsyZ. */
+int port_gpu_set_video_options(int pixel_perfect_ui,int arcade_video);
 
 /* The video memory, 1024 x 512 halfwords, into a buffer of the caller's own
  * (not the game's). 0, or -1 (buffer untouched) when the graphics were not used yet
