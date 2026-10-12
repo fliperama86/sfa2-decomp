@@ -1787,6 +1787,13 @@ class Failure(Exception):
     """The build ran and did not produce a verified program."""
 
 
+def require_video_api(info: dict, runtime: Path) -> None:
+    """Reject stale SDK caches before compiling game units for the new GPU bridge."""
+    gpu = runtime / "gpu.c"
+    if gpu.is_file() and "Psyz_Sfa2SetArcadeCanvas" in gpu.read_text() and info.get("port_video_api") != 1:
+        raise Problem("the PsyZ build lacks port_video_api 1; rebuild it with the updated port/psyz.patch before building the port")
+
+
 def read_psyz(folder: Path) -> tuple[dict, str]:
     """The description of a psyzbuild.py build folder: (the parsed psyz.json, its commit)."""
     path = folder / "psyz.json"
@@ -1866,6 +1873,8 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
             raise Problem(f"{ov.source}: the unit {ov.object} has the name that its object would have")
     prefix = read_prefix(runtime.parent / "prefix", selection)
     psyz = read_psyz(args.psyz) if args.psyz else None
+    if psyz:
+        require_video_api(psyz[0], runtime)
     library_inc = ["-I", str(runtime.parent / "sdkshim"), "-I", str(psyz[0]["include"])] if sound_library and psyz else []
     version = hostcheck.compiler_version(args.cc, args.timeout)
     out.append(f"compiler: {version}")

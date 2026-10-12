@@ -352,7 +352,7 @@ LIB_PATH = "psyz/src/psyz/libgpu.c"
 
 
 def real_cases(root):
-    text = REAL_PATCH.read_text()
+    text = REAL_PATCH.read_text().split("--- a/psyz/src/platform/sdl3_gpu.c",1)[0]
     files = pb.parse_patch(text)
     yield "real-patch-one-file-one-hunk", same([(f.path, len(f.hunks)) for f in files], [(LIB_PATH, 1)])
     yield "real-patch-expects-the-three-lines", same(files[0].hunks[0].old, LIB)

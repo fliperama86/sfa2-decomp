@@ -51,6 +51,7 @@
 #include "port_tables.h"
 #include "cd.h"
 #include "modules.h"
+#include "settings.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -107,6 +108,8 @@ int main(int argc, char **argv)
     unsigned watchdog = 0, dump_every = 0;
     int audio_device = PORT_AUDIO_DEFAULT;
     const char *input_path = NULL;
+    const char *settings_path = "settings.ini";
+    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1;
     int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
     struct port_install installed;
     unsigned gp;
@@ -119,6 +122,12 @@ int main(int argc, char **argv)
 
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--list-library") == 0) list = 1;
+        else if (strcmp(argv[i], "--settings") == 0 && i+1<argc && !explicit_settings) { settings_path=argv[++i];explicit_settings=1; }
+        else if (strcmp(argv[i], "--show-settings") == 0) show_settings=1;
+        else if (strcmp(argv[i], "--pixel-perfect-ui") == 0) ui_override=1;
+        else if (strcmp(argv[i], "--ps1-rendering") == 0) ui_override=0;
+        else if (strcmp(argv[i], "--arcade-video") == 0) canvas_override=1;
+        else if (strcmp(argv[i], "--ps1-video") == 0) canvas_override=0;
         else if (strcmp(argv[i], "--trace") == 0) trace = 1;
         else if (strcmp(argv[i], "--trace-file") == 0 && i + 1 < argc) trace_path = argv[++i];
         else if (strcmp(argv[i], "--audio-dump") == 0 && i + 1 < argc && !audio_dump) audio_dump = argv[++i];
@@ -134,15 +143,28 @@ int main(int argc, char **argv)
         else if (argv[i][0] != '-' && !disc_path) disc_path = argv[i];
         else bad = 1;
     }
+    if (!bad) {
+        if(port_settings_load(settings_path,&port_settings,!explicit_settings,err,sizeof err))return refuse(err);
+        if(ui_override>=0)port_settings.pixel_perfect_ui=ui_override;
+        if(canvas_override>=0)port_settings.arcade_video=canvas_override;
+        if(show_settings) {
+            if(disc_path || list)return refuse("--show-settings takes no disc or --list-library");
+            printf("[experimental]\npixel_perfect_ui = %s\narcade_video = %s\n",
+                port_settings.pixel_perfect_ui?"true":"false",port_settings.arcade_video?"true":"false");
+            return 0;
+        }
+    }
     if (list && !bad && !disc_path && !trace && !trace_path && !input_path) {
         if (port_library_list(err, sizeof err) != 0) return refuse(err);
         return 0;
     }
     if (bad || list || !disc_path) {
-        printf("usage: %s [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] DISC (a .cue or the .bin itself)\n       %s --list-library\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
+        printf("usage: %s [--settings FILE] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
         fflush(stdout);
         return 2;
     }
+    if(port_gpu_set_video_options(port_settings.pixel_perfect_ui,port_settings.arcade_video))
+        return refuse("experimental graphics require the patched PsyZ SDL_GPU backend");
     if (trace != (trace_path != NULL)) return refuse("--trace and --trace-file FILE go together");
     if (trace_path && !(trace_file = fopen(trace_path, "w"))) return refuse("cannot open the trace file");
     port_trace_set(trace_file);

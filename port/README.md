@@ -1,5 +1,9 @@
 # Port
 
+Experimental graphics now use the normal port and shared settings, with both
+options off by default. See [graphics and settings](graphics.md) for super-meter
+pixel-grid sampling, the independently optional arcade canvas and scoped checks.
+
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
 Linux. **The game does not run on macOS or Linux, and on Windows it is
 not shown to play to its end.** What runs since 2026-10-10, on Windows: a

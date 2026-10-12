@@ -76,7 +76,7 @@ BUILD = HERE.parent / "build"
 RAM = 0x80000000
 LINK_FLAGS = hb.LINK_FLAGS   # the port's program is linked over the console's copy of RAM at address 0: see hostbuild.py
 # the runtime's files that a test builds; domains.c is the test's own
-RUNTIME = ["main", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "xa", "modules", "debug", "interrupt", "mirror", "mirrorcore", "iopage", "input", "programs"]
+RUNTIME = ["main", "settings", "memory", "disc", "jumps", "sha256", "library", "kernel", "threads", "overrides", "clib", "sound", "card", "cd", "xa", "modules", "debug", "interrupt", "mirror", "mirrorcore", "iopage", "input", "programs"]
 
 T_ADDR = RAM + 0x100000
 T_SIZE = 0x2000
@@ -804,6 +804,7 @@ void c_big(void) { puts("C big ran"); fflush(stdout); }
 #include "port.h"
 int test_presents;
 void port_gpu_present(void) { test_presents++; }
+int port_gpu_set_video_options(int ui,int arcade) { (void)ui;(void)arcade;return 0; }
 int port_gpu_read_frame(unsigned short *pixels)
 {
     int i;
