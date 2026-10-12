@@ -117,8 +117,10 @@ def text_files(paths: list[Path]) -> list[Path]:
     return found
 
 
-def word_pattern(names) -> re.Pattern:
-    return re.compile(r"(?<![A-Za-z0-9_])(?:" + "|".join(sorted(map(re.escape, names), key=len, reverse=True)) + r")(?![A-Za-z0-9_])")
+# A whole word: the longest run of the characters a name is made of. A name is found where such a run is the
+# name, which is the same as the name standing between two characters that are not of that kind. Each word is
+# looked up in a table, so the time does not grow with the count of renames.
+WORD = re.compile(r"[A-Za-z0-9_]+")
 
 
 def apply(args) -> int:
@@ -133,17 +135,20 @@ def apply(args) -> int:
     if held:
         raise Refused("\n".join(f"{f.name.split('.')[0]} keeps its name: the file {f} is named after it" for f in held))
     if args.fresh:
-        taken = word_pattern(pairs.values())
+        taken = set(pairs.values())
         hits = []
         for file in files:
             if file.resolve() == args.new.resolve():
                 continue
-            for number, line in enumerate(file.read_text(errors="replace").splitlines(), 1):
-                for match in taken.finditer(line):
-                    hits.append(f"{file}:{number}: {match.group(0)} is written here already")
+            text = file.read_text(errors="replace")
+            if taken.isdisjoint(WORD.findall(text)):
+                continue
+            for number, line in enumerate(text.splitlines(), 1):
+                for word in WORD.findall(line):
+                    if word in taken:
+                        hits.append(f"{file}:{number}: {word} is written here already")
         if hits:
             raise Refused("\n".join(hits[:20] + ([f"... and {len(hits) - 20} more"] if len(hits) > 20 else [])))
-    pattern = word_pattern(pairs)
     counts: dict[str, int] = {}
     by_suffix: dict[str, int] = {}
     changed = 0
@@ -154,11 +159,14 @@ def apply(args) -> int:
             continue
 
         def replace(match: re.Match) -> str:
-            counts[match.group(0)] = counts.get(match.group(0), 0) + 1
+            word = match.group(0)
+            if word not in pairs:
+                return word
+            counts[word] = counts.get(word, 0) + 1
             by_suffix[file.suffix] = by_suffix.get(file.suffix, 0) + 1
-            return pairs[match.group(0)]
+            return pairs[word]
 
-        new_text = pattern.sub(replace, text)
+        new_text = WORD.sub(replace, text)
         if new_text != text:
             changed += 1
             if not args.dry_run:
