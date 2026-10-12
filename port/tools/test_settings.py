@@ -38,7 +38,7 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             exe = path / 'startup'
             subprocess.run(['gcc', '-std=c11', '-O1', '-I', str(ROOT / 'port/src'),
                 str(path / 'test.c'), str(ROOT / 'port/src/settings.c'), '-o', str(exe)], check=True, timeout=15)
-            def run(args, expected, ui=None, canvas=None, center=False, fast=False):
+            def run(args, expected, ui=None, canvas=None, center=False, fast=False, card=False):
                 result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
                     cwd=path, capture_output=True, text=True, timeout=3)
                 self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
@@ -47,6 +47,7 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
                     self.assertIn('arcade_video = ' + ('true' if canvas else 'false'), result.stdout)
                     self.assertIn('center_ui = ' + ('true' if center else 'false'), result.stdout)
                     self.assertIn('fast_loads = ' + ('true' if fast else 'false'), result.stdout)
+                    self.assertIn('memory_card = ' + ('true' if card else 'false'), result.stdout)
             run([], 0, False, False)
             def volume(args, expected, line=None):
                 result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
@@ -54,6 +55,12 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
                 self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
                 if line: self.assertIn(line, result.stdout.splitlines())
             volume([], 0, 'volume = 100')
+            run(['--memory-card'], 0, False, False, False, False, True)
+            run(['--memory-card', '--no-memory-card'], 0, False, False, False, False, False)
+            run(['--card1', 'a.mcr', '--card2', 'b.mcr'], 0, False, False, False, False, False)
+            volume(['--card1'], 2)
+            volume(['--card2'], 2)
+            volume(['--card1', ''], 2)
             volume(['--volume', '20'], 0, 'volume = 20')
             volume(['--volume', '0'], 0, 'volume = 0')
             volume(['--volume', '100'], 0, 'volume = 100')
