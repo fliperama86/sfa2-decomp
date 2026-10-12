@@ -1,7 +1,7 @@
 # Port
 
 Experimental graphics now use the normal port and shared settings, with both
-options off by default. See [graphics and settings](graphics.md) for super-meter
+options off by default. See [graphics and settings](graphics.md) for super/life
 pixel-grid sampling, the independently optional arcade canvas and scoped checks.
 
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and

@@ -74,14 +74,14 @@ identifiers, recaps or suggestions about stopping. Distinguish what ran from
 what is planned. Preserve failed experiments and their original evidence.
 For mechanically specified grind tasks, use small bounded packages with actual
 acceptance commands. Stop and report options on a decision-bearing fork.
-Reuse one stable folder per purpose, by the owner's instruction of 2026-10-12.
-Do not proliferate per-experiment or per-iteration directory trees. Permanent
-source belongs in the tracked domain; private outputs reuse fixed locations.
-Experimental feature toggles belong in the settings file ([experimental]),
-not experiment-specific builds or launchers; defaults stay off (2026-10-12).
+Reuse one stable folder per purpose: no per-experiment/iteration trees (2026-10-12).
+Permanent source tracked by domain; private outputs reuse fixed locations. Experimental
+toggles in settings [experimental], not special builds/launchers; defaults off (same date).
 
 ## Lessons to apply before a run
 
+- Validate pointer declarations and initialization before encoding selectors.
+  A backend pixel proof alone does not prove runtime packet selection (PR342).
 - Stage private inputs from the actual build configuration, not a guessed
   `ps1/local/` layout. Baseline, archives, compiler and SDK are distinct inputs.
 - Matching C needs preprocessing with the pinned settings; original-address

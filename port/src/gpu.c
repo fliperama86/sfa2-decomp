@@ -665,8 +665,9 @@ static void host_AddPrim(uint32_t *ot, uint32_t *p)
 {
     list_node("AddPrim", ot);
     list_node("AddPrim", p);
-    /* Select only the game's super-meter tile pool/OT, not every textured quad. */
-    port_video_tag_super((uint32_t)(uintptr_t)ot,(uint32_t)(uintptr_t)p,(unsigned char *)p,pixel_perfect_ui);
+    /* Exact HUD pools/lists only. The policy checks addresses before reading. */
+    port_video_tag_tiles((uint32_t)(uintptr_t)ot,(uint32_t)(uintptr_t)p,(unsigned char *)p,pixel_perfect_ui);
+    port_video_tag_life_fill((uint32_t)(uintptr_t)ot,(uint32_t)(uintptr_t)p,(unsigned char *)p,pixel_perfect_ui);
     set_link(p, *ot);
     set_link(ot, phys(p));
 }

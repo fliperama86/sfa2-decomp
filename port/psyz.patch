@@ -28,7 +28,8 @@ it does not show the patch to be needed there; the patch is kept.
 
 
 Optional graphics: the SDL_GPU backend consumes an explicit port marker for
-super-meter pixel-grid tiles and exposes an opt-in 384x224/4:3 canvas. With
+super/life pixel-grid tiles and selected six-row health fills. It also exposes
+an opt-in 384x224/4:3 canvas. With
 both flags disabled, normal texture sampling and presentation remain unchanged.
 The project-authored shared policy header is copied by psyzbuild.py. No shader
 or global UV correction is changed. The port selects only its known HUD tiles.
@@ -158,6 +159,18 @@ or global UV correction is changed. The port selects only its known HUD tiles.
              } else {
                  clut = -1;
                  tpage = cur_tpage | TPAGE_NOTEXTURE;
+@@ -1387,6 +1443,11 @@
+             // TODO warn about unrecognized code
+             break;
+         }
++        /* Port-only marker, never active from packet bits alone. */
++        if (sfa2_pixel_perfect_ui && (code & ~3) == 0x60 &&
++            (code & PORT_VIDEO_LIFE_FILL)) {
++            port_video_life_fill(x, &y, w, &h);
++        }
+         vertex_cur[0].x = (short)(x);
+         vertex_cur[0].y = (short)(y);
+         vertex_cur[1].x = (short)(x + w);
 --- a/psyz/src/platform/sdl3_gl.c
 +++ b/psyz/src/platform/sdl3_gl.c
 @@ -27,6 +27,10 @@
