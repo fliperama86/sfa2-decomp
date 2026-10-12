@@ -124,6 +124,9 @@ Provisioning is a separate step from this documentation change:
 
 Reviews end with an explicit plain PR comment: `**APPROVE** SHA` or
 `**REQUEST CHANGES** SHA`, followed by scoped evidence and remaining findings.
+Review code first: reading is sufficient when correctness is clear. Run a
+scoped check only to resolve a specific uncertainty, not as a routine gate;
+reuse existing verified evidence. Author validation requirements still apply.
 Passing CI or a COMMENT-only report saying "no blockers" is not the reviewer
 verdict. Normal changes still use reviewed PRs; the owner's direct-main
 authorization for publishing this setup is specific to this documentation.

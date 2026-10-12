@@ -64,10 +64,10 @@ Old figures describe their own date, not today's completion.
   and pinned review, canonical outputs per worktree; provisioning remains undone.
 - After an approved merge, proceed to the next goal without asking. Decisions
   belong to the owner; no implied approval from passing automated checks.
-- Checks are isolated and fast, by the owner's rule of 2026-10-10. An exact
-  match needs only its image's byte comparison. A nonmatching function is
-  tested alone. No run is repeated. A run of hours is redesigned, not made.
-  Read [efficiency.md](efficiency.md) before any run.
+- Reviews are code-first (owner correction, 2026-10-12): run a scoped check
+  only to resolve a specific uncertainty, not as a routine review gate.
+  Reuse existing verified evidence. Checks stay isolated and fast; never
+  repeat unchanged runs. Read [efficiency.md](efficiency.md) before a run.
 
 ## Working style
 Answer first, briefly, one subject at a time. No em dash, unnecessary lists of

@@ -11,6 +11,13 @@ and only the integrator updates the main checkout. The layout is documented;
 provisioning and launch-guard implementation remain separate work. Reviews give
 an explicit plain-comment `**APPROVE** SHA` or `**REQUEST CHANGES** SHA` verdict.
 
+The owner's correction of 2026-10-12 makes human/agent PR reviews code-first:
+reading the code is sufficient when correctness is clear. Run a scoped check
+only to resolve a specific uncertainty, not as a routine gate. The `review`
+CLI below is an optional validation tool, not a mandatory step for every PR.
+Its selection/execution behavior is unchanged. Author acceptance evidence and
+the requirements for exact or tested-nonmatching status remain unchanged.
+
 ## Interfaces
 
 `python tools/ai_workflow/workflow.py` provides `doctor`, `context`, `ledger`,

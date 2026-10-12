@@ -85,22 +85,28 @@ are reworded when they next change.
 
 ## For a review
 
-By the owner's word of 2026-10-10 a reviewer does not spend hours
-retesting. A review is: run the isolated tests of what changed, read
-the code, and that is it.
+The owner's correction of 2026-10-12: review code first. Reading the code
+is enough when the reviewer can establish that it is correct. Tests are
+not a routine review gate. Read the diff, relevant contracts and existing
+evidence, and give an explicit approval or request-changes verdict.
 
-- For an exact unit: build its image and see the bytes match. Read the
-  C.
-- For a nonmatching function: run that function's own test. When it
-  has a fixtures file that is the replay, which takes seconds; the wide
-  runs are for a function without a file, and for one whose contract
-  changed without a new file. The review command selects it so. Read
-  the C and its contract against each other. A case the reviewer
-  invents for that one function is welcome; a rerun of other functions
-  is not.
-- For a tool or a piece of the port: run the tests of that piece. Read
-  the code.
-- For text: read it.
+Run a check only when a specific uncertainty remains. Before running it,
+name the question and select the smallest check that can answer it:
+
+- For an exact unit: inspect the C and existing original-address byte
+  evidence. Rebuild its image only when needed to resolve uncertainty in
+  the change or that evidence. Do not add a gameplay gate.
+- For a nonmatching function: compare its C with its contract and existing
+  behavioral evidence. If a run is necessary, use that function's fixtures
+  or scoped differential check as appropriate, never unrelated functions.
+- For a tool or piece of the port: read the implementation and relevant
+  control code. Run a narrowly chosen case only when reading leaves a
+  concrete uncertainty; do not rerun the piece merely because it changed.
+- For text: read it. Do not run unrelated suites.
+
+This changes the reviewer's default, not the author's validation contract
+or what establishes exact matching and tested nonmatching status. Existing
+verified evidence is reused while its inputs remain unchanged.
 
 Not part of a review: the whole matching build, every folder's tests,
 every control file of the port, or any run that the change cannot

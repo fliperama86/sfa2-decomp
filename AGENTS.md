@@ -74,8 +74,10 @@ full and says what to run for which change; read it before any run.
 - A nonmatching function comes with a few fixtures for its unit test;
   nothing else is run again because it changed, and it is not run again
   because something else changed.
-- A review runs the isolated tests of what changed and reads the code.
-  It does not retest the tree.
+- Reviews are code-first, by the owner's correction of 2026-10-12. Reading
+  the code is enough when correctness is clear. Run a scoped check only to
+  resolve a specific uncertainty, not as a routine gate. Reuse existing
+  verified evidence; do not retest the tree. Author validation still applies.
 
 ## Continuous integration and feature flags
 
