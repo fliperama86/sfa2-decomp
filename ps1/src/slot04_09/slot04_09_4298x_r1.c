@@ -13,28 +13,28 @@ void func_801b4298_slot04_09(Object *obj) {
     if (t & 0x80) {
         obj->state_3++;
         obj->field_165 = 0;
-        obj->field_27b = 0;
+        obj->other_lock = 0;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 10;
-            obj->field_27b = 0xe;
+            obj->other_lock = 0xe;
         }
         p = pop_object_from_pool(obj);
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0x16;
-            p->field_66 = obj->field_66;
-            p->field_65 = obj->field_65;
-            p->field_ac = 2;
-            p->field_ad = 1;
+            p->sound_side = obj->sound_side;
+            p->team_id = obj->team_id;
+            p->vel_table_index = 2;
+            p->active_flag_2 = 1;
             p->field_0e = obj->field_0e;
-            p->field_26 = obj->field_26;
+            p->scroll_factor = obj->scroll_factor;
             *(u32 *)&p->field_a4 = 0x1000800;
             p->spawn_x = 0x60;
-            p->field_3c = obj;
+            p->parent = obj;
             p->spawn_y = 0x1e0;
             p->field_90 = obj->field_90;
-            p->field_98 = obj->field_98;
-            p->field_9c = obj->field_9c;
+            p->data_ptr_a = obj->data_ptr_a;
+            p->data_ptr_b = obj->data_ptr_b;
             func_801b58dc_slot04_09(obj);
         }
     } else if ((u8)t != 2) {

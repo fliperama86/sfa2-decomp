@@ -8,11 +8,11 @@
 void func_80141f28(Object *object, short delta)
 {
   s16 old;
-  if (object->field_74 != 0)
+  if (object->mode_flag != 0)
   {
     return;
   }
-  if ((object->field_2a2 != 0) && (((s16) delta) >= 0))
+  if ((object->cursor_timer_b != 0) && (((s16) delta) >= 0))
   {
     return;
   }
@@ -22,7 +22,7 @@ void func_80141f28(Object *object, short delta)
   }
   if (((s16) delta) > 0)
   {
-    if (game_state.field_47 != 0)
+    if (game_state.pause_flag_2 != 0)
     {
       return;
     }
@@ -35,26 +35,26 @@ void func_80141f28(Object *object, short delta)
       }
     }
   }
-  old = object->field_c6;
-  object->field_c6 = delta + object->field_c6;
-  if (((s16) object->field_c6) < 0)
+  old = object->meter;
+  object->meter = delta + object->meter;
+  if (((s16) object->meter) < 0)
   {
-    object->field_c6 = 0;
+    object->meter = 0;
   }
   else
     if (object->field_d8 != 0)
   {
-    if (((s16) object->field_c6) >= 0x30)
+    if (((s16) object->meter) >= 0x30)
     {
-      object->field_c6 = 0x30;
+      object->meter = 0x30;
     }
   }
   else
-    if (((s16) object->field_c6) >= 0x90)
+    if (((s16) object->meter) >= 0x90)
   {
-    object->field_c6 = 0x90;
+    object->meter = 0x90;
   }
-  if ((((s16) object->field_c6) != old) && (((s16) object->field_c6) >= 0x90))
+  if ((((s16) object->meter) != old) && (((s16) object->meter) >= 0x90))
   {
     play_sound_at(0, 0, 0x325);
   }

@@ -15,18 +15,18 @@ void func_801b01ec_slot04_07(Object *obj) {
         for (i = 0; i < 3; i++) {
             c = (Object *)func_8011f1e0();
             if (c != 0) {
-                c->field_00 = 1;
+                c->active_count = 1;
                 c->field_02 = 7;
                 c->other = obj;
-                c->field_03 = i;
+                c->table_index = i;
                 c->spawn_x = obj->spawn_x;
                 c->spawn_y = obj->spawn_y;
-                c->field_0d = obj->field_0d;
-                c->field_08 = 0x20;
-                c->field_66 = obj->field_66;
+                c->image_row = obj->image_row;
+                c->mode_id = 0x20;
+                c->sound_side = obj->sound_side;
                 c->field_90 = obj->field_90;
-                c->field_98 = obj->field_98;
-                c->field_9c = obj->field_9c;
+                c->data_ptr_a = obj->data_ptr_a;
+                c->data_ptr_b = obj->data_ptr_b;
             }
         }
     }

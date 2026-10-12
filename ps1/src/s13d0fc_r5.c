@@ -11,8 +11,8 @@ void func_8013df68(Object *object, u8 index, u8 arg) {
     if (object->slots[index].timer == 0) {
         func_8013f2a8(object, index, arg);
     } else {
-        entry = table_8017a8cc[arg * 7 + object->slots[index].field_01];
-        if ((entry & 0xf000) != (object->field_150 & 0xf000)) {
+        entry = table_8017a8cc[arg * 7 + object->slots[index].entry_index];
+        if ((entry & 0xf000) != (object->input_word & 0xf000)) {
             func_8013f2c8(object);
         } else {
             if (entry & 1) {

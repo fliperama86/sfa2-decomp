@@ -14,8 +14,8 @@ void func_801b0000_slot04_01(Object *obj) {
     u8 s;
 
     dst = (u32 *)0x1f800100;
-    obj->field_98 = data_801b4904_slot04_01;
-    obj->field_9c = data_801b66bc_slot04_01;
+    obj->data_ptr_a = data_801b4904_slot04_01;
+    obj->data_ptr_b = data_801b66bc_slot04_01;
     if (obj->side == 0) {
         dst = (u32 *)0x1f800050;
     }
@@ -25,19 +25,19 @@ void func_801b0000_slot04_01(Object *obj) {
     }
     c = func_8011f32c();
     if (c != 0) {
-        c->field_00 = 1;
+        c->active_count = 1;
         c->field_02 = 1;
-        c->field_3c = obj;
+        c->parent = obj;
         c->field_0c = obj->field_0c;
         c->field_0e = obj->field_0e;
         s = obj->side;
-        obj->field_28 = (u32)c;
-        c->field_66 = s;
-        c->field_0d = obj->field_0d;
+        obj->linked_object = (u32)c;
+        c->sound_side = s;
+        c->image_row = obj->image_row;
         c->spawn_x = obj->spawn_x;
         c->spawn_y = obj->spawn_y;
         c->field_90 = obj->field_90;
-        c->field_98 = obj->field_98;
-        c->field_9c = obj->field_9c;
+        c->data_ptr_a = obj->data_ptr_a;
+        c->data_ptr_b = obj->data_ptr_b;
     }
 }

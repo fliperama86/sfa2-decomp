@@ -6,7 +6,7 @@
 int func_801b57a8_slot04_11(Object *obj) {
     s32 a = obj->vel_x;
 
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         a = -a;
     }
     *(s32 *)&obj->pos_x_frac = a + *(s32 *)&obj->pos_x_frac;

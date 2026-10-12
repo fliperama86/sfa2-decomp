@@ -8,12 +8,12 @@ int func_801252f0(void) {
     if (game_state.mode != 0) {
         return func_80125268();
     }
-    if (game_state.field_17 & 1) {
+    if (game_state.side_bits & 1) {
         if (func_8012543c()) {
             r = 1;
         }
     }
-    if (game_state.field_17 & 2) {
+    if (game_state.side_bits & 2) {
         if (func_80125454()) {
             r |= 1;
         }

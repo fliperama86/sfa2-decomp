@@ -8,24 +8,24 @@ extern void (*data_80028a4c_slot28[])(Object *);
 
 void func_80013b9c_slot28(void) {
     HudState *h = data_8018f5a0;
-    h->field_4a = 9;
-    game_state.field_c4 = 0;
-    h->field_4c = 0;
-    game_state.field_c6 = 0;
-    h->field_4e = 0;
-    game_state.field_c8 = 0;
-    h->field_50 = 0;
-    game_state.field_ca = 0;
-    h->field_52 = 0;
+    h->phase_index = 9;
+    game_state.step_delay_timer = 0;
+    h->step_index = 0;
+    game_state.countdown_2 = 0;
+    h->substep_index = 0;
+    game_state.timer_or_bits = 0;
+    h->step_index_2 = 0;
+    game_state.countdown_timer_2 = 0;
+    h->pass_index = 0;
     game_state.field_cc = 0;
-    game_state.field_27 = 0;
-    game_state.field_2c = 0;
-    game_state.field_50 = 0;
+    game_state.active_flag = 0;
+    game_state.state_2c_flag = 0;
+    game_state.bit_mask = 0;
     game_state.field_65 = 1;
-    game_state.field_ab = 1;
+    game_state.status_flags = 1;
     game_state.field_4f = 0;
     game_state.field_09 = 1;
-    game_state.field_46 = 0;
+    game_state.state_46_flag = 0;
     game_state.field_44 = 1;
 }
 
@@ -37,5 +37,5 @@ void func_80013c38_slot28(Object *o) {
         a[i] = data_800285d4_slot28[i];
         b[i] = data_800285d4_slot28[i];
     }
-    data_80028a4c_slot28[((Slot28Obj *)o)->field_70 & 0x7f](o);
+    data_80028a4c_slot28[((Slot28Obj *)o)->state_index & 0x7f](o);
 }

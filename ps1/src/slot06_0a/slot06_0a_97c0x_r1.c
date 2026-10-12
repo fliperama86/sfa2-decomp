@@ -16,7 +16,7 @@ void func_801e97c0_slot06_0a(Object *obj) {
 
         /* One local `a` holds the target's x and later the absolute value: with the x read at its use eight instruction slots differ. */
         a = t->pos_x;
-        if (obj->field_03 != 0) {
+        if (obj->table_index != 0) {
             off = -0x18;
         }
         d = a + off - (u16)obj->pos_x;
@@ -26,7 +26,7 @@ void func_801e97c0_slot06_0a(Object *obj) {
         }
         if (a >= 0x80) {
             obj->state_1 = 3;
-            func_80130700(obj, data_801ed400_slot06_0a[data_801ed494_slot06_0a[obj->field_03]]);
+            func_80130700(obj, data_801ed400_slot06_0a[data_801ed494_slot06_0a[obj->table_index]]);
         }
     }
 }

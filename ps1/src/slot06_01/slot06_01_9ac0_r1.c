@@ -32,14 +32,14 @@ void func_801e9b4c_slot06_01(Object *obj) {
         } else {
             v = get_random_byte();
         }
-        obj->field_46 = v;
+        obj->countdown = v;
     }
     advance_sequence_checked(obj);
 }
 
 void func_801e9bc8_slot06_01(Object *obj) {
-    int v = obj->field_46 - 1;
-    obj->field_46 = v;
+    int v = obj->countdown - 1;
+    obj->countdown = v;
     if ((s16)v == 0) {
         obj->state_1 = 0;
         obj->accel_x = data_801ea964_slot06_01[(u8)((get_random_byte() & 3) | ((u8)obj->accel_x << 2))];

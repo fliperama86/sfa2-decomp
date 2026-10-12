@@ -15,7 +15,7 @@ int func_80128814(Object *object)
   {
     return 0;
   }
-  if (object->field_279 != 0)
+  if (object->dir_match_flag != 0)
   {
     return 0;
   }
@@ -29,17 +29,17 @@ int func_80128814(Object *object)
     {
       return 0;
     }
-    base = (((ObjectView *) object)->field_33b) ? (0xc) : (0);
+    base = (((ObjectView *) object)->base_select_flag) ? (0xc) : (0);
     a = base;
-    if (object->field_128 != 0)
+    if (object->input_dir_0 != 0)
     {
       a = base + 6;
     }
-    if (object->field_129 != 0)
+    if (object->input_dir_second != 0)
     {
       a += 3;
     }
-    h = object->field_12a;
+    h = object->direction_index;
     ref_first.p = (Object *) table_801717f0;
     return ((s32 *) ref_first.p)[(s16) (a + (h >> 1))];
   }
@@ -49,14 +49,14 @@ int func_80128814(Object *object)
     u8 k;
     FrameRecord *fr;
     ref_first.p = (Object *) table_8016fa38[object->kind];
-    base = (object->field_128) ? (6) : (0);
+    base = (object->input_dir_0) ? (6) : (0);
     a = base;
-    if (object->field_129 != 0)
+    if (object->input_dir_second != 0)
     {
       a = 3;
       a = base + a;
     }
-    k = object->field_12a;
+    k = object->direction_index;
     fr = object->frame;
     v = ((s32 *) ref_first.p)[(s16) (a + (k >> 1))];
     k = fr->field_0c;

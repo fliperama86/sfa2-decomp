@@ -25,15 +25,15 @@ void func_800e6aac_slot0f(Object *o, HudSlot *c, s16 i) {
     char *dst;
     s16 *src = data_800eff60_slot0f[i];
 
-    c->field_00 = 0;
-    c->field_08 = 8;
-    c->field_09 = 8;
+    c->slot_type = 0;
+    c->init_size_a = 8;
+    c->init_size_b = 8;
     c->field_0a = 0;
-    c->field_0b = 0x18;
+    c->init_const_byte = 0x18;
     func_800e826c_slot0f((u8 *)buf, *src, 2, 1);
     dst = (char *)data_800f7cd4_slot0f + i * 8;
     func_800e6b8c_slot0f(buf, dst);
-    c->field_0c = (int)dst;
+    c->data_ptr = (int)dst;
     c->pos_x = (u16)obj->pos_x + data_800eff70_slot0f[i];
-    c->pos_y = obj->field_16 + 8;
+    c->pos_y = obj->base_y + 8;
 }

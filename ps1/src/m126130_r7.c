@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_8012abf0(Object *object) {
-    if (object->field_cd != 0) {
+    if (object->mode_flag_2 != 0) {
         if ((s16)object->step_flags < 0)
             func_801312b8(object);
         else
@@ -28,7 +28,7 @@ void func_8012acf4(Object *object) {
     if ((u8)func_80130184(object)) {
         if ((s16)object->step_flags < 0 && object->field_7e != 0) {
             object->state_3 = 1;
-            object->field_159 = 0;
+            object->active_flag_3 = 0;
         }
         update_sequence(object);
         if (object->kind == 0xb) {
@@ -41,10 +41,10 @@ void func_8012acf4(Object *object) {
         }
     } else {
         object->pos_y = object->ground_y;
-        object->field_45 = 0;
-        object->field_159 = 0;
+        object->active_state = 0;
+        object->active_flag_3 = 0;
         func_801209c4(object);
-        if (object->field_cd == 0 && func_8012f970(object)) {
+        if (object->mode_flag_2 == 0 && func_8012f970(object)) {
             func_8012fe60(object);
         } else {
             object->state_3 = 2;
@@ -55,7 +55,7 @@ void func_8012acf4(Object *object) {
 
 void func_8012ae00(Object *object) {
     if ((u8)func_80130184(object)) {
-        if (object->field_cd != 0) {
+        if (object->mode_flag_2 != 0) {
             func_8012aef8(object);
         } else if (func_80130470(object)) {
             func_80130304(object);
@@ -66,10 +66,10 @@ void func_8012ae00(Object *object) {
         }
     } else {
         object->pos_y = object->ground_y;
-        object->field_45 = 0;
-        object->field_159 = 0;
+        object->active_state = 0;
+        object->active_flag_3 = 0;
         func_801209c4(object);
-        if (object->field_cd == 0 && func_8012f970(object)) {
+        if (object->mode_flag_2 == 0 && func_8012f970(object)) {
             func_8012fe60(object);
         } else {
             object->state_3 = 2;

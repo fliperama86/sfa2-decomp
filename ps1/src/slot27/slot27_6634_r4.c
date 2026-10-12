@@ -17,7 +17,7 @@ void func_800169c4_slot27(Object *obj) {
         }
     } else {
         obj->pos_x = m + 0x153;
-        game_state.field_c8 |= 1;
+        game_state.timer_or_bits |= 1;
     }
     func_8011ffdc(obj);
 }
@@ -27,7 +27,7 @@ void func_80016a54_slot27(Object *obj) {
 }
 
 void func_80016a74_slot27(Object *obj) {
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->parent;
     (*(Object **)&data_80190458) = obj->other;
     data_80028e74_slot27[obj->state_0](obj);
 }

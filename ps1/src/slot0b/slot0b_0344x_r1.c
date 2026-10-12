@@ -18,13 +18,13 @@ void func_801e0344_slot0b(Object *obj) {
     int side;
 
     obj->field_20 = 0xfff0;
-    obj->field_22 = 0xfff0;
+    obj->y_scale = 0xfff0;
     obj->field_0e = 0;
     obj->ot_depth = 0;
-    obj->field_24 = 0;
+    obj->table_index_2 = 0;
     obj->state_0 = obj->state_0 + 1;
-    data_801e4704_slot0b[obj->field_03](obj);
-    ref_other.p = obj->field_3c;
+    data_801e4704_slot0b[obj->table_index](obj);
+    ref_other.p = obj->parent;
     s = ref_other.p->field_d4;
     if (ref_other.p->side == 1) {
         s += 6;

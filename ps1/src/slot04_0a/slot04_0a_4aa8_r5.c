@@ -9,14 +9,14 @@ void func_801b5048_slot04_0a(Object *obj) {
     Object *p;
     SequenceStep **t;
     obj->state_0++;
-    p = obj->field_3c;
+    p = obj->parent;
     obj->pos_x = p->pos_x;
-    *(u16 *)&obj->pos_y = ((Slot04aObj *)p)->field_70;
+    *(u16 *)&obj->pos_y = ((Slot04aObj *)p)->saved_pos_y;
     obj->field_1c = p->field_1c;
     obj->field_0e = p->field_0e;
     obj->field_0c = p->field_0c;
-    obj->field_0d = p->field_0d;
-    obj->field_0b = p->field_0b;
+    obj->image_row = p->image_row;
+    obj->facing_side = p->facing_side;
     if (p->side == 0) {
         t = data_1f8000b4;
     } else {
@@ -26,7 +26,7 @@ void func_801b5048_slot04_0a(Object *obj) {
 }
 
 void func_801b50f4_slot04_0a(Object *obj) {
-    if (obj->field_3c->state_2 >= 2) {
+    if (obj->parent->state_2 >= 2) {
         func_801b5154_slot04_0a(obj);
     } else {
         advance_sequence_checked(obj);

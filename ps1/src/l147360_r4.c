@@ -14,19 +14,19 @@ void func_80148b60(Object *object) {
         do {
             o = (Object *)func_8011f1e0();
             if (o != 0) {
-                o->field_00 = 1;
+                o->active_count = 1;
                 o->field_02 = 9;
-                o->field_03 = side;
+                o->table_index = side;
                 o->field_0e = object->field_0e;
-                o->field_46 = object->kind;
-                o->field_3c = object;
-                o->field_48 = data_8017ceb4[i];
-                o->field_45 = data_8017ceb8[i];
+                o->countdown = object->kind;
+                o->parent = object;
+                o->variant_index = data_8017ceb4[i];
+                o->active_state = data_8017ceb8[i];
                 o->spawn_x = 0x60;
                 o->spawn_y = 0x1e0;
-                o->field_98 = &data_80172a48;
+                o->data_ptr_a = &data_80172a48;
                 o->field_90 = (void *)0x800fb100;
-                o->field_9c = &data_80173c9c;
+                o->data_ptr_b = &data_80173c9c;
             }
             i++;
         } while (i < 3);

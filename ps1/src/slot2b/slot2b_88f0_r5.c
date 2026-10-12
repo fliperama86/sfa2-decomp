@@ -34,7 +34,7 @@ void func_80078eb0_slot2b(Object *o) {
         advance_sequence_checked(o);
     } else {
         o->state_1 = o->state_1 + 1;
-        o->field_48 = o->field_48 + 2;
+        o->variant_index = o->variant_index + 2;
         func_8007893c_slot2b(o);
     }
 }

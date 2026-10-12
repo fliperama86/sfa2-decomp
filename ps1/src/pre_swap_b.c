@@ -12,8 +12,8 @@ void func_80131854(Object *object) {
     u32 w;
     if (object->field_02 == 0 && data_801a6984[0] == 0) data_80185ff8 = data_801a6966;
     if (object->field_02 == 1 && data_801a6984[0] == 0) data_80185ff8 = data_801a6972;
-    if (object->field_02 == 0 && data_801a6984[0] != 0) data_80185ff8 = object->field_c2;
-    if (object->field_02 == 1 && data_801a6984[0] != 0) data_80185ff8 = object->field_c2;
+    if (object->field_02 == 0 && data_801a6984[0] != 0) data_80185ff8 = object->input_bits;
+    if (object->field_02 == 1 && data_801a6984[0] != 0) data_80185ff8 = object->input_bits;
     i = 0;
     w = data_80185ff8;
     table_80185fd8[object->field_02][0] = (w >> 7) & 1;
@@ -28,7 +28,7 @@ void func_80131854(Object *object) {
         sum += table_80185fd8[object->field_02][i] << table_8016e664[object->field_02][i];
         i++;
     } while (i < 8);
-    object->field_130 = sum + (data_80185ff8 & 0xff00);
-    object->field_c2 = object->field_130;
-    object->field_150 = object->field_130;
+    object->input_bits_2 = sum + (data_80185ff8 & 0xff00);
+    object->input_bits = object->input_bits_2;
+    object->input_word = object->input_bits_2;
 }

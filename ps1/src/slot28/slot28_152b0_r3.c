@@ -22,8 +22,8 @@ void func_80025410_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
     Object *b;
     int one = 1;
-    h->field_60 = 0x258;
-    h->field_50++;
+    h->countdown_timer = 0x258;
+    h->step_index_2++;
     func_80151020(0x207);
     func_80025e98_slot28();
     func_801280f0();
@@ -36,7 +36,7 @@ void func_80025410_slot28(Object *obj) {
         b->pos_y = -8;
         b->spawn_x = 0;
         b->spawn_y = 0x1e0;
-        b->field_0d = 0;
+        b->image_row = 0;
         b->ot_depth = 0;
         func_80130768(b, 0, data_8004dcd8_slot28);
         b->field_01 = one;
@@ -49,7 +49,7 @@ void func_80025410_slot28(Object *obj) {
         b->pos_y = -8;
         b->spawn_x = 0;
         b->spawn_y = 0x1e0;
-        b->field_0d = 0;
+        b->image_row = 0;
         b->ot_depth = 0;
         func_80130768(b, 0, data_8004dcd4_slot28);
     }
@@ -61,7 +61,7 @@ void func_80025410_slot28(Object *obj) {
         b->pos_y = 0x20;
         b->spawn_x = 0x10;
         b->spawn_y = 0x1e0;
-        b->field_0d = 0;
+        b->image_row = 0;
         b->ot_depth = 4;
         func_80130768(b, 0, data_8004dce0_slot28);
     }
@@ -77,8 +77,8 @@ void func_80025410_slot28(Object *obj) {
         b->spawn_y = 0x1e0;
         b->pos_x = 0x28;
         b->spawn_x = 0;
-        b->field_0d = 0;
-        b->field_03 = one;
+        b->image_row = 0;
+        b->table_index = one;
         b->vel_y = 0xb8;
         b->ot_depth = 0;
         func_80130768(b, 0, data_8004dd0c_slot28);
@@ -90,7 +90,7 @@ void func_80025410_slot28(Object *obj) {
         b->pos_y = 0x60;
         b->spawn_x = 0x60;
         b->spawn_y = 0x1e0;
-        b->field_0d = 0;
+        b->image_row = 0;
         b->ot_depth = 2;
         func_80130768(b, 0, data_8004dd1c_slot28);
         data_80051c64_slot28[0] = b;
@@ -102,7 +102,7 @@ void func_80025410_slot28(Object *obj) {
         b->pos_y = 0x65;
         b->spawn_x = 0x60;
         b->spawn_y = 0x1e0;
-        b->field_0d = 0;
+        b->image_row = 0;
         b->ot_depth = 2;
         func_80130768(b, 0, data_8004dd1c_slot28);
         data_80051c64_slot28[1] = b;
@@ -114,7 +114,7 @@ void func_80025410_slot28(Object *obj) {
         b->pos_y = 0x80;
         b->spawn_x = 0x60;
         b->spawn_y = 0x1e0;
-        b->field_0d = 0;
+        b->image_row = 0;
         b->ot_depth = 2;
         func_80130768(b, 2, data_8004dd1c_slot28);
         data_80051c64_slot28[2] = b;
@@ -126,7 +126,7 @@ void func_80025410_slot28(Object *obj) {
         b->pos_y = 0x90;
         b->spawn_x = 0x60;
         b->spawn_y = 0x1e0;
-        b->field_0d = 0;
+        b->image_row = 0;
         b->ot_depth = 3;
         func_80130768(b, 0, data_8004dce8_slot28);
         data_80051c64_slot28[3] = b;

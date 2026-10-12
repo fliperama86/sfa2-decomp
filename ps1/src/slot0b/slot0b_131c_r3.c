@@ -7,11 +7,11 @@ void func_801e1554_slot0b(Slot0bObj *obj);
 
 void func_801e14b0_slot0b(Slot0bObj *obj) {
     int v;
-    if (data_80190468.p->field_ab == 2) {
+    if (data_80190468.p->phase_state == 2) {
         v = obj->countdown_timer - 1;
         obj->countdown_timer = v;
         if ((s16)v < 0) {
-            obj->field_04++;
+            obj->handler_index++;
         }
         func_801e1554_slot0b(obj);
     }
@@ -26,8 +26,8 @@ void func_801e1534_slot0b(Object *obj) {
 }
 
 void func_801e1554_slot0b(Slot0bObj *obj) {
-    obj->fx += obj->field_4c;
-    obj->field_4c += obj->field_54;
-    obj->fy += obj->field_50;
-    obj->field_50 += obj->field_58;
+    obj->fx += obj->fx_step;
+    obj->fx_step += obj->fx_step_accel;
+    obj->fy += obj->fy_step;
+    obj->fy_step += obj->fy_step_accel;
 }

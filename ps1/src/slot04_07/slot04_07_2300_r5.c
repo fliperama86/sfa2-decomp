@@ -8,14 +8,14 @@ void func_801b2994_slot04_07(Object *obj);
 void func_801b293c_slot04_07(Object *obj) {
     update_sequence(obj);
     func_801b2994_slot04_07(obj);
-    obj->other->field_249 = 5;
+    obj->other->other_state_code = 5;
     if ((s16)obj->step_flags & 0x8000) {
         func_801312b8(obj);
     }
 }
 
 void func_801b2994_slot04_07(Object *obj) {
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;

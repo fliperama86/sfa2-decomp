@@ -6,7 +6,7 @@
 extern ObjectFn data_801c2528_slot04_0b[];
 
 int func_801b153c_slot04_0b(Object *obj) {
-    return obj->field_240 == 0;
+    return obj->link_flags == 0;
 }
 
 int func_801b1548_slot04_0b(Object *obj) {

@@ -8,9 +8,9 @@ void func_80155c90(Object *o) {
     u8 *dst;
     u8 *src;
     int i;
-    o->field_21e = 0;
+    o->compare_limit = 0;
     src = data_80181360;
-    dst = &o->field_15e;
+    dst = &o->accum_count;
     for (i = 0; i < 0x20; i++) {
         *dst++ = *src++;
     }
@@ -23,11 +23,11 @@ void func_80155cc8(int amount, s8 side) {
         if (side) {
             o++;
         }
-        if (o->field_cd == 0) {
-            int v = add_bcd(o->field_b8, amount);
-            o->field_b8 = v;
+        if (o->mode_flag_2 == 0) {
+            int v = add_bcd(o->score, amount);
+            o->score = v;
             if (v > 0x9999998) {
-                o->field_b8 = 0x9999999;
+                o->score = 0x9999999;
             }
         }
     }
@@ -42,11 +42,11 @@ void func_80155d4c(int idx_arg, int side_arg) {
         if (side) {
             o++;
         }
-        if (o->field_cd == 0) {
-            int v = add_bcd(o->field_b8, table_80181530[idx]);
-            o->field_b8 = v;
+        if (o->mode_flag_2 == 0) {
+            int v = add_bcd(o->score, table_80181530[idx]);
+            o->score = v;
             if (v > 0x9999998) {
-                o->field_b8 = 0x9999999;
+                o->score = 0x9999999;
             }
         }
     }

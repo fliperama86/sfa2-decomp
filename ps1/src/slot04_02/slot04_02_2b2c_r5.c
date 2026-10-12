@@ -8,14 +8,14 @@ void func_801b359c_slot04_02(Object *object);
 void func_801b31a4_slot04_02(Object *obj) {
     int n;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3 = 1;
-    obj->field_159 = 0;
-    obj->field_48 = obj->field_0b ^ obj->field_21a;
+    obj->active_flag_3 = 0;
+    obj->variant_index = obj->facing_side ^ obj->direction_flag;
     func_80141f28(obj, 2);
     func_80138ae8(&game_state, obj);
     obj->accel_x = -0x3000;
-    if (obj->field_129 != 0) {
+    if (obj->input_dir_second != 0) {
         *(s32 *)&obj->vel_x = 0x80000;
     } else {
         *(s32 *)&obj->vel_x = 0xb8000;

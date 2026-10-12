@@ -6,13 +6,13 @@
 void func_801b3628_slot04_08(Object *obj) {
     int a;
 
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     obj->field_157 = 0;
     obj->state_3++;
     a = 0x58;
-    if (obj->field_219 != 0) {
+    if (obj->attack_param_d != 0) {
         a = 0x59;
-        if (obj->field_21a != 0) {
+        if (obj->direction_flag != 0) {
             a = 0x5a;
         }
     }

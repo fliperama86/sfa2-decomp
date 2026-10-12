@@ -16,7 +16,7 @@ void func_800e1348_slot0f(void);
  * a mode (0 for the answers 1 and 3, 0x10 for any other) and
  * func_800e0a1c_slot0f is called with it; when that answers 0,
  * func_800e1348_slot0f is called and the result is 0. In every case the flag
- * is then set to 1, a byte of data_8016e686 is copied to game_state.field_10
+ * is then set to 1, a byte of data_8016e686 is copied to game_state.setup_param
  * and func_80120374 is called with it as a signed byte. The result is 1,
  * except 0 when func_800e0a1c_slot0f answered 0.
  */
@@ -46,7 +46,7 @@ int func_800e0b48_slot0f(void) {
         }
     }
     scratch_word_08 = 1;
-    game_state.field_10 = data_8016e686;
+    game_state.setup_param = data_8016e686;
     func_80120374((s8)data_8016e686);
     return ret;
 }

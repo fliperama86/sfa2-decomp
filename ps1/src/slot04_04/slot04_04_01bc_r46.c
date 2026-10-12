@@ -10,16 +10,16 @@ void func_801b4198_slot04_04(Object *obj, Object *p);
 void func_801b4244_slot04_04(Object *obj);
 
 void func_801b3f84_slot04_04(Object *obj) {
-    Object *p = obj->field_3c;
+    Object *p = obj->parent;
 
     obj->state_0 = obj->state_0 + 1;
     obj->field_1c = p->field_1c;
     obj->state_3 = p->kind;
     obj->field_0c = p->field_0c;
-    obj->field_0d = p->field_0d;
+    obj->image_row = p->image_row;
     obj->field_0e = p->field_0e;
-    obj->field_48 = 0;
-    if (obj->field_03 == 0) {
+    obj->variant_index = 0;
+    if (obj->table_index == 0) {
         if (p->side == 0) {
             data_801c4670_slot04_04[0] = data_1f8000b4;
         } else {
@@ -36,12 +36,12 @@ void func_801b3f84_slot04_04(Object *obj) {
 }
 
 void func_801b4080_slot04_04(Object *obj) {
-    Object *p = obj->field_3c;
+    Object *p = obj->parent;
 
     obj->field_01 = 0;
     if (p->kind != obj->state_3) {
         func_801b4244_slot04_04(obj);
-    } else if (obj->field_03 == 0) {
+    } else if (obj->table_index == 0) {
         func_801b40ec_slot04_04(obj, p);
     } else {
         func_801b4198_slot04_04(obj, p);

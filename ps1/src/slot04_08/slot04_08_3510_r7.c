@@ -10,7 +10,7 @@ void func_801b3e74_slot04_08(Object *obj, Object *unused) {
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->gauge = 0x60;
-    obj->field_46 = 0;
-    o->field_1c7 = 0;
+    obj->countdown = 0;
+    o->done_flag = 0;
     func_801307e0(obj, 0x1a);
 }

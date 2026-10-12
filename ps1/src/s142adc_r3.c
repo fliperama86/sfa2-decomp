@@ -5,7 +5,7 @@
 
 
 void func_801436dc(Object *object) {
-    table_8017b55c[object->field_03](object);
+    table_8017b55c[object->table_index](object);
 }
 
 /* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_8017b550 holds this function and is declared with this parameter. */

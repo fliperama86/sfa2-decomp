@@ -10,19 +10,19 @@ void func_801b2620_slot04_07(Object *obj) {
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     func_80145d20(obj);
-    obj->field_46 = 0x400;
+    obj->countdown = 0x400;
     play_sound_at(obj, obj->side, 0x31c);
-    func_801307e0(obj, (obj->field_12a >> 1) + 0x49);
+    func_801307e0(obj, (obj->direction_index >> 1) + 0x49);
 }
 
 void func_801b269c_slot04_07(Object *obj) {
-    int t = obj->field_46 - 0x100;
+    int t = obj->countdown - 0x100;
 
-    obj->field_46 = t;
+    obj->countdown = t;
     if ((t & 0xff00) == 0) {
         obj->state_3++;
         play_side_sound_at(obj, obj->side, 5);
-        obj->field_46 |= 0x3800;
+        obj->countdown |= 0x3800;
         if (obj->field_4b != 0) {
             obj->field_165 = 1;
         } else {
@@ -33,10 +33,10 @@ void func_801b269c_slot04_07(Object *obj) {
 }
 
 void func_801b2724_slot04_07(Object *obj) {
-    int t = obj->field_46 - 0x100;
+    int t = obj->countdown - 0x100;
     int i = 0;
 
-    obj->field_46 = t;
+    obj->countdown = t;
     if ((t & 0xff00) == 0) {
         obj->field_165 = 0;
         obj->vel_x = 0;
@@ -44,8 +44,8 @@ void func_801b2724_slot04_07(Object *obj) {
         obj->state_3++;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 10;
-            i = (obj->field_12a >> 1) + 1;
+            i = (obj->direction_index >> 1) + 1;
         }
-        obj->field_27b = data_801c1f80_slot04_07[i];
+        obj->other_lock = data_801c1f80_slot04_07[i];
     }
 }

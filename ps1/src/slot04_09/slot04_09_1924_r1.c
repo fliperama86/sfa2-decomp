@@ -9,10 +9,10 @@ void func_801b536c_slot04_09(Object *obj);
 void func_801b1924_slot04_09(Object *obj) {
     int n = 0x25;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->field_225 = 1;
     obj->state_3++;
-    if (obj->field_246 == 0) {
+    if (obj->counter == 0) {
         obj->field_225 = 0;
         func_80141f28(obj, 4);
     }
@@ -21,7 +21,7 @@ void func_801b1924_slot04_09(Object *obj) {
     if (obj->field_49 != 0) {
         n = 0x43;
     }
-    func_801307e0(obj, (obj->field_12a >> 1) + n);
+    func_801307e0(obj, (obj->direction_index >> 1) + n);
 }
 
 void func_801b19c8_slot04_09(Object *obj) {
@@ -29,7 +29,7 @@ void func_801b19c8_slot04_09(Object *obj) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;
         func_801b536c_slot04_09(obj);
-        obj->field_46 = data_801c7c44_slot04_09[obj->field_12a >> 1];
+        obj->countdown = data_801c7c44_slot04_09[obj->direction_index >> 1];
     }
     update_sequence(obj);
 }
@@ -38,17 +38,17 @@ void func_801b1a44_slot04_09(Object *obj) {
     s16 t;
 
     if ((s16)obj->step_flags & 0x8000) {
-        obj->field_a0 = 0;
+        obj->variant_index_2 = 0;
         func_801312b8(obj);
     } else {
-        t = obj->field_46;
+        t = obj->countdown;
         if (t != 0) {
             t = t - 1;
-            obj->field_46 = t;
+            obj->countdown = t;
             if (t != 0) {
                 goto tail;
             }
-            obj->field_17b = 0;
+            obj->active_flag_4 = 0;
         }
         func_80142adc(obj);
     tail:

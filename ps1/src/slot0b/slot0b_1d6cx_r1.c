@@ -31,7 +31,7 @@ void func_801e1d6c_slot0b(Object *obj) {
     int col;
     int cell;
 
-    tpage = ((obj->field_0d + map->field_03) << 6) + 0x7808;
+    tpage = ((obj->image_row + map->page_offset) << 6) + 0x7808;
     x0 = obj->pos_x - box_margin[0];
     /* The listing loads pos_y unsigned; the plain obj->pos_y differs in 1 instruction line. */
     y = (u16)obj->pos_y + data_801aa5ea[0] - 8;

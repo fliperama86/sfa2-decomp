@@ -5,8 +5,8 @@
 
 void func_801b39dc_slot04_00(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0 && obj->field_218 != 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
         if (func_8013f8c4(obj, -0x14, 0x14) & 0xff) {
             obj->state_0 = 1;
             obj->state_1 = 2;
@@ -14,10 +14,10 @@ void func_801b39dc_slot04_00(Object *obj) {
             obj->state_3 = 0;
             return;
         }
-        if (obj->field_12a == 2 && obj->field_219 != 0) {
+        if (obj->direction_index == 2 && obj->attack_param_d != 0) {
             obj->state_3 = 2;
             func_80141f28(obj, 1);
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 obj->vel_x = -0x36000;
             } else {
                 obj->vel_x = 0x36000;
@@ -28,6 +28,6 @@ void func_801b39dc_slot04_00(Object *obj) {
             return;
         }
     }
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     func_80130dc0(obj);
 }

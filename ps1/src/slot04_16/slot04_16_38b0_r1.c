@@ -20,12 +20,12 @@ void func_801b38b0_slot04_16(Object *obj) {
         return;
     }
     if ((u8)t != 0xf) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
         obj->step_flags &= 0xff00;
         game_state.other_object = obj->other;
         game_state.other_object->field_15b = 1;
-        func_80140770(obj, ((u8 *)b)[obj->field_12a & 0xfe], 0xf, -0x200, 0, 0, 1);
+        func_80140770(obj, ((u8 *)b)[obj->direction_index & 0xfe], 0xf, -0x200, 0, 0, 1);
         game_state.other_object = obj->other;
         if ((s16)game_state.other_object->health < 0) {
             obj->field_167 = 2;
@@ -34,25 +34,25 @@ void func_801b38b0_slot04_16(Object *obj) {
                 obj->field_255 = 6;
             }
         }
-        obj->vel_x = c[(obj->field_12a >> 1) * 4 + 0];
-        obj->vel_y = c[(obj->field_12a >> 1) * 4 + 1];
-        obj->accel_y = c[(obj->field_12a >> 1) * 4 + 3];
+        obj->vel_x = c[(obj->direction_index >> 1) * 4 + 0];
+        obj->vel_y = c[(obj->direction_index >> 1) * 4 + 1];
+        obj->accel_y = c[(obj->direction_index >> 1) * 4 + 3];
         obj->accel_x = 0;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->vel_x = -obj->vel_x;
         }
     } else {
         obj->step_flags = t & 0xff00;
-        game_state.config->field_63 = (obj->field_12a << 2) + 0x3c;
+        game_state.config->setup_value = (obj->direction_index << 2) + 0x3c;
         func_80146960(obj);
         update_sequence(obj);
-        k = obj->field_49 != 0 ? 6 : 0; p = (s16 *)((obj->field_12a + k) * 2 + (u32)a);
+        k = obj->field_49 != 0 ? 6 : 0; p = (s16 *)((obj->direction_index + k) * 2 + (u32)a);
         if ((u8)func_80140cd8(obj, p[0], p[1]) != 0) {
             obj->field_167 = 2;
             if (obj->field_49 != 0) {
                 obj->field_167 = 0x20;
                 obj->field_255 = 6;
-                game_state.config->field_6b = 0;
+                game_state.config->countdown = 0;
                 func_80147000(obj);
             }
         }

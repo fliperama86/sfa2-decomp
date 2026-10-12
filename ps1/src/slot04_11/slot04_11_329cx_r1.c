@@ -18,11 +18,11 @@ void func_801b329c_slot04_11(Object *obj) {
     int n;
 
     a = obj->vel_x;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         a = -a;
     }
     *(s32 *)&obj->pos_x_frac += a;
-    if (obj->field_67 != 0) {
+    if (obj->active_flag != 0) {
         ref_other.p = obj->other;
         if (ref_other.p->field_163 == 0 && *(u16 *)&ref_other.p->state_0 == 0x101
             && (u8)func_8013fd98(obj, 0, 0x40, 8, 8)) {
@@ -30,13 +30,13 @@ void func_801b329c_slot04_11(Object *obj) {
             obj->state_3++;
             obj->accel_x = -0x8000;
             ref_other.p->field_261 = 1;
-            ((Slot04bObj *)obj)->field_52 = obj->pos_x;
+            ((Slot04bObj *)obj)->saved_pos_x = obj->pos_x;
             ref_other.p->pos_y = obj->pos_y;
-            ref_other.p->field_45 = 0;
+            ref_other.p->active_state = 0;
             if ((s16)ref_other.p->health < 0) {
-                obj->field_12f = 0xff;
+                obj->step_limit = 0xff;
             }
-            n = obj->field_12a;
+            n = obj->direction_index;
             n += 0x54;
             func_801307e0(obj, n);
             return;
@@ -48,8 +48,8 @@ void func_801b329c_slot04_11(Object *obj) {
     a += b;
     b <<= 1;
     if (!((u32)b < (u32)a)) {
-        a = data_801c7514_slot04_11[obj->field_0b];
-        if (!(a & obj->field_164)) {
+        a = data_801c7514_slot04_11[obj->facing_side];
+        if (!(a & obj->bound_push_flag)) {
             update_sequence(obj);
             return;
         }
@@ -60,16 +60,16 @@ void func_801b329c_slot04_11(Object *obj) {
     lo = obj->pos_x;
     ox = ref_other.p->pos_x;
     hi = ox;
-    k = obj->field_0b;
+    k = obj->facing_side;
     if (k == 0) {
         int t = lo;
         lo = hi;
         hi = t;
         b = 1;
     }
-    if (lo >= hi && (data_801c7514_slot04_11[k] & ref_other.p->field_164)) {
+    if (lo >= hi && (data_801c7514_slot04_11[k] & ref_other.p->bound_push_flag)) {
         ref_other.p->pos_x = ox + b;
-        ref_other.p->field_164 = 0;
+        ref_other.p->bound_push_flag = 0;
     }
     obj->vel_x = 0x80000;
     obj->accel_x = 0xffff0000;

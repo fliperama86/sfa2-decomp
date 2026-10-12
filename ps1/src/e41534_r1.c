@@ -4,14 +4,14 @@
 #include "externs.h"
 
 /* What it does (inferred): tests one bit of a 16-bit mask. The object's
-   field_130 flags say whether a mask applies at all (bits 0xa000); if not,
+   input_bits_2 flags say whether a mask applies at all (bits 0xa000); if not,
    the result is 1. Otherwise the mask is the 16-bit entry (the second one
    when flag 0x4000 is set) of a table selected by the object's kind, and
    the bit tested is chosen by the pair dir: its first byte halved, plus 6
    when the second byte is not 0, plus 1 when flag 0x8000 is clear. The
    result is 1 when that bit is clear, 0 when set. */
 s16 func_80141534(Object *object, BytePair dir) {
-    int flags = object->field_130;
+    int flags = object->input_bits_2;
     u16 *mask;
     int shift;
     s16 bits;

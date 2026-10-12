@@ -6,12 +6,12 @@
 void func_801b172c_slot04_00(Object *obj) {
     int a = 0x2b;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3++;
     func_80141f28(obj, 4);
     func_80138ae8(&game_state, obj);
     if (obj->field_49 != 0) {
         a = 0x3e;
     }
-    func_801307e0(obj, (obj->field_12a >> 1) + a);
+    func_801307e0(obj, (obj->direction_index >> 1) + a);
 }

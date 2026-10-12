@@ -14,7 +14,7 @@ void func_801c86b4_slot05_06(Object *obj) {
 
 void func_801c86f4_slot05_06(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     func_80130dc0(obj);
 }
 
@@ -23,7 +23,7 @@ void func_801c8724_slot05_06(Object *obj) {
 }
 
 void func_801c8744_slot05_06(Object *obj) {
-    data_801dd26c_slot05_06[obj->field_12a >> 1](obj);
+    data_801dd26c_slot05_06[obj->direction_index >> 1](obj);
 }
 
 void func_801c8788_slot05_06(Object *obj) {
@@ -32,7 +32,7 @@ void func_801c8788_slot05_06(Object *obj) {
 
 void func_801c87c8_slot05_06(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     func_80130dc0(obj);
 }
 

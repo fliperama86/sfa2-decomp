@@ -46,13 +46,13 @@ void func_801e9738_slot06_0e(void) {
     int pad[2];
     px = c->scroll_x;
     blank = c->field_1e;
-    pos = c->field_14;
-    w = c->field_58;
+    pos = c->scroll_y;
+    w = c->map_width;
     /* The shift and the subtraction are done in pos, in two statements, and y is cast in a statement of its own behind mask and sx. Written as y = (s16)((pos >> 16) - game_state.field_92); in one statement, this function differs from the original in 16 instruction slots. Inferred, not shown by a dump: a value that is assigned several times is not moved next to its reader by the first scheduling pass, so the sets of mask and sx stand before the cast and their lives are longer by the few instructions that decide the rank of three saved registers. */
     pos += 0xfff00000;
     pos = -pos;
     pos >>= 16;
-    pos -= game_state.field_92;
+    pos -= game_state.scroll_y;
     mask = (w >> 5) - 1;
     sx = px & 0x1f;
     y = (s16)pos;
@@ -64,7 +64,7 @@ void func_801e9738_slot06_0e(void) {
     for (i = 0; i < 9; i++, row++) {
         cc = col;
         /* The term (row >> 12) & 0xf in every arm and the test f16 >= 0x100 are instructions of the original (a shift by 11 with the mask 0x1e, and 0x100 taken off before the compare). row is at most 15 + 8 here, so the term is 0, and the test is true where it is reached. */
-        f16 = ((Slot06Layer *)c)->field_16;
+        f16 = ((Slot06Layer *)c)->scroll_y;
         if (f16 < 0x100) {
             if (row & 8) {
                 line = c->map_data + (((row >> 12) & 0xf) + 0x200) + ((row & 7) << 5);

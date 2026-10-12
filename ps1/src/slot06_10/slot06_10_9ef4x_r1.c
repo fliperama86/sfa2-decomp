@@ -13,12 +13,12 @@ extern Slot06Tile data_801f6800_slot06_10[200][2];
    records, a relative of func_801e9080_slot06_00 with a second record table, a
    mirrored mode and another command word. The object selects a layer by its
    field_0e (8, 4 or 0xc pick one of three layer blocks, any other value has
-   no case here); the layer's field_12 and field_16 offset the object's
+   no case here); the layer's scroll_x and scroll_y offset the object's
    position. A header reached through the object's sequence describes a grid of
    16-bit cells. For each non-zero cell (low 14 bits) it takes a record from
    the table, fills in position, texture coordinates, texture page and a
    command word, and links the record into the list head selected by the
-   object. When the object's field_0b is not 0 the grid is drawn mirrored: x
+   object. When the object's facing_side is not 0 the grid is drawn mirrored: x
    runs leftwards from the object's position and the header origin is added
    instead of subtracted.
 
@@ -51,23 +51,23 @@ void func_801e9ef4_slot06_10(Object *object) {
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
         layer = (Slot06Layer *)data_801aa5d4;
-        x = object->pos_x - layer->field_12;
-        y = object->pos_y + layer->field_16 - 8;
+        x = object->pos_x - layer->scroll_x;
+        y = object->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 4) {
         layer = (Slot06Layer *)data_801aa544;
-        x = object->pos_x - layer->field_12;
-        y = object->pos_y + layer->field_16 - 8;
+        x = object->pos_x - layer->scroll_x;
+        y = object->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 0xc) {
         layer = (Slot06Layer *)cam_obj;
-        x = object->pos_x - layer->field_12;
-        y = object->pos_y + layer->field_16 - 8;
+        x = object->pos_x - layer->scroll_x;
+        y = object->pos_y + layer->scroll_y - 8;
     }
-    if (object->field_0f != 0) y = y + game_state.field_92;
+    if (object->field_0f != 0) y = y + game_state.scroll_y;
     cnt = data_801adfe4;
     hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
-    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
+    tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
     ot = (u32 *)data_801987c8 + object->ot_depth;
     sel = *(u8 *)&data_801a27d0;
     for (row = 0; row < hdr[2]; row++) {
@@ -79,7 +79,7 @@ void func_801e9ef4_slot06_10(Object *object) {
                 nib2 = r - (r / 16) * 16;
                 nib = r / 16;
                 prim = &data_801f6800_slot06_10[(u16)cnt][sel];
-                if (object->field_0b == 0) {
+                if (object->facing_side == 0) {
                     prim->sprt.x = x + col * 16 - ox;
                 } else {
                     prim->sprt.x = ox + (x - col * 16);

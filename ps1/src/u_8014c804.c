@@ -11,35 +11,35 @@ void func_8014c804(Object *object)
   unsigned short new_var;
   u16 bits;
   u16 limit;
-  if (object->field_20f == 0)
+  if (object->script_arg == 0)
   {
     limit = *(data_80189460++);
     bits = *(data_80189460++);
-    if (((s16) limit) < object->field_cf)
+    if (((s16) limit) < object->table_column)
     {
-      object->field_24a |= bits;
+      object->script_bits |= bits;
     }
   }
   else
-    if (object->field_20f == 2)
+    if (object->script_arg == 2)
   {
     limit = *(data_80189460++);
     bits = *(data_80189460++);
     new_var = ~bits;
-    if (((s16) limit) < object->field_cf)
+    if (((s16) limit) < object->table_column)
     {
-      object->field_24a &= new_var;
+      object->script_bits &= new_var;
     }
   }
   else
-    if (object->field_20f == 4)
+    if (object->script_arg == 4)
   {
-    object->field_253 = 0;
+    object->script_counter = 0;
   }
   else
-    if (object->field_20f == 6)
+    if (object->script_arg == 6)
   {
-    object->field_253++;
+    object->script_counter++;
   }
   func_8014c914(object);
 }

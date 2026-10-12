@@ -10,8 +10,8 @@ void func_8012df44(Object *object) {
         object->state_2 = 3;
         object->state_1 = 0;
         object->state_3 = 2;
-        object->field_159 = 0;
-        object->field_45 = 0;
+        object->active_flag_3 = 0;
+        object->active_state = 0;
         func_801209c4(object);
         if (func_8012f970(object) != 0) {
             func_8012fe60(object);
@@ -24,7 +24,7 @@ void func_8012df44(Object *object) {
             object->state_1 = 0;
             object->state_2 = 3;
             object->state_3 = 1;
-            object->field_159 = 0;
+            object->active_flag_3 = 0;
         }
         update_sequence(object);
     }

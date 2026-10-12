@@ -24,10 +24,10 @@ void func_80013cc4_slot27(Object *object) {
         }
         n = *(s16 *)(data_80029328_slot27[ref_other.p->side].cur + 1);
         data_80029328_slot27[ref_other.p->side].count = n;
-        data_80029328_slot27[ref_other.p->side].field_06 = data_80029328_slot27[ref_other.p->side].cur[0];
+        data_80029328_slot27[ref_other.p->side].current_word = data_80029328_slot27[ref_other.p->side].cur[0];
     }
-    w = data_80029328_slot27[ref_other.p->side].field_06;
-    object->field_22 = w & 0x8000;
+    w = data_80029328_slot27[ref_other.p->side].current_word;
+    object->y_scale = w & 0x8000;
     for (i = 0; i < 16; i++) {
         data_801a2b84[ref_other.p->side * 16 + i] = ((u16 (*)[16])0x800ed800)[w & 0x1f][i];
         data_801a2b84[ref_other.p->side * 16 + i + 0xa00] = ((u16 (*)[16])0x800ed800)[w & 0x1f][i];

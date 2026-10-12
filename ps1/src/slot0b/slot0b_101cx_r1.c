@@ -16,11 +16,11 @@ SlotCell *func_801e101c_slot0b(Object *obj, SlotCell *cell, int arg, int base) {
         do {
             func_8015c09c(cell);
             p++;
-            cell->field_04 = 0x80;
-            cell->field_05 = 0x80;
-            cell->field_06 = 0x80;
-            cell->field_16 = a2;
-            cell->field_0e = b2 + (*p++ << 6);
+            cell->color_r = 0x80;
+            cell->color_g = 0x80;
+            cell->color_b = 0x80;
+            cell->tpage = a2;
+            cell->clut = b2 + (*p++ << 6);
             p += 2;
             cell++;
             n--;

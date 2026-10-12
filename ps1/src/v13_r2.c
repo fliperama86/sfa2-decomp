@@ -7,13 +7,13 @@
 int func_8013ffe4(Object *object, s16 a, s16 b, s16 c, u16 d) {
     FrameRecord *frame;
     ref_other.p = object->other;
-    if (ref_other.p->field_45 == 0) return 0;
+    if (ref_other.p->active_state == 0) return 0;
     if (object->field_49 != 0) {
         if (*(u16 *)&object->state_0 != 1) return 0;
         if (object->state_2 != 7) return 0;
         return func_8013f474(object, a, b) & 0xff;
     }
-    if (ref_other.p->field_27b != 0) return 0;
+    if (ref_other.p->other_lock != 0) return 0;
     if (*(u16 *)&ref_other.p->state_0 != 1) return 0;
     frame = ref_other.p->frame;
     if (frame->box_a == 0 && frame->box_b == 0 && frame->box_c == 0) return 0;

@@ -12,9 +12,9 @@
 void func_80142968(Object *object)
 {
   Pair *t = table_8017ad5c;
-  short neg = (*(table_8017ad5c + (object->field_12a >> 1))).first;
+  short neg = (*(table_8017ad5c + (object->direction_index >> 1))).first;
   s16 lim;
-  s16 pos = *((s16 *) (&object->field_c6));
+  s16 pos = *((s16 *) (&object->meter));
   neg = -neg;
   lim = neg;
   if (lim >= pos)
@@ -24,13 +24,13 @@ void func_80142968(Object *object)
     {
       v = (pos >= 0x60) << 1;
     }
-    object->field_12a = v;
+    object->direction_index = v;
     object->field_255 = v;
-    func_80141f28(object, (s16) t[object->field_12a >> 1].first);
+    func_80141f28(object, (s16) t[object->direction_index >> 1].first);
   }
   else
   {
-    object->field_255 = object->field_12a;
+    object->field_255 = object->direction_index;
     func_80141f28(object, (s16) (-neg));
   }
 }

@@ -16,8 +16,8 @@ void func_801b30a0_slot04_0a(Object *obj);
  * or 1 (tested in that order) of its halfword at 0x134 is set, it selects
  * a number (0 for 0x80 and 1, 1 for 0x10, 2 for 4), adds one to state_3,
  * starts the sequence 0x2b plus that number with func_801307e0, sets
- * field_0b to 1 when the opponent's position x (object->other) is not less
- * than its own, else to 0, sets the velocity fields (when field_0b is 1:
+ * facing_side to 1 when the opponent's position x (object->other) is not less
+ * than its own, else to 0, sets the velocity fields (when facing_side is 1:
  * vel_x -0x70000, accel_x 0x4000; when it is 0: vel_x 0x70000,
  * accel_x -0x4000; in both cases vel_y 0x38000 and accel_y -0x4000),
  * and calls play_side_sound_at, func_80141f28 and func_80138ae8. Then,
@@ -60,7 +60,7 @@ void func_801b2f1c_slot04_0a(Object *obj) {
     obj->state_3++;
     func_801307e0(obj, (s16)(x + 0x2b));
     b = !(obj->other->pos_x < obj->pos_x);
-    obj->field_0b = b;
+    obj->facing_side = b;
     vx = 0x70000;
     vy = -0x4000;
     if (b) {

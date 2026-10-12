@@ -8,19 +8,19 @@ void func_8001257c_slot01(void);
 
 void func_800124f4_slot01(Object *o) {
     Slot01Obj *obj = (Slot01Obj *)o;
-    Object *s = o->field_3c;
+    Object *s = o->parent;
     Object *p = func_8011f32c();
     if (p != 0) {
-        p->field_00 = 1;
+        p->active_count = 1;
         p->field_02 = 0x23;
-        p->field_03 = 0;
-        p->field_48 = s->side;
-        p->field_66 = 0;
+        p->table_index = 0;
+        p->variant_index = s->side;
+        p->sound_side = 0;
         ((ObjectWords *)p)->word_58 = (s32)data_80023d9c_slot01;
         p->vel_x = 0;
         p->vel_y = 0;
-        p->field_0b = 0;
-        p->field_3c = o;
+        p->facing_side = 0;
+        p->parent = o;
         obj->child = p;
     }
     func_8001257c_slot01();

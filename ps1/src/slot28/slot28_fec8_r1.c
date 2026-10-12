@@ -13,8 +13,8 @@ void func_8001fec8_slot28(Object *obj) {
 
     if (obj->field_f0 == 0) {
         h = data_8018f5a0;
-        h->field_60 = 0x258;
-        h->field_52++;
+        h->countdown_timer = 0x258;
+        h->pass_index++;
         b = data_80051b04_slot28[0];
         b->field_01 = 0;
         b = data_80051b08_slot28.p;
@@ -22,9 +22,9 @@ void func_8001fec8_slot28(Object *obj) {
         b->pos_y = -0x60;
         b = (Object *)func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0xa6;
-            b->field_03 = 9;
+            b->table_index = 9;
             b->field_01 = 0;
         }
         func_8002005c_slot28(obj, 4);

@@ -5,7 +5,7 @@
 
 
 void func_80150c6c(Node *sprite, s16 index) {
-    sprite->field_30 = table_8017d9e4[index].b;
-    sprite->field_34 = table_8017d9e4[index].c;
-    sprite->field_28 = table_8017d9e4[index].a;
+    sprite->table_b = table_8017d9e4[index].b;
+    sprite->table_c = table_8017d9e4[index].c;
+    sprite->table_a = table_8017d9e4[index].a;
 }

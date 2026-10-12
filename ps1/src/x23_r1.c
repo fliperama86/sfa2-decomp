@@ -13,15 +13,15 @@ void draw_text_items(void)
   for (i = 0; i < data_8018d204; i++)
   {
     TextItem *item = table_8018d144[i];
-    u16 y = item->field_06;
+    u16 y = item->y;
     int pal = item->palette;
-    u16 x0 = item->field_04;
-    u8 *base = (u8 *) (item->field_00 << 2) + (int) data_801987c8;
-    u8 c = item->field_0a;
-    unsigned short step = item->field_08;
+    u16 x0 = item->x;
+    u8 *base = (u8 *) (item->table_index << 2) + (int) data_801987c8;
+    u8 c = item->char_code;
+    unsigned short step = item->step;
     u16 x = x0;
     u8 *s;
-    line = item->field_09;
+    line = item->line;
     if ((c < 2) || (c == 2))
     {
       u8 mode = c;

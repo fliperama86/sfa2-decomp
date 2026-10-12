@@ -23,13 +23,13 @@ void func_800793d4_slot2b(Object *o) {
         /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
         do {
             y = data_8007ef34_slot2b->ground_y;
-            o->field_98 = data_80172a48;
+            o->data_ptr_a = data_80172a48;
             o->pos_y_frac = 0;
             o->field_0c = 0;
-            o->field_0d = 0;
+            o->image_row = 0;
             o->field_90 = (void *)0x800fb100;
             o->pos_y = y;
-            o->field_9c = data_80173c9c;
+            o->data_ptr_b = data_80173c9c;
         } while (0);
         func_80130700(o, data_8017c850);
         play_side_sound_at(o, data_8007ef34_slot2b->side, 0x10);

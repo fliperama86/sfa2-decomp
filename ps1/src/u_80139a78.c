@@ -12,7 +12,7 @@ void func_80139a78(Object *a, Object *b)
   Box32 *box;
   u8 t;
   s16 i;
-  if (a->field_08 == 0)
+  if (a->mode_id == 0)
   {
     box = &a->wide_boxes[a->frame->active];
   }
@@ -20,72 +20,72 @@ void func_80139a78(Object *a, Object *b)
   {
     box = ptr_8019040c;
   }
-  if (a->field_08 == 0)
+  if (a->mode_id == 0)
   {
-    a->field_29d = 0;
+    a->hit_skip_flag = 0;
   }
-  i = box->field_0d;
-  if (a->field_45 != 0)
+  i = box->box_type;
+  if (a->active_state != 0)
   {
-    a->field_75 = table_80176fe0[i];
+    a->table_bits = table_80176fe0[i];
   }
   else
   {
-    a->field_75 = table_80176fc0[i];
+    a->table_bits = table_80176fc0[i];
   }
-  if (a->field_08 == 0)
+  if (a->mode_id == 0)
   {
     a->kind_timer = table_80177000[a->kind];
   }
-  a->field_67 = 1;
+  a->active_flag = 1;
   data_80188f34 = 0;
   b->state_0 = 1;
   b->state_1 = 1;
   b->state_2 = 0;
   b->state_3 = 0;
-  b->field_62 = box->field_09 & 0xf;
+  b->field_62 = box->hit_param_low & 0xf;
   if (b->field_295 == 0)
   {
     b->field_295 = a->field_49;
   }
-  if (((box->field_0d != 0x1a) && ((box->field_08 & 0x80) == 0)) && (a->field_45 != 0))
+  if (((box->box_type != 0x1a) && ((box->box_flags & 0x80) == 0)) && (a->active_state != 0))
   {
     b->field_62 = 0;
   }
-  b->field_63 = box->field_0a;
+  b->vec_table_index = box->field_0a;
   if (a->field_49 != 0)
   {
-    b->field_63 = box->field_19;
+    b->vec_table_index = box->field_19;
   }
-  b->facing_flag = a->field_0b;
-  if (box->field_0b & 0x80)
+  b->facing_flag = a->facing_side;
+  if (box->facing_flags & 0x80)
   {
     b->facing_flag = a->pos_x < b->pos_x;
   }
   else
   {
-    b->facing_flag = box->field_0b ^ b->facing_flag;
+    b->facing_flag = box->facing_flags ^ b->facing_flag;
   }
-  if (a->field_66 != 0)
+  if (a->sound_side != 0)
   {
-    b->field_265 = box->field_12;
+    b->hit_box_index_b = box->hit_flags;
   }
   else
   {
-    b->field_264 = box->field_12;
+    b->hit_box_index_a = box->hit_flags;
   }
-  if (a->field_08 != 8)
+  if (a->mode_id != 8)
   {
-    if (a->field_66 != 0)
+    if (a->sound_side != 0)
     {
-      b->field_289 = b->field_289 + 1;
+      b->hit_count_b = b->hit_count_b + 1;
     }
     else
     {
-      b->field_288 = b->field_288 + 1;
+      b->hit_count_a = b->hit_count_a + 1;
     }
   }
-  if (a->field_74 == 0)
+  if (a->mode_flag == 0)
   {
     i = box->field_11;
     b->field_6b = box->field_11 & 0x1f;

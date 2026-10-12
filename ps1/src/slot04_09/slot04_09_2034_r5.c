@@ -14,7 +14,7 @@ void func_801b2548_slot04_09(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3++;
-        obj->field_0b ^= 1;
+        obj->facing_side ^= 1;
         func_801307e0(obj, 0x49);
     }
 }
@@ -30,13 +30,13 @@ void func_801b25cc_slot04_09(Object *obj) {
         obj->state_3++;
         o = obj->other;
         o->field_15b = 1;
-        game_state.field_63 = 0x18;
-        func_80140770(obj, 5, 10, *(s16 *)((u8 *)data_801c7cb8_slot04_09 + (obj->field_12a & 0xfe)), 0, 1, 0);
+        game_state.state_param = 0x18;
+        func_80140770(obj, 5, 10, *(s16 *)((u8 *)data_801c7cb8_slot04_09 + (obj->direction_index & 0xfe)), 0, 1, 0);
         o = obj->other;
         if ((s16)o->health < 0) {
             obj->field_167 = 0x19;
             obj->field_255 = 6;
-            game_state.field_6b = 0;
+            game_state.spawn_kind = 0;
             func_80147000(obj);
         }
     }

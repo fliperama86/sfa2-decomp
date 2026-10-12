@@ -21,7 +21,7 @@ void func_800773a0_slot2b(Object *obj) {
 
 void func_80077404_slot2b(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        obj->field_45 = 0;
+        obj->active_state = 0;
         func_801312b8(obj);
     } else {
         update_sequence(obj);
@@ -30,7 +30,7 @@ void func_80077404_slot2b(Object *obj) {
 
 void func_80077444_slot2b(Object *obj) {
     obj->field_157 = 1;
-    if (obj->field_129 != 0) {
+    if (obj->input_dir_second != 0) {
         func_800775a4_slot2b(obj);
     } else {
         func_80077484_slot2b(obj);
@@ -38,7 +38,7 @@ void func_80077444_slot2b(Object *obj) {
 }
 
 void func_80077484_slot2b(Object *obj) {
-    data_80079834_slot2b[obj->field_12a >> 1](obj);
+    data_80079834_slot2b[obj->direction_index >> 1](obj);
 }
 
 void func_800774c8_slot2b(Object *obj) {

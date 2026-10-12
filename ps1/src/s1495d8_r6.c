@@ -7,7 +7,7 @@
 void func_8014a364(Object *object) {
     if (object->field_207 == 0) {
         object->field_207++;
-        object->script_ptr = object->field_228;
+        object->script_ptr = object->script_pointer;
         func_8014a4f4(object);
         func_8014ccb0(object);
     } else if (object->field_207 == 1) {

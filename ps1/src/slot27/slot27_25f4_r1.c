@@ -13,12 +13,12 @@ void func_800125f4_slot27(void) {
     u32 *q;
     int a;
 
-    if (game_state.field_06 != 0) return;
+    if (game_state.busy_flag != 0) return;
     o = ref_other.p;
-    m = ~o->field_c4;
+    m = ~o->prev_input_bits;
     q = (u32 *)data_8019045c;
     *q = m;
-    v = o->field_c2 & m;
+    v = o->input_bits & m;
     *q = v & 0xf000;
     if ((v & 0xf000) == 0) return;
     a = (v >> 15) << 1;

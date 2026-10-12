@@ -8,11 +8,11 @@ void func_801b39ec_slot04_02(Object *obj) {
 
     if ((u8)func_80130184(obj) == 0) {
         obj->state_3 = obj->state_3 + 1;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         n = 0x39;
-        if (obj->field_48 == 1) {
+        if (obj->variant_index == 1) {
             n = 0x38;
         }
         func_801307e0(obj, n);

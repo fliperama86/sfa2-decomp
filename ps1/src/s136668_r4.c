@@ -12,7 +12,7 @@ void func_80136b34(Cam *cam) {
 }
 
 void func_80136b60(Cam *cam) {
-    cam->field_60 = cam_src_a.a;
-    cam->field_64 = cam_src_a.b;
-    table_801724b0[game_state.field_40](cam);
+    cam->src_a = cam_src_a.a;
+    cam->src_b = cam_src_a.b;
+    table_801724b0[game_state.kind_index](cam);
 }

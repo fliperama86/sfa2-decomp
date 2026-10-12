@@ -45,16 +45,16 @@ void func_80011048_slot01(void) {
         func_80157d9c(0);
         o = (Object *)func_8011f1e0();
         if (o != 0) {
-            o->field_00 = 1;
+            o->active_count = 1;
             o->field_02 = 0x1a;
-            o->field_03 = 0;
+            o->table_index = 0;
         }
         o = (Object *)func_8011f1e0();
         if (o != 0) {
-            o->field_00 = 1;
+            o->active_count = 1;
             o->field_02 = 0xe;
-            o->field_3c = game_state.field_78;
+            o->parent = game_state.focus_object;
         }
     }
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
 }

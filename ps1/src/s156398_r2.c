@@ -15,11 +15,11 @@ void func_801565f4(void *a, Object *object) {
         first = second;
     }
     object->min_rank = first;
-    if (object->field_123 != 4) {
+    if (object->name_char_count != 4) {
         int t;
-        t = object->field_b4 - 1;
-        object->field_b4 = t;
-        if (t << 16 < 0 || (t = object->field_b0 - 1, object->field_b0 = t, t << 16 < 0)) {
+        t = object->countdown_timer_b - 1;
+        object->countdown_timer_b = t;
+        if (t << 16 < 0 || (t = object->countdown_timer - 1, object->countdown_timer = t, t << 16 < 0)) {
             fill_name_chars_with_spaces(a, object);
         } else {
             return;
@@ -29,12 +29,12 @@ void func_801565f4(void *a, Object *object) {
 }
 
 void fill_name_chars_with_spaces(void *a, Object *object) {
-    s16 i = object->field_123;
+    s16 i = object->name_char_count;
 again:
     ((u8 *)object + i)[0x11c] = 0x20;
-    object->field_123++;
+    object->name_char_count++;
     i++;
-    if (object->field_123 != 4) {
+    if (object->name_char_count != 4) {
         goto again;
     }
 }

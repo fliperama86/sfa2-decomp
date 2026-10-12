@@ -16,7 +16,7 @@ void func_801b6560_slot04_02(Object *obj) {
         if (a == 2) {
             obj->step_flags = (t & -0x100) | 1;
         }
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             *(s32 *)&obj->pos_x_frac += 0x20000;
         } else {
             *(s32 *)&obj->pos_x_frac -= 0x20000;

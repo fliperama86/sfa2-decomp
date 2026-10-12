@@ -21,7 +21,7 @@ void func_800167d0_slot27(Object *obj, s16 *p) {
     t = p[1];
     data_8002b380_slot27.count = t;
     data_8002b380_slot27.frame = (u16)p[0];
-    obj->field_0d = (u8)data_8002b380_slot27.frame & 0x1f;
+    obj->image_row = (u8)data_8002b380_slot27.frame & 0x1f;
 }
 
 void func_80016810_slot27(Object *obj) {
@@ -35,7 +35,7 @@ void func_80016810_slot27(Object *obj) {
         t = ((s16 *)data_8002b380_slot27.ptr)[1];
         data_8002b380_slot27.count = t;
         data_8002b380_slot27.frame = data_8002b380_slot27.ptr[0];
-        obj->field_0d = (u8)data_8002b380_slot27.frame & 0x1f;
+        obj->image_row = (u8)data_8002b380_slot27.frame & 0x1f;
     }
 }
 

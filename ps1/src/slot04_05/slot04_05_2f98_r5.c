@@ -7,10 +7,10 @@ void func_801b3538_slot04_05(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
-    obj->field_45 = 1;
-    obj->field_0b = 0;
-    if ((obj->field_c2 & 0x8000) == 0) {
-        obj->field_0b = 1;
+    obj->active_state = 1;
+    obj->facing_side = 0;
+    if ((obj->input_bits & 0x8000) == 0) {
+        obj->facing_side = 1;
         obj->vel_x = -0x20000;
     } else {
         obj->vel_x = 0x20000;

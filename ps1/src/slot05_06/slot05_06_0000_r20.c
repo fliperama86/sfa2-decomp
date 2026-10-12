@@ -19,7 +19,7 @@ void func_801c9944_slot05_06(Object *o) {
     } else {
         o->state_3++;
         func_80146960(o);
-        t = o->field_12a >> 1;
+        t = o->direction_index >> 1;
         if (o->field_49 != 0) {
             t += 3;
         }
@@ -27,16 +27,16 @@ void func_801c9944_slot05_06(Object *o) {
             play_sound_at(o, o->side, 0x319);
             if (o->field_49 != 0) {
                 o->field_255 = 6;
-                game_state.field_6b = 0;
+                game_state.spawn_kind = 0;
                 func_80147000(o);
             }
         } else {
             play_sound_at(o, o->side, 0x319);
         }
         o->pos_y = o->ground_y;
-        o->field_45 = 0;
+        o->active_state = 0;
         ((Slot04aObj *)o)->field_1c2 = 0x10;
-        g->field_63 = data_801dd364_slot05_06[o->field_12a >> 1];
+        g->state_param = data_801dd364_slot05_06[o->direction_index >> 1];
         func_801307e0(o, 0x21);
     }
 }

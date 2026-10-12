@@ -7,14 +7,14 @@ void func_80078f90_slot00(Object *obj) {
     Object *t;
     obj->field_01 = 1;
     obj->state_0++;
-    t = obj->field_3c;
+    t = obj->parent;
     obj->pos_x = (u16)t->pos_x;
     obj->pos_y = (u16)t->pos_y;
     obj->frames = t->frames;
-    if (obj->field_66 == 0) {
-        obj->sequence = seqs_60_left[obj->field_48];
+    if (obj->sound_side == 0) {
+        obj->sequence = seqs_60_left[obj->variant_index];
     } else {
-        obj->sequence = seqs_110_right[obj->field_48];
+        obj->sequence = seqs_110_right[obj->variant_index];
     }
     obj->step_timer = obj->sequence->duration;
     obj->step_flags = obj->sequence->flags;
@@ -24,15 +24,15 @@ void func_80078f90_slot00(Object *obj) {
 
 void func_8007904c_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
-    if (game_state.field_6a == 0) {
-        obj->field_10 += o->vel_x;
+    if (game_state.gate_flag == 0) {
+        obj->pos_x_hi += o->vel_x;
         o->vel_x += o->accel_x;
         if (o->vel_x == 0) {
             o->vel_x = 0;
             o->accel_x = 0;
         }
         o->field_01 = 1;
-        if (((game_state.frame_counter + o->field_03) & 1) == 0) {
+        if (((game_state.frame_counter + o->table_index) & 1) == 0) {
             o->field_01 = 0;
         }
         advance_sequence_checked(o);

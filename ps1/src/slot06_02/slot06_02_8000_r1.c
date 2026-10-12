@@ -50,9 +50,9 @@ void func_801e80f0_slot06_02(void) {
 }
 
 void func_801e8128_slot06_02(Slot06Layer *layer) {
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_801e8170_slot06_02(layer);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         func_801e81c4_slot06_02(layer);
     }
 }
@@ -62,6 +62,6 @@ void func_801e8170_slot06_02(Slot06Layer *layer) {
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->field_8b = 3;
-        layer->field_04++;
+        layer->mode++;
     }
 }

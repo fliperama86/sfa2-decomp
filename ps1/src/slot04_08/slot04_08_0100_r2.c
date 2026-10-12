@@ -6,7 +6,7 @@
 int func_801b1000_slot04_08(Object *obj) {
     int r = 0;
 
-    if (obj->field_7e == 0 && obj->field_177 == 0) return 0;
+    if (obj->field_7e == 0 && obj->remaining_count == 0) return 0;
     if (func_801417cc(obj)) {
         r++;
         obj->state_0 = 1;
@@ -14,7 +14,7 @@ int func_801b1000_slot04_08(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 6;
-        obj->field_0b = obj->field_158;
+        obj->facing_side = obj->saved_facing;
     }
     return r;
 }

@@ -7,8 +7,8 @@ void func_801b2ec4_slot04_0a(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {
-        obj->field_45 = 1;
-        obj->field_67 = 0;
+        obj->active_state = 1;
+        obj->active_flag = 0;
         obj->state_3++;
         func_801307e0(obj, 0x22);
     }

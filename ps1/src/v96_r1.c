@@ -6,7 +6,7 @@
 int func_8014e718(Object *object)
 {
   object = object->other;
-  if (object->field_249 == 0) {
+  if (object->other_state_code == 0) {
     return func_8014e784(object) != 0;
   }
   return 0;

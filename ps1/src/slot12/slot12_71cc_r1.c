@@ -14,10 +14,10 @@ void func_800171cc_slot12(Object *obj) {
 
 void func_800171f8_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
-    obj->field_12--;
+    obj->base_x--;
     obj->field_4c--;
     if (obj->field_4c == 0) {
-        obj->field_05++;
+        obj->tick_count++;
     }
     func_800172d0_slot12(o);
     func_80017334_slot12(o);

@@ -8,9 +8,9 @@ extern ObjectFn data_80027cfc_slot27[];
 void func_800148a4_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     int v;
-    if (data_8018f5a0->field_4e >= 3 && game_state.mode != 3) {
-        obj->field_12 += obj->field_4c;
-        v = (s16)obj->field_12;
+    if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
+        obj->angle += obj->field_4c;
+        v = (s16)obj->angle;
         if ((u32)v >= 0x381) {
             o->state_1++;
         }

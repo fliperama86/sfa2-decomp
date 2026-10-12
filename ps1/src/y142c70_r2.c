@@ -8,16 +8,16 @@ void func_80143184(Object *object) {
     int limit;
     Object *other = object->other;
     ref_other.p = other;
-    if ((object->field_45 | ref_other.p->field_45) != 0) return;
+    if ((object->active_state | ref_other.p->active_state) != 0) return;
     func_8014362c(object, other);
     limit = 0x40;
-    if ((s16)object->field_21e > limit) return;
+    if ((s16)object->compare_limit > limit) return;
     if (ref_other.p->frame->active == 0 && ref_other.p->frame->box_c == 0 &&
         ref_other.p->frame->box_b == 0 && ref_other.p->frame->box_a == 0 &&
-        ref_other.p->frame->field_04 == 0 && ref_other.p->frame->field_05 == 0 &&
+        ref_other.p->frame->value_a == 0 && ref_other.p->frame->value_b == 0 &&
         ref_other.p->frame->handler_index == 0) return;
     if (ref_other.p->frame->handler_index != 0) return;
-    if (ref_other.p->field_27b != 0) return;
+    if (ref_other.p->other_lock != 0) return;
     if (ref_other.p->field_7e != 0) return;
     if (*(u16 *)&ref_other.p->state_0 == 0x801) return;
     if (*(u16 *)&ref_other.p->state_0 != 1) return;
@@ -36,19 +36,19 @@ int func_801433ac(Object *object) {
     int limit;
     Object *other = object->other;
     ref_other.p = other;
-    if ((object->field_45 | ref_other.p->field_45) != 0) return 0;
+    if ((object->active_state | ref_other.p->active_state) != 0) return 0;
     func_8014362c(object, other);
     limit = 0x40;
-    if ((s16)object->field_21e > limit) return 0;
+    if ((s16)object->compare_limit > limit) return 0;
     if (ref_other.p->frame->active != 0 || ref_other.p->frame->box_c != 0 ||
         ref_other.p->frame->box_b != 0 || ref_other.p->frame->box_a != 0 ||
-        ref_other.p->frame->field_04 != 0 || ref_other.p->frame->field_05 != 0) {
+        ref_other.p->frame->value_a != 0 || ref_other.p->frame->value_b != 0) {
     } else {
 out:
         return 0;
     }
     if (ref_other.p->frame->handler_index != 0) goto out;
-    if (ref_other.p->field_27b != 0) goto out;
+    if (ref_other.p->other_lock != 0) goto out;
     if (ref_other.p->field_7e != 0) goto out;
     if (*(u16 *)&ref_other.p->state_0 == 0x801) goto out;
     if (*(u16 *)&ref_other.p->state_0 != 1) goto out;

@@ -10,14 +10,14 @@ void func_800e2348_slot0f(Object *o);
 void func_800e1a98_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     if (o->pos_x_frac & 0x860) {
-        obj->field_0f = 1;
+        obj->countdown = 1;
     }
-    obj->field_0f -= 1;
-    if (obj->field_0f == 0) {
+    obj->countdown -= 1;
+    if (obj->countdown == 0) {
         o->field_01 = 0;
         o->state_0 = 0;
-        if (obj->field_0e == 4) {
-            o->field_00 = 4;
+        if (obj->mode == 4) {
+            o->active_count = 4;
             o->ot_depth = 3;
         }
     }
@@ -30,7 +30,7 @@ void func_800e1af4_slot0f(Object *o) {
 void func_800e1b34_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     o->field_01 += 1;
-    o->field_0d = func_800e0d30_slot0f();
+    o->image_row = func_800e0d30_slot0f();
     o->ot_depth = 2;
     obj->field_0b = 0;
     func_800e2348_slot0f(o);

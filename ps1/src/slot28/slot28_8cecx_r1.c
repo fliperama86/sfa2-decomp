@@ -14,10 +14,10 @@ void func_80018cec_slot28(Object *obj) {
     p = data_8005198c_slot28.p;
     if ((s16)p->step_flags < 0) {
         HudState *h = data_8018f5a0;
-        h->field_60 = 0xb4;
-        h->field_52 += 1;
+        h->countdown_timer = 0xb4;
+        h->pass_index += 1;
         p = data_80051958_slot28.p;
-        p->field_48 = 0xff;
+        p->variant_index = 0xff;
         func_80019100_slot28(obj, 5);
     }
 }

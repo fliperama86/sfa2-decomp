@@ -7,9 +7,9 @@
 /* Form found by automatic permutation search. */
 void func_8012c494(Object *object)
 {
-  int k = object->field_61;
+  int k = object->hit_type;
   unsigned char new_var;
-  object->field_68 = pairs_80170074[k].first;
+  object->pair_value = pairs_80170074[k].first;
   object->field_60 = pairs_80170074[k].second;
   new_var = k;
   if ((new_var == 0x14) || (new_var == 0x16))
@@ -24,13 +24,13 @@ void func_8012c494(Object *object)
   else
     if (new_var == 0xb)
   {
-    object->field_45 = 0xff;
+    object->active_state = 0xff;
     object->field_69++;
-    func_801308c4(object, object->field_68);
+    func_801308c4(object, object->pair_value);
   }
   else
   {
-    object->field_45 = 0xff;
+    object->active_state = 0xff;
     object->field_69++;
     if (object->field_60 == 2)
     {
@@ -50,6 +50,6 @@ void func_8012c494(Object *object)
         return;
       }
     }
-    func_801308c4(object, object->field_68);
+    func_801308c4(object, object->pair_value);
   }
 }

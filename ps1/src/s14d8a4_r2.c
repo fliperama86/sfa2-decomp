@@ -8,11 +8,11 @@ void func_8014dbc8(Object *object) {
     u16 *p;
     u8 index;
     u16 first;
-    object->field_253 = 0;
+    object->script_counter = 0;
     if (object->side == 0) table = scr_d0_left;
     else table = scr_180_right;
-    index = object->field_244;
-    object->field_24f = index;
+    index = object->script_index;
+    object->script_entry_index = index;
     p = table[index];
     data_80189460 = p + 1;
     first = *p;
@@ -23,11 +23,11 @@ void func_8014dbc8(Object *object) {
 }
 
 void func_8014dc30(Object *object) {
-    u8 v = data_8017d320[object->field_cf];
-    object->field_21c = v;
-    if (object->kind == 0x14) object->field_21c = v - 10;
-    object->field_21c = data_8017d300[get_random_byte() & 0x1f] + object->field_21c - 4;
-    if (object->field_21c < 0) object->field_21c = 0;
+    u8 v = data_8017d320[object->table_column];
+    object->countdown_3 = v;
+    if (object->kind == 0x14) object->countdown_3 = v - 10;
+    object->countdown_3 = data_8017d300[get_random_byte() & 0x1f] + object->countdown_3 - 4;
+    if (object->countdown_3 < 0) object->countdown_3 = 0;
 }
 
 u8 func_8014dcc0(Object *object) {

@@ -22,7 +22,7 @@ void func_800e1fc0_slot0f(Object *o) {
     } else {
         func_801519b4(&data_800e8608_slot0f);
     }
-    switch (obj->field_0e) {
+    switch (obj->mode) {
     case 0:
         rec = &data_800e8638_slot0f;
         break;
@@ -48,5 +48,5 @@ void func_800e2088_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
 
     func_801519b4(&data_800e8508_slot0f);
-    data_800e87ec_slot0f[(s8)obj->field_04](o);
+    data_800e87ec_slot0f[(s8)obj->handler_index](o);
 }

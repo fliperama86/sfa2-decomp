@@ -9,8 +9,8 @@
    register is reloaded on the paths that come after the first call and left
    alone on the path that comes straight from the entry. */
 void func_8012dee4(Object *object) {
-    u8 v = object->field_164;
-    object->field_247 = 0;
+    u8 v = object->bound_push_flag;
+    object->step_applied_flag = 0;
     if (v == 0) {
         func_8012df44(object);
         return;

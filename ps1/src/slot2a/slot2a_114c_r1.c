@@ -20,12 +20,12 @@ void func_801e1284_slot2a(Object *obj) {
     obj->field_01 = 0;
     obj->health = 0;
     obj->field_20 = 0;
-    obj->field_22 = 0;
-    obj->field_24 = 0;
+    obj->y_scale = 0;
+    obj->table_index_2 = 0;
     obj->field_0c = 0;
     obj->state_0++;
     obj->state_1++;
-    if (obj->field_45 != obj->field_03) {
+    if (obj->active_state != obj->table_index) {
         obj->pos_x = 0x10;
     }
     func_801e12fc_slot2a(obj);

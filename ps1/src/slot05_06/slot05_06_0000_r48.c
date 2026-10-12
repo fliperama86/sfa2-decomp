@@ -7,13 +7,13 @@ void func_801cc228_slot05_06(Object *obj);
 extern ObjectFn data_801dd4bc_slot05_06[];
 
 void func_801cc194_slot05_06(Object *obj) {
-    obj->field_27c++;
+    obj->hit_count_3++;
     update_sequence(obj);
-    ((Slot04bObj *)obj)->field_46--;
-    if (((Slot04bObj *)obj)->field_46 != 0) {
+    ((Slot04bObj *)obj)->countdown--;
+    if (((Slot04bObj *)obj)->countdown != 0) {
         func_801cc228_slot05_06(obj);
     } else {
-        if (obj->field_45 != 0) {
+        if (obj->active_state != 0) {
             obj->state_0 = 1;
             obj->state_1 = 0;
             obj->state_2 = 3;
@@ -28,7 +28,7 @@ void func_801cc228_slot05_06(Object *o) {
 
     if (obj->field_134 != 0) {
         if (obj->field_27d == 0) {
-            obj->field_27d = ((Object *)obj)->field_27c;
+            obj->field_27d = ((Object *)obj)->hit_count_3;
         }
     } else if (obj->timer != 0) {
         obj->timer -= 1;

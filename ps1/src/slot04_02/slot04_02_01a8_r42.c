@@ -8,9 +8,9 @@ void func_801b5290_slot04_02(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         obj->step_flags = obj->step_flags & 0xff00;
-        obj->field_0b = obj->field_0b ^ 1;
+        obj->facing_side = obj->facing_side ^ 1;
         obj->pos_y = obj->pos_y + 0x27;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->pos_x = obj->pos_x - 0x11;
         } else {
             obj->pos_x = obj->pos_x + 0x11;

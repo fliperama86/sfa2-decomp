@@ -12,7 +12,7 @@ void func_80021060_slot28(Object *obj, int arg);
 
 void func_80020b4c_slot28(Object *obj) {
     if (obj->field_f0 == 0) {
-        data_8018f5a0->field_52++;
+        data_8018f5a0->pass_index++;
         data_80051b44_slot28[0]->field_01 = 0;
         data_80051b48_slot28.p->field_01 = 0;
         func_800210f0_slot28();

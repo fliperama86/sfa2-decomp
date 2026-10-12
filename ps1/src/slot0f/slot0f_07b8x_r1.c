@@ -15,12 +15,12 @@ void func_800e07b8_slot0f(int sel) {
     func_801519b4(data_800e8480_slot0f);
     for (i = 0; i < 6; i++) {
         p = &data_800e8490_slot0f[i];
-        p->field_0b = sel == i ? 0x10 : 0x1a;
+        p->highlight_value = sel == i ? 0x10 : 0x1a;
         if (i == 1) {
             w = 3;
             if (data_800f8576_slot0f != w) {
                 w = 0x1b;
-                p->field_0b = w;
+                p->highlight_value = w;
             }
         }
         func_801519b4(p);

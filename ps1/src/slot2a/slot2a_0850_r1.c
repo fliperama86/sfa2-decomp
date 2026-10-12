@@ -12,11 +12,11 @@ void func_801e0850_slot2a(Object *obj) {
     SlotInput *in;
     int k;
 
-    if (game_state.field_ab != 0) {
+    if (game_state.status_flags != 0) {
         in = (SlotInput *)data_801e52c8_slot2a;
         if (in->buttons & 0x8000) {
             obj->state_0++;
-        } else if ((k = obj->field_03) == (in->field_02 >> 15)) {
+        } else if ((k = obj->table_index) == (in->top_bit_word >> 15)) {
             if (data_801e25d8_slot2a[k] == 0) {
                 obj->state_1 = 0;
             }
@@ -29,6 +29,6 @@ void func_801e08d4_slot2a(Object *obj) {
 }
 
 void func_801e08f4_slot2a(Object *obj, u8 idx) {
-    data_801e21f4_slot2a[obj->field_03]->data_ptr = data_801e21fc_slot2a[idx];
-    func_80130768(obj, obj->field_03, data_801e21f4_slot2a);
+    data_801e21f4_slot2a[obj->table_index]->data_ptr = data_801e21fc_slot2a[idx];
+    func_80130768(obj, obj->table_index, data_801e21f4_slot2a);
 }

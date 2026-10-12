@@ -36,8 +36,8 @@ void func_801b2188_slot04_00(Object *obj) {
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 0xa;
-            i = (obj->field_12a >> 1) + 1;
+            i = (obj->direction_index >> 1) + 1;
         }
-        obj->field_27b = data_801bfe7c_slot04_00[i];
+        obj->other_lock = data_801bfe7c_slot04_00[i];
     }
 }

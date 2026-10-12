@@ -19,13 +19,13 @@ void func_801e9e08_slot06_10(Object *obj) {
 void func_801e9e48_slot06_10(Object *obj) {
     obj->field_0a = 1;
     obj->state_0 = 1;
-    obj->field_76 = 0x340;
-    obj->field_78 = 0x100;
+    obj->base_x = 0x340;
+    obj->base_y = 0x100;
     obj->spawn_x = 0x70;
     obj->spawn_y = 0x1e0;
     obj->pos_y += 0xe0;
-    obj->field_0d = 0;
-    obj->field_81 = 4;
+    obj->image_row = 0;
+    obj->spawn_mode = 4;
     func_80130700(obj, data_801ebbb8_slot06_10[1]);
 }
 

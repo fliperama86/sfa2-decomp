@@ -16,14 +16,14 @@ int func_80149b80(Object *object) {
   if (func_8012f56c(object) != 0) {
     return 0;
   }
-  if (object->field_21b == 0) {
+  if (object->active_flag_5 == 0) {
     return 0;
   }
-  if (object->field_67 == 0) {
+  if (object->active_flag == 0) {
     return 0;
   }
   if (object->frame->active != 0) {
-    object->field_21b = 0;
+    object->active_flag_5 = 0;
     return 1;
   }
   return 0;

@@ -4,13 +4,13 @@
 #include "../externs.h"
 
 void func_801b0a94_slot04_09(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    if (obj->field_12a == 2 && obj->field_25f == 0 && (obj->field_130 & 0x8000) != 0) {
+    if (obj->direction_index == 2 && obj->field_25f == 0 && (obj->input_bits_2 & 0x8000) != 0) {
         obj->state_3 = 2;
         func_80130ec0(obj);
         obj->field_225 = 1;
-        if (obj->field_246 == 0) {
+        if (obj->counter == 0) {
             obj->field_225 = 0;
             func_80141f28(obj, 1);
         }

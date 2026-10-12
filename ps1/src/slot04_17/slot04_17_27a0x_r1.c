@@ -20,13 +20,13 @@ void func_801b27a0_slot04_17(Object *obj) {
     int k = 0x2000;
 
     if ((obj->step_flags << 16) < 0) {
-        if (obj->field_cd != 0) {
+        if (obj->mode_flag_2 != 0) {
             if (func_8014a170(obj, data_801ce050_slot04_17) != 0) {
                 goto act_b;
             }
             goto act_c;
         } else {
-            s = obj->field_130;
+            s = obj->input_bits_2;
             if ((s & 0x1000) == 0) {
                 goto act_c;
             }
@@ -43,14 +43,14 @@ act_b:
 act_c:
         obj->state_3++;
         play_side_sound_at(obj, obj->side, 6);
-        if (obj->field_cd != 0) {
+        if (obj->mode_flag_2 != 0) {
             ref_other.p = obj->other;
             d = ref_other.p->pos_x - obj->pos_x;
             s = -0x8000;
             if (d >= 0) {
                 s = 0x2000;
             }
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 s ^= 0xa000;
             }
             d += 0x10;
@@ -71,14 +71,14 @@ act_c:
             vz = 0;
             vy = -0x8000;
             vw = -0x6000;
-            if ((w & data_801ce3e4_slot04_17[obj->field_0b]) == 0) {
+            if ((w & data_801ce3e4_slot04_17[obj->facing_side]) == 0) {
                 vx = -0x28000;
             }
             if ((q & k) != 0) {
-                obj->field_0b ^= 1;
+                obj->facing_side ^= 1;
             }
         }
-        obj->field_48 = d;
+        obj->variant_index = d;
         d += 0x2e;
         if (obj->field_49 != 0) {
             vx <<= 1;
@@ -88,7 +88,7 @@ act_c:
         obj->accel_x = vz;
         obj->vel_y = vy;
         obj->accel_y = vw;
-        func_801307e0(obj, d + obj->field_12a);
+        func_801307e0(obj, d + obj->direction_index);
     } else {
         update_sequence(obj);
     }

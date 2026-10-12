@@ -5,12 +5,12 @@
 
 void func_8007632c_slot00(Object *obj) {
     obj->state_3++;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
-    if (obj->field_219 != 0) {
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
+    if (obj->attack_param_d != 0) {
         obj->state_3 = 2;
         obj->field_225 = 1;
-        if (obj->field_246 == 0) {
+        if (obj->counter == 0) {
             obj->field_225 = 0;
             func_80141f28(obj, 1);
         }

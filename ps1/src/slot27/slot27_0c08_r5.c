@@ -7,15 +7,15 @@ void func_800110b8_slot27(void) {
     Object *o;
     o = (Object *)func_8011f1e0();
     if (o != 0) {
-        o->field_00 = 1;
+        o->active_count = 1;
         o->field_02 = 0xa9;
-        o->field_03 = 0;
+        o->table_index = 0;
     }
     o = (Object *)func_8011f1e0();
     if (o != 0) {
-        o->field_00 = 1;
+        o->active_count = 1;
         o->field_02 = 0xab;
-        o->field_03 = 0;
+        o->table_index = 0;
     }
 }
 

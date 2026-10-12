@@ -11,11 +11,11 @@ void func_801b2a58_slot04_03(Object *obj) {
         obj->state_3 = 0xb;
         func_801307e0(obj, 0x31);
     } else if (t != 0) {
-        if (obj->field_12a < 3) {
+        if (obj->direction_index < 3) {
             goto set;
         }
-        c = obj->field_129 - 1;
-        obj->field_129 = c;
+        c = obj->input_dir_second - 1;
+        obj->input_dir_second = c;
         if (c & 0x80) {
         set:
             obj->state_3 = 0xb;

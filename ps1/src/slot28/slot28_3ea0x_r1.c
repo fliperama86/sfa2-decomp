@@ -18,8 +18,8 @@ void func_80013ea0_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
     Object *o;
     int one;
-    h->field_50 = h->field_50 + 1;
-    h->field_60 = 0x258;
+    h->step_index_2 = h->step_index_2 + 1;
+    h->countdown_timer = 0x258;
     func_801280f0();
     one = 1;
     data_80190568 = one;
@@ -31,7 +31,7 @@ void func_80013ea0_slot28(Object *obj) {
         o->pos_x = 0;
         o->spawn_x = 0;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = 0;
         func_80130768(o, 1, data_80029ed0_slot28);
     }
@@ -43,7 +43,7 @@ void func_80013ea0_slot28(Object *obj) {
         o->pos_x = 0;
         o->spawn_x = 0;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = 0;
         func_80130768(o, 0, data_80029ecc_slot28);
     }
@@ -55,7 +55,7 @@ void func_80013ea0_slot28(Object *obj) {
         o->pos_y = 0x20;
         o->spawn_x = 0x10;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = 2;
         func_80130768(o, 0, data_80029ed8_slot28);
     }
@@ -67,7 +67,7 @@ void func_80013ea0_slot28(Object *obj) {
         o->pos_y = 0x20;
         o->spawn_x = 0x20;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = 3;
         func_80130768(o, 0, data_80029ee0_slot28);
     }
@@ -79,7 +79,7 @@ void func_80013ea0_slot28(Object *obj) {
         o->pos_y = 0xa0;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = one;
         func_80130768(o, 0, data_80029ee4_slot28);
     }
@@ -90,8 +90,8 @@ void func_80013ea0_slot28(Object *obj) {
         o->spawn_y = 0x1e0;
         o->pos_x = 0x28;
         o->spawn_x = 0;
-        o->field_0d = 0;
-        o->field_03 = one;
+        o->image_row = 0;
+        o->table_index = one;
         o->ot_depth = 0;
         o->vel_y = 0xb8;
         func_80130768(o, 0, data_80029ef4_slot28);

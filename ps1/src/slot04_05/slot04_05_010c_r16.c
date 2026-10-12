@@ -4,8 +4,8 @@
 #include "../externs.h"
 
 void func_801b3cf8_slot04_05(Object *o, Object *p) {
-    if ((s32)o == p->field_28) {
-        p->field_28 = 0;
+    if ((s32)o == p->linked_object) {
+        p->linked_object = 0;
     }
     func_8011f38c(o);
 }

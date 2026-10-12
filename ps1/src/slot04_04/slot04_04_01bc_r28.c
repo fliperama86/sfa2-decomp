@@ -9,23 +9,23 @@ void func_801b2468_slot04_04(Object *obj) {
     u16 a;
 
     obj->state_3++;
-    obj->field_46 = *(u8 *)&obj->field_46 + 0x400;
+    obj->countdown = *(u8 *)&obj->countdown + 0x400;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     func_80145d20(obj);
-    obj->vel_x = data_801c4344_slot04_04[obj->field_12a * 2];
-    obj->accel_x = data_801c4344_slot04_04[obj->field_12a * 2 + 1];
-    obj->vel_y = data_801c4344_slot04_04[obj->field_12a * 2 + 2];
-    obj->accel_y = data_801c4344_slot04_04[obj->field_12a * 2 + 3];
-    a = (obj->field_12a >> 1) + 0x50;
+    obj->vel_x = data_801c4344_slot04_04[obj->direction_index * 2];
+    obj->accel_x = data_801c4344_slot04_04[obj->direction_index * 2 + 1];
+    obj->vel_y = data_801c4344_slot04_04[obj->direction_index * 2 + 2];
+    obj->accel_y = data_801c4344_slot04_04[obj->direction_index * 2 + 3];
+    a = (obj->direction_index >> 1) + 0x50;
     func_801307e0(obj, a);
 }
 
 void func_801b2548_slot04_04(Object *obj) {
-    obj->field_46 = (s16)obj->field_46 - 0x100;
-    if ((obj->field_46 & 0xff00) == 0) {
+    obj->countdown = (s16)obj->countdown - 0x100;
+    if ((obj->countdown & 0xff00) == 0) {
         obj->state_3++;
-        obj->field_46 = *(u8 *)&obj->field_46 + 0x3800;
+        obj->countdown = *(u8 *)&obj->countdown + 0x3800;
         if (obj->field_4b != 0) {
             obj->field_165 = 1;
         } else {

@@ -10,18 +10,18 @@ void func_801b40d0_slot04_12(Object *obj, Object *p);
 void func_801b40d0_slot04_12(Object *obj, Object *p) {
     u8 a;
 
-    a = p->frame->field_09;
+    a = p->frame->frame_param;
     if (a == 0) {
-        obj->field_48 = 0;
+        obj->variant_index = 0;
     } else {
         obj->pos_x = p->pos_x;
         obj->pos_y = p->pos_y;
-        obj->field_0b = p->field_0b;
+        obj->facing_side = p->facing_side;
         obj->field_01 = 1;
-        if (obj->field_48 == a) {
+        if (obj->variant_index == a) {
             advance_sequence_checked(obj);
         } else {
-            obj->field_48 = a;
+            obj->variant_index = a;
             func_80130700(obj, data_801c4f08_slot04_12[p->side][a]);
         }
     }

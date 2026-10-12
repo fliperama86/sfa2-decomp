@@ -6,10 +6,10 @@
 
 
 void func_80132370(Object *object) {
-    if (object->field_cd != 0 && object->field_cf >= 0x1d &&
-        game_state.field_33 == 0 &&
-        (object->field_67 != 0 || ((s16)object->step_flags & 0x8000)) &&
-        object->field_14c == 0 &&
+    if (object->mode_flag_2 != 0 && object->table_column >= 0x1d &&
+        game_state.loop_counter == 0 &&
+        (object->active_flag != 0 || ((s16)object->step_flags & 0x8000)) &&
+        object->linked_object_3 == 0 &&
         object->pos_y < (s16)(object->ground_y - 0x30)) {
         object->state_0 = 1;
         object->state_2 = 7;

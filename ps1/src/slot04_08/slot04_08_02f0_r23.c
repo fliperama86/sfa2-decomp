@@ -12,9 +12,9 @@ void func_801b48d8_slot04_08(Object *obj) {
 }
 
 void func_801b491c_slot04_08(Object *obj, Object *unused) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_80130dc0(obj);
 }
 

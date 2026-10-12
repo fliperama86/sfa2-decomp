@@ -12,18 +12,18 @@ void func_80126bcc(GameState *state, Object *object) {
         return;
     }
     if (object->side == 0)
-        state->field_08 &= 0xfe;
+        state->side_bits_b &= 0xfe;
     else if (object->side == 1)
-        state->field_08 &= 0xfd;
-    v = add_bcd(object->field_e4, data_80181534);
-    object->field_e4 = v;
+        state->side_bits_b &= 0xfd;
+    v = add_bcd(object->score_2, data_80181534);
+    object->score_2 = v;
     if (v > 0x9999998)
-        object->field_e4 = 0x9999999;
-    object->field_a9 = 2;
-    object->field_b0 = 0x7f;
-    object->field_db = 1;
-    object->field_b8 = object->field_e4;
+        object->score_2 = 0x9999999;
+    object->step_index = 2;
+    object->countdown_timer = 0x7f;
+    object->db_flag = 1;
+    object->score = object->score_2;
     object->phase_index = 0;
-    object->field_c1++;
+    object->cost_index++;
     func_80126778(state, object);
 }

@@ -33,7 +33,7 @@ void func_8011db78(Object *obj, u16 column, u16 frame, Block172 *second) {
 
     idx = obj->field_02;
     r = (SeqHeader *) func_801250c0(obj, frame);
-    dist = data_801900f8[idx] - r->field_00 + 1;
+    dist = data_801900f8[idx] - r->count + 1;
     if (dist >= 10)
         return;
     size = data_80183d9c[idx][dist];
@@ -42,7 +42,7 @@ void func_8011db78(Object *obj, u16 column, u16 frame, Block172 *second) {
     hdr = (SeqHeader *) data_80183dec[idx][dist];
     if (hdr == 0)
         return;
-    count = hdr->field_00;
+    count = hdr->count;
     if (count == 0)
         return;
     if (data_80183dc4[idx][dist] == 0) {
@@ -59,11 +59,11 @@ void func_8011db78(Object *obj, u16 column, u16 frame, Block172 *second) {
     y0 = yy;
     y1 = yy;
     if (obj->field_0f != 0) {
-        y0 = game_state.field_92 + yy;
+        y0 = game_state.scroll_y + yy;
         y1 = y0;
     }
     rec = (Pooled *) &data_801987cc[data_801a27d0][0x280 + obj->side * 320 + column * 80];
-    sp = (u16 *) ((u8 *) obj->field_98 + (hdr->pos_x & 0xfffe));
+    sp = (u16 *) ((u8 *) obj->data_ptr_a + (hdr->pos_x & 0xfffe));
     for (i = 0; i < count; i++) {
         /* fa and fb as locals; the plain tests inside the ifs differ in 14 instruction lines. */
         fa = mode & 1;
@@ -96,27 +96,27 @@ void func_8011db78(Object *obj, u16 column, u16 frame, Block172 *second) {
             switch (mode & 0xff) {
             case 0:
                 x0 += 0x10;
-                rec->field_08 = x1;
+                rec->rect_x = x1;
                 x1 += 0x10;
-                rec->field_0a = y1;
+                rec->rect_y = y1;
                 break;
             case 1:
-                rec->field_08 = x0;
+                rec->rect_x = x0;
                 x0 -= 0x10;
                 x1 -= 0x10;
-                rec->field_0a = y1;
+                rec->rect_y = y1;
                 break;
             case 2:
                 x0 += 0x10;
-                rec->field_08 = x1;
+                rec->rect_x = x1;
                 x1 += 0x10;
-                rec->field_0a = y0;
+                rec->rect_y = y0;
                 break;
             case 3:
-                rec->field_08 = x0;
+                rec->rect_x = x0;
                 x0 -= 0x10;
                 x1 -= 0x10;
-                rec->field_0a = y0;
+                rec->rect_y = y0;
                 break;
             }
         }

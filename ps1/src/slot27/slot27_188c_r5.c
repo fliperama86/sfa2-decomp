@@ -11,21 +11,21 @@ void func_80011d90_slot27(void) {
     Object *o = ref_other.p;
 
     if (o->kind == 2 && (*data_80026958_slot27[o->side] & 0x100) != 0) {
-        u8 t = r->field_06 + 1;
-        r->field_06 = t;
+        u8 t = r->count_b + 1;
+        r->count_b = t;
         if (t > 0xb4) {
-            r->field_06 = 0xb4;
+            r->count_b = 0xb4;
         }
     } else {
-        r->field_06 = 0;
+        r->count_b = 0;
     }
     if (o->kind == 4 && (*data_80026958_slot27[o->side] & 0x100) != 0) {
-        u8 t = r->field_05 + 1;
-        r->field_05 = t;
+        u8 t = r->count_a + 1;
+        r->count_a = t;
         if (t > 0xb4) {
-            r->field_05 = 0xb4;
+            r->count_a = 0xb4;
         }
     } else {
-        r->field_05 = 0;
+        r->count_a = 0;
     }
 }

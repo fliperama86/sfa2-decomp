@@ -6,19 +6,19 @@
 void func_801b470c_slot04_07(Object *obj) {
     u8 one = 1;
 
-    obj->field_159 = one;
+    obj->active_flag_3 = one;
     obj->state_3 = obj->state_3 + 1;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0) {
-        if (obj->field_218 != 0 && (func_8013f8c4(obj, -0x12, 0x14) & 0xff) != 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index != 0) {
+        if (obj->hit_flag_a != 0 && (func_8013f8c4(obj, -0x12, 0x14) & 0xff) != 0) {
             obj->state_0 = one;
             obj->state_1 = 2;
             obj->state_2 = 0;
             obj->state_3 = 0;
-        } else if (obj->field_12a == 4) {
+        } else if (obj->direction_index == 4) {
             obj->state_3 = 2;
-            if (obj->field_219 != 0) {
-                if (obj->field_0b == 0) {
+            if (obj->attack_param_d != 0) {
+                if (obj->facing_side == 0) {
                     obj->pos_x = obj->pos_x - 0x20;
                 } else {
                     obj->pos_x = obj->pos_x + 0x20;

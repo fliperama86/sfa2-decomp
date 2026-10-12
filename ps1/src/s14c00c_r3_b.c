@@ -29,10 +29,10 @@ void func_8014cbf8(Object *object) {
 }
 
 void func_8014cc80(Object *object) {
-    object->field_20a = 0;
+    object->script_mode = 0;
     object->field_224 = 0;
     object->field_25d = 0;
-    object->field_20c = object->field_222;
+    object->field_20c = object->saved_script_word;
     func_8014cb1c(object);
 }
 
@@ -47,7 +47,7 @@ void func_8014ccf0(Object *object) {
 void func_8014cd30(Object *object) {
     if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
-    } else if (object->field_21c == 0 || --object->field_21c == 0) {
+    } else if (object->countdown_3 == 0 || --object->countdown_3 == 0) {
         func_8014d99c(object);
     }
 }
@@ -71,7 +71,7 @@ void func_8014ce0c(Object *object) {
 void func_8014ce78(Object *object) {
     if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
-    } else if (object->other->field_45 != 1) {
+    } else if (object->other->active_state != 1) {
         func_8014d99c(object);
     }
 }
@@ -82,8 +82,8 @@ void func_8014cedc(Object *object) {
         func_8014e080(object);
     } else {
         other = object->other;
-        if (other->field_45 != 1
-            || ((s16)other->pos_y >= (s16)(other->ground_y - (object->field_211 + (object->field_210 << 8)))
+        if (other->active_state != 1
+            || ((s16)other->pos_y >= (s16)(other->ground_y - (object->limit_lo + (object->limit_hi << 8)))
                 && other->vel_y > 0)) {
             func_8014d99c(object);
         }
@@ -93,7 +93,7 @@ void func_8014cedc(Object *object) {
 void func_8014cf80(Object *object) {
     if ((u8)func_8014de94(object) != 0) {
         func_8014e080(object);
-    } else if (object->field_21c == 0 || --object->field_21c == 0) {
+    } else if (object->countdown_3 == 0 || --object->countdown_3 == 0) {
         func_8014d99c(object);
     } else if (func_80142378(object) != 0) {
         object->field_208 = 3;
@@ -102,8 +102,8 @@ void func_8014cf80(Object *object) {
         object->state_1 = 0;
         object->state_2 = 5;
         object->state_3 = 0;
-        object->field_159 = 1;
-        object->field_21b = 0;
-        object->field_0b = object->field_158;
+        object->active_flag_3 = 1;
+        object->active_flag_5 = 0;
+        object->facing_side = object->saved_facing;
     }
 }

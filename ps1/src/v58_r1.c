@@ -16,7 +16,7 @@ int is_box_overlapping_other_player(Object *object) {
     if (index != 0) {
         mine = (Box32 *)object->box_tables->boxes_b;
         mine += index;
-        if (object->field_65 != 0) {
+        if (object->team_id != 0) {
             ref_second.p = &player_left;
         } else {
             ref_second.p = &player_right;

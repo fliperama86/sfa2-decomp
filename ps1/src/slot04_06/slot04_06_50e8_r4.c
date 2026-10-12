@@ -6,9 +6,9 @@
 void func_801b599c_slot04_06(Object *obj) {
     obj->vel_x = 0xa0000;
     obj->accel_x = -0xc000;
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_80130dc0(obj);
 }
 
@@ -23,14 +23,14 @@ void func_801b59e8_slot04_06(Object *obj) {
         }
         if ((s16)obj->step_flags == 2 && (s32)obj->vel_x >= 0) {
             d = obj->vel_x;
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 d = -d;
             }
             *(s32 *)&obj->pos_x_frac += d;
             obj->vel_x += obj->accel_x;
             update_sequence(obj);
         } else {
-            if (((Slot04aObj *)obj)->field_3a != 0 && (func_80149b80(obj) & 0xff) != 0) {
+            if (((Slot04aObj *)obj)->mode != 0 && (func_80149b80(obj) & 0xff) != 0) {
                 obj->state_3 = 0;
             }
             update_sequence(obj);

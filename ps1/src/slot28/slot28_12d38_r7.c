@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_80023ad4_slot28(Object *obj) {
-    if (game_state.field_f0 == 0) {
-        data_8018f5a0->field_4e += 1;
+    if (game_state.wait_flag == 0) {
+        data_8018f5a0->substep_index += 1;
     }
 }

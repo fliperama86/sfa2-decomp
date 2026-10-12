@@ -10,7 +10,7 @@
 void func_80138628(GameState *state)
 {
   unsigned int new_var;
-  new_var = table_6d08[state->field_2d];
+  new_var = table_6d08[state->table_index_2];
   counter_c -= new_var;
   new_var = table_6d10[get_random_byte() & 0x1f];
   counter_c += 8 - new_var;

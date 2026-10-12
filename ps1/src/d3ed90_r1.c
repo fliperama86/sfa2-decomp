@@ -7,12 +7,12 @@ extern u16 table_8017ab5c[];
 void func_8013f2fc(Object *object, int index);
 
 /*
- * Checks an object's flag halfword (field_150) against a table entry
+ * Checks an object's flag halfword (input_word) against a table entry
  * (table_8017ab5c[arg]) (inferred, not original names). The entry's low
  * byte is the required-bit mask; entry bit 0x200 clear: the mask alone
  * decides; 0x200 and 0x100 set: flag bit 0 also passes; 0x200 set, 0x100
  * clear, 0x800 set: flag bit 1 also passes; none of these: nothing is
- * done. A pass increments the slot's field_02 and calls func_8013f2c8; a
+ * done. A pass increments the slot's repeat_count and calls func_8013f2c8; a
  * failure calls func_8013f2fc with the object and the slot index.
  */
 /* The call of func_8013f2c8 passes a second and a third argument although the callee takes one: the original has index and arg in the second and third argument registers at the call. Written with one argument, this function differs from the original in 22 instruction slots. */
@@ -30,7 +30,7 @@ void func_8013ed90(Object *object, int index, int arg) {
     index &= 0xff;
     mask = table_8017ab5c[arg];
     entry = mask;
-    flags = object->field_150;
+    flags = object->input_word;
     mask = entry & 0xff;
     /* Flag bits 0 and 1 are taken through one shared local (bit1). Taking
        them straight from flags differs in 26 instruction lines. */
@@ -38,9 +38,9 @@ void func_8013ed90(Object *object, int index, int arg) {
     bit0 = bit1 & 1;
     bit1 = bit1 & 2;
     flags = flags & mask;
-    /* Judgment call: field_02 is a byte in Slot, the original increments a
+    /* Judgment call: repeat_count is a byte in Slot, the original increments a
        halfword there (lhu/addiu/sh). Without the cast the build warns. */
-    cnt = (u16 *)&object->slots[index].field_02;
+    cnt = (u16 *)&object->slots[index].repeat_count;
     if (!(entry & 0x200)) {
         if (mask != flags) {
             func_8013f2fc(object, index);

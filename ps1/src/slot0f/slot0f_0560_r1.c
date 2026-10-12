@@ -9,9 +9,9 @@ void func_800e06b8_slot0f(GameState *g, int x);
 
 void func_800e0560_slot0f(Object *obj) {
     HudState *h = data_8018f5a0;
-    h->field_48++;
-    h->field_4a = 0;
-    h->field_4c = 0;
+    h->state_index++;
+    h->phase_index = 0;
+    h->step_index = 0;
     func_80120408();
     func_8011eb14();
 }
@@ -53,13 +53,13 @@ void func_800e0640_slot0f(GameState *g) {
         return;
     }
     x = 0;
-    if (g->field_5c != 0) {
-        g->field_5d--;
+    if (g->countdown_timer != 0) {
+        g->countdown_timer_b--;
         x = 1;
-        if (g->field_5d == 0) {
+        if (g->countdown_timer_b == 0) {
             x = 0;
-            g->field_5c--;
-            g->field_5d = g->reload_value;
+            g->countdown_timer--;
+            g->countdown_timer_b = g->reload_value;
         }
     }
     func_800e06b8_slot0f(g, x);

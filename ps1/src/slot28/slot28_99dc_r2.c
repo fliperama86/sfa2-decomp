@@ -20,8 +20,8 @@ void func_80019ae8_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
     int one;
     Object *o;
-    h->field_60 = 0xb4;
-    h->field_50++;
+    h->countdown_timer = 0xb4;
+    h->step_index_2++;
     func_80151020(0x501);
     one = 1;
     func_8001a9c4_slot28();
@@ -35,7 +35,7 @@ void func_80019ae8_slot28(Object *obj) {
         o->pos_x = 0;
         o->spawn_x = 0;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = one;
         func_80130768(o, 1, data_80036690_slot28 + 1);
         o->field_01 = one;
@@ -48,7 +48,7 @@ void func_80019ae8_slot28(Object *obj) {
         o->pos_x = 0;
         o->spawn_x = 0;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = one;
         func_80130768(o, 0, data_80036690_slot28);
     }
@@ -60,7 +60,7 @@ void func_80019ae8_slot28(Object *obj) {
         o->pos_y = -0x60;
         o->spawn_x = 0x10;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = 5;
         func_80130768(o, 0, data_80036690_slot28 + 3);
     }
@@ -72,7 +72,7 @@ void func_80019ae8_slot28(Object *obj) {
         o->pos_y = 0x20;
         o->spawn_x = 0x20;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = 4;
         func_80130768(o, 0, data_80036690_slot28 + 5);
     }
@@ -83,8 +83,8 @@ void func_80019ae8_slot28(Object *obj) {
         o->spawn_y = 0x1e0;
         o->pos_x = 0x28;
         o->spawn_x = 0;
-        o->field_0d = 0;
-        o->field_03 = one;
+        o->image_row = 0;
+        o->table_index = one;
         o->ot_depth = 0;
         o->vel_y = 0xb8;
         func_80130768(o, 0, data_80036690_slot28 + 20);
@@ -98,29 +98,29 @@ void func_80019ae8_slot28(Object *obj) {
         o->pos_y = 0x90;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = 2;
         func_80130768(o, 0, t);
         data_80051998_slot28[0] = o;
-        ((Slot28Obj *)o)->field_6c = t;
+        ((Slot28Obj *)o)->sequence_ptr = t;
     }
     o = (Object *)func_8011f1e0();
     if (o != 0) {
         o->field_02 = 0x33;
         o->field_90 = (void *)0x80060000;
-        o->field_98 = data_80035430_slot28;
-        o->field_9c = data_800357d8_slot28;
+        o->data_ptr_a = data_80035430_slot28;
+        o->data_ptr_b = data_800357d8_slot28;
         o->pos_x = 0xe8;
         o->pos_y = 0x91;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
         o->ot_depth = 3;
-        o->field_00 = one;
-        o->field_03 = 0;
+        o->active_count = one;
+        o->table_index = 0;
         o->field_01 = 0;
-        o->field_0d = 0;
+        o->image_row = 0;
         data_8005199c_slot28.p = o;
-        ((Slot28Obj *)o)->field_6c = data_80036690_slot28 + 6;
+        ((Slot28Obj *)o)->sequence_ptr = data_80036690_slot28 + 6;
     }
     func_8012818c();
 }

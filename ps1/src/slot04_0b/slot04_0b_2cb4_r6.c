@@ -7,14 +7,14 @@ void func_801b3550_slot04_0b(Object *obj) {
     Object *o = obj->other;
     int a;
 
-    obj->field_a2 = 0;
+    obj->step_count = 0;
     if (*(u8 *)&obj->step_flags != 0) {
-        obj->field_a2 = 1;
+        obj->step_count = 1;
         obj->step_flags = obj->step_flags & 0xff00;
         func_80146478(obj, 1, -0x54, 0x55);
         a = 0;
-        if (obj->field_a1 == 0) {
-            obj->field_a1++;
+        if (obj->offset_index == 0) {
+            obj->offset_index++;
             a = 9;
         }
         if (func_80140cd8(obj, a, 0) != 0) {
@@ -23,10 +23,10 @@ void func_801b3550_slot04_0b(Object *obj) {
             play_side_sound_at(obj, obj->side, 0xb);
             func_801307e0(obj, 0x19);
         }
-        obj->field_46 = obj->field_46 + 1;
+        obj->countdown = obj->countdown + 1;
     }
     func_80140fe0(obj);
-    if ((s16)obj->field_46 != 0) {
+    if ((s16)obj->countdown != 0) {
         if (o->field_15b != 0) {
             if ((u8)func_801410c8(obj) == 0) {
                 goto check;
@@ -39,7 +39,7 @@ void func_801b3550_slot04_0b(Object *obj) {
         func_801307e0(obj, 0x19);
     }
 check:
-    if (obj->field_a2 != 0) {
+    if (obj->step_count != 0) {
         play_sound_at(obj, o->side, 0x309);
         play_side_sound_at(obj, obj->side, 0xa);
     }

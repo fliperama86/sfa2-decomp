@@ -28,11 +28,11 @@ void func_80014fd4_slot27(Object *obj) {
 
 void func_80014ff4_slot27(Object *o) {
     o->state_0 = o->state_0 + 1;
-    ref_first.p = o->field_28;
+    ref_first.p = o->linked_object;
     if (ref_first.p != 0) {
         ref_first.p->state_0 = 2;
     }
-    ref_first.p = ((Slot27Obj *)o)->field_2c;
+    ref_first.p = ((Slot27Obj *)o)->linked_object;
     if (ref_first.p != 0) {
         ref_first.p->state_0 = 2;
     }

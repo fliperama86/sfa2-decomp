@@ -6,23 +6,23 @@
 
 
 void func_8011f70c(Object *object) {
-    if (object->field_2a2 != 0) {
+    if (object->cursor_timer_b != 0) {
         object->field_16a = 1;
-        object->field_2a2--;
+        object->cursor_timer_b--;
         object->field_7e = object->field_7e - 1;
         if (object->field_7e & 0x80) {
             object->field_225 = 0;
         }
-        object->field_182 = object->field_182 + 1;
-        if ((s16)object->field_182 >= 0xae) {
-            object->field_182 = 0xad;
+        object->frame_count = object->frame_count + 1;
+        if ((s16)object->frame_count >= 0xae) {
+            object->frame_count = 0xad;
         }
     }
 }
 
 void func_8011f774(Object *object) {
-    if (object->field_2a1 != 0) {
-        object->field_2a1--;
+    if (object->cursor_timer_a != 0) {
+        object->cursor_timer_a--;
         if (object->side != 0) {
             game_state.cursor = table_80185cf4;
         } else {

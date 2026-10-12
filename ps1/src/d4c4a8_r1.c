@@ -6,9 +6,9 @@
 /* The same distance as func_8014362c, for the object's partner (object->other)
    and a box chosen by the animation frame of the object that ref_second points
    at (inferred). The result goes to the global data_80189464. The partner's
-   field_0b selects the mirrored arm. The distance: the object's x minus the sum
+   facing_side selects the mirrored arm. The distance: the object's x minus the sum
    of the partner's x and the box half-width (origin minus the extent byte,
-   negated when the partner's field_0b is non-zero), as a 16-bit number made
+   negated when the partner's facing_side is non-zero), as a 16-bit number made
    positive. */
 void func_8014c4a8(Object *object) {
     Box6 *box;
@@ -31,7 +31,7 @@ void func_8014c4a8(Object *object) {
     neg = -e;
     origin = (u16)box->origin;
     e = neg;
-    if (other->field_0b != 0) {
+    if (other->facing_side != 0) {
         origin = -origin;
         e = -neg;
     }

@@ -14,10 +14,10 @@ int func_80130184(Object *object) {
 }
 
 void func_801301d8(Object *object) {
-    if (object->field_48 != 0) {
-        if (object->field_130 & 0x8000) func_8012f838(object);
+    if (object->variant_index != 0) {
+        if (object->input_bits_2 & 0x8000) func_8012f838(object);
     } else {
-        if (object->field_130 & 0x2000) func_8012f838(object);
+        if (object->input_bits_2 & 0x2000) func_8012f838(object);
     }
     *(s32 *)&object->pos_x_frac += object->vel_x;
 }

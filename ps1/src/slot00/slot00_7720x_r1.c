@@ -13,16 +13,16 @@ void func_80077720_slot00(Object *obj) {
     obj->health = 0xfff;
     obj->vel_y = 0x20;
     obj->accel_y = 0xff;
-    obj->field_a0 = 0xff;
+    obj->variant_index_2 = 0xff;
     obj->state_0++;
-    obj->accel_x = obj->field_0d;
-    p = obj->field_3c;
-    obj->field_67 = 0;
+    obj->accel_x = obj->image_row;
+    p = obj->parent;
+    obj->active_flag = 0;
     obj->field_60 = 0;
     obj->field_6b = 0;
     obj->field_1c = p->field_1c;
-    obj->field_1e = p->field_1e;
-    ((Slot00Obj *)obj)->field_a4 += *(s16 *)(data_8007a008_slot00 + (obj->field_ac & 0xfe));
+    obj->cycle_value = p->cycle_value;
+    ((Slot00Obj *)obj)->countdown += *(s16 *)(data_8007a008_slot00 + (obj->vel_table_index & 0xfe));
     obj->box_tables = (BoxTables *)data_80079fec_slot00;
     if (p->side == 0) {
         obj->frames = frames_left;

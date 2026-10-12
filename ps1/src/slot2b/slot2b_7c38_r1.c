@@ -14,19 +14,19 @@ void func_80077c38_slot2b(Object *o) {
 
 void func_80077ca4_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
-    s->field_47 = 2;
+    s->countdown_timer = 2;
     o->state_2++;
-    o->field_0b ^= 1;
-    o->field_67 = 0;
+    o->facing_side ^= 1;
+    o->active_flag = 0;
     func_801380f0(o);
-    func_80138070(o, (o->field_ac >> 1) + 6);
+    func_80138070(o, (o->vel_table_index >> 1) + 6);
 }
 
 void func_80077d04_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
-    s->field_47--;
-    if (s->field_47 == 0) {
-        o->field_00 = 1;
+    s->countdown_timer--;
+    if (s->countdown_timer == 0) {
+        o->active_count = 1;
         o->state_0 = 1;
         o->state_1 = 0;
         o->state_2 = 0;

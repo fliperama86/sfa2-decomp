@@ -10,7 +10,7 @@ void func_800761c8_slot00(Object *obj);
 
 void func_800760a8_slot00(Object *obj) {
     obj->field_157 = 1;
-    if (obj->field_129 == 0) {
+    if (obj->input_dir_second == 0) {
         func_800760e8_slot00(obj);
     } else {
         func_800761c8_slot00(obj);
@@ -22,9 +22,9 @@ void func_800760e8_slot00(Object *obj) {
 }
 
 void func_80076128_slot00(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_80130dc0(obj);
 }
 
@@ -40,5 +40,5 @@ void func_80076160_slot00(Object *obj) {
 }
 
 void func_800761c8_slot00(Object *obj) {
-    data_80079158_slot00[obj->field_12a >> 1](obj);
+    data_80079158_slot00[obj->direction_index >> 1](obj);
 }

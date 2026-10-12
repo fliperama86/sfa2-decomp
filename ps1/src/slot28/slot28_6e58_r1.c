@@ -16,7 +16,7 @@ void func_80016e7c_slot28(void) {
     int i;
     for (i = 0; i < 10; i++) {
         Object *p = data_800518d0_slot28[i];
-        if (p != 0 && p->field_00 != 0) {
+        if (p != 0 && p->active_count != 0) {
             func_8011f240((Slab172 *)p);
             data_800518d0_slot28[i] = 0;
         }

@@ -10,8 +10,8 @@ void func_800e2550_slot0f(Object *o);
 void func_800e1b84_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     s8 t;
-    if (obj->field_0f != 0) {
-        obj->field_0f = obj->field_0f - 1;
+    if (obj->countdown != 0) {
+        obj->countdown = obj->countdown - 1;
     } else {
         if (obj->field_0b == 0) {
             o->field_0e = func_800e0a1c_slot0f(0);

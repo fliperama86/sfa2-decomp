@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 void func_801b2350_slot04_06(Object *obj) {
-    obj->field_12c = 0;
+    obj->substate_index = 0;
     obj->field_12d = 0;
-    obj->field_12e = 0;
-    obj->field_12f = 0;
+    obj->step_count_2 = 0;
+    obj->step_limit = 0;
     obj->accel_x = 0;
     obj->state_3++;
     obj->vel_x = 0x20000;
@@ -19,11 +19,11 @@ void func_801b2350_slot04_06(Object *obj) {
 void func_801b23ac_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    if (obj->field_1c3 != 0) {
-        obj->field_1c3--;
+    if (obj->countdown_2 != 0) {
+        obj->countdown_2--;
     } else {
-        if (obj->field_3a != 0) {
-            o->field_45 = 1;
+        if (obj->mode != 0) {
+            o->active_state = 1;
             obj->field_1c8 = 0;
             o->state_3++;
         }

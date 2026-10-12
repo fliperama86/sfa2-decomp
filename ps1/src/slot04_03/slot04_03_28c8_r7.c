@@ -9,11 +9,11 @@ void func_801b3130_slot04_03(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int t;
 
-    o->field_27c++;
+    o->hit_count_3++;
     update_sequence(o);
-    o->field_46 = t = (o->field_46 & 0xff00) | ((o->field_46 & 0xff) - 1);
+    o->countdown = t = (o->countdown & 0xff00) | ((o->countdown & 0xff) - 1);
     if ((t & 0xff) == 0) {
-        if (o->field_45 != 0) {
+        if (o->active_state != 0) {
             o->state_0 = 1;
         }
         o->state_2 = 3;
@@ -23,15 +23,15 @@ void func_801b3130_slot04_03(Object *o) {
     } else {
         if (obj->field_134 != 0) {
             if (obj->field_27d == 0) {
-                obj->field_27d = o->field_27c;
+                obj->field_27d = o->hit_count_3;
             }
         } else if ((t & 0xff00) != 0) {
-            o->field_46 = t - 0x100;
+            o->countdown = t - 0x100;
         }
         func_80142fe8(o);
     }
 }
 
 void func_801b3204_slot04_03(Object *obj) {
-    data_801c0744_slot04_03[obj->field_128](obj);
+    data_801c0744_slot04_03[obj->input_dir_0](obj);
 }

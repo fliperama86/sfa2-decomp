@@ -14,16 +14,16 @@ void func_801cdc58_slot05_06(Object *obj) {
 
     obj->field_01 = 0;
     p = data_801dd754_slot05_06;
-    if (obj->field_03 == p->kind) {
-        a = p->frame->field_09;
+    if (obj->table_index == p->kind) {
+        a = p->frame->frame_param;
         if (a == 0) {
-            obj->field_48 = 0;
+            obj->variant_index = 0;
         } else {
             obj->pos_x = p->pos_x;
             obj->pos_y = p->pos_y;
-            obj->field_0b = p->field_0b;
+            obj->facing_side = p->facing_side;
             obj->field_01 = 1;
-            if (obj->field_48 != a) {
+            if (obj->variant_index != a) {
                 func_801cdd64_slot05_06(obj, a);
             } else {
                 advance_sequence_checked(obj);
@@ -41,21 +41,21 @@ void func_801cdd0c_slot05_06(Object *o) {
 void func_801cdd20_slot05_06(Object *o) {
     Object *p = data_801dd754_slot05_06;
 
-    if ((s32)o == p->field_28) {
-        p->field_28 = 0;
+    if ((s32)o == p->linked_object) {
+        p->linked_object = 0;
     }
     func_8011f38c(o);
 }
 
 void func_801cdd5c_slot05_06(Object *o) {
-    o->field_48 = 0;
+    o->variant_index = 0;
 }
 
 void func_801cdd64_slot05_06(Object *obj, int idx) {
     SequenceStep **table;
 
-    obj->field_48 = idx;
-    if (obj->field_66 == 0) {
+    obj->variant_index = idx;
+    if (obj->sound_side == 0) {
         table = data_1f8000b4;
     } else {
         table = data_1f800164;

@@ -7,7 +7,7 @@ extern u8 data_800319b8_slot01[];
 void func_80012dec_slot01(Object *obj, u8 *a);
 
 void func_80012d08_slot01(Object *obj) {
-    if (obj->field_03 != 0) {
+    if (obj->table_index != 0) {
         advance_sequence_checked(obj);
         func_80120028(obj);
     } else {
@@ -16,7 +16,7 @@ void func_80012d08_slot01(Object *obj) {
 }
 
 void func_80012d7c_slot01(Object *obj) {
-    Object **p = (Object **)obj->field_3c->field_28;
+    Object **p = (Object **)obj->parent->linked_object;
     int n;
 
     for (n = 4; n > 0; n--) {

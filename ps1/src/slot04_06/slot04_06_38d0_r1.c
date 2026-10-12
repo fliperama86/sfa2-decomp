@@ -16,7 +16,7 @@ void func_801b38d0_slot04_06(Object *o) {
     } else {
         other = o->other;
         other->field_15b = 1;
-        if (obj->field_1c5 < 2 || (obj->field_1c5 & 0x80)) {
+        if (obj->table_value < 2 || (obj->table_value & 0x80)) {
             func_80140770(o, 0, 0xc, 3, 0, 0, 0);
         } else {
             func_80140770(o, 0, 0xa, 3, 0, 0, 0);
@@ -26,16 +26,16 @@ void func_801b38d0_slot04_06(Object *o) {
             if (o->field_49 != 0) {
                 o->field_167 = 0x16;
                 o->field_255 = 6;
-                g->field_6b = 0;
+                g->spawn_kind = 0;
                 func_80147000(o);
             }
         }
-        other->field_247 = 0;
+        other->step_applied_flag = 0;
         o->vel_x = 0xfffe0000;
         o->accel_y = -0x4800;
         o->vel_y = 0x44000;
         o->accel_x = 0;
-        o->field_45 = 1;
+        o->active_state = 1;
         o->state_3++;
         func_801307e0(o, 0x26);
     }
@@ -46,10 +46,10 @@ void func_801b3a00_slot04_06(Object *obj) {
     if (obj->pos_y <= obj->ground_y) {
         func_801b4818_slot04_06(obj);
     } else {
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
         func_801312b8(obj);
     }
 }

@@ -7,44 +7,44 @@ void func_801218fc(Object *object) {
     int i;
     Object *o;
     if (object->state_2 == 0) {
-        data_8018f5a0->field_50++;
-        data_8018f5a0->field_60 = 0x20;
+        data_8018f5a0->step_index_2++;
+        data_8018f5a0->countdown_timer = 0x20;
         object->ot_depth = 0;
-        object->field_2c = 0;
-        object->field_ab = 0;
+        object->linked_object_2 = 0;
+        object->phase_state = 0;
         for (i = 0; i < 2; i++) {
             o = (Object *)func_8011f1e0();
             if (o != 0) {
-                o->field_00 = 1;
+                o->active_count = 1;
                 o->field_02 = 0x31;
-                o->field_03 = i;
+                o->table_index = i;
             }
         }
         for (i = 0; i < 2; i++) {
             o = (Object *)func_8011f1e0();
             if (o != 0) {
-                o->field_00 = 1;
+                o->active_count = 1;
                 o->field_02 = 0x32;
-                o->field_03 = 0;
-                o->field_48 = i;
+                o->table_index = 0;
+                o->variant_index = i;
                 if (i == 0) {
-                    o->field_3c = &player_left;
+                    o->parent = &player_left;
                 } else {
-                    o->field_3c = &player_right;
+                    o->parent = &player_right;
                 }
             }
         }
         for (i = 0; i < 2; i++) {
             o = (Object *)func_8011f1e0();
             if (o != 0) {
-                o->field_00 = 1;
+                o->active_count = 1;
                 o->field_02 = 0x17;
-                o->field_03 = 1;
-                o->field_48 = i;
+                o->table_index = 1;
+                o->variant_index = i;
                 if (i == 0) {
-                    o->field_3c = &player_left;
+                    o->parent = &player_left;
                 } else {
-                    o->field_3c = &player_right;
+                    o->parent = &player_right;
                 }
             }
         }

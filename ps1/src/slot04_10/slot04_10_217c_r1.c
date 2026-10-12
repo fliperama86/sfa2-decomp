@@ -29,7 +29,7 @@ int func_801b2324_slot04_10(Object *obj) {
     int r = 0;
 
     if (obj->field_7e == 0) {
-        if (obj->field_177 == 0) {
+        if (obj->remaining_count == 0) {
             return 0;
         }
     }
@@ -40,8 +40,8 @@ int func_801b2324_slot04_10(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 1;
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
     }
     return r;
 }
@@ -60,7 +60,7 @@ void func_801b2430_slot04_10(Object *obj) {
     func_80142fbc(obj);
     func_801428a8(obj);
     func_80138b38((GameState *)game_state.config, obj);
-    if (obj->field_45 != 0) {
+    if (obj->active_state != 0) {
         a = 0x2f;
     } else {
         a = 0x2b;
@@ -75,9 +75,9 @@ void func_801b249c_slot04_10(Object *obj) {
         a = 0;
         b = 0x55;
         obj->field_165 = 0xff;
-        obj->field_46 = 0x1e01;
+        obj->countdown = 0x1e01;
         obj->state_3 = obj->state_3 + 1;
-        if (obj->field_45 != 0) {
+        if (obj->active_state != 0) {
             a = -0x24;
             b = 0x53;
         }
@@ -92,17 +92,17 @@ void func_801b249c_slot04_10(Object *obj) {
 
 void func_801b253c_slot04_10(Object *obj) {
     u8 a;
-    obj->field_46 = (s16)obj->field_46 - 0x100;
-    if ((obj->field_46 & 0xff00) == 0) {
+    obj->countdown = (s16)obj->countdown - 0x100;
+    if ((obj->countdown & 0xff00) == 0) {
         obj->state_3++;
         a = ((Slot04bObj *)obj)->field_c6 + 0x1e;
-        obj->field_27c = 0;
-        ((Slot04bObj *)obj)->field_27d = 0;
-        obj->field_46 = (u8)obj->field_46 | 0x1400;
+        obj->hit_count_3 = 0;
+        ((Slot04bObj *)obj)->saved_count = 0;
+        obj->countdown = (u8)obj->countdown | 0x1400;
         if (obj->field_4b != 0) {
-            obj->field_46 = (obj->field_46 >> 8 << 8) + 0x48;
+            obj->countdown = (obj->countdown >> 8 << 8) + 0x48;
         }
-        obj->field_2a1 = a;
+        obj->cursor_timer_a = a;
         obj->field_180 = 0;
     }
     func_80142fe8(obj);
@@ -114,13 +114,13 @@ void func_801b25d8_slot04_10(Object *o) {
     int a;
     int t;
 
-    obj->field_27c++;
+    obj->counter++;
     update_sequence(o);
-    a = o->field_46;
+    a = o->countdown;
     t = a - 1;
-    o->field_46 = t;
+    o->countdown = t;
     if ((t & 0xff) == 0) {
-        if (o->field_45 != 0) {
+        if (o->active_state != 0) {
             o->state_0 = 1;
             o->state_1 = 0;
             o->state_2 = 3;
@@ -129,12 +129,12 @@ void func_801b25d8_slot04_10(Object *o) {
         func_80142c70(o);
     } else {
         if (o->pressed_bits != 0) {
-            if (obj->field_27d == 0) {
-                obj->field_27d = obj->field_27c;
+            if (obj->saved_count == 0) {
+                obj->saved_count = obj->counter;
             }
         } else if ((s16)(t & -0x100) != 0) {
-            o->field_46 = a - 0x101;
-            if ((o->field_46 & 0x100) == 0) {
+            o->countdown = a - 0x101;
+            if ((o->countdown & 0x100) == 0) {
                 return;
             }
         } 
@@ -147,12 +147,12 @@ void func_801b26b0_slot04_10(Object *obj) {
 }
 
 void func_801b26f0_slot04_10(Object *obj) {
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3++;
     if (obj->field_49 == 0) {
-        obj->field_177--;
+        obj->remaining_count--;
     }
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     obj->field_157 = 0;
     func_801307e0(obj, 0x45);
 }
@@ -205,7 +205,7 @@ void func_801b28a8_slot04_10(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         ref_other.p = obj->other;
         ref_other.p->field_15b = 1;
-        ref_other.p->field_260 = 1;
+        ref_other.p->hit_flag = 1;
         func_80140770(obj, 0, 0x11, 0x11, 4, 0, u);
         ref_other.p = obj->other;
         if ((s16)ref_other.p->health < 0) {

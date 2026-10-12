@@ -28,13 +28,13 @@
  *      only skips the second load.
  * Compiled for a PC, the callee would read something else.
  *
- * What the function does (inferred): it moves pos_x by 4 for the field_03
+ * What the function does (inferred): it moves pos_x by 4 for the table_index
  * values 0x10 and 0x11, raises state_0 when the halfword at 0x3a is
  * negative, calls advance_sequence_checked with the object, then func_80120028.
  *
  * Contract:
  *   Argument: object (a0), a pointer to an object; no result.
- *   Reads: field_03, state_0, the halfword pos_x (0x12), the halfwords at
+ *   Reads: table_index, state_0, the halfword pos_x (0x12), the halfwords at
  *     0x38 and 0x3a, and the word at 0x18. Writes: pos_x, state_0.
  *   Callees: advance_sequence_checked runs as the original code in the test (a leaf; it
  *     reads and writes the object at 0x08, 0x18, 0x38, 0x3a, 0x4a, 0x80, 0x88
@@ -56,10 +56,10 @@
 void func_80146794(Object *object) {
     Object *arg;
 
-    if (object->field_03 >= 0x10) {
-        if (object->field_03 == 0x10) {
+    if (object->table_index >= 0x10) {
+        if (object->table_index == 0x10) {
             object->pos_x = object->pos_x + 4;
-        } else if (object->field_03 == 0x11) {
+        } else if (object->table_index == 0x11) {
             object->pos_x = object->pos_x - 4;
         }
     }

@@ -11,9 +11,9 @@ void func_8014c528(Object *object) {
 }
 
 void func_8014c578(Object *object) {
-    if (object->field_20f == 0) {
+    if (object->script_arg == 0) {
         func_8014c5f8(object);
-    } else if (object->field_20f == 2) {
+    } else if (object->script_arg == 2) {
         if (func_8014a170(object, (u32 *)table_8017d798) != 0) {
             func_8014c5f8(object);
         } else {
@@ -23,9 +23,9 @@ void func_8014c578(Object *object) {
 }
 
 void func_8014c5f8(Object *object) {
-    object->field_20a = 1;
-    object->field_222 = object->field_20c;
-    object->field_228 = (s32)data_80189460;
+    object->script_mode = 1;
+    object->saved_script_word = object->field_20c;
+    object->script_pointer = (s32)data_80189460;
     func_8014da18(object);
     func_8014c914(object);
 }

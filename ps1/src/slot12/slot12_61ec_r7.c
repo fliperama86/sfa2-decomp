@@ -13,20 +13,20 @@ void func_80016864_slot12(Object *obj) {
     int r;
     u8 *src;
 
-    for (i = 0; i <= ((Slot12Obj *)obj)->field_5c; i++) {
+    for (i = 0; i <= ((Slot12Obj *)obj)->entry_count; i++) {
         func_80014434_slot12(obj, a, 0x10, 0x10);
         a->tpage = 0x7f07;
         r = func_8015bd0c(0, 0, 0x3c0, 0x100);
-        a->cmd = 0xe1000000 + (((Object *)data_801987c8)->field_a2 << 9) + (((Object *)data_801987c8)->field_a3 << 10) + (r & 0x1f);
+        a->cmd = 0xe1000000 + (((Object *)data_801987c8)->step_count << 9) + (((Object *)data_801987c8)->field_a3 << 10) + (r & 0x1f);
         a++;
         a->tpage = 0x7f07;
         r = func_8015bd0c(0, 0, 0x3c0, 0x100);
-        a->cmd = 0xe1000000 + (((Object *)data_801987c8)->field_a2 << 9) + (((Object *)data_801987c8)->field_a3 << 10) + (r & 0x1f);
+        a->cmd = 0xe1000000 + (((Object *)data_801987c8)->step_count << 9) + (((Object *)data_801987c8)->field_a3 << 10) + (r & 0x1f);
         a++;
     }
     a = data_8002c528_slot12;
     src = (u8 *)((ObjectWords *)obj)->word_50;
-    for (i = 0; i <= ((Slot12Obj *)obj)->field_5c; i++) {
+    for (i = 0; i <= ((Slot12Obj *)obj)->entry_count; i++) {
         u8 c = *src++;
         int k = c & 0x7f;
         u8 u;
@@ -50,5 +50,5 @@ void func_80016864_slot12(Object *obj) {
         a->y = obj->pos_y;
         a++;
     }
-    obj->vel_x = ((Slot12Obj *)obj)->field_5c * 16 + 0xc0;
+    obj->vel_x = ((Slot12Obj *)obj)->entry_count * 16 + 0xc0;
 }

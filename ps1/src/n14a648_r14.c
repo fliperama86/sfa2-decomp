@@ -4,5 +4,5 @@
 #include "protos.h"
 
 void func_80151018(GameState *state) {
-    state->field_f0 = 0;
+    state->wait_flag = 0;
 }

@@ -16,11 +16,11 @@ void func_8015c09c(void *prim);
 void init_draw_mode_prim_4(Tx *tx);
 
 void func_801e92fc_slot06_0e(Slot06Layer *layer) {
-    layer->field_50 = data_801ec8ec_slot06_0e;
-    layer->field_54 = data_801ec8ec_slot06_0e;
-    layer->field_1e = 0x5810;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ec8ec_slot06_0e;
+    layer->data_table = data_801ec8ec_slot06_0e;
+    layer->packed_param = 0x5810;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e9328_slot06_0e(void) {
@@ -46,9 +46,9 @@ void func_801e9328_slot06_0e(void) {
 }
 
 void func_801e93c8_slot06_0e(Slot06Layer *layer) {
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_801e9410_slot06_0e(layer);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         func_801e9480_slot06_0e(layer);
     }
 }
@@ -58,9 +58,9 @@ int func_801e9410_slot06_0e(Slot06Layer *layer) {
     init_cam_position((Cam *)layer, 0x1c0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
-        layer->field_04++;
+        layer->mode++;
         layer->field_8b = 0;
-        if (game_state.field_42 == 0) {
+        if (game_state.count_index == 0) {
             layer->field_8b = 0xff;
         }
     }
@@ -71,29 +71,29 @@ void func_801e9480_slot06_0e(Slot06Layer *layer) {
     s16 d;
     s16 e;
 
-    data_801eac90_slot06_0e[layer->field_05](layer);
+    data_801eac90_slot06_0e[layer->state_index](layer);
     l2 = (Slot06Layer *)data_801aa5d4;
     d = l2->field_22;
-    d -= l2->field_0a;
+    d -= l2->ref_x;
     d += data_80190542;
     d /= 2;
-    d += layer->field_0a;
-    d += layer->field_36;
+    d += layer->ref_x;
+    d += layer->pos_x_int;
     layer->field_22 = d;
     e = l2->field_26;
     e -= l2->field_0e;
     e /= 2;
     e += layer->field_0e;
-    e += layer->field_3a;
+    e += layer->pos_y_int;
     layer->field_26 = e;
 }
 
 void func_801e9554_slot06_0e(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         if (layer->field_8b == 0) {
-            *(s32 *)&layer->field_38 += 0x8000;
-            if ((s16)layer->field_3a >= 0x480) {
-                layer->field_05++;
+            *(s32 *)&layer->pos_y += 0x8000;
+            if ((s16)layer->pos_y_int >= 0x480) {
+                layer->state_index++;
             }
         }
     }
@@ -101,26 +101,26 @@ void func_801e9554_slot06_0e(Slot06Layer *layer) {
 
 void func_801e95b4_slot06_0e(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
-        *(s32 *)&layer->field_38 += 0x8000;
-        if ((s16)layer->field_3a >= 0x700) {
-            layer->field_05++;
-            layer->field_30 = 0x140;
+        *(s32 *)&layer->pos_y += 0x8000;
+        if ((s16)layer->pos_y_int >= 0x700) {
+            layer->state_index++;
+            layer->countdown_timer = 0x140;
         }
     }
 }
 
 void func_801e9604_slot06_0e(Slot06Layer *layer) {
     layer->field_8b = 0xff;
-    layer->field_30 -= 1;
-    if (layer->field_30 == 0) {
-        layer->field_05++;
+    layer->countdown_timer -= 1;
+    if (layer->countdown_timer == 0) {
+        layer->state_index++;
         ((Slot06Layer *)data_801aa544)->field_00 = 2;
         layer->field_8b = 0;
     }
 }
 
 void func_801e9644_slot06_0e(Slot06Layer *layer) {
-    layer->field_05++;
+    layer->state_index++;
 }
 
 void func_801e9658_slot06_0e(Slot06Layer *layer) {
@@ -128,11 +128,11 @@ void func_801e9658_slot06_0e(Slot06Layer *layer) {
 }
 
 void func_801e9664_slot06_0e(Slot06Layer *layer) {
-    layer->field_50 = data_801ed8ec_slot06_0e;
-    layer->field_54 = data_801ed8ec_slot06_0e;
-    layer->field_1e = 0x6008;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ed8ec_slot06_0e;
+    layer->data_table = data_801ed8ec_slot06_0e;
+    layer->packed_param = 0x6008;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e9690_slot06_0e(void) {

@@ -13,5 +13,5 @@ void func_80135c0c(u8 *a, u8 *b, u8 index) {
 }
 
 void func_80135c80(GameState *a, u8 v) {
-    a->field_f0 = v;
+    a->wait_flag = v;
 }

@@ -12,7 +12,7 @@ void func_80149238(Block172 *block) {
 
 void func_80149278(Object *object) {
     object->state_0 = object->state_0 + 1;
-    table_8017cf10[object->field_03](object);
+    table_8017cf10[object->table_index](object);
 }
 
 void func_801492c0(Object *object) {
@@ -28,7 +28,7 @@ void func_80149304(Object *object) {
 }
 
 void func_80149348(Object *object) {
-    Object *other = object->field_3c;
+    Object *other = object->parent;
     object->ot_depth = 6;
     play_sound_at(other, other->side, 0x326);
     func_80130768(object, 0x27, seqs_8017c7f8);
@@ -46,12 +46,12 @@ void func_80149398(Object *object) {
 }
 
 void func_80149410(Object *object) {
-    table_8017cf20[object->field_03](object);
+    table_8017cf20[object->table_index](object);
     func_80120028(object);
 }
 
 void func_80149464(Object *object) {
-    ref_other.p = object->field_3c;
+    ref_other.p = object->parent;
     if (ref_other.p->field_165 == 0) {
         object->state_0 = object->state_0 + 1;
     }
@@ -63,7 +63,7 @@ void func_801494c0(Object *object) {
 }
 
 void func_801494e0(Object *object) {
-    ref_other.p = object->field_3c;
+    ref_other.p = object->parent;
     if ((s16)object->step_flags < 0) {
         object->state_0 = object->state_0 + 1;
         play_sound_at(ref_other.p, ref_other.p->side, 0x328);

@@ -4,5 +4,5 @@
 #include "protos.h"
 
 void func_80119b34(AnimObj *a) {
-    a->field_94 = 0;
+    a->stream_index = 0;
 }

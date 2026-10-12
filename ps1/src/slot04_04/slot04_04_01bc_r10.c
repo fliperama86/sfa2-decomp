@@ -13,8 +13,8 @@ u8 func_801b0de0_slot04_04(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 0;
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
         func_80142ba0(obj);
     }
     return r;
@@ -30,9 +30,9 @@ u8 func_801b0e54_slot04_04(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 1;
-        obj->field_159 = 1;
-        obj->field_67 = 0;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->active_flag = 0;
+        obj->facing_side = obj->saved_facing;
         func_80142ba0(obj);
     }
     return r;
@@ -42,7 +42,7 @@ u8 func_801b0ecc_slot04_04(Object *obj) {
     u8 r = 0;
 
     if (obj->field_7e == 0) {
-        if (obj->field_240 != 0) {
+        if (obj->link_flags != 0) {
             return 0;
         }
     }
@@ -53,8 +53,8 @@ u8 func_801b0ecc_slot04_04(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 2;
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
         func_80142b3c(obj);
     }
     return r;

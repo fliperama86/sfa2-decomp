@@ -7,7 +7,7 @@ void func_801b44b4_slot04_02(Object *obj) {
     int one = 1;
     int a;
 
-    obj->field_17b = one;
+    obj->active_flag_4 = one;
     obj->state_3 = one;
     obj->field_157 = 0;
     func_80141f28(obj, 1);

@@ -8,16 +8,16 @@ void func_801b0998_slot04_07(Object *obj) {
 
     obj->state_3++;
     ((Slot04aObj *)obj)->field_1ca = 0;
-    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x12, 0x10) != 0) {
+    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x12, 0x10) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;
         obj->state_3 = 0;
     } else {
         one = 1;
-        obj->field_159 = one;
+        obj->active_flag_3 = one;
         func_80130dc0(obj);
-        if (obj->field_12a == 4) {
+        if (obj->direction_index == 4) {
             obj->state_3 = 2;
             obj->field_278 = one;
         }

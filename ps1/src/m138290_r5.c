@@ -12,7 +12,7 @@ s32 func_80139f84(Object *a, Object *b, Box32 *unused) {
     int side;
 
     if (data_80188f30 & 1) {
-        if (a->field_45 != 0 && a->state_2 != 8) {
+        if (a->active_state != 0 && a->state_2 != 8) {
             if (a->state_2 == 7) {
                 return 0;
             }
@@ -22,7 +22,7 @@ s32 func_80139f84(Object *a, Object *b, Box32 *unused) {
             x0 = a->pos_x;
             x1 = b->pos_x;
             side = x0 >= x1;
-            if (b->field_0b != side) {
+            if (b->facing_side != side) {
                 return 0;
             }
             by = (u16)b->pos_y;

@@ -18,7 +18,7 @@ void set_selected_flag_by_index(u8 index) {
 }
 
 void func_80124ae8(u8 index) {
-    game_state.field_56 = table_8016e81c[index];
+    game_state.table_index_3 = table_8016e81c[index];
 }
 
 void func_80124b10(void) {

@@ -6,7 +6,7 @@
 
 
 void func_80152444(Object *object) {
-    table_80180284[object->field_48 >> 1](object);
+    table_80180284[object->variant_index >> 1](object);
 }
 
 void func_80152488(Object *object) {
@@ -16,14 +16,14 @@ void func_80152488(Object *object) {
 
 void func_801524dc(Object *object) {
     object->state_1++;
-    func_80152ad8(object, object->field_48);
+    func_80152ad8(object, object->variant_index);
     func_801528e0(object);
 }
 
 void func_8015251c(Object *object) {
     if (func_801528b0(object)) {
         object->state_1++;
-        func_80130768(object, (object->field_48 * 2 + 0x33) & 0xff, table_8017c7f8);
+        func_80130768(object, (object->variant_index * 2 + 0x33) & 0xff, table_8017c7f8);
     }
     func_801528e0(object);
     advance_sequence_checked(object);
@@ -52,7 +52,7 @@ void func_801525f0(Object *object) {
 
 void func_80152668(Object *object) {
     object->state_1++;
-    func_80130768(object, (table_801802a8[(s16)object->field_46] + (object->field_03 >> 2)) & 0xff, table_8017c7f8);
+    func_80130768(object, (table_801802a8[(s16)object->countdown] + (object->table_index >> 2)) & 0xff, table_8017c7f8);
     func_801529f4(object);
 }
 

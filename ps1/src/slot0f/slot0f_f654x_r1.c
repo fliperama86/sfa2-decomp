@@ -8,15 +8,15 @@
    as a plain call, this function differs from the original in 1 instruction
    slot. */
 void func_800df654_slot0f(GameState *state) {
-    int n = state->field_c4 - 1;
-    state->field_c4 = n;
+    int n = state->step_delay_timer - 1;
+    state->step_delay_timer = n;
     if ((s16)n == 0) {
-        state->field_c4 = 2;
-        ((void (*)(u8, u8, s16, u8))scale_palette_rows_all_entries)(4, 0x20, state->field_c2, 0);
+        state->step_delay_timer = 2;
+        ((void (*)(u8, u8, s16, u8))scale_palette_rows_all_entries)(4, 0x20, state->step_counter, 0);
         func_80137220(4, 7);
-        state->field_c2++;
-        if ((s16)state->field_c2 >= 0x20) {
-            data_8018f5a0->field_4a++;
+        state->step_counter++;
+        if ((s16)state->step_counter >= 0x20) {
+            data_8018f5a0->phase_index++;
         }
     }
 }

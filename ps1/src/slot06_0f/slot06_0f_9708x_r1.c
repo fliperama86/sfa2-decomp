@@ -13,10 +13,10 @@ void func_801e9708_slot06_0f(Object *obj) {
     obj->field_0f = 1;
     obj->field_0a = 1;
     obj->field_0c = 0;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0++;
     obj->pos_y += 0x70;
-    if (obj->field_03 != 0) {
+    if (obj->table_index != 0) {
         idx = 4;
     }
     func_80130700(obj, data_801ecba4_slot06_0f[idx]);

@@ -23,16 +23,16 @@ void func_801e05f4_slot2a(Object *obj) {
     obj->field_0e = 0;
     obj->ot_depth = 0;
     obj->field_0f = 0;
-    obj->field_26 = 0;
+    obj->scroll_factor = 0;
     obj->state_0 = obj->state_0 + 1;
-    data_801e25d8_slot2a[obj->field_03] = 0;
+    data_801e25d8_slot2a[obj->table_index] = 0;
     obj->pos_y = 0x40;
-    if (obj->field_03 != 0) {
+    if (obj->table_index != 0) {
         obj->pos_y = 0xa0;
     }
     obj->pos_x = 0x30;
-    t = obj->field_45 ^ obj->field_03;
-    obj->field_0b = t;
+    t = obj->active_state ^ obj->table_index;
+    obj->facing_side = t;
     if (t != 0) {
         obj->pos_x = 0x140;
     }
@@ -42,21 +42,21 @@ void func_801e05f4_slot2a(Object *obj) {
 
 void func_801e06a0_slot2a(Object *obj) {
     table_801e225c_slot2a[obj->state_1](obj);
-    if (data_801e25d8_slot2a[obj->field_03] != 0) {
-        func_801e0958_slot2a(obj, (SpritePrim *)(data_801e25dc_slot2a + obj->field_03 * 0x500 + data_801a27d0 * 0x280));
+    if (data_801e25d8_slot2a[obj->table_index] != 0) {
+        func_801e0958_slot2a(obj, (SpritePrim *)(data_801e25dc_slot2a + obj->table_index * 0x500 + data_801a27d0 * 0x280));
     }
     func_801e114c_slot2a(obj);
 }
 
 void func_801e074c_slot2a(Object *obj) {
     obj->state_1++;
-    if (obj->field_45 != (*data_801e52c8_slot2a >> 8)) {
-        obj->field_3c = &player_right;
+    if (obj->active_state != (*data_801e52c8_slot2a >> 8)) {
+        obj->parent = &player_right;
     } else {
-        obj->field_3c = &player_left;
+        obj->parent = &player_left;
     }
-    func_801e08f4_slot2a(obj, obj->field_3c->kind);
-    func_801e0d94_slot2a(obj, (SlotCell *)(data_801e25dc_slot2a + obj->field_03 * 0x500), 0xb);
-    func_801e0d94_slot2a(obj, (SlotCell *)(data_801e25dc_slot2a + 0x280 + obj->field_03 * 0x500), 0xb);
-    data_801e25d8_slot2a[obj->field_03] = 1;
+    func_801e08f4_slot2a(obj, obj->parent->kind);
+    func_801e0d94_slot2a(obj, (SlotCell *)(data_801e25dc_slot2a + obj->table_index * 0x500), 0xb);
+    func_801e0d94_slot2a(obj, (SlotCell *)(data_801e25dc_slot2a + 0x280 + obj->table_index * 0x500), 0xb);
+    data_801e25d8_slot2a[obj->table_index] = 1;
 }

@@ -11,20 +11,20 @@ void func_8002026c_slot28(Object *obj) {
 
     obj->state_0++;
     obj->field_0e = 0;
-    obj->field_0b = 0;
-    obj->field_48 = 0;
-    obj->vel_x = data_80042274_slot28[obj->field_03].vel_x;
-    obj->vel_y = data_80042274_slot28[obj->field_03].vel_y;
-    obj->accel_x = data_80042274_slot28[obj->field_03].accel_x;
-    obj->accel_y = data_80042274_slot28[obj->field_03].accel_y;
+    obj->facing_side = 0;
+    obj->variant_index = 0;
+    obj->vel_x = data_80042274_slot28[obj->table_index].vel_x;
+    obj->vel_y = data_80042274_slot28[obj->table_index].vel_y;
+    obj->accel_x = data_80042274_slot28[obj->table_index].accel_x;
+    obj->accel_y = data_80042274_slot28[obj->table_index].accel_y;
     obj->field_0c = 0xff;
-    if (obj->field_03 != 0) {
-        obj->field_0d = 0;
-        obj->field_0b = get_random_byte() & 1;
+    if (obj->table_index != 0) {
+        obj->image_row = 0;
+        obj->facing_side = get_random_byte() & 1;
         func_80130768(obj, 2, (SequenceStep **)obj->box_tables);
     } else {
-        obj->field_0b = 1;
-        obj->field_0d = 0;
+        obj->facing_side = 1;
+        obj->image_row = 0;
         func_80130768(obj, 0, (SequenceStep **)obj->box_tables);
     }
 }

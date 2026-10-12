@@ -14,7 +14,7 @@ void func_80013a20_slot28(Object *o) {
         func_80027d54_slot28((Object *)&game_state);
     } else {
         HudState *h = data_8018f5a0;
-        h->field_4e = h->field_4e + 1;
+        h->substep_index = h->substep_index + 1;
     }
 }
 
@@ -23,7 +23,7 @@ void func_80013a7c_slot28(Object *obj) {
         func_80027e50_slot28((Object *)&game_state);
     } else {
         HudState *h = data_8018f5a0;
-        h->field_4e = h->field_4e + 1;
+        h->substep_index = h->substep_index + 1;
     }
 }
 
@@ -36,16 +36,16 @@ void func_80013ad8_slot28(Object *o) {
         player_right.field_a5 = 0;
         player_left.field_01 = 0;
         player_right.field_01 = 0;
-        h->field_50 = 0;
-        h->field_52 = 0;
+        h->step_index_2 = 0;
+        h->pass_index = 0;
         h->field_54 = 0;
         h->field_56 = 0;
         ((Slot28Obj *)o)->field_2c = 0;
-        ((Slot28Obj *)o)->field_86 = 1;
+        ((Slot28Obj *)o)->state_flag = 1;
         if (((u8 *)&o->field_90)[1] != 0) {
-            ((Slot28Obj *)o)->field_86 = 0;
+            ((Slot28Obj *)o)->state_flag = 0;
         }
-        ((Slot28Obj *)o)->field_86 = ((Slot28Obj *)o)->field_86 + 0x80;
+        ((Slot28Obj *)o)->state_flag = ((Slot28Obj *)o)->state_flag + 0x80;
         func_80013b68_slot28();
     }
 }

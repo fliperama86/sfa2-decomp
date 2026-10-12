@@ -12,43 +12,43 @@ void func_800dfd20_slot0f(GameState *state, Menu *menu) {
     buttons = data_801a696a | data_801a6976;
     if ((buttons & 0x5000) != 0) {
         if ((buttons & 0x1000) != 0) {
-            menu->field_00 = (s8)menu->field_00 - 1;
-            if ((s8)menu->field_00 < 0) {
-                menu->field_00 = 5;
+            menu->mode_index = (s8)menu->mode_index - 1;
+            if ((s8)menu->mode_index < 0) {
+                menu->mode_index = 5;
             }
-            if ((s8)menu->field_02 != 3 && (s8)menu->field_00 == 1) {
-                menu->field_00 = (s8)menu->field_00 - 1;
+            if ((s8)menu->command_state != 3 && (s8)menu->mode_index == 1) {
+                menu->mode_index = (s8)menu->mode_index - 1;
             }
         } else {
-            menu->field_00 = menu->field_00 + 1;
-            if ((s8)menu->field_00 >= 6) {
-                menu->field_00 = 0;
+            menu->mode_index = menu->mode_index + 1;
+            if ((s8)menu->mode_index >= 6) {
+                menu->mode_index = 0;
             }
-            if ((s8)menu->field_02 != 3 && (s8)menu->field_00 == 1) {
-                menu->field_00 = (s8)menu->field_00 + 1;
+            if ((s8)menu->command_state != 3 && (s8)menu->mode_index == 1) {
+                menu->mode_index = (s8)menu->mode_index + 1;
             }
         }
         play_sound_at(0, 0, 0x204);
     }
-    if ((s8)menu->field_02 != (s8)menu->fade_mode) {
-        if (((s8)menu->field_02 & 1) == 0) {
-            if ((s8)menu->field_00 == 2) {
-                menu->field_00 = 0;
+    if ((s8)menu->command_state != (s8)menu->fade_mode) {
+        if (((s8)menu->command_state & 1) == 0) {
+            if ((s8)menu->mode_index == 2) {
+                menu->mode_index = 0;
             }
         }
-        if ((s8)menu->field_02 != 3 && (s8)menu->field_00 == 1) {
-            menu->field_00 = 0;
+        if ((s8)menu->command_state != 3 && (s8)menu->mode_index == 1) {
+            menu->mode_index = 0;
         }
     }
-    menu->field_01 = 0;
+    menu->active_flag = 0;
     if ((buttons & 0x820) != 0) {
         if ((data_801a696a & 0x820) != 0) {
-            menu->field_01 = 1;
+            menu->active_flag = 1;
         } else {
-            menu->field_01 = 2;
+            menu->active_flag = 2;
         }
-        data_8018f5a0->field_4a++;
+        data_8018f5a0->phase_index++;
         play_sound_at(0, 0, 0x205);
     }
-    func_800e07b8_slot0f((s8)menu->field_00);
+    func_800e07b8_slot0f((s8)menu->mode_index);
 }

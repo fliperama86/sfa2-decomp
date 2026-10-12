@@ -8,7 +8,7 @@ void func_801b31f4_slot04_04(Object *o) {
         update_sequence(o);
     } else {
         ref_other.p = o->other;
-        ref_other.p->field_249 = 5;
+        ref_other.p->other_state_code = 5;
         func_801312b8(o);
     }
 }

@@ -5,7 +5,7 @@
 
 int func_801b1368_slot04_06(Object *obj) {
     if (*(u32 *)&obj->state_0 == 0x1010101) {
-        if (obj->field_45 == 0) {
+        if (obj->active_state == 0) {
             if (obj->field_163 == 0) {
                 if (*(s16 *)&obj->health >= 0) goto yes;
             }

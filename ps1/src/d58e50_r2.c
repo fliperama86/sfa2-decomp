@@ -17,7 +17,7 @@ void func_801427d8(Object *object) {
             limit = 2;
         }
     } while (0);
-    c6 = object->field_c6;
+    c6 = object->meter;
     level = 0;
     if (c6 >= 0x60) {
         level = 2;
@@ -26,7 +26,7 @@ void func_801427d8(Object *object) {
     }
     if (limit > level)
         limit = level;
-    object->field_12a = limit;
+    object->direction_index = limit;
     object->field_255 = limit;
     func_80142c04(object);
 }

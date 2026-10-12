@@ -8,7 +8,7 @@ void func_801b21c8_slot04_05(Object *obj) {
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     func_80145d20(obj);
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         obj->vel_x = 0x50000;
     } else {
         obj->vel_x = -0x50000;
@@ -16,7 +16,7 @@ void func_801b21c8_slot04_05(Object *obj) {
     obj->accel_x = 0;
     obj->vel_y = 0x88000;
     obj->accel_y = -0x9000;
-    func_801307e0(obj, (obj->field_12a >> 1) + 0x29);
+    func_801307e0(obj, (obj->direction_index >> 1) + 0x29);
 }
 
 void func_801b2260_slot04_05(Object *obj) {

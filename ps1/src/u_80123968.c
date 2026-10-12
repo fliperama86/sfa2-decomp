@@ -20,7 +20,7 @@ void set_winner_by_health(GameState *state)
     side = 1;
     if (a == b)
     {
-      state->field_4c = 3;
+      state->leader_bits = 3;
     }
     else
     {
@@ -29,8 +29,8 @@ void set_winner_by_health(GameState *state)
         side = 2;
         who = player_right.kind;
       }
-      state->field_4c = side;
+      state->leader_bits = side;
     }
-    state->field_8f = who;
+    state->winner = who;
   }
 }

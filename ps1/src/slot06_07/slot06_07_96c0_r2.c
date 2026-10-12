@@ -14,9 +14,9 @@ void func_801e9c70_slot06_07(Object *obj) {
 void func_801e9cb0_slot06_07(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_0c = 0;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0 = obj->state_0 + 1;
     func_801e9d84_slot06_07(obj);
 }

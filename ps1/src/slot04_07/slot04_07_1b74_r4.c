@@ -6,7 +6,7 @@
 void func_801b1f78_slot04_07(Object *obj) {
     Object *o;
 
-    if (((Slot04aObj *)obj)->field_3a != 0) {
+    if (((Slot04aObj *)obj)->mode != 0) {
         o = obj->other;
         obj->state_3 = obj->state_3 + 1;
         o->field_15b = 1;
@@ -17,7 +17,7 @@ void func_801b1f78_slot04_07(Object *obj) {
                 obj->field_167 = 0x17;
             }
         }
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
     }
     update_sequence(obj);
 }

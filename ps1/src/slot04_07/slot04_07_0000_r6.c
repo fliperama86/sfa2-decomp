@@ -12,11 +12,11 @@ void func_801b0768_slot04_07(Object *obj) {
     } else {
         if ((t & 0x80) != 0 && func_80141618(obj) != 0) {
             goto reset;
-        } else if (((Slot04aObj *)obj)->field_1ca == 7 && obj->field_12a == 4 && (obj->field_130 & 0x4000) == 0 && (obj->pressed_bits & 8) != 0) {
+        } else if (((Slot04aObj *)obj)->field_1ca == 7 && obj->direction_index == 4 && (obj->input_bits_2 & 0x4000) == 0 && (obj->pressed_bits & 8) != 0) {
             obj->state_3 = 2;
-            obj->field_129 = 2;
+            obj->input_dir_second = 2;
             func_80142c04(obj);
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 obj->pos_x -= 0x20;
             } else {
                 obj->pos_x += 0x20;
@@ -27,8 +27,8 @@ void func_801b0768_slot04_07(Object *obj) {
         } else if ((u8)func_801412a4(obj) == 0) {
             update_sequence(obj);
         } else {
-            ((Slot04aObj *)obj)->field_1ca |= 1 << (obj->field_12a >> 1);
-            if (obj->field_0b == 0) {
+            ((Slot04aObj *)obj)->field_1ca |= 1 << (obj->direction_index >> 1);
+            if (obj->facing_side == 0) {
                 obj->pos_x -= 0x18;
             } else {
                 obj->pos_x += 0x18;

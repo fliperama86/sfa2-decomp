@@ -28,12 +28,12 @@ void func_801b3878_slot04_10(Object *obj) {
         return;
     }
     if ((u8)t != 0xf) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
         obj->step_flags &= 0xff00;
         game_state.other_object = obj->other;
         game_state.other_object->field_15b = 1;
-        func_80140770(obj, ((u8 *)b)[obj->field_12a & 0xfe], 0xf, -0x200, 0, 0, 1);
+        func_80140770(obj, ((u8 *)b)[obj->direction_index & 0xfe], 0xf, -0x200, 0, 0, 1);
         game_state.other_object = obj->other;
         if ((s16)game_state.other_object->health < 0) {
             obj->field_167 = 2;
@@ -42,25 +42,25 @@ void func_801b3878_slot04_10(Object *obj) {
                 obj->field_255 = 6;
             }
         }
-        obj->vel_x = c[(obj->field_12a >> 1) * 4 + 0];
-        obj->vel_y = c[(obj->field_12a >> 1) * 4 + 1];
-        obj->accel_y = c[(obj->field_12a >> 1) * 4 + 3];
+        obj->vel_x = c[(obj->direction_index >> 1) * 4 + 0];
+        obj->vel_y = c[(obj->direction_index >> 1) * 4 + 1];
+        obj->accel_y = c[(obj->direction_index >> 1) * 4 + 3];
         obj->accel_x = 0;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->vel_x = -obj->vel_x;
         }
     } else {
         obj->step_flags = t & 0xff00;
-        game_state.config->field_63 = (obj->field_12a << 2) + 0x3c;
+        game_state.config->setup_value = (obj->direction_index << 2) + 0x3c;
         func_80146960(obj);
         update_sequence(obj);
-        k = obj->field_49 != 0 ? 6 : 0; p = (s16 *)((obj->field_12a + k) * 2 + (u32)a);
+        k = obj->field_49 != 0 ? 6 : 0; p = (s16 *)((obj->direction_index + k) * 2 + (u32)a);
         if ((u8)func_80140cd8(obj, p[0], p[1]) != 0) {
             obj->field_167 = 2;
             if (obj->field_49 != 0) {
                 obj->field_167 = 0x20;
                 obj->field_255 = 6;
-                game_state.config->field_6b = 0;
+                game_state.config->countdown = 0;
                 func_80147000(obj);
             }
         }
@@ -72,7 +72,7 @@ void func_801b3b6c_slot04_10(Object *obj) {
     if ((u8)func_80130184(obj) != 0) {
         update_sequence(obj);
     } else {
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->state_3++;
         obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
@@ -86,9 +86,9 @@ void func_801b3be8_slot04_10(Object *obj) {
         func_80142adc(obj);
         update_sequence(obj);
     } else {
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
         game_state.other_object = obj->other;
-        game_state.other_object->field_249 = 5;
+        game_state.other_object->other_state_code = 5;
         func_801b1078_slot04_10(obj);
     }
 }
@@ -98,11 +98,11 @@ void func_801b3c5c_slot04_10(Object *obj) {
 }
 
 void func_801b3c9c_slot04_10(Object *obj) {
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     game_state.other_object = obj->other;
-    game_state.other_object->field_249 = 0;
+    game_state.other_object->other_state_code = 0;
     obj->state_3++;
-    func_801307e0(obj, (obj->field_12a >> 1) + 0x39);
+    func_801307e0(obj, (obj->direction_index >> 1) + 0x39);
     func_80141f28(obj, 5);
     func_80138ae8(game_state.config, obj);
     if (obj->field_49 != 0) {
@@ -112,7 +112,7 @@ void func_801b3c9c_slot04_10(Object *obj) {
 }
 
 void func_801b3d40_slot04_10(Object *obj) {
-    s16 t = *(u16 *)((u8 *)data_801c6aa8_slot04_10 + (obj->field_12a & 0xfe));
+    s16 t = *(u16 *)((u8 *)data_801c6aa8_slot04_10 + (obj->direction_index & 0xfe));
     t -= 0x26;
     if ((u8)func_8013f8c4(obj, -0x26, t) == 0) {
         obj->field_15a = 9;
@@ -141,19 +141,19 @@ void func_801b3dfc_slot04_10(Object *obj) {
     if (st != 0) {
         if (st == 1) {
             m = -0x100;
-            i = obj->field_12a >> 1;
+            i = obj->direction_index >> 1;
             k = (obj->field_49 != 0) << 2;
             i += k;
             func_80140cd8(obj, (s16)(p[i] | m), 0);
             obj->step_flags &= m;
-            game_state.config->field_63 = 0x3c;
+            game_state.config->setup_value = 0x3c;
             play_sound_at(obj, obj->side, 0x319);
             func_80146960(obj);
         } else if (st == 2) {
             obj->state_3++;
             obj->step_flags &= 0xff00;
             d = 0x60;
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 d = -0x60;
             }
             obj->pos_x -= d;
@@ -166,14 +166,14 @@ void func_801b3f54_slot04_10(Object *obj) {
 
     update_sequence(obj);
     if ((u8)obj->step_flags == 3) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
         obj->step_flags &= 0xff00;
-        obj->vel_x = tbl[obj->field_12a * 2];
-        obj->vel_y = tbl[obj->field_12a * 2 + 1];
-        obj->accel_y = tbl[obj->field_12a * 2 + 3];
+        obj->vel_x = tbl[obj->direction_index * 2];
+        obj->vel_y = tbl[obj->direction_index * 2 + 1];
+        obj->accel_y = tbl[obj->direction_index * 2 + 3];
         obj->accel_x = 0;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->vel_x = -obj->vel_x;
         }
     }

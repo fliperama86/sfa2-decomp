@@ -15,7 +15,7 @@ void func_80079334_slot2b(Object *o) {
         p = data_8007ef34_slot2b;
         o->pos_y = (u16)p->ground_y;
         o->pos_y_frac = 0;
-        o->vel_x = (((Slot2bObj *)p->other)->field_10 - ((Slot2bObj *)p)->field_10) >> 8;
+        o->vel_x = (((Slot2bObj *)p->other)->pos_x_hi - ((Slot2bObj *)p)->pos_x_hi) >> 8;
         o->vel_y = 0x20000;
         o->accel_y = -0x4000;
     }

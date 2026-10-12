@@ -7,6 +7,6 @@ extern void (*data_801c55b4_slot04_06[])(Object *);
 extern Object *data_801c5758_slot04_06;
 
 void func_801b5b68_slot04_06(Object *obj) {
-    data_801c5758_slot04_06 = obj->field_3c;
+    data_801c5758_slot04_06 = obj->parent;
     data_801c55b4_slot04_06[obj->state_0](obj);
 }

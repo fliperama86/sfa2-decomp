@@ -7,18 +7,18 @@ void func_801b34e4_slot04_04(Object *obj);
 
 void func_801b33bc_slot04_04(Object *obj) {
     int a;
-    obj->field_46 = (s16)obj->field_46 - 0x100;
-    if ((obj->field_46 & 0xff00) == 0) {
+    obj->countdown = (s16)obj->countdown - 0x100;
+    if ((obj->countdown & 0xff00) == 0) {
         obj->state_3++;
-        obj->field_27c = 0;
-        ((Slot04bObj *)obj)->field_27d = 0;
-        obj->field_46 = (u8)obj->field_46 + 0x1400;
+        obj->hit_count_3 = 0;
+        ((Slot04bObj *)obj)->saved_count = 0;
+        obj->countdown = (u8)obj->countdown + 0x1400;
         if (obj->field_4b != 0) {
             a = 0x48;
         } else {
             a = ((Slot04bObj *)obj)->field_c6 + 0x1e;
         }
-        obj->field_2a1 = a;
+        obj->cursor_timer_a = a;
         obj->field_180 = 0;
     }
     func_80142fe8(obj);
@@ -29,13 +29,13 @@ void func_801b3450_slot04_04(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int t;
 
-    obj->field_27c++;
+    obj->counter++;
     update_sequence(o);
-    o->field_46 = t = o->field_46 - 1;
+    o->countdown = t = o->countdown - 1;
     if ((t & 0xff) != 0) {
         func_801b34e4_slot04_04(o);
     } else {
-        if (o->field_45 != 0) {
+        if (o->active_state != 0) {
             o->state_0 = 1;
         }
         o->state_2 = 3;
@@ -49,8 +49,8 @@ void func_801b34e4_slot04_04(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if (o->pressed_bits != 0) {
-        if (obj->field_27d == 0) {
-            obj->field_27d = obj->field_27c;
+        if (obj->saved_count == 0) {
+            obj->saved_count = obj->counter;
         }
     }
     func_80142fe8(o);

@@ -12,24 +12,24 @@ void func_800766a0_slot00(Object *obj) {
     int a, b;
     obj->ot_depth = 0;
     obj->state_0 = obj->state_0 + 1;
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->parent;
     obj->field_49 = ref_other.p->field_49;
     obj->field_1c = ref_other.p->field_1c;
-    a = obj->field_ac;
-    o->field_b0 = 5;
-    o->field_b2 = 0xb;
+    a = obj->vel_table_index;
+    o->b0_state = 5;
+    o->b2_state = 0xb;
     b = 3;
     obj->vel_y = 0;
-    obj->field_46 = 0;
-    obj->field_03 = 0;
-    o->field_b1 = 0;
-    o->field_b3 = 0;
-    if (obj->field_ad != 0) {
+    obj->countdown = 0;
+    obj->table_index = 0;
+    o->toggle_flag = 0;
+    o->step_count = 0;
+    if (obj->active_flag_2 != 0) {
         a = 6;
         b = 1;
     }
-    obj->field_a0 = b;
-    if (obj->field_0b != 0) {
+    obj->variant_index_2 = b;
+    if (obj->facing_side != 0) {
         obj->vel_x = speeds[a >> 1];
     } else {
         obj->vel_x = -speeds[a >> 1];

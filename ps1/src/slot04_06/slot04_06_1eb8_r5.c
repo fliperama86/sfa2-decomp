@@ -28,16 +28,16 @@ void func_801b24cc_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     func_801b4850_slot04_06(o);
-    if (o->pos_y < (s16)obj->field_70) {
+    if (o->pos_y < (s16)obj->saved_pos_y) {
         func_801b4818_slot04_06(o);
     } else {
         o->state_3++;
         func_80146960(o);
-        o->field_45 = 0;
+        o->active_state = 0;
         play_sound_at(o, o->side, 0x319);
         obj->field_1c2 = 0xa;
-        o->pos_y = obj->field_70;
-        game_state.field_63 = 0xa;
+        o->pos_y = obj->saved_pos_y;
+        game_state.state_param = 0xa;
         func_801307e0(o, 0x21);
     }
 }

@@ -13,7 +13,7 @@ int func_801b0ce0_slot04_01(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 6;
-        obj->field_0b = obj->field_158;
+        obj->facing_side = obj->saved_facing;
         func_80142b3c(obj);
     }
     return r;

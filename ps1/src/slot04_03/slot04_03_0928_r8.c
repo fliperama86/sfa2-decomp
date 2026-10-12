@@ -4,8 +4,8 @@
 #include "../externs.h"
 
 int func_801b11d8_slot04_03(Object *obj) {
-    if ((s16)obj->field_c6 >= 0x30) {
-        obj->field_12c = 0;
+    if ((s16)obj->meter >= 0x30) {
+        obj->substate_index = 0;
         return 1;
     }
     return 0;

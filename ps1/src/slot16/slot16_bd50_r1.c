@@ -26,7 +26,7 @@ void func_8007bdb4_slot16(Object *obj) {
 
 void func_8007bdf8_slot16(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_8007bf74_slot16(obj);
 }
 

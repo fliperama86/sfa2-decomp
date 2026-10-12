@@ -10,11 +10,11 @@ void func_80129c08(Object *object)
   u16 new_var2;
   if (object->field_7e != 0)
   {
-    object->field_c6--;
-    new_var2 = object->field_c6;
+    object->meter--;
+    new_var2 = object->meter;
     if (new_var = ((s16) (new_var = new_var2)) < 0)
     {
-      object->field_c6 = 0;
+      object->meter = 0;
     }
   }
 }

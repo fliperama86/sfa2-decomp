@@ -18,20 +18,20 @@ void func_801b00f8_slot04_06(Object *obj) {
             *(u8 *)&obj->step_flags = 0;
             c = (Object *)func_8011f1e0();
             if (c != 0) {
-                c->field_00 = 1;
-                c->field_03 = 4;
-                c->field_3c = obj;
+                c->active_count = 1;
+                c->table_index = 4;
+                c->parent = obj;
                 c->field_1c = obj->field_1c;
                 c->spawn_x = obj->spawn_x;
                 c->spawn_y = obj->spawn_y;
-                d = obj->field_0d;
+                d = obj->image_row;
                 c->field_02 = 0x11;
-                c->field_08 = 0x20;
-                c->field_0d = d;
+                c->mode_id = 0x20;
+                c->image_row = d;
                 c->field_90 = obj->field_90;
-                c->field_66 = obj->field_66;
-                c->field_98 = obj->field_98;
-                c->field_9c = obj->field_9c;
+                c->sound_side = obj->sound_side;
+                c->data_ptr_a = obj->data_ptr_a;
+                c->data_ptr_b = obj->data_ptr_b;
             }
         }
         update_sequence(obj);

@@ -33,29 +33,29 @@ void func_80013ac0_slot01(Object *obj) {
     Object *p;
     p = (Object *)func_8011f1e0();
     if (p != 0) {
-        p->field_00 = 1;
+        p->active_count = 1;
         p->field_02 = 0x2b;
-        p->field_03 = 2;
+        p->table_index = 2;
         p->pos_x = obj->pos_x + 0x100;
         p->pos_y = obj->pos_y;
-        p->field_28 = (u32)obj;
+        p->linked_object = (u32)obj;
     }
     p = (Object *)func_8011f1e0();
     if (p != 0) {
-        p->field_00 = 1;
+        p->active_count = 1;
         p->field_02 = 0x2b;
-        p->field_03 = 3;
+        p->table_index = 3;
         p->pos_x = obj->pos_x + 0x200;
         p->pos_y = obj->pos_y;
-        p->field_28 = (u32)obj;
+        p->linked_object = (u32)obj;
     }
     p = (Object *)func_8011f1e0();
     if (p != 0) {
-        p->field_00 = 1;
+        p->active_count = 1;
         p->field_02 = 0x2b;
-        p->field_03 = 4;
+        p->table_index = 4;
         p->pos_x = obj->pos_x + 0x300;
         p->pos_y = obj->pos_y;
-        p->field_28 = (u32)obj;
+        p->linked_object = (u32)obj;
     }
 }

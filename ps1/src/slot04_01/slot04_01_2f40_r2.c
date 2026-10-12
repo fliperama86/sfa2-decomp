@@ -13,8 +13,8 @@ void func_801b3098_slot04_01(Object *obj) {
     } else {
         obj->state_3++;
         obj->pos_y_frac = 0;
-        obj->field_45 = 0;
-        obj->pos_y = ((Slot04aObj *)obj)->field_70;
+        obj->active_state = 0;
+        obj->pos_y = ((Slot04aObj *)obj)->saved_pos_y;
         func_801209c4(obj);
         set_sequence_by_side(obj, 0x11);
     }

@@ -9,13 +9,13 @@ int func_801b0ee4_slot04_06(Object *o) {
     o->state_1 = 0;
     o->state_3 = 0;
     o->field_157 = 0;
-    o->field_12a = 0;
+    o->direction_index = 0;
     o->field_6b = 0;
     o->state_2 = 7;
-    o->field_159 = 1;
-    o->field_0b = o->field_158;
+    o->active_flag_3 = 1;
+    o->facing_side = o->saved_facing;
     o->field_15a = 8;
-    o->field_27b = 0x1e;
+    o->other_lock = 0x1e;
     o->other->field_6b = 0x1a;
     func_801307e0(o, 0x39);
     return 1;
@@ -25,16 +25,16 @@ void func_801b0f78_slot04_06(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
-    obj->field_159 = t;
-    t = obj->field_158;
+    obj->active_flag_3 = t;
+    t = obj->saved_facing;
     obj->state_2 = 7;
-    obj->field_0b = t;
+    obj->facing_side = t;
     obj->field_15a = 8;
-    obj->field_27b = 0x1e;
+    obj->other_lock = 0x1e;
     obj->state_1 = 0;
     obj->state_3 = 0;
     obj->field_157 = 0;
-    obj->field_12a = 0;
+    obj->direction_index = 0;
     obj->field_6b = 0;
     obj->other->field_6b = 0x1a;
     func_801307e0(obj, 0x39);
@@ -47,8 +47,8 @@ int func_801b0fe4_slot04_06(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 5;
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
         func_80142ba0(obj);
     }
     return 1;

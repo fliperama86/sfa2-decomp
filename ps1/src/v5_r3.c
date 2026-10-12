@@ -5,10 +5,10 @@
 
 
 void func_8012ea94(Object *object) {
-    s16 t = object->field_46;
+    s16 t = object->countdown;
     if (t != 0) {
         t = t - 1;
-        object->field_46 = t;
+        object->countdown = t;
         if (t == 0) {
             Config *cfg = game_state.config;
             cfg->side_bits |= 1 << object->side;

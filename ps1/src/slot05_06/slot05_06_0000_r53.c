@@ -9,12 +9,12 @@ extern ObjectFn data_801dd528_slot05_06[];
 
 void func_801cc8d8_slot05_06(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     set_sequence_by_side(obj, 0);
 }
 
 void func_801cc90c_slot05_06(Object *obj) {
-    if (game_state.field_64 == 0 && game_state.field_5c == 0) {
+    if (game_state.field_64 == 0 && game_state.countdown_timer == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
     update_sequence(obj);
@@ -27,8 +27,8 @@ void func_801cc95c_slot05_06(Object *obj) {
 
     obj->state_2 = obj->state_2 + 1;
     ((Slot04aObj *)obj)->timer = 0x3c;
-    game_state.field_76 = 0x1e;
-    obj->field_0b = obj->field_158;
+    game_state.countdown = 0x1e;
+    obj->facing_side = obj->saved_facing;
     t = get_random_byte() & 0x3f;
     p = &((Slot04aObj *)obj)->field_1c0;
     if (t == 0) {

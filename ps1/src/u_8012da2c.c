@@ -24,26 +24,26 @@ void func_8012da2c(Object *object)
     object->state_2 = 2;
     object->state_3 = 0;
     object->field_15b = 0;
-    object->field_247 = 0;
-    if ((game_state.field_30 != 0) && (game_state.mode != (object->side + 1)))
+    object->step_applied_flag = 0;
+    if ((game_state.versus_flag != 0) && (game_state.mode != (object->side + 1)))
     {
       object->field_1a2 = 0;
     }
     return;
   }
-  w = object->field_162;
+  w = object->count_limit;
   object->state_0 = 1;
   object->state_1 = 0;
   object->state_2 = 9;
   object->state_3 = 0;
-  object->field_15d = 0;
-  object->field_15e = 0;
+  object->countdown_timer_2 = 0;
+  object->accum_count = 0;
   object->field_163 = 0;
-  object->field_162 = w + 5;
+  object->count_limit = w + 5;
   func_80155f30(object);
   object->field_69 = 0;
-  object->field_6a = 0;
-  if ((game_state.field_30 != 0) && (game_state.mode != (object->side + 1)))
+  object->round_count = 0;
+  if ((game_state.versus_flag != 0) && (game_state.mode != (object->side + 1)))
   {
     v = object->field_1a1 + 0xff;
     object->field_1a1 = v;
@@ -60,11 +60,11 @@ void func_8012da2c(Object *object)
   play_side_sound_at(object, object->side, 2);
   if (object->kind == 9)
   {
-    object->field_46 = table_80171194[new_var];
+    object->countdown = table_80171194[new_var];
   }
   else
   {
-    object->field_46 = table_80171174[new_var];
+    object->countdown = table_80171174[new_var];
   }
   func_801308c4(object, 0x1a);
 }

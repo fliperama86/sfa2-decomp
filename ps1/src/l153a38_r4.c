@@ -15,7 +15,7 @@ void func_80156898(void *a, Object *object) {
     int n;
 
     p = table_8016e604;
-    score = object->field_e4;
+    score = object->score_2;
     i = 4;
     for (n = 0; n < 5; n++) {
         if (score < p->score) {
@@ -27,10 +27,10 @@ void func_80156898(void *a, Object *object) {
             r->name_char_1 = p->name_char_1;
             r->name_char_2 = p->name_char_2;
             r->name_char_3 = p->name_char_3;
-            r->field_08 = p->field_08;
-            r->field_09 = p->field_09;
-            r->field_0a = p->field_0a;
-            r->field_0b = p->field_0b;
+            r->extra_byte_0 = p->extra_byte_0;
+            r->extra_byte_1 = p->extra_byte_1;
+            r->extra_byte_2 = p->extra_byte_2;
+            r->extra_byte_3 = p->extra_byte_3;
             r->field_0c = p->field_0c;
         }
         r = p;
@@ -44,10 +44,10 @@ void func_80156898(void *a, Object *object) {
         r->name_char_2 = object->name_char_2;
         r->name_char_3 = object->name_char_3;
         r->score = score;
-        r->field_08 = object->field_118;
-        r->field_09 = object->field_119;
-        r->field_0a = object->field_11a;
-        r->field_0c = object->field_124;
+        r->extra_byte_0 = object->saved_side;
+        r->extra_byte_1 = object->select_value_1;
+        r->extra_byte_2 = object->select_value_2;
+        r->field_0c = object->score_sort_key;
     }
     other = &player_left;
     if (object->side == 0) {
@@ -69,8 +69,8 @@ void func_80156a20(void *a, Object *object) {
     s16 j;
 
     p = table_8016e654;
-    c = object->field_124;
-    score = object->field_e0;
+    c = object->score_sort_key;
+    score = object->max_score;
     i = 4;
     for (n = 0; n < 5; n++) {
         if (c < p->field_0c) {
@@ -85,10 +85,10 @@ void func_80156a20(void *a, Object *object) {
             r->name_char_1 = p->name_char_1;
             r->name_char_2 = p->name_char_2;
             r->name_char_3 = p->name_char_3;
-            r->field_08 = p->field_08;
-            r->field_09 = p->field_09;
-            r->field_0a = p->field_0a;
-            r->field_0b = p->field_0b;
+            r->extra_byte_0 = p->extra_byte_0;
+            r->extra_byte_1 = p->extra_byte_1;
+            r->extra_byte_2 = p->extra_byte_2;
+            r->extra_byte_3 = p->extra_byte_3;
             r->field_0c = p->field_0c;
         }
         r = p;
@@ -102,9 +102,9 @@ void func_80156a20(void *a, Object *object) {
         r->name_char_2 = object->name_char_2;
         r->name_char_3 = object->name_char_3;
         r->score = score;
-        r->field_08 = object->field_118;
-        r->field_09 = object->field_119;
-        r->field_0a = object->field_11a;
+        r->extra_byte_0 = object->saved_side;
+        r->extra_byte_1 = object->select_value_1;
+        r->extra_byte_2 = object->select_value_2;
         r->field_0c = c;
     }
     other = &player_left;

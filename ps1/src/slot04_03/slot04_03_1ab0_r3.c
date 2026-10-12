@@ -10,7 +10,7 @@ void func_801b1cfc_slot04_03(Object *obj) {
     func_80138b38(&game_state, obj);
     obj->vel_x = 0x60000;
     obj->accel_x = -0x8000;
-    func_801307e0(obj, (obj->field_12a >> 1) + 0x32);
+    func_801307e0(obj, (obj->direction_index >> 1) + 0x32);
 }
 
 void func_801b1d70_slot04_03(Object *obj) {

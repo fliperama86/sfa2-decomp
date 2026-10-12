@@ -53,7 +53,7 @@ void func_801b789c_slot04_02(Object *obj, u8 a) {
 void func_801b78ec_slot04_02(Object *o, void **tbl) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    obj->field_6c = tbl[obj->field_5c];
+    obj->data_table_ptr = tbl[obj->field_5c];
 }
 
 void func_801b7908_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d) {
@@ -64,7 +64,7 @@ void func_801b7908_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d) {
 }
 
 void func_801b7920_slot04_02(Object *obj, u8 a) {
-    if (obj->field_66 != 0) {
+    if (obj->sound_side != 0) {
         func_80130700(obj, seqs_154_right[a]);
     } else {
         func_80130700(obj, seqs_a4_left[a]);

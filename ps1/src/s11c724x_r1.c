@@ -9,7 +9,7 @@ extern u16 data_8019019a;
 
 /*
  * What it does (inferred, not an original name): turns a packed run list of an
- * object's sprite into 16-byte quad records. The object's field_94 selects a
+ * object's sprite into 16-byte quad records. The object's index selects a
  * header; a stream of 16-bit words, starting at the header's offset inside
  * the object's stream block, holds for each run an x step, a y step and a
  * run length minus one. The function keeps a running position for two
@@ -30,7 +30,7 @@ void func_8011c724(Slab172 *p) {
     u8 *seq;
     u8 flags;
     u16 count;
-    u16 idx = obj->field_94;
+    u16 idx = obj->index;
     SpriteHdr *hdr;
     u16 tile;
     s16 x1;
@@ -66,7 +66,7 @@ void func_8011c724(Slab172 *p) {
         return;
     }
     flags = obj->field_0b;
-    if ((obj->field_02 == 6) && (obj->field_08 == 12)) {
+    if ((obj->check_a == 6) && (obj->check_b == 12)) {
         x1 = obj->pos_x - 16;
         x2 = obj->pos_x;
         y1 = obj->pos_y;
@@ -86,7 +86,7 @@ void func_8011c724(Slab172 *p) {
     i = 0;
     src = (u16 *)((hdr->offset & 0xfffe) + ((u8 *)obj->stream));
     cur = (SpriteQuad *)data_801a4fe8;
-    seq = ((obj->field_09 * 4) + 0x20) + (u8 *)data_801987c8;
+    seq = ((obj->sequence_index * 4) + 0x20) + (u8 *)data_801987c8;
     /* The third place of the stand-in above. The figure is the one above: all terms taken out. This place: two terms ORed to i, each 0 for every i and a2. */
     while ((i | (int)(((u32)i << 24) & 0x100) | (int)(((u32)a2 << 24) & 0x100)) < count) {
         if (flags & 1) {
@@ -149,12 +149,12 @@ void func_8011c724(Slab172 *p) {
                 break;
             } } while (0);
             cur++;
-            q->field_0c = tile << 4;
+            q->tile_offset = tile << 4;
             q->field_0d = a2 << 4;
             row = data_80185504[(u16)tile];
             /* Stand-in, not recovered source: the conversion of row to a 64-bit integer in the expression below, which changes no value, reproduces the original's choice of registers. Without it this function differs from the original in 1 instruction slots. */
             /* The address is formed as an integer sum, with the count first as the original adds it; as pointer arithmetic the compiler writes the pointer first. This assumes flat addresses: a pointer converted to a wide unsigned integer and back is that pointer, moved by the bytes added. It is not portable C in general. The integer has 64 bits, so that it holds a pointer of the PC build whole. */
-            q->field_0e = func_8015bdd4(obj->field_7a, (obj->field_7c + obj->field_0d) + *(u8 *)(a2 + (unsigned long long)row));
+            q->lookup_result = func_8015bdd4(obj->lookup_arg, (obj->base_value + obj->base_offset) + *(u8 *)(a2 + (unsigned long long)row));
             func_8015bf34((int)seq, (Cmd *)q++);
             a2 = (a2 + 1) & 15;
             /* The fourth place of the stand-in above. The figure is the one above: all terms taken out. This place: the term ORed to a2 is 0 for every tile. */

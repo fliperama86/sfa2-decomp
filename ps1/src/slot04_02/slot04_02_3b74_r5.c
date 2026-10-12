@@ -10,7 +10,7 @@ void func_801b4180_slot04_02(Object *obj) {
     func_80140598(obj, 0, 3, 0x14, 0x1c, 0, 0);
     if ((s16)p->health < 0) {
         obj->field_167 = 0xf;
-        game_state.field_6b = 6;
+        game_state.spawn_kind = 6;
         func_80147000(obj);
     }
 }

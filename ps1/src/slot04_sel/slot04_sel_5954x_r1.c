@@ -27,7 +27,7 @@ void func_801b5954_slot04_sel(void) {
     second = (Object *)w + 1;
     w = r + 1;
     data_801b8dd8_slot04_sel[r[1].field_00](second, w);
-    if (game_state.field_07 != 0) {
+    if (game_state.side_mask != 0) {
         if (r[0].field_0e != 0 || r[1].field_0e != 0) {
             if ((u8)(data_801b8c91_slot04_sel - 4) < 2 || data_801b8c91_slot04_sel == 6) {
                 r[0].field_0e = 0;
@@ -39,12 +39,12 @@ void func_801b5954_slot04_sel(void) {
                 r[1].field_04 = 0;
                 r[0].field_0e = 0;
                 r[1].field_0e = 0;
-                data_8018f5a0->field_50--;
+                data_8018f5a0->step_index_2--;
             } else {
                 r[0].field_00 = 0;
                 r[1].field_00 = 0;
-                data_8018f5a0->field_4e++;
-                data_8018f5a0->field_50 = 0;
+                data_8018f5a0->substep_index++;
+                data_8018f5a0->step_index_2 = 0;
             }
         }
     }

@@ -40,26 +40,26 @@ void func_801b3380_slot04_sel(void) {
     func_801519b4(data_801b89d4_slot04_sel);
     func_801519b4(&data_801b84e8_slot04_sel);
     func_801519b4(&data_801b8618_slot04_sel);
-    data_801b7d7c_slot04_sel[a->field_00](l, a);
+    data_801b7d7c_slot04_sel[a->count](l, a);
     r = l + 1;
     b = a + 1;
-    data_801b7d7c_slot04_sel[b->field_00](r, b);
+    data_801b7d7c_slot04_sel[b->count](r, b);
     s = player_left.side;
     if ((*data_801b7d88_slot04_sel[s] & 0x800) || (*data_801b7d88_slot04_sel[player_right.side] & 0x800)) {
         t = player_right.side;
-        player_left.field_cf = data_801b7d90_slot04_sel[data_8016e698[s]];
-        player_right.field_cf = data_801b7d90_slot04_sel[data_8016e698[t]];
+        player_left.table_column = data_801b7d90_slot04_sel[data_8016e698[s]];
+        player_right.table_column = data_801b7d90_slot04_sel[data_8016e698[t]];
         player_left.field_d8 = data_8016e69a[s];
         player_right.field_d8 = data_8016e69a[t];
         if (data_8016e69c != 0) {
-            game_state.field_56 = (s8)data_8016e68c;
+            game_state.table_index_3 = (s8)data_8016e68c;
         } else {
-            game_state.field_56 = 0;
+            game_state.table_index_3 = 0;
         }
         if (data_8016e69d[0] == 0) {
-            game_state.field_40 = game_state.field_32 % 20;
+            game_state.kind_index = game_state.tick_count % 20;
         } else {
-            game_state.field_40 = data_8016e69d[0] - 1;
+            game_state.kind_index = data_8016e69d[0] - 1;
         }
         if (a->field_09 == 0 && l->field_d8 != 0) {
             l->field_d4 = (l->field_d4 & 1) + 4;
@@ -77,20 +77,20 @@ void func_801b3380_slot04_sel(void) {
                 r->field_d4 = r->field_d4 ^ *(u8 *)data_8019045c;
             }
         }
-        data_8018f5a0->field_50 = 0;
-        data_8018f5a0->field_4e++;
+        data_8018f5a0->step_index_2 = 0;
+        data_8018f5a0->substep_index++;
     }
-    m = game_state.field_07;
+    m = game_state.side_mask;
     if (m == (a->field_09 | b->field_09) && m != 0) {
         if (a->field_0b != 0 || b->field_0b != 0) {
-            a->field_00 = 0;
-            b->field_00 = 0;
-            data_8018f5a0->field_50++;
+            a->count = 0;
+            b->count = 0;
+            data_8018f5a0->step_index_2++;
         }
     }
-    if (data_801b9d68_slot04_sel != game_state.field_07 || data_801b9d6c_slot04_sel != game_state.mode) {
-        a->field_00 = 0;
-        b->field_00 = 0;
-        data_8018f5a0->field_50 = 0;
+    if (data_801b9d68_slot04_sel != game_state.side_mask || data_801b9d6c_slot04_sel != game_state.mode) {
+        a->count = 0;
+        b->count = 0;
+        data_8018f5a0->step_index_2 = 0;
     }
 }

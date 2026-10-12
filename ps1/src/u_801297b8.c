@@ -13,7 +13,7 @@ void func_801297b8(Object *object)
 {
   int t;
   int new_var;
-  t = object->field_290;
+  t = object->damage_2;
   object->health = object->health - t;
   if (((s16) object->health) < 0)
   {
@@ -24,51 +24,51 @@ void func_801297b8(Object *object)
     object->state_3 = 0;
     t = 2;
     object->field_62 = t;
-    object->field_61 = 7;
+    object->hit_type = 7;
     object->field_15b = 1;
-    game_state.other_object->field_167 = object->field_28e;
-    if (object->field_73 != 0)
+    game_state.other_object->field_167 = object->table_param;
+    if (object->status_flag != 0)
     {
       game_state.other_object->state_0 = 1;
       game_state.other_object->state_1 = 1;
       game_state.other_object->state_2 = 1;
       game_state.other_object->state_3 = 0;
-      game_state.other_object->field_63 = 0;
+      game_state.other_object->vec_table_index = 0;
       game_state.other_object->field_60 = t;
-      game_state.other_object->field_61 = 5;
-      object->field_73 = 0;
-      game_state.other_object->field_73 = 0;
+      game_state.other_object->hit_type = 5;
+      object->status_flag = 0;
+      game_state.other_object->status_flag = 0;
       game_state.other_object->field_261 = 0;
-      game_state.other_object->facing_flag = object->field_0b;
+      game_state.other_object->facing_flag = object->facing_side;
       game_state.other_object->facing_flag = game_state.other_object->facing_flag ^ 1;
       game_state.other_object->field_243 = 1;
     }
-    t = object->field_28e;
+    t = object->table_param;
     t = (t - 12) * 2;
     game_state.other_object->field_255 = t;
-    game_state.field_6b = 0;
+    game_state.spawn_kind = 0;
     func_80147000(object);
   }
   object->field_28c = object->field_28c - 1;
   if (object->field_28c & 0x80)
   {
     object->field_28c = 0;
-    object->field_28d = 0;
-    object->field_297 = 0;
+    object->damage_countdown = 0;
+    object->reference_count = 0;
     object->state_0 = 1;
     object->field_62 = 2;
     object->state_1 = 1;
     object->state_2 = 0;
     object->state_3 = 0;
-    object->field_61 = 3;
+    object->hit_type = 3;
     object->field_15b = 1;
     object->field_163 = 1;
-    object->field_15d = 0;
-    object->field_15e = 0;
-    object->facing_flag = game_state.other_object->field_0b;
-    object->field_63 = 0;
+    object->countdown_timer_2 = 0;
+    object->accum_count = 0;
+    object->facing_flag = game_state.other_object->facing_side;
+    object->vec_table_index = 0;
     object->field_01 = 1;
     play_side_sound_at(object, object->side ^ 1, 0xf);
   }
-  object->field_28d = object->field_297;
+  object->damage_countdown = object->reference_count;
 }

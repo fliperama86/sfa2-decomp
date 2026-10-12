@@ -14,8 +14,8 @@ void func_801c8000_slot05_06(Object *obj) {
     u8 s;
 
     dst = (u32 *)0x1f800100;
-    obj->field_98 = data_801ce790_slot05_06;
-    obj->field_9c = data_801d1054_slot05_06;
+    obj->data_ptr_a = data_801ce790_slot05_06;
+    obj->data_ptr_b = data_801d1054_slot05_06;
     if (obj->side == 0) {
         dst = (u32 *)0x1f800050;
     }
@@ -25,18 +25,18 @@ void func_801c8000_slot05_06(Object *obj) {
     }
     c = func_8011f32c();
     if (c != 0) {
-        c->field_00 = 1;
+        c->active_count = 1;
         c->field_02 = 6;
-        c->field_03 = 0;
-        s = obj->field_0b;
-        obj->field_28 = (u32)c;
-        c->field_3c = obj;
-        c->field_0b = s;
-        c->field_66 = obj->side;
+        c->table_index = 0;
+        s = obj->facing_side;
+        obj->linked_object = (u32)c;
+        c->parent = obj;
+        c->facing_side = s;
+        c->sound_side = obj->side;
         c->spawn_x = obj->spawn_x;
         c->spawn_y = obj->spawn_y;
         c->field_90 = obj->field_90;
-        c->field_98 = obj->field_98;
-        c->field_9c = obj->field_9c;
+        c->data_ptr_a = obj->data_ptr_a;
+        c->data_ptr_b = obj->data_ptr_b;
     }
 }

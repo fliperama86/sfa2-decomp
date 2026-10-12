@@ -15,11 +15,11 @@ void func_80145ac0(Block172 *block) {
 }
 
 void func_80145b00(Object *object) {
-    if (object->field_03 == 3 || object->field_03 == 10) {
+    if (object->table_index == 3 || object->table_index == 10) {
         func_8011f240((Slab172 *)object);
     } else {
         object->field_01 = 0;
         object->state_0++;
-        func_8011fc54(object, (SeqRec **)table_8017c988, object->field_03);
+        func_8011fc54(object, (SeqRec **)table_8017c988, object->table_index);
     }
 }

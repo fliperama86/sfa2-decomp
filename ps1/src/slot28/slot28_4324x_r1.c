@@ -15,8 +15,8 @@ void func_80014324_slot28(Object *obj) {
     Object *o;
     if (obj->field_f0 == 0) {
         h = data_8018f5a0;
-        h->field_52 = h->field_52 + 1;
-        h->field_60 = 0x258;
+        h->pass_index = h->pass_index + 1;
+        h->countdown_timer = 0x258;
         func_80130768(data_80051878_slot28.p, 0, data_80029ed0_slot28);
         o = data_8005187c_slot28[0];
         o->pos_y = 0x20;

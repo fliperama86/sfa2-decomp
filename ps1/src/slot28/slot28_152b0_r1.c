@@ -8,7 +8,7 @@ void func_800252b0_slot28(Object *obj) {
     obj->pos_y = 0x100;
     obj->field_0c = 0;
     obj->field_0e = 0;
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     obj->state_0++;
     func_80130768(obj, 1, (SequenceStep **)obj->box_tables);
 }

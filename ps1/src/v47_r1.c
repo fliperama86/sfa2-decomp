@@ -7,9 +7,9 @@
 void func_8012c5cc(Object *object) {
     int step;
     u16 index;
-    object->field_0b = object->field_158;
+    object->facing_side = object->saved_facing;
     object->field_60 = 0;
-    object->field_46 = 0;
+    object->countdown = 0;
     if (object->field_157 != 0) {
         step = object->field_62;
         if (step >= 2) {
@@ -17,7 +17,7 @@ void func_8012c5cc(Object *object) {
         }
         index = step + 7;
         func_801308c4(object, index);
-    } else if (object->field_61 == 8 || object->field_61 == 0) {
+    } else if (object->hit_type == 8 || object->hit_type == 0) {
         step = object->field_62;
         if (step >= 2) {
             step = 2;

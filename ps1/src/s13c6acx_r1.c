@@ -6,15 +6,15 @@
 /* What it does (inferred, not an original name): for each object of the
    object table (data_8018f5e0, read downward, count_8018f59c entries) of
    kind 9 and type 1 it picks a player object (player_left, or player_right
-   when the object's field_65 is 0) and pushes the player out of the
+   when the object's team_id is 0) and pushes the player out of the
    object's box. It compares the player's box (taken from the player's
    unknown_148 table at the frame's box_index) with the object's "c" box
    (boxes_c of the object's box_tables at its frame's box_index): when the
-   vertical gap is not smaller than the sum of the box extents (field_05) it
+   vertical gap is not smaller than the sum of the box extents (extent_y) it
    does nothing; otherwise it measures the horizontal overlap and, when
-   there is one, moves the player sideways by that overlap (field_164 of the
+   there is one, moves the player sideways by that overlap (bound_push_flag of the
    player zero), or the player's other object and the table object both by
-   the overlap in the other direction (field_164 not zero). */
+   the overlap in the other direction (bound_push_flag not zero). */
 void func_8013c6ac(void)
 {
     s16 last;
@@ -38,16 +38,16 @@ void func_8013c6ac(void)
         if (ref_third.p->field_02 != 9) {
             continue;
         }
-        if (ref_third.p->field_00 != 1) {
+        if (ref_third.p->active_count != 1) {
             continue;
         }
         ref_second.p = &player_left;
-        if (ref_third.p->field_65 == 0) {
+        if (ref_third.p->team_id == 0) {
             /* Stand-in, not recovered source: the address of the right player formed from the left player's address below reproduces the original's choice of registers. Without it this function differs from the original in 21 instruction slots. */
             /* The figure's control writes &player_right; the build is then 712 bytes. The original forms this address by adding the size of an Object to the left player's. The sum is taken on the address as a 64-bit integer, because C pointer arithmetic may not step from one object into another. It relies on two things that hold on the PS1 and must hold in the PC program: flat addresses, and player_right placed directly behind player_left. It is not portable C in general. */
             ref_second.p = (Object *)((unsigned long long)&player_left + sizeof(Object));
         }
-        if (ref_second.p->field_45 != 0) {
+        if (ref_second.p->active_state != 0) {
             continue;
         }
         if (ref_third.p->frame->box_index == 0) {
@@ -71,17 +71,17 @@ void func_8013c6ac(void)
         if (d < 0) {
             d = -d;
         }
-        d -= (player_box->field_05 + obj_box->field_05);
+        d -= (player_box->extent_y + obj_box->extent_y);
         if (d >= 0) {
             continue;
         }
         fi = (u16)obj_box->origin;
-        if (ref_third.p->field_0b) {
+        if (ref_third.p->facing_side) {
             fi = -fi;
         }
         obj_x = fi + ref_third.p->pos_x;
         d = player_box->origin;
-        if (ref_second.p->field_0b) {
+        if (ref_second.p->facing_side) {
             d = -d;
         }
         fi = 0;
@@ -99,7 +99,7 @@ void func_8013c6ac(void)
         if (fi) {
             d = -d;
         }
-        if (ref_second.p->field_164 != 0) {
+        if (ref_second.p->bound_push_flag != 0) {
             ref_first.p = ref_second.p->other;
             ref_first.p->pos_x = ref_first.p->pos_x - d;
             ref_third.p->pos_x = ref_third.p->pos_x - d;

@@ -8,7 +8,7 @@ void func_80078458_slot00(Object *obj, int mode);
 
 void func_800781d8_slot00(Object *obj) {
     obj->ot_depth = 0;
-    if (obj->field_66 == 0) {
+    if (obj->sound_side == 0) {
         obj->sequence = seqs_a4_left[4];
     } else {
         obj->sequence = seqs_154_right[4];

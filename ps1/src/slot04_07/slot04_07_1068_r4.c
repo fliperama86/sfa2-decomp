@@ -9,27 +9,27 @@ void func_801b1600_slot04_07(Object *obj) {
     obj->state_2 = 7;
     obj->state_3 = 0;
     obj->field_15a = 4;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
     obj->field_157 = 0;
     obj->other->field_6b = 0x11;
     obj->field_6b = 0;
-    obj->field_27b = 0x15;
+    obj->other_lock = 0x15;
     func_801307e0(obj, 0x1d);
 }
 
 int func_801b1668_slot04_07(Object *obj) {
     int r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
+    if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 8;
         obj->state_3 = 0;
         obj->field_15a = 2;
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
         func_80142778(obj);
     }
     return r;
@@ -38,15 +38,15 @@ int func_801b1668_slot04_07(Object *obj) {
 int func_801b16f4_slot04_07(Object *obj) {
     int r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && (u8)func_80141788(obj)) {
+    if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 8;
         obj->state_3 = 0;
         obj->field_15a = 5;
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
         ((Slot04aObj *)obj)->field_1cd = obj->field_4b;
         func_80142718(obj);
     }

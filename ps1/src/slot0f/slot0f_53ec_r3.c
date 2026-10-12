@@ -17,7 +17,7 @@ void func_800e5628_slot0f(Object *obj) {
     HudState *hud;
     *timer = *timer - 1;
     hud = data_8018f5a0;
-    data_800ebc68_slot0f[hud->field_4c](obj);
+    data_800ebc68_slot0f[hud->step_index](obj);
     func_80138164();
     func_8011abe4();
     func_800e5874_slot0f(obj);
@@ -26,7 +26,7 @@ void func_800e5628_slot0f(Object *obj) {
 void func_800e56a8_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     if (data_801903c4[0] == 1) {
-        data_8018f5a0->field_4c++;
+        data_8018f5a0->step_index++;
         if (obj->field_ee != 0) {
             func_800e585c_slot0f(o);
         } else {

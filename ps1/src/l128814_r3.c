@@ -12,14 +12,14 @@ void func_80129da8(Object *object) {
             set_sequence_by_side(object, 0);
         }
     }
-    if (game_state.config->field_4d != 0) {
+    if (game_state.config->mode_flag_b != 0) {
         func_8012ff80(object);
     } else if (func_8012f56c(object)) {
         func_8012f59c(object);
-    } else if ((u8)func_8012f408(object) == 0 && game_state.config->field_4e == 0) {
+    } else if ((u8)func_8012f408(object) == 0 && game_state.config->mode_flag_c == 0) {
         if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
-        } else if (object->field_cd == 0) {
+        } else if (object->mode_flag_2 == 0) {
             if (func_80130470(object)) {
                 func_8013047c(object);
             } else if ((u8)func_8012f618(object)) {
@@ -55,7 +55,7 @@ void func_80129f80(Object *object) {
         func_8012a108(object);
     } else if ((u8)func_8012f898(object)) {
         func_8012f8c4(object);
-    } else if (object->field_cd != 0) {
+    } else if (object->mode_flag_2 != 0) {
         func_8012a108(object);
     } else if (func_80130470(object)) {
         func_8013047c(object);

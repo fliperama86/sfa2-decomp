@@ -10,16 +10,16 @@ void func_800e009c_slot0f(Object *obj, int a);
 void func_800dfc6c_slot0f(GameState *state, Menu *menu) {
     if (((data_801a696a | data_801a6976) & 0x860) != 0) {
         if (((data_801a696a | data_801a6976) & 0x820) != 0) {
-            data_8018f5a0->field_4c = 0;
-            data_8018f5a0->field_4a++;
+            data_8018f5a0->step_index = 0;
+            data_8018f5a0->phase_index++;
         } else {
             func_800e009c_slot0f((Object *)state, 1);
         }
         play_sound_at(0, 0, 0x205);
         stop_sep_by_word(0x200);
     } else {
-        state->field_c2 = (s16)state->field_c2 - 1;
-        if ((s16)state->field_c2 == 0) {
+        state->step_counter = (s16)state->step_counter - 1;
+        if ((s16)state->step_counter == 0) {
             func_800e009c_slot0f((Object *)state, 1);
         }
     }

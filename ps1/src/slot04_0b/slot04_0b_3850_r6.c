@@ -8,32 +8,32 @@ void func_801b3f98_slot04_0b(Object *obj, Object *parent) {
     int old;
 
     obj->field_01 = 0;
-    if (obj->field_03 != parent->kind) {
+    if (obj->table_index != parent->kind) {
         obj->state_0++;
         return;
     }
-    idx = parent->frame->field_09;
+    idx = parent->frame->frame_param;
     if (idx == 0) {
-        obj->field_48 = 0;
+        obj->variant_index = 0;
         return;
     }
     obj->pos_x = parent->pos_x;
     obj->pos_y = parent->pos_y;
     if (idx == 0x10) {
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->pos_x = obj->pos_x + 0x30;
         } else {
             obj->pos_x = obj->pos_x - 0x30;
         }
     }
-    obj->field_0b = parent->field_0b;
-    old = obj->field_48;
+    obj->facing_side = parent->facing_side;
+    old = obj->variant_index;
     obj->field_01 = 1;
     if (old == idx) {
         advance_sequence_checked(obj);
         return;
     }
-    obj->field_48 = idx;
+    obj->variant_index = idx;
     if (parent->side == 0) {
         func_80130768(obj, idx, data_1f8000b4);
     } else {

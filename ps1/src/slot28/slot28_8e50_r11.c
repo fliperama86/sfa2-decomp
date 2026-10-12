@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_800198d0_slot28(Object *obj) {
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         obj->state_0++;
     }
 }

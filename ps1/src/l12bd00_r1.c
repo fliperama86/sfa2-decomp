@@ -10,26 +10,26 @@ void func_8012bd00(Object *object) {
         func_8012bf74(object);
         return;
     }
-    if (game_state.config->field_4d == 0 && !func_8012f56c(object)) {
-        v = object->field_46 - 1;
-        object->field_46 = v;
+    if (game_state.config->mode_flag_b == 0 && !func_8012f56c(object)) {
+        v = object->countdown - 1;
+        object->countdown = v;
         if ((s16)v != -1) {
             if ((u8)func_8012be70(object)) {
                 update_sequence(object);
-                v = object->field_46 - 1;
-                object->field_46 = v;
+                v = object->countdown - 1;
+                object->countdown = v;
                 if ((s16)v == -1) goto tail;
                 if ((u8)func_8012bec0(object)) {
                     update_sequence(object);
-                    v = object->field_46 - 1;
-                    object->field_46 = v;
+                    v = object->countdown - 1;
+                    object->countdown = v;
                     if ((s16)v == -1) goto tail;
                 }
             }
             if ((u8)func_8012bf00(object)) {
                 update_sequence(object);
-                v = object->field_46 - 1;
-                object->field_46 = v;
+                v = object->countdown - 1;
+                object->countdown = v;
                 if ((s16)v == -1) goto tail;
             }
             update_sequence(object);

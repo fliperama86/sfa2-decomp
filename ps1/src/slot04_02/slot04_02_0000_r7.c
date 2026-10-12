@@ -7,9 +7,9 @@ void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
 int func_801b1298_slot04_02(Object *obj) {
     func_801b631c_slot04_02(obj, 1, 0, 7, 5);
-    obj->field_159 = 1;
-    obj->field_27b = 0x19;
-    obj->field_0b = obj->field_158;
+    obj->active_flag_3 = 1;
+    obj->other_lock = 0x19;
+    obj->facing_side = obj->saved_facing;
     obj->field_6b = 0;
     obj->field_157 = 0;
     obj->field_15a = 0;

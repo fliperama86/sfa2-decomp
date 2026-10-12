@@ -36,13 +36,13 @@ void func_80012f64_slot12(Object *obj) {
     data_8002b628_slot12 = data_800230a0_slot12;
     s = (s16)q->field_b2;
     data_8002b62c_slot12 = data_80023120_slot12 + s * 8;
-    s = (s16)q->field_b0;
+    s = (s16)q->countdown_timer;
     s += 0x20;
     s &= 0x7f;
     if (s >= 0x40) {
         s = 0;
     }
-    b0 = q->field_b0;
+    b0 = q->countdown_timer;
     if (b0 >= 0x60) {
         func_80013450_slot12(obj, s);
         return;

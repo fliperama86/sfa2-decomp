@@ -10,23 +10,23 @@ void func_801482e0(Object *parent, int x_arg, int y_arg) {
     u16 y = y_arg;
     Object *object = (Object *)func_8011f1e0();
     if (object != 0) {
-        object->field_00 = 1;
+        object->active_count = 1;
         object->field_02 = 7;
-        object->field_03 = 0;
+        object->table_index = 0;
         object->field_0c = 0;
-        object->field_0d = 0;
-        object->field_45 = 0;
-        object->field_48 = 0;
+        object->image_row = 0;
+        object->active_state = 0;
+        object->variant_index = 0;
         object->field_0e = parent->field_0e;
         object->field_1c = parent->field_1c;
-        object->field_3c = parent;
+        object->parent = parent;
         object->health = x;
-        object->field_5e = y;
-        object->field_0b = parent->field_0b;
+        object->y_offset = y;
+        object->facing_side = parent->facing_side;
         object->spawn_x = 0x60;
         object->spawn_y = 0x1e0;
-        object->field_98 = data_80172a48;
+        object->data_ptr_a = data_80172a48;
         object->field_90 = (void *)0x800fb100;
-        object->field_9c = data_80173c9c;
+        object->data_ptr_b = data_80173c9c;
     }
 }

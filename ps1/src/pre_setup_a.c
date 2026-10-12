@@ -6,10 +6,10 @@
 
 
 void func_8012fe60(Object *object) {
-    object->field_0b = object->field_158;
-    if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {
+    object->facing_side = object->saved_facing;
+    if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
         ref_other.p = object->other;
-        if (object->field_1a0 != 0 && ref_other.p->field_157 != 0) {
+        if (object->hit_count_2 != 0 && ref_other.p->field_157 != 0) {
             object->field_157 = 1;
             object->state_0 = 1;
             object->state_2 = 6;
@@ -19,7 +19,7 @@ void func_8012fe60(Object *object) {
             return;
         }
     }
-    if (object->field_29f == 0 && (object->field_130 & 0x4000)) {
+    if (object->action_timer == 0 && (object->input_bits_2 & 0x4000)) {
         object->field_157 = 1;
         object->state_0 = 1;
         object->state_2 = 6;
@@ -49,30 +49,30 @@ void func_8012ff80(Object *object) {
     } else {
         v = 4;
         if (hp == 0x90) {
-            object->field_ee = object->field_ee + 1;
+            object->repeat_count = object->repeat_count + 1;
             v = 0x84;
         }
         index = 0;
         object->field_167 = v;
-        *((u8 *)object + object->field_ce + 0xcf) = v;
+        *((u8 *)object + object->win_count + 0xcf) = v;
         object->state_0 = 1;
         object->state_1 = 4;
     }
     object->state_2 = 0;
     object->state_3 = 0;
     object->field_7e = 0;
-    object->field_2a2 = 0;
-    object->field_2a1 = 0;
-    object->field_182 = 0;
+    object->cursor_timer_b = 0;
+    object->cursor_timer_a = 0;
+    object->frame_count = 0;
     object->field_180 = 0;
     set_sequence_by_side(object, index);
 }
 
 void func_80130038(Object *object) {
     s32 speed;
-    int held = object->field_130 & 0x8000;
-    object->field_48 = held == 0;
-    speed = motion_speed_table[object->kind * 2 + object->field_48];
-    if (object->field_0b != 0) speed = -speed;
+    int held = object->input_bits_2 & 0x8000;
+    object->variant_index = held == 0;
+    speed = motion_speed_table[object->kind * 2 + object->variant_index];
+    if (object->facing_side != 0) speed = -speed;
     object->vel_x = speed;
 }

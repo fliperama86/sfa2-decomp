@@ -7,13 +7,13 @@ void func_801b231c_slot04_09(Object *obj) {
     if (!((s16)obj->step_flags & 0x8000)) {
         update_sequence(obj);
     } else {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->vel_x = 0x80000;
         obj->vel_y = 0x80000;
         obj->accel_x = -0x8000;
         obj->accel_y = -0x6000;
         obj->state_3++;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->vel_x = 0xfff80000;
             obj->accel_x = 0x8000;
         }

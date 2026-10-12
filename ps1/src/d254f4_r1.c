@@ -7,20 +7,20 @@ extern u16 data_801a6966;
 
 /*
  * What it does (inferred): decodes a code word of the player's input log.
- * The side of the object game_state.field_78 selects the word data_801a6972
+ * The side of the object game_state.focus_object selects the word data_801a6972
  * (side not 0) or data_801a6966; its low byte goes to data_80185fc8 and its
  * top nibble to data_80185fcc. The low byte picks a base value for
  * data_80185fd0 (0x94 and 0x90: 0; 0x68 and 0x60: 4; 0xc0: 8; 0x30: 0xc;
  * 6: 0x10; 9: 0x14); the byte 0 or any other value fails. A known byte
  * indexes data_8016e9a8 with the nibble (masked to 4 bits); a negative entry
- * fails. Success increments input_step_index and sets field_13a; failure clears
- * input_step_index and field_13a and sets input_timer to 0x3c.
+ * fails. Success increments input_step_index and sets input_match_offset; failure clears
+ * input_step_index and input_match_offset and sets input_timer to 0x3c.
  */
 void func_801254f4(void) {
     u16 *code;
     u8 byte;
     u16 nib;
-    if (game_state.field_78->side) {
+    if (game_state.focus_object->side) {
         code = &data_801a6972;
         byte = *code & 0xff;
         nib = *code;
@@ -60,11 +60,11 @@ void func_801254f4(void) {
     data_80185fd4 = data_8016e9a8[data_80185fcc];
     if (data_80185fd4 >= 0) {
         game_state.input_step_index++;
-        game_state.field_13a = data_80185fd0 + data_80185fd4;
+        game_state.input_match_offset = data_80185fd0 + data_80185fd4;
         return;
     }
 fail:
     game_state.input_step_index = 0;
     game_state.input_timer = 0x3c;
-    game_state.field_13a = 0;
+    game_state.input_match_offset = 0;
 }

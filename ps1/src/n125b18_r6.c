@@ -7,10 +7,10 @@
    is unsigned, so the read says so. */
 
 void func_80129c90(Object *object) {
-    if (game_state.field_30 != 0 && game_state.mode != object->side + 1 && *(s8 *)&data_801a6988 != 0) {
-        object->field_130 = 0x1000;
-        object->field_150 = 0x1000;
-        object->field_c2 = 0x1000;
+    if (game_state.versus_flag != 0 && game_state.mode != object->side + 1 && *(s8 *)&data_801a6988 != 0) {
+        object->input_bits_2 = 0x1000;
+        object->input_word = 0x1000;
+        object->input_bits = 0x1000;
     }
     object->field_16a = 0;
     table_80171988[object->state_3](object);

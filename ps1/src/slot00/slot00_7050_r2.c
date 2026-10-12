@@ -9,29 +9,29 @@ void func_80077150_slot00(Object *obj) {
     Object *n = (Object *)func_8011f1e0();
     if (n != 0) {
         Object *p;
-        n->field_00 = 1;
+        n->active_count = 1;
         n->field_02 = 0xc;
-        n->field_03 = 8;
+        n->table_index = 8;
         n->field_0e = obj->field_0e;
         n->field_0c = obj->field_0c;
-        n->field_0d = obj->field_0d;
-        n->field_26 = obj->field_26;
-        n->field_3c = obj;
-        p = obj->field_3c;
-        p->field_a1 = (p->field_a1 + 2) & 0xe;
-        n->field_0b = obj->field_0b;
-        if (obj->field_0b == 0) {
-            n->pos_x = obj->pos_x + data_80079878_slot00[p->field_a1];
+        n->image_row = obj->image_row;
+        n->scroll_factor = obj->scroll_factor;
+        n->parent = obj;
+        p = obj->parent;
+        p->offset_index = (p->offset_index + 2) & 0xe;
+        n->facing_side = obj->facing_side;
+        if (obj->facing_side == 0) {
+            n->pos_x = obj->pos_x + data_80079878_slot00[p->offset_index];
         } else {
-            n->pos_x = obj->pos_x - data_80079878_slot00[p->field_a1];
+            n->pos_x = obj->pos_x - data_80079878_slot00[p->offset_index];
         }
-        n->pos_y = obj->pos_y - data_80079878_slot00[p->field_a1 + 1];
-        n->field_08 = 0x20;
+        n->pos_y = obj->pos_y - data_80079878_slot00[p->offset_index + 1];
+        n->mode_id = 0x20;
         n->field_90 = obj->field_90;
-        n->field_98 = obj->field_98;
-        n->field_9c = obj->field_9c;
+        n->data_ptr_a = obj->data_ptr_a;
+        n->data_ptr_b = obj->data_ptr_b;
         n->spawn_x = obj->spawn_x;
         n->spawn_y = obj->spawn_y;
-        n->field_66 = obj->field_66;
+        n->sound_side = obj->sound_side;
     }
 }

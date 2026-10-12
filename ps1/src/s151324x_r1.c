@@ -7,13 +7,13 @@ extern u8 *data_8017ff68[];
 
 /* What it does (inferred, not original names): draws a box of tiles as
  * sprite records. The object's sequence step names a frame record of the
- * table; its field_05 selects (1-based) a tile map. The map is a byte
+ * table; its value_b selects (1-based) a tile map. The map is a byte
  * string: width, height, two offsets, then width * height tile bytes,
  * height rows of width cells each. A non-zero tile byte (bits 0 to 3 the
  * tile column, bits 4 to 6 the tile row, bit 7 a horizontal flip) becomes
  * one 40-byte record of the buffer chosen by data_801a27d0: texture
  * coordinates, and screen positions that are spaced 16 apart per cell
- * (mirrored when bit 0 of the object's field_0b is set). The x positions
+ * (mirrored when bit 0 of the object's facing_side is set). The x positions
  * start from the object's x position less box_margin and the map's first
  * offset, the y positions from data_801aa5ea and the map's second offset.
  * Each record is handed to func_8015bf34 together with the list head 0x38
@@ -25,7 +25,7 @@ void func_80151324(Object *object, FrameRecord *table) {
     u16 width;
     int base;
     FrameRecord *rec = &table[object->sequence->frame_index];
-    int idx = rec->field_05;
+    int idx = rec->value_b;
     u8 *p;
     u8 height;
     u16 n;
@@ -65,7 +65,7 @@ void func_80151324(Object *object, FrameRecord *table) {
     y0 = data_801aa5ea[0] - cb;
     cc = c1 - 216;
     y1 = data_801aa5ea[0] - cc;
-    flags = object->field_0b;
+    flags = object->facing_side;
     f2 = object->field_02;
     n = 0;
     for (row = 0; row < width; row++) {

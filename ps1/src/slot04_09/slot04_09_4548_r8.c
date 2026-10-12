@@ -5,7 +5,7 @@
 
 void func_801b4e3c_slot04_09(Object *obj, Object *unused) {
     obj->state_3++;
-    if (obj->field_246 == 0) {
+    if (obj->counter == 0) {
         func_80141f28(obj, 3);
     }
     play_sound_at(obj, obj->side ^ 1, 0x31b);

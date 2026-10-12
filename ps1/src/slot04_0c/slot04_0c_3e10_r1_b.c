@@ -12,7 +12,7 @@ void func_8011f240(Slab172 *o);
 void func_8011ffdc(Object *o);
 
 void func_801b46d0_slot04_0c(Object *obj) {
-    if (game_state.field_6a != 0) {
+    if (game_state.gate_flag != 0) {
         obj->state_0++;
     } else {
         data_801be218_slot04_0c[obj->state_1](obj);
@@ -24,9 +24,9 @@ void func_801b4744_slot04_0c(Object *obj) {
     Object *p;
     SequenceStep **t;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
-    p = obj->field_3c;
+    p = obj->parent;
     if (obj->pos_y >= obj->ground_y) {
-        obj->field_46 = 8;
+        obj->countdown = 8;
         obj->state_1++;
         obj->pos_y = obj->ground_y;
         if (p->side == 0) {
@@ -39,8 +39,8 @@ void func_801b4744_slot04_0c(Object *obj) {
 }
 
 void func_801b47d0_slot04_0c(Object *obj) {
-    int t = obj->field_46 - 1;
-    obj->field_46 = t;
+    int t = obj->countdown - 1;
+    obj->countdown = t;
     if ((s16)t < 0) obj->state_0 = obj->state_0 + 1;
 }
 

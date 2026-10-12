@@ -36,14 +36,14 @@ void func_801e960c_slot06_03(Object *obj) {
 
 void func_801e964c_slot06_03(Object *obj) {
     obj->field_0f = 1;
-    obj->field_76 = 0x2c0;
-    obj->field_78 = 0x100;
+    obj->base_x = 0x2c0;
+    obj->base_y = 0x100;
     obj->spawn_x = 0x70;
     obj->spawn_y = 0x1e0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_0c = 0;
-    obj->field_0d = 0;
-    obj->field_81 = 4;
+    obj->image_row = 0;
+    obj->spawn_mode = 4;
     obj->state_0 = obj->state_0 + 1;
     func_801e9790_slot06_03(obj);
     func_801e9810_slot06_03(obj);
@@ -72,28 +72,28 @@ void func_801e9770_slot06_03(Object *obj) {
 
 void func_801e9790_slot06_03(Object *obj) {
     u8 r;
-    obj->vel_y = -*(s32 *)(data_801ea604_slot06_03 + ((obj->field_03 << 3) & 0x3f8));
+    obj->vel_y = -*(s32 *)(data_801ea604_slot06_03 + ((obj->table_index << 3) & 0x3f8));
     r = get_random_byte() & 1;
     if (r != 0) {
         obj->vel_x = -obj->vel_x;
         obj->accel_x = -obj->accel_x;
     }
-    obj->field_0b = r;
+    obj->facing_side = r;
 }
 
 void func_801e9810_slot06_03(Object *obj) {
-    obj->pos_x = data_801ea61c_slot06_03[(u8)(obj->field_03 * 16 + (get_random_byte() & 0xf) * 2)];
+    obj->pos_x = data_801ea61c_slot06_03[(u8)(obj->table_index * 16 + (get_random_byte() & 0xf) * 2)];
     obj->pos_y = 0xe0;
 }
 
 void func_801e9870_slot06_03(Object *obj) {
     u8 v = data_801ea67c_slot06_03[get_random_byte() & 3];
-    obj->field_48 = v;
-    func_80130700(obj, data_801eb3e0_slot06_03[(u8)(obj->field_03 * 3 + v)]);
+    obj->variant_index = v;
+    func_80130700(obj, data_801eb3e0_slot06_03[(u8)(obj->table_index * 3 + v)]);
 }
 
 void func_801e98e0_slot06_03(Object *obj) {
-    obj->field_1c = data_801ea680_slot06_03[(u8)((get_random_byte() & 3) | (obj->field_48 << 2))];
+    obj->field_1c = data_801ea680_slot06_03[(u8)((get_random_byte() & 3) | (obj->variant_index << 2))];
 }
 
 void func_801e9938_slot06_03(Object *obj) {
@@ -120,8 +120,8 @@ void func_801e9a2c_slot06_03(SeqRec *rec, Slot06Cursor *cur) {
     new_var = rec->header;
     w = new_var;
     new_var = w >> 16;
-    cur->field_04 = new_var;
-    cur->field_06 = w;
+    cur->remaining_count = new_var;
+    cur->step_word = w;
 }
 
 void func_801e9a4c_slot06_03(Object *obj) {
@@ -145,12 +145,12 @@ void func_801e9ad0_slot06_03(Object *obj) {
 
 void func_801e9af0_slot06_03(Slot06Cursor *cur) {
     SeqRec *rec;
-    int v = cur->field_04 - 1;
-    cur->field_04 = v;
+    int v = cur->remaining_count - 1;
+    cur->remaining_count = v;
     if ((s16)v == 0) {
         rec = cur->rec;
         rec++;
-        if ((s16)cur->field_06 < 0) {
+        if ((s16)cur->step_word < 0) {
             rec = (SeqRec *)rec->header;
         }
         func_801e9b44_slot06_03(cur, rec);
@@ -164,8 +164,8 @@ void func_801e9b44_slot06_03(Slot06Cursor *cur, SeqRec *rec) {
     new_var = rec->header;
     w = new_var;
     new_var = w >> 16;
-    cur->field_04 = new_var;
-    cur->field_06 = w;
+    cur->remaining_count = new_var;
+    cur->step_word = w;
     func_8011fcc0(rec);
 }
 
@@ -175,24 +175,24 @@ void func_801e9b80_slot06_03(Object *obj) {
 
 void func_801e9bc0_slot06_03(Object *obj) {
     obj->field_0f = 1;
-    obj->field_76 = 0x2c0;
-    obj->field_78 = 0x100;
+    obj->base_x = 0x2c0;
+    obj->base_y = 0x100;
     obj->spawn_x = 0x70;
     obj->spawn_y = 0x1e0;
-    obj->field_81 = 4;
-    obj->field_0d = 0;
+    obj->spawn_mode = 4;
+    obj->image_row = 0;
     obj->field_0c = 0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->state_0 = obj->state_0 + 1;
-    func_80130700(obj, data_801eb404_slot06_03[obj->field_03]);
+    func_80130700(obj, data_801eb404_slot06_03[obj->table_index]);
 }
 
 void func_801e9c40_slot06_03(Object *obj) {
-    int a = (game_state.field_32 & 1) << 2;
-    int i = (u8)(obj->field_03 << 3 | a);
+    int a = (game_state.tick_count & 1) << 2;
+    int i = (u8)(obj->table_index << 3 | a);
     obj->pos_x = data_801ea6b8_slot06_03[i];
     obj->pos_y = 0xf8 - data_801ea6b8_slot06_03[i + 1];
-    obj->field_0b = ((u8 *)data_801ea6b8_slot06_03)[i * 2 + 4];
+    obj->facing_side = ((u8 *)data_801ea6b8_slot06_03)[i * 2 + 4];
     if (a != 0) {
         advance_sequence_checked(obj);
     }

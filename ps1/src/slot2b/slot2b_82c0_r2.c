@@ -18,7 +18,7 @@ void func_800783bc_slot2b(Object *o) {
         func_800795f8_slot2b(o);
         func_800796e4_slot2b(o);
         func_800796e4_slot2b(o);
-        func_80138070(o, (o->field_ac >> 1) + 0xc);
+        func_80138070(o, (o->vel_table_index >> 1) + 0xc);
     }
 }
 
@@ -31,7 +31,7 @@ void func_8007843c_slot2b(Object *o) {
 }
 
 void func_8007847c_slot2b(Object *o) {
-    o->field_00 = 2;
+    o->active_count = 2;
     o->state_0 = 2;
     o->state_1 = 0;
     o->state_2 = 0;
@@ -39,7 +39,7 @@ void func_8007847c_slot2b(Object *o) {
 }
 
 void func_80078498_slot2b(Object *o) {
-    o->field_00 = 2;
+    o->active_count = 2;
     o->state_0 = 2;
     o->state_1 = 0;
     o->state_2 = 0;
@@ -47,7 +47,7 @@ void func_80078498_slot2b(Object *o) {
 }
 
 void func_800784b4_slot2b(Object *o) {
-    o->field_00 = 2;
+    o->active_count = 2;
     o->state_0 = 2;
     o->state_1 = 0;
     o->state_2 = 0;
@@ -55,7 +55,7 @@ void func_800784b4_slot2b(Object *o) {
 }
 
 void func_800784d0_slot2b(Object *o) {
-    o->field_00 = 2;
+    o->active_count = 2;
     o->state_0 = 2;
     o->state_1 = 0;
     o->state_2 = 0;
@@ -67,6 +67,6 @@ void func_800784ec_slot2b(Object *o) {
     o->state_1 = 0;
     o->state_2 = 0;
     o->state_3 = 0;
-    o->field_00 = 2;
-    data_8007ef28_slot2b->field_14c = 0;
+    o->active_count = 2;
+    data_8007ef28_slot2b->linked_object_3 = 0;
 }

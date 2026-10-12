@@ -10,17 +10,17 @@ extern void (*data_80015cdc_slot01)(Object *obj);
 void func_80013ee8_slot01(Object *obj) {
     obj->ot_depth = 0;
     obj->field_20 = 0;
-    obj->field_22 = 0;
-    obj->field_24 = 0;
+    obj->y_scale = 0;
+    obj->table_index_2 = 0;
     obj->field_0c = 1;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->pos_x = 0x1e0;
     obj->pos_y = 0x54;
-    obj->field_48 = 0;
-    obj->field_46 = 0x1f;
+    obj->variant_index = 0;
+    obj->countdown = 0x1f;
     obj->state_0++;
     if ((game_state.mode & 1) == 0) {
-        obj->field_48 = 1;
+        obj->variant_index = 1;
         obj->pos_x = 0x194;
     }
     data_80015cdc_slot01(obj);

@@ -19,5 +19,5 @@ void func_800e26cc_slot0f(Object *obj) {
 }
 
 void func_800e27a4_slot0f(void) {
-    data_800e971c_slot0f[data_8018f5a0->field_4c]();
+    data_800e971c_slot0f[data_8018f5a0->step_index]();
 }

@@ -24,12 +24,12 @@ void func_801b4844_slot04_10(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
         update_sequence(obj);
     } else {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
         obj->step_flags &= 0xff00;
         ref_other.p = obj->other;
         ref_other.p->field_15b = 1;
-        func_80140770(obj, data_801c6bb8_slot04_10[obj->field_12a & 0xfe], 0xf, -0x200, 0, 0, 1);
+        func_80140770(obj, data_801c6bb8_slot04_10[obj->direction_index & 0xfe], 0xf, -0x200, 0, 0, 1);
         ref_other.p = obj->other;
         if (((Slot04bObj *)ref_other.p)->field_5c < 0) {
             obj->field_167 = 2;
@@ -38,11 +38,11 @@ void func_801b4844_slot04_10(Object *obj) {
                 obj->field_255 = 6;
             }
         }
-        a = data_801c6bc0_slot04_10[obj->field_12a * 2];
-        obj->vel_y = data_801c6bc0_slot04_10[obj->field_12a * 2 + 1];
-        obj->accel_y = data_801c6bc0_slot04_10[obj->field_12a * 2 + 3];
+        a = data_801c6bc0_slot04_10[obj->direction_index * 2];
+        obj->vel_y = data_801c6bc0_slot04_10[obj->direction_index * 2 + 1];
+        obj->accel_y = data_801c6bc0_slot04_10[obj->direction_index * 2 + 3];
         obj->accel_x = 0;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             a = -a;
         }
         obj->vel_x = a;
@@ -62,9 +62,9 @@ void func_801b49ac_slot04_10(Object *obj) {
 
 void func_801b4a1c_slot04_10(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
         ref_other.p = obj->other;
-        ref_other.p->field_249 = 5;
+        ref_other.p->other_state_code = 5;
         func_801b1078_slot04_10(obj);
     } else {
         func_80142adc(obj);
@@ -83,7 +83,7 @@ void func_801b4a8c_slot04_10(Object *obj) {
 void func_801b4ad0_slot04_10(Object *obj) {
     s32 d = obj->vel_x;
 
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         d = -d;
     }
     *(s32 *)&obj->pos_x_frac += d;
@@ -106,11 +106,11 @@ void func_801b4b58_slot04_10(Object *o) {
     func_801428e4(o);
     func_80138b38((GameState *)game_state.config, o);
     func_80145d20(o);
-    o->vel_x = data_801c6c38_slot04_10[o->field_12a * 2];
-    o->vel_y = data_801c6c38_slot04_10[o->field_12a * 2 + 1];
-    o->accel_x = data_801c6c38_slot04_10[o->field_12a * 2 + 2];
-    o->accel_y = data_801c6c38_slot04_10[o->field_12a * 2 + 3];
-    if (o->field_0b == 0) {
+    o->vel_x = data_801c6c38_slot04_10[o->direction_index * 2];
+    o->vel_y = data_801c6c38_slot04_10[o->direction_index * 2 + 1];
+    o->accel_x = data_801c6c38_slot04_10[o->direction_index * 2 + 2];
+    o->accel_y = data_801c6c38_slot04_10[o->direction_index * 2 + 3];
+    if (o->facing_side == 0) {
         o->vel_x = -o->vel_x;
         o->accel_x = -o->accel_x;
     }

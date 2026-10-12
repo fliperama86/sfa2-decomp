@@ -18,7 +18,7 @@ void func_8014b940(Object *object) {
 void func_8014b98c(Object *object) {
     s16 *p = (s16 *)data_80189460;
     data_80189460 = (u16 *)(p + 1);
-    if ((s16)object->field_c6 >= *p) {
+    if ((s16)object->meter >= *p) {
         func_8014c914(object);
     } else {
         func_8014c528(object);
@@ -26,7 +26,7 @@ void func_8014b98c(Object *object) {
 }
 
 void func_8014b9e8(Object *object) {
-    if (object->other->field_45 == 1) {
+    if (object->other->active_state == 1) {
         func_8014c914(object);
     } else {
         func_8014c528(object);
@@ -51,7 +51,7 @@ void func_8014ba78(Object *object) {
 
 void func_8014bac0(Object *object) {
     Object *other = object->other;
-    if (other->field_240 == 0 || other->field_14c == 0 || ((Object *)other->field_14c)->state_0 != 1) {
+    if (other->link_flags == 0 || other->linked_object_3 == 0 || ((Object *)other->linked_object_3)->state_0 != 1) {
         func_8014c528(object);
     } else {
         func_8014c914(object);

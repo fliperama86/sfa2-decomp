@@ -6,11 +6,11 @@
 void func_801b2ae0_slot04_01(Object *obj) {
     int a = 0x3e;
 
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     obj->field_157 = 0;
     obj->state_3++;
-    obj->field_177--;
-    if (obj->field_219 != 0) {
+    obj->remaining_count--;
+    if (obj->attack_param_d != 0) {
         a = 0x3f;
     }
     func_801307e0(obj, a);

@@ -10,7 +10,7 @@ void func_801b1c98_slot04_09(Object *obj) {
         func_801312b8(obj);
     } else {
         if ((t & 1) == 0) {
-            obj->field_17b = 0;
+            obj->active_flag_4 = 0;
             func_80142adc(obj);
         }
         update_sequence(obj);

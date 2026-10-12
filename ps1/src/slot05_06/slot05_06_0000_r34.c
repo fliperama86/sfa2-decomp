@@ -11,7 +11,7 @@ void func_801cabd8_slot05_06(Object *obj) {
     if (obj->pos_y < obj->ground_y) {
         func_801cc814_slot05_06(obj);
     } else {
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801312b8(obj);

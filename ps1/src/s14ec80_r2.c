@@ -15,7 +15,7 @@ void func_8014f408(int a, int b) {
     GameState *g = &game_state;
     func_8014f690(&ctl_80190948, a, b);
     while (!func_8014f4bc()) {
-        if (g->field_225 == 2) {
+        if (g->loop_mode == 2) {
             data_801ac620 |= 0x8000;
         }
         func_8014f59c();
@@ -25,5 +25,5 @@ void func_8014f408(int a, int b) {
 }
 
 int func_8014f4bc(void) {
-    return ctl_80190948.field_0a == 3;
+    return ctl_80190948.mode == 3;
 }

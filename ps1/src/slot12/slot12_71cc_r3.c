@@ -15,11 +15,11 @@ void func_80017408_slot12(Object *obj) {
 
 void func_80017448_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
-    obj->field_12 = 0xc0;
-    obj->field_16 = 0x80;
-    obj->field_09 = 5;
+    obj->base_x = 0xc0;
+    obj->base_y = 0x80;
+    obj->ot_index = 5;
     obj->field_01 = 0;
-    obj->field_04++;
+    obj->step_count++;
     func_80130768(o, 0, &data_80028a84_slot12);
     func_80014434_slot12(o, data_8002d528_slot12, 0x100, 0xc0);
 }

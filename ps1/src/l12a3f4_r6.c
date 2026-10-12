@@ -4,11 +4,11 @@
 #include "protos.h"
 
 void func_8012ba80(Object *object) {
-    if (object->field_cd != 0) {
+    if (object->mode_flag_2 != 0) {
         if ((s16)object->step_flags < 0) {
             func_80131468(object);
         } else {
-            object->field_0b = object->field_158;
+            object->facing_side = object->saved_facing;
             update_sequence(object);
         }
     } else if (func_80130470(object)) {
@@ -18,14 +18,14 @@ void func_8012ba80(Object *object) {
     } else if (func_8012f970(object)) {
         object->state_3 = 2;
         object->field_157 = 1;
-        object->field_0b = object->field_158;
+        object->facing_side = object->saved_facing;
         set_sequence_by_side(object, 0x19);
     } else if ((u8)func_8012f800(object)) {
         func_8012f838(object);
     } else if ((s16)object->step_flags < 0) {
         func_80131468(object);
     } else {
-        object->field_0b = object->field_158;
+        object->facing_side = object->saved_facing;
         update_sequence(object);
     }
 }

@@ -5,7 +5,7 @@
 
 void func_80143f98(Object *object) {
     if ((u8)object->step_flags != 0) {
-        object->field_46 = 7;
+        object->countdown = 7;
         object->vel_x = -0x8000;
         object->vel_y = 0x10000;
         object->state_2 = object->state_2 + 1;

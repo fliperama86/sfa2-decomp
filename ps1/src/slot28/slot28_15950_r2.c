@@ -18,8 +18,8 @@ void func_80025c38_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
         h = data_8018f5a0;
-        h->field_60 = 0x258;
-        h->field_52++;
+        h->countdown_timer = 0x258;
+        h->pass_index++;
         func_80025ebc_slot28();
         func_80130768(data_80051c8c_slot28.p, 1, data_8004dcd8_slot28);
         b = data_80051c90_slot28[0];
@@ -37,7 +37,7 @@ void func_80025c38_slot28(Object *obj) {
             b->pos_y = 0xa0;
             b->spawn_x = 0x60;
             b->spawn_y = 0x1e0;
-            b->field_0d = 0;
+            b->image_row = 0;
             b->ot_depth = 2;
             func_80130768(b, 5, data_8004dce8_slot28);
             data_80051c64_slot28[0] = b;

@@ -6,8 +6,8 @@
 extern ObjectRef data_80051890_slot28;
 
 void func_800157cc_slot28(Object *obj) {
-    if (game_state.field_f0 == 0) {
-        data_8018f5a0->field_4e++;
+    if (game_state.wait_flag == 0) {
+        data_8018f5a0->substep_index++;
         func_8011f240((Slab172 *)data_80051890_slot28.p);
     }
 }

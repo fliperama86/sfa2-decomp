@@ -32,7 +32,7 @@ void func_801b2c30_slot04_0b(Object *obj) {
         obj->state_3++;
         play_side_sound_at(obj, obj->side, 0xf);
         play_side_sound_at(obj, obj->side, 4);
-        obj->field_27b = 3;
+        obj->other_lock = 3;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 0xa;
         }

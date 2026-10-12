@@ -7,18 +7,18 @@ void func_801b1068_slot04_07(Object *obj) {
     int a;
 
     obj->state_3 = 3;
-    obj->field_159 = 1;
-    obj->field_128 = 4;
+    obj->active_flag_3 = 1;
+    obj->input_dir_0 = 4;
     func_80130504(obj);
     a = 0xc;
-    if (obj->field_129 == 0) {
-        if (obj->field_12a == 2 && (obj->field_130 & 0x4000)) {
+    if (obj->input_dir_second == 0) {
+        if (obj->direction_index == 2 && (obj->input_bits_2 & 0x4000)) {
             obj->vel_x >>= 1;
             play_side_sound_at(obj, obj->side, 7);
             func_801307e0(obj, 0x1f);
             return;
         }
-        if (obj->field_12a != 0 && (obj->field_130 & 0xe000) && obj->pos_y < obj->ground_y - 0x30) {
+        if (obj->direction_index != 0 && (obj->input_bits_2 & 0xe000) && obj->pos_y < obj->ground_y - 0x30) {
             if ((u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x20)) {
                 obj->state_0 = 1;
                 obj->state_1 = 2;
@@ -28,13 +28,13 @@ void func_801b1068_slot04_07(Object *obj) {
             }
         }
     }
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         a = 0x12;
     }
-    if (obj->field_129 != 0) {
+    if (obj->input_dir_second != 0) {
         a += 3;
     }
-    a += obj->field_12a >> 1;
+    a += obj->direction_index >> 1;
     func_801307e0(obj, (s16)a);
-    func_80141f28(obj, obj->field_12a >> 1);
+    func_80141f28(obj, obj->direction_index >> 1);
 }

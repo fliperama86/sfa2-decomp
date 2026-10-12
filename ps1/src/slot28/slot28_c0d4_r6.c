@@ -9,8 +9,8 @@ void func_8001c998_slot28(Object *o) {
     }
     o->field_01 = 0;
     advance_sequence_checked(o);
-    o->field_48 = o->field_48 ^ 1;
-    if (o->field_48 != 0) {
+    o->variant_index = o->variant_index ^ 1;
+    if (o->variant_index != 0) {
         o->field_01 = 1;
     }
 }

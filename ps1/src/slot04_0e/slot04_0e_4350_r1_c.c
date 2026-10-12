@@ -20,12 +20,12 @@ void func_801b4b40_slot04_0e(Object *obj) {
 
     c = (Object *)func_8011f1e0();
     if (c != 0) {
-        c->field_00 = 1;
+        c->active_count = 1;
         c->field_02 = 0x14;
-        c->field_03 = 0;
+        c->table_index = 0;
         c->ot_depth = 0;
-        c->field_0b = obj->field_0b;
-        if (obj->field_0b != 0) {
+        c->facing_side = obj->facing_side;
+        if (obj->facing_side != 0) {
             x = obj->pos_x + 0x40;
             lim = data_801aa618[1] + 0x160;
             if (lim <= x) {
@@ -40,18 +40,18 @@ void func_801b4b40_slot04_0e(Object *obj) {
             }
             c->pos_y = -8;
         }
-        c->field_48 = 0x56;
+        c->variant_index = 0x56;
         c->pos_x = x;
-        c->field_3c = obj;
-        r->field_14 = c;
+        c->parent = obj;
+        r->object = c;
         c->spawn_x = 0x60;
         c->spawn_y = 0x1e0;
-        c->field_0d = obj->field_0d;
-        c->field_08 = 0x20;
+        c->image_row = obj->image_row;
+        c->mode_id = 0x20;
         c->field_90 = obj->field_90;
-        c->field_66 = obj->field_66;
-        c->field_98 = obj->field_98;
-        c->field_9c = obj->field_9c;
+        c->sound_side = obj->sound_side;
+        c->data_ptr_a = obj->data_ptr_a;
+        c->data_ptr_b = obj->data_ptr_b;
     }
 }
 
@@ -64,8 +64,8 @@ void func_801b4cf0_slot04_0e(Object *o) {
     int a;
 
     obj->field_47 = 0x3c;
-    o->field_17b = 1;
-    obj->field_1de = 0;
+    o->active_flag_4 = 1;
+    obj->state_flag = 0;
     o->state_3 = o->state_3 + 1;
     func_801b5088_slot04_0e(o);
     func_80141f28(o, 4);

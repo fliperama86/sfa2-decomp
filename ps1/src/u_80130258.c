@@ -21,7 +21,7 @@ int func_80130258(Object *object)
   if (new_var3)
   {
     held = new_var2;
-    result = object->field_130;
+    result = object->input_bits_2;
     new_var2 = result;
     held &= new_var2;
     new_var3 = (new_var4 = 0);

@@ -7,7 +7,7 @@ int func_801b41c4_slot04_07(Object *obj);
 void func_801b40c8_slot04_07(Object *obj);
 
 void func_801b4048_slot04_07(Object *obj) {
-    if (((Slot04aObj *)obj)->field_3a == 0) {
+    if (((Slot04aObj *)obj)->mode == 0) {
         update_sequence(obj);
     } else {
         obj->vel_y = 0x40000;

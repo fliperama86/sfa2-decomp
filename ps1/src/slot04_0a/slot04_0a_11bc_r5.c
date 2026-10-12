@@ -14,11 +14,11 @@ void func_801b1750_slot04_0a(Object *obj) {
     obj->state_3++;
     func_80141f28(obj, 5);
     func_80138ae8(&game_state, obj);
-    obj->field_45 = 1;
-    obj->field_17b = 1;
-    v = data_801c0608_slot04_0a[obj->field_12a >> 1];
+    obj->active_state = 1;
+    obj->active_flag_4 = 1;
+    v = data_801c0608_slot04_0a[obj->direction_index >> 1];
     a = -0x2000;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         v = -v;
         a = 0x2000;
     }
@@ -34,12 +34,12 @@ void func_801b1750_slot04_0a(Object *obj) {
 }
 
 void func_801b1810_slot04_0a(Object *obj) {
-    if (((Slot04aObj *)obj)->field_3a == 0) {
+    if (((Slot04aObj *)obj)->mode == 0) {
         func_801b3e00_slot04_0a(obj);
         if (obj->pos_y > obj->ground_y) {
             obj->pos_y_frac = 0;
-            obj->field_45 = 0;
-            obj->field_17b = 0;
+            obj->active_state = 0;
+            obj->active_flag_4 = 0;
             obj->state_3++;
             obj->pos_y = obj->ground_y;
         }

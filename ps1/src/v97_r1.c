@@ -23,13 +23,13 @@ void func_8013e2b0(Object *object, int index, int arg)
     return;
   }
   arg &= 0xff;
-  entry = table_8017a8cc[(arg * 7) + object->slots[index].field_01];
+  entry = table_8017a8cc[(arg * 7) + object->slots[index].entry_index];
   mask = object->pressed_bits & 0xf0ff;
   if (mask == 0)
     goto call_c8;
   if (!(entry & 0x400))
   {
-    if (((mask & entry) == 0) || (((s16) entry) != ((s16) (object->field_130 & 0xf0ff))))
+    if (((mask & entry) == 0) || (((s16) entry) != ((s16) (object->input_bits_2 & 0xf0ff))))
       goto call_a8;
     if (entry & 1)
       func_8013f2d8(object, index, arg);

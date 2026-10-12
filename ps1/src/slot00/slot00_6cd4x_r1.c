@@ -12,24 +12,24 @@ void func_80076cd4_slot00(Object *o) {
     u8 t;
     int w;
 
-    o->field_46 = (s16)o->field_46 - 1;
-    if ((s16)o->field_46 == 0) {
-        o->field_00 = 1;
+    o->countdown = (s16)o->countdown - 1;
+    if ((s16)o->countdown == 0) {
+        o->active_count = 1;
         o->state_0 = 1;
         o->state_2 = 1;
         o->state_1 = 0;
         o->state_3 = 0;
         v = -o->vel_x;
         o->vel_x = v;
-        if (!(obj->field_b3 & 1)) {
+        if (!(obj->step_count & 1)) {
             o->vel_x = (v >> 1) + v;
-            if (o->field_ad == 0) {
-                w = o->field_ae + 1;
+            if (o->active_flag_2 == 0) {
+                w = o->table_index_3 + 1;
                 t = w;
                 if (w >= 8) {
                     t = 7;
                 }
-                o->field_ae = t;
+                o->table_index_3 = t;
                 func_80077050_slot00(o);
             }
         }

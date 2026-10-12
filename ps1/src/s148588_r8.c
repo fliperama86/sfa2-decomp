@@ -19,12 +19,12 @@ void func_8014911c(Object *object) {
 }
 
 void func_80149158(Object *object) {
-    s16 old = object->field_46;
-    object->field_46 = old - 1;
+    s16 old = object->countdown;
+    object->countdown = old - 1;
     if (old < 0) {
         /* Signed store: a plain assignment compiles to ori 0xffff. */
-        *(s16 *)&object->field_46 = -1;
-        if (object->field_3c->field_7e == 0) {
+        *(s16 *)&object->countdown = -1;
+        if (object->parent->field_7e == 0) {
             object->state_0 = object->state_0 + 1;
         }
         func_8011ffdc(object);

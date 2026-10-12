@@ -11,8 +11,8 @@ void func_80136abc(void) {
     } else if (data_801904d8[4] == 1) {
         func_80136b60(cam);
     }
-    a = ((u16 *)&cam->field_64)[1];
-    b = game_state.field_92;
+    a = ((u16 *)&cam->src_b)[1];
+    b = game_state.scroll_y;
     a = (a - b) & 0x3ff;
     game_state.field_da = a;
 }

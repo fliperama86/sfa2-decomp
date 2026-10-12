@@ -13,34 +13,34 @@ void func_80011ea4_slot27(void) {
     Object *obj = ref_other.p;
     u16 v;
 
-    if (rec->field_00 == 0) {
-        if (rec->field_01 == 0) {
+    if (rec->slot_a == 0) {
+        if (rec->slot_b == 0) {
             if (obj->kind == 2 && *data_80026960_slot27[obj->side] == 0x100) {
-                rec->field_01 = 0xff;
+                rec->slot_b = 0xff;
             }
         } else if (*data_80026968_slot27[obj->side] != 0x100) {
-            rec->field_01 = 0;
-            rec->field_00 = 0xff;
+            rec->slot_b = 0;
+            rec->slot_a = 0xff;
         }
     }
-    if (rec->field_00 != 0) {
+    if (rec->slot_a != 0) {
         v = *data_80026960_slot27[obj->side];
         if (v != 0) {
             if (v == data_80026970_slot27[rec->step_count]) {
                 if (++rec->step_count == 0xb) {
-                    rec->field_03 = 0xff;
+                    rec->slot_c = 0xff;
                 }
             } else {
                 rec->step_count = 0;
-                rec->field_00 = 0;
+                rec->slot_a = 0;
             }
         }
     }
-    if (rec->field_03 != 0) {
+    if (rec->slot_c != 0) {
         if (*data_80026968_slot27[obj->side] & 0x100) {
-            rec->field_04 = 0xff;
+            rec->slot_d = 0xff;
         } else {
-            rec->field_04 = 0;
+            rec->slot_d = 0;
         }
     }
 }

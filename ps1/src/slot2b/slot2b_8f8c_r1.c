@@ -12,8 +12,8 @@ void func_80079144_slot2b(Object *obj);
 void func_80078f8c_slot2b(Object *o) {
     Slot2bObj *obj = (Slot2bObj *)o;
     int d;
-    obj->field_47--;
-    if ((obj->field_47 & 0x80) != 0) {
+    obj->countdown_timer--;
+    if ((obj->countdown_timer & 0x80) != 0) {
         o->state_1++;
         if (data_8007ef34_slot2b->other->field_15b != 0) {
             d = (get_random_byte() & 0x3f) - 0x20;
@@ -21,12 +21,12 @@ void func_80078f8c_slot2b(Object *o) {
             o->pos_x = d;
             d = (get_random_byte() & 0x3f) - 0x20;
             *(u16 *)&o->pos_y -= d;
-            o->field_48 = (game_state.field_24 & 1) + 0x51;
+            o->variant_index = (game_state.field_24 & 1) + 0x51;
             func_8007893c_slot2b(o);
             play_side_sound_at(o, data_8007ef34_slot2b->side, 0xf);
         } else {
             o->state_1++;
-            obj->field_47 = 0x18;
+            obj->countdown_timer = 0x18;
             func_80079208_slot2b(o);
         }
     } else {

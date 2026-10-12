@@ -7,9 +7,9 @@ extern ObjectFn data_80079848_slot2b[];
 extern ObjectFn data_80079854_slot2b[];
 
 void func_80077508_slot2b(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_80130dc0(obj);
 }
 
@@ -25,7 +25,7 @@ void func_80077540_slot2b(Object *obj) {
 }
 
 void func_800775a4_slot2b(Object *obj) {
-    data_80079848_slot2b[obj->field_12a >> 1](obj);
+    data_80079848_slot2b[obj->direction_index >> 1](obj);
 }
 
 void func_800775e8_slot2b(Object *obj) {
@@ -33,8 +33,8 @@ void func_800775e8_slot2b(Object *obj) {
 }
 
 void func_80077628_slot2b(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_80130dc0(obj);
 }

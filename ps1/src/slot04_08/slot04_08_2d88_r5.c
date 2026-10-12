@@ -14,13 +14,13 @@ void func_801b3260_slot04_08(Object *obj) {
         obj->state_3++;
         obj->accel_x = -0xc000;
         x = 0x160;
-        obj->field_67 = 0;
-        if (obj->field_0b == 0) {
+        obj->active_flag = 0;
+        if (obj->facing_side == 0) {
             x = -0x160;
             obj->vel_x = -obj->vel_x;
             obj->accel_x = -obj->accel_x;
         }
-        obj->field_46 = 0;
+        obj->countdown = 0;
         data_801c3e98_slot04_08 = x + obj->pos_x;
         func_801b4298_slot04_08(obj);
     }
@@ -34,7 +34,7 @@ void func_801b3304_slot04_08(Object *obj) {
 
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     d = (u16)obj->pos_x - data_801c3e98_slot04_08;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         d = -d;
     }
     if (d >= 0) {
@@ -42,10 +42,10 @@ void func_801b3304_slot04_08(Object *obj) {
         if (obj->vel_x < 0) {
             d = 1;
         }
-        if (obj->field_164 != d) {
+        if (obj->bound_push_flag != d) {
             other = obj->other;
             d = -0x20;
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 d = 0x20;
             }
             d = d + (u16)obj->pos_x - other->pos_x + 0x50;

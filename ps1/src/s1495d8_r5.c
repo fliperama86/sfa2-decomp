@@ -4,10 +4,10 @@
 #include "protos.h"
 
 u8 func_80149e3c(Object *a, Object *b) {
-    if (a->field_45 != 0 && b->field_45 == 0) return 0;
+    if (a->active_state != 0 && b->active_state == 0) return 0;
     if (b->field_225 != 0) return 1;
     if (b->frame->field_0c & 0x80) return 0;
-    if (b->field_159 == 0) return 0;
+    if (b->active_flag_3 == 0) return 0;
     return (u8)func_80149f20(a, b) != 0;
 }
 

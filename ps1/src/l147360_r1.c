@@ -12,7 +12,7 @@ void func_80147360(Object *object) {
         if (*(u8 *)&object->step_flags != 0) return;
         game_state.field_dc = 0;
         if (data_8018945c != 0) {
-            int v = object->field_45 >> 1;
+            int v = object->active_state >> 1;
             if (v == 0) {
                 a = 0;
                 b = 0;

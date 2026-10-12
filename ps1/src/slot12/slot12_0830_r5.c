@@ -7,15 +7,15 @@ extern Object *data_8002d568_slot12;
 extern Object *data_8002d56c_slot12;
 
 void func_80010efc_slot12(void) {
-    u16 *p = &game_state.field_c6;
+    u16 *p = &game_state.countdown_2;
     int t = *p - 1;
     *p = t;
     if ((s16)t < 0) {
         Block172 *b;
-        data_8018f5a0->field_4c = data_8018f5a0->field_4c + 1;
+        data_8018f5a0->step_index = data_8018f5a0->step_index + 1;
         *p = 0x2f;
         if (game_state.field_44 & 0x80) {
-            play_side_sound_at(data_8002d56c_slot12, game_state.field_227 ^ 1, 5);
+            play_side_sound_at(data_8002d56c_slot12, game_state.sound_side ^ 1, 5);
         } else {
             play_side_sound_at(data_8002d568_slot12, data_8002d568_slot12->side, 5);
         }
@@ -23,19 +23,19 @@ void func_80010efc_slot12(void) {
         if (b != 0) {
             b->active_flag = 1;
             b->handler_index = 0x26;
-            b->field_03 = 1;
+            b->block_mode = 1;
         }
         b = func_8011f1e0();
         if (b != 0) {
             b->active_flag = 1;
             b->handler_index = 0x7e;
-            b->field_03 = 0;
+            b->block_mode = 0;
         }
         b = func_8011f1e0();
         if (b != 0) {
             b->active_flag = 1;
             b->handler_index = 0x7e;
-            b->field_03 = 1;
+            b->block_mode = 1;
         }
     }
 }

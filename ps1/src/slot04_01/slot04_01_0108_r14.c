@@ -20,8 +20,8 @@ void func_801b2778_slot04_01(Object *obj) {
             return;
         }
     } else {
-        obj->field_45 = 0;
-        obj->field_159 = 0;
+        obj->active_state = 0;
+        obj->active_flag_3 = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         func_801209c4(obj);
@@ -31,7 +31,7 @@ void func_801b2778_slot04_01(Object *obj) {
 
 void func_801b2810_slot04_01(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        obj->other->field_249 = 5;
+        obj->other->other_state_code = 5;
         func_801312b8(obj);
     } else {
         update_sequence(obj);

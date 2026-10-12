@@ -14,9 +14,9 @@ void func_801b4d14_slot04_16(Object *obj) {
         obj->state_3++;
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
-            i = (obj->field_12a >> 1) + 1;
+            i = (obj->direction_index >> 1) + 1;
         }
-        ((Slot04bObj *)obj)->field_27b = data_801ca3fc_slot04_16[i];
+        ((Slot04bObj *)obj)->table_value = data_801ca3fc_slot04_16[i];
         if (obj->field_4b == 0) {
             ref_other.p = obj->other;
             ref_other.p->field_6b = 0xa;

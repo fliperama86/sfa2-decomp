@@ -56,31 +56,31 @@ void func_801e8128_slot06_10(Slot06Layer *layer) {
     s16 d;
     s16 e;
 
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_80136180((Sprite *)layer);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;
-        d -= l2->field_0a;
+        d -= l2->ref_x;
         d -= d / 16;
-        d += layer->field_0a;
-        d += layer->field_36;
+        d += layer->ref_x;
+        d += layer->pos_x_int;
         layer->field_22 = d;
         e = l2->field_26;
         e -= l2->field_0e;
         e -= e / 16;
         e += layer->field_0e;
-        e += layer->field_3a;
+        e += layer->pos_y_int;
         layer->field_26 = e;
     }
 }
 
 void func_801e81fc_slot06_10(Slot06Layer *layer) {
-    layer->field_50 = data_801ebc10_slot06_10;
-    layer->field_54 = data_801ebc10_slot06_10;
-    layer->field_1e = 0x5800;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ebc10_slot06_10;
+    layer->data_table = data_801ebc10_slot06_10;
+    layer->packed_param = 0x5800;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e8228_slot06_10(void) {

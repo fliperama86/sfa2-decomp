@@ -14,8 +14,8 @@ void func_801b4d84_slot04_10(Object *obj) {
         update_sequence(obj);
     } else {
         ref_other.p = obj->other;
-        ref_other.p->field_249 = 0;
-        obj->field_45 = 1;
+        ref_other.p->other_state_code = 0;
+        obj->active_state = 1;
         func_801b4ec0_slot04_10(obj);
         if (obj->vel_y < 0) {
             obj->state_3++;
@@ -25,11 +25,11 @@ void func_801b4d84_slot04_10(Object *obj) {
         } else if (func_8013ffe4(obj, -0x3e, 0x18, 0x40, 0x1a) != 0) {
             play_sound_at(obj, obj->side ^ 1, 0x31a);
             func_80145f98(obj);
-            if (obj->field_12a == 4) {
+            if (obj->direction_index == 4) {
                 play_side_sound_at(obj, obj->side, 7);
                 obj->state_3 = 0xe;
                 func_801307e0(obj, 0x37);
-            } else if (obj->field_12a == 2) {
+            } else if (obj->direction_index == 2) {
                 obj->state_3 = 9;
                 func_801307e0(obj, 0x34);
             } else {
@@ -42,11 +42,11 @@ void func_801b4d84_slot04_10(Object *obj) {
 
 void func_801b4ec0_slot04_10(Object *obj) {
     if (obj->vel_x >= 0) {
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->vel_x = 0;
             obj->accel_x = 0;
         }
-    } else if (obj->field_0b != 0) {
+    } else if (obj->facing_side != 0) {
         obj->vel_x = 0;
         obj->accel_x = 0;
     }
@@ -61,8 +61,8 @@ void func_801b4f48_slot04_10(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3++;
-        obj->field_45 = 0;
-        obj->field_159 = 0;
+        obj->active_state = 0;
+        obj->active_flag_3 = 0;
         obj->pos_y = obj->ground_y;
         *(s32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
@@ -75,7 +75,7 @@ void func_801b4fc8_slot04_10(Object *obj) {
         update_sequence(obj);
     } else {
         ref_other.p = obj->other;
-        ref_other.p->field_249 = 5;
+        ref_other.p->other_state_code = 5;
         func_801b1078_slot04_10(obj);
     }
 }

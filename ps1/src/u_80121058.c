@@ -8,12 +8,12 @@ void func_80121058(GameState *state)
 {
   Entity *entity = (Entity *)state;
   char new_var;
-  if (data_8018f5a0->field_4c == 0)
+  if (data_8018f5a0->step_index == 0)
   {
     func_8011a744();
-    data_8018f5a0->field_4c++;
+    data_8018f5a0->step_index++;
     new_var = 1;
-    if (((data_8016e68b != 0) || (entity->field_2f != 0)) || (entity->field_30 != 0))
+    if (((data_8016e68b != 0) || (entity->mode_flag_a != 0)) || (entity->mode_flag_b != 0))
     {
       func_8014edac(new_var);
     }
@@ -21,14 +21,14 @@ void func_80121058(GameState *state)
     {
       func_8014edac(0);
     }
-    data_8018f5a0->field_4e = 0;
-    data_8018f5a0->field_50 = 0;
-    data_8018f5a0->field_52 = 0;
+    data_8018f5a0->substep_index = 0;
+    data_8018f5a0->step_index_2 = 0;
+    data_8018f5a0->pass_index = 0;
     data_8018f5a0->field_54 = 0;
   }
   else
   {
-    if ((entity->field_2f == 0) && (entity->field_30 == 0))
+    if ((entity->mode_flag_a == 0) && (entity->mode_flag_b == 0))
     {
       if (data_8016e68b != 0)
       {
@@ -39,18 +39,18 @@ void func_80121058(GameState *state)
         func_80010000(entity);
       }
     }
-    if ((entity->field_2f != 0) && (entity->field_30 == 0))
+    if ((entity->mode_flag_a != 0) && (entity->mode_flag_b == 0))
     {
       func_801b2194(entity);
     }
-    if ((entity->field_2f == 0) && (entity->field_30 != 0))
+    if ((entity->mode_flag_a == 0) && (entity->mode_flag_b != 0))
     {
       func_801b4a88(entity);
     }
   }
-  if (data_8018f5a0->field_4c == 2)
+  if (data_8018f5a0->step_index == 2)
   {
-    data_8018f5a0->field_4c = 0;
-    data_8018f5a0->field_4a++;
+    data_8018f5a0->step_index = 0;
+    data_8018f5a0->phase_index++;
   }
 }

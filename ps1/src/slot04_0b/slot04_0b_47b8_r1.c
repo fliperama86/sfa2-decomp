@@ -7,7 +7,7 @@ void func_801b4db8_slot04_0b(Object *obj, int index);
 void func_801b4e0c_slot04_0b(Object *obj, int dx, int dy);
 
 void func_801b47b8_slot04_0b(Object *obj) {
-    obj->field_0d = 0x10;
+    obj->image_row = 0x10;
     obj->state_1++;
     func_801b4e0c_slot04_0b(obj, 6, 0);
     func_801b4db8_slot04_0b(obj, 0x16);
@@ -22,16 +22,16 @@ void func_801b4810_slot04_0b(Object *obj) {
         func_801b4db8_slot04_0b(obj, 0x17);
         n = (Object *)func_8011f1e0();
         if (n != 0) {
-            n->field_00 = 1;
+            n->active_count = 1;
             n->field_02 = 6;
-            n->field_03 = 2;
-            n->field_3c = obj->field_3c;
-            n->field_66 = ((Slot04aObj *)ref_other.p)->side;
-            n->field_08 = 0x20;
+            n->table_index = 2;
+            n->parent = obj->parent;
+            n->sound_side = ((Slot04aObj *)ref_other.p)->side;
+            n->mode_id = 0x20;
             n->field_90 = ref_other.p->field_90;
-            n->field_98 = ref_other.p->field_98;
-            n->field_9c = ref_other.p->field_9c;
-            if (n->field_66 == 0) {
+            n->data_ptr_a = ref_other.p->data_ptr_a;
+            n->data_ptr_b = ref_other.p->data_ptr_b;
+            if (n->sound_side == 0) {
                 n->spawn_x = 0x100;
             } else {
                 n->spawn_x = 0x120;

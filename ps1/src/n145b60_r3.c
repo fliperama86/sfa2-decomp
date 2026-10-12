@@ -7,6 +7,6 @@ void func_801485c8(Object *object) {
   object->ot_depth = 4;
   object->field_0f = 1;
   object->state_0++;
-  ref_other.p = object->field_3c;
+  ref_other.p = object->parent;
   object->field_1c = ref_other.p->field_1c;
 }

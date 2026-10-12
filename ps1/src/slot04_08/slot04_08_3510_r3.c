@@ -8,7 +8,7 @@ void func_801b4310_slot04_08(Object *obj);
 void func_801b3828_slot04_08(Object *obj) {
     if ((s16)obj->step_flags & 0xff00) {
         obj->field_165 = 0xff;
-        obj->field_46 = 0x1e01;
+        obj->countdown = 0x1e01;
         obj->state_3++;
         func_801495f8(obj, -0xb, 0x6a);
         func_8011fe40(obj);

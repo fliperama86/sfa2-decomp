@@ -17,18 +17,18 @@ int func_801384c4(GameState *state)
   }
   else
   {
-    new_var = &player_right.field_ce;
-    player_right.field_cf = (player_left.field_cf = 0x10);
+    new_var = &player_right.win_count;
+    player_right.table_column = (player_left.table_column = 0x10);
     step = table_6cf8[get_random_byte() & 0xf];
-    if ((*new_var) != player_left.field_ce)
+    if ((*new_var) != player_left.win_count)
     {
-      if (player_right.field_ce < player_left.field_ce)
+      if (player_right.win_count < player_left.win_count)
       {
-        player_right.field_cf += step;
+        player_right.table_column += step;
       }
       else
       {
-        player_left.field_cf += step;
+        player_left.table_column += step;
       }
     }
   }

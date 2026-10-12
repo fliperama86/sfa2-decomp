@@ -6,7 +6,7 @@
 extern Slot06Tile data_801f085c_slot06_08[2][0x83];
 
 /* A variant of func_801e86bc_slot06_04: the row counter starts at 4, the
-   loop counter at a value derived from field_14, and the tile table has
+   loop counter at a value derived from base_x_fixed, and the tile table has
    0x83 records per buffer (inferred). The local p2 holds x - 0x100000:
    written into the expression, the function is 8 bytes shorter and 133
    instruction slots differ. */
@@ -37,8 +37,8 @@ void func_801e86cc_slot06_08(void) {
     s16 yy;
     s16 r;
     s16 tile;
-    x = c->field_14;
-    t = (x >> 16) + game_state.field_92;
+    x = c->base_x_fixed;
+    t = (x >> 16) + game_state.scroll_y;
     row = 4;
     x &= 0xffff;
     rows = c->height >> 4;
@@ -47,17 +47,17 @@ void func_801e86cc_slot06_08(void) {
     pos = 0x400000 - p2;
     y = pos >> 16;
     sy = y & 0xf;
-    q = (c->field_10 - c->field_08)
-        * (c->field_4c - c->field_1c)
-        / (c->field_4e - c->field_1c);
-    x12 = (q + c->field_08) >> 16;
+    q = (c->end_x_fixed - c->start_x_fixed)
+        * (c->field_4c - c->range_start)
+        / (c->range_end - c->range_start);
+    x12 = (q + c->start_x_fixed) >> 16;
     n = (u32)(c->field_4c - ((y - 0x40) & -16)) >> 4;
     sx = x12 & 0xf;
     mask = (c->width >> 4) - 1;
     ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
-    c->field_3c = pos;
+    c->pos_fixed = pos;
     rec = data_801f085c_slot06_08[data_801a27d0];
-    blank = c->field_1e;
+    blank = c->blank_value;
     col = (x12 & (c->width - 1)) >> 4;
     i = ((x >> 16) + 0x3f) / 16;
     for (; i < n; i++, row++) {

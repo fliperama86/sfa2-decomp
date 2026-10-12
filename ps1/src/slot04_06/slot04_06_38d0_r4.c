@@ -7,13 +7,13 @@ void func_801b3cf8_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int v;
 
-    obj->field_1c6 -= 1;
-    if (obj->field_1c6 & 0x80) {
+    obj->step_index -= 1;
+    if (obj->step_index & 0x80) {
         o->state_3++;
         func_801307e0(o, 0x33);
     } else {
         v = 0x80000;
-        if (o->field_0b == 0) {
+        if (o->facing_side == 0) {
             v = -0x80000;
         }
         *(s32 *)&o->pos_x_frac = v + *(s32 *)&o->pos_x_frac;

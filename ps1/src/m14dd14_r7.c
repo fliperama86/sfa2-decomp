@@ -6,7 +6,7 @@
 
 void func_8014fa60(Ctl *ctl) {
     Stream *stream = (Stream *)ctl;
-    int v = (u16)stream->field_40->kind;
+    int v = (u16)stream->current_record->kind;
     u32 n;
     if (v != 0xffff) {
         if (stream->step_count == 0 && v == 2) {
@@ -46,15 +46,15 @@ void func_8014fb54(Ctl *ctl) {
     e = &stream->entries[stream->write_index];
     e->pending_flag = 1;
     e->handler_index = 1;
-    e->rect_x = stream->field_40->rect_x + a;
-    e->field_0e = stream->field_40->rect_y;
+    e->rect_x = stream->current_record->rect_x + a;
+    e->rect_y = stream->current_record->rect_y;
     e->rect_h = 0x20;
     if (++stream->write_index == 8) {
         stream->write_index = 1;
     }
     stream->step_count++;
     e->rect_w = 0x20;
-    if (stream->bytes_remaining == 0 && (stream->field_40->field_10 & 0x1f) != 0) {
+    if (stream->bytes_remaining == 0 && (stream->current_record->field_10 & 0x1f) != 0) {
         e->rect_w = 0x10;
     }
 }
@@ -76,8 +76,8 @@ void func_8014fc4c(Ctl *ctl) {
     e = &stream->entries[stream->write_index];
     e->pending_flag = 1;
     e->handler_index = 2;
-    e->rect_x = stream->field_40->rect_x + a;
-    e->field_0e = stream->field_40->rect_y + b;
+    e->rect_x = stream->current_record->rect_x + a;
+    e->rect_y = stream->current_record->rect_y + b;
     if (++stream->write_index == 8) {
         stream->write_index = 1;
     }

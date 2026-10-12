@@ -11,16 +11,16 @@ void func_801b33fc_slot04_02(Object *obj) {
     if (obj->field_7e == 0) {
         func_801b359c_slot04_02(obj);
     }
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
     }
     obj->vel_x = obj->vel_x + obj->accel_x;
-    obj->field_0b = obj->field_158;
-    if (((obj->field_164 >> obj->field_48) & 1) == 0) {
+    obj->facing_side = obj->saved_facing;
+    if (((obj->bound_push_flag >> obj->variant_index) & 1) == 0) {
         t = 0x30000;
-        if (obj->field_129 != 0) {
+        if (obj->input_dir_second != 0) {
             t = 0x24000;
         }
         if (t < obj->vel_x) {
@@ -29,16 +29,16 @@ void func_801b33fc_slot04_02(Object *obj) {
         }
     }
     obj->state_3 = obj->state_3 + 1;
-    obj->field_17b = 0;
-    obj->field_46 = *(u8 *)&obj->field_46 | 0xa00;
+    obj->active_flag_4 = 0;
+    obj->countdown = *(u8 *)&obj->countdown | 0xa00;
     set_sequence_by_side(obj, 0);
 }
 
 void func_801b34fc_slot04_02(Object *obj) {
-    obj->field_46 = (s16)obj->field_46 - 0x100;
-    if ((obj->field_46 & 0xff00) == 0) {
-        obj->field_0b = obj->field_158;
-        obj->other->field_249 = 5;
+    obj->countdown = (s16)obj->countdown - 0x100;
+    if ((obj->countdown & 0xff00) == 0) {
+        obj->facing_side = obj->saved_facing;
+        obj->other->other_state_code = 5;
         func_801312b8(obj);
         if (obj->field_7e == 0) {
             func_8013788c(obj);
