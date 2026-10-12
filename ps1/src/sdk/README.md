@@ -45,6 +45,16 @@ one of the files counted above either; like `sepopen.c` it includes
 the game's headers and declares its own view of the library's records,
 and needs none of the headers of `include/`.
 
+A second function of the reference's `libsnd/vmanager.c` stands in a file of
+its own: `libsnd/vm_vol.c` (`SpuVmSetVol`). Only its outline is the reference's
+(the call of `SpuVmVSetUp`, then a loop over the voices that match three keys
+and set two volume cells); the volume computation, its divisors and the stores
+were written by this project from the listing of this game's version of the
+library, which differs from the reference's. It carries the reference's
+license line. It is not one of the files counted above; like `vm_alloc.c` it
+includes the game's headers and declares its own view of the library's
+records.
+
 One function has a second source: `libsnd/sepinit.c` (`func_80165d84`,
 inferred `_SsInitSoundSep`). It was written by this project from the listing
 of the original, with `_SsInitSoundSeq` of `seqinit.c` as an aid; the form

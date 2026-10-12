@@ -1,0 +1,14 @@
+## Batch 48: `SpuVmSetVol` exact (library, `func_80163794`) (2026-10-12)
+
+- Function `SpuVmSetVol` (964 bytes, 241 instructions), image `resident`, from `ps1/src/library_nonmatching/` (`func_80163794`). Sony's library code, with the reference's (sotn-decomp, MIT) license line and provenance paragraph kept: only the outline is the reference's, the volume computation was written from the listing.
+- Where it stands: `ps1/src/sdk/libsnd/vm_vol.c`, unit `sdk_libsnd_vm_vol`, in a file of its own like `vm_alloc.c` (the reference has it in a file with others). Defined as `s32 SpuVmSetVol(s16, s16, s16, u16, u16)`, the prototype the other library units declare.
+- Residue and what closed it (matching worker, inferred): the division of the volume writes x's own register, and a value set several times is not tied to the operand that dies in it. Closed by one local y copying x before the division, and by one variable for the left volume and the product before it.
+- Stand-in: the local y, a copy of x. Without it 2 differing instruction slots (registers).
+- Ordinary C with a figure: one variable for left volume and product; a separate `left` gives 58 slots.
+- Kept as written: `(f18 << 14) - f18` in place of `f18 * 0x3FFF` (77 slots, 968 bytes); the `(u32)` cast of the product before the second division (70 slots, 948 bytes); the order of the stores to `_svm_cur` after the two score products (77 slots, 968 bytes in the other order).
+- Taken out because not needed: the unused `left` declaration, the second parameter-masking local (q merged into p), the unused local, `i * 8 + 0` written `i * 8`.
+- Taken out of the tree: the three nonmatching files (`.c`, `.fixtures.json`, `.py`), 6 page lines, the sentence and bullet of `library_nonmatching/README.md` (bullet removed; the sentence on the adapted file now says none is adapted and points to the new file), the line `SpuVmSetVol = 0x80163794;` of `symbols.ld` (the unit defines the name; the image compare passes without it).
+- `ps1/src/sdk/README.md`: one paragraph behind the `vm_alloc.c` one; no count changed.
+- For the PC program: the port's build with the sound library compiles the units under `sdk/libsnd`; this unit takes the place of the nonmatching file there. No PC build was run.
+- What ran: `fndiff --rebuild sdk_libsnd_vm_vol`: `baseline 964 bytes at 0x80163794, built 964 bytes at 0x80163794, 0 differing instruction slots: IDENTICAL`; `matchbuild --image resident`: `RESULT: PASS`.
+- Declarations elsewhere: `vmanager_p1.c` and `vmanager_p2.c` declare the function as it is defined here. `seqread_p1.c` and `seqread_p2.c`, which call it and are unchanged files of the reference, carry the reference's other declaration (`void SpuVmSetVol(s32, s16, u8, s32, s32);`); they are left as the reference has them, and both rebuild to the original's bytes as before (the image compares PASS).

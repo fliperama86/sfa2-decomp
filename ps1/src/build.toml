@@ -9110,6 +9110,14 @@ functions = [
 ]
 
 [[unit]]
+name = "sdk_libsnd_vm_vol"
+source = "sdk/libsnd/vm_vol.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuVmSetVol", address = 0x80163794, size = 964 },
+]
+
+[[unit]]
 name = "sdk_libsnd_vmanager_p2"
 source = "sdk/libsnd/vmanager_p2.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
