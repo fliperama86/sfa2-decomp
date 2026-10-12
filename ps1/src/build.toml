@@ -2100,6 +2100,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s152124x_r1"
+source = "s152124x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80152124", address = 0x80152124, size = 124 },
+]
+
+[[unit]]
 name = "s150c6c_r8_b"
 source = "s150c6c_r8_b.c"
 flags = ["-O2", "-G0"]
