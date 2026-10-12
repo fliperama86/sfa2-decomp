@@ -247,12 +247,16 @@ def port_controls(root: Path, port_changed: list[str]) -> list[Path]:
     about = {s: [q.relative_to(root).as_posix() for q in imported(s, {s})] + listed[s.stem] for s in scripts if s.stem in listed}
     selected = {s for s in scripts if s.stem not in listed}
     named_by_change: set[Path] = set()
+    everything = False   # a changed file that no control file names and that is not build-only: every control file (but the Mac-only ones)
     for path in port_changed:
         hit = {s for s, entries in about.items() if any(names(e, path) for e in entries)}
         if not hit and not any(names(e, path) for e in build_only):
-            return wide
+            everything = True
         selected |= hit
         named_by_change |= hit
+    # a Mac-only control file is in only when a changed file names it, whatever else the change holds
+    if everything:
+        return [s for s in scripts if s.stem not in MAC_ONLY or s in named_by_change]
     return [s for s in scripts if s in selected and (s.stem not in MAC_ONLY or s in named_by_change)]
 
 
