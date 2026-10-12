@@ -2093,7 +2093,6 @@ data_8007a124_slot00 = 0x8007a124;
 data_8007a12c_slot00 = 0x8007a12c;
 
 /* Added by src.u_slot2b_7000. */
-func_80079144_slot2b = 0x80079144;
 data_80079804_slot2b = 0x80079804;
 data_80079810_slot2b = 0x80079810;
 data_8007981c_slot2b = 0x8007981c;
