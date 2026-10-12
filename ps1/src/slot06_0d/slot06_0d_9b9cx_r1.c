@@ -19,7 +19,7 @@ void func_801e9b9c_slot06_0d(Object *o) {
             v += 0x40;
             o->step_timer = v;
         }
-        func_80131094(o);
+        advance_sequence_checked(o);
     }
     func_80120028(o);
 }

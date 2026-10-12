@@ -21,7 +21,7 @@ void func_801b0568_slot04_09(Object *obj) {
     u = obj->step_flags;
     if ((u & 0xff) == 3) {
         obj->step_flags = u & 0xff00;
-        func_80130678(obj, 0x32);
+        set_sequence_by_side(obj, 0x32);
     }
     update_sequence(obj);
 }

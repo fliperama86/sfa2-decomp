@@ -11,7 +11,7 @@ void func_801b663c_slot04_06(Object *obj) {
         obj->step_timer = 1;
         obj->state_1++;
         obj->pos_y = obj->ground_y;
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 

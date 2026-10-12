@@ -28,7 +28,7 @@ void func_801b1ef8_slot04_00(Object *obj) {
         func_801b1fb8_slot04_00(obj);
     } else if ((s16)obj->step_flags & 0x8000) {
         obj->state_3++;
-        func_80130678(obj, 0x21);
+        set_sequence_by_side(obj, 0x21);
     } else {
         update_sequence(obj);
     }

@@ -12,5 +12,5 @@ void func_800786ac_slot00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_0 = obj->state_0 + 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

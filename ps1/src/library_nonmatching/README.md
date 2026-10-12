@@ -27,14 +27,9 @@ the tool reads (it looks a resident function up in `game.tsv` and in
 
 ## The functions and where they come from
 
-- `func_80163794` (`SpuVmSetVol`, the volume of the voices of one sequence):
-  adapted in outline from the function `SpuVmSetVol` of the same file of
-  sotn-decomp (the call, the loop over matching voices, the two output cells);
-  the computation was rewritten from the listing. MIT, same line, commit and
-  license as above.
 
-One file is adapted, as `../sdk/README.md` lists adapted files:
-`func_80163794.c`.
+No file here is adapted from the reference now: the one that was (the
+volume function of the sequencer) is exact and stands in `../sdk/libsnd/vm_vol.c`.
 
 ## Testing one function
 
@@ -73,7 +68,6 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
-func_80163794 replay: fixtures 12, passed 12, failed 0
 ```
 
 ## The recorded lines
@@ -92,21 +86,16 @@ function is run again.
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
-func_80163794: built 960 bytes, original 964 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80163794 coverage: 241 of 241 instruction slots of the original executed
 ```
 
 The control (`--cases 2000 --control FUNC`):
 
 ```
-func_80163794 control: different 113 of 2000 (expected more than 0)
-  altered: first of 3 pan tests compares with 0x41, instruction slot 140
 ```
 
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
-func_80163794 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 The third block is the write audit: in how many cases the original changed memory that the function's

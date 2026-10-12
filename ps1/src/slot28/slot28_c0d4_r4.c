@@ -12,7 +12,7 @@ void func_8001c720_slot28(Object *o) {
 }
 
 void func_8001c760_slot28(Object *o) {
-    func_80131094(o);
+    advance_sequence_checked(o);
     if (o->field_48 != 0) {
         o->field_48 = 0;
         o->ot_depth = 4;

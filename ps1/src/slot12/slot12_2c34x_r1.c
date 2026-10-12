@@ -28,5 +28,5 @@ void func_80012c34_slot12(Object *obj) {
     obj->spawn_y = 0x1f1;
     obj->pos_x = margin + 0xc0;
     func_80130768(obj, 0, data_8001d4ec_slot12);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

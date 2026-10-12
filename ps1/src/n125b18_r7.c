@@ -36,7 +36,7 @@ void func_8012b628(Object *object) {
         if (!func_8012f970(object)) {
             object->state_3 = object->state_3 + 1;
             object->field_0b = object->field_158;
-            func_80130678(object, 0x17);
+            set_sequence_by_side(object, 0x17);
             return;
         }
         t = (u8)func_8012f6d8(object);
@@ -45,7 +45,7 @@ test:
             object->state_3 = 2;
             object->field_157 = 1;
             object->field_0b = object->field_158;
-            func_80130678(object, 0x19);
+            set_sequence_by_side(object, 0x19);
             return;
         }
     }

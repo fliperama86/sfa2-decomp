@@ -10,5 +10,5 @@ void func_8001ad5c_slot28(Object *o) {
         o->state_1++;
         o->pos_x = 0x90;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

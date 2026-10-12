@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011948c(void) {
+void update_voice_delay_timers(void) {
     SndVoice *v = (SndVoice *)0x801fc200;
     for (; v <= (SndVoice *)0x801fc37f; v++) {
         if (v->status == 1) {

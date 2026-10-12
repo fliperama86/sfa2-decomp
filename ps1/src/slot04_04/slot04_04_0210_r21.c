@@ -9,7 +9,7 @@ void func_801b3d18_slot04_04(Object *o) {
     if ((s16)o->step_flags < 0) {
         o->state_0 = o->state_0 + 1;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_801b3d58_slot04_04(Object *o) {

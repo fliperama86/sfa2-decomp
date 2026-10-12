@@ -14,12 +14,12 @@ void func_8001c8a0_slot28(Object *o) {
     if (*(u8 *)&((Slot28Obj *)o)->field_3a != 0) {
         o->state_1++;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_8001c8e0_slot28(Object *o) {
     if ((o->step_flags << 16) < 0) {
         o->state_0++;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

@@ -26,7 +26,7 @@ void func_801e9d40_slot06_07(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         func_801e9d84_slot06_07(obj);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -56,7 +56,7 @@ void func_801e9e40_slot06_07(Object *obj) {
 void func_801e9e90_slot06_07(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         data_801ee1dc_slot06_07[obj->state_1](obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_8011ffdc(obj);
 }

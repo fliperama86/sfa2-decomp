@@ -19,7 +19,7 @@ void func_8012ba80(Object *object) {
         object->state_3 = 2;
         object->field_157 = 1;
         object->field_0b = object->field_158;
-        func_80130678(object, 0x19);
+        set_sequence_by_side(object, 0x19);
     } else if ((u8)func_8012f800(object)) {
         func_8012f838(object);
     } else if ((s16)object->step_flags < 0) {

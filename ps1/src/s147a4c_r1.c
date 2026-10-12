@@ -23,14 +23,14 @@ void func_80147ae4(Object *object) {
 
 void func_80147b24(Object *object) {
     fns_cbf4[object->state_1](object);
-    func_80148134(object);
+    set_position_from_parent(object);
     func_80120028(object);
 }
 
 void func_80147b80(Object *object) {
     object->field_46 = 0x1d;
     object->state_1++;
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80147bb0(Object *object) {
@@ -40,7 +40,7 @@ void func_80147bb0(Object *object) {
         object->state_1++;
         func_80130768(object, 0x14, (SequenceStep **)seqs_c7f8);
     } else {
-        func_80131094(object);
+        advance_sequence_checked(object);
     }
 }
 
@@ -49,7 +49,7 @@ void func_80147c0c(Object *object) {
         object->state_1 = 0;
         object->state_0++;
     } else {
-        func_80131094(object);
+        advance_sequence_checked(object);
     }
 }
 
@@ -61,7 +61,7 @@ void func_80147c50(Object *object) {
 void func_80147ca4(Object *object) {
     object->field_46 = 5;
     object->state_1++;
-    func_80131094(object);
+    advance_sequence_checked(object);
     func_80147ce8(object);
 }
 
@@ -87,7 +87,7 @@ void func_80147d54(Object *object) {
         object->field_46 = 7;
         object->state_1++;
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80147da0(Object *object) {
@@ -114,7 +114,7 @@ void func_80147e18(Object *object) {
             func_80147ef0(object);
         } else {
             object->state_1++;
-            func_80148134(object);
+            set_position_from_parent(object);
             func_80130768(object, 0x14, (SequenceStep **)seqs_c7f8);
         }
     } else {
@@ -126,7 +126,7 @@ void func_80147eb0(Object *object) {
     if ((s16)object->step_flags < 0) {
         func_80147ef0(object);
     } else {
-        func_80131094(object);
+        advance_sequence_checked(object);
     }
 }
 
@@ -148,7 +148,7 @@ void func_80147f58(Object *object) {
 
 void func_80147f88(Object *object) {
     func_80148220(object);
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80147fb8(Object *object) {
@@ -158,7 +158,7 @@ void func_80147fb8(Object *object) {
         object->field_46 = 0x17;
         object->state_1++;
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80148004(Object *object) {
@@ -174,7 +174,7 @@ void func_80148004(Object *object) {
     } else if (object->field_a0 != 0 || object->field_48 != 0) {
         func_80148220(object);
     } else {
-        func_80131094(object);
+        advance_sequence_checked(object);
     }
 }
 
@@ -197,7 +197,7 @@ void func_80148114(Object *p) {
     func_8011f240((Slab172 *)p);
 }
 
-void func_80148134(Object *object) {
+void set_position_from_parent(Object *object) {
     Object *parent = object->field_3c;
     object->field_0b = parent->field_0b;
     if (object->field_0b != 0) {

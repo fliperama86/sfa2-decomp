@@ -24,7 +24,7 @@ void func_800786f0_slot00(Object *obj) {
 void func_80078790_slot00(Object *obj) {
     obj->field_46 = 0xa;
     obj->state_2 = obj->state_2 + 1;
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_800787c0_slot00(Object *obj) {
@@ -35,5 +35,5 @@ void func_800787c0_slot00(Object *obj) {
         obj->field_45 = 0x1d;
         obj->state_2 = obj->state_2 + 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

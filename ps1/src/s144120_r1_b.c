@@ -18,7 +18,7 @@ void func_80144244(Object *object) {
 
 void func_80144268(Object *object) {
     handlers_b5f4[object->state_2](object);
-    func_80131094(object);
+    advance_sequence_checked(object);
     func_80120028(object);
 }
 

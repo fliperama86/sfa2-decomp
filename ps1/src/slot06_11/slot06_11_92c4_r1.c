@@ -41,7 +41,7 @@ void func_801e9364_slot06_11(Object *obj) {
 
 void func_801e93a4_slot06_11(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_80120028(obj);
 }
@@ -67,7 +67,7 @@ void func_801e93f0_slot06_11(Object *obj) {
         }
         *(u32 *)&obj->pos_x_frac = x + *(u32 *)&obj->pos_x_frac;
         *(u32 *)&obj->pos_y_frac = *(u32 *)&obj->pos_y_frac - y;
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         x = obj->accel_x;
         y = x << 31;
         x >>= 1;

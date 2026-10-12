@@ -18,7 +18,7 @@ void func_80137e94(Object *object) {
         object->vel_x = -object->vel_x;
         object->accel_x = -object->accel_x;
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80137f00(Object *object) {
@@ -39,7 +39,7 @@ void func_80137f70(Object *object) {
     if ((object->field_a0 & 0x80) == 0) {
         func_80138070(object, object->field_a0);
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80137fe4(Object *object) {
@@ -54,7 +54,7 @@ void func_80137fe4(Object *object) {
         object->accel_x = -object->accel_x;
         object->vel_y = table_269c[object->field_ac >> 1];
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80138070(Object *object, u8 index) {

@@ -18,7 +18,7 @@ void func_801b7384_slot04_02(Object *obj) {
     if (a != 0) {
         func_801b7920_slot04_02(obj, a);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b7400_slot04_02(Object *obj) {
@@ -29,5 +29,5 @@ void func_801b7400_slot04_02(Object *obj) {
         obj->vel_x = -obj->vel_x;
         obj->vel_y = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

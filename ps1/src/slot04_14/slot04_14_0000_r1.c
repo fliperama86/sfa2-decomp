@@ -14,7 +14,7 @@ extern ObjectFn data_801c6190_slot04_14[];
 
 Object *func_8011f32c(void);
 Block172 *func_8011f1e0(void);
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 void func_80130dc0(Object *object);
 void func_80142a14(Object *object);
 void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
@@ -64,7 +64,7 @@ void func_801b0128_slot04_14(Object *obj) {
 
 void func_801b0168_slot04_14(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
-    func_80130678(obj, 0x30);
+    set_sequence_by_side(obj, 0x30);
 }
 
 void func_801b0194_slot04_14(Object *obj) {
@@ -74,7 +74,7 @@ void func_801b0194_slot04_14(Object *obj) {
 
     if (t < 0) {
         func_801b62a8_slot04_14(obj, 1, 0, 0, 0);
-        func_80130678(obj, 0);
+        set_sequence_by_side(obj, 0);
     } else {
         if ((t & 0xff00) == 0x100) {
             obj->step_flags = t & 0x80ff;

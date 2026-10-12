@@ -16,5 +16,5 @@ void func_801b6440_slot04_06(Object *obj) {
         obj->pos_y = ((Slot04aObj *)obj)->field_70;
         obj->state_1++;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

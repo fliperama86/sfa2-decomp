@@ -10,5 +10,5 @@ void func_801b3ddc_slot04_0b(Object *obj, Object *unused) {
         obj->state_2 = 0;
         obj->state_3 = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

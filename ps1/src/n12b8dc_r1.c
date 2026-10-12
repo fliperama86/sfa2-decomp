@@ -24,7 +24,7 @@ void func_8012b8dc(Object *object) {
     } else if (!func_8012f970(object)) {
         object->state_3++;
         object->field_0b = object->field_158;
-        func_80130678(object, 0x1a);
+        set_sequence_by_side(object, 0x1a);
     } else if ((u8)func_8012f618(object)) {
         goto copy;
     } else {
@@ -32,7 +32,7 @@ reset:
         object->field_0b = object->field_158;
         object->state_3 = 0;
         object->field_157 = 0;
-        func_80130678(object, 0x16);
+        set_sequence_by_side(object, 0x16);
     }
     return;
 copy:

@@ -21,7 +21,7 @@ void func_80148d48(Object *object) {
             *wobble = -*wobble;
         }
         *(s32 *)&object->pos_x_frac = *(s32 *)&object->pos_x_frac + *wobble;
-        func_80131094(object);
+        advance_sequence_checked(object);
         func_80120028(object);
     }
 }

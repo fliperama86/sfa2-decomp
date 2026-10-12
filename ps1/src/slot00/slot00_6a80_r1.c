@@ -12,7 +12,7 @@ void func_80076a80_slot00(Object *o) {
     func_80077050_slot00(o);
     obj->field_10 += o->vel_x;
     obj->field_14 -= o->vel_y;
-    func_80131094(o);
+    advance_sequence_checked(o);
     func_8011ff74(o);
 }
 
@@ -41,5 +41,5 @@ void func_80076b7c_slot00(Object *o) {
         o->state_3 = 0;
         func_80077050_slot00(o);
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

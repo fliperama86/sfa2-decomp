@@ -13,7 +13,7 @@ void func_80147238(Object *object) {
     object->state_0 = phase + 1;
     if (game_state.field_64 != 0) {
         play_sound_at(0, 0, 0x32c);
-        func_8014f604(2);
+        set_cd_volume(2);
         object->field_01 = 1;
         func_801476f8(object);
         func_80130768(object, game_state.field_6b, table_8017cbac);

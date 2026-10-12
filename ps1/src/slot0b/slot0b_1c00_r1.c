@@ -26,7 +26,7 @@ void func_801e1c6c_slot0b(Object *obj) {
     }
     obj->pos_x = box_margin[0];
     obj->pos_y = data_801aa5ea[0] + 8;
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e1cdc_slot0b(Object *obj) {

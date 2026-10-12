@@ -20,7 +20,7 @@ void func_80137cc0(Object *object) {
 void func_80137d48(Object *object) {
     object->state_2++;
     object->field_46 = (u8)object->field_46 | 0x1800;
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80137d7c(Object *object) {
@@ -31,7 +31,7 @@ void func_80137d7c(Object *object) {
         object->state_2 = 0;
         object->state_3 = 0;
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80137dc8(Object *object) {

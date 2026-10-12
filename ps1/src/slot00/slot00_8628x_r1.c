@@ -10,7 +10,7 @@ extern void func_80078d78_slot00(Object *obj);
 
 /* What it does (inferred, not an original name): a handler of an object's
    state that either runs three of the module's update steps and then the
-   shared func_80131094, or, when it must not, counts the object's state_2 up
+   shared advance_sequence_checked, or, when it must not, counts the object's state_2 up
    by one and calls func_80078458_slot00 with 8. The first arm is taken when
    game_state.field_4e is not 0 and the byte at offset 0x3a of the object that
    field_3c points at is 0. */
@@ -25,7 +25,7 @@ void func_80078628_slot00(Object *obj) {
         func_80078b50_slot00(obj);
         func_80078b94_slot00(obj);
         func_80078d78_slot00(obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     } else {
         obj->state_2 = obj->state_2 + 1;
         func_80078458_slot00(obj, 8);

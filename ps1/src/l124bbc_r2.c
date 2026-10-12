@@ -32,7 +32,7 @@ void func_801257f4(Select *sel) {
             first = second;
             second = tmp;
         }
-        func_80125938(sel, first, second);
+        load_select_entries(sel, first, second);
         i = -1;
         flags = sel->excluded_mask;
     again:

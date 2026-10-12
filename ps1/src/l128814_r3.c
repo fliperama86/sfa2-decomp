@@ -9,7 +9,7 @@ void func_80129da8(Object *object) {
         func_80128778(object);
         if (object->field_7e == 1) {
             object->field_225 = 0;
-            func_80130678(object, 0);
+            set_sequence_by_side(object, 0);
         }
     }
     if (game_state.config->field_4d != 0) {

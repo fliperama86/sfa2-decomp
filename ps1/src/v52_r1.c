@@ -11,5 +11,5 @@ void func_80136668(Cam *cam, short step)
     step = 5;
   }
   cam->pos_x += step;
-  func_80136898(cam, (short) ((short) cam->pos_x < cam->max_x ? cam->pos_x : cam->max_x));
+  set_cam_pos_x(cam, (short) ((short) cam->pos_x < cam->max_x ? cam->pos_x : cam->max_x));
 }

@@ -22,7 +22,7 @@ void func_801ccfe8_slot05_06(Object *obj) {
 void func_801cd028_slot05_06(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
-    func_80130678(obj, 0);
+    set_sequence_by_side(obj, 0);
 }
 
 void func_801cd05c_slot05_06(Object *object) {
@@ -41,5 +41,5 @@ void func_801cd098_slot05_06(Object *o) {
     if (game_state_second.field_a6 == 0) {
         arg = 0x28;
     }
-    func_80130678(o, arg);
+    set_sequence_by_side(o, arg);
 }

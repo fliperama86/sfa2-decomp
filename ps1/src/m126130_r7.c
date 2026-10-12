@@ -48,7 +48,7 @@ void func_8012acf4(Object *object) {
             func_8012fe60(object);
         } else {
             object->state_3 = 2;
-            func_80130678(object, 0x11);
+            set_sequence_by_side(object, 0x11);
         }
     }
 }
@@ -73,7 +73,7 @@ void func_8012ae00(Object *object) {
             func_8012fe60(object);
         } else {
             object->state_3 = 2;
-            func_80130678(object, 0x11);
+            set_sequence_by_side(object, 0x11);
         }
     }
 }

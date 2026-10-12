@@ -20,7 +20,7 @@ void func_801b3dc4_slot04_03(Object *obj, Object *unused) {
         if (((s16)obj->step_flags & 0x8000) == 0) {
             obj->state_0++;
         }
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 

@@ -34,7 +34,7 @@ void func_8012b024(Object *object)
     else
     {
       object->state_3 = 2;
-      func_80130678(object, 0x11);
+      set_sequence_by_side(object, 0x11);
     }
   }
 }

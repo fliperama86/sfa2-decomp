@@ -23,7 +23,7 @@ void func_80077dd4_slot2b(Object *o) {
     func_801380f0(o);
     v = s->field_a0;
     if (v & 0x80) {
-        func_80131094(o);
+        advance_sequence_checked(o);
     } else {
         func_80138070(o, v);
     }
@@ -41,5 +41,5 @@ void func_80077e50_slot2b(Object *o) {
         o->vel_x = -o->vel_x;
         o->vel_y = data_8007995c_slot2b[o->field_ac >> 1];
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

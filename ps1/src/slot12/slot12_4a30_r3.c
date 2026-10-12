@@ -12,7 +12,7 @@ void func_80014c24_slot12(Object *obj) {
         obj->state_1++;
         game_state.field_2bc = 5;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_80014c7c_slot12(Object *obj) {
@@ -26,6 +26,6 @@ void func_80014c7c_slot12(Object *obj) {
     second:
         func_80014dd0_slot12(obj, 1);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }

@@ -10,7 +10,7 @@ extern ObjectFn data_801c5bbc_slot04_0f[];
 extern ObjectFn data_801c5bc4_slot04_0f[];
 extern ObjectFn data_801c5bd4_slot04_0f[];
 
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 void func_80131468(Object *object);
 void func_80140598(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, int unused);
 void func_80146960(Object *object);
@@ -83,7 +83,7 @@ void func_801b3d08_slot04_0f(Object *obj) {
         obj->pos_y = (u16)obj->ground_y;
         obj->pos_y_frac = 0;
         func_801209c4(obj);
-        func_80130678(obj, 0x11);
+        set_sequence_by_side(obj, 0x11);
     } else {
         update_sequence(obj);
     }
@@ -212,7 +212,7 @@ void func_801b415c_slot04_0f(Object *obj) {
         obj->state_2 = 3;
         obj->state_3 = 1;
         obj->accel_y = -0x3000;
-        func_80130678(obj, 0x21);
+        set_sequence_by_side(obj, 0x21);
     } else {
         update_sequence(obj);
     }

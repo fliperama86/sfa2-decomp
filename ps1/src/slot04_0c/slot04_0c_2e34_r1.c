@@ -14,7 +14,7 @@ void func_80138ae8(GameState *state, Object *object);
 void func_80131468(Object *object);
 void func_801483a4(Object *object, int a, int b);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_801b337c_slot04_0c(Object *obj);
 
 void func_801b2e34_slot04_0c(Object *obj) {
@@ -214,7 +214,7 @@ void func_801b3534_slot04_0c(Object *obj) {
 void func_801b3574_slot04_0c(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
-    func_80130678(obj, 0);
+    set_sequence_by_side(obj, 0);
 }
 
 void func_801b35a8_slot04_0c(Object *obj) {

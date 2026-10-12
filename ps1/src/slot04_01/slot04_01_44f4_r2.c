@@ -29,7 +29,7 @@ void func_801b46dc_slot04_01(Object *obj) {
     } else {
         obj->pos_x = p->pos_x - a;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     if ((obj->field_03 + (game_state.frame_counter + p->side)) & 1) {
         func_80120028(obj);
     } else {

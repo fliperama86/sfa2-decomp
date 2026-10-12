@@ -22,7 +22,7 @@ void func_8012b7b8(Object *object) {
             object->state_3 = 0;
             object->field_157 = 0;
             object->field_0b = object->field_158;
-            func_80130678(object, 0x16);
+            set_sequence_by_side(object, 0x16);
             return;
         }
         if ((u8)func_8012f800(object) != 0) {

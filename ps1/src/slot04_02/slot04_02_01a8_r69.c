@@ -50,7 +50,7 @@ void func_801b7a4c_slot04_02(Object *obj) {
                 obj->field_48 = t;
                 func_801b7b44_slot04_02(obj);
             } else {
-                func_80131094(obj);
+                advance_sequence_checked(obj);
                 func_8011ffdc(obj);
             }
         }

@@ -6,7 +6,7 @@
 extern ObjectFn data_801c6998_slot04_10[];
 extern ObjectFn data_801c69a0_slot04_10[];
 
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_80131468(Object *object);
 void func_80131638(Object *object);
 
@@ -20,7 +20,7 @@ void func_801b0fb0_slot04_10(Object *obj) {
 
 void func_801b0ff0_slot04_10(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
-    func_80130678(obj, 0x22);
+    set_sequence_by_side(obj, 0x22);
     play_side_sound_at(obj, obj->side, 0xb);
 }
 

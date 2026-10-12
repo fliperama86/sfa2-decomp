@@ -15,5 +15,5 @@ void func_801b0240_slot04_00(Object *obj) {
         game_state.field_76 = 0x1e;
     }
     r = func_80125734(obj, data_801bfd3c_slot04_00[get_random_byte() & 0xf]);
-    func_80130678(obj, data_801bfd4c_slot04_00[(s8)r]);
+    set_sequence_by_side(obj, data_801bfd4c_slot04_00[(s8)r]);
 }

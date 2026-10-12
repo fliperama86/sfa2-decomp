@@ -26,12 +26,12 @@ void func_8015251c(Object *object) {
         func_80130768(object, (object->field_48 * 2 + 0x33) & 0xff, table_8017c7f8);
     }
     func_801528e0(object);
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80152588(Object *object) {
     if ((s16)object->step_flags >= 0) {
-        func_80131094(object);
+        advance_sequence_checked(object);
     } else {
         object->state_0++;
     }
@@ -57,6 +57,6 @@ void func_80152668(Object *object) {
 }
 
 void func_801526d0(Object *object) {
-    func_80131094(object);
+    advance_sequence_checked(object);
     func_801529f4(object);
 }

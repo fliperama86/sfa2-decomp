@@ -55,7 +55,7 @@ void func_80149464(Object *object) {
     if (ref_other.p->field_165 == 0) {
         object->state_0 = object->state_0 + 1;
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_801494c0(Object *object) {
@@ -72,12 +72,12 @@ void func_801494e0(Object *object) {
     if (*(u8 *)&object->step_flags != 0) {
         play_sound_at(ref_other.p, ref_other.p->side, 0x327);
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_80149584(Object *object) {
     if ((s16)object->step_flags < 0) {
         object->state_0 = object->state_0 + 1;
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }

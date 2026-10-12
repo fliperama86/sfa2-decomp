@@ -10,7 +10,7 @@ extern ObjectFn data_801dd528_slot05_06[];
 void func_801cc8d8_slot05_06(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
-    func_80130678(obj, 0);
+    set_sequence_by_side(obj, 0);
 }
 
 void func_801cc90c_slot05_06(Object *obj) {
@@ -38,7 +38,7 @@ void func_801cc95c_slot05_06(Object *obj) {
     }
     v = (s8)func_80125734(obj, (s8)v);
     *p = v + v;
-    func_80130678(obj, data_801dd51c_slot05_06[v]);
+    set_sequence_by_side(obj, data_801dd51c_slot05_06[v]);
 }
 
 void func_801cca20_slot05_06(Object *obj) {

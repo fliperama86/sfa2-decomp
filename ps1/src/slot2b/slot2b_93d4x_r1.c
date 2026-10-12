@@ -12,7 +12,7 @@ void func_800795b4_slot2b(Object *o);
  * object that falls toward a floor line given by another object (the one
  * data_8007ef34_slot2b points at). When the floor's ground_y is less than
  * the object's pos_y the object has landed: it is set on the floor, its
- * state is reset and a sequence is started. Otherwise func_80131094 runs.
+ * state is reset and a sequence is started. Otherwise advance_sequence_checked runs.
  */
 void func_800793d4_slot2b(Object *o) {
     s16 y;
@@ -34,6 +34,6 @@ void func_800793d4_slot2b(Object *o) {
         func_80130700(o, data_8017c850);
         play_side_sound_at(o, data_8007ef34_slot2b->side, 0x10);
     } else {
-        func_80131094(o);
+        advance_sequence_checked(o);
     }
 }

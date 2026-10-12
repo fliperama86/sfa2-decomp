@@ -35,5 +35,5 @@ void func_800132f0_slot01(Object *obj) {
         game_state.field_06 = 0;
         data_801ae02c = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

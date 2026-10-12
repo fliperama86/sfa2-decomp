@@ -140,7 +140,7 @@ void func_801b3e88_slot04_15(Object *object) {
     object->state_2 = object->state_2 + 1;
     func_801b40cc_slot04_15(object);
     ((Slot04bObj *)object)->field_46 = 2;
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_801b3ed0_slot04_15(Object *object) {
@@ -193,7 +193,7 @@ void func_801b4040_slot04_15(Object *obj) {
         obj->state_2 = 0;
         obj->state_3 = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b4080_slot04_15(Object *o) {
@@ -257,7 +257,7 @@ void func_801b41fc_slot04_15(Object *obj) {
             if (obj->field_48 != a) {
                 func_801b4308_slot04_15(obj, a);
             } else {
-                func_80131094(obj);
+                advance_sequence_checked(obj);
             }
         }
     } else {
@@ -321,7 +321,7 @@ void func_801b446c_slot04_15(Object *obj) {
     t = (u16)obj->field_3c->ground_y;
     t -= 0x55;
     if (obj->pos_y < t) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     } else {
         obj->state_1 = obj->state_1 + 1;
         obj->field_46 = (obj->field_46 & 0xff00) | 4;

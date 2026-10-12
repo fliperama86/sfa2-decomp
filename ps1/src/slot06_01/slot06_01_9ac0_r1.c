@@ -34,7 +34,7 @@ void func_801e9b4c_slot06_01(Object *obj) {
         }
         obj->field_46 = v;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e9bc8_slot06_01(Object *obj) {
@@ -56,5 +56,5 @@ void func_801e9cac_slot06_01(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_1 = obj->state_1 + 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

@@ -61,7 +61,7 @@ void func_801e96cc_slot06_03(Object *obj) {
             func_801e9870_slot06_03(obj);
             func_801e98e0_slot06_03(obj);
         }
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_8011ffdc(obj);
 }
@@ -194,7 +194,7 @@ void func_801e9c40_slot06_03(Object *obj) {
     obj->pos_y = 0xf8 - data_801ea6b8_slot06_03[i + 1];
     obj->field_0b = ((u8 *)data_801ea6b8_slot06_03)[i * 2 + 4];
     if (a != 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_8011ffdc(obj);
 }

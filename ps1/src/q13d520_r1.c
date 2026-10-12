@@ -11,7 +11,7 @@ extern u16 data_801a6966;
    original's instructions with this compiler and is not a defined
    implementation: a port has to give buttons a value on that path. A
    fourth parameter in place of the local was tried and gives other code. */
-/* The call of func_8013f1bc passes a fourth argument although the callee takes three: the original has entry in the fourth argument register at the call. Written with three arguments, this function differs from the original in 7 instruction slots. */
+/* The call of set_slot_random_timer passes a fourth argument although the callee takes three: the original has entry in the fourth argument register at the call. Written with three arguments, this function differs from the original in 7 instruction slots. */
 void func_8013d520(Object *object, u8 index, u8 arg) {
     u16 entry;
     u8 t0;
@@ -45,6 +45,6 @@ void func_8013d520(Object *object, u8 index, u8 arg) {
         entry = table_8017a8cc[(u8)arg * 7];
         object->slots[(u8)index].field_01 = t0;
         object->slots[(u8)index].field_02 = entry;
-        ((void (*)(Object *, u8, u8, u16))func_8013f1bc)(object, (u8)index, (u8)arg, entry);
+        ((void (*)(Object *, u8, u8, u16))set_slot_random_timer)(object, (u8)index, (u8)arg, entry);
     }
 }

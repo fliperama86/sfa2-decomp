@@ -12,14 +12,14 @@ void func_8007881c_slot00(Object *obj) {
     func_80078b50_slot00(obj);
     func_80078bf4_slot00(obj);
     func_80078d78_slot00(obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_8007885c_slot00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_0 = obj->state_0 + 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_800788a0_slot00(Object *obj) {
@@ -29,7 +29,7 @@ void func_800788a0_slot00(Object *obj) {
         func_80078c8c_slot00(obj);
     }
     func_80078d78_slot00(obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_8007890c_slot00(Object *obj) {
@@ -39,5 +39,5 @@ void func_8007890c_slot00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_0 = obj->state_0 + 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

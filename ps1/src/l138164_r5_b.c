@@ -35,5 +35,5 @@ void func_8013d9d0(Object *object, u8 index, u8 arg) {
     return;
 apply:
     object->slots[index].stage++;
-    func_8013f1bc(object, index, arg);
+    set_slot_random_timer(object, index, arg);
 }

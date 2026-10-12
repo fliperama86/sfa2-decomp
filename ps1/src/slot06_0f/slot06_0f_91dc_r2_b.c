@@ -14,7 +14,7 @@ extern ObjectFn data_801eb4c8_slot06_0f[];
 void func_801e9790_slot06_0f(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         data_801eb4b0_slot06_0f[obj->field_03](obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_8011ffdc(obj);
 }

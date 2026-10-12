@@ -10,7 +10,7 @@ extern s32 data_801c6354_slot04_14[];
 extern u8 data_801c6368_slot04_14[];
 extern ObjectFn data_801c636c_slot04_14[];
 int func_80130184(Object *object);
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 void func_801428e4(Object *object);
 void func_80138b38(GameState *state, Object *object);
 void func_80145d20(Object *object);
@@ -25,7 +25,7 @@ void func_801b2a80_slot04_14(Object *obj) {
         if ((s16)obj->step_flags & 0x8000) {
             obj->field_159 = 0;
             obj->state_3++;
-            func_80130678(obj, 0x21);
+            set_sequence_by_side(obj, 0x21);
         } else {
             update_sequence(obj);
         }
@@ -47,7 +47,7 @@ void func_801b2b4c_slot04_14(Object *obj) {
     obj->field_45 = 0;
     obj->pos_y = obj->ground_y;
     func_801b62a8_slot04_14(obj, 1, 0, 3, 2);
-    func_80130678(obj, 0x11);
+    set_sequence_by_side(obj, 0x11);
 }
 
 void func_801b2ba4_slot04_14(Object *obj) {

@@ -31,6 +31,6 @@ void func_8012af5c(Object *object)
     object->vel_x = a;
     a = b;
     object->accel_x = a;
-    func_80130678(object, 0x13);
+    set_sequence_by_side(object, 0x13);
   }
 }

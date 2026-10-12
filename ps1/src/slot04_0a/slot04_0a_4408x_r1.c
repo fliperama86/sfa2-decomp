@@ -43,10 +43,10 @@ void func_801b4408_slot04_0a(Object *obj, Object *parent) {
                     t += v;
                     obj->field_0d = t;
                 }
-                func_80131094(obj);
+                advance_sequence_checked(obj);
             } else {
                 obj->field_0d = parent->field_0d;
-                func_80131094(obj);
+                advance_sequence_checked(obj);
             }
         }
     }

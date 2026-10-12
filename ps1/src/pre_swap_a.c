@@ -5,7 +5,7 @@
 
 void func_801312b8(Object *object) {
     func_80131f7c(object);
-    func_80130678(object, 0);
+    set_sequence_by_side(object, 0);
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 0;
@@ -33,7 +33,7 @@ void func_8013136c(Object *object) {
 }
 
 void func_801313bc(Object *object, unsigned short arg) {
-    func_80130678(object, arg);
+    set_sequence_by_side(object, arg);
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 0;
@@ -70,7 +70,7 @@ void func_80131468(Object *object) {
         }
     }
     object->field_69 = 0;
-    func_80130678(object, 1);
+    set_sequence_by_side(object, 1);
 }
 
 void func_8013151c(Object *object) {
@@ -147,13 +147,13 @@ void func_80131638(Object *object) {
         } else if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
         } else {
-            func_80130678(object, 0x11);
+            set_sequence_by_side(object, 0x11);
         }
     } else {
         if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
         } else {
-            func_80130678(object, 0x11);
+            set_sequence_by_side(object, 0x11);
         }
     }
 }

@@ -61,7 +61,7 @@ void func_801ea16c_slot06_07(Object *obj) {
 void func_801ea1bc_slot06_07(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         data_801ee208_slot06_07[obj->state_1](obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_80120028(obj);
 }

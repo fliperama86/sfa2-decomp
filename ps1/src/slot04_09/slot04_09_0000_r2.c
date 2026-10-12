@@ -10,7 +10,7 @@ void func_801b019c_slot04_09(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     func_801b5588_slot04_09(obj);
     play_side_sound_at(obj, obj->side, 0x10);
-    func_80130678(obj, 0x22);
+    set_sequence_by_side(obj, 0x22);
 }
 
 void func_801b01f4_slot04_09(Object *obj) {
@@ -22,7 +22,7 @@ void func_801b01f4_slot04_09(Object *obj) {
         obj->field_45 = 0;
         obj->pos_y_frac = 0;
         obj->pos_y = obj->ground_y;
-        func_80130678(obj, 0);
+        set_sequence_by_side(obj, 0);
     } else {
         update_sequence(obj);
     }

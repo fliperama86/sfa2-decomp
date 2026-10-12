@@ -23,7 +23,7 @@ void func_801b42a4_slot04_07(Object *obj, Object *parent) {
     obj->field_0b = parent->field_0b;
     obj->field_01 = 1;
     if (old == idx) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         return;
     }
     obj->field_48 = idx;

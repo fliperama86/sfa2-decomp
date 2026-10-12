@@ -13,7 +13,7 @@ void func_8014630c(Object *object) {
         object->state_0 = 2;
     }
     func_80146394(object);
-    func_80131094(object);
+    advance_sequence_checked(object);
     func_8011ffdc(object);
 }
 

@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_8002142c_slot28(Object *obj) {
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_8002144c_slot28(Object *obj) {

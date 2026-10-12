@@ -19,7 +19,7 @@ void func_80140fe0(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 int func_801410c8(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 void func_801b33c8_slot04_15(Object *object);
 void func_801b2d48_slot04_15(Object *obj);
 void func_801b2ea4_slot04_15(Object *obj);
@@ -316,5 +316,5 @@ void func_801b30c8_slot04_15(Object *obj, s16 a) {
     obj->vel_y = -0x40000;
     obj->accel_y = 0x6000;
     func_80140770(obj, 0x1e, 0xf, a, 0, 0, 0);
-    func_80130678(obj, 0x14);
+    set_sequence_by_side(obj, 0x14);
 }

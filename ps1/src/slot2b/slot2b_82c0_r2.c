@@ -12,7 +12,7 @@ void func_8007847c_slot2b(Object *o);
 void func_800783bc_slot2b(Object *o) {
     func_80078554_slot2b(o);
     if ((s16)o->step_flags >= 0) {
-        func_80131094(o);
+        advance_sequence_checked(o);
     } else {
         o->state_2++;
         func_800795f8_slot2b(o);
@@ -24,7 +24,7 @@ void func_800783bc_slot2b(Object *o) {
 
 void func_8007843c_slot2b(Object *o) {
     if ((s16)o->step_flags >= 0) {
-        func_80131094(o);
+        advance_sequence_checked(o);
     } else {
         func_8007847c_slot2b(o);
     }

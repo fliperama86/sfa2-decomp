@@ -11,7 +11,7 @@ void func_8013f0c8(Object *object, int index, int unused) {
     func_8013f2c8(object);
 }
 
-void func_8013f1bc(Object *object, u8 index, u8 unused) {
+void set_slot_random_timer(Object *object, u8 index, u8 unused) {
     Bytes32 table = data_8016d9ac;
     object->slots[index].timer = table.b[get_random_byte() & 0x1f];
     func_8013f2c8(object);

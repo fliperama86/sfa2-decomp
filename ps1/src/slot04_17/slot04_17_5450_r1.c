@@ -21,7 +21,7 @@ void func_80146478(Object *object, u8 a, int dx, int dy);
 void func_80130dc0(Object *object);
 void func_80131468(Object *object);
 void func_80131638(Object *object);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 unsigned short func_80130470(Object *object);
 void func_80142a14(Object *object);
 void select_box_tables(Object *object);
@@ -177,7 +177,7 @@ void func_801b590c_slot04_17(Object *obj) {
     func_801b5a34_slot04_17(obj);
     select_box_tables(obj);
     build_metrics(obj);
-    func_80130678(obj, 0x30);
+    set_sequence_by_side(obj, 0x30);
 }
 
 void func_801b596c_slot04_17(Object *obj) {

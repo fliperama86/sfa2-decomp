@@ -12,7 +12,7 @@ void func_80014b20_slot12(Object *obj) {
         obj->pos_y = obj->ground_y;
         func_80014dd0_slot12(obj, 0);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -31,6 +31,6 @@ void func_80014bd4_slot12(Object *obj) {
         obj->state_1++;
         func_80014dd0_slot12(obj, 0);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }

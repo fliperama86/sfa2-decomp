@@ -109,7 +109,7 @@ void func_801b6a88_slot04_0f(Object *obj) {
 void func_801b6ae0_slot04_0f(Object *obj) {
     int a;
 
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     if ((s16)obj->step_flags < 0) {
         obj->field_46 = 0x1a;
         obj->state_1 = obj->state_1 + 1;
@@ -180,14 +180,14 @@ void func_801b6cf4_slot04_0f(Object *obj) {
             }
         }
         func_801b6e78_slot04_0f(obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_8011ffdc(obj);
 }
 
 void func_801b6dcc_slot04_0f(Object *obj) {
     if (game_state.config->field_65 == 0 && ref_other.p->field_6b == 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         func_801b6e78_slot04_0f(obj);
         if ((s16)obj->step_flags < 0) {
             obj->state_0 = obj->state_0 + 1;

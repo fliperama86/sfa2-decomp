@@ -19,7 +19,7 @@ void func_80078c9c_slot2b(Object *o) {
         o->vel_y = 0x40000;
         o->accel_y = -0x8000;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_80078d3c_slot2b(Object *o) {
@@ -34,5 +34,5 @@ void func_80078d3c_slot2b(Object *o) {
         o->vel_y = 0x20000;
         o->accel_y = -0x4000;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

@@ -89,7 +89,7 @@ void func_801213c0(GameState *g) {
         func_801262fc(g);
     }
     func_80123b88(g);
-    func_80121680(g, l, r);
+    link_players(g, l, r);
     g->field_2c = 1;
     func_8011eae4();
     func_8013839c(g);

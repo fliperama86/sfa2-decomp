@@ -14,7 +14,7 @@ extern ObjectFn data_801be1d8_slot04_0c[];
 
 Block172 *func_8011f1e0(void);
 void func_8011ffdc(Object *object);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_80137b64(Object *object);
 void func_80137cc0(Object *object);
 void func_80137dc8(Object *object);
@@ -44,7 +44,7 @@ void func_801b37b0_slot04_0c(Object *object) {
 void func_801b37f0_slot04_0c(Object *object) {
     object->state_2 = object->state_2 + 1;
     object->field_0b = object->field_158;
-    func_80130678(object, 0);
+    set_sequence_by_side(object, 0);
 }
 
 void func_801b3824_slot04_0c(Object *object) {
@@ -62,7 +62,7 @@ void func_801b386c_slot04_0c(Object *object) {
     if (game_state.config->field_a6 != 0) {
         arg = 0x29;
     }
-    func_80130678(object, arg);
+    set_sequence_by_side(object, arg);
 }
 
 void func_801b38c0_slot04_0c(Object *object) {
@@ -181,7 +181,7 @@ void func_801b3ca4_slot04_0c(Object *object) {
     object->state_2 = object->state_2 + 1;
     func_801b3ed0_slot04_0c(object);
     object->field_46 = 2;
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_801b3cec_slot04_0c(Object *object) {
@@ -193,7 +193,7 @@ void func_801b3cec_slot04_0c(Object *object) {
         object->state_2 = 0;
         object->state_3 = 0;
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_801b3d3c_slot04_0c(Object *object) {
