@@ -4308,6 +4308,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s1452ecx_r1"
+source = "s1452ecx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801452ec", address = 0x801452ec, size = 1632 },
+]
+
+[[unit]]
 name = "l143864_r4"
 source = "l143864_r4.c"
 flags = ["-O2", "-G0"]
