@@ -1115,7 +1115,10 @@ class RepositoryControls(unittest.TestCase):
         self.assertTrue(any(f['status']=='assembly' for f in result['functions']))
         self.assertTrue(any(f['sdk'] for f in result['functions']))
         self.assertTrue(any(f['second_placement'] for f in result['functions']))
-        self.assertTrue(any(f['status']=='nonmatching_unvalidated' for f in result['functions']))
+        # A function is nonmatching_unvalidated exactly while a nonmatching folder holds a file for it; since
+        # 2026-10-12 no folder does, so the repository's ledger shows the status only if one comes back.
+        candidates=list((root/'ps1/src').glob('*nonmatching*/func_*.c'))
+        self.assertEqual(any(f['status']=='nonmatching_unvalidated' for f in result['functions']),bool(candidates))
         self.assertFalse(any(f['status']=='tested_nonmatching' for f in result['functions']))
         self.assertTrue(any(f['blocker']=='missing_c' for f in result['functions']))
         self.assertEqual(len({f['id'] for f in result['functions']}),len(result['functions']))
