@@ -56,10 +56,10 @@ Old figures describe their own date, not today's completion.
   these two units (of the library it compiles the sound part's C, in its
   normal build with PsyZ, and nothing else). This is for the library's
   code, not a way around a game function that does not match.
-- CI/CD: integrate WIP source continuously into the tracked tree on main;
-  preserve original behavior behind default-off settings feature flags.
-  Use small reviewed PRs on short-lived branches; merge frequently after scoped
-  checks and owner approval. No private source silos; CI/CD never skips review.
+- CI/CD: integrate tracked WIP behind default-off settings flags, preserving
+  original behavior. Use small reviewed PRs and short-lived branches.
+  Poll owner comments every 60 seconds while active. Merge frequently after
+  scoped checks and owner approval; no private source silos or review bypass.
 - After an approved merge, proceed to the next goal without asking. Decisions
   belong to the owner; no implied approval from passing automated checks.
 - Checks are isolated and fast, by the owner's rule of 2026-10-10. An exact
