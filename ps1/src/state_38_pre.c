@@ -50,14 +50,14 @@ void func_80138964(GameState *state) {
     func_80138838(state, a);
     other = state->field_78;
     if (other != 0 && other->field_cd == 0) {
-        if ((s16)other->field_5c >= 0x70) {
+        if ((s16)other->health >= 0x70) {
             a = 0x10;
-        } else if ((s16)other->field_5c >= 0x50) {
+        } else if ((s16)other->health >= 0x50) {
             a = 0xa;
-        } else if ((s16)other->field_5c >= 0x30) {
+        } else if ((s16)other->health >= 0x30) {
             a = 8;
         } else {
-            a = -((s16)other->field_5c < 0x10) & 0xfff8;
+            a = -((s16)other->health < 0x10) & 0xfff8;
         }
         func_80138838(state, a);
     }

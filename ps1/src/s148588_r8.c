@@ -11,7 +11,7 @@ void func_801490dc(Block172 *block) {
 }
 
 void func_8014911c(Object *object) {
-    object->field_09 = 1;
+    object->ot_depth = 1;
     object->field_0c = 0xff;
     object->field_01 = 0;
     object->state_0 = object->state_0 + 1;

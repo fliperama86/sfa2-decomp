@@ -30,12 +30,12 @@ void func_801b49c0_slot04_0b(Object *obj) {
     obj->vel_x += obj->accel_x;
     obj->vel_y += obj->accel_y;
     if (obj->vel_y < 0) {
-        if (!(obj->pos_y < ref_other.p->field_70)) {
+        if (!(obj->pos_y < ref_other.p->ground_y)) {
             obj->state_0++;
         }
     }
     func_8011ff74(obj);
-    if (g->field_1d & 1) {
+    if (g->frame_counter & 1) {
         func_8011ffdc(obj);
     }
 }

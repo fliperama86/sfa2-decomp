@@ -9,7 +9,7 @@
  * cross-jumps them into one. Tried explicit calls, goto, ternary, merged tests. */
 void func_8012e264(Object *o) {
     int state;
-    if ((s16)o->field_c6 >= 0x30 && (s16)o->field_5c >= 0 && o->field_221) {
+    if ((s16)o->field_c6 >= 0x30 && (s16)o->health >= 0 && o->field_221) {
         func_801303a0(o);
         return;
     }

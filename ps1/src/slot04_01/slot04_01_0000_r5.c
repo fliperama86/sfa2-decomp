@@ -28,7 +28,7 @@ void func_801b06dc_slot04_01(Object *obj) {
     if (obj->field_129 != 0) {
         t += 3;
     } else if (obj->field_12a != 0) {
-        if (obj->pos_y - obj->field_70 < -0x2f && (obj->field_130 & 0xe000) != 0) {
+        if (obj->pos_y - obj->ground_y < -0x2f && (obj->field_130 & 0xe000) != 0) {
             if (func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) & 0xff) {
                 obj->state_1 = 2;
                 obj->state_0 = one;

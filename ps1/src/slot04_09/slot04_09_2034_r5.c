@@ -33,7 +33,7 @@ void func_801b25cc_slot04_09(Object *obj) {
         game_state.field_63 = 0x18;
         func_80140770(obj, 5, 10, *(s16 *)((u8 *)data_801c7cb8_slot04_09 + (obj->field_12a & 0xfe)), 0, 1, 0);
         o = obj->other;
-        if ((s16)o->field_5c < 0) {
+        if ((s16)o->health < 0) {
             obj->field_167 = 0x19;
             obj->field_255 = 6;
             game_state.field_6b = 0;

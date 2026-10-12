@@ -23,17 +23,17 @@ void func_80152124(u8 *a, int b, int arg_c, s16 d, s16 e) {
 
         lo = c & 0xf;
         lo <<= 4;
-        cmd->field_0c = lo;
+        cmd->tex_u = lo;
         /* Stand-in, not recovered source: the high nibble kept in the parameter b, with a term ORed to it that is 0 for every value of b, reproduces the original's choice of registers. Without it this function differs from the original in 7 instruction slots. */
         /* The original has the high nibble in the second argument register while the low one and the loaded halfword are in the first two result registers. The compiler gives a value that is used in one block the first free register, and that is another one here. The parameter is a value of more than one block as long as its incoming value is read, and such a value gets its register in a later pass, which prefers the register it arrived in. The term is that read. It is 0 because the shift leaves the low 24 bits clear, and it leaves no instruction of its own. This reading of the compiler is inferred from its passes' output. */
         /* The figure above is with `b = c & 0xf0;` in place of the statement below. With a local in place of the parameter and no term it is the same, 7 slots; with a local and the term, 14 slots and 136 bytes. */
         b = (c & 0xf0) | (((u32)b << 24) & 0x100);
-        cmd->field_0d = b;
+        cmd->tex_v = b;
         cmd->field_0e = dv;
-        cmd->field_08 = d;
-        cmd->field_0a = e;
-        cmd->field_10 = 0x10;
-        cmd->field_12 = 0x10;
+        cmd->pos_x = d;
+        cmd->pos_y = e;
+        cmd->width = 0x10;
+        cmd->height = 0x10;
         func_8015bf34((int)a, cmd++);
         data_8018d13c = cmd;
     }

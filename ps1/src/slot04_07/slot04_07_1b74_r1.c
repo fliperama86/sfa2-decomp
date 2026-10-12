@@ -9,8 +9,8 @@ void func_801b1d5c_slot04_07(Object *obj);
 void func_801b1dfc_slot04_07(Object *obj);
 
 void func_801b1b74_slot04_07(Object *obj) {
-    if (func_801b41c4_slot04_07(obj) < 0 && obj->pos_y >= obj->field_70) {
-        obj->pos_y = obj->field_70;
+    if (func_801b41c4_slot04_07(obj) < 0 && obj->pos_y >= obj->ground_y) {
+        obj->pos_y = obj->ground_y;
         obj->state_3 = 5;
         obj->field_45 = 0;
         obj->field_17b = 0;
@@ -21,7 +21,7 @@ void func_801b1b74_slot04_07(Object *obj) {
             update_sequence(obj);
         } else if (obj->field_cd != 0) {
             func_801b1cac_slot04_07(obj);
-        } else if (!((obj->field_134 | obj->field_136) & 0x94)) {
+        } else if (!((obj->pressed_bits | obj->released_bits) & 0x94)) {
             update_sequence(obj);
         } else if (obj->other->field_164 != 0 || obj->other->field_157 != 0 || (u8)func_8014025c(obj, -8, 0x24, -0x24, 0x18) == 0) {
             func_801b1dfc_slot04_07(obj);

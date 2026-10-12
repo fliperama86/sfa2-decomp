@@ -5,7 +5,7 @@
 
 void func_801b4db8_slot04_0b(Object *obj, int index) {
     SequenceStep **table;
-    if (((Slot04aObj *)ref_other.p)->field_a6 == 0) {
+    if (((Slot04aObj *)ref_other.p)->side == 0) {
         table = data_1f8000b4;
     } else {
         table = data_1f800164;

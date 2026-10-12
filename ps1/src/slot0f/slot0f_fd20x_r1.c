@@ -30,7 +30,7 @@ void func_800dfd20_slot0f(GameState *state, Menu *menu) {
         }
         play_sound_at(0, 0, 0x204);
     }
-    if ((s8)menu->field_02 != (s8)menu->field_03) {
+    if ((s8)menu->field_02 != (s8)menu->fade_mode) {
         if (((s8)menu->field_02 & 1) == 0) {
             if ((s8)menu->field_00 == 2) {
                 menu->field_00 = 0;

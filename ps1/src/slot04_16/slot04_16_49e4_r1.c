@@ -20,7 +20,7 @@ void func_801b49e4_slot04_16(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3++;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(s32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801307e0(obj, 0x28);
     }

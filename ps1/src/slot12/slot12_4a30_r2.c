@@ -9,7 +9,7 @@ u8 func_80014b80_slot12(Object *obj);
 void func_80014b20_slot12(Object *obj) {
     if (func_80014b80_slot12(obj) & 0xff) {
         obj->state_1++;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_80014dd0_slot12(obj, 0);
     } else {
         func_80131094(obj);
@@ -22,7 +22,7 @@ u8 func_80014b80_slot12(Object *o) {
     obj->field_4c += obj->field_54;
     *(s32 *)&o->pos_y_frac += obj->field_50;
     obj->field_50 += obj->field_58;
-    return o->pos_y >= o->field_70;
+    return o->pos_y >= o->ground_y;
 }
 
 void func_80014bd4_slot12(Object *obj) {

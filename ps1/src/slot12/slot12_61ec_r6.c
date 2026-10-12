@@ -12,7 +12,7 @@ void func_80016de4_slot12(Object *obj);
 void func_800166d0_slot12(Object *obj) {
     s16 t;
 
-    obj->field_09 = 4;
+    obj->ot_depth = 4;
     obj->field_01 = 0;
     obj->field_20 = 0;
     obj->field_22 = 0;
@@ -37,12 +37,12 @@ void func_800166d0_slot12(Object *obj) {
         obj->accel_x = *(s16 *)((u8 *)game_state.config + 0x222);
     }
     t = obj->accel_x;
-    obj->field_5c = t;
+    obj->health = t;
     if (t >= 0) {
-        obj->field_5c = t & 0x3f;
+        obj->health = t & 0x3f;
         func_80016de4_slot12(obj);
         game_state.field_2bf = 0;
-        obj->field_70 = 0xf;
+        obj->ground_y = 0xf;
         func_80016a7c_slot12(obj);
         func_80016c50_slot12(obj);
         func_80016864_slot12(obj);

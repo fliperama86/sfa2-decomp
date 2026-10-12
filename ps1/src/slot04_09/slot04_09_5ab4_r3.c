@@ -57,8 +57,8 @@ void func_801b5d3c_slot04_09(Object *obj) {
             c->field_0c = obj->field_0c;
             c->field_0d = obj->field_0d + 3;
             *(s32 *)&c->field_a4 = 0x10;
-            c->field_7a = obj->field_7a;
-            c->field_7c = obj->field_7c;
+            c->spawn_x = obj->spawn_x;
+            c->spawn_y = obj->spawn_y;
             c->field_90 = obj->field_90;
             c->field_98 = obj->field_98;
             c->field_9c = obj->field_9c;
@@ -80,8 +80,8 @@ void func_801b5d3c_slot04_09(Object *obj) {
             b->field_0c = obj->field_0c;
             b->field_0d = obj->field_0d + 4;
             *(s32 *)&b->field_a4 = 8;
-            b->field_7a = obj->field_7a;
-            b->field_7c = obj->field_7c;
+            b->spawn_x = obj->spawn_x;
+            b->spawn_y = obj->spawn_y;
             b->field_90 = obj->field_90;
             b->field_98 = obj->field_98;
             b->field_9c = obj->field_9c;
@@ -103,8 +103,8 @@ void func_801b5d3c_slot04_09(Object *obj) {
             a->field_0c = obj->field_0c;
             a->field_0d = obj->field_0d + 4;
             *(s32 *)&a->field_a4 = 0;
-            a->field_7a = obj->field_7a;
-            a->field_7c = obj->field_7c;
+            a->spawn_x = obj->spawn_x;
+            a->spawn_y = obj->spawn_y;
             a->field_90 = obj->field_90;
             a->field_98 = obj->field_98;
             a->field_9c = obj->field_9c;

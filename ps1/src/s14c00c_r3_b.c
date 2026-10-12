@@ -83,7 +83,7 @@ void func_8014cedc(Object *object) {
     } else {
         other = object->other;
         if (other->field_45 != 1
-            || ((s16)other->pos_y >= (s16)(other->field_70 - (object->field_211 + (object->field_210 << 8)))
+            || ((s16)other->pos_y >= (s16)(other->ground_y - (object->field_211 + (object->field_210 << 8)))
                 && other->vel_y > 0)) {
             func_8014d99c(object);
         }

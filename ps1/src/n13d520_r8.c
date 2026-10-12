@@ -17,7 +17,7 @@ void func_80143b3c(Object *object) {
 
 void func_80143b90(Object *object) {
     object->pos_y = object->pos_y - 5;
-    object->field_5c = object->field_5c + 3;
+    object->health = object->health + 3;
     if (object->field_03 == 0) {
         object->pos_x = object->pos_x - 0x13;
         if (object->pos_x < -0x42) goto inc;

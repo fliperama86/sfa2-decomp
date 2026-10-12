@@ -11,7 +11,7 @@ void func_801b4064_slot04_06(Object *obj) {
 
     if (((Slot04aObj *)obj)->field_3b != 0) {
         obj->field_165 = 0xff;
-        ((Slot04aObj *)obj)->field_47 = 0x1e;
+        ((Slot04aObj *)obj)->timer = 0x1e;
         ((Slot04aObj *)obj)->field_46 = 1;
         obj->state_3++;
         if (obj->field_45 == 0) {
@@ -32,9 +32,9 @@ void func_801b4064_slot04_06(Object *obj) {
 
 void func_801b410c_slot04_06(Object *obj) {
     int a;
-    ((Slot04aObj *)obj)->field_47--;
-    if (((Slot04aObj *)obj)->field_47 == 0) {
-        ((Slot04aObj *)obj)->field_47 = 0x14;
+    ((Slot04aObj *)obj)->timer--;
+    if (((Slot04aObj *)obj)->timer == 0) {
+        ((Slot04aObj *)obj)->timer = 0x14;
         obj->state_3++;
         obj->field_27c = 0;
         ((Slot04aObj *)obj)->field_27d = 0;

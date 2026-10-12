@@ -4,7 +4,7 @@
 #include "protos.h"
 
 int func_8013d1a8(Object *object) {
-    u16 v = object->field_134;
+    u16 v = object->pressed_bits;
     u16 i;
     if (v == 0xff || v == 0x95 || v == 0x6a) {
         goto zero;

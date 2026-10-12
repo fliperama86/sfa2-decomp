@@ -9,25 +9,25 @@
  * What it does (inferred, not an original name): draws the first tile layer
  * of the stage, data_801aa544[0], as sprite records. The layer's field_14
  * (high half) minus game_state.field_92 gives a vertical position y; its
- * field_12 gives a horizontal position. The window is 25 columns by 16
+ * scroll_x gives a horizontal position. The window is 25 columns by 16
  * rows of 16-pixel cells, starting at the cell row y / 16 and the cell
- * column (field_12 masked by field_58 - 1) / 16, offset by the sub-cell
+ * column (scroll_x masked by field_58 - 1) / 16, offset by the sub-cell
  * remainders. The cells are 16-bit pairs (tile, palette) in the layer's
- * map (field_50). Every cell whose tile differs from the layer's blank
+ * map (map_data). Every cell whose tile differs from the layer's blank
  * value (field_1e, signed; the tile is compared unsigned) gets one record
  * of the table: position, texture coordinates, palette and a command
  * word; the record is linked into the list head chosen by the layer's
- * field_8a. Unlike the flat models of slot06_00, there is no test of the
+ * ot_index. Unlike the flat models of slot06_00, there is no test of the
  * row against a row count.
  *
  * Contract (what the code reads and writes; the roles named for the
  * fields are inferred):
  *   No argument, no return value.
- *   Reads: data_801aa544[0] field_12, field_14, field_1e, field_50,
- *     field_58, field_8a; game_state.field_92; the buffer selector
+ *   Reads: data_801aa544[0] scroll_x, field_14, field_1e, map_data,
+ *     field_58, ot_index; game_state.field_92; the buffer selector
  *     data_801a27d0 (0 or 1); the list base pointer data_801987c8 and the
  *     list head word it points at; the map words of the cells it visits.
- *   Map, at field_50: for map row r (r & 0xf) the row starts 64 cells
+ *   Map, at map_data: for map row r (r & 0xf) the row starts 64 cells
  *     (128 bytes) in; the cell column c lies at (c >> 5) * 1024 + (c & 0x1f)
  *     * 2 halfwords, so one cell of the map is a (tile, palette) pair.
  *     The setup keeps every visited cell inside a map block it allocated.
@@ -78,15 +78,15 @@ void func_801e84cc_slot06_0e(void) {
     row = (y & 0x1f0) / 16;
     w = c->field_58;
     mask = (w >> 4) - 1;
-    px = c->field_12;
+    px = c->scroll_x;
     sx = px & 0xf;
     col = (px & (w - 1)) >> 4;
     blank = c->field_1e;
     rec = data_801ef554_slot06_0e[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->field_8a * 4);
+    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
     for (i = 0; i < 16; i++, row++) {
         cc = col;
-        line = c->field_50 + ((row & 0xf) << 6);
+        line = c->map_data + ((row & 0xf) << 6);
         for (k = 0; k < 25; k++) {
             e = line + ((cc >> 5) << 10) + ((cc & 0x1f) << 1);
             if (*e != blank) {

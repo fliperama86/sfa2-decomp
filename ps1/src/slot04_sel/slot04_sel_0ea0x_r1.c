@@ -38,18 +38,18 @@ void func_801b0ea0_slot04_sel(void) {
     func_801519b4(&data_801b7978_slot04_sel);
     func_801519b4(data_801b7648_slot04_sel);
     rec0 = data_801b9cf0_slot04_sel;
-    data_801b6e70_slot04_sel[rec0->field_00](player_at(0), rec0);
+    data_801b6e70_slot04_sel[rec0->state](player_at(0), rec0);
     rec1 = rec0 + 1;
-    data_801b6e70_slot04_sel[rec1->field_00](player_at(1), rec1);
+    data_801b6e70_slot04_sel[rec1->state](player_at(1), rec1);
     if (game_state.field_07 == (rec0->field_09 | rec1->field_09) && game_state.field_07 != 0 && (rec0->field_0b != 0 || rec1->field_0b != 0)) {
-        rec0->field_00 = 0;
-        rec1->field_00 = 0;
+        rec0->state = 0;
+        rec1->state = 0;
         data_8018f5a0->field_50 = 0;
         data_8018f5a0->field_4e++;
     }
     if (data_801b9d28_slot04_sel != game_state.field_07 || data_801b9d2c_slot04_sel != game_state.mode) {
-        rec0->field_00 = 0;
-        rec1->field_00 = 0;
+        rec0->state = 0;
+        rec1->state = 0;
         data_8018f5a0->field_50 = 1;
     }
 }

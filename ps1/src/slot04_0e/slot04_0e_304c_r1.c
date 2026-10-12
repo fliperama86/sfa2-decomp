@@ -32,7 +32,7 @@ void func_801b304c_slot04_0e(Object *o) {
         o->state_3 = o->state_3 + 1;
         o->field_28a = 1;
         func_801b3200_slot04_0e(o);
-    } else if (o->field_70 < o->pos_y) {
+    } else if (o->ground_y < o->pos_y) {
         func_801b2f58_slot04_0e(o);
     } else {
         update_sequence(o);
@@ -42,7 +42,7 @@ void func_801b304c_slot04_0e(Object *o) {
 void func_801b30fc_slot04_0e(Object *obj) {
     func_801b4914_slot04_0e(obj);
     func_801b31b8_slot04_0e(obj, 5);
-    if (obj->field_70 < obj->pos_y) {
+    if (obj->ground_y < obj->pos_y) {
         func_801b2f58_slot04_0e(obj);
     } else {
         update_sequence(obj);

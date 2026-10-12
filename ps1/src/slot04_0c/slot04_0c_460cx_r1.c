@@ -13,8 +13,8 @@ void func_801b460c_slot04_0c(Object *obj) {
     obj->state_0++;
     obj->field_0c = p->field_0c;
     obj->field_0e = p->field_0e;
-    obj->field_09 = 4;
-    obj->field_70 = p->field_70 + 0x50;
+    obj->ot_depth = 4;
+    obj->ground_y = p->ground_y + 0x50;
     obj->pos_x = p->pos_x;
     obj->pos_y = p->pos_y + 0x2e;
     obj->field_0b = p->field_0b;

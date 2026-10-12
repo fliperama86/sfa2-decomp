@@ -7,7 +7,7 @@
 void func_80150758(Menu *menu) {
     if (menu->field_00 == 2 && menu->field_08 == 0) {
         data_8017ec7c[menu->field_02](menu);
-        if (menu->field_03 != 0) {
+        if (menu->fade_mode != 0) {
             update_cd_volume_fade(menu);
         }
     }

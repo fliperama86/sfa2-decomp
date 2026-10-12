@@ -12,7 +12,7 @@ void func_801e99ac_slot06_11(Object *obj, int a) {
         ref_other.p->field_02 = 0x4b;
         ref_other.p->field_03 = 1;
         ref_other.p->pos_x = (u16)obj->pos_x;
-        ref_other.p->pos_y = (u16)obj->field_70;
+        ref_other.p->pos_y = (u16)obj->ground_y;
         ref_other.p->field_45 = a;
     }
 }
@@ -25,7 +25,7 @@ void func_801e9a64_slot06_11(Object *obj, int a) {
         ref_other.p->field_03 = 2;
         ref_other.p->field_03 = a + ref_other.p->field_03;
         ref_other.p->pos_x = (u16)obj->pos_x;
-        ref_other.p->pos_y = (u16)obj->field_70;
+        ref_other.p->pos_y = (u16)obj->ground_y;
         ref_other.p->field_0b = obj->side;
         ref_other.p->field_3c = obj;
     }
@@ -64,7 +64,7 @@ void func_801e9c7c_slot06_11(Object *obj) {
         obj->state_0 += 1;
     }
     func_80131094(obj);
-    if (((game_state.field_1d + obj->field_0b) & 1) != 0) {
+    if (((game_state.frame_counter + obj->field_0b) & 1) != 0) {
         func_8011ffdc(obj);
     } else {
         obj->field_01 = 0;

@@ -23,8 +23,8 @@ void func_801227d4(Attacker *a, int side)
     q = t;
     ref_first.p = p;
   }
-  a->field_78 = p;
-  a->field_7c = q;
+  a->winner = p;
+  a->loser = q;
   if (q->field_cd == 0)
   {
     q->field_db = 0xff;
@@ -44,14 +44,14 @@ void func_801227d4(Attacker *a, int side)
     }
     if (a->field_1b == 3)
     {
-      u8 v = p->field_d7;
+      u8 v = p->win_streak;
       if (v < 99)
       {
         v++;
       }
-      p->field_d7 = v;
+      p->win_streak = v;
       p->field_124 = v;
-      q->field_d7 = 0;
+      q->win_streak = 0;
       if (a->field_2f != 0)
       {
         table_801aa4e8[0][0][(p->side * 42) + p->kind]++;
@@ -62,7 +62,7 @@ void func_801227d4(Attacker *a, int side)
     else
       if (p->field_cd == 0)
     {
-      p->field_fc = p->field_5c;
+      p->field_fc = p->health;
       p->field_fe = p->field_c6;
       if ((a->field_af == 0) && (a->field_54 == a->field_a4))
       {

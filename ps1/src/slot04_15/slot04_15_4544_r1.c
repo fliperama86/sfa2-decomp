@@ -28,12 +28,12 @@ void func_801b4544_slot04_15(Object *obj) {
     *(s32 *)&obj->pos_y_frac += obj->vel_y;
     obj->vel_y += obj->accel_y;
     p = obj->field_3c;
-    t = p->field_70;
+    t = p->ground_y;
     if (t > obj->pos_y) {
         func_80131094(obj);
     } else {
         obj->state_1 = obj->state_1 + 1;
-        obj->pos_y = (u16)p->field_70;
+        obj->pos_y = (u16)p->ground_y;
         func_80130768(obj, 1, data_801c0fc4_slot04_15);
     }
 }

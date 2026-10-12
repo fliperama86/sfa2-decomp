@@ -67,12 +67,12 @@ void func_801b1f00_slot04_15(Object *obj) {
     int d;
 
     func_801b2020_slot04_15(obj);
-    if (obj->field_70 <= obj->pos_y) {
+    if (obj->ground_y <= obj->pos_y) {
         obj->state_3++;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->field_17b = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x26);
     } else {
@@ -154,12 +154,12 @@ void func_801b21e8_slot04_15(Object *obj) {
 
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac + obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    if (obj->field_70 <= obj->pos_y) {
+    if (obj->ground_y <= obj->pos_y) {
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->field_17b = 0;
         obj->state_3++;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x34);
     } else {
@@ -261,13 +261,13 @@ void func_801b24e0_slot04_15(Object *obj) {
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             w = obj->field_9c;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_9c = w;
             p->field_26 = obj->field_26;
             p->pos_x = obj->pos_x;
             p->pos_y = obj->pos_y;
-            p->field_5c = (t >> 1) + 2;
+            p->health = (t >> 1) + 2;
             p->field_3c = obj;
             obj->field_14c = (s32)p;
             obj->field_240++;

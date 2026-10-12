@@ -26,9 +26,9 @@ void func_80011274_slot01(void) {
         o->field_00 = 1;
         o->field_02 = 0x30;
         o->field_03 = *(u8 *)&data_80055f3c_slot01;
-        o->field_09 = 8;
-        o->field_7a = 0x10;
-        o->field_7c = 0x1f0;
+        o->ot_depth = 8;
+        o->spawn_x = 0x10;
+        o->spawn_y = 0x1f0;
     }
 }
 
@@ -45,8 +45,8 @@ void func_800112e4_slot01(void) {
         } else {
             o->field_03 = *(u8 *)&data_80055f3c_slot01;
         }
-        o->field_7a = 0x20;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0x20;
+        o->spawn_y = 0x1e0;
     }
     data_80055f44_slot01.p = o;
 }

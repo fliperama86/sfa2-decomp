@@ -22,7 +22,7 @@ void func_801b6f48_slot04_02(Object *object) {
     object->state_0++;
     ((Slot04aObj *)object)->field_b0 = object->field_0d;
     parent = object->field_3c;
-    object->field_09 = 0;
+    object->ot_depth = 0;
     object->field_49 = parent->field_49;
     object->field_1c = parent->field_1c;
     if (object->field_03 != 0) {

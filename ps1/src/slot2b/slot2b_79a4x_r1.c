@@ -19,12 +19,12 @@ void func_800779a4_slot2b(Object *obj) {
     int speed_y;
     int dx;
     int dy;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->state_0++;
     p = obj->field_3c;
     obj->field_1c = p->field_1c;
     obj->field_1e = p->field_1e;
-    obj->field_70 = p->field_70;
+    obj->ground_y = p->ground_y;
     obj->box_tables = (BoxTables *)data_800798f8_slot2b;
     obj->field_67 = 0;
     obj->field_45 = 0;

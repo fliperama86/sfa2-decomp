@@ -6,7 +6,7 @@
 
 
 /* Exact. Decided by: address locals a and b declared at function scope and reused in all three
-   loops (the original keeps the store address in their registers), and the field_14 values written
+   loops (the original keeps the store address in their registers), and the pos_x values written
    as 0xc + m * 0x10 and 0x154 - j * 0x10 instead of stepped locals. */
 void init_strips(void) {
     s32 i;
@@ -47,13 +47,13 @@ void init_strips(void) {
     for (k = 0; k < 2; k++) {
         for (m = 0; m < 4; m++) {
             a = &strips[k][m];
-            a->field_14 = 0xc + m * 0x10;
+            a->pos_x = 0xc + m * 0x10;
         }
     }
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 4; j++) {
             b = &data_80190014[i][j];
-            b->field_14 = 0x154 - j * 0x10;
+            b->pos_x = 0x154 - j * 0x10;
         }
     }
 }

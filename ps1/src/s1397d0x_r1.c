@@ -43,11 +43,11 @@ u8 func_801397d0(s32 arg_a, Object *b, Box6 *c) {
         Box6 *r = (Box6 *)ref_first.p;
         ox = r->origin & 0xffff;
         ow = r->extent;
-        oy = r->field_02;
+        oy = r->origin_y;
         oh = r->field_05;
     }
     px = c->origin & 0xffff;
-    py = c->field_02;
+    py = c->origin_y;
     pw = c->extent;
     ph = c->field_05;
     if (a->field_0b != 0) {

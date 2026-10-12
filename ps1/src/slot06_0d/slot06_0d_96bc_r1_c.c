@@ -25,7 +25,7 @@ void func_801e9c70_slot06_0d(Object *obj) {
     obj->field_01 = 1;
     obj->field_0d = 0;
     obj->field_0c = 0;
-    obj->field_09 = 0x1a;
+    obj->ot_depth = 0x1a;
     obj->field_0e = p->field_0e;
     obj->field_0f = p->field_0f;
     obj->field_1c = p->field_1c;

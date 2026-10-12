@@ -49,7 +49,7 @@ void func_8014a788(Object *object) {
     if (other->field_45 != 1) {
         func_8014c914(object);
     } else {
-        data_80189464 = other->field_70 - data_80189464;
+        data_80189464 = other->ground_y - data_80189464;
         if ((s16)data_80189464 < other->pos_y && other->vel_y > 0) {
             func_8014c914(object);
         } else {

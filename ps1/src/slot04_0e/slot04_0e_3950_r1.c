@@ -116,8 +116,8 @@ void func_801b3b80_slot04_0e(Object *obj) {
         obj->field_14c = (s32)p;
         ((Slot04bObj *)obj)->field_46++;
         p->field_90 = obj->field_90;
-        p->field_7a = 0x60;
-        p->field_7c = 0x1e0;
+        p->spawn_x = 0x60;
+        p->spawn_y = 0x1e0;
         p->field_98 = obj->field_98;
         p->field_9c = obj->field_9c;
     }
@@ -132,7 +132,7 @@ void func_801b3cdc_slot04_0e(Object *obj) {
 
     obj->state_3++;
     r = &data_801c62b4_slot04_0e[obj->side];
-    r->field_10 = 0;
+    r->offset_x = 0;
     r->field_14 = 0;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
@@ -200,13 +200,13 @@ void func_801b3eb0_slot04_0e(Object *obj) {
         update_sequence(obj);
         return;
     }
-    r->field_10 += obj->vel_x;
+    r->offset_x += obj->vel_x;
     func_801b4a3c_slot04_0e(obj);
     if ((s16)obj->step_flags < 0) {
         func_801b420c_slot04_0e(obj);
         return;
     }
-    pos = r->field_10;
+    pos = r->offset_x;
     u = (u16)obj->pos_x + (pos >> 16);
     pos &= 0xffff;
     u <<= 16;
@@ -216,7 +216,7 @@ void func_801b3eb0_slot04_0e(Object *obj) {
         func_801b420c_slot04_0e(obj);
         return;
     }
-    pos = r->field_10;
+    pos = r->offset_x;
     w = pos >> 16;
     if (w >= 0) {
         w = -w;
@@ -263,6 +263,6 @@ void func_801b3eb0_slot04_0e(Object *obj) {
     obj->step_flags = obj->sequence->flags;
     obj->frame = obj->frames + obj->sequence->frame_index;
     obj->field_4a = 0;
-    obj->field_80 = 1;
+    obj->sequence_changed_flag = 1;
     func_801b4b40_slot04_0e(obj);
 }

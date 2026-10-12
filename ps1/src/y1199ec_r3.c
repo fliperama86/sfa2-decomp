@@ -26,7 +26,7 @@ void func_80119e74(AnimObj *obj, u16 n) {
         r.x = col * 4 + 0x180;
         r.y = row << 4;
         job->kind = 1;
-        job->field_01 = idx;
+        job->index = idx;
         job->rect = r;
         row = (row + 1) & 0xf;
         if (row == 0) {

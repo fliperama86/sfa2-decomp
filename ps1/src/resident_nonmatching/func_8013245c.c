@@ -30,7 +30,7 @@
  *   Arguments: none. No return value.
  *   Reads: data_801a8067, data_801a83fb (bytes), data_80198098,
  *     data_8019842c (bytes), table_80172144 words 0, 4, 8, 10, 13 to 33,
- *     player_left.field_5c and player_right.field_5c (halfwords), and what
+ *     player_left.health and player_right.health (halfwords), and what
  *     func_80153088, init_strips and init_strips2 read.
  *   Writes: the block data_801ac6a8 (head bytes and words 0x1c4 to 0x1dc),
  *     data_801a6938, data_80188d64, 65, 68, 69, the table_80188d08 bytes and
@@ -134,9 +134,9 @@ void func_8013245c(void)
 
     for (i = 0; i < 2; i++) {
         row = base + (i << 4);
-        init_record(row + 4, data_80188d64, data_80188d68, 0, 0x18, 0x12, player_left.field_5c, 5);
+        init_record(row + 4, data_80188d64, data_80188d68, 0, 0x18, 0x12, player_left.health, 5);
         init_record(row + 0x44, 0xf0, 0x30, 0, 8, 0x12, 0, 5);
-        init_record(row + 0x24, data_80188d65, data_80188d69, 0, 0xd8, 0x12, player_right.field_5c, 5);
+        init_record(row + 0x24, data_80188d65, data_80188d69, 0, 0xd8, 0x12, player_right.health, 5);
         init_record(row + 0x64, 0xf0, 0x30, 0, 0x168, 0x12, 0, 5);
         init_record(row + 0xc4, 0x49, 0xc9, 0xf3, 0xa6, 0xd5, 0, 3);
         init_record(row + 0xe4, 0x20, 0xf0, 0x20, 0x76, 0xd5, 0, 4);
@@ -189,7 +189,7 @@ void func_8013245c(void)
         for (j = 0; j < 2; j++) {
             strip = (Strip1c *)((u8 *)data_80188d6c + i * 0x38 + j * 0x1c);
             func_80136d1c((Tx *)strip);
-            strip->field_14 = x;
+            strip->pos_x = x;
             x += 0x10;
             strip->field_16 = 2;
             strip->field_19 = 0xf0;

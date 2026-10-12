@@ -12,7 +12,7 @@ void func_801b4054_slot04_0a(Object *obj) {
 
     obj->field_a0 = 0xff;
     ((Slot04aObj *)obj)->field_6c = data_801c0828_slot04_0a;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_45 = 0;
     obj->vel_x = 0;
     obj->vel_y = 0;

@@ -23,9 +23,9 @@ ok:
     if (!(entry & 1)) {
         func_8013f0c8(object, (u8)index, (u8)arg);
     } else {
-        object->slots[(u8)index].field_04 = 0xb;
+        object->slots[(u8)index].timer = 0xb;
         object->slots[(u8)index].field_02 = 6;
-        object->slots[(u8)index].field_00++;
+        object->slots[(u8)index].stage++;
         object->slots[(u8)index].field_01++;
     }
 }

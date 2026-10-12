@@ -10,9 +10,9 @@ void func_80130678(Object *object, int index);
 void func_801b0f14_slot04_0f(Object *o) {
     *(s32 *)&o->pos_y_frac = *(s32 *)&o->pos_y_frac + o->vel_y;
     *(s32 *)&o->pos_x_frac = *(s32 *)&o->pos_x_frac + o->vel_x;
-    if (o->field_70 <= o->pos_y) {
+    if (o->ground_y <= o->pos_y) {
         o->state_3++;
-        o->pos_y = (u16)o->field_70;
+        o->pos_y = (u16)o->ground_y;
         func_801209c4(o);
         o->field_45 = 0;
         o->field_159 = 0;

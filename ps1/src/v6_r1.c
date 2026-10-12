@@ -22,7 +22,7 @@ void func_8014f7f8(Menu *m) {
     }
 retry:
     for (i = 7; i >= 0; i--) {
-        m->entries[i].field_08 = 0;
+        m->entries[i].pending_flag = 0;
     }
     while (!func_8015cc44(1, 0, &m->field_0c)) {
     }

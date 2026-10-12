@@ -38,14 +38,14 @@ void func_80012438_slot01(Object *obj) {
     obj->field_20 = 0;
     obj->field_22 = 0;
     obj->state_0++;
-    obj->pos_x = obj->field_5c;
+    obj->pos_x = obj->health;
     obj->pos_y = obj->field_5e;
     func_800124f4_slot01(obj);
 }
 
 void func_8001247c_slot01(Object *o) {
     Slot01Obj *obj = (Slot01Obj *)o;
-    Object *child = obj->field_30;
+    Object *child = obj->child;
     o->state_0 = 3;
     if (child != 0) {
         child->state_0 = 2;

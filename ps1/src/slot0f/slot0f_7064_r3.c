@@ -13,13 +13,13 @@ void func_800e72bc_slot0f(Object *obj) {
         if (data_80190468.p->field_01 == 0) {
             obj->field_76 = data_800f013c_slot0f[i];
             obj->field_78 = data_800f013c_slot0f[i + 1];
-            obj->field_7a = data_800f013c_slot0f[i + 2];
-            obj->field_7c = data_800f013c_slot0f[i + 3];
+            obj->spawn_x = data_800f013c_slot0f[i + 2];
+            obj->spawn_y = data_800f013c_slot0f[i + 3];
         } else {
             obj->field_76 = data_800f0164_slot0f[i];
             obj->field_78 = data_800f0164_slot0f[i + 1];
-            obj->field_7a = data_800f0164_slot0f[i + 2];
-            obj->field_7c = data_800f0164_slot0f[i + 3];
+            obj->spawn_x = data_800f0164_slot0f[i + 2];
+            obj->spawn_y = data_800f0164_slot0f[i + 3];
         }
     }
 }

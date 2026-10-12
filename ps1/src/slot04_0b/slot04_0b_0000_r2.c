@@ -41,7 +41,7 @@ void func_801b047c_slot04_0b(Object *obj) {
     if (func_801b2510_slot04_0b(obj) == 0) {
         obj->field_45 = 0;
         obj->state_3 = obj->state_3 + 1;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         func_80130678(obj, 0x11);
     } else {

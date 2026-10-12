@@ -8,7 +8,7 @@ void func_801211dc(GameState *state) {
         Object *object;
         data_8018f5a0->field_52++;
         object = func_80125060((Object *)state);
-        state->field_154 = object;
+        state->object = object;
         func_8014eef8(object->kind, object->side);
     } else {
         func_80010058(state);
@@ -39,7 +39,7 @@ void func_801212e8(GameState *unused) {
 void func_80121308(GameState *state) {
     if (data_8018f5a0->field_52 == 0) {
         data_8018f5a0->field_52++;
-        game_state.field_154 = state->field_78;
+        game_state.object = state->field_78;
         func_8014eef8(state->field_70, state->field_227);
     } else {
         data_8018f5a0->field_4a = 4;

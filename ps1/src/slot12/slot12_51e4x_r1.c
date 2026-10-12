@@ -15,7 +15,7 @@ void func_800151e4_slot12(Object *obj) {
     int i;
     obj->pos_y = 0;
     obj->field_01 = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_20 = 0;
     obj->field_22 = 0;
     obj->field_24 = 0;

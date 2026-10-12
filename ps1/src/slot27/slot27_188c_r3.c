@@ -27,16 +27,16 @@ void func_80011aac_slot27(Object *obj) {
         *mask = 1 << ref_other.p->side;
         func_80011a18_slot27(obj);
         func_80011a64_slot27();
-        obj->field_09 = 4;
+        obj->ot_depth = 4;
         obj->field_90 = (void *)0x80038000;
         obj->field_98 = data_80017c28_slot27;
         obj->field_9c = data_8001aa14_slot27;
-        obj->field_7a = 0;
-        obj->field_7c = 0x1e0;
+        obj->spawn_x = 0;
+        obj->spawn_y = 0x1e0;
         obj->field_0d = 0;
         obj->field_01 = 0;
         obj->field_0b = 0;
-        obj->field_70 = 0;
+        obj->ground_y = 0;
         obj->field_73 = 0;
         obj->state_0++;
         if ((game_state.field_07 & *mask) != 0) {

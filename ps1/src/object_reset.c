@@ -38,7 +38,7 @@ void reset_object(Object *object) {
     object->field_bc = value;
     object->field_262 = value;
     object->field_49 = value;
-    object->field_80 = value;
+    object->sequence_changed_flag = value;
     game_state.cursor = (unsigned int *)&object->field_1a0;
     do {
         i++;
@@ -49,10 +49,10 @@ void reset_object(Object *object) {
         func_8014a038(object);
     }
     object->field_01 = 1;
-    object->field_5c = 0x90;
+    object->health = 0x90;
     object->field_5e = 0x90;
     if (game_state.config->field_a9 != 0 && object->field_f1 != 0) {
-        object->field_5c = object->field_fc;
+        object->health = object->field_fc;
         object->field_5e = object->field_fc;
         object->field_c6 = object->field_fe;
     }
@@ -111,9 +111,9 @@ void reset_object(Object *object) {
 
 void func_801293d4(Object *object) {
     object->field_76 = 0x180;
-    object->field_7a = 0x60;
+    object->spawn_x = 0x60;
     object->field_78 = 0;
-    object->field_7c = 0x1e0;
+    object->spawn_y = 0x1e0;
     object->field_90 = data_801a27d8;
     if (object->side != 0) {
         object->field_76 = 0x1c0;

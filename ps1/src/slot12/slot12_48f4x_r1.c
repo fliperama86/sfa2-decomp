@@ -12,7 +12,7 @@ void func_800148f4_slot12(Object *obj) {
     u8 unused[8];
     FrameRecord *rec;
     int k;
-    obj->field_09 = 3;
+    obj->ot_depth = 3;
     obj->field_01 = 1;
     obj->vel_y = 0x70000;
     obj->accel_x = 0x500;
@@ -27,8 +27,8 @@ void func_800148f4_slot12(Object *obj) {
         k = game_state.field_2ba;
         rec = table_8016e614 + k;
     }
-    obj->field_7a = 0x60;
-    obj->field_7c = 0x1f0;
+    obj->spawn_x = 0x60;
+    obj->spawn_y = 0x1f0;
     obj->field_0d = 0;
     obj->field_60 = 0;
     obj->field_60 = rec->field_08;

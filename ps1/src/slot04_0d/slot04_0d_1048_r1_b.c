@@ -53,12 +53,12 @@ void func_801b15a4_slot04_0d(Object *obj) {
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             p->field_9c = obj->field_9c;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_26 = obj->field_26;
             p->pos_x = obj->pos_x;
             y = obj->pos_y;
-            p->field_5c = 0;
+            p->health = 0;
             p->pos_y = y;
             p->field_3c = obj;
             obj->field_14c = (s32)p;

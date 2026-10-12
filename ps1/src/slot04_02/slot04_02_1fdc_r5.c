@@ -13,7 +13,7 @@ void func_801b2660_slot04_02(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
         obj->field_159 = 0;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801b631c_slot04_02(obj, 1, 0, 3, 2);
         func_801209c4(obj);
         func_80130678(obj, 0x11);
@@ -28,7 +28,7 @@ void func_801b2660_slot04_02(Object *obj) {
                 p->field_02 = 2;
                 p->field_03 = 2;
                 p->field_ad = 0;
-                p->field_5c = 0;
+                p->health = 0;
                 p->field_66 = obj->field_66;
                 p->field_65 = obj->field_65;
                 p->field_ac = (obj->field_12a >> 1) + 3;
@@ -39,11 +39,11 @@ void func_801b2660_slot04_02(Object *obj) {
                 p->field_26 = obj->field_26;
                 p->pos_x = obj->pos_x;
                 p->pos_y = obj->pos_y;
-                t = obj->field_70;
-                p->field_7a = 0x60;
+                t = obj->ground_y;
+                p->spawn_x = 0x60;
                 p->field_3c = obj;
-                p->field_7c = 0x1e0;
-                p->field_70 = t;
+                p->spawn_y = 0x1e0;
+                p->ground_y = t;
                 p->field_90 = obj->field_90;
                 p->field_98 = obj->field_98;
                 p->field_9c = obj->field_9c;

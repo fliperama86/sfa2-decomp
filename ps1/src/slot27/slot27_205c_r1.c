@@ -22,7 +22,7 @@ void func_8001205c_slot27(Object *obj) {
     (*(s32 *)&game_state.field_354) = ref_other.p->kind;
     if ((*(s32 *)&game_state.field_354) != obj->field_03) {
         func_801205c4(ref_other.p->side, 0);
-        obj->field_72 = 0;
+        obj->facing_flag = 0;
         if ((*(u8 *)&data_801901ba) != 0 && (*(u8 *)&game_state.field_b3) != 0) {
             (*(u8 *)&data_801901ba) = 0;
         }
@@ -63,8 +63,8 @@ l280:
     if (game_state.field_06 != 0) goto done;
     if (ref_other.p->field_c2 & 0x100) {
         if (game_state.field_b1 & 0x80) {
-            obj->field_72 = obj->field_72 + 1;
-            if (obj->field_72 >= 0x3c) {
+            obj->facing_flag = obj->facing_flag + 1;
+            if (obj->facing_flag >= 0x3c) {
                 (*(s32 *)data_8019046c) = ref_other.p->kind;
                 if ((*(s32 *)data_8019046c) == 0x12) (*(s32 *)data_8019046c) = 4;
                 if ((*(s32 *)data_8019046c) == 0x14) (*(s32 *)data_8019046c) = 2;
@@ -81,8 +81,8 @@ setb:
         if ((*(u8 *)&data_801901ba) != 0) {
             (*(u8 *)&game_state.field_b3) = 1;
         }
-        obj->field_72 = 0;
-        obj->field_70 = 0;
+        obj->facing_flag = 0;
+        obj->ground_y = 0;
     }
     (*(s32 *)&game_state.field_354) = 0x80;
     (*(s32 *)data_80190464) = 0;

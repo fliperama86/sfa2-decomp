@@ -20,8 +20,8 @@ void func_801e18d0_slot0b(u8 *src, u8 *dst) {
 
 void func_801e1908_slot0b(Object *obj, Object *other) {
     HudSlot *s = &data_801e7648_slot0b[other->side];
-    s->field_04 = obj->pos_x - 0x38;
-    s->field_06 = obj->pos_y - 8;
+    s->pos_x = obj->pos_x - 0x38;
+    s->pos_y = obj->pos_y - 8;
 }
 
 void func_801e193c_slot0b(Object *obj) {

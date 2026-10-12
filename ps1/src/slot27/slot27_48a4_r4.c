@@ -17,12 +17,12 @@ void func_80014c1c_slot27(Object *o) {
     o->field_98 = data_80017c28_slot27;
     o->field_9c = data_8001aa14_slot27;
     o->field_01 = 0;
-    o->field_7a = 0;
-    o->field_7c = 0x1e0;
+    o->spawn_x = 0;
+    o->spawn_y = 0x1e0;
     o->field_0d = 0;
     o->field_0b = 0;
     o->step_flags = 0;
-    o->field_09 = data_80027d14_slot27[o->field_03].field_00;
+    o->ot_depth = data_80027d14_slot27[o->field_03].field_00;
     obj->field_12 = data_80027d14_slot27[o->field_03].field_02;
     *(u16 *)&o->pos_y = data_80027d14_slot27[o->field_03].field_04;
 }

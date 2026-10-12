@@ -10,7 +10,7 @@ void func_801e1624_slot0b(Slot0bObj *obj);
 void func_801e1144_slot0b(Object *obj) {
     obj->field_0a = 1;
     obj->field_0e = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_0b = 0;
     obj->field_0c = 0;
     obj->field_24 = 0;
@@ -18,11 +18,11 @@ void func_801e1144_slot0b(Object *obj) {
     obj->field_22 = 0;
     obj->box_tables = (BoxTables *)data_801e4b40_slot0b;
     obj->state_0 = obj->state_0 + 1;
-    obj->field_70 = data_801e4b40_slot0b[0];
+    obj->ground_y = data_801e4b40_slot0b[0];
     obj->field_46 = 0x1f;
     obj->pos_x = 0x180;
     obj->pos_y = 0x30;
-    obj->field_5c = 0xc0;
+    obj->health = 0xc0;
     obj->field_5e = 0x70;
     obj->vel_x = 0xffe80005;
     obj->accel_x = 0x1294a;

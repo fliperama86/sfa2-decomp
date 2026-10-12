@@ -7,7 +7,7 @@ extern u32 data_80024470_slot12[];
 
 /* The locals v, w and t hold the call result and the two shifted bytes of the tag before the sum, and idx holds the table entry: with v in the sum 52 instruction slots differ, with w 4, with t 2, with idx in place 37. The read of idx stays first: moved after the first store to s, 10 instruction slots differ. */
 void func_80014300_slot12(Object *obj, Slot12Sprite *s) {
-    u16 *p = (u16 *)obj->sequence->field_04;
+    u16 *p = (u16 *)obj->sequence->data_ptr;
     u32 idx;
     u32 *ot;
     u32 v;
@@ -18,7 +18,7 @@ void func_80014300_slot12(Object *obj, Slot12Sprite *s) {
     Object *base;
     a = *p++;
     b = *p++;
-    idx = data_80024470_slot12[obj->field_09];
+    idx = data_80024470_slot12[obj->ot_depth];
     s->field_18 = a;
     s->field_19 = b;
     a = *p++;

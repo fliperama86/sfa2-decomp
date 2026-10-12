@@ -38,10 +38,10 @@ void func_8001a69c_slot28(Object *obj) {
                 s->pos_x = 0xc0;
                 s->pos_y = 0x90;
                 s->field_46 = 0x40;
-                s->field_7a = 0x60;
-                s->field_7c = 0x1e0;
+                s->spawn_x = 0x60;
+                s->spawn_y = 0x1e0;
                 s->field_0d = 0;
-                s->field_09 = 3;
+                s->ot_depth = 3;
                 func_80130768(s, 5, data_800366a8_slot28);
                 data_80051998_slot28[0] = s;
             }
@@ -59,12 +59,12 @@ void func_8001a69c_slot28(Object *obj) {
                 s->pos_y = 0x64;
                 s->vel_y = 0x8000;
                 s->accel_y = -0x400;
-                s->field_7a = 0x60;
-                s->field_09 = 3;
+                s->spawn_x = 0x60;
+                s->ot_depth = 3;
                 s->field_00 = 1;
                 s->field_01 = 0;
                 s->field_46 = 0;
-                s->field_7c = 0x1e0;
+                s->spawn_y = 0x1e0;
                 s->field_0d = 0;
                 ((Slot28Obj *)s)->field_6c = data_800366a8_slot28;
                 data_8005199c_slot28.p = s;

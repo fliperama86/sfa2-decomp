@@ -6,7 +6,7 @@
 void func_801b2858_slot04_09(Object *o);
 void func_801b2d6c_slot04_09(Object *o);
 
-/* The local t holds the field_0b read for the later p->field_72 store: written with the field read in place, this function differs from the original in 25 instruction slots. */
+/* The local t holds the field_0b read for the later p->facing_flag store: written with the field read in place, this function differs from the original in 25 instruction slots. */
 void func_801b2ae4_slot04_09(Object *obj) {
     Object *p;
     int t;
@@ -31,8 +31,8 @@ void func_801b2ae4_slot04_09(Object *obj) {
         p->field_260 = 1;
         p->field_6b = 0;
         p->field_45 = 0xff;
-        p->field_72 = t ^ 1;
-        p->pos_y = obj->field_70;
+        p->facing_flag = t ^ 1;
+        p->pos_y = obj->ground_y;
         p->pos_y_frac = 0;
         p->field_261 = 0;
         p->field_27a = 0;

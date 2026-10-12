@@ -15,13 +15,13 @@ void init_cam_position(Cam *cam, int x, int y)
   cam->field_12 = x;
   cam->field_0a = x;
   new_var2 = a - 0x40;
-  cam->field_22 = x;
+  cam->pos_x = x;
   game_state.field_e6 = new_var2;
   game_state.field_d6 = a;
   b = y & 0x7ff;
   cam->field_16 = y;
   cam->field_0e = y;
-  cam->field_26 = y;
+  cam->pos_y = y;
   game_state.field_d8 = b;
   new_var2 = 0x700;
   new_var2 = new_var2 - b;
@@ -38,7 +38,7 @@ void init_cam_position(Cam *cam, int x, int y)
   cam->field_24 = 0;
   cam->field_40 = 0;
   cam->field_42 = 0;
-  cam->field_44 = 0;
-  cam->field_46 = 0;
+  cam->min_x = 0;
+  cam->max_x = 0;
   cam->field_01 = 0xff;
 }

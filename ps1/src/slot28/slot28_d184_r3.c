@@ -20,10 +20,10 @@ void func_8001d86c_slot28(Object *obj) {
             p->field_9c = obj->field_9c;
             p->pos_x = 0xb0;
             p->pos_y = 0x40;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_0d = 0;
-            p->field_09 = 2;
+            p->ot_depth = 2;
             p->box_tables = obj->box_tables;
         }
     }

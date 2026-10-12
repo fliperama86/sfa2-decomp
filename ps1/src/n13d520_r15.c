@@ -5,7 +5,7 @@
 
 void func_801449d4(Object *object) {
     if ((s16)object->step_flags < 0) {
-        object->field_09 = 0;
+        object->ot_depth = 0;
         object->state_0 = object->state_0 + 1;
     }
 }

@@ -21,8 +21,8 @@ void func_800138bc_slot27(void) {
     if (game_state.field_06 == 0) {
         int *pad = data_80190464;
 
-        *pad = ~game_state.field_358->field_c4;
-        *pad = game_state.field_358->field_c2 & *pad;
+        *pad = ~game_state.other_object->field_c4;
+        *pad = game_state.other_object->field_c2 & *pad;
         if (*pad & 0x8000) {
             *sel = 0;
         }
@@ -37,7 +37,7 @@ void func_80013930_slot27(Object *obj) {
     u16 *h;
 
     obj->state_0 = obj->state_0 + 1;
-    side = game_state.field_358->side;
+    side = game_state.other_object->side;
     *(int *)&game_state.field_354 = side;
     h = &data_8018f5a0->field_52;
     *h |= 1 << side;

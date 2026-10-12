@@ -31,7 +31,7 @@ void func_80137f00(Object *object) {
 }
 
 void func_80137f70(Object *object) {
-    object->field_80 = 1;
+    object->sequence_changed_flag = 1;
     object->state_2++;
     object->field_0b ^= 1;
     func_801380f0(object);
@@ -65,7 +65,7 @@ void func_80138070(Object *object, u8 index) {
     }
     object->step_timer = object->sequence->duration;
     object->step_flags = object->sequence->flags;
-    object->field_80 = 1;
+    object->sequence_changed_flag = 1;
     object->frame = object->frames + object->sequence->frame_index;
 }
 

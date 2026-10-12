@@ -14,7 +14,7 @@ void func_8007803c_slot00(Object *obj) {
 void func_8007807c_slot00(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
     obj->field_67 = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     data_8007a07c_slot00[obj->field_03 >> 1](obj);
 }
 

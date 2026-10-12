@@ -13,7 +13,7 @@ void func_801b1944_slot04_06(Object *o) {
     GameState *g;
     func_801b4850_slot04_06(o);
     g = &game_state;
-    if (o->pos_y < o->field_70) {
+    if (o->pos_y < o->ground_y) {
         func_801b4818_slot04_06(o);
         update_sequence(o);
     } else {
@@ -33,7 +33,7 @@ void func_801b1944_slot04_06(Object *o) {
         } else {
             play_sound_at(o, o->side, 0x319);
         }
-        o->pos_y = o->field_70;
+        o->pos_y = o->ground_y;
         o->field_45 = 0;
         ((Slot04aObj *)o)->field_1c2 = 0x10;
         g->field_63 = data_801c5368_slot04_06[o->field_12a >> 1];

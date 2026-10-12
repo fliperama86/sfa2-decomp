@@ -18,7 +18,7 @@ void func_801b2a88_slot04_06(Object *obj) {
         other->field_15b = 1;
         other->field_260 = 1;
         func_80140770(obj, 2, 0xf, -0x200, 0, 0, 0);
-        if ((s16)other->field_5c < 0) {
+        if ((s16)other->health < 0) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
         }
         obj->vel_x = -0x20000;
@@ -37,6 +37,6 @@ void func_801b2b84_slot04_06(Object *obj) {
     obj->state_3 = 0x13;
     obj->vel_x = 0x80000;
     obj->accel_x = 0;
-    play_sound_at((Object *)&obj->other, s->field_e6, 0x34e);
+    play_sound_at((Object *)&obj->other, s->sound_side, 0x34e);
     func_801307e0(obj, 0x38);
 }

@@ -174,7 +174,7 @@ void func_801b53c8_slot04_0f(Object *obj) {
 }
 
 void func_801b5418_slot04_0f(Object *obj) {
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->state_0++;
     obj->field_49 = ref_other.p->field_49;
     obj->field_1c = ref_other.p->field_1c;

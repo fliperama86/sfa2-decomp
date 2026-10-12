@@ -38,10 +38,10 @@ void func_8001a530_slot28(Object *obj) {
             p->pos_x = 0xd0;
             p->pos_y = 0x70;
             p->field_46 = 0x40;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_0d = 0;
-            p->field_09 = 3;
+            p->ot_depth = 3;
             func_80130768(p, 4, data_800366a8_slot28);
             data_80051998_slot28[0] = p;
         }

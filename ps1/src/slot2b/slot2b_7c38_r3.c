@@ -7,7 +7,7 @@ extern ObjectFn data_80079968_slot2b[];
 
 void func_80077ed0_slot2b(Object *o) {
     data_80079968_slot2b[o->state_1](o);
-    if (game_state.field_1d & 1) {
+    if (game_state.frame_counter & 1) {
         func_8011ffdc(o);
     }
 }

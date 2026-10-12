@@ -132,7 +132,7 @@ void func_801b1b7c_slot04_0d(Object *obj) {
     int d;
 
     func_801b2018_slot04_0d(obj);
-    if (obj->field_70 > obj->pos_y) {
+    if (obj->ground_y > obj->pos_y) {
         d = obj->vel_x;
         if (obj->field_0b == 0) {
             d = -d;
@@ -143,7 +143,7 @@ void func_801b1b7c_slot04_0d(Object *obj) {
         obj->state_3++;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x26);
     }
@@ -238,12 +238,12 @@ void func_801b1ef8_slot04_0d(Object *obj) {
     int d;
 
     func_801b2018_slot04_0d(obj);
-    if (obj->field_70 <= obj->pos_y) {
+    if (obj->ground_y <= obj->pos_y) {
         obj->state_3++;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->field_17b = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x26);
     } else {

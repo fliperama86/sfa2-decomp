@@ -11,7 +11,7 @@ extern u8 data_800195b8_slot01[];
 void func_800130a8_slot01(Object *obj) {
     obj->field_01 = 1;
     obj->field_0e = 1;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_0b = 0;
     obj->field_0c = 0;
     obj->field_0d = 0;

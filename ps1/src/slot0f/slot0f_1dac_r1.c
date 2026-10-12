@@ -20,7 +20,7 @@ void func_800e1dac_slot0f(Object *obj) {
     if (t == 0) {
         obj->field_00 = 1;
         obj->field_01 = 0;
-        obj->field_09 = 0;
+        obj->ot_depth = 0;
         obj->state_0 = 0;
     }
 }

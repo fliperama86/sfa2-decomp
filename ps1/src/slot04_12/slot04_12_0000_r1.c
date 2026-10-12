@@ -58,8 +58,8 @@ void func_801b0000_slot04_12(Object *obj) {
         c->field_90 = obj->field_90;
         c->field_98 = obj->field_98;
         c->field_9c = obj->field_9c;
-        c->field_7a = obj->field_7a;
-        c->field_7c = obj->field_7c;
+        c->spawn_x = obj->spawn_x;
+        c->spawn_y = obj->spawn_y;
     }
     c = func_8011f32c();
     if (c != 0) {
@@ -76,8 +76,8 @@ void func_801b0000_slot04_12(Object *obj) {
         c->field_90 = obj->field_90;
         c->field_98 = obj->field_98;
         c->field_9c = obj->field_9c;
-        c->field_7a = obj->field_7a;
-        c->field_7c = obj->field_7c;
+        c->spawn_x = obj->spawn_x;
+        c->spawn_y = obj->spawn_y;
     }
 }
 
@@ -117,7 +117,7 @@ void func_801b02d4_slot04_12(Object *obj) {
     obj->state_2++;
     game_state.field_76 = 0x1e;
     k = 3;
-    if ((s16)obj->field_5c != 0x90) {
+    if ((s16)obj->health != 0x90) {
         k = data_801c49fc_slot04_12[get_random_byte() & 0xf];
     }
     k = (s8)func_80125734(obj, (s8)k);
@@ -247,8 +247,8 @@ void func_801b0770_slot04_12(Object *obj) {
 
 void func_801b0790_slot04_12(Object *obj) {
     obj->field_157 = 0;
-    if (func_801b3a4c_slot04_12(obj) < 0 && obj->pos_y >= obj->field_70) {
-        obj->pos_y = obj->field_70;
+    if (func_801b3a4c_slot04_12(obj) < 0 && obj->pos_y >= obj->ground_y) {
+        obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         if (obj->field_7e == 0) {
@@ -268,7 +268,7 @@ void func_801b0820_slot04_12(Object *obj) {
     func_80130504(obj);
     if (obj->field_129 != 0) {
         func_801b0904_slot04_12(obj);
-    } else if (obj->field_12a != 0 && (obj->field_130 & 0xe000) != 0 && obj->pos_y < obj->field_70 - 0x30 && (u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) != 0) {
+    } else if (obj->field_12a != 0 && (obj->field_130 & 0xe000) != 0 && obj->pos_y < obj->ground_y - 0x30 && (u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

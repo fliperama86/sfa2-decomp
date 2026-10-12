@@ -39,16 +39,16 @@ void func_80015e68_slot27(Object *obj) {
             v9 = *(u8 *)&game_state.field_54 - i + 3;
             a->state_0 = 1;
             a->field_46 = 0x1f;
-            a->field_09 = v9;
+            a->ot_depth = v9;
             t12 = ((Slot27Obj *)obj)->field_12;
             a->pos_y = 0xbc;
-            a->field_5c = i << 5;
+            a->health = i << 5;
             a->step_flags = 0x14;
             a->field_98 = data_80017c28_slot27;
             a->field_9c = data_8001aa14_slot27;
-            a->field_7c = 0x1e0;
+            a->spawn_y = 0x1e0;
             a->field_90 = (void *)0x80038000;
-            a->field_7a = 0;
+            a->spawn_x = 0;
             a->field_0d = 0x16;
             ((Slot27Obj *)a)->field_12 = t12;
         }
@@ -58,18 +58,18 @@ void func_80015e68_slot27(Object *obj) {
             b->field_00 = 1;
             b->field_01 = 1;
             b->field_03 = 0x80;
-            b->field_09 = a->field_09 - 1;
+            b->ot_depth = a->ot_depth - 1;
             b->state_0 = 1;
             b->field_46 = a->field_46;
             ((Slot27Obj *)b)->field_12 = ((Slot27Obj *)a)->field_12 + 2;
             b->pos_y = *(u16 *)&a->pos_y - 2;
-            b->field_5c = a->field_5c;
+            b->health = a->health;
             b->step_flags = (&game_state.field_11f)[i + 1];
             b->field_90 = (void *)0x80038000;
             b->field_98 = data_80017c28_slot27;
             b->field_9c = data_8001aa14_slot27;
-            b->field_7c = 0x1e0;
-            b->field_7a = 0;
+            b->spawn_y = 0x1e0;
+            b->spawn_x = 0;
             b->field_0d = 0;
             if (i != 7) {
                 if (i == *(s16 *)&game_state.field_54) {
@@ -99,17 +99,17 @@ void func_80015e68_slot27(Object *obj) {
         b->field_01 = 1;
         b->field_02 = 0xaa;
         b->field_03 = 0x80;
-        b->field_09 = 2;
+        b->ot_depth = 2;
         b->state_0 = 1;
         b->field_46 = a->field_46;
         ((Slot27Obj *)b)->field_12 = ((Slot27Obj *)a)->field_12 + 2;
         b->pos_y = *(u16 *)&a->pos_y - 2;
-        b->field_5c = a->field_5c;
+        b->health = a->health;
         b->field_90 = (void *)0x80038000;
         b->field_98 = data_80017c28_slot27;
         b->field_9c = data_8001aa14_slot27;
-        b->field_7c = 0x1e0;
-        b->field_7a = 0;
+        b->spawn_y = 0x1e0;
+        b->spawn_x = 0;
         b->field_0d = 0x16;
         func_80130768(b, 0x16, data_80028864_slot27);
     }
@@ -119,17 +119,17 @@ void func_80015e68_slot27(Object *obj) {
         b->field_01 = 1;
         b->field_02 = 0xaa;
         b->field_03 = 0x80;
-        b->field_09 = 2;
+        b->ot_depth = 2;
         b->state_0 = 1;
         b->field_46 = a->field_46;
         ((Slot27Obj *)b)->field_12 = ((Slot27Obj *)a)->field_12 + 2;
         b->pos_y = *(u16 *)&a->pos_y - 2;
-        b->field_5c = a->field_5c;
+        b->health = a->health;
         b->field_90 = (void *)0x80038000;
         b->field_98 = data_80017c28_slot27;
         b->field_9c = data_8001aa14_slot27;
-        b->field_7c = 0x1e0;
-        b->field_7a = 0;
+        b->spawn_y = 0x1e0;
+        b->spawn_x = 0;
         b->field_0d = 0x17;
         func_80130768(b, (&game_state.field_11f)[i] + 0x17, data_80028864_slot27);
     }
@@ -145,16 +145,16 @@ void func_80015e68_slot27(Object *obj) {
             v9 = j - *(u8 *)&game_state.field_54 + 3;
             a->state_0 = 1;
             a->field_46 = 0x1f;
-            a->field_09 = v9;
+            a->ot_depth = v9;
             t12 = ((Slot27Obj *)obj)->field_12;
             a->pos_y = 0xbc;
-            a->field_5c = j << 5;
+            a->health = j << 5;
             a->step_flags = 0x14;
             a->field_90 = (void *)0x80038000;
             a->field_98 = data_80017c28_slot27;
             a->field_9c = data_8001aa14_slot27;
-            a->field_7c = 0x1e0;
-            a->field_7a = 0;
+            a->spawn_y = 0x1e0;
+            a->spawn_x = 0;
             a->field_0d = 0x16;
             ((Slot27Obj *)a)->field_12 = t12;
         }
@@ -164,18 +164,18 @@ void func_80015e68_slot27(Object *obj) {
             b->field_00 = 1;
             b->field_01 = 1;
             b->field_03 = 0x80;
-            b->field_09 = a->field_09;
+            b->ot_depth = a->ot_depth;
             b->state_0 = 1;
             b->field_46 = a->field_46;
             ((Slot27Obj *)b)->field_12 = ((Slot27Obj *)a)->field_12 + 2;
             b->pos_y = *(u16 *)&a->pos_y - 2;
-            b->field_5c = a->field_5c;
+            b->health = a->health;
             b->step_flags = (&game_state.field_11f)[j + 1];
             b->field_90 = (void *)0x80038000;
             b->field_98 = data_80017c28_slot27;
             b->field_9c = data_8001aa14_slot27;
-            b->field_7a = 0;
-            b->field_7c = 0x1e0;
+            b->spawn_x = 0;
+            b->spawn_y = 0x1e0;
             b->field_0d = 0;
             if (((game_state.field_50 >> (&game_state.field_11f)[j + 1]) & 1) && j < 7) {
                 for (n = 0; n < 0x10; n++) {

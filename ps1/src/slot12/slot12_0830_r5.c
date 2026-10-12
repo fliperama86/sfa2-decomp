@@ -21,20 +21,20 @@ void func_80010efc_slot12(void) {
         }
         b = func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
-            b->field_02 = 0x26;
+            b->active_flag = 1;
+            b->handler_index = 0x26;
             b->field_03 = 1;
         }
         b = func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
-            b->field_02 = 0x7e;
+            b->active_flag = 1;
+            b->handler_index = 0x7e;
             b->field_03 = 0;
         }
         b = func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
-            b->field_02 = 0x7e;
+            b->active_flag = 1;
+            b->handler_index = 0x7e;
             b->field_03 = 1;
         }
     }

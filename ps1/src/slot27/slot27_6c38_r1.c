@@ -12,7 +12,7 @@ void func_80016de4_slot27(Object *obj);
 void func_80016c38_slot27(Object *obj) {
     *(u16 *)&obj->pos_x = *(u16 *)&ref_other.p->pos_x;
     *(u16 *)&obj->pos_y = *(u16 *)&ref_other.p->pos_y;
-    obj->field_09 = ref_other.p->field_09 - 1;
+    obj->ot_depth = ref_other.p->ot_depth - 1;
     data_80028e8c_slot27[obj->field_03](obj);
 }
 

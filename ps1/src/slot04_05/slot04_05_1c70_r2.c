@@ -18,7 +18,7 @@ void func_801b1d94_slot04_05(Object *o) {
     } else {
         o->state_3 += 3;
         o->field_45 = 0;
-        o->pos_y = o->field_70;
+        o->pos_y = o->ground_y;
         func_801307e0(o, 0x32);
     }
 }

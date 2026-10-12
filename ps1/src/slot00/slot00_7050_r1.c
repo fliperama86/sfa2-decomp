@@ -12,7 +12,7 @@ void func_80077050_slot00(Object *obj) {
         obj->box_tables = data_80079814_slot00[obj->field_ae];
     } else {
         int i = obj->field_ac * 2;
-        i += (s16)obj->field_5c >> 1;
+        i += (s16)obj->health >> 1;
         obj->box_tables = data_80079834_slot00[i];
     }
 }

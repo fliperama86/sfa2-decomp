@@ -11,8 +11,8 @@ void init_draw_mode_prim_4(Tx *tx);
 void func_801e93c8_slot06_04(Slot06Layer *layer);
 
 void func_801e93c8_slot06_04(Slot06Layer *layer) {
-    layer->field_4a = data_801e9ce0_slot06_04[layer->field_88];
-    layer->field_30 = (s16)data_801e9ce0_slot06_04[layer->field_88 + 1];
+    layer->field_4a = data_801e9ce0_slot06_04[layer->table_index];
+    layer->field_30 = (s16)data_801e9ce0_slot06_04[layer->table_index + 1];
 }
 
 void func_801e9418_slot06_04(Slot06Layer *layer) {

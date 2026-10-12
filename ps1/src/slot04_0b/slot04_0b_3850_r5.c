@@ -17,7 +17,7 @@ void func_801b3e88_slot04_0b(Object *o) {
     } else {
         ref_first.p = (Object *)data_801c2e90_slot04_0b;
     }
-    v = ((u8 **)ref_first.p)[(s16)o->field_5c];
+    v = ((u8 **)ref_first.p)[(s16)o->health];
     ptr_8019040c = (Box32 *)v;
     ((Slot04aObj *)o)->field_6c = v;
 }

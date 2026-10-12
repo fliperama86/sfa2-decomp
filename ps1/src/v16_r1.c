@@ -19,12 +19,12 @@ void update_name_entry_input(int unused, NameEntry *o) {
     }
     pad = raw;
     if (pad == 0) {
-        o->field_b2 = -0x1000;
+        o->repeat_counter = -0x1000;
         return;
     }
-    o->field_b0 = 0x258;
-    o->field_b2 = o->field_b2 + 0x1000;
-    if (o->field_b2 != 0) {
+    o->repeat_delay = 0x258;
+    o->repeat_counter = o->repeat_counter + 0x1000;
+    if (o->repeat_counter != 0) {
         return;
     }
     i = o->cursor;

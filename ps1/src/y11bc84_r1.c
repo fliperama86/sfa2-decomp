@@ -4,11 +4,11 @@
 #include "protos.h"
 
 void func_8011bc84(Slab172 *p) {
-    u16 *cur = (u16 *)(((p->sequence->field_04 >> 1) << 1) + p->field_9c);
+    u16 *cur = (u16 *)(((p->sequence->data_ptr >> 1) << 1) + p->field_9c);
     u16 *old;
     u16 *q;
-    if (p->field_80 != 0) {
-        p->field_80 = 0;
+    if (p->reload_flag != 0) {
+        p->reload_flag = 0;
         old = data_8018437c[p->field_94][0];
         if (old != cur) {
             func_8011be18(p);

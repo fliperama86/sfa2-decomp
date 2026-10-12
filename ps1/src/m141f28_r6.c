@@ -26,7 +26,7 @@ Object *func_80146a98(Object *object, int unused) {
         ref_other.p->field_02 = 5;
         ref_other.p->field_03 = 0;
         ref_other.p->field_0e = object->field_0e;
-        ref_other.p->field_09 = 4;
+        ref_other.p->ot_depth = 4;
         ref_other.p->field_48 = 0x12;
         ref_other.p->pos_x = object->pos_x;
         ref_other.p->pos_y = object->pos_y;

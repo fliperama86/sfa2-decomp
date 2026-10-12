@@ -51,24 +51,24 @@ void func_801e870c_slot06_0c(void) {
     sy = y & 0xf;
     x12 = (q + c->field_08) >> 16;
     sx = x12 & 0xf;
-    col = (x12 & (c->field_58 - 1)) >> 4;
+    col = (x12 & (c->width - 1)) >> 4;
     if (y >= 0) {
         row = y >> 4;
     } else {
         row = (y - 15) / 16;
     }
-    rows = c->field_5c >> 4;
-    mask = (c->field_58 >> 4) - 1;
+    rows = c->height >> 4;
+    mask = (c->width >> 4) - 1;
     rec = data_801eef88_slot06_0c[data_801a27d0];
     n = (u32)(c->field_4c - ((pos >> 16) & -16)) >> 4;
-    ot = (u32 *)((u8 *)data_801987c8 + c->field_8a * 4);
+    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
     for (i = 0; i < n; i++, row++) {
         u16 cc = col;
         if (row < 0 || row > rows) {
             continue;
         }
         r = row;
-        line = c->field_50 + ((u16)r >> 4) * ((c->field_58 >> 9) << 10) + ((r & 0xf) << 6);
+        line = c->pixel_data + ((u16)r >> 4) * ((c->width >> 9) << 10) + ((r & 0xf) << 6);
         yy = (i << 4) - sy;
         for (k = 0; k < 25; k++) {
             e = line + ((cc >> 5) << 10) + ((cc & 0x1f) << 1);
@@ -92,7 +92,7 @@ void func_801e870c_slot06_0c(void) {
         u16 cc = col;
         if (row > 0 || row <= rows) {
             r = row;
-            line = c->field_50 + ((u16)r >> 4) * ((c->field_58 >> 9) << 10) + ((r & 0xf) << 6);
+            line = c->pixel_data + ((u16)r >> 4) * ((c->width >> 9) << 10) + ((r & 0xf) << 6);
             yy = (i << 4) - sy;
             for (k = 0; k < 25; k++) {
                 e = line + ((cc >> 5) << 10) + ((cc & 0x1f) << 1);

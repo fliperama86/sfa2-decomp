@@ -31,9 +31,9 @@ void func_80016658_slot28(Object *obj) {
         if (p != 0) {
             p->field_02 = 0x72;
             p->field_03 = 5;
-            p->field_09 = 4;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->ot_depth = 4;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->pos_x = 0xc0;
             p->pos_y = 0xa0;
             p->field_90 = (void *)0x80060000;

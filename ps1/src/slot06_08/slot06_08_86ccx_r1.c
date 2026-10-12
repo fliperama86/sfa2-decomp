@@ -41,7 +41,7 @@ void func_801e86cc_slot06_08(void) {
     t = (x >> 16) + game_state.field_92;
     row = 4;
     x &= 0xffff;
-    rows = c->field_5c >> 4;
+    rows = c->height >> 4;
     x |= t << 16;
     p2 = x - 0x100000;
     pos = 0x400000 - p2;
@@ -53,12 +53,12 @@ void func_801e86cc_slot06_08(void) {
     x12 = (q + c->field_08) >> 16;
     n = (u32)(c->field_4c - ((y - 0x40) & -16)) >> 4;
     sx = x12 & 0xf;
-    mask = (c->field_58 >> 4) - 1;
-    ot = (u32 *)((u8 *)data_801987c8 + c->field_8a * 4);
+    mask = (c->width >> 4) - 1;
+    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
     c->field_3c = pos;
     rec = data_801f085c_slot06_08[data_801a27d0];
     blank = c->field_1e;
-    col = (x12 & (c->field_58 - 1)) >> 4;
+    col = (x12 & (c->width - 1)) >> 4;
     i = ((x >> 16) + 0x3f) / 16;
     for (; i < n; i++, row++) {
         u16 cc = col;
@@ -66,7 +66,7 @@ void func_801e86cc_slot06_08(void) {
             continue;
         }
         r = row;
-        line = c->field_50 + ((u16)r >> 4) * ((c->field_58 >> 9) << 10) + ((r & 0xf) << 6);
+        line = c->pixel_data + ((u16)r >> 4) * ((c->width >> 9) << 10) + ((r & 0xf) << 6);
         yy = (i << 4) - sy;
         for (k = 0; k < 25; k++) {
             e = line + ((cc >> 5) << 10) + ((cc & 0x1f) << 1);
@@ -90,7 +90,7 @@ void func_801e86cc_slot06_08(void) {
         u16 cc = col;
         if (row > 0 || row <= rows) {
             r = row;
-            line = c->field_50 + ((u16)r >> 4) * ((c->field_58 >> 9) << 10) + ((r & 0xf) << 6);
+            line = c->pixel_data + ((u16)r >> 4) * ((c->width >> 9) << 10) + ((r & 0xf) << 6);
             yy = (i << 4) - sy;
             for (k = 0; k < 25; k++) {
                 e = line + ((cc >> 5) << 10) + ((cc & 0x1f) << 1);

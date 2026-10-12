@@ -11,9 +11,9 @@
  * returns 0. Refusals, in order: the object's field_49 is 0; the object's
  * field_7e is 0 and the configuration block's field_4e is set; the other
  * object's field_27b is set; its frame record has no box flag (box_a, box_b
- * and box_c all 0); the frame record's field_06 is not 0; the distance is
+ * and box_c all 0); the frame record's handler_index is not 0; the distance is
  * greater than limit; the other object's field_45 is set. The distance is
- * as in func_8013fc18, except that the box is the entry number field_07 of
+ * as in func_8013fc18, except that the box is the entry number box_index of
  * the other object's array of 6-byte boxes (its field_148): the object's x
  * plus a (negated when the object's field_0b is set), minus the other
  * object's x plus the box's half-width (origin minus extent, negated when
@@ -43,7 +43,7 @@ int func_8013f474(Object *object, int a, s16 limit) {
     if (rec->box_a == 0 && rec->box_b == 0 && rec->box_c == 0) {
         return 0;
     }
-    if (rec->field_06 != 0) {
+    if (rec->handler_index != 0) {
         return 0;
     }
     if (object->field_0b != 0) {
@@ -51,7 +51,7 @@ int func_8013f474(Object *object, int a, s16 limit) {
     }
     /* Two statements: the one-expression form differs from the original in 37 instruction slots. */
     box = (Box6 *)ref_other.p->unknown_148;
-    idx = rec->field_07;
+    idx = rec->box_index;
     box = &box[idx];
     /* The extent in its own local: without it this function differs from the original in 3 instruction slots. */
     ext = box->extent;

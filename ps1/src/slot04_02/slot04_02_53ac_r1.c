@@ -11,10 +11,10 @@ void func_801b53ac_slot04_02(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    if (obj->vel_y < 0 && obj->pos_y >= obj->field_70) {
+    if (obj->vel_y < 0 && obj->pos_y >= obj->ground_y) {
         obj->field_45 = 0;
         obj->state_3 = obj->state_3 + 1;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         func_80146960(obj);
         i = obj->field_12a & 0xfe;

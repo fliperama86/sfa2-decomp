@@ -40,9 +40,9 @@ void func_8012ff80(Object *object) {
     u8 v;
     s16 hp;
     int index;
-    game_state.field_358 = object->other;
-    hp = object->field_5c;
-    if ((s16)game_state.field_358->field_5c >= hp) {
+    game_state.other_object = object->other;
+    hp = object->health;
+    if ((s16)game_state.other_object->health >= hp) {
         index = 0;
         object->state_0 = 1;
         object->state_1 = 5;

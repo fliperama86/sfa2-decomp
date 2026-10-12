@@ -51,9 +51,9 @@ void func_8011db78(Object *obj, u16 column, u16 frame, Block172 *second) {
         if ((u32) hdr != data_80183dec[idx][dist - 1])
             return;
     }
-    x0 = r->field_08 - 0x10 - box_margin[0];
-    x1 = r->field_08 - box_margin[0];
-    yy = r->field_0a + (data_801aa5ea[0] - 8);
+    x0 = r->pos_x - 0x10 - box_margin[0];
+    x1 = r->pos_x - box_margin[0];
+    yy = r->pos_y + (data_801aa5ea[0] - 8);
     /* The original loads only the low byte of the entry (lbu): without the (u8) the build loads 16 bits and differs in 1 instruction line. */
     mode = (u8) data_80183d74[idx][dist];
     y0 = yy;
@@ -63,7 +63,7 @@ void func_8011db78(Object *obj, u16 column, u16 frame, Block172 *second) {
         y1 = y0;
     }
     rec = (Pooled *) &data_801987cc[data_801a27d0][0x280 + obj->side * 320 + column * 80];
-    sp = (u16 *) ((u8 *) obj->field_98 + (hdr->field_08 & 0xfffe));
+    sp = (u16 *) ((u8 *) obj->field_98 + (hdr->pos_x & 0xfffe));
     for (i = 0; i < count; i++) {
         /* fa and fb as locals; the plain tests inside the ifs differ in 14 instruction lines. */
         fa = mode & 1;

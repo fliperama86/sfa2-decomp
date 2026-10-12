@@ -15,7 +15,7 @@ void func_801cacb4_slot05_06(Object *obj) {
         p->field_15b = 1;
         p->field_260 = 1;
         func_80140770(obj, 0, 0xc, 0x1a, 0, 0, 0);
-        if ((s16)p->field_5c < 0) {
+        if ((s16)p->health < 0) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
             game_state.field_6b = 4;
             func_80147000(obj);
@@ -35,11 +35,11 @@ void func_801cacb4_slot05_06(Object *obj) {
 
 void func_801cadc0_slot05_06(Object *obj) {
     func_801cc84c_slot05_06(obj);
-    if (obj->pos_y < obj->field_70) {
+    if (obj->pos_y < obj->ground_y) {
         func_801cc814_slot05_06(obj);
     } else {
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801312b8(obj);
     }

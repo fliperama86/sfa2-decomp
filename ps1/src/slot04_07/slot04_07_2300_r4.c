@@ -36,10 +36,10 @@ void func_801b279c_slot04_07(Object *obj) {
 }
 
 void func_801b2874_slot04_07(Object *obj) {
-    if (func_801b41c4_slot04_07(obj) >= 0 || obj->pos_y < obj->field_70) {
+    if (func_801b41c4_slot04_07(obj) >= 0 || obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->state_3 = 5;

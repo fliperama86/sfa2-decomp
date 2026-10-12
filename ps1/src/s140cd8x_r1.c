@@ -14,8 +14,8 @@
    Otherwise it takes the byte (at least 1), records the low five bits of a
    in object->field_be and 0xff in field_bf, calls func_80155d4c with a
    table byte selected by those five bits and the object's side, subtracts
-   the byte from the partner's 16-bit field_5c, clears field_5c when it went
-   negative and bit 15 of a is set, and returns 1 when field_5c is negative,
+   the byte from the partner's 16-bit health, clears health when it went
+   negative and bit 15 of a is set, and returns 1 when health is negative,
    else 0. The tree declares the second argument as an int; it is narrowed
    to 16 bits at entry. */
 int func_80140cd8(Object *object, int arg_a, int b) {
@@ -61,9 +61,9 @@ int func_80140cd8(Object *object, int arg_a, int b) {
     object->field_be = slot;
     object->field_bf = 0xff;
     func_80155d4c(table_80181510[slot], (s8)object->side);
-    ref_other.p->field_5c = ref_other.p->field_5c - (u8)b;
-    if ((s16)ref_other.p->field_5c < 0 && ((a >> 8) & 0x80)) {
-        ref_other.p->field_5c = 0;
+    ref_other.p->health = ref_other.p->health - (u8)b;
+    if ((s16)ref_other.p->health < 0 && ((a >> 8) & 0x80)) {
+        ref_other.p->health = 0;
     }
-    return (s16)ref_other.p->field_5c < 0;
+    return (s16)ref_other.p->health < 0;
 }

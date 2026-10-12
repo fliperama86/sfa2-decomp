@@ -13,8 +13,8 @@ void func_801535a4(Effect *effect) {
             func_80153514(effect);
         }
     } else {
-        effect->field_0c = 0x20;
-        effect->field_08 = 0;
+        effect->countdown_timer = 0x20;
+        effect->table_index = 0;
         effect->field_05++;
         func_80153d7c(effect);
         effect->field_09 = effect->field_06;

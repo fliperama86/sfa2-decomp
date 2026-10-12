@@ -32,6 +32,6 @@ u8 func_80125454(void) {
 
 void func_8012546c(void) {
     if (game_state.field_78->field_cd == 0 && game_state.field_0c == 0 && (game_state.field_45 & 1)) {
-        table_8016e99c[game_state.field_138]();
+        table_8016e99c[game_state.input_step_index]();
     }
 }

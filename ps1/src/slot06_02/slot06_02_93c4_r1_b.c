@@ -16,8 +16,8 @@ void func_801e9604_slot06_02(Object *o) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u16 unused[4];
 
-    obj->field_48 = data_801e9e7c_slot06_02[obj->field_88];
-    obj->field_30 = data_801e9e7e_slot06_02[obj->field_88];
+    obj->sequence_index = data_801e9e7c_slot06_02[obj->table_index];
+    obj->field_30 = data_801e9e7e_slot06_02[obj->table_index];
 }
 
 void func_801e9654_slot06_02(Slot06Layer *layer) {

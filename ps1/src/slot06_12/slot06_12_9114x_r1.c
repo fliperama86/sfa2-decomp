@@ -66,11 +66,11 @@ void func_801e9114_slot06_12(Object *object) {
     }
     if (object->field_0f != 0) y = y + game_state.field_92;
     cnt = data_801adfe4;
-    hdr = (u8 *)object->sequence->field_04;
+    hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
     tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
-    ot = (u32 *)data_801987c8 + object->field_09;
+    ot = (u32 *)data_801987c8 + object->ot_depth;
     sel = *(u8 *)&data_801a27d0;
     for (row = 0; row < hdr[2]; row++) {
         for (col = 0; col < hdr[0]; col++) {

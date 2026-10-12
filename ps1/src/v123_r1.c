@@ -23,7 +23,7 @@ void func_8012b024(Object *object)
   }
   else
   {
-    object->pos_y = object->field_70;
+    object->pos_y = object->ground_y;
     object->field_45 = 0;
     object->field_159 = 0;
     func_801209c4(object);

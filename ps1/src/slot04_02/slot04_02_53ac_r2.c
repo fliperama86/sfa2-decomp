@@ -12,7 +12,7 @@ void func_801b54f8_slot04_02(Object *obj) {
         p = obj->other;
         p->field_15b = 1;
         func_80140770(obj, 6, 0xf, -0x200, 0, 1, 0);
-        if ((s16)p->field_5c < 0) {
+        if ((s16)p->health < 0) {
             a = obj->field_49;
             if (a != 0) {
                 a = 0x12;

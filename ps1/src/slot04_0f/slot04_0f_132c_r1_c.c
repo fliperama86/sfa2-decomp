@@ -37,7 +37,7 @@ int func_801b171c_slot04_0f(Object *o) {
     int ok;
 
     if (o->field_45 != 0) {
-        if (p->field_04 != 0) return 0;
+        if (p->timer != 0) return 0;
         ok = (u8)func_801418bc(o);
     } else {
         ok = func_801417cc(o);
@@ -49,7 +49,7 @@ int func_801b171c_slot04_0f(Object *o) {
         o->state_3 = 0;
         o->field_15a = 0;
         o->field_48 = o->field_0b = o->field_158;
-        p[1].field_00 = 0;
+        p[1].stage = 0;
         func_801b187c_slot04_0f(o);
         return 1;
     }
@@ -62,7 +62,7 @@ int func_801b17c8_slot04_0f(Object *o) {
     u8 t;
 
     if (o->field_45 != 0) {
-        if (p->field_04 != 0) return 0;
+        if (p->timer != 0) return 0;
         ok = (u8)func_801418bc(o);
     } else {
         ok = func_801417cc(o);
@@ -76,7 +76,7 @@ int func_801b17c8_slot04_0f(Object *o) {
         t = o->field_158;
         o->field_0b = t;
         o->field_48 = t ^ 1;
-        p[1].field_00 = 4;
+        p[1].stage = 4;
         func_801b187c_slot04_0f(o);
         return 1;
     }
@@ -86,11 +86,11 @@ int func_801b17c8_slot04_0f(Object *o) {
 void func_801b187c_slot04_0f(Object *obj) {
     u16 t;
 
-    t = obj->field_134 | obj->field_136;
+    t = obj->pressed_bits | obj->released_bits;
     obj->field_12a = 0;
     obj->field_159 = 0;
     if ((t & 0x68) == 0x68 || (t & 2) != 0) {
-        obj->slots[17].field_00 = obj->slots[17].field_00 + 2;
+        obj->slots[17].stage = obj->slots[17].stage + 2;
     }
 }
 
@@ -165,14 +165,14 @@ int func_801b1ad8_slot04_0f(Object *obj) {
     u8 t;
 
     t = obj->field_158;
-    obj->slots[17].field_00 = 0;
+    obj->slots[17].stage = 0;
     obj->field_0b = t;
     obj->field_48 = t;
     if (obj->field_21a != 0) {
-        obj->slots[17].field_00 = 4;
+        obj->slots[17].stage = 4;
     }
     if (obj->field_129 != 0) {
-        obj->slots[17].field_00 = obj->slots[17].field_00 + 2;
+        obj->slots[17].stage = obj->slots[17].stage + 2;
     }
     return func_801b1c74_slot04_0f(obj);
 }
@@ -202,7 +202,7 @@ int func_801b1c10_slot04_0f(Object *obj) {
     if (*(s32 *)&obj->state_0 != 0x2020202) return 0;
     if (obj->field_45 != 0) return 0;
     if (obj->field_163 != 0) return 0;
-    if ((s16)obj->field_5c < 0) return 0;
+    if ((s16)obj->health < 0) return 0;
     return func_801b1c74_slot04_0f(obj);
 }
 

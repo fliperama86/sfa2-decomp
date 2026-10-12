@@ -44,7 +44,7 @@ void func_801b3b4c_slot04_12(Object *obj) {
     parent = obj->field_3c;
     i = obj->field_ac;
     i >>= 1;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->state_0 = obj->state_0 + 1;
     obj->field_49 = parent->field_49;
     obj->field_1c = parent->field_1c;
@@ -112,13 +112,13 @@ void func_801b3dc8_slot04_12(Object *obj) {
     obj->field_a0 = 0xff;
     obj->state_0 = obj->state_0 + 1;
     parent = obj->field_3c;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_49 = parent->field_49;
     obj->field_1c = parent->field_1c;
     ((Slot04bObj *)obj)->field_6c = data_801c4e28_slot04_12;
     ((Slot04bObj *)obj)->field_8c = (int)data_801c4dec_slot04_12;
     obj->field_45 = 0;
-    obj->field_5c = 0xff;
+    obj->health = 0xff;
     func_80130700(obj, data_801c4de8_slot04_12[0]);
     func_801b3e58_slot04_12(obj);
 }
@@ -140,7 +140,7 @@ void func_801b3ee4_slot04_12(Object *obj) {
     obj->state_1 = 0;
     obj->state_2 = 0;
     obj->state_3 = 0;
-    obj->field_5c = 0xff;
+    obj->health = 0xff;
 }
 
 void func_801b3f08_slot04_12(Object *obj) {

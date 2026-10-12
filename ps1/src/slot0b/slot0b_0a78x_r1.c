@@ -9,7 +9,7 @@ extern Slot0bRot table_801e1fec_slot0b[];
 void func_801e0a78_slot0b(ModObj *obj_arg, void *buf_arg, int unused, int flag) {
     Object *obj = (Object *)obj_arg;
     Poly28 *buf = (Poly28 *)buf_arg;
-    Slot0bLayout *lay = (Slot0bLayout *)obj->sequence->field_04;
+    Slot0bLayout *lay = (Slot0bLayout *)obj->sequence->data_ptr;
     int n = lay->count;
     u16 *coords = lay->coords;
     Poly28 *p = buf;
@@ -48,16 +48,16 @@ void func_801e0a78_slot0b(ModObj *obj_arg, void *buf_arg, int unused, int flag) 
         /* Stand-in, not recovered source: the pair of nested do-while wrappers (the compiler counts each reference inside twice, and the two levels together give the original's order of the loop's values; one level alone changes nothing) reproduces the original's choice of registers. Without it this function differs from the original in 18 instruction slots. */
         do {
             do {
-                p->field_08 = x + obj->pos_x;
-                p->field_0a = y + obj->pos_y;
-                p->field_10 = x + obj->pos_x + 16;
-                p->field_12 = y + obj->pos_y;
-                p->field_18 = x + obj->pos_x;
-                p->field_1a = y + obj->pos_y + 16;
-                p->field_20 = x + obj->pos_x + 16;
-                p->field_22 = y + obj->pos_y + 16;
-                ((PrimTag *)p)->addr = ((PrimTag *)&ot[obj->field_09 + 8])->addr;
-                ((PrimTag *)&ot[obj->field_09 + 8])->addr = (u32)p;
+                p->x0 = x + obj->pos_x;
+                p->y0 = y + obj->pos_y;
+                p->x1 = x + obj->pos_x + 16;
+                p->y1 = y + obj->pos_y;
+                p->x2 = x + obj->pos_x;
+                p->y2 = y + obj->pos_y + 16;
+                p->x3 = x + obj->pos_x + 16;
+                p->y3 = y + obj->pos_y + 16;
+                ((PrimTag *)p)->addr = ((PrimTag *)&ot[obj->ot_depth + 8])->addr;
+                ((PrimTag *)&ot[obj->ot_depth + 8])->addr = (u32)p;
                 p++;
             } while (0);
         } while (0);

@@ -22,7 +22,7 @@ void func_801b44f4_slot04_01(Object *obj) {
     obj->state_3 = 3;
     one = 1;
     obj->field_159 = one;
-    if (obj->field_218 != 0 && obj->pos_y - obj->field_70 < -0x2f
+    if (obj->field_218 != 0 && obj->pos_y - obj->ground_y < -0x2f
         && (func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) & 0xff)) {
         obj->state_1 = 2;
         obj->state_0 = one;

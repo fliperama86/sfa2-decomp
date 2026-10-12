@@ -146,7 +146,7 @@ void func_801b4be0_slot04_0d(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac += obj->vel_y;
     obj->vel_y += obj->accel_y;
-    t = (u16)obj->field_3c->field_70;
+    t = (u16)obj->field_3c->ground_y;
     t -= 0x55;
     if (obj->pos_y < t) {
         func_80131094(obj);
@@ -175,12 +175,12 @@ void func_801b4cb8_slot04_0d(Object *obj) {
     *(s32 *)&obj->pos_y_frac += obj->vel_y;
     obj->vel_y += obj->accel_y;
     p = obj->field_3c;
-    t = p->field_70;
+    t = p->ground_y;
     if (t > obj->pos_y) {
         func_80131094(obj);
     } else {
         obj->state_1 = obj->state_1 + 1;
-        obj->pos_y = (u16)p->field_70;
+        obj->pos_y = (u16)p->ground_y;
         func_80130768(obj, 1, data_801c0a60_slot04_0d);
     }
 }

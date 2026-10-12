@@ -23,7 +23,7 @@ void func_801b2218_slot04_00(Object *obj) {
             p->field_66 = obj->field_66;
             p->field_4b = obj->field_4b;
             p->field_ac = obj->field_12a + 6;
-            p->field_5c = (obj->field_12a >> 1) + 2;
+            p->health = (obj->field_12a >> 1) + 2;
             p->field_ad = 1;
             p->field_0e = obj->field_0e;
             p->field_0b = obj->field_0b;
@@ -32,9 +32,9 @@ void func_801b2218_slot04_00(Object *obj) {
             p->field_26 = obj->field_26;
             p->pos_x = obj->pos_x;
             y = obj->pos_y;
-            p->field_7a = 0x60;
+            p->spawn_x = 0x60;
             p->field_3c = obj;
-            p->field_7c = 0x1e0;
+            p->spawn_y = 0x1e0;
             p->pos_y = y;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;

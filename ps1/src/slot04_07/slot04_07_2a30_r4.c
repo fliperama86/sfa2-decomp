@@ -40,7 +40,7 @@ void func_801b2fa4_slot04_07(Object *obj) {
             ((Slot04aObj *)obj)->field_1cb++;
             func_801307e0(obj, 0x21);
         }
-        y = obj->field_70;
+        y = obj->ground_y;
         if (obj->pos_y < y) {
             update_sequence(obj);
         } else {

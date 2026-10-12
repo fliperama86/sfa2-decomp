@@ -15,9 +15,9 @@ void func_80078168_slot2b(Object *o) {
     o->field_1c = data_8007ef28_slot2b->field_1c;
     o->field_1e = data_8007ef28_slot2b->field_1e;
     s->box_tables = (BoxTables *)data_80079a00_slot2b;
-    o->field_5c = 0xfff;
+    o->health = 0xfff;
     o->field_45 = 0;
-    o->field_09 = 0;
+    o->ot_depth = 0;
     o->vel_x = 0x12000;
     o->accel_x = 0;
     o->vel_y = 0x100000;

@@ -57,10 +57,10 @@ void func_801b2784_slot04_0f(Object *obj) {
             p->field_26 = obj->field_26;
             *(s32 *)&p->pos_x_frac = *(s32 *)&obj->pos_x_frac;
             y = *(s32 *)&obj->pos_y_frac;
-            p->field_7a = 0x60;
-            p->field_5c = 0;
+            p->spawn_x = 0x60;
+            p->health = 0;
             p->field_3c = obj;
-            p->field_7c = 0x1e0;
+            p->spawn_y = 0x1e0;
             *(s32 *)&p->pos_y_frac = y;
             p->field_0d = obj->field_0d;
             p->field_90 = obj->field_90;
@@ -132,10 +132,10 @@ void func_801b2a10_slot04_0f(Object *obj) {
             p->field_26 = obj->field_26;
             *(s32 *)&p->pos_x_frac = *(s32 *)&obj->pos_x_frac;
             y = *(s32 *)&obj->pos_y_frac;
-            p->field_7a = 0x60;
-            p->field_5c = 0;
+            p->spawn_x = 0x60;
+            p->health = 0;
             p->field_3c = obj;
-            p->field_7c = 0x1e0;
+            p->spawn_y = 0x1e0;
             *(s32 *)&p->pos_y_frac = y;
             p->field_0d = obj->field_0d;
             p->field_90 = obj->field_90;
@@ -250,7 +250,7 @@ void func_801b2de4_slot04_0f(Object *obj) {
         }
         func_80142c70(obj);
     } else {
-        if (obj->field_134 != 0) {
+        if (obj->pressed_bits != 0) {
             if (((Slot04bObj *)obj)->field_27d == 0) {
                 ((Slot04bObj *)obj)->field_27d = obj->field_27c;
             }

@@ -21,13 +21,13 @@ void func_801b3850_slot04_0b(Object *o, Object *second) {
 
     o->field_a0 = 0xff;
     o->state_0++;
-    o->field_09 = 0;
+    o->ot_depth = 0;
     ref_other.p = o->field_3c;
     o->field_49 = ref_other.p->field_49;
     o->field_1c = ref_other.p->field_1c;
     ((Slot04aObj *)o)->field_6c = data_801c284c_slot04_0b;
     if (o->field_ac >= 0xc) {
-        o->field_5c = data_801c2eb8_slot04_0b[ref_other.p->field_12a >> 1];
+        o->health = data_801c2eb8_slot04_0b[ref_other.p->field_12a >> 1];
         func_801b3e88_slot04_0b(o);
     }
     o->field_45 = 0;

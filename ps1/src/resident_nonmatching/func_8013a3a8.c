@@ -17,9 +17,9 @@
  * a2->field_14 is not 0, or when not X and a2->field_14 is 0; it is
  * (dmg + 7) >> 2 (a quarter) when not X and a2->field_14 is not 0; and
  * the function returns with no effect at all when a2->field_14 is 0 and
- * (X or a1->field_5c is 0). A second stage (defence tables of a1,
+ * (X or a1->health is 0). A second stage (defence tables of a1,
  * a random term, a lookup in a damage table, a game option) turns it into
- * the points taken from a1->field_5c (a health value). A hit that cannot
+ * the points taken from a1->health (a health value). A hit that cannot
  * be computed (the first sum is negative, or the cut leaves 0) only
  * removes 1 point, unless the option byte config->field_4c is not 0. On
  * the main path a health below 0 after the points are taken is first set to
@@ -46,7 +46,7 @@
  *     table_8017721c, table_80178514, table_801787b4, table_80179834 and
  *     table_8017984c. The tables are read at indexes up to the ranges the
  *     setup fills with random bytes.
- *   Writes: a1->field_5c, field_15d, field_15e, field_163, field_260,
+ *   Writes: a1->health, field_15d, field_15e, field_163, field_260,
  *     field_28f; a player's field_167, field_255 and field_c6;
  *     config->field_6b and field_8f; ref_first, ref_third, data_80188f20,
  *     data_80188f24, data_80188f40, ref_other (put back), the random seed
@@ -114,7 +114,7 @@ static void check_defeat(Object *a0, Object *a1, Box32 *a2)
 {
   int code;
 
-  if ((s16) a1->field_5c >= 0)
+  if ((s16) a1->health >= 0)
   {
     return;
   }
@@ -190,7 +190,7 @@ static void graze(Object *a0, Object *a1, Box32 *a2)
 {
   if (game_state.config->field_4c == 0)
   {
-    a1->field_5c = a1->field_5c - 1;
+    a1->health = a1->health - 1;
   }
   check_defeat(a0, a1, a2);
 }
@@ -219,7 +219,7 @@ void func_8013a3a8(Object *a0, Object *a1, Box32 *a2)
   selector = a0->field_49 ? a2->field_1a : a2->field_08;
   base = table_801777d4[ref_first.p->field_cf + ((selector & 0x1f) << 5)];
   row = a2->field_0e;
-  if ((s16) a0->field_5c < 0x28)
+  if ((s16) a0->health < 0x28)
   {
     row = a2->field_0f;
   }
@@ -277,7 +277,7 @@ void func_8013a3a8(Object *a0, Object *a1, Box32 *a2)
     }
     else
     {
-      if (a1->field_5c == 0)
+      if (a1->health == 0)
       {
         return;
       }
@@ -354,7 +354,7 @@ void func_8013a3a8(Object *a0, Object *a1, Box32 *a2)
   {
     a1->field_28f = a2->field_1b;
   }
-  if ((s16) a1->field_5c < 0x28)
+  if ((s16) a1->health < 0x28)
   {
     e = table_80178514[kind_row + (get_random_byte() & 0x1f)] + e;
   }
@@ -388,18 +388,18 @@ void func_8013a3a8(Object *a0, Object *a1, Box32 *a2)
   if ((game_state.config->field_4c | (game_state.config->field_4d << 8)) == 0)
   {
     points = e;
-    a1->field_5c = a1->field_5c - points;
-    if ((s16) a1->field_5c >= 0)
+    a1->health = a1->health - points;
+    if ((s16) a1->health >= 0)
     {
       return;
     }
     if (a1->field_d8 != 0 && a1->field_61 == 0xff && a2->field_14 == 0)
     {
-      a1->field_5c = 0;
+      a1->health = 0;
     }
     else
     {
-      a1->field_5c = -1;
+      a1->health = -1;
       a1->field_163 = 0;
       a1->field_15d = 0;
       a1->field_15e = 0;

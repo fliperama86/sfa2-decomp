@@ -28,7 +28,7 @@ void func_80011f04_slot12(Object *obj) {
 
     obj->pos_x = 0x6c;
     obj->pos_y = 0xb0;
-    obj->field_7a = 0x10;
+    obj->spawn_x = 0x10;
     data_80029348_slot12 = k;
     data_8002d570_slot12 = k;
     obj->field_26 = 0;
@@ -38,11 +38,11 @@ void func_80011f04_slot12(Object *obj) {
     obj->field_0c = one;
     obj->field_0d = 0;
     obj->field_0e = 0;
-    obj->field_09 = 9;
+    obj->ot_depth = 9;
     obj->field_0f = 0;
     obj->field_0b = one;
     obj->state_0 = obj->state_0 + 1;
-    obj->field_7c = 0x1e0;
+    obj->spawn_y = 0x1e0;
     obj->field_98 = data_80021b34_slot12[data_80029348_slot12][0];
     data_8002a390_slot12 = 1;
     obj->field_9c = data_80021b34_slot12[data_80029348_slot12][1];

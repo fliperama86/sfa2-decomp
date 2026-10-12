@@ -16,7 +16,7 @@ void func_801b3ae8_slot04_03(Object *obj, Object *unused) {
 
     obj->field_a0 = 0xff;
     obj->state_0++;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     ref_other.p = obj->field_3c;
     obj->field_49 = ref_other.p->field_49;
     a2 = 3;
@@ -29,7 +29,7 @@ void func_801b3ae8_slot04_03(Object *obj, Object *unused) {
         obj->vel_x = data_801c09a4_slot04_03[obj->field_ac >> 1];
         a2 = 0;
     }
-    a1 = data_801c09b0_slot04_03[obj->field_70];
+    a1 = data_801c09b0_slot04_03[obj->ground_y];
     if (obj->field_0b == 0) {
         a1 = -a1;
         obj->vel_x = -obj->vel_x;

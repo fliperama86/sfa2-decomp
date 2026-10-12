@@ -22,13 +22,13 @@ void func_80013f24_slot27(Object *object) {
 void func_80013f64_slot27(Object *obj) {
     Object *o;
 
-    obj->field_09 = 8;
+    obj->ot_depth = 8;
     obj->field_98 = data_80017c28_slot27;
     obj->field_9c = data_8001aa14_slot27;
-    obj->field_7c = 0x1e0;
+    obj->spawn_y = 0x1e0;
     obj->field_46 = 0x40ff;
     obj->field_90 = (void *)0x80038000;
-    obj->field_7a = 0;
+    obj->spawn_x = 0;
     obj->field_0d = 0;
     obj->field_01 = 0;
     obj->state_1 = obj->state_1 + 1;

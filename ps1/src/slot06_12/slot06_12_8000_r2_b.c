@@ -15,7 +15,7 @@ void func_801e872c_slot06_12(Slot06Layer *layer) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u16 unused[4];
 
-    k = layer->field_88 * 2;
+    k = layer->table_index * 2;
     layer->field_30 = data_801e9ea8_slot06_12[k];
     layer->field_4a = data_801e9eaa_slot06_12[k];
 }

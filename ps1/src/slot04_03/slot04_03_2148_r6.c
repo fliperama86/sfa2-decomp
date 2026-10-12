@@ -13,7 +13,7 @@ void func_801b2774_slot04_03(Object *obj) {
         if (obj->field_12a < 4) {
             obj->state_3 = 0xb;
             func_801307e0(obj, 0x31);
-        } else if ((obj->field_134 & 0x95) != 0) {
+        } else if ((obj->pressed_bits & 0x95) != 0) {
             obj->state_3++;
             play_side_sound_at(obj, obj->side, 6);
             play_side_sound_at(obj, obj->side, 0xc);

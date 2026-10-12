@@ -51,5 +51,5 @@ void func_800e3a14_slot0f(void) {
 }
 
 void func_800e3b18_slot0f(void) {
-    data_800e99a0_slot0f[((HudBig *)data_8018f5a0)->field_52]();
+    data_800e99a0_slot0f[((HudBig *)data_8018f5a0)->substate_index]();
 }

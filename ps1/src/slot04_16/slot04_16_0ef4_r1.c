@@ -156,7 +156,7 @@ void func_801b1340_slot04_16(Object *obj) {
 void func_801b1380_slot04_16(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    obj->field_160 = 0x64;
+    obj->gauge = 0x64;
     obj->field_46 = 0;
     ((Slot04bObj *)obj)->field_1c0 = 0;
     play_sound_at(obj, obj->side ^ 1, 0x31a);
@@ -252,7 +252,7 @@ void func_801b1700_slot04_16(Object *obj) {
 void func_801b1740_slot04_16(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    obj->field_160 = 0x64;
+    obj->gauge = 0x64;
     obj->field_46 = 0;
     ((Slot04bObj *)obj)->field_1c0 = 0;
     play_sound_at(obj, obj->side ^ 1, 0x31a);

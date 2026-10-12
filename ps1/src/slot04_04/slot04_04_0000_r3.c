@@ -26,13 +26,13 @@ void func_801b1f78_slot04_04(Object *obj) {
             p->field_26 = obj->field_26;
             p->pos_x = obj->pos_x;
             y = obj->pos_y;
-            p->field_5c = 0;
+            p->health = 0;
             p->field_3c = obj;
             p->pos_y = y;
             obj->field_14c = (s32)p;
             obj->field_240++;
-            p->field_7a = obj->field_7a;
-            p->field_7c = obj->field_7c;
+            p->spawn_x = obj->spawn_x;
+            p->spawn_y = obj->spawn_y;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             p->field_9c = obj->field_9c;

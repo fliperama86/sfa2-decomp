@@ -26,7 +26,7 @@ void func_80015374_slot28(Object *obj) {
             b->field_02 = 0x76;
             b->pos_x = 0xf0;
             b->pos_y = 0x70;
-            b->field_09 = 2;
+            b->ot_depth = 2;
             b->field_03 = 1;
             b->field_0c = 0;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
@@ -41,7 +41,7 @@ void func_80015374_slot28(Object *obj) {
             b->pos_x = 0x90;
             b->pos_y = 0x68;
             b->field_0c = 0;
-            b->field_09 = 1;
+            b->ot_depth = 1;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
             func_80015640_slot28(b);
         }
@@ -54,7 +54,7 @@ void func_80015374_slot28(Object *obj) {
             b->pos_x = 0xa0;
             b->pos_y = 0x50;
             b->field_0c = 0;
-            b->field_09 = 1;
+            b->ot_depth = 1;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
             func_80015640_slot28(b);
         }
@@ -67,7 +67,7 @@ void func_80015374_slot28(Object *obj) {
             b->pos_x = 0x58;
             b->pos_y = 0x58;
             b->field_0c = 0;
-            b->field_09 = 1;
+            b->ot_depth = 1;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
             func_80015640_slot28(b);
         }
@@ -80,7 +80,7 @@ void func_80015374_slot28(Object *obj) {
             b->pos_x = 0x70;
             b->pos_y = 0x60;
             b->field_0c = 0;
-            b->field_09 = 1;
+            b->ot_depth = 1;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
             func_80015640_slot28(b);
         }
@@ -93,7 +93,7 @@ void func_80015374_slot28(Object *obj) {
             b->pos_x = 0x89;
             b->pos_y = 0xa0;
             b->field_0c = 0;
-            b->field_09 = 0;
+            b->ot_depth = 0;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
             func_80015640_slot28(b);
             data_80051890_slot28.p = b;
@@ -107,7 +107,7 @@ void func_80015374_slot28(Object *obj) {
             b->pos_y = 0x70;
             b->field_03 = 0;
             b->field_0c = 0;
-            b->field_09 = 3;
+            b->ot_depth = 3;
             b->field_01 = 1;
             func_80015640_slot28(b);
             func_80130768(b, 6, data_8002bde4_slot28);

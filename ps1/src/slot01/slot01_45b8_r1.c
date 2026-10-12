@@ -12,7 +12,7 @@ void func_800145b8_slot01(Object *object) {
 
 void func_8001460c_slot01(Object *obj) {
     if (game_state.field_ab != 0) {
-        obj->pos_x = obj->field_5c;
+        obj->pos_x = obj->health;
         obj->state_0++;
     } else {
         int t = obj->field_46 - 1;
@@ -22,22 +22,22 @@ void func_8001460c_slot01(Object *obj) {
         } else {
             obj->field_46 = 0x14;
             obj->state_1++;
-            obj->field_5c = obj->field_5c + obj->pos_x;
+            obj->health = obj->health + obj->pos_x;
         }
     }
 }
 
 void func_80014690_slot01(Object *obj) {
     if (game_state.field_ab != 0) {
-        obj->pos_x = obj->field_5c;
+        obj->pos_x = obj->health;
         obj->state_0++;
     } else {
         int t = obj->field_46 - 1;
         obj->field_46 = t;
         if ((s16)t < 0) {
             obj->pos_x += 8;
-            if (obj->pos_x >= (s16)obj->field_5c) {
-                obj->pos_x = (s16)obj->field_5c;
+            if (obj->pos_x >= (s16)obj->health) {
+                obj->pos_x = (s16)obj->health;
                 obj->state_0++;
             }
         }

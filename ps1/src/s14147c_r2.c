@@ -4,7 +4,7 @@
 #include "protos.h"
 
 u8 func_801416ec(Object *object) {
-    if (object->field_7e != 0 && object->field_163 == 0 && *(s16 *)&object->field_5c >= 0 && object->field_45 == 0 &&
+    if (object->field_7e != 0 && object->field_163 == 0 && *(s16 *)&object->health >= 0 && object->field_45 == 0 &&
         (game_state.config->field_4d | game_state.config->field_4e | game_state.config->field_04) == 0 &&
         func_8012f56c(object) == 0) {
         return 1;

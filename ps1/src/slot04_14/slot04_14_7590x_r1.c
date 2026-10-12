@@ -24,7 +24,7 @@ void func_801b7590_slot04_14(Object *o) {
     o->state_0++;
     ((Slot04bObj *)o)->field_b0 = o->field_0d;
     p = o->field_3c;
-    o->field_09 = 0;
+    o->ot_depth = 0;
     o->field_49 = p->field_49;
     o->field_1c = p->field_1c;
     if (o->field_03 != 0) {

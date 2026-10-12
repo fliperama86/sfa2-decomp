@@ -9,8 +9,8 @@ void func_80152260(Object *object)
 {
   PtrTbl39 t;
   t = data_8016da38;
-  object->field_7a = 0x60;
-  object->field_7c = 0x1e0;
+  object->spawn_x = 0x60;
+  object->spawn_y = 0x1e0;
   object->state_0++;
   object->field_0c = 0;
   object->field_0f = 1;
