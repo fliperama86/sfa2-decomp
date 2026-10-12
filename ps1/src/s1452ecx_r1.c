@@ -11,7 +11,7 @@ void func_8015bfe8(Poly28 *quad, int flag);
  * into textured quads. The object's sequence leads to a header describing
  * the grid; for every cell whose low 14 bits are not 0 the function takes
  * the next entry (idx) of a table of quad pairs, selected by the object's
- * kind (field_03 picks one of two sides) and by the double buffer selector,
+ * kind (table_index picks one of two sides) and by the double buffer selector,
  * clears the quad with a library call, asks two library functions for a
  * texture page word and a clut word, sets the vertex positions (the corners
  * depend on whether the cell's top two bits are 0), sets the texture
