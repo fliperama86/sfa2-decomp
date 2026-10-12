@@ -29,7 +29,15 @@ void func_8001389c_slot28(Object *obj) {
     p = data_80051ea8_slot28 + 15;
     do {
         *p = 0;
-        p--;
+        /* The step is taken on the address as an integer, not as p--: behind
+           the last pass it leaves the table by one byte, which pointer
+           arithmetic of C may not do (it reaches the elements and one past
+           the end, not one before the first). This assumes flat addresses:
+           a pointer converted to a wide unsigned integer and back is that
+           pointer, moved by the bytes subtracted. It is not portable C in
+           general. The integer has 64 bits, so that it holds a pointer of
+           the PC build whole. The step builds the instruction of p--. */
+        p = (u8 *)((unsigned long long)p - 1);
         /* Stand-in, not recovered source: the statement below, which ORs to the counter a term that is 0 for every value of it, reproduces the original's choice of registers. Without it this function differs from the original in 8 instruction slots. */
         i |= ((u32)i << 24) & 0x100;
     } while (--i >= 0);
