@@ -136,6 +136,15 @@ void *vm_g(uint32_t a, size_t n)
     return NULL;
 }
 
+uint32_t vm_addr_of(const void *host)
+{
+    const uint8_t *p = host;
+    if (p >= V.ram && p < V.ram + VM_RAM_SIZE) return VM_RAM_BASE + (uint32_t)(p - V.ram);
+    if (p >= V.scratch && p < V.scratch + VM_SCRATCH_PAGE) return VM_SCRATCH_BASE + (uint32_t)(p - V.scratch);
+    if (p >= V.priv && p < V.priv + (VM_PRIVATE_LIMIT - VM_IMAGE_BASE)) return VM_IMAGE_BASE + (uint32_t)(p - V.priv);
+    return 0;
+}
+
 uint32_t vm_alloc(size_t size, size_t align)
 {
     uint64_t at;

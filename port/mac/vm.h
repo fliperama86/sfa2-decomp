@@ -65,6 +65,8 @@ void vm_destroy(void);
 /* Memory. The host's pointer to a guest address, or NULL when [address, address + size) is not whole inside one of: the RAM (through
  * any of its three views), the scratchpad's page, the private area below VM_PRIVATE_LIMIT. */
 void *vm_g(uint32_t address, size_t size);
+/* The guest address of a host pointer into the RAM (its 0x80000000 view), the scratchpad or the private area; 0 if it is in none. */
+uint32_t vm_addr_of(const void *host);
 /* Map [va, va + size) of the guest's private area with `perms` (whole pages); for the image's segments and stacks. */
 int   vm_protect(uint32_t va, size_t size, int perms);
 /* Some bytes of the private area from VM_IMAGE_LIMIT up, never freed: the guest address, or 0 when it is full. The area is mapped

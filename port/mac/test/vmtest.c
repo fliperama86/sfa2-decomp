@@ -175,6 +175,12 @@ int main(int argc, char **argv)
     /* the image's segments: code runs, data is read and written */
     EXPECT("image-symbols-are-in-the-image", sym("g_sum") >= VM_IMAGE_BASE && sym("g_sum") < VM_IMAGE_LIMIT, "g_sum at 0x%x", sym("g_sum"));
 
+    EXPECT("the-ram-has-one-host-address-through-its-three-views", vm_g(0x80000000, 4) && vm_g(0x80000000, 4) == vm_g(0xa0000000, 4) && vm_g(0x80000000, 4) == vm_g(0x00000000, 4) &&
+           vm_g(0x80000010, 4) == (char *)vm_g(0x00000000, 4) + 0x10, "views differ");
+    EXPECT("spans-past-the-ram-or-outside-it-are-refused", !vm_g(0x801ffffd, 4) && !vm_g(0x1f801000, 4) && !vm_g(0x40000000, 1) && !vm_g(0x1f800ffd, 4) && vm_g(0x1f800ffc, 4),
+           "wrong span answers");
+    EXPECT("a-host-pointer-gives-its-guest-address", vm_addr_of(vm_g(0x80123456, 1)) == 0x80123456 && vm_addr_of(vm_g(0x00123456, 1)) == 0x80123456 &&
+           vm_addr_of(vm_g(0x1f800010, 1)) == 0x1f800010 && vm_addr_of(vm_g(0x80300000, 1)) == 0x80300000 && vm_addr_of(&img) == 0, "wrong addresses");
     ram = vm_g(0x80100000, 32);
     ram[0] = 0x80100010; ram[1] = 5; ram[4] = 0; ram[5] = 7;
     EXPECT("a-list-in-ram-is-summed", call("g_sum", &r, 1, 0x80100000) == 0 && (int32_t)r == 12, "result %lld", (long long)r);

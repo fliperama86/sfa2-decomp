@@ -86,9 +86,17 @@ static unsigned long long vsync_prev_us;
 volatile int port_handler_depth;  /* > 0 while a handler of the game runs (the PS1 does not nest interrupts) */
 static unsigned long long clock_start_us;   /* the one clock: vblank k is due at clock_start + k / 60 s */
 static volatile long vblanks_taken;         /* how many vblanks have been taken (delivered, or skipped when far behind) */
-static void (*vsync_handler)(void);
-static void (*irq_handler[11])(void);
-static int irq_dummy;            /* ResetCallback returns the address of this: Sony's returns its interrupt environment */
+static port_fn vsync_handler;
+static port_fn irq_handler[11];
+#ifndef PORT_GUEST_VM
+static int irq_dummy;            /* ResetCallback returns the address of this: Sony's returns its interrupt environment (on the Mac a cell of the game's memory) */
+#endif
+
+#ifdef PORT_GUEST_VM
+#define PORT_CELL(name) port_cell(#name, sizeof(int))
+#else
+#define PORT_CELL(name) ((void *)&name)
+#endif
 
 /* ---- events ---- */
 
@@ -101,7 +109,7 @@ static int irq_dummy;            /* ResetCallback returns the address of this: S
 
 struct event {
     unsigned event_class, spec, mode;
-    void (*handler)(void);
+    port_fn handler;
     unsigned status;
 };
 static struct event events[EVENT_SLOTS];
@@ -114,8 +122,8 @@ static struct event *event_of(unsigned descriptor)
 }
 
 /* BIOS B0 08h OpenEvent(class, spec, mode, func): the lowest free slot, disabled; the descriptor is 0xf1000000 plus the slot. 0xffffffff if none is free. */
-unsigned port_h_OpenEvent(unsigned event_class, unsigned spec, unsigned mode, void (*handler)(void));
-unsigned port_h_OpenEvent(unsigned event_class, unsigned spec, unsigned mode, void (*handler)(void))
+unsigned port_h_OpenEvent(unsigned event_class, unsigned spec, unsigned mode, port_fn handler);
+unsigned port_h_OpenEvent(unsigned event_class, unsigned spec, unsigned mode, port_fn handler)
 {
     unsigned i;
     for (i = 0; i < EVENT_SLOTS; i++)
@@ -184,9 +192,9 @@ void port_deliver_event(unsigned event_class, unsigned spec)
         struct event *e = &events[i];
         if (e->status != EV_ENABLED || e->event_class != event_class || e->spec != spec) continue;
         if (e->mode == EV_MD_CALL && e->handler) {
-            port_target_check("event handler", (const void *)e->handler);
+            port_target_check("event handler", PORT_FN_ADDR(e->handler));
             port_handler_depth++;
-            e->handler();
+            port_call0(e->handler);
             port_handler_depth--;
         }
         else e->status = EV_READY;
@@ -362,8 +370,8 @@ static void pads_fill(void)
 {
     if (!pad_started) return;
     if (pad_buffer[0] && pad_len[0] > 0) {
-        unsigned char *b = pad_buffer[0];
         int n = pad_len[0] < PORT_PAD_FRAME ? pad_len[0] : PORT_PAD_FRAME;
+        unsigned char *b = port_gs(pad_buffer[0], (size_t)n);
         port_pad_host_read(b, n);
         if (n > 3) {
             unsigned word = 0;
@@ -381,7 +389,10 @@ static void pads_fill(void)
             }
         }
     }
-    if (pad_buffer[1] && pad_len[1] > 0) memset(pad_buffer[1], 0xff, (size_t)(pad_len[1] < PORT_PAD_FRAME ? pad_len[1] : PORT_PAD_FRAME));
+    if (pad_buffer[1] && pad_len[1] > 0) {
+        size_t n = (size_t)(pad_len[1] < PORT_PAD_FRAME ? pad_len[1] : PORT_PAD_FRAME);
+        memset(port_gs(pad_buffer[1], n), 0xff, n);
+    }
 }
 
 /* ---- callbacks ---- */
@@ -398,7 +409,7 @@ void port_callbacks_reset(void)
     callbacks_active = 1;
     vcount = 0;
     vsync_prev = 0;
-    vsync_handler = NULL;
+    vsync_handler = PORT_FN_NULL;
     memset(irq_handler, 0, sizeof irq_handler);
     irq0_enabled = 1;
     interrupts_enabled = 1;
@@ -423,7 +434,7 @@ void *port_h_ResetCallback(void)
 {
     int was = callbacks_active;
     port_callbacks_reset();
-    return was ? NULL : &irq_dummy;
+    return was ? NULL : PORT_CELL(irq_dummy);
 }
 
 /* PSY-Q's documented StopCallback (0x8015f0b4; intr.c stopIntr): if running,
@@ -442,20 +453,20 @@ void port_h_StopCallback(void)
 /* PSY-Q's documented InterruptCallback(irq, f) (0x8015eff0; intr.c setIntr):
  * sets the handler of interrupt `irq` (0 to 10) and returns the previous one. Only the
  * vblank (irq 0) is ever raised here, in place of the library's own handler. */
-void *port_h_InterruptCallback(int irq, void (*handler)(void));
-void *port_h_InterruptCallback(int irq, void (*handler)(void))
+void *port_h_InterruptCallback(int irq, port_fn handler);
+void *port_h_InterruptCallback(int irq, port_fn handler)
 {
-    void (*previous)(void);
+    port_fn previous;
     if (irq < 0 || irq > 10 || !callbacks_active) return NULL;
     previous = irq_handler[irq];
     irq_handler[irq] = handler;
-    return (void *)previous;
+    return PORT_FN_PTR(previous);
 }
 
 /* PSY-Q's documented VSyncCallback(f) (0x8015f050): f is called at every
  * vblank, from the library's vblank handler; NULL removes it. */
-void port_h_VSyncCallback(void (*handler)(void));
-void port_h_VSyncCallback(void (*handler)(void))
+void port_h_VSyncCallback(port_fn handler);
+void port_h_VSyncCallback(port_fn handler)
 {
     vsync_handler = handler;
 }
@@ -472,11 +483,11 @@ static void deliver_vblank(void)
     if (irq0_enabled) port_deliver_event(0xf2000003u, 2);
     if (callbacks_active) {
         if (irq_handler[0]) {
-            port_target_check("interrupt callback", (const void *)irq_handler[0]);
-            irq_handler[0]();
+            port_target_check("interrupt callback", PORT_FN_ADDR(irq_handler[0]));
+            port_call0(irq_handler[0]);
         } else if (vsync_handler) {
-            port_target_check("vsync callback", (const void *)vsync_handler);
-            vsync_handler();
+            port_target_check("vsync callback", PORT_FN_ADDR(vsync_handler));
+            port_call0(vsync_handler);
         }
     }
     port_handler_depth--;

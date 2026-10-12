@@ -11,6 +11,8 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#include "guest.h"
+
 #define PORT_RAM_BASE   0x80000000u
 #define PORT_RAM_SIZE   0x00200000u
 #define PORT_SCRATCH    0x1f800000u

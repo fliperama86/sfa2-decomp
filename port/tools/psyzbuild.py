@@ -341,6 +341,9 @@ def toolchain_text(cc: str) -> str:
     )
 
 
+ARGUMENT_OPTIONS = ("-framework", "-weak_framework", "-Xlinker")   # link options whose next word is theirs (macOS)
+
+
 def probe_link_items(ninja_text: str, build: Path) -> list[str]:
     """The library items on the link line of the probe program, in order, files made absolute."""
     lines = ninja_text.split("\n")
@@ -352,11 +355,14 @@ def probe_link_items(ninja_text: str, build: Path) -> list[str]:
                 key, _, value = follow.strip().partition(" = ")
                 if key == "LINK_LIBRARIES":
                     items = []
+                    previous = ""
                     for item in value.split():
-                        if item.startswith("-") or os.path.isabs(item):
+                        # the word after `-framework NAME`, `-Xlinker X` and `-weak_framework NAME` is a name, not a file
+                        if item.startswith("-") or os.path.isabs(item) or previous in ARGUMENT_OPTIONS:
                             items.append(item)
                         else:
                             items.append(str((build / item).resolve()))
+                        previous = item
                     return items
             break
     raise Failure("build.ninja has no link line for the probe program")
