@@ -37,6 +37,10 @@ test_hostlaunch = [
     "port/src/debug.c", "port/src/interrupt.c", "port/src/mirror.c", "port/src/mirror.h", "port/src/mirrorcore.c",
     "port/src/iopage.c", "port/src/input.c", "port/src/programs.c", "port/src/programs.h",
 ]
+test_hostloadwait = [
+    "port/src/loadwait.c", "port/src/loadwait.h", "port/src/port.h", "port/src/port_tables.h", "port/src/settings.h", "port/src/guest.h",
+    "port/src/cd.h",
+]
 test_hostmdec = ["port/src/mdec.c", "port/src/mdec.h"]
 test_hostmirror = ["port/src/mirror.c", "port/src/mirror.h", "port/src/mirrorcore.c", "port/tools/mirror_native_test.c"]
 test_hostmodules = ["port/src/modules.c", "port/src/modules.h"]
@@ -52,7 +56,7 @@ test_hostprograms = [
     "port/src/port_tables.h",
 ]
 test_hostreplay = ["port/replay/"]
-test_hostrun = ["port/src/disc.c", "port/src/jumps.c", "port/src/library.c", "port/src/sha256.c", "port/src/port_tables.h"]
+test_hostrun = ["port/src/disc.c", "port/src/jumps.c", "port/src/library.c", "port/src/sha256.c", "port/src/port.h", "port/src/port_tables.h"]
 test_hoststream = [
     "port/src/stream.c", "port/src/stream.h", "port/src/press.h", "port/src/cd.c", "port/src/cd.h", "port/src/disc.c",
     "port/src/sha256.c", "port/src/xa.c", "port/src/xa.h",

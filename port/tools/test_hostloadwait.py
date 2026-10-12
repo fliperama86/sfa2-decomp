@@ -5,8 +5,8 @@ What is tested: the loop with made-up hooks in the test's own C (no game, no dis
 arguments before anything else; the game's step and then the disc's step run once per pass, in that order, until the load reports done;
 the check of `done` comes before the first pass (a load that is done at once runs no pass); the real clock step runs on every 256th
 pass and not otherwise; `finish` runs once after the last pass, and not when it is null; a long load (3,000 passes) ends. Also the
-table of the two overrides (names, notes, the setting each is tied to) and the gate: library.c installs a row only while its setting is not 0
-(checked on the source of library.c's loop, which has no test rig of its own that reaches it).
+table of the overrides (names, notes, the setting each is tied to). That library.c installs a gated row only while its setting is not 0
+is checked in `test_hostrun.py`, on the real library.c.
 
 The loading screen's two collapsed states (port_loadscreen_start, port_loadscreen_fadeout) on made-up fields: what each leaves, from several
 starting values, and that only the first calls the palette routine.
@@ -211,11 +211,7 @@ def cases(root: Path, cc: str):
     yield check("five overrides, each with a routine, a note and the setting fast_loads",
                 t[-1] == "N 5" and t[:5] == ["O start_cd_track_wait_with_thread_switch 1 1 1", "O start_cd_track_and_wait_updating_control 1 1 1",
                                               "O start_hud_stage_step_sequence 1 1 1", "O update_fade_step_counter_down 1 1 1", "O fade_palette_bank 1 1 1"], f"{t}")
-    # the gate in library.c: the install loop skips a row whose setting is 0
-    lib = (SRC / "library.c").read_text()
-    gate = "if (override_at(k)->enabled && !*override_at(k)->enabled) continue;"
-    install = lib.split("for (k = 0; k < override_total(); k++) {", 2)
-    yield check("library.c's install loop skips an override whose setting is 0", len(install) == 3 and gate in install[2].split("out->overrides++", 1)[0], "the gate is missing in the install loop")
+
 
 
 def main() -> int:

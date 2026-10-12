@@ -662,7 +662,7 @@ static const struct port_library t[] = {
     { "busy", (void *)host_busy, 0 }, { 0, 0, 0 } };
 const struct port_domain port_domains[] = { { "irq", t } };
 const unsigned port_domain_count = 1;
-static const struct port_override o[] = { { 0, 0, 0 } };
+static const struct port_override o[] = { { 0, 0, 0, 0 } };
 const struct port_override *const port_override_sets[] = { o };
 const unsigned port_override_set_count = 1;
 """
@@ -672,7 +672,7 @@ DOMAINS_NONE = r"""
 static const struct port_library none[] = { { 0, 0, 0 } };
 const struct port_domain port_domains[] = { { "none", none } };
 const unsigned port_domain_count = 0;
-static const struct port_override no_overrides[] = { { 0, 0, 0 } };
+static const struct port_override no_overrides[] = { { 0, 0, 0, 0 } };
 const struct port_override *const port_override_sets[] = { no_overrides };
 const unsigned port_override_set_count = 1;
 """
@@ -686,7 +686,7 @@ extern void over_host(void);
 static const struct port_library t[] = {{ {table} {{ 0, 0, 0 }} }};
 const struct port_domain port_domains[] = {{ {{ "test", t }} }};
 const unsigned port_domain_count = 1;
-static const struct port_override o[] = {{ {overrides} {{ 0, 0, 0 }} }};
+static const struct port_override o[] = {{ {overrides} {{ 0, 0, 0, 0 }} }};
 const struct port_override *const port_override_sets[] = {{ o }};
 const unsigned port_override_set_count = 1;
 """
@@ -713,7 +713,7 @@ def kernel_domains() -> str:
 static const struct port_library t[] = {{ {rows} {{ 0, 0, 0 }} }};
 const struct port_domain port_domains[] = {{ {{ "kernel", t }} }};
 const unsigned port_domain_count = 1;
-static const struct port_override o[] = {{ {{ 0, 0, 0 }} }};
+static const struct port_override o[] = {{ {{ 0, 0, 0, 0 }} }};
 const struct port_override *const port_override_sets[] = {{ o }};
 const unsigned port_override_set_count = 1;
 """
@@ -728,7 +728,7 @@ def cd_domains() -> str:
 static const struct port_library t[] = {{ {rows} {{ 0, 0, 0 }} }};
 const struct port_domain port_domains[] = {{ {{ "kernel", t }}, {{ "cd", port_cd_library }}, {{ "system", port_system_library }} }};
 const unsigned port_domain_count = 3;
-static const struct port_override o[] = {{ {{ 0, 0, 0 }} }};
+static const struct port_override o[] = {{ {{ 0, 0, 0, 0 }} }};
 const struct port_override *const port_override_sets[] = {{ o }};
 const unsigned port_override_set_count = 1;
 """
@@ -769,12 +769,12 @@ class Variant:
 VARIANTS = {
     "base": Variant("base", GAME_BASE, FUN_BASE, ABS_BASE, DOMAINS_NONE),
     "mech": Variant("mech", GAME_MECH, FUN_MECH, ABS_MECH,
-                    domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C, '{ "game_over", (void *)over_host, "the test replaces it" },')),
+                    domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C, '{ "game_over", (void *)over_host, "the test replaces it", 0 },')),
     "mech-noover": Variant("mech-noover", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C)),
     # the row of game_over flagged: its C is an override of the build; with a host override of the same name that is two overrides
     "mech-in-c": Variant("mech-in-c", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C), ("game_over",)),
     "mech-twice": Variant("mech-twice", GAME_MECH, FUN_MECH, ABS_MECH,
-                          domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C, '{ "game_over", (void *)over_host, "the test replaces it" },'), ("game_over",)),
+                          domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_C, '{ "game_over", (void *)over_host, "the test replaces it", 0 },'), ("game_over",)),
     "dup": Variant("dup", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "lib_a", (void *)host_a, 0 }, { "lib_a", (void *)host_c, 0 },')),
     "dup-address": Variant("dup-address", GAME_MECH, FUN_MECH, ABS_MECH,
                            domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_A)),
@@ -788,7 +788,7 @@ VARIANTS = {
                     "#include \"port.h\"\nextern void port_h_OpenEvent(), port_h_EnableEvent(), port_h_TestEvent();\n"
                     "static const struct port_library k[] = { { \"OpenEvent\", (void *)port_h_OpenEvent, 0 }, { \"EnableEvent\", (void *)port_h_EnableEvent, 0 }, { \"TestEvent\", (void *)port_h_TestEvent, 0 }, { 0, 0, 0 } };\n"
                     "const struct port_domain port_domains[] = { { \"kernel\", k }, { \"card\", port_card_library } };\nconst unsigned port_domain_count = 2;\n"
-                    "static const struct port_override o[] = { { 0, 0, 0 } };\n"
+                    "static const struct port_override o[] = { { 0, 0, 0, 0 } };\n"
                     "const struct port_override *const port_override_sets[] = { o };\nconst unsigned port_override_set_count = 1;\n"),
     "irq": Variant("irq", GAME_IRQ, FUN_IRQ, ABS_IRQ, IRQ_DOMAINS),
     "cd-unreg": Variant("cd-unreg", game_cd(f"0x{UNREGISTERED:08x}u"), FUN_CD, ABS_CD, cd_domains()),
