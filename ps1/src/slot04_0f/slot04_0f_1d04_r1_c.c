@@ -48,7 +48,7 @@ void spawn_linked_object_type_0f_on_step_flag_slot04_0f(Object *o) {
     }
 }
 
-void func_801b2644_slot04_0f(Object *o) {
+void update_sequence_with_timer_or_reset_on_end_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if ((s16)o->step_flags < 0) {

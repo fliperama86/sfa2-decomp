@@ -38,7 +38,7 @@ void call_table_function_by_state_3_18_slot04_0e(Object *obj) {
     data_801c612c_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b5828_slot04_0e(Object *o) {
+void start_horizontal_dash_with_direction_sequence_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u16 a;
 

@@ -5,7 +5,7 @@
 
 extern u8 data_801c43dc_slot04_04[];
 
-void func_801b2b8c_slot04_04(Object *o) {
+void start_sequence_with_meter_and_children_slot04_04(Object *o) {
     o->state_3++;
     update_meter_by_mode_or_table(o);
     set_flag_225_add_direction_to_counter(&game_state, o);

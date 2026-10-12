@@ -8,7 +8,7 @@ void advance_state_2_on_sequence_end_set_depth(Object *object) {
         object->pos_x = 0xc0;
         object->state_2 = object->state_2 + 1;
         set_sequence_from_effect_table(object, 0x10);
-        func_80144938(object);
+        set_velocity_and_advance_state_2_on_flag(object);
         object->field_01 = 1;
         object->spawn_x = 0x80;
         object->ot_depth = 1;
@@ -17,7 +17,7 @@ void advance_state_2_on_sequence_end_set_depth(Object *object) {
     }
 }
 
-void func_80144938(Object *object) {
+void set_velocity_and_advance_state_2_on_flag(Object *object) {
     if (object->step_flags & 0x80) {
         object->countdown = 7;
         object->vel_x = 0x8000;

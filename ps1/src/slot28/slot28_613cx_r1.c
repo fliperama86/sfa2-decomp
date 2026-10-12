@@ -21,7 +21,7 @@ extern Object *data_800518dc_slot28[];
 void init_object_data_pointers_a_3_slot28(Object *obj);
 void clear_ten_entry_table_slot28(void);
 
-void func_8001613c_slot28(Object *obj) {
+void setup_pooled_objects_for_menu_screen_a_slot28(Object *obj) {
     Object *o;
     int one;
     data_8018f5a0->countdown_timer = 0x258;

@@ -28,7 +28,7 @@ void count_down_then_advance_pass_and_call_slot28(Object *obj) {
     }
 }
 
-void func_80015028_slot28(Object *obj) {
+void advance_pass_and_start_fade_1a01_if_idle_slot28(Object *obj) {
     Object *o;
     HudState *h;
     if (obj->field_f0 == 0) {

@@ -6,7 +6,7 @@
 void spawn_child_object_for_owner_side_slot0b(ModObj *obj);
 void set_sequence_from_slot01_table_slot0b(Object *obj, u8 a);
 
-void func_801e06d0_slot0b(ModObj *obj) {
+void count_down_then_advance_substate_spawn_child_slot0b(ModObj *obj) {
     int t;
     obj->step_accum += 0x10;
     obj->counter_a += 1;

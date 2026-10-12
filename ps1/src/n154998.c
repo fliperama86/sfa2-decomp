@@ -41,15 +41,15 @@ void update_menu_cursor_and_selection(void) {
     } else if (*(u16 *)data_801a6984 == 0) {
         add_item_to_table(&data_80181304);
         if (PRESSED(0x40)) {
-            func_80155088();
+            clear_game_state_flag_and_call_palette_setup();
             play_sound_at(0, 0, 0x34c);
         } else if (PRESSED(0x20)) {
             if (data_8018d260 == 0) {
-                func_80155088();
+                clear_game_state_flag_and_call_palette_setup();
             } else if (data_8018d260 == 1) {
                 data_8018f5a0->pass_index = 3;
             } else if (data_8018d260 == 2) {
-                func_80155088();
+                clear_game_state_flag_and_call_palette_setup();
                 g->field_65 = 0xff;
                 data_80197f1c = 0xff;
                 reset_game_state_for_new_match(&game_state);
@@ -78,7 +78,7 @@ void update_menu_cursor_and_selection(void) {
         add_item_to_table(&data_80181314);
         if (PRESSED(0x20)) {
             if (data_8018d260 == 0) {
-                func_80155088();
+                clear_game_state_flag_and_call_palette_setup();
                 g->field_65 = 0xff;
                 data_80197f1c = 0xff;
                 reset_game_state_for_new_match(&game_state);

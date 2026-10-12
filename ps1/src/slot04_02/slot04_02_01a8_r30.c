@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3aa8_slot04_02(Object *obj) {
+void start_sequence_with_meter_gain_four_slot04_02(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3 = 1;
     add_to_meter_clamped(obj, 4);

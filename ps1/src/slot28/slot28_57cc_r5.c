@@ -27,7 +27,7 @@ void blink_object_then_advance_sequence_stage_slot28(Object *obj) {
     }
 }
 
-void func_80015c1c_slot28(Object *obj) {
+void drift_right_and_blink_field_slot28(Object *obj) {
     *(int *)&obj->pos_x_frac += 0x4000;
     if (obj->pos_x > 0x180) {
         obj->state_0++;

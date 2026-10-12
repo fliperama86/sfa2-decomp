@@ -328,7 +328,7 @@ void update_rise_until_parent_ground_offset_slot04_15(Object *obj) {
     }
 }
 
-void func_801b4508_slot04_15(Object *obj) {
+void count_down_then_set_upward_velocity_state_1_slot04_15(Object *obj) {
     u16 t = obj->countdown;
     t -= 1;
     obj->countdown = t;

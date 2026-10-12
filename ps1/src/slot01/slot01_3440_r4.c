@@ -40,7 +40,7 @@ void move_pos_x_toward_target_slot01(Object *obj) {
     noop_slot00_2_slot01(obj);
 }
 
-void func_8001398c_slot01(Object *obj) {
+void advance_state_0_when_parent_states_are_1_1_slot01(Object *obj) {
     if (*(u16 *)&obj->parent->state_0 == 0x101) {
         obj->state_0++;
     }

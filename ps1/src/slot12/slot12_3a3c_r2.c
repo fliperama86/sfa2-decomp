@@ -28,7 +28,7 @@ void init_palette_buffers_from_table_slot12(int a) {
     func_80013c74_slot12();
 }
 
-void func_80013bec_slot12(void) {
+void fill_and_copy_20x16_halfword_tables_slot12(void) {
     int j;
     int i;
     u16 *src;

@@ -42,5 +42,5 @@ void call_state_3_handler_from_table_b(Object *object) {
 
 void advance_state_3_and_call_step_2(Object *object) {
     object->state_3 = object->state_3 + 1;
-    func_8012e168(object);
+    update_pos_x_table_step_then_pick_sequence(object);
 }

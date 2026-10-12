@@ -5,7 +5,7 @@
 
 void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
 
-void func_801b2ef8_slot04_09(Object *obj) {
+void update_sequence_spawn_children_or_start_jump_slot04_09(Object *obj) {
     u16 t;
 
     update_sequence(obj);

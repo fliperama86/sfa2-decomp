@@ -55,7 +55,7 @@ void call_table_function_by_state_3_15_slot04_16(Object *obj) {
     data_801ca218_slot04_16[obj->state_3](obj);
 }
 
-void func_801b3cd4_slot04_16(Object *obj) {
+void start_direction_sequence_add_meter_check_range_slot04_16(Object *obj) {
     obj->active_flag_4 = 1;
     game_state.other_object = obj->other;
     game_state.other_object->other_state_code = 0;

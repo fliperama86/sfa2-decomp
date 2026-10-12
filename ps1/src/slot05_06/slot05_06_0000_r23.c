@@ -7,7 +7,7 @@ extern u8 data_801dd378_slot05_06[];
 void set_vel_x_from_direction_table_slot05_06(Object *obj);
 void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
 
-void func_801c9cf4_slot05_06(Object *o) {
+void update_countdown_move_then_start_arc_or_reset_slot05_06(Object *o) {
     u8 t;
     if (((Slot04aObj *)o)->countdown_2 == 0x2f) {
         t = 1;

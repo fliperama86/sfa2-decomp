@@ -23,6 +23,6 @@ void update_countdown_with_decreasing_reload_slot28(Object *o) {
     }
 }
 
-void func_80017fd4_slot28(Object *obj) {
+void set_object_flag_byte_to_one_slot28(Object *obj) {
     obj->field_01 = 1;
 }

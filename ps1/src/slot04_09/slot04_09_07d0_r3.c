@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0b80_slot04_09(Object *o) {
+void start_slide_with_sound_when_mode_set_slot04_09(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     if (obj->mode != 0) {
         o->state_3++;

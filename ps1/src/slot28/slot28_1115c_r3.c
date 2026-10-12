@@ -5,7 +5,7 @@
 
 extern ObjectFn data_80044618_slot28[];
 
-void func_80021394_slot28(Object *obj) {
+void ignore_object_empty_26_slot28(Object *obj) {
 }
 
 void call_state_1_handler_then_advance_sequence_3_slot28(Object *obj) {

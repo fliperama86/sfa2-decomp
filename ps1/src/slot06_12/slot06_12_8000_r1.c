@@ -45,7 +45,7 @@ void init_four_layers_tile_maps_slot06_12(void) {
     noop_layer_function_slot06_12((Slot06Layer *)data_801904d8);
 }
 
-void func_801e80f0_slot06_12(void) {
+void init_gray_tile_banks_and_sprites_with_noop_b_slot06_12(void) {
     init_tile_prims_gray_two_banks_slot06_12();
     init_tile_prims_gray_bank_slot06_12();
     init_two_buffers_of_32px_sprite_prims_slot06_12();

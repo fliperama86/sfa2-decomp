@@ -19,11 +19,11 @@ void clear_variant_index_slot04_16(Object *obj);
 void set_variant_index_and_sequence_slot04_16(Object *obj, s16 idx);
 void call_handler_by_input_dir_second_2_slot04_16(Object *obj);
 void call_handler_by_state_3_0_1_slot04_16(Object *obj);
-void func_801b69a0_slot04_16(Object *obj);
+void restore_facing_force_other_wide_or_set_sequence_slot04_16(Object *obj);
 void set_states_1_2_0_0_2_slot04_16(Object *obj);
 void update_sequence_nudge_x_or_reset_slot04_16(Object *obj);
 void call_handler_by_state_3_0_1_2_slot04_16(Object *obj);
-void func_801b6b20_slot04_16(Object *obj);
+void restore_facing_force_other_near_or_set_sequence_slot04_16(Object *obj);
 void update_sequence_reset_state_3_on_check_slot04_16(Object *obj);
 void set_flag_and_call_function_by_state_3_slot04_16(Object *obj);
 void update_state_restore_facing_no_second_dir_slot04_16(Object *obj);
@@ -117,13 +117,13 @@ void call_handler_by_input_dir_second_2_slot04_16(Object *obj) {
 
 void call_handler_by_state_3_0_1_slot04_16(Object *obj) {
     if (obj->state_3 == 0) {
-        func_801b69a0_slot04_16(obj);
+        restore_facing_force_other_wide_or_set_sequence_slot04_16(obj);
     } else if (obj->state_3 == 1) {
         update_sequence_nudge_x_or_reset_slot04_16(obj);
     }
 }
 
-void func_801b69a0_slot04_16(Object *obj) {
+void restore_facing_force_other_wide_or_set_sequence_slot04_16(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x26, 0x14) != 0) {
@@ -164,13 +164,13 @@ void update_sequence_nudge_x_or_reset_slot04_16(Object *obj) {
 
 void call_handler_by_state_3_0_1_2_slot04_16(Object *obj) {
     if (obj->state_3 == 0) {
-        func_801b6b20_slot04_16(obj);
+        restore_facing_force_other_near_or_set_sequence_slot04_16(obj);
     } else if (obj->state_3 == 1) {
         update_sequence_reset_state_3_on_check_slot04_16(obj);
     }
 }
 
-void func_801b6b20_slot04_16(Object *obj) {
+void restore_facing_force_other_near_or_set_sequence_slot04_16(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x24, 0x14) != 0) {

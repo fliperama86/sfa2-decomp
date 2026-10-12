@@ -8,7 +8,7 @@ extern u16 data_80055f34;
 extern u16 data_8002856c_slot27[];
 extern Slot27Rec851c data_8002851c_slot27[];
 
-void func_800158c0_slot27(Object *obj) {
+void set_origin_values_from_kind_index_tables_slot27(Object *obj) {
     s16 *q = &game_state.field_d4;
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0c18_slot04_07(Object *obj) {
+void advance_state_3_set_flag_and_direction_sequence_slot04_07(Object *obj) {
     obj->state_3++;
     ((Slot04aObj *)obj)->field_1ca = 0;
     obj->active_flag_3 = 1;

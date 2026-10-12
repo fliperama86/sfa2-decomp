@@ -224,7 +224,7 @@ void enter_next_state_3_if_mode_zero_slot04_11(Object *o) {
     update_sequence(o);
 }
 
-void func_801b1bcc_slot04_11(Object *obj) {
+void launch_on_active_flag_then_move_or_fall_slot04_11(Object *obj) {
     if (obj->active_flag != 0) {
         obj->vel_x = 0xc000;
         obj->vel_y = 0x19000;
@@ -251,7 +251,7 @@ void set_fall_accel_y_start_sequence_slot04_11(Object *obj) {
     set_sequence_by_side_and_mode(obj, 0x3c);
 }
 
-void func_801b1c98_slot04_11(Object *o) {
+void update_repeated_launch_on_trigger_or_fall_slot04_11(Object *o) {
     u8 t;
 
     if (apply_facing_velocity_with_x_stop_slot04_11(o) < 0 || ((Slot04bObj *)o)->field_47 == 0) {

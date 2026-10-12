@@ -18,7 +18,7 @@ extern ObjectRef data_80190458;
 void call_handler_by_state_1_then_offset_slot04_0f(Object *obj);
 void call_handler_by_state_1_then_offset_2_slot04_0f(Object *obj);
 void copy_parent_position_with_offset_slot04_0f(Object *obj);
-void func_801b5830_slot04_0f(Object *obj, int a);
+void set_sequence_by_sound_side_shifted_by_flag_slot04_0f(Object *obj, int a);
 void call_handler_by_state_1_2_slot04_0f(Object *obj);
 void call_state_2_handler_267c_unless_paused(Object *obj);
 void call_state_2_handler_2684_unless_paused(Object *obj);
@@ -187,7 +187,7 @@ void init_spawned_object_from_parent_slot04_0f(Object *obj) {
     } else {
         ((Slot04bObj *)obj)->data_pointer = *(s32 *)0x1f800158;
     }
-    func_801b5830_slot04_0f(obj, obj->vel_table_index >> 1);
+    set_sequence_by_sound_side_shifted_by_flag_slot04_0f(obj, obj->vel_table_index >> 1);
     call_handler_by_state_1_2_slot04_0f(obj);
 }
 
@@ -247,7 +247,7 @@ void advance_state_1_call_6_or_7_slot04_0f(Object *obj) {
     if (obj->table_index != 0) {
         n = 7;
     }
-    func_801b5830_slot04_0f(obj, n);
+    set_sequence_by_sound_side_shifted_by_flag_slot04_0f(obj, n);
 }
 
 void set_state_0_to_3_on_sequence_end_2_slot04_0f(Object *obj) {
@@ -289,7 +289,7 @@ void copy_parent_position_with_offset_slot04_0f(Object *obj) {
     obj->pos_y = b + obj->pos_y;
 }
 
-void func_801b5830_slot04_0f(Object *obj, int a) {
+void set_sequence_by_sound_side_shifted_by_flag_slot04_0f(Object *obj, int a) {
     if (obj->field_49 != 0) {
         a += 0x12;
     }

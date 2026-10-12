@@ -7,7 +7,7 @@ extern u8 data_800f855c_slot0f;
 extern Slot0fRec94ec data_800e952c_slot0f[];
 extern Slot0fRec94ec *data_800e96d8_slot0f;
 
-void func_800e2f34_slot0f(void) {
+void toggle_sound_mono_stereo_on_pad_slot0f(void) {
     u8 *p;
     u8 v;
     if ((data_801a696a | data_801a6976) & 0xa000) {

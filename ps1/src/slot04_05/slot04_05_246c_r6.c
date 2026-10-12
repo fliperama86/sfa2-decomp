@@ -5,7 +5,7 @@
 
 int move_x_by_vel_x_facing_and_accelerate_slot04_05(Object *object);
 
-void func_801b2c84_slot04_05(Object *obj) {
+void update_slide_or_start_jump_on_flag_end_slot04_05(Object *obj) {
     s16 t = obj->step_flags;
     if (t & 0x8000) {
         obj->state_3++;

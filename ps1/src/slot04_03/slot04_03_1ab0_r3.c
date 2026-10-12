@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1cfc_slot04_03(Object *obj) {
+void start_decelerating_motion_with_spawns_slot04_03(Object *obj) {
     obj->state_3++;
     spawn_three_child_objects_at_object_spawn(obj);
     update_meter_by_mode_or_table(obj);

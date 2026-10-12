@@ -33,6 +33,6 @@ void call_handler_by_state_0_slot27(Object *object) {
     data_800267a4_slot27[object->state_0](object);
 }
 
-void func_800114ec_slot27(Object *object) {
+void call_state_1_handler_from_slot27_table_a_slot27(Object *object) {
     data_800267b4_slot27[object->state_1](object);
 }

@@ -5,9 +5,9 @@
 
 u8 get_pressed_bit_8(Object *object);
 int is_pressed_bits_in_table(Object *object);
-int func_8013cb70(Object *object, u8 index, u8 arg);
-int func_8013cbdc(Object *object, u8 index, u8 arg);
-int func_8013cc48(Object *object, u8 index, u8 arg);
+int call_second_table_stage_unless_c0_pair(Object *object, u8 index, u8 arg);
+int call_second_table_stage_unless_30_pair(Object *object, u8 index, u8 arg);
+int call_second_table_stage_unless_0c_pair(Object *object, u8 index, u8 arg);
 int call_slot_stage_handler_a(Object *object, u8 index, u8 arg);
 u8 try_action_clearing_both_flags(Object *object);
 int is_not_state_2_five(Object *object);
@@ -34,9 +34,9 @@ void enter_state_2_seven_variant_three_sequence_slot04_0d(Object *obj);
 void select_slot04_0d_action_from_inputs_slot04_0d(Object *obj) {
     if (get_pressed_bit_8(obj) && (u8)try_start_state_seven_move_nine_slot04_0d(obj)) return;
     if ((u8)is_pressed_bits_in_table(obj) && (u8)try_start_meter_move_type_1_slot04_0d(obj)) return;
-    if ((u8)func_8013cb70(obj, 0, 0x18) && (u8)try_start_meter_move_six_slot04_0d(obj)) return;
-    if ((u8)func_8013cbdc(obj, 1, 0x15) && (u8)try_start_meter_move_seven_slot04_0d(obj)) return;
-    if ((u8)func_8013cc48(obj, 2, 0x17) && (u8)try_start_meter_move_eight_slot04_0d(obj)) return;
+    if ((u8)call_second_table_stage_unless_c0_pair(obj, 0, 0x18) && (u8)try_start_meter_move_six_slot04_0d(obj)) return;
+    if ((u8)call_second_table_stage_unless_30_pair(obj, 1, 0x15) && (u8)try_start_meter_move_seven_slot04_0d(obj)) return;
+    if ((u8)call_second_table_stage_unless_0c_pair(obj, 2, 0x17) && (u8)try_start_meter_move_eight_slot04_0d(obj)) return;
     if ((u8)call_slot_stage_handler_a(obj, 3, 4) && (u8)try_start_state_seven_move_four_slot04_0d(obj)) return;
     if ((u8)call_slot_stage_handler_a(obj, 4, 0) && (u8)try_start_move_state_7_type_0_slot04_0d(obj)) return;
     if ((u8)call_slot_stage_handler_a(obj, 5, 3) && (u8)try_start_state_seven_move_five_slot04_0d(obj)) return;

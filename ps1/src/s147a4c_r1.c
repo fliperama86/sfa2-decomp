@@ -10,7 +10,7 @@ void call_fns_cbd0_by_state_0(Block172 *block) {
     fns_cbd0[object->state_0](object);
 }
 
-void func_80147a8c(Object *object) {
+void init_variant_and_start_sequence_from_table(Object *object) {
     object->ot_depth = 0;
     object->state_0++;
     object->variant_index_2 = bytes_cbe0[object->table_index + object->variant_index];
@@ -178,7 +178,7 @@ void count_down_then_advance_or_offset(Object *object) {
     }
 }
 
-void func_801480b0(Object *object) {
+void advance_state_0_or_follow_parent_sequence(Object *object) {
     if ((s16)object->step_flags < 0) {
         object->state_1 = 0;
         object->state_0++;

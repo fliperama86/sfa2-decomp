@@ -7,7 +7,7 @@ void build_cell_name_hex_win_records_index_0_slot0f(Object *obj);
 void build_cell_name_hex_win_records_index_1_slot0f(Object *obj);
 extern void (*data_800f01bc_slot0f[])(Object *);
 
-void func_800e75ec_slot0f(Object *obj) {
+void count_down_and_build_cell_records_on_2bc_match_slot0f(Object *obj) {
     s16 t;
     int a;
     int b;

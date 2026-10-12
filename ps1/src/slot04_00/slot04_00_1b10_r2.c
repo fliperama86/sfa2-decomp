@@ -12,7 +12,7 @@ int move_with_gravity_and_check_ground_slot04_00(Object *obj) {
     return !(obj->pos_y < obj->ground_y);
 }
 
-void func_801b1ca0_slot04_00(Object *obj) {
+void call_state_3_table_clear_flag_near_ground_slot04_00(Object *obj) {
     data_801bfe4c_slot04_00[obj->state_3](obj);
     if (((Slot04aObj *)obj)->field_1a5 != 0 && obj->vel_y < 0 && obj->pos_y - obj->ground_y >= -0xf) {
         ((Slot04aObj *)obj)->field_1a5 = 0;

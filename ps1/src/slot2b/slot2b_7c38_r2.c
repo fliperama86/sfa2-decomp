@@ -13,7 +13,7 @@ void call_handler_by_state_2_2_slot2b(Object *o) {
     clear_or_set_flag_by_pos_x_limit(o);
 }
 
-void func_80077dd4_slot2b(Object *o) {
+void flip_facing_and_set_or_advance_sequence_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
     s8 v;
     s->countdown_timer = 2;

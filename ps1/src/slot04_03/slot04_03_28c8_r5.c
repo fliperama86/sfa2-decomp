@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2e64_slot04_03(Object *obj) {
+void update_sequence_spawn_effect_on_step_flags_slot04_03(Object *obj) {
     if (obj->step_flags != 0) {
         obj->state_3++;
         spawn_offset_effect_and_play_sounds(obj);

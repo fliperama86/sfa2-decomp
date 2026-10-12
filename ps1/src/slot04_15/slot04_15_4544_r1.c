@@ -75,7 +75,7 @@ void call_handler_by_state_3_slot04_15(Object *object) {
     data_801c3cbc_slot04_15[object->state_3](object);
 }
 
-void func_801b473c_slot04_15(Object *obj) {
+void restore_facing_force_other_short_or_set_sequence_slot04_15(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
@@ -244,7 +244,7 @@ void update_sequence_or_reset_on_negative_flags_2_slot04_15(Object *obj) {
     }
 }
 
-void func_801b4d34_slot04_15(Object *obj) {
+void start_sequence_by_variant_with_meter_sound_slot04_15(Object *obj) {
     u16 t;
     obj->state_3 = 3;
     obj->active_flag_3 = 1;

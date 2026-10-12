@@ -28,7 +28,7 @@ void update_rise_then_start_fall_sequence_b_slot04_06(Object *obj) {
     }
 }
 
-void func_801b2724_slot04_06(Object *obj) {
+void count_down_and_drift_up_fast_slot04_06(Object *obj) {
     s32 a;
 
     ((Slot04aObj *)obj)->field_1c2 = ((Slot04aObj *)obj)->field_1c2 - 1;

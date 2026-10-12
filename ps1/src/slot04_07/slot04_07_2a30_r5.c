@@ -5,7 +5,7 @@
 
 extern s16 *data_801c2060_slot04_07[];
 
-void func_801b3120_slot04_07(Object *obj);
+void set_state_3_seven_stop_with_gravity_sequence_slot04_07(Object *obj);
 
 void update_sequence_or_end_set_other_code_2_slot04_07(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
@@ -27,11 +27,11 @@ void start_sequence_from_table_or_fall_slot04_07(Object *obj) {
     if (a >= 0) {
         set_sequence_by_side_and_mode(obj, a);
     } else {
-        func_801b3120_slot04_07(obj);
+        set_state_3_seven_stop_with_gravity_sequence_slot04_07(obj);
     }
 }
 
-void func_801b3120_slot04_07(Object *obj) {
+void set_state_3_seven_stop_with_gravity_sequence_slot04_07(Object *obj) {
     obj->state_3 = 7;
     obj->vel_y = 0;
     obj->accel_y = -0x5600;

@@ -12,7 +12,7 @@ void advance_state_index_reset_phase_slot0f(GameState *state) {
     data_8018f5a0->state_index++;
 }
 
-void func_800df810_slot0f(GameState *state) {
+void request_sound_then_exec_program_1_slot0f(GameState *state) {
     request_sound_command_and_switch_thread(10);
     scratch_word_00 = -1;
     scratch_word_04 = 1;

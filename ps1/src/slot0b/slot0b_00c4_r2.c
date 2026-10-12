@@ -6,7 +6,7 @@
 extern u8 data_801e766c_slot0b[];
 void build_sprite_set_quads_into_ot_slot0b(Object *obj, u8 *a);
 
-void func_801e01dc_slot0b(Object *obj) {
+void follow_ref_object_and_build_quads_slot0b(Object *obj) {
     obj->pos_x = ref_other.p->pos_x + ((u16 *)&obj->vel_x)[1];
     obj->pos_y = ref_other.p->pos_y + ((u16 *)&obj->vel_x)[1];
     if (obj->table_index == 0 && data_80190a40 != 1) {

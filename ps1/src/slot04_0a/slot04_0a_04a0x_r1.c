@@ -8,7 +8,7 @@ extern s16 data_801c0508_slot04_0a[];
 void store_image_rows_for_object_slot04_0a(Object *obj);
 void load_velocities_from_table_5_slot04_0a(Object *obj);
 
-void func_801b04a0_slot04_0a(Object *obj) {
+void update_variant_2_bobbing_and_side_bit_countdown_slot04_0a(Object *obj) {
     u16 a;
     int k;
     int d;

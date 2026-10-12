@@ -65,7 +65,7 @@ void init_players_and_hud_for_slot0f_scene_slot0f(Object *o) {
     queue_image_upload_job(3, 2);
     queue_image_upload_job(4, 7);
     request_sound_command_and_switch_thread(1);
-    func_80136dc4();
+    store_all_slot_image_rects_and_queue_jobs();
     spawn_position_table_objects_and_list_objects();
     clear_four_arrays_and_call_kind_handlers();
     set_capped_value_and_ot_indices((ObjectView *)obj);

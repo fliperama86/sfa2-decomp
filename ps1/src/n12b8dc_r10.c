@@ -12,7 +12,7 @@ void set_hit_type_3_with_box_check(Object *a0, Object *a1, Box32 *a2) {
     }
 }
 
-void func_8013a25c(Object *a0, Object *a1, Box32 *a2) {
+void set_hit_type_or_default_by_in_compare(Object *a0, Object *a1, Box32 *a2) {
     if (data_80188ed0.in_04 > data_80188ed0.in_00) {
         set_hit_type_from_box_type_with_counter(a0, a1, a2);
     } else {

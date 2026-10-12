@@ -19,11 +19,11 @@ void queue_item_and_call_handler_by_index_slot0f(Object *o) {
     data_800e87dc_slot0f[(s8)obj->handler_index](o);
 }
 
-void func_800e1f34_slot0f(Object *object) {
+void call_queue_menu_items_with_enabled_highlight_slot0f(Object *object) {
     queue_menu_items_with_enabled_highlight_slot0f(object);
 }
 
-void func_800e1f54_slot0f(Object *object) {
+void call_queue_two_choice_menu_items_slot0f(Object *object) {
     queue_two_choice_menu_items_slot0f(object);
 }
 

@@ -206,7 +206,7 @@ void call_table_function_by_state_3_25_slot04_14(Object *obj) {
     data_801c6578_slot04_14[obj->state_3](obj);
 }
 
-void func_801b6b80_slot04_14(Object *obj) {
+void set_downward_dash_velocity_and_move_to_ground_slot04_14(Object *obj) {
     obj->vel_y = -0x4c000;
     obj->state_3 = obj->state_3 + 1;
     if (obj->facing_side != 0) {

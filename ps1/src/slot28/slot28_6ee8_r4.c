@@ -9,8 +9,8 @@ void advance_state_1_if_variant_set_2_slot28(Object *obj) {
     }
 }
 
-void func_800171d0_slot28(Object *obj) {
+void ignore_object_empty_7_slot28(Object *obj) {
 }
 
-void func_800171d8_slot28(Object *obj) {
+void ignore_object_empty_8_slot28(Object *obj) {
 }

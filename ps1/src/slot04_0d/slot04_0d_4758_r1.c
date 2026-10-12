@@ -98,7 +98,7 @@ void update_sequence_or_reset_on_negative_flags_2_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b4a30_slot04_0d(Object *obj) {
+void start_sequence_by_variant_with_meter_sound_slot04_0d(Object *obj) {
     u16 t;
     obj->state_3 = 3;
     obj->active_flag_3 = 1;
@@ -156,7 +156,7 @@ void update_rise_until_parent_ground_offset_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b4c7c_slot04_0d(Object *obj) {
+void count_down_then_set_upward_velocity_state_1_slot04_0d(Object *obj) {
     u16 t = obj->countdown;
     t -= 1;
     obj->countdown = t;

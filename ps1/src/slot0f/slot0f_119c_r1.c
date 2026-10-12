@@ -6,7 +6,7 @@
 int open(const char *devname, int flags);
 long read(long fd, void *buf, long n);
 
-void func_800e119c_slot0f(int *p) {
+void test_events_fifth_to_seventh_of_array_slot0f(int *p) {
     func_8015785c(p[4]);
     func_8015785c(p[5]);
     func_8015785c(p[6]);

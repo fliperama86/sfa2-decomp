@@ -5,7 +5,7 @@
 
 extern void (*data_80037488_slot28[])(Object *);
 
-void func_8001aee0_slot28(Object *obj) {
+void set_object_flag_byte_to_one_2_slot28(Object *obj) {
     obj->field_01 = 1;
 }
 

@@ -6,7 +6,7 @@
 u8 get_pressed_bit_8(Object *object);
 int is_pressed_bits_in_table(Object *object);
 int call_slot_stage_handler_a(Object *object, u8 a, u8 b);
-int func_8013cb70(Object *object, u8 a, u8 b);
+int call_second_table_stage_unless_c0_pair(Object *object, u8 a, u8 b);
 int is_input_masked_equal_to_one_of_two_patterns_a(Object *object);
 int is_input_masked_equal_to_one_of_two_patterns_b(Object *object);
 u8 get_slot_result_via_first_stage_table(Object *object, u8 a, u8 b);
@@ -29,7 +29,7 @@ int try_enter_state_seven_spending_meter_action_ten_slot04_0e(Object *obj);
 void select_slot04_0e_action_from_inputs_slot04_0e(Object *obj) {
     if (get_pressed_bit_8(obj) && (u8)try_start_action_8_clearing_counters_slot04_0e(obj)) return;
     if ((u8)is_pressed_bits_in_table(obj) && (u8)try_enter_state_eight_with_meter_cost_slot04_0e(obj)) return;
-    if ((u8)func_8013cb70(obj, 1, 0x15) && (u8)try_start_meter_action_6_slot04_0e(obj)) return;
+    if ((u8)call_second_table_stage_unless_c0_pair(obj, 1, 0x15) && (u8)try_start_meter_action_6_slot04_0e(obj)) return;
     if ((u8)call_slot_stage_if_both_dir_pairs_ok(obj, 2, 0x19) && (u8)try_start_meter_action_5_slot04_0e(obj)) return;
     if ((u8)call_slot_stage_handler_a(obj, 3, 9) && (u8)try_start_action_0_if_unlinked_slot04_0e(obj)) return;
     if ((u8)call_slot_stage_handler_a(obj, 4, 3) && (u8)try_start_action_1_slot04_0e(obj)) return;

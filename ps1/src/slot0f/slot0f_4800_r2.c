@@ -13,7 +13,7 @@ void init_strips_and_load_three_images_slot0f(void) {
     int i;
     int j;
     Chan *c = &data_801aa544[1];
-    func_80136dc4();
+    store_all_slot_image_rects_and_queue_jobs();
     c->field_1e = 0x1800;
     c->map_width = 0x400;
     c->map_height = 0x100;

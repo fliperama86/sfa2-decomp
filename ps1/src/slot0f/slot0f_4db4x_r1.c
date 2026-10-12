@@ -6,7 +6,7 @@
 void advance_hud_state_or_phase_slot0f(Object *obj);
 void spawn_screen_handler_blocks_slot0f(Object *obj);
 void init_palette_buffers_from_table_slot0f(int a);
-void func_800e5258_slot0f(void);
+void fill_and_copy_20x16_halfword_tables_slot0f(void);
 void call_image_job_with_index_0_slot0f(Object *obj);
 void copy_rank_palette_to_two_buffers_slot0f(Object *obj);
 
@@ -44,7 +44,7 @@ void start_phase_screen_variant_a_slot0f(Object *arg) {
     func_80157d9c(0);
     spawn_screen_handler_blocks_slot0f(obj);
     init_palette_buffers_from_table_slot0f(0);
-    func_800e5258_slot0f();
+    fill_and_copy_20x16_halfword_tables_slot0f();
     call_image_job_with_index_0_slot0f(obj);
     copy_rank_palette_to_two_buffers_slot0f(obj);
     queue_image_upload_job(0, 6);

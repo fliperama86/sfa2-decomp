@@ -23,7 +23,7 @@ void count_down_timer_advance_state_0_slot05_06(Object *obj) {
     }
 }
 
-void func_801ce6c8_slot05_06(Object *obj) {
+void advance_sequence_checked_then_pos_x_limit_flag_slot05_06(Object *obj) {
     advance_sequence_checked(obj);
     clear_or_set_flag_by_pos_x_limit(obj);
 }

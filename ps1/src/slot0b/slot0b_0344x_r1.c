@@ -9,7 +9,7 @@ extern Slot0bPair data_801e46d4_slot0b[];
 extern u8 *data_801e46b4_slot0b[];
 void init_layout_polyft4_prims_slot0b(Object *obj, u8 *a, int b, int c, int d);
 
-void func_801e0344_slot0b(Object *obj) {
+void init_object_with_parent_tpage_clut_prims_slot0b(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     int s;

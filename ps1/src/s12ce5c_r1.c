@@ -5,7 +5,7 @@
 
 
 
-void func_8012ce5c(Object *object) {
+void call_table_function_by_mode_byte(Object *object) {
     table_80171a08[object->field_60](object);
 }
 

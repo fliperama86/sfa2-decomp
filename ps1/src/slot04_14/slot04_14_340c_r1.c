@@ -245,7 +245,7 @@ void call_table_function_by_state_3_13_slot04_14(Object *obj) {
     data_801c6398_slot04_14[obj->state_3](obj);
 }
 
-void func_801b3b6c_slot04_14(Object *obj) {
+void start_sequence_with_meter_gain_four_slot04_14(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3 = 1;
     add_to_meter_clamped(obj, 4);

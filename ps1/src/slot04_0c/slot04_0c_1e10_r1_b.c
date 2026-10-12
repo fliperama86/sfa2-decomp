@@ -44,7 +44,7 @@ void slide_x_and_set_other_lock_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b20f8_slot04_0c(Object *obj) {
+void slide_x_decelerating_until_flag_then_set_rise_slot04_0c(Object *obj) {
     update_sequence(obj);
     if (obj->step_flags & 0x80) {
         obj->vel_y = 0x90000;

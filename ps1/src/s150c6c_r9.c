@@ -9,7 +9,7 @@ void push_object_to_pool_table_wrapper_10(Object *p) {
     reset_and_push_object_to_pool_table((Slab172 *)p);
 }
 
-void func_801523c4(Block172 *block) {
+void call_table_function_by_state_0_11(Block172 *block) {
     Object *object = (Object *)block;
     table_80180274[object->state_0](object);
 }

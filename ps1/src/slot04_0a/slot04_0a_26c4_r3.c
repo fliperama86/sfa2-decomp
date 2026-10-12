@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2970_slot04_0a(Object *obj) {
+void start_knockback_arc_with_spawns_slot04_0a(Object *obj) {
     int a;
     int b;
     obj->field_225 = 1;

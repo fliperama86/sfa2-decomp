@@ -6,7 +6,7 @@
 u8 get_pressed_bit_8(Object *object);
 int is_pressed_bits_in_table(Object *object);
 int call_slot_stage_handler_a(Object *object, u8 a, u8 b);
-int func_8013cb70(Object *object, u8 a, u8 b);
+int call_second_table_stage_unless_c0_pair(Object *object, u8 a, u8 b);
 u8 try_action_clearing_both_flags(Object *object);
 int is_state_01010101_and_ready(Object *object);
 
@@ -43,7 +43,7 @@ void select_slot04_0f_action_from_inputs_slot04_0f(Object *obj) {
     if (get_pressed_bit_8(obj) && try_start_move_by_active_state_slot04_0f(obj)) return;
     if (is_pressed_bits_in_table(obj) && try_start_meter_special_state_8_type_4_slot04_0f(obj)) return;
     if (call_slot_stage_if_both_dir_pairs_ok(obj, 0, 0x15) && try_start_meter_special_state_8_type_8_slot04_0f(obj)) return;
-    if (func_8013cb70(obj, 1, 0x18) && try_start_meter_special_state_8_type_7_slot04_0f(obj)) return;
+    if (call_second_table_stage_unless_c0_pair(obj, 1, 0x18) && try_start_meter_special_state_8_type_7_slot04_0f(obj)) return;
     if (call_slot_stage_handler_a(obj, 2, 0x1b) && try_start_move_variant_same_facing_slot04_0f(obj)) return;
     if (call_slot_stage_handler_a(obj, 3, 0x1c) && try_start_move_variant_flipped_facing_slot04_0f(obj)) return;
     if (call_slot_stage_handler_a(obj, 4, 0x12) && try_start_move_2_with_dir_slot04_0f(obj)) return;

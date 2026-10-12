@@ -13,7 +13,7 @@ extern int data_80051950_slot28;
 void init_object_data_pointers_a_4_slot28(Object *obj);
 void clear_ten_entry_table_2_slot28(void);
 
-void func_80017248_slot28(Object *obj) {
+void setup_pooled_objects_for_menu_screen_b_slot28(Object *obj) {
     Object *o;
     int one;
     HudState *h = data_8018f5a0;

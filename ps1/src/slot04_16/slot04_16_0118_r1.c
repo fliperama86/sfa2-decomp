@@ -33,7 +33,7 @@ void set_states_step_limit_one_add_meter_sequence_slot04_16(Object *obj);
 void set_states_step_limit_two_add_meter_sequence_slot04_16(Object *obj);
 void load_velocities_from_table_3_slot04_16(Object *obj);
 
-void func_801b0118_slot04_16(Object *obj) {
+void init_data_pointers_copy_scratch_spawn_child_slot04_16(Object *obj) {
     u32 *dst;
     u32 i;
 

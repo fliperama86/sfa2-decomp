@@ -5,7 +5,7 @@
 
 
 
-void func_8011f70c(Object *object) {
+void tick_cursor_timer_b_and_frame_count(Object *object) {
     if (object->cursor_timer_b != 0) {
         object->field_16a = 1;
         object->cursor_timer_b--;

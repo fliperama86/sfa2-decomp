@@ -163,9 +163,9 @@ void store_side_vram_row_to_buffer_slot04_17(Object *obj) {
 void call_side_routine_and_set_side_flag_slot04_17(Object *obj) {
     if (game_state.field_65 == 0) {
         if (ref_other.p->side == 0) {
-            func_80136e90();
+            store_player_left_image_rows_from_field();
         } else {
-            func_80136ed0();
+            store_player_right_image_rows_from_field();
         }
         set_side_flag(ref_other.p);
     }

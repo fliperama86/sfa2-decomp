@@ -200,12 +200,12 @@ void call_state_2_handler_2684_wrapper_slot04_0c(Object *object) {
     call_state_2_handler_2684_unless_paused(object);
 }
 
-void func_801b3d5c_slot04_0c(Object *object) {
+void set_countdown_2_then_call_state_2_handler_slot04_0c(Object *object) {
     set_countdown_2_from_table_slot04_0c(object);
     call_state_2_handler_268c_unless_paused(object);
 }
 
-void func_801b3d8c_slot04_0c(Object *object) {
+void set_countdown_2_then_call_alt_state_2_handler_slot04_0c(Object *object) {
     set_countdown_2_from_table_slot04_0c(object);
     call_handler_2694_by_state_2(object);
 }

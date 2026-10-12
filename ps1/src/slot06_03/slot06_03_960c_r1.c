@@ -50,7 +50,7 @@ void init_object_spawn_and_call_three_setups_slot06_03(Object *obj) {
     set_random_variant_sequence_slot06_03(obj);
 }
 
-void func_801e96cc_slot06_03(Object *obj) {
+void move_object_respawn_randomly_when_above_top_slot06_03(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         *(u32 *)&obj->pos_x_frac += obj->vel_x;
         *(u32 *)&obj->pos_y_frac += obj->vel_y;

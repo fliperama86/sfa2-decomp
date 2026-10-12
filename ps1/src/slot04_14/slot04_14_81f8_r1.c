@@ -8,21 +8,21 @@ extern u16 data_801c79b4_slot04_14[];
 extern u16 data_801c7c74_slot04_14[];
 
 void set_state_0_to_2_slot04_14(Object *obj);
-void func_801b8430_slot04_14(Object *obj, u8 arg);
-void func_801b84b8_slot04_14(Object *obj);
+void copy_palette_table_by_arg_and_queue_upload_slot04_14(Object *obj, u8 arg);
+void copy_next_table_row_and_queue_upload_slot04_14(Object *obj);
 void clear_or_set_flag_by_pos_x_limit(Object *o);
 
 void set_state_0_to_2_slot04_14(Object *obj) {
     obj->state_0 = 2;
 }
 
-void func_801b8360_slot04_14(Object *obj) {
+void update_palette_row_timer_or_advance_state_0_slot04_14(Object *obj) {
     int t;
 
     if (game_state.field_64 != 0) {
         obj->accel_x = obj->accel_x - 1;
         if (obj->accel_x == 0 && (s16)obj->countdown != 0) {
-            func_801b84b8_slot04_14(obj);
+            copy_next_table_row_and_queue_upload_slot04_14(obj);
             t = obj->countdown - 1;
             obj->countdown = t;
             if ((s16)t != 0) {
@@ -42,7 +42,7 @@ void release_object_record_2_slot04_14(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801b8430_slot04_14(Object *obj, u8 arg) {
+void copy_palette_table_by_arg_and_queue_upload_slot04_14(Object *obj, u8 arg) {
     s16 i;
 
     for (i = 1; i < 16; i++) {
@@ -55,7 +55,7 @@ void func_801b8430_slot04_14(Object *obj, u8 arg) {
     queue_image_upload_job(0, 6);
 }
 
-void func_801b84b8_slot04_14(Object *obj) {
+void copy_next_table_row_and_queue_upload_slot04_14(Object *obj) {
     s16 i;
     int row;
 

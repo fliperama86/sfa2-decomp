@@ -11,14 +11,14 @@ void toggle_pause_flags_on_button(void) {
                 if (((HudBig *)data_8018f5a0)->substate_index == 0) {
                     game_state.field_31 = game_state.field_31 ^ 1;
                 }
-                func_80123f78(0);
+                apply_palette_mode_from_game_state_flag(0);
             }
             if ((game_state.mode & 2) && (data_801a6976 & 0x800)
                 && (game_state.field_31 == 0 || game_state.field_31 == 2)) {
                 if (((HudBig *)data_8018f5a0)->substate_index == 0) {
                     game_state.field_31 = game_state.field_31 ^ 2;
                 }
-                func_80123f78(1);
+                apply_palette_mode_from_game_state_flag(1);
             }
         } else {
             game_state.field_31 = 0;
@@ -26,7 +26,7 @@ void toggle_pause_flags_on_button(void) {
     }
 }
 
-void func_80123f78(int a) {
+void apply_palette_mode_from_game_state_flag(int a) {
     int i;
     u8 *base = data_801ac6a8;
     u8 *p;

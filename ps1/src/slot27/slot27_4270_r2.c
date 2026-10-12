@@ -24,7 +24,7 @@ void call_table_handler_then_advance_sequence_slot27(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_80014480_slot27(Object *obj) {
+void call_state_1_handler_from_slot27_table_b_slot27(Object *obj) {
     data_80027cac_slot27[obj->state_1](obj);
 }
 

@@ -205,7 +205,7 @@ void call_table_function_by_state_3_18_slot04_14(Object *obj) {
     data_801c6420_slot04_14[obj->state_3](obj);
 }
 
-void func_801b44e4_slot04_14(Object *obj) {
+void start_state_3_sequence_choice_by_flag_add_meter_slot04_14(Object *obj) {
     int one = 1;
     int a;
 

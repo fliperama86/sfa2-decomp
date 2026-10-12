@@ -95,7 +95,7 @@ void init_match_state_and_players(GameState *g) {
     update_table_columns_unless_mode3_inactive(g);
     load_kind_images_to_vram(game_state.kind_index);
     load_player_sound_banks(data_801a8067, data_801a83fb);
-    func_80136dc4();
+    store_all_slot_image_rects_and_queue_jobs();
     set_menu_command_one_and_wait_pending(0x604);
     request_sound_command_and_switch_thread(1);
     func_80157d00(1);

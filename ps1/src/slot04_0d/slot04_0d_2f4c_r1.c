@@ -163,7 +163,7 @@ void start_state_sound_input_facing_snap_to_other_box_slot04_0d(Object *obj) {
     set_position_from_other_box(obj);
 }
 
-void func_801b347c_slot04_0d(Object *obj) {
+void update_sequence_launch_other_on_flag_slot04_0d(Object *obj) {
     Object *o;
     int x;
 

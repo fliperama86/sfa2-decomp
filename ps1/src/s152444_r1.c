@@ -20,7 +20,7 @@ void start_random_sequence_by_variant(Object *object) {
     set_position_from_parent_table(object);
 }
 
-void func_8015251c(Object *object) {
+void follow_parent_and_start_sequence_when_clear(Object *object) {
     if (is_linked_object_field_clear(object)) {
         object->state_1++;
         set_sequence_from_table_5(object, (object->variant_index * 2 + 0x33) & 0xff, table_8017c7f8);

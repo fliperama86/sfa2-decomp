@@ -492,7 +492,7 @@ name = "s12ce5c_r1"
 source = "s12ce5c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8012ce5c", address = 0x8012ce5c, size = 64 },
+  { name = "call_table_function_by_mode_byte", address = 0x8012ce5c, size = 64 },
   { name = "call_state_3_table_function_2", address = 0x8012ce9c, size = 64 },
   { name = "advance_state_3_play_sound_and_step", address = 0x8012cedc, size = 64 },
 ]
@@ -747,11 +747,11 @@ functions = [
   { name = "call_kind_handler_if_flag_set", address = 0x80136ccc, size = 80 },
   { name = "init_draw_mode_prim_3", address = 0x80136d1c, size = 84 },
   { name = "init_draw_mode_prim_4", address = 0x80136d70, size = 84 },
-  { name = "func_80136dc4", address = 0x80136dc4, size = 56 },
+  { name = "store_all_slot_image_rects_and_queue_jobs", address = 0x80136dc4, size = 56 },
   { name = "store_image_rects_and_queue_upload_jobs", address = 0x80136dfc, size = 108 },
   { name = "call_left_and_right_func_pair", address = 0x80136e68, size = 40 },
-  { name = "func_80136e90", address = 0x80136e90, size = 64 },
-  { name = "func_80136ed0", address = 0x80136ed0, size = 64 },
+  { name = "store_player_left_image_rows_from_field", address = 0x80136e90, size = 64 },
+  { name = "store_player_right_image_rows_from_field", address = 0x80136ed0, size = 64 },
   { name = "store_image_rows_to_table", address = 0x80136f10, size = 128 },
 ]
 
@@ -999,16 +999,16 @@ functions = [
   { name = "set_pair_hit_states_and_play_sound", address = 0x8013ca3c, size = 140 },
   { name = "call_slot_stage_handler_a", address = 0x8013cac8, size = 40 },
   { name = "call_slot_stage_if_both_dir_pairs_ok", address = 0x8013caf0, size = 128 },
-  { name = "func_8013cb70", address = 0x8013cb70, size = 108 },
-  { name = "func_8013cbdc", address = 0x8013cbdc, size = 108 },
-  { name = "func_8013cc48", address = 0x8013cc48, size = 108 },
+  { name = "call_second_table_stage_unless_c0_pair", address = 0x8013cb70, size = 108 },
+  { name = "call_second_table_stage_unless_30_pair", address = 0x8013cbdc, size = 108 },
+  { name = "call_second_table_stage_unless_0c_pair", address = 0x8013cc48, size = 108 },
   { name = "call_slot_stage_handler_b", address = 0x8013ccb4, size = 40 },
   { name = "call_slot_stage_d4cc_if_both_dir_pairs_ok", address = 0x8013ccdc, size = 128 },
-  { name = "func_8013cd5c", address = 0x8013cd5c, size = 108 },
+  { name = "call_first_table_stage_unless_c0_pair", address = 0x8013cd5c, size = 108 },
   { name = "call_slot_stage_handler_a_2", address = 0x8013cdc8, size = 40 },
-  { name = "func_8013cdf0", address = 0x8013cdf0, size = 108 },
-  { name = "func_8013ce5c", address = 0x8013ce5c, size = 108 },
-  { name = "func_8013cec8", address = 0x8013cec8, size = 108 },
+  { name = "call_third_table_stage_unless_c0_pair", address = 0x8013cdf0, size = 108 },
+  { name = "call_third_table_stage_unless_30_pair", address = 0x8013ce5c, size = 108 },
+  { name = "call_third_table_stage_unless_0c_pair", address = 0x8013cec8, size = 108 },
   { name = "call_slot_stage_d4cc_if_both_dir_pairs_ok_2", address = 0x8013cf34, size = 128 },
   { name = "call_slot_stage_handler_b_2", address = 0x8013cfb4, size = 40 },
   { name = "call_slot_stage_handler_a_3", address = 0x8013cfdc, size = 40 },
@@ -1244,7 +1244,7 @@ name = "s142adc_r2"
 source = "s142adc_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80143688", address = 0x80143688, size = 64 },
+  { name = "call_table_function_by_state_0", address = 0x80143688, size = 64 },
 ]
 
 [[unit]]
@@ -1360,7 +1360,7 @@ source = "s144120_r5_b.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "advance_state_2_on_sequence_end_set_depth", address = 0x801448c4, size = 116 },
-  { name = "func_80144938", address = 0x80144938, size = 72 },
+  { name = "set_velocity_and_advance_state_2_on_flag", address = 0x80144938, size = 72 },
   { name = "move_xy_until_countdown_state_2", address = 0x80144980, size = 84 },
 ]
 
@@ -1418,7 +1418,7 @@ name = "s1449fc_r6"
 source = "s1449fc_r6.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8014594c", address = 0x8014594c, size = 64 },
+  { name = "call_table_function_by_state_0_2", address = 0x8014594c, size = 64 },
   { name = "start_sequence_by_group_and_advance_state_0", address = 0x8014598c, size = 148 },
 ]
 
@@ -1428,7 +1428,7 @@ source = "s1449fc_r7.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "push_object_to_pool_table_wrapper_2", address = 0x80145aa0, size = 32 },
-  { name = "func_80145ac0", address = 0x80145ac0, size = 64 },
+  { name = "call_table_function_by_state_0_3", address = 0x80145ac0, size = 64 },
   { name = "release_object_or_start_sequence_by_index", address = 0x80145b00, size = 96 },
 ]
 
@@ -1438,7 +1438,7 @@ source = "s1449fc_r8.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "push_object_to_pool_table_wrapper_3", address = 0x80145be0, size = 32 },
-  { name = "func_80145c00", address = 0x80145c00, size = 64 },
+  { name = "call_table_function_by_state_0_4", address = 0x80145c00, size = 64 },
   { name = "init_object_depth_and_advance_state_0", address = 0x80145c40, size = 60 },
   { name = "update_child_until_parent_state_changes", address = 0x80145c7c, size = 132 },
   { name = "push_object_to_pool_table_wrapper_4", address = 0x80145d00, size = 32 },
@@ -1509,7 +1509,7 @@ source = "s147a4c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "call_fns_cbd0_by_state_0", address = 0x80147a4c, size = 64 },
-  { name = "func_80147a8c", address = 0x80147a8c, size = 88 },
+  { name = "init_variant_and_start_sequence_from_table", address = 0x80147a8c, size = 88 },
   { name = "call_handler_by_table_index_2", address = 0x80147ae4, size = 64 },
   { name = "call_handler_by_state_1_then_follow_parent", address = 0x80147b24, size = 92 },
   { name = "start_countdown_29_and_advance_sequence", address = 0x80147b80, size = 48 },
@@ -1529,7 +1529,7 @@ functions = [
   { name = "place_at_parent_offset_and_advance_sequence", address = 0x80147f88, size = 48 },
   { name = "count_down_reload_23_advance_sequence", address = 0x80147fb8, size = 76 },
   { name = "count_down_then_advance_or_offset", address = 0x80148004, size = 172 },
-  { name = "func_801480b0", address = 0x801480b0, size = 68 },
+  { name = "advance_state_0_or_follow_parent_sequence", address = 0x801480b0, size = 68 },
   { name = "push_object_to_pool_table_wrapper_8", address = 0x801480f4, size = 32 },
   { name = "push_object_to_pool_table_wrapper_9", address = 0x80148114, size = 32 },
   { name = "set_position_from_parent", address = 0x80148134, size = 96 },
@@ -1549,7 +1549,7 @@ name = "s148588_r1"
 source = "s148588_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80148588", address = 0x80148588, size = 64 },
+  { name = "call_table_function_by_state_0_5", address = 0x80148588, size = 64 },
 ]
 
 [[unit]]
@@ -1575,7 +1575,7 @@ name = "s148588_r4"
 source = "s148588_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8014886c", address = 0x8014886c, size = 64 },
+  { name = "call_table_function_by_state_0_6", address = 0x8014886c, size = 64 },
   { name = "advance_state_0_place_at_parent_and_set_sequence", address = 0x801488ac, size = 64 },
   { name = "set_sequence_by_variant_index_half", address = 0x801488ec, size = 96 },
 ]
@@ -1594,7 +1594,7 @@ name = "s148588_r6"
 source = "s148588_r6.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80148c8c", address = 0x80148c8c, size = 64 },
+  { name = "call_table_function_by_state_0_7", address = 0x80148c8c, size = 64 },
   { name = "init_object_motion_random_accel_y_and_sequence", address = 0x80148ccc, size = 124 },
 ]
 
@@ -1614,7 +1614,7 @@ name = "s148588_r8"
 source = "s148588_r8.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801490dc", address = 0x801490dc, size = 64 },
+  { name = "call_table_function_by_state_0_8", address = 0x801490dc, size = 64 },
   { name = "set_depth_one_and_advance_state_0", address = 0x8014911c, size = 60 },
   { name = "wait_countdown_then_advance_state_0", address = 0x80149158, size = 100 },
 ]
@@ -1624,7 +1624,7 @@ name = "s148588_r8_b"
 source = "s148588_r8_b.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80149238", address = 0x80149238, size = 64 },
+  { name = "call_table_function_by_state_0_9", address = 0x80149238, size = 64 },
   { name = "advance_state_0_call_table_handler", address = 0x80149278, size = 72 },
   { name = "init_depth_six_shift_x_and_set_sequence", address = 0x801492c0, size = 68 },
   { name = "init_depth_eight_shift_x_and_set_sequence", address = 0x80149304, size = 68 },
@@ -1922,7 +1922,7 @@ name = "s14d8a4_r3"
 source = "s14d8a4_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8014de20", address = 0x8014de20, size = 116 },
+  { name = "unpack_shifted_nibbles_into_direction_fields", address = 0x8014de20, size = 116 },
 ]
 
 [[unit]]
@@ -2161,7 +2161,7 @@ source = "s150c6c_r8_b.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "add_16x16_sprite_prim_from_byte", address = 0x801521a0, size = 128 },
-  { name = "func_80152220", address = 0x80152220, size = 64 },
+  { name = "call_table_function_by_state_0_10", address = 0x80152220, size = 64 },
 ]
 
 [[unit]]
@@ -2170,7 +2170,7 @@ source = "s150c6c_r9.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "push_object_to_pool_table_wrapper_10", address = 0x801523a4, size = 32 },
-  { name = "func_801523c4", address = 0x801523c4, size = 64 },
+  { name = "call_table_function_by_state_0_11", address = 0x801523c4, size = 64 },
 ]
 
 [[unit]]
@@ -2181,7 +2181,7 @@ functions = [
   { name = "call_handler_by_variant_index", address = 0x80152444, size = 68 },
   { name = "call_state_1_table_then_push_if_mode_8", address = 0x80152488, size = 84 },
   { name = "start_random_sequence_by_variant", address = 0x801524dc, size = 64 },
-  { name = "func_8015251c", address = 0x8015251c, size = 108 },
+  { name = "follow_parent_and_start_sequence_when_clear", address = 0x8015251c, size = 108 },
   { name = "advance_sequence_or_next_state", address = 0x80152588, size = 72 },
   { name = "call_state_1_table_handler_wrapper", address = 0x801525d0, size = 32 },
   { name = "call_state_1_handler_unless_released", address = 0x801525f0, size = 120 },
@@ -2296,7 +2296,7 @@ name = "s153854_r9"
 source = "s153854_r9.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80155088", address = 0x80155088, size = 40 },
+  { name = "clear_game_state_flag_and_call_palette_setup", address = 0x80155088, size = 40 },
 ]
 
 [[unit]]
@@ -2360,7 +2360,7 @@ source = "s156398_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "copy_top_rank_data_by_side", address = 0x80157174, size = 128 },
-  { name = "func_801571f4", address = 0x801571f4, size = 64 },
+  { name = "call_table_function_by_state_0_12", address = 0x801571f4, size = 64 },
   { name = "init_object_depth_and_advance_state_0_2", address = 0x80157234, size = 60 },
 ]
 
@@ -2635,7 +2635,7 @@ name = "s11f674_r2"
 source = "s11f674_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8011f70c", address = 0x8011f70c, size = 104 },
+  { name = "tick_cursor_timer_b_and_frame_count", address = 0x8011f70c, size = 104 },
   { name = "count_down_cursor_timer_a_and_set_cursor", address = 0x8011f774, size = 116 },
   { name = "advance_sequence_rec", address = 0x8011f7e8, size = 84 },
   { name = "advance_sequence_rec_2", address = 0x8011f83c, size = 84 },
@@ -3534,7 +3534,7 @@ name = "m14025c_r1"
 source = "m14025c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8014025c", address = 0x8014025c, size = 280 },
+  { name = "try_set_other_state_if_in_range", address = 0x8014025c, size = 280 },
   { name = "check_hit_other_active_state_zero", address = 0x80140374, size = 280 },
   { name = "check_hit_other_without_state_precheck", address = 0x8014048c, size = 268 },
 ]
@@ -3945,7 +3945,7 @@ source = "l122c5c_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "toggle_pause_flags_on_button", address = 0x80123e34, size = 324 },
-  { name = "func_80123f78", address = 0x80123f78, size = 420 },
+  { name = "apply_palette_mode_from_game_state_flag", address = 0x80123f78, size = 420 },
 ]
 
 [[unit]]
@@ -3953,7 +3953,7 @@ name = "l124bbc_r1"
 source = "l124bbc_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80124bbc", address = 0x80124bbc, size = 436 },
+  { name = "move_selection_index_with_wrap_skip_two", address = 0x80124bbc, size = 436 },
   { name = "update_menu_cursor", address = 0x80124d70, size = 348 },
 ]
 
@@ -6740,7 +6740,7 @@ name = "v109_r1"
 source = "v109_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8012e168", address = 0x8012e168, size = 252 },
+  { name = "update_pos_x_table_step_then_pick_sequence", address = 0x8012e168, size = 252 },
 ]
 
 [[unit]]
@@ -7846,7 +7846,7 @@ name = "n1193fc_r14"
 source = "n1193fc_r14.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801225d4", address = 0x801225d4, size = 92 },
+  { name = "restart_substep_when_field_six_c_is_four", address = 0x801225d4, size = 92 },
 ]
 
 [[unit]]
@@ -8001,7 +8001,7 @@ source = "n12b8dc_r10.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "set_hit_type_3_with_box_check", address = 0x8013a204, size = 88 },
-  { name = "func_8013a25c", address = 0x8013a25c, size = 72 },
+  { name = "set_hit_type_or_default_by_in_compare", address = 0x8013a25c, size = 72 },
 ]
 
 [[unit]]
@@ -8235,7 +8235,7 @@ name = "n145b60_r3"
 source = "n145b60_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801485c8", address = 0x801485c8, size = 64 },
+  { name = "init_depth_and_copy_parent_field_one_c", address = 0x801485c8, size = 64 },
 ]
 
 [[unit]]
@@ -9294,7 +9294,7 @@ image = "slot0b"
 source = "slot0b/slot0b_00c4_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801e01dc_slot0b", address = 0x801e01dc, size = 168 },
+  { name = "follow_ref_object_and_build_quads_slot0b", address = 0x801e01dc, size = 168 },
   { name = "unlink_from_parent_list_and_release_slot0b", address = 0x801e0284, size = 80 },
   { name = "load_velocities_from_table_slot0b", address = 0x801e02d4, size = 32 },
 ]
@@ -9345,7 +9345,7 @@ image = "slot0b"
 source = "slot0b/slot0b_05a0_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801e06d0_slot0b", address = 0x801e06d0, size = 144 },
+  { name = "count_down_then_advance_substate_spawn_child_slot0b", address = 0x801e06d0, size = 144 },
   { name = "advance_substate_on_phase_2_slot0b", address = 0x801e0760, size = 144 },
 ]
 
@@ -9356,7 +9356,7 @@ source = "slot0b/slot0b_05a0_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "nop_mod_object_handler_2_slot0b", address = 0x801e0840, size = 8 },
-  { name = "func_801e0848_slot0b", address = 0x801e0848, size = 112 },
+  { name = "build_owner_quads_unless_flag_set_mode_slot0b", address = 0x801e0848, size = 112 },
   { name = "release_object_record_slot0b", address = 0x801e08b8, size = 32 },
 ]
 
@@ -9460,7 +9460,7 @@ image = "slot0b"
 source = "slot0b/slot0b_131c_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801e1598_slot0b", address = 0x801e1598, size = 140 },
+  { name = "set_sequence_and_init_list_cells_tpage_clut_slot0b", address = 0x801e1598, size = 140 },
   { name = "call_step_on_anim_member_slot0b", address = 0x801e1624, size = 32 },
   { name = "advance_cursor_frame_on_timer_slot0b", address = 0x801e1644, size = 88 },
   { name = "set_slot0b_cursor_frame_slot0b", address = 0x801e169c, size = 52 },
@@ -9517,7 +9517,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "release_object_record_5_slot0b", address = 0x801e1b20, size = 32 },
   { name = "add_vel_x_and_accel_x_to_position_words_slot0b", address = 0x801e1b40, size = 36 },
-  { name = "func_801e1b64_slot0b", address = 0x801e1b64, size = 92 },
+  { name = "call_handler_by_state_if_flag_set_slot0b", address = 0x801e1b64, size = 92 },
   { name = "call_handler_by_state_0_2_slot0b", address = 0x801e1bc0, size = 64 },
 ]
 
@@ -9556,7 +9556,7 @@ image = "slot0b"
 source = "slot0b/slot0b_0344x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801e0344_slot0b", address = 0x801e0344, size = 308 },
+  { name = "init_object_with_parent_tpage_clut_prims_slot0b", address = 0x801e0344, size = 308 },
 ]
 
 [[unit]]
@@ -9886,7 +9886,7 @@ source = "slot12/slot12_281c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "call_handler_by_state_0_with_tile_update_slot12", address = 0x8001281c, size = 152 },
-  { name = "func_800128b4_slot12", address = 0x800128b4, size = 144 },
+  { name = "init_tile_bar_object_with_flip_by_table_index_slot12", address = 0x800128b4, size = 144 },
 ]
 
 [[unit]]
@@ -10011,7 +10011,7 @@ source = "slot12/slot12_3a3c_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "init_palette_buffers_from_table_slot12", address = 0x80013b5c, size = 144 },
-  { name = "func_80013bec_slot12", address = 0x80013bec, size = 136 },
+  { name = "fill_and_copy_20x16_halfword_tables_slot12", address = 0x80013bec, size = 136 },
 ]
 
 [[unit]]
@@ -10204,7 +10204,7 @@ source = "slot12/slot12_51e4_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "start_countdown_and_spawn_effects_slot12", address = 0x800154f8, size = 84 },
-  { name = "func_8001554c_slot12", address = 0x8001554c, size = 160 },
+  { name = "count_down_and_build_slot12_cell_records_slot12", address = 0x8001554c, size = 160 },
   { name = "call_handler_by_state_1_5_slot12", address = 0x800155ec, size = 64 },
 ]
 
@@ -11402,7 +11402,7 @@ source = "slot2b/slot2b_7c38_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "call_handler_by_state_2_2_slot2b", address = 0x80077d68, size = 108 },
-  { name = "func_80077dd4_slot2b", address = 0x80077dd4, size = 124 },
+  { name = "flip_facing_and_set_or_advance_sequence_slot2b", address = 0x80077dd4, size = 124 },
   { name = "countdown_reset_states_flip_vel_x_table_vel_y_slot2b", address = 0x80077e50, size = 128 },
 ]
 
@@ -11442,7 +11442,7 @@ image = "slot2b"
 source = "slot2b/slot2b_7c38_r6.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80078168_slot2b", address = 0x80078168, size = 280 },
+  { name = "init_moving_object_from_shared_data_slot2b", address = 0x80078168, size = 280 },
   { name = "call_handler_by_state_1_2_slot2b", address = 0x80078280, size = 64 },
 ]
 
@@ -11717,7 +11717,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "call_slot0f_state_handler_a_slot0f", address = 0x800df520, size = 116 },
   { name = "call_phase_handler_and_queue_entries_slot0f", address = 0x800df594, size = 120 },
-  { name = "func_800df60c_slot0f", address = 0x800df60c, size = 72 },
+  { name = "advance_phase_and_start_palette_fade_slot0f", address = 0x800df60c, size = 72 },
 ]
 
 [[unit]]
@@ -11754,7 +11754,7 @@ source = "slot0f/slot0f_f378_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "advance_state_index_reset_phase_slot0f", address = 0x800df7ec, size = 36 },
-  { name = "func_800df810_slot0f", address = 0x800df810, size = 72 },
+  { name = "request_sound_then_exec_program_1_slot0f", address = 0x800df810, size = 72 },
   { name = "call_state_handler_b_then_check_pad_slot0f", address = 0x800df858, size = 88 },
 ]
 
@@ -11764,9 +11764,9 @@ image = "slot0f"
 source = "slot0f/slot0f_f378_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800df8b0_slot0f", address = 0x800df8b0, size = 32 },
-  { name = "func_800df8d0_slot0f", address = 0x800df8d0, size = 32 },
-  { name = "func_800df8f0_slot0f", address = 0x800df8f0, size = 32 },
+  { name = "call_phase_handler_mode_0_with_state_slot0f", address = 0x800df8b0, size = 32 },
+  { name = "call_phase_handler_mode_1_with_state_slot0f", address = 0x800df8d0, size = 32 },
+  { name = "call_object_handler_by_phase_index_with_state_slot0f", address = 0x800df8f0, size = 32 },
   { name = "call_handler_by_phase_index_slot0f", address = 0x800df910, size = 72 },
   { name = "start_slot0f_timed_scene_slot0f", address = 0x800df958, size = 60 },
   { name = "count_down_step_then_advance_state_index_slot0f", address = 0x800df994, size = 88 },
@@ -11789,7 +11789,7 @@ image = "slot0f"
 source = "slot0f/slot0f_fa04_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800dfae0_slot0f", address = 0x800dfae0, size = 152 },
+  { name = "loop_call_menu_state_handler_forever_slot0f", address = 0x800dfae0, size = 152 },
   { name = "increment_state_index_slot0f", address = 0x800dfb78, size = 32 },
   { name = "call_menu_handler_by_phase_index_slot0f", address = 0x800dfb98, size = 72 },
   { name = "call_menu_handler_by_step_index_slot0f", address = 0x800dfbe0, size = 72 },
@@ -11824,7 +11824,7 @@ image = "slot0f"
 source = "slot0f/slot0f_000c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e000c_slot0f", address = 0x800e000c, size = 64 },
+  { name = "request_sound_then_exec_program_2_slot0f", address = 0x800e000c, size = 64 },
   { name = "func_800e004c_slot0f", address = 0x800e004c, size = 80 },
   { name = "reset_hud_state_and_sound_by_arg_slot0f", address = 0x800e009c, size = 180 },
 ]
@@ -11932,7 +11932,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "wait_for_event_0_to_3_slot0f", address = 0x800e1074, size = 116 },
   { name = "wait_for_event_4_to_6_slot0f", address = 0x800e10e8, size = 96 },
-  { name = "func_800e1148_slot0f", address = 0x800e1148, size = 84 },
+  { name = "test_events_first_four_of_array_slot0f", address = 0x800e1148, size = 84 },
 ]
 
 [[unit]]
@@ -11941,7 +11941,7 @@ image = "slot0f"
 source = "slot0f/slot0f_119c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e119c_slot0f", address = 0x800e119c, size = 72 },
+  { name = "test_events_fifth_to_seventh_of_array_slot0f", address = 0x800e119c, size = 72 },
   { name = "func_800e11e4_slot0f", address = 0x800e11e4, size = 108 },
   { name = "func_800e1250_slot0f", address = 0x800e1250, size = 124 },
 ]
@@ -11990,7 +11990,7 @@ image = "slot0f"
 source = "slot0f/slot0f_119c_r6.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e1640_slot0f", address = 0x800e1640, size = 180 },
+  { name = "loop_menu_object_until_loop_flag_clear_slot0f", address = 0x800e1640, size = 180 },
   { name = "clear_states_and_increment_active_count_slot0f", address = 0x800e16f4, size = 40 },
 ]
 
@@ -12000,7 +12000,7 @@ image = "slot0f"
 source = "slot0f/slot0f_171c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e171c_slot0f", address = 0x800e171c, size = 272 },
+  { name = "select_three_choice_and_reset_states_on_pad_slot0f", address = 0x800e171c, size = 272 },
   { name = "func_800e182c_slot0f", address = 0x800e182c, size = 64 },
 ]
 
@@ -12010,7 +12010,7 @@ image = "slot0f"
 source = "slot0f/slot0f_171c_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e186c_slot0f", address = 0x800e186c, size = 80 },
+  { name = "enter_card_slot_select_with_ot_depth_one_slot0f", address = 0x800e186c, size = 80 },
   { name = "update_menu_select_with_confirm_cancel_slot0f", address = 0x800e18bc, size = 168 },
 ]
 
@@ -12020,8 +12020,8 @@ image = "slot0f"
 source = "slot0f/slot0f_171c_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e1964_slot0f", address = 0x800e1964, size = 172 },
-  { name = "func_800e1a10_slot0f", address = 0x800e1a10, size = 136 },
+  { name = "confirm_two_option_start_countdown_or_back_slot0f", address = 0x800e1964, size = 172 },
+  { name = "save_card_file_when_countdown_ends_slot0f", address = 0x800e1a10, size = 136 },
 ]
 
 [[unit]]
@@ -12032,7 +12032,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "update_countdown_reset_on_button_slot0f", address = 0x800e1a98, size = 92 },
   { name = "func_800e1af4_slot0f", address = 0x800e1af4, size = 64 },
-  { name = "func_800e1b34_slot0f", address = 0x800e1b34, size = 80 },
+  { name = "enter_card_slot_select_with_ot_depth_two_slot0f", address = 0x800e1b34, size = 80 },
 ]
 
 [[unit]]
@@ -12041,9 +12041,9 @@ image = "slot0f"
 source = "slot0f/slot0f_171c_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e1b84_slot0f", address = 0x800e1b84, size = 128 },
+  { name = "load_card_file_when_countdown_ends_slot0f", address = 0x800e1b84, size = 128 },
   { name = "func_800e1c04_slot0f", address = 0x800e1c04, size = 64 },
-  { name = "func_800e1c44_slot0f", address = 0x800e1c44, size = 44 },
+  { name = "enter_two_option_prompt_first_selected_slot0f", address = 0x800e1c44, size = 44 },
 ]
 
 [[unit]]
@@ -12052,8 +12052,8 @@ image = "slot0f"
 source = "slot0f/slot0f_171c_r6.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e1c70_slot0f", address = 0x800e1c70, size = 188 },
-  { name = "func_800e1d2c_slot0f", address = 0x800e1d2c, size = 128 },
+  { name = "confirm_two_option_countdown_or_exit_to_zero_slot0f", address = 0x800e1c70, size = 188 },
+  { name = "format_card_when_countdown_ends_slot0f", address = 0x800e1d2c, size = 128 },
 ]
 
 [[unit]]
@@ -12075,8 +12075,8 @@ source = "slot0f/slot0f_1dac_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "queue_item_and_call_handler_by_index_slot0f", address = 0x800e1ed8, size = 92 },
-  { name = "func_800e1f34_slot0f", address = 0x800e1f34, size = 32 },
-  { name = "func_800e1f54_slot0f", address = 0x800e1f54, size = 32 },
+  { name = "call_queue_menu_items_with_enabled_highlight_slot0f", address = 0x800e1f34, size = 32 },
+  { name = "call_queue_two_choice_menu_items_slot0f", address = 0x800e1f54, size = 32 },
   { name = "queue_slot_marker_and_label_slot0f", address = 0x800e1f74, size = 76 },
 ]
 
@@ -12158,7 +12158,7 @@ image = "slot0f"
 source = "slot0f/slot0f_2348_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e27ec_slot0f", address = 0x800e27ec, size = 148 },
+  { name = "init_option_cells_and_load_saved_options_slot0f", address = 0x800e27ec, size = 148 },
 ]
 
 [[unit]]
@@ -12232,7 +12232,7 @@ image = "slot0f"
 source = "slot0f/slot0f_2964_r7.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e2f34_slot0f", address = 0x800e2f34, size = 152 },
+  { name = "toggle_sound_mono_stereo_on_pad_slot0f", address = 0x800e2f34, size = 152 },
 ]
 
 [[unit]]
@@ -12270,7 +12270,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "noop_empty_function_slot0f", address = 0x800e3794, size = 8 },
   { name = "noop_slot00_slot0f", address = 0x800e379c, size = 8 },
-  { name = "func_800e37a4_slot0f", address = 0x800e37a4, size = 132 },
+  { name = "add_option_menu_items_to_table_slot0f", address = 0x800e37a4, size = 132 },
   { name = "cycle_menu_item_every_120_frames_slot0f", address = 0x800e3828, size = 140 },
 ]
 
@@ -12335,7 +12335,7 @@ image = "slot0f"
 source = "slot0f/slot0f_4800_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e4988_slot0f", address = 0x800e4988, size = 296 },
+  { name = "tick_timer_and_build_two_tilemap_layers_slot0f", address = 0x800e4988, size = 296 },
 ]
 
 [[unit]]
@@ -12373,7 +12373,7 @@ source = "slot0f/slot0f_4db4_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "init_palette_buffers_from_table_slot0f", address = 0x800e51c8, size = 144 },
-  { name = "func_800e5258_slot0f", address = 0x800e5258, size = 136 },
+  { name = "fill_and_copy_20x16_halfword_tables_slot0f", address = 0x800e5258, size = 136 },
 ]
 
 [[unit]]
@@ -12683,7 +12683,7 @@ image = "slot0f"
 source = "slot0f/slot0f_75ec_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800e75ec_slot0f", address = 0x800e75ec, size = 160 },
+  { name = "count_down_and_build_cell_records_on_2bc_match_slot0f", address = 0x800e75ec, size = 160 },
   { name = "count_down_and_update_when_2bc_is_2_slot0f", address = 0x800e768c, size = 124 },
   { name = "call_handler_by_state_1_5_slot0f", address = 0x800e7708, size = 64 },
 ]
@@ -13074,7 +13074,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "draw_background_layers_by_flags_slot06_02", address = 0x801e8000, size = 152 },
   { name = "init_four_layers_tile_maps_slot06_02", address = 0x801e8098, size = 88 },
-  { name = "func_801e80f0_slot06_02", address = 0x801e80f0, size = 56 },
+  { name = "init_all_gray_prim_groups_four_calls_a_slot06_02", address = 0x801e80f0, size = 56 },
   { name = "call_layer_handler_by_mode_slot06_02", address = 0x801e8128, size = 72 },
   { name = "init_layer_sprite_then_advance_mode_slot06_02", address = 0x801e8170, size = 84 },
 ]
@@ -13161,7 +13161,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "draw_background_layers_by_flags_slot06_03", address = 0x801e8000, size = 152 },
   { name = "init_four_layers_tile_maps_slot06_03", address = 0x801e8098, size = 88 },
-  { name = "func_801e80f0_slot06_03", address = 0x801e80f0, size = 56 },
+  { name = "init_gray_tile_sprite_and_poly_banks_set_two_slot06_03", address = 0x801e80f0, size = 56 },
   { name = "call_handler_by_layer_mode_slot03_slot06_03", address = 0x801e8128, size = 76 },
 ]
 
@@ -13226,7 +13226,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "call_handler_by_state_0_slot06_03", address = 0x801e960c, size = 64 },
   { name = "init_object_spawn_and_call_three_setups_slot06_03", address = 0x801e964c, size = 128 },
-  { name = "func_801e96cc_slot06_03", address = 0x801e96cc, size = 164 },
+  { name = "move_object_respawn_randomly_when_above_top_slot06_03", address = 0x801e96cc, size = 164 },
   { name = "release_object_record_slot06_03", address = 0x801e9770, size = 32 },
   { name = "set_random_facing_and_launch_velocity_slot06_03", address = 0x801e9790, size = 128 },
   { name = "set_random_position_from_table_slot06_03", address = 0x801e9810, size = 96 },
@@ -13262,7 +13262,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "draw_background_layers_by_flags_slot06_04", address = 0x801e8000, size = 152 },
   { name = "init_four_layers_tile_maps_slot06_04", address = 0x801e8098, size = 88 },
-  { name = "func_801e80f0_slot06_04", address = 0x801e80f0, size = 56 },
+  { name = "init_gray_tile_background_sprite_poly_banks_slot06_04", address = 0x801e80f0, size = 56 },
 ]
 
 [[unit]]
@@ -13340,7 +13340,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "draw_background_layers_by_flags_slot06_05", address = 0x801e8000, size = 152 },
   { name = "init_background_layers_slot06_05", address = 0x801e8098, size = 88 },
-  { name = "func_801e80f0_slot06_05", address = 0x801e80f0, size = 56 },
+  { name = "init_gray_tile_banks_and_sprites_with_noop_slot06_05", address = 0x801e80f0, size = 56 },
   { name = "call_handler_by_layer_mode_init_or_follow_slot06_05", address = 0x801e8128, size = 76 },
 ]
 
@@ -13893,7 +13893,7 @@ functions = [
   { name = "call_handler_by_state_0_2_slot06_0a", address = 0x801e930c, size = 64 },
   { name = "init_object_find_kind_a_player_target_slot06_0a", address = 0x801e934c, size = 176 },
   { name = "call_state_1_handler_unless_paused_slot06_0a", address = 0x801e93fc, size = 140 },
-  { name = "func_801e9488_slot06_0a", address = 0x801e9488, size = 56 },
+  { name = "check_near_target_and_player_state_then_advance_slot06_0a", address = 0x801e9488, size = 56 },
   { name = "on_sequence_end_set_state_1_two_seq_5_slot06_0a", address = 0x801e94c0, size = 80 },
   { name = "check_far_distance_on_flag_then_advance_slot06_0a", address = 0x801e9510, size = 72 },
   { name = "on_sequence_end_set_state_1_zero_seq_7_slot06_0a", address = 0x801e9558, size = 80 },
@@ -13943,7 +13943,7 @@ image = "slot06_0b"
 source = "slot06_0b/slot06_0b_8000_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801e8bb8_slot06_0b", address = 0x801e8bb8, size = 128 },
+  { name = "set_layer_accumulators_from_bound_difference_a_slot06_0b", address = 0x801e8bb8, size = 128 },
 ]
 
 [[unit]]
@@ -13989,7 +13989,7 @@ image = "slot06_0c"
 source = "slot06_0c/slot06_0c_8000_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801e8b9c_slot06_0c", address = 0x801e8b9c, size = 128 },
+  { name = "set_layer_accumulators_from_bound_difference_b_slot06_0c", address = 0x801e8b9c, size = 128 },
 ]
 
 [[unit]]
@@ -14656,7 +14656,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "draw_background_layers_by_flags_slot06_11", address = 0x801e8000, size = 152 },
   { name = "init_background_layers_slot06_11", address = 0x801e8098, size = 88 },
-  { name = "func_801e80f0_slot06_11", address = 0x801e80f0, size = 56 },
+  { name = "init_gray_tile_groups_and_sprites_with_noop_slot06_11", address = 0x801e80f0, size = 56 },
   { name = "update_layer_follow_offset_slot06_11", address = 0x801e8128, size = 148 },
   { name = "init_first_layer_tile_map_slot06_11", address = 0x801e81bc, size = 44 },
   { name = "init_two_tile_tables_gray_color_slot06_11", address = 0x801e81e8, size = 160 },
@@ -14759,7 +14759,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "draw_background_layers_by_flags_slot06_12", address = 0x801e8000, size = 152 },
   { name = "init_four_layers_tile_maps_slot06_12", address = 0x801e8098, size = 88 },
-  { name = "func_801e80f0_slot06_12", address = 0x801e80f0, size = 56 },
+  { name = "init_gray_tile_banks_and_sprites_with_noop_b_slot06_12", address = 0x801e80f0, size = 56 },
   { name = "update_layer_by_mode_scroll_slot06_12", address = 0x801e8128, size = 76 },
   { name = "scroll_layer_parallax_half_x_slot06_12", address = 0x801e8174, size = 176 },
   { name = "init_first_layer_tile_map_slot06_12", address = 0x801e8224, size = 44 },
@@ -14843,7 +14843,7 @@ functions = [
   { name = "call_handler_by_table_index_slot06_12", address = 0x801e9c14, size = 108 },
   { name = "update_table_index_and_respawn_if_nonzero_slot06_12", address = 0x801e9c80, size = 76 },
   { name = "update_object_with_step_x_shift_slot06_12", address = 0x801e9ccc, size = 116 },
-  { name = "func_801e9d40_slot06_12", address = 0x801e9d40, size = 84 },
+  { name = "respawn_on_negative_step_flags_then_advance_slot06_12", address = 0x801e9d40, size = 84 },
   { name = "release_object_record_4_slot06_12", address = 0x801e9d94, size = 32 },
   { name = "count_down_vel_y_then_next_record_slot06_12", address = 0x801e9db4, size = 88 },
   { name = "advance_accel_y_index_and_load_record_slot06_12", address = 0x801e9e0c, size = 92 },
@@ -14861,7 +14861,7 @@ functions = [
   { name = "init_slot_tile_and_sprite_buffers_gray_n_slot06_13", address = 0x801e80f0, size = 56 },
   { name = "update_layer_parallax_eighth_slot06_13", address = 0x801e8128, size = 208 },
   { name = "init_first_layer_tile_map_slot06_13", address = 0x801e81f8, size = 44 },
-  { name = "func_801e8224_slot06_13", address = 0x801e8224, size = 160 },
+  { name = "init_two_rows_of_gray_tile_prims_a_slot06_13", address = 0x801e8224, size = 160 },
 ]
 
 [[unit]]
@@ -14872,7 +14872,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "update_layer_by_mode_then_cam_slot06_13", address = 0x801e8540, size = 92 },
   { name = "init_layer_tile_map_fields_slot06_13", address = 0x801e859c, size = 44 },
-  { name = "func_801e85c8_slot06_13", address = 0x801e85c8, size = 160 },
+  { name = "init_two_rows_of_gray_tile_prims_b_slot06_13", address = 0x801e85c8, size = 160 },
 ]
 
 [[unit]]
@@ -15053,7 +15053,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "clear_rows_and_queue_jobs_slot27", address = 0x800113d8, size = 212 },
   { name = "call_handler_by_state_0_slot27", address = 0x800114ac, size = 64 },
-  { name = "func_800114ec_slot27", address = 0x800114ec, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_a_slot27", address = 0x800114ec, size = 64 },
 ]
 
 [[unit]]
@@ -15072,7 +15072,7 @@ image = "slot27"
 source = "slot27/slot27_1280_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80011660_slot27", address = 0x80011660, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_a_2_slot27", address = 0x80011660, size = 64 },
   { name = "update_selection_variant_from_other_kind_slot27", address = 0x800116a0, size = 188 },
 ]
 
@@ -15129,7 +15129,7 @@ image = "slot27"
 source = "slot27/slot27_188c_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80011aac_slot27", address = 0x80011aac, size = 592 },
+  { name = "init_selection_object_for_active_other_side_slot27", address = 0x80011aac, size = 592 },
 ]
 
 [[unit]]
@@ -15138,7 +15138,7 @@ image = "slot27"
 source = "slot27/slot27_188c_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80011cfc_slot27", address = 0x80011cfc, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_a_3_slot27", address = 0x80011cfc, size = 64 },
   { name = "call_handler_by_state_2_set_flag_one_slot27", address = 0x80011d3c, size = 84 },
 ]
 
@@ -15327,7 +15327,7 @@ source = "slot27/slot27_3cc4_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "call_handler_by_state_0_2_slot27", address = 0x80013ee4, size = 64 },
-  { name = "func_80013f24_slot27", address = 0x80013f24, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_a_4_slot27", address = 0x80013f24, size = 64 },
   { name = "init_object_from_other_side_and_kind_2_slot27", address = 0x80013f64, size = 172 },
 ]
 
@@ -15338,7 +15338,7 @@ source = "slot27/slot27_3cc4_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "start_sequence_if_side_bit_set_2_slot27", address = 0x80014010, size = 208 },
-  { name = "func_800140e0_slot27", address = 0x800140e0, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_a_5_slot27", address = 0x800140e0, size = 64 },
 ]
 
 [[unit]]
@@ -15373,7 +15373,7 @@ functions = [
   { name = "call_handler_by_state_0_3_slot27", address = 0x800143ac, size = 64 },
   { name = "advance_state_0_and_init_table_entry_sequence_slot27", address = 0x800143ec, size = 64 },
   { name = "call_table_handler_then_advance_sequence_slot27", address = 0x8001442c, size = 84 },
-  { name = "func_80014480_slot27", address = 0x80014480, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_b_slot27", address = 0x80014480, size = 64 },
   { name = "start_horizontal_move_by_table_index_slot27", address = 0x800144c0, size = 64 },
 ]
 
@@ -15386,7 +15386,7 @@ functions = [
   { name = "add_angle_step_until_limit_slot27", address = 0x80014500, size = 64 },
   { name = "count_down_then_clear_flag_next_state_1_slot27", address = 0x80014540, size = 52 },
   { name = "release_object_to_pool_table_3_slot27", address = 0x80014574, size = 32 },
-  { name = "func_80014594_slot27", address = 0x80014594, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_b_2_slot27", address = 0x80014594, size = 64 },
   { name = "start_move_down_set_vel_y_slot27", address = 0x800145d4, size = 32 },
 ]
 
@@ -15408,11 +15408,11 @@ source = "slot27/slot27_4270_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "release_object_to_pool_table_4_slot27", address = 0x80014744, size = 32 },
-  { name = "func_80014764_slot27", address = 0x80014764, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_b_3_slot27", address = 0x80014764, size = 64 },
   { name = "start_move_down_set_vel_y_2_slot27", address = 0x800147a4, size = 32 },
-  { name = "func_800147c4_slot27", address = 0x800147c4, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_b_4_slot27", address = 0x800147c4, size = 64 },
   { name = "start_spawn_x20_move_down_slot27", address = 0x80014804, size = 48 },
-  { name = "func_80014834_slot27", address = 0x80014834, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_b_5_slot27", address = 0x80014834, size = 64 },
   { name = "start_spawn_x10_move_left_slot27", address = 0x80014874, size = 48 },
 ]
 
@@ -15425,7 +15425,7 @@ functions = [
   { name = "add_angle_step_and_advance_state_1_slot27", address = 0x800148a4, size = 136 },
   { name = "hide_and_advance_state_1_slot27", address = 0x8001492c, size = 20 },
   { name = "release_object_to_pool_table_5_slot27", address = 0x80014940, size = 32 },
-  { name = "func_80014960_slot27", address = 0x80014960, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_b_6_slot27", address = 0x80014960, size = 64 },
   { name = "start_spawn_x10_move_right_slot27", address = 0x800149a0, size = 48 },
 ]
 
@@ -15436,7 +15436,7 @@ source = "slot27/slot27_48a4_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "show_object_and_release_on_step_flags_slot27", address = 0x800149d0, size = 100 },
-  { name = "func_80014a34_slot27", address = 0x80014a34, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_b_7_slot27", address = 0x80014a34, size = 64 },
   { name = "place_by_other_side_and_start_sequence_slot27", address = 0x80014a74, size = 168 },
 ]
 
@@ -15486,7 +15486,7 @@ image = "slot27"
 source = "slot27/slot27_4f30_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80014f30_slot27", address = 0x80014f30, size = 64 },
+  { name = "call_state_1_handler_from_slot27_table_b_8_slot27", address = 0x80014f30, size = 64 },
   { name = "follow_other_position_and_advance_state_0_slot27", address = 0x80014f70, size = 100 },
   { name = "reset_state_1_and_init_two_child_objects_slot27", address = 0x80014fd4, size = 32 },
   { name = "advance_state_and_set_linked_state_2_slot27", address = 0x80014ff4, size = 92 },
@@ -15570,7 +15570,7 @@ image = "slot27"
 source = "slot27/slot27_5528_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800158c0_slot27", address = 0x800158c0, size = 144 },
+  { name = "set_origin_values_from_kind_index_tables_slot27", address = 0x800158c0, size = 144 },
 ]
 
 [[unit]]
@@ -15589,7 +15589,7 @@ image = "slot27"
 source = "slot27/slot27_5ab4_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80015ab4_slot27", address = 0x80015ab4, size = 496 },
+  { name = "init_table_placed_object_with_image_upload_slot27", address = 0x80015ab4, size = 496 },
 ]
 
 [[unit]]
@@ -15849,7 +15849,7 @@ image = "slot27"
 source = "slot27/slot27_3198x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80013198_slot27", address = 0x80013198, size = 848 },
+  { name = "start_selection_slide_or_advance_state_1_slot27", address = 0x80013198, size = 848 },
 ]
 
 [[unit]]
@@ -16276,7 +16276,7 @@ functions = [
   { name = "call_handler_by_state_3_play_flag_sound_slot04_0c", address = 0x801b0430, size = 116 },
   { name = "start_state_check_direction_4_slot04_0c", address = 0x801b04a4, size = 76 },
   { name = "load_velocities_from_table_2_slot04_0c", address = 0x801b04f0, size = 32 },
-  { name = "func_801b0510_slot04_0c", address = 0x801b0510, size = 128 },
+  { name = "shift_x_on_flag_byte_or_reset_at_sequence_end_slot04_0c", address = 0x801b0510, size = 128 },
   { name = "call_handler_by_state_3_set_flag_slot04_0c", address = 0x801b0590, size = 68 },
   { name = "advance_state_3_and_start_sequence_slot04_0c", address = 0x801b05d4, size = 48 },
   { name = "load_velocities_from_table_3_slot04_0c", address = 0x801b0604, size = 32 },
@@ -16372,7 +16372,7 @@ source = "slot04_0c/slot04_0c_1e10_r1_b.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "slide_x_and_set_other_lock_slot04_0c", address = 0x801b2004, size = 244 },
-  { name = "func_801b20f8_slot04_0c", address = 0x801b20f8, size = 172 },
+  { name = "slide_x_decelerating_until_flag_then_set_rise_slot04_0c", address = 0x801b20f8, size = 172 },
   { name = "rise_until_vel_y_negative_slot04_0c", address = 0x801b21a4, size = 108 },
   { name = "apply_gravity_until_landing_or_step_flag_slot04_0c", address = 0x801b2210, size = 152 },
   { name = "update_sequence_or_call_finish_on_flag_slot04_0c", address = 0x801b22a8, size = 68 },
@@ -16393,11 +16393,11 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "update_countdown_state_with_counter_slot04_0c", address = 0x801b2638, size = 208 },
   { name = "call_table_function_by_state_3_10_slot04_0c", address = 0x801b2708, size = 64 },
-  { name = "func_801b2748_slot04_0c", address = 0x801b2748, size = 92 },
+  { name = "start_sequence_35_and_apply_velocities_slot04_0c", address = 0x801b2748, size = 92 },
   { name = "update_sequence_and_apply_velocity_slot04_0c", address = 0x801b27a4, size = 48 },
   { name = "apply_velocities_or_land_slot04_0c", address = 0x801b27d4, size = 60 },
   { name = "call_table_function_by_state_3_11_slot04_0c", address = 0x801b2810, size = 64 },
-  { name = "func_801b2850_slot04_0c", address = 0x801b2850, size = 116 },
+  { name = "start_backward_slide_with_vel_x_slot04_0c", address = 0x801b2850, size = 116 },
   { name = "finish_move_or_advance_with_vel_x_slot04_0c", address = 0x801b28c4, size = 156 },
   { name = "count_down_then_reset_object_else_update_2_slot04_0c", address = 0x801b2960, size = 76 },
   { name = "start_move_forward_with_vel_x_slot04_0c", address = 0x801b29ac, size = 72 },
@@ -16406,7 +16406,7 @@ functions = [
   { name = "spawn_direction_children_on_low_flag_byte_b_slot04_0c", address = 0x801b2a98, size = 128 },
   { name = "func_801b2b18_slot04_0c", address = 0x801b2b18, size = 140 },
   { name = "advance_state_3_on_low_flag_slot04_0c", address = 0x801b2ba4, size = 72 },
-  { name = "func_801b2bec_slot04_0c", address = 0x801b2bec, size = 192 },
+  { name = "start_table_jump_when_step_flag_zero_slot04_0c", address = 0x801b2bec, size = 192 },
   { name = "move_arc_until_vel_x_negative_advance_slot04_0c", address = 0x801b2cac, size = 172 },
   { name = "fall_until_landing_or_step_flag_slot04_0c", address = 0x801b2d58, size = 152 },
   { name = "update_sequence_or_call_finish_on_flag_2_slot04_0c", address = 0x801b2df0, size = 68 },
@@ -16460,8 +16460,8 @@ functions = [
   { name = "advance_state_2_set_box_tables_and_sequence_slot04_0c", address = 0x801b3ca4, size = 72 },
   { name = "count_down_then_reset_states_and_advance_slot04_0c", address = 0x801b3cec, size = 80 },
   { name = "call_state_2_handler_2684_wrapper_slot04_0c", address = 0x801b3d3c, size = 32 },
-  { name = "func_801b3d5c_slot04_0c", address = 0x801b3d5c, size = 48 },
-  { name = "func_801b3d8c_slot04_0c", address = 0x801b3d8c, size = 48 },
+  { name = "set_countdown_2_then_call_state_2_handler_slot04_0c", address = 0x801b3d5c, size = 48 },
+  { name = "set_countdown_2_then_call_alt_state_2_handler_slot04_0c", address = 0x801b3d8c, size = 48 },
   { name = "call_handler_by_state_1_slot01_slot04_0c", address = 0x801b3dbc, size = 84 },
 ]
 
@@ -16704,7 +16704,7 @@ functions = [
   { name = "update_airborne_sequence_land_on_ground_slot04_0d", address = 0x801b3348, size = 120 },
   { name = "call_table_function_by_state_3_16_slot04_0d", address = 0x801b33c0, size = 64 },
   { name = "start_state_sound_input_facing_snap_to_other_box_slot04_0d", address = 0x801b3400, size = 124 },
-  { name = "func_801b347c_slot04_0d", address = 0x801b347c, size = 276 },
+  { name = "update_sequence_launch_other_on_flag_slot04_0d", address = 0x801b347c, size = 276 },
   { name = "fall_until_near_ground_then_start_sequence_slot04_0d", address = 0x801b3590, size = 124 },
   { name = "fall_until_ground_then_land_sequence_b_slot04_0d", address = 0x801b360c, size = 120 },
   { name = "update_sequence_or_finish_sequence_5_slot04_0d", address = 0x801b3684, size = 64 },
@@ -16752,8 +16752,8 @@ functions = [
   { name = "advance_state_2_set_box_tables_and_countdown_slot04_0d", address = 0x801b3e78, size = 72 },
   { name = "count_down_then_reset_states_slot04_0d", address = 0x801b3ec0, size = 60 },
   { name = "call_state_2_handler_2684_wrapper_slot04_0d", address = 0x801b3efc, size = 32 },
-  { name = "func_801b3f1c_slot04_0d", address = 0x801b3f1c, size = 48 },
-  { name = "func_801b3f4c_slot04_0d", address = 0x801b3f4c, size = 48 },
+  { name = "set_countdown_low_then_call_state_2_handler_slot04_0d", address = 0x801b3f1c, size = 48 },
+  { name = "set_countdown_low_then_call_alt_state_2_handler_slot04_0d", address = 0x801b3f4c, size = 48 },
 ]
 
 [[unit]]
@@ -16801,12 +16801,12 @@ functions = [
   { name = "call_table_function_by_state_3_17_slot04_0d", address = 0x801b4954, size = 64 },
   { name = "advance_state_3_restore_facing_set_sequence_slot04_0d", address = 0x801b4994, size = 56 },
   { name = "update_sequence_or_reset_on_negative_flags_2_slot04_0d", address = 0x801b49cc, size = 100 },
-  { name = "func_801b4a30_slot04_0d", address = 0x801b4a30, size = 136 },
+  { name = "start_sequence_by_variant_with_meter_sound_slot04_0d", address = 0x801b4a30, size = 136 },
   { name = "call_handler_by_state_0_2_slot04_0d", address = 0x801b4ab8, size = 64 },
   { name = "init_rise_toward_parent_then_call_handler_slot04_0d", address = 0x801b4af8, size = 112 },
   { name = "call_handler_by_state_1_unless_gate_slot04_0d", address = 0x801b4b68, size = 120 },
   { name = "update_rise_until_parent_ground_offset_slot04_0d", address = 0x801b4be0, size = 156 },
-  { name = "func_801b4c7c_slot04_0d", address = 0x801b4c7c, size = 60 },
+  { name = "count_down_then_set_upward_velocity_state_1_slot04_0d", address = 0x801b4c7c, size = 60 },
   { name = "update_fall_until_parent_ground_slot04_0d", address = 0x801b4cb8, size = 160 },
   { name = "call_advance_sequence_checked_slot04_0d", address = 0x801b4d58, size = 32 },
   { name = "increment_state_0_2_slot04_0d", address = 0x801b4d78, size = 20 },
@@ -16996,7 +16996,7 @@ functions = [
   { name = "update_fall_land_with_sound_variant_a_slot04_10", address = 0x801b3b6c, size = 124 },
   { name = "update_or_end_with_other_state_code_5_slot04_10", address = 0x801b3be8, size = 116 },
   { name = "call_table_function_by_state_3_15_slot04_10", address = 0x801b3c5c, size = 64 },
-  { name = "func_801b3c9c_slot04_10", address = 0x801b3c9c, size = 164 },
+  { name = "start_direction_sequence_add_meter_check_range_slot04_10", address = 0x801b3c9c, size = 164 },
   { name = "check_range_then_enter_hit_or_fallback_slot04_10", address = 0x801b3d40, size = 188 },
   { name = "update_hit_and_shift_by_step_flag_table_slot04_10", address = 0x801b3dfc, size = 344 },
   { name = "launch_from_table_on_step_flag_3_slot04_10", address = 0x801b3f54, size = 244 },
@@ -17081,7 +17081,7 @@ functions = [
   { name = "start_sequence_29_with_effects_slot04_10", address = 0x801b5940, size = 92 },
   { name = "update_spawn_children_on_step_flag_high_byte_slot04_10", address = 0x801b599c, size = 124 },
   { name = "release_other_when_step_flag_high_byte_clear_slot04_10", address = 0x801b5a18, size = 164 },
-  { name = "func_801b5abc_slot04_10", address = 0x801b5abc, size = 212 },
+  { name = "try_force_other_then_spawn_children_or_end_slot04_10", address = 0x801b5abc, size = 212 },
   { name = "update_multi_step_attack_with_flag_codes_slot04_10", address = 0x801b5b90, size = 576 },
   { name = "set_vertical_motion_from_table_slot04_10", address = 0x801b5dd0, size = 120 },
   { name = "update_rise_then_set_accel_y_from_field_slot04_10", address = 0x801b5e48, size = 84 },
@@ -17137,11 +17137,11 @@ functions = [
   { name = "dispatch_by_input_dir_0_2_slot04_10", address = 0x801b6888, size = 88 },
   { name = "call_handler_by_input_dir_second_2_slot04_10", address = 0x801b68e0, size = 64 },
   { name = "call_handler_by_state_3_0_1_slot04_10", address = 0x801b6920, size = 72 },
-  { name = "func_801b6968_slot04_10", address = 0x801b6968, size = 136 },
+  { name = "restore_facing_force_other_wide_or_set_sequence_slot04_10", address = 0x801b6968, size = 136 },
   { name = "set_states_1_2_0_0_2_slot04_10", address = 0x801b69f0, size = 28 },
   { name = "update_sequence_nudge_x_or_reset_slot04_10", address = 0x801b6a0c, size = 148 },
   { name = "call_handler_by_state_3_0_1_2_slot04_10", address = 0x801b6aa0, size = 72 },
-  { name = "func_801b6ae8_slot04_10", address = 0x801b6ae8, size = 136 },
+  { name = "restore_facing_force_other_near_or_set_sequence_slot04_10", address = 0x801b6ae8, size = 136 },
   { name = "update_sequence_reset_state_3_on_check_slot04_10", address = 0x801b6b70, size = 100 },
   { name = "set_flag_and_call_function_by_state_3_slot04_10", address = 0x801b6bd4, size = 76 },
   { name = "update_state_restore_facing_no_second_dir_slot04_10", address = 0x801b6c20, size = 152 },
@@ -17318,7 +17318,7 @@ functions = [
   { name = "update_airborne_sequence_land_on_ground_slot04_15", address = 0x801b3350, size = 120 },
   { name = "call_table_function_by_state_3_16_slot04_15", address = 0x801b33c8, size = 64 },
   { name = "start_state_sound_input_facing_snap_to_other_box_slot04_15", address = 0x801b3408, size = 124 },
-  { name = "func_801b3484_slot04_15", address = 0x801b3484, size = 276 },
+  { name = "update_sequence_launch_other_on_flag_slot04_15", address = 0x801b3484, size = 276 },
   { name = "move_and_switch_sequence_near_ground_slot04_15", address = 0x801b3598, size = 124 },
   { name = "fall_until_ground_then_land_sequence_b_slot04_15", address = 0x801b3614, size = 120 },
   { name = "update_sequence_or_finish_sequence_5_slot04_15", address = 0x801b368c, size = 64 },
@@ -17370,7 +17370,7 @@ functions = [
   { name = "init_rise_toward_parent_then_call_handler_slot04_15", address = 0x801b4384, size = 112 },
   { name = "call_handler_by_state_1_unless_gate_slot04_15", address = 0x801b43f4, size = 120 },
   { name = "update_rise_until_parent_ground_offset_slot04_15", address = 0x801b446c, size = 156 },
-  { name = "func_801b4508_slot04_15", address = 0x801b4508, size = 60 },
+  { name = "count_down_then_set_upward_velocity_state_1_slot04_15", address = 0x801b4508, size = 60 },
 ]
 
 [[unit]]
@@ -17387,7 +17387,7 @@ functions = [
   { name = "call_handler_by_input_dir_second_3_slot04_15", address = 0x801b4678, size = 64 },
   { name = "call_handler_by_direction_index_3_slot04_15", address = 0x801b46b8, size = 68 },
   { name = "call_handler_by_state_3_slot04_15", address = 0x801b46fc, size = 64 },
-  { name = "func_801b473c_slot04_15", address = 0x801b473c, size = 144 },
+  { name = "restore_facing_force_other_short_or_set_sequence_slot04_15", address = 0x801b473c, size = 144 },
   { name = "update_sequence_reset_state_3_on_check_slot04_15", address = 0x801b47cc, size = 100 },
   { name = "call_handler_by_state_3_2_slot04_15", address = 0x801b4830, size = 64 },
   { name = "enter_state_or_start_direction_sequence_set_flag_slot04_15", address = 0x801b4870, size = 132 },
@@ -17402,7 +17402,7 @@ functions = [
   { name = "call_table_function_by_state_3_17_slot04_15", address = 0x801b4c58, size = 64 },
   { name = "advance_state_3_restore_facing_set_sequence_slot04_15", address = 0x801b4c98, size = 56 },
   { name = "update_sequence_or_reset_on_negative_flags_2_slot04_15", address = 0x801b4cd0, size = 100 },
-  { name = "func_801b4d34_slot04_15", address = 0x801b4d34, size = 136 },
+  { name = "start_sequence_by_variant_with_meter_sound_slot04_15", address = 0x801b4d34, size = 136 },
 ]
 
 [[unit]]
@@ -17412,7 +17412,7 @@ source = "slot04_16/slot04_16_0118_r1.c"
 flags = ["-O2", "-G0"]
 rodata = { address = 0x801b0000, size = 16 }
 functions = [
-  { name = "func_801b0118_slot04_16", address = 0x801b0118, size = 388 },
+  { name = "init_data_pointers_copy_scratch_spawn_child_slot04_16", address = 0x801b0118, size = 388 },
   { name = "dispatch_by_input_dir_0_slot04_16", address = 0x801b029c, size = 88 },
   { name = "call_handler_by_input_dir_second_slot04_16", address = 0x801b02f4, size = 64 },
   { name = "call_table_function_by_state_3_slot04_16", address = 0x801b0334, size = 64 },
@@ -17563,7 +17563,7 @@ functions = [
   { name = "update_fall_land_with_sound_variant_a_slot04_16", address = 0x801b3ba4, size = 124 },
   { name = "update_or_end_with_other_state_code_5_slot04_16", address = 0x801b3c20, size = 116 },
   { name = "call_table_function_by_state_3_15_slot04_16", address = 0x801b3c94, size = 64 },
-  { name = "func_801b3cd4_slot04_16", address = 0x801b3cd4, size = 164 },
+  { name = "start_direction_sequence_add_meter_check_range_slot04_16", address = 0x801b3cd4, size = 164 },
   { name = "check_range_then_enter_hit_or_fallback_slot04_16", address = 0x801b3d78, size = 188 },
   { name = "update_hit_and_shift_by_step_flag_table_slot04_16", address = 0x801b3e34, size = 344 },
   { name = "launch_from_table_on_step_flag_3_slot04_16", address = 0x801b3f8c, size = 244 },
@@ -17632,7 +17632,7 @@ functions = [
   { name = "start_sequence_29_with_effects_slot04_16", address = 0x801b5978, size = 92 },
   { name = "update_spawn_children_on_step_flag_high_byte_slot04_16", address = 0x801b59d4, size = 124 },
   { name = "release_other_when_step_flag_high_byte_clear_slot04_16", address = 0x801b5a50, size = 164 },
-  { name = "func_801b5af4_slot04_16", address = 0x801b5af4, size = 212 },
+  { name = "try_force_other_then_spawn_children_or_end_slot04_16", address = 0x801b5af4, size = 212 },
   { name = "update_multi_step_attack_with_flag_codes_slot04_16", address = 0x801b5bc8, size = 576 },
   { name = "set_vertical_motion_from_table_slot04_16", address = 0x801b5e08, size = 120 },
   { name = "update_rise_then_set_accel_y_from_field_slot04_16", address = 0x801b5e80, size = 84 },
@@ -17680,11 +17680,11 @@ functions = [
   { name = "dispatch_by_input_dir_0_2_slot04_16", address = 0x801b68c0, size = 88 },
   { name = "call_handler_by_input_dir_second_2_slot04_16", address = 0x801b6918, size = 64 },
   { name = "call_handler_by_state_3_0_1_slot04_16", address = 0x801b6958, size = 72 },
-  { name = "func_801b69a0_slot04_16", address = 0x801b69a0, size = 136 },
+  { name = "restore_facing_force_other_wide_or_set_sequence_slot04_16", address = 0x801b69a0, size = 136 },
   { name = "set_states_1_2_0_0_2_slot04_16", address = 0x801b6a28, size = 28 },
   { name = "update_sequence_nudge_x_or_reset_slot04_16", address = 0x801b6a44, size = 148 },
   { name = "call_handler_by_state_3_0_1_2_slot04_16", address = 0x801b6ad8, size = 72 },
-  { name = "func_801b6b20_slot04_16", address = 0x801b6b20, size = 136 },
+  { name = "restore_facing_force_other_near_or_set_sequence_slot04_16", address = 0x801b6b20, size = 136 },
   { name = "update_sequence_reset_state_3_on_check_slot04_16", address = 0x801b6ba8, size = 100 },
   { name = "set_flag_and_call_function_by_state_3_slot04_16", address = 0x801b6c0c, size = 76 },
   { name = "update_state_restore_facing_no_second_dir_slot04_16", address = 0x801b6c58, size = 152 },
@@ -17948,7 +17948,7 @@ source = "slot04_0f/slot04_0f_1d04_r1_c.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "spawn_linked_object_type_0f_on_step_flag_slot04_0f", address = 0x801b2504, size = 320 },
-  { name = "func_801b2644_slot04_0f", address = 0x801b2644, size = 136 },
+  { name = "update_sequence_with_timer_or_reset_on_end_slot04_0f", address = 0x801b2644, size = 136 },
   { name = "call_table_function_by_state_3_8_slot04_0f", address = 0x801b26cc, size = 64 },
 ]
 
@@ -18124,7 +18124,7 @@ functions = [
   { name = "set_state_0_to_3_on_sequence_end_2_slot04_0f", address = 0x801b5708, size = 64 },
   { name = "unlink_from_parent_and_release_slot04_0f", address = 0x801b5748, size = 108 },
   { name = "copy_parent_position_with_offset_slot04_0f", address = 0x801b57b4, size = 124 },
-  { name = "func_801b5830_slot04_0f", address = 0x801b5830, size = 52 },
+  { name = "set_sequence_by_sound_side_shifted_by_flag_slot04_0f", address = 0x801b5830, size = 52 },
   { name = "call_handler_by_state_0_with_parent_2_slot04_0f", address = 0x801b5864, size = 80 },
 ]
 
@@ -18354,9 +18354,9 @@ functions = [
   { name = "call_table_function_by_state_3_2_slot04_11", address = 0x801b19f8, size = 64 },
   { name = "start_table_velocity_move_with_meter_gain_slot04_11", address = 0x801b1a38, size = 308 },
   { name = "enter_next_state_3_if_mode_zero_slot04_11", address = 0x801b1b6c, size = 96 },
-  { name = "func_801b1bcc_slot04_11", address = 0x801b1bcc, size = 140 },
+  { name = "launch_on_active_flag_then_move_or_fall_slot04_11", address = 0x801b1bcc, size = 140 },
   { name = "set_fall_accel_y_start_sequence_slot04_11", address = 0x801b1c58, size = 64 },
-  { name = "func_801b1c98_slot04_11", address = 0x801b1c98, size = 356 },
+  { name = "update_repeated_launch_on_trigger_or_fall_slot04_11", address = 0x801b1c98, size = 356 },
   { name = "move_and_set_fall_accel_when_vel_y_negative_slot04_11", address = 0x801b1dfc, size = 88 },
 ]
 
@@ -18866,7 +18866,7 @@ functions = [
   { name = "update_fall_land_on_ground_slot04_12", address = 0x801b2a48, size = 164 },
   { name = "update_sequence_or_finish_set_other_code_slot04_12", address = 0x801b2aec, size = 96 },
   { name = "call_table_function_by_state_3_8_slot04_12", address = 0x801b2b4c, size = 64 },
-  { name = "func_801b2b8c_slot04_12", address = 0x801b2b8c, size = 92 },
+  { name = "start_sequence_with_meter_and_children_slot04_12", address = 0x801b2b8c, size = 92 },
   { name = "update_sequence_then_spawn_children_on_flag_byte_slot04_12", address = 0x801b2be8, size = 140 },
   { name = "set_table_value_on_sequence_end_sound_9_slot04_12", address = 0x801b2c74, size = 172 },
   { name = "update_sequence_or_spawn_pooled_object_slot04_12", address = 0x801b2d20, size = 328 },
@@ -19060,7 +19060,7 @@ functions = [
   { name = "call_table_function_by_state_3_2_slot04_17", address = 0x801b19e8, size = 64 },
   { name = "start_table_velocity_move_with_meter_gain_slot04_17", address = 0x801b1a28, size = 308 },
   { name = "enter_next_state_3_if_mode_zero_slot04_17", address = 0x801b1b5c, size = 96 },
-  { name = "func_801b1bbc_slot04_17", address = 0x801b1bbc, size = 140 },
+  { name = "launch_on_active_flag_then_move_or_fall_slot04_17", address = 0x801b1bbc, size = 140 },
   { name = "set_fall_accel_y_start_sequence_slot04_17", address = 0x801b1c48, size = 64 },
 ]
 
@@ -19070,7 +19070,7 @@ image = "slot04_17"
 source = "slot04_17/slot04_17_1c88_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b1c88_slot04_17", address = 0x801b1c88, size = 356 },
+  { name = "update_repeated_launch_on_trigger_or_fall_slot04_17", address = 0x801b1c88, size = 356 },
   { name = "move_and_set_fall_accel_when_vel_y_negative_slot04_17", address = 0x801b1dec, size = 88 },
   { name = "update_motion_land_with_direction_sequence_slot04_17", address = 0x801b1e44, size = 140 },
   { name = "update_sequence_or_set_other_state_code_5_2_slot04_17", address = 0x801b1ed0, size = 116 },
@@ -19584,7 +19584,7 @@ functions = [
   { name = "start_direction_sequence_or_special_slot04_0e", address = 0x801b3200, size = 132 },
   { name = "set_direction_bytes_from_byte_pair_slot04_0e", address = 0x801b3284, size = 116 },
   { name = "call_table_function_by_state_3_8_slot04_0e", address = 0x801b32f8, size = 64 },
-  { name = "func_801b3338_slot04_0e", address = 0x801b3338, size = 100 },
+  { name = "start_fall_lower_accel_y_and_update_air_motion_slot04_0e", address = 0x801b3338, size = 100 },
 ]
 
 [[unit]]
@@ -19753,7 +19753,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "save_counter_or_count_down_then_push_other_slot04_0e", address = 0x801b577c, size = 108 },
   { name = "call_table_function_by_state_3_18_slot04_0e", address = 0x801b57e8, size = 64 },
-  { name = "func_801b5828_slot04_0e", address = 0x801b5828, size = 176 },
+  { name = "start_horizontal_dash_with_direction_sequence_slot04_0e", address = 0x801b5828, size = 176 },
   { name = "update_move_or_start_input_sequence_slot04_0e", address = 0x801b58d8, size = 224 },
   { name = "launch_from_variant_table_then_update_slot04_0e", address = 0x801b59b8, size = 184 },
   { name = "move_land_start_sequence_thirty_seven_slot04_0e", address = 0x801b5a70, size = 128 },
@@ -19784,7 +19784,7 @@ functions = [
   { name = "clear_active_flag_and_finish_state_slot04_0e", address = 0x801b5f28, size = 32 },
   { name = "start_state_1_sequence_unless_paused_slot04_0e", address = 0x801b5f48, size = 132 },
   { name = "update_move_with_bound_push_check_slot04_0e", address = 0x801b5fcc, size = 204 },
-  { name = "func_801b6098_slot04_0e", address = 0x801b6098, size = 144 },
+  { name = "start_hop_velocities_or_land_by_flag_slot04_0e", address = 0x801b6098, size = 144 },
   { name = "land_on_ground_set_state_3_seven_slot04_0e", address = 0x801b6128, size = 64 },
 ]
 
@@ -20029,7 +20029,7 @@ image = "slot04_14"
 source = "slot04_14/slot04_14_1a00x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b1a00_slot04_14", address = 0x801b1a00, size = 264 },
+  { name = "start_move_with_velocities_from_direction_table_slot04_14", address = 0x801b1a00, size = 264 },
 ]
 
 [[unit]]
@@ -20057,17 +20057,17 @@ image = "slot04_14"
 source = "slot04_14/slot04_14_20a8_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b20a8_slot04_14", address = 0x801b20a8, size = 232 },
+  { name = "start_jump_with_tables_by_direction_index_slot04_14", address = 0x801b20a8, size = 232 },
   { name = "move_until_apex_then_start_fall_sequence_slot04_14", address = 0x801b2190, size = 204 },
   { name = "update_repeat_sequence_with_countdown_2_slot04_14", address = 0x801b225c, size = 152 },
-  { name = "func_801b22f4_slot04_14", address = 0x801b22f4, size = 112 },
+  { name = "move_then_land_sound_and_reset_or_update_slot04_14", address = 0x801b22f4, size = 112 },
   { name = "call_table_function_by_state_3_7_slot04_14", address = 0x801b2364, size = 64 },
   { name = "start_bounce_with_sound_and_sequence_slot04_14", address = 0x801b23a4, size = 260 },
   { name = "update_airborne_repeat_countdown_or_land_slot04_14", address = 0x801b24a8, size = 168 },
   { name = "update_airborne_until_sequence_end_or_land_slot04_14", address = 0x801b2550, size = 124 },
   { name = "update_fall_land_set_states_and_sequence_slot04_14", address = 0x801b25cc, size = 152 },
   { name = "land_on_ground_play_sound_set_landing_sequence_slot04_14", address = 0x801b2664, size = 88 },
-  { name = "func_801b26bc_slot04_14", address = 0x801b26bc, size = 64 },
+  { name = "move_with_gravity_return_above_ground_slot04_14", address = 0x801b26bc, size = 64 },
   { name = "call_table_function_by_state_3_8_slot04_14", address = 0x801b26fc, size = 64 },
   { name = "advance_state_3_add_meter_set_sequence_slot04_14", address = 0x801b273c, size = 84 },
   { name = "airborne_spawn_projectile_type_1_slot04_14", address = 0x801b2790, size = 372 },
@@ -20117,7 +20117,7 @@ functions = [
   { name = "update_delayed_hop_arc_and_landing_slot04_14", address = 0x801b3998, size = 280 },
   { name = "update_airborne_until_landing_slot04_14", address = 0x801b3ab0, size = 124 },
   { name = "call_table_function_by_state_3_13_slot04_14", address = 0x801b3b2c, size = 64 },
-  { name = "func_801b3b6c_slot04_14", address = 0x801b3b6c, size = 100 },
+  { name = "start_sequence_with_meter_gain_four_slot04_14", address = 0x801b3b6c, size = 100 },
   { name = "advance_to_directional_sequence_at_end_slot04_14", address = 0x801b3bd0, size = 104 },
   { name = "spawn_child_object_table_4_on_step_flag_slot04_14", address = 0x801b3c38, size = 320 },
   { name = "call_table_function_by_state_3_14_slot04_14", address = 0x801b3d78, size = 64 },
@@ -20146,7 +20146,7 @@ functions = [
   { name = "move_x_update_sequence_or_finish_slot04_14", address = 0x801b440c, size = 88 },
   { name = "call_table_function_by_state_3_17_slot04_14", address = 0x801b4464, size = 64 },
   { name = "call_table_function_by_state_3_18_slot04_14", address = 0x801b44a4, size = 64 },
-  { name = "func_801b44e4_slot04_14", address = 0x801b44e4, size = 116 },
+  { name = "start_state_3_sequence_choice_by_flag_add_meter_slot04_14", address = 0x801b44e4, size = 116 },
   { name = "load_velocities_from_table_on_step_flag_slot04_14", address = 0x801b4558, size = 220 },
   { name = "move_with_accel_advance_state_3_on_step_flag_slot04_14", address = 0x801b4634, size = 204 },
 ]
@@ -20254,7 +20254,7 @@ functions = [
   { name = "call_handler_by_limit_lo_bit_slot04_14", address = 0x801b69cc, size = 68 },
   { name = "start_air_state_pick_sequence_slot04_14", address = 0x801b6a10, size = 304 },
   { name = "call_table_function_by_state_3_25_slot04_14", address = 0x801b6b40, size = 64 },
-  { name = "func_801b6b80_slot04_14", address = 0x801b6b80, size = 76 },
+  { name = "set_downward_dash_velocity_and_move_to_ground_slot04_14", address = 0x801b6b80, size = 76 },
   { name = "move_until_ground_then_reset_state_slot04_14", address = 0x801b6bcc, size = 112 },
   { name = "set_object_states_0_to_3_2_slot04_14", address = 0x801b6c3c, size = 24 },
   { name = "call_handler_by_state_0_slot04_14", address = 0x801b6c54, size = 64 },
@@ -20347,7 +20347,7 @@ image = "slot04_14"
 source = "slot04_14/slot04_14_81f8x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b81f8_slot04_14", address = 0x801b81f8, size = 348 },
+  { name = "init_child_object_from_parent_with_palette_copy_slot04_14", address = 0x801b81f8, size = 348 },
 ]
 
 [[unit]]
@@ -20357,10 +20357,10 @@ source = "slot04_14/slot04_14_81f8_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "set_state_0_to_2_slot04_14", address = 0x801b8354, size = 12 },
-  { name = "func_801b8360_slot04_14", address = 0x801b8360, size = 176 },
+  { name = "update_palette_row_timer_or_advance_state_0_slot04_14", address = 0x801b8360, size = 176 },
   { name = "release_object_record_2_slot04_14", address = 0x801b8410, size = 32 },
-  { name = "func_801b8430_slot04_14", address = 0x801b8430, size = 136 },
-  { name = "func_801b84b8_slot04_14", address = 0x801b84b8, size = 200 },
+  { name = "copy_palette_table_by_arg_and_queue_upload_slot04_14", address = 0x801b8430, size = 136 },
+  { name = "copy_next_table_row_and_queue_upload_slot04_14", address = 0x801b84b8, size = 200 },
 ]
 
 [[unit]]
@@ -20660,7 +20660,7 @@ source = "slot28/slot28_3834_r1_b.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "call_handler_by_state_index_table_a_slot28", address = 0x8001392c, size = 68 },
-  { name = "func_80013970_slot28", address = 0x80013970, size = 8 },
+  { name = "ignore_object_empty_slot28", address = 0x80013970, size = 8 },
   { name = "advance_substep_and_set_active_flag_slot28", address = 0x80013978, size = 72 },
 ]
 
@@ -20806,7 +20806,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "start_countdown_when_object_field_negative_slot28", address = 0x80014f80, size = 88 },
   { name = "count_down_then_advance_pass_and_call_slot28", address = 0x80014fd8, size = 80 },
-  { name = "func_80015028_slot28", address = 0x80015028, size = 192 },
+  { name = "advance_pass_and_start_fade_1a01_if_idle_slot28", address = 0x80015028, size = 192 },
 ]
 
 [[unit]]
@@ -20895,7 +20895,7 @@ source = "slot28/slot28_57cc_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "blink_object_then_advance_sequence_stage_slot28", address = 0x80015b50, size = 204 },
-  { name = "func_80015c1c_slot28", address = 0x80015c1c, size = 128 },
+  { name = "drift_right_and_blink_field_slot28", address = 0x80015c1c, size = 128 },
 ]
 
 [[unit]]
@@ -21021,7 +21021,7 @@ image = "slot28"
 source = "slot28/slot28_6e58_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80017248_slot28", address = 0x80017248, size = 584 },
+  { name = "setup_pooled_objects_for_menu_screen_b_slot28", address = 0x80017248, size = 584 },
 ]
 
 [[unit]]
@@ -21098,7 +21098,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "call_handler_by_state_1_slot28", address = 0x80017f34, size = 64 },
   { name = "update_countdown_with_decreasing_reload_slot28", address = 0x80017f74, size = 96 },
-  { name = "func_80017fd4_slot28", address = 0x80017fd4, size = 12 },
+  { name = "set_object_flag_byte_to_one_slot28", address = 0x80017fd4, size = 12 },
 ]
 
 [[unit]]
@@ -21419,7 +21419,7 @@ image = "slot28"
 source = "slot28/slot28_b2b0_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001b660_slot28", address = 0x8001b660, size = 112 },
+  { name = "advance_pass_index_and_fade_on_negative_flag_slot28", address = 0x8001b660, size = 112 },
 ]
 
 [[unit]]
@@ -21865,7 +21865,7 @@ image = "slot28"
 source = "slot28/slot28_109c8_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80020fa4_slot28", address = 0x80020fa4, size = 188 },
+  { name = "toggle_marker_x_by_input_mask_with_delay_slot28", address = 0x80020fa4, size = 188 },
 ]
 
 [[unit]]
@@ -22645,7 +22645,7 @@ image = "slot28"
 source = "slot28/slot28_613cx_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001613c_slot28", address = 0x8001613c, size = 1028 },
+  { name = "setup_pooled_objects_for_menu_screen_a_slot28", address = 0x8001613c, size = 1028 },
 ]
 
 [[unit]]
@@ -22717,7 +22717,7 @@ image = "slot28"
 source = "slot28/slot28_3a00_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80014950_slot28", address = 0x80014950, size = 8 },
+  { name = "ignore_object_empty_2_slot28", address = 0x80014950, size = 8 },
   { name = "call_handler_by_hud_step_index_2_2_slot28", address = 0x80014958, size = 72 },
 ]
 
@@ -22765,7 +22765,7 @@ image = "slot28"
 source = "slot28/slot28_3a00_r9.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80015a68_slot28", address = 0x80015a68, size = 8 },
+  { name = "ignore_object_empty_3_slot28", address = 0x80015a68, size = 8 },
 ]
 
 [[unit]]
@@ -22774,7 +22774,7 @@ image = "slot28"
 source = "slot28/slot28_3a00_r10.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80015d34_slot28", address = 0x80015d34, size = 8 },
+  { name = "ignore_object_empty_4_slot28", address = 0x80015d34, size = 8 },
 ]
 
 [[unit]]
@@ -22783,7 +22783,7 @@ image = "slot28"
 source = "slot28/slot28_3a00_r11.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80015e3c_slot28", address = 0x80015e3c, size = 8 },
+  { name = "ignore_object_empty_5_slot28", address = 0x80015e3c, size = 8 },
 ]
 
 [[unit]]
@@ -22887,7 +22887,7 @@ image = "slot28"
 source = "slot28/slot28_6ee8_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80017144_slot28", address = 0x80017144, size = 8 },
+  { name = "ignore_object_empty_6_slot28", address = 0x80017144, size = 8 },
 ]
 
 [[unit]]
@@ -22897,8 +22897,8 @@ source = "slot28/slot28_6ee8_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "advance_state_1_if_variant_set_2_slot28", address = 0x800171a8, size = 40 },
-  { name = "func_800171d0_slot28", address = 0x800171d0, size = 8 },
-  { name = "func_800171d8_slot28", address = 0x800171d8, size = 8 },
+  { name = "ignore_object_empty_7_slot28", address = 0x800171d0, size = 8 },
+  { name = "ignore_object_empty_8_slot28", address = 0x800171d8, size = 8 },
 ]
 
 [[unit]]
@@ -22966,7 +22966,7 @@ image = "slot28"
 source = "slot28/slot28_6ee8_r10.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80017f2c_slot28", address = 0x80017f2c, size = 8 },
+  { name = "ignore_object_empty_9_slot28", address = 0x80017f2c, size = 8 },
 ]
 
 [[unit]]
@@ -22975,7 +22975,7 @@ image = "slot28"
 source = "slot28/slot28_6ee8_r11.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80017fe0_slot28", address = 0x80017fe0, size = 8 },
+  { name = "ignore_object_empty_10_slot28", address = 0x80017fe0, size = 8 },
 ]
 
 [[unit]]
@@ -23054,7 +23054,7 @@ image = "slot28"
 source = "slot28/slot28_8fb0_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80019444_slot28", address = 0x80019444, size = 8 },
+  { name = "ignore_object_empty_11_slot28", address = 0x80019444, size = 8 },
   { name = "call_handler_by_state_1_3_slot28", address = 0x8001944c, size = 64 },
 ]
 
@@ -23064,7 +23064,7 @@ image = "slot28"
 source = "slot28/slot28_8fb0_r6.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800194c8_slot28", address = 0x800194c8, size = 8 },
+  { name = "ignore_object_empty_12_slot28", address = 0x800194c8, size = 8 },
   { name = "call_handler_by_state_1_4_slot28", address = 0x800194d0, size = 64 },
 ]
 
@@ -23074,7 +23074,7 @@ image = "slot28"
 source = "slot28/slot28_8fb0_r7.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800195f8_slot28", address = 0x800195f8, size = 8 },
+  { name = "ignore_object_empty_13_slot28", address = 0x800195f8, size = 8 },
   { name = "call_handler_by_state_1_5_slot28", address = 0x80019600, size = 64 },
 ]
 
@@ -23084,7 +23084,7 @@ image = "slot28"
 source = "slot28/slot28_8fb0_r8.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800196f4_slot28", address = 0x800196f4, size = 8 },
+  { name = "ignore_object_empty_14_slot28", address = 0x800196f4, size = 8 },
 ]
 
 [[unit]]
@@ -23111,7 +23111,7 @@ image = "slot28"
 source = "slot28/slot28_8fb0_r11.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800198c8_slot28", address = 0x800198c8, size = 8 },
+  { name = "ignore_object_empty_15_slot28", address = 0x800198c8, size = 8 },
 ]
 
 [[unit]]
@@ -23130,9 +23130,9 @@ image = "slot28"
 source = "slot28/slot28_8fb0_r13.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800199a4_slot28", address = 0x800199a4, size = 8 },
-  { name = "func_800199ac_slot28", address = 0x800199ac, size = 8 },
-  { name = "func_800199b4_slot28", address = 0x800199b4, size = 8 },
+  { name = "ignore_object_empty_16_slot28", address = 0x800199a4, size = 8 },
+  { name = "ignore_object_empty_17_slot28", address = 0x800199ac, size = 8 },
+  { name = "ignore_object_empty_18_slot28", address = 0x800199b4, size = 8 },
 ]
 
 [[unit]]
@@ -23222,7 +23222,7 @@ image = "slot28"
 source = "slot28/slot28_a878_r7.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001aee0_slot28", address = 0x8001aee0, size = 12 },
+  { name = "set_object_flag_byte_to_one_2_slot28", address = 0x8001aee0, size = 12 },
   { name = "call_state_1_handler_d_and_show_4_slot28", address = 0x8001aeec, size = 84 },
 ]
 
@@ -23232,7 +23232,7 @@ image = "slot28"
 source = "slot28/slot28_a878_r8.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001b0f0_slot28", address = 0x8001b0f0, size = 8 },
+  { name = "ignore_object_empty_19_slot28", address = 0x8001b0f0, size = 8 },
   { name = "wait_timer_reload_then_advance_state_1_2_slot28", address = 0x8001b0f8, size = 56 },
   { name = "call_state_1_handler_d_and_show_5_slot28", address = 0x8001b130, size = 84 },
 ]
@@ -23332,7 +23332,7 @@ image = "slot28"
 source = "slot28/slot28_bae0_r7.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001c81c_slot28", address = 0x8001c81c, size = 8 },
+  { name = "ignore_object_empty_20_slot28", address = 0x8001c81c, size = 8 },
   { name = "call_handler_by_state_1_8_slot28", address = 0x8001c824, size = 64 },
 ]
 
@@ -23444,7 +23444,7 @@ image = "slot28"
 source = "slot28/slot28_cd04_r8.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001d93c_slot28", address = 0x8001d93c, size = 8 },
+  { name = "ignore_object_empty_21_slot28", address = 0x8001d93c, size = 8 },
   { name = "call_handler_by_state_1_12_slot28", address = 0x8001d944, size = 64 },
 ]
 
@@ -23454,7 +23454,7 @@ image = "slot28"
 source = "slot28/slot28_cd04_r9.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001d9c0_slot28", address = 0x8001d9c0, size = 8 },
+  { name = "ignore_object_empty_22_slot28", address = 0x8001d9c0, size = 8 },
 ]
 
 [[unit]]
@@ -23596,7 +23596,7 @@ image = "slot28"
 source = "slot28/slot28_ef04_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001f164_slot28", address = 0x8001f164, size = 8 },
+  { name = "ignore_object_empty_23_slot28", address = 0x8001f164, size = 8 },
   { name = "call_state_1_handler_d_and_show_8_slot28", address = 0x8001f16c, size = 84 },
 ]
 
@@ -23606,7 +23606,7 @@ image = "slot28"
 source = "slot28/slot28_ef04_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001f1fc_slot28", address = 0x8001f1fc, size = 8 },
+  { name = "ignore_object_empty_24_slot28", address = 0x8001f1fc, size = 8 },
   { name = "call_state_1_handler_d_and_show_9_slot28", address = 0x8001f204, size = 84 },
 ]
 
@@ -23616,7 +23616,7 @@ image = "slot28"
 source = "slot28/slot28_ef04_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8001f2e8_slot28", address = 0x8001f2e8, size = 8 },
+  { name = "ignore_object_empty_25_slot28", address = 0x8001f2e8, size = 8 },
 ]
 
 [[unit]]
@@ -23768,7 +23768,7 @@ image = "slot28"
 source = "slot28/slot28_1115c_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80021394_slot28", address = 0x80021394, size = 8 },
+  { name = "ignore_object_empty_26_slot28", address = 0x80021394, size = 8 },
   { name = "call_state_1_handler_then_advance_sequence_3_slot28", address = 0x8002139c, size = 84 },
 ]
 
@@ -23778,7 +23778,7 @@ image = "slot28"
 source = "slot28/slot28_1115c_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8002146c_slot28", address = 0x8002146c, size = 8 },
+  { name = "ignore_object_empty_27_slot28", address = 0x8002146c, size = 8 },
   { name = "call_handler_by_hud_step_index_2_13_slot28", address = 0x80021474, size = 72 },
 ]
 
@@ -23853,7 +23853,7 @@ image = "slot28"
 source = "slot28/slot28_11df4_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800220d4_slot28", address = 0x800220d4, size = 8 },
+  { name = "ignore_object_empty_28_slot28", address = 0x800220d4, size = 8 },
   { name = "call_state_1_handler_c_advance_and_show_3_slot28", address = 0x800220dc, size = 92 },
 ]
 
@@ -23863,7 +23863,7 @@ image = "slot28"
 source = "slot28/slot28_11df4_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80022188_slot28", address = 0x80022188, size = 8 },
+  { name = "ignore_object_empty_29_slot28", address = 0x80022188, size = 8 },
 ]
 
 [[unit]]
@@ -23949,7 +23949,7 @@ image = "slot28"
 source = "slot28/slot28_12d38_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80023080_slot28", address = 0x80023080, size = 8 },
+  { name = "ignore_object_empty_30_slot28", address = 0x80023080, size = 8 },
 ]
 
 [[unit]]
@@ -24036,7 +24036,7 @@ image = "slot28"
 source = "slot28/slot28_12d38_r11.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80023fa0_slot28", address = 0x80023fa0, size = 8 },
+  { name = "ignore_object_empty_31_slot28", address = 0x80023fa0, size = 8 },
   { name = "call_handler_by_state_1_14_slot28", address = 0x80023fa8, size = 64 },
 ]
 
@@ -24046,7 +24046,7 @@ image = "slot28"
 source = "slot28/slot28_12d38_r12.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80024088_slot28", address = 0x80024088, size = 8 },
+  { name = "ignore_object_empty_32_slot28", address = 0x80024088, size = 8 },
   { name = "call_handler_by_state_1_15_slot28", address = 0x80024090, size = 64 },
 ]
 
@@ -24065,7 +24065,7 @@ image = "slot28"
 source = "slot28/slot28_14494_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80024494_slot28", address = 0x80024494, size = 8 },
+  { name = "ignore_object_empty_33_slot28", address = 0x80024494, size = 8 },
   { name = "call_handler_by_state_1_16_slot28", address = 0x8002449c, size = 64 },
 ]
 
@@ -24075,7 +24075,7 @@ image = "slot28"
 source = "slot28/slot28_14494_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80024554_slot28", address = 0x80024554, size = 8 },
+  { name = "ignore_object_empty_34_slot28", address = 0x80024554, size = 8 },
 ]
 
 [[unit]]
@@ -24102,7 +24102,7 @@ image = "slot28"
 source = "slot28/slot28_14494_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8002473c_slot28", address = 0x8002473c, size = 8 },
+  { name = "ignore_object_empty_35_slot28", address = 0x8002473c, size = 8 },
 ]
 
 [[unit]]
@@ -24182,7 +24182,7 @@ image = "slot28"
 source = "slot28/slot28_14494_r11.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8002537c_slot28", address = 0x8002537c, size = 12 },
+  { name = "set_object_flag_byte_to_one_3_slot28", address = 0x8002537c, size = 12 },
 ]
 
 [[unit]]
@@ -24253,7 +24253,7 @@ image = "slot28"
 source = "slot28/slot28_157a4_r7.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80026254_slot28", address = 0x80026254, size = 8 },
+  { name = "ignore_object_empty_36_slot28", address = 0x80026254, size = 8 },
   { name = "call_handler_by_state_1_18_slot28", address = 0x8002625c, size = 64 },
 ]
 
@@ -24263,7 +24263,7 @@ image = "slot28"
 source = "slot28/slot28_157a4_r8.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_800262d8_slot28", address = 0x800262d8, size = 8 },
+  { name = "ignore_object_empty_37_slot28", address = 0x800262d8, size = 8 },
   { name = "advance_state_0_on_negative_step_flags_2_slot28", address = 0x800262e0, size = 64 },
 ]
 
@@ -24334,7 +24334,7 @@ image = "slot28"
 source = "slot28/slot28_163f8_r8.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80028030_slot28", address = 0x80028030, size = 8 },
+  { name = "ignore_object_empty_38_slot28", address = 0x80028030, size = 8 },
 ]
 
 [[unit]]
@@ -25056,7 +25056,7 @@ image = "slot01"
 source = "slot01/slot01_1a14_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80011e28_slot01", address = 0x80011e28, size = 144 },
+  { name = "update_x_shake_until_vel_x_zero_slot01", address = 0x80011e28, size = 144 },
   { name = "advance_state_0_on_record_value_flag_slot01", address = 0x80011eb8, size = 48 },
   { name = "init_object_and_activate_linked_object_slot01", address = 0x80011ee8, size = 76 },
   { name = "load_velocities_from_table_slot01", address = 0x80011f34, size = 32 },
@@ -25226,7 +25226,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "move_pos_y_to_target_by_eight_slot01", address = 0x800138a4, size = 100 },
   { name = "move_pos_x_toward_target_slot01", address = 0x80013908, size = 132 },
-  { name = "func_8001398c_slot01", address = 0x8001398c, size = 48 },
+  { name = "advance_state_0_when_parent_states_are_1_1_slot01", address = 0x8001398c, size = 48 },
   { name = "noop_slot00_slot01", address = 0x800139bc, size = 8 },
 ]
 
@@ -26410,7 +26410,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_7bfcx_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b7bfc_slot04_02", address = 0x801b7bfc, size = 348 },
+  { name = "init_child_object_from_parent_with_palette_copy_slot04_02", address = 0x801b7bfc, size = 348 },
 ]
 
 [[unit]]
@@ -29660,8 +29660,8 @@ source = "slot04_0b/slot04_0b_0000_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "inc_state_3_side_sequence_forty_eight_slot04_0b", address = 0x801b037c, size = 44 },
-  { name = "func_801b03a8_slot04_0b", address = 0x801b03a8, size = 80 },
-  { name = "func_801b03f8_slot04_0b", address = 0x801b03f8, size = 132 },
+  { name = "advance_state_3_at_sequence_end_set_sequence_slot04_0b", address = 0x801b03a8, size = 80 },
+  { name = "start_jump_velocities_at_sequence_end_slot04_0b", address = 0x801b03f8, size = 132 },
   { name = "move_ballistic_then_land_on_ground_slot04_0b", address = 0x801b047c, size = 108 },
 ]
 
@@ -29898,7 +29898,7 @@ source = "slot04_00/slot04_00_1b10_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "move_with_gravity_and_check_ground_slot04_00", address = 0x801b1c5c, size = 68 },
-  { name = "func_801b1ca0_slot04_00", address = 0x801b1ca0, size = 140 },
+  { name = "call_state_3_table_clear_flag_near_ground_slot04_00", address = 0x801b1ca0, size = 140 },
 ]
 
 [[unit]]
@@ -30248,7 +30248,7 @@ image = "slot04_01"
 source = "slot04_01/slot04_01_24c8_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b24c8_slot04_01", address = 0x801b24c8, size = 404 },
+  { name = "update_slide_decay_or_launch_on_flag_bit_slot04_01", address = 0x801b24c8, size = 404 },
 ]
 
 [[unit]]
@@ -30369,7 +30369,7 @@ image = "slot04_01"
 source = "slot04_01/slot04_01_2f40_r7.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b3640_slot04_01", address = 0x801b3640, size = 184 },
+  { name = "start_jump_facing_from_input_top_bit_slot04_01", address = 0x801b3640, size = 184 },
 ]
 
 [[unit]]
@@ -30482,7 +30482,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_1fdc_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b1fdc_slot04_02", address = 0x801b1fdc, size = 248 },
+  { name = "start_jump_with_direction_tables_and_meter_slot04_02", address = 0x801b1fdc, size = 248 },
 ]
 
 [[unit]]
@@ -30500,7 +30500,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_1fdc_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b2310_slot04_02", address = 0x801b2310, size = 248 },
+  { name = "add_directional_vel_x_boost_and_set_sequence_slot04_02", address = 0x801b2310, size = 248 },
 ]
 
 [[unit]]
@@ -30706,7 +30706,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_44b4_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b44b4_slot04_02", address = 0x801b44b4, size = 120 },
+  { name = "start_sequence_with_meter_gain_one_slot04_02", address = 0x801b44b4, size = 120 },
 ]
 
 [[unit]]
@@ -30724,7 +30724,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_44b4_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b4ad8_slot04_02", address = 0x801b4ad8, size = 144 },
+  { name = "start_hop_from_other_box_position_slot04_02", address = 0x801b4ad8, size = 144 },
 ]
 
 [[unit]]
@@ -30733,7 +30733,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_44b4_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b4ba0_slot04_02", address = 0x801b4ba0, size = 148 },
+  { name = "start_high_hop_from_other_box_position_slot04_02", address = 0x801b4ba0, size = 148 },
 ]
 
 [[unit]]
@@ -30874,7 +30874,7 @@ source = "slot04_03/slot04_03_1304_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "call_handler_by_substate_index_slot04_03", address = 0x801b1790, size = 64 },
-  { name = "func_801b17d0_slot04_03", address = 0x801b17d0, size = 100 },
+  { name = "advance_substate_start_direction_sequence_slot04_03", address = 0x801b17d0, size = 100 },
 ]
 
 [[unit]]
@@ -30914,7 +30914,7 @@ image = "slot04_03"
 source = "slot04_03/slot04_03_1ab0_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b1cfc_slot04_03", address = 0x801b1cfc, size = 116 },
+  { name = "start_decelerating_motion_with_spawns_slot04_03", address = 0x801b1cfc, size = 116 },
   { name = "spawn_children_on_step_flag_then_update_sequence_slot04_03", address = 0x801b1d70, size = 128 },
 ]
 
@@ -31028,7 +31028,7 @@ image = "slot04_03"
 source = "slot04_03/slot04_03_28c8_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b2e64_slot04_03", address = 0x801b2e64, size = 92 },
+  { name = "update_sequence_spawn_effect_on_step_flags_slot04_03", address = 0x801b2e64, size = 92 },
   { name = "start_alt_sequence_when_step_flags_negative_slot04_03", address = 0x801b2ec0, size = 84 },
 ]
 
@@ -31230,7 +31230,7 @@ image = "slot04_05"
 source = "slot04_05/slot04_05_0a48_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b0a48_slot04_05", address = 0x801b0a48, size = 148 },
+  { name = "start_sequence_on_input_bit_or_from_direction_slot04_05", address = 0x801b0a48, size = 148 },
 ]
 
 [[unit]]
@@ -31384,7 +31384,7 @@ image = "slot04_05"
 source = "slot04_05/slot04_05_1c70_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b21c8_slot04_05", address = 0x801b21c8, size = 152 },
+  { name = "start_jump_by_facing_with_children_slot04_05", address = 0x801b21c8, size = 152 },
   { name = "spawn_pooled_objects_on_step_flag_slot04_05", address = 0x801b2260, size = 128 },
 ]
 
@@ -31451,7 +31451,7 @@ image = "slot04_05"
 source = "slot04_05/slot04_05_246c_r6.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b2c84_slot04_05", address = 0x801b2c84, size = 212 },
+  { name = "update_slide_or_start_jump_on_flag_end_slot04_05", address = 0x801b2c84, size = 212 },
   { name = "update_air_motion_until_landing_step_1_slot04_05", address = 0x801b2d58, size = 108 },
 ]
 
@@ -31462,7 +31462,7 @@ source = "slot04_05/slot04_05_246c_r7.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "update_sequence_then_set_vel_x_on_flag_2_slot04_05", address = 0x801b2e04, size = 112 },
-  { name = "func_801b2e74_slot04_05", address = 0x801b2e74, size = 292 },
+  { name = "update_slide_with_input_branch_or_start_jump_slot04_05", address = 0x801b2e74, size = 292 },
 ]
 
 [[unit]]
@@ -31616,7 +31616,7 @@ source = "slot04_06/slot04_06_0bfc_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "try_start_meter_move_3_slot04_06", address = 0x801b0d60, size = 132 },
-  { name = "func_801b0de4_slot04_06", address = 0x801b0de4, size = 148 },
+  { name = "try_start_meter_action_lock_variant_a_slot04_06", address = 0x801b0de4, size = 148 },
   { name = "start_move_4_without_check_slot04_06", address = 0x801b0e78, size = 108 },
 ]
 
@@ -31626,7 +31626,7 @@ image = "slot04_06"
 source = "slot04_06/slot04_06_0bfc_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b0ee4_slot04_06", address = 0x801b0ee4, size = 148 },
+  { name = "try_start_meter_action_lock_variant_b_slot04_06", address = 0x801b0ee4, size = 148 },
   { name = "start_move_8_without_check_slot04_06", address = 0x801b0f78, size = 108 },
   { name = "try_enter_state_7_kind_5_slot04_06", address = 0x801b0fe4, size = 104 },
 ]
@@ -31745,7 +31745,7 @@ image = "slot04_06"
 source = "slot04_06/slot04_06_183c_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b1cf4_slot04_06", address = 0x801b1cf4, size = 452 },
+  { name = "update_countdown_move_then_start_arc_or_reset_slot04_06", address = 0x801b1cf4, size = 452 },
 ]
 
 [[unit]]
@@ -31792,7 +31792,7 @@ image = "slot04_06"
 source = "slot04_06/slot04_06_1eb8_r4_b.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b2350_slot04_06", address = 0x801b2350, size = 92 },
+  { name = "start_jump_motion_sequence_with_counters_cleared_slot04_06", address = 0x801b2350, size = 92 },
   { name = "wait_countdown_2_then_advance_on_mode_slot04_06", address = 0x801b23ac, size = 104 },
 ]
 
@@ -31822,7 +31822,7 @@ source = "slot04_06/slot04_06_2568_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "update_rise_then_start_fall_sequence_b_slot04_06", address = 0x801b2654, size = 208 },
-  { name = "func_801b2724_slot04_06", address = 0x801b2724, size = 128 },
+  { name = "count_down_and_drift_up_fast_slot04_06", address = 0x801b2724, size = 128 },
 ]
 
 [[unit]]
@@ -31996,7 +31996,7 @@ image = "slot04_06"
 source = "slot04_06/slot04_06_38d0_r6.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b3ed4_slot04_06", address = 0x801b3ed4, size = 92 },
+  { name = "start_decelerating_motion_on_sequence_end_slot04_06", address = 0x801b3ed4, size = 92 },
   { name = "update_sequence_with_step_sound_and_move_slot04_06", address = 0x801b3f30, size = 136 },
 ]
 
@@ -32249,7 +32249,7 @@ image = "slot04_06"
 source = "slot04_06/slot04_06_5ed8_r6.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b6554_slot04_06", address = 0x801b6554, size = 148 },
+  { name = "move_advance_state_0_at_ground_timed_limit_check_slot04_06", address = 0x801b6554, size = 148 },
 ]
 
 [[unit]]
@@ -32314,7 +32314,7 @@ image = "slot04_07"
 source = "slot04_07/slot04_07_08e0_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b0c18_slot04_07", address = 0x801b0c18, size = 52 },
+  { name = "advance_state_3_set_flag_and_direction_sequence_slot04_07", address = 0x801b0c18, size = 52 },
   { name = "update_sequence_reset_state_3_on_input_match_slot04_07", address = 0x801b0c4c, size = 132 },
 ]
 
@@ -32419,7 +32419,7 @@ source = "slot04_07/slot04_07_1b74_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "update_countdown_hit_check_or_end_slot04_07", address = 0x801b1cac, size = 176 },
-  { name = "func_801b1d5c_slot04_07", address = 0x801b1d5c, size = 160 },
+  { name = "start_arc_from_other_box_with_meter_and_sounds_slot04_07", address = 0x801b1d5c, size = 160 },
   { name = "start_fall_straight_down_slot04_07", address = 0x801b1dfc, size = 68 },
 ]
 
@@ -32468,7 +32468,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "start_dash_decay_phase_slot04_07", address = 0x801b2300, size = 56 },
   { name = "func_801b2338_slot04_07", address = 0x801b2338, size = 64 },
-  { name = "func_801b2378_slot04_07", address = 0x801b2378, size = 108 },
+  { name = "set_rising_velocities_and_sequence_by_flag_slot04_07", address = 0x801b2378, size = 108 },
   { name = "is_compare_limit_below_threshold_slot04_07", address = 0x801b23e4, size = 68 },
   { name = "update_sequence_with_slide_step_slot04_07", address = 0x801b2428, size = 100 },
 ]
@@ -32561,7 +32561,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "update_sequence_or_end_set_other_code_2_slot04_07", address = 0x801b3054, size = 72 },
   { name = "start_sequence_from_table_or_fall_slot04_07", address = 0x801b309c, size = 132 },
-  { name = "func_801b3120_slot04_07", address = 0x801b3120, size = 60 },
+  { name = "set_state_3_seven_stop_with_gravity_sequence_slot04_07", address = 0x801b3120, size = 60 },
 ]
 
 [[unit]]
@@ -33014,7 +33014,7 @@ source = "slot04_08/slot04_08_2d88_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "update_motion_repeat_sequence_then_branch_end_slot04_08", address = 0x801b2f6c, size = 268 },
-  { name = "func_801b3078_slot04_08", address = 0x801b3078, size = 140 },
+  { name = "start_slide_when_step_flags_negative_slot04_08", address = 0x801b3078, size = 140 },
 ]
 
 [[unit]]
@@ -33118,7 +33118,7 @@ source = "slot04_08/slot04_08_3edc_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "push_other_x_if_hit_check_slot04_08", address = 0x801b4298, size = 120 },
-  { name = "func_801b4310_slot04_08", address = 0x801b4310, size = 68 },
+  { name = "clear_slots_and_trailing_byte_arrays_slot04_08", address = 0x801b4310, size = 68 },
   { name = "play_sound_on_step_flag_high_byte_3_slot04_08", address = 0x801b4354, size = 104 },
 ]
 
@@ -33210,7 +33210,7 @@ image = "slot04_09"
 source = "slot04_09/slot04_09_07d0_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b0b80_slot04_09", address = 0x801b0b80, size = 132 },
+  { name = "start_slide_with_sound_when_mode_set_slot04_09", address = 0x801b0b80, size = 132 },
 ]
 
 [[unit]]
@@ -33483,7 +33483,7 @@ image = "slot04_09"
 source = "slot04_09/slot04_09_2df8_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b2ef8_slot04_09", address = 0x801b2ef8, size = 264 },
+  { name = "update_sequence_spawn_children_or_start_jump_slot04_09", address = 0x801b2ef8, size = 264 },
   { name = "advance_state_3_and_update_moving_slot04_09", address = 0x801b3000, size = 64 },
 ]
 
@@ -34105,7 +34105,7 @@ image = "slot04_0a"
 source = "slot04_0a/slot04_0a_26c4_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b2970_slot04_0a", address = 0x801b2970, size = 200 },
+  { name = "start_knockback_arc_with_spawns_slot04_0a", address = 0x801b2970, size = 200 },
 ]
 
 [[unit]]
@@ -35326,7 +35326,7 @@ image = "slot04_0a"
 source = "slot04_0a/slot04_0a_2f1cx_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b2f1c_slot04_0a", address = 0x801b2f1c, size = 312 },
+  { name = "update_air_land_or_start_jump_on_pressed_bits_slot04_0a", address = 0x801b2f1c, size = 312 },
 ]
 
 [[unit]]
@@ -35797,7 +35797,7 @@ image = "slot04_0a"
 source = "slot04_0a/slot04_0a_04a0x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b04a0_slot04_0a", address = 0x801b04a0, size = 448 },
+  { name = "update_variant_2_bobbing_and_side_bit_countdown_slot04_0a", address = 0x801b04a0, size = 448 },
 ]
 
 [[unit]]
@@ -36616,7 +36616,7 @@ image = "slot04_sel"
 source = "slot04_sel/slot04_sel_1a8c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b1a8c_slot04_sel", address = 0x801b1a8c, size = 384 },
+  { name = "update_selection_index_wrap_by_side_buttons_slot04_sel", address = 0x801b1a8c, size = 384 },
 ]
 
 [[unit]]
@@ -37567,7 +37567,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_01a8_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b0878_slot04_02", address = 0x801b0878, size = 76 },
+  { name = "set_downward_dash_velocity_and_move_slot04_02", address = 0x801b0878, size = 76 },
   { name = "move_by_velocity_until_ground_then_reset_slot04_02", address = 0x801b08c4, size = 124 },
 ]
 
@@ -37748,7 +37748,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_01a8_r22.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b2584_slot04_02", address = 0x801b2584, size = 64 },
+  { name = "move_with_gravity_return_above_ground_slot04_02", address = 0x801b2584, size = 64 },
 ]
 
 [[unit]]
@@ -37821,7 +37821,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_01a8_r30.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b3aa8_slot04_02", address = 0x801b3aa8, size = 100 },
+  { name = "start_sequence_with_meter_gain_four_slot04_02", address = 0x801b3aa8, size = 100 },
   { name = "advance_to_directional_sequence_at_end_slot04_02", address = 0x801b3b0c, size = 104 },
 ]
 
@@ -38108,7 +38108,7 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_01a8_r60.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b6bf4_slot04_02", address = 0x801b6bf4, size = 76 },
+  { name = "set_downward_dash_velocity_and_move_to_ground_slot04_02", address = 0x801b6bf4, size = 76 },
   { name = "move_until_ground_then_reset_state_slot04_02", address = 0x801b6c40, size = 112 },
   { name = "set_object_states_0_to_3_2_slot04_02", address = 0x801b6cb0, size = 24 },
 ]
@@ -38229,7 +38229,7 @@ source = "slot04_02/slot04_02_01a8_r71.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "set_state_0_to_2_slot04_02", address = 0x801b7d58, size = 12 },
-  { name = "func_801b7d64_slot04_02", address = 0x801b7d64, size = 176 },
+  { name = "update_palette_row_timer_or_advance_state_0_slot04_02", address = 0x801b7d64, size = 176 },
 ]
 
 [[unit]]
@@ -38238,8 +38238,8 @@ image = "slot04_02"
 source = "slot04_02/slot04_02_01a8_r72.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b7e34_slot04_02", address = 0x801b7e34, size = 136 },
-  { name = "func_801b7ebc_slot04_02", address = 0x801b7ebc, size = 200 },
+  { name = "copy_palette_table_by_arg_and_queue_upload_slot04_02", address = 0x801b7e34, size = 136 },
+  { name = "copy_next_table_row_and_queue_upload_slot04_02", address = 0x801b7ebc, size = 200 },
 ]
 
 [[unit]]
@@ -38718,7 +38718,7 @@ image = "slot04_04"
 source = "slot04_04/slot04_04_01bc_r33.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b2b8c_slot04_04", address = 0x801b2b8c, size = 92 },
+  { name = "start_sequence_with_meter_and_children_slot04_04", address = 0x801b2b8c, size = 92 },
   { name = "update_sequence_then_spawn_children_on_flag_byte_slot04_04", address = 0x801b2be8, size = 140 },
   { name = "set_table_value_on_sequence_end_sound_9_slot04_04", address = 0x801b2c74, size = 172 },
 ]
@@ -39320,7 +39320,7 @@ image = "slot04_06"
 source = "slot04_06/slot04_06_06f4_r19.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b66cc_slot04_06", address = 0x801b66cc, size = 48 },
+  { name = "advance_sequence_checked_then_pos_x_limit_flag_slot04_06", address = 0x801b66cc, size = 48 },
 ]
 
 [[unit]]
@@ -40690,7 +40690,7 @@ source = "slot05_06/slot05_06_0000_r11.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "try_start_meter_move_3_slot05_06", address = 0x801c8d60, size = 132 },
-  { name = "func_801c8de4_slot05_06", address = 0x801c8de4, size = 148 },
+  { name = "try_start_meter_action_lock_variant_a_slot05_06", address = 0x801c8de4, size = 148 },
   { name = "start_move_4_without_check_slot05_06", address = 0x801c8e78, size = 108 },
 ]
 
@@ -40700,7 +40700,7 @@ image = "slot05_06"
 source = "slot05_06/slot05_06_0000_r12.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801c8ee4_slot05_06", address = 0x801c8ee4, size = 148 },
+  { name = "try_start_meter_action_lock_variant_b_slot05_06", address = 0x801c8ee4, size = 148 },
   { name = "start_move_8_without_check_slot05_06", address = 0x801c8f78, size = 108 },
   { name = "try_enter_state_7_kind_5_slot05_06", address = 0x801c8fe4, size = 104 },
 ]
@@ -40821,7 +40821,7 @@ image = "slot05_06"
 source = "slot05_06/slot05_06_0000_r23.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801c9cf4_slot05_06", address = 0x801c9cf4, size = 452 },
+  { name = "update_countdown_move_then_start_arc_or_reset_slot05_06", address = 0x801c9cf4, size = 452 },
 ]
 
 [[unit]]
@@ -40872,7 +40872,7 @@ source = "slot05_06/slot05_06_0000_r27.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801ca2e4_slot05_06", address = 0x801ca2e4, size = 108 },
-  { name = "func_801ca350_slot05_06", address = 0x801ca350, size = 92 },
+  { name = "start_jump_motion_sequence_with_counters_cleared_slot05_06", address = 0x801ca350, size = 92 },
   { name = "wait_countdown_2_then_advance_on_mode_slot05_06", address = 0x801ca3ac, size = 104 },
 ]
 
@@ -40903,7 +40903,7 @@ source = "slot05_06/slot05_06_0000_r30.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "update_rise_then_start_fall_sequence_b_slot05_06", address = 0x801ca654, size = 208 },
-  { name = "func_801ca724_slot05_06", address = 0x801ca724, size = 128 },
+  { name = "count_down_and_drift_up_fast_slot05_06", address = 0x801ca724, size = 128 },
 ]
 
 [[unit]]
@@ -41086,7 +41086,7 @@ source = "slot05_06/slot05_06_0000_r46.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "call_effect_on_step_flag_byte_2_slot05_06", address = 0x801cbe80, size = 80 },
-  { name = "func_801cbed0_slot05_06", address = 0x801cbed0, size = 92 },
+  { name = "start_decelerating_motion_on_sequence_end_slot05_06", address = 0x801cbed0, size = 92 },
   { name = "update_sequence_with_step_sound_and_move_slot05_06", address = 0x801cbf2c, size = 136 },
   { name = "call_table_function_by_state_3_16_slot05_06", address = 0x801cbfb4, size = 64 },
 ]
@@ -41399,7 +41399,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "set_landing_sequence_when_below_ground_slot05_06", address = 0x801ce4c0, size = 136 },
   { name = "noop_slot00_2_slot05_06", address = 0x801ce548, size = 8 },
-  { name = "func_801ce550_slot05_06", address = 0x801ce550, size = 148 },
+  { name = "move_advance_state_0_at_ground_timed_limit_check_slot05_06", address = 0x801ce550, size = 148 },
   { name = "call_state_1_table_handler_then_cull_check_2_slot05_06", address = 0x801ce5e4, size = 84 },
 ]
 
@@ -41411,7 +41411,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "land_on_ground_and_advance_state_1_slot05_06", address = 0x801ce638, size = 92 },
   { name = "count_down_timer_advance_state_0_slot05_06", address = 0x801ce694, size = 52 },
-  { name = "func_801ce6c8_slot05_06", address = 0x801ce6c8, size = 48 },
+  { name = "advance_sequence_checked_then_pos_x_limit_flag_slot05_06", address = 0x801ce6c8, size = 48 },
   { name = "move_by_velocity_return_y_minus_ground_slot05_06", address = 0x801ce6f8, size = 88 },
   { name = "load_velocities_from_table_7_slot05_06", address = 0x801ce750, size = 32 },
   { name = "release_object_record_3_slot05_06", address = 0x801ce770, size = 32 },
@@ -41495,7 +41495,7 @@ image = "slot04_0b"
 source = "slot04_0b/slot04_0b_1ed8x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801b1ed8_slot04_0b", address = 0x801b1ed8, size = 232 },
+  { name = "start_launch_table_vel_x_sounds_and_sequence_slot04_0b", address = 0x801b1ed8, size = 232 },
 ]
 
 [[unit]]

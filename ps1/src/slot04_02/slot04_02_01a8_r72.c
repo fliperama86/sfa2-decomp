@@ -6,7 +6,7 @@
 extern u16 data_801c7884_slot04_02[];
 extern u16 data_801c7b44_slot04_02[];
 
-void func_801b7e34_slot04_02(Object *obj, u8 arg) {
+void copy_palette_table_by_arg_and_queue_upload_slot04_02(Object *obj, u8 arg) {
     s16 i;
 
     for (i = 1; i < 16; i++) {
@@ -19,7 +19,7 @@ void func_801b7e34_slot04_02(Object *obj, u8 arg) {
     queue_image_upload_job(0, 6);
 }
 
-void func_801b7ebc_slot04_02(Object *obj) {
+void copy_next_table_row_and_queue_upload_slot04_02(Object *obj) {
     s16 i;
     int row;
 

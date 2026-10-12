@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void move_xy_by_facing_with_x_decel_stop_slot04_07(Object *obj);
-void func_801b3120_slot04_07(Object *obj);
+void set_state_3_seven_stop_with_gravity_sequence_slot04_07(Object *obj);
 void update_motion_until_ground_state_4_slot04_07(Object *obj);
 
 void update_motion_with_active_flag_branch_slot04_07(Object *obj) {
@@ -18,7 +18,7 @@ void update_motion_with_active_flag_branch_slot04_07(Object *obj) {
     }
     if ((s16)obj->step_flags & 0x8000) {
         if (obj->active_flag == 0) {
-            func_801b3120_slot04_07(obj);
+            set_state_3_seven_stop_with_gravity_sequence_slot04_07(obj);
             return;
         }
         obj->state_3 = 5;

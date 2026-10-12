@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800262d8_slot28(Object *obj) {
+void ignore_object_empty_37_slot28(Object *obj) {
 }
 
 void advance_state_0_on_negative_step_flags_2_slot28(Object *obj) {

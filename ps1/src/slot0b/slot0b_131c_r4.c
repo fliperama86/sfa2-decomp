@@ -11,7 +11,7 @@ void advance_cursor_frame_on_timer_slot0b(Slot0bCursor *c);
 void set_slot0b_cursor_frame_slot0b(Slot0bCursor *c, Slot0bFrame *f);
 void queue_pool_job_rect_1e7_from_cursor_slot0b(Slot0bCursor *c);
 
-void func_801e1598_slot0b(Slot0bObj *obj, int arg) {
+void set_sequence_and_init_list_cells_tpage_clut_slot0b(Slot0bObj *obj, int arg) {
     u8 index = arg;
     int a;
     set_sequence_from_table_5((Object *)obj, index, data_801e4cc0_slot0b);

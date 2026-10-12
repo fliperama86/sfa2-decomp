@@ -11,7 +11,7 @@ void release_object_to_pool_table_4_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_80014764_slot27(Object *obj) {
+void call_state_1_handler_from_slot27_table_b_3_slot27(Object *obj) {
     data_80027ccc_slot27[obj->state_1](obj);
 }
 
@@ -21,7 +21,7 @@ void start_move_down_set_vel_y_2_slot27(Object *obj) {
     obj->state_1 = obj->state_1 + 1;
 }
 
-void func_800147c4_slot27(Object *obj) {
+void call_state_1_handler_from_slot27_table_b_4_slot27(Object *obj) {
     data_80027cdc_slot27[obj->state_1](obj);
 }
 
@@ -33,7 +33,7 @@ void start_spawn_x20_move_down_slot27(Object *obj) {
     obj->state_1 = obj->state_1 + 1;
 }
 
-void func_80014834_slot27(Object *obj) {
+void call_state_1_handler_from_slot27_table_b_5_slot27(Object *obj) {
     data_80027cec_slot27[obj->state_1](obj);
 }
 

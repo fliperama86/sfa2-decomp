@@ -5,7 +5,7 @@
 
 extern void (*data_800374a4_slot28[])(Object *);
 
-void func_8001b0f0_slot28(Object *obj) {
+void ignore_object_empty_19_slot28(Object *obj) {
 }
 
 void wait_timer_reload_then_advance_state_1_2_slot28(Object *o) {

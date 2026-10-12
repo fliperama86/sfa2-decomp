@@ -22,7 +22,7 @@ void call_reset_object_to_state_1_0_sequence_0_slot04_17(Object *obj);
 void call_reset_object_to_state_1_0_0_2_sequence_1_slot04_17(Object *obj);
 Object *get_table_object_by_field_slot04_17(Object *obj);
 
-void func_801b1c88_slot04_17(Object *o) {
+void update_repeated_launch_on_trigger_or_fall_slot04_17(Object *o) {
     u8 t;
 
     if (apply_facing_velocity_with_x_stop_slot04_17(o) < 0 || ((Slot04bObj *)o)->field_47 == 0) {

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801225d4(GameState *state) {
+void restart_substep_when_field_six_c_is_four(GameState *state) {
     Entity *e = (Entity *)state;
     if (e->field_6c == 4) {
         data_8018f5a0->step_index_2 = 0;

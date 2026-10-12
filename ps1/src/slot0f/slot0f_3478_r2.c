@@ -18,7 +18,7 @@ void noop_empty_function_slot0f(void) {
 void noop_slot00_slot0f(Object *obj) {
 }
 
-void func_800e37a4_slot0f(void) {
+void add_option_menu_items_to_table_slot0f(void) {
     int i;
     add_item_to_table(&data_800e928c_slot0f);
     for (i = 0; i < 11; i++) {

@@ -34,7 +34,7 @@ void update_motion_repeat_sequence_then_branch_end_slot04_08(Object *obj) {
     }
 }
 
-void func_801b3078_slot04_08(Object *obj) {
+void start_slide_when_step_flags_negative_slot04_08(Object *obj) {
     int x;
 
     if ((s16)obj->step_flags & 0x8000) {

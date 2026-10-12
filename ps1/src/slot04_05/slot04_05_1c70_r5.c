@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b21c8_slot04_05(Object *obj) {
+void start_jump_by_facing_with_children_slot04_05(Object *obj) {
     obj->state_3++;
     update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);

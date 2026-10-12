@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e000c_slot0f(GameState *state, Menu *menu) {
+void request_sound_then_exec_program_2_slot0f(GameState *state, Menu *menu) {
     request_sound_command_and_switch_thread(0x3c);
     scratch_word_00 = -1;
     scratch_word_04 = 1;

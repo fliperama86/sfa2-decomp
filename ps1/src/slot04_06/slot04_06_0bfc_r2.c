@@ -16,7 +16,7 @@ int try_start_meter_move_3_slot04_06(Object *obj) {
     return 1;
 }
 
-int func_801b0de4_slot04_06(Object *o) {
+int try_start_meter_action_lock_variant_a_slot04_06(Object *o) {
     if (!(u8)try_spend_meter_for_action(o)) return 0;
     o->state_0 = 1;
     o->state_1 = 0;

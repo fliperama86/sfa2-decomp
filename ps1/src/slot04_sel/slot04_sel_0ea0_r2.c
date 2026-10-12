@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void check_opposite_player_same_selection_slot04_sel(void);
-void func_801b1a8c_slot04_sel(Object *obj, Slot04SelRec *rec, int a);
+void update_selection_index_wrap_by_side_buttons_slot04_sel(Object *obj, Slot04SelRec *rec, int a);
 
 extern TextBuf *data_801b7618_slot04_sel[];
 extern TextItem *data_801b749c_slot04_sel[];
@@ -24,7 +24,7 @@ void update_side_selection_menu_cursor_and_confirm_slot04_sel(Object *obj, Slot0
         if ((game_state.side_mask >> obj->side) & 1) {
             data_801b9ce8_slot04_sel = rec->cursor_index;
             data_801b9cec_slot04_sel = rec->confirm_mask;
-            func_801b1a8c_slot04_sel(obj, rec, 1);
+            update_selection_index_wrap_by_side_buttons_slot04_sel(obj, rec, 1);
             rec->cursor_index = data_801b9ce8_slot04_sel;
             rec->confirm_mask = data_801b9cec_slot04_sel;
             s2->x = data_801b6e7c_slot04_sel[obj->side];

@@ -26,7 +26,7 @@ void decode_input_word_into_object_fields(Object *object)
   }
   if (data_80189464 & 1)
   {
-    func_8014de20(object);
+    unpack_shifted_nibbles_into_direction_fields(object);
     return;
   }
   new_var = &data_80189464;

@@ -44,7 +44,7 @@ void init_background_layers_slot06_11(void) {
     noop_byte_pointer_slot06_11(data_801904d8);
 }
 
-void func_801e80f0_slot06_11(void) {
+void init_gray_tile_groups_and_sprites_with_noop_slot06_11(void) {
     init_two_tile_tables_gray_color_slot06_11();
     init_two_tile_groups_gray_slot06_11();
     init_two_banks_of_48_sprite_prims_slot06_11();

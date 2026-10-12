@@ -26,7 +26,7 @@ void release_object_to_pool_table_3_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_80014594_slot27(Object *obj) {
+void call_state_1_handler_from_slot27_table_b_2_slot27(Object *obj) {
     data_80027cbc_slot27[obj->state_1](obj);
 }
 

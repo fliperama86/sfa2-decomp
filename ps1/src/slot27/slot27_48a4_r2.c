@@ -19,7 +19,7 @@ void show_object_and_release_on_step_flags_slot27(Object *obj) {
     }
 }
 
-void func_80014a34_slot27(Object *obj) {
+void call_state_1_handler_from_slot27_table_b_7_slot27(Object *obj) {
     data_80027d0c_slot27[obj->state_1](obj);
 }
 

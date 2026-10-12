@@ -171,7 +171,7 @@ void load_velocities_from_table_2_slot04_0c(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
-void func_801b0510_slot04_0c(Object *obj) {
+void shift_x_on_flag_byte_or_reset_at_sequence_end_slot04_0c(Object *obj) {
     s16 t = obj->step_flags;
     int d = 0x80000;
 

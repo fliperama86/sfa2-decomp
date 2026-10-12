@@ -6,7 +6,7 @@
 extern void (*data_80026940_slot27[])(Object *);
 extern void (*data_80026950_slot27[])(Object *);
 
-void func_80011cfc_slot27(Object *object) {
+void call_state_1_handler_from_slot27_table_a_3_slot27(Object *object) {
     data_80026940_slot27[object->state_1](object);
 }
 

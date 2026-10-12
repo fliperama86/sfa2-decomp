@@ -40,7 +40,7 @@ void init_four_layers_tile_maps_slot06_04(void) {
     set_layer_tile_map_param_580e_width_scale_slot06_04((Slot06Layer *)data_801904d8);
 }
 
-void func_801e80f0_slot06_04(void) {
+void init_gray_tile_background_sprite_poly_banks_slot06_04(void) {
     init_two_banks_112_tile_prims_gray_slot06_04();
     init_background_tile_prim_banks_slot06_04();
     init_two_banks_of_26_tile_prims_slot06_04();

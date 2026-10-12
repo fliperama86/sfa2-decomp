@@ -14,9 +14,9 @@ void queue_16_word_row_upload_job_slot04_0f(Object *obj, u16 *src);
 
 void call_side_routine_and_set_side_flag_slot04_0f(Object *o) {
     if (o->side == 0) {
-        func_80136e90();
+        store_player_left_image_rows_from_field();
     } else {
-        func_80136ed0();
+        store_player_right_image_rows_from_field();
     }
     set_side_flag(o);
 }

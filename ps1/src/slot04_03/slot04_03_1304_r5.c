@@ -3,18 +3,18 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b17d0_slot04_03(Object *obj);
+void advance_substate_start_direction_sequence_slot04_03(Object *obj);
 void call_handler_by_direction_index_slot04_03(Object *obj);
 
 void call_handler_by_substate_index_slot04_03(Object *obj) {
     if (obj->substate_index == 0) {
-        func_801b17d0_slot04_03(obj);
+        advance_substate_start_direction_sequence_slot04_03(obj);
     } else {
         call_handler_by_direction_index_slot04_03(obj);
     }
 }
 
-void func_801b17d0_slot04_03(Object *obj) {
+void advance_substate_start_direction_sequence_slot04_03(Object *obj) {
     obj->substate_index++;
     spawn_three_child_objects_at_object_spawn(obj);
     update_meter_by_mode_or_table(obj);

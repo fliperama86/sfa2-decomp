@@ -7,7 +7,7 @@ int save_memory_card_file_slot0f(int a, s16 *p);
 void update_two_option_selection_slot0f(Object *o);
 void init_save_buffer_from_defaults_slot0f(Object *o);
 
-void func_800e1964_slot0f(Object *o) {
+void confirm_two_option_start_countdown_or_back_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u16 b;
     update_two_option_selection_slot0f(o);
@@ -31,7 +31,7 @@ void func_800e1964_slot0f(Object *o) {
     }
 }
 
-void func_800e1a10_slot0f(Object *o) {
+void save_card_file_when_countdown_ends_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     s8 t;
     if (obj->countdown != 0) {

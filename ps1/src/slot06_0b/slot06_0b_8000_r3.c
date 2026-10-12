@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e8bb8_slot06_0b(Slot06Layer *layer) {
+void set_layer_accumulators_from_bound_difference_a_slot06_0b(Slot06Layer *layer) {
     int i;
     int n;
 

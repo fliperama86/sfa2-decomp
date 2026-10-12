@@ -15,10 +15,10 @@ int apply_velocity_and_check_ground(Object *object);
 void set_sequence_by_side(Object *object, int arg);
 void land_set_ground_states_and_sequence_slot04_14(Object *obj);
 void set_object_states_0_to_3_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
-u8 func_801b26bc_slot04_14(Object *obj);
+u8 move_with_gravity_return_above_ground_slot04_14(Object *obj);
 void land_on_ground_play_sound_set_landing_sequence_slot04_14(Object *obj);
 
-void func_801b20a8_slot04_14(Object *obj) {
+void start_jump_with_tables_by_direction_index_slot04_14(Object *obj) {
     int i = 1;
 
     obj->active_flag_4 = i;
@@ -80,10 +80,10 @@ void update_repeat_sequence_with_countdown_2_slot04_14(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b22f4_slot04_14(Object *obj) {
+void move_then_land_sound_and_reset_or_update_slot04_14(Object *obj) {
     Object *s1 = obj->other;
 
-    if (func_801b26bc_slot04_14(obj) == 0) {
+    if (move_with_gravity_return_above_ground_slot04_14(obj) == 0) {
         play_object_sound_by_kind(obj);
         s1->other_state_code = 5;
         s1->pos_y_frac = 0;
@@ -130,7 +130,7 @@ void start_bounce_with_sound_and_sequence_slot04_14(Object *obj) {
 
 void update_airborne_repeat_countdown_or_land_slot04_14(Object *obj) {
 
-    if (func_801b26bc_slot04_14(obj) != 0) {
+    if (move_with_gravity_return_above_ground_slot04_14(obj) != 0) {
         if ((s16)obj->step_flags & 0x8000) {
             play_sound_at(obj, obj->side, 0x320);
             ((Slot04bObj *)obj)->countdown_2--;
@@ -147,7 +147,7 @@ void update_airborne_repeat_countdown_or_land_slot04_14(Object *obj) {
 }
 
 void update_airborne_until_sequence_end_or_land_slot04_14(Object *obj) {
-    if (func_801b26bc_slot04_14(obj) != 0) {
+    if (move_with_gravity_return_above_ground_slot04_14(obj) != 0) {
         if ((s16)obj->step_flags & 0x8000) {
             obj->state_3++;
             set_sequence_by_side(obj, 0x21);
@@ -162,7 +162,7 @@ void update_airborne_until_sequence_end_or_land_slot04_14(Object *obj) {
 void update_fall_land_set_states_and_sequence_slot04_14(Object *obj) {
     Object *s1 = obj->other;
 
-    if (func_801b26bc_slot04_14(obj) == 0) {
+    if (move_with_gravity_return_above_ground_slot04_14(obj) == 0) {
         set_object_states_0_to_3_slot04_14(obj, 1, 0, 3, 2);
         obj->active_flag_3 = 0;
         obj->active_state = 0;
@@ -185,7 +185,7 @@ void land_on_ground_play_sound_set_landing_sequence_slot04_14(Object *obj) {
     set_sequence_by_side(obj, 0x11);
 }
 
-u8 func_801b26bc_slot04_14(Object *obj) {
+u8 move_with_gravity_return_above_ground_slot04_14(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
     obj->vel_y += obj->accel_y;

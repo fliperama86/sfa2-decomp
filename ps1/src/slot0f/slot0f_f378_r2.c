@@ -25,7 +25,7 @@ void call_phase_handler_and_queue_entries_slot0f(GameState *state) {
     }
 }
 
-void func_800df60c_slot0f(GameState *state) {
+void advance_phase_and_start_palette_fade_slot0f(GameState *state) {
     data_8018f5a0->phase_index++;
     state->step_delay_timer = 1;
     state->step_counter = 0;

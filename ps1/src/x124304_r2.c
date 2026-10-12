@@ -14,7 +14,7 @@ void update_option_menu_selection(Object *a, Triple *b) {
     if (b->c == 0 && ((data_8019011f >> a->side) & 1)) {
         data_80185fb4 = data_8016e800;
         data_80185fb8 = b->c;
-        func_80124bbc(a, b, 6);
+        move_selection_index_with_wrap_skip_two(a, b, 6);
         data_8016e800 = data_80185fb4;
         b->c = data_80185fb8;
         if (data_8016e800 == 4) {

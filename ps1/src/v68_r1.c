@@ -16,11 +16,11 @@ void start_hit_reaction_by_hit_type(Object *object)
     object->kind10_flag = 0;
     if (object->side != 0)
     {
-      func_80136ed0();
+      store_player_right_image_rows_from_field();
     }
     else
     {
-      func_80136e90();
+      store_player_left_image_rows_from_field();
     }
     queue_image_row_upload_job(object);
   }

@@ -5,7 +5,7 @@
 
 extern void (*data_8002c728_slot28[])(Object *);
 
-void func_80014950_slot28(Object *obj) {
+void ignore_object_empty_2_slot28(Object *obj) {
 }
 
 void call_handler_by_hud_step_index_2_2_slot28(Object *obj) {

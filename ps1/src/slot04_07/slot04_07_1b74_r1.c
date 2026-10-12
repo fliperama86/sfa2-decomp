@@ -5,7 +5,7 @@
 
 int move_by_velocity_return_new_vel_y_slot04_07(Object *obj);
 void update_countdown_hit_check_or_end_slot04_07(Object *obj);
-void func_801b1d5c_slot04_07(Object *obj);
+void start_arc_from_other_box_with_meter_and_sounds_slot04_07(Object *obj);
 void start_fall_straight_down_slot04_07(Object *obj);
 
 void update_airborne_motion_land_or_branch_slot04_07(Object *obj) {
@@ -23,10 +23,10 @@ void update_airborne_motion_land_or_branch_slot04_07(Object *obj) {
             update_countdown_hit_check_or_end_slot04_07(obj);
         } else if (!((obj->pressed_bits | obj->released_bits) & 0x94)) {
             update_sequence(obj);
-        } else if (obj->other->bound_push_flag != 0 || obj->other->field_157 != 0 || (u8)func_8014025c(obj, -8, 0x24, -0x24, 0x18) == 0) {
+        } else if (obj->other->bound_push_flag != 0 || obj->other->field_157 != 0 || (u8)try_set_other_state_if_in_range(obj, -8, 0x24, -0x24, 0x18) == 0) {
             start_fall_straight_down_slot04_07(obj);
         } else {
-            func_801b1d5c_slot04_07(obj);
+            start_arc_from_other_box_with_meter_and_sounds_slot04_07(obj);
         }
     }
 }

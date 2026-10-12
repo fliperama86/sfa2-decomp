@@ -5,9 +5,9 @@
 
 u8 get_pressed_bit_8(Object *object);
 int is_pressed_bits_in_table(Object *object);
-int func_8013cb70(Object *object, u8 index, u8 arg);
-int func_8013cbdc(Object *object, u8 index, u8 arg);
-int func_8013cc48(Object *object, u8 index, u8 arg);
+int call_second_table_stage_unless_c0_pair(Object *object, u8 index, u8 arg);
+int call_second_table_stage_unless_30_pair(Object *object, u8 index, u8 arg);
+int call_second_table_stage_unless_0c_pair(Object *object, u8 index, u8 arg);
 u8 try_action_clearing_both_flags(Object *object);
 int is_not_state_2_five(Object *object);
 int try_spend_meter_for_action(Object *object);
@@ -38,9 +38,9 @@ void select_slot04_0c_action_from_inputs_slot04_0c(Object *obj) {
     if (call_slot_stage_handler_in_first_table(obj, 10, 0x20) && try_enter_state_7_via_0a24_state_3_3_slot04_0c(obj)) return;
     if (get_pressed_bit_8(obj) && try_enter_state_7_kind_7_or_9_slot04_0c(obj)) return;
     if ((u8)is_pressed_bits_in_table(obj) && try_start_meter_move_state_8_type_8_slot04_0c(obj)) return;
-    if ((u8)func_8013cb70(obj, 0, 0x14) && try_start_meter_move_type_4_link_check_slot04_0c(obj)) return;
-    if ((u8)func_8013cbdc(obj, 1, 0x15) && try_start_meter_action_state_8_type_6_slot04_0c(obj)) return;
-    if ((u8)func_8013cc48(obj, 2, 0x17) && try_start_meter_move_type_b_with_input_slot04_0c(obj)) return;
+    if ((u8)call_second_table_stage_unless_c0_pair(obj, 0, 0x14) && try_start_meter_move_type_4_link_check_slot04_0c(obj)) return;
+    if ((u8)call_second_table_stage_unless_30_pair(obj, 1, 0x15) && try_start_meter_action_state_8_type_6_slot04_0c(obj)) return;
+    if ((u8)call_second_table_stage_unless_0c_pair(obj, 2, 0x17) && try_start_meter_move_type_b_with_input_slot04_0c(obj)) return;
     if ((u8)call_slot_stage_handler_in_second_table(obj, 3, 4) && try_enter_state_07_move_0_slot04_0c(obj)) return;
     if ((u8)call_slot_stage_handler_in_second_table(obj, 4, 0) && try_enter_state_7_kind_1_unlinked_slot04_0c(obj)) return;
     if ((u8)call_slot_stage_handler_in_second_table(obj, 5, 3) && try_enter_state_7_kind_3_slot04_0c(obj)) return;

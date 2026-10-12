@@ -30,17 +30,17 @@ int call_slot_stage_if_both_dir_pairs_ok(Object *object, u8 a, u8 b) {
     return r;
 }
 
-int func_8013cb70(Object *object, u8 a, u8 b) {
+int call_second_table_stage_unless_c0_pair(Object *object, u8 a, u8 b) {
     u8 r = (is_not_both_c0_bits_in_input(object)) ? call_slot_stage_handler_in_second_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
-int func_8013cbdc(Object *object, u8 a, u8 b) {
+int call_second_table_stage_unless_30_pair(Object *object, u8 a, u8 b) {
     u8 r = (is_not_both_30_bits_in_input(object)) ? call_slot_stage_handler_in_second_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
-int func_8013cc48(Object *object, u8 a, u8 b) {
+int call_second_table_stage_unless_0c_pair(Object *object, u8 a, u8 b) {
     u8 r = (is_not_both_0c_bits_in_input(object)) ? call_slot_stage_handler_in_second_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
@@ -53,7 +53,7 @@ u8 call_slot_stage_d4cc_if_both_dir_pairs_ok(Object *object, u8 a, u8 b) {
     return (is_not_both_0c_bits_in_input(object) && is_not_both_30_bits_in_input(object)) ? call_slot_stage_handler_in_first_table_2(object, a, b) : reset_slot_stage_and_count(object, a);
 }
 
-u8 func_8013cd5c(Object *object, u8 a, u8 b) {
+u8 call_first_table_stage_unless_c0_pair(Object *object, u8 a, u8 b) {
     return (is_not_both_c0_bits_in_input(object)) ? call_slot_stage_handler_in_first_table_2(object, a, b) : reset_slot_stage_and_count(object, a);
 }
 
@@ -62,17 +62,17 @@ int call_slot_stage_handler_a_2(Object *object, u8 a, u8 b) {
     return r;
 }
 
-int func_8013cdf0(Object *object, u8 a, u8 b) {
+int call_third_table_stage_unless_c0_pair(Object *object, u8 a, u8 b) {
     u8 r = (is_not_both_c0_bits_in_input(object)) ? call_slot_stage_handler_in_third_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
-int func_8013ce5c(Object *object, u8 a, u8 b) {
+int call_third_table_stage_unless_30_pair(Object *object, u8 a, u8 b) {
     u8 r = (is_not_both_30_bits_in_input(object)) ? call_slot_stage_handler_in_third_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
-int func_8013cec8(Object *object, u8 a, u8 b) {
+int call_third_table_stage_unless_0c_pair(Object *object, u8 a, u8 b) {
     u8 r = (is_not_both_0c_bits_in_input(object)) ? call_slot_stage_handler_in_third_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }

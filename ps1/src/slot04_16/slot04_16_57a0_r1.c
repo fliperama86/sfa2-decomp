@@ -25,7 +25,7 @@ void spawn_three_child_records_at_other(Object *object);
 void spawn_two_effects_at_other_ground(Object *object);
 void spawn_children_per_direction_index(Object *object, int a, int b);
 void clear_or_set_flag_by_pos_x_limit(Object *o);
-void func_801b5af4_slot04_16(Object *obj);
+void try_force_other_then_spawn_children_or_end_slot04_16(Object *obj);
 void set_vertical_motion_from_table_slot04_16(Object *obj);
 void load_velocities_from_table_slot04_16(Object *obj);
 void load_velocities_from_table_2_slot04_16(Object *obj);
@@ -108,11 +108,11 @@ void release_other_when_step_flag_high_byte_clear_slot04_16(Object *obj) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 0;
         set_sequence_by_side_and_mode(obj, 0x3f);
-        func_801b5af4_slot04_16(obj);
+        try_force_other_then_spawn_children_or_end_slot04_16(obj);
     }
 }
 
-void func_801b5af4_slot04_16(Object *obj) {
+void try_force_other_then_spawn_children_or_end_slot04_16(Object *obj) {
     s16 t = *(u16 *)(data_801ca430_slot04_16 + (obj->direction_index & 0xfe));
 
     if ((u8)try_force_other_state_if_box_in_range(obj, -0x26, (s16)(t - 0x26)) == 0) {

@@ -9,7 +9,7 @@ extern u16 data_801c64ac_slot04_14[];
 extern u8 data_801c64b4_slot04_14[];
 extern u8 data_801c64bc_slot04_14[];
 
-int func_8014025c(Object *object, s16 a, s16 b, s16 c, u16 d);
+int try_set_other_state_if_in_range(Object *object, s16 a, s16 b, s16 c, u16 d);
 void set_position_from_other_box(Object *object);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void spawn_effect_at_object_offset(Object *object, u8 a, int dx, int dy);
@@ -59,7 +59,7 @@ void update_airborne_motion_until_landing_b_slot04_14(Object *obj) {
 void choose_air_attack_branch_by_button_bits_slot04_14(Object *obj) {
     if (obj->vel_y < 0) {
         if ((obj->pressed_bits | obj->released_bits) & 0x95) {
-            if (obj->other->bound_push_flag == 0 && (u8)func_8014025c(obj, -8, 0x24, -0x54, 0x18)) {
+            if (obj->other->bound_push_flag == 0 && (u8)try_set_other_state_if_in_range(obj, -8, 0x24, -0x54, 0x18)) {
                 enter_state_6_launch_from_other_box_slot04_14(obj);
                 return;
             }
@@ -67,7 +67,7 @@ void choose_air_attack_branch_by_button_bits_slot04_14(Object *obj) {
         }
         if (obj->vel_y < 0) {
             if ((obj->pressed_bits | obj->released_bits) & 0x6a) {
-                if (obj->other->bound_push_flag == 0 && (u8)func_8014025c(obj, -8, 0x24, -0x30, 0x18)) {
+                if (obj->other->bound_push_flag == 0 && (u8)try_set_other_state_if_in_range(obj, -8, 0x24, -0x30, 0x18)) {
                     enter_state_12_launch_from_other_box_slot04_14(obj);
                 } else {
                     set_state_3_9_direction_sequence_slot04_14(obj);
@@ -86,7 +86,7 @@ void choose_air_attack_branch_by_distance_slot04_14(Object *obj) {
             if (d < 0) {
                 d = -d;
             }
-            if (d < 0x19 && (u8)func_8014025c(obj, -8, 0x24, -0x54, 0x18)) {
+            if (d < 0x19 && (u8)try_set_other_state_if_in_range(obj, -8, 0x24, -0x54, 0x18)) {
                 enter_state_6_launch_from_other_box_slot04_14(obj);
                 return;
             }
@@ -98,7 +98,7 @@ void choose_air_attack_branch_by_distance_slot04_14(Object *obj) {
             if (d < 0) {
                 d = -d;
             }
-            if (d < 0x19 && (u8)func_8014025c(obj, -8, 0x24, -0x30, 0x18)) {
+            if (d < 0x19 && (u8)try_set_other_state_if_in_range(obj, -8, 0x24, -0x30, 0x18)) {
                 enter_state_12_launch_from_other_box_slot04_14(obj);
             } else {
                 obj->countdown = obj->countdown - 0x100;

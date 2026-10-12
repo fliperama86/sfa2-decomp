@@ -5,7 +5,7 @@
 
 int move_by_velocity_return_y_minus_ground_slot04_06(Object *obj);
 
-void func_801b6554_slot04_06(Object *obj) {
+void move_advance_state_0_at_ground_timed_limit_check_slot04_06(Object *obj) {
     GameState *g = &game_state;
 
     if ((move_by_velocity_return_y_minus_ground_slot04_06(obj) << 16) >= 0) {

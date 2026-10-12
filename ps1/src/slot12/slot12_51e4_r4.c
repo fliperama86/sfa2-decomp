@@ -17,7 +17,7 @@ void start_countdown_and_spawn_effects_slot12(Object *obj) {
     game_state.field_2bc = 1;
 }
 
-void func_8001554c_slot12(Object *obj) {
+void count_down_and_build_slot12_cell_records_slot12(Object *obj) {
     s16 t;
     int a;
     int b;

@@ -7,7 +7,7 @@ extern void (*data_800267bc_slot27[])(Object *);
 extern SequenceStep *data_800268b0_slot27[];
 void copy_side_palette_from_table_and_upload_slot27(Object *obj);
 
-void func_80011660_slot27(Object *object) {
+void call_state_1_handler_from_slot27_table_a_2_slot27(Object *object) {
     data_800267bc_slot27[object->state_1](object);
 }
 

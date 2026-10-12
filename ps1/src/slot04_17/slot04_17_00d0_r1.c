@@ -16,7 +16,7 @@ extern s16 data_801ce258_slot04_17[];
 Object *pop_object_from_second_pool(void);
 void set_sequence_by_side(Object *object, int index);
 u8 get_random_byte(void);
-int func_8013cb70(Object *object, u8 a, u8 b);
+int call_second_table_stage_unless_c0_pair(Object *object, u8 a, u8 b);
 int call_slot_stage_handler_a(Object *object, u8 a, u8 b);
 int call_slot_stage_handler_a_2(Object *object, u8 a, u8 b);
 int is_pressed_bits_in_table(Object *object);
@@ -234,8 +234,8 @@ void set_state_3_start_direction_sequence_slot04_17(Object *obj) {
 void select_slot04_11_action_from_inputs_slot04_17(Object *obj) {
     if (is_pressed_bits_in_table(obj) && start_move_12_if_meter_ok_slot04_17(obj)) return;
     if (call_slot_stage_if_both_dir_pairs_ok(obj, 0, 0x17) && start_move_7_if_kind_13_airborne_meter_ok_slot04_17(obj)) return;
-    if (func_8013cb70(obj, 1, 0x15) && start_move_6_if_kind_13_meter_ok_slot04_17(obj)) return;
-    if (func_8013cb70(obj, 2, 0x14) && start_move_5_if_kind_11_meter_ok_slot04_17(obj)) return;
+    if (call_second_table_stage_unless_c0_pair(obj, 1, 0x15) && start_move_6_if_kind_13_meter_ok_slot04_17(obj)) return;
+    if (call_second_table_stage_unless_c0_pair(obj, 2, 0x14) && start_move_5_if_kind_11_meter_ok_slot04_17(obj)) return;
     if (call_slot_stage_if_both_dir_pairs_ok(obj, 3, 0x16) && start_move_4_if_kind_11_meter_ok_slot04_17(obj)) return;
     if (call_slot_stage_handler_a_2(obj, 4, 1) && try_start_move_three_kind_nineteen_slot04_17(obj)) return;
     if (call_slot_stage_handler_a_2(obj, 5, 2) && try_start_move_two_kind_nineteen_slot04_17(obj)) return;

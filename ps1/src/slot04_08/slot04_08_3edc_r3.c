@@ -13,7 +13,7 @@ void push_other_x_if_hit_check_slot04_08(Object *obj) {
     }
 }
 
-void func_801b4310_slot04_08(Object *obj) {
+void clear_slots_and_trailing_byte_arrays_slot04_08(Object *obj) {
     int z = 0;
     int i;
     u8 *p;

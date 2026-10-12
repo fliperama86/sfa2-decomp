@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b2584_slot04_02(Object *object);
+u8 move_with_gravity_return_above_ground_slot04_02(Object *object);
 void land_on_ground_play_sound_set_landing_sequence_slot04_02(Object *object);
 
 void update_repeat_sequence_with_countdown_2_slot04_02(Object *obj) {
@@ -22,7 +22,7 @@ void update_repeat_sequence_with_countdown_2_slot04_02(Object *obj) {
 }
 
 void update_airborne_or_land_slot04_02(Object *obj) {
-    if (func_801b2584_slot04_02(obj) == 0) {
+    if (move_with_gravity_return_above_ground_slot04_02(obj) == 0) {
         land_on_ground_play_sound_set_landing_sequence_slot04_02(obj);
     } else {
         update_sequence(obj);

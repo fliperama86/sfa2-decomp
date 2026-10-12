@@ -33,7 +33,7 @@ int is_pressed_bits_in_table(Object *object);
 int call_slot_stage_handler_a(Object *object, u8 a, u8 b);
 int call_slot_stage_if_both_dir_pairs_ok(Object *object, u8 a, u8 b);
 u8 call_slot_stage_handler_b(Object *object, u8 a, u8 b);
-u8 func_8013cd5c(Object *object, u8 a, u8 b);
+u8 call_first_table_stage_unless_c0_pair(Object *object, u8 a, u8 b);
 int is_input_masked_equal_to_one_of_two_patterns_a(Object *object);
 int is_input_masked_equal_to_one_of_two_patterns_b(Object *object);
 int func_80141788(Object *object);
@@ -339,7 +339,7 @@ void update_sequence_or_finish_sequence_3_slot04_16(Object *obj) {
 void select_slot04_10_action_from_inputs_slot04_16(Object *obj) {
     if (get_pressed_bit_8(obj) && (u8)try_enter_state_7_action_1_with_count_slot04_16(obj)) return;
     if ((u8)is_pressed_bits_in_table(obj) && try_start_move_0_meter_cost_slot04_16(obj)) return;
-    if (func_8013cd5c(obj, 0, 0x22) && try_enter_state_8_action_b_with_meter_slot04_16(obj)) return;
+    if (call_first_table_stage_unless_c0_pair(obj, 0, 0x22) && try_enter_state_8_action_b_with_meter_slot04_16(obj)) return;
     if ((u8)call_slot_stage_if_both_dir_pairs_ok(obj, 1, 0x15) && try_start_meter_action_type_a_both_flags_slot04_16(obj)) return;
     if (call_slot_stage_handler_b(obj, 2, 0x21) && try_start_move_7_with_dir_slot04_16(obj)) return;
     if (call_slot_stage_handler_b(obj, 3, 0x23) && try_start_move_8_with_dir_slot04_16(obj)) return;

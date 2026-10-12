@@ -8,7 +8,7 @@ extern u8 data_8001aa14_slot27[];
 extern SequenceStep *data_800284e0_slot27[];
 extern GameState *data_800284f8_slot27;
 void spawn_child_object_with_kind_index_slot27(Object *obj);
-void func_800158c0_slot27(Object *obj);
+void set_origin_values_from_kind_index_tables_slot27(Object *obj);
 void spawn_three_linked_objects_offset_x_slot27(Object *obj);
 
 void init_object_by_table_index_with_sequence_slot27(Object *obj) {
@@ -22,11 +22,11 @@ void init_object_by_table_index_with_sequence_slot27(Object *obj) {
     obj->field_01 = 0;
     obj->state_0++;
     if (obj->table_index == 0) {
-        func_800158c0_slot27(obj);
+        set_origin_values_from_kind_index_tables_slot27(obj);
         spawn_three_linked_objects_offset_x_slot27(obj);
         set_sequence_from_table_5(obj, 0, data_800284e0_slot27);
     } else if (obj->table_index == 1) {
-        func_800158c0_slot27(obj);
+        set_origin_values_from_kind_index_tables_slot27(obj);
         obj->state_0 = 2;
         obj->pos_x = data_800284f8_slot27->field_d2;
         obj->pos_y = data_800284f8_slot27->field_d4;

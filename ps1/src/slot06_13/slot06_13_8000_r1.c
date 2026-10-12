@@ -9,7 +9,7 @@ extern u16 data_801e8db8_slot06_13[];
 void init_first_layer_tile_map_slot06_13(Slot06Layer *layer);
 void init_layer_tile_map_fields_slot06_13(Slot06Layer *layer);
 void set_layer_tile_map_params_slot06_13(Slot06Layer *layer);
-void func_801e85c8_slot06_13(void);
+void init_two_rows_of_gray_tile_prims_b_slot06_13(void);
 void init_sprite_prims_32x32_slot06_13(void);
 void draw_tile_layer_0_16px_slot06_13(void);
 void draw_tile_layer_1_16px_slot06_13(void);
@@ -17,7 +17,7 @@ void draw_tilemap_layer_32px_9x13_slot06_13(void);
 void noop_empty_function_2_slot06_13(void);
 void noop_byte_pointer_slot06_13(u8 *p);
 void noop_empty_function_3_slot06_13(void);
-void func_801e8224_slot06_13(void);
+void init_two_rows_of_gray_tile_prims_a_slot06_13(void);
 
 void draw_background_layers_by_flags_slot06_13(void) {
     u16 *flags = &game_state.field_dc;
@@ -44,8 +44,8 @@ void init_background_layers_slot06_13(void) {
 }
 
 void init_slot_tile_and_sprite_buffers_gray_n_slot06_13(void) {
-    func_801e8224_slot06_13();
-    func_801e85c8_slot06_13();
+    init_two_rows_of_gray_tile_prims_a_slot06_13();
+    init_two_rows_of_gray_tile_prims_b_slot06_13();
     init_sprite_prims_32x32_slot06_13();
     noop_empty_function_3_slot06_13();
 }
@@ -82,7 +82,7 @@ void init_first_layer_tile_map_slot06_13(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8224_slot06_13(void) {
+void init_two_rows_of_gray_tile_prims_a_slot06_13(void) {
     int i;
     int j;
     Slot06Tile *r;

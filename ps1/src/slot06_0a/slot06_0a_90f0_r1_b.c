@@ -76,7 +76,7 @@ void call_state_1_handler_unless_paused_slot06_0a(Object *obj) {
     clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_801e9488_slot06_0a(Object *obj) {
+void check_near_target_and_player_state_then_advance_slot06_0a(Object *obj) {
     start_sequence_when_target_near_x_slot06_0a(obj);
     set_sequence_8_on_player_state_2_eight_slot06_0a(obj);
     advance_sequence_checked(obj);

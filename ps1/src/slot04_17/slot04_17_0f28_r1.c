@@ -415,7 +415,7 @@ void enter_next_state_3_if_mode_zero_slot04_17(Object *o) {
     update_sequence(o);
 }
 
-void func_801b1bbc_slot04_17(Object *obj) {
+void launch_on_active_flag_then_move_or_fall_slot04_17(Object *obj) {
     if (obj->active_flag != 0) {
         obj->vel_x = 0xc000;
         obj->vel_y = 0x19000;

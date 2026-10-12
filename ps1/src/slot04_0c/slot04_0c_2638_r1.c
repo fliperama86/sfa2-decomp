@@ -52,7 +52,7 @@ void call_table_function_by_state_3_10_slot04_0c(Object *obj) {
     data_801bda6c_slot04_0c[obj->state_3](obj);
 }
 
-void func_801b2748_slot04_0c(Object *obj) {
+void start_sequence_35_and_apply_velocities_slot04_0c(Object *obj) {
     obj->active_flag_3 = 0;
     obj->active_flag_4 = 1;
     obj->state_3++;
@@ -76,7 +76,7 @@ void call_table_function_by_state_3_11_slot04_0c(Object *obj) {
     data_801bda74_slot04_0c[obj->state_3](obj);
 }
 
-void func_801b2850_slot04_0c(Object *obj) {
+void start_backward_slide_with_vel_x_slot04_0c(Object *obj) {
     obj->active_flag_4 = 1;
     obj->active_state = 1;
     obj->state_3++;
@@ -174,7 +174,7 @@ void advance_state_3_on_low_flag_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b2bec_slot04_0c(Object *o) {
+void start_table_jump_when_step_flag_zero_slot04_0c(Object *o) {
     u16 a;
     int v;
 

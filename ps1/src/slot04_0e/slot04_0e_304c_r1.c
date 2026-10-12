@@ -108,7 +108,7 @@ void call_table_function_by_state_3_8_slot04_0e(Object *obj) {
     data_801c6050_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b3338_slot04_0e(Object *obj) {
+void start_fall_lower_accel_y_and_update_air_motion_slot04_0e(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3++;
     add_to_meter_clamped(obj, 2);

@@ -14,7 +14,7 @@ void call_effect_on_step_flag_byte_2_slot05_06(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801cbed0_slot05_06(Object *obj) {
+void start_decelerating_motion_on_sequence_end_slot05_06(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_3++;
         obj->vel_x = 0xa0000;

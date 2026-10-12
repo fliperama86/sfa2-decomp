@@ -8,7 +8,7 @@ extern void (*data_800e83e8_slot0f[])(GameState *, Menu *);
 extern void (*data_800e83f0_slot0f[])(GameState *, Menu *);
 extern void (*data_800e83fc_slot0f[])(GameState *, Menu *);
 
-void func_800dfae0_slot0f(void) {
+void loop_call_menu_state_handler_forever_slot0f(void) {
     GameState *state = &game_state;
     Menu *menu = &data_800f8574_slot0f;
     data_800f8574_slot0f.active_flag = 0;

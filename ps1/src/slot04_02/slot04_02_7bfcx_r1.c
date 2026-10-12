@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void set_state_0_to_2_slot04_02(Object *obj);
-void func_801b7e34_slot04_02(Object *obj, u8 arg);
+void copy_palette_table_by_arg_and_queue_upload_slot04_02(Object *obj, u8 arg);
 
 /*
  * What it does (inferred, not an original name): a state of a helper object
@@ -15,7 +15,7 @@ void func_801b7e34_slot04_02(Object *obj, u8 arg);
  * object's side and registers itself. Otherwise it only calls
  * set_state_0_to_2_slot04_02.
  */
-void func_801b7bfc_slot04_02(Object *obj) {
+void init_child_object_from_parent_with_palette_copy_slot04_02(Object *obj) {
     Object *other;
     u8 palette;
 
@@ -47,7 +47,7 @@ void func_801b7bfc_slot04_02(Object *obj) {
             palette++;
         }
         obj->table_index = palette;
-        func_801b7e34_slot04_02(obj, palette);
+        copy_palette_table_by_arg_and_queue_upload_slot04_02(obj, palette);
         if (other->side == 0) {
             set_sequence_from_table_5(obj, 8, data_1f8000b4);
         } else {

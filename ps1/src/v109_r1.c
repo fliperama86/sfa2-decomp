@@ -5,7 +5,7 @@
 #include "protos.h"
 
 
-void func_8012e168(Object *o) {
+void update_pos_x_table_step_then_pick_sequence(Object *o) {
     u16 state;
     if (apply_table_step_to_pos_x(o)) {
         o->state_3++;

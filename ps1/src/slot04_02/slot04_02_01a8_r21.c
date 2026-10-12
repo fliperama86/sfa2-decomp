@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b2584_slot04_02(Object *obj);
+u8 move_with_gravity_return_above_ground_slot04_02(Object *obj);
 void land_on_ground_play_sound_set_landing_sequence_slot04_02(Object *obj);
 
 void update_airborne_repeat_countdown_or_land_slot04_02(Object *obj) {
 
-    if (func_801b2584_slot04_02(obj) != 0) {
+    if (move_with_gravity_return_above_ground_slot04_02(obj) != 0) {
         if ((s16)obj->step_flags & 0x8000) {
             play_sound_at(obj, obj->side, 0x320);
             ((Slot04bObj *)obj)->countdown_2--;
@@ -25,7 +25,7 @@ void update_airborne_repeat_countdown_or_land_slot04_02(Object *obj) {
 }
 
 void update_airborne_until_sequence_end_or_land_slot04_02(Object *obj) {
-    if (func_801b2584_slot04_02(obj) != 0) {
+    if (move_with_gravity_return_above_ground_slot04_02(obj) != 0) {
         if ((s16)obj->step_flags & 0x8000) {
             obj->state_3++;
             set_sequence_by_side(obj, 0x21);

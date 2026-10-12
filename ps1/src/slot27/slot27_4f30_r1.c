@@ -8,7 +8,7 @@ void init_object_with_two_child_objects_slot27(Object *obj);
 void update_sequence_on_active_state_change_slot27(Object *obj);
 void set_position_from_other_plus_table_offset_slot27(Object *obj);
 
-void func_80014f30_slot27(Object *obj) {
+void call_state_1_handler_from_slot27_table_b_8_slot27(Object *obj) {
     data_80028120_slot27[obj->state_1](obj);
 }
 

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80155088(void) {
+void clear_game_state_flag_and_call_palette_setup(void) {
     game_state.field_31 = 0;
-    func_80123f78(1);
+    apply_palette_mode_from_game_state_flag(1);
 }
