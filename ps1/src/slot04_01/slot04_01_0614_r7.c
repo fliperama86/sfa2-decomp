@@ -33,6 +33,6 @@ void func_801b1eb8_slot04_01(Object *obj) {
     obj->pos_y_frac = 0;
     obj->field_45 = 0;
     obj->field_159 = 0;
-    obj->pos_y = obj->field_70;
+    obj->pos_y = obj->ground_y;
     func_80130678(obj, 0x11);
 }

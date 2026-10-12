@@ -8,8 +8,8 @@ void func_80156818(void *a, Object *object)
 {
   u8 high;
   object->field_a9 = object->field_a9 + 1;
-  high = object->field_120;
-  object->field_aa = 0;
+  high = object->score_rank;
+  object->phase_index = 0;
   object->field_b0 = 0;
   object->field_b2 = 0;
   object->field_b4 = 0;
@@ -23,6 +23,6 @@ void func_80156818(void *a, Object *object)
   {
     game_state.field_2ba = high;
   }
-  object->field_120 = 0;
+  object->score_rank = 0;
   object->field_121 = 0;
 }

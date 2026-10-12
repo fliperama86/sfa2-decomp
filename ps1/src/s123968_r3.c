@@ -17,5 +17,5 @@ void func_8012411c(void) {
 }
 
 void func_801241d8(void) {
-    table_8016e804[((HudBig *)data_8018f5a0)->field_52]();
+    table_8016e804[((HudBig *)data_8018f5a0)->substate_index]();
 }

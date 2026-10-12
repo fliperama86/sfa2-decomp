@@ -24,7 +24,7 @@ void func_801b72d8_slot04_11(Object *obj) {
     obj->field_0c = 0;
     obj->field_20 = 0;
     obj->field_24 = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->state_0++;
     obj->field_1c = ref_other.p->field_1c;
     func_801b73f4_slot04_11(obj);

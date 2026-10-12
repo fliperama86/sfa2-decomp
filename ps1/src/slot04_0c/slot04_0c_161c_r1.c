@@ -38,10 +38,10 @@ void func_801b161c_slot04_0c(Object *obj) {
             p->field_26 = obj->field_26;
             p->pos_x = obj->pos_x;
             y = obj->pos_y;
-            p->field_7a = 0x60;
-            p->field_5c = 0;
+            p->spawn_x = 0x60;
+            p->health = 0;
             p->field_3c = obj;
-            p->field_7c = 0x1e0;
+            p->spawn_y = 0x1e0;
             p->pos_y = y;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
@@ -135,13 +135,13 @@ void func_801b19b8_slot04_0c(Object *obj) {
     obj->vel_x += obj->accel_x;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
     obj->vel_y += obj->accel_y;
-    if (obj->pos_y < obj->field_70) {
+    if (obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
         obj->state_3++;
         obj->field_45 = 0;
         obj->field_17b = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         obj->field_157 = 1;
         func_801307e0(obj, 0x28);
@@ -219,7 +219,7 @@ void func_801b1c54_slot04_0c(Object *obj) {
             p->field_4b = obj->field_4b;
             p->field_66 = obj->field_66;
             p->field_ac = obj->field_12a + 6;
-            p->field_5c = (obj->field_12a >> 1) + 2;
+            p->health = (obj->field_12a >> 1) + 2;
             p->field_ad = 0;
             p->field_0e = obj->field_0e;
             p->field_0b = obj->field_0b;
@@ -228,9 +228,9 @@ void func_801b1c54_slot04_0c(Object *obj) {
             p->field_26 = obj->field_26;
             p->pos_x = obj->pos_x;
             y = obj->pos_y;
-            p->field_7a = 0x60;
+            p->spawn_x = 0x60;
             p->field_3c = obj;
-            p->field_7c = 0x1e0;
+            p->spawn_y = 0x1e0;
             p->pos_y = y;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;

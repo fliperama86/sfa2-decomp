@@ -9,7 +9,7 @@ void func_80120f40(Object *object, u8 a1, u16 a2) {
     object->field_02 = a1;
     object->side = a1;
     object->field_d4 = 0;
-    object->field_d7 = 0;
+    object->win_streak = 0;
     object->field_c0 = 0;
     object->field_124 = 0;
     object->field_db = 0;

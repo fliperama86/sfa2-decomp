@@ -28,11 +28,11 @@ void func_801b34bc_slot04_06(Object *obj) {
     other->state_3 = 0;
     other->field_73 = 0xff;
     other->field_15b = 1;
-    other->field_160 = 0x64;
+    other->gauge = 0x64;
     obj->vel_x = 0xa0000;
     obj->accel_x = -0xe000;
     obj->field_73 = 1;
-    obj->field_160 = 0x80;
+    obj->gauge = 0x80;
     ((Slot04aObj *)obj)->field_1c5 = data_801c5478_slot04_06[obj->field_12a >> 1];
     func_801307e0(obj, 0x2c);
 }

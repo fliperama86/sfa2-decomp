@@ -43,7 +43,7 @@ void func_800108d4_slot01(void) {
         func_801519b4(&data_800150cc_slot01[1]);
         data_800150cc_slot01[2].x = data_8002cea4_slot01;
         data_800150cc_slot01[3].x = data_8002cea4_slot01 + 0x48;
-        func_80010bf0_slot01(game_state.field_85 != 0 ? data_8002cea8_slot01->field_d7 : data_8002cea8_slot01->field_c0, data_800150cc_slot01[3].text);
+        func_80010bf0_slot01(game_state.field_85 != 0 ? data_8002cea8_slot01->win_streak : data_8002cea8_slot01->field_c0, data_800150cc_slot01[3].text);
         func_801519b4(&data_800150cc_slot01[2]);
         func_801519b4(&data_800150cc_slot01[3]);
         data_800150cc_slot01[4].x = data_8002cea4_slot01;
@@ -75,7 +75,7 @@ void func_800108d4_slot01(void) {
             do {
                 Strip1c *p = data_8002ce9c_slot01;
                 PrimTag *ot;
-                p->field_14 = data_8002cea4_slot01 - data_8002cea0_slot01 * 16;
+                p->pos_x = data_8002cea4_slot01 - data_8002cea0_slot01 * 16;
                 p->field_16 = 0x6e;
                 /* The head of the ordering table of the buffer in use, 0xe8 bytes per buffer. Written through the symbol data_801fc050 the function differs in 12 instruction slots. */
                 ot = (PrimTag *)(0x801fc050 + data_801a27d0 * 0xe8);

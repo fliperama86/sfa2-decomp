@@ -4,11 +4,11 @@
 #include "protos.h"
 
 void func_80141248(Object *object) {
-    if ((ref_other.p->field_134 & 0xfc) == 0) {
-        object->field_160 = object->field_160 + 1;
+    if ((ref_other.p->pressed_bits & 0xfc) == 0) {
+        object->gauge = object->gauge + 1;
     } else {
-        int t = object->field_160 - 1;
-        object->field_160 = t;
-        if ((s16)t < 0) object->field_160 = 0;
+        int t = object->gauge - 1;
+        object->gauge = t;
+        if ((s16)t < 0) object->gauge = 0;
     }
 }

@@ -8,8 +8,8 @@ void func_80121680(GameState *state, Object *a1, Object *a2) {
     a2->other = &player_left;
     a1->field_0d = 0x10;
     a2->field_0d = 0xb;
-    state->field_9c = &player_left;
-    state->field_a0 = &player_left + 1;
+    state->player_left_ptr = &player_left;
+    state->player_right_ptr = &player_left + 1;
     if (a1->field_cd != 0) {
         a1->field_d4 = 0;
         if (a1->kind == a2->kind && a2->field_d4 == 0) {
@@ -60,7 +60,7 @@ void func_80121874(Object *object) {
     if (object->field_af != 0) {
         data_8018f5a0->field_50 = 0xc;
         data_8018f5a0->field_60 = 0x10;
-        object->field_09 = 1;
+        object->ot_depth = 1;
         object->field_2c = 0xff;
         func_8013245c();
         object->field_ab = 0;

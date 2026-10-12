@@ -20,9 +20,9 @@ void func_80024030_slot28(Object *obj) {
         d = 1;
     }
     ((Slot28Obj *)obj)->field_14 = ((Slot28Obj *)obj)->field_14 - d;
-    ((Slot28Obj *)obj)->field_46--;
+    ((Slot28Obj *)obj)->countdown_timer--;
     ((Slot28Obj *)obj)->field_47 = ((Slot28Obj *)obj)->field_47 ^ 1;
-    if (((Slot28Obj *)obj)->field_46 == 0) {
+    if (((Slot28Obj *)obj)->countdown_timer == 0) {
         obj->state_1 = obj->state_1 + 1;
     }
 }

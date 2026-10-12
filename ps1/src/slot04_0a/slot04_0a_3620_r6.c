@@ -41,7 +41,7 @@ void func_801b3cd0_slot04_0a(Object *obj) {
 
 void func_801b3da8_slot04_0a(Object *obj) {
     func_801b3e00_slot04_0a(obj);
-    if (obj->pos_y < obj->field_70) {
+    if (obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
         func_80131638(obj);

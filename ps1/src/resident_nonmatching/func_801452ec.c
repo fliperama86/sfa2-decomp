@@ -20,8 +20,8 @@
  *
  * Contract (the roles named for the fields are inferred):
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_03, field_09, field_0c, field_0d, pos_x,
- *     pos_y, field_5c, field_76, field_78, field_7a, field_7c and sequence;
+ *   Reads: the object's field_03, ot_depth, field_0c, field_0d, pos_x,
+ *     pos_y, health, field_76, field_78, spawn_x, spawn_y and sequence;
  *     the header at sequence->field_04: byte 0 columns, byte 2 rows, byte 3
  *     a clut offset, u16 at 4 and 6 an x and y origin, then rows * columns
  *     u16 cells from offset 8; the selector data_801a27d0 (a word, 0 or 1);
@@ -38,7 +38,7 @@
  *     and 10 side 1). For any other value the original uses a register
  *     left over from its caller (read from the original's listing, not
  *     tested); that input is excluded. For 9 and 10 the
- *     vertical stretch dy is 0, otherwise field_5c. The quad bytes 4 to 6
+ *     vertical stretch dy is 0, otherwise health. The quad bytes 4 to 6
  *     are set and the call to func_8015bfe8 made only for field_03 0 and 1.
  *   idx is a 16-bit counter that starts at 0 and counts the drawn cells;
  *     the contract keeps it at 40 or below (a pair per cell in the side).
@@ -105,7 +105,7 @@ void func_801452ec(Object *object) {
         side = 1;
     }
     idx = 0;
-    map = (Tilemap *)object->sequence->field_04;
+    map = (Tilemap *)object->sequence->data_ptr;
     for (row = 0; row < map->rows; row++) {
         for (col = 0; col < map->cols; col++) {
             cell = map->cells[col + row * map->cols];
@@ -118,52 +118,52 @@ void func_801452ec(Object *object) {
             hi = (n / 16) << 4;
             quad = &data_801a4ff0[side].pairs[idx].polys[data_801a27d0];
             func_8015c09c(quad);
-            quad->field_16 = func_8015bd0c(0, 0, (s16)object->field_76 + (n / 256) * 64, (s16)object->field_78);
-            quad->field_0e = func_8015bdd4((s16)object->field_7a,
-                                           (s16)object->field_7c + object->field_0d * object->field_0c + map->field_03);
+            quad->tpage = func_8015bd0c(0, 0, (s16)object->field_76 + (n / 256) * 64, (s16)object->field_78);
+            quad->clut = func_8015bdd4((s16)object->spawn_x,
+                                           (s16)object->spawn_y + object->field_0d * object->field_0c + map->field_03);
             if (object->field_03 < 2) {
-                quad->field_04 = 0x80;
-                quad->field_05 = 0x80;
-                quad->field_06 = 0x80;
+                quad->r0 = 0x80;
+                quad->g0 = 0x80;
+                quad->b0 = 0x80;
                 func_8015bfe8(quad, 1);
             }
-            dy = object->field_5c;
+            dy = object->health;
             if (object->field_03 == 9 || object->field_03 == 10) {
                 dy = 0;
             }
             x = object->pos_x + col * 16 - map->field_04;
             if (flag == 0) {
                 y = object->pos_y + row * (dy + 16) - map->field_06;
-                quad->field_08 = x;
-                quad->field_0a = y;
-                quad->field_10 = x + 16;
-                quad->field_12 = y;
-                quad->field_18 = x;
-                quad->field_1a = dy + (y + 16);
-                quad->field_20 = x + 16;
-                quad->field_22 = dy + (y + 16);
+                quad->x0 = x;
+                quad->y0 = y;
+                quad->x1 = x + 16;
+                quad->y1 = y;
+                quad->x2 = x;
+                quad->y2 = dy + (y + 16);
+                quad->x3 = x + 16;
+                quad->y3 = dy + (y + 16);
             } else {
                 y = object->pos_y + row * 16 - map->field_06;
                 ystep = object->pos_y + row * (dy + 16) - map->field_06 + 16;
-                quad->field_08 = x + 16;
-                quad->field_0a = y;
-                quad->field_10 = x;
-                quad->field_12 = y;
-                quad->field_18 = x + 16;
-                quad->field_1a = ystep;
-                quad->field_20 = x;
-                quad->field_22 = ystep;
+                quad->x0 = x + 16;
+                quad->y0 = y;
+                quad->x1 = x;
+                quad->y1 = y;
+                quad->x2 = x + 16;
+                quad->y2 = ystep;
+                quad->x3 = x;
+                quad->y3 = ystep;
             }
-            quad->field_0c = lo;
-            quad->field_0d = hi;
-            quad->field_14 = lo + 15;
-            quad->field_15 = hi;
-            quad->field_1c = lo;
-            quad->field_1d = hi + 15;
-            quad->field_24 = lo + 15;
-            quad->field_25 = hi + 15;
+            quad->u0 = lo;
+            quad->v0 = hi;
+            quad->u1 = lo + 15;
+            quad->v1 = hi;
+            quad->u2 = lo;
+            quad->v2 = hi + 15;
+            quad->u3 = lo + 15;
+            quad->v3 = hi + 15;
             idx++;
-            func_8015bf34((int)data_801987c8 + object->field_09 * 4 + 0x20, (Cmd *)quad);
+            func_8015bf34((int)data_801987c8 + object->ot_depth * 4 + 0x20, (Cmd *)quad);
         }
     }
 }

@@ -7,7 +7,7 @@ extern SequenceStep *data_801e7630_slot0b[];
 
 void func_801e1c00_slot0b(Object *obj) {
     obj->field_01 = 1;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_0b = 0;
     obj->field_0e = 0;
     obj->field_0f = 0;

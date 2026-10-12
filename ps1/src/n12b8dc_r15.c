@@ -4,5 +4,5 @@
 #include "protos.h"
 
 u8 func_8013d210(Object *object) {
-    return *((u8 *)&object->field_134 + 1) & 1;
+    return *((u8 *)&object->pressed_bits + 1) & 1;
 }

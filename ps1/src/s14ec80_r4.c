@@ -11,7 +11,7 @@ void func_8014f76c(Ctl *p) {
             close_vab_and_sep(i);
         }
     }
-    p->field_0b = 6;
+    p->state_index = 6;
     p->field_15 = 0;
     p->field_16 = 0;
     p->field_17 = 0;

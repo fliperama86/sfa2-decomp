@@ -7,7 +7,7 @@ extern void (*data_800243bc_slot12[])(Object *);
 extern void (*data_800243c8_slot12[])(Object *);
 
 void func_80013608_slot12(Object *obj) {
-    Object *o = game_state.field_154;
+    Object *o = game_state.object;
     if (game_state.field_09 == 0 && game_state.field_2c == 0 && (s16)o->field_b2 != obj->field_48) {
         obj->field_48 = *(u8 *)&o->field_b2;
     }

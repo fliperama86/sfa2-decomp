@@ -33,7 +33,7 @@ void func_801b329c_slot04_11(Object *obj) {
             ((Slot04bObj *)obj)->field_52 = obj->pos_x;
             ref_other.p->pos_y = obj->pos_y;
             ref_other.p->field_45 = 0;
-            if ((s16)ref_other.p->field_5c < 0) {
+            if ((s16)ref_other.p->health < 0) {
                 obj->field_12f = 0xff;
             }
             n = obj->field_12a;

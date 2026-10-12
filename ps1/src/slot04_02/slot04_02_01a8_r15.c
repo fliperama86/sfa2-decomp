@@ -16,7 +16,7 @@ int func_801b1798_slot04_02(Object *obj) {
 
     if (obj->field_240 == 0) {
         if (obj->field_45 != 0) {
-            t = (u16)obj->field_70;
+            t = (u16)obj->ground_y;
             t -= 0x30;
             r = obj->pos_y < (s16)t;
         }

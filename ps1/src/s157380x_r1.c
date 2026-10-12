@@ -22,8 +22,8 @@ void func_80157380(Object *obj) {
             p[0]->field_0d = obj->field_0d;
             p[0]->field_3c = obj;
             p[0]->field_81 = 5;
-            p[0]->field_7a = 0x60;
-            p[0]->field_7c = 0x1e0;
+            p[0]->spawn_x = 0x60;
+            p[0]->spawn_y = 0x1e0;
             p[1]->field_00 = 1;
             p[1]->field_02 = 0xb;
             p[1]->field_03 = 2;
@@ -35,8 +35,8 @@ void func_80157380(Object *obj) {
             p[1]->field_0d = obj->field_0d + 3;
             p[1]->field_3c = obj;
             p[1]->field_81 = 5;
-            p[1]->field_7a = 0x60;
-            p[1]->field_7c = 0x1e0;
+            p[1]->spawn_x = 0x60;
+            p[1]->spawn_y = 0x1e0;
             p[2]->field_00 = 1;
             p[2]->field_02 = 0xb;
             p[2]->field_03 = 3;
@@ -48,8 +48,8 @@ void func_80157380(Object *obj) {
             p[2]->field_0d = obj->field_0d + 4;
             p[2]->field_3c = obj;
             p[2]->field_81 = 5;
-            p[2]->field_7a = 0x60;
-            p[2]->field_7c = 0x1e0;
+            p[2]->spawn_x = 0x60;
+            p[2]->spawn_y = 0x1e0;
         }
     }
 }

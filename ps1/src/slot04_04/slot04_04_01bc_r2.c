@@ -25,7 +25,7 @@ void func_801b02d4_slot04_04(Object *obj) {
     obj->state_2++;
     game_state.field_76 = 0x1e;
     k = 3;
-    if ((s16)obj->field_5c != 0x90) {
+    if ((s16)obj->health != 0x90) {
         k = data_801c4164_slot04_04[get_random_byte() & 0xf];
     }
     k = (s8)func_80125734(obj, (s8)k);

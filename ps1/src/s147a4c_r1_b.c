@@ -20,11 +20,11 @@ void func_801482e0(Object *parent, int x_arg, int y_arg) {
         object->field_0e = parent->field_0e;
         object->field_1c = parent->field_1c;
         object->field_3c = parent;
-        object->field_5c = x;
+        object->health = x;
         object->field_5e = y;
         object->field_0b = parent->field_0b;
-        object->field_7a = 0x60;
-        object->field_7c = 0x1e0;
+        object->spawn_x = 0x60;
+        object->spawn_y = 0x1e0;
         object->field_98 = data_80172a48;
         object->field_90 = (void *)0x800fb100;
         object->field_9c = data_80173c9c;

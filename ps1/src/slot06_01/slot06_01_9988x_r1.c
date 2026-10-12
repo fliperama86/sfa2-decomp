@@ -13,8 +13,8 @@ void func_801e9988_slot06_01(Object *obj) {
     obj->field_46 = 0x3f;
     obj->field_76 = 0x300;
     obj->field_78 = 0x100;
-    obj->field_7a = 0x60;
-    obj->field_7c = 0x1e0;
+    obj->spawn_x = 0x60;
+    obj->spawn_y = 0x1e0;
     t = obj->state_0;
     obj->accel_y = 0;
     obj->field_0d = 0;

@@ -22,13 +22,13 @@ void func_801b5478_slot04_09(Object *obj) {
         n->field_0c = obj->field_0c;
         n->field_0d = obj->field_0d;
         n->field_26 = obj->field_26;
-        n->field_5c = 2;
+        n->health = 2;
         *(u32 *)&n->field_a4 = 0x1000800;
         n->field_3c = obj;
         obj->field_14c = (s32)n;
         obj->field_240++;
-        n->field_7a = 0x60;
-        n->field_7c = 0x1e0;
+        n->spawn_x = 0x60;
+        n->spawn_y = 0x1e0;
         n->field_90 = obj->field_90;
         n->field_98 = obj->field_98;
         n->field_9c = obj->field_9c;

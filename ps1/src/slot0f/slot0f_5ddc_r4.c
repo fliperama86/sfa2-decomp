@@ -16,7 +16,7 @@ void func_800e61c4_slot0f(Object *obj) {
     obj->pos_x = data_800efa30_slot0f[i].x;
     q = &data_800efa30_slot0f[i].y;
     obj->pos_y = *q;
-    obj->field_70 = *q;
+    obj->ground_y = *q;
     obj->pos_x -= 0x10;
     obj->field_62 = 0;
 }

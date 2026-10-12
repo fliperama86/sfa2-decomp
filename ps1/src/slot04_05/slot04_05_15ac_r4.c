@@ -22,7 +22,7 @@ void func_801b1be0_slot04_05(Object *obj);
 
 void func_801b1a60_slot04_05(Object *obj) {
     func_801b1be0_slot04_05(obj);
-    if (obj->field_70 >= obj->pos_y) {
+    if (obj->ground_y >= obj->pos_y) {
         if (*(u8 *)&obj->step_flags != 3) {
             update_sequence(obj);
         }
@@ -31,7 +31,7 @@ void func_801b1a60_slot04_05(Object *obj) {
         func_801209c4(obj);
         obj->field_45 = 0;
         obj->field_17b = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         update_sequence(obj);
     }
 }

@@ -31,7 +31,7 @@ void func_801b5768_slot04_10(Object *o) {
         ref_other.p->field_260 = 1;
         func_80140770(o, 0x22, 0xf, -0x200, 0, 0, 0);
         ref_other.p = o->other;
-        if ((s16)ref_other.p->field_5c < 0) {
+        if ((s16)ref_other.p->health < 0) {
             o->field_167 = (o->field_12a >> 1) + 0xc;
         }
         o->vel_x = 0x48000;
@@ -49,7 +49,7 @@ void func_801b588c_slot04_10(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3 = 8;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
         func_801307e0(obj, 0x33);
@@ -224,13 +224,13 @@ void func_801b5e9c_slot04_10(Object *obj) {
     } else if (obj->field_12a == 4 && ((Slot04bObj *)obj)->field_1a8 != 2) {
         obj->state_3 = 0xb;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff00;
         func_801307e0(obj, 0x2d);
     } else {
         obj->state_3++;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801307e0(obj, 0x2e);
     }

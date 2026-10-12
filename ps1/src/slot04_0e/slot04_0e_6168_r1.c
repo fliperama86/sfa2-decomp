@@ -35,7 +35,7 @@ void func_801b6168_slot04_0e(Object *obj) {
 
 void func_801b61b8_slot04_0e(Object *obj) {
     func_801b4914_slot04_0e(obj);
-    if (obj->field_70 >= obj->pos_y) {
+    if (obj->ground_y >= obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = 7;
@@ -43,7 +43,7 @@ void func_801b61b8_slot04_0e(Object *obj) {
         obj->pos_x_frac = 0;
         obj->pos_y_frac = 0;
         obj->field_17b = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x2b);
     }
@@ -69,10 +69,10 @@ void func_801b628c_slot04_0e(Object *obj) {
             ((Slot04bObj *)obj)->field_1de = 1;
         }
     } else {
-        t = obj->field_134;
+        t = obj->pressed_bits;
         if (t & 0x95) {
             buf = func_801b6b64_slot04_0e((Slot04bObj *)obj);
-            t = obj->field_134;
+            t = obj->pressed_bits;
             obj->field_48 = buf.first;
             if ((t & 0x94) != 0x94) {
                 if ((t & 1) == 0) {
@@ -176,15 +176,15 @@ void func_801b6698_slot04_0e(Object *obj, u8 a, int b, int c) {
         p->field_00 = 1;
         p->field_02 = 0x3b;
         p->field_03 = 5;
-        p->field_09 = 0;
+        p->ot_depth = 0;
         p->field_02 = 0x14;
         p->field_65 = obj->field_65;
-        p->field_7a = 0x60;
+        p->spawn_x = 0x60;
         p->field_3c = obj;
         p->field_48 = a;
         p->vel_x = b;
         p->vel_y = c;
-        p->field_7c = 0x1e0;
+        p->spawn_y = 0x1e0;
         p->field_0d = obj->field_0d;
         p->field_08 = 0x20;
         p->field_90 = obj->field_90;
@@ -262,12 +262,12 @@ void func_801b6918_slot04_0e(Object *obj) {
 
 void func_801b69b4_slot04_0e(Object *obj) {
     func_801b4914_slot04_0e(obj);
-    if (obj->field_70 < obj->pos_y) {
+    if (obj->ground_y < obj->pos_y) {
         obj->field_45 = 0;
         obj->pos_x_frac = 0;
         obj->pos_y_frac = 0;
         obj->state_3 = obj->state_3 + 1;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801b687c_slot04_0e(obj);
         obj->step_timer = 1;

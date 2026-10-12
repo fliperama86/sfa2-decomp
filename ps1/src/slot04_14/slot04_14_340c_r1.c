@@ -159,7 +159,7 @@ void func_801b382c_slot04_14(Object *obj) {
             p->field_65 = obj->field_65;
             p->field_4b = obj->field_4b;
             p->field_ac = (obj->field_12a >> 1) + 0xc;
-            p->field_5c = obj->field_12a + 3;
+            p->health = obj->field_12a + 3;
             p->field_ad = 1;
             p->field_0b = obj->field_0b;
             p->field_0e = obj->field_0e;
@@ -168,11 +168,11 @@ void func_801b382c_slot04_14(Object *obj) {
             p->field_26 = obj->field_26;
             p->pos_x = obj->pos_x;
             p->pos_y = obj->pos_y;
-            y = obj->field_70;
-            p->field_7a = 0x60;
+            y = obj->ground_y;
+            p->spawn_x = 0x60;
             p->field_3c = obj;
-            p->field_7c = 0x1e0;
-            p->field_70 = y;
+            p->spawn_y = 0x1e0;
+            p->ground_y = y;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             p->field_9c = obj->field_9c;
@@ -213,7 +213,7 @@ void func_801b3998_slot04_14(Object *obj) {
     } else {
         obj->field_45 = 0;
         obj->state_3 = obj->state_3 + 1;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         n = 0x39;
         if (obj->field_48 == 1) {
@@ -229,7 +229,7 @@ void func_801b3ab0_slot04_14(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         n = 0x39;
         if (obj->field_48 == 1) {
@@ -288,17 +288,17 @@ void func_801b3c38_slot04_14(Object *obj) {
             x = obj->field_12a >> 1;
             p->field_ad = 0;
             p->field_ac = x + 6;
-            p->field_5c = x;
+            p->health = x;
             p->field_0b = obj->field_0b;
             p->field_0d = obj->field_0d;
             p->field_26 = obj->field_26;
             p->pos_x = obj->pos_x;
             p->pos_y = obj->pos_y;
-            y = obj->field_70;
-            p->field_7a = 0x60;
+            y = obj->ground_y;
+            p->spawn_x = 0x60;
             p->field_3c = obj;
-            p->field_7c = 0x1e0;
-            p->field_70 = y;
+            p->spawn_y = 0x1e0;
+            p->ground_y = y;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             p->field_9c = obj->field_9c;

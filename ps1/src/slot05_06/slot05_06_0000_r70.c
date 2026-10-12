@@ -25,7 +25,7 @@ void func_801ce0a0_slot05_06(Object *obj) {
     obj->pos_x = p->pos_x;
     obj->pos_y = p->pos_y;
     obj->field_0e = p->field_0e;
-    obj->field_09 = 6;
+    obj->ot_depth = 6;
     obj->field_0b = data_801dd758_slot05_06->field_0b;
     ((Slot04aObj *)obj)->field_70 = ((Slot04aObj *)data_801dd758_slot05_06)->field_70;
     func_801ce260_slot05_06(obj);
@@ -34,12 +34,12 @@ void func_801ce0a0_slot05_06(Object *obj) {
 }
 
 void func_801ce198_slot05_06(Object *obj) {
-    obj->field_09 = 1;
+    obj->ot_depth = 1;
     obj->field_48 = 0;
 }
 
 void func_801ce1a8_slot05_06(Object *obj) {
-    obj->field_09 = 1;
+    obj->ot_depth = 1;
     obj->field_48 = 0x10;
 }
 

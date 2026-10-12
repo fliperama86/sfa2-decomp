@@ -11,7 +11,7 @@ void func_801b0fec_slot04_07(Object *obj) {
     if (func_801b41c4_slot04_07(obj) >= 0) {
         update_sequence(obj);
     } else {
-        limit = obj->field_70;
+        limit = obj->ground_y;
         if (limit > obj->pos_y) {
             update_sequence(obj);
         } else {

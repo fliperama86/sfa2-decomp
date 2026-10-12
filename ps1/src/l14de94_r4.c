@@ -7,23 +7,23 @@
 void func_80150294(Stream *stream) {
     StreamEntry *e;
     int n = 0;
-    while (stream->entries[stream->field_17].field_08 != 0) {
-        e = &stream->entries[stream->field_17];
-        data_8017ec60[e->field_0a](stream, e);
-        e->field_08 = 0;
-        if (++stream->field_17 == 8) {
-            stream->field_17 = 1;
+    while (stream->entries[stream->read_index].pending_flag != 0) {
+        e = &stream->entries[stream->read_index];
+        data_8017ec60[e->handler_index](stream, e);
+        e->pending_flag = 0;
+        if (++stream->read_index == 8) {
+            stream->read_index = 1;
         }
         n++;
-        stream->field_09 = 0;
+        stream->timeout_count = 0;
     }
-    if (n == 0 && stream->field_0a == 2) {
-        stream->field_0a = 3;
+    if (n == 0 && stream->state == 2) {
+        stream->state = 3;
     }
-    if (++stream->field_09 >= 0xb5 && stream->field_0a == 1) {
+    if (++stream->timeout_count >= 0xb5 && stream->state == 1) {
         func_8014f76c(stream);
     }
-    if (stream->field_14 != 0) {
+    if (stream->error_code != 0) {
         func_8014f76c(stream);
     }
 }

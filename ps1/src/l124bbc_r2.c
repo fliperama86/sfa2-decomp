@@ -34,10 +34,10 @@ void func_801257f4(Select *sel) {
         }
         func_80125938(sel, first, second);
         i = -1;
-        flags = sel->field_50;
+        flags = sel->excluded_mask;
     again:
         i++;
-        flag = sel->field_120[i];
+        flag = sel->entries[i];
         if (!(i < sel->field_a4)) {
             goto out;
         }
@@ -50,7 +50,7 @@ void func_801257f4(Select *sel) {
             goto again;
         }
     out:
-        sel->field_54 = i;
+        sel->selected_index = i;
         second->kind = flag;
     }
     sel->field_40 = (u8)func_80125afc(second->kind);

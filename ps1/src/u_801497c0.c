@@ -21,8 +21,8 @@ void func_801497c0(Object *object)
     new_object->pos_x = object->pos_x;
     new_object->pos_y = object->pos_y;
     side = object->field_65;
-    new_object->field_7a = 0x60;
-    new_object->field_7c = 0x1e0;
+    new_object->spawn_x = 0x60;
+    new_object->spawn_y = 0x1e0;
     new_object->field_3c = object;
     new_object->field_90 = (void *) 0x800fb100;
     new_object->field_98 = data_80172a48;

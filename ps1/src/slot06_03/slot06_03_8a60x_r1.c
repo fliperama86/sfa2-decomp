@@ -10,7 +10,7 @@ extern Slot06Tile data_801f0d40_slot06_03[2][0x120];
    (at most 16), a tile record for each cell that is not blank, linked into
    the primitive list; the adjusted position goes back into the layer first
    (inferred). The locals t, sx, sy, mask and cc are 16-bit, as in
-   func_801e82c8_slot06_00. The local f12 holds field_12 sign-extended, as
+   func_801e82c8_slot06_00. The local f12 holds scroll_x sign-extended, as
    in the model func_801e86d8_slot06_00. */
 void func_801e8a60_slot06_03(void) {
     Chan *c = &data_801aa544[1];
@@ -43,7 +43,7 @@ void func_801e8a60_slot06_03(void) {
     c->field_3c = pos;
     y = pos >> 16;
     sy = y & 0xf;
-    f12 = (s16)c->field_12;
+    f12 = (s16)c->scroll_x;
     sx = f12 & 0xf;
     col = (f12 & (c->field_58 - 1)) >> 4;
     blank = c->field_1e;
@@ -56,13 +56,13 @@ void func_801e8a60_slot06_03(void) {
     rows = c->field_5c >> 4;
     rec = data_801f0d40_slot06_03[data_801a27d0];
     nr = ((u32)(c->field_4c - ((pos >> 16) & -16)) >> 4) + 1;
-    ot = (u32 *)((u8 *)data_801987c8 + c->field_8a * 4);
+    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
     for (i = 0; i < nr; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {
             continue;
         }
-        line = c->field_50 + ((u16)row >> 4) * ((c->field_58 >> 9) << 10) + ((row & 0xf) << 6);
+        line = c->map_data + ((u16)row >> 4) * ((c->field_58 >> 9) << 10) + ((row & 0xf) << 6);
         for (k = 0; k < 25; k++) {
             e = line + ((cc >> 5) << 10) + ((cc & 0x1f) << 1);
             tile = *e;

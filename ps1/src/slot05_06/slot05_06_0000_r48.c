@@ -30,8 +30,8 @@ void func_801cc228_slot05_06(Object *o) {
         if (obj->field_27d == 0) {
             obj->field_27d = ((Object *)obj)->field_27c;
         }
-    } else if (obj->field_47 != 0) {
-        obj->field_47 -= 1;
+    } else if (obj->timer != 0) {
+        obj->timer -= 1;
     }
     func_80142fe8(o);
 }

@@ -23,7 +23,7 @@ void func_80126bcc(GameState *state, Object *object) {
     object->field_b0 = 0x7f;
     object->field_db = 1;
     object->field_b8 = object->field_e4;
-    object->field_aa = 0;
+    object->phase_index = 0;
     object->field_c1++;
     func_80126778(state, object);
 }

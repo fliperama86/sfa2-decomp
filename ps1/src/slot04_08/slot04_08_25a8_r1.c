@@ -31,7 +31,7 @@ void func_801b2650_slot04_08(Object *obj) {
         obj->step_flags = t & m;
         game_state.field_63 = 0x18;
         func_80146960(obj);
-        play_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 0x319);
+        play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x319);
         func_80140cd8(obj, (s16)(data_801c3cc4_slot04_08[(s16)(obj->field_12a * 2 + (((Slot04aObj *)obj)->field_1c6 + 0xffff))] | m), 0);
         obj->state_3++;
         obj->field_46 = 0x10;

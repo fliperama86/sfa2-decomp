@@ -29,8 +29,8 @@ void func_801b399c_slot04_01(Object *obj) {
 
 void func_801b39e8_slot04_01(Object *obj) {
     func_801b388c_slot04_01(obj);
-    if (obj->field_70 <= obj->pos_y) {
-        obj->pos_y = obj->field_70;
+    if (obj->ground_y <= obj->pos_y) {
+        obj->pos_y = obj->ground_y;
         game_state.field_63 = 0x18;
         obj->state_3 = obj->state_3 + 1;
         if (obj->field_0b == 0) {

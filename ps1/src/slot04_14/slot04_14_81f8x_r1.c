@@ -17,15 +17,15 @@ void func_801b81f8_slot04_14(Object *obj) {
         obj->field_0f = 0;
         obj->field_0e = 0;
         obj->field_0b = 0;
-        obj->field_09 = 6;
+        obj->ot_depth = 6;
         obj->field_1c = other->field_1c;
-        /* The original stores 6 to field_09 twice, here and before the copy of field_1c. Without this second store this function differs from the original in 3 instruction slots. */
-        obj->field_09 = 6;
+        /* The original stores 6 to ot_depth twice, here and before the copy of field_1c. Without this second store this function differs from the original in 3 instruction slots. */
+        obj->ot_depth = 6;
         obj->field_90 = other->field_90;
         obj->field_98 = other->field_98;
         obj->field_9c = other->field_9c;
-        obj->field_7a = other->field_7a;
-        obj->field_7c = other->field_7c;
+        obj->spawn_x = other->spawn_x;
+        obj->spawn_y = other->spawn_y;
         obj->pos_x = box_margin[0] + 0xb8;
         obj->pos_y = 0x78 - data_801aa5ea[0];
         obj->field_0d = 0x1f;
@@ -34,7 +34,7 @@ void func_801b81f8_slot04_14(Object *obj) {
         obj->accel_x = 6;
         obj->field_a0 = 0;
         palette = obj->field_03;
-        if ((s16)other->field_5c != 0x90) {
+        if ((s16)other->health != 0x90) {
             palette++;
         }
         obj->field_03 = palette;

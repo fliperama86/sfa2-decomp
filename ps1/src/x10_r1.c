@@ -14,16 +14,16 @@ void func_801511c8(void)
     {
       func_8015c09c(&data_8018947c[i].pairs[j].polys[0]);
       func_8015c09c(&data_8018947c[i].pairs[j].polys[1]);
-      (&data_8018947c[i].pairs[j])->polys[0].field_04 = 0x80;
-      (&data_8018947c[i].pairs[j])->polys[0].field_05 = 0x80;
-      (&data_8018947c[i].pairs[j])->polys[0].field_06 = 0x80;
-      (*(&(&data_8018947c[i].pairs[j])->polys[1])).field_04 = 0x80;
-      (*(&(&data_8018947c[i].pairs[j])->polys[1])).field_05 = 0x80;
-      (*(&(&data_8018947c[i].pairs[j])->polys[1])).field_06 = 0x80;
-      data_8018947c[i].pairs[j].polys[0].field_16 = func_8015bd0c(0, 0, 0x3c0, 0);
-      data_8018947c[i].pairs[j].polys[1].field_16 = func_8015bd0c(0, 0, 0x3c0, 0);
-      data_8018947c[i].pairs[j].polys[0].field_0e = func_8015bdd4(0x60, 0x1e0);
-      data_8018947c[i].pairs[j].polys[1].field_0e = func_8015bdd4(0x60, 0x1e0);
+      (&data_8018947c[i].pairs[j])->polys[0].r0 = 0x80;
+      (&data_8018947c[i].pairs[j])->polys[0].g0 = 0x80;
+      (&data_8018947c[i].pairs[j])->polys[0].b0 = 0x80;
+      (*(&(&data_8018947c[i].pairs[j])->polys[1])).r0 = 0x80;
+      (*(&(&data_8018947c[i].pairs[j])->polys[1])).g0 = 0x80;
+      (*(&(&data_8018947c[i].pairs[j])->polys[1])).b0 = 0x80;
+      data_8018947c[i].pairs[j].polys[0].tpage = func_8015bd0c(0, 0, 0x3c0, 0);
+      data_8018947c[i].pairs[j].polys[1].tpage = func_8015bd0c(0, 0, 0x3c0, 0);
+      data_8018947c[i].pairs[j].polys[0].clut = func_8015bdd4(0x60, 0x1e0);
+      data_8018947c[i].pairs[j].polys[1].clut = func_8015bdd4(0x60, 0x1e0);
     }
   }
 }

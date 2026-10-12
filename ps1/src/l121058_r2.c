@@ -9,7 +9,7 @@ void func_801218fc(Object *object) {
     if (object->state_2 == 0) {
         data_8018f5a0->field_50++;
         data_8018f5a0->field_60 = 0x20;
-        object->field_09 = 0;
+        object->ot_depth = 0;
         object->field_2c = 0;
         object->field_ab = 0;
         for (i = 0; i < 2; i++) {

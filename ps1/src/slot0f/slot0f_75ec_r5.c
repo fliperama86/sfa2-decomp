@@ -14,7 +14,7 @@ void func_800e7a4c_slot0f(Object *obj, int a) {
     u8 buf[16];
 
     fr = (FrameRecord *)ptr_8019040c;
-    fr += (s16)obj->field_5c;
+    fr += (s16)obj->health;
     e = &data_800f7d80_slot0f[obj->field_03];
     if (obj->field_03 == 0) {
         e->field_08 = 0x10;

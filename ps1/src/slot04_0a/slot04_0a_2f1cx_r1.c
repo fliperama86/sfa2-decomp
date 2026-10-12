@@ -44,7 +44,7 @@ void func_801b2f1c_slot04_0a(Object *obj) {
     if (0x50000 < a) {
         goto end;
     }
-    t = obj->field_134;
+    t = obj->pressed_bits;
     /* Stand-in, not recovered source: the term that is ORed to the first test below, which is 0 for every value of x, reproduces the original's choice of registers. Without it this function differs from the original in 9 instruction slots. */
     if ((t & 0x80) | ((int)(((u32)x << 20) & 4096))) {
         x = 0;

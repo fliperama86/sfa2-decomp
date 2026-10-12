@@ -24,6 +24,6 @@ void func_801b34c4_slot04_00(Object *obj) {
     } else {
         game_state.cursor = data_801c052c_slot04_00;
     }
-    game_state.cursor = (u32 *)game_state.cursor[(s16)obj->field_5c];
+    game_state.cursor = (u32 *)game_state.cursor[(s16)obj->health];
     obj->box_tables = (BoxTables *)game_state.cursor;
 }

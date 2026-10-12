@@ -10,6 +10,6 @@ void func_80125938(Select *a, Object *b, Object *c) {
     if (b->field_f1 == 0 && c->field_f1 == 0) {
         base = a->field_61 + (b->kind << 7);
         for (i = 0; i < 8; i++)
-            a->field_120[i] = data_8016ea70[base + i];
+            a->entries[i] = data_8016ea70[base + i];
     }
 }

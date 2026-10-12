@@ -14,8 +14,8 @@ void func_8013e2b0(Object *object, int index, int arg)
   unsigned entry;
   int mask;
   index &= 0xff;
-  object->slots[index].field_04--;
-  if (object->slots[index].field_04 == 0)
+  object->slots[index].timer--;
+  if (object->slots[index].timer == 0)
   {
     arg &= 0xff;
   call_a8:
@@ -24,7 +24,7 @@ void func_8013e2b0(Object *object, int index, int arg)
   }
   arg &= 0xff;
   entry = table_8017a8cc[(arg * 7) + object->slots[index].field_01];
-  mask = object->field_134 & 0xf0ff;
+  mask = object->pressed_bits & 0xf0ff;
   if (mask == 0)
     goto call_c8;
   if (!(entry & 0x400))

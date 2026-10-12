@@ -12,7 +12,7 @@ void func_801b4ac0_slot04_08(Object *obj, Object *other) {
 
     obj->state_0++;
     obj->field_1c = other->field_1c;
-    obj->field_09 = 3;
+    obj->ot_depth = 3;
     obj->field_0c = other->field_0c;
     obj->field_0d = other->field_0d;
     obj->field_0e = other->field_0e;

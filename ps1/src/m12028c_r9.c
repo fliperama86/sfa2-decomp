@@ -7,7 +7,7 @@
 void func_80125144(Object *o) {
     LogRec *rec;
     LogRec *row;
-    if (o->field_80 != 0 && game_state.field_b6 == 0) {
+    if (o->sequence_changed_flag != 0 && game_state.field_b6 == 0) {
         data_801900f8[o->field_02]++;
         data_801900f4[o->field_02] = o->field_0b;
     }

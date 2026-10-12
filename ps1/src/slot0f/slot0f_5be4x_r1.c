@@ -7,7 +7,7 @@ extern u32 data_800ebca0_slot0f[];
 
 /* The locals m and t hold the two shifted bytes of the tag and r holds the result of func_8015bd0c before they are read: with the expression of m in the sum 4 instruction slots differ, with that of t in parentheses in the sum 2, with the call in the sum 52. The read of the table entry idx stays before the stores to s: moved after the store to field_18, 10 instruction slots differ. */
 void func_800e5be4_slot0f(Object *obj, Slot12Sprite *s) {
-    u16 *p = (u16 *)obj->sequence->field_04;
+    u16 *p = (u16 *)obj->sequence->data_ptr;
     u16 a = *p++;
     u16 b;
     u32 idx;
@@ -15,7 +15,7 @@ void func_800e5be4_slot0f(Object *obj, Slot12Sprite *s) {
     u32 *ot;
     u32 t;
     u32 m;
-    idx = data_800ebca0_slot0f[obj->field_09];
+    idx = data_800ebca0_slot0f[obj->ot_depth];
     b = *p++;
     s->field_18 = a;
     s->field_19 = b;

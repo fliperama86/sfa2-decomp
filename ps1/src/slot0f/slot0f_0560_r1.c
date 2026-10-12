@@ -59,7 +59,7 @@ void func_800e0640_slot0f(GameState *g) {
         if (g->field_5d == 0) {
             x = 0;
             g->field_5c--;
-            g->field_5d = g->field_5e;
+            g->field_5d = g->reload_value;
         }
     }
     func_800e06b8_slot0f(g, x);

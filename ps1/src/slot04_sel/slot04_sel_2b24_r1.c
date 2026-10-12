@@ -95,10 +95,10 @@ void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
         s4 = data_801b7fa4_slot04_sel[obj->side];
         b1 = data_801b8978_slot04_sel[obj->kind];
         do {
-            s4->field_0c[i] = b1->text[i];
+            s4->text[i] = b1->text[i];
             i++;
         } while (i < 10);
-        s4->field_0b = b1->field_0b;
+        s4->field_0b = b1->palette;
         func_801519b4(s4);
 
         if (rec->field_04 == 0) {

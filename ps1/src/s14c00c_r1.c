@@ -5,7 +5,7 @@
 
 
 void func_8014c00c(Object *object) {
-    if ((s16)object->other->field_5c < (s16)object->field_5c) {
+    if ((s16)object->other->health < (s16)object->health) {
         func_8014c914(object);
     } else {
         func_8014c528(object);

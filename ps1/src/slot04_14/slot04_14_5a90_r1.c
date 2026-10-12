@@ -90,8 +90,8 @@ void func_801b5d34_slot04_14(Object *obj) {
 
 void func_801b5d74_slot04_14(Object *obj) {
     if (func_801b5e44_slot04_14(obj)) {
-        if (obj->field_70 <= obj->pos_y) {
-            obj->pos_y = obj->field_70;
+        if (obj->ground_y <= obj->pos_y) {
+            obj->pos_y = obj->ground_y;
             game_state.field_63 = 0x18;
         }
     }
@@ -100,8 +100,8 @@ void func_801b5d74_slot04_14(Object *obj) {
 
 void func_801b5dd8_slot04_14(Object *obj) {
     if (func_801b5e44_slot04_14(obj)) {
-        if (obj->field_70 <= obj->pos_y) {
-            obj->pos_y = obj->field_70;
+        if (obj->ground_y <= obj->pos_y) {
+            obj->pos_y = obj->ground_y;
             game_state.field_63 = 0x18;
             obj->state_3 = obj->state_3 + 1;
         }

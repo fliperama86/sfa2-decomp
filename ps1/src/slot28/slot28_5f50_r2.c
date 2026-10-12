@@ -23,7 +23,7 @@ void func_8001601c_slot28(SequenceStep *step) {
     int idx;
     int last;
     if (data_8018f598 == 0) {
-        p = (u16 *)step->field_04;
+        p = (u16 *)step->data_ptr;
         do {
             r.x = *p++;
             r.y = *p++;

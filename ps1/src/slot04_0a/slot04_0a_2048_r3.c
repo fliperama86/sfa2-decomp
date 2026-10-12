@@ -26,10 +26,10 @@ void func_801b2158_slot04_0a(Object *obj) {
             n->field_26 = obj->field_26;
             *(u16 *)&n->pos_x = *(u16 *)&obj->pos_x;
             *(u16 *)&n->pos_y = *(u16 *)&obj->pos_y;
-            n->field_7a = 0x60;
-            n->field_5c = 0;
+            n->spawn_x = 0x60;
+            n->health = 0;
             n->field_3c = obj;
-            n->field_7c = 0x1e0;
+            n->spawn_y = 0x1e0;
             n->field_90 = obj->field_90;
             n->field_98 = obj->field_98;
             n->field_9c = obj->field_9c;

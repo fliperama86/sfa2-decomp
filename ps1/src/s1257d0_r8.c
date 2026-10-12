@@ -11,7 +11,7 @@ void func_8012655c(GameState *state, Object *object) {
 void func_801265ac(GameState *state, Object *object) {
     if (*(u32 *)&state->field_44 & 0xff00ff)
         func_801269e0(object);
-    else if (object->field_aa == 0)
+    else if (object->phase_index == 0)
         func_80126604(state, object);
 }
 

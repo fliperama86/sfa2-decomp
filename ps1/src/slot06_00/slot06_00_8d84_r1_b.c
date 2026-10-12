@@ -16,11 +16,11 @@ void func_801e8f74_slot06_00(Object *obj) {
     if (((game_state.field_32 + game_state.field_24) & 1) != 0) {
         *(u32 *)&obj->pos_x_frac = r->field_08;
         *(u32 *)&obj->pos_y_frac = r->field_0c;
-        obj->sequence = r->field_1c;
+        obj->sequence = r->sequence_next;
     } else {
         *(u32 *)&obj->pos_x_frac = r->field_00;
         *(u32 *)&obj->pos_y_frac = r->field_04;
-        obj->sequence = r->field_18;
+        obj->sequence = r->sequence_start;
     }
     func_8011ffdc(obj);
 }

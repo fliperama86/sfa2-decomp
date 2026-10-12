@@ -9,7 +9,7 @@ void func_801507e8(Menu *menu) {
         if (v == 2) {
             if (!(menu->field_0c & 0x40) && func_8015c9c0(0x1b, &menu->field_f0, 0)) {
                 menu->field_02 = 2;
-                if (menu->field_03 == 0) {
+                if (menu->fade_mode == 0) {
                     func_8014f604(0x55);
                 }
             }
@@ -85,19 +85,19 @@ void func_80150a8c(Menu *menu) {
 }
 
 void update_cd_volume_fade(Menu *menu) {
-    u8 vol = menu->field_05;
+    u8 vol = menu->volume;
     u8 step = menu->field_1d;
-    if (menu->field_03 == 1) {
+    if (menu->fade_mode == 1) {
         vol = vol + step;
         if (vol > 0x55) {
             vol = 0x55;
-            menu->field_03 = 0;
+            menu->fade_mode = 0;
         }
     } else {
         vol = vol - step;
         if ((s8)vol < 4) {
             vol = 0;
-            menu->field_03 = 0;
+            menu->fade_mode = 0;
             menu->field_02 = 4;
         }
     }

@@ -705,7 +705,7 @@ extern u8 data_801a89a8[];
 extern int data_801a89ac;
 extern Object *data_801a89b0[];
 extern u8 data_801a89f0;
-extern Block172 data_801a89f4[];
+extern Slab172 data_801a89f4[];
 extern u16 table_801aa4d8[];
 extern s16 data_801aa4dc[];
 extern u8 table_801aa4e8[][2][21];

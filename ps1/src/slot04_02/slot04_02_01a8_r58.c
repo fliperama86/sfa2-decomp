@@ -32,7 +32,7 @@ void func_801b68b4_slot04_02(Object *obj) {
                 scratch_call_left(obj);
             }
             return;
-        } else if (obj->field_14c == 0 && (d = ((Slot04bObj *)obj)->field_70 - 0x30, obj->pos_y < (s16)d)) {
+        } else if (obj->field_14c == 0 && (d = ((Slot04bObj *)obj)->ground_y - 0x30, obj->pos_y < (s16)d)) {
             func_801b6cb0_slot04_02(obj, 1, 0, 7, 0);
             obj->field_15a = 4;
             obj->field_159 = 1;

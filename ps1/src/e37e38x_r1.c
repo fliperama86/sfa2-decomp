@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_80137e38(Object *object) {
-    object->field_80 = 1;
+    object->sequence_changed_flag = 1;
     object->state_2++;
     object->field_0b ^= 1;
     func_801380f0(object);

@@ -14,7 +14,7 @@ void func_80130b10(Object *object) {
     object->field_164 = 0;
     ref_other.p = object->other;
     limit = 0x100;
-    if ((s16)object->field_5c >= 0 && (s16)ref_other.p->field_5c >= 0) limit = 0x150;
+    if ((s16)object->health >= 0 && (s16)ref_other.p->health >= 0) limit = 0x150;
     x = object->pos_x;
     dist = ref_other.p->pos_x - x;
     if (dist < 0) dist = -dist;
@@ -108,8 +108,8 @@ void func_80130ec0(Object *object) {
     object->field_157 = 0;
     object->field_67 = 0;
     object->field_16a = 0;
-    object->field_17d = 0xff;
-    object->field_17c = 0xff;
+    object->dir_first = 0xff;
+    object->dir_second = 0xff;
     func_80142c04(object);
 }
 
@@ -124,11 +124,11 @@ void advance_sequence(Object *object) {
     if (--*(s16 *)&object->step_timer == 0) {
         if ((s16)object->step_flags < 0) {
             next = object->sequence + object->sequence->loop_offset;
-            if (next != object->sequence) object->field_80 = 1;
+            if (next != object->sequence) object->sequence_changed_flag = 1;
             object->sequence = object->sequence + object->sequence->loop_offset;
         } else {
             next = object->sequence + 1;
-            if (next != object->sequence) object->field_80 = 1;
+            if (next != object->sequence) object->sequence_changed_flag = 1;
             object->sequence = object->sequence + 1;
         }
         object->step_timer = object->sequence->duration;
@@ -157,11 +157,11 @@ void func_80131094(Object *object) {
     if (--*(s16 *)&object->step_timer == 0) {
         if ((s16)object->step_flags < 0) {
             next = object->sequence + object->sequence->loop_offset;
-            if (next != object->sequence) object->field_80 = 1;
+            if (next != object->sequence) object->sequence_changed_flag = 1;
             object->sequence = object->sequence + object->sequence->loop_offset;
         } else {
             next = object->sequence + 1;
-            if (next != object->sequence) object->field_80 = 1;
+            if (next != object->sequence) object->sequence_changed_flag = 1;
             object->sequence = object->sequence + 1;
         }
         object->step_timer = object->sequence->duration;

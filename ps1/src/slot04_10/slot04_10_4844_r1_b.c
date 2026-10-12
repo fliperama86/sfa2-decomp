@@ -63,7 +63,7 @@ void func_801b4f48_slot04_10(Object *obj) {
         obj->state_3++;
         obj->field_45 = 0;
         obj->field_159 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(s32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
         func_801307e0(obj, 0x33);

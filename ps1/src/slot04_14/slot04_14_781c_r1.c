@@ -43,9 +43,9 @@ void func_80137cc0(Object *obj);
 void func_8011ffdc(Object *obj);
 
 void func_801b781c_slot04_14(Object *obj) {
-    if (obj->pos_y >= (s16)(obj->field_70 - 0x10)) {
+    if (obj->pos_y >= (s16)(obj->ground_y - 0x10)) {
         func_801b7f04_slot04_14(obj, 2, 0, 0, 0);
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801b7f1c_slot04_14(obj, 0x10);
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
@@ -265,9 +265,9 @@ void func_801b7fb0_slot04_14(Object *obj) {
     obj->field_0c = p->field_0c;
     obj->field_0d = p->field_0d;
     obj->field_0e = p->field_0e;
-    obj->field_7a = 0x60;
+    obj->spawn_x = 0x60;
     obj->field_48 = 0;
-    obj->field_7c = 0x1e0;
+    obj->spawn_y = 0x1e0;
     obj->field_90 = p->field_90;
     obj->field_98 = p->field_98;
     obj->field_9c = p->field_9c;

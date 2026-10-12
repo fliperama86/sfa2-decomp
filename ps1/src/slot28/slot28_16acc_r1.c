@@ -24,7 +24,7 @@ void func_80026acc_slot28(Object *obj) {
         p = data_80051cd0_slot28[0];
         p->pos_x = 0x38;
         p->pos_y = 0x10;
-        p->field_09 = 8;
+        p->ot_depth = 8;
         p->field_01 = 1;
         func_80130768(p, 2, data_800502d4_slot28);
         p->vel_y = 0x40000;
@@ -33,10 +33,10 @@ void func_80026acc_slot28(Object *obj) {
             func_8002728c_slot28(p);
             p->pos_x = 0xb8;
             p->pos_y = 0xa0;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_0d = 0;
-            p->field_09 = 4;
+            p->ot_depth = 4;
             func_80130768(p, 3, data_800502e8_slot28);
             data_80051ca4_slot28[4] = p;
             p->box_tables = (BoxTables *)data_800502e8_slot28;
@@ -47,10 +47,10 @@ void func_80026acc_slot28(Object *obj) {
             func_8002728c_slot28(p);
             p->pos_x = 0x108;
             p->pos_y = 0xa0;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_0d = 0;
-            p->field_09 = 3;
+            p->ot_depth = 3;
             func_80130768(p, 5, data_800502e8_slot28);
             data_80051ca4_slot28[5] = p;
             p->box_tables = (BoxTables *)data_800502e8_slot28;
@@ -65,11 +65,11 @@ void func_80026acc_slot28(Object *obj) {
             p->field_90 = (void *)0x80060000;
             p->field_98 = data_8004ead4_slot28;
             p->field_9c = data_8004ef00_slot28;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->box_tables = (BoxTables *)data_800502e8_slot28;
             p->field_0d = 0;
-            p->field_09 = 2;
+            p->ot_depth = 2;
             data_80051ca4_slot28[0] = p;
         }
         p = (Object *)func_8011f1e0();
@@ -81,11 +81,11 @@ void func_80026acc_slot28(Object *obj) {
             p->field_90 = (void *)0x80060000;
             p->field_98 = data_8004ead4_slot28;
             p->field_9c = data_8004ef00_slot28;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->box_tables = (BoxTables *)data_800502e8_slot28;
             p->field_0d = 0;
-            p->field_09 = 2;
+            p->ot_depth = 2;
             data_80051ca4_slot28[1] = p;
         }
         func_80128370();

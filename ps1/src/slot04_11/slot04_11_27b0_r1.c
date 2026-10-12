@@ -25,7 +25,7 @@ void func_801b29c0_slot04_11(Object *obj) {
     u8 s;
 
     if (func_801b5764_slot04_11(obj) < 0) {
-        t = obj->field_70;
+        t = obj->ground_y;
         if (obj->pos_y >= t) {
             obj->pos_y = t;
             func_801209c4(obj);
@@ -52,12 +52,12 @@ void func_801b29c0_slot04_11(Object *obj) {
 }
 
 void func_801b2a84_slot04_11(Object *obj) {
-    if (func_801b5764_slot04_11(obj) < 0 && obj->pos_y >= obj->field_70) {
+    if (func_801b5764_slot04_11(obj) < 0 && obj->pos_y >= obj->ground_y) {
         func_801209c4(obj);
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->field_17b = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         obj->state_3++;
         func_801307e0(obj, 0x37);
     } else {
@@ -136,7 +136,7 @@ void func_801b2d64_slot04_11(Object *obj) {
     if (obj->field_67 != 0) {
         obj->field_67 = 0;
         ref_other.p = obj->other;
-        if (ref_other.p->field_61 != 0xff && (s16)ref_other.p->field_5c >= 0) {
+        if (ref_other.p->field_61 != 0xff && (s16)ref_other.p->health >= 0) {
             func_801b2e38_slot04_11(obj);
         }
     }
@@ -175,10 +175,10 @@ void func_801b2e38_slot04_11(Object *o) {
             p->field_3c = o;
             o->field_3c = p;
             p->field_0e = o->field_0e;
-            p->field_09 = 1;
+            p->ot_depth = 1;
             p->field_1c = o->field_1c;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_0d = o->field_0d;
             p->field_90 = o->field_90;
             p->field_98 = o->field_98;

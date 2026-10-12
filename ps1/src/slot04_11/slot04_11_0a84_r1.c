@@ -131,7 +131,7 @@ int func_801b0dd4_slot04_11(Object *obj) {
     if (obj->kind != 0x13) return 0;
     if ((s16)obj->field_c6 < 0x30) return 0;
     if (obj->field_45 == 0) return 0;
-    if (!(obj->pos_y < obj->field_70 - 0x18)) return 0;
+    if (!(obj->pos_y < obj->ground_y - 0x18)) return 0;
     if ((u8)func_801418bc(obj)) {
         obj->state_0 = 1;
         obj->state_1 = 0;

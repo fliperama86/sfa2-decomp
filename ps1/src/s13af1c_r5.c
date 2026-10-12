@@ -92,27 +92,27 @@ int func_8013cfdc(Object *object, u8 a, u8 b) {
 
 u8 func_8013d004(Object *object) {
     if (object->field_d8 != 0) {
-        return ((object->field_134 | object->field_136) & 0xc0) != 0xc0;
+        return ((object->pressed_bits | object->released_bits) & 0xc0) != 0xc0;
     }
     return 1;
 }
 
 u8 func_8013d038(Object *object) {
     if (object->field_d8 != 0) {
-        return ((object->field_134 | object->field_136) & 0x30) != 0x30;
+        return ((object->pressed_bits | object->released_bits) & 0x30) != 0x30;
     }
     return 1;
 }
 
 u8 func_8013d06c(Object *object) {
     if (object->field_d8 != 0) {
-        return ((object->field_134 | object->field_136) & 0xc) != 0xc;
+        return ((object->pressed_bits | object->released_bits) & 0xc) != 0xc;
     }
     return 1;
 }
 
 u8 func_8013d0a0(Object *object, u8 a) {
-    object->slots[a].field_00 = 0;
+    object->slots[a].stage = 0;
     object->field_25c = object->field_25c + 1;
     return 1;
 }

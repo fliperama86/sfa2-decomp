@@ -9,7 +9,7 @@ void func_801e869c_slot06_12(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         layer->field_30 -= 1;
         if (layer->field_30 == 0) {
-            layer->field_88 = (layer->field_88 + 1) & 7;
+            layer->table_index = (layer->table_index + 1) & 7;
             func_801e872c_slot06_12(layer);
         }
     }

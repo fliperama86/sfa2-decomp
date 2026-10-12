@@ -19,7 +19,7 @@ extern u32 data_801e7668_slot0b;
  * buffers chosen by data_801a27d0.
  */
 void func_801e1d6c_slot0b(Object *obj) {
-    Tilemap *map = (Tilemap *)obj->sequence->field_04;
+    Tilemap *map = (Tilemap *)obj->sequence->data_ptr;
     u32 *ot;
     u32 *p = (u32 *)&data_8019d7cc;
     s16 x0;
@@ -35,7 +35,7 @@ void func_801e1d6c_slot0b(Object *obj) {
     x0 = obj->pos_x - box_margin[0];
     /* The listing loads pos_y unsigned; the plain obj->pos_y differs in 1 instruction line. */
     y = (u16)obj->pos_y + data_801aa5ea[0] - 8;
-    ot = (u32 *)data_801987c8 + obj->field_09;
+    ot = (u32 *)data_801987c8 + obj->ot_depth;
     w = map->field_04;
     h = map->field_06;
     data_801e7668_slot0b = 0;

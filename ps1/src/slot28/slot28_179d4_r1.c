@@ -14,12 +14,12 @@ void func_800279d4_slot28(Object *o) {
     Slot28Rec50ce4 *e;
     Slot28Rec51e94 *c;
     i = 0;
-    if (obj->field_08->field_00 != 0xff) {
+    if (obj->entry->field_00 != 0xff) {
         h = obj->field_06;
-        obj->field_08 = &data_80050ce4_slot28[((h & 0xff00) >> 4) + ((u32)(h & 0xff) >> 4)];
+        obj->entry = &data_80050ce4_slot28[((h & 0xff00) >> 4) + ((u32)(h & 0xff) >> 4)];
     }
     x = 8 - ((u16)obj->field_06 & 0xf);
-    e = obj->field_08;
+    e = obj->entry;
     do {
         c = &obj->cells[i];
         if (e->field_00 != 0xff) {

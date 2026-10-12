@@ -9,7 +9,7 @@ void func_801e1624_slot0b(Slot0bObj *obj);
 
 void func_801e13bc_slot0b(Slot0bObj *obj) {
     if (data_80190468.p->field_ab == 1 || obj->anim.loop < 0) {
-        obj->field_46 = 0xf;
+        obj->countdown_timer = 0xf;
         obj->field_4c = 0x180000;
         obj->field_50 = 0xfff40000;
         obj->field_58 = 0xc000;

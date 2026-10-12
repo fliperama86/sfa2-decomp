@@ -131,7 +131,7 @@ void func_801b41bc_slot04_14(Object *obj) {
 
     p->field_15b = 1;
     func_80140598(obj, 0, 3, 0x1f, 0x1c, 0, 0);
-    if ((s16)p->field_5c < 0) {
+    if ((s16)p->health < 0) {
         obj->field_167 = 0xf;
         game_state.field_6b = 6;
         func_80147000(obj);

@@ -16,7 +16,7 @@ void func_801b2148_slot04_03(Object *obj) {
     func_801b223c_slot04_03(obj);
     *(s32 *)&obj->pos_y_frac += obj->vel_y;
     obj->vel_y += obj->accel_y;
-    y = obj->field_70;
+    y = obj->ground_y;
     if (y < obj->pos_y) {
         obj->pos_y = y;
         obj->field_45 = 0;

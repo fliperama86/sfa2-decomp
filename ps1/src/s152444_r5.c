@@ -19,7 +19,7 @@ void func_801531cc(Effect *effect) {
     Object *second = &player_left + 1;
 
     effect->kind++;
-    effect->field_02 = 0;
+    effect->active_flag = 0;
     effect->field_03 = 0;
     effect->field_04 = 0;
     effect->field_05 = 0;

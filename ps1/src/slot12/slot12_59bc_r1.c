@@ -14,7 +14,7 @@ void func_800159bc_slot12(Object *obj, int a) {
     u8 buf[16];
 
     fr = (FrameRecord *)ptr_8019040c;
-    fr += (s16)obj->field_5c;
+    fr += (s16)obj->health;
     e = &data_8002bcc4_slot12[obj->field_03];
     if (obj->field_03 == 0) {
         e->field_08 = 0x10;
@@ -32,7 +32,7 @@ void func_800159bc_slot12(Object *obj, int a) {
             func_80015f00_slot12(buf, data_8002bf64_slot12[obj->field_03], 3);
         }
         e->field_0c = data_8002bf64_slot12[obj->field_03];
-        e->field_04 = obj->field_76 + 0x28;
+        e->pos_x = obj->field_76 + 0x28;
     } else {
         e->field_08 = 8;
         e->field_09 = 0x10;
@@ -49,9 +49,9 @@ void func_800159bc_slot12(Object *obj, int a) {
             func_80015f00_slot12(buf, data_8002bf64_slot12[obj->field_03], 3);
         }
         e->field_0c = data_8002bf64_slot12[obj->field_03];
-        e->field_04 = obj->field_76 + 0x40;
+        e->pos_x = obj->field_76 + 0x40;
     }
-    e->field_06 = obj->field_78;
-    e->field_04 = e->field_04 - 8;
-    e->field_06 = e->field_06 - 8;
+    e->pos_y = obj->field_78;
+    e->pos_x = e->pos_x - 8;
+    e->pos_y = e->pos_y - 8;
 }

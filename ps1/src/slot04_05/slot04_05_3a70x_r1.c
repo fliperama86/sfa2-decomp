@@ -11,19 +11,19 @@ void func_801b3a70_slot04_05(Object *obj, int a1, int a2) {
     u8 i = a1;
     u8 t;
 
-    if (obj->field_134 & data_801c1630_slot04_05[k * 3 + 6]) {
+    if (obj->pressed_bits & data_801c1630_slot04_05[k * 3 + 6]) {
         t = obj->slots[i].field_02 - 1;
         obj->slots[i].field_02 = t;
         if (t != 0) {
-            obj->slots[i].field_04 = 0xc;
+            obj->slots[i].timer = 0xc;
         } else {
             data_801c1700_slot04_05 = -1;
         }
     } else {
-        t = obj->slots[i].field_04 - 1;
-        obj->slots[i].field_04 = t;
+        t = obj->slots[i].timer - 1;
+        obj->slots[i].timer = t;
         if (t == 0) {
-            obj->slots[i].field_00 = 0;
+            obj->slots[i].stage = 0;
         }
     }
 }

@@ -10,7 +10,7 @@ int func_80130184(Object *object) {
     object->vel_x += object->accel_x;
     *(u32 *)&object->pos_y_frac -= object->vel_y;
     object->vel_y += object->accel_y;
-    return object->pos_y <= object->field_70;
+    return object->pos_y <= object->ground_y;
 }
 
 void func_801301d8(Object *object) {

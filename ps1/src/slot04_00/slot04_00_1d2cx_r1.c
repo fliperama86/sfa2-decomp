@@ -16,7 +16,7 @@ void func_801b1d2c_slot04_00(Object *obj) {
     t = obj->vel_y;
     if (t >= 0) {
         play_side_sound_at(obj, obj->side, 9);
-    } else if (obj->pos_y - obj->field_70 < -0x2f) {
+    } else if (obj->pos_y - obj->ground_y < -0x2f) {
         ((Slot04aObj *)obj)->field_1a5 = 1;
         play_side_sound_at(obj, obj->side, 9);
     }

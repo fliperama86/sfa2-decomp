@@ -27,20 +27,20 @@ void func_8013902c(void) {
     /* a plain "ref_third.p = &player_left;" differs in 63 instruction lines */
     left_ref.p = &player_left;
     ref_third = left_ref;
-    game_state.field_358 = &player_left + 1;
+    game_state.other_object = &player_left + 1;
     o1 = ref_third.p;
-    i1 = o1->frame->field_07;
+    i1 = o1->frame->box_index;
     if (i1 == 0)
         return;
     o2 = ref_other.p;
-    i2 = o2->frame->field_07;
+    i2 = o2->frame->box_index;
     if (i2 == 0)
         return;
     b1 = (Box6 *)o1->unknown_148 + i1;
     b2 = (Box6 *)o2->unknown_148 + i2;
-    /* without the (s16) casts on field_02 each differs in 1 instruction line (lh against lhu) */
-    tmp = (s16)b1->field_02;
-    dist = (s16)b2->field_02;
+    /* without the (s16) casts on origin_y each differs in 1 instruction line (lh against lhu) */
+    tmp = (s16)b1->origin_y;
+    dist = (s16)b2->origin_y;
     tmp -= o1->pos_y;
     dist -= o2->pos_y;
     dist -= tmp;
@@ -118,7 +118,7 @@ o1_set:
 move_right:
     if (ref_third.p->field_164 != 1)
         dist = -dist;
-    target = game_state.field_358;
+    target = game_state.other_object;
     goto add;
 both_set:
     if (o1->field_45 != 0)

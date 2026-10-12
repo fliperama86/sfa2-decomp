@@ -17,7 +17,7 @@ static inline void row_fill(u8 *row, u8 value) {
  * field_42 clamped to 3, and field_54) and builds a 32-byte pattern: all
  * 0x40, then the first byte of the pair as a count of 0 bytes, then the
  * second as a count of 0x20 bytes. A random byte (get_random_byte, masked
- * to 0..31) selects one pattern byte, stored into field_220 of each player
+ * to 0..31) selects one pattern byte, stored into list_offset of each player
  * whose field_cd is not 0.
  */
 void func_80138d70(GameState *state) {
@@ -55,10 +55,10 @@ void func_80138d70(GameState *state) {
         }
         value = pattern[get_random_byte() & 0x1f];
         if (player_left.field_cd != 0) {
-            player_left.field_220 = value;
+            player_left.list_offset = value;
         }
         if (player_right.field_cd != 0) {
-            player_right.field_220 = value;
+            player_right.list_offset = value;
         }
     }
 }

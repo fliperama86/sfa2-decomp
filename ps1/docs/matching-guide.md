@@ -309,6 +309,35 @@ the object to, although they do not use it, got an unused parameter in
 their definition instead, and every caller is written plainly.
 `grep -rn "The call of" src` lists the uses.
 
+One call is accepted through a cast that changes the type of the
+callee's RESULT, by the owner's decision of 2026-10-11 on pull request
+306. It is an exception for this one callee, not a pattern.
+`get_random_byte` is defined and declared with a byte result (`u8`), and
+its prototype stays that. `func_80140b5c` calls it through a type that
+returns `int`, with this comment directly above the call, whose first
+sentence is fixed and whose second gives what was measured, and a second
+comment beside it:
+
+```c
+/* The call of get_random_byte goes through a type that returns int although the callee returns a byte: the original does not narrow the result at the call. Written plainly, this function differs from the original in 11 instruction slots. */
+/* Not portable C: a call through a type that is not compatible with the callee's definition. It relies on the PS1's calling convention, under which the callee leaves its byte zero-extended in the whole result register. */
+w = ((int (*)(void))get_random_byte)();
+```
+
+What it relies on: the C standard does not define a call through a
+function type whose result type differs from the definition's. On the
+PS1 the callee loads its byte with a byte load into the result register,
+so the register holds the same value whether the caller narrows it or
+not. Another calling convention need not give that. Rules for its use:
+only this callee; only where the plain call was measured and the
+function is exact with the cast and not without it; the shared prototype
+is not changed for it; the record says for the PC program that the value
+depends on the calling convention (a C file of the port calls the
+routine plainly, which gives the same value wherever the result is used
+as a byte or less). A cast of another callee's result type is not
+covered: it needs the owner's word again.
+`grep -rn "goes through a type that returns" src` lists the uses.
+
 ### Other stand-ins
 
 By the owner's instruction of 2026-10-11: "loosen it up a bit for what
@@ -1206,6 +1235,24 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   0xff00 and 0x8000 on the same field build the same bytes; without the
   test the unit has 2 instructions fewer. "What is allowed" says when such
   a test may be written.
+- A copy of constant size that the compiler expands in line is one
+  instruction to its passes, a block move, although the listing shows only
+  loads and stores: `strcpy` with a string literal, `memcpy` with a constant
+  length, a struct assignment. Three things follow, measured in two
+  functions of the module of slot `0x0f` (`func_800e0850_slot0f`,
+  `func_800e0a1c_slot0f`), which copy a six-byte string into a path buffer:
+  the instruction reserves four scratch registers, so a value that lives
+  across it gets none of `v0`, `v1`, `a0`, `a1` (the buffer's address is in
+  `a2` in the original, and in `a0` with the copy written as a word store
+  and a halfword store); its stores are not removed when a later store
+  overwrites one of them; and no instruction changes places with it. The
+  signs in a listing: a word and a halfword, or a halfword and a byte,
+  loaded from a constant address and stored at once; a stored byte that the
+  next statement overwrites; an address in a register that skips free
+  argument registers. The two units write it as `__builtin_memcpy(dest,
+  src, 6)` from the module's data, declared as words so that the compiler
+  knows the alignment, because a string literal would put data into the
+  unit. That the original called `strcpy` with a literal is inferred.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.

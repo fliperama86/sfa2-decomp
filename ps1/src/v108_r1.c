@@ -7,14 +7,14 @@
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: not exact, same size, 7 slots. The constant 1 now matches (field_159 = 1
  * is stored next to the kind test). Only the delay slots and targets of the early-out
  * branches differ: the original sends the kind, field_163 and field_260 tests to the
- * move before the call (nop slots) and fills the slot of the field_5c test with it. */
+ * move before the call (nop slots) and fills the slot of the health test with it. */
 void func_8012d7e4(Object *object) {
     if (object->field_cd == 0) {
         func_801308c4(object, 0x14);
         return;
     }
     if ((object->kind != 6 && object->kind != 0xf) ||
-        object->field_163 != 0 || object->field_260 != 0 || (s16)object->field_5c < 0 ||
+        object->field_163 != 0 || object->field_260 != 0 || (s16)object->health < 0 ||
         ((game_state.config->field_4d | game_state.config->field_4e) | game_state.config->field_04) != 0 ||
         func_8012f56c(object) || !func_8014a170(object, data_8017d898)) {
         func_801308c4(object, 0x14);

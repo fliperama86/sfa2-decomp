@@ -39,21 +39,21 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
                 int m = 1 << obj->side;
                 if ((v1 & m) != (a0 & m)) {
                     data_801b6e68_slot04_sel[obj->side](obj, p);
-                    if (p->field_03 == 0x12) {
-                        p->field_03 = 4;
+                    if (p->kind == 0x12) {
+                        p->kind = 4;
                     }
-                    if (p->field_03 == 0x13) {
-                        p->field_03 = 0x11;
+                    if (p->kind == 0x13) {
+                        p->kind = 0x11;
                     }
-                    if (p->field_03 == 0x14) {
-                        p->field_03 = 2;
+                    if (p->kind == 0x14) {
+                        p->kind = 2;
                     }
                 }
             }
             data_801b9cec_slot04_sel = p->field_04;
             func_801b1d8c_slot04_sel(obj, p, 0x11);
-            p->field_03 = data_801b6de0_slot04_sel[p->field_03 * 5 + data_801b9ce8_slot04_sel];
-            data_801b9ce8_slot04_sel = p->field_03;
+            p->kind = data_801b6de0_slot04_sel[p->kind * 5 + data_801b9ce8_slot04_sel];
+            data_801b9ce8_slot04_sel = p->kind;
             p->field_04 = data_801b9cec_slot04_sel;
             obj->kind = data_801b9ce8_slot04_sel;
             game_state.field_b1 = data_801b9ce8_slot04_sel;
@@ -77,14 +77,14 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
             for (i = 0; i < 0x10; i++) {
                 s2->text2[i] = a1->text2[i];
             }
-            s2->field_0b = a1->field_0b;
+            s2->palette = a1->palette;
             func_801519b4(s2);
             s1 = data_801b6fcc_slot04_sel[obj->side];
             a1 = data_801b791c_slot04_sel[obj->kind];
             for (i = 0; i < 10; i++) {
                 s1->text[i] = a1->text[i];
             }
-            s1->field_0b = a1->field_0b;
+            s1->palette = a1->palette;
             func_801519b4(s1);
             if (p->field_04 != 0) {
                 func_801205c4(obj->side, data_801b6e4c_slot04_sel[data_801b9ce8_slot04_sel]);
@@ -129,14 +129,14 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
             for (i = 0; i < 0x10; i++) {
                 s2->text2[i] = a1->text2[i];
             }
-            s2->field_0b = a1->field_0b;
+            s2->palette = a1->palette;
             func_801519b4(s2);
             s1 = data_801b6fcc_slot04_sel[obj->side];
             a1 = data_801b791c_slot04_sel[obj->kind];
             for (i = 0; i < 10; i++) {
                 s1->text[i] = a1->text[i];
             }
-            s1->field_0b = a1->field_0b;
+            s1->palette = a1->palette;
             func_801519b4(s1);
         } else {
             func_801519b4(data_801b6f1c_slot04_sel[obj->side]);

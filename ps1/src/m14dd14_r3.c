@@ -19,7 +19,7 @@ int init_cd_menu(void) {
     m->field_00 = 0;
     m->field_01 = 0;
     m->field_02 = 0;
-    m->field_03 = 0;
+    m->fade_mode = 0;
     m->field_06 = 0;
     m->field_08 = 0;
     if (ok) {

@@ -8,8 +8,8 @@ extern SequenceStep *data_800280bc_slot27[];
 
 void func_800149d0_slot27(Object *obj) {
     obj->field_01 = 1;
-    obj->field_7a = 0x40;
-    obj->field_7c = 0x1e0;
+    obj->spawn_x = 0x40;
+    obj->spawn_y = 0x1e0;
     obj->field_0d = 0;
     if (obj->step_flags & 1) {
         game_state.field_06 = 0;

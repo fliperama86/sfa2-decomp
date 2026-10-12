@@ -14,7 +14,7 @@ void func_80145c00(Block172 *block) {
 }
 
 void func_80145c40(Object *object) {
-    object->field_09 = 1;
+    object->ot_depth = 1;
     object->field_0c = 0xff;
     object->field_01 = 0;
     object->state_0++;

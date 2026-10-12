@@ -15,7 +15,7 @@ void func_801c9ad4_slot05_06(Object *o) {
         p = o->other;
         p->field_15b = 1;
         func_80140770(o, 1, 0xf, -0x200, 0, 0, 0);
-        if ((s16)p->field_5c < 0) {
+        if ((s16)p->health < 0) {
             if (o->field_49 == 0) {
                 o->field_167 = 2;
             } else {
@@ -34,13 +34,13 @@ void func_801c9ad4_slot05_06(Object *o) {
 
 void func_801c9bb0_slot05_06(Object *o) {
     func_801cc84c_slot05_06(o);
-    if (o->pos_y < o->field_70) {
+    if (o->pos_y < o->ground_y) {
         func_801cc814_slot05_06(o);
     } else {
         o->field_45 = 0;
         func_801209c4(o);
         o->field_17b = 0;
-        o->pos_y = o->field_70;
+        o->pos_y = o->ground_y;
         func_801312b8(o);
     }
 }

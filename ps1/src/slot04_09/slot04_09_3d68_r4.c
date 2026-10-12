@@ -40,7 +40,7 @@ void func_801b4098_slot04_09(Object *obj) {
         if (obj->field_4b != 0) {
             obj->field_165 = 1;
         }
-        play_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 0x31c);
+        play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x31c);
         func_801483a4(obj, -0xc, 0x3f);
     }
 }
@@ -50,7 +50,7 @@ void func_801b415c_slot04_09(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;
-        play_side_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 4);
+        play_side_sound_at(obj, ((Slot04aObj *)obj)->side, 4);
     }
     update_sequence(obj);
 }

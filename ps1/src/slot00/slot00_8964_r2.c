@@ -11,9 +11,9 @@ void func_80078ab4_slot00(Object *obj) {
     Object *t;
     func_80078b50_slot00(obj);
     t = obj->field_3c;
-    if (obj->pos_y >= t->field_70) {
+    if (obj->pos_y >= t->ground_y) {
         obj->state_2++;
-        obj->pos_y = t->field_70;
+        obj->pos_y = t->ground_y;
         func_80078458_slot00(obj, 10);
     }
     func_80131094(obj);

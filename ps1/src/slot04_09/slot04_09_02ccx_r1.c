@@ -14,7 +14,7 @@ void func_801b02cc_slot04_09(Object *obj) {
             obj->field_46 = 0x3c;
             obj->state_2++;
             game_state.field_76 = 0x1e;
-            t = obj->field_5c;
+            t = obj->health;
             if (t < 0x1c) {
                 k = 0;
             } else if (t < 0x38) {

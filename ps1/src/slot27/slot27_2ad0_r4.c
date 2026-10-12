@@ -33,12 +33,12 @@ void func_80012e84_slot27(void) {
 
 void func_80012ef8_slot27(Object *obj) {
     *(int *)data_8019045c = (s16)obj->field_5e;
-    obj->field_5c += *(int *)data_8019045c;
-    if (obj->field_5c & 0x8000) {
-        obj->field_5c = 0;
+    obj->health += *(int *)data_8019045c;
+    if (obj->health & 0x8000) {
+        obj->health = 0;
     }
-    if ((s16)obj->field_5c >= 0x11) {
-        obj->field_5c = 0x10;
+    if ((s16)obj->health >= 0x11) {
+        obj->health = 0x10;
     }
     func_80012f64_slot27(obj);
 }

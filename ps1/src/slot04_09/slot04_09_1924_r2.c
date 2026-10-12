@@ -38,9 +38,9 @@ void func_801b1bb8_slot04_09(Object *obj) {
             p->field_0e = obj->field_0e;
             p->field_26 = obj->field_26;
             *(s32 *)&p->field_a4 = 0x1000700;
-            p->field_7a = 0x60;
+            p->spawn_x = 0x60;
             p->field_3c = obj;
-            p->field_7c = 0x1e0;
+            p->spawn_y = 0x1e0;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             p->field_9c = obj->field_9c;

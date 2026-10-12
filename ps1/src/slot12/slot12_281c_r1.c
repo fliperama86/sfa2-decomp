@@ -30,7 +30,7 @@ void func_800128b4_slot12(Object *obj) {
     obj->field_22 = 0;
     obj->field_0c = 0;
     obj->field_0b = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->vel_y = 0;
     obj->state_0++;
     if (obj->field_03 != 0) {

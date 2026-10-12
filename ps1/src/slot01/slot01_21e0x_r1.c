@@ -21,11 +21,11 @@ void func_800121e0_slot01(Object *obj) {
     }
     side = obj->field_48;
     obj->field_0c = 1;
-    obj->field_09 = 3;
+    obj->ot_depth = 3;
     obj->field_46 = 0x1f;
     obj->pos_x = 0xa0;
     obj->pos_y = 0x20;
-    obj->field_5c = 0x70;
+    obj->health = 0x70;
     obj->field_5e = 0x60;
     obj->vel_x = 0xc8000;
     obj->accel_x = -0xe758;
@@ -34,7 +34,7 @@ void func_800121e0_slot01(Object *obj) {
     obj->field_0b = side;
     if (side != 0) {
         obj->pos_x = 0xc8;
-        obj->field_5c = 0xf8;
+        obj->health = 0xf8;
         obj->vel_x = -obj->vel_x;
         obj->accel_x = -obj->accel_x;
     }
