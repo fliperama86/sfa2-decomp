@@ -122,6 +122,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s13f3e8x_r1"
+source = "s13f3e8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013f3e8", address = 0x8013f3e8, size = 140 },
+]
+
+[[unit]]
 name = "misc_4a"
 source = "misc_4a.c"
 flags = ["-O2", "-G0"]
