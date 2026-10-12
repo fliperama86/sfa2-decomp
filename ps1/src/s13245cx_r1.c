@@ -126,7 +126,7 @@ void func_8013245c(void) {
         k3 = 3;
         *(u16 *)&base[(i << 4) + 0xd2] = k3;
         func_8015c150(&base[(i << 4) + 0xe4]);
-        /* The second place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
+        /* The third place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
         k20 = 0x20;
         base[(i << 4) + 0xe8] = k20;
         base[(i << 4) + 0xe9] = 0xf0;
@@ -134,7 +134,7 @@ void func_8013245c(void) {
         *(u16 *)&base[(i << 4) + 0xec] = 0x76;
         *(u16 *)&base[(i << 4) + 0xee] = kd5;
         *(u16 *)&base[(i << 4) + 0xf0] = 0;
-        /* The second place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
+        /* The fourth place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
         k4 = 4;
         *(u16 *)&base[(i << 4) + 0xf2] = k4;
         func_8015c150(&base[(i << 4) + 0x104]);
@@ -153,7 +153,7 @@ void func_8013245c(void) {
         *(u16 *)&base[(i << 4) + 0x12e] = kd5;
         *(u16 *)&base[(i << 4) + 0x130] = 0;
         *(u16 *)&base[(i << 4) + 0x132] = k3;
-        /* The second place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
+        /* The fifth place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
         k3 = 0;
         func_8015c150(&base[(i << 4) + 0x144]);
         base[(i << 4) + 0x148] = k20;
@@ -167,11 +167,11 @@ void func_8013245c(void) {
         base[(i << 4) + 0x168] = 0xf0;
         base[(i << 4) + 0x169] = 0xf0;
         base[(i << 4) + 0x16a] = k20;
-        /* The second place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
+        /* The sixth place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
         k20 = 0;
         *(u16 *)&base[(i << 4) + 0x16c] = 0x126;
         *(u16 *)&base[(i << 4) + 0x16e] = kd5;
-        /* The second place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
+        /* The seventh place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
         kd5 = 0;
         *(u16 *)&base[(i << 4) + 0x170] = 0;
         *(u16 *)&base[(i << 4) + 0x172] = k4;
@@ -191,7 +191,7 @@ void func_8013245c(void) {
         *(u16 *)&base[(i << 4) + 0x1ae] = 0xc2;
         *(u16 *)&base[(i << 4) + 0x1b0] = 0;
         *(u16 *)&base[(i << 4) + 0x1b2] = k4;
-        /* The second place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
+        /* The eighth place of the stand-in above. The figure is the one above: the four locals kd5, k3, k20 and k4 taken out, each constant written at its uses. */
         k4 = 0;
     }
     for (i = 0; i < 2; i++) {
