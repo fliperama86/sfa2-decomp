@@ -212,7 +212,7 @@ g:
         do { v6 = a1->field_6a; } while (0);
         w = *pp;
         s2 = ((a1->kind & 0x1f) << 5);
-        /* Stand-in, not recovered source: one stand-in at 3 places, the term that is ORed to 0x1f below, which is 0 for every value of s2, reproduces the original's choice of registers. Without it at all 3 places this function differs from the original in 55 instruction slots. */
+        /* Stand-in, not recovered source: one stand-in at 3 places, the term that is ORed to 0x1f below, which is 0 for every value of s2, reproduces the original's choice of registers. Without it this function differs from the original in 55 instruction slots. */
         if ((u32)v6 < (0x1f | (int)(((u32)s2 << 24) & 0x100))) {
             e = 0;
             if (a1->field_295) {
@@ -257,7 +257,7 @@ g:
         }
         if ((s16)a1->health < 0x28) {
             s2 = table_80178514[s2 + (get_random_byte() & 0x1f)];
-            /* Stand-in, not recovered source: the local s2h, which is only a copy of s2 narrowed to s16, reproduces the original's choice of registers. Without it this function differs from the original in 1 instruction slot. */
+            /* Stand-in, not recovered source: the local s2h, which is only a copy of s2 narrowed to s16, reproduces the original's choice of registers. Without it this function differs from the original in 1 instruction slots. */
             s2h = s2;
             w = s2h + s4;
         }
