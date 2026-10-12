@@ -15,7 +15,7 @@ void func_801b0224_slot04_05(Object *o) {
     o->state_2 = o->state_2 + 1;
     game_state.field_76 = 0x1e;
     o->field_0b = o->field_158;
-    r = func_80125734(o, data_801c1340_slot04_05[func_80151184() & 0xf]);
+    r = func_80125734(o, data_801c1340_slot04_05[get_random_byte() & 0xf]);
     obj->field_1a7 = r;
     func_80130678(o, r + 0x23);
 }

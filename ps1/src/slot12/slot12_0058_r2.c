@@ -15,7 +15,7 @@ void func_80010100_slot12(void) {
     game_state.field_2c = 0xff;
     game_state.field_65 = one;
     func_8011a744();
-    func_8011eb4c();
+    init_object_pools();
     data_8002d56c_slot12 = game_state.field_154;
     data_8002d568_slot12 = &player_left + (game_state.field_154->side ^ 1);
 }

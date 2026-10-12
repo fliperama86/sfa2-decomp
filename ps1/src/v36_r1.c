@@ -5,7 +5,7 @@
 
 
 
-void func_801321e8(Object *object) {
+void play_frame_sound(Object *object) {
     s16 index;
     s16 *table;
     index = object->field_4a;

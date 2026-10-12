@@ -13,7 +13,7 @@ extern void (*data_801eac90_slot06_0e[])(Slot06Layer *layer);
 int func_801e9410_slot06_0e(Slot06Layer *layer);
 void func_801e9480_slot06_0e(Slot06Layer *layer);
 void func_8015c09c(void *prim);
-void func_80136d70(Tx *tx);
+void init_draw_mode_prim_4(Tx *tx);
 
 void func_801e92fc_slot06_0e(Slot06Layer *layer) {
     layer->field_50 = data_801ec8ec_slot06_0e;
@@ -55,7 +55,7 @@ void func_801e93c8_slot06_0e(Slot06Layer *layer) {
 
 /* Declared int and returns nothing. With void this compiler fills a delay slot with a write to v0 and the function is 4 bytes short. The form is compatible with the original's bytes; what the original source declared is not known. */
 int func_801e9410_slot06_0e(Slot06Layer *layer) {
-    func_80136a2c((Cam *)layer, 0x1c0, 0);
+    init_cam_position((Cam *)layer, 0x1c0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->field_04++;
@@ -143,7 +143,7 @@ void func_801e9690_slot06_0e(void) {
     for (k = 0; k < 2; k++) {
         for (i = 0; i < 0x75; i++) {
             p = data_801f6734_slot06_0e[k] + i;
-            func_80136d70((Tx *)p);
+            init_draw_mode_prim_4((Tx *)p);
             p->sprt.color_r = 0x80;
             p->sprt.color_g = 0x80;
             p->sprt.color_b = 0x80;

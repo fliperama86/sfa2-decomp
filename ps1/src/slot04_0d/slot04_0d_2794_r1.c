@@ -9,7 +9,7 @@ extern ObjectFn data_801c2aa4_slot04_0d[];
 extern ObjectFn data_801c2aac_slot04_0d[];
 
 void func_801483a4(Object *object, int a, int b);
-void func_80141e5c(Object *object);
+void set_position_from_other_box(Object *object);
 void func_801428e4(Object *object);
 void func_80145d20(Object *object);
 void func_80138b38(GameState *state, Object *object);
@@ -198,5 +198,5 @@ void func_801b2edc_slot04_0d(Object *obj) {
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_801307e0(obj, 0x18);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }

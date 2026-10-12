@@ -16,7 +16,7 @@ void func_800dfc6c_slot0f(GameState *state, Menu *menu) {
             func_800e009c_slot0f((Object *)state, 1);
         }
         play_sound_at(0, 0, 0x205);
-        func_80120498(0x200);
+        stop_sep_by_word(0x200);
     } else {
         state->field_c2 = (s16)state->field_c2 - 1;
         if ((s16)state->field_c2 == 0) {

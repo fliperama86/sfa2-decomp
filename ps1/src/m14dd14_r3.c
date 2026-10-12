@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014f0bc(void) {
+int init_cd_menu(void) {
     Menu *m = &data_80190948;
     u8 buf[4];
     int i = 4;

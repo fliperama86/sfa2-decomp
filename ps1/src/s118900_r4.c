@@ -17,7 +17,7 @@ void func_801192f0(void) {
     func_801577ec(0xff000000);
 }
 
-void func_80119340(int a) {
+void close_voice_thread(int a) {
     u16 *p = (u16 *)(0x801fc200 + a * 0x80);
     if (*p != 0) {
         *p = 0;

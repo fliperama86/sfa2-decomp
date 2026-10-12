@@ -8,7 +8,7 @@ void func_80118d10(short a, short b) {
     int *p;
     func_8015efc0();
     func_8015f0b4();
-    while (func_8014f0bc() == 0) {
+    while (init_cd_menu() == 0) {
     }
     func_80157d00(0);
     func_801578fc(0);
@@ -20,10 +20,10 @@ void func_80118d10(short a, short b) {
     if (v < 0) {
         func_8012028c();
     }
-    func_80120168();
+    init_sound_system();
     func_8015762c(&data_801a89a8, 4, &data_801a89ac, 4);
     func_801577dc();
-    func_801542ec();
+    init_memory_card_events();
     func_801577fc(0);
     *p = 0;
     scratch_word_04 = 0;

@@ -7,7 +7,7 @@ extern ObjectFn data_801c2ac8_slot04_0d[];
 extern ObjectFn data_801c2adc_slot04_0d[];
 
 void func_80140fe0(Object *object);
-void func_80141e5c(Object *object);
+void set_position_from_other_box(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 int func_801410c8(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
@@ -24,7 +24,7 @@ void func_801b2f4c_slot04_0d(Object *obj) {
 
     func_80140fe0(obj);
     update_sequence(obj);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
     t = obj->step_flags;
     if ((t & 0xff) != 0) {
         obj->step_flags = t & 0xff00;
@@ -55,7 +55,7 @@ void func_801b3034_slot04_0d(Object *obj) {
         } else if ((u8)func_801410c8(obj) != 0) {
             obj->state_3 = obj->state_3 + 1;
             func_801307e0(obj, 0x19);
-            func_80141e5c(obj);
+            set_position_from_other_box(obj);
         }
     }
 }
@@ -82,7 +82,7 @@ void func_801b314c_slot04_0d(Object *obj) {
 
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
-        func_80141e5c(obj);
+        set_position_from_other_box(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         func_80146478(obj, 1, 0x18, 0x47);
@@ -160,7 +160,7 @@ void func_801b3400_slot04_0d(Object *obj) {
         obj->field_0b = 1;
     }
     func_801307e0(obj, 0x20);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }
 
 void func_801b347c_slot04_0d(Object *obj) {
@@ -168,7 +168,7 @@ void func_801b347c_slot04_0d(Object *obj) {
     int x;
 
     update_sequence(obj);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->field_45 = 1;
         obj->state_3 = obj->state_3 + 1;

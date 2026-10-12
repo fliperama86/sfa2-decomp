@@ -241,7 +241,7 @@ void func_801b10d4_slot04_0e(Object *o) {
         o->state_3 = o->state_3 + 1;
         o->pos_y = obj->field_70;
         func_801308c4(o, 0x14);
-        func_8013786c(o);
+        set_side_flag(o);
         func_801b687c_slot04_0e(o);
     }
 }

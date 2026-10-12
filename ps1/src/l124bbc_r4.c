@@ -31,7 +31,7 @@ void func_80125dc0(u8 bank, u8 count, u8 scale, u8 row) {
     }
 }
 
-void func_80125f5c(u8 bank, u8 count, u8 scale, u8 row) {
+void scale_palette_rows_all_entries(u8 bank, u8 count, u8 scale, u8 row) {
     u16 n;
     u16 k;
     int r;

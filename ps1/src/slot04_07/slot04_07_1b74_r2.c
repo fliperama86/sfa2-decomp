@@ -33,7 +33,7 @@ void func_801b1d5c_slot04_07(Object *obj) {
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     play_side_sound_at(obj, obj->side, 7);
     func_801307e0(obj, 0x21);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }
 
 void func_801b1dfc_slot04_07(Object *obj) {

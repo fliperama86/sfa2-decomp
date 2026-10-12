@@ -50,7 +50,7 @@ void func_801e9490_slot06_02(Object *obj) {
 }
 
 void func_801e94d8_slot06_02(Object *obj) {
-    func_80136a2c((Cam *)obj, 0x40, 0);
+    init_cam_position((Cam *)obj, 0x40, 0);
     if (obj->field_01 != 0) {
         obj->field_01 = 0;
         ((Slot06Obj *)obj)->field_88 = 0;

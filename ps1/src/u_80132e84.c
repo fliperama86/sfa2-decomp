@@ -22,7 +22,7 @@ void func_80132e84(void)
     data_801ac870 = table_80172144[12];
   }
   l = &player_left;
-  func_80132f90(p, l, l + 1);
+  update_health_bars(p, l, l + 1);
   func_80133108(p, l, l + 1);
   func_80135858();
   func_80135a10();

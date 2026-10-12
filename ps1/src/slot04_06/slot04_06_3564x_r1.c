@@ -68,10 +68,10 @@ void func_801b3564_slot04_06(Object *obj) {
             if (((Slot04aObj *)obj)->field_1c5 < (u32)(obj->field_12a >> 1) + 3 || (((Slot04aObj *)obj)->field_1c5 & 0x80) != 0) {
                 /* The result is masked to a byte; without the cast this function differs from the original in 23 instruction lines. */
                 if ((u8)func_801b5ed8_slot04_06(obj) != 0) {
-                    d = (func_80151184() & 0xf) + 0x5c;
+                    d = (get_random_byte() & 0xf) + 0x5c;
                     func_801b4874_slot04_06(obj, &d);
                     ref_other.p->pos_x += d;
-                    d = func_80151184();
+                    d = get_random_byte();
                     d &= 0xf;
                     ref_other.p->pos_y -= d;
                 }
@@ -86,7 +86,7 @@ void func_801b3564_slot04_06(Object *obj) {
                 }
                 goto call;
             }
-            d = func_80151184();
+            d = get_random_byte();
             if ((d &= 0xf) != 0) {
                 goto alt;
             }
@@ -103,7 +103,7 @@ b2:
             d = 0x60;
             func_801b4874_slot04_06(obj, &d);
             ref_other.p->pos_x += d;
-            d = func_80151184();
+            d = get_random_byte();
             d &= 0xf;
             ref_other.p->pos_y -= d;
         }

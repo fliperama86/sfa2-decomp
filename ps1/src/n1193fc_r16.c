@@ -31,7 +31,7 @@ void func_80123804(GameState *state) {
         ((Entity *)state)->field_ab = 0;
         ((Entity *)state)->field_80 = 0;
         ((Entity *)state)->field_09 = 1;
-        func_8011eb4c();
+        init_object_pools();
     }
 }
 

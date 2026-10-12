@@ -254,7 +254,7 @@ void func_801b6f8c_slot04_11(Object *obj) {
         } else {
             func_80136ed0();
         }
-        func_8013786c(ref_other.p);
+        set_side_flag(ref_other.p);
     }
 }
 

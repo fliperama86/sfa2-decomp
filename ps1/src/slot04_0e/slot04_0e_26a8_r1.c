@@ -128,7 +128,7 @@ void func_801b29e0_slot04_0e(Object *o) {
     s16 y;
 
     if (obj->field_3a == 1) {
-        p = func_8011f0e8(o);
+        p = pop_object_from_pool(o);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0xe;

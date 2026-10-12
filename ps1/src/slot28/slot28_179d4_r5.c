@@ -12,7 +12,7 @@ void func_80027f78_slot28(Object *obj);
 
 void func_80027e98_slot28(Object *obj) {
     HudState *h;
-    func_8011ea68(data_800517b8_slot28[(s8)data_8016e685]);
+    load_image_from_stream(data_800517b8_slot28[(s8)data_8016e685]);
     h = data_8018f5a0;
     h->field_60 = 0x12c;
     h->field_50 = h->field_50 + 1;

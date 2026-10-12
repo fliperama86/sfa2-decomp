@@ -17,7 +17,7 @@ void func_801b3920_slot04_0a(Object *o) {
         o->state_2 = 3;
         o->state_1 = 0;
         o->state_3 = 1;
-        func_8013786c(o);
+        set_side_flag(o);
         func_80142c70(o);
     } else {
         if (obj->field_134 != 0) {
@@ -25,11 +25,11 @@ void func_801b3920_slot04_0a(Object *o) {
                 obj->field_27d = o->field_27c;
             }
         } else if ((t & 0xff00) == 0) {
-            func_8013786c(o);
+            set_side_flag(o);
         } else {
             o->field_46 = t - 0x100;
             if ((o->field_46 & 0x100) == 0) {
-                func_8013786c(o);
+                set_side_flag(o);
             }
         }
         func_80142fe8(o);

@@ -5,7 +5,7 @@
 
 void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
+/* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b2660_slot04_02(Object *obj) {
     Object *p;
     u16 t;
@@ -22,7 +22,7 @@ void func_801b2660_slot04_02(Object *obj) {
         if ((u8)obj->step_flags == 1) {
             obj->state_3++;
             obj->step_flags = obj->step_flags & 0xff00;
-            p = ((Object *(*)(void))func_8011f0e8)();
+            p = ((Object *(*)(void))pop_object_from_pool)();
             if (p != 0) {
                 p->field_00 = 1;
                 p->field_02 = 2;

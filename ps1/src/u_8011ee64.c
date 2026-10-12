@@ -7,7 +7,7 @@
    a temp) plus a direct access for the field_08 store, and allocates i/slot
    to a2/a1. Mine differs in register allocation and hoisting (16 slots). */
 /* Form found by automatic permutation search. */
-void func_8011ee64(void)
+void init_block172_pool(void)
 {
   unsigned int i;
   unsigned int j;

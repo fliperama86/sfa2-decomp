@@ -41,7 +41,7 @@ void func_80121f74(GameState *g) {
             func_801385a0(g);
             func_80128978();
             g->field_65 = player_left.field_165 | player_right.field_165;
-            func_80138290();
+            update_units();
             func_8013902c();
             func_8012510c();
             func_8013c6ac();

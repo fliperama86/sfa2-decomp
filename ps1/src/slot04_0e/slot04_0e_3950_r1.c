@@ -94,7 +94,7 @@ void func_801b3b40_slot04_0e(Object *obj) {
 void func_801b3b80_slot04_0e(Object *obj) {
     Object *p;
 
-    p = func_8011f0e8(obj);
+    p = pop_object_from_pool(obj);
     if (p != 0) {
         p->field_00 = 1;
         p->field_02 = 0x18;

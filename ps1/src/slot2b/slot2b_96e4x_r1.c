@@ -31,7 +31,7 @@ void func_800796e4_slot2b(Object *obj) {
         child->field_02 = 0x14;
         child->field_65 = obj->field_65;
         child->field_44 = 1;
-        index = func_80151184() & 0x1e;
+        index = get_random_byte() & 0x1e;
         x = data_8007ee64_slot2b[index];
         y = data_8007ee64_slot2b[index + 1];
         px = obj->pos_x;

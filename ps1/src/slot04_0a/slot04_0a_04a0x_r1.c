@@ -33,7 +33,7 @@ void func_801b04a0_slot04_0a(Object *obj) {
             k = (s16)obj->field_46;
             k += 1;
             obj->field_46 = k & 0xff3f;
-            k = func_80151184() & 1;
+            k = get_random_byte() & 1;
             if (k != 0) {
                 k = 0x40;
             }

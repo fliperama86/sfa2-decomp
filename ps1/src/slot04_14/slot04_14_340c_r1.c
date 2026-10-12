@@ -141,7 +141,7 @@ void func_801b3730_slot04_14(Object *obj) {
     }
 }
 
-/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
+/* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b382c_slot04_14(Object *obj) {
     Object *p;
     u16 y;
@@ -150,7 +150,7 @@ void func_801b382c_slot04_14(Object *obj) {
     if (*(u8 *)&obj->step_flags == 1) {
         obj->state_3 = obj->state_3 + 1;
         obj->field_46 = *(u8 *)&obj->field_46 | 0x800;
-        p = ((Object *(*)(void))func_8011f0e8)();
+        p = ((Object *(*)(void))pop_object_from_pool)();
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0x14;
@@ -268,7 +268,7 @@ void func_801b3bd0_slot04_14(Object *obj) {
     }
 }
 
-/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
+/* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b3c38_slot04_14(Object *obj) {
     Object *p;
     u16 y;
@@ -278,7 +278,7 @@ void func_801b3c38_slot04_14(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         obj->field_46 = *(u8 *)&obj->field_46 | 0x600;
-        p = ((Object *(*)(void))func_8011f0e8)();
+        p = ((Object *(*)(void))pop_object_from_pool)();
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0x14;

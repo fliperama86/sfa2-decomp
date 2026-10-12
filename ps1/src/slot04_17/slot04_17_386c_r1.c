@@ -16,7 +16,7 @@ void func_801428e4(Object *object);
 void func_80138b38(GameState *state, Object *object);
 void func_80145d20(Object *object);
 void func_80146960(Object *object);
-void func_80141e5c(Object *object);
+void set_position_from_other_box(Object *object);
 int func_8013fd98(Object *object, s16 a, s16 b, s16 c, u16 d);
 void func_801483a4(Object *object, int a, int b);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
@@ -140,7 +140,7 @@ void func_801b3b64_slot04_17(Object *obj) {
         obj->field_48 = 0;
     } else {
         update_sequence(obj);
-        func_80141e5c(obj);
+        set_position_from_other_box(obj);
     }
 }
 

@@ -6,7 +6,7 @@
 void func_801b536c_slot04_09(Object *obj) {
     Object *p;
 
-    p = func_8011f0e8(obj);
+    p = pop_object_from_pool(obj);
     if (p != 0) {
         p->field_00 = 1;
         p->field_02 = 9;

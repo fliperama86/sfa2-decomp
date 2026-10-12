@@ -28,7 +28,7 @@ void func_800dfa40_slot0f(GameState *state, int flag) {
     state->field_cc = 0;
     func_8011eb14();
     func_80120408();
-    func_80120498(0x200);
+    stop_sep_by_word(0x200);
     func_8014f4d4(4, 0);
     if (flag != 0) {
         play_sound_at(0, 0, 0x205);

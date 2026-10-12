@@ -44,7 +44,7 @@ void func_80011a14_slot01(Object *obj) {
     if (obj->field_03 & 0x80) {
         /* The store to game_state.field_112 is written in each arm; one store after the join through a local differs in 19 instruction lines. */
         if (other->field_2ac < 0 && game_state.field_0c != 0) {
-            game_state.field_112 = func_80151184() & 3;
+            game_state.field_112 = get_random_byte() & 3;
         } else {
             if (other->field_2ac < 0) {
                 s = 0;
@@ -56,7 +56,7 @@ void func_80011a14_slot01(Object *obj) {
                         s = 0x10;
                     }
                 }
-                s += func_80151184() & 0xf;
+                s += get_random_byte() & 0xf;
                 sel = ~other->field_2ac;
             } else {
                 sel = other->field_2ac;

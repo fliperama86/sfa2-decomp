@@ -77,7 +77,7 @@ void func_80123b4c(ObjectView *entity, Object *other) {
 void func_80123b88(ObjectView *entity) {
     entity->field_8a = 0;
     if (entity->field_40 == 6) {
-        if ((func_80151184() & 0x3f) == 0) {
+        if ((get_random_byte() & 0x3f) == 0) {
             entity->field_8a = 1;
         }
     }

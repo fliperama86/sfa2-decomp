@@ -18,7 +18,7 @@ void func_801cbb6c_slot05_06(Object *o) {
         o->field_259 = 0;
         o->field_258 = 0;
         o->field_25a = 0;
-        func_8013786c(o);
+        set_side_flag(o);
         o->pos_y = (u16)o->field_70;
         obj->field_1c2 = 0xa;
         game_state.field_63 = 0xa;

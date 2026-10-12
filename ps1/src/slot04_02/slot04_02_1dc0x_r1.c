@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
+/* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b1dc0_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *p;
@@ -13,7 +13,7 @@ void func_801b1dc0_slot04_02(Object *o) {
     if (obj->field_3a != 0) {
         o->state_3++;
         o->field_46 = obj->field_46 | 0x400;
-        p = ((Object *(*)(void))func_8011f0e8)();
+        p = ((Object *(*)(void))pop_object_from_pool)();
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 2;

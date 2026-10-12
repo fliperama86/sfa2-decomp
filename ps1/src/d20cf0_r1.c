@@ -16,7 +16,7 @@ extern u8 table_8016e730[];
    (field_13 gets 0xff when data_8016e688 is not 0) and from data_801a8067 and
    data_801a83fb, calls func_80120374 with field_10, sets field_110, head_a and
    head_b to -1 and the mode fields to fixed values, takes a random byte
-   (func_80151184 masked with 0x78) into field_61, prepares both players with
+   (get_random_byte masked with 0x78) into field_61, prepares both players with
    func_80120f40 and, for each bit of field_17 (1 left, 2 right), sets a few more
    fields of that player, then calls func_80138358 and clears three bytes. */
 void func_80120cf0(GameState *state) {
@@ -80,7 +80,7 @@ void func_80120cf0(GameState *state) {
     state->field_48 = state->field_15;
     state->field_5f = state->field_0e;
     /* The masked result goes through a byte local before its store: written in one statement, this function differs from the original in 2 instruction lines. */
-    rnd = func_80151184() & 0x78;
+    rnd = get_random_byte() & 0x78;
     state->field_61 = rnd;
     state->field_a4 = 7;
     func_80120f40(l, 0, data_801a6966[0]);

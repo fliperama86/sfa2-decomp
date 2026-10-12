@@ -19,7 +19,7 @@ void func_801b3538_slot04_05(Object *obj) {
     obj->accel_x = 0;
     obj->accel_y = -0x6000;
     func_801307e0(obj, 0x18);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }
 
 void func_801b35d8_slot04_05(Object *obj) {
@@ -28,6 +28,6 @@ void func_801b35d8_slot04_05(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         func_80140770(obj, 0, 5, 0xf, 0, 0, 1);
     } else {
-        func_80141e5c(obj);
+        set_position_from_other_box(obj);
     }
 }

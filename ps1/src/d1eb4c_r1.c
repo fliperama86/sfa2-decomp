@@ -6,7 +6,7 @@
 extern Pooled *data_801abf10[];
 extern Pooled *data_801ac30c[];
 extern Pooled *data_801ad358[];
-void func_8011ef34(void);
+void reset_both_players(void);
 
 /* A second name for ref_third (the shared header declares it as a one-member struct, ObjectRef), here as a plain pointer: the
    allocation pointer that the function moves over the records. With ref_third.p written in its place this function differs from
@@ -17,7 +17,7 @@ extern Object *alloc_cursor_80190478;
    three record arrays (16 of 0xc0 bytes, 40 and 16 of 0xac bytes), each with
    a type byte at offset 8, then clears the 256 and the 16 pool entries and
    fills their pointer tables. */
-void func_8011eb4c(void) {
+void init_object_pools(void) {
     unsigned int i;
     unsigned int j;
     u8 *p;
@@ -40,7 +40,7 @@ void func_8011eb4c(void) {
     Pooled **q2;
     Pooled *t2;
 
-    func_8011ef34();
+    reset_both_players();
     /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
     /* With 0 written at its uses (and in fill) this function differs from the original in 5 instruction slots. */
     blank = 0;

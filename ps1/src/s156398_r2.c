@@ -8,7 +8,7 @@ void func_801565f4(void *a, Object *object) {
     u8 first;
     u8 second;
 
-    func_80156d28(a, object);
+    update_name_entry_input(a, object);
     first = object->field_120;
     second = object->field_121;
     if (second < first) {
@@ -20,7 +20,7 @@ void func_801565f4(void *a, Object *object) {
         t = object->field_b4 - 1;
         object->field_b4 = t;
         if (t << 16 < 0 || (t = object->field_b0 - 1, object->field_b0 = t, t << 16 < 0)) {
-            func_801566a4(a, object);
+            fill_name_chars_with_spaces(a, object);
         } else {
             return;
         }
@@ -28,7 +28,7 @@ void func_801565f4(void *a, Object *object) {
     func_801566e8(a, object);
 }
 
-void func_801566a4(void *a, Object *object) {
+void fill_name_chars_with_spaces(void *a, Object *object) {
     s16 i = object->field_123;
 again:
     ((u8 *)object + i)[0x11c] = 0x20;

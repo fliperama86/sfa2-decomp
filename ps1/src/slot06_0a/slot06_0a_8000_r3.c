@@ -7,7 +7,7 @@ extern u16 data_801ec11c_slot06_0a[];
 extern Slot06TileW data_801f3eb0_slot06_0a[2][0x3d];
 
 void func_801369b0(Cam *cam);
-void func_80136d70(Tx *tx);
+void init_draw_mode_prim_4(Tx *tx);
 void func_801e8a0c_slot06_0a(Slot06Layer *layer);
 
 void func_801e89a4_slot06_0a(void) {
@@ -67,7 +67,7 @@ void func_801e8acc_slot06_0a(void) {
     for (k = 0; k < 2; k++) {
         for (i = 0; i < 0x3d; i++) {
             p = data_801f3eb0_slot06_0a[k] + i;
-            func_80136d70((Tx *)p);
+            init_draw_mode_prim_4((Tx *)p);
             p->sprt.color_r = 0x80;
             p->sprt.color_g = 0x80;
             p->sprt.color_b = 0x80;

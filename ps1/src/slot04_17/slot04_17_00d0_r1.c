@@ -15,7 +15,7 @@ extern s16 data_801ce258_slot04_17[];
 
 Object *func_8011f32c(void);
 void func_80130678(Object *object, int index);
-u8 func_80151184(void);
+u8 get_random_byte(void);
 int func_8013cb70(Object *object, u8 a, u8 b);
 int func_8013cac8(Object *object, u8 a, u8 b);
 int func_8013cdc8(Object *object, u8 a, u8 b);
@@ -113,7 +113,7 @@ void func_801b02c0_slot04_17(Object *obj) {
     if (game_state.config->field_76 == 0) {
         game_state.config->field_76 = 0x1e;
     }
-    v = (s8)func_80125734(obj, data_801ce228_slot04_17[func_80151184() & 0xf]);
+    v = (s8)func_80125734(obj, data_801ce228_slot04_17[get_random_byte() & 0xf]);
     v += 0x23;
     func_80130678(obj, v);
 }

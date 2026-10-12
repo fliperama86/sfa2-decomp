@@ -40,7 +40,7 @@ void func_8012d4e4(Object *object) {
         object->field_46 = 4;
         object->pos_y = (u16)object->field_70;
         func_80131df8(object);
-        func_8013786c(object);
+        set_side_flag(object);
         object->field_258 = 0;
         object->field_259 = 0;
         object->field_25a = 0;

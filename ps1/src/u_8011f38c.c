@@ -6,7 +6,7 @@
 
 void func_8011f38c(Object *o) {
     func_80119b3c(o);
-    func_8011f404(o, 0xac);
+    clear_bytes(o, 0xac);
     o->field_44 = 0;
     o->field_08 = 0x10;
     data_801a4fec = data_801a4fec + 1;

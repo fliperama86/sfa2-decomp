@@ -8,7 +8,7 @@ void func_8012cf1c(Object *object) {
     int index;
     if (func_8012eff8(object) != 0) {
         object->state_3 = object->state_3 + 1;
-        func_8013786c(object);
+        set_side_flag(object);
         object->field_258 = 0;
         object->field_259 = 0;
         object->field_25a = 0;

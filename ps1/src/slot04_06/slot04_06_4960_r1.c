@@ -16,7 +16,7 @@ void func_801b4960_slot04_06(Object *obj) {
     ((Slot04aObj *)obj)->field_47 = 0x3c;
     game_state.field_76 = 0x1e;
     obj->field_0b = obj->field_158;
-    t = func_80151184() & 0x3f;
+    t = get_random_byte() & 0x3f;
     p = &((Slot04aObj *)obj)->field_1c0;
     if (t == 0) {
         v = 4;

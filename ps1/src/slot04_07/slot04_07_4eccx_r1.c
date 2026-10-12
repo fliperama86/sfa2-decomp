@@ -23,7 +23,7 @@ void func_801b4ecc_slot04_07(Object *obj) {
     obj->field_0c = o->field_0c;
     obj->field_0d = o->field_0d;
     obj->field_3c = o;
-    v = func_80151184() & 0x1f;
+    v = get_random_byte() & 0x1f;
     v -= 0x10;
     a = -0x30;
     if (obj->field_0b != 0) {
@@ -34,7 +34,7 @@ void func_801b4ecc_slot04_07(Object *obj) {
     w = v << 16;
     *(s32 *)&obj->field_5c = w;
     *(s32 *)&obj->box_tables = w;
-    v = func_80151184() & 0x3f;
+    v = get_random_byte() & 0x3f;
     v = 0xb8 - v;
     w = v << 16;
     *(s32 *)&obj->field_60 = w;

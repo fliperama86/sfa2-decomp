@@ -29,17 +29,17 @@ void func_801246a4(ObjectView *a, Object *b, Object *c);
        clears the input block data_801a6984 (field_00, field_01, index, last,
        flag), clears field_6a, field_19f, field_1a0, field_1a1 and field_1a2
        of both players, calls func_8013788c on each player, clears
-       game_state.field_58 and field_6d, calls func_80124a7c with
+       game_state.field_58 and field_6d, calls set_selected_flag_by_index with
        data_8016e801 and func_80124ae8 with data_8016e802, and copies
        data_8016e803 to the input block's field_05. Then by mode:
          1: calls func_801246a4(game_state, left, right); sets the input
             block's field_01 to 1; data_801ae028 = 0x88; saves the three
             bytes data_8016e801..803 in data_80185fbc, fc0, fc4; calls
-            func_80124a7c and func_80124ae8 again with the first two;
+            set_selected_flag_by_index and func_80124ae8 again with the first two;
             game_state.field_49 = 0x63; field_05 = data_8016e803 again; and
             zeroes the 4096 halfwords of the input block's buffer;
          2: calls func_801246a4(game_state, left, right); sets the input
-            block's field_00 to 1; calls func_80124a7c with data_80185fbc
+            block's field_00 to 1; calls set_selected_flag_by_index with data_80185fbc
             and func_80124ae8 with data_80185fc0; game_state.field_49 =
             0x63; field_05 = data_80185fc4;
          3: clears both c bytes; sets the HUD block's field_4a to 1 and
@@ -96,7 +96,7 @@ void func_80124304(void) {
             func_8013788c(r);
             g->field_58 = 0;
             g->field_6d = 0;
-            func_80124a7c(data_8016e801);
+            set_selected_flag_by_index(data_8016e801);
             func_80124ae8(data_8016e802);
             p->field_05 = data_8016e803;
             if (data_8016e800 == 1) {
@@ -106,7 +106,7 @@ void func_80124304(void) {
                 data_80185fbc = data_8016e801;
                 data_80185fc0 = data_8016e802;
                 data_80185fc4 = data_8016e803;
-                func_80124a7c(data_8016e801);
+                set_selected_flag_by_index(data_8016e801);
                 func_80124ae8(data_8016e802);
                 g->field_49 = 0x63;
                 p->field_05 = data_8016e803;
@@ -116,7 +116,7 @@ void func_80124304(void) {
             } else if (data_8016e800 == 2) {
                 func_801246a4((ObjectView *)g, l, r);
                 p->field_00 = 1;
-                func_80124a7c(data_80185fbc);
+                set_selected_flag_by_index(data_80185fbc);
                 func_80124ae8(data_80185fc0);
                 g->field_49 = 0x63;
                 p->field_05 = data_80185fc4;

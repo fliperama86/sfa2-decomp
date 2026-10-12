@@ -29,8 +29,8 @@
  *     its field_64 and field_15b, game_state.field_12 (the handler index;
  *     read by func_80140ec0, not by this C).
  *   Writes: ref_other.p->field_64, game_state.cursor, and the random state
- *     func_80151184 keeps, the seed halfword data_80190126 (read from the
- *     original's listing, not tested). func_80151184 and func_80140ec0 run as
+ *     get_random_byte keeps, the seed halfword data_80190126 (read from the
+ *     original's listing, not tested). get_random_byte and func_80140ec0 run as
  *     the original code, as does the code before the handler.
  *   The handler called through table_8017ac34[game_state.field_12] is a
  *     recorder with no arguments that returns at once; the setup points the
@@ -58,7 +58,7 @@ int func_80140b5c(Object *object, s16 a, int b) {
         return 0;
     }
     target->field_64 = table_801777d4[object->field_cf + ((a & 0x1f) << 5)];
-    idx = (s16)((func_80151184() & 0x1f) | (b << 5));
+    idx = (s16)((get_random_byte() & 0x1f) | (b << 5));
     target->field_64 += 0xf0 + table_80177bd4[idx];
     if (target->field_64 & 0x80) {
         target->field_64 = 0;

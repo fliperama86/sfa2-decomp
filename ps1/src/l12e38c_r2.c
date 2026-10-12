@@ -31,7 +31,7 @@ void func_8012ec50(Object *object) {
         object->field_259 = 0;
         object->field_25a = 0;
         object->field_46 = *(u16 *)(data_80171a9c + (object->field_12a & 0xfe));
-        func_8013786c(object);
+        set_side_flag(object);
         func_80130af0(object);
         func_801209c4(object);
         speed = data_80171aa4[object->kind];

@@ -11,7 +11,7 @@ void func_801b2158_slot04_0a(Object *obj) {
         obj->step_flags = obj->step_flags & 0xff00;
         play_side_sound_at(obj, obj->side, 0xa);
         play_side_sound_at(obj, obj->side, 0xe);
-        n = func_8011f0e8(obj);
+        n = pop_object_from_pool(obj);
         if (n != 0) {
             n->field_00 = 1;
             n->field_02 = 0xa;

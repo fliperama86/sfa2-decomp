@@ -5,7 +5,7 @@
 
 extern u16 data_801a6966;
 
-void func_80119718(void) {
+void update_pad_state(void) {
     int cur;
     int old;
     int oldnew;

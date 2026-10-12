@@ -25,7 +25,7 @@ void func_800138cc_slot12(Object *obj) {
         func_80151020(0x606);
         func_8011eb14();
         func_8011eae4();
-        func_8011ee64();
+        init_block172_pool();
         data_80190568 = 1;
         rect.x = 0x280;
         rect.y = 0;

@@ -13,7 +13,7 @@ void update_sequence(Object *object);
 void func_801312b8(Object *object);
 void func_80141f28(Object *object, short delta);
 u8 func_80146840(Object *object);
-u8 func_80151184(void);
+u8 get_random_byte(void);
 int func_801418bc(Object *object);
 extern u16 box_margin[];
 extern ObjectRef data_80190468;
@@ -62,7 +62,7 @@ void func_801b0fb0_slot04_16(Object *obj) {
 
 void func_801b0ff0_slot04_16(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
-    if ((func_80151184() & 1) == 0 && (obj->field_c2 & 0x100) == 0) {
+    if ((get_random_byte() & 1) == 0 && (obj->field_c2 & 0x100) == 0) {
         play_side_sound_at(obj, obj->side, 0xb);
         func_801307e0(obj, 0x45);
     } else {

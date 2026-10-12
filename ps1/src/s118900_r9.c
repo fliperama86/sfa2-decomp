@@ -15,7 +15,7 @@ void func_8011a55c(Object *o) {
     data_80185ce4[j][i][1] = 0;
 }
 
-u16 func_8011a5f4(void) {
+u16 get_free_list_head(void) {
     return data_801846fc;
 }
 
@@ -53,7 +53,7 @@ void func_8011a6b8(u16 a, u16 b) {
 
 void func_8011a744(void) {
     func_8011a018();
-    func_8011a410();
+    clear_side_tables();
     func_801511c8();
     func_801518a0();
 }

@@ -57,5 +57,5 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
         ((Slot04aObj *)e)->field_16 = ((Slot04aObj *)e)->field_16 - 2;
     }
     update_sequence(o);
-    func_80141e5c(o);
+    set_position_from_other_box(o);
 }

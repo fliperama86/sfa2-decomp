@@ -11,8 +11,8 @@ void func_801b1e6c_slot04_0a(Object *obj) {
     int k;
 
     if (obj->vel_y < 0) {
-        if ((func_80151184() & 0xf) != 0) {
-            k = func_80151184() & 3;
+        if ((get_random_byte() & 0xf) != 0) {
+            k = get_random_byte() & 3;
             if (k != 3) {
                 obj->state_3++;
                 func_801307e0(obj, k | 0x28);

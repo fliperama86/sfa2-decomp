@@ -12,6 +12,6 @@ void func_80138628(GameState *state)
   unsigned int new_var;
   new_var = table_6d08[state->field_2d];
   counter_c -= new_var;
-  new_var = table_6d10[func_80151184() & 0x1f];
+  new_var = table_6d10[get_random_byte() & 0x1f];
   counter_c += 8 - new_var;
 }

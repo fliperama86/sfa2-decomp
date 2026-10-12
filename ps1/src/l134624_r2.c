@@ -14,7 +14,7 @@ void func_80135858(void) {
         e->field_19 = 0xe0;
         e->field_18 = 0x30;
     } else {
-        func_8011fec8(game_state.field_49);
+        set_digits_from_number(game_state.field_49);
         data_80188d6c[data_801a27d0].field_18 = game_state.digits[1] << 4;
         data_80188d6c[data_801a27d0].field_34 = game_state.digits[0] << 4;
         if (game_state.field_49 == 0x63) {

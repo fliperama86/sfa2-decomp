@@ -13,7 +13,7 @@ void func_8014aa4c(Object *object) {
         } else {
             object->field_208 = 0;
             object->field_209 = 8;
-            func_8014ae54(object);
+            set_state_one_unless_set(object);
         }
     }
 }
@@ -24,7 +24,7 @@ void func_8014aacc(Object *object) {
     } else {
         object->field_208 = 0;
         object->field_209 = 9;
-        func_8014ae54(object);
+        set_state_one_unless_set(object);
     }
 }
 
@@ -34,7 +34,7 @@ void func_8014ab20(Object *object) {
     } else {
         object->field_208 = 0;
         object->field_209 = 10;
-        func_8014ae54(object);
+        set_state_one_unless_set(object);
     }
 }
 
@@ -45,7 +45,7 @@ void func_8014ab74(Object *object) {
     } else {
         object->field_208 = 0;
         object->field_209 = 0;
-        func_8014ae54(object);
+        set_state_one_unless_set(object);
     }
 }
 
@@ -53,7 +53,7 @@ void func_8014abc8(Object *object) {
     object->field_21c = 1;
     object->field_208 = 0;
     object->field_209 = 8;
-    func_8014ae54(object);
+    set_state_one_unless_set(object);
 }
 
 void func_8014abf8(Object *object) {
@@ -61,7 +61,7 @@ void func_8014abf8(Object *object) {
     object->field_208 = 0;
     object->field_209 = 8;
     object->field_21c = value;
-    func_8014ae54(object);
+    set_state_one_unless_set(object);
 }
 
 void func_8014ac3c(Object *object) {
@@ -102,7 +102,7 @@ void func_8014ad64(Object *object) {
     } else {
         object->field_208 = 0;
         object->field_209 = 0xd;
-        func_8014ae54(object);
+        set_state_one_unless_set(object);
     }
 }
 
@@ -126,10 +126,10 @@ void func_8014ae28(Object *object) {
     object->field_67 = 0;
     object->field_208 = 0;
     object->field_209 = 5;
-    func_8014ae54(object);
+    set_state_one_unless_set(object);
 }
 
-void func_8014ae54(Object *object) {
+void set_state_one_unless_set(Object *object) {
     if ((*(unsigned *)&object->state_0 & 0xffffff) != 1) {
         object->state_0 = 1;
         object->state_1 = 0;

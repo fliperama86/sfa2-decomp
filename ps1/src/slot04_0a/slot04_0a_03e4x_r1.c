@@ -21,7 +21,7 @@ void func_801b03e4_slot04_0a(Object *obj) {
         obj->state_2 = obj->state_2 + 1;
         game_state.field_76 = 0x1e;
         /* One local holds the random number and then the callee's result: with a local for each, 14 instruction lines differ. */
-        variant = func_80151184();
+        variant = get_random_byte();
         variant = (s8)func_80125734(obj, (s8)(variant / 52));
         obj->field_48 = variant;
         func_80130678(obj, (s16)(variant + 0x23));

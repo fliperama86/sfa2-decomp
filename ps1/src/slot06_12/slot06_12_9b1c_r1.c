@@ -26,7 +26,7 @@ void func_801e9b1c_slot06_12(Object *obj) {
 
     obj->field_1c = *(u16 *)((u8 *)data_801ef310_slot06_12 + (i << 2));
     obj->pos_y = 0xf8 - *(u16 *)((u8 *)data_801ef310_slot06_12 + (i << 2) + 2);
-    r = func_80151184() & 0xff;
+    r = get_random_byte() & 0xff;
     obj->pos_x = 0xc0;
     if (*c != 3) {
         obj->pos_x = r + 0x40;

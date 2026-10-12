@@ -26,7 +26,7 @@ void func_80152f80(GameState *state) {
             func_801192bc(1);
         } while (!(state->field_f0 & 0x80));
     }
-    func_801203b4(2);
+    close_vab_and_sep(2);
     func_8014f3b8(4, 0);
 }
 

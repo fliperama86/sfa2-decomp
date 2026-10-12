@@ -24,28 +24,28 @@
  *   4. initialises four strips of 0x1c bytes in data_80188d6c with
  *      func_80136d1c (two per player, 0x38 bytes apart);
  * then writes data_80188ebc and data_80188ec0 and calls func_80153088,
- * func_80132b30 and func_80132cf0.
+ * init_strips and init_strips2.
  *
  * Contract (what the code reads and writes; the roles are inferred):
  *   Arguments: none. No return value.
  *   Reads: data_801a8067, data_801a83fb (bytes), data_80198098,
  *     data_8019842c (bytes), table_80172144 words 0, 4, 8, 10, 13 to 33,
  *     player_left.field_5c and player_right.field_5c (halfwords), and what
- *     func_80153088, func_80132b30 and func_80132cf0 read.
+ *     func_80153088, init_strips and init_strips2 read.
  *   Writes: the block data_801ac6a8 (head bytes and words 0x1c4 to 0x1dc),
  *     data_801a6938, data_80188d64, 65, 68, 69, the table_80188d08 bytes and
  *     halfwords named in the C, data_80171c5c and data_80171c5d, the two
  *     record areas at data_80186004, the strips of data_80188d6c,
  *     data_80188ebc and data_80188ec0, and what the three last callees write:
- *     strips2 and data_80188e4c (func_80132cf0), the strips of strips and
- *     data_80190014 (func_80132b30; it reads game_state.field_42), and the
+ *     strips2 and data_80188e4c (init_strips2), the strips of strips and
+ *     data_80190014 (init_strips; it reads game_state.field_42), and the
  *     two records of data_8018d210 (func_80153088); these writes and reads
  *     of the callees are inferred.
  *   Callees replaced by recorders, the same in both runs: func_8015c150 (1
  *     argument), func_8015c09c (1), func_8015bd0c (4; the result is random
  *     per case), all in Sony's library (inferred); and func_80136d1c (1),
  *     which reaches the library through func_80158a2c and func_8015c23c
- *     (inferred). func_80153088, func_80132b30 and func_80132cf0 are game
+ *     (inferred). func_80153088, init_strips and init_strips2 are game
  *     code and run as the original in both runs (the last two call
  *     func_80136d1c, a recorder; inferred).
  *   Aliasing: the data named above are distinct from each other.
@@ -63,8 +63,8 @@ extern PolyBlk data_80186004[];
 
 void func_8015c150(u8 *record);
 void func_80153088(void);
-void func_80132b30(void);
-void func_80132cf0(void);
+void init_strips(void);
+void init_strips2(void);
 
 /* One record of the first area: initialised by func_8015c150, then three
    colour bytes at 4 and halfwords at 8 to 0xe. */
@@ -203,6 +203,6 @@ void func_8013245c(void)
     data_80188ebc = 0x7e07;
     data_80188ec0 = 0x7807;
     func_80153088();
-    func_80132b30();
-    func_80132cf0();
+    init_strips();
+    init_strips2();
 }

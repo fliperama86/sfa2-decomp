@@ -107,7 +107,7 @@ void func_801b4818_slot04_0f(Object *obj) {
     if (c->field_76 == 0) {
         c->field_76 = 0x1e;
     }
-    r = func_80125734(obj, data_801c5c0c_slot04_0f[func_80151184() & 0xf]);
+    r = func_80125734(obj, data_801c5c0c_slot04_0f[get_random_byte() & 0xf]);
     obj->state_2 = data_801c5c1c_slot04_0f[(u8)r];
     func_80130678(obj, (r & 0xff) + 0x23);
 }

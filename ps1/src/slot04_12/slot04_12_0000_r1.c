@@ -118,7 +118,7 @@ void func_801b02d4_slot04_12(Object *obj) {
     game_state.field_76 = 0x1e;
     k = 3;
     if ((s16)obj->field_5c != 0x90) {
-        k = data_801c49fc_slot04_12[func_80151184() & 0xf];
+        k = data_801c49fc_slot04_12[get_random_byte() & 0xf];
     }
     k = (s8)func_80125734(obj, (s8)k);
     k += 0x23;

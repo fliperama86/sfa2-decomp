@@ -43,7 +43,7 @@ void func_8013f2fc(Object *object, int index) {
     data_80188f44 = 1;
 }
 
-void func_8013f3b8(Object *object) {
+void set_side_ring_flag(Object *object) {
     if (object->side != 0) ring_right[0] = 1;
     else ring_left[0] = 1;
 }

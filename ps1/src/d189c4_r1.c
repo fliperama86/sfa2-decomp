@@ -59,7 +59,7 @@ void func_801189c4(void) {
     func_80118900();
     func_8015efc0();
     func_8015f0b4();
-    while (func_8014f0bc() == 0) {
+    while (init_cd_menu() == 0) {
     }
     func_80150cd0(0);
     scratch_word_14 = 0;
@@ -93,9 +93,9 @@ display:
             func_80120408();
             func_8014f4d4(4, 0);
             func_80157d00(0);
-            func_80119340(0);
-            func_80119340(1);
-            func_80119340(2);
+            close_voice_thread(0);
+            close_voice_thread(1);
+            close_voice_thread(2);
             goto display;
         }
         if (data_801ac620 <= 0x4000) {
@@ -107,9 +107,9 @@ display:
         }
         if (scratch_word_04 != 0) {
             func_80157d00(0);
-            func_80119340(0);
-            func_80119340(1);
-            func_80119340(2);
+            close_voice_thread(0);
+            close_voice_thread(1);
+            close_voice_thread(2);
             scratch_word_08 = -1;
             scratch_word_00 = -1;
             goto session;

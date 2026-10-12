@@ -27,12 +27,12 @@ void func_80128978(void) {
                 func_80128e54();
             } else if (player_right.field_165 != 0) {
                 func_80128eb4();
-            } else if ((func_80151184() & 1) != 0) {
+            } else if ((get_random_byte() & 1) != 0) {
                 func_80128bb8();
             } else {
                 func_80128b28();
             }
-        } else if ((func_80151184() & 1) != 0) {
+        } else if ((get_random_byte() & 1) != 0) {
             func_80128bb8();
         } else {
             func_80128b28();

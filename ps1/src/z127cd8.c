@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_80127cd8(u8 bank, s16 amount, u8 mode) {
+int fade_palette_bank(u8 bank, s16 amount, u8 mode) {
     u16 n;
     u16 k;
     s16 r;

@@ -22,7 +22,7 @@ void func_801b161c_slot04_0c(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->field_46 = 5;
         obj->state_3++;
-        p = func_8011f0e8(obj);
+        p = pop_object_from_pool(obj);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0xc;
@@ -210,7 +210,7 @@ void func_801b1c54_slot04_0c(Object *obj) {
         func_801312b8(obj);
     } else if (m == 0 && (t & 0xff) != 0) {
         obj->step_flags = 0;
-        p = func_8011f0e8(obj);
+        p = pop_object_from_pool(obj);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0xc;

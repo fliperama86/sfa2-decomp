@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80123d64(GameState *g)
+void append_object_bytes_to_ring(GameState *g)
 {
   Object *o;
   int i;

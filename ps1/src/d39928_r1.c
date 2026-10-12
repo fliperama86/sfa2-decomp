@@ -10,7 +10,7 @@
  * object whose field_0b is not 0 has its box mirrored in x. Returns 1 when
  * apart in x, else the same test on y; stores the placements it used.
  */
-u8 func_80139928(Object *a, Object *b, Box32 *box) {
+u8 is_box_separated(Object *a, Object *b, Box32 *box) {
     Quad16 *cursor;
     u16 box_x;
     u16 box_y;

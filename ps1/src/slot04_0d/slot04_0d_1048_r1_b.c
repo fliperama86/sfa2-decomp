@@ -37,7 +37,7 @@ void func_801b15a4_slot04_0d(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         ((Slot04bObj *)obj)->field_46 = 5;
         obj->state_3++;
-        p = func_8011f0e8(obj);
+        p = pop_object_from_pool(obj);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0xd;

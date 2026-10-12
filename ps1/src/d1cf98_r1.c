@@ -4,7 +4,7 @@
 #include "externs.h"
 
 extern u8 data_80185504[][16];
-u16 func_8011a5f4(void);
+u16 get_free_list_head(void);
 u16 func_8011a604(int a, u16 b);
 
 /*
@@ -45,7 +45,7 @@ void func_8011cf98(Slab172 *p, u16 *q) {
     func_8011a6b8(data_80183d9c[idx][9], data_80183dc4[idx][9]);
     src = q + 5;
     blocks = 0;
-    head = func_8011a5f4();
+    head = get_free_list_head();
     base = ((p->field_0b & 1) << 15) | ((p->field_0b & 2) << 13);
     total = q[0];
     slot = 0;

@@ -16,11 +16,11 @@ void func_801476f8(Object *object) {
     if (object->field_45 == 0) {
         object->field_46 = 0;
     } else if (object->field_45 == 2) {
-        object->field_46 = (func_80151184() & 7) | 8;
+        object->field_46 = (get_random_byte() & 7) | 8;
     } else if (object->field_45 == 4) {
-        object->field_46 = (func_80151184() & 7) + 4;
+        object->field_46 = (get_random_byte() & 7) + 4;
     } else if (object->field_45 == 6) {
-        object->field_46 = (func_80151184() & 7) + 2;
+        object->field_46 = (get_random_byte() & 7) + 2;
     }
 }
 

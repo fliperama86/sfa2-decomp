@@ -140,7 +140,7 @@ void func_801b5f60_slot04_14(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_46 = 0x3c;
     game_state.field_76 = 0x1e;
-    func_80130678(obj, data_801c652c_slot04_14[(u8)func_80125734(obj, data_801c651c_slot04_14[func_80151184() & 0xf])]);
+    func_80130678(obj, data_801c652c_slot04_14[(u8)func_80125734(obj, data_801c651c_slot04_14[get_random_byte() & 0xf])]);
 }
 
 void func_801b5fe8_slot04_14(Object *obj) {

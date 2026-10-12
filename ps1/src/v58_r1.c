@@ -8,7 +8,7 @@
  * box in $a3; this build uses $a1 and adds a return-0 block. */
 
 /* Form found by automatic permutation search, then cleaned by hand. */
-int func_8013c970(Object *object) {
+int is_box_overlapping_other_player(Object *object) {
     u8 index = object->frame->active;
     Box32 *mine;
     Box32 *other;
@@ -26,7 +26,7 @@ int func_8013c970(Object *object) {
             other = ref_second.p->box_tables->wide_boxes;
             ref_first.p = (Object *)mine;
             other += index;
-            if (!func_80139928(object, ref_second.p, other)) {
+            if (!is_box_separated(object, ref_second.p, other)) {
                 return 1;
             }
         }

@@ -14,7 +14,7 @@ void func_80131e88(Object *object)
   if ((object->field_61 == 0) && (object->field_62 >= 2))
   {
     u8 hit;
-    if (!(func_80151184() & 1))
+    if (!(get_random_byte() & 1))
     {
       hit = func_80146840(object);
     }

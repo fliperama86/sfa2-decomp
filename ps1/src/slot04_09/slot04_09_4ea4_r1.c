@@ -43,5 +43,5 @@ void func_801b4ea4_slot04_09(Object *o, Object *unused) {
     } else {
         update_sequence(o);
     }
-    func_80141e5c(o);
+    set_position_from_other_box(o);
 }

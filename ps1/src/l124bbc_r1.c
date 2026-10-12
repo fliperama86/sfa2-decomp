@@ -37,7 +37,7 @@ void func_80124bbc(Object *object, int b, u16 c) {
     }
 }
 
-void func_80124d70(Object *object, int b, u16 c) {
+void update_menu_cursor(Object *object, int b, u16 c) {
     if (*table_8016e828[object->side] & 0xf0) {
         data_80185fb8 = 1 << object->side;
     }

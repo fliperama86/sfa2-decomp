@@ -27,7 +27,7 @@ void func_801b30b4_slot04_10(Object *obj) {
     }
     obj->state_3 = obj->state_3 + 1;
     func_801b3220_slot04_10(obj);
-    game_state.field_358 = func_8011f0e8(obj);
+    game_state.field_358 = pop_object_from_pool(obj);
     if (game_state.field_358 != 0) {
         game_state.field_358->field_00 = 1;
         game_state.field_358->field_02 = 0x10;

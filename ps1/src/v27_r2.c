@@ -7,7 +7,7 @@
    copied (move a0,v0) after the blez, and puts the flag pointer in t5 and the block
    counter in t4; mine has them swapped. Everything else matches. */
 /* Form found by automatic permutation search, then cleaned by hand. */
-void func_8011e790(unsigned int n, unsigned char *src, unsigned int dst, unsigned int key) {
+void decode_rle(unsigned int n, unsigned char *src, unsigned int dst, unsigned int key) {
     unsigned short flags[4];
     unsigned char value;
     unsigned short i, j, count;

@@ -30,7 +30,7 @@ void func_801e9b4c_slot06_01(Object *obj) {
         } else if (obj->accel_x == 8) {
             v = 7;
         } else {
-            v = func_80151184();
+            v = get_random_byte();
         }
         obj->field_46 = v;
     }
@@ -42,7 +42,7 @@ void func_801e9bc8_slot06_01(Object *obj) {
     obj->field_46 = v;
     if ((s16)v == 0) {
         obj->state_1 = 0;
-        obj->accel_x = data_801ea964_slot06_01[(u8)((func_80151184() & 3) | ((u8)obj->accel_x << 2))];
+        obj->accel_x = data_801ea964_slot06_01[(u8)((get_random_byte() & 3) | ((u8)obj->accel_x << 2))];
         func_80130700(obj, data_801eb960_slot06_01[obj->accel_x]);
     }
 }

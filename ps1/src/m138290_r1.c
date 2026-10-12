@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80138290(void) {
+void update_units(void) {
     s32 i;
     Unit *unit = units_2c20;
 

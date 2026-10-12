@@ -10,7 +10,7 @@ extern u8 data_801c64b4_slot04_14[];
 extern u8 data_801c64bc_slot04_14[];
 
 int func_8014025c(Object *object, s16 a, s16 b, s16 c, u16 d);
-void func_80141e5c(Object *object);
+void set_position_from_other_box(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 void func_801b4848_slot04_14(Object *obj);
@@ -123,7 +123,7 @@ void func_801b4af4_slot04_14(Object *obj) {
     func_80141f28(obj, 8);
     play_sound_at(p, p->side, 0x31a);
     func_801307e0(obj, 0x4a);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }
 
 void func_801b4b88_slot04_14(Object *obj) {
@@ -147,7 +147,7 @@ void func_801b4bc0_slot04_14(Object *obj) {
     func_80141f28(obj, 8);
     play_sound_at(p, p->side, 0x31a);
     func_801307e0(obj, 0x57);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }
 
 void func_801b4c58_slot04_14(Object *obj) {

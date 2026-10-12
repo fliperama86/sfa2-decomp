@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_8011e990(void *buf, int h) {
+int load_file_from_host(void *buf, int h) {
     int size;
     int off;
     func_80157d9c(0);

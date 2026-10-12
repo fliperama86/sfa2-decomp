@@ -22,7 +22,7 @@ void func_80119e74(AnimObj *obj, u16 n) {
             break;
         }
         prev = col & 0xffff;
-        func_8011df3c(p90, data_80184704[prev][row], job->src);
+        decode_compressed_block(p90, data_80184704[prev][row], job->src);
         r.x = col * 4 + 0x180;
         r.y = row << 4;
         job->kind = 1;

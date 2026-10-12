@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_80155f98(int a, int b) {
+int add_bcd(int a, int b) {
     u32 carry = 0;
     u32 res = 0;
     u32 mask = 0xf;

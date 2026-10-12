@@ -20,7 +20,7 @@ void func_800131ec_slot01(Object *obj) {
     obj->field_9c = data_80024a7c_slot01;
     obj->field_90 = (void *)0x8007a744;
     obj->field_7a = 0x40;
-    obj->field_7c = 0x1f0 + func_80151184() % 3;
+    obj->field_7c = 0x1f0 + get_random_byte() % 3;
     if (obj->field_03 == 0x81 || obj->field_03 == 0x83) {
         obj->field_7c = 0x1f4;
     }

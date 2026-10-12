@@ -8,7 +8,7 @@
 /* Exact. Decided by: address locals a and b declared at function scope and reused in all three
    loops (the original keeps the store address in their registers), and the field_14 values written
    as 0xc + m * 0x10 and 0x154 - j * 0x10 instead of stepped locals. */
-void func_80132b30(void) {
+void init_strips(void) {
     s32 i;
     s32 j;
     s32 x;

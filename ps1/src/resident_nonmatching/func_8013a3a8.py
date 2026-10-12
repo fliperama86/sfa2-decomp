@@ -24,7 +24,7 @@ Choices of the setup:
     reached; the bit 0x80 of table_80179834 at a1's kind is set in half of
     the cases;
   - func_8013ae00 (3 arguments), func_8013a154 (3), func_8013ad64 (1) and
-    func_80147000 (1) are recorders returning 0. func_80151184 and
+    func_80147000 (1) are recorders returning 0. get_random_byte and
     func_8013ad2c run as the original code.
 The log watches at every recorded call: a1 (0x400 bytes), both players
 (0x394 bytes each), the config block, the pointer and counter globals the

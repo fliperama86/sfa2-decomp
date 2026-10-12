@@ -12,10 +12,10 @@ void func_80120374(int a) {
         func_80165840();
         x = 1;
     }
-    func_8014f5d4(x);
+    set_cd_mix_mode(x);
 }
 
-void func_801203b4(int a) {
+void close_vab_and_sep(int a) {
     func_8016a3b0(data_80190a44[a]);
     func_8016a70c(data_80190a44[a + 8]);
 }
@@ -33,7 +33,7 @@ void func_80120444(int a, unsigned char b) {
     func_8016936c(data_80190a44[a + 8], table_8016e6e0[a][b * 2] & 0xfff);
 }
 
-void func_80120498(int a) {
+void stop_sep_by_word(int a) {
     int hi = (a & 0xff00) >> 8;
     func_8016936c(data_80190a44[hi + 8], table_8016e6e0[hi][(a & 0xff) * 2] & 0xfff);
 }

@@ -19,7 +19,7 @@ int func_801384c4(GameState *state)
   {
     new_var = &player_right.field_ce;
     player_right.field_cf = (player_left.field_cf = 0x10);
-    step = table_6cf8[func_80151184() & 0xf];
+    step = table_6cf8[get_random_byte() & 0xf];
     if ((*new_var) != player_left.field_ce)
     {
       if (player_right.field_ce < player_left.field_ce)

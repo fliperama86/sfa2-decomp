@@ -17,7 +17,7 @@ void func_801b2bf0_slot04_09(Object *obj) {
         obj->pos_y_frac = 0;
         obj->pos_y = obj->field_70;
         obj->other->field_45 = 0;
-        if (func_80151184() & 1) {
+        if (get_random_byte() & 1) {
             func_801307e0(obj, 0x35);
         } else {
             func_801307e0(obj, 0x36);

@@ -10,5 +10,5 @@ void func_801b4e3c_slot04_09(Object *obj, Object *unused) {
     }
     play_sound_at(obj, obj->side ^ 1, 0x31b);
     func_801307e0(obj, 0x18);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }

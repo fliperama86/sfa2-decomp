@@ -101,5 +101,5 @@ void func_801213c0(GameState *g) {
     func_80157d00(1);
     data_80190568 = 1;
     data_801a6938 = z;
-    func_80119340(2);
+    close_voice_thread(2);
 }

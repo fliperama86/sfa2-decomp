@@ -10,7 +10,7 @@ extern Slot06TileW data_801f6fe4_slot06_0f[2][0x4e];
 extern u16 data_80190542;
 
 void func_8015c09c(void *prim);
-void func_80136d70(Tx *tx);
+void init_draw_mode_prim_4(Tx *tx);
 
 void func_801e91dc_slot06_0f(Slot06Layer *layer) {
     layer->field_50 = data_801edbc4_slot06_0f;
@@ -83,7 +83,7 @@ void func_801e93ac_slot06_0f(void) {
     for (k = 0; k < 2; k++) {
         for (i = 0; i < 0x4e; i++) {
             p = data_801f6fe4_slot06_0f[k] + i;
-            func_80136d70((Tx *)p);
+            init_draw_mode_prim_4((Tx *)p);
             p->sprt.color_r = 0x80;
             p->sprt.color_g = 0x80;
             p->sprt.color_b = 0x80;

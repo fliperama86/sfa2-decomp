@@ -84,7 +84,7 @@ void func_80150a8c(Menu *menu) {
     }
 }
 
-void func_80150afc(Menu *menu) {
+void update_cd_volume_fade(Menu *menu) {
     u8 vol = menu->field_05;
     u8 step = menu->field_1d;
     if (menu->field_03 == 1) {

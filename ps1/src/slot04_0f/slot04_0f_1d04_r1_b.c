@@ -18,7 +18,7 @@ void func_801b22ec_slot04_0f(Object *o) {
     } else {
         func_80136ed0();
     }
-    func_8013786c(o);
+    set_side_flag(o);
 }
 
 void func_801b2340_slot04_0f(Object *o, u16 *src) {

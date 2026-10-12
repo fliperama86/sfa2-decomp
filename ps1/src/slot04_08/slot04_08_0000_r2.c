@@ -13,7 +13,7 @@ void func_801b01d8_slot04_08(Object *obj) {
     if (game_state.field_76 == 0) {
         game_state.field_76 = 0x1e;
     }
-    k = func_80125734(obj, data_801c3b48_slot04_08[func_80151184() & 0xf]);
+    k = func_80125734(obj, data_801c3b48_slot04_08[get_random_byte() & 0xf]);
     if (k == 3 && game_state.field_0a != 0) {
         k = 4;
     }

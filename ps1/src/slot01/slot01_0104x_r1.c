@@ -27,7 +27,7 @@ void func_80010104_slot01(void) {
     game_state.field_40 = data_801abf08;
     s1 = s2->field_2ac;
     data_80190568 = 1;
-    func_8011eb4c();
+    init_object_pools();
     if (data_801abf08 != 0x12) {
         func_801285e0();
     }

@@ -50,13 +50,13 @@
  *     field_28f; a player's field_167, field_255 and field_c6;
  *     config->field_6b and field_8f; ref_first, ref_third, data_80188f20,
  *     data_80188f24, data_80188f40, ref_other (put back), the random seed
- *     (data_80190126, by the callee func_80151184), and what the callee
+ *     (data_80190126, by the callee get_random_byte), and what the callee
  *     func_8013ad2c writes in a1 (inferred).
  *   Callees replaced by recorders, the same in both runs: func_8013ae00
  *     (3 arguments: a0, a1, a2; it reads them, the listing shows a0, a1
  *     and a2 live at its entry), func_8013a154 (3), func_8013ad64 (1),
  *     func_80147000 (1). All return 0 and the function ignores their
- *     results. func_80151184 (random byte) and func_8013ad2c run as the
+ *     results. get_random_byte (random byte) and func_8013ad2c run as the
  *     original code in both runs.
  *   Aliasing: a0, a1, a2, the config, the frame record and the players are
  *     distinct blocks.
@@ -227,7 +227,7 @@ void func_8013a3a8(Object *a0, Object *a1, Box32 *a2)
   data_80188f24 = a0;
   ref_first.p = (Object *) &table_80177bd4[row * 32];
   ref_third.p = data_80188f24;
-  sum = base + ((u8 *) ref_first.p)[func_80151184() & 0x1f] - 0x10;
+  sum = base + ((u8 *) ref_first.p)[get_random_byte() & 0x1f] - 0x10;
   if (sum < 0)
   {
     graze(a0, a1, a2);
@@ -356,7 +356,7 @@ void func_8013a3a8(Object *a0, Object *a1, Box32 *a2)
   }
   if ((s16) a1->field_5c < 0x28)
   {
-    e = table_80178514[kind_row + (func_80151184() & 0x1f)] + e;
+    e = table_80178514[kind_row + (get_random_byte() & 0x1f)] + e;
   }
   if (e > 0x20)
   {

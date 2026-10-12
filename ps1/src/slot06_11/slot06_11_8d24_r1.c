@@ -25,8 +25,8 @@ void func_801e8d78_slot06_11(Object *obj) {
 }
 
 void func_801e8dc4_slot06_11(Object *obj) {
-    if ((func_80151184() & 0x1f) == 5) {
-        obj->field_46 = (func_80151184() & 3) + 2;
+    if ((get_random_byte() & 0x1f) == 5) {
+        obj->field_46 = (get_random_byte() & 3) + 2;
         obj->step_flags = 1;
         obj->state_1++;
         func_801e8fa0_slot06_11(obj);
@@ -54,7 +54,7 @@ void func_801e8ea8_slot06_11(Object *obj) {
     u16 *q = (u16 *)(cam_obj + 0x4a);
 
     obj->state_1++;
-    obj->field_46 = (u8)func_80151184();
+    obj->field_46 = (u8)get_random_byte();
     *p ^= 0x800;
     *q ^= 0x200;
 }
@@ -79,5 +79,5 @@ void func_801e8f80_slot06_11(Object *obj) {
 
 void func_801e8fa0_slot06_11(Object *obj) {
     func_8011fc54(obj, data_801e9d98_slot06_11, obj->step_flags);
-    obj->step_timer = (func_80151184() & 3) + 1;
+    obj->step_timer = (get_random_byte() & 3) + 1;
 }

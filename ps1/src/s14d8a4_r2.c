@@ -26,7 +26,7 @@ void func_8014dc30(Object *object) {
     u8 v = data_8017d320[object->field_cf];
     object->field_21c = v;
     if (object->kind == 0x14) object->field_21c = v - 10;
-    object->field_21c = data_8017d300[func_80151184() & 0x1f] + object->field_21c - 4;
+    object->field_21c = data_8017d300[get_random_byte() & 0x1f] + object->field_21c - 4;
     if (object->field_21c < 0) object->field_21c = 0;
 }
 

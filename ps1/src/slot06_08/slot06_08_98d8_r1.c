@@ -35,7 +35,7 @@ void func_801e99bc_slot06_08(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 == 0) {
         obj->state_1++;
-        v = func_80151184() & 0xf;
+        v = get_random_byte() & 0xf;
         obj->field_46 = (v & 0xf) ? v : v + 8;
         func_801e9b28_slot06_08(obj, 1);
     } else {
@@ -61,8 +61,8 @@ void func_801e9ab4_slot06_08(Object *obj) {
 }
 
 void func_801e9ad4_slot06_08(Object *obj) {
-    int a = (func_80151184() & 3) << 8;
-    int b = func_80151184() & 0xff;
+    int a = (get_random_byte() & 3) << 8;
+    int b = get_random_byte() & 0xff;
     s16 c = (b & 0xff) ? b : b + 8;
     obj->field_46 = c + a;
 }

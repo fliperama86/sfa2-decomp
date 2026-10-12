@@ -16,9 +16,9 @@ void func_8011f5a0(void) {
     if (game_state.field_31 == 0) {
         p = &player_left;
         func_8011f774(p);
-        func_8011f674(p, table_80185cf4);
+        call_handler_by_side(p, table_80185cf4);
         p++;
         func_8011f774(p);
-        func_8011f674(p, table_80185e50);
+        call_handler_by_side(p, table_80185e50);
     }
 }

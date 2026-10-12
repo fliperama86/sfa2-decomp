@@ -10,7 +10,7 @@ void func_8012e600(Object *object)
   Box6 *box;
   SequenceStep *next;
   int t;
-  func_8013786c(object);
+  set_side_flag(object);
   object->field_7e = 0;
   object->field_263 = 0;
   object->field_27b = 0;

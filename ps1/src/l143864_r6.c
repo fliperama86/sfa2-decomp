@@ -60,8 +60,8 @@ int func_80146e3c(Object *object, u8 index) {
     ref_other.p->pos_y = object->pos_y;
     ref_other.p->field_1c = object->field_1c;
     ref_other.p->field_0c = 0;
-    ref_other.p->pos_x = ref_other.p->pos_x + table_8017cac4[func_80151184() & 0xf];
-    ref_other.p->pos_y = ref_other.p->pos_y - table_8017cac4[func_80151184() & 0xf];
+    ref_other.p->pos_x = ref_other.p->pos_x + table_8017cac4[get_random_byte() & 0xf];
+    ref_other.p->pos_y = ref_other.p->pos_y - table_8017cac4[get_random_byte() & 0xf];
     return 1;
     }
     return 0;

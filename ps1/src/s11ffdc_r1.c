@@ -28,23 +28,23 @@ void func_80120080(Object *o) {
     *stack_801ad354-- = o;
     count_8018f59c++;
     if (o->field_09 == 0) {
-        func_801200f0(o);
+        push_object_stack_a(o);
     } else {
-        func_8012012c(o);
+        push_object_stack_b(o);
     }
 }
 
-void func_801200f0(Object *o) {
+void push_object_stack_a(Object *o) {
     *stack_8018db00-- = o;
     count_80190100++;
 }
 
-void func_8012012c(Object *o) {
+void push_object_stack_b(Object *o) {
     *stack_8018db04-- = o;
     count_80190104++;
 }
 
-void func_80120168(void) {
+void init_sound_system(void) {
     char *p;
     func_8016507c();
     p = data_801953d0;

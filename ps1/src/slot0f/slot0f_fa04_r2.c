@@ -15,7 +15,7 @@ void func_800dfae0_slot0f(void) {
     menu->field_00 = 0;
     for (;;) {
         data_800e83e8_slot0f[data_8018f5a0->field_48](state, menu);
-        func_80151184();
+        get_random_byte();
         func_801192bc(1);
     }
 }

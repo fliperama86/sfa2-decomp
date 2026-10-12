@@ -6,7 +6,7 @@
 
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: body matches; original frame is 0x10, built is 8. */
 /* Form found by automatic permutation search, then cleaned by hand. */
-u8 func_80151184(void) {
+u8 get_random_byte(void) {
     /* The unused local reproduces the stack frame of the original, which reserves the
        space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[4];

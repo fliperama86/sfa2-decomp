@@ -35,7 +35,7 @@ void func_801e982c_slot06_01(Object *obj) {
     obj->field_46 = (s16)obj->field_46 - 1;
     if ((s16)obj->field_46 < 0) {
         obj->field_46 = 0x40;
-        if ((func_80151184() & 7) == 0) {
+        if ((get_random_byte() & 7) == 0) {
             obj->state_1 = 1;
             func_80130700(obj, data_801eb990_slot06_01);
         }

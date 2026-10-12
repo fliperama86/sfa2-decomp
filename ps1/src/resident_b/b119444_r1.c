@@ -5,12 +5,12 @@
 
 /* Counted up here once a frame and read by the frame loop of the game's main function (inferred). */
 extern volatile u16 data_801ac310;
-void func_80119718(void);
+void update_pad_state(void);
 void func_80150638(void);
 
 /* The handler that the vertical-blank event calls once a frame (inferred). */
 void func_80119444(void) {
-    func_80119718();
+    update_pad_state();
     data_801ac310++;
     func_80150638();
 }

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80141e5c(Object *object) {
+void set_position_from_other_box(Object *object) {
     Box6 *box;
     u16 x;
     u16 ox;

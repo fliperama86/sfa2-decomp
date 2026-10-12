@@ -4,7 +4,7 @@
 #include "externs.h"
 
 void func_8011e5c8(u16 n, u16 *src, u32 dst, u32 key);
-void func_8011e790(u32 n, u16 *src, u32 dst, u32 key);
+void decode_rle(u32 n, u16 *src, u32 dst, u32 key);
 
 /*
  * What it does (inferred): unpacks one compressed texture block into
@@ -16,10 +16,10 @@ void func_8011e790(u32 n, u16 *src, u32 dst, u32 key);
  * count of items, each a literal or a (length, distance) reference back
  * into the block, chosen by one flag bit; a high byte of 0x80 means 64 flag
  * bits choosing a literal or a zero cell; any other value is handed to
- * func_8011e5c8 (bit 15 set) or func_8011e790 (clear), which take the
+ * func_8011e5c8 (bit 15 set) or decode_rle (clear), which take the
  * second mask (key).
  */
-void func_8011df3c(void *data, int b, u8 *out) {
+void decode_compressed_block(void *data, int b, u8 *out) {
     unsigned flags = b;
     /* Room for 4 flag halfwords, as the original frame has; a count above 64 items would write past it (flagged, inferred). */
     u16 flag_words[4];
@@ -190,7 +190,7 @@ void func_8011df3c(void *data, int b, u8 *out) {
                 }
             } while ((groups = groups_left--) != 0);
         } else {
-            func_8011e790(n, p, (u32)out, key);
+            decode_rle(n, p, (u32)out, key);
         }
     }
 }

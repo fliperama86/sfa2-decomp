@@ -108,3 +108,15 @@ function is in its entry and its first name follows from that.
 | `0x801204f4` | `play_side_sound_at` | The same for an object that must be there, with the side as the table's number too: the sound is taken from the side's own table. |
 
 `func_80120604` itself keeps its first name: the port overrides it.
+
+## A note on every function
+
+`ps1/docs/function-notes.tsv` has one line per function that was read for naming: its address, its image
+(empty for the resident program), its name where it has one, and one or two sentences on what its code shows.
+The sentences and the names were written by a model that read each function with the sentences of the
+functions it calls, callees first. They are inferred, like every name on this page. A name was taken only
+when two separate readings of the function gave the same name, neither gave that name to another function,
+the function has no look-alike in the resident program and is not inside Sony's library, and the name
+passed fixed rules: no empty verb such
+as `handle_`, no placeholder in it, and no word that the tree already uses. A function without a name there
+keeps `func_` and its address; its sentence is still what the readers of its callers were given.

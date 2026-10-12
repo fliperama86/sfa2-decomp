@@ -24,7 +24,7 @@ from contracts import CallLog, Contract, Setup
 # rectangle by pointer, filled in for each call: the recorder copies its two
 # words (x, y, w, h) into the log. The data buffers are only read by the
 # callee and are not written by the function, so they have no pointee.
-CALLEES = (("func_80119144", 2, None), ("func_801192bc", 1, None), ("func_801203b4", 1, None),
+CALLEES = (("func_80119144", 2, None), ("func_801192bc", 1, None), ("close_vab_and_sep", 1, None),
            ("func_8014f3b8", 2, None), ("func_80136bc0", 0, None), ("func_80157fc4", 2, {0: 2}),
            ("func_8015808c", 3, {0: 2}), ("func_801451ac", 1, None))
 

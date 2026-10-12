@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-u32 func_80156454(s16 value) {
+u32 convert_to_bcd(s16 value) {
     u32 result = 0;
     u32 n = value;
     int i;

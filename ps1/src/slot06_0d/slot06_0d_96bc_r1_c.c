@@ -48,9 +48,9 @@ void func_801e9d70_slot06_0d(Object *obj) {
     int v;
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_1 = obj->state_1 + 1;
-        v = func_80151184() & 0x30;
+        v = get_random_byte() & 0x30;
         v |= 0x40;
-        obj->field_46 = v << (func_80151184() & 3);
+        obj->field_46 = v << (get_random_byte() & 3);
     }
     func_80131094(obj);
 }
@@ -68,7 +68,7 @@ void func_801e9de4_slot06_0d(Object *obj) {
 void func_801e9e30_slot06_0d(Object *obj) {
     u8 i = obj->field_03 + 5;
     if (obj->field_03 == 2) {
-        i = data_801ea558_slot06_0d[func_80151184() & 0xf];
+        i = data_801ea558_slot06_0d[get_random_byte() & 0xf];
     }
     func_80130768(obj, i, data_801eb1b0_slot06_0d);
 }

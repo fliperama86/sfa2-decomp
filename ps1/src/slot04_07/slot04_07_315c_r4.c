@@ -22,7 +22,7 @@ void func_801b35a8_slot04_07(Object *obj) {
         obj->state_2 = 3;
         obj->state_1 = 0;
         obj->state_3 = 1;
-        func_8013786c(obj);
+        set_side_flag(obj);
         func_80142c70(obj);
     } else {
         if (obj->field_134 != 0) {
@@ -37,7 +37,7 @@ void func_801b35a8_slot04_07(Object *obj) {
                     goto call;
                 }
             }
-            func_8013786c(obj);
+            set_side_flag(obj);
         }
 call:
         func_80142fe8(obj);

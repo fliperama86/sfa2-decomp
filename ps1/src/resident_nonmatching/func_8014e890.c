@@ -35,7 +35,7 @@
  *     data_80189470 (x, y, w, h), in every step.
  *   Callees, all replaced by recorders returning 0 (the log shows each call
  *     in order with its arguments): func_80119144 (2 arguments),
- *     func_801192bc (1), func_801203b4 (1), func_8014f3b8 (2),
+ *     func_801192bc (1), close_vab_and_sep (1), func_8014f3b8 (2),
  *     func_80136bc0 (0), func_80157fc4 (2), func_8015808c (3),
  *     func_801451ac (1). For func_80157fc4 and func_8015808c the
  *     recorder also copies the rectangle (8 bytes) that the first argument
@@ -75,8 +75,8 @@ void func_8014e890(int arg) {
     data_8019032d = 1;
     func_80119144(2, 7);
     func_801192bc(1);
-    func_801203b4(2);
-    func_801203b4(3);
+    close_vab_and_sep(2);
+    close_vab_and_sep(3);
     func_8014f3b8(3, 1);
     func_8014f3b8(2, arg);
     func_80136bc0();

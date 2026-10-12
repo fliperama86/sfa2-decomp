@@ -3,7 +3,7 @@
 #include "protos.h"
 #include "externs.h"
 
-void func_8013b7b8(void);
+void call_kind_pair_handler(void);
 
 /* What it does (inferred): walks the pairs of objects of the object table
    (count_8018f59c entries): the outer object takes all entries, the inner one
@@ -11,7 +11,7 @@ void func_8013b7b8(void);
    of each object's current frame is looked up in its box tables, a's box and
    both table pointers are published in global slots, and func_801397d0 is
    called with a, b and b's box. A non-zero result ends the scan for this outer
-   object; otherwise func_8013b7b8 is called. */
+   object; otherwise call_kind_pair_handler is called. */
 void func_8013b558(void) {
     Box6 *box_a;
     Box6 *box_b;
@@ -81,7 +81,7 @@ void func_8013b558(void) {
             box_b = *(Box6 **)box_b;
             if (func_801397d0((s32)a, b, box_b + b->frame->box_a))
                 break;
-            func_8013b7b8();
+            call_kind_pair_handler();
         }
     }
 }

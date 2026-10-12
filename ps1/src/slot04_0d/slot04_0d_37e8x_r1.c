@@ -19,7 +19,7 @@ void func_801b37e8_slot04_0d(Object *object) {
     if (((Slot04bObj *)object)->field_5c >= 0x90 && a == 0x1000) {
         a = 1;
     } else {
-        a = func_80151184();
+        a = get_random_byte();
         a &= 0x1f;
         if (((Slot04bObj *)object)->field_5c < 0x80) {
             a = data_801c2828_slot04_0d[a];

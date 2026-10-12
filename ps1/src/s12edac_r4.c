@@ -12,7 +12,7 @@ void func_8012f4dc(Object *object) {
     object->field_259 = 0;
     object->field_258 = 0;
     object->field_25a = 0;
-    func_8013786c(object);
+    set_side_flag(object);
     game_state.field_358 = object->other;
     if (game_state.field_358->field_167 < 0xb) {
         func_80155f30(object);

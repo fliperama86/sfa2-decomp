@@ -13,7 +13,7 @@ Choices of the setup:
   - func_80155d4c is a recorder with two arguments, result 0, no pointee;
     the log watches the whole object, the whole partner, ref_other and
     game_state.cursor at every call;
-  - the random state of func_80151184 (the seed halfword data_80190126, which
+  - the random state of get_random_byte (the seed halfword data_80190126, which
     it writes) is random; game_state.cursor, which the function writes, starts
     as a random word; so do ref_other and a halfword of game_state at offset
     0x1e (this C does not read it); the tables the function reads keep the

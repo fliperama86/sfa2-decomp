@@ -11,7 +11,7 @@ extern ObjectFn data_801c3170_slot04_15[];
 
 Block172 *func_8011f1e0(void);
 void func_80130678(Object *object, int arg);
-void func_80141e5c(Object *object);
+void set_position_from_other_box(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80131468(Object *object);
@@ -23,7 +23,7 @@ void func_801b3154_slot04_15(Object *obj) {
 
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
-        func_80141e5c(obj);
+        set_position_from_other_box(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         func_80146478(obj, 1, 0x18, 0x47);
@@ -101,7 +101,7 @@ void func_801b3408_slot04_15(Object *obj) {
         obj->field_0b = 1;
     }
     func_801307e0(obj, 0x20);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }
 
 void func_801b3484_slot04_15(Object *obj) {
@@ -109,7 +109,7 @@ void func_801b3484_slot04_15(Object *obj) {
     int x;
 
     update_sequence(obj);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->field_45 = 1;
         obj->state_3 = obj->state_3 + 1;
@@ -206,7 +206,7 @@ void func_801b37f0_slot04_15(Object *object) {
     if (((Slot04bObj *)object)->field_5c >= 0x90 && a == 0x1000) {
         a = 1;
     } else {
-        a = func_80151184();
+        a = get_random_byte();
         a &= 0x1f;
         if (((Slot04bObj *)object)->field_5c < 0x80) {
             a = data_801c2eac_slot04_15[a];
@@ -226,7 +226,7 @@ void func_801b3928_slot04_15(Object *object) {
     s8 r;
 
     if ((s16)object->step_flags < 0) {
-        r = func_80151184();
+        r = get_random_byte();
         a = r;
         if ((a & 3) != 0) {
             a = 0x32;

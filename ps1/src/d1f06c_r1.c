@@ -5,7 +5,7 @@
 
 /* Inferred, not an original name: clears 128 bytes of game_state starting at
    field_40, then clears the byte at field_226. */
-void func_8011f06c(void) {
+void clear_game_state_fields(void) {
     u8 *p = (u8 *)&game_state.field_40;
     unsigned int i;
 

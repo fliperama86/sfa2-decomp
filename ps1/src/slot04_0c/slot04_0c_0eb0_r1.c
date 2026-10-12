@@ -138,7 +138,7 @@ void func_801b11a0_slot04_0c(Object *o) {
     o->state_3++;
     func_80141f28(o, 9);
     func_80138ae8(&game_state, o);
-    if ((func_80151184() & 7) == 0) {
+    if ((get_random_byte() & 7) == 0) {
         o->field_27b = 0xff;
         if (o->field_49 == 0) {
             job = (Job *)func_8011f4a4();
@@ -179,7 +179,7 @@ void func_801b134c_slot04_0c(Object *o) {
         o->field_45 = 1;
         o->field_27b = 0;
         o->state_3++;
-        func_8013786c(o);
+        set_side_flag(o);
     }
     update_sequence(o);
 }

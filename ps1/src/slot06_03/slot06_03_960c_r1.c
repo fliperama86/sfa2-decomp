@@ -73,7 +73,7 @@ void func_801e9770_slot06_03(Object *obj) {
 void func_801e9790_slot06_03(Object *obj) {
     u8 r;
     obj->vel_y = -*(s32 *)(data_801ea604_slot06_03 + ((obj->field_03 << 3) & 0x3f8));
-    r = func_80151184() & 1;
+    r = get_random_byte() & 1;
     if (r != 0) {
         obj->vel_x = -obj->vel_x;
         obj->accel_x = -obj->accel_x;
@@ -82,18 +82,18 @@ void func_801e9790_slot06_03(Object *obj) {
 }
 
 void func_801e9810_slot06_03(Object *obj) {
-    obj->pos_x = data_801ea61c_slot06_03[(u8)(obj->field_03 * 16 + (func_80151184() & 0xf) * 2)];
+    obj->pos_x = data_801ea61c_slot06_03[(u8)(obj->field_03 * 16 + (get_random_byte() & 0xf) * 2)];
     obj->pos_y = 0xe0;
 }
 
 void func_801e9870_slot06_03(Object *obj) {
-    u8 v = data_801ea67c_slot06_03[func_80151184() & 3];
+    u8 v = data_801ea67c_slot06_03[get_random_byte() & 3];
     obj->field_48 = v;
     func_80130700(obj, data_801eb3e0_slot06_03[(u8)(obj->field_03 * 3 + v)]);
 }
 
 void func_801e98e0_slot06_03(Object *obj) {
-    obj->field_1c = data_801ea680_slot06_03[(u8)((func_80151184() & 3) | (obj->field_48 << 2))];
+    obj->field_1c = data_801ea680_slot06_03[(u8)((get_random_byte() & 3) | (obj->field_48 << 2))];
 }
 
 void func_801e9938_slot06_03(Object *obj) {

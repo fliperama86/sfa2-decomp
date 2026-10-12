@@ -14,7 +14,7 @@ void func_8011f240(Slab172 *s) {
         data_801a27d4++;
     }
     func_80119b3c(s);
-    func_8011f404(s, 0xac);
+    clear_bytes(s, 0xac);
     s->field_44 = 0;
     s->field_08 = 12;
     data_80197f10++;

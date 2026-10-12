@@ -8,7 +8,7 @@
 
 
 void func_8014b940(Object *object) {
-    if (!(func_80151184() & 1)) {
+    if (!(get_random_byte() & 1)) {
         func_8014c914(object);
     } else {
         func_8014c528(object);

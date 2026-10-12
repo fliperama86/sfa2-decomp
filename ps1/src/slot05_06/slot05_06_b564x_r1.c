@@ -68,10 +68,10 @@ void func_801cb564_slot05_06(Object *obj) {
             /* The unsigned cast changes no value (a byte plus 3); without it this function differs from the original in 1 instruction line. */
             if (((Slot04aObj *)obj)->field_1c5 < (u32)(obj->field_12a >> 1) + 3 || (((Slot04aObj *)obj)->field_1c5 & 0x80) != 0) {
                 if (func_801cded4_slot05_06(obj) != 0) {
-                    d = (func_80151184() & 0xf) + 0x5c;
+                    d = (get_random_byte() & 0xf) + 0x5c;
                     func_801cc870_slot05_06(obj, &d);
                     ref_other.p->pos_x += d;
-                    d = func_80151184();
+                    d = get_random_byte();
                     d &= 0xf;
                     ref_other.p->pos_y -= d;
                 }
@@ -86,7 +86,7 @@ void func_801cb564_slot05_06(Object *obj) {
                 }
                 goto call;
             }
-            d = func_80151184();
+            d = get_random_byte();
             if ((d &= 0xf) != 0) {
                 goto alt;
             }
@@ -103,7 +103,7 @@ b2:
             d = 0x60;
             func_801cc870_slot05_06(obj, &d);
             ref_other.p->pos_x += d;
-            d = func_80151184();
+            d = get_random_byte();
             d &= 0xf;
             ref_other.p->pos_y -= d;
         }

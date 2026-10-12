@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011f404(void *p, unsigned int n) {
+void clear_bytes(void *p, unsigned int n) {
     unsigned int i;
     u8 *q = p;
     for (i = 0; i < n; i++) {

@@ -10,7 +10,7 @@ extern u16 data_801a2804[];
 extern u16 box_margin[];
 
 Block172 *func_8011f1e0(void);
-void func_80141e5c(Object *object);
+void set_position_from_other_box(Object *object);
 void func_80142adc(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_801b4914_slot04_0e(Object *obj);
@@ -152,13 +152,13 @@ set:
         obj->field_0b = 1;
     }
     func_801307e0(obj, 0x19);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }
 
 void func_801b65fc_slot04_0e(Object *obj) {
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
-        func_80141e5c(obj);
+        set_position_from_other_box(obj);
     } else {
         *(u8 *)&obj->step_flags = 0;
         obj->state_3 = obj->state_3 + 1;

@@ -6,13 +6,13 @@
 
 void func_8011eae4(void) {
     func_8011f010();
-    func_8011eb4c();
+    init_object_pools();
     func_8011a744();
 }
 
 void func_8011eb14(void) {
     func_8011ef00();
     func_8011f010();
-    func_8011f06c();
-    func_8011eb4c();
+    clear_game_state_fields();
+    init_object_pools();
 }

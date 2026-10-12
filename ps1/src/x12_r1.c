@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80132cf0(void) {
+void init_strips2(void) {
     s32 i;
     s32 j;
     Strip1c *p;

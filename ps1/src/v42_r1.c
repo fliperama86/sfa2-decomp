@@ -6,7 +6,7 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_80136a2c(Cam *cam, int x, int y)
+void init_cam_position(Cam *cam, int x, int y)
 {
   int a;
   short new_var2;

@@ -20,7 +20,7 @@ void func_8002026c_slot28(Object *obj) {
     obj->field_0c = 0xff;
     if (obj->field_03 != 0) {
         obj->field_0d = 0;
-        obj->field_0b = func_80151184() & 1;
+        obj->field_0b = get_random_byte() & 1;
         func_80130768(obj, 2, (SequenceStep **)obj->box_tables);
     } else {
         obj->field_0b = 1;

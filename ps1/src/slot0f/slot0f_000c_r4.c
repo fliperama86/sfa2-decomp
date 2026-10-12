@@ -17,8 +17,8 @@ void func_800e0400_slot0f(Object *o) {
     obj->field_2d = 7;
     player_left.field_cf = 0x1f;
     player_right.field_cf = 0x1f;
-    player_left.field_20b = (func_80151184() & 3) << 1;
-    player_right.field_20b = (func_80151184() & 3) << 1;
+    player_left.field_20b = (get_random_byte() & 3) << 1;
+    player_right.field_20b = (get_random_byte() & 3) << 1;
     func_800e05a0_slot0f(1, 0);
 }
 

@@ -21,8 +21,8 @@ int func_80148ecc(Object *object, int n) {
         } else {
             ref_other.p->pos_x = ref_other.p->pos_x + 16;
         }
-        ref_other.p->pos_x = ref_other.p->pos_x - data_8017cecc[func_80151184() & 15];
-        ref_other.p->pos_y = ref_other.p->pos_y - data_8017cecc[func_80151184() & 15];
+        ref_other.p->pos_x = ref_other.p->pos_x - data_8017cecc[get_random_byte() & 15];
+        ref_other.p->pos_y = ref_other.p->pos_y - data_8017cecc[get_random_byte() & 15];
         ref_other.p->field_7a = 0x60;
         ref_other.p->field_7c = 0x1e0;
         ref_other.p->field_90 = (void *)0x800fb100;

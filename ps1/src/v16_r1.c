@@ -8,7 +8,7 @@
 
 extern u16 data_801a6966;
 
-void func_80156d28(int unused, NameEntry *o) {
+void update_name_entry_input(int unused, NameEntry *o) {
     s16 i;
     u16 raw;
     s16 pad;

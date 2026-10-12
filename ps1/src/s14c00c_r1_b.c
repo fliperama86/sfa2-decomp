@@ -45,7 +45,7 @@ void func_8014c304(Object *object) {
 }
 
 void func_8014c360(Object *object) {
-    if ((func_80151184() & 3) == 0) {
+    if ((get_random_byte() & 3) == 0) {
         func_8014c914(object);
     } else {
         func_8014c528(object);

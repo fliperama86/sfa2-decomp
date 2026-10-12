@@ -29,7 +29,7 @@ void func_80077b90_slot00(Object *obj) {
 }
 
 void func_80077c5c_slot00(Object *obj, u8 *rec) {
-    func_80130768(obj, data_8007a028_slot00[func_80151184() & 0xf], seqs_8017c7f8);
+    func_80130768(obj, data_8007a028_slot00[get_random_byte() & 0xf], seqs_8017c7f8);
     *(SequenceStep **)rec = obj->sequence;
     *(u16 *)(rec + 4) = obj->step_timer;
     *(u16 *)(rec + 6) = obj->step_flags;

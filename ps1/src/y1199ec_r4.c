@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011a410(void) {
+void clear_side_tables(void) {
     int j, k;
 
     for (j = 0; j < 2; j++) {

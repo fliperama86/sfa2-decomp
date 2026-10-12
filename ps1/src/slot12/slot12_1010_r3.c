@@ -31,6 +31,6 @@ void func_80011190_slot12(void) {
         h->field_52 = 0;
         game_state.field_cc = 0;
         func_8011eae4();
-        func_80119340(1);
+        close_voice_thread(1);
     }
 }

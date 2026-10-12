@@ -15,7 +15,7 @@ void func_801e9b9c_slot06_0d(Object *o) {
         v = o->step_flags;
         if ((v & 0xff) != 0) {
             o->step_flags = v & 0xff00;
-            v = func_80151184() & 0xff;
+            v = get_random_byte() & 0xff;
             v += 0x40;
             o->step_timer = v;
         }

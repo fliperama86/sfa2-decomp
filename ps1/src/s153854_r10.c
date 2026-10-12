@@ -24,7 +24,7 @@ void func_80155cc8(int amount, s8 side) {
             o++;
         }
         if (o->field_cd == 0) {
-            int v = func_80155f98(o->field_b8, amount);
+            int v = add_bcd(o->field_b8, amount);
             o->field_b8 = v;
             if (v > 0x9999998) {
                 o->field_b8 = 0x9999999;
@@ -43,7 +43,7 @@ void func_80155d4c(int idx_arg, int side_arg) {
             o++;
         }
         if (o->field_cd == 0) {
-            int v = func_80155f98(o->field_b8, table_80181530[idx]);
+            int v = add_bcd(o->field_b8, table_80181530[idx]);
             o->field_b8 = v;
             if (v > 0x9999998) {
                 o->field_b8 = 0x9999999;

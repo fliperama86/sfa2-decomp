@@ -4,7 +4,7 @@
 #include "externs.h"
 
 extern u8 data_80185504[][16];
-u16 func_8011a5f4(void);
+u16 get_free_list_head(void);
 u16 func_8011a604(int a, u16 b);
 
 /*
@@ -24,7 +24,7 @@ u16 func_8011a604(int a, u16 b);
  * the flags word (mode 2, 6) or of q[2] (mode 0, 4) go to the byte table.
  * In the run modes a word is written run + 1 times, counting up by one each
  * time, and the entries consumed count run + 1. The new entry (a free
- * entry taken with func_8011a5f4) records three fields of the old entry
+ * entry taken with get_free_list_head) records three fields of the old entry
  * (column 0 of data_80183ffc, data_801841bc and data_8018437c, into
  * column 1), q, the number of blocks used and the number of cells
  * written; p->field_94 then points at it. When the free blocks plus the
@@ -56,7 +56,7 @@ void func_8011bf70(Slab172 *p, u16 *q) {
     src = q + 5;
     func_8011a6b8(data_80183ffc[p->field_94][1], data_801841bc[p->field_94][1]);
     blocks = 0;
-    entry = func_8011a5f4();
+    entry = get_free_list_head();
     n = q[0];
     base = ((p->field_0b & 1) << 15) | ((p->field_0b & 2) << 13);
     /* slot gets a first value here: the compiler cannot see that the first cell always sets it (k is 0 there). Without this store the build has 2 instructions more and differs in 48 instruction lines. */

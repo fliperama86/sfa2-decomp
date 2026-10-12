@@ -15,7 +15,7 @@ void func_80126bcc(GameState *state, Object *object) {
         state->field_08 &= 0xfe;
     else if (object->side == 1)
         state->field_08 &= 0xfd;
-    v = func_80155f98(object->field_e4, data_80181534);
+    v = add_bcd(object->field_e4, data_80181534);
     object->field_e4 = v;
     if (v > 0x9999998)
         object->field_e4 = 0x9999999;

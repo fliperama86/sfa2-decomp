@@ -160,7 +160,7 @@ void func_801b0e14_slot04_10(Object *o) {
     if (game_state.config->field_76 == 0) {
         game_state.config->field_76 = 0x1e;
     }
-    v = (u8)func_80125734(o, tbl[func_80151184() & 0xf]);
+    v = (u8)func_80125734(o, tbl[get_random_byte() & 0xf]);
     obj->field_330 = v;
     func_80130678(o, v + 0x23);
 }

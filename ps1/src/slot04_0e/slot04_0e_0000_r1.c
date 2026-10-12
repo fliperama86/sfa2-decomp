@@ -132,7 +132,7 @@ void func_801b0348_slot04_0e(Object *obj) {
         obj->state_3 = 0;
         ((Slot04bObj *)obj)->field_47 = 0x3c;
         game_state.field_76 = 0x1e;
-        a = (s8)func_80125734(obj, (s8)data_801c5e7c_slot04_0e[func_80151184() & 0xf]);
+        a = (s8)func_80125734(obj, (s8)data_801c5e7c_slot04_0e[get_random_byte() & 0xf]);
         if ((game_state.field_4d | game_state.field_04) != 0) {
             if (a == 1) {
                 a = 5;

@@ -19,9 +19,9 @@ void func_801560d4(void)
   {
     w = 300;
   }
-  data_8018d26c = func_80156454(w);
+  data_8018d26c = convert_to_bcd(w);
   data_8018d26a = game_state.field_60;
-  data_8018d269 = func_80156454(table_801815d4[game_state.field_49]);
+  data_8018d269 = convert_to_bcd(table_801815d4[game_state.field_49]);
   t = game_state.field_77;
   if (t > 10)
   {
@@ -30,13 +30,13 @@ void func_801560d4(void)
   new_var = table_80181638;
   p = new_var;
   p += t;
-  data_8018d274 = func_80156454(*p);
+  data_8018d274 = convert_to_bcd(*p);
   w = w * table_801815d4[game_state.field_49];
   if (data_8018d26a != 0)
   {
     w = ((u16) (*p)) + w;
   }
-  data_8018d270 = func_80156454(w);
+  data_8018d270 = convert_to_bcd(w);
   game_state.field_104 = data_8018d270;
   game_state.field_ca = 0x1e;
 }

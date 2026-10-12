@@ -8,8 +8,8 @@ void func_80148b60(Object *object) {
     u16 i;
     Object *o;
     if ((s16)object->field_5c >= 0) {
-        if ((func_80151184() & 0xff) == 0x25) side = 2;
-        else side = func_80151184() & 1;
+        if ((get_random_byte() & 0xff) == 0x25) side = 2;
+        else side = get_random_byte() & 1;
         i = 0;
         do {
             o = (Object *)func_8011f1e0();

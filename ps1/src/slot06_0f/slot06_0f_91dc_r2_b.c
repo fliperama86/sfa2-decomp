@@ -24,7 +24,7 @@ void func_801e9804_slot06_0f(Object *obj) {
 }
 
 void func_801e9844_slot06_0f(Object *obj) {
-    if ((func_80151184() & 3) == 0) {
+    if ((get_random_byte() & 3) == 0) {
         obj->state_1++;
         func_80130700(obj, data_801ecba4_slot06_0f[3]);
     }

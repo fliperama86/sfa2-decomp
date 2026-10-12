@@ -60,7 +60,7 @@ void func_801b2d10_slot04_16(Object *obj, int arg) {
     ((Slot04bObj *)obj)->field_1a9 = 0;
     ((Slot04bObj *)obj)->field_1aa = 0;
     ((Slot04bObj *)obj)->field_1ab = 0;
-    if (func_80151184() & 3) {
+    if (get_random_byte() & 3) {
         if (obj->other->field_240 != 0) {
             ((Slot04bObj *)obj)->field_1a9 = 1;
             ((Slot04bObj *)obj)->field_1aa = 0;
@@ -70,9 +70,9 @@ void func_801b2d10_slot04_16(Object *obj, int arg) {
             ((Slot04bObj *)obj)->field_1aa = 0;
             ((Slot04bObj *)obj)->field_1ab = 0x46;
         } else {
-            ((Slot04bObj *)obj)->field_1a9 = a[func_80151184() & 3];
-            ((Slot04bObj *)obj)->field_1aa = b[func_80151184() & 3];
-            ((Slot04bObj *)obj)->field_1ab = c[func_80151184() & 3];
+            ((Slot04bObj *)obj)->field_1a9 = a[get_random_byte() & 3];
+            ((Slot04bObj *)obj)->field_1aa = b[get_random_byte() & 3];
+            ((Slot04bObj *)obj)->field_1ab = c[get_random_byte() & 3];
         }
     }
 }

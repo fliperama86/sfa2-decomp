@@ -11,7 +11,7 @@ void func_801b3920_slot04_0d(Object *object) {
     s8 r;
 
     if ((s16)object->step_flags < 0) {
-        r = func_80151184();
+        r = get_random_byte();
         a = r;
         if ((a & 3) != 0) {
             a = 0x32;

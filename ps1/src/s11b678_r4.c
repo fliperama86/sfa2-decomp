@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011e918(void) {
+void init_cd(void) {
     func_8015c6ec();
 }
 

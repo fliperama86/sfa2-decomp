@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b5478_slot04_09(Object *obj) {
-    Object *n = func_8011f0e8(obj);
+    Object *n = pop_object_from_pool(obj);
 
     if (n != 0) {
         n->field_00 = 1;

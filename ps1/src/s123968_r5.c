@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80124a7c(u8 index) {
+void set_selected_flag_by_index(u8 index) {
     data_801a6986 = 0;
     data_801a6987 = 0;
     data_801a6988 = 0;

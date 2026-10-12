@@ -14,6 +14,6 @@ void func_801b0240_slot04_00(Object *obj) {
     if (game_state.field_76 == 0) {
         game_state.field_76 = 0x1e;
     }
-    r = func_80125734(obj, data_801bfd3c_slot04_00[func_80151184() & 0xf]);
+    r = func_80125734(obj, data_801bfd3c_slot04_00[get_random_byte() & 0xf]);
     func_80130678(obj, data_801bfd4c_slot04_00[(s8)r]);
 }

@@ -19,19 +19,19 @@ void func_801246cc(Object *a, Triple *b) {
         b->c = data_80185fb8;
         if (data_8016e800 == 4) {
             data_80185fb4 = data_8016e801;
-            func_80124d70(a, b, 2);
+            update_menu_cursor(a, b, 2);
             data_8016e801 = data_80185fb4;
-            func_80124a7c(data_8016e801);
+            set_selected_flag_by_index(data_8016e801);
         }
         if (data_8016e800 == 5) {
             data_80185fb4 = data_8016e802;
-            func_80124d70(a, b, 2);
+            update_menu_cursor(a, b, 2);
             data_8016e802 = data_80185fb4;
             func_80124ae8(data_8016e802);
         }
         if (data_8016e800 == 6) {
             data_80185fb4 = data_8016e803;
-            func_80124d70(a, b, 2);
+            update_menu_cursor(a, b, 2);
             data_801a6989 = data_8016e803 = data_80185fb4;
         }
         if (b->c != 0 && data_8016e800 < 4) {

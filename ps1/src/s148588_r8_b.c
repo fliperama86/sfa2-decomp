@@ -38,11 +38,11 @@ void func_80149398(Object *object) {
     int dx;
     int dy;
     object->field_09 = 6;
-    dx = (func_80151184() & 0x1f) - 0x10;
+    dx = (get_random_byte() & 0x1f) - 0x10;
     object->pos_x = object->pos_x + dx;
-    dy = (func_80151184() & 0x1f) + 0x10;
+    dy = (get_random_byte() & 0x1f) + 0x10;
     object->pos_y = object->pos_y - dy;
-    func_80130768(object, (func_80151184() & 7) | 0x28, seqs_8017c7f8);
+    func_80130768(object, (get_random_byte() & 7) | 0x28, seqs_8017c7f8);
 }
 
 void func_80149410(Object *object) {

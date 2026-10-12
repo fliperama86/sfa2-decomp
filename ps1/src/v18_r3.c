@@ -6,7 +6,7 @@
 
 void func_8011f14c(Slab172 *o) {
     func_80119b3c(o);
-    func_8011f404(o, 0xc0);
+    clear_bytes(o, 0xc0);
     o->field_74 = 0;
     o->field_67 = 0;
     o->field_44 = 0;

@@ -9,7 +9,7 @@ void func_801b51dc_slot04_07(Object *obj) {
     u16 *p;
     u16 v;
     s16 k;
-    u8 r = func_80151184() & 7;
+    u8 r = get_random_byte() & 7;
     obj->field_48 = r;
     p = &data_801c2134_slot04_07[r * 4];
     if (obj->field_0b == 0) {

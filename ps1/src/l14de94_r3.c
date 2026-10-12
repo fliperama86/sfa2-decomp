@@ -16,7 +16,7 @@ void func_8014fd9c(Ctl *ctl) {
             t = stream->field_15;
             stream->field_15 = t - 2;
             func_801501a0(stream);
-            func_801203b4(stream->field_1a);
+            close_vab_and_sep(stream->field_1a);
             return;
         }
         func_8016d06c(0);

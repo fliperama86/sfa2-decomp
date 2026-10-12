@@ -10,7 +10,7 @@ void func_801369b0(Cam *cam) {
 }
 
 void func_801369d4(Cam *cam, short x, short y) {
-    func_80136a2c(cam, x, y);
+    init_cam_position(cam, x, y);
     if (cam->field_01 != 0) {
         cam->field_01 = 0;
         cam->field_04++;

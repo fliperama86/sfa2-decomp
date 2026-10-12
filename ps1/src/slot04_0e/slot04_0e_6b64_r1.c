@@ -142,9 +142,9 @@ void func_801b6e38_slot04_0e(Object *o) {
 void func_801b6e9c_slot04_0e(Slot04bObj *obj) {
     Slot04_0eRec62b4 *rec = &data_801c62b4_slot04_0e[obj->field_a6];
 
-    rec->field_18 = data_801c6254_slot04_0e[obj->field_cf & 0x1f] + (func_80151184() & 0x1f);
+    rec->field_18 = data_801c6254_slot04_0e[obj->field_cf & 0x1f] + (get_random_byte() & 0x1f);
 }
 
 void func_801b6f18_slot04_0e(Slot04bObj *obj) {
-    *(u16 *)&obj->field_1dc = data_801c6294_slot04_0e[func_80151184() & 0xf];
+    *(u16 *)&obj->field_1dc = data_801c6294_slot04_0e[get_random_byte() & 0xf];
 }

@@ -27,7 +27,7 @@ void func_801388a8(GameState *state, Object *object) {
     cost = 0x48;
     if (object->field_c1 < 0x10) cost = table_80176d70[object->field_c1];
     data_80188ec4 = data_80188ec4 - cost;
-    func_80138838(state, table_80176d80[func_80151184() & 0x1f] - 0x18);
+    func_80138838(state, table_80176d80[get_random_byte() & 0x1f] - 0x18);
     func_8013886c(state);
 }
 

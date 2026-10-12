@@ -6,7 +6,7 @@ Choices of the setup:
   - `a` is -1 in one case of eight, otherwise a random 16-bit value; the
     upper half of a1 holds random bits; b is a small value (0 to 40) in
     three cases of four and a random 32-bit value otherwise;
-  - the random state of func_80151184 (the seed halfword data_80190126, which
+  - the random state of get_random_byte (the seed halfword data_80190126, which
     it writes; read from the original's listing, not tested) is random; a
     halfword of game_state at offset 0x1e is random (this C does not read
     it); game_state.cursor, which the function writes, starts as a random

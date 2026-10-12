@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_80132f90(Bars *o, Object *a, Object *b)
+void update_health_bars(Bars *o, Object *a, Object *b)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[16];

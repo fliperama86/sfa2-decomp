@@ -11,7 +11,7 @@ void func_80077b3c_slot2b(Object *obj) {
         func_8011ffdc(obj);
         return;
     }
-    if ((func_8013c970(obj) & 0xff) == 0) {
+    if ((is_box_overlapping_other_player(obj) & 0xff) == 0) {
         s16 limit = data_8007ef24_slot2b;
         if (limit >= obj->pos_y) {
             goto move;

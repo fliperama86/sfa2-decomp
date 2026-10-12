@@ -7,7 +7,7 @@
 void func_801542e4(Object *o) {
 }
 
-void func_801542ec(void) {
+void init_memory_card_events(void) {
     s32 *flag = (s32 *)0x1f800000;
     int *d = data_8018fef8;
     if (*flag < 0) {

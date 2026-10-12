@@ -91,7 +91,7 @@ u8 func_801b4944_slot04_17(Object *obj, int a) {
 }
 
 u8 func_801b4974_slot04_17(Object *obj) {
-    return data_801ce6dc_slot04_17[func_80151184() & 0xf];
+    return data_801ce6dc_slot04_17[get_random_byte() & 0xf];
 }
 
 void func_801b49a8_slot04_17(Object *obj) {

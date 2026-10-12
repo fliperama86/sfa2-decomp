@@ -14,15 +14,15 @@ void func_801b5d3c_slot04_09(Object *obj) {
         side = obj->side;
         three = 3;
         obj->field_246 = three;
-        c = func_8011f0e8(obj);
+        c = pop_object_from_pool(obj);
         if (c != 0) {
             a = c;
         }
-        c = func_8011f0e8(obj);
+        c = pop_object_from_pool(obj);
         if (c != 0) {
             b = c;
         }
-        c = func_8011f0e8(obj);
+        c = pop_object_from_pool(obj);
         if (c != 0) {
             if (b < a) {
                 t = a;

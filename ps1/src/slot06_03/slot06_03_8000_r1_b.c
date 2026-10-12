@@ -60,7 +60,7 @@ void func_801e8398_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
         d = -(a >= b);
         if (layer->field_8b != (u8)d) {
             layer->field_8b = d;
-            i = func_80151184() & 0xe;
+            i = get_random_byte() & 0xe;
             y = data_801e9fa4_slot06_03[i + 1];
             x = data_801e9fa4_slot06_03[i];
             if (layer->field_8b != 0) {
@@ -83,7 +83,7 @@ void func_801e8438_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
         d = -(a >= b);
         if (layer->field_8c != (u8)d) {
             layer->field_8c = d;
-            i = func_80151184() & 0xe;
+            i = get_random_byte() & 0xe;
             y = data_801e9fa4_slot06_03[i + 1];
             x = data_801e9fa4_slot06_03[i];
             if (layer->field_8c != 0) {

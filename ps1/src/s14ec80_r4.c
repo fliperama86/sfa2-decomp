@@ -8,7 +8,7 @@ void func_8014f76c(Ctl *p) {
     int i;
     for (i = 0; i < 4; i++) {
         if (p->slots[i]) {
-            func_801203b4(i);
+            close_vab_and_sep(i);
         }
     }
     p->field_0b = 6;

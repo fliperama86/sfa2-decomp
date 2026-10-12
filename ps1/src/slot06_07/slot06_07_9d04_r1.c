@@ -74,7 +74,7 @@ void func_801e9f04_slot06_07(Object *obj) {
 void func_801e9f74_slot06_07(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_1++;
-        obj->field_46 = func_80151184();
+        obj->field_46 = get_random_byte();
     }
 }
 

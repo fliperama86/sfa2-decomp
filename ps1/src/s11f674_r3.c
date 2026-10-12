@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011fec8(int n) {
+void set_digits_from_number(int n) {
     GameState *g = &game_state;
     int i;
     for (i = 0; i < 16; i++) {

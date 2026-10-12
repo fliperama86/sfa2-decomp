@@ -54,7 +54,7 @@ void func_8012da2c(Object *object)
   }
   object->field_170 = 0;
   object->field_157 = 0;
-  t = func_80151184() & 0x1e;
+  t = get_random_byte() & 0x1e;
   index = t;
   new_var = index;
   play_side_sound_at(object, object->side, 2);

@@ -15,7 +15,7 @@ void func_80026320_slot28(Object *obj) {
 }
 
 void func_80026368_slot28(Object *obj) {
-    int r = func_80151184() & 0xff;
+    int r = get_random_byte() & 0xff;
     int k = data_8004ea70_slot28[r & 3];
     int row = k - 6;
     obj->pos_x = r & 0x3f;

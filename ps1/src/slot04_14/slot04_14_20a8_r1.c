@@ -203,7 +203,7 @@ void func_801b273c_slot04_14(Object *obj) {
     func_801307e0(obj, 0x26);
 }
 
-/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
+/* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b2790_slot04_14(Object *obj) {
     Object *p;
     u16 t;
@@ -215,7 +215,7 @@ void func_801b2790_slot04_14(Object *obj) {
         if ((u8)obj->step_flags == 1) {
             obj->state_3++;
             obj->step_flags = obj->step_flags & 0xff00;
-            p = ((Object *(*)(void))func_8011f0e8)();
+            p = ((Object *(*)(void))pop_object_from_pool)();
             if (p != 0) {
                 p->field_00 = 1;
                 p->field_02 = 0x1a;
@@ -248,7 +248,7 @@ void func_801b2790_slot04_14(Object *obj) {
     }
 }
 
-/* The call of func_8011f0e8 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
+/* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_801b2904_slot04_14(Object *obj) {
     Object *p;
     u16 t;
@@ -260,7 +260,7 @@ void func_801b2904_slot04_14(Object *obj) {
         if ((u8)obj->step_flags == 2) {
             obj->state_3++;
             obj->step_flags = obj->step_flags & 0xff00;
-            p = ((Object *(*)(void))func_8011f0e8)();
+            p = ((Object *(*)(void))pop_object_from_pool)();
             if (p != 0) {
                 p->field_00 = 1;
                 p->field_02 = 0x14;

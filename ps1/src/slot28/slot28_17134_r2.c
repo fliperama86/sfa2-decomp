@@ -17,7 +17,7 @@ void func_8002746c_slot28(Object *obj) {
 }
 
 void func_800274b8_slot28(Object *obj) {
-    func_80130768(obj, data_80050ca0_slot28[func_80151184() & 3], (SequenceStep **)obj->box_tables);
+    func_80130768(obj, data_80050ca0_slot28[get_random_byte() & 3], (SequenceStep **)obj->box_tables);
 }
 
 void func_80027500_slot28(Object *obj) {

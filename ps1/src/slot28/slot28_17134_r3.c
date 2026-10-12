@@ -13,18 +13,18 @@ void func_8002799c_slot28(int *p);
 void func_80027748_slot28(int *p);
 
 void func_800275c4_slot28(Object *obj) {
-    obj->pos_x = (u8)func_80151184() + 0x40;
+    obj->pos_x = (u8)get_random_byte() + 0x40;
     obj->pos_y = 0x10;
 }
 
 void func_80027600_slot28(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     int unused[2];
-    int i = func_80151184() & 7;
+    int i = get_random_byte() & 7;
     obj->field_03 = 0;
     obj->vel_y = data_80050ca4_slot28[i].field_00;
     obj->accel_y = data_80050ca4_slot28[i].field_04;
-    obj->field_0b = func_80151184() & 1;
+    obj->field_0b = get_random_byte() & 1;
 }
 
 void func_8002766c_slot28(Object *obj) {

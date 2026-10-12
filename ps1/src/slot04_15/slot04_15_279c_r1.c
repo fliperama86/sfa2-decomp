@@ -11,7 +11,7 @@ extern ObjectFn data_801c3128_slot04_15[];
 extern ObjectFn data_801c3130_slot04_15[];
 
 void func_801483a4(Object *object, int a, int b);
-void func_80141e5c(Object *object);
+void set_position_from_other_box(Object *object);
 void func_801428e4(Object *object);
 void func_80145d20(Object *object);
 void func_80138b38(GameState *state, Object *object);
@@ -256,7 +256,7 @@ void func_801b2ee4_slot04_15(Object *obj) {
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_801307e0(obj, 0x18);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
 }
 
 void func_801b2f54_slot04_15(Object *obj) {
@@ -266,7 +266,7 @@ void func_801b2f54_slot04_15(Object *obj) {
 
     func_80140fe0(obj);
     update_sequence(obj);
-    func_80141e5c(obj);
+    set_position_from_other_box(obj);
     t = obj->step_flags;
     if ((t & 0xff) != 0) {
         obj->step_flags = t & 0xff00;
@@ -297,7 +297,7 @@ void func_801b303c_slot04_15(Object *obj) {
         } else if ((u8)func_801410c8(obj) != 0) {
             obj->state_3 = obj->state_3 + 1;
             func_801307e0(obj, 0x19);
-            func_80141e5c(obj);
+            set_position_from_other_box(obj);
         }
     }
 }

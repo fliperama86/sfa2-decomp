@@ -21,9 +21,9 @@ Choices made here:
     for 8 words, of func_8015c09c for 10 and of func_80136d1c for 7;
   - the memory that the three last callees write is random before the call:
     strips2 and data_80188e4c (0xe0 bytes), strips (0x1c0 bytes, the first
-    two rows of eight records and the rest that func_80132b30 reaches
+    two rows of eight records and the rest that init_strips reaches
     through data_80190014) and the two records of data_8018d210 (0x40
-    bytes); game_state.field_42, which func_80132b30 tests, is zero in half
+    bytes); game_state.field_42, which init_strips tests, is zero in half
     of the cases; the watch list does not hold those three blocks: only
     game code that runs alike in both runs writes them, the function itself
     never does, and the arena has no room for the larger log;
@@ -59,9 +59,9 @@ def setup(state, rng, sym):
                        ("data_80188d6c", 0x70), ("data_80188ebc", 8)):
         _rand(state, rng, sym[name], size)
     # what the three last callees (game code, run as the original) write: the
-    # two-by-two strips2 and data_80188e4c (func_80132cf0: 2 * 0x70 bytes),
-    # the eight strips and eight more of strips (func_80132b30: 0x1c0 bytes),
-    # two Effect records (func_80153088: 0x40 bytes); func_80132b30 reads
+    # two-by-two strips2 and data_80188e4c (init_strips2: 2 * 0x70 bytes),
+    # the eight strips and eight more of strips (init_strips: 0x1c0 bytes),
+    # two Effect records (func_80153088: 0x40 bytes); init_strips reads
     # game_state.field_42, which is zero in half of the cases
     _rand(state, rng, sym["strips2"], 0xE0)
     _rand(state, rng, sym["strips"], 0x1C0)

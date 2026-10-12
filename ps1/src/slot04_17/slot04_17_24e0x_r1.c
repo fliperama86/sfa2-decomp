@@ -20,7 +20,7 @@ void func_801b24e0_slot04_17(Object *obj) {
             if (func_8014a170(obj, data_801ce050_slot04_17) != 0) {
                 goto act_b;
             }
-            if ((func_80151184() & 1) == 0) {
+            if ((get_random_byte() & 1) == 0) {
                 goto act_a;
             }
             goto act_c;

@@ -242,7 +242,7 @@ void func_801b24e0_slot04_15(Object *obj) {
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
-        p = func_8011f0e8(obj);
+        p = pop_object_from_pool(obj);
         if (p != 0) {
             one = 1;
             p->field_00 = one;

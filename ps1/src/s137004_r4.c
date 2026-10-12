@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8013786c(Object *object) {
+void set_side_flag(Object *object) {
     data_8018daf4[object->side] = 1;
 }
 

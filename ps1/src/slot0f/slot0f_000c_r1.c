@@ -40,7 +40,7 @@ void func_800e009c_slot0f(Object *obj, int arg) {
     *(u8 *)&obj->pos_y = 1;
     player_left.side = 0;
     player_right.side = 1;
-    func_80119340(1);
+    close_voice_thread(1);
     if (arg == 0) {
         func_80119144(1, 5);
         func_80119198(1);

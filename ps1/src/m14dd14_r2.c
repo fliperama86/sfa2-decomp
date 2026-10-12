@@ -5,8 +5,8 @@
 
 
 void func_8014eb9c(int a, int b) {
-    func_801203b4(0);
-    func_801203b4(1);
+    close_vab_and_sep(0);
+    close_vab_and_sep(1);
     if (a == b) {
         if (b == 0xd) {
             func_8014ed04();

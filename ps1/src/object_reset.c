@@ -106,7 +106,7 @@ void reset_object(Object *object) {
         if (object->kind != 0x17) func_80130678(object, 0x22);
     }
     object->field_177 = 1;
-    func_8013f3b8(object);
+    set_side_ring_flag(object);
 }
 
 void func_801293d4(Object *object) {

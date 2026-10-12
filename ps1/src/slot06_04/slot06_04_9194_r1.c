@@ -50,7 +50,7 @@ void func_801e9260_slot06_04(Slot06Layer *layer) {
 }
 
 void func_801e92a8_slot06_04(Slot06Layer *layer) {
-    func_80136a2c((Cam *)layer, 0xc0, 0);
+    init_cam_position((Cam *)layer, 0xc0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->field_88 = 0;

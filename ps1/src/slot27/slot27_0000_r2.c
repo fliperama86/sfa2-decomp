@@ -24,7 +24,7 @@ void func_80010100_slot27(void) {
     r.w = 0x10;
     r.h = 0x20;
     func_80157fc4(&r, ((u8 *)0x800ed800));
-    func_8011ea68((u8 *)0x800ee400);
+    load_image_from_stream((u8 *)0x800ee400);
     for (i = 0; i < 0x200; i++) {
         data_801a27e4_rows[0][i] = ((u16 *)0x800e0c00)[i];
         data_801a27e4_rows[5][i] = ((u16 *)0x800e0c00)[i];

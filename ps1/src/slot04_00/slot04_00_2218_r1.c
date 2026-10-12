@@ -14,7 +14,7 @@ void func_801b2218_slot04_00(Object *obj) {
         func_801312b8(obj);
     } else if ((t & 0xff00) == 0 && (t & 0xff) != 0) {
         obj->step_flags = 0;
-        p = func_8011f0e8(obj);
+        p = pop_object_from_pool(obj);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0;

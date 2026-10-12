@@ -217,7 +217,7 @@ void func_801b22d4_slot04_17(Object *obj) {
         obj->field_48 = 0;
         obj->field_67 = 0;
         if (obj->field_cd != 0) {
-            t = func_80151184();
+            t = get_random_byte();
         }
         if (t & 0x8000) {
             obj->field_0b ^= 1;

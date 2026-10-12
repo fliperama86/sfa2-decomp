@@ -9,7 +9,7 @@ void func_8014f59c(void) {
     func_80150758(&ctl_80190948);
 }
 
-void func_8014f5d4(u8 a) {
+void set_cd_mix_mode(u8 a) {
     ctl_80190948.field_04 = a;
     func_8014f604(ctl_80190948.field_05);
 }

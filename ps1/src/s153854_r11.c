@@ -14,7 +14,7 @@ void func_80155eac(int idx_arg, int side_arg) {
             o--;
         }
         {
-            int v = func_80155f98(o->field_170, table_80181530[idx]);
+            int v = add_bcd(o->field_170, table_80181530[idx]);
             o->field_170 = v;
             if (v > 0x9999998) {
                 o->field_170 = 0x9999999;

@@ -18,7 +18,7 @@ void func_801b4298_slot04_09(Object *obj) {
             obj->other->field_6b = 10;
             obj->field_27b = 0xe;
         }
-        p = func_8011f0e8(obj);
+        p = pop_object_from_pool(obj);
         if (p != 0) {
             p->field_00 = 1;
             p->field_02 = 0x16;

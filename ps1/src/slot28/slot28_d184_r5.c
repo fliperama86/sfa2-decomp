@@ -23,7 +23,7 @@ void func_8001da08_slot28(Object *obj) {
 }
 
 void func_8001da50_slot28(Object *obj) {
-    int v = func_80151184();
+    int v = get_random_byte();
     int a = v & 0x7f;
     int k = data_8003c2f4_slot28[v & 3];
     int j = k - 3;

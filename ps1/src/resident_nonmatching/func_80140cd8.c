@@ -32,10 +32,10 @@
  *     in the resident image's own data), table_80179834, table_8017984c,
  *     table_80181510; the partner's field_64 and field_5c; game_state.config
  *     fields 4d and 4e; game_state.field_12 (handler index); the random
- *     state of func_80151184 (the seed halfword data_80190126).
+ *     state of get_random_byte (the seed halfword data_80190126).
  *   Writes: ref_other, game_state.cursor, the partner's field_64 and field_5c,
  *     object->field_be and field_bf, the random state.
- *   func_80151184 and func_80140ec0 run as the original code. The handler
+ *   get_random_byte and func_80140ec0 run as the original code. The handler
  *     it calls through table_8017ac34[game_state.field_12] is a recorder with
  *     no arguments (entries 0 to 3 of the table point at such blocks and
  *     field_12 stays below 4); func_80155d4c is a recorder with two
@@ -63,7 +63,7 @@ int func_80140cd8(Object *object, int a, int b) {
     ref_other.p = object->other;
     target = ref_other.p;
     target->field_64 = table_801777d4[object->field_cf + ((a & 0x1f) << 5)];
-    idx = (s16)((func_80151184() & 0x1f) + (b << 5));
+    idx = (s16)((get_random_byte() & 0x1f) + (b << 5));
     target->field_64 += 0xf0 + table_80177bd4[idx];
     game_state.cursor = (u32 *)table_8017984c[table_80179834[object->kind]];
     value = target->field_64;

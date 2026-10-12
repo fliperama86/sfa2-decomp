@@ -34,14 +34,14 @@
  *     code divided by 8 (when field_0b is set), data_801c77a8_slot04_11,
  *     data_801c7844_slot04_11 at field_0e, data_801c7648_slot04_11 at the
  *     entries named above; the seed data_80190126 (func_8014a170 and
- *     func_801b49e8 run func_80151184).
+ *     func_801b49e8 run get_random_byte).
  *   Writes: state_3, field_12e, field_1c0, vel_x, vel_y, accel_x,
  *     accel_y, ref_other (when field_cd is set), the seed data_80190126.
  *   Callees replaced by recorders: func_801307e0 (2 arguments) and
  *     update_sequence (1); they reach the sequence tables and the library,
  *     their results are unused.
  *   Callees run as original code: func_801b4970, func_801b49b8,
- *     func_801b49e8, func_801b5914, func_8014a170, func_80151184.
+ *     func_801b49e8, func_801b5914, func_8014a170, get_random_byte.
  *   Watched at every recorded call (the test copies them into the log): the
  *     object's whole block, ref_other, and the word that holds the seed.
  *   Aliasing: the object and the other object are distinct blocks.

@@ -10,9 +10,9 @@ void func_8014edac(int a)
   g->field_225 = 1;
   func_80119144(2, 7);
   func_801192bc(1);
-  func_801203b4(0);
-  func_801203b4(1);
-  func_801203b4(2);
+  close_vab_and_sep(0);
+  close_vab_and_sep(1);
+  close_vab_and_sep(2);
   if (a == 0)
   {
     func_8014f3b8(4, 2);

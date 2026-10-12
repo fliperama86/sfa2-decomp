@@ -46,7 +46,7 @@ void func_801e9a58_slot06_0c(Object *obj, int arg) {
         func_80131094(obj);
         if ((u8)obj->step_flags != 0) {
             obj->field_0b = obj->field_0b ^ 1;
-            obj->step_timer = (func_80151184() & 0x1f) + 8;
+            obj->step_timer = (get_random_byte() & 0x1f) + 8;
             obj->step_flags = obj->step_flags & 0xff00;
         }
     }

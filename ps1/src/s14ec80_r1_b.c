@@ -1,6 +1,6 @@
 /* Reconstruction. Names/roles inferred, not original symbols.
  * Historical note, from before this unit was exact or about a function that is no longer in this unit: Residuals: func_8014edac (original keeps game_state base in a saved
- * register from before the third func_801203b4 call, and tests/clears through
+ * register from before the third close_vab_and_sep call, and tests/clears through
  * it; tried a local g set at top, set mid-function, ternary and if/else for
  * the argument). func_8014f038 (original derives both player addresses from
  * the field_cd address in one register; tried if/else, ternary, p++,
@@ -29,7 +29,7 @@ void func_8014eef8(int a, int b) {
     func_80119144(2, 7);
     func_801192bc(1);
     b ^= 1;
-    func_801203b4(b);
+    close_vab_and_sep(b);
     func_8014f3b8(6, b * 21 + a);
     g->field_225 = 0;
     while (g->field_f0) {
@@ -42,7 +42,7 @@ void func_8014efa8(int a) {
     g->field_225 = 1;
     func_80119144(2, 7);
     func_801192bc(1);
-    func_801203b4(3);
+    close_vab_and_sep(3);
     func_8014f3b8(7, a);
     g->field_225 = 0;
     while (g->field_f0) {

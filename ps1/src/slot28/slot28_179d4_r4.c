@@ -8,7 +8,7 @@ void func_800281ec_slot28(Object *obj);
 
 void func_80027d9c_slot28(Object *obj) {
     HudState *h;
-    func_8011ea68((u8 *)0x800e0000);
+    load_image_from_stream((u8 *)0x800e0000);
     h = data_8018f5a0;
     h->field_60 = 0x12c;
     h->field_50 = h->field_50 + 1;

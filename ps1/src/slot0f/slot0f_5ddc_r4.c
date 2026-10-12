@@ -11,7 +11,7 @@ void func_800e61c4_slot0f(Object *obj) {
     u8 unused[8];
     u16 *q;
     int i;
-    func_80151184();
+    get_random_byte();
     i = obj->field_60;
     obj->pos_x = data_800efa30_slot0f[i].x;
     q = &data_800efa30_slot0f[i].y;

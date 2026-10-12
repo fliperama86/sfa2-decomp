@@ -6,7 +6,7 @@
 extern u16 data_801ea5b8_slot06_13[];
 extern Slot06TileW data_801f1710_slot06_13[2][78];
 
-void func_80136d70(Tx *tx);
+void init_draw_mode_prim_4(Tx *tx);
 void func_801e894c_slot06_13(Slot06Layer *layer);
 void func_801e89a0_slot06_13(Slot06Layer *layer);
 
@@ -31,7 +31,7 @@ void func_801e8904_slot06_13(Slot06Layer *layer) {
 }
 
 void func_801e894c_slot06_13(Slot06Layer *layer) {
-    func_80136a2c((Cam *)layer, 0x140, 0);
+    init_cam_position((Cam *)layer, 0x140, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->field_30 = 6;
@@ -82,7 +82,7 @@ void func_801e8a98_slot06_13(void) {
     for (k = 0; k < 2; k++) {
         for (i = 0; i < 78; i++) {
             p = data_801f1710_slot06_13[k] + i;
-            func_80136d70((Tx *)p);
+            init_draw_mode_prim_4((Tx *)p);
             p->sprt.color_r = 0x80;
             p->sprt.color_g = 0x80;
             p->sprt.color_b = 0x80;

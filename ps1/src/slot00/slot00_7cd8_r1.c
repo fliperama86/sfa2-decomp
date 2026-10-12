@@ -11,7 +11,7 @@ void func_80077cd8_slot00(Object *obj, s16 *out) {
 }
 
 void func_80077d1c_slot00(Object *obj, s16 *out) {
-    int r = func_80151184() & 0xff;
+    int r = get_random_byte() & 0xff;
     s16 i = r & 0xe;
     if (obj->field_0b != 0) {
         out[4] = -data_8007a044_slot00[i];

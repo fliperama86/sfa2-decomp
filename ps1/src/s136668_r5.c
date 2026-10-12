@@ -21,7 +21,7 @@ void func_80136d1c(Tx *tx) {
     func_8015c23c(tx, &tx->field_0c);
 }
 
-void func_80136d70(Tx *tx) {
+void init_draw_mode_prim_4(Tx *tx) {
     func_80158a2c(tx, 0, 0, 0, 0);
     tx->field_0f = 4;
     tx->field_13 = 0x64;

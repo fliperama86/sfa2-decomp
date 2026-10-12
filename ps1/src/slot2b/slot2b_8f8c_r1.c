@@ -16,10 +16,10 @@ void func_80078f8c_slot2b(Object *o) {
     if ((obj->field_47 & 0x80) != 0) {
         o->state_1++;
         if (data_8007ef34_slot2b->other->field_15b != 0) {
-            d = (func_80151184() & 0x3f) - 0x20;
+            d = (get_random_byte() & 0x3f) - 0x20;
             d += *(u16 *)&o->pos_x;
             o->pos_x = d;
-            d = (func_80151184() & 0x3f) - 0x20;
+            d = (get_random_byte() & 0x3f) - 0x20;
             *(u16 *)&o->pos_y -= d;
             o->field_48 = (game_state.field_24 & 1) + 0x51;
             func_8007893c_slot2b(o);
