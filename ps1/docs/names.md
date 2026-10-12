@@ -21,9 +21,10 @@ that the names are right.
 
 The workflow that draws the coverage map runs the command on every pull
 request and on every push to `main`, and publishes its three percentages as
-the line under the map in the README, with the counts beside it as
-`names.json`. Nothing is written into the repository, so a rename needs no
-second step to keep the line current.
+bars under the map in the README (a full bar is every thing of its kind; a
+bar is drawn at least two units wide once anything has a name), with the
+counts beside them as `names.json`. Nothing is written into the repository,
+so a rename needs no second step to keep the bars current.
 
 ## How a field gets its name
 

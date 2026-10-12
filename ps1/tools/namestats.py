@@ -3,8 +3,8 @@
 
     namestats.py [--config FILE] [--fields FILE] [--symbols FILE] [--json FILE] [--svg FILE]
 
-It prints one line per kind and, when asked, writes the same counts as JSON and as a one-line picture for the
-README. It reads three text files of the tree and nothing else; no game file is involved.
+It prints one line per kind and, when asked, writes the same counts as JSON and as a picture for the README:
+one bar per kind, filled to its percentage. It reads three text files of the tree and nothing else; no game file is involved.
 
 A placeholder is the generated spelling: `func_` and an address for a function, `field_` and an offset for a
 field, `data_`, `table_` or `jtbl_` and an address for a data symbol; a function's or a symbol's placeholder
@@ -110,14 +110,40 @@ def lines(counts: dict) -> list[str]:
     ]
 
 
+BAR = 300  # width of a full bar
+ROWS = (("functions", "Functions"), ("fields", "Fields"), ("data_symbols", "Data symbols"))
+
+
+def bar_width(entry: dict) -> float:
+    """The filled part of a bar: its percentage of the full width, and never under 2 when anything has a name,
+    so that a small count can still be seen."""
+    return max(2.0, round(BAR * entry["percent"] / 100, 1)) if entry["named"] else 0.0
+
+
 def indicator(counts: dict) -> str:
-    """The one line for the README, as a picture: the three percentages."""
-    label = (f"Names given: functions {counts['functions']['percent']}%, fields {counts['fields']['percent']}%, "
-             f"data symbols {counts['data_symbols']['percent']}%")
-    width = round(len(label) * 6.7) + 16
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="22" role="img" aria-label="{escape(label)}">'
-            f'<title>{escape(label)}</title><rect width="{width}" height="22" rx="4" fill="#0d1117" stroke="#30363d"/>'
-            f'<text x="8" y="15" font-family="sans-serif" font-size="12" fill="#e6edf3">{escape(label)}</text></svg>\n')
+    """The picture for the README: one bar per kind, filled to its percentage, with the count beside it."""
+    label = "Names given: " + ", ".join(f"{title.lower()} {counts[key]['percent']}%" for key, title in ROWS)
+    width, top, step = 640, 34, 26
+    height = top + step * len(ROWS) + 6
+    font = 'font-family="sans-serif" font-size="13"'
+    out = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" '
+        f'aria-label="{escape(label)}">',
+        f"<title>{escape(label)}</title>",
+        f'<rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="6" fill="#0d1117" stroke="#30363d"/>',
+        f'<text x="14" y="22" {font} font-weight="bold" fill="#e6edf3">Names given instead of placeholders</text>',
+    ]
+    for row, (key, title) in enumerate(ROWS):
+        entry = counts[key]
+        y = top + step * row
+        out += [
+            f'<text x="14" y="{y + 11}" {font} fill="#e6edf3">{title}</text>',
+            f'<rect x="120" y="{y}" width="{BAR}" height="14" rx="3" fill="#21262d"/>',
+            f'<rect id="bar-{key}" x="120" y="{y}" width="{bar_width(entry)}" height="14" rx="3" fill="#2ea043"/>',
+            f'<text x="{120 + BAR + 12}" y="{y + 11}" {font} fill="#e6edf3">{entry["percent"]}% '
+            f'<tspan fill="#8b949e">({entry["named"]:,} of {entry["total"]:,})</tspan></text>',
+        ]
+    return "\n".join(out) + "\n</svg>\n"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -127,7 +153,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--fields", default=str(source / "types.fields"))
     parser.add_argument("--symbols", default=str(source / "symbols.ld"))
     parser.add_argument("--json", help="also write the counts to this file")
-    parser.add_argument("--svg", help="also write the README's line to this file, as a picture")
+    parser.add_argument("--svg", help="also write the README's picture to this file: one bar per kind")
     args = parser.parse_args(argv)
     try:
         counts = count(Path(args.config), Path(args.fields), Path(args.symbols))
