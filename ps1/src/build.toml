@@ -289,6 +289,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s131ab4x_r1"
+source = "s131ab4x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80131ab4", address = 0x80131ab4, size = 456 },
+]
+
+[[unit]]
 name = "pre_swap_b_b"
 source = "pre_swap_b_b.c"
 flags = ["-O2", "-G0"]
