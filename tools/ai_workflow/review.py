@@ -8,6 +8,7 @@ import importlib.metadata
 import json
 import os
 from pathlib import Path
+import platform
 import re
 import shutil
 import subprocess
@@ -171,6 +172,14 @@ def function_checks(root: Path, label: str, rel: str, scope: str, changed: list[
 # The control files of the port, and the table that says which files each is about (its header has the rules).
 PORT_CONTROL = re.compile(r'port/tools/test_\w+\.py')
 PORT_SUBJECTS = 'tools/ai_workflow/port_subjects.toml'
+# Control files that run the machine of the macOS build (port/mac/README.md): they need macOS on Apple Silicon. A change selects one only by
+# naming it in the table (never by the wide rules: a control file without a line, or a changed file that no control file names), and a review
+# on another system that selects one refuses to go on: an unexecuted control file is neither a pass nor a silent skip. Each needs a line.
+MAC_ONLY = ('test_vm',)
+
+
+def on_macos() -> bool:
+    return platform.system() == 'Darwin' and platform.machine() == 'arm64'
 
 
 def port_controls(root: Path, port_changed: list[str]) -> list[Path]:
@@ -186,12 +195,16 @@ def port_controls(root: Path, port_changed: list[str]) -> list[Path]:
     if not scripts:
         raise Problem('port code has no discovered controls')
     table_file = root / PORT_SUBJECTS
+    wide = [s for s in scripts if s.stem not in MAC_ONLY]
     if not table_file.is_file():
-        return scripts
+        return wide
     table = tomllib.loads(table_file.read_text())
     listed = table.get('controls', {})
     build_only = table.get('build', {}).get('only', [])
     stems = {s.stem for s in scripts}
+    for stem in MAC_ONLY:
+        if stem in stems and stem not in listed:
+            raise Problem(f'{PORT_SUBJECTS} has no line for {stem}, which runs only on macOS and is selected only by the files it names')
     for stem, entries in listed.items():
         if stem not in stems:
             raise Problem(f'{PORT_SUBJECTS} has a line for {stem}, which is not a control file of port/tools')
@@ -233,12 +246,14 @@ def port_controls(root: Path, port_changed: list[str]) -> list[Path]:
 
     about = {s: [q.relative_to(root).as_posix() for q in imported(s, {s})] + listed[s.stem] for s in scripts if s.stem in listed}
     selected = {s for s in scripts if s.stem not in listed}
+    named_by_change: set[Path] = set()
     for path in port_changed:
         hit = {s for s, entries in about.items() if any(names(e, path) for e in entries)}
         if not hit and not any(names(e, path) for e in build_only):
-            return scripts
+            return wide
         selected |= hit
-    return [s for s in scripts if s in selected]
+        named_by_change |= hit
+    return [s for s in scripts if s in selected and (s.stem not in MAC_ONLY or s in named_by_change)]
 
 
 def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, ...], cc: str | None = None,
@@ -293,6 +308,8 @@ def select_checks(root: Path, changed: list[str], cases: int, seeds: tuple[int, 
     port_changed = [p for p in changed if p.startswith('port/') and not p.endswith('.md')]
     if port_changed:
         for script in port_controls(root, port_changed):
+            if script.stem in MAC_ONLY and not on_macos():
+                raise Problem(f'{script.name} runs the macOS build\'s machine and needs macOS on Apple Silicon; this change selects it, not a silent skip')
             argv = (sys.executable, script.relative_to(root).as_posix())
             if script.name in ('test_hostlaunch.py', 'test_hostmodules.py', 'test_hostgpu.py', 'test_hostmirror.py', 'test_hostiopage.py', 'test_hostaudio.py', 'test_hostpads.py', 'test_hostbuild.py', 'test_sdkshim.py', 'test_hostreplay.py', 'test_hostfixtures.py', 'test_hostmdec.py', 'test_hostpress.py', 'test_hostprogcalls.py', 'test_hoststream.py', 'test_hostprograms.py', 'test_hostkernel_start.py'):
                 if not cc:

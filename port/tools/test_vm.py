@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -70,10 +71,18 @@ def main() -> int:
              "-framework", "Hypervisor"], "the host's C")
         run(["codesign", "-s", "-", "--entitlements", str(MAC / "vm.entitlements"), "--force", str(host)], "the signature")
         proc = subprocess.run([str(host), str(work / "guest.elf")], capture_output=True, text=True, timeout=60)
-        sys.stdout.write(proc.stdout)
+        lines = proc.stdout.splitlines()
+        passed = sum(1 for line in lines if line.startswith("ok "))
+        done = re.fullmatch(r"all ([0-9]+) cases behaved as required", lines[-1]) if lines else None
+        # the host program's own last line is not relayed: the line below is printed here, only when it said so and its count is the count of `ok` lines
+        sys.stdout.write("".join(line + "\n" for line in (lines[:-1] if done else lines)))
         if proc.stderr:
             sys.stdout.write(proc.stderr)
-        return proc.returncode
+        if proc.returncode == 0 and done and int(done[1]) == passed:
+            print(f"all {passed} cases behaved as required")
+            return 0
+        print(f"FAIL the host program ended with status {proc.returncode} and did not report all its cases passed")
+        return proc.returncode or 1
     finally:
         if not args.keep and not args.build:
             shutil.rmtree(work, ignore_errors=True)
