@@ -58,8 +58,8 @@ Old figures describe their own date, not today's completion.
   code, not a way around a game function that does not match.
 - CI/CD: integrate WIP source continuously into the tracked tree on main;
   preserve original behavior behind default-off settings feature flags.
-  Commit small tested increments frequently, no long-lived branches or private
-  source silos. Branches/PRs only on request; owner approval for requested PRs.
+  Use small reviewed PRs on short-lived branches; merge frequently after scoped
+  checks and owner approval. No private source silos; CI/CD never skips review.
 - After an approved merge, proceed to the next goal without asking. Decisions
   belong to the owner; no implied approval from passing automated checks.
 - Checks are isolated and fast, by the owner's rule of 2026-10-10. An exact
