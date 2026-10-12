@@ -9597,6 +9597,15 @@ functions = [
 rodata = { address = 0x80010000, size = 24 }
 
 [[unit]]
+name = "slot12_1688x_r1"
+image = "slot12"
+source = "slot12/slot12_1688x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80011688_slot12", address = 0x80011688, size = 260 },
+]
+
+[[unit]]
 name = "slot12_1010_r7"
 image = "slot12"
 source = "slot12/slot12_1010_r7.c"
