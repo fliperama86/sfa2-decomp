@@ -1473,7 +1473,6 @@ func_801631f8 = 0x801631f8;
 func_801633ac = 0x801633ac;
 func_8016310c = 0x8016310c;
 GetVideoMode = 0x8015f74c;
-_SsContDataEntry = 0x80167388;
 SpuInitHot = 0x8016a7c4;
 D_8002D3B4 = 0x8018192c;
 D_8002D3B8 = 0x80181930;

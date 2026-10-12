@@ -29,12 +29,14 @@ project.
   `libcard/card.s` (`_card_clear`): explicit assembly exceptions, below.
 
 A few functions that the reference does not have were written by this
-project. They are in the same files, except one that has a file of its
-own: `libsnd/sepopen.c` (`func_80166144`, inferred `SsSepOpen`), written
+project. They are in the same files, except two that have a file of their
+own: `libsnd/sepopen.c` (`func_80166144`, inferred `SsSepOpen`) and
+`libsnd/dataentry.c` (`_SsContDataEntry`; the reference declares a function
+of this name and has no definition of it), both written
 by this project from the listing of the original, with no text of the
-reference and no license line. It is not one of the files counted
-above. It includes the game's headers (`../../game.h` and the two beside
-it) and declares what it needs of the library itself, so it needs none
+reference and no license line. Neither is one of the files counted
+above. Both include the game's headers (`../../game.h` and the two beside
+it) and declare what they need of the library itself, so they need none
 of the headers of `include/`.
 
 One function that the reference has in a file with others stands in a

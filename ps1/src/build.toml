@@ -8983,6 +8983,14 @@ functions = [
 rodata = { address = 0x8016e250, size = 488 }
 
 [[unit]]
+name = "sdk_libsnd_dataentry"
+source = "sdk/libsnd/dataentry.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsContDataEntry", address = 0x80167388, size = 1504 },
+]
+
+[[unit]]
 name = "sdk_libsnd_seqread_p2"
 source = "sdk/libsnd/seqread_p2.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]

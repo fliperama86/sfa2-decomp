@@ -1,8 +1,10 @@
 # Nonmatching C: the sound library
 
 C for functions of the PS1 game's sound library (the Sony library part of the
-resident executable, `SLPS_004.15`) that have no exact C: the four functions
-below. The PS1 build does not use any file of this folder; the raw bytes stay
+resident executable, `SLPS_004.15`) that have no exact C: the functions listed
+below. At present there is none: the last two became exact on 2026-10-12
+and stand in `../sdk/libsnd/vm_vol.c` and `../sdk/libsnd/dataentry.c`; the
+page stays for the next one. The PS1 build does not use any file of this folder; the raw bytes stay
 what the matching build owns. What nonmatching means here, how the test
 works and what a pass does not show are on the page of the tool's folder,
 [`../slot06_nonmatching/`](../slot06_nonmatching/README.md): a pass is
@@ -27,9 +29,7 @@ the tool reads (it looks a resident function up in `game.tsv` and in
 
 ## The functions and where they come from
 
-- `func_80167388` (`_SsContDataEntry`, a data entry of the sequencer): written
-  by this project from the listing. The reference only declares a function of
-  this name and has no definition. No license line.
+None at present.
 
 No file here is adapted from the reference now: the one that was (the
 volume function of the sequencer) is exact and stands in `../sdk/libsnd/vm_vol.c`.
@@ -68,17 +68,10 @@ fixtures it keeps), then replay:
 A pass is evidence for the recorded inputs. It is not the wide comparison and
 it is not equivalence. Details of the files are on the page of the tool's folder.
 
-What the replay command of the folder printed on 2026-10-10 (`func_80167388` after its contract moved to fills), one line per function:
+What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
-func_80167388 replay: fixtures 12, passed 12, failed 0
 ```
-
-The record of `func_80167388` (`--cases 2000 --jobs 4 --record`, no warning) printed
-`func_80167388 fixtures: kept 12 of 2000 cases (slots 11, edges 1, results 0)`. Its recorder of
-`SsUtSetVagAtr` has a pointee behind an argument masked to 0 (the address of a local of the function): the
-record takes the argument's real value at the stand-in's entry, requires the block to lie inside the stack
-region and describes it against zeros.
 
 ## The recorded lines
 
@@ -96,26 +89,17 @@ function is run again.
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
-func_80167388: built 1124 bytes, original 1504 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80167388 coverage: 301 of 376 instruction slots of the original executed
 ```
 
 The control (`--cases 2000 --control FUNC`):
 
 ```
-func_80167388 control: different 266 of 2000 (expected more than 0)
-  altered: constant 0x1e becomes 0x1f, instruction slot 53
 ```
 
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
-func_80167388 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
-`func_80167388` has fewer slots executed than it has: the others are a loop
-over the tones for one value of a byte that an earlier test has already
-excluded, and one arm for a negative product of an unsigned byte; its header
-comment names them and says that no input reaches them. The third block is the
-write audit: in how many cases the original changed memory that the function's
+The third block is the write audit: in how many cases the original changed memory that the function's
 setup did not make.
