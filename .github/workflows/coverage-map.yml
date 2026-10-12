@@ -3,7 +3,7 @@
 # GitHub Pages on every push to main. No game file is involved:
 # docs/completion-map.md, "Keeping the map current".
 # The same run counts how many functions, fields and data symbols have a
-# name instead of a placeholder and publishes the README's line beside
+# name instead of a placeholder and publishes the README's bars beside
 # the map: ps1/docs/names.md, "How many have a name".
 name: Coverage map
 
