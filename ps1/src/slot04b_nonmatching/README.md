@@ -1,8 +1,10 @@
 # Nonmatching C: character modules
 
 C for functions of the character modules `PL0C` to `PL17` that compiles with
-the pinned toolchain and does not reproduce the original's bytes. The PS1
-build does not use any file of this folder; the raw bytes stay what the
+the pinned toolchain and does not reproduce the original's bytes. At present
+there is none: the last, `func_801b1a00_slot04_14`, became exact on 2026-10-12
+and stands in `../slot04_14/slot04_14_1a00x_r1.c`; the page stays for the
+next one. The PS1 build does not use any file of this folder; the raw bytes stay what the
 matching build owns. What nonmatching means here, how the test works and
 what a pass does not show are on the page of the tool's folder,
 [`../slot06_nonmatching/`](../slot06_nonmatching/README.md): a pass is
@@ -17,21 +19,16 @@ What these commands printed on 2026-10-10, run from the tool's folder:
     python difftest.py --config ../build.toml --folder ../slot04b_nonmatching --cases 2000 --all
 
 ```
-func_801b1a00_slot04_14: built 260 bytes, original 264 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b1a00_slot04_14 coverage: 66 of 66 instruction slots of the original executed
 ```
 
     python difftest.py --config ../build.toml --folder ../slot04b_nonmatching --cases 2000 --control --all
 
 ```
-func_801b1a00_slot04_14 control: different 2000 of 2000 (expected more than 0)
-  altered: store of the second table word moved from field_50 to field_5c, instruction slot 39
 ```
 
     python difftest.py --config ../build.toml --folder ../slot04b_nonmatching --cases 2000 --writes --all
 
 ```
-func_801b1a00_slot04_14 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 A function with fewer slots executed than it has names the others in its
@@ -57,10 +54,6 @@ fixtures it keeps), then replay:
 
 A pass is evidence for the recorded inputs. It is not the wide comparison and
 it is not equivalence. Details of the files are on the page of the tool's folder.
-
-Functions of this folder without a fixtures file, by reason:
-
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801b1a00_slot04_14`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
