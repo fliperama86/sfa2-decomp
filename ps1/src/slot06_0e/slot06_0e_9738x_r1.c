@@ -7,14 +7,14 @@ extern Slot06TileW data_801f6734_slot06_0e[2][0x75];
 
 /*
  * What it does (inferred, not an original name): draws the third tile layer
- * of the stage, data_801aa544[2], as sprite records. The layer's field_14
- * (high half) minus game_state.field_92 gives a vertical position y; its
+ * of the stage, data_801aa544[2], as sprite records. The layer's scroll_y
+ * (high half) minus game_state.scroll_y gives a vertical position y; its
  * scroll_x gives a horizontal position. The window is 13 columns by 9
  * rows of 32-pixel cells, starting at the cell row (y & 0x1f0) / 32 and the
- * cell column (scroll_x masked by field_58 - 1) / 32, offset by the
+ * cell column (scroll_x masked by map_width - 1) / 32, offset by the
  * sub-cell remainders. The cells are 16-bit pairs (tile, palette) in the
  * layer's map (map_data); which half of the map a row lies in depends on
- * the layer's field_16 and on bit 3 of the row (a map of 8 rows per half).
+ * the layer's scroll_y and on bit 3 of the row (a map of 8 rows per half).
  * Every cell whose tile equals the layer's blank value (field_1e) is
  * skipped; every other gets one record of the table (position, texture
  * coordinates, palette, command word), linked into the list head chosen by
@@ -48,7 +48,7 @@ void func_801e9738_slot06_0e(void) {
     blank = c->field_1e;
     pos = c->scroll_y;
     w = c->map_width;
-    /* The shift and the subtraction are done in pos, in two statements, and y is cast in a statement of its own behind mask and sx. Written as y = (s16)((pos >> 16) - game_state.field_92); in one statement, this function differs from the original in 16 instruction slots. Inferred, not shown by a dump: a value that is assigned several times is not moved next to its reader by the first scheduling pass, so the sets of mask and sx stand before the cast and their lives are longer by the few instructions that decide the rank of three saved registers. */
+    /* The shift and the subtraction are done in pos, in two statements, and y is cast in a statement of its own behind mask and sx. Written as y = (s16)((pos >> 16) - game_state.scroll_y); in one statement, this function differs from the original in 16 instruction slots. Inferred, not shown by a dump: a value that is assigned several times is not moved next to its reader by the first scheduling pass, so the sets of mask and sx stand before the cast and their lives are longer by the few instructions that decide the rank of three saved registers. */
     pos += 0xfff00000;
     pos = -pos;
     pos >>= 16;
