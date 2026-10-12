@@ -11,23 +11,23 @@ int func_801b15b4_slot04_04(Object *obj) {
 }
 
 int func_801b15bc_slot04_04(Object *obj) {
-    return obj->field_240 == 0;
+    return obj->link_flags == 0;
 }
 
 int func_801b15c8_slot04_04(Object *obj) {
-    return (s16)obj->field_c6 >= 0x30;
+    return (s16)obj->meter >= 0x30;
 }
 
 int func_801b15dc_slot04_04(Object *obj) {
-    return (s16)obj->field_c6 >= 0x30;
+    return (s16)obj->meter >= 0x30;
 }
 
 int func_801b15f0_slot04_04(Object *obj) {
-    return (s16)obj->field_c6 >= 0x30;
+    return (s16)obj->meter >= 0x30;
 }
 
 int func_801b1604_slot04_04(Object *obj) {
-    return obj->field_177 != 0;
+    return obj->remaining_count != 0;
 }
 
 void func_801b1610_slot04_04(Object *obj) {

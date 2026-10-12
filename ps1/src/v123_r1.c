@@ -17,17 +17,17 @@ void func_8012b024(Object *object)
     else
     {
       object->state_3 = 1;
-      object->field_159 = 0;
+      object->active_flag_3 = 0;
       update_sequence(object);
     }
   }
   else
   {
     object->pos_y = object->ground_y;
-    object->field_45 = 0;
-    object->field_159 = 0;
+    object->active_state = 0;
+    object->active_flag_3 = 0;
     func_801209c4(object);
-    if (object->field_cd == 0 && func_8012f970(object))
+    if (object->mode_flag_2 == 0 && func_8012f970(object))
     {
       func_8012fe60(object);
     }

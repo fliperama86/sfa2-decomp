@@ -23,12 +23,12 @@ void func_801b339c_slot04_0e(Object *obj);
 void func_801b304c_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    if (obj->field_1de == 0) {
+    if (obj->state_flag == 0) {
         func_801b3284_slot04_0e(o);
     }
     func_801b4914_slot04_0e(o);
     func_801b31b8_slot04_0e(o, 3);
-    if (obj->field_1de != 0) {
+    if (obj->state_flag != 0) {
         o->state_3 = o->state_3 + 1;
         o->field_28a = 1;
         func_801b3200_slot04_0e(o);
@@ -62,8 +62,8 @@ void func_801b3160_slot04_0e(Object *obj) {
 void func_801b31b8_slot04_0e(Object *obj, int arg) {
     u16 d = arg;
 
-    if (obj->field_cd == 0 && (obj->field_c2 & 0xa000) != 0) {
-        if (obj->field_c2 & 0x8000) {
+    if (obj->mode_flag_2 == 0 && (obj->input_bits & 0xa000) != 0) {
+        if (obj->input_bits & 0x8000) {
             d = -d;
         }
         *(u16 *)&obj->pos_x = d + *(u16 *)&obj->pos_x;
@@ -77,10 +77,10 @@ void func_801b3200_slot04_0e(Object *obj) {
     if (func_801b6a7c_slot04_0e(obj) != 0) {
         func_801b6afc_slot04_0e(obj);
     } else {
-        h = obj->field_12a >> 1;
+        h = obj->direction_index >> 1;
         func_80141f28(obj, h);
         a = 0x15;
-        if (obj->field_129 == 0) {
+        if (obj->input_dir_second == 0) {
             a = 0x12;
         }
         func_801307e0(obj, a += h);
@@ -92,15 +92,15 @@ void func_801b3284_slot04_0e(Object *o) {
     BytePair buf;
     int k;
 
-    if (o->field_cd != 0) {
+    if (o->mode_flag_2 != 0) {
         k = func_801b6bd4_slot04_0e(o);
     } else {
         k = obj->field_134;
     }
     if (k != 0) {
         buf = func_801b6b64_slot04_0e((Slot04bObj *)o);
-        o->field_12a = buf.first;
-        o->field_129 = buf.second;
+        o->direction_index = buf.first;
+        o->input_dir_second = buf.second;
     }
 }
 
@@ -109,7 +109,7 @@ void func_801b32f8_slot04_0e(Object *obj) {
 }
 
 void func_801b3338_slot04_0e(Object *obj) {
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3++;
     func_80141f28(obj, 2);
     obj->accel_y -= 0x6000;

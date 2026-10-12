@@ -8,15 +8,15 @@
 
 void func_80154998(void) {
     GameState *g = &game_state;
-    if (g->field_30 == 0) {
+    if (g->versus_flag == 0) {
         func_801519b4(&data_801812e4);
         if (PRESSED(0x20)) {
             if (data_8018d260 == 0) {
-                data_8018f5a0->field_52 = 0;
+                data_8018f5a0->pass_index = 0;
             } else if (data_8018d260 == 1) {
-                data_8018f5a0->field_52 = 3;
+                data_8018f5a0->pass_index = 3;
             } else if (data_8018d260 == 2) {
-                data_8018f5a0->field_52 = 4;
+                data_8018f5a0->pass_index = 4;
             }
             play_sound_at(0, 0, 0x34c);
         }
@@ -47,14 +47,14 @@ void func_80154998(void) {
             if (data_8018d260 == 0) {
                 func_80155088();
             } else if (data_8018d260 == 1) {
-                data_8018f5a0->field_52 = 3;
+                data_8018f5a0->pass_index = 3;
             } else if (data_8018d260 == 2) {
                 func_80155088();
                 g->field_65 = 0xff;
                 data_80197f1c = 0xff;
                 func_80122e54(&game_state);
             } else if (data_8018d260 == 3) {
-                data_8018f5a0->field_52 = 4;
+                data_8018f5a0->pass_index = 4;
             }
             play_sound_at(0, 0, 0x34c);
         } else if (PRESSED(0x4000)) {
@@ -83,7 +83,7 @@ void func_80154998(void) {
                 data_80197f1c = 0xff;
                 func_80122e54(&game_state);
             } else if (data_8018d260 == 1) {
-                data_8018f5a0->field_52 = 4;
+                data_8018f5a0->pass_index = 4;
             }
             play_sound_at(0, 0, 0x34c);
         } else if (PRESSED(0x5000)) {

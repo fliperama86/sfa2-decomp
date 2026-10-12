@@ -9,24 +9,24 @@ void func_801b45a4_slot04_08(Object *obj, Object *other);
 
 void func_801b44a8_slot04_08(Object *obj, Object *other) {
     obj->field_01 = 0;
-    if (other->kind == obj->field_03) {
-        if (other->frame->field_09 != 0) {
+    if (other->kind == obj->table_index) {
+        if (other->frame->frame_param != 0) {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&other->pos_x_frac;
             *(s32 *)&obj->pos_y_frac = *(s32 *)&other->pos_y_frac;
-            obj->field_0b = other->field_0b;
+            obj->facing_side = other->facing_side;
             obj->field_01 = 1;
-            if (obj->field_48 != other->frame->field_09) {
-                obj->field_48 = other->frame->field_09;
+            if (obj->variant_index != other->frame->frame_param) {
+                obj->variant_index = other->frame->frame_param;
                 if (other->side == 0) {
-                    func_80130768(obj, obj->field_48, data_801c3e9c_slot04_08);
+                    func_80130768(obj, obj->variant_index, data_801c3e9c_slot04_08);
                 } else {
-                    func_80130768(obj, obj->field_48, data_801c3ea0_slot04_08);
+                    func_80130768(obj, obj->variant_index, data_801c3ea0_slot04_08);
                 }
             } else {
                 advance_sequence_checked(obj);
             }
         } else {
-            obj->field_48 = 0;
+            obj->variant_index = 0;
         }
     } else {
         func_801b45a4_slot04_08(obj, other);

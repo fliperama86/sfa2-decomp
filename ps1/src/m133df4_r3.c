@@ -22,5 +22,5 @@ void func_80136bc0(void) {
     data_801904dc[2] = 0;
     data_801904dc[3] = 0;
     func_80136c8c();
-    table_80172550[game_state.field_40]();
+    table_80172550[game_state.kind_index]();
 }

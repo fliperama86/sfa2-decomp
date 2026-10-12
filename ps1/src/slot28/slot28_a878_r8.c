@@ -10,8 +10,8 @@ void func_8001b0f0_slot28(Object *obj) {
 
 void func_8001b0f8_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
-    obj->field_47--;
-    if (obj->field_47 == 0) {
+    obj->timer_reload--;
+    if (obj->timer_reload == 0) {
         o->state_1++;
     }
 }

@@ -5,7 +5,7 @@
 
 
 void func_8012655c(GameState *state, Object *object) {
-    if (object->field_a5 == 0) data_8016f5a4[object->field_a9](state, object);
+    if (object->field_a5 == 0) data_8016f5a4[object->step_index](state, object);
 }
 
 void func_801265ac(GameState *state, Object *object) {
@@ -16,5 +16,5 @@ void func_801265ac(GameState *state, Object *object) {
 }
 
 void func_80126604(GameState *state, Object *object) {
-    object->field_a9++;
+    object->step_index++;
 }

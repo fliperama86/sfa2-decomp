@@ -10,7 +10,7 @@ void func_801b3fe8_slot04_05(Object *obj);
 extern ObjectFn data_801c1658_slot04_05[];
 
 void func_801b3d2c_slot04_05(Object *obj) {
-    if (obj->field_128 == 0) {
+    if (obj->input_dir_0 == 0) {
         func_801b3d6c_slot04_05(obj);
     } else {
         func_801b4120_slot04_05(obj);
@@ -19,7 +19,7 @@ void func_801b3d2c_slot04_05(Object *obj) {
 
 void func_801b3d6c_slot04_05(Object *obj) {
     obj->field_157 = 0;
-    if (obj->field_129 == 0) {
+    if (obj->input_dir_second == 0) {
         func_801b3dac_slot04_05(obj);
     } else {
         func_801b3fe8_slot04_05(obj);

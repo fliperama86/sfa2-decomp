@@ -21,14 +21,14 @@ void func_801b8360_slot04_14(Object *obj) {
 
     if (game_state.field_64 != 0) {
         obj->accel_x = obj->accel_x - 1;
-        if (obj->accel_x == 0 && (s16)obj->field_46 != 0) {
+        if (obj->accel_x == 0 && (s16)obj->countdown != 0) {
             func_801b84b8_slot04_14(obj);
-            t = obj->field_46 - 1;
-            obj->field_46 = t;
+            t = obj->countdown - 1;
+            obj->countdown = t;
             if ((s16)t != 0) {
                 obj->accel_x = 6;
             } else {
-                obj->field_46 = 0xfff;
+                obj->countdown = 0xfff;
             }
         }
         advance_sequence_checked(obj);
@@ -59,14 +59,14 @@ void func_801b84b8_slot04_14(Object *obj) {
     s16 i;
     int row;
 
-    row = obj->field_a0 << 4;
+    row = obj->variant_index_2 << 4;
     for (i = 1; i < 16; i++) {
-        if (obj->field_03 == 0) {
+        if (obj->table_index == 0) {
             data_801a2bc4[i] = data_801c79b4_slot04_14[row + i];
         } else {
             data_801a2bc4[i] = data_801c7c74_slot04_14[row + i];
         }
     }
     func_80137220(0, 6);
-    obj->field_a0++;
+    obj->variant_index_2++;
 }

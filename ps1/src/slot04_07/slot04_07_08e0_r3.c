@@ -6,7 +6,7 @@
 void func_801b0acc_slot04_07(Object *obj) {
     update_sequence(obj);
     if (obj->step_flags & 0xff) {
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->pos_x -= 0x1c;
         } else {
             obj->pos_x += 0x1c;

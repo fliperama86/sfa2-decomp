@@ -6,7 +6,7 @@
 
 void func_8011f240(Slab172 *s) {
     if (s->field_02 == 10) {
-        if (s->field_48 != 4) {
+        if (s->mode != 4) {
             data_801a27cc++;
         }
     }
@@ -16,12 +16,12 @@ void func_8011f240(Slab172 *s) {
     func_80119b3c(s);
     clear_bytes(s, 0xac);
     s->field_44 = 0;
-    s->field_08 = 12;
+    s->type_code = 12;
     data_80197f10++;
     s->field_26 = 0;
-    s->field_28 = 0;
-    s->field_2c = 0;
-    s->field_30 = 0;
-    s->field_34 = 0;
+    s->linked_entry_0 = 0;
+    s->linked_entry_1 = 0;
+    s->linked_entry_2 = 0;
+    s->linked_entry_3 = 0;
     table_80197f20[data_80197f10] = s;
 }

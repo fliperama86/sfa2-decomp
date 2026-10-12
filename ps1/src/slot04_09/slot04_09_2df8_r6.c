@@ -13,11 +13,11 @@ void func_801b3344_slot04_09(Object *obj) {
     func_801b5ba0_slot04_09(obj);
     p = obj->other;
     if (obj->vel_y > 0) {
-        if (p->field_45 != 0) {
+        if (p->active_state != 0) {
             if (obj->field_a3 == 0) {
                 if (obj->frame->box_a != 0 && (u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x30) != 0) {
-                    obj->field_a2 = 0xff;
-                    obj->field_46 = 4;
+                    obj->step_count = 0xff;
+                    obj->countdown = 4;
                     obj->state_3++;
                     if (obj->vel_x >= 0) {
                         obj->vel_x = 0x80000;
@@ -31,8 +31,8 @@ void func_801b3344_slot04_09(Object *obj) {
                     update_sequence(obj);
                 }
             } else if (func_8013fe54(obj, -0x20, 0x20, 0, 0x30) != 0) {
-                obj->field_a2 = 0xff;
-                obj->field_46 = 4;
+                obj->step_count = 0xff;
+                obj->countdown = 4;
                 obj->state_3++;
                 if (obj->vel_x >= 0) {
                     obj->vel_x = 0x80000;

@@ -10,7 +10,7 @@ void func_801b2da4_slot04_0a(Object *obj) {
     int t;
 
     obj->state_3++;
-    obj->field_67 = 0;
+    obj->active_flag = 0;
     func_80141f28(obj, 6);
     func_80138ae8(&game_state, obj);
     o = obj->other;
@@ -19,7 +19,7 @@ void func_801b2da4_slot04_0a(Object *obj) {
     obj->accel_x = 0;
     obj->accel_y = -0x5000;
     obj->vel_x = t >> 5;
-    if (o->field_45 != 0 || o->field_157 != 0) {
+    if (o->active_state != 0 || o->field_157 != 0) {
         t = 0;
     } else {
         t = 1;

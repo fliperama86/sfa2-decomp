@@ -6,8 +6,8 @@
 void func_8012e38c(Object *object) {
     func_80155f30(object);
     object->field_69 = 0;
-    object->field_6a = 0;
-    if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {
+    object->round_count = 0;
+    if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
         u8 count;
 
         count = object->field_1a1 - 1;
@@ -19,20 +19,20 @@ void func_8012e38c(Object *object) {
     object->field_170 = 0;
     object->field_6b = 0;
     object->field_28a = 0;
-    object->field_288 = 0;
-    object->field_289 = 0;
+    object->hit_count_a = 0;
+    object->hit_count_b = 0;
     func_8012f5ec(object);
-    object->field_249 = 5;
-    object->field_0b = object->field_158;
-    if (object->field_cd != 0) {
+    object->other_state_code = 5;
+    object->facing_side = object->saved_facing;
+    if (object->mode_flag_2 != 0) {
         func_8012e4c4(object);
     } else {
-        object->field_25e = 2;
+        object->hold_timer = 2;
         if (func_80130470(object) != 0) {
             func_8013047c(object);
         } else if (func_8012f970(object) != 0) {
             func_8012fe60(object);
-        } else if (object->field_130 & 0x4000) {
+        } else if (object->input_bits_2 & 0x4000) {
             func_80131468(object);
         } else {
             func_801312b8(object);

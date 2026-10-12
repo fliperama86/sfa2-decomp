@@ -83,7 +83,7 @@ void func_801b59f0_slot04_11(Object *obj) {
         func_801312b8(obj);
         return;
     }
-    if (obj->field_cd == 0) {
+    if (obj->mode_flag_2 == 0) {
         if (func_80130470(obj) & 0xffff) {
             func_8013047c(obj);
             return;

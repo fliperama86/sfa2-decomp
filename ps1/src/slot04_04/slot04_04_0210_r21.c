@@ -13,10 +13,10 @@ void func_801b3d18_slot04_04(Object *o) {
 }
 
 void func_801b3d58_slot04_04(Object *o) {
-    Object *p = o->field_3c;
-    p->field_240--;
-    if (p->field_240 == 0) {
-        p->field_14c = 0;
+    Object *p = o->parent;
+    p->link_flags--;
+    if (p->link_flags == 0) {
+        p->linked_object_3 = 0;
     }
     func_8011f14c((Slab172 *)o);
 }

@@ -7,7 +7,7 @@ extern void (*data_8003c2d4_slot28[])(Object *);
 extern void (*data_8003c2e4_slot28[])(Object *);
 
 void func_8001d7d8_slot28(Object *obj) {
-    data_8003c2d4_slot28[obj->field_03](obj);
+    data_8003c2d4_slot28[obj->table_index](obj);
     obj->field_01 = 1;
 }
 

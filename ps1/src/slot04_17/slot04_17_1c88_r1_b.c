@@ -16,21 +16,21 @@ void func_801b29b0_slot04_17(Object *obj) {
             obj->pos_y = t;
             func_801209c4(obj);
             a = 0x37;
-            s = obj->field_48;
+            s = obj->variant_index;
             obj->pos_y_frac = 0;
-            obj->field_45 = 0;
+            obj->active_state = 0;
             obj->state_3 = 8;
-            obj->field_17b = 0;
+            obj->active_flag_4 = 0;
             if (!(s & 0x80)) {
                 a = (s & 0x7f) + 0x38;
             }
             func_801307e0(obj, a);
         }
     }
-    if (obj->field_67 != 0) {
-        a = obj->field_48 + 0x35;
-        obj->field_67 = 0;
-        obj->field_48 |= 0x80;
+    if (obj->active_flag != 0) {
+        a = obj->variant_index + 0x35;
+        obj->active_flag = 0;
+        obj->variant_index |= 0x80;
         func_801307e0(obj, a);
     } else {
         update_sequence(obj);

@@ -13,7 +13,7 @@ void func_8013e944(Object *object, int index, int arg)
   u16 new_var;
   unsigned hit;
   unsigned limit;
-  limit = table_8017aaf8[(((u8) arg) * 7) + object->slots[(u8) index].field_01];
+  limit = table_8017aaf8[(((u8) arg) * 7) + object->slots[(u8) index].entry_index];
   entry = limit;
   pad = object->pressed_bits | object->released_bits;
   hit = pad & ((entry & 0xff) + 3);
@@ -73,8 +73,8 @@ void func_8013e944(Object *object, int index, int arg)
 
   if (object->slots[(u8) index].timer == 0)
   {
-    object->slots[(u8) index].field_02 -= 2;
-    if (object->slots[(u8) index].field_02 == 0)
+    object->slots[(u8) index].repeat_count -= 2;
+    if (object->slots[(u8) index].repeat_count == 0)
     {
       func_8013f2a8(object, (u8) index, (u8) arg);
     }

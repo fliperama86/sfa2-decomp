@@ -18,8 +18,8 @@ void func_80021df4_slot28(void);
 void func_80021afc_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->field_60 = 0x258;
-        data_8018f5a0->field_52 = data_8018f5a0->field_52 + 1;
+        data_8018f5a0->countdown_timer = 0x258;
+        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
         func_80021df4_slot28();
         func_80130768(data_80051b8c_slot28.p, 0, data_80045c40_slot28);
         b = data_80051b90_slot28[0];
@@ -27,7 +27,7 @@ void func_80021afc_slot28(Object *obj) {
         func_80130768(b, 1, data_80045c4c_slot28);
         b = (Object *)func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x7a;
             b->ot_depth = 2;
             b->spawn_x = 0x60;
@@ -35,11 +35,11 @@ void func_80021afc_slot28(Object *obj) {
             b->pos_x = 0xb8;
             b->pos_y = 0x90;
             b->field_90 = (void *)0x80060000;
-            b->field_98 = data_80044620_slot28;
-            b->field_9c = data_800449d0_slot28;
-            b->field_03 = 1;
+            b->data_ptr_a = data_80044620_slot28;
+            b->data_ptr_b = data_800449d0_slot28;
+            b->table_index = 1;
             b->field_01 = 1;
-            b->field_0d = 0;
+            b->image_row = 0;
             b->box_tables = (BoxTables *)data_80045c58_slot28;
             data_80051b64_slot28[0] = b;
         }
@@ -51,9 +51,9 @@ void func_80021afc_slot28(Object *obj) {
 void func_80021c24_slot28(Object *obj) {
     Object *p = data_80051b9c_slot28.p;
     if ((s16)p->step_flags < 0) {
-        data_8018f5a0->field_52 = data_8018f5a0->field_52 + 1;
+        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
         p = data_80051b64_slot28[0];
-        p->field_48 = 0xff;
+        p->variant_index = 0xff;
         func_80021d64_slot28(obj, 4);
     }
 }

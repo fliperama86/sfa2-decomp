@@ -5,11 +5,11 @@
 
 void func_8014f918(int a) {
     Ctl *ctl = &ctl_80190948;
-    if (ctl_80190948.field_0a != 0) {
+    if (ctl_80190948.mode != 0) {
         if (a != 1) {
             ctl_80190948.field_1f++;
             func_8014f76c(ctl);
-        } else if (ctl_80190948.field_14 == 0) {
+        } else if (ctl_80190948.busy_flag == 0) {
             data_8017ec44[ctl_80190948.state_index](ctl);
             if (*(u32 *) ((u8 *) &ctl_80190948 + 0x30) == 0) {
                 if (advance_stream_record((Stream *)ctl) == 0) {

@@ -14,7 +14,7 @@ void func_800153c0_slot27(Object *obj) {
     int t = obj->health;
 
     obj->health = t - 2;
-    if ((s16)obj->health < ((Slot27Obj *)obj)->field_5e) {
+    if ((s16)obj->health < ((Slot27Obj *)obj)->health_threshold) {
         obj->health = t + 0x1e;
     }
     for (i = 0; i < 9; i++) {

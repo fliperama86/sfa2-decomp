@@ -8,16 +8,16 @@ extern SequenceStep *data_801eb98c_slot06_01;
 void func_801e96d4_slot06_01(Object *obj) {
     u8 t;
 
-    obj->field_46 = 0x40;
+    obj->countdown = 0x40;
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_76 = 0x300;
-    obj->field_78 = 0x100;
+    obj->base_x = 0x300;
+    obj->base_y = 0x100;
     obj->spawn_x = 0x60;
     obj->spawn_y = 0x1e0;
     t = obj->state_0;
-    obj->field_0d = 0;
-    obj->field_81 = 4;
+    obj->image_row = 0;
+    obj->spawn_mode = 4;
     obj->state_0 = t + 1;
     *(u16 *)&obj->pos_y = 0xf8 - (u16)obj->pos_y;
     func_80130700(obj, data_801eb98c_slot06_01);

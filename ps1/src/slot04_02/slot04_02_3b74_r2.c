@@ -6,16 +6,16 @@
 void func_801b3d94_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    o->field_46 = (s16)o->field_46 - 0x100;
-    if (obj->field_3a != 0) {
+    o->countdown = (s16)o->countdown - 0x100;
+    if (obj->mode != 0) {
         o->state_3++;
         if (o->field_4b != 0) {
             o->field_165 = 1;
         } else {
             o->field_165 = 0xff;
         }
-        o->field_46 = (o->field_46 & 0xff00) | 0x30;
-        if (o->field_0b != 0) {
+        o->countdown = (o->countdown & 0xff00) | 0x30;
+        if (o->facing_side != 0) {
             o->vel_x = 0x48000;
         } else {
             o->vel_x = -0x48000;
@@ -29,19 +29,19 @@ void func_801b3d94_slot04_02(Object *o) {
 void func_801b3e40_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    o->field_46 = (s16)o->field_46 - 0x100;
-    if (o->field_46 & 0x8000) {
+    o->countdown = (s16)o->countdown - 0x100;
+    if (o->countdown & 0x8000) {
         o->field_165 = 0;
         o->state_3++;
-        o->field_46 = obj->field_46 | 0x400;
+        o->countdown = obj->flag_bits | 0x400;
         play_side_sound_at(o, o->side, 0xc);
     }
     update_sequence(o);
 }
 
 void func_801b3eac_slot04_02(Object *o) {
-    o->field_46 = (s16)o->field_46 - 0x100;
-    if ((o->field_46 & 0xff00) != 0) {
+    o->countdown = (s16)o->countdown - 0x100;
+    if ((o->countdown & 0xff00) != 0) {
         o->state_3++;
     }
     update_sequence(o);

@@ -8,7 +8,7 @@ u8 func_8014a170(Object *object, u32 *table) {
     u32 v;
     n = get_random_byte() & 0x1f;
     mask = 1;
-    table += object->field_cf;
+    table += object->table_column;
     v = *table;
     for (i = 0; i < n; i++) mask <<= 1;
     return (mask & v) != 0;

@@ -5,9 +5,9 @@
 
 void func_801b3284_slot04_03(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    obj->field_0b = 0;
-    if ((obj->field_c2 & 0x8000) == 0) {
-        obj->field_0b = 1;
+    obj->facing_side = 0;
+    if ((obj->input_bits & 0x8000) == 0) {
+        obj->facing_side = 1;
     }
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_80141f28(obj, 3);
@@ -17,7 +17,7 @@ void func_801b3284_slot04_03(Object *obj) {
 void func_801b32f8_slot04_03(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        game_state.field_63 = 0x30;
+        game_state.state_param = 0x30;
         if ((func_80140cd8(obj, 0x10, 0) & 0xff) != 0) {
             play_sound_at(obj, obj->side, 0x34b);
         } else {

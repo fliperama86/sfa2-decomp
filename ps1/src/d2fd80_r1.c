@@ -5,7 +5,7 @@
 
 /* What it does (inferred): walks the animation sequence of object b and
    tests, for each step whose frame has a box, whether that box (mirrored
-   when b's field_0b is set) is within reach of object a's horizontal
+   when b's facing_side is set) is within reach of object a's horizontal
    position. Returns 0 when b's current frame has bit 0x80 in field_0c, 2 at
    the first step whose box is within reach, 1 when the sequence ends. */
 u8 func_8012fd80(Object *a, Object *b) {
@@ -24,7 +24,7 @@ u8 func_8012fd80(Object *a, Object *b) {
         box += active;
         /* origin is a signed halfword; without the cast this function differs from the original in 1 instruction line. */
         off = (u16)box->origin;
-        if (b->field_0b) off = -off;
+        if (b->facing_side) off = -off;
         d = off + b->pos_x - a->pos_x;
         limit = box->endpoint + 0x58;
         if (d < 0) d = -d;

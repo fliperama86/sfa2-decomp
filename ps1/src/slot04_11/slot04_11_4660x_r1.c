@@ -21,9 +21,9 @@ void func_801b4660_slot04_11(Object *obj) {
 
     func_801b4970_slot04_11(obj);
     if ((obj->step_flags << 16) < 0) {
-        a = *(u16 *)&((Slot04bObj *)obj)->field_1c0;
+        a = *(u16 *)&((Slot04bObj *)obj)->input_bits;
         obj->state_3++;
-        if (obj->field_cd != 0) {
+        if (obj->mode_flag_2 != 0) {
             if (func_8014a170(obj, data_801c719c_slot04_11) == 0) {
                 ref_other.p = obj->other;
                 d = ref_other.p->pos_x - obj->pos_x;
@@ -44,25 +44,25 @@ void func_801b4660_slot04_11(Object *obj) {
         if (a != 0) {
             if ((a & 0x20) == 0) {
                 d = 0;
-                obj->field_0b = 0;
+                obj->facing_side = 0;
                 if ((a & 0x40) == 0) {
-                    obj->field_0b = 1;
+                    obj->facing_side = 1;
                 }
             }
         }
-        /* The locals j, n, m and s fix the order of these sums. With d << 2 written at its use five instruction slots differ, with m + n at its use twelve, with field_12e++ eight. */
+        /* The locals j, n, m and s fix the order of these sums. With d << 2 written at its use five instruction slots differ, with m + n at its use twelve, with step_count_2++ eight. */
         j = d << 2;
-        n = obj->field_12e + 8;
-        m = obj->field_12a * 6;
-        *(u16 *)&((Slot04bObj *)obj)->field_1c0 = 0;
-        obj->field_12e = obj->field_12e + 1;
+        n = obj->step_count_2 + 8;
+        m = obj->direction_index * 6;
+        *(u16 *)&((Slot04bObj *)obj)->input_bits = 0;
+        obj->step_count_2 = obj->step_count_2 + 1;
         a = j + m;
         x = data_801c7708_slot04_11[a];
         y = data_801c7708_slot04_11[a + 1];
         obj->vel_y = data_801c7708_slot04_11[a + 2];
         obj->accel_y = data_801c7708_slot04_11[a + 3];
         s = m + n;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             x = -x;
             y = -y;
         }

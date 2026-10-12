@@ -25,11 +25,11 @@ void func_80155a24(void) {
         (g->field_31 == 2 && (data_801a6976 & 0x20))) {
         play_sound_at(0, 0, 0x34c);
         if (data_8018d264 != 0) {
-            data_8018f5a0->field_52 = 0;
+            data_8018f5a0->pass_index = 0;
         } else {
-            g->field_17 = 0;
-            g->field_2f = 0;
-            g->field_30 = 0;
+            g->side_bits = 0;
+            g->mode3_active_flag = 0;
+            g->versus_flag = 0;
             g->field_31 = 0;
             *(u32 *)0x1f80000c = 1;
             func_80152ee8();

@@ -7,13 +7,13 @@ extern void (*data_80046990_slot28[])(Object *);
 void func_80021d64_slot28(Object *obj, int arg);
 
 void func_80021774_slot28(Object *obj) {
-    data_80046990_slot28[data_8018f5a0->field_52](obj);
+    data_80046990_slot28[data_8018f5a0->pass_index](obj);
     func_80138164();
     func_8011abe4();
 }
 
 void func_800217cc_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
-    h->field_52 = h->field_52 + 1;
+    h->pass_index = h->pass_index + 1;
     func_80021d64_slot28(obj, 0);
 }

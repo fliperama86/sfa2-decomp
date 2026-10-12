@@ -12,7 +12,7 @@ void func_80015c9c_slot28(Object *obj) {
 }
 
 void func_80015cf8_slot28(Object *obj) {
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         obj->state_1++;
         func_80130768(obj, 0xf, (SequenceStep **)obj->box_tables);
     }

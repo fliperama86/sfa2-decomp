@@ -13,27 +13,27 @@ void func_801495f8(Object *object, int x, int y)
   o = (Object *)func_8011f1e0();
   if (o != 0)
   {
-    o->field_00 = 1;
+    o->active_count = 1;
     o->field_02 = 0x37;
-    o->field_03 = 2;
+    o->table_index = 2;
     o->field_1c = object->field_1c;
     o->field_0e = object->field_0e;
-    o->field_26 = object->field_26;
-    o->field_65 = object->field_65;
-    o->field_3c = object;
-    o->field_0b = object->field_0b;
+    o->scroll_factor = object->scroll_factor;
+    o->team_id = object->team_id;
+    o->parent = object;
+    o->facing_side = object->facing_side;
     o->spawn_x = 0x60;
     o->spawn_y = 0x1e0;
-    o->field_98 = &data_80172a48;
+    o->data_ptr_a = &data_80172a48;
     o->field_90 = (void *) 0x800fb100;
-    o->field_9c = &data_80173c9c;
-    if (o->field_0b != 0)
+    o->data_ptr_b = &data_80173c9c;
+    if (o->facing_side != 0)
     {
       dx = -x;
     }
     o->pos_x = dx + object->pos_x;
     o->pos_y = object->pos_y - y;
-    if (object->field_45 == 0)
+    if (object->active_state == 0)
     {
       x = 0;
       do
@@ -41,22 +41,22 @@ void func_801495f8(Object *object, int x, int y)
         o = (Object *)func_8011f1e0();
         if (o != 0)
         {
-          o->field_00 = 1;
+          o->active_count = 1;
           o->field_02 = 0x37;
-          o->field_03 = x;
+          o->table_index = x;
           o->field_1c = object->field_1c;
           o->field_0e = object->field_0e;
-          o->field_26 = object->field_26;
-          o->field_0b = object->field_0b;
+          o->scroll_factor = object->scroll_factor;
+          o->facing_side = object->facing_side;
           o->pos_x = object->pos_x;
           o->pos_y = object->ground_y;
-          o->field_65 = object->field_65;
-          new_var = (o->field_3c = object);
+          o->team_id = object->team_id;
+          new_var = (o->parent = object);
           o->spawn_x = 0x60;
           o->spawn_y = 0x1e0;
-          o->field_98 = &data_80172a48;
+          o->data_ptr_a = &data_80172a48;
           o->field_90 = (void *) 0x800fb100;
-          o->field_9c = &data_80173c9c;
+          o->data_ptr_b = &data_80173c9c;
         }
         x++;
       }

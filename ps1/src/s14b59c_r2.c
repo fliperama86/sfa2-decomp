@@ -13,7 +13,7 @@ void func_8014bcd8(Object *object) {
 
 void func_8014bd24(Object *object) {
     Object *other = object->other;
-    if (other->field_45 == 1 && other->field_48 == 1) {
+    if (other->active_state == 1 && other->variant_index == 1) {
         func_8014c914(object);
     } else {
         func_8014c528(object);
@@ -22,7 +22,7 @@ void func_8014bd24(Object *object) {
 
 void func_8014bd7c(Object *object) {
     Object *other = object->other;
-    if (other->field_45 == 1 && other->field_48 == 0) {
+    if (other->active_state == 1 && other->variant_index == 0) {
         func_8014c914(object);
     } else {
         func_8014c528(object);
@@ -31,7 +31,7 @@ void func_8014bd7c(Object *object) {
 
 void func_8014bdd4(Object *object) {
     Object *other = object->other;
-    if (other->field_45 == 1 && other->field_48 == 0xff) {
+    if (other->active_state == 1 && other->variant_index == 0xff) {
         func_8014c914(object);
     } else {
         func_8014c528(object);

@@ -6,10 +6,10 @@
 
 void func_80126adc(GameState *state, Object *object) {
     if (object->side == 0)
-        state->field_08 |= 1;
+        state->side_bits_b |= 1;
     else if (object->side == 1)
-        state->field_08 |= 2;
-    if (state->field_46 != 0 || state->field_5f == 0)
+        state->side_bits_b |= 2;
+    if (state->state_46_flag != 0 || state->mode_copy_2 == 0)
         func_80126d68(state, object);
     else if (object->phase_index == 0)
         func_80126b8c(state, object);
@@ -18,7 +18,7 @@ void func_80126adc(GameState *state, Object *object) {
 }
 
 void func_80126b8c(GameState *state, Object *object) {
-    object->field_b0 = 0x7f;
+    object->countdown_timer = 0x7f;
     object->field_b2 = 9;
     object->phase_index++;
     func_80135c80(object, 0);

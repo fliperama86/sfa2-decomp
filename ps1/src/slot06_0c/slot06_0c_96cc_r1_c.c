@@ -20,7 +20,7 @@ void func_801e995c_slot06_0c(Object *obj) {
 void func_801e999c_slot06_0c(Object *obj) {
     obj->field_0f = 1;
     obj->field_0c = 0;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0++;
     func_80130700(obj, data_801ebc1c_slot06_0c[5]);
 }
@@ -36,16 +36,16 @@ void func_801e9a58_slot06_0c(Object *obj, int arg) {
     u16 a = arg;
     if (a != 0 && ((s16)obj->step_flags & 0x8000)) {
         if (a >= 3) {
-            obj->field_0b = 0;
+            obj->facing_side = 0;
         } else {
-            obj->field_0b = 1;
+            obj->facing_side = 1;
         }
-        obj->state_1 = obj->field_0b + 1;
+        obj->state_1 = obj->facing_side + 1;
         func_80130700(obj, data_801ebc1c_slot06_0c[11]);
     } else {
         advance_sequence_checked(obj);
         if ((u8)obj->step_flags != 0) {
-            obj->field_0b = obj->field_0b ^ 1;
+            obj->facing_side = obj->facing_side ^ 1;
             obj->step_timer = (get_random_byte() & 0x1f) + 8;
             obj->step_flags = obj->step_flags & 0xff00;
         }

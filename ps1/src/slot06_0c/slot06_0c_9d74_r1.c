@@ -37,7 +37,7 @@ void func_801e9d74_slot06_0c(Object *obj, u16 unused) {
     } else if (obj->vel_x == 0x12) {
         obj->state_2 = 2;
         obj->state_1 = 2;
-        obj->field_0b = 1;
+        obj->facing_side = 1;
         i = 0xc;
     } else if (obj->vel_x == 0x13) {
         obj->state_1 = 1;
@@ -46,7 +46,7 @@ void func_801e9d74_slot06_0c(Object *obj, u16 unused) {
     } else {
         obj->state_1 = 2;
         obj->state_2 = 0;
-        obj->field_0b = 1;
+        obj->facing_side = 1;
         i = 0xb;
     }
     func_80130700(obj, data_801ebc1c_slot06_0c[i]);
@@ -143,7 +143,7 @@ void func_801ea0ac_slot06_0c(Object *obj, u16 unused) {
     } else if (obj->vel_x == 0x12) {
         obj->state_1 = 1;
         obj->state_2 = 2;
-        obj->field_0b = 0;
+        obj->facing_side = 0;
         i = 0xc;
     } else if (obj->vel_x == 0x13) {
         obj->state_1 = 2;
@@ -151,7 +151,7 @@ void func_801ea0ac_slot06_0c(Object *obj, u16 unused) {
         i = 0xb;
     } else {
         obj->state_1 = 1;
-        obj->field_0b = 0;
+        obj->facing_side = 0;
         obj->state_2 = 0;
         i = 0xb;
     }
@@ -225,10 +225,10 @@ void func_801ea328_slot06_0c(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->vel_y = 0x1c0;
-    obj->field_48 = 2;
-    obj->field_0d = 0;
+    obj->variant_index = 2;
+    obj->image_row = 0;
     obj->field_0c = 0;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->vel_y -= 0x20;
     func_801ea490_slot06_0c(obj);
     func_801ea43c_slot06_0c(obj);
@@ -236,14 +236,14 @@ void func_801ea328_slot06_0c(Object *obj) {
 
 void func_801ea394_slot06_0c(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        if (obj->vel_y >= (s16)((Slot06Layer *)data_801aa5d4)->field_12) {
-            if (obj->field_48 != 0) {
-                obj->field_48 = 0;
+        if (obj->vel_y >= (s16)((Slot06Layer *)data_801aa5d4)->scroll_x) {
+            if (obj->variant_index != 0) {
+                obj->variant_index = 0;
                 func_801ea490_slot06_0c(obj);
                 func_801ea43c_slot06_0c(obj);
             }
-        } else if (obj->field_48 == 0) {
-            obj->field_48 = 2;
+        } else if (obj->variant_index == 0) {
+            obj->variant_index = 2;
             func_801ea490_slot06_0c(obj);
             func_801ea43c_slot06_0c(obj);
         }
@@ -256,12 +256,12 @@ void func_801ea43c_slot06_0c(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
 
-    obj->pos_x = data_801eabd4_slot06_0c[obj->field_48];
-    obj->pos_y = 0x100 - data_801eabd6_slot06_0c[obj->field_48];
+    obj->pos_x = data_801eabd4_slot06_0c[obj->variant_index];
+    obj->pos_y = 0x100 - data_801eabd6_slot06_0c[obj->variant_index];
 }
 
 void func_801ea490_slot06_0c(Object *obj) {
-    func_80130700(obj, data_801ebc1c_slot06_0c[data_801eabdc_slot06_0c[obj->field_48 >= 2]]);
+    func_80130700(obj, data_801ebc1c_slot06_0c[data_801eabdc_slot06_0c[obj->variant_index >= 2]]);
 }
 
 void func_801ea4e8_slot06_0c(Object *obj) {
@@ -275,9 +275,9 @@ void func_801ea508_slot06_0c(Object *obj) {
 void func_801ea548_slot06_0c(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->vel_x = *(s32 *)&obj->pos_x_frac;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_0c = 0;
     obj->state_0++;
     obj->accel_x = 0xf80000 - *(s32 *)&obj->pos_y_frac;
@@ -288,11 +288,11 @@ void func_801ea5b0_slot06_0c(Object *obj) {
     Slot06Layer *l = (Slot06Layer *)data_801aa5d4;
     s32 a;
 
-    a = *(s32 *)&l->field_08 - *(s32 *)&l->field_20;
+    a = *(s32 *)&l->bound_x_a - *(s32 *)&l->bound_x_c;
     a >>= 1;
     a += obj->vel_x;
     *(s32 *)&obj->pos_x_frac = a;
-    a = *(s32 *)&l->field_0c - *(s32 *)&l->field_24;
+    a = *(s32 *)&l->bound_y_a - *(s32 *)&l->bound_y_c;
     a >>= 1;
     a += obj->accel_x;
     *(s32 *)&obj->pos_y_frac = 0x1000000 - a;

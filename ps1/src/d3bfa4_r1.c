@@ -28,16 +28,16 @@ typedef struct {
 
 /* What it does (inferred, not an original name): for each object of the object table
    (data_8018f5e0, read downward, count_8018f59c entries) of type 1 it picks a player object
-   (player_left, or player_right when the object's field_65 is 0), skips it when the
-   player's field_263, field_27b or field_163 is not 0, when (the object's field_49 is 0 or
-   the player's field_295 is 0) and the object's frame field_04 is below the player's
+   (player_left, or player_right when the object's team_id is 0), skips it when the
+   player's countdown_4, other_lock or field_163 is not 0, when (the object's field_49 is 0 or
+   the player's field_295 is 0) and the object's frame value_a is below the player's
    field_69, or when the object's frame active is 0, and tests the player's three box sets
    (boxes_a, boxes_b, boxes_c, each indexed by the player's frame and tested only when that
    index is not 0) against the box of the table object's current frame (func_801397d0).
    Each box set that overlaps adds its bit (1, 2, 4) to data_80188f30 and records the
    overlap's corners and size in the record at data_80188ed0. When any overlapped, the object hits the
    player: the callees apply the hit, the player and an effect object get state bytes, and
-   the table object counts the hit (field_00 + 1, a countdown in health with two state
+   the table object counts the hit (active_count + 1, a countdown in health with two state
    bytes sets). */
 void func_8013bfa4(void) {
     s16 i;
@@ -55,17 +55,17 @@ void func_8013bfa4(void) {
     ((ObjectStackRef *)&ref_other)->pp = (Object **)data_8018f5e0;
     for (i = 0; i <= last; i++) {
         ref_third.p = *((ObjectStackRef *)&ref_other)->pp--;
-        if (ref_third.p->field_00 != 1) {
+        if (ref_third.p->active_count != 1) {
             continue;
         }
         ref_second.p = &player_left;
-        if (ref_third.p->field_65 == 0) {
+        if (ref_third.p->team_id == 0) {
             ref_second.p++;
         }
-        if (ref_second.p->field_263 != 0) {
+        if (ref_second.p->countdown_4 != 0) {
             continue;
         }
-        if (ref_second.p->field_27b != 0) {
+        if (ref_second.p->other_lock != 0) {
             continue;
         }
         if (ref_second.p->field_163 != 0) {
@@ -77,7 +77,7 @@ void func_8013bfa4(void) {
             if (ref_third.p->field_49 == 0 || ref_second.p->field_295 == 0) {
                 /* Without the local limit the unit differs in 1 instruction line. */
                 limit = ref_second.p->field_69;
-                if (ref_third.p->frame->field_04 < limit) {
+                if (ref_third.p->frame->value_a < limit) {
                     continue;
                 }
             }
@@ -156,15 +156,15 @@ void func_8013bfa4(void) {
             func_80139a78(ref_third.p, ref_second.p);
             if (ref_third.p->field_02 == 0x17) {
                 ref_second.p->field_241 = 0;
-                if (ref_second.p->field_61 != 0xff) {
-                    if (ref_second.p->field_45 == 0) {
-                        ref_second.p->field_61 = 0;
+                if (ref_second.p->hit_type != 0xff) {
+                    if (ref_second.p->active_state == 0) {
+                        ref_second.p->hit_type = 0;
                     }
                 }
             }
             func_8013a3a8(ref_third.p, ref_second.p, box);
             /* health is u16; the signed test is the original's (a compare with 0x8000 differs in 17 instruction lines). */
-            if (ref_second.p->field_61 != 0xff && (s16)ref_second.p->health >= 0) {
+            if (ref_second.p->hit_type != 0xff && (s16)ref_second.p->health >= 0) {
                 /* Masking the shift count with 31 differs in 16 instruction lines. */
                 if (0x800000 >> ref_third.p->field_02) {
                     ((StateBytes *)data_80190468.p)->state = 0xf;
@@ -186,7 +186,7 @@ void func_8013bfa4(void) {
             if (ref_third.p->field_02 & 0x100) {
                 continue;
             }
-            ref_third.p->field_00 += 1;
+            ref_third.p->active_count += 1;
             ref_third.p->state_0 = 1;
             ref_third.p->state_1 = 1;
             ref_third.p->state_2 = 0;

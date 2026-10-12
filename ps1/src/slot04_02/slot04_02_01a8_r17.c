@@ -5,7 +5,7 @@
 
 void func_801b1bc0_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        obj->other->field_249 = 5;
+        obj->other->other_state_code = 5;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
         func_801312b8(obj);
     } else {

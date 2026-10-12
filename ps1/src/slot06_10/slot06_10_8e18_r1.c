@@ -20,17 +20,17 @@ void func_801e8e18_slot06_10(Object *obj) {
 
 void func_801e8e58_slot06_10(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
-    obj->field_3c = 0x10;
-    obj->field_4c = 0x11;
-    obj->field_5c = 0x12;
-    obj->field_38 = 0x2e0;
+    obj->init_param_b = 0x10;
+    obj->table_base_index = 0x11;
+    obj->init_param_e = 0x12;
+    obj->init_param_a = 0x2e0;
     obj->sequence_index = 0x200;
-    obj->field_58 = 0x180;
+    obj->size_param = 0x180;
     obj->field_01 = 0;
-    obj->field_3a = 0x50;
-    obj->field_4a = 0x50;
-    obj->field_5a = 0x50;
-    obj->field_04 = obj->field_04 + 1;
+    obj->offset_b = 0x50;
+    obj->init_param_c = 0x50;
+    obj->init_param_d = 0x50;
+    obj->step_count = obj->step_count + 1;
     func_801e906c_slot06_10((Slot06Pal *)((u8 *)obj + 0x30));
     func_801e906c_slot06_10((Slot06Pal *)((u8 *)obj + 0x40));
     func_801e906c_slot06_10((Slot06Pal *)((u8 *)obj + 0x50));
@@ -46,8 +46,8 @@ void func_801e8f14_slot06_10(SeqRec *rec, Slot06Cursor *cur) {
     new_var = rec->header;
     w = new_var;
     new_var = w >> 16;
-    cur->field_04 = new_var;
-    cur->field_06 = w;
+    cur->remaining_count = new_var;
+    cur->step_word = w;
 }
 
 void func_801e8f34_slot06_10(Object *obj) {
@@ -79,12 +79,12 @@ void func_801e8ff8_slot06_10(Object *obj) {
 
 void func_801e9018_slot06_10(Slot06Pal *pal) {
     SeqRec *rec;
-    int v = pal->field_04 - 1;
-    pal->field_04 = v;
+    int v = pal->countdown - 1;
+    pal->countdown = v;
     if ((s16)v == 0) {
         rec = pal->rec;
         rec++;
-        if ((s16)pal->field_06 < 0) {
+        if ((s16)pal->step_value < 0) {
             rec = (SeqRec *)rec->header;
         }
         func_801e90a8_slot06_10(pal, rec);
@@ -94,5 +94,5 @@ void func_801e9018_slot06_10(Slot06Pal *pal) {
 void func_801e906c_slot06_10(Slot06Pal *pal) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
-    func_801e90a8_slot06_10(pal, (SeqRec *)table_8017c910[pal->field_0c]);
+    func_801e90a8_slot06_10(pal, (SeqRec *)table_8017c910[pal->seq_rec_index]);
 }

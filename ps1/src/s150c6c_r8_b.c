@@ -11,7 +11,7 @@ void func_801521a0(int a, u8 b, s16 c, s16 d) {
         u8 hi = b & 0xf0;
         u16 e = data_8018d208;
         cmd->tex_u = lo;
-        cmd->field_0e = e;
+        cmd->clut_word = e;
         cmd->tex_v = hi;
         cmd->pos_x = c;
         cmd->pos_y = d;

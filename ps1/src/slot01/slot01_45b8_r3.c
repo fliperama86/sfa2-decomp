@@ -10,9 +10,9 @@ void func_80014b28_slot01(Object *obj, int arg);
 
 void func_800148a4_slot01(Object *obj) {
     u8 *m = &game_state.mode;
-    Object *p = obj->field_3c;
+    Object *p = obj->parent;
     data_80033ba4_slot01.p = p;
-    data_80033b9c_slot01 = *m | game_state.field_07;
+    data_80033b9c_slot01 = *m | game_state.side_mask;
     if ((data_80033b9c_slot01 >> p->side) & 1) {
         obj->state_1 = 0;
         obj->field_01 = 1;

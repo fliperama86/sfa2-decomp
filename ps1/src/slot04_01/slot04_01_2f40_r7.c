@@ -12,11 +12,11 @@ void func_801b3640_slot04_01(Object *obj) {
     func_80141f28(obj, 3);
     play_sound_at(obj, ((Slot04aObj *)obj)->side ^ 1, 0x31a);
     play_side_sound_at(obj, ((Slot04aObj *)obj)->side, 6);
-    if (obj->field_cd == 0) {
-        i = obj->field_c2 >> 15;
+    if (obj->mode_flag_2 == 0) {
+        i = obj->input_bits >> 15;
     }
     obj->vel_x = data_801bf120_slot04_01[i];
-    obj->field_0b = i;
+    obj->facing_side = i;
     obj->vel_y = 0x20000;
     obj->accel_y = -0x2000;
     func_801307e0(obj, 0x19);

@@ -16,12 +16,12 @@ void func_801b310c_slot04_sel(Object *obj, Slot04SelRec9d38 *r) {
         r->field_14 = 0;
     }
     if (obj->kind == 4 && (*data_801b7d4c_slot04_sel[obj->side] & 0x100) != 0) {
-        u8 t = r->field_13 + 1;
-        r->field_13 = t;
+        u8 t = r->count_2 + 1;
+        r->count_2 = t;
         if (t > 0xb4) {
-            r->field_13 = 0xb4;
+            r->count_2 = 0xb4;
         }
     } else {
-        r->field_13 = 0;
+        r->count_2 = 0;
     }
 }

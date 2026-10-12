@@ -7,12 +7,12 @@
 
 
 void func_80138588(void) {
-    player_left.field_cf = 0;
-    player_right.field_cf = 0;
+    player_left.table_column = 0;
+    player_right.table_column = 0;
 }
 
 void func_801385a0(GameState *state) {
-    if (!(state->mode == 3 && state->field_2f == 0)) {
+    if (!(state->mode == 3 && state->mode3_active_flag == 0)) {
         func_80138c98(state);
         func_801386a4(state);
         func_8013886c(state);
@@ -22,5 +22,5 @@ void func_801385a0(GameState *state) {
 }
 
 void func_8013860c(GameState *state) {
-    state->field_6e = (s16)counter_c >> 3;
+    state->counter_shifted = (s16)counter_c >> 3;
 }

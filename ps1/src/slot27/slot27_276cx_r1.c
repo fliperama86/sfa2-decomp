@@ -13,26 +13,26 @@ void func_8001276c_slot27(Object *obj) {
     s32 *p3;
 
     obj->state_2++;
-    obj->field_46 = 0x258;
+    obj->countdown = 0x258;
     ref_other.p->field_d8 = 0;
-    obj->field_45 = 0xff;
+    obj->active_state = 0xff;
     ref_second.p = ref_other.p;
     ref_other.p = (Object *)func_8011f1e0();
     if (ref_other.p != 0) {
-        ref_other.p->field_00++;
+        ref_other.p->active_count++;
         ref_other.p->field_02 = 0x22;
-        ref_other.p->field_03 = 0;
+        ref_other.p->table_index = 0;
         ref_other.p->other = ref_second.p;
-        ref_other.p->field_3c = obj;
+        ref_other.p->parent = obj;
         ((ObjectWords *)obj)->word_54 = (s32)ref_other.p;
     }
     ref_other.p = (Object *)func_8011f1e0();
     if (ref_other.p != 0) {
-        ref_other.p->field_00++;
+        ref_other.p->active_count++;
         ref_other.p->field_02 = 0x22;
-        ref_other.p->field_03 = 1;
+        ref_other.p->table_index = 1;
         ref_other.p->other = ref_second.p;
-        ref_other.p->field_3c = obj;
+        ref_other.p->parent = obj;
         ((ObjectWords *)obj)->word_58 = (s32)ref_other.p;
     }
     p0 = (s32 *)&data_8019045c;
@@ -51,14 +51,14 @@ void func_8001276c_slot27(Object *obj) {
         *p3 = 0;
     }
     obj->health = *p0;
-    obj->field_5e = *p1;
+    obj->y_offset = *p1;
     ref_first.p = (Object *)((ObjectWords *)obj)->word_54;
     ref_second.p = (Object *)((ObjectWords *)obj)->word_58;
     ref_first.p->field_62 = *p2;
     ref_second.p->field_62 = *p3;
     *p0 = *p0 / 16;
     obj->field_62 = *p0;
-    obj->field_63 = *p0;
+    obj->vec_table_index = *p0;
     *p0 = 2;
     *p0 = ref_other.p->field_d8 + 2;
     func_80013b74_slot27(obj);

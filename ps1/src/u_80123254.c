@@ -12,9 +12,9 @@ void func_80123254(GameState *g)
   u16 n;
   if ((u8)func_80125394() == 0)
   {
-    v = g->field_ca;
+    v = g->countdown_timer_2;
     v--;
-    g->field_ca = v;
+    g->countdown_timer_2 = v;
     if (v >= 0)
     {
       return;
@@ -22,19 +22,19 @@ void func_80123254(GameState *g)
   }
   if ((g->frame_counter & 3) == 0)
   {
-    if ((((--g->field_115) & 0x80) == 0) && (((s16) (new_var = (o = g->field_78)->health)) != 0x90))
+    if ((((--g->countdown_3) & 0x80) == 0) && (((s16) (new_var = (o = g->focus_object)->health)) != 0x90))
     {
       new_var = o->health + 1;
       n = new_var;
       o->health = n;
-      o->field_5e = n;
+      o->y_offset = n;
     }
     else
     {
-      data_8018f5a0->field_50++;
-      g->field_ca = 0x5a;
-      o = g->field_78;
-      o->field_fc = o->health;
+      data_8018f5a0->step_index_2++;
+      g->countdown_timer_2 = 0x5a;
+      o = g->focus_object;
+      o->saved_health = o->health;
     }
   }
 }

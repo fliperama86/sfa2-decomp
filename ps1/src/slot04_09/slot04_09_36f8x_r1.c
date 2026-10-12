@@ -8,14 +8,14 @@ void func_801b2858_slot04_09(Object *o);
 /* What it does (inferred, not an original name): a per-frame update of a
    character state that has another object (field_40, "other") in view. It
    first runs func_801b2858_slot04_09 (the move). Then, when step_flags is
-   negative as a halfword: it sets field_45 to 1, vel_y to 0x90000 and
+   negative as a halfword: it sets active_state to 1, vel_y to 0x90000 and
    accel_y to -0x6000, adds 1 to state_3, and sets a velocity (vel_x,
-   accel_x): when field_a3 is 0 a fixed one whose sign follows field_0b;
+   accel_x): when field_a3 is 0 a fixed one whose sign follows facing_side;
    when field_a3 is not 0 a velocity toward other, vel_x = ((other's
    pos_x - pos_x) >> 4) << 16 and accel_x = 0. It starts sequence 0x33 in
-   both cases. When step_flags is not negative: if field_67 is not 0 and
-   other's field_61 is not 0xff it sets field_a3 to 0x80 and clears
-   field_67; if other's pos_x - pos_x + 0x24 is below 0x48 it clears
+   both cases. When step_flags is not negative: if active_flag is not 0 and
+   other's hit_type is not 0xff it sets field_a3 to 0x80 and clears
+   active_flag; if other's pos_x - pos_x + 0x24 is below 0x48 it clears
    vel_x and accel_x; then it hands over to update_sequence. */
 void func_801b36f8_slot04_09(Object *obj) {
     Object *p;
@@ -23,12 +23,12 @@ void func_801b36f8_slot04_09(Object *obj) {
 
     func_801b2858_slot04_09(obj);
     if ((s16)obj->step_flags & 0x8000) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->vel_y = 0x90000;
         obj->accel_y = -0x6000;
         obj->state_3++;
         if (obj->field_a3 == 0) {
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 obj->vel_x = 0xe0000;
                 obj->accel_x = -0x8000;
             } else {
@@ -47,10 +47,10 @@ void func_801b36f8_slot04_09(Object *obj) {
         }
     } else {
         p = obj->other;
-        if (obj->field_67 != 0) {
-            if (p->field_61 != 0xff) {
+        if (obj->active_flag != 0) {
+            if (p->hit_type != 0xff) {
                 obj->field_a3 = 0x80;
-                obj->field_67 = 0;
+                obj->active_flag = 0;
             }
             /* The original loads the pointer again here: without this statement this function differs from the original in 10 instruction slots. */
             p = obj->other;

@@ -13,36 +13,36 @@ void func_800111c8_slot27(void);
 void func_8001049c_slot27(void) {
     HudState *h = data_8018f5a0;
     data_80029324_slot27 = 0xff;
-    h->field_50++;
+    h->step_index_2++;
 }
 
 void func_800104c4_slot27(void) {
-    data_8018f5a0->field_50++;
+    data_8018f5a0->step_index_2++;
     func_80010e44_slot27();
-    game_state.field_06 = 0;
+    game_state.busy_flag = 0;
     game_state.field_09 = 0;
-    game_state.field_c6 = 0x2b;
+    game_state.countdown_2 = 0x2b;
 }
 
 void func_80010514_slot27(void) {
-    int t = game_state.field_c6 - 1;
-    game_state.field_c6 = t;
+    int t = game_state.countdown_2 - 1;
+    game_state.countdown_2 = t;
     if ((s16)t == 0) {
-        data_8018f5a0->field_50++;
+        data_8018f5a0->step_index_2++;
         func_80010ed0_slot27();
         func_80011118_slot27();
-        game_state.field_c8 = 8;
+        game_state.timer_or_bits = 8;
     }
 }
 
 void func_80010584_slot27(void) {
-    int t = game_state.field_c8 - 1;
-    game_state.field_c8 = t;
+    int t = game_state.timer_or_bits - 1;
+    game_state.timer_or_bits = t;
     if ((s16)t == 0) {
         HudState *h = data_8018f5a0;
-        h->field_50 = 0;
-        h->field_52 = 0;
-        h->field_4e += 2;
+        h->step_index_2 = 0;
+        h->pass_index = 0;
+        h->substep_index += 2;
         func_80010fa8_slot27();
         func_800111c8_slot27();
     }

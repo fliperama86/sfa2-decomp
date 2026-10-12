@@ -11,8 +11,8 @@ u8 func_8014e784(Object *object) {
     FrameRecord *frame;
     u8 a, b, c;
     if (*(u16 *)&object->state_0 != 1) return 0;
-    if (object->field_45 != 0) return 0;
-    if (object->field_27b != 0) return 0;
+    if (object->active_state != 0) return 0;
+    if (object->other_lock != 0) return 0;
     frame = object->frame;
     b = frame->box_b;
     a = frame->box_a;

@@ -5,27 +5,27 @@
 
 
 void func_80136c8c(void) {
-    table_80172500[game_state.field_40]();
+    table_80172500[game_state.kind_index]();
 }
 
 void func_80136ccc(void) {
     if (data_80190568 != 0) {
-        table_801725a0[game_state.field_40]();
+        table_801725a0[game_state.kind_index]();
     }
 }
 
 void func_80136d1c(Tx *tx) {
     func_80158a2c(tx, 0, 0, 0, 0);
-    tx->field_0f = 3;
-    tx->field_13 = 0x7c;
-    func_8015c23c(tx, &tx->field_0c);
+    tx->mode_id = 3;
+    tx->prim_code = 0x7c;
+    func_8015c23c(tx, &tx->prim_data);
 }
 
 void init_draw_mode_prim_4(Tx *tx) {
     func_80158a2c(tx, 0, 0, 0, 0);
-    tx->field_0f = 4;
-    tx->field_13 = 0x64;
-    func_8015c23c(tx, &tx->field_0c);
+    tx->mode_id = 4;
+    tx->prim_code = 0x64;
+    func_8015c23c(tx, &tx->prim_data);
 }
 
 void func_80136dc4(void) {

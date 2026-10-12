@@ -6,16 +6,16 @@
 void func_80150b80(Menu *menu, int a) {
     int lo = a & 0xff;
     int hi = (a & 0xff00) >> 8;
-    menu->field_ec = 1;
-    menu->field_18 = a;
-    menu->field_ed = lo;
+    menu->cd_param = 1;
+    menu->track_code = a;
+    menu->low_byte = lo;
     func_80150c6c(menu, data_8017eb34[hi]);
-    menu->field_28 = menu->field_2c = lo + menu->field_28;
-    menu->field_2c = (data_8017eb44[hi * 8 + lo] << 3) + menu->field_2c;
-    func_8015cec4(menu->field_28, &menu->field_f0);
+    menu->cd_sector = menu->end_sector = lo + menu->cd_sector;
+    menu->end_sector = (data_8017eb44[hi * 8 + lo] << 3) + menu->end_sector;
+    func_8015cec4(menu->cd_sector, &menu->cd_position);
     set_cd_volume(0);
     func_8016a730(0, 0, 1);
     func_8016904c(0, 0x55, 0x55);
-    menu->field_00 = 2;
-    menu->field_02 = 7;
+    menu->mode_index = 2;
+    menu->command_state = 7;
 }

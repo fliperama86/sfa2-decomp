@@ -6,8 +6,8 @@
 int func_801412a4(Object *object) {
     BytePair dir;
     int a;
-    if ((game_state.config->field_4d | game_state.config->field_04) != 0 || (func_8012f56c(object) & 0xff) != 0 ||
-        object->field_67 == 0 || (object->pressed_bits & 0xfc) == 0) {
+    if ((game_state.config->mode_flag_b | game_state.config->mode_flag_a) != 0 || (func_8012f56c(object) & 0xff) != 0 ||
+        object->active_flag == 0 || (object->pressed_bits & 0xfc) == 0) {
         return 0;
     }
     a = (int)func_801414dc(object);
@@ -17,14 +17,14 @@ int func_801412a4(Object *object) {
         if (func_801415c0(object, a, dir) == 0) return 0;
         if (func_80141534(object, dir) == 0) return 0;
     }
-    object->field_12a = dir.first;
-    object->field_129 = dir.second;
-    object->field_128 = 0;
-    if (object->field_130 & 0x4000) object->field_128 = 2;
+    object->direction_index = dir.first;
+    object->input_dir_second = dir.second;
+    object->input_dir_0 = 0;
+    if (object->input_bits_2 & 0x4000) object->input_dir_0 = 2;
     func_8014147c(object, dir);
     object->dir_first = dir.first;
     object->dir_second = dir.second;
-    object->field_17e = object->field_128;
+    object->field_17e = object->input_dir_0;
     func_80138c78((GameState *)game_state.config, object);
     func_80142c04(object);
     return 1;

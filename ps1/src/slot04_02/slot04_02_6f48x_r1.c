@@ -18,36 +18,36 @@ void func_801b6f48_slot04_02(Object *object) {
     u16 d;
     int t;
 
-    ((Slot04aObj *)object)->field_6c = data_801c7514_slot04_02;
+    ((Slot04aObj *)object)->data_pointer = data_801c7514_slot04_02;
     object->state_0++;
-    ((Slot04aObj *)object)->field_b0 = object->field_0d;
-    parent = object->field_3c;
+    ((Slot04aObj *)object)->field_b0 = object->image_row;
+    parent = object->parent;
     object->ot_depth = 0;
     object->field_49 = parent->field_49;
     object->field_1c = parent->field_1c;
-    if (object->field_03 != 0) {
+    if (object->table_index != 0) {
         func_801b772c_slot04_02(object, parent);
     }
-    t = data_801c7754_slot04_02[object->field_03 >> 1];
-    object->vel_y = data_801c779c_slot04_02[object->field_ac];
+    t = data_801c7754_slot04_02[object->table_index >> 1];
+    object->vel_y = data_801c779c_slot04_02[object->vel_table_index];
     object->pos_y -= t;
-    if (object->field_0b != 0) {
-        d = data_801c7748_slot04_02[object->field_03 >> 1];
-        object->vel_x = data_801c7760_slot04_02[object->field_ac];
+    if (object->facing_side != 0) {
+        d = data_801c7748_slot04_02[object->table_index >> 1];
+        object->vel_x = data_801c7760_slot04_02[object->vel_table_index];
     } else {
-        d = data_801c7748_slot04_02[object->field_03 >> 1];
+        d = data_801c7748_slot04_02[object->table_index >> 1];
         d = -d;
-        object->vel_x = -data_801c7760_slot04_02[object->field_ac];
+        object->vel_x = -data_801c7760_slot04_02[object->vel_table_index];
     }
     object->pos_x += d;
     if (parent->side == 0) {
-        ((Slot04aObj *)object)->field_8c = (int)data_1f8000a8;
+        ((Slot04aObj *)object)->scratchpad_value = (int)data_1f8000a8;
     } else {
-        ((Slot04aObj *)object)->field_8c = (int)data_1f800158;
+        ((Slot04aObj *)object)->scratchpad_value = (int)data_1f800158;
     }
-    func_801b7920_slot04_02(object, object->field_ac);
-    if (object->field_03 == 2 && ((Slot04aObj *)parent)->field_48 == -1) {
-        if (parent->field_0b != 0) {
+    func_801b7920_slot04_02(object, object->vel_table_index);
+    if (object->table_index == 2 && ((Slot04aObj *)parent)->parent_state == -1) {
+        if (parent->facing_side != 0) {
             object->vel_x -= 0x10000;
         } else {
             object->vel_x += 0x10000;

@@ -6,13 +6,13 @@
 void func_801b422c_slot04_06(Object *obj);
 
 void func_801b4198_slot04_06(Object *obj) {
-    obj->field_27c++;
+    obj->hit_count_3++;
     update_sequence(obj);
-    ((Slot04bObj *)obj)->field_46--;
-    if (((Slot04bObj *)obj)->field_46 != 0) {
+    ((Slot04bObj *)obj)->countdown--;
+    if (((Slot04bObj *)obj)->countdown != 0) {
         func_801b422c_slot04_06(obj);
     } else {
-        if (obj->field_45 != 0) {
+        if (obj->active_state != 0) {
             obj->state_0 = 1;
             obj->state_1 = 0;
             obj->state_2 = 3;

@@ -15,11 +15,11 @@ void func_80013708_slot12(Object *obj) {
     Object *p;
     HudState *h = data_8018f5a0;
 
-    h->field_4c++;
+    h->step_index++;
     game_state.field_2bc = 0;
-    h->field_4e = 0;
-    game_state.field_2b8--;
-    if (game_state.field_2b8 == 5) {
+    h->substep_index = 0;
+    game_state.left_rank_index--;
+    if (game_state.left_rank_index == 5) {
         func_80014288_slot12(obj);
     } else {
         func_801280f0();
@@ -48,8 +48,8 @@ void func_80013708_slot12(Object *obj) {
         func_80137220(0, 6);
         p = (Object *)func_8011f1e0();
         if (p != 0) {
-            p->field_03 = 3;
-            p->field_00 = 1;
+            p->table_index = 3;
+            p->active_count = 1;
             p->field_02 = 0xa4;
         }
     }

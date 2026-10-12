@@ -9,19 +9,19 @@ void func_80011f74_slot01(Object *obj) {
     Object *p = (Object *)func_8011f1e0();
     int t;
     if (p != 0) {
-        p->field_00 = 1;
+        p->active_count = 1;
         p->field_02 = 0x95;
-        p->field_66 = 0;
-        p->field_03 = 0x81;
-        t = obj->field_48;
-        p->field_0b = t;
+        p->sound_side = 0;
+        p->table_index = 0x81;
+        t = obj->variant_index;
+        p->facing_side = t;
         if (t != 0) {
-            p->field_03 = 0x86;
+            p->table_index = 0x86;
         }
         p->vel_x = 0;
         p->vel_y = 0;
-        p->field_3c = obj;
-        obj->field_28 = (u32)p;
+        p->parent = obj;
+        obj->linked_object = (u32)p;
     }
 }
 

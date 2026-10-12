@@ -11,11 +11,11 @@ void func_801b4390_slot04_0e(Object *o) {
     Object *p;
     s16 a;
     obj->field_47 = 0x20;
-    o->field_12c = o->field_12c + 1;
+    o->substate_index = o->substate_index + 1;
     p = o->other;
     a = p->pos_x;
     a -= o->pos_x;
-    if (o->field_0b != 0) {
+    if (o->facing_side != 0) {
         a = -a;
     }
     func_80146478(o, 6, a, 0);

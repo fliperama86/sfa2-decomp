@@ -16,7 +16,7 @@ void func_801b24f0_slot04_11(Object *obj) {
 
     func_801b5764_slot04_11(obj);
     if ((obj->step_flags << 16) < 0) {
-        if (obj->field_cd != 0) {
+        if (obj->mode_flag_2 != 0) {
             if (func_8014a170(obj, data_801c711c_slot04_11) != 0) {
                 goto act_b;
             }
@@ -25,7 +25,7 @@ void func_801b24f0_slot04_11(Object *obj) {
             }
             goto act_c;
         } else {
-            t = obj->field_130;
+            t = obj->input_bits_2;
             s = t & 0xf000;
             if ((t & 0x1000) == 0) {
                 goto not_a;
@@ -54,7 +54,7 @@ not_a:
 act_b:
         a = 0x18000;
         obj->state_3 = 7;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             a = -0x18000;
         }
         obj->vel_y = 0x10000;
@@ -65,18 +65,18 @@ act_b:
         return;
 act_c:
         obj->state_3 = 6;
-        obj->field_48 = 0;
-        if (obj->field_cd != 0) {
+        obj->variant_index = 0;
+        if (obj->mode_flag_2 != 0) {
             func_801b5914_slot04_11(obj);
             s = 0x8000;
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 s = 0;
                 /* Stand-in, not recovered source: this assignment, which nothing reads, reproduces the original's order of instructions. Without it this function differs from the original in 8 instruction slots. */
                 t = 0;
             }
         }
         {
-            int i = obj->field_12a << 1;
+            int i = obj->direction_index << 1;
             s32 v0, v1, v2;
 
             a = 0x26;
@@ -89,7 +89,7 @@ act_c:
             v2 = data_801c7450_slot04_11[i + 2];
             /* Stand-in, not recovered source: the local i, used again for the fourth table value, reproduces the original's choice of registers. Without it this function differs from the original in 17 instruction slots. */
             i = data_801c7450_slot04_11[i + 3];
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 v0 = -v0;
             }
             if (obj->field_49 != 0) {
@@ -100,7 +100,7 @@ act_c:
             obj->accel_x = v1;
             obj->vel_y = v2;
             obj->accel_y = i;
-            func_801307e0(obj, a + obj->field_12a);
+            func_801307e0(obj, a + obj->direction_index);
         }
     } else {
         update_sequence(obj);

@@ -53,22 +53,22 @@ void func_801e8d10_slot06_03(void) {
     u16 *e;
     Poly28 *rec;
     u32 *ot;
-    blank = ((Slot06Layer *)data_801aa5d4)->field_1e;
-    n = ((Slot06Layer *)data_801aa5d4)->field_3e;
-    f12 = (s16)((Slot06Layer *)data_801aa5d4)->field_12;
+    blank = ((Slot06Layer *)data_801aa5d4)->packed_param;
+    n = ((Slot06Layer *)data_801aa5d4)->signed_param;
+    f12 = (s16)((Slot06Layer *)data_801aa5d4)->scroll_x;
     sx = f12 & 0xf;
     y = ((Slot06Layer *)data_801aa5d4)->field_4c - (n + 5);
     sy = y & 0xf;
-    col = (f12 & (((Slot06Layer *)data_801aa5d4)->field_58 - 1)) >> 4;
+    col = (f12 & (((Slot06Layer *)data_801aa5d4)->map_width - 1)) >> 4;
     t = (s16)((Slot06Layer *)data_801aa5d4)->field_4c - 5;
     row = t / 16;
     off = t - (row << 4);
-    mask = (((Slot06Layer *)data_801aa5d4)->field_58 >> 4) - 1;
+    mask = (((Slot06Layer *)data_801aa5d4)->map_width >> 4) - 1;
     first = 0;
     rec = data_801f4c40_slot06_03[data_801a27d0];
     ot = &((u32 *)data_801987c8)[14];
     for (i = (s16)y / 16; i < (lim = (s16)y / 16 + 15) - ((s16)((Slot06Layer *)data_801aa5d4)->field_4c - 5) / 16; i++, row++) {
-        line = ((Slot06Layer *)data_801aa5d4)->field_50 + 0x800 + ((u16)row >> 4) * ((((Slot06Layer *)data_801aa5d4)->field_58 >> 9) << 10) + ((row & 0xf) << 6);
+        line = ((Slot06Layer *)data_801aa5d4)->tile_map_ptr + 0x800 + ((u16)row >> 4) * ((((Slot06Layer *)data_801aa5d4)->map_width >> 9) << 10) + ((row & 0xf) << 6);
         ya = sy + (i << 4);
         cc = col;
         yu = ya;

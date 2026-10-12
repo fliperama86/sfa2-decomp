@@ -34,17 +34,17 @@ void func_80010d0c_slot01(int value, char *dst) {
 void func_80010dcc_slot01(GameState *g) {
     HudState *h;
     func_8014f4d4(6, 2);
-    game_state.field_40 = *(u16 *)&data_80055f3c_slot01;
+    game_state.kind_index = *(u16 *)&data_80055f3c_slot01;
     h = data_8018f5a0;
     data_80190568 = 0;
     data_80055ea4_slot01 = 0;
-    h->field_4c = 0;
-    game_state.field_c6 = 0;
-    h->field_4e = 0;
+    h->step_index = 0;
+    game_state.countdown_2 = 0;
+    h->substep_index = 0;
     game_state.field_09 = 1;
-    game_state.field_c8 = 0;
+    game_state.timer_or_bits = 0;
     game_state.field_80 = 0;
-    game_state.field_2c = 0xff;
+    game_state.state_2c_flag = 0xff;
     player_left.field_01 = 0;
     player_right.field_01 = 0;
 }

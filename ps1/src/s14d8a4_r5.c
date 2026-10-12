@@ -10,9 +10,9 @@ int func_8014e25c(Object *object) {
     u8 a, b, c;
     if (!func_8014e310(object)) return 0;
     other = object->other;
-    if (other->field_45 != 0) return 0;
-    if (object->field_21e >= 0x30) return 0;
-    if (other->field_159 == 0) return 0;
+    if (other->active_state != 0) return 0;
+    if (object->compare_limit >= 0x30) return 0;
+    if (other->active_flag_3 == 0) return 0;
     if (*(u16 *)&other->state_0 != 1) return 0;
     frame = other->frame;
     b = frame->box_b;

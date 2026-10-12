@@ -49,15 +49,15 @@ void func_801b6438_slot04_17(Object *o) {
 
 void func_801b64c0_slot04_17(Object *obj) {
     obj->state_0++;
-    ref_other.p = obj->field_3c;
-    if (ref_other.p->field_3c == obj) {
-        ref_other.p->field_3c = 0;
+    ref_other.p = obj->parent;
+    if (ref_other.p->parent == obj) {
+        ref_other.p->parent = 0;
     }
-    if (obj->field_34 != 0) {
-        ref_other.p = (Object *)obj->field_34;
-        if (obj == ref_other.p->field_3c) {
+    if (obj->linked_object_b != 0) {
+        ref_other.p = (Object *)obj->linked_object_b;
+        if (obj == ref_other.p->parent) {
             ref_other.p->state_0++;
-            obj->field_34 = 0;
+            obj->linked_object_b = 0;
         }
     }
 }
@@ -77,7 +77,7 @@ void func_801b65bc_slot04_17(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     Slot04_17Recec3c *r;
 
-    obj->field_46 = 5;
+    obj->countdown = 5;
     r = &data_801cec3c_slot04_17[o->other->side];
     r->a = 0;
     r->b8 = 0x10;
@@ -125,7 +125,7 @@ void func_801b66d0_slot04_17(Object *obj) {
     job = (Job *)func_8011f4a4();
     if (job != 0) {
         rect.x = 0x60;
-        rect.y = ref_other.p->field_0d + 0x1e0;
+        rect.y = ref_other.p->image_row + 0x1e0;
         rect.w = 0x10;
         rect.h = 1;
         job->kind = 1;
@@ -179,7 +179,7 @@ Object *func_801b68c4_slot04_17(Object *obj) {
 }
 
 void func_801b68e8_slot04_17(Object *obj) {
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->parent;
     data_801ce9e0_slot04_17[obj->state_0](obj);
 }
 
@@ -188,7 +188,7 @@ void func_801b6938_slot04_17(Object *obj) {
     obj->field_1c = ref_other.p->field_1c;
     obj->field_0c = ref_other.p->field_0c;
     obj->field_0e = ref_other.p->field_0e;
-    obj->field_48 = 0;
+    obj->variant_index = 0;
     obj->field_01 = 0;
     func_801b69b0_slot04_17(obj);
 }
@@ -202,13 +202,13 @@ void func_801b69b0_slot04_17(Object *obj) {
         func_801b6a94_slot04_17(obj);
     }
     p = ref_other.p;
-    f = p->frame->field_09;
+    f = p->frame->frame_param;
     if (f != 0) {
         obj->pos_x = p->pos_x;
         obj->pos_y = ref_other.p->pos_y;
-        obj->field_0b = ref_other.p->field_0b;
+        obj->facing_side = ref_other.p->facing_side;
         obj->field_01 = 1;
-        if (obj->field_48 == f) {
+        if (obj->variant_index == f) {
             advance_sequence_checked(obj);
         } else {
             func_801b6adc_slot04_17(obj, f);
@@ -223,11 +223,11 @@ void func_801b6a94_slot04_17(Object *obj) {
 }
 
 void func_801b6aa8_slot04_17(Object *obj) {
-    ref_other.p->field_28 = 0;
+    ref_other.p->linked_object = 0;
     func_8011f38c(obj);
 }
 
 void func_801b6ad0_slot04_17(Object *obj) {
-    obj->field_48 = 0;
+    obj->variant_index = 0;
     obj->field_01 = 0;
 }

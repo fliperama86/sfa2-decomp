@@ -10,7 +10,7 @@ void func_801b4040_slot04_09(Object *obj) {
     obj->state_3++;
     obj->vel_y = 0;
     obj->accel_y = 0;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         obj->vel_x = 0x30000;
         obj->accel_x = 0x2000;
         func_801b4098_slot04_09(obj);
@@ -28,11 +28,11 @@ void func_801b4098_slot04_09(Object *obj) {
     if ((u8)t == 0) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;
-        obj->field_27b = 0;
+        obj->other_lock = 0;
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 10;
-            obj->field_27b = 3;
+            obj->other_lock = 3;
         }
     } else if ((u8)t != 2) {
         obj->step_flags = (t & 0xff00) | 2;

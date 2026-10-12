@@ -8,23 +8,23 @@ void func_801b58dc_slot04_09(Object *obj) {
 
     n = (Object *)func_8011f1e0();
     if (n != 0) {
-        n->field_00 = 1;
+        n->active_count = 1;
         n->field_02 = 0xc;
-        n->field_08 = 0x20;
-        n->field_03 = 0x10;
+        n->mode_id = 0x20;
+        n->table_index = 0x10;
         n->field_0e = obj->field_0e;
         n->field_0c = obj->field_0c;
-        n->field_0d = obj->field_0d;
-        n->field_26 = obj->field_26;
-        n->field_3c = obj;
+        n->image_row = obj->image_row;
+        n->scroll_factor = obj->scroll_factor;
+        n->parent = obj;
         n->pos_x = obj->pos_x;
         n->pos_y = obj->pos_y;
-        n->field_0b = obj->field_0b;
+        n->facing_side = obj->facing_side;
         n->field_90 = obj->field_90;
-        n->field_98 = obj->field_98;
-        n->field_9c = obj->field_9c;
+        n->data_ptr_a = obj->data_ptr_a;
+        n->data_ptr_b = obj->data_ptr_b;
         n->spawn_x = obj->spawn_x;
         n->spawn_y = obj->spawn_y;
-        n->field_66 = obj->side;
+        n->sound_side = obj->side;
     }
 }

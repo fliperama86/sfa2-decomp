@@ -12,12 +12,12 @@ extern u16 data_801c547c_slot04_06[];
 
 /*
  * What it does (inferred, not an original name): a per-frame update of a
- * character state chosen by step_flags. State 2 sets field_0b from pos_x;
+ * character state chosen by step_flags. State 2 sets facing_side from pos_x;
  * state 0 does nothing; otherwise, with vel_x >= 0, it runs the move,
  * may knock back ref_other.p, then update_sequence. With vel_x negative
- * it counts field_1c5 down and either ends the state (state_3 + 1,
+ * it counts table_value down and either ends the state (state_3 + 1,
  * sequence 0x2e) or starts the sequence from data_801c547c_slot04_06.
- * Casts to Slot04aObj: field_1c5 is a member of the module's record type
+ * Casts to Slot04aObj: table_value is a member of the module's record type
  * only; a local pointer of that type instead of the casts differs from
  * the original in 49 instruction lines.
  */
@@ -35,9 +35,9 @@ void func_801b3564_slot04_06(Object *obj) {
                 return;
             }
         }
-        obj->field_0b = 0;
+        obj->facing_side = 0;
         if (obj->pos_x < 0x280) {
-            obj->field_0b = 1;
+            obj->facing_side = 1;
         }
         update_sequence(obj);
         return;
@@ -47,14 +47,14 @@ void func_801b3564_slot04_06(Object *obj) {
         return;
     }
     /* Stand-in, not recovered source: the test of kind against 2 written a second time, which is never true here, reproduces the original's order of instructions. Without it this function differs from the original in 19 instruction slots. */
-    /* The tested value is kind, already known not to be 2 (the first test returned): the original still has `bne v0,v1,...` with v1 still 2, then `li v0,0x18`, the store of 0x18 to field_63 and `jal func_80146960`. The bytes do not say which condition the source had. */
+    /* The tested value is kind, already known not to be 2 (the first test returned): the original still has `bne v0,v1,...` with v1 still 2, then `li v0,0x18`, the store of 0x18 to state_param and `jal func_80146960`. The bytes do not say which condition the source had. */
     if (kind == 2) {
-        game_state.field_63 = 0x18;
+        game_state.state_param = 0x18;
         func_80146960(obj);
     }
     if (obj->vel_x >= 0) {
         func_801b4818_slot04_06(obj);
-        if (obj->field_cd != 0) {
+        if (obj->mode_flag_2 != 0) {
             func_80141248(obj);
             /* The result is masked to a byte; without the cast this function differs from the original in 25 instruction lines. */
             if ((u8)func_801410c8(obj) != 0) {
@@ -65,7 +65,7 @@ void func_801b3564_slot04_06(Object *obj) {
         }
         if ((state_late->frame_counter & 1) == 0) {
             /* The unsigned cast changes no value (a byte plus 3); without it this function differs from the original in 1 instruction line. */
-            if (((Slot04aObj *)obj)->field_1c5 < (u32)(obj->field_12a >> 1) + 3 || (((Slot04aObj *)obj)->field_1c5 & 0x80) != 0) {
+            if (((Slot04aObj *)obj)->table_value < (u32)(obj->direction_index >> 1) + 3 || (((Slot04aObj *)obj)->table_value & 0x80) != 0) {
                 /* The result is masked to a byte; without the cast this function differs from the original in 23 instruction lines. */
                 if ((u8)func_801b5ed8_slot04_06(obj) != 0) {
                     d = (get_random_byte() & 0xf) + 0x5c;
@@ -79,7 +79,7 @@ void func_801b3564_slot04_06(Object *obj) {
         }
         if ((state_late->frame_counter & 3) == 0) {
             /* The knock-back block (b2) and the final call are shared by three paths through gotos, as in the original; written with nested ifs and a flag this function differs from the original in 30 instruction lines. */
-            if (((Slot04aObj *)obj)->field_1c5 == 1) {
+            if (((Slot04aObj *)obj)->table_value == 1) {
                 /* The result is read as a signed byte; without the cast this function differs from the original in 20 instruction lines. */
                 if ((s8)func_801468f4(obj) != 0) {
                     goto b2;
@@ -110,8 +110,8 @@ b2:
 call:
         update_sequence(obj);
     } else {
-        ((Slot04aObj *)obj)->field_1c5--;
-        if (((Slot04aObj *)obj)->field_1c5 != 0) {
+        ((Slot04aObj *)obj)->table_value--;
+        if (((Slot04aObj *)obj)->table_value != 0) {
             func_80140cd8(obj, -0xfe, 0);
             play_side_sound_at(obj, obj->side, 8);
             /* Without the signed cast the compiler warns and this function differs from the original in 45 instruction lines. */
@@ -122,8 +122,8 @@ call:
             }
             obj->vel_x = 0xa0000;
             obj->accel_x = -0xe000;
-            state->field_63 = 8;
-            d = data_801c547c_slot04_06[((Slot04aObj *)obj)->field_1c5];
+            state->state_param = 8;
+            d = data_801c547c_slot04_06[((Slot04aObj *)obj)->table_value];
             func_801307e0(obj, d);
         } else {
             obj->state_3++;

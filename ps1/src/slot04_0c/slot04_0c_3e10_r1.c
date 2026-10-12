@@ -13,7 +13,7 @@ void func_8011f14c(Slab172 *o);
 
 void func_801b3e10_slot04_0c(Object *obj) {
     obj->state_1++;
-    obj->field_3c->field_14c = 0;
+    obj->parent->linked_object_3 = 0;
     func_80138070(obj, 6);
 }
 
@@ -28,19 +28,19 @@ void func_801b3e44_slot04_0c(Object *obj) {
 }
 
 void func_801b3e88_slot04_0c(Object *o) {
-    Object *p = o->field_3c;
-    u8 n = p->field_240 - 1;
-    p->field_240 = n;
+    Object *p = o->parent;
+    u8 n = p->link_flags - 1;
+    p->link_flags = n;
     if (n == 0) {
-        p->field_14c = 0;
+        p->linked_object_3 = 0;
     }
     func_8011f14c((Slab172 *)o);
 }
 
 void func_801b3ed0_slot04_0c(Object *obj) {
-    if (obj->field_ac == 6) {
+    if (obj->vel_table_index == 6) {
         obj->box_tables = data_801be124_slot04_0c[(s16)obj->health];
-    } else if (obj->field_ac == 8) {
+    } else if (obj->vel_table_index == 8) {
         obj->box_tables = data_801be150_slot04_0c[(s16)obj->health];
     } else {
         obj->box_tables = data_801be188_slot04_0c[(s16)obj->health];
@@ -48,15 +48,15 @@ void func_801b3ed0_slot04_0c(Object *obj) {
 }
 
 void func_801b3f54_slot04_0c(Object *obj) {
-    data_801be1e0_slot04_0c[obj->state_0](obj, obj->field_3c);
+    data_801be1e0_slot04_0c[obj->state_0](obj, obj->parent);
 }
 
 void func_801b3f94_slot04_0c(Object *obj, Object *parent) {
     obj->state_0++;
     obj->field_1c = parent->field_1c;
-    obj->field_03 = parent->kind;
+    obj->table_index = parent->kind;
     obj->field_0c = parent->field_0c;
     obj->field_0e = parent->field_0e;
-    obj->field_48 = 0;
+    obj->variant_index = 0;
     func_801b3ff0_slot04_0c(obj, parent);
 }

@@ -6,7 +6,7 @@
 void func_80129d14(Object *object) {
     int arg = 0;
     object->state_3 = object->state_3 + 1;
-    if (object->field_cd != 0) {
+    if (object->mode_flag_2 != 0) {
         if (object->field_157 != 0) {
             object->state_3 = object->state_3 + 1;
             arg = 1;

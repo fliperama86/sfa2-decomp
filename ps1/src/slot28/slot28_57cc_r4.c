@@ -15,9 +15,9 @@ void func_80015ac4_slot28(Object *obj) {
         obj->vel_x = 0x60;
         obj->state_1++;
     }
-    obj->field_48 = obj->field_48 ^ 1;
+    obj->variant_index = obj->variant_index ^ 1;
     obj->field_01 = 0;
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         obj->field_01 = 1;
     }
 }

@@ -23,14 +23,14 @@ void func_801b7ebc_slot04_02(Object *obj) {
     s16 i;
     int row;
 
-    row = obj->field_a0 << 4;
+    row = obj->variant_index_2 << 4;
     for (i = 1; i < 16; i++) {
-        if (obj->field_03 == 0) {
+        if (obj->table_index == 0) {
             data_801a2bc4[i] = data_801c7884_slot04_02[row + i];
         } else {
             data_801a2bc4[i] = data_801c7b44_slot04_02[row + i];
         }
     }
     func_80137220(0, 6);
-    obj->field_a0++;
+    obj->variant_index_2++;
 }

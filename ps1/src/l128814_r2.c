@@ -18,8 +18,8 @@ void func_801299f8(Object *object) {
         func_80129c40(object);
         func_80129b90(object);
         func_80129c68(object);
-        if (object->field_cd != 0 && object->field_256 == 0 &&
-            (game_state.config->field_4e | game_state.config->field_04) == 0 &&
+        if (object->mode_flag_2 != 0 && object->field_256 == 0 &&
+            (game_state.config->mode_flag_c | game_state.config->mode_flag_a) == 0 &&
             object->state_2 != 9) {
             if (*(u16 *)&object->state_0 != 1 || object->state_2 != 7 ||
                 ((object->kind != 6 && object->kind != 0xf) || object->field_15a != 6)) {

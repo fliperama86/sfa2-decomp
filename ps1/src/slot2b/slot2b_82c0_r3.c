@@ -11,8 +11,8 @@ void func_80078654_slot2b(Object *o);
 void func_80078518_slot2b(Object *o) {
     Object *p = data_8007ef28_slot2b;
 
-    if ((s32)o == p->field_14c) {
-        p->field_14c = 0;
+    if ((s32)o == p->linked_object_3) {
+        p->linked_object_3 = 0;
     }
     func_8011f14c((Slab172 *)o);
 }
@@ -20,14 +20,14 @@ void func_80078518_slot2b(Object *o) {
 void func_80078554_slot2b(Object *o) {
     Slot2bObj *obj = (Slot2bObj *)o;
 
-    obj->field_10 += o->vel_x;
+    obj->pos_x_hi += o->vel_x;
     o->vel_x += o->accel_x;
-    obj->field_14 -= o->vel_y;
+    obj->pos_y_hi -= o->vel_y;
     o->vel_y += o->accel_y;
 }
 
 void func_80078598_slot2b(Object *o) {
-    data_8007ef30_slot2b = o->field_3c;
+    data_8007ef30_slot2b = o->parent;
     data_8007ed88_slot2b[o->state_0](o);
 }
 
@@ -37,9 +37,9 @@ void func_800785e8_slot2b(Object *o) {
     o->state_0++;
     p = data_8007ef30_slot2b;
     o->field_1c = p->field_1c;
-    o->field_03 = p->kind;
+    o->table_index = p->kind;
     o->field_0e = data_8007ef30_slot2b->field_0e;
-    o->field_48 = 0;
-    o->field_46 = 0;
+    o->variant_index = 0;
+    o->countdown = 0;
     func_80078654_slot2b(o);
 }

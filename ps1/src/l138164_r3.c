@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_8013b824(void) {
-    ref_third.p->field_00++;
+    ref_third.p->active_count++;
     ref_third.p->state_0 = 1;
     ref_third.p->state_1 = 1;
     ref_third.p->state_2 = 0;
@@ -14,7 +14,7 @@ void func_8013b824(void) {
         ref_third.p->state_0 = 2;
         ref_third.p->state_1 = 0;
     }
-    ref_second.p->field_00++;
+    ref_second.p->active_count++;
     ref_second.p->state_0 = 1;
     ref_second.p->state_1 = 1;
     ref_second.p->state_2 = 0;

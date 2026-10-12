@@ -8,7 +8,7 @@ extern u8 data_80015440_slot01[][0x60];
 void func_80012668_slot01(Object *obj) {
     Rect r;
     u8 *p;
-    Object *o = obj->field_3c;
+    Object *o = obj->parent;
     r.x = 0x70;
     r.y = 0x1ec;
     r.w = 0x10;

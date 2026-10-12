@@ -10,14 +10,14 @@ extern ObjectFn data_800469d8_slot28[];
 void func_80021f74_slot28(Object *o) {
     o->field_0e = 0;
     o->field_0c = 0;
-    o->field_0b = 0;
-    o->field_48 = 0;
+    o->facing_side = 0;
+    o->variant_index = 0;
     o->state_0++;
-    func_80130768(o, data_800469cc_slot28[o->field_03], (SequenceStep **)o->box_tables);
+    func_80130768(o, data_800469cc_slot28[o->table_index], (SequenceStep **)o->box_tables);
 }
 
 void func_80021fc8_slot28(Object *obj) {
-    data_800469d0_slot28[obj->field_03](obj);
+    data_800469d0_slot28[obj->table_index](obj);
     obj->field_01 = 1;
 }
 
@@ -27,7 +27,7 @@ void func_8002201c_slot28(Object *obj) {
 }
 
 void func_80022070_slot28(Object *obj) {
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         obj->state_1 += 1;
     }
 }

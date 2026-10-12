@@ -14,7 +14,7 @@ void func_80027134_slot28(Object *obj) {
     *(s32 *)&o->pos_y_frac = *(s32 *)&o->pos_y_frac + o->vel_y;
     o = data_80051cdc_slot28.p;
     if ((s16)o->step_flags < 0) {
-        data_8018f5a0->field_60 = 0xb4;
-        data_8018f5a0->field_52++;
+        data_8018f5a0->countdown_timer = 0xb4;
+        data_8018f5a0->pass_index++;
     }
 }

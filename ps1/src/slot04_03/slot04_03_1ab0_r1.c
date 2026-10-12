@@ -9,7 +9,7 @@ void func_801b1ab0_slot04_03(Object *obj) {
     if ((t & 0xff) != 0) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->vel_x = 0x50000;
             obj->accel_x = -0x2000;
         } else {

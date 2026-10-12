@@ -6,24 +6,24 @@
 void func_801b5118_slot04_07(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int t;
-    if ((obj->field_45 & 1) == 0) {
-        t = obj->field_4c;
+    if ((obj->bit_flags & 1) == 0) {
+        t = obj->value_a;
         t <<= 8;
         *(s32 *)&obj->field_5c += t;
-        t = obj->field_50;
-        obj->field_4c += obj->field_54;
-        obj->field_50 += obj->field_58;
+        t = obj->value_c;
+        obj->value_a += obj->delta_a;
+        obj->value_c += obj->delta_c;
         t <<= 8;
         obj->field_60 -= t;
     }
-    if ((obj->field_45 & 2) == 0) {
-        t = obj->field_4e;
+    if ((obj->bit_flags & 2) == 0) {
+        t = obj->value_b;
         t <<= 8;
-        *(s32 *)&obj->field_6c += t;
-        t = obj->field_52;
-        obj->field_4e += obj->field_56;
-        obj->field_52 += obj->field_5a;
+        *(s32 *)&obj->data_pointer += t;
+        t = obj->value_d;
+        obj->value_b += obj->delta_b;
+        obj->value_d += obj->delta_d;
         t <<= 8;
-        *(s32 *)&obj->field_70 -= t;
+        *(s32 *)&obj->saved_pos_y -= t;
     }
 }

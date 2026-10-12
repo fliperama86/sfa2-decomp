@@ -5,7 +5,7 @@
 
 void func_8001b184_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
-    Object *p = obj->field_28;
+    Object *p = obj->linked_object;
     *(u16 *)&o->pos_x = *(u16 *)&p->pos_x;
     *(u16 *)&o->pos_y = *(u16 *)&p->ground_y;
 }

@@ -16,8 +16,8 @@ void func_80147238(Object *object) {
         set_cd_volume(2);
         object->field_01 = 1;
         func_801476f8(object);
-        func_80130768(object, game_state.field_6b, table_8017cbac);
-        key = object->field_45 >> 1;
+        func_80130768(object, game_state.spawn_kind, table_8017cbac);
+        key = object->active_state >> 1;
         if (key == 0) {
             bytes_8017cb18.first = 0;
             bytes_8017cb18.second = 0;

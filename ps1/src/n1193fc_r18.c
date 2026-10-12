@@ -11,10 +11,10 @@ void func_8012572c(void) {
 int func_80125734(Object *object, int arg) {
     u8 a = arg;
     u8 i;
-    if (object->field_cd == 0) {
+    if (object->mode_flag_2 == 0) {
         for (i = 0; i < 8; i++) {
-            if (object->field_130 & 0x100) {
-                if ((object->field_130 & data_8016ea60[i]) == data_8016ea60[i]) {
+            if (object->input_bits_2 & 0x100) {
+                if ((object->input_bits_2 & data_8016ea60[i]) == data_8016ea60[i]) {
                     return data_8016e9b8[(u8)(object->kind * 8 + i)];
                 }
             }

@@ -7,7 +7,7 @@ void func_801b43c8_slot04_02(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        obj->other->field_249 = 5;
+        obj->other->other_state_code = 5;
         func_80131468(obj);
     } else {
         if ((t & 0xff) == 0) {

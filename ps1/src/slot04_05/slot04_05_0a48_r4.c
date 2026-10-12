@@ -17,8 +17,8 @@ int func_801b0f04_slot04_05(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 2;
-        obj->field_159 = one;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = one;
+        obj->facing_side = obj->saved_facing;
         func_80142ba0(obj);
     }
     return r;
@@ -66,7 +66,7 @@ int func_801b1064_slot04_05(Object *obj) {
     int r = 0;
 
     if (obj->state_2 == 8 && obj->field_15a == 5) {
-        r = obj->field_45 == 0;
+        r = obj->active_state == 0;
     }
     return r;
 }

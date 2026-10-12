@@ -25,7 +25,7 @@ void func_80144268(Object *object) {
 void func_801442c4(Object *object) {
     object->pos_x = -0x40;
     object->pos_y = 0x70;
-    object->field_46 = 0xf;
+    object->countdown = 0xf;
     object->vel_x = 0xc0000;
     object->accel_x = 0x8000;
     object->state_2 = object->state_2 + 1;

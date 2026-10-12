@@ -11,13 +11,13 @@ void func_800109dc_slot12(void);
 void func_80010744_slot12(void) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
-    if (game_state.field_f0 == 0) {
+    if (game_state.wait_flag == 0) {
         data_8002d57c_slot12 = 1;
-        if (game_state.field_06 == 0) {
-            if (game_state.field_5f != 0) {
-                data_8018f5a0->field_4e++;
+        if (game_state.busy_flag == 0) {
+            if (game_state.mode_copy_2 != 0) {
+                data_8018f5a0->substep_index++;
                 game_state.field_09 = 0;
-                game_state.field_2c = 0;
+                game_state.state_2c_flag = 0;
             } else {
                 func_800109dc_slot12();
             }

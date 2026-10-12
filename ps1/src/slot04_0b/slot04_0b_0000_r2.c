@@ -25,12 +25,12 @@ void func_801b03f8_slot04_0b(Object *obj) {
         obj->accel_x = 0;
         obj->accel_y = -0x9000;
         obj->state_3 = obj->state_3 + 1;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->vel_x = 0x28000;
         } else {
             obj->vel_x = -0x28000;
         }
-        obj->field_45 = 1;
+        obj->active_state = 1;
         set_sequence_by_side(obj, 0x14);
     } else {
         update_sequence(obj);
@@ -39,7 +39,7 @@ void func_801b03f8_slot04_0b(Object *obj) {
 
 void func_801b047c_slot04_0b(Object *obj) {
     if (func_801b2510_slot04_0b(obj) == 0) {
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         func_801209c4(obj);

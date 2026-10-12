@@ -5,11 +5,11 @@
 
 void func_8012de9c(Object *object) {
     int v;
-    object->field_48 = 0xff;
-    object->field_45 = 0xff;
+    object->variant_index = 0xff;
+    object->active_state = 0xff;
     object->vel_y = 0x10000;
     object->accel_y = -0x6800;
-    object->field_46 = 0;
+    object->countdown = 0;
     object->accel_x = 0;
     object->state_3 = object->state_3 + 1;
     if (object->facing_flag == 0) {

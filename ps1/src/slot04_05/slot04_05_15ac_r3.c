@@ -9,23 +9,23 @@ void func_801b1870_slot04_05(Object *obj) {
     int a = 0x22;
 
     obj->state_3++;
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     func_80141f28(obj, 7);
     func_80138ae8(&game_state, obj);
-    obj->vel_x = data_801c1478_slot04_05[obj->field_12a * 2];
-    obj->vel_y = data_801c1478_slot04_05[obj->field_12a * 2 + 1];
-    obj->accel_x = data_801c1478_slot04_05[obj->field_12a * 2 + 2];
-    obj->accel_y = data_801c1478_slot04_05[obj->field_12a * 2 + 3];
+    obj->vel_x = data_801c1478_slot04_05[obj->direction_index * 2];
+    obj->vel_y = data_801c1478_slot04_05[obj->direction_index * 2 + 1];
+    obj->accel_x = data_801c1478_slot04_05[obj->direction_index * 2 + 2];
+    obj->accel_y = data_801c1478_slot04_05[obj->direction_index * 2 + 3];
     if (obj->field_49 != 0) {
         a = 0x35;
     }
-    func_801307e0(obj, (obj->field_12a >> 1) + a);
+    func_801307e0(obj, (obj->direction_index >> 1) + a);
 }
 
 void func_801b196c_slot04_05(Object *obj) {
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags == 0) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
         play_side_sound_at(obj, obj->side, 0x10);
     }

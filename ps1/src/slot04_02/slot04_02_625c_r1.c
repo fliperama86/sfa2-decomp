@@ -6,12 +6,12 @@
 u8 func_801b625c_slot04_02(Object *obj) {
     Object *o = obj->other;
     u8 r = 0;
-    int x = obj->field_46 + 0x100;
+    int x = obj->countdown + 0x100;
     s16 s;
     s8 t;
     s16 d;
     x &= 0x3ff;
-    obj->field_46 = x;
+    obj->countdown = x;
     if ((x & 0x300) == 0) {
         s = get_random_byte() & 0x7f;
         t = get_random_byte();

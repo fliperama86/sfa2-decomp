@@ -11,16 +11,16 @@ void func_801c9eb8_slot05_06(Object *o) {
     o->vel_x += o->accel_x;
     *(s32 *)&o->pos_y_frac -= o->vel_y;
     o->vel_y += o->accel_y;
-    if (o->pos_y >= (s16)obj->field_70) {
+    if (o->pos_y >= (s16)obj->saved_pos_y) {
         o->state_3++;
-        o->field_45 = 0;
-        o->pos_y = obj->field_70;
+        o->active_state = 0;
+        o->pos_y = obj->saved_pos_y;
         func_801307e0(o, 0x3b);
     } else {
-        t = o->field_46;
+        t = o->countdown;
         if (t == 0) {
             if (o->vel_y < 0) {
-                o->field_46 = t + 1;
+                o->countdown = t + 1;
                 o->field_6b = 0xa;
                 o->vel_y = 0;
                 o->accel_y = -0x6000;
@@ -39,10 +39,10 @@ void func_801c9fac_slot05_06(Object *obj) {
     s16 t;
 
     if ((s16)obj->step_flags >= 0) {
-        t = obj->field_46;
+        t = obj->countdown;
         if (t == 0) {
             if (obj->vel_y < 0) {
-                obj->field_46 = t + 1;
+                obj->countdown = t + 1;
                 obj->field_6b = 0xa;
                 obj->vel_y = 0;
                 obj->accel_y = -0x6000;

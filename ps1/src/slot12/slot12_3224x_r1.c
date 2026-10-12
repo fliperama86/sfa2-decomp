@@ -34,10 +34,10 @@ void func_80013224_slot12(Object *obj, u8 a, s16 x, s16 y) {
         ((Cell20 *)data_8002b614_slot12)->color_r = 0x80;
         ((Cell20 *)data_8002b614_slot12)->color_g = 0x80;
         ((Cell20 *)data_8002b614_slot12)->color_b = 0x80;
-        if (obj->field_48 == 9) {
-            ((Cell20 *)data_8002b614_slot12)->field_0e = func_8015bdd4(0, 0x1ed);
+        if (obj->variant_index == 9) {
+            ((Cell20 *)data_8002b614_slot12)->clut_or_tpage = func_8015bdd4(0, 0x1ed);
         } else {
-            ((Cell20 *)data_8002b614_slot12)->field_0e = func_8015bdd4(0, 0x1ec - obj->field_48);
+            ((Cell20 *)data_8002b614_slot12)->clut_or_tpage = func_8015bdd4(0, 0x1ec - obj->variant_index);
         }
         p = data_8002b614_slot12;
         data_8002b614_slot12 = (p + 5);

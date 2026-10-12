@@ -11,9 +11,9 @@ void func_8012c100(Object *object)
   s16 k;
   int m;
   Object *new_var;
-  if ((object->kind == 10) && (object->field_103 != 0))
+  if ((object->kind == 10) && (object->kind10_flag != 0))
   {
-    object->field_103 = 0;
+    object->kind10_flag = 0;
     if (object->side != 0)
     {
       func_80136ed0();
@@ -24,53 +24,53 @@ void func_8012c100(Object *object)
     }
     func_801372c8(object);
   }
-  object->field_159 = 0;
+  object->active_flag_3 = 0;
   object->field_243 = 0;
-  object->field_247 = 0;
+  object->step_applied_flag = 0;
   object->field_225 = 0;
   object->state_3 = object->state_3 + 1;
   data_80198226 = 0;
   data_801985ba = 0;
   object->field_7e = 0;
-  object->field_263 = 0;
-  object->field_27b = 0;
+  object->countdown_4 = 0;
+  object->other_lock = 0;
   new_var = object;
   object->field_29c = 0;
-  object->field_2a2 = 0;
-  object->field_2a1 = 0;
-  object->field_182 = 0;
+  object->cursor_timer_b = 0;
+  object->cursor_timer_a = 0;
+  object->frame_count = 0;
   object->field_180 = 0;
   set_side_field_0d(object);
-  if (object->field_61 == 0xff)
+  if (object->hit_type == 0xff)
   {
     func_8012c7b4(object);
   }
   else
   {
-    if ((game_state.field_30 != 0) && (game_state.mode != (object->side + 1)))
+    if ((game_state.versus_flag != 0) && (game_state.mode != (object->side + 1)))
     {
-      object->field_19f = object->field_6a;
+      object->field_19f = object->round_count;
       if (object->field_19f == 0)
       {
-        new_var->field_1a0 = 0;
+        new_var->hit_count_2 = 0;
       }
       new_var->field_1a1 = 0x13;
       new_var->field_1a2 = 1;
     }
-    new_var->field_6a = new_var->field_6a + 1;
+    new_var->round_count = new_var->round_count + 1;
     func_80138be4(&game_state, new_var);
     ref_other.p = new_var->other;
     ref_other.p->field_28c = 0;
-    ref_other.p->field_28d = 0;
-    ref_other.p->field_297 = 0;
+    ref_other.p->damage_countdown = 0;
+    ref_other.p->reference_count = 0;
     if (game_state.config->field_75 == 0)
     {
       game_state.config->field_75 = 0xff;
       ref_other.p = new_var->other;
-      ref_other.p->field_bd = 8;
+      ref_other.p->effect_request = 8;
       func_80155d4c(0x28, (s8) ref_other.p->side);
     }
-    m = new_var->field_61;
+    m = new_var->hit_type;
     k = m;
     if ((((k <= (3 - 1)) || (k == 6)) || (((unsigned) (m - 8)) < 2)) || (k == 0xe))
     {
@@ -93,7 +93,7 @@ void func_8012c100(Object *object)
     }
     else
     {
-      new_var->field_68 = pairs_80170074[m].first;
+      new_var->pair_value = pairs_80170074[m].first;
       new_var->field_60 = pairs_80170074[m].second;
       if ((k == 0x14) || (k == 0x16))
       {
@@ -107,13 +107,13 @@ void func_8012c100(Object *object)
       else
         if (k == 0xb)
       {
-        new_var->field_45 = 0xff;
+        new_var->active_state = 0xff;
         new_var->field_69 = new_var->field_69 + 1;
-        func_801308c4(new_var, new_var->field_68);
+        func_801308c4(new_var, new_var->pair_value);
       }
       else
       {
-        new_var->field_45 = 0xff;
+        new_var->active_state = 0xff;
         new_var->field_69 += 1;
         if ((new_var->field_60 == 2) && (k == 0xc))
         {
@@ -131,7 +131,7 @@ void func_8012c100(Object *object)
         }
         else
         {
-          func_801308c4(new_var, new_var->field_68);
+          func_801308c4(new_var, new_var->pair_value);
         }
       }
     }

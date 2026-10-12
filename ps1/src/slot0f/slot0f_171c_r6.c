@@ -14,18 +14,18 @@ void func_800e1c70_slot0f(Object *o) {
     if (b & 0x860) {
         if (b & 0x820) {
             if (obj->field_0c == 0) {
-                obj->field_0f = 2;
+                obj->countdown = 2;
                 o->field_01 += 1;
                 o->state_0 += 1;
             } else {
-                o->field_00 = 1;
+                o->active_count = 1;
                 o->field_01 = 0;
                 o->ot_depth = 0;
                 o->state_0 = 0;
             }
             play_sound_at(0, 0, 0x205);
         } else {
-            o->field_00 = 1;
+            o->active_count = 1;
             o->field_01 = 0;
             o->ot_depth = 0;
             o->state_0 = 0;
@@ -37,8 +37,8 @@ void func_800e1c70_slot0f(Object *o) {
 void func_800e1d2c_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     s8 t;
-    if (obj->field_0f != 0) {
-        obj->field_0f = obj->field_0f - 1;
+    if (obj->countdown != 0) {
+        obj->countdown = obj->countdown - 1;
     } else {
         if (obj->field_0b == 0) {
             o->field_0e = func_800e1014_slot0f(0);

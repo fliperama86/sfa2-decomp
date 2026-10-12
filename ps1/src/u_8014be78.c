@@ -9,9 +9,9 @@ void func_8014be78(Object *object)
   short v = *(data_80189460++);
   u16 new_var;
   new_var = v >> 8;
-  object->field_212 = new_var;
-  object->field_213 = v;
-  if ((v & 0x1f) >= object->field_cf)
+  object->script_byte_hi = new_var;
+  object->script_byte_lo = v;
+  if ((v & 0x1f) >= object->table_column)
   {
     func_8014c914(object);
   }

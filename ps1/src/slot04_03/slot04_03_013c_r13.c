@@ -9,7 +9,7 @@ void func_801b2f98_slot04_03(Object *obj) {
     func_80142fbc(obj);
     func_801428a8(obj);
     func_80138b38(&game_state, obj);
-    if (obj->field_45 != 0) {
+    if (obj->active_state != 0) {
         a = 0x2f;
     }
     set_sequence_by_side(obj, a);

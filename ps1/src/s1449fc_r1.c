@@ -16,7 +16,7 @@ void func_80144a10(Object *object) {
 void func_80144a6c(Object *object) {
     object->pos_x = 0x1c0;
     object->pos_y = 0x70;
-    object->field_46 = 0xf;
+    object->countdown = 0xf;
     object->vel_x = 0xfff40000;
     object->accel_x = -0x8000;
     object->state_2++;
@@ -26,8 +26,8 @@ void func_80144a6c(Object *object) {
 void func_80144ac0(Object *object) {
     int v;
     func_80144220(object);
-    v = object->field_46 - 1;
-    object->field_46 = v;
+    v = object->countdown - 1;
+    object->countdown = v;
     if (v & 0x80) {
         object->pos_x = 0xc0;
         object->state_2++;
@@ -36,7 +36,7 @@ void func_80144ac0(Object *object) {
 
 void func_80144b14(Object *object) {
     if ((s16)object->step_flags < 0) {
-        if ((u8)func_801441c8(object) != 0 || game_state.config->field_a6 == 0) {
+        if ((u8)func_801441c8(object) != 0 || game_state.config->table_index == 0) {
             func_801449fc(object);
         } else {
             object->state_2 = 3;

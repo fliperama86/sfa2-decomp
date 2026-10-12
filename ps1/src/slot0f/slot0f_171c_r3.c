@@ -15,7 +15,7 @@ void func_800e1964_slot0f(Object *o) {
     if (b & 0x860) {
         if (b & 0x820) {
             if (obj->field_0c == 0) {
-                obj->field_0f = 2;
+                obj->countdown = 2;
                 o->field_01 += 1;
                 o->state_0 += 1;
             } else {
@@ -34,8 +34,8 @@ void func_800e1964_slot0f(Object *o) {
 void func_800e1a10_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     s8 t;
-    if (obj->field_0f != 0) {
-        obj->field_0f = obj->field_0f - 1;
+    if (obj->countdown != 0) {
+        obj->countdown = obj->countdown - 1;
     } else {
         func_800e26cc_slot0f(o);
         if (obj->field_0b == 0) {

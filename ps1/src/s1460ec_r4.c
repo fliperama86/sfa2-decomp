@@ -10,14 +10,14 @@ u16 func_80147158(Object *object) {
     if (object->field_167 != 0xb) {
         kind = object->field_255;
         if (kind == 6) {
-            result = table_8017cae4[4 + (object->field_d5 >> 4)];
+            result = table_8017cae4[4 + (object->saved_meter >> 4)];
         } else {
             result = table_8017cae4[(kind & 0xfe) >> 1];
         }
         if (game_state.mode != 3) {
-            object->field_ec++;
+            object->hit_count++;
             if (object->field_255 == 6) {
-                object->field_ed++;
+                object->counter_ed++;
             }
         }
     }

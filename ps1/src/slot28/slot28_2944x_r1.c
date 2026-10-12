@@ -14,8 +14,8 @@ void func_80022c3c_slot28(Object *obj, int arg);
 void func_80022c6c_slot28(Object *obj);
 
 /* Sets up a scene of eleven objects (inferred). When the given object's
-   field_f0 is 0 it sets the HUD state's field_60 to 600 and adds 1 to its
-   field_52, calls func_80022bf0_slot28, and prepares the object held in
+   field_f0 is 0 it sets the HUD state's countdown_timer to 600 and adds 1 to its
+   pass_index, calls func_80022bf0_slot28, and prepares the object held in
    data_80051bd0_slot28 (position y -0x60, field_01 1, sequence set with
    func_80130768). Then it asks func_8011f1e0 for nine objects; each one it
    gets is filled in and entered in the table data_80051ba4_slot28 at index 1
@@ -27,7 +27,7 @@ void func_80022944_slot28(Object *obj)
     Object *o;
     int i;
     /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
-    /* With 1 written at its uses (the two stores of field_00 and field_01) this function differs from the original in 4 instruction slots. */
+    /* With 1 written at its uses (the two stores of active_count and field_01) this function differs from the original in 4 instruction slots. */
     int active;
     /* Stand-in, not recovered source: the local mode, a second name for the constant 2 passed to the last func_80130768 call (the original loads it into a1 at the call, no register of its own), reproduces the original's order of instructions. Without it this function differs from the original in 2 instruction slots. */
     int mode;
@@ -40,8 +40,8 @@ void func_80022944_slot28(Object *obj)
             active = 1;
         } while (0);
         mode = 2;
-        data_8018f5a0->field_60 = 0x258;
-        data_8018f5a0->field_52++;
+        data_8018f5a0->countdown_timer = 0x258;
+        data_8018f5a0->pass_index++;
         func_80022bf0_slot28(obj);
         o = data_80051bd0_slot28[0];
         slot = &data_80051ba4_slot28[1];
@@ -56,12 +56,12 @@ void func_80022944_slot28(Object *obj)
                 o->spawn_x = 0x60;
                 o->spawn_y = 0x1e0;
                 o->field_90 = (void *)0x80060000;
-                o->field_98 = data_800469ec_slot28;
-                o->field_9c = data_80046d34_slot28;
-                o->field_00 = active;
-                o->field_03 = i;
+                o->data_ptr_a = data_800469ec_slot28;
+                o->data_ptr_b = data_80046d34_slot28;
+                o->active_count = active;
+                o->table_index = i;
                 o->field_01 = active;
-                o->field_0d = 0;
+                o->image_row = 0;
                 o->box_tables = (BoxTables *)data_80047be4_slot28;
                 *slot = o;
             }
@@ -74,7 +74,7 @@ void func_80022944_slot28(Object *obj)
             o->pos_y = 0xa0;
             o->spawn_x = 0x60;
             o->spawn_y = 0x1e0;
-            o->field_0d = 0;
+            o->image_row = 0;
             o->ot_depth = 2;
             func_80130768(o, mode, data_80047be4_slot28);
             data_80051ba4_slot28[0] = o;

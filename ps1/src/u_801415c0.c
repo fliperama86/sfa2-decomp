@@ -9,7 +9,7 @@ s16 func_801415c0(Object *object, u16 *mask, BytePair dir)
 {
   u16 m = *mask;
   unsigned short new_var;
-  int a = (object->field_130 & 0x4000) ? (6) : (0);
+  int a = (object->input_bits_2 & 0x4000) ? (6) : (0);
   int b = a;
   if (dir.second != 0)
   {

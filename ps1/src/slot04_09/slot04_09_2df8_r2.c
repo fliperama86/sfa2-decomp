@@ -11,19 +11,19 @@ void func_801b2ef8_slot04_09(Object *obj) {
     update_sequence(obj);
     t = obj->step_flags;
     if ((u8)t == 0) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
-        obj->field_27b = 0;
+        obj->other_lock = 0;
         if (obj->field_165 & 0x80) {
             obj->other->field_6b = 10;
-            obj->field_27b = 5;
+            obj->other_lock = 5;
         }
         obj->field_165 = 0;
         obj->vel_x = 0x80000;
         obj->accel_x = -0x8000;
         obj->vel_y = 0x80000;
         obj->accel_y = -0x6000;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->vel_x = -0x80000;
             obj->accel_x = 0x8000;
         }

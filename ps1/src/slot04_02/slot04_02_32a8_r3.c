@@ -17,9 +17,9 @@ void func_801b3678_slot04_02(Object *obj) {
         obj->field_165 = 0;
         obj->state_3 = obj->state_3 + 1;
         if (obj->field_4b != 0) {
-            obj->field_27b = 0;
+            obj->other_lock = 0;
         } else {
-            obj->field_27b = 1;
+            obj->other_lock = 1;
         }
     } else if ((t & 0xff) != 0) {
         if (obj->field_165 == 0) {

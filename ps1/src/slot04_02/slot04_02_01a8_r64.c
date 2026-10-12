@@ -6,8 +6,8 @@
 int func_801b772c_slot04_02(Object *obj, Object *parent);
 
 void func_801b72b0_slot04_02(Object *obj) {
-    if (obj->field_03 != 0) {
-        func_801b772c_slot04_02(obj, obj->field_3c);
+    if (obj->table_index != 0) {
+        func_801b772c_slot04_02(obj, obj->parent);
     }
     func_80137be0(obj);
 }

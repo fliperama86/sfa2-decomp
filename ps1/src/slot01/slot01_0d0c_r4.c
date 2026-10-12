@@ -9,23 +9,23 @@ void func_80011740_slot01(void);
 
 void func_80011224_slot01(void) {
     Object *o;
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
     o = (Object *)func_8011f1e0();
     if (o != 0) {
-        o->field_00 = 1;
+        o->active_count = 1;
         o->field_02 = 0x2b;
-        o->field_03 = 1;
+        o->table_index = 1;
     }
 }
 
 void func_80011274_slot01(void) {
     Object *o;
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
     o = (Object *)func_8011f1e0();
     if (o != 0) {
-        o->field_00 = 1;
+        o->active_count = 1;
         o->field_02 = 0x30;
-        o->field_03 = *(u8 *)&data_80055f3c_slot01;
+        o->table_index = *(u8 *)&data_80055f3c_slot01;
         o->ot_depth = 8;
         o->spawn_x = 0x10;
         o->spawn_y = 0x1f0;
@@ -34,16 +34,16 @@ void func_80011274_slot01(void) {
 
 void func_800112e4_slot01(void) {
     Object *o;
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
     func_80011740_slot01();
     o = (Object *)func_8011f1e0();
     if (o != 0) {
-        o->field_00 = 1;
+        o->active_count = 1;
         o->field_02 = 0x13;
         if (data_80055f3c_slot01 == 0x12) {
-            o->field_03 = 0x14;
+            o->table_index = 0x14;
         } else {
-            o->field_03 = *(u8 *)&data_80055f3c_slot01;
+            o->table_index = *(u8 *)&data_80055f3c_slot01;
         }
         o->spawn_x = 0x20;
         o->spawn_y = 0x1e0;

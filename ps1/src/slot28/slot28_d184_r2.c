@@ -6,11 +6,11 @@
 void func_8001da50_slot28(Object *obj);
 
 void func_8001d758_slot28(Object *obj) {
-    int kind = obj->field_03;
+    int kind = obj->table_index;
     obj->field_0e = 0;
     obj->field_0c = 0;
-    obj->field_0b = 0;
-    obj->field_48 = 0;
+    obj->facing_side = 0;
+    obj->variant_index = 0;
     obj->state_0 = obj->state_0 + 1;
     if (kind != 2) {
         if (kind == 3) {

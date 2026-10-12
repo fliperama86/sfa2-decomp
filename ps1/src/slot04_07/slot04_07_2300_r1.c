@@ -9,7 +9,7 @@ void func_801b2300_slot04_07(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     o->state_3 = 2;
-    o->field_46 = 8;
+    o->countdown = 8;
     o->accel_x = *(s32 *)&obj->field_1c0;
     func_801307e0(o, 0x24);
 }
@@ -26,7 +26,7 @@ void func_801b2338_slot04_07(Object *obj) {
 
 void func_801b2378_slot04_07(Object *obj) {
     obj->state_3 = 3;
-    obj->field_45 = 1;
+    obj->active_state = 1;
     obj->vel_x = 0x70000;
     obj->accel_x = -0x1000;
     obj->vel_y = 0x50000;
@@ -42,14 +42,14 @@ void func_801b2378_slot04_07(Object *obj) {
 int func_801b23e4_slot04_07(Object *obj) {
     int t;
 
-    if (obj->field_cd == 0) {
-        return (s16)obj->field_21e < 0x20;
+    if (obj->mode_flag_2 == 0) {
+        return (s16)obj->compare_limit < 0x20;
     }
     t = 0x30;
-    if (obj->field_12a != 0) {
+    if (obj->direction_index != 0) {
         t = 0x60;
     }
-    return (s16)obj->field_21e < t;
+    return (s16)obj->compare_limit < t;
 }
 
 void func_801b2428_slot04_07(Object *obj) {

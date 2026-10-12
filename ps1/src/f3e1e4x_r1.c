@@ -15,11 +15,11 @@ void func_8013e1e4(Object *object, int index, int arg) {
     u16 m;
     u16 f;
     index = slot;
-    object->slots[index].field_01 = 0;
+    object->slots[index].entry_index = 0;
     entry = table_8017a8cc[(u8)arg * 7];
     f = object->pressed_bits;
     m = entry & 0xf0ff;
-    if ((f & m) == 0 || (!(entry & 0x400) && m != (object->field_130 & 0xf0ff))) {
+    if ((f & m) == 0 || (!(entry & 0x400) && m != (object->input_bits_2 & 0xf0ff))) {
         func_8013f2a8(object, index, (u8)arg);
     } else {
         object->slots[slot].stage++;

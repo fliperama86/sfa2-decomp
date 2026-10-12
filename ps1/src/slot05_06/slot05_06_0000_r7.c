@@ -12,7 +12,7 @@ void func_801c8858_slot05_06(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->accel_x = -0xc000;
     one = 1;
-    obj->field_159 = one;
+    obj->active_flag_3 = one;
     func_80130dc0(obj);
     obj->field_278 = one;
 }

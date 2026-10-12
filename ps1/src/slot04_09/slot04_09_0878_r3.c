@@ -7,8 +7,8 @@ void func_801b5ba0_slot04_09(Object *obj);
 
 void func_801b39d8_slot04_09(Object *obj) {
     func_801b5ba0_slot04_09(obj);
-    obj->field_46 = (s16)obj->field_46 - 1;
-    if ((s16)obj->field_46 < 0) {
+    obj->countdown = (s16)obj->countdown - 1;
+    if ((s16)obj->countdown < 0) {
         obj->vel_x >>= 1;
         obj->accel_x >>= 1;
         obj->vel_y >>= 1;

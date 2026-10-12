@@ -10,8 +10,8 @@ void func_801b349c_slot04_0b(Object *obj) {
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->gauge = 0x64;
-    obj->field_46 = 0;
-    obj->field_a1 = 0;
+    obj->countdown = 0;
+    obj->offset_index = 0;
     func_801307e0(obj, 0x18);
 }
 

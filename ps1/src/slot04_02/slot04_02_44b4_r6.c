@@ -6,7 +6,7 @@
 void func_801b4d28_slot04_02(Object *obj);
 
 void func_801b5184_slot04_02(Object *obj) {
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
@@ -26,7 +26,7 @@ void func_801b5184_slot04_02(Object *obj) {
 void func_801b5234_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->field_157 = 0;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         func_801312b8(obj);
     } else {
         func_80142adc(obj);

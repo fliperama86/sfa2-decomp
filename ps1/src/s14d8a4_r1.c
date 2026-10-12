@@ -17,7 +17,7 @@ void func_8014d8d4(Object *object) {
 }
 
 void func_8014d91c(Object *object) {
-    if (object->state_2 == 0 || object->field_21b == 0) func_8014d99c(object);
+    if (object->state_2 == 0 || object->active_flag_5 == 0) func_8014d99c(object);
 }
 
 void func_8014d95c(Object *object) {
@@ -34,15 +34,15 @@ void func_8014d9ac(Object *object) {
     u16 **table;
     u16 *p;
     u16 first;
-    object->field_24f = 0;
-    object->field_253 = 0;
+    object->script_entry_index = 0;
+    object->script_counter = 0;
     if (object->side == 0) table = scr_c4_left;
     else table = scr_174_right;
     p = table[object->script_table_index >> 1];
     data_80189460 = p + 1;
     first = *p;
-    object->field_228 = (s32)data_80189460;
-    object->field_23c = (s32)data_80189460;
+    object->script_pointer = (s32)data_80189460;
+    object->data_ptr = (s32)data_80189460;
     object->field_224 = 0;
     object->field_25d = 0;
     object->field_20c = first;

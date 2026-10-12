@@ -9,7 +9,7 @@
 
 void func_801368fc(void) {
     u16 p, q;
-    table_80172460[game_state.field_40](&cam_obj);
+    table_80172460[game_state.kind_index](&cam_obj);
     p = cam_f22;
     q = cam_f26;
     cam_f12 = p;

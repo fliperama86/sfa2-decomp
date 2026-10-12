@@ -33,14 +33,14 @@ void func_801b3b2c_slot04_0f(Object *obj) {
     if ((t & 0xff) != 0) {
         m = -0x100;
         obj->step_flags = t & m;
-        obj->field_46 = (s16)obj->field_46 - 1;
-        if ((s16)obj->field_46 < 0) {
+        obj->countdown = (s16)obj->countdown - 1;
+        if ((s16)obj->countdown < 0) {
             obj->state_3 = obj->state_3 + 1;
             func_801307e0(obj, 0x53);
         } else {
             func_80146960(obj);
-            i = *(u8 *)&obj->field_46 * 2;
-            if (obj->field_12a == 4) {
+            i = *(u8 *)&obj->countdown * 2;
+            if (obj->direction_index == 4) {
                 i += 2;
             }
             func_80140cd8(obj, (s16)(*(u16 *)((u8 *)data_801c5b98_slot04_0f + i) | m), 0);
@@ -63,12 +63,12 @@ void func_801b3c14_slot04_0f(Object *obj) {
     obj->vel_x = 0x24000;
     obj->vel_y = -0x60000;
     obj->accel_x = -0x500;
-    obj->field_45 = one;
+    obj->active_state = one;
     obj->accel_y = 0x3000;
     if ((s16)o->health < 0) {
         play_sound_at(obj, obj->side, 0x319);
-        obj->field_167 = (obj->field_12a >> 1) + 0xc;
-        game_state.config->field_6b = 4;
+        obj->field_167 = (obj->direction_index >> 1) + 0xc;
+        game_state.config->countdown = 4;
         func_80147000(obj);
     } else {
         play_sound_at(obj, obj->side, 0x319);
@@ -79,7 +79,7 @@ void func_801b3d08_slot04_0f(Object *obj) {
     func_801b394c_slot04_0f(obj);
     if (obj->ground_y <= obj->pos_y) {
         obj->state_3 = obj->state_3 + 1;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
         obj->pos_y_frac = 0;
         func_801209c4(obj);
@@ -118,7 +118,7 @@ void func_801b3e54_slot04_0f(Object *obj) {
         b = -0x10000;
         obj->vel_y = 0;
         obj->accel_y = 0;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             a = -0xc0000;
             b = 0x10000;
         }
@@ -162,12 +162,12 @@ void func_801b3fc0_slot04_0f(Object *obj) {
 }
 
 void func_801b4000_slot04_0f(Object *obj) {
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3++;
     if (obj->field_49 == 0) {
-        obj->field_177--;
+        obj->remaining_count--;
     }
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     obj->field_157 = 0;
     func_801307e0(obj, 0x63);
 }
@@ -185,7 +185,7 @@ void func_801b4094_slot04_0f(Object *obj) {
 }
 
 void func_801b40d4_slot04_0f(Object *obj) {
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->vel_x = 0;
     obj->accel_x = 0;
     obj->vel_y = 0;
@@ -193,11 +193,11 @@ void func_801b40d4_slot04_0f(Object *obj) {
     obj->state_3++;
     func_801b41dc_slot04_0f(obj);
     if (obj->field_49 == 0) {
-        obj->field_177--;
+        obj->remaining_count--;
     }
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     obj->field_157 = 0;
-    ((Slot04bObj *)obj)->field_46 = 0x78;
+    ((Slot04bObj *)obj)->countdown = 0x78;
     func_801307e0(obj, 0x64);
 }
 
@@ -205,8 +205,8 @@ void func_801b415c_slot04_0f(Object *obj) {
     Slot04bObj *o = (Slot04bObj *)obj;
 
     func_801b41dc_slot04_0f(obj);
-    o->field_46--;
-    if (o->field_46 == 0) {
+    o->countdown--;
+    if (o->countdown == 0) {
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 3;
@@ -231,7 +231,7 @@ void func_801b41dc_slot04_0f(Object *obj) {
 }
 
 void func_801b4230_slot04_0f(Object *obj) {
-    if (obj->field_12a != 2) {
+    if (obj->direction_index != 2) {
         func_801b45a8_slot04_0f(obj);
     } else {
         data_801c5bc4_slot04_0f[obj->state_3](obj);
@@ -239,7 +239,7 @@ void func_801b4230_slot04_0f(Object *obj) {
 }
 
 void func_801b4290_slot04_0f(Object *obj) {
-    if (obj->field_12a != 2) {
+    if (obj->direction_index != 2) {
         func_801b45a8_slot04_0f(obj);
     } else {
         data_801c5bd4_slot04_0f[obj->state_3](obj);
@@ -251,7 +251,7 @@ void func_801b42f0_slot04_0f(Object *obj) {
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->gauge = 0xb4;
-    obj->field_46 = 0;
+    obj->countdown = 0;
     ((Slot04bObj *)obj)->field_336 = 0;
     func_801307e0(obj, 0x18);
 }
@@ -277,11 +277,11 @@ void func_801b4358_slot04_0f(Object *obj) {
             play_sound_at(o, o->side, 0x333);
             goto tail;
         }
-        obj->field_46 = obj->field_46 + 1;
+        obj->countdown = obj->countdown + 1;
         play_sound_at(o, o->side, 0x302);
     }
     func_80140fe0(obj);
-    if ((s16)obj->field_46 != 0 && (o->field_15b == 0 || func_801410c8(obj) != 0)) {
+    if ((s16)obj->countdown != 0 && (o->field_15b == 0 || func_801410c8(obj) != 0)) {
         func_80146478(obj, 1, -0x2e, 0x49);
         func_80140770(obj, 1, 5, 0, 0, 0, 1);
 tail:

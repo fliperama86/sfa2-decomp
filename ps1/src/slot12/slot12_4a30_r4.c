@@ -8,8 +8,8 @@ extern SequenceStep *data_800280a0_slot12[];
 
 void func_80014d08_slot12(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        int t = obj->field_46 - 1;
-        obj->field_46 = t;
+        int t = obj->countdown - 1;
+        obj->countdown = t;
         if ((s16)t < 0) {
             obj->state_1++;
             game_state.field_2bc = 9;

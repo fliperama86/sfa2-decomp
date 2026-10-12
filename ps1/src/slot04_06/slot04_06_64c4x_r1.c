@@ -11,12 +11,12 @@ void func_801b64c4_slot04_06(Object *obj) {
 
     if ((func_801b66fc_slot04_06(obj) << 16) > 0) {
         t = obj->state_1;
-        a = obj->field_03;
-        obj->pos_y = ((Slot04aObj *)obj)->field_70;
+        a = obj->table_index;
+        obj->pos_y = ((Slot04aObj *)obj)->saved_pos_y;
         t++;
         a = (a & 1) | 0x18;
         obj->state_1 = t;
-        if (obj->field_66 == 0) {
+        if (obj->sound_side == 0) {
             func_80130768(obj, a, data_1f8000b4);
         } else {
             func_80130768(obj, a, data_1f800164);

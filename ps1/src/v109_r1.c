@@ -9,14 +9,14 @@ void func_8012e168(Object *o) {
     u16 state;
     if (func_8012eff8(o)) {
         o->state_3++;
-        o->field_0b = (o->facing_flag ^ 1) & 1;
+        o->facing_side = (o->facing_flag ^ 1) & 1;
         func_8012e334(o);
         return;
     }
     if ((s16)o->health >= 0) {
-        if (o->field_cd) {
+        if (o->mode_flag_2) {
             func_8012e264(o);
-        } else if ((o->field_130 & 0x2000) == 0) {
+        } else if ((o->input_bits_2 & 0x2000) == 0) {
             update_sequence(o);
         } else {
             o->field_157 = 0;
@@ -28,7 +28,7 @@ void func_8012e168(Object *o) {
         return;
     }
     o->field_157++;
-    o->field_29f = 0;
+    o->action_timer = 0;
     o->field_60 = 0;
     state = 0xe;
     func_801308c4(o, state);

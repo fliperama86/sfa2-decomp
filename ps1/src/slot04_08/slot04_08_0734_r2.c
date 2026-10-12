@@ -14,11 +14,11 @@ int func_801b0a38_slot04_08(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 7;
         obj->state_3 = 0;
-        obj->field_129 = 6;
+        obj->input_dir_second = 6;
         obj->field_15a = one;
-        obj->field_159 = one;
-        obj->field_12a = ((Slot04aObj *)obj)->field_2d5;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = one;
+        obj->direction_index = ((Slot04aObj *)obj)->field_2d5;
+        obj->facing_side = obj->saved_facing;
     }
     return r;
 }
@@ -34,11 +34,11 @@ int func_801b0ab4_slot04_08(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 7;
         obj->state_3 = 0;
-        obj->field_129 = 0;
+        obj->input_dir_second = 0;
         obj->field_15a = one;
-        obj->field_159 = one;
-        obj->field_12a = ((Slot04aObj *)obj)->field_2bd;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = one;
+        obj->direction_index = ((Slot04aObj *)obj)->field_2bd;
+        obj->facing_side = obj->saved_facing;
     }
     return r;
 }
@@ -54,11 +54,11 @@ int func_801b0b2c_slot04_08(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 7;
         obj->state_3 = 0;
-        obj->field_129 = 2;
-        obj->field_159 = one;
+        obj->input_dir_second = 2;
+        obj->active_flag_3 = one;
         obj->field_15a = one;
-        obj->field_12a = ((Slot04aObj *)obj)->field_2c5;
-        obj->field_0b = obj->field_158;
+        obj->direction_index = ((Slot04aObj *)obj)->field_2c5;
+        obj->facing_side = obj->saved_facing;
     }
     return r;
 }

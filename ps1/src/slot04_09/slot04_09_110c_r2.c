@@ -11,16 +11,16 @@ void func_801b1280_slot04_09(Object *obj) {
     obj->state_3 = 0;
     obj->field_6b = 0;
     obj->other->field_6b = 0x10;
-    obj->field_12a = 0;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
+    obj->direction_index = 0;
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
 }
 
 int func_801b12c4_slot04_09(Object *obj) {
     int r = 0;
 
     if (obj->field_7e == 0) {
-        if (obj->field_240 != 0) {
+        if (obj->link_flags != 0) {
             return 0;
         }
     }
@@ -31,12 +31,12 @@ int func_801b12c4_slot04_09(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 0;
-        obj->field_159 = 1;
-        obj->field_12c = 0;
+        obj->active_flag_3 = 1;
+        obj->substate_index = 0;
         obj->field_12d = 0;
-        obj->field_12e = 0;
-        obj->field_12f = 0;
-        obj->field_0b = obj->field_158;
+        obj->step_count_2 = 0;
+        obj->step_limit = 0;
+        obj->facing_side = obj->saved_facing;
         func_80142b3c(obj);
     }
     return r;
@@ -52,12 +52,12 @@ int func_801b1368_slot04_09(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_15a = 1;
-        obj->field_159 = 1;
-        obj->field_12c = 0;
+        obj->active_flag_3 = 1;
+        obj->substate_index = 0;
         obj->field_12d = 0;
-        obj->field_12e = 0;
-        obj->field_12f = 0;
-        obj->field_0b = obj->field_158;
+        obj->step_count_2 = 0;
+        obj->step_limit = 0;
+        obj->facing_side = obj->saved_facing;
         func_80142b3c(obj);
     }
     return r;

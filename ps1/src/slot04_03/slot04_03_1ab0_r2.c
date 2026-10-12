@@ -11,7 +11,7 @@ void func_801b1c08_slot04_03(Object *obj) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;
         d = -0x48;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             d = 0x48;
         }
         obj->pos_x = d + obj->pos_x;

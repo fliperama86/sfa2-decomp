@@ -12,12 +12,12 @@ void func_80011bd8_slot12(Object *obj, Slot12List *list);
 
 void func_800117ec_slot12(Object *obj) {
     obj->field_0e = 0;
-    obj->field_24 = 0;
-    obj->field_0b = 0;
+    obj->table_index_2 = 0;
+    obj->facing_side = 0;
     obj->state_0++;
-    if (obj->field_03 == 0) {
+    if (obj->table_index == 0) {
         obj->field_20 = 0x80;
-        obj->field_22 = 0x80;
+        obj->y_scale = 0x80;
         obj->pos_x = 0xb8;
         obj->pos_y = 0x60;
         obj->field_01 = 0;
@@ -33,11 +33,11 @@ void func_800117ec_slot12(Object *obj) {
         obj->pos_y = 0x98;
         obj->spawn_y = 0x1e3;
         obj->field_90 = (void *)0x80040000;
-        obj->field_98 = data_800175e0_slot12;
+        obj->data_ptr_a = data_800175e0_slot12;
         obj->ot_depth = 0;
         obj->field_20 = 0;
         obj->spawn_x = 0;
-        obj->field_9c = data_80017630_slot12;
+        obj->data_ptr_b = data_80017630_slot12;
         func_80130768(obj, 3, table_80017870_slot12);
     }
 }

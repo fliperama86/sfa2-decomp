@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_8012b7b8(Object *object) {
-    if (object->field_cd != 0) {
+    if (object->mode_flag_2 != 0) {
         if ((s16)object->step_flags < 0) {
             func_801312b8(object);
             return;
@@ -21,7 +21,7 @@ void func_8012b7b8(Object *object) {
         if (func_8012f970(object) != 0) {
             object->state_3 = 0;
             object->field_157 = 0;
-            object->field_0b = object->field_158;
+            object->facing_side = object->saved_facing;
             set_sequence_by_side(object, 0x16);
             return;
         }
@@ -34,6 +34,6 @@ void func_8012b7b8(Object *object) {
             return;
         }
     }
-    object->field_0b = object->field_158;
+    object->facing_side = object->saved_facing;
     update_sequence(object);
 }

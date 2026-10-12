@@ -8,19 +8,19 @@ extern u16 data_801a6966;
 /* Exact: the earlier candidate matches once the externs it needs are declared. */
 void func_80128978(void) {
     game_state.config = &game_state_second;
-    if (game_state.config->field_a8 == 0) {
-        player_left.field_132 = player_left.field_130;
-        player_right.field_132 = player_right.field_130;
-        player_left.field_152 = player_left.field_150;
-        player_right.field_152 = player_right.field_150;
-        player_left.field_130 = data_801a6966;
-        player_right.field_130 = data_801a6972;
-        player_left.field_150 = data_801a6966;
-        player_right.field_150 = data_801a6972;
+    if (game_state.config->pause_flag_b == 0) {
+        player_left.prev_input_bits_2 = player_left.input_bits_2;
+        player_right.prev_input_bits_2 = player_right.input_bits_2;
+        player_left.prev_input_word = player_left.input_word;
+        player_right.prev_input_word = player_right.input_word;
+        player_left.input_bits_2 = data_801a6966;
+        player_right.input_bits_2 = data_801a6972;
+        player_left.input_word = data_801a6966;
+        player_right.input_word = data_801a6972;
         func_80128c48();
-        if (player_left.field_73 == 0xff) {
+        if (player_left.status_flag == 0xff) {
             func_80128e1c();
-        } else if (player_right.field_73 == 0xff) {
+        } else if (player_right.status_flag == 0xff) {
             func_80128e7c();
         } else if ((player_left.field_165 & player_right.field_165) == 0) {
             if (player_left.field_165 != 0) {

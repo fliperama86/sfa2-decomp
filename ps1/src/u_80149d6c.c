@@ -11,8 +11,8 @@ int func_80149d6c(Object *object)
   s32 i;
   for (i = 0; i < 16; i++)
   {
-    new_var = units_2c20[i].field_00;
-    if ((((new_var == 1) && ((units_2c20[i].field_74 & 0x80) == 0)) && (object->field_65 != units_2c20[i].field_65)) && ((new_var = (u16) (((new_var = units_2c20[i].pos_x) - object->pos_x) + 0x50)) < 0xa0))
+    new_var = units_2c20[i].active;
+    if ((((new_var == 1) && ((units_2c20[i].status_flags & 0x80) == 0)) && (object->team_id != units_2c20[i].team_id)) && ((new_var = (u16) (((new_var = units_2c20[i].pos_x) - object->pos_x) + 0x50)) < 0xa0))
     {
       return 1;
     }

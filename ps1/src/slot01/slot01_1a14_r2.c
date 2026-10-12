@@ -13,9 +13,9 @@ void func_80011d00_slot01(Object *obj, u8 a) {
 }
 
 void func_80011d28_slot01(Object *obj) {
-    if (!(obj->field_03 & 0x80)) {
-        if (obj->field_03 == 0) {
-            if (game_state.field_ab != 0) {
+    if (!(obj->table_index & 0x80)) {
+        if (obj->table_index == 0) {
+            if (game_state.status_flags != 0) {
                 obj->state_1 = 3;
             }
             data_80015320_slot01[obj->state_1](obj);
@@ -26,10 +26,10 @@ void func_80011d28_slot01(Object *obj) {
 }
 
 void func_80011dc0_slot01(Object *obj) {
-    int t = obj->field_46 - 1;
-    obj->field_46 = t;
+    int t = obj->countdown - 1;
+    obj->countdown = t;
     if ((s16)t < 0) {
-        obj->field_46 = 1;
+        obj->countdown = 1;
         obj->state_1++;
         func_80011f74_slot01(obj);
     }

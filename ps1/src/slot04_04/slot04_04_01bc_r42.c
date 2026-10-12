@@ -9,12 +9,12 @@ void func_801b39fc_slot04_04(Object *obj);
 void func_801b386c_slot04_04(Object *obj) {
     if (func_801b3a40_slot04_04(obj) < 0 && obj->pos_y >= obj->ground_y) {
         obj->pos_y_frac = 0;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->state_3 = obj->state_3 + 2;
         obj->pos_y = ((Slot04bObj *)obj)->ground_y;
         func_801307e0(obj, 0x1a);
     } else {
-        if (((Slot04bObj *)obj)->field_3a != 0) {
+        if (((Slot04bObj *)obj)->mode != 0) {
             obj->state_3 = obj->state_3 + 1;
             play_side_sound_at(obj, obj->side, 0xc);
             func_80140770(obj, 4, 0xa, 0x12, 0, 0, 1);

@@ -10,19 +10,19 @@ void func_80078280_slot2b(Object *o);
 
 void func_80078168_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
-    o->field_a0 = 0xff;
+    o->variant_index_2 = 0xff;
     o->state_0++;
     o->field_1c = data_8007ef28_slot2b->field_1c;
-    o->field_1e = data_8007ef28_slot2b->field_1e;
+    o->cycle_value = data_8007ef28_slot2b->cycle_value;
     s->box_tables = (BoxTables *)data_80079a00_slot2b;
     o->health = 0xfff;
-    o->field_45 = 0;
+    o->active_state = 0;
     o->ot_depth = 0;
     o->vel_x = 0x12000;
     o->accel_x = 0;
     o->vel_y = 0x100000;
     o->accel_y = 0xfffe8000;
-    if (o->field_0b == 0) {
+    if (o->facing_side == 0) {
         o->vel_x = -o->vel_x;
         o->accel_x = -o->accel_x;
     }

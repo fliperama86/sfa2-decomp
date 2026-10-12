@@ -43,14 +43,14 @@ void func_80133108(u8 *base, Object *left, Object *right)
   func_801336a0(base, left, right, index);
   if (left->field_d8 != 0)
   {
-    left->field_c6 = (s16)left->field_c6 * 3;
+    left->meter = (s16)left->meter * 3;
   }
   j = index;
-  left_c6 = left->field_c6;
+  left_c6 = left->meter;
   if (left_c6 < 0x30)
   {
     *(s16 *)(p + 0xcc) = 0xa6 - left_c6;
-    *(u16 *)(p + 0xd0) = left->field_c6;
+    *(u16 *)(p + 0xd0) = left->meter;
   }
   else
   {
@@ -64,11 +64,11 @@ void func_80133108(u8 *base, Object *left, Object *right)
     *(s16 *)(p + 0xcc) = 0x76;
     *(u16 *)(p + 0xd0) = 0x30;
   }
-  c = left->field_c6;
+  c = left->meter;
   if ((unsigned)(c - 0x30) < 0x30)
   {
     *(s16 *)(base + (j << 4) + 0xec) = 0xa6 - c;
-    *(s16 *)(base + (j << 4) + 0xf0) = left->field_c6 - 0x30;
+    *(s16 *)(base + (j << 4) + 0xf0) = left->meter - 0x30;
   }
   else if (data_80171c5c == 1)
   {
@@ -88,11 +88,11 @@ void func_80133108(u8 *base, Object *left, Object *right)
     *(s16 *)(base + (j << 4) + 0xec) = 0x46;
     *(s16 *)(base + (j << 4) + 0xf0) = 0x30;
   }
-  c = left->field_c6;
+  c = left->meter;
   if ((unsigned)(c - 0x60) < 0x30)
   {
     *(s16 *)(base + (j << 4) + 0x10c) = 0xa6 - c;
-    *(s16 *)(base + (j << 4) + 0x110) = left->field_c6 - 0x60;
+    *(s16 *)(base + (j << 4) + 0x110) = left->meter - 0x60;
   }
   else if (data_80171c5c == 2)
   {
@@ -119,13 +119,13 @@ void func_80133108(u8 *base, Object *left, Object *right)
   }
   if (left->field_d8 != 0)
   {
-    left->field_c6 = (s16)left->field_c6 / 3;
+    left->meter = (s16)left->meter / 3;
   }
   if (right->field_d8 != 0)
   {
-    right->field_c6 = (s16)right->field_c6 * 3;
+    right->meter = (s16)right->meter * 3;
   }
-  right_c6 = right->field_c6;
+  right_c6 = right->meter;
   if (right_c6 < 0x30)
   {
     *(s16 *)(base + (j << 4) + 0x130) = right_c6;
@@ -141,7 +141,7 @@ void func_80133108(u8 *base, Object *left, Object *right)
     }
     *(s16 *)(base + (j << 4) + 0x130) = 0x30;
   }
-  c = right->field_c6;
+  c = right->meter;
   if ((unsigned)(c - 0x30) < 0x30)
   {
     *(s16 *)(base + (j << 4) + 0x150) = c - 0x30;
@@ -162,7 +162,7 @@ void func_80133108(u8 *base, Object *left, Object *right)
   {
     *(s16 *)(base + (j << 4) + 0x150) = 0x30;
   }
-  c = right->field_c6;
+  c = right->meter;
   if ((unsigned)(c - 0x60) < 0x30)
   {
     *(s16 *)(base + (j << 4) + 0x170) = c - 0x60;
@@ -190,7 +190,7 @@ void func_80133108(u8 *base, Object *left, Object *right)
   }
   if (right->field_d8 != 0)
   {
-    right->field_c6 = (s16)right->field_c6 / 3;
+    right->meter = (s16)right->meter / 3;
   }
   func_80133848(base, left, right);
 }

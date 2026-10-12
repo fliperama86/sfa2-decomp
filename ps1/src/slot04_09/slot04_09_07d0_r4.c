@@ -7,18 +7,18 @@ void func_801b0d18_slot04_09(Object *obj) {
     int t = 0xc;
     int s = 1;
     obj->state_3 = 3;
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     func_80130504(obj);
     obj->field_225 = 1;
-    if (obj->field_246 == 0) {
+    if (obj->counter == 0) {
         obj->field_225 = 0;
-        s = obj->field_12a >> 1;
+        s = obj->direction_index >> 1;
         func_80141f28(obj, s);
     }
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         t = 0x12;
     }
-    if (obj->field_129 != 0) {
+    if (obj->input_dir_second != 0) {
         t += 3;
     }
     func_801307e0(obj, (s16)(t + s));

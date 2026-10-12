@@ -10,8 +10,8 @@ void func_8001ca08_slot28(Object *object) {
 }
 
 void func_8001ca48_slot28(Object *obj) {
-    int t = obj->field_46 - 1;
-    obj->field_46 = t;
+    int t = obj->countdown - 1;
+    obj->countdown = t;
     if ((s16)t == 0) {
         obj->state_1++;
     }

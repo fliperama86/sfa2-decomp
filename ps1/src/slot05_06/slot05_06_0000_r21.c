@@ -26,7 +26,7 @@ void func_801c9ad4_slot05_06(Object *o) {
         o->accel_y = -0x4800;
         o->vel_y = 0x44000;
         o->accel_x = 0;
-        o->field_45 = 1;
+        o->active_state = 1;
         o->state_3++;
         func_801307e0(o, 0x26);
     }
@@ -37,9 +37,9 @@ void func_801c9bb0_slot05_06(Object *o) {
     if (o->pos_y < o->ground_y) {
         func_801cc814_slot05_06(o);
     } else {
-        o->field_45 = 0;
+        o->active_state = 0;
         func_801209c4(o);
-        o->field_17b = 0;
+        o->active_flag_4 = 0;
         o->pos_y = o->ground_y;
         func_801312b8(o);
     }

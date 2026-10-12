@@ -16,7 +16,7 @@ extern u32 data_800284e4_slot12[];
 
 void func_80015910_slot12(Object *obj) {
     u32 v = (u32)data_8002bc7c_slot12;
-    if (game_state.field_2bd == 0) {
+    if (game_state.mode_flag_2 == 0) {
         *(u32 *)v = 0;
         v = 0x10;
         data_8002bc84_slot12 = v;

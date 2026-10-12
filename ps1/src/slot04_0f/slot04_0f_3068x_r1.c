@@ -14,9 +14,9 @@ void func_801b3068_slot04_0f(Object *obj) {
         }
     }
     obj->state_3++;
-    obj->field_259 = 0;
-    obj->field_258 = 0;
-    obj->field_25a = 0;
+    obj->done_flag = 0;
+    obj->once_flag_2 = 0;
+    obj->flag_25a_set = 0;
     play_side_sound_at(obj, obj->side, 0xe);
     func_801307e0(obj, 0x47);
 }

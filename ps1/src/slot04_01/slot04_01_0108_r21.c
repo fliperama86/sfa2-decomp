@@ -17,25 +17,25 @@ void func_801b3dc4_slot04_01(Object *obj) {
 }
 
 void func_801b3e08_slot04_01(Object *o) {
-    Object *p = o->field_3c;
-    u8 n = p->field_240 - 1;
-    p->field_240 = n;
+    Object *p = o->parent;
+    u8 n = p->link_flags - 1;
+    p->link_flags = n;
     if (n == 0) {
-        p->field_14c = 0;
+        p->linked_object_3 = 0;
     }
     func_8011f14c((Slab172 *)o);
 }
 
 void func_801b3e50_slot04_01(Object *obj) {
-    data_801bf270_slot04_01[obj->state_0](obj, obj->field_3c);
+    data_801bf270_slot04_01[obj->state_0](obj, obj->parent);
 }
 
 void func_801b3e90_slot04_01(Object *obj, Object *parent) {
     obj->state_0++;
     obj->field_1c = parent->field_1c;
-    obj->field_03 = parent->kind;
+    obj->table_index = parent->kind;
     obj->field_0c = parent->field_0c;
     obj->field_0e = parent->field_0e;
-    obj->field_48 = 0;
+    obj->variant_index = 0;
     func_801b3eec_slot04_01(obj, parent);
 }

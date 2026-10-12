@@ -64,11 +64,11 @@ void func_801b066c_slot04_sel(void) {
     second = (Object *)w + 1;
     w = r + 1;
     data_801b6d88_slot04_sel[r[1].state](second, w);
-    if (game_state.field_07 == (data_801b9cf0_slot04_sel[0].field_04 | data_801b9cf0_slot04_sel[1].field_04)) {
+    if (game_state.side_mask == (data_801b9cf0_slot04_sel[0].field_04 | data_801b9cf0_slot04_sel[1].field_04)) {
         r[0].state = 1;
         r[1].state = 1;
-        data_8018f5a0->field_50++;
+        data_8018f5a0->step_index_2++;
     }
-    data_801b9d28_slot04_sel = game_state.field_07;
+    data_801b9d28_slot04_sel = game_state.side_mask;
     data_801b9d2c_slot04_sel = game_state.mode;
 }

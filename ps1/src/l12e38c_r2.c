@@ -10,14 +10,14 @@ void func_8012ec50(Object *object) {
         int arg;
 
         object->state_2 = 2;
-        object->field_249 = 5;
-        object->field_45 = 0;
-        object->field_159 = 0;
-        object->field_6a = 0;
+        object->other_state_code = 5;
+        object->active_state = 0;
+        object->active_flag_3 = 0;
+        object->round_count = 0;
         object->pos_y = object->ground_y;
         *(u32 *)&object->pos_y_frac &= 0xffff0000;
-        object->field_0b = object->field_158;
-        if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {
+        object->facing_side = object->saved_facing;
+        if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
             u8 count;
 
             count = object->field_1a1 - 1;
@@ -27,19 +27,19 @@ void func_8012ec50(Object *object) {
             }
         }
         object->field_69 = 0;
-        object->field_258 = 0;
-        object->field_259 = 0;
-        object->field_25a = 0;
-        object->field_46 = *(u16 *)(data_80171a9c + (object->field_12a & 0xfe));
+        object->once_flag_2 = 0;
+        object->done_flag = 0;
+        object->flag_25a_set = 0;
+        object->countdown = *(u16 *)(data_80171a9c + (object->direction_index & 0xfe));
         set_side_flag(object);
         func_80130af0(object);
         func_801209c4(object);
         speed = data_80171aa4[object->kind];
         arg = 0x1e;
-        if (object->field_0b != 0) {
+        if (object->facing_side != 0) {
             speed = -speed;
         }
-        if (object->field_25b != 0) {
+        if (object->state_change_flag != 0) {
             speed = -speed;
             arg = 0x1f;
         }

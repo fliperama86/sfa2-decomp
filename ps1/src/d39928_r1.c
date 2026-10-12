@@ -7,7 +7,7 @@
  * Reconstruction of a box test (inferred, not an original name): tests whether
  * the box of object b, placed at b's position, is apart from the cursor box,
  * placed at a's position. Boxes are four halfwords: x, y, width, height. An
- * object whose field_0b is not 0 has its box mirrored in x. Returns 1 when
+ * object whose facing_side is not 0 has its box mirrored in x. Returns 1 when
  * apart in x, else the same test on y; stores the placements it used.
  */
 u8 is_box_separated(Object *a, Object *b, Box32 *box) {
@@ -25,16 +25,16 @@ u8 is_box_separated(Object *a, Object *b, Box32 *box) {
     box_x = box->origin;
     cursor = (Quad16 *)game_state.cursor;
     cur_x = cursor->v[0];
-    box_y = box->field_02;
+    box_y = box->box_y;
     cur_w = cursor->v[2];
     box_w = box->endpoint;
     cur_y = cursor->v[1];
     cur_h = cursor->v[3];
-    box_h = box->field_06;
-    if (a->field_0b != 0) {
+    box_h = box->box_h;
+    if (a->facing_side != 0) {
         cur_x = -cur_x;
     }
-    if (b->field_0b != 0) {
+    if (b->facing_side != 0) {
         box_x = -box_x;
     }
     /* The placements go into the variables that held the boxes' values. */

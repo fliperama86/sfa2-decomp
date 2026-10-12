@@ -16,7 +16,7 @@ void func_801ea230_slot06_08(Object *obj) {
     if (player_left.state_2 == 8 || player_right.state_2 == 8) {
         int idx = 11;
         obj->state_1 = 1;
-        if (obj->field_03 != 0) {
+        if (obj->table_index != 0) {
             idx = 9;
         }
         func_80130700(obj, data_801ed480_slot06_08[idx]);

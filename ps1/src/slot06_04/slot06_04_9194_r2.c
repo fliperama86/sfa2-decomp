@@ -22,14 +22,14 @@ void func_801e9760_slot06_04(Object *obj) {
 void func_801e97a0_slot06_04(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_76 = 0x2c0;
-    obj->field_78 = 0x100;
+    obj->base_x = 0x2c0;
+    obj->base_y = 0x100;
     obj->spawn_x = 0x70;
     obj->spawn_y = 0x1e0;
-    obj->field_81 = 4;
-    obj->field_0d = 0;
+    obj->spawn_mode = 4;
+    obj->image_row = 0;
     obj->field_0c = 0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->state_0++;
     obj->accel_x = *(u32 *)&obj->pos_x_frac;
     obj->accel_y = 0x1000000 - *(u32 *)&obj->pos_y_frac;
@@ -58,13 +58,13 @@ void func_801e98d4_slot06_04(Object *obj) {
 }
 
 void func_801e98f4_slot06_04(Object *obj) {
-    obj->vel_x = data_801e9e7c_slot06_04[obj->field_03];
+    obj->vel_x = data_801e9e7c_slot06_04[obj->table_index];
 }
 
 void func_801e9918_slot06_04(Object *obj, int arg) {
     s16 x = arg;
 
-    if ((u32)(x - (s16)data_80190542 - (s16)((Slot06Layer *)data_801aa5d4)->field_12 + 0x40) >= 0x200) {
+    if ((u32)(x - (s16)data_80190542 - (s16)((Slot06Layer *)data_801aa5d4)->scroll_x + 0x40) >= 0x200) {
         x = ((x ^ 0x200) - 0x80) & 0x3ff;
         x += 0x80;
     }
@@ -72,5 +72,5 @@ void func_801e9918_slot06_04(Object *obj, int arg) {
 }
 
 void func_801e9964_slot06_04(Object *obj) {
-    func_80130700(obj, data_801eb300_slot06_04[data_801e9eac_slot06_04[obj->field_03]]);
+    func_80130700(obj, data_801eb300_slot06_04[data_801e9eac_slot06_04[obj->table_index]]);
 }

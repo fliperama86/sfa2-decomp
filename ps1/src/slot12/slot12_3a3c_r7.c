@@ -7,8 +7,8 @@ extern void (*data_8002445c_slot12[])(Object *);
 void func_80014268_slot12(Object *obj);
 
 void func_8001405c_slot12(Object *obj) {
-    game_state.field_2c2 = game_state.field_2c2 - 1;
-    data_8002445c_slot12[data_8018f5a0->field_4e](obj);
+    game_state.countdown_4 = game_state.countdown_4 - 1;
+    data_8002445c_slot12[data_8018f5a0->substep_index](obj);
     func_80138164();
     func_8011abe4();
 }
@@ -16,7 +16,7 @@ void func_8001405c_slot12(Object *obj) {
 void func_800140c8_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     if (game_state.field_2bc == 1) {
-        data_8018f5a0->field_4e = data_8018f5a0->field_4e + 1;
+        data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
         if (obj->field_ee != 0) {
             func_80014268_slot12(o);
         } else {

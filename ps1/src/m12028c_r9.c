@@ -7,9 +7,9 @@
 void func_80125144(Object *o) {
     LogRec *rec;
     LogRec *row;
-    if (o->sequence_changed_flag != 0 && game_state.field_b6 == 0) {
+    if (o->sequence_changed_flag != 0 && game_state.setup_done_flag == 0) {
         data_801900f8[o->field_02]++;
-        data_801900f4[o->field_02] = o->field_0b;
+        data_801900f4[o->field_02] = o->facing_side;
     }
     row = table_801ac318[o->field_02];
     table_801aa4d8[o->field_02] = (table_801aa4d8[o->field_02] + 1) & 0x1f;

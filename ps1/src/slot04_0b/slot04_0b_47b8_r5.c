@@ -15,7 +15,7 @@ void func_801b4db8_slot04_0b(Object *obj, int index) {
 
 void func_801b4e0c_slot04_0b(Object *obj, int dx, int dy) {
     s16 x = dx;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         x = -x;
     }
     obj->pos_x = x + ref_other.p->pos_x;

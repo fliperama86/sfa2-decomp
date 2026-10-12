@@ -14,8 +14,8 @@ void func_80017580_slot28(Object *obj) {
     HudState *h;
     if (obj->field_f0 == 0) {
         h = data_8018f5a0;
-        h->field_60 = 0x258;
-        h->field_52 += 1;
+        h->countdown_timer = 0x258;
+        h->pass_index += 1;
         func_800179d4_slot28();
         o = (Object *)func_8011f1e0();
         if (o != 0) {
@@ -25,23 +25,23 @@ void func_80017580_slot28(Object *obj) {
             o->pos_y = 0x20;
             o->spawn_x = 0x10;
             o->spawn_y = 0x1e0;
-            o->field_0d = 0;
+            o->image_row = 0;
             o->ot_depth = 4;
             func_80130768(o, 0, data_80031c98_slot28);
         }
         func_80017944_slot28(obj, 1);
         o = (Object *)func_8011f1e0();
         if (o != 0) {
-            o->field_00 = 1;
+            o->active_count = 1;
             o->field_02 = 0xa6;
-            o->field_03 = 3;
+            o->table_index = 3;
             data_80051910_slot28[0] = o;
         }
         o = (Object *)func_8011f1e0();
         if (o != 0) {
-            o->field_00 = 1;
+            o->active_count = 1;
             o->field_02 = 0xa6;
-            o->field_03 = 4;
+            o->table_index = 4;
             data_80051910_slot28[1] = o;
         }
         func_80128370();

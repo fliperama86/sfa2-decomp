@@ -13,21 +13,21 @@ void func_801e970c_slot06_0c(Object *obj) {
     Slot06Pal *p2 = (Slot06Pal *)((u8 *)obj + 0x4c);
 
     obj->field_01 = 0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_0c = 0;
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0++;
-    p0->field_0c = 0xe;
-    p1->field_0c = 0xf;
-    p2->field_0c = 0x13;
-    p0->field_08 = 0x1a0;
-    p1->field_08 = 0x260;
-    p2->field_08 = 0x200;
-    p0->field_0a = 0x60;
-    p1->field_0a = 0x60;
-    p2->field_0a = 0x60;
+    p0->seq_rec_index = 0xe;
+    p1->seq_rec_index = 0xf;
+    p2->seq_rec_index = 0x13;
+    p0->rect_x = 0x1a0;
+    p1->rect_x = 0x260;
+    p2->rect_x = 0x200;
+    p0->rect_y = 0x60;
+    p1->rect_y = 0x60;
+    p2->rect_y = 0x60;
     /* The listing stores state_0 twice: the incremented value above, then 1. */
     obj->state_0 = 1;
     func_801e988c_slot06_0c(p0);

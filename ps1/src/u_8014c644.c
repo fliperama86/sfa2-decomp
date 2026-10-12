@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: 5 slots. The original stores the constant 6 (in $v1) before the two loads of
-   field_20f; the build hoists the loads above the stores and uses $v0. */
+   script_arg; the build hoists the loads above the stores and uses $v0. */
 
 
 /* Form found by automatic permutation search. */
@@ -19,10 +19,10 @@ void func_8014c644(Object *object)
     object->field_209 = 0;
     object->state_1 = 0;
     object->state_3 = 4;
-    object->field_221 = object->field_20f;
-    if (object->field_20f != 0)
+    object->field_221 = object->script_arg;
+    if (object->script_arg != 0)
     {
-      if ((object->list_offset != 0) && (object->field_257 != 0))
+      if ((object->list_offset != 0) && (object->table_flag != 0))
       {
         if ((player_left.kind == 0xd) && (player_right.kind == player_left.kind))
         {

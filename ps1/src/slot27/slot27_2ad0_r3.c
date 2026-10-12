@@ -19,7 +19,7 @@ void func_80012d78_slot27(Object *obj) {
             obj->state_3 |= 1;
         }
     }
-    if (obj->field_22 & 0x8000) {
+    if (obj->y_scale & 0x8000) {
         obj->state_3 |= 2;
     }
     if (obj->state_3 == 3) {

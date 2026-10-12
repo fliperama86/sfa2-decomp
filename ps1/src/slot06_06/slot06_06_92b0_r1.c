@@ -9,11 +9,11 @@ extern Poly28 data_801f3618_slot06_06[2][0xb0];
 void func_8015c09c(void *prim);
 
 void func_801e92b0_slot06_06(Slot06Layer *layer) {
-    layer->field_50 = data_801ec398_slot06_06;
-    layer->field_54 = data_801ec398_slot06_06;
-    layer->field_1e = 0x6000;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ec398_slot06_06;
+    layer->data_table = data_801ec398_slot06_06;
+    layer->packed_param = 0x6000;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e92dc_slot06_06(void) {

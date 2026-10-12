@@ -18,10 +18,10 @@ void func_801b2ebc_slot04_06(Object *obj) {
         update_sequence(obj);
     } else {
         obj->vel_x = 0xc0000;
-        obj->field_12c = 0;
+        obj->substate_index = 0;
         obj->field_12d = 0;
-        obj->field_12e = 0;
-        obj->field_12f = 0;
+        obj->step_count_2 = 0;
+        obj->step_limit = 0;
         obj->accel_x = 0xffff0000;
         obj->state_3++;
         func_801307e0(obj, 0x3a);

@@ -10,9 +10,9 @@ void func_80010100_slot12(void) {
     HudState *h = data_8018f5a0;
     int one = 1;
     data_80190568 = one;
-    h->field_4e++;
+    h->substep_index++;
     game_state.field_09 = one;
-    game_state.field_2c = 0xff;
+    game_state.state_2c_flag = 0xff;
     game_state.field_65 = one;
     func_8011a744();
     init_object_pools();
@@ -21,16 +21,16 @@ void func_80010100_slot12(void) {
 }
 
 void func_800101b4_slot12(void) {
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
 }
 
 void func_800101d4_slot12(void) {
     HudState *h = data_8018f5a0;
-    h->field_4c++;
-    h->field_4e = 0;
-    game_state.field_c8 = 0;
-    h->field_50 = 0;
-    game_state.field_ca = 0;
+    h->step_index++;
+    h->substep_index = 0;
+    game_state.timer_or_bits = 0;
+    h->step_index_2 = 0;
+    game_state.countdown_timer_2 = 0;
     game_state.field_65 = 0;
     func_8011eae4();
 }

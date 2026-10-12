@@ -10,17 +10,17 @@ u8 func_8012faf8(Object *object) {
     u8 r;
 
     ref_other.p = object->other;
-    if (object->field_45 != 0 && ref_other.p->field_4b == 0 && ref_other.p->field_7e == 0 &&
-        ref_other.p->field_45 == 0) {
+    if (object->active_state != 0 && ref_other.p->field_4b == 0 && ref_other.p->field_7e == 0 &&
+        ref_other.p->active_state == 0) {
         return 0;
     }
-    if (game_state.field_30 != 0 && game_state.mode != object->side + 1 && (object->field_1a1 & 0x80) == 0 &&
-        object->field_6a == 0 && object->field_1a2 != 0) {
-        object->field_1a0 = object->field_1a0 + 1;
+    if (game_state.versus_flag != 0 && game_state.mode != object->side + 1 && (object->field_1a1 & 0x80) == 0 &&
+        object->round_count == 0 && object->field_1a2 != 0) {
+        object->hit_count_2 = object->hit_count_2 + 1;
         return 1;
     }
     if (ref_other.p->field_7e == 0 && ref_other.p->field_225 == 0) {
-        if (ref_other.p->field_159 == 0) {
+        if (ref_other.p->active_flag_3 == 0) {
             return 0;
         }
         r = func_8012fd80(object, ref_other.p);
@@ -30,21 +30,21 @@ u8 func_8012faf8(Object *object) {
             return 0;
         }
     }
-    if (object->field_150 & 0x2000) {
+    if (object->input_word & 0x2000) {
         if (object->field_d8 != 0) {
             object->field_24e = 1;
             object->field_251 = 1;
         }
     } else if (object->field_d8 == 0) {
-        if (game_state.field_30 != 0 && game_state.mode != object->side + 1 &&
-            (object->field_1a1 & 0x80) == 0 && object->field_6a == 0 && object->field_1a2 != 0) {
-            object->field_1a0 = object->field_1a0 + 1;
+        if (game_state.versus_flag != 0 && game_state.mode != object->side + 1 &&
+            (object->field_1a1 & 0x80) == 0 && object->round_count == 0 && object->field_1a2 != 0) {
+            object->hit_count_2 = object->hit_count_2 + 1;
             return 1;
         }
         if (((GameState *)game_state.config)->field_bb == 0) {
             goto zero;
         }
-        return (((GameState *)game_state.config)->field_15b & ((GameState *)game_state.config)->field_224) != 0;
+        return (((GameState *)game_state.config)->config_mask_a & ((GameState *)game_state.config)->config_mask_b) != 0;
     } else {
         object->field_24e = 1;
         object->field_251 = 1;

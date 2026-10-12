@@ -44,7 +44,7 @@ void func_801b05f4_slot04_09(Object *obj) {
     u = obj->step_flags;
     if ((u & 0xff) == 3) {
         obj->step_flags = u & 0xff00;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->pos_x += 8;
         } else {
             obj->pos_x -= 8;

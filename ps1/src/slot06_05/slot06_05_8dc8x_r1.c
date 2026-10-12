@@ -13,7 +13,7 @@ extern Slot06Tile data_801f4aa4_slot06_05[2][0x70];
    func_801e9080_slot06_00 in the module of stage 05. It draws a tile map as
    sprite records. The object selects a layer by its field_0e (8, 4 or 0xc pick
    one of three layer blocks, any other value uses no layer); the layer's
-   field_12 and field_16 offset the object's position. A header reached through
+   scroll_x and scroll_y offset the object's position. A header reached through
    the object's sequence describes a grid of 16-bit cells; for each non-zero
    cell (low 14 bits) a record is filled and linked into the list head selected
    by the object. Differences from stage 00: the record table has 112 records
@@ -44,26 +44,26 @@ void func_801e8dc8_slot06_05(Object *object) {
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
         layer = (Slot06Layer *)data_801aa5d4;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 4) {
         layer = (Slot06Layer *)data_801aa544;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 0xc) {
         layer = (Slot06Layer *)cam_obj;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else {
         x = ((Slot06Obj *)object)->pos_x;
         y = ((Slot06Obj *)object)->pos_y;
     }
-    if (object->field_0f != 0) y = y + game_state.field_92;
+    if (object->field_0f != 0) y = y + game_state.scroll_y;
     cnt = data_801adfe4;
     hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
-    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
+    tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
     ot = (u32 *)data_801987c8 + object->ot_depth;
     sel = *(u8 *)&data_801a27d0;
     for (row = 0; row < hdr[2]; row++) {
@@ -76,13 +76,13 @@ void func_801e8dc8_slot06_05(Object *object) {
                 nib = lo / 16;
                 prim = &data_801f4aa4_slot06_05[sel][(u16)cnt];
                 if (object->field_02 == 0x45) {
-                    if (cell == 0x47) { tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846; }
-                    else if (cell == 0x48) { tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846; }
-                    else if (cell == 0x4d) { tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846; }
-                    else if (cell == 0x4e) { tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846; }
-                    else if (cell == 0x4f) { tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846; }
-                    else if (cell == 0x50) { tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846; }
-                    else { tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806; }
+                    if (cell == 0x47) { tpage = ((object->image_row + hdr[3]) << 6) + 0x7846; }
+                    else if (cell == 0x48) { tpage = ((object->image_row + hdr[3]) << 6) + 0x7846; }
+                    else if (cell == 0x4d) { tpage = ((object->image_row + hdr[3]) << 6) + 0x7846; }
+                    else if (cell == 0x4e) { tpage = ((object->image_row + hdr[3]) << 6) + 0x7846; }
+                    else if (cell == 0x4f) { tpage = ((object->image_row + hdr[3]) << 6) + 0x7846; }
+                    else if (cell == 0x50) { tpage = ((object->image_row + hdr[3]) << 6) + 0x7846; }
+                    else { tpage = ((object->image_row + hdr[3]) << 6) + 0x7806; }
                 }
                 prim->sprt.clut = tpage;
                 prim->sprt.x = x + col * 16 - ox;

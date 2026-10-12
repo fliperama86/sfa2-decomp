@@ -9,14 +9,14 @@ u8 func_801b0c0c_slot04_02(Object *obj) {
     u8 r = 0;
 
     if (obj->field_292 == 0) {
-        if ((s16)obj->field_c6 >= 0x30) {
-            if (obj->field_45 == 0) {
+        if ((s16)obj->meter >= 0x30) {
+            if (obj->active_state == 0) {
                 if (func_80141e34(obj) & 0xff) {
                     r = func_80141788(obj);
                     if (r) {
                         func_801b631c_slot04_02(obj, 1, 0, 8, 0);
                         obj->field_15a = 0xf;
-                        obj->field_0b = obj->field_158;
+                        obj->facing_side = obj->saved_facing;
                     }
                 }
             } else if (obj->field_7e == 0) {
@@ -37,7 +37,7 @@ u8 func_801b0d08_slot04_02(Object *obj) {
     if (r) {
         func_801b631c_slot04_02(obj, 1, 0, 7, 0);
         obj->field_15a = 0xe;
-        obj->field_0b = obj->field_158;
+        obj->facing_side = obj->saved_facing;
         func_80142b3c(obj);
     }
     return r;

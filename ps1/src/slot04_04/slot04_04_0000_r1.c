@@ -13,8 +13,8 @@ void func_801b0000_slot04_04(Object *obj) {
     Object *c;
 
     dst = (u32 *)0x1f800100;
-    obj->field_98 = data_801b4e04_slot04_04;
-    obj->field_9c = data_801b7384_slot04_04;
+    obj->data_ptr_a = data_801b4e04_slot04_04;
+    obj->data_ptr_b = data_801b7384_slot04_04;
     if (obj->side == 0) {
         dst = (u32 *)0x1f800050;
     }
@@ -24,37 +24,37 @@ void func_801b0000_slot04_04(Object *obj) {
     }
     c = func_8011f32c();
     if (c != 0) {
-        c->field_00 = 1;
+        c->active_count = 1;
         c->field_02 = 4;
-        c->field_03 = 0;
-        c->field_3c = obj;
+        c->table_index = 0;
+        c->parent = obj;
         c->field_0c = obj->field_0c;
-        c->field_0d = obj->field_0d;
+        c->image_row = obj->image_row;
         c->field_0e = obj->field_0e;
-        c->field_66 = obj->field_66;
+        c->sound_side = obj->sound_side;
         c->state_3 = obj->kind;
-        *(u32 *)&obj->field_2c = (u32)c;
+        *(u32 *)&obj->linked_object_2 = (u32)c;
         c->field_90 = obj->field_90;
-        c->field_98 = obj->field_98;
-        c->field_9c = obj->field_9c;
+        c->data_ptr_a = obj->data_ptr_a;
+        c->data_ptr_b = obj->data_ptr_b;
         c->spawn_x = obj->spawn_x;
         c->spawn_y = obj->spawn_y;
     }
     c = func_8011f32c();
     if (c != 0) {
-        c->field_00 = 1;
+        c->active_count = 1;
         c->field_02 = 4;
-        c->field_03 = 1;
-        c->field_3c = obj;
+        c->table_index = 1;
+        c->parent = obj;
         c->field_0c = obj->field_0c;
-        c->field_0d = obj->field_0d;
+        c->image_row = obj->image_row;
         c->field_0e = obj->field_0e;
         c->state_3 = obj->kind;
-        c->field_66 = obj->field_66;
-        obj->field_28 = (u32)c;
+        c->sound_side = obj->sound_side;
+        obj->linked_object = (u32)c;
         c->field_90 = obj->field_90;
-        c->field_98 = obj->field_98;
-        c->field_9c = obj->field_9c;
+        c->data_ptr_a = obj->data_ptr_a;
+        c->data_ptr_b = obj->data_ptr_b;
         c->spawn_x = obj->spawn_x;
         c->spawn_y = obj->spawn_y;
     }

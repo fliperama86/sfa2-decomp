@@ -5,10 +5,10 @@
 
 void func_80150d58(void) {
     GameState *g = &game_state;
-    data_8018f5a0->field_48 = 0;
-    game_state.field_c2 = 0;
-    while (g->field_225 != 0 || g->field_f0 != 0) {
-        table_8017f2d8[data_8018f5a0->field_48](g);
+    data_8018f5a0->state_index = 0;
+    game_state.step_counter = 0;
+    while (g->loop_mode != 0 || g->wait_flag != 0) {
+        table_8017f2d8[data_8018f5a0->state_index](g);
         func_801519b4(&data_8017f2ec);
         func_801192bc(1);
     }

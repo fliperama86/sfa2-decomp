@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 int func_801b188c_slot04_09(Object *obj) {
-    obj->field_12c = 0;
+    obj->substate_index = 0;
     obj->field_12d = 0;
-    obj->field_12e = 0;
-    obj->field_12f = 0;
+    obj->step_count_2 = 0;
+    obj->step_limit = 0;
     return 1;
 }

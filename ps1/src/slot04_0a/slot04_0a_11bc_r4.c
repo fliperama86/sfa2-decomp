@@ -16,8 +16,8 @@ int func_801b1608_slot04_0a(Object *obj) {
         obj->state_3 = 0;
         obj->field_15a = 6;
         func_801b3e44_slot04_0a(obj);
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
         func_80142b3c(obj);
     }
     return r;

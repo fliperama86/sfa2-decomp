@@ -9,7 +9,7 @@ void func_8012a3f4(Object *object) {
         func_8012ff80(object);
     } else if (func_8012f56c(object)) {
         func_8012f59c(object);
-    } else if (object->field_cd != 0) {
+    } else if (object->mode_flag_2 != 0) {
         if ((u8)func_8012f898(object)) {
             func_8012f8c4(object);
         } else if ((s16)object->step_flags < 0) {

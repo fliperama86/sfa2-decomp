@@ -26,7 +26,7 @@ void func_80011bd8_slot12(Object *obj, Slot12List *list) {
         x = *e++;
         y = *e++;
         px = ((x + 8) * obj->field_20) >> 4;
-        py = ((y + 8) * obj->field_22) >> 4;
+        py = ((y + 8) * obj->y_scale) >> 4;
         c->pos_x = px + x + obj->pos_x;
         c->pos_y = py + y + obj->pos_y;
         pa = (u32)c & 0xffffff;

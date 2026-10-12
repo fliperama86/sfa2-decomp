@@ -16,10 +16,10 @@ void func_800158c0_slot27(Object *obj) {
     int t;
     int u;
     obj->pos_y = -0x100;
-    n = game_state.field_40;
+    n = game_state.kind_index;
     *q = -0x100;
     t = 0x140 - data_8002856c_slot27[n];
-    t -= data_8002851c_slot27[n].field_00;
+    t -= data_8002851c_slot27[n].subtract_amount;
     game_state.field_d2 = t;
     data_80055f30 = t;
     u = data_8002851c_slot27[n].field_02;

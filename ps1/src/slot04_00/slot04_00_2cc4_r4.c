@@ -16,23 +16,23 @@ void func_801b2f8c_slot04_00(Object *obj) {
 
     obj->state_0 = obj->state_0 + 1;
     obj->ot_depth = 0;
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->parent;
     obj->field_49 = ref_other.p->field_49;
     obj->field_1c = ref_other.p->field_1c;
     obj->box_tables = data_801c0148_slot04_00;
-    if (obj->field_ac >= 6) {
+    if (obj->vel_table_index >= 6) {
         func_801b34c4_slot04_00(obj);
     }
-    obj->field_af = 5;
-    obj->field_45 = 0;
+    obj->countdown_2 = 5;
+    obj->active_state = 0;
     obj->vel_y = 0;
-    if (obj->field_ac == 4) {
-        obj->field_0d = obj->field_0d + 1;
+    if (obj->vel_table_index == 4) {
+        obj->image_row = obj->image_row + 1;
     }
-    obj->field_a0 = a[obj->field_ac >> 1];
-    v = b[obj->field_ac >> 1];
+    obj->variant_index_2 = a[obj->vel_table_index >> 1];
+    v = b[obj->vel_table_index >> 1];
     x = 0x59;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         v = -v;
         x = -0x59;
     }
@@ -44,6 +44,6 @@ void func_801b2f8c_slot04_00(Object *obj) {
     } else {
         obj->frames = data_1f800158;
     }
-    func_80138070(obj, obj->field_ac >> 1);
+    func_80138070(obj, obj->vel_table_index >> 1);
     func_801b3164_slot04_00(obj);
 }

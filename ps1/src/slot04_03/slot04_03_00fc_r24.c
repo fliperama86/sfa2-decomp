@@ -14,7 +14,7 @@ void func_801b4090_slot04_03(Object *obj, Object *unused) {
 }
 
 void func_801b40b0_slot04_03(Object *obj) {
-    if (obj->field_128 == 0) {
+    if (obj->input_dir_0 == 0) {
         func_801b40f0_slot04_03(obj);
     } else {
         func_801b46a4_slot04_03(obj);
@@ -23,7 +23,7 @@ void func_801b40b0_slot04_03(Object *obj) {
 
 void func_801b40f0_slot04_03(Object *obj) {
     obj->field_157 = 0;
-    if (obj->field_129 == 0) {
+    if (obj->input_dir_second == 0) {
         func_801b4130_slot04_03(obj);
     } else {
         func_801b42bc_slot04_03(obj);

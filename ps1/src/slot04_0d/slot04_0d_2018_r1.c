@@ -26,7 +26,7 @@ void func_801b2070_slot04_0d(Object *obj) {
 void func_801b20b0_slot04_0d(Object *obj) {
     u16 a;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3++;
     func_80141f28(obj, 6);
     func_80138ae8(&game_state, obj);
@@ -35,7 +35,7 @@ void func_801b20b0_slot04_0d(Object *obj) {
     if (obj->field_49 == 0) {
         a = 0x31;
     }
-    a += obj->field_12a >> 1;
+    a += obj->direction_index >> 1;
     func_801307e0(obj, a);
 }
 
@@ -45,9 +45,9 @@ void func_801b212c_slot04_0d(Object *obj) {
 
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
-        p = t + obj->field_12a * 2;
+        p = t + obj->direction_index * 2;
         obj->step_flags = obj->step_flags & 0xff00;
         obj->vel_x = p[0];
         obj->vel_y = p[1];

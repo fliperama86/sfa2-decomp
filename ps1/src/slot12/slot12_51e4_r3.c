@@ -10,10 +10,10 @@ void func_80015910_slot12(Object *obj);
 
 void func_800153c0_slot12(Object *obj) {
     ref_first.p = (Object *)table_8016e5c4;
-    if (game_state.field_2bd != 0) {
+    if (game_state.mode_flag_2 != 0) {
         ref_first.p = (Object *)table_8016e614;
     }
-    data_800284ac_slot12[obj->field_03](obj);
+    data_800284ac_slot12[obj->table_index](obj);
 }
 
 void func_8001542c_slot12(Object *obj) {

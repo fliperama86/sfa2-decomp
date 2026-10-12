@@ -19,8 +19,8 @@ void func_80016abc_slot28(Object *obj) {
         Object *p;
         int x;
         int one;
-        h->field_60 = 0x12c;
-        h->field_52++;
+        h->countdown_timer = 0x12c;
+        h->pass_index++;
         func_80016e7c_slot28();
         x = 0x60;
         p = data_800518fc_slot28[0];
@@ -31,19 +31,19 @@ void func_80016abc_slot28(Object *obj) {
         one = 1;
         if (p != 0) {
             p->field_02 = 0x72;
-            p->field_03 = 2;
+            p->table_index = 2;
             p->ot_depth = 4;
             p->spawn_y = 0x1e0;
             p->pos_x = 0xf8;
             p->pos_y = 0x90;
             p->field_90 = (void *)0x80060000;
-            p->field_98 = data_8002e1d4_slot28;
-            p->field_00 = one;
+            p->data_ptr_a = data_8002e1d4_slot28;
+            p->active_count = one;
             p->field_01 = one;
             p->spawn_x = x;
-            p->field_0d = 0;
-            p->field_9c = data_8002e758_slot28;
-            if ((((Slot28Obj *)obj)->field_70 & 0x7f) == 4) {
+            p->image_row = 0;
+            p->data_ptr_b = data_8002e758_slot28;
+            if ((((Slot28Obj *)obj)->state_index & 0x7f) == 4) {
                 func_80130768(p, 4, data_8002fca8_slot28);
             } else {
                 func_80130768(p, 0xa, data_8002fca8_slot28);
@@ -54,19 +54,19 @@ void func_80016abc_slot28(Object *obj) {
         one = 1;
         if (p != 0) {
             p->field_02 = 0x72;
-            p->field_03 = 3;
+            p->table_index = 3;
             p->ot_depth = 4;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
             p->pos_x = 0xa0;
             p->pos_y = 0x90;
             p->field_90 = (void *)0x80060000;
-            p->field_98 = data_8002e1d4_slot28;
-            p->field_00 = one;
+            p->data_ptr_a = data_8002e1d4_slot28;
+            p->active_count = one;
             p->field_01 = one;
-            p->field_0d = 0;
-            p->field_9c = data_8002e758_slot28;
-            if ((((Slot28Obj *)obj)->field_70 & 0x7f) == 4) {
+            p->image_row = 0;
+            p->data_ptr_b = data_8002e758_slot28;
+            if ((((Slot28Obj *)obj)->state_index & 0x7f) == 4) {
                 func_80130768(p, 6, data_8002fca8_slot28);
             } else {
                 func_80130768(p, 0xb, data_8002fca8_slot28);

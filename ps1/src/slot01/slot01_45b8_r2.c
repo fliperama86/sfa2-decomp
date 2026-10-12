@@ -13,25 +13,25 @@ void func_80014794_slot01(Object *object) {
 
 void func_800147d4_slot01(Object *obj) {
     Object *p;
-    data_80033b98_slot01 = obj->field_3c;
+    data_80033b98_slot01 = obj->parent;
     obj->field_01 = 0;
     obj->field_0c = 1;
     obj->state_1++;
-    obj->field_0d = data_80033b98_slot01->field_0d;
+    obj->image_row = data_80033b98_slot01->image_row;
     obj->field_0e = 0;
     obj->ot_depth = 0;
     obj->field_0f = 0;
-    obj->field_46 = 0x40;
-    obj->field_26 = 0;
+    obj->countdown = 0x40;
+    obj->scroll_factor = 0;
     obj->health = 0xff;
     p = data_80033b98_slot01;
     obj->spawn_x = p->spawn_x;
     obj->spawn_y = p->spawn_y;
     if (p->side != 0) {
-        obj->field_0b = 0;
+        obj->facing_side = 0;
     } else {
-        obj->field_0b = 1;
+        obj->facing_side = 1;
     }
-    obj->field_03 = obj->field_48 = data_80033b98_slot01->kind;
+    obj->table_index = obj->variant_index = data_80033b98_slot01->kind;
     func_80014bd8_slot01(obj);
 }

@@ -19,8 +19,8 @@ void func_801b3620_slot04_0a(Object *obj) {
     } else {
         obj->state_3++;
         o = obj->other;
-        b = o->field_0b;
-        obj->field_0b = b;
+        b = o->facing_side;
+        obj->facing_side = b;
         if (b == 0) {
             obj->pos_x = o->pos_x + 0x28;
         } else {

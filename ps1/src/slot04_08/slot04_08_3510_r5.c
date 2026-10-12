@@ -12,9 +12,9 @@ void func_801b3bb8_slot04_08(Object *obj) {
     int i;
 
     if (t & 0x8000) {
-        n = obj->field_46;
+        n = obj->countdown;
         n--;
-        obj->field_46 = n;
+        obj->countdown = n;
         if (n != 0) {
             func_801307e0(obj, 0x5e);
         } else {
@@ -24,13 +24,13 @@ void func_801b3bb8_slot04_08(Object *obj) {
     } else {
         if (t & 0xff) {
             obj->step_flags = t & ~0xff;
-            game_state.field_63 = 0x18;
-            i = obj->field_12a >> 1;
+            game_state.state_param = 0x18;
+            i = obj->direction_index >> 1;
             if (obj->field_49 != 0) {
                 i += 3;
             }
             a = data_801c3da8_slot04_08[i];
-            if ((s16)obj->field_46 != 1) {
+            if ((s16)obj->countdown != 1) {
                 a |= ~0xff;
             }
             func_80140cd8(obj, a, 0);
@@ -40,7 +40,7 @@ void func_801b3bb8_slot04_08(Object *obj) {
                 if (obj->field_49 != 0) {
                     obj->field_167 = 0x18;
                     obj->field_255 = 6;
-                    game_state.field_6b = 0;
+                    game_state.spawn_kind = 0;
                     func_80147000(obj);
                 }
             } else {

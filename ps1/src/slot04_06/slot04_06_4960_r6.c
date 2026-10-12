@@ -7,7 +7,7 @@ void func_801b4f7c_slot04_06(Object *obj) {
     if (((Slot04aObj *)obj)->timer != 0) {
         ((Slot04aObj *)obj)->timer--;
         if (((Slot04aObj *)obj)->timer == 0) {
-            game_state_second.side_bits = game_state.field_4b | (1 << obj->side);
+            game_state_second.side_bits = game_state.side_bits_2 | (1 << obj->side);
         }
     }
     update_sequence(obj);

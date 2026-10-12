@@ -18,12 +18,12 @@ void func_801b20d4_slot04_02(Object *o) {
         } else {
             a = 0x20;
         }
-        if (o->field_12a != 0) {
-            obj->field_1a4 = o->field_12a;
+        if (o->direction_index != 0) {
+            obj->step_count = o->direction_index;
         } else {
-            obj->field_1a4 = 1;
+            obj->step_count = 1;
         }
-        a += o->field_12a >> 1;
+        a += o->direction_index >> 1;
         func_801307e0(o, a);
     } else {
         update_sequence(o);

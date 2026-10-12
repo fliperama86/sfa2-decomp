@@ -4,11 +4,11 @@
 #include "../externs.h"
 
 void func_801b02bc_slot04_01(Object *object) {
-    s16 t = object->field_46;
+    s16 t = object->countdown;
 
     if (t != 0) {
         t = t - 1;
-        object->field_46 = t;
+        object->countdown = t;
         if (t == 0) {
             game_state.config->side_bits |= object->side + 1;
         }

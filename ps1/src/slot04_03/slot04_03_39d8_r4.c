@@ -25,12 +25,12 @@ void func_801b3dc4_slot04_03(Object *obj, Object *unused) {
 }
 
 void func_801b3e20_slot04_03(Object *obj, Object *unused) {
-    ref_other.p = obj->field_3c;
-    ref_other.p->field_240--;
-    if (ref_other.p->field_240 == 0) {
-        ref_other.p->field_14c = 0;
+    ref_other.p = obj->parent;
+    ref_other.p->link_flags--;
+    if (ref_other.p->link_flags == 0) {
+        ref_other.p->linked_object_3 = 0;
     }
-    if (obj->field_03 == 0) {
+    if (obj->table_index == 0) {
         ref_other.p->field_225 = 0;
     }
     func_8011f14c((Slab172 *)obj);

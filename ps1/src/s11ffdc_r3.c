@@ -6,7 +6,7 @@
 
 void func_801209c4(Object *o) {
     int a, c;
-    if (o->field_293 != 0) {
+    if (o->sound_select_flag != 0) {
         c = 0x32b;
         a = o->side;
     } else if (((0x10d40 >> o->kind) & 1) != 0) {

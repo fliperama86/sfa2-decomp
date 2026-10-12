@@ -25,8 +25,8 @@ void func_80077b3c_slot2b(Object *obj) {
 move:
     {
         Slot2bObj *o = (Slot2bObj *)obj;
-        o->field_10 += obj->vel_x;
-        o->field_14 -= obj->vel_y;
+        o->pos_x_hi += obj->vel_x;
+        o->pos_y_hi -= obj->vel_y;
     }
     advance_sequence_checked(obj);
     func_8011ff74(obj);

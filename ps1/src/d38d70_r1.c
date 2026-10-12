@@ -12,13 +12,13 @@ static inline void row_fill(u8 *row, u8 value) {
 }
 
 /*
- * What it does (inferred, not an original name): when state->field_30 is 0,
- * it picks a pair of bytes from data_80176da0 (indexed by field_2d,
- * field_42 clamped to 3, and field_54) and builds a 32-byte pattern: all
+ * What it does (inferred, not an original name): when state->versus_flag is 0,
+ * it picks a pair of bytes from data_80176da0 (indexed by table_index_2,
+ * count_index clamped to 3, and sub_index) and builds a 32-byte pattern: all
  * 0x40, then the first byte of the pair as a count of 0 bytes, then the
  * second as a count of 0x20 bytes. A random byte (get_random_byte, masked
  * to 0..31) selects one pattern byte, stored into list_offset of each player
- * whose field_cd is not 0.
+ * whose mode_flag_2 is not 0.
  */
 void func_80138d70(GameState *state) {
     u8 pattern[40];
@@ -29,14 +29,14 @@ void func_80138d70(GameState *state) {
     int value;
     int base;
 
-    if (state->field_30 == 0) {
-        j = state->field_2d;
+    if (state->versus_flag == 0) {
+        j = state->table_index_2;
         base = j * 64;
-        count = state->field_42;
-        if ((short)state->field_42 >= 4) {
+        count = state->count_index;
+        if ((short)state->count_index >= 4) {
             count = 3;
         }
-        j = state->field_54;
+        j = state->sub_index;
         index = j * 2 + (count * 16 + base);
         row_fill(pattern, 0x40);
         count = data_80176da0[index];
@@ -54,10 +54,10 @@ void func_80138d70(GameState *state) {
             }
         }
         value = pattern[get_random_byte() & 0x1f];
-        if (player_left.field_cd != 0) {
+        if (player_left.mode_flag_2 != 0) {
             player_left.list_offset = value;
         }
-        if (player_right.field_cd != 0) {
+        if (player_right.mode_flag_2 != 0) {
             player_right.list_offset = value;
         }
     }

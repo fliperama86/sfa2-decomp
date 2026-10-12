@@ -4,5 +4,5 @@
 #include "../externs.h"
 
 void func_800e3d80_slot0f(void) {
-    data_8018f5a0->field_52++;
+    data_8018f5a0->pass_index++;
 }

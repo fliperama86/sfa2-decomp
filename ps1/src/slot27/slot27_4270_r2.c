@@ -20,7 +20,7 @@ void func_800143ec_slot27(Object *obj) {
 }
 
 void func_8001442c_slot27(Object *obj) {
-    data_80027c7c_slot27[obj->field_03](obj);
+    data_80027c7c_slot27[obj->table_index](obj);
     advance_sequence_checked(obj);
 }
 
@@ -33,7 +33,7 @@ void func_800144c0_slot27(Object *obj) {
     obj->spawn_y = 0x1e0;
     obj->field_01 = 1;
     obj->state_1 = obj->state_1 + 1;
-    if (obj->field_03 == 10) {
+    if (obj->table_index == 10) {
         obj->vel_x = 8;
     } else {
         obj->vel_x = -8;

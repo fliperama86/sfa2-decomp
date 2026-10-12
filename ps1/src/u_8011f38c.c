@@ -7,9 +7,9 @@
 void func_8011f38c(Object *o) {
     func_80119b3c(o);
     clear_bytes(o, 0xac);
-    o->field_44 = 0;
-    o->field_08 = 0x10;
+    o->spawn_flag = 0;
+    o->mode_id = 0x10;
     data_801a4fec = data_801a4fec + 1;
-    o->field_26 = 0;
+    o->scroll_factor = 0;
     data_801a68f0[data_801a4fec] = o;
 }

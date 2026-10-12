@@ -16,7 +16,7 @@ void func_8001505c_slot12(Object *obj) {
     int k;
     data_80190468.p = (Object *)&game_state;
     data_80028474_slot12[obj->state_0](obj);
-    k = obj->field_03;
+    k = obj->table_index;
     if (k == 5) {
         i = 0;
         if (data_8002bc78_slot12 == 1) {
@@ -27,7 +27,7 @@ void func_8001505c_slot12(Object *obj) {
                 func_801519b4(&data_8002bc94_slot12[i].cells[0]);
                 func_801519b4(&data_8002bc94_slot12[i].cells[1]);
                 func_801519b4(&data_8002bc94_slot12[i].cells[2]);
-                if (game_state.field_2bd == 1) {
+                if (game_state.mode_flag_2 == 1) {
                     func_801519b4(&data_8002bc94_slot12[i].cells[3]);
                 }
             }

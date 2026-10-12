@@ -11,7 +11,7 @@ void func_80131e88(Object *object)
 {
   Pair *new_var;
   u16 d;
-  if ((object->field_61 == 0) && (object->field_62 >= 2))
+  if ((object->hit_type == 0) && (object->field_62 >= 2))
   {
     u8 hit;
     if (!(get_random_byte() & 1))
@@ -27,7 +27,7 @@ void func_80131e88(Object *object)
       new_var = table_80171b48;
       game_state.other_object->pos_y -= new_var[object->kind].second;
       d = new_var[object->kind].first;
-      if (object->field_0b != 0)
+      if (object->facing_side != 0)
       {
         d = -d;
       }

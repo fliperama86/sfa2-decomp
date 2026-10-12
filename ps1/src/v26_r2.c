@@ -15,9 +15,9 @@ void func_8014b8d8(Object *object)
   v = *p;
   w = v;
   t = w >> 8;
-  object->field_212 = t;
-  object->field_213 = v;
-  if (v <= object->field_21e)
+  object->script_byte_hi = t;
+  object->script_byte_lo = v;
+  if (v <= object->compare_limit)
   {
     func_8014c914(object);
   }

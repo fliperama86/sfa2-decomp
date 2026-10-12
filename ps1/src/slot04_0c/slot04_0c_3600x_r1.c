@@ -13,9 +13,9 @@ void func_801b3600_slot04_0c(Object *object) {
     int a;
 
     object->state_2 = object->state_2 + 1;
-    object->field_46 = 0x3c;
-    if (game_state.field_76 == 0) {
-        game_state.field_76 = 0x1e;
+    object->countdown = 0x3c;
+    if (game_state.countdown == 0) {
+        game_state.countdown = 0x1e;
     }
     if (object->other->kind == 0xb) {
         if (game_state.field_90 != 0) {

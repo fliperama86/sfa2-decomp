@@ -8,8 +8,8 @@ void func_801b45a8_slot04_07(Object *obj) {
         func_801312b8(obj);
     } else {
         if (func_80149b80(obj) & 0xff) {
-            if (obj->field_12a != 0) {
-                if (obj->field_0b == 0) {
+            if (obj->direction_index != 0) {
+                if (obj->facing_side == 0) {
                     obj->pos_x = obj->pos_x - 0x18;
                 } else {
                     obj->pos_x = obj->pos_x + 0x18;
@@ -32,7 +32,7 @@ void func_801b464c_slot04_07(Object *obj) {
         m = t & 0xff;
         d = m;
         if (m != 0) {
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 d = -m;
             }
             obj->pos_x = d + obj->pos_x;

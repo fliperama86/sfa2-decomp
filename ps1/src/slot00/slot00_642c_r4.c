@@ -9,17 +9,17 @@ extern ObjectFn data_800797d4_slot00[];
 void func_80076810_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
     int t;
-    ref_other.p = o->field_3c;
-    obj->field_b0--;
-    if (obj->field_b0 & 0x80) {
-        obj->field_b0 = 5;
+    ref_other.p = o->parent;
+    obj->b0_state--;
+    if (obj->b0_state & 0x80) {
+        obj->b0_state = 5;
         o->field_0c = ref_other.p->field_0c;
-        t = ref_other.p->field_0d;
-        obj->field_b1 ^= 1;
-        o->field_0d = t;
-        if (obj->field_b1 != 0) {
+        t = ref_other.p->image_row;
+        obj->toggle_flag ^= 1;
+        o->image_row = t;
+        if (obj->toggle_flag != 0) {
             o->field_0c = 0xff;
-            o->field_0d++;
+            o->image_row++;
         }
     }
     data_800797c0_slot00[o->state_1](o);

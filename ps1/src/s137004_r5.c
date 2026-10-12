@@ -13,7 +13,7 @@ void func_80137b10(void) {
 }
 
 void func_80137b64(Object *object) {
-    if ((game_state.config->field_65 | game_state.config->field_a8) != 0) {
+    if ((game_state.config->pause_flag_a | game_state.config->pause_flag_b) != 0) {
         func_8011ffdc(object);
     } else {
         *(s32 *)&object->pos_x_frac += object->vel_x;
@@ -25,7 +25,7 @@ void func_80137b64(Object *object) {
 }
 
 void func_80137be0(Object *object) {
-    if ((game_state.config->field_65 | game_state.config->field_a8) != 0) {
+    if ((game_state.config->pause_flag_a | game_state.config->pause_flag_b) != 0) {
         func_8011ffdc(object);
     } else {
         handlers_267c[object->state_2](object);
@@ -35,6 +35,6 @@ void func_80137be0(Object *object) {
 
 void func_80137c54(Object *object) {
     object->state_2++;
-    object->field_46 = (object->field_46 & 0xff) | 0x200;
+    object->countdown = (object->countdown & 0xff) | 0x200;
     advance_sequence_checked(object);
 }

@@ -4,6 +4,6 @@
 #include "../externs.h"
 
 void func_801b4bc4_slot04_04(Object *object) {
-    object->field_159 = 1;
+    object->active_flag_3 = 1;
     func_80130dc0(object);
 }

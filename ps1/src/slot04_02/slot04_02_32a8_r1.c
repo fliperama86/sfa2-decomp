@@ -9,14 +9,14 @@ void func_801b33fc_slot04_02(Object *obj);
 void func_801b32a8_slot04_02(Object *obj) {
     int n;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3 = 1;
     obj->field_29c = 2;
     obj->field_252 = 0xff;
     func_80141f28(obj, 2);
     func_80138ae8(&game_state, obj);
     obj->accel_x = -0x3000;
-    if (obj->field_129 != 0) {
+    if (obj->input_dir_second != 0) {
         obj->vel_x = 0x80000;
     } else {
         obj->vel_x = 0xb8000;

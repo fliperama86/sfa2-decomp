@@ -37,13 +37,13 @@ void func_800e8064_slot0f(Object *obj, int arg) {
     if (ptr_8019040c->field_0a != 0) {
         b = (Object *)func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x97;
-            b->field_48 = 2;
+            b->variant_index = 2;
             b->ot_depth = 0;
             b->pos_x = obj->spawn_x;
             b->pos_y = obj->spawn_y;
-            b->field_03 = 0;
+            b->table_index = 0;
             b->health = obj->health;
         }
     }

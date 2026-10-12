@@ -28,7 +28,7 @@ void func_801b19d0_slot04_03(Object *obj) {
         if (obj->field_4b == 0) {
             obj->other->field_6b = 0xa;
         }
-        obj->field_27b = 0;
+        obj->other_lock = 0;
     }
 }
 
@@ -38,7 +38,7 @@ void func_801b1a3c_slot04_03(Object *obj) {
     } else {
         obj->state_3++;
         obj->step_flags &= 0xff00;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->vel_x = 0x44000;
         } else {
             obj->vel_x = -0x44000;

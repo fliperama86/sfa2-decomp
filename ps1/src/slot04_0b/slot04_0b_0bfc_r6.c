@@ -6,8 +6,8 @@
 int func_801b140c_slot04_0b(Object *obj) {
     int r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30) {
-        if (obj->field_240 != 0) {
+    if ((s16)obj->meter >= 0x30) {
+        if (obj->link_flags != 0) {
             return 0;
         }
         if ((u8)func_80141788(obj)) {
@@ -17,9 +17,9 @@ int func_801b140c_slot04_0b(Object *obj) {
             obj->state_2 = 8;
             obj->state_3 = 0;
             obj->field_15a = 6;
-            obj->field_159 = 1;
+            obj->active_flag_3 = 1;
             obj->field_6b = 0;
-            obj->field_0b = obj->field_158;
+            obj->facing_side = obj->saved_facing;
             func_80142718(obj);
         }
     }

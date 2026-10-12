@@ -17,17 +17,17 @@ void func_801b0090_slot04_sel(Object *unused_obj, Slot04SelRec *unused_rec) {
     game_state.field_6d = 0;
     data_801b6d60_slot04_sel[1](l, a);
     data_801b6d60_slot04_sel[2](r, b);
-    if (game_state.field_05 != 0) {
-        data_8018f5a0->field_4e += 1;
-        data_8018f5a0->field_50 = 0;
-        game_state.field_05 = 0;
+    if (game_state.pause_flag != 0) {
+        data_8018f5a0->substep_index += 1;
+        data_8018f5a0->step_index_2 = 0;
+        game_state.pause_flag = 0;
     } else {
-        data_8018f5a0->field_4e += 2;
-        data_8018f5a0->field_50 = 0;
+        data_8018f5a0->substep_index += 2;
+        data_8018f5a0->step_index_2 = 0;
         game_state.field_80 = 0;
-        game_state.field_b0 = 0;
-        game_state.field_b1 = 0xff;
-        game_state.field_b2 = 0;
+        game_state.b0_flag = 0;
+        game_state.selection_value = 0xff;
+        game_state.b2_count = 0;
         game_state.field_09 = 0;
     }
 }
@@ -36,15 +36,15 @@ void func_801b0184_slot04_sel(Object *obj, Slot04SelRec *rec) {
     rec->state = 0;
     rec->kind = obj->kind;
     rec->field_04 = 0;
-    rec->field_08 = data_8016e694[obj->side];
-    rec->field_09 = 0;
-    rec->field_0a = data_8016e696;
+    rec->cursor_index = data_8016e694[obj->side];
+    rec->confirm_mask = 0;
+    rec->second_cursor_index = data_8016e696;
     rec->field_0b = 0;
-    rec->field_12 = 0;
-    rec->field_13 = 0;
-    rec->field_14 = 0;
-    rec->field_15 = 0;
-    rec->field_16 = 0;
+    rec->slot_a_flag = 0;
+    rec->slot_b_flag = 0;
+    rec->sequence_index = 0;
+    rec->slot_c_flag = 0;
+    rec->slot_d_flag = 0;
     rec->field_17 = 0;
     rec->field_18 = 0;
 }

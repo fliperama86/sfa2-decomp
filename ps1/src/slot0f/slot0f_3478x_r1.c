@@ -30,7 +30,7 @@ extern Slot0fRec94ec *data_800e96d8_slot0f;
  * What it does (inferred, not an original name): turns the saved option
  * block (saved_8016e664) into the selections of a menu page. It copies
  * option bytes into the array data_800f8554_slot0f (index 0 from field_00;
- * index 1 the position of field_02 among five bytes of data_800df32c_slot0f,
+ * index 1 the position of table_match_value among five bytes of data_800df32c_slot0f,
  * or 4 when its option byte field_03 is not zero, otherwise left as it was;
  * indices 8, 2, 3, 4, 5 from field_01, 04, 05, 07, 06), calls func_80120374
  * with field_01 as a signed byte, copies field_0a and field_0b into indices
@@ -46,7 +46,7 @@ void func_800e3478_slot0f(void) {
     int j;
     data_800f8554_slot0f[0] = saved_8016e664.opts.field_00;
     for (i = 0; i < 5; i++) {
-        if ((s8)tbl.b[i] == saved_8016e664.opts.field_02) {
+        if ((s8)tbl.b[i] == saved_8016e664.opts.table_match_value) {
             data_800f8554_slot0f[1] = i;
             break;
         }
@@ -69,23 +69,23 @@ void func_800e3478_slot0f(void) {
     }
     for (i = 0; i < 8; i++) {
         if (i <= data_800f8554_slot0f[0]) {
-            data_800e953c_slot0f[i].field_0b = 0x16;
+            data_800e953c_slot0f[i].cell_value = 0x16;
         } else {
-            data_800e953c_slot0f[i].field_0b = 0x1b;
+            data_800e953c_slot0f[i].cell_value = 0x1b;
         }
     }
     for (i = 0; i < 4; i++) {
         if (i <= data_800f8554_slot0f[3]) {
-            data_800e953c_slot0f[8 + i].field_0b = 0x16;
+            data_800e953c_slot0f[8 + i].cell_value = 0x16;
         } else {
-            data_800e953c_slot0f[8 + i].field_0b = 0x1b;
+            data_800e953c_slot0f[8 + i].cell_value = 0x1b;
         }
     }
     for (i = 0; i < 8; i++) {
         if (i <= data_800f8554_slot0f[4]) {
-            data_800e953c_slot0f[12 + i].field_0b = 0x16;
+            data_800e953c_slot0f[12 + i].cell_value = 0x16;
         } else {
-            data_800e953c_slot0f[12 + i].field_0b = 0x1b;
+            data_800e953c_slot0f[12 + i].cell_value = 0x1b;
         }
     }
     data_800e9688_slot0f = &data_800e94b0_slot0f[data_800f8554_slot0f[1]];

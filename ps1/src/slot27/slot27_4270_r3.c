@@ -7,16 +7,16 @@ extern ObjectFn data_80027cbc_slot27[];
 
 void func_80014500_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
-    obj->field_12 += obj->field_4c;
-    if ((s16)obj->field_12 == 0x1a0) {
+    obj->angle += obj->field_4c;
+    if ((s16)obj->angle == 0x1a0) {
         obj->field_46 = 0x18;
         obj->field_05 = obj->field_05 + 1;
     }
 }
 
 void func_80014540_slot27(Object *obj) {
-    obj->field_46 = (s16)obj->field_46 - 1;
-    if ((s16)obj->field_46 == 0) {
+    obj->countdown = (s16)obj->countdown - 1;
+    if ((s16)obj->countdown == 0) {
         obj->field_01 = 0;
         obj->state_1 = obj->state_1 + 1;
     }

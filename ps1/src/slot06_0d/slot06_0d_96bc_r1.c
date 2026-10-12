@@ -19,19 +19,19 @@ void func_801e96bc_slot06_0d(Object *obj) {
 void func_801e96fc_slot06_0d(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
     int i = 1;
-    o->field_81 = 4;
-    o->field_68 = 0xd;
-    obj->field_64 = 0x1f0;
+    o->spawn_mode = 4;
+    o->pair_value = 0xd;
+    obj->init_param_f = 0x1f0;
     o->state_0 = o->state_0 + 1;
     o->field_01 = 0;
-    o->field_0d = 0;
+    o->image_row = 0;
     o->field_0c = 0;
     o->field_0a = i;
     o->field_0f = i;
-    obj->field_66 = 0x80;
+    obj->init_param_g = 0x80;
     o->state_0 = i;
     func_801e9950_slot06_0d((Slot06Pal *)((u8 *)o + 0x5c));
-    i = game_state.field_42 ? 0xa : 3;
+    i = game_state.count_index ? 0xa : 3;
     func_80130700(o, data_801eb1b0_slot06_0d[i]);
 }
 
@@ -51,9 +51,9 @@ void func_801e97a4_slot06_0d(Object *obj) {
 
 void func_801e9828_slot06_0d(Object *obj) {
     int i;
-    if (game_state.field_47 != 0 && game_state.field_5c == 0) {
+    if (game_state.pause_flag_2 != 0 && game_state.countdown_timer == 0) {
         obj->state_1 = obj->state_1 + 1;
-        i = game_state.field_78->kind != 0xd ? 0xb : 0xc;
+        i = game_state.focus_object->kind != 0xd ? 0xb : 0xc;
         func_80130700(obj, data_801eb1b0_slot06_0d[i]);
     } else {
         advance_sequence_checked(obj);
@@ -70,12 +70,12 @@ void func_801e98dc_slot06_0d(Object *obj) {
 
 void func_801e98fc_slot06_0d(Slot06Cursor *cur) {
     SeqRec *rec;
-    int v = cur->field_04 - 1;
-    cur->field_04 = v;
+    int v = cur->remaining_count - 1;
+    cur->remaining_count = v;
     if ((s16)v == 0) {
         rec = cur->rec;
         rec++;
-        if ((s16)cur->field_06 < 0) {
+        if ((s16)cur->step_word < 0) {
             rec = (SeqRec *)rec->header;
         }
         func_801e998c_slot06_0d((Slot06Pal *)cur, rec);
@@ -85,5 +85,5 @@ void func_801e98fc_slot06_0d(Slot06Cursor *cur) {
 void func_801e9950_slot06_0d(Slot06Pal *pal) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
-    func_801e998c_slot06_0d(pal, (SeqRec *)table_8017c910[pal->field_0c]);
+    func_801e998c_slot06_0d(pal, (SeqRec *)table_8017c910[pal->seq_rec_index]);
 }

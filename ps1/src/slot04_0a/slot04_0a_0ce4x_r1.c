@@ -6,11 +6,11 @@
 /* The local b holds the byte at 0x129, then the value that is stored; a holds the byte at 0x21a. Written with one local for both, this function differs from the original in 7 instruction slots. */
 int func_801b0ce4_slot04_0a(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
-    int a = o->field_21a;
-    int b = o->field_129;
+    int a = o->direction_flag;
+    int b = o->input_dir_second;
     a = (a != 0) << 2;
     if (b != 0) a += 2;
     b = a;
-    obj->field_102 = b;
+    obj->offset_index = b;
     return 1;
 }

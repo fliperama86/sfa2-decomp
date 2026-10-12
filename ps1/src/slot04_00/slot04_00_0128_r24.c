@@ -7,16 +7,16 @@ extern void (*data_801c0574_slot04_00[])(Object *, Object *);
 void func_801b35d4_slot04_00(Object *obj, Object *parent);
 
 void func_801b3538_slot04_00(Object *obj) {
-    data_801c0574_slot04_00[obj->state_0](obj, obj->field_3c);
+    data_801c0574_slot04_00[obj->state_0](obj, obj->parent);
 }
 
 void func_801b3578_slot04_00(Object *obj, Object *parent) {
     obj->state_0++;
     obj->field_1c = parent->field_1c;
-    obj->field_03 = parent->kind;
+    obj->table_index = parent->kind;
     obj->field_0c = parent->field_0c;
     obj->field_0e = parent->field_0e;
-    obj->field_48 = 0;
+    obj->variant_index = 0;
     func_801b35d4_slot04_00(obj, parent);
 }
 
@@ -25,25 +25,25 @@ void func_801b35d4_slot04_00(Object *obj, Object *parent) {
     int old;
 
     obj->field_01 = 0;
-    if (obj->field_03 != parent->kind) {
+    if (obj->table_index != parent->kind) {
         obj->state_0++;
         return;
     }
-    idx = parent->frame->field_09;
+    idx = parent->frame->frame_param;
     if (idx == 0) {
-        obj->field_48 = 0;
+        obj->variant_index = 0;
         return;
     }
-    old = obj->field_48;
+    old = obj->variant_index;
     obj->pos_x = parent->pos_x;
     obj->pos_y = parent->pos_y;
-    obj->field_0b = parent->field_0b;
+    obj->facing_side = parent->facing_side;
     obj->field_01 = 1;
     if (old == idx) {
         advance_sequence_checked(obj);
         return;
     }
-    obj->field_48 = idx;
+    obj->variant_index = idx;
     if (parent->side == 0) {
         func_80130768(obj, idx, data_1f8000b4);
     } else {

@@ -14,7 +14,7 @@ extern Slot06Tile data_801f5290_slot06_0b[2][0x80];
    selects a layer by its field_0e (8, 4 or 0xc pick one of three layer
    blocks, any other value uses no layer). For 4 and 0xc, and for no layer,
    the position is as in the stage 00 function. For 8 the x position also
-   gets a parallax term: the layer's field_12 minus its field_0a, times the
+   gets a parallax term: the layer's scroll_x minus its ref_x, times the
    object's parallax_factor, divided by 40. A header reached through the object's
    sequence describes a grid of 16-bit cells. For each non-zero cell (low 14
    bits) it takes a record from the table, fills in position, texture
@@ -46,22 +46,22 @@ void func_801e96fc_slot06_0b(Object *object) {
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
         layer = (Slot06Layer *)data_801aa5d4;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12 +
-            ((s16)layer->field_12 - (s16)layer->field_0a) * (s16)((Slot06Obj *)object)->parallax_factor / 40;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x +
+            ((s16)layer->scroll_x - (s16)layer->ref_x) * (s16)((Slot06Obj *)object)->parallax_factor / 40;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 4) {
         layer = (Slot06Layer *)data_801aa544;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 0xc) {
         layer = (Slot06Layer *)cam_obj;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else {
         x = ((Slot06Obj *)object)->pos_x;
         y = ((Slot06Obj *)object)->pos_y;
     }
-    if (object->field_0f != 0) y = y + game_state.field_92;
+    if (object->field_0f != 0) y = y + game_state.scroll_y;
     cnt = data_801adfe4;
     hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
@@ -80,49 +80,49 @@ void func_801e96fc_slot06_0b(Object *object) {
                 /* One branch per cell value; one combined test, or a switch, builds smaller code and
                    differs from the original in 143 instruction slots. */
                 if (cell == 0x2) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x3) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x5) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x6) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x11) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x12) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x13) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x14) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x15) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x2b) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x2c) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x2d) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x2e) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x39) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x3a) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x3b) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x3c) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x3d) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x77c6;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x77c6;
                 } else if (cell == 0x47) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x48) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else if (cell == 0x49) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 } else {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
                 }
 
                 prim = &data_801f5290_slot06_0b[sel][(u16)cnt];

@@ -13,7 +13,7 @@ void func_8001ef04_slot28(void) {
     int i;
     for (i = 0; i < 10; i++) {
         Object *p = data_80051a98_slot28[i];
-        if (p != 0 && p->field_00 != 0) {
+        if (p != 0 && p->active_count != 0) {
             func_8011f240((Slab172 *)p);
             data_80051a98_slot28[i] = 0;
         }
@@ -39,8 +39,8 @@ void func_8001f000_slot28(Object *object) {
 void func_8001f040_slot28(Object *o) {
     o->field_0e = 0;
     o->field_0c = 0;
-    o->field_0b = 0;
-    o->field_48 = 0;
+    o->facing_side = 0;
+    o->variant_index = 0;
     o->state_0++;
-    func_80130768(o, data_8003f9d0_slot28[o->field_03], (SequenceStep **)o->box_tables);
+    func_80130768(o, data_8003f9d0_slot28[o->table_index], (SequenceStep **)o->box_tables);
 }

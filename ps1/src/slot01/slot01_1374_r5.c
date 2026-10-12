@@ -38,9 +38,9 @@ void func_80011918_slot01(void) {
     }
     if (moved != 0) {
         data_80055ea4_slot01 = 0;
-        data_8018f5a0->field_4c = 3;
-        data_8018f5a0->field_4e = 0;
-        data_8018f5a0->field_50 = 0;
-        data_8018f5a0->field_52 = 1;
+        data_8018f5a0->step_index = 3;
+        data_8018f5a0->substep_index = 0;
+        data_8018f5a0->step_index_2 = 0;
+        data_8018f5a0->pass_index = 1;
     }
 }

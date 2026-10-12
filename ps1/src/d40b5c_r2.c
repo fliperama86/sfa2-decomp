@@ -21,27 +21,27 @@ s16 func_8013fc18(Object *object, int arg_offset, int arg_reach) {
     ref_other.p = object->other;
     other_ref = ref_other;
     frame = other_ref.p->frame;
-    if (other_ref.p->field_249 != 0)
+    if (other_ref.p->other_state_code != 0)
         return 0;
-    if (other_ref.p->field_27b != 0)
+    if (other_ref.p->other_lock != 0)
         return 0;
     /* a halfword at offset 4; state_0 is a byte: the plain spelling differs in 1 instruction line */
     if (*(u16 *)&other_ref.p->state_0 != 1)
         return 0;
-    if (game_state.config->field_4e != 0)
+    if (game_state.config->mode_flag_c != 0)
         return 0;
-    if (other_ref.p->field_45 != 0)
+    if (other_ref.p->active_state != 0)
         return 0;
     if ((frame->box_a | frame->box_b | frame->box_c) == 0)
         return 0;
     /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
     do {
-        if (object->field_0b != 0)
+        if (object->facing_side != 0)
             offset = -offset;
         box = other_ref.p->unknown_148;
         half_width = box->origin - box->extent;
         offset = offset + object->pos_x;
-        if (other_ref.p->field_158 != 0)
+        if (other_ref.p->saved_facing != 0)
             half_width = -half_width;
     } while (0);
     offset = offset - (half_width + other_ref.p->pos_x);

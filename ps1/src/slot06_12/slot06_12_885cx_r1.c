@@ -16,7 +16,7 @@ extern s16 data_8019054e;
    apart from g: with one local for both, 17 instruction slots differ. The
    second half starts at i = 8 explicitly: with i continuing, the function is
    8 bytes longer. The offset at 0x12 is read as the high half of
-   field_10, which the layout has as 32 bits. */
+   end_x_fixed, which the layout has as 32 bits. */
 void func_801e885c_slot06_12(void) {
     Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
     int x;
@@ -43,15 +43,15 @@ void func_801e885c_slot06_12(void) {
     int h;
     s16 tile;
     s16 yy;
-    braw = c->field_1e;
-    x = c->field_14 - 0x100000;
+    braw = c->blank_value;
+    x = c->base_x_fixed - 0x100000;
     pos = -x;
-    t = (pos >> 16) - game_state.field_92;
+    t = (pos >> 16) - game_state.scroll_y;
     pos &= 0xffff;
     pos |= t << 16;
     y = pos >> 16;
     sy = y & 0xf;
-    c->field_3c = pos;
+    c->pos_fixed = pos;
     if (y >= 0) {
         row = y >> 4;
     } else {
@@ -92,7 +92,7 @@ void func_801e885c_slot06_12(void) {
     }
     rows = nr;
     blank = braw;
-    h = ((s16 *)&c->field_10)[1];
+    h = ((s16 *)&c->end_x_fixed)[1];
     sx = h & 0xf;
     col = (h & (c->width - 1)) >> 4;
     for (i = 8; i < 16; i++, row++) {

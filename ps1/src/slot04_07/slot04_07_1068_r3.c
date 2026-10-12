@@ -9,11 +9,11 @@ void func_801b1548_slot04_07(Object *obj) {
     obj->state_2 = 7;
     obj->state_3 = 0;
     obj->field_15a = 6;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
     obj->field_157 = 0;
     obj->other->field_6b = 0x12;
     obj->field_6b = 0;
-    obj->field_27b = 0x16;
+    obj->other_lock = 0x16;
     func_801307e0(obj, 0x50);
 }

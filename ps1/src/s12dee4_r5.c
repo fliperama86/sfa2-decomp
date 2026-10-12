@@ -33,12 +33,12 @@ void func_8012e984(Object *object) {
 
 void func_8012e9c4(Object *object) {
     object->state_2 = object->state_2 + 1;
-    object->field_0b = object->field_158;
+    object->facing_side = object->saved_facing;
     set_sequence_by_side(object, 0);
 }
 
 void func_8012e9f8(Object *object) {
-    if (game_state.config->field_5c == 0) {
+    if (game_state.config->hold_flag == 0) {
         object->state_2 = object->state_2 + 1;
     }
     update_sequence(object);
@@ -47,9 +47,9 @@ void func_8012e9f8(Object *object) {
 void func_8012ea40(Object *object) {
     int arg = 0x28;
 
-    object->field_46 = 0x78;
+    object->countdown = 0x78;
     object->state_2 = object->state_2 + 1;
-    if (game_state.config->field_a6 != 0) {
+    if (game_state.config->table_index != 0) {
         arg = 0x29;
     }
     set_sequence_by_side(object, arg);

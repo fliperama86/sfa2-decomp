@@ -21,11 +21,11 @@ void func_800e25e0_slot0f(Object *o) {
         p = (u8 *)&data_800e8608_slot0f;
     }
     func_801519b4(p);
-    if ((s8)obj->field_00 == 2) {
+    if ((s8)obj->state_index == 2) {
         p = data_800e8558_slot0f;
     } else {
         p = data_800e85a8_slot0f;
-        if ((s8)obj->field_00 == 3) {
+        if ((s8)obj->state_index == 3) {
             p = data_800e8588_slot0f;
         }
     }

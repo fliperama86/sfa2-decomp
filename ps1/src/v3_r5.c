@@ -9,7 +9,7 @@ void func_801366d4(Cam *cam, short step);
 
 /*
  * One step of a horizontal scroll follower (inferred). It takes the span
- * [lo, hi] that the players cover (each covers pos_x +- field_154), then
+ * [lo, hi] that the players cover (each covers pos_x +- half_width), then
  * moves the sprite with func_80136668 or func_801366d4 toward the span's
  * middle when the span is 0xc0 or wider, else toward its edges, or calls
  * set_cam_pos_x when neither edge is out of range.
@@ -21,30 +21,30 @@ void func_801364a0(Sprite *sprite) {
     u16 lo, hi, other, other2;
     s16 amount;
 
-    /* player_left has bit 7 of field_73 set and field_261 equal to 0: the span is player_right's; the next arm is the mirror case. */
-    if ((left->field_73 & 0x80) && left->field_261 == 0) {
+    /* player_left has bit 7 of status_flag set and field_261 equal to 0: the span is player_right's; the next arm is the mirror case. */
+    if ((left->status_flag & 0x80) && left->field_261 == 0) {
         lo = right->pos_x;
         hi = lo;
-        lo -= right->field_154;
-        hi += right->field_154;
-    } else if ((right->field_73 & 0x80) && right->field_261 == 0) {
+        lo -= right->half_width;
+        hi += right->half_width;
+    } else if ((right->status_flag & 0x80) && right->field_261 == 0) {
         lo = left->pos_x;
         hi = lo;
-        lo -= left->field_154;
-        hi += left->field_154;
+        lo -= left->half_width;
+        hi += left->half_width;
     } else {
         /* Judgment call: the union is taken as signed 16-bit values, so the compares cast to s16. */
         lo = left->pos_x;
         other = right->pos_x;
-        lo -= left->field_154;
-        other -= right->field_154;
+        lo -= left->half_width;
+        other -= right->half_width;
         if ((s16)other < (s16)lo) {
             lo = other;
         }
         hi = left->pos_x;
         other2 = right->pos_x;
-        hi += left->field_154;
-        other2 += right->field_154;
+        hi += left->half_width;
+        other2 += right->half_width;
         if ((s16)other2 > (s16)hi) {
             hi = other2;
         }

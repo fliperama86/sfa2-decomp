@@ -18,10 +18,10 @@ void func_8011fe40(Object *object) {
         game_state.cursor = p + 1;
         *p = z;
     } while (i != -1);
-    object->field_c2 = 0xf0fc;
+    object->input_bits = 0xf0fc;
     object->field_180 = z;
-    object->field_182 = z;
-    object->field_2a2 = z;
-    object->field_2a1 = z;
+    object->frame_count = z;
+    object->cursor_timer_b = z;
+    object->cursor_timer_a = z;
     object->field_267 = 1;
 }

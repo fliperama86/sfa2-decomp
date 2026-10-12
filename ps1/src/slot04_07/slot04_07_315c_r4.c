@@ -9,14 +9,14 @@ void func_801b35a8_slot04_07(Object *obj) {
     int a;
     int b;
 
-    obj->field_27c = obj->field_27c + 1;
+    obj->hit_count_3 = obj->hit_count_3 + 1;
     update_sequence(obj);
-    w = obj->field_46;
+    w = obj->countdown;
     t = (w & 0xff) - 1;
     a = (w & 0xff00) | t;
-    obj->field_46 = a;
+    obj->countdown = a;
     if (t == 0) {
-        if (obj->field_45 != 0) {
+        if (obj->active_state != 0) {
             obj->state_0 = 1;
         }
         obj->state_2 = 3;
@@ -27,12 +27,12 @@ void func_801b35a8_slot04_07(Object *obj) {
     } else {
         if (obj->pressed_bits != 0) {
             if (((Slot04aObj *)obj)->field_27d == 0) {
-                ((Slot04aObj *)obj)->field_27d = obj->field_27c;
+                ((Slot04aObj *)obj)->field_27d = obj->hit_count_3;
             }
         } else {
             if ((s16)a != 0) {
                 b = a - 1;
-                obj->field_46 = b;
+                obj->countdown = b;
                 if ((b & 1) != 0) {
                     goto call;
                 }

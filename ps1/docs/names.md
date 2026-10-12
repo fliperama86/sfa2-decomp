@@ -147,6 +147,12 @@ keeps `func_` and its address; its sentence is still what the readers of its cal
 name where it has one, and a sentence on what its uses show. The sentences and the names were written by a
 model that was given, for each field, lines of code that use it (found by the compiler, as the rename tool
 finds them) and the sentences of `function-notes.tsv` for the functions of those lines. They are inferred,
-like every name on this page. A name was taken only when two separate readings gave the same name, neither
-gave that name to another field of the struct, and the name passed fixed rules: no placeholder word, no
-offset in it, not a keyword and not a macro of the tree. A name is per struct, as the rules above say.
+like every name on this page.
+
+Until 2026-10-11 a name was taken only when two separate readings gave the same name. Since 2026-10-12, by
+the owner's decision for wider coverage, the readings are asked for a name wherever the lines show a role or
+a consistent use, and where the two readings give different names a third call that sees both names and the
+sentence picks one or neither. A name still has to pass fixed rules: no placeholder word, no offset in it,
+not a keyword and not a macro of the tree. Fields of one struct that got the same name are numbered by
+offset (`_2` to `_9`). A field whose lines only copy or clear it keeps `field_` and its offset. A name is
+per struct, as the rules above say.

@@ -46,9 +46,9 @@ void func_801e9e00_slot06_07(Object *obj) {
 void func_801e9e40_slot06_07(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_0c = 0;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0++;
     func_80130700(obj, data_801ee18c_slot06_07);
 }
@@ -74,13 +74,13 @@ void func_801e9f04_slot06_07(Object *obj) {
 void func_801e9f74_slot06_07(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_1++;
-        obj->field_46 = get_random_byte();
+        obj->countdown = get_random_byte();
     }
 }
 
 void func_801e9fc8_slot06_07(Object *obj) {
-    obj->field_46 = (s16)obj->field_46 - 1;
-    if ((s16)obj->field_46 == 0) {
+    obj->countdown = (s16)obj->countdown - 1;
+    if ((s16)obj->countdown == 0) {
         obj->state_1 = 0;
     }
 }

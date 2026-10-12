@@ -15,7 +15,7 @@ void func_801b2580_slot04_sel(void) {
     Object *right = left + 1;
     TextBuf *t;
     u8 *q = data_801b9d4d_slot04_sel;
-    if (game_state.field_07 & 1) {
+    if (game_state.side_mask & 1) {
         if (data_801b9d3b_slot04_sel == 0x12) {
             data_801b9d3b_slot04_sel = 4;
         }
@@ -26,7 +26,7 @@ void func_801b2580_slot04_sel(void) {
             data_801b9d3b_slot04_sel = 2;
         }
     }
-    if (game_state.field_07 & 2) {
+    if (game_state.side_mask & 2) {
         if (q[3] == 0x12) {
             q[3] = 4;
         }
@@ -37,7 +37,7 @@ void func_801b2580_slot04_sel(void) {
             q[3] = 2;
         }
     }
-    data_8018f5a0->field_50++;
+    data_8018f5a0->step_index_2++;
     t = data_801b85e8_slot04_sel[0];
     data_801b8540_slot04_sel[0]->buf[4] = 0x1b;
     if (data_8016e69a[left->side] != 0) {

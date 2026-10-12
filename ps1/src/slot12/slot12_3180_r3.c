@@ -28,7 +28,7 @@ void func_80013450_slot12(Object *obj, int a) {
     }
     a &= 0x3f;
     fp = data_800230a0_slot12[a];
-    a = (s16)o->field_b0;
+    a = (s16)o->countdown_timer;
     if ((s16)o->field_b2 == 9) {
         if (a >= 0x20) {
             a = 0x20;

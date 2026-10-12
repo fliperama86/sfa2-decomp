@@ -7,7 +7,7 @@
 void func_8014edac(int a)
 {
   GameState *g = &game_state;
-  g->field_225 = 1;
+  g->loop_mode = 1;
   func_80119144(2, 7);
   func_801192bc(1);
   close_vab_and_sep(0);
@@ -21,8 +21,8 @@ void func_8014edac(int a)
   {
     func_8014f3b8(4, 1);
   }
-  g->field_225 = 0;
-  while (g->field_f0)
+  g->loop_mode = 0;
+  while (g->wait_flag)
   {
     func_801192bc(1);
   }

@@ -24,24 +24,24 @@ void init_strips(void) {
 
             func_80136d1c(a);
             func_80136d1c(b);
-            a->field_10 = 0x80;
-            a->field_11 = 0x80;
-            a->field_12 = 0x80;
-            b->field_10 = 0x80;
-            b->field_11 = 0x80;
-            b->field_12 = 0x80;
-            a->field_16 = 0x1a;
-            b->field_16 = 0x1a;
-            if (game_state.field_42 == 0) {
-                a->field_18 = 0x80;
-                b->field_18 = 0x80;
-                a->field_19 = 0;
-                b->field_19 = 0;
+            a->color_r = 0x80;
+            a->color_g = 0x80;
+            a->color_b = 0x80;
+            b->color_r = 0x80;
+            b->color_g = 0x80;
+            b->color_b = 0x80;
+            a->pos_y = 0x1a;
+            b->pos_y = 0x1a;
+            if (game_state.count_index == 0) {
+                a->tex_u = 0x80;
+                b->tex_u = 0x80;
+                a->tex_v = 0;
+                b->tex_v = 0;
             }
-            a->field_1a = 0x7f07;
-            b->field_1a = 0x7f07;
-            a->field_04 = 0xe100001f;
-            b->field_04 = 0xe100001f;
+            a->tex_param = 0x7f07;
+            b->tex_param = 0x7f07;
+            a->draw_mode_word = 0xe100001f;
+            b->draw_mode_word = 0xe100001f;
         }
     }
     for (k = 0; k < 2; k++) {

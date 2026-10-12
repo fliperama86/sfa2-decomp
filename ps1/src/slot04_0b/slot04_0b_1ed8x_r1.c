@@ -10,7 +10,7 @@ void func_801b1ed8_slot04_0b(Object *o) {
     int i;
 
     k = 0x20;
-    o->field_17b = 1;
+    o->active_flag_4 = 1;
     o->state_3++;
     func_80141f28(o, 6);
     func_80138ae8(&game_state, o);
@@ -19,8 +19,8 @@ void func_801b1ed8_slot04_0b(Object *o) {
     o->accel_y = 0xfffe6000;
     o->accel_x = 0;
     o->vel_y = 0xa0000;
-    i = data_801c25b4_slot04_0b[o->field_12a >> 1];
-    if (o->field_0b == 0) {
+    i = data_801c25b4_slot04_0b[o->direction_index >> 1];
+    if (o->facing_side == 0) {
         o->vel_x = -i;
     } else {
         o->vel_x = i;
@@ -28,5 +28,5 @@ void func_801b1ed8_slot04_0b(Object *o) {
     if (o->field_49 != 0) {
         k = 0x36;
     }
-    func_801307e0(o, (o->field_12a >> 1) + k);
+    func_801307e0(o, (o->direction_index >> 1) + k);
 }

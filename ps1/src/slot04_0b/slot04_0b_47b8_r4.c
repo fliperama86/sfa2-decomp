@@ -13,16 +13,16 @@ void func_801b4c28_slot04_0b(Object *obj) {
     if (obj->state_2 == 0) {
         obj->vel_x += (s16)obj->health << 8;
         obj->accel_x -= (s16)obj->ground_y << 8;
-        obj->ground_y += obj->field_26;
+        obj->ground_y += obj->scroll_factor;
         if (!(obj->accel_x < lim)) {
             obj->state_2 = 8;
             obj->accel_x = lim;
         }
     }
     if (obj->state_3 == 0) {
-        obj->vel_y += (s16)obj->field_5e << 8;
-        obj->accel_y -= (s16)obj->field_76 << 8;
-        obj->field_76 += obj->field_46;
+        obj->vel_y += (s16)obj->y_offset << 8;
+        obj->accel_y -= (s16)obj->base_x << 8;
+        obj->base_x += obj->countdown;
         if (!(obj->accel_y < lim)) {
             obj->state_3 = 8;
             obj->accel_y = lim;

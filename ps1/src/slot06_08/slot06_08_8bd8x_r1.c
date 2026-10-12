@@ -62,19 +62,19 @@ void func_801e8bd8_slot06_08(void) {
     u16 *line;
     Poly28 *rec;
     u32 *ot;
-    n = (s16)c->field_3e;
+    n = (s16)c->signed_param;
     v = c->field_1c;
     d1 = v - n + 0x40;
     /* Stand-in, not recovered source: the local sxi, which only holds the value on its way to sx, reproduces the original's order of instructions. Without it this function differs from the original in 23 instruction slots. */
-    sxi = (s16)c->field_12 - 0x60;
+    sxi = (s16)c->scroll_x - 0x60;
     sxi &= 0xf;
     sx = sxi;
     nlow = n & 0xf;
     y = c->field_4c - n + 0x40;
     sy = y & 0xf;
-    blank = c->field_1e;
-    col = (((s16)c->field_12 - 0x60) & (c->field_58 - 1)) >> 4;
-    d2 = c->field_4e - v;
+    blank = c->packed_param;
+    col = (((s16)c->scroll_x - 0x60) & (c->map_width - 1)) >> 4;
+    d2 = c->rect_right - v;
     xx = n - 0x40;
     if (xx < 0) {
         /* Stand-in, not recovered source: this hand-written expansion of the signed division (n - 0x4f) / 16 reproduces the original's order of instructions. Without it this function differs from the original in 24 instruction slots. */
@@ -86,7 +86,7 @@ void func_801e8bd8_slot06_08(void) {
     } else {
         row = xx >> 4;
     }
-    sum = (s16)c->field_16 + (s16)game_state.field_92;
+    sum = (s16)c->scroll_y + (s16)game_state.scroll_y;
     if (sum == 0) {
         count = 3;
     } else if (sum < 0x10) {
@@ -96,10 +96,10 @@ void func_801e8bd8_slot06_08(void) {
     } else {
         count = 6;
     }
-    rw = c->field_5c >> 4;
+    rw = c->scale >> 4;
     /* Stand-in, not recovered source: the local lo, which only holds the constant -6, reproduces the original's choice of registers. Without it this function differs from the original in 100 instruction slots. */
     lo = -6;
-    mask = (c->field_58 >> 4) - 1;
+    mask = (c->map_width >> 4) - 1;
     rec = data_801f2504_slot06_08[data_801a27d0];
     ot = (u32 *)data_801987c8 + c->field_8a;
     for (i = 0; i < count; i++, row++) {
@@ -111,9 +111,9 @@ void func_801e8bd8_slot06_08(void) {
         if (r < 0 || r >= rowsx) {
             continue;
         }
-        line = c->field_50 + ((u16)row >> 4) * ((c->field_58 >> 9) << 10) + ((row & 0xf) << 6);
+        line = c->tile_map_ptr + ((u16)row >> 4) * ((c->map_width >> 9) << 10) + ((row & 0xf) << 6);
         t = (u16)((u32)(0x10 - r) << 4);
-        a = *(s32 *)&c->field_10 - *(s32 *)&c->field_08;
+        a = *(s32 *)&c->bound_x_b - *(s32 *)&c->bound_x_a;
         ya = (i << 4) - nlow;
         {
             int k;
@@ -157,14 +157,14 @@ void func_801e8bd8_slot06_08(void) {
     /* Stand-in, not recovered source: the local A15, which only names the value (s16)y / 16 + 15, reproduces the original's order of instructions. Without it this function differs from the original in 4 instruction slots. */
     for (; A15 = (s16)y / 16 + 15, i < A15 - (s16)c->field_4c / 16; i++, row++) {
         ix = col;
-        line = c->field_50 + ((u16)row >> 4) * ((c->field_58 >> 9) << 10) + ((row & 0xf) << 6);
+        line = c->tile_map_ptr + ((u16)row >> 4) * ((c->map_width >> 9) << 10) + ((row & 0xf) << 6);
         /* Stand-in, not recovered source: the variable v, which holds this value only to copy it to ya, reproduces the original's choice of registers. Without it this function differs from the original in 15 instruction slots. */
         v = sy + (i << 4);
         ya = v;
         if (flag == 0) {
             {
                 /* Plain C: a second a of the block (using the function's a gives 19 differing instruction slots). */
-                int a = *(s32 *)&c->field_10 - *(s32 *)&c->field_08;
+                int a = *(s32 *)&c->bound_x_b - *(s32 *)&c->bound_x_a;
                 int k;
                 u16 tile;
                 u16 *e;
@@ -198,7 +198,7 @@ void func_801e8bd8_slot06_08(void) {
         } else {
             {
                 /* Plain C: a second a of the block (using the function's a gives 19 differing instruction slots). */
-                int a = *(s32 *)&c->field_10 - *(s32 *)&c->field_08;
+                int a = *(s32 *)&c->bound_x_b - *(s32 *)&c->bound_x_a;
                 int k;
                 u16 tile;
                 u16 *e;

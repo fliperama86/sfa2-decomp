@@ -30,11 +30,11 @@ void func_801e9ed0_slot06_0f(void) {
     Object *right;
     int k;
     data_80190468.p = (Object *)&game_state;
-    if (((GameState *)data_80190468.p)->field_40 == 0xf && ((GameState *)data_80190468.p)->field_80 == 0) {
+    if (((GameState *)data_80190468.p)->kind_index == 0xf && ((GameState *)data_80190468.p)->field_80 == 0) {
         s = &player_left;
         right = s + 1;
         k = player_left.kind == 0xf;
-        if (player_right.kind == ((GameState *)data_80190468.p)->field_40) {
+        if (player_right.kind == ((GameState *)data_80190468.p)->kind_index) {
             k |= 2;
         }
         if (k != 1) {
@@ -47,18 +47,18 @@ void func_801e9ed0_slot06_0f(void) {
         }
         n = (Object *)func_8011f1e0();
         if (n != 0) {
-            n->field_00 = 1;
+            n->active_count = 1;
             n->field_02 = 0x46;
-            n->field_3c = s;
-            n->field_66 = s->side;
+            n->parent = s;
+            n->sound_side = s->side;
             n->ot_depth = 0xe;
             n->field_1c = s->field_1c;
             n->spawn_x = 0x60;
             n->spawn_y = 0x1e0;
-            n->field_0d = s->field_0d;
+            n->image_row = s->image_row;
             n->field_90 = s->field_90;
-            n->field_98 = s->field_98;
-            n->field_9c = s->field_9c;
+            n->data_ptr_a = s->data_ptr_a;
+            n->data_ptr_b = s->data_ptr_b;
         }
     }
 }
@@ -70,7 +70,7 @@ void func_801ea010_slot06_0f(Object *obj) {
 
 void func_801ea060_slot06_0f(Object *obj) {
     s16 t;
-    game_state.other_object = obj->field_3c;
+    game_state.other_object = obj->parent;
     if (game_state.other_object->field_01 != 0) {
         obj->state_0 = obj->state_0 + 1;
         obj->field_0c = game_state.other_object->field_0c;
@@ -80,15 +80,15 @@ void func_801ea060_slot06_0f(Object *obj) {
         obj->pos_x = game_state.other_object->pos_x;
         obj->pos_y = game_state.other_object->pos_y - 6;
         t = 0x30;
-        if (game_state.other_object->field_0b == 0) {
+        if (game_state.other_object->facing_side == 0) {
             t = -0x30;
         }
         obj->pos_x += t;
-        obj->field_03 = game_state.other_object->kind;
+        obj->table_index = game_state.other_object->kind;
         obj->field_0f = 1;
-        obj->field_46 = 1;
-        obj->field_0b = 0;
-        obj->field_48 = 0;
+        obj->countdown = 1;
+        obj->facing_side = 0;
+        obj->variant_index = 0;
         func_801ea91c_slot06_0f(obj, 0);
         func_801ea1a8_slot06_0f(obj);
     }
@@ -96,9 +96,9 @@ void func_801ea060_slot06_0f(Object *obj) {
 
 void func_801ea1a8_slot06_0f(Object *obj) {
     GameState *g = (GameState *)data_80190468.p;
-    if (g->field_6a == 0) {
-        game_state.other_object = obj->field_3c;
-        if (obj->field_03 == game_state.other_object->kind) {
+    if (g->gate_flag == 0) {
+        game_state.other_object = obj->parent;
+        if (obj->table_index == game_state.other_object->kind) {
             if (g->field_65 == 0) {
                 data_801eefd4_slot06_0f[obj->state_1](obj);
             }
@@ -142,10 +142,10 @@ void func_801ea394_slot06_0f(Object *obj) {
 }
 
 void func_801ea3d4_slot06_0f(Object *obj) {
-    int v = obj->field_46 - 1;
-    obj->field_46 = v;
+    int v = obj->countdown - 1;
+    obj->countdown = v;
     if ((s16)v < 0) {
-        obj->field_0b = 0;
+        obj->facing_side = 0;
         obj->state_2++;
         func_801ea91c_slot06_0f(obj, 2);
     } else {
@@ -173,9 +173,9 @@ void func_801ea4d0_slot06_0f(Object *obj) {
 }
 
 void func_801ea510_slot06_0f(Object *obj) {
-    obj->field_46 = (s16)obj->field_46 - 1;
-    if ((s16)obj->field_46 < 0) {
-        obj->field_0b = 0;
+    obj->countdown = (s16)obj->countdown - 1;
+    if ((s16)obj->countdown < 0) {
+        obj->facing_side = 0;
         obj->state_2++;
         func_801ea91c_slot06_0f(obj, 3);
     }

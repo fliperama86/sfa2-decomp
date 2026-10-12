@@ -9,8 +9,8 @@ void func_8012d910(Object *object) {
     } else {
         object->state_3 = object->state_3 + 1;
         func_80131d68(object);
-        object->field_45 = 0;
-        object->field_46 = 8;
+        object->active_state = 0;
+        object->countdown = 8;
         object->pos_y = object->ground_y;
         func_801308c4(object, 0x16);
         if ((s16)object->health >= 0) {
@@ -22,8 +22,8 @@ void func_8012d910(Object *object) {
 }
 
 void func_8012d9b4(Object *object) {
-    object->field_46 = (s16)object->field_46 - 1;
-    if ((s16)object->field_46 != 0) {
+    object->countdown = (s16)object->countdown - 1;
+    if ((s16)object->countdown != 0) {
         update_sequence(object);
     } else if ((s16)object->health < 0) {
         func_8012f4dc(object);

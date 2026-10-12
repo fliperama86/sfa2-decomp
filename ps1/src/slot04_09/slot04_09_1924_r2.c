@@ -6,10 +6,10 @@
 void func_801b1b04_slot04_09(Object *obj) {
     int n = 0x1c;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->field_225 = 1;
     obj->state_3++;
-    if (obj->field_246 == 0) {
+    if (obj->counter == 0) {
         obj->field_225 = 0;
         func_80141f28(obj, 4);
     }
@@ -19,7 +19,7 @@ void func_801b1b04_slot04_09(Object *obj) {
     if (obj->field_49 != 0) {
         n = 0x40;
     }
-    func_801307e0(obj, (obj->field_12a >> 1) + n);
+    func_801307e0(obj, (obj->direction_index >> 1) + n);
 }
 
 void func_801b1bb8_slot04_09(Object *obj) {
@@ -29,21 +29,21 @@ void func_801b1bb8_slot04_09(Object *obj) {
     if (*(s16 *)&obj->step_flags != 0) {
         p = pop_object_from_pool(obj);
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0x16;
-            p->field_66 = obj->field_66;
-            p->field_65 = obj->field_65;
-            p->field_ac = obj->field_12a;
-            p->field_ad = 0;
+            p->sound_side = obj->sound_side;
+            p->team_id = obj->team_id;
+            p->vel_table_index = obj->direction_index;
+            p->active_flag_2 = 0;
             p->field_0e = obj->field_0e;
-            p->field_26 = obj->field_26;
+            p->scroll_factor = obj->scroll_factor;
             *(s32 *)&p->field_a4 = 0x1000700;
             p->spawn_x = 0x60;
-            p->field_3c = obj;
+            p->parent = obj;
             p->spawn_y = 0x1e0;
             p->field_90 = obj->field_90;
-            p->field_98 = obj->field_98;
-            p->field_9c = obj->field_9c;
+            p->data_ptr_a = obj->data_ptr_a;
+            p->data_ptr_b = obj->data_ptr_b;
         }
         obj->state_3++;
     }

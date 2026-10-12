@@ -12,20 +12,20 @@ void func_801b53ac_slot04_02(Object *obj) {
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->vel_y < 0 && obj->pos_y >= obj->ground_y) {
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         func_80146960(obj);
-        i = obj->field_12a & 0xfe;
-        game_state.field_63 = data_801c6518_slot04_02[i];
+        i = obj->direction_index & 0xfe;
+        game_state.state_param = data_801c6518_slot04_02[i];
         if ((u8)func_80140cd8(obj, *(s16 *)(data_801c6520_slot04_02 + i), 0) != 0) {
             play_sound_at(obj, obj->side, 0x319);
             obj->field_167 = 2;
             if (obj->field_49 != 0) {
                 obj->field_167 = 0x12;
                 obj->field_255 = 6;
-                game_state.field_6b = 0;
+                game_state.spawn_kind = 0;
                 func_80147000(obj);
             }
         } else {

@@ -10,23 +10,23 @@ void func_80122f6c(GameState *state) {
 
 void func_80122fbc(GameState *state) {
     Entity *entity = (Entity *)state;
-    if (entity->field_2f == 0) {
+    if (entity->mode_flag_a == 0) {
         ((HudBig *)data_8018f5a0)->state_index++;
-        entity->field_ca = 0x1e;
+        entity->countdown_timer = 0x1e;
         func_80156084();
         func_80156094();
         func_8012304c(entity);
     } else {
         ((HudBig *)data_8018f5a0)->state_index = 5;
-        entity->field_ca = 0xa0;
+        entity->countdown_timer = 0xa0;
         func_8012332c(state);
     }
 }
 
 void func_8012304c(Entity *entity) {
-    if (entity->field_104 < 0x500) {
-        entity->field_108 = 4;
+    if (entity->threshold_input < 0x500) {
+        entity->selected_value = 4;
     } else {
-        entity->field_108 = 0x100;
+        entity->selected_value = 0x100;
     }
 }

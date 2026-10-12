@@ -39,13 +39,13 @@ void func_801e9e94_slot06_01(Object *obj) {
     u16 y;
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_76 = 0x300;
-    obj->field_78 = 0x100;
+    obj->base_x = 0x300;
+    obj->base_y = 0x100;
     obj->spawn_x = 0x60;
     obj->spawn_y = 0x1e0;
     obj->state_0++;
-    obj->field_0d = 0;
-    obj->field_81 = 4;
+    obj->image_row = 0;
+    obj->spawn_mode = 4;
     y = obj->pos_y;
     obj->pos_y = 0xf8 - y;
     func_80130700(obj, data_801eb984_slot06_01[0]);

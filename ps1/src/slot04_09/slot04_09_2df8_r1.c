@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 void func_801b2df8_slot04_09(Object *obj) {
-    obj->field_67 = 0;
-    obj->field_a2 = 0;
+    obj->active_flag = 0;
+    obj->step_count = 0;
     obj->field_a3 = 0;
-    obj->field_12c++;
+    obj->substate_index++;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
-    if (obj->field_246 == 0) {
+    if (obj->counter == 0) {
         func_80145d20(obj);
     }
-    func_801307e0(obj, (obj->field_12a >> 1) + 0x30);
+    func_801307e0(obj, (obj->direction_index >> 1) + 0x30);
 }

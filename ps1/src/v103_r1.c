@@ -13,7 +13,7 @@ void func_80142a14(Object *object)
   s16 state = object->step_flags;
   if (state < 0)
   {
-    if (object->field_128 != 0)
+    if (object->input_dir_0 != 0)
     {
       func_80131468(object);
     }

@@ -9,9 +9,9 @@ void func_8013ca3c(Object *a, Object *b) {
     b->field_15a = 11;
     b->state_1 = 0;
     b->state_3 = 0;
-    a->field_29d = 1;
-    a->field_159 = 0;
-    b->field_159 = 0;
+    a->hit_skip_flag = 1;
+    a->active_flag_3 = 0;
+    b->active_flag_3 = 0;
     a->field_225 = 0;
     b->field_225 = 0;
     a->field_6b = 16;

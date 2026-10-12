@@ -5,11 +5,11 @@
 
 
 void func_80140f98(void) {
-    table_8017ac44[game_state.config->field_12]();
+    table_8017ac44[game_state.config->handler_index]();
 }
 
 void func_80140fe0(Object *object) {
-    if (object->field_cd != 0) {
+    if (object->mode_flag_2 != 0) {
         func_80141058(object);
     } else {
         if (object->pressed_bits & 0xff00) update_sequence(object);

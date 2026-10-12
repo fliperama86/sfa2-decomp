@@ -4,9 +4,9 @@
 #include "externs.h"
 
 /* What it does (inferred, not an original name): computes a byte value in
-   field_64 of the object that ref_other points at, and returns it. With a
+   damage of the object that ref_other points at, and returns it. With a
    == -1 it returns 0 at once. Otherwise it starts from a table byte chosen
-   by the object's field_cf and the low five bits of `a` (32 per step),
+   by the object's table_column and the low five bits of `a` (32 per step),
    adds 0xf0 and a second table byte chosen by a random number (low five
    bits) combined with b << 5, clears the result when bit 7 is set, selects
    a row of table_8017984c through table_80179834[object->kind] (the row's
@@ -14,8 +14,8 @@
    is 0x80 or more (bit 7 was cleared just before, so the clamp is not
    reached; inferred), adds that row's entry for the value, calls
    func_80140ec0 (which calls through table_8017ac34, a handler that may
-   change field_64; read from the original's listing, not tested), and
-   returns field_64 halved when field_15b is 0, but at least 1. */
+   change damage; read from the original's listing, not tested), and
+   returns damage halved when field_15b is 0, but at least 1. */
 int func_80140b5c(Object *object, s16 a, int b) {
     u8 v;
     unsigned w;
@@ -24,7 +24,7 @@ int func_80140b5c(Object *object, s16 a, int b) {
     int t;
 
     if (a != -1) {
-        ref_other.p->field_64 = table_801777d4[object->field_cf + ((a & 0x1f) << 5)];
+        ref_other.p->damage = table_801777d4[object->table_column + ((a & 0x1f) << 5)];
         s = b << 5;
         /* The call of get_random_byte goes through a type that returns int although the callee returns a byte: the original does not narrow the result at the call. Written plainly, this function differs from the original in 11 instruction slots. */
         /* Not portable C: a call through a type that is not compatible with the callee's definition. It relies on the PS1's calling convention, under which the callee leaves its byte zero-extended in the whole result register. */
@@ -33,19 +33,19 @@ int func_80140b5c(Object *object, s16 a, int b) {
         /* The OR's value and, further down, the row index share the local t. With the row index written at the table (t used once) this function differs from the original in 8 instruction slots: the value then gets its register together with the shift behind it. */
         t = (w & 0x1f) | s;
         idx = t;
-        ref_other.p->field_64 += 0xf0 + table_80177bd4[idx];
-        if (ref_other.p->field_64 & 0x80) {
-            ref_other.p->field_64 = 0;
+        ref_other.p->damage += 0xf0 + table_80177bd4[idx];
+        if (ref_other.p->damage & 0x80) {
+            ref_other.p->damage = 0;
         }
         t = table_80179834[object->kind];
         game_state.cursor = (u32 *)table_8017984c[t];
-        v = ref_other.p->field_64;
+        v = ref_other.p->damage;
         if (v >= 0x80) {
             v = 0x7f;
         }
-        ref_other.p->field_64 = v + ((u8 *)game_state.cursor)[v];
+        ref_other.p->damage = v + ((u8 *)game_state.cursor)[v];
         func_80140ec0();
-        w = ref_other.p->field_64;
+        w = ref_other.p->damage;
         if (ref_other.p->field_15b == 0) {
             w >>= 1;
         }

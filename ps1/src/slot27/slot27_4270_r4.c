@@ -6,8 +6,8 @@
 void func_800145f4_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Object *n;
-    if (data_8018f5a0->field_4e >= 3 && game_state.mode != 3) {
-        int sum = *(u16 *)&o->pos_y + obj->field_50;
+    if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
+        int sum = *(u16 *)&o->pos_y + obj->pos_y_offset;
         int y;
         *(u16 *)&o->pos_y = sum;
         y = (s16)sum;
@@ -16,9 +16,9 @@ void func_800145f4_slot27(Object *o) {
             obj->field_05 = obj->field_05 + 1;
             n = (Object *)func_8011f1e0();
             if (n != 0) {
-                n->field_00 = 1;
+                n->active_count = 1;
                 n->field_02 = 0xaa;
-                n->field_03 = 0x80;
+                n->table_index = 0x80;
             }
         }
     }
@@ -27,8 +27,8 @@ void func_800145f4_slot27(Object *o) {
 
 void func_800146a8_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
-    if (data_8018f5a0->field_4e >= 3 && game_state.mode != 3) {
-        int sum = *(u16 *)&o->pos_y + obj->field_50;
+    if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
+        int sum = *(u16 *)&o->pos_y + obj->pos_y_offset;
         int y;
         *(u16 *)&o->pos_y = sum;
         y = (s16)sum;

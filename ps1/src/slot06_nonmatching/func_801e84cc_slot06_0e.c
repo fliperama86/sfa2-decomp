@@ -7,11 +7,11 @@
  * on random inputs of the contract below.
  *
  * What it does (inferred, not an original name): draws the first tile layer
- * of the stage, data_801aa544[0], as sprite records. The layer's field_14
- * (high half) minus game_state.field_92 gives a vertical position y; its
+ * of the stage, data_801aa544[0], as sprite records. The layer's scroll_y
+ * (high half) minus game_state.scroll_y gives a vertical position y; its
  * scroll_x gives a horizontal position. The window is 25 columns by 16
  * rows of 16-pixel cells, starting at the cell row y / 16 and the cell
- * column (scroll_x masked by field_58 - 1) / 16, offset by the sub-cell
+ * column (scroll_x masked by map_width - 1) / 16, offset by the sub-cell
  * remainders. The cells are 16-bit pairs (tile, palette) in the layer's
  * map (map_data). Every cell whose tile differs from the layer's blank
  * value (field_1e, signed; the tile is compared unsigned) gets one record
@@ -23,8 +23,8 @@
  * Contract (what the code reads and writes; the roles named for the
  * fields are inferred):
  *   No argument, no return value.
- *   Reads: data_801aa544[0] scroll_x, field_14, field_1e, map_data,
- *     field_58, ot_index; game_state.field_92; the buffer selector
+ *   Reads: data_801aa544[0] scroll_x, scroll_y, field_1e, map_data,
+ *     map_width, ot_index; game_state.scroll_y; the buffer selector
  *     data_801a27d0 (0 or 1); the list base pointer data_801987c8 and the
  *     list head word it points at; the map words of the cells it visits.
  *   Map, at map_data: for map row r (r & 0xf) the row starts 64 cells
@@ -72,11 +72,11 @@ void func_801e84cc_slot06_0e(void) {
     Slot06Tile *rec;
     u32 *ot;
 
-    pos = -(c->field_14 - 0x100000);
-    y = (pos >> 16) - game_state.field_92;
+    pos = -(c->scroll_y - 0x100000);
+    y = (pos >> 16) - game_state.scroll_y;
     sy = y & 0xf;
     row = (y & 0x1f0) / 16;
-    w = c->field_58;
+    w = c->map_width;
     mask = (w >> 4) - 1;
     px = c->scroll_x;
     sx = px & 0xf;

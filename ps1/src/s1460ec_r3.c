@@ -13,18 +13,18 @@ void func_8014672c(Object *object) {
     object->spawn_x = 0x60;
     object->spawn_y = 0x1e0;
     object->field_90 = (void *)0x800fb100;
-    object->field_98 = data_80172a48;
-    object->field_9c = data_80173c9c;
+    object->data_ptr_a = data_80172a48;
+    object->data_ptr_b = data_80173c9c;
     object->state_0 = object->state_0 + 1;
-    func_80130768(object, object->field_48, (SequenceStep **)table_8017c7f8);
+    func_80130768(object, object->variant_index, (SequenceStep **)table_8017c7f8);
 }
 
 /* The call of func_80120028 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 15 instruction slots. */
 void func_80146794(Object *object) {
-    if (object->field_03 >= 0x10) {
-        if (object->field_03 == 0x10) {
+    if (object->table_index >= 0x10) {
+        if (object->table_index == 0x10) {
             object->pos_x = object->pos_x + 4;
-        } else if (object->field_03 == 0x11) {
+        } else if (object->table_index == 0x11) {
             object->pos_x = object->pos_x - 4;
         }
     }

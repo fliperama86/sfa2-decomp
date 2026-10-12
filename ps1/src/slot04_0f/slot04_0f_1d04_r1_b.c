@@ -28,7 +28,7 @@ void func_801b2340_slot04_0f(Object *o, u16 *src) {
     int i;
     Rect r;
 
-    if (game_state.config->field_65 == 0) {
+    if (game_state.config->pause_flag_a == 0) {
         dst = data_801a2944;
         if (o->side == 0) {
             dst = data_801a29e4;
@@ -43,7 +43,7 @@ void func_801b2340_slot04_0f(Object *o, u16 *src) {
         job = (Job *)func_8011f4a4();
         if (job != 0) {
             r.x = 0x60;
-            r.y = o->field_0d + 0x1e0;
+            r.y = o->image_row + 0x1e0;
             r.w = 0x10;
             r.h = 1;
             job->kind = 1;
@@ -52,7 +52,7 @@ void func_801b2340_slot04_0f(Object *o, u16 *src) {
             dst -= 0x10;
             job->src = (u8 *)dst;
             r.x = 0x60;
-            r.y = o->field_0d + 0x1e0;
+            r.y = o->image_row + 0x1e0;
             r.w = 0x10;
             r.h = 1;
         }

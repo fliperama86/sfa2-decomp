@@ -5,7 +5,7 @@
 
 void func_8012b324(Object *object) {
     u16 saved;
-    if (object->field_cd != 0) {
+    if (object->mode_flag_2 != 0) {
         func_8012b2c4(object);
     } else if (func_80130470(object)) {
         func_8013047c(object);
@@ -23,7 +23,7 @@ void func_8012b324(Object *object) {
     } else if ((s16)object->step_flags < 0) {
         func_80131468(object);
     } else {
-        object->field_0b = object->field_158;
+        object->facing_side = object->saved_facing;
         update_sequence(object);
     }
 }
@@ -33,25 +33,25 @@ void func_8012b45c(Object *object) {
         func_80128778(object);
     }
     func_80129be0(object);
-    if (object->field_cd == 0) {
+    if (object->mode_flag_2 == 0) {
         if (object->kind_timer != 0) {
             object->kind_timer--;
         }
-        if (object->field_29b != 0) {
-            object->field_29b--;
+        if (object->countdown_5 != 0) {
+            object->countdown_5--;
         }
-        if (object->field_248 != 0) {
-            object->field_248--;
+        if (object->kind_table_value != 0) {
+            object->kind_table_value--;
         }
     }
     if (object->side == 0) {
-        if (object->field_cd != 0) {
+        if (object->mode_flag_2 != 0) {
             scratch_call_d8(object);
         } else {
             scratch_call_54(object);
         }
     } else {
-        if (object->field_cd != 0) {
+        if (object->mode_flag_2 != 0) {
             scratch_call_188(object);
         } else {
             scratch_call_104(object);

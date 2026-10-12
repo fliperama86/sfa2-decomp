@@ -5,9 +5,9 @@
 
 void func_801b3d68_slot04_09(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        obj->field_159 = 0;
+        obj->active_flag_3 = 0;
         obj->state_3 = 0;
-        obj->field_a2 = 0;
+        obj->step_count = 0;
         func_80131468(obj);
     } else {
         update_sequence(obj);

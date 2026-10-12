@@ -19,14 +19,14 @@ void func_801b3828_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     TextBuf *b = data_801b8570_slot04_sel[obj->side];
     TextBuf *c = data_801b85e8_slot04_sel[obj->side];
     int i;
-    if (rec->field_07 == 0 && ((game_state.field_07 >> obj->side) & 1)) {
-        data_801b9d30_slot04_sel = rec->field_06;
+    if (rec->field_07 == 0 && ((game_state.side_mask >> obj->side) & 1)) {
+        data_801b9d30_slot04_sel = rec->saved_index_a;
         data_801b9d34_slot04_sel = rec->field_07;
         func_801b4774_slot04_sel(obj, rec, 7);
-        rec->field_06 = data_801b9d30_slot04_sel;
+        rec->saved_index_a = data_801b9d30_slot04_sel;
         rec->field_07 = data_801b9d34_slot04_sel;
-        b->field_04 = data_801b7d98_slot04_sel[obj->side] + a->field_08 * data_801b9d30_slot04_sel;
-        b->field_06 = 0x48;
+        b->pos_x = data_801b7d98_slot04_sel[obj->side] + a->stride * data_801b9d30_slot04_sel;
+        b->pos_y = 0x48;
         func_801519b4(b);
         for (i = 0; i < 8; i++) {
             a->buf[i + 5] = data_801b7d9c_slot04_sel[data_801b9d30_slot04_sel][i];
@@ -34,14 +34,14 @@ void func_801b3828_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
         func_801519b4(a);
         func_801519b4(c);
         if (rec->field_07 != 0) {
-            obj->field_cf = data_801b7ddc_slot04_sel[data_801b9d30_slot04_sel];
+            obj->table_column = data_801b7ddc_slot04_sel[data_801b9d30_slot04_sel];
             data_8016e698[obj->side] = data_801b9d30_slot04_sel;
             func_801205c4(obj->side, 1);
             for (i = 0; i < 8; i++) {
                 a->buf[i + 5] = data_801b7d9c_slot04_sel[data_801b9d30_slot04_sel][i];
             }
             a->buf[4] = data_801b8328_slot04_sel[obj->side];
-            rec->field_00++;
+            rec->count++;
         }
     }
 }

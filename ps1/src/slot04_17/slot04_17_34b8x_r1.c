@@ -19,7 +19,7 @@ void func_801b34b8_slot04_17(Object *obj) {
 
     a = obj->vel_x;
     p = obj->other;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         a = -a;
     }
     *(s32 *)&obj->pos_x_frac = a + *(s32 *)&obj->pos_x_frac;
@@ -37,11 +37,11 @@ void func_801b34b8_slot04_17(Object *obj) {
             do {
                 obj->state_3++;
                 p = obj->other;
-                p->field_6a++;
+                p->round_count++;
                 func_801465b0(obj, 6, 4, 0x3c);
                 p = obj->other;
                 p->field_15b = 1;
-                i = obj->field_12a;
+                i = obj->direction_index;
                 func_80140770(obj, 0x10, 5, data_801ce44c_slot04_17[i], data_801ce44c_slot04_17[i + 1], 0, 0);
             } while (0);
             p = obj->other;
@@ -56,7 +56,7 @@ void func_801b34b8_slot04_17(Object *obj) {
         a -= 8;
         obj->step_flags = t >> 8;
         ref_other.p = obj->other;
-        ref_other.p->field_6a++;
+        ref_other.p->round_count++;
         j = a >> 1;
         y = data_801ce454_slot04_17[j + 3];
         /* Stand-in, not recovered source: the local i, the index of the other arm, used here for the table's third halfword, reproduces the original's choice of registers. Without it this function differs from the original in 13 instruction slots. */

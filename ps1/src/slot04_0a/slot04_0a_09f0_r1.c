@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b09f0_slot04_0a(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
     func_80130dc0(obj);
     obj->field_278 = 1;
@@ -12,10 +12,10 @@ void func_801b09f0_slot04_0a(Object *obj) {
 
 void func_801b0a38_slot04_0a(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
-    if (obj->field_3a != 0) {
+    if (obj->mode != 0) {
         o->state_3++;
         play_sound_at(o, o->side, 0x324);
-        if (o->field_0b != 0) {
+        if (o->facing_side != 0) {
             o->vel_x = 0xc0000;
             o->accel_x = -0x8000;
         } else {
@@ -40,7 +40,7 @@ void func_801b0ab4_slot04_0a(Object *obj) {
         obj->step_timer = s->duration;
         f = obj->frames + obj->sequence->frame_index;
         obj->frame = f;
-        obj->field_4a = f->field_0d;
+        obj->frame_sound_index = f->sequence_param;
         obj->sequence_changed_flag = 1;
     }
 }

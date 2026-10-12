@@ -14,20 +14,20 @@ void func_801257f4(Select *sel) {
     u32 mask;
     int flags;
 
-    if (sel->field_1b == 3) {
-        if (sel->field_07 == 3) {
+    if (sel->mode == 3) {
+        if (sel->order_mode == 3) {
             if (sel->field_71 == 0) {
                 tmp = first;
                 first = second;
                 second = tmp;
             }
-        } else if (sel->field_07 & 1) {
+        } else if (sel->order_mode & 1) {
             tmp = first;
             first = second;
             second = tmp;
         }
     } else {
-        if (!(sel->field_1b & 1)) {
+        if (!(sel->mode & 1)) {
             tmp = first;
             first = second;
             second = tmp;
@@ -38,7 +38,7 @@ void func_801257f4(Select *sel) {
     again:
         i++;
         flag = sel->entries[i];
-        if (!(i < sel->field_a4)) {
+        if (!(i < sel->index_limit)) {
             goto out;
         }
         j = 0;
@@ -53,6 +53,6 @@ void func_801257f4(Select *sel) {
         sel->selected_index = i;
         second->kind = flag;
     }
-    sel->field_40 = (u8)func_80125afc(second->kind);
+    sel->kind_value = (u8)func_80125afc(second->kind);
     func_80125b34(sel, first);
 }

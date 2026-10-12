@@ -16,10 +16,10 @@ void func_801b283c_slot04_0b(Object *obj) {
         }
     } else {
         t = obj->state_3;
-        u = obj->field_12a;
-        y = ((Slot04aObj *)obj)->field_70;
-        obj->field_45 = 0;
-        obj->field_a0 = 0;
+        u = obj->direction_index;
+        y = ((Slot04aObj *)obj)->saved_pos_y;
+        obj->active_state = 0;
+        obj->variant_index_2 = 0;
         t++;
         obj->state_3 = t;
         obj->pos_y = y;

@@ -5,7 +5,7 @@
 
 
 void func_8014630c(Object *object) {
-    if (game_state.config->field_a8 != 0) {
+    if (game_state.config->pause_flag_b != 0) {
         func_8011ffdc(object);
         return;
     }
@@ -23,8 +23,8 @@ void func_80146374(Object *p) {
 }
 
 void func_80146394(Object *object) {
-    if (object->field_03 & 0x80) {
-        Object *src = object->field_3c;
+    if (object->table_index & 0x80) {
+        Object *src = object->parent;
         Pair *pair;
         int x, y;
         object->pos_x = src->pos_x;
@@ -34,11 +34,11 @@ void func_80146394(Object *object) {
         } else {
             pair = pairs_right;
         }
-        pair += src->frame->field_0a & 0xf;
+        pair += src->frame->offset_index & 0xf;
         x = pair->first;
         y = pair->second;
-        object->field_0b = src->field_0b;
-        if (object->field_0b != 0) {
+        object->facing_side = src->facing_side;
+        if (object->facing_side != 0) {
             x = -x;
         }
         object->pos_x = x + object->pos_x;
@@ -48,9 +48,9 @@ void func_80146394(Object *object) {
 
 void func_80146450(Object *object) {
     object->field_0c = 0xff;
-    object->field_0d = 2;
-    if (object->field_65 != 0) {
+    object->image_row = 2;
+    if (object->team_id != 0) {
         object->field_0c = 0;
-        object->field_0d = 0;
+        object->image_row = 0;
     }
 }

@@ -19,16 +19,16 @@ void func_801e0e48_slot2a(Object *obj) {
     int j;
     int n;
 
-    a = data_801e2fdc_slot2a[obj->field_03].left;
-    b = data_801e2fdc_slot2a[obj->field_03].right;
+    a = data_801e2fdc_slot2a[obj->table_index].left;
+    b = data_801e2fdc_slot2a[obj->table_index].right;
     e = data_801e22b4_slot2a;
     data_801e515c_slot2a = 0;
     for (; e->key != 0x80; e++) {
         base = 0;
         for (j = 0; j < e->count; j++) {
             func_8015c100(a);
-            a->pos_x = base + e->field_02;
-            a->pos_y = e->field_04 + (obj->field_03 ? 0x91 : 0x31);
+            a->pos_x = base + e->x_offset;
+            a->pos_y = e->y_offset + (obj->table_index ? 0x91 : 0x31);
             a->tex_u = *(u8 *)((char *)data_801e226c_slot2a + e->key * 8) + 0xc0;
             a->tex_v = *(u8 *)((char *)data_801e226e_slot2a + e->key * 8);
             a->width = *(u16 *)((char *)data_801e2270_slot2a + e->key * 8);
@@ -36,11 +36,11 @@ void func_801e0e48_slot2a(Object *obj) {
             a->color_r = 0x80;
             a->color_g = 0x80;
             a->color_b = 0x80;
-            a->field_0e = func_8015bdd4(0x70, 0x1fa);
+            a->clut_or_tpage = func_8015bdd4(0x70, 0x1fa);
             a++;
             func_8015c100(b);
-            b->pos_x = base + e->field_02;
-            b->pos_y = e->field_04 + (obj->field_03 ? 0x91 : 0x31);
+            b->pos_x = base + e->x_offset;
+            b->pos_y = e->y_offset + (obj->table_index ? 0x91 : 0x31);
             b->tex_u = *(u8 *)((char *)data_801e226c_slot2a + e->key * 8) + 0xc0;
             b->tex_v = *(u8 *)((char *)data_801e226e_slot2a + e->key * 8);
             b->width = *(u16 *)((char *)data_801e2270_slot2a + e->key * 8);
@@ -48,7 +48,7 @@ void func_801e0e48_slot2a(Object *obj) {
             b->color_r = 0x80;
             b->color_g = 0x80;
             b->color_b = 0x80;
-            b->field_0e = func_8015bdd4(0x70, 0x1fa);
+            b->clut_or_tpage = func_8015bdd4(0x70, 0x1fa);
             b++;
             base += *(u16 *)((char *)data_801e2270_slot2a + e->key * 8);
             data_801e515c_slot2a++;

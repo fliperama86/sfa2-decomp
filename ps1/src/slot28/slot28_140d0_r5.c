@@ -9,8 +9,8 @@ void func_800246e8_slot28(Object *o) {
     *(u16 *)&((Slot28Obj *)o)->countdown_timer = t;
     obj = (Slot28Obj *)o;
     if ((s16)t == 0) {
-        obj->field_05 += 1;
+        obj->count += 1;
     }
-    obj->field_10 += obj->field_4c;
-    obj->field_14 += obj->field_50;
+    obj->pos_x += obj->delta_x;
+    obj->pos_y += obj->delta_y;
 }

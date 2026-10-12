@@ -7,7 +7,7 @@
 void func_8012eb18(Object *o)
 {
   int z = 0;
-  if (game_state.config->field_4e == 0)
+  if (game_state.config->mode_flag_c == 0)
   {
     goto tail;
   }

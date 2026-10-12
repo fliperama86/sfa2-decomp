@@ -18,7 +18,7 @@ void func_801e05e0_slot0b(ModObj *obj) {
 }
 
 void func_801e05e8_slot0b(ModObj *obj) {
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->owner_object;
     if (data_80190468.p->state_0 == 0) {
         data_801e471c_slot0b[obj->substate_index](obj);
         if (data_80190a40 != 1) {
@@ -31,8 +31,8 @@ void func_801e05e8_slot0b(ModObj *obj) {
 
 void func_801e06b0_slot0b(ModObj *obj) {
     ModObj *child = obj->child;
-    obj->field_04 = 3;
+    obj->mode = 3;
     if (child != 0) {
-        child->field_04 = 2;
+        child->mode = 2;
     }
 }

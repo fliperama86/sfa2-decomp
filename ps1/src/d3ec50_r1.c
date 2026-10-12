@@ -8,12 +8,12 @@ void func_8013ed1c(Object *object, int index);
 
 /*
  * What it does (inferred, not original names): checks an object's flag
- * halfword (field_150) against a table entry (table_8017ab5c[arg]), and
+ * halfword (input_word) against a table entry (table_8017ab5c[arg]), and
  * calls func_8013ed1c with the object and the slot index when the check
  * passes, func_8013f2a8 when it fails. The entry's low byte is a
  * required-bit mask. Entry bit 0x200 clear: the mask alone decides. Bit
- * 0x200 set with 0x100 set: the check also passes when field_150 bit 0 is
- * set. Bit 0x200 set, 0x100 clear, 0x800 set: it also passes when field_150
+ * 0x200 set with 0x100 set: the check also passes when input_word bit 0 is
+ * set. Bit 0x200 set, 0x100 clear, 0x800 set: it also passes when input_word
  * bit 1 is set. Otherwise it does nothing. It is func_8013eb28 with another
  * callee for the pass.
  */
@@ -30,7 +30,7 @@ void func_8013ec50(Object *object, int index, int arg) {
     t = table_8017ab5c[arg];
     ent = t;
     t = ent & 0xff;
-    flags = object->field_150;
+    flags = object->input_word;
     f = flags;
     /* The index is narrowed to a byte in slot and held once more in i, as in func_8013eb28. */
     slot = index;

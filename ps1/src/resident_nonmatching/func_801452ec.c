@@ -20,8 +20,8 @@
  *
  * Contract (the roles named for the fields are inferred):
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: the object's field_03, ot_depth, field_0c, field_0d, pos_x,
- *     pos_y, health, field_76, field_78, spawn_x, spawn_y and sequence;
+ *   Reads: the object's field_03, ot_depth, field_0c, image_row, pos_x,
+ *     pos_y, health, base_x, base_y, spawn_x, spawn_y and sequence;
  *     the header at sequence->field_04: byte 0 columns, byte 2 rows, byte 3
  *     a clut offset, u16 at 4 and 6 an x and y origin, then rows * columns
  *     u16 cells from offset 8; the selector data_801a27d0 (a word, 0 or 1);
@@ -99,9 +99,9 @@ void func_801452ec(Object *object) {
     int lo;
     int hi;
 
-    if (object->field_03 == 0 || object->field_03 == 9) {
+    if (object->table_index == 0 || object->table_index == 9) {
         side = 0;
-    } else if (object->field_03 == 1 || object->field_03 == 10) {
+    } else if (object->table_index == 1 || object->table_index == 10) {
         side = 1;
     }
     idx = 0;
@@ -118,17 +118,17 @@ void func_801452ec(Object *object) {
             hi = (n / 16) << 4;
             quad = &data_801a4ff0[side].pairs[idx].polys[data_801a27d0];
             func_8015c09c(quad);
-            quad->tpage = func_8015bd0c(0, 0, (s16)object->field_76 + (n / 256) * 64, (s16)object->field_78);
+            quad->tpage = func_8015bd0c(0, 0, (s16)object->base_x + (n / 256) * 64, (s16)object->base_y);
             quad->clut = func_8015bdd4((s16)object->spawn_x,
-                                           (s16)object->spawn_y + object->field_0d * object->field_0c + map->field_03);
-            if (object->field_03 < 2) {
+                                           (s16)object->spawn_y + object->image_row * object->field_0c + map->page_offset);
+            if (object->table_index < 2) {
                 quad->r0 = 0x80;
                 quad->g0 = 0x80;
                 quad->b0 = 0x80;
                 func_8015bfe8(quad, 1);
             }
             dy = object->health;
-            if (object->field_03 == 9 || object->field_03 == 10) {
+            if (object->table_index == 9 || object->table_index == 10) {
                 dy = 0;
             }
             x = object->pos_x + col * 16 - map->field_04;

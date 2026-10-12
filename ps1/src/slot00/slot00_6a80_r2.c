@@ -12,7 +12,7 @@ void func_80076bdc_slot00(Object *o) {
 void func_80076bfc_slot00(Object *o) {
     Config *config = game_state.config;
 
-    if (config->field_65 == 0 && config->field_a8 == 0) {
+    if (config->pause_flag_a == 0 && config->pause_flag_b == 0) {
         data_800797ec_slot00[o->state_2](o);
     }
     func_8011ffdc(o);

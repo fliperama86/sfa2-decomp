@@ -6,16 +6,16 @@
 extern SequenceStep *data_801c59b0_slot04_02[];
 
 void func_801b7b44_slot04_02(Object *obj) {
-    func_80130768(obj, (u8)(obj->field_48 - 1), data_801c59b0_slot04_02);
+    func_80130768(obj, (u8)(obj->variant_index - 1), data_801c59b0_slot04_02);
 }
 
 void func_801b7b74_slot04_02(Object *obj) {
-    Object *p = obj->field_3c;
+    Object *p = obj->parent;
 
     obj->pos_x = p->pos_x;
     obj->pos_y = p->pos_y;
-    obj->field_0b = 0;
-    if (p->field_0b != 0) {
+    obj->facing_side = 0;
+    if (p->facing_side != 0) {
         obj->pos_x = obj->pos_x - 0x18;
     }
 }

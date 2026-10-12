@@ -4,19 +4,19 @@
 #include "protos.h"
 
 void func_8013ada4(Object *object) {
-    object->field_61 = 7;
+    object->hit_type = 7;
     object->field_62 = 2;
     object->field_15b = 1;
 }
 
 void func_8013adc0(Object *object) {
-    object->field_61 = 0xc;
+    object->hit_type = 0xc;
     object->field_62 = 2;
     object->field_15b = 1;
 }
 
 void func_8013addc(Object *object) {
-    object->field_61 = 0xd;
+    object->hit_type = 0xd;
     object->field_62 = 2;
     object->field_15b = 1;
 }

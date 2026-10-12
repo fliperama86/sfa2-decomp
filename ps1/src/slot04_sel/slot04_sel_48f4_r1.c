@@ -11,7 +11,7 @@ void func_801b48f4_slot04_sel(Object *obj, Slot04SelRec9d38 *rec, int unused) {
     u8 t;
     data_801b9d30_slot04_sel = 0;
     t = *data_801b7ed4_slot04_sel[obj->side] & 0xf0;
-    rec->field_05 = t;
+    rec->input_bits = t;
     if (t != 0) {
         data_801b9d34_slot04_sel = 1 << obj->side;
     }

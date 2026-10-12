@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void func_801b5df0_slot04_06(Object *obj) {
-    obj->field_44 = 1;
+    obj->spawn_flag = 1;
     obj->field_0c = 0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->vel_y = 0x40000;
     obj->state_0++;
     func_80130768(obj, 0x23, seqs_8017c7f8);

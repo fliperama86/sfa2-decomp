@@ -8,7 +8,7 @@ extern SequenceStep *data_801e9f44_slot06_00[];
 void func_801e937c_slot06_00(Object *object) {
     object->field_0a = 1;
     object->field_0f = 1;
-    object->field_81 = 4;
+    object->spawn_mode = 4;
     object->state_0 = object->state_0 + 1;
     object->field_0c = 0;
     object->pos_x_frac = object->pos_x;

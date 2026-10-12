@@ -12,7 +12,7 @@ int func_80011688_slot12(void);
 void func_800122cc_slot12(Object *obj);
 
 void func_80012130_slot12(Object *obj) {
-    if ((game_state.field_33 & 2) && data_8002a390_slot12 != 0) {
+    if ((game_state.loop_counter & 2) && data_8002a390_slot12 != 0) {
         data_8002a390_slot12 = func_80011688_slot12();
     }
     if (data_8002d578_slot12 == 0) {

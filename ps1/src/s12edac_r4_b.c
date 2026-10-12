@@ -16,7 +16,7 @@ void func_8012f8c4(Object *object) {
         object->state_1 = 0;
         object->state_2 = 4;
         object->state_3 = 0;
-        object->field_0b = object->field_158;
+        object->facing_side = object->saved_facing;
         if (object->field_157 == 0) {
             arg = 10;
         } else {

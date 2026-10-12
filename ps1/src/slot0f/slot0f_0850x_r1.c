@@ -79,9 +79,9 @@ int func_800e0850_slot0f(int mode, s16 *name) {
     }
     /* The three-byte copy: same built-in, see above. Written as the plain halfword store (and nothing for the third byte), this function differs from the original in 24 instruction slots. */
     __builtin_memcpy(hdr, data_800df118_slot0f, 3);
-    hdr->field_02 = 0x11;
-    hdr->field_03 = 1;
-    z = &hdr->field_44;
+    hdr->header_type = 0x11;
+    hdr->header_count = 1;
+    z = &hdr->body_start;
     for (n = 0x1c; n != 0; n--) {
         *z++ = 0;
     }

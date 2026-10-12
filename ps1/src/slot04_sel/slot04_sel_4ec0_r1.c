@@ -37,9 +37,9 @@ void func_801b4ec0_slot04_sel(void) {
     Slot04SelRec9d78 *a = data_801b9d78_slot04_sel;
     Slot04SelRec9d78 *b = a + 1;
     func_801519b4(data_801b9310_slot04_sel);
-    if (data_8018f5a0->field_50 == 1) {
+    if (data_8018f5a0->step_index_2 == 1) {
         func_801519b4(data_801b9330_slot04_sel);
-    } else if (data_8018f5a0->field_50 == 2) {
+    } else if (data_8018f5a0->step_index_2 == 2) {
         func_801519b4(data_801b9358_slot04_sel);
     }
     func_801519b4(data_801b8fe0_slot04_sel + 0);
@@ -62,33 +62,33 @@ void func_801b4ec0_slot04_sel(void) {
     func_801519b4(data_801b9244_slot04_sel);
     data_801b8cc8_slot04_sel[a->field_00](l, r, a);
     data_801b8cc8_slot04_sel[b->field_00](r, l, b);
-    if (data_8018f5a0->field_50 == 1) {
-        if (game_state.field_07 == (a->field_04 | b->field_04)) {
+    if (data_8018f5a0->step_index_2 == 1) {
+        if (game_state.side_mask == (a->field_04 | b->field_04)) {
             a->field_00 = 0;
             b->field_00 = 0;
             a->field_04 = 0;
             b->field_04 = 0;
             a->field_14 = 0;
             b->field_14 = 0;
-            a->field_15 = 0;
-            b->field_15 = 0;
-            data_8018f5a0->field_50 = data_8018f5a0->field_50 + 1;
+            a->hold_count_b = 0;
+            b->hold_count_b = 0;
+            data_8018f5a0->step_index_2 = data_8018f5a0->step_index_2 + 1;
         }
-    } else if (data_8018f5a0->field_50 == 2) {
-        Object *o1 = data_801b8fc4_slot04_sel[game_state.field_07];
-        Object *o0 = data_801b8f74_slot04_sel[game_state.field_07];
+    } else if (data_8018f5a0->step_index_2 == 2) {
+        Object *o1 = data_801b8fc4_slot04_sel[game_state.side_mask];
+        Object *o0 = data_801b8f74_slot04_sel[game_state.side_mask];
         func_801519b4(o1);
         func_801519b4(o0);
-        if (game_state.field_07 == (a->field_04 | b->field_04)) {
+        if (game_state.side_mask == (a->field_04 | b->field_04)) {
             a->field_00 = 0;
             b->field_00 = 0;
-            l->field_cd = 0;
-            r->field_cd = 0;
-            data_8018f5a0->field_4e = data_8018f5a0->field_4e + 1;
-            data_8018f5a0->field_50 = 0;
-            game_state.field_40 = (u8)func_80125afc(game_state.field_b1);
+            l->mode_flag_2 = 0;
+            r->mode_flag_2 = 0;
+            data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
+            data_8018f5a0->step_index_2 = 0;
+            game_state.kind_index = (u8)func_80125afc(game_state.selection_value);
         }
     }
-    data_801b9da8_slot04_sel = game_state.field_07;
+    data_801b9da8_slot04_sel = game_state.side_mask;
     data_801b9dac_slot04_sel = game_state.mode;
 }

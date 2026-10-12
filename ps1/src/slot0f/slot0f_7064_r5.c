@@ -18,7 +18,7 @@ void func_800e7534_slot0f(Object *obj) {
 }
 
 void func_800e7574_slot0f(Object *obj) {
-    obj->field_46 = 0x1e;
+    obj->countdown = 0x1e;
     obj->state_1++;
     if (data_80190468.p->field_01 != 0) {
         obj->state_1 = 3;

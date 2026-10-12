@@ -19,9 +19,9 @@ void func_801b3c38_slot04_00(Object *obj) {
 }
 
 void func_801b3c7c_slot04_00(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_80130dc0(obj);
 }
 

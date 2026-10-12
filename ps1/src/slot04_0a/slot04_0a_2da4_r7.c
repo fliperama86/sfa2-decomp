@@ -25,10 +25,10 @@ void func_801b3528_slot04_0a(Object *obj) {
         if (dx >= 0xa1 || dy >= 0x61 || obj->field_241 != 0) {
             func_801b3e68_slot04_0a(obj);
             obj->state_3 = 3;
-            obj->field_27b = 8;
+            obj->other_lock = 8;
             func_801307e0(obj, 0x4a);
         } else {
-            obj->field_27b = 0xf;
+            obj->other_lock = 0xf;
             obj->state_3++;
             play_side_sound_at(obj, obj->side, 0xf);
             func_801307e0(obj, 0x49);

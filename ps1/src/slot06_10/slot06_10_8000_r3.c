@@ -23,9 +23,9 @@ void func_801e8978_slot06_10(void) {
 }
 
 void func_801e8980_slot06_10(Slot06Layer *layer) {
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_801e89c8_slot06_10(layer);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         func_801e8a1c_slot06_10(layer);
     }
 }
@@ -34,8 +34,8 @@ void func_801e89c8_slot06_10(Slot06Layer *layer) {
     init_cam_position((Cam *)layer, 0x1c0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
-        layer->field_30 = 8;
-        layer->field_04++;
+        layer->countdown_timer = 8;
+        layer->mode++;
     }
 }
 
@@ -45,32 +45,32 @@ void func_801e8a1c_slot06_10(Slot06Layer *layer) {
     s16 e;
 
     if (game_state.field_65 == 0) {
-        layer->field_30--;
-        if (layer->field_30 == 0) {
-            layer->field_30 = 8;
-            layer->field_4a = (layer->field_4a + 0x200) & 0x600;
+        layer->countdown_timer--;
+        if (layer->countdown_timer == 0) {
+            layer->countdown_timer = 8;
+            layer->flags_bits = (layer->flags_bits + 0x200) & 0x600;
         }
     }
     l2 = (Slot06Layer *)data_801aa5d4;
     d = l2->field_22;
-    d -= l2->field_0a;
+    d -= l2->ref_x;
     d -= d / 8;
-    d += layer->field_0a;
-    d += layer->field_36;
+    d += layer->ref_x;
+    d += layer->pos_x_int;
     layer->field_22 = d;
     e = l2->field_26;
     e -= l2->field_0e;
     e += layer->field_0e;
-    e += layer->field_3a;
+    e += layer->pos_y_int;
     layer->field_26 = e;
 }
 
 void func_801e8ad0_slot06_10(Slot06Layer *layer) {
-    layer->field_50 = data_801edc10_slot06_10;
-    layer->field_54 = data_801edc10_slot06_10;
-    layer->field_1e = 0x6408;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801edc10_slot06_10;
+    layer->data_table = data_801edc10_slot06_10;
+    layer->packed_param = 0x6408;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e8afc_slot06_10(void) {

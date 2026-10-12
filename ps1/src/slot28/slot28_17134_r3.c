@@ -21,19 +21,19 @@ void func_80027600_slot28(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     int unused[2];
     int i = get_random_byte() & 7;
-    obj->field_03 = 0;
+    obj->table_index = 0;
     obj->vel_y = data_80050ca4_slot28[i].vel_y;
     obj->accel_y = data_80050ca4_slot28[i].accel_y;
-    obj->field_0b = get_random_byte() & 1;
+    obj->facing_side = get_random_byte() & 1;
 }
 
 void func_8002766c_slot28(Object *obj) {
-    data_8005174c_slot28[data_8018f5a0->field_50](data_80051ce4_slot28);
+    data_8005174c_slot28[data_8018f5a0->step_index_2](data_80051ce4_slot28);
 }
 
 void func_800276b8_slot28(int *p) {
     GameState *g = &game_state;
-    data_8018f5a0->field_50++;
+    data_8018f5a0->step_index_2++;
     p[1] = 0;
     p[0] = 0x8000;
     func_80027b18_slot28((Object *)g);

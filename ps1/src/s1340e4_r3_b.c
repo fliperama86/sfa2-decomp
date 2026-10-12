@@ -6,7 +6,7 @@
 
 
 void func_80136290(void) {
-    data_80172410[game_state.field_40](&data_801aa5d4);
+    data_80172410[game_state.kind_index](&data_801aa5d4);
     data_801aa5fe = data_801aa5f6;
     data_801aa602 = data_801aa5fa;
 }
@@ -29,7 +29,7 @@ void func_8013635c(Sprite *sprite) {
 }
 
 void func_801363ac(Sprite *sprite) {
-    if (sprite->active_flag != 0 && game_state.field_4b == 0) {
+    if (sprite->active_flag != 0 && game_state.side_bits_2 == 0) {
         func_801364a0(sprite);
         func_80136744(sprite);
     }

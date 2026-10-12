@@ -13,7 +13,7 @@ void func_801b0964_slot04_09(Object *obj) {
 
 void func_801b0984_slot04_09(Object *obj) {
     obj->field_157 = 1;
-    if (obj->field_129 != 0) {
+    if (obj->input_dir_second != 0) {
         func_801b0a54_slot04_09(obj);
     } else {
         func_801b09c4_slot04_09(obj);

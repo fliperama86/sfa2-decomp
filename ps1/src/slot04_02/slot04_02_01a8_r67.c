@@ -18,7 +18,7 @@ void func_801b7660_slot04_02(Object *obj) {
     int a = 0x10;
 
     obj->state_1++;
-    if (obj->field_03 != 2 && obj->field_03 != 8) {
+    if (obj->table_index != 2 && obj->table_index != 8) {
         a = 0xf;
     }
     func_801b7920_slot04_02(obj, a);
@@ -32,30 +32,30 @@ void func_801b76ac_slot04_02(Object *obj) {
 }
 
 void func_801b76f8_slot04_02(Object *obj) {
-    Object *p = obj->field_3c;
-    u8 n = p->field_240 - 1;
+    Object *p = obj->parent;
+    u8 n = p->link_flags - 1;
 
-    p->field_14c = 0;
-    p->field_240 = n;
+    p->linked_object_3 = 0;
+    p->link_flags = n;
     func_8011f14c((Slab172 *)obj);
 }
 
 int func_801b772c_slot04_02(Object *obj, Object *parent) {
-    u8 a = obj->field_ac;
+    u8 a = obj->vel_table_index;
 
-    if (obj->field_03 == 6) {
+    if (obj->table_index == 6) {
         func_801b789c_slot04_02(obj, a);
         return 1;
     }
-    if (obj->field_03 == 8) {
+    if (obj->table_index == 8) {
         func_801b784c_slot04_02(obj, a);
         return 1;
     }
-    if (obj->field_03 == 4) {
+    if (obj->table_index == 4) {
         func_801b77fc_slot04_02(obj, a);
         return 1;
     }
-    if (obj->field_03 == 2) {
+    if (obj->table_index == 2) {
         func_801b77ac_slot04_02(obj, a);
         return 1;
     }

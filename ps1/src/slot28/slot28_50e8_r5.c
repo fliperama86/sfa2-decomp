@@ -10,11 +10,11 @@ extern u8 data_8002b024_slot28[];
 
 void func_80015640_slot28(Object *obj) {
     obj->field_90 = (void *)0x80060000;
-    obj->field_98 = data_8002acc4_slot28;
-    obj->field_9c = data_8002b024_slot28;
+    obj->data_ptr_a = data_8002acc4_slot28;
+    obj->data_ptr_b = data_8002b024_slot28;
     obj->spawn_x = 0x60;
     obj->spawn_y = 0x1e0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
 }
 
 void func_80015678_slot28(Object *obj) {

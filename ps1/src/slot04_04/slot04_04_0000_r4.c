@@ -12,27 +12,27 @@ void func_801b2d20_slot04_04(Object *obj) {
         obj->state_3++;
         p = pop_object_from_pool(obj);
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0x15;
-            p->field_ad = 1;
+            p->active_flag_2 = 1;
             p->field_0e = obj->field_0e;
-            p->field_0b = obj->field_0b;
-            p->field_66 = obj->field_66;
-            p->field_65 = obj->field_65;
-            p->field_26 = obj->field_26;
+            p->facing_side = obj->facing_side;
+            p->sound_side = obj->sound_side;
+            p->team_id = obj->team_id;
+            p->scroll_factor = obj->scroll_factor;
             p->field_0c = obj->field_0c;
-            p->field_0d = obj->field_0d;
+            p->image_row = obj->image_row;
             p->pos_x = obj->pos_x;
             p->pos_y = obj->pos_y;
             p->ground_y = obj->ground_y;
-            p->field_3c = obj;
+            p->parent = obj;
             p->spawn_x = obj->spawn_x;
             p->spawn_y = obj->spawn_y;
             p->field_90 = obj->field_90;
-            p->field_98 = obj->field_98;
-            p->field_9c = obj->field_9c;
+            p->data_ptr_a = obj->data_ptr_a;
+            p->data_ptr_b = obj->data_ptr_b;
             play_side_sound_at(obj, obj->side, 0x11);
         }
-        func_801307e0(obj, obj->field_12a + 0x5a);
+        func_801307e0(obj, obj->direction_index + 0x5a);
     }
 }

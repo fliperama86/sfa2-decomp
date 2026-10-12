@@ -8,7 +8,7 @@ void func_801b3788_slot04_0a(Object *obj) {
     func_80142fbc(obj);
     func_801428a8(obj);
     func_80138b38(&game_state, obj);
-    if (obj->field_45 != 0) {
+    if (obj->active_state != 0) {
         set_sequence_by_side(obj, 0x2f);
     } else {
         set_sequence_by_side(obj, 0x2b);

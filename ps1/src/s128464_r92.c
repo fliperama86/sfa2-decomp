@@ -8,13 +8,13 @@ void func_80129b68(Object *object) {
 }
 
 void func_80129b90(Object *object) {
-    if (object->field_263 != 0) object->field_263--;
+    if (object->countdown_4 != 0) object->countdown_4--;
 }
 
 void func_80129bb8(Object *object) {
-    if (object->field_27b != 0) object->field_27b--;
+    if (object->other_lock != 0) object->other_lock--;
 }
 
 void func_80129be0(Object *object) {
-    if (object->field_263 != 0) object->field_263--;
+    if (object->countdown_4 != 0) object->countdown_4--;
 }

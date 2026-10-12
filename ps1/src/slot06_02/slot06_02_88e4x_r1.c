@@ -37,20 +37,20 @@ void func_801e88e4_slot06_02(void) {
     s16 yy;
     s16 r;
     s16 tile;
-    q = (c->field_10 - c->field_08)
-        * (c->field_4c - c->field_1c)
-        / (c->field_4e - c->field_1c);
-    blank = c->field_1e;
-    x = c->field_14;
+    q = (c->end_x_fixed - c->start_x_fixed)
+        * (c->field_4c - c->range_start)
+        / (c->range_end - c->range_start);
+    blank = c->blank_value;
+    x = c->base_x_fixed;
     x -= 0x100000;
     pos = -x;
-    t = (pos >> 16) - game_state.field_92;
+    t = (pos >> 16) - game_state.scroll_y;
     pos &= 0xffff;
     pos |= t << 16;
-    c->field_3c = pos;
+    c->pos_fixed = pos;
     y = pos >> 16;
     sy = y & 0xf;
-    x12 = (q + c->field_08) >> 16;
+    x12 = (q + c->start_x_fixed) >> 16;
     sx = x12 & 0xf;
     col = (x12 & (c->width - 1)) >> 4;
     if (y >= 0) {

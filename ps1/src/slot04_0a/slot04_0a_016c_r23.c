@@ -8,7 +8,7 @@ void func_801b3c34_slot04_0a(Object *obj);
 extern ObjectFn data_801c0714_slot04_0a[];
 
 void func_801b3a10_slot04_0a(Object *obj) {
-    if (obj->field_128 != 0) {
+    if (obj->input_dir_0 != 0) {
         func_801b3c34_slot04_0a(obj);
     } else {
         func_801b3a50_slot04_0a(obj);

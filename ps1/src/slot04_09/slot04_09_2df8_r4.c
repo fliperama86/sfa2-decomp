@@ -10,10 +10,10 @@ void func_801b3190_slot04_09(Object *obj) {
     t = obj->step_flags;
     if ((u8)t == 0) {
         obj->state_3++;
-        obj->field_27b = 0;
+        obj->other_lock = 0;
         if (obj->field_165 & 0x80) {
             obj->other->field_6b = 10;
-            obj->field_27b = 2;
+            obj->other_lock = 2;
         }
         obj->field_165 = 0;
     } else if ((u8)t != 2) {

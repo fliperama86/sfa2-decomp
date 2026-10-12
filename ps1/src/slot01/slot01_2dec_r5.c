@@ -15,9 +15,9 @@ int func_8001336c_slot01(u8 arg) {
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             ret = 1;
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0x13;
-            p->field_03 = arg + 0x80;
+            p->table_index = arg + 0x80;
         }
     }
     return ret;

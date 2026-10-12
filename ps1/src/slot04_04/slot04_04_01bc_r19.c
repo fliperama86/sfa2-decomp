@@ -6,8 +6,8 @@
 void func_801b1a08_slot04_04(Object *obj);
 
 void func_801b19bc_slot04_04(Object *obj) {
-    obj->field_46 = (s16)obj->field_46 - 1;
-    if ((s16)obj->field_46 != 0) {
+    obj->countdown = (s16)obj->countdown - 1;
+    if ((s16)obj->countdown != 0) {
         update_sequence(obj);
     } else {
         func_801b1a08_slot04_04(obj);
@@ -19,9 +19,9 @@ void func_801b1a08_slot04_04(Object *obj) {
 
     obj->state_3++;
     a = 0x21;
-    obj->field_17b = 0;
+    obj->active_flag_4 = 0;
     if (obj->field_49 != 0) {
         a = 0x40;
     }
-    func_801307e0(obj, a + obj->field_12a + 1);
+    func_801307e0(obj, a + obj->direction_index + 1);
 }

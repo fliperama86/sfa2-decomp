@@ -4,5 +4,5 @@
 #include "protos.h"
 
 void func_801299d0(Object *object) {
-    if (object->field_29f != 0) object->field_29f--;
+    if (object->action_timer != 0) object->action_timer--;
 }

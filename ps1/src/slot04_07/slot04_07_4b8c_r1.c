@@ -12,7 +12,7 @@ void func_801b4b8c_slot04_07(Object *obj) {
     } else if ((t & 0xff) == 0) {
         update_sequence(obj);
     } else {
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
         } else {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
@@ -25,7 +25,7 @@ void func_801b4b8c_slot04_07(Object *obj) {
             obj->step_timer = s->duration;
             obj->step_flags = s->flags;
             obj->frame = obj->frames + obj->sequence->frame_index;
-            obj->field_4a = obj->frame->field_0d;
+            obj->frame_sound_index = obj->frame->sequence_param;
         }
     }
 }
@@ -33,7 +33,7 @@ void func_801b4b8c_slot04_07(Object *obj) {
 void func_801b4c78_slot04_07(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->vel_x = 0x28000;
         } else {
             obj->vel_x = -0x28000;
@@ -41,7 +41,7 @@ void func_801b4c78_slot04_07(Object *obj) {
         obj->vel_y = 0x58000;
         obj->accel_y = -0x5000;
         obj->accel_x = 0;
-        obj->field_45 = 1;
+        obj->active_state = 1;
     }
     update_sequence(obj);
 }

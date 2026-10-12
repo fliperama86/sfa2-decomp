@@ -25,7 +25,7 @@ void func_801e1908_slot0b(Object *obj, Object *other) {
 }
 
 void func_801e193c_slot0b(Object *obj) {
-    Object *o = obj->field_3c;
+    Object *o = obj->parent;
     if (data_80190468.p->state_0 == 0) {
         data_801e4d50_slot0b[obj->state_1](obj);
         func_801e1908_slot0b(obj, o);

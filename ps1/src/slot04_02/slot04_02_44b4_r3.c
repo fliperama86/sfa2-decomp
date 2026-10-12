@@ -10,7 +10,7 @@ void func_801b4ad8_slot04_02(Object *obj) {
     obj->vel_y = 0x40000;
     obj->accel_y = -0x5800;
     p = obj->other;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         obj->vel_x = 0x20000;
     } else {
         obj->vel_x = -0x20000;

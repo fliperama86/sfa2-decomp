@@ -5,10 +5,10 @@
 
 void func_8012318c(GameState *state) {
     Entity *entity = (Entity *)state;
-    if (entity->field_a9 == 0) {
+    if (entity->a9_flag == 0) {
         if ((u8)func_80125394() == 0) {
-            int v = entity->field_ca - 1;
-            entity->field_ca = v;
+            int v = entity->countdown_timer - 1;
+            entity->countdown_timer = v;
             if ((s16)v >= 0) {
                 func_80156094();
                 return;

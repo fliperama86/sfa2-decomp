@@ -16,7 +16,7 @@ void func_8013e634(Object *object, int index, int arg) {
     arg &= 0xff;
     entry = table_8017aaf8[arg * 7 + 1];
     mine = entry & -0x1000;
-    theirs = object->field_150 & -0x1000;
+    theirs = object->input_word & -0x1000;
 
     if (!((entry & 0x400) ? (theirs & mine) != 0 : (s16)mine == (s16)theirs)) {
         func_8013f2a8(object, (u8)index, arg);

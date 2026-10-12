@@ -6,11 +6,11 @@
 extern ObjectFn data_801c52b8_slot04_06[];
 
 int func_801b13b8_slot04_06(Object *obj) {
-    return obj->field_177 != 0;
+    return obj->remaining_count != 0;
 }
 
 int func_801b13c4_slot04_06(Object *obj) {
-    return (s16)obj->field_c6 >= 0x30;
+    return (s16)obj->meter >= 0x30;
 }
 
 void func_801b13d8_slot04_06(Object *obj) {

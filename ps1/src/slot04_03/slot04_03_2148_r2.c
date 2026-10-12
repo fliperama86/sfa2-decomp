@@ -7,7 +7,7 @@ void func_801b223c_slot04_03(Object *obj) {
     if (obj->vel_y >= 0) {
         obj->accel_y = 0x8000;
     }
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;

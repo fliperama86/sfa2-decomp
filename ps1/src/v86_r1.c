@@ -20,18 +20,18 @@ int func_801425d8(Object *object, s16 mask)
   int t;
   if (object->side)
   {
-    game_state.field_308 = (Row *) metrics_right;
+    game_state.row_ptr = (Row *) metrics_right;
   }
   else
   {
-    game_state.field_308 = (Row *) metrics_left;
+    game_state.row_ptr = (Row *) metrics_left;
   }
-  t = game_state.other_object->field_12a >> 2;
-  idx = (-(game_state.other_object->field_129 != 0)) & 0x30;
-  i = (-(game_state.other_object->field_128 != 0)) & 0x18;
+  t = game_state.other_object->direction_index >> 2;
+  idx = (-(game_state.other_object->input_dir_second != 0)) & 0x30;
+  i = (-(game_state.other_object->input_dir_0 != 0)) & 0x18;
   idx = idx + i;
-  d0 = game_state.field_308->values[t + idx];
-  if (!game_state.other_object->field_0b)
+  d0 = game_state.row_ptr->values[t + idx];
+  if (!game_state.other_object->facing_side)
   {
     d0 = -d0;
   }
@@ -43,9 +43,9 @@ int func_801425d8(Object *object, s16 mask)
     mask = shifted;
     if (shifted)
     {
-      delta = game_state.field_30c[2].first;
-      game_state.field_30c++;
-      if (!object->field_0b)
+      delta = game_state.pair_ptr[2].first;
+      game_state.pair_ptr++;
+      if (!object->facing_side)
       {
         delta = -delta;
       }

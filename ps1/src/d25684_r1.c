@@ -7,8 +7,8 @@ extern u16 data_801a6966;
 
 /* The original loads one of two halfwords, then tests a register that it has just set to zero, and keeps the code of the arm that this test never reaches. The test of the high half of the 16-bit local gives that; what the original's source tested there is not known. Written as w == 0 instead, this function differs from the original in 7 instruction slots. The local o2 holds the pointer read at the top: with the read at its use, 8 instruction slots differ. */
 void func_80125684(void) {
-    Object *o = game_state.field_78;
-    Object *o2 = game_state.field_7c;
+    Object *o = game_state.focus_object;
+    Object *o2 = game_state.object_b;
     u16 w;
     if (o->side != 0) {
         w = data_801a6972;
@@ -19,12 +19,12 @@ void func_80125684(void) {
         game_state.input_timer--;
         if (game_state.input_timer & 0x80) {
             game_state.input_step_index++;
-            o->field_2ac = o2->kind;
+            o->kind_copy = o2->kind;
         }
     } else {
         game_state.input_step_index = 0;
         game_state.input_timer = 0x3c;
-        game_state.field_13a = 0;
+        game_state.input_match_offset = 0;
     }
 }
 

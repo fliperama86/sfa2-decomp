@@ -58,11 +58,11 @@ void func_8013b558(void) {
                 break;
             if (b->field_02 == 0x17)
                 continue;
-            if (a->field_00 != 1)
+            if (a->active_count != 1)
                 break;
-            if (b->field_00 != a->field_00)
+            if (b->active_count != a->active_count)
                 continue;
-            if (a->field_65 == b->field_65)
+            if (a->team_id == b->team_id)
                 continue;
             if (a->frame->box_a == 0)
                 break;

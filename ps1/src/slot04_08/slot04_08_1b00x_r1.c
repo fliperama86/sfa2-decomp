@@ -17,14 +17,14 @@ void func_801b1b00_slot04_08(Object *obj) {
     int n;
     u16 x;
 
-    t = (obj->field_46 + 1) & 7;
-    obj->field_46 = t;
+    t = (obj->countdown + 1) & 7;
+    obj->countdown = t;
     if (t == 0) {
         func_801b4298_slot04_08(obj);
     }
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     x = *(u16 *)&obj->pos_x;
-    f = obj->field_0b;
+    f = obj->facing_side;
     v = x - data_801c3e98_slot04_08;
     a = v;
     if (f != 0) {
@@ -35,7 +35,7 @@ void func_801b1b00_slot04_08(Object *obj) {
         if (obj->vel_x < 0) {
             a = 1;
         }
-        if (obj->field_164 != (s16)a) {
+        if (obj->bound_push_flag != (s16)a) {
             p = obj->other;
             v = -0x20;
             a = v;
@@ -60,6 +60,6 @@ tail:
         if (obj->field_49 != 0) {
             n = 0x71;
         }
-        func_801307e0(obj, (obj->field_12a >> 1) + n);
+        func_801307e0(obj, (obj->direction_index >> 1) + n);
     }
 }

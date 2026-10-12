@@ -11,12 +11,12 @@ void func_800283f4_slot28(Object *obj) {
     obj->field_01 = 1;
     obj->field_0e = 0;
     obj->field_0c = 0;
-    obj->field_0b = 0;
-    obj->field_48 = 0;
+    obj->facing_side = 0;
+    obj->variant_index = 0;
     obj->state_0 = obj->state_0 + 1;
-    obj->pos_x = data_80051820_slot28[obj->field_03].pos_x;
-    obj->pos_y = data_80051820_slot28[obj->field_03].pos_y;
-    if (obj->field_03 == 0) {
+    obj->pos_x = data_80051820_slot28[obj->table_index].pos_x;
+    obj->pos_y = data_80051820_slot28[obj->table_index].pos_y;
+    if (obj->table_index == 0) {
         func_80130768(obj, 1, (SequenceStep **)obj->box_tables);
     } else {
         func_80130768(obj, 2, (SequenceStep **)obj->box_tables);

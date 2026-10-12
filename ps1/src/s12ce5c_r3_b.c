@@ -14,7 +14,7 @@ void func_8012d394(Object *object) {
         object->state_2 = 2;
         object->state_3 = 0;
         object->field_15b = 0;
-        object->field_247 = 0;
+        object->step_applied_flag = 0;
     }
 }
 
@@ -24,15 +24,15 @@ void func_8012d3e8(Object *object) {
 
 void func_8012d428(Object *object) {
     object->state_3 = object->state_3 + 1;
-    object->field_159 = 0;
+    object->active_flag_3 = 0;
     object->field_157 = 0;
     func_8012ee7c(object);
-    object->field_45 = 0xff;
+    object->active_state = 0xff;
     func_801376b8(object);
     if (object->field_243 != 0) {
         func_8012c494(object);
         if (object->field_15b == 0) {
-            object->field_63 = 6;
+            object->vec_table_index = 6;
             func_8012ee7c(object);
         } else {
             func_80141f28(object, 3);

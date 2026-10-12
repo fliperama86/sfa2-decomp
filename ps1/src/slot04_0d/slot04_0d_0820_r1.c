@@ -22,7 +22,7 @@ void func_801b0840_slot04_0d(Object *obj) {
         if ((t & 0xff) == 0) {
             update_sequence(obj);
         } else {
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 d = -2;
             } else {
                 d = 2;
@@ -42,7 +42,7 @@ void func_801b08bc_slot04_0d(Object *obj) {
 
 void func_801b0900_slot04_0d(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     func_80130dc0(obj);
 }
 

@@ -9,12 +9,12 @@ extern s16 data_800212d8_slot01[];
    the sprites of a set, one per sprite, and links each into an ordering
    list. The object's sequence step points at a set: an s16 count and a
    list of offsets (pairs of u16 x, y). Each offset is transformed in
-   steps: when the object's field_48 is not 0 the x is mirrored (-x - 16);
+   steps: when the object's variant_index is not 0 the x is mirrored (-x - 16);
    a non-zero field_20 then stretches x about -8 (x grows by ((x + 8) *
    field_20) >> 4, an arithmetic shift of the signed product), a non-zero
-   field_22 does the same for y; a non-zero field_24 selects a 2x2 matrix
+   y_scale does the same for y; a non-zero table_index_2 selects a 2x2 matrix
    of s16 entries from the table data_800212d8_slot01 (index = the low byte
-   of field_24, 4 entries each), and (x + 8, y + 8) is multiplied by it, in
+   of table_index_2, 4 entries each), and (x + 8, y + 8) is multiplied by it, in
    1/256 units, minus 8. The four corners are then the position plus the
    object's pos_x, pos_y and a square of 16. A non-zero flag starts filling
    the primitive array at entry count instead of at entry 0. */
@@ -39,7 +39,7 @@ void func_80012714_slot01(Object *obj, u8 *prim_arg, int unused, int flag) {
     do {
         int x = *offs++;
         int y = *offs++;
-        if (obj->field_48 == 0) {
+        if (obj->variant_index == 0) {
             if (obj->field_20 != 0) {
                 x += ((s16)x + 8) * (s16)obj->field_20 >> 4;
             }
@@ -51,11 +51,11 @@ void func_80012714_slot01(Object *obj, u8 *prim_arg, int unused, int flag) {
                 x = n + (((s16)n + 8) * (s16)obj->field_20 >> 4);
             }
         }
-        if (obj->field_22 != 0) {
-            y += ((s16)y + 8) * (s16)obj->field_22 >> 4;
+        if (obj->y_scale != 0) {
+            y += ((s16)y + 8) * (s16)obj->y_scale >> 4;
         }
-        if (obj->field_24 != 0) {
-            t = &data_800212d8_slot01[(u8)obj->field_24 * 4];
+        if (obj->table_index_2 != 0) {
+            t = &data_800212d8_slot01[(u8)obj->table_index_2 * 4];
             a = (s16)(x + 8);
             b = (s16)(y + 8);
             /* The table is read through one pointer that moves; with the four entries indexed directly and no pointer step the function differs from the original in 7 instruction slots. */

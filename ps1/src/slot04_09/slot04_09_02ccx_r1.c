@@ -10,10 +10,10 @@ void func_801b02cc_slot04_09(Object *obj) {
     int k;
 
     if (game_state.field_64 == 0) {
-        if (game_state.field_5c == 0) {
-            obj->field_46 = 0x3c;
+        if (game_state.countdown_timer == 0) {
+            obj->countdown = 0x3c;
             obj->state_2++;
-            game_state.field_76 = 0x1e;
+            game_state.countdown = 0x1e;
             t = obj->health;
             if (t < 0x1c) {
                 k = 0;
@@ -30,7 +30,7 @@ void func_801b02cc_slot04_09(Object *obj) {
                 }
             }
             k = (s8)func_80125734(obj, k);
-            obj->field_48 = k;
+            obj->variant_index = k;
             set_sequence_by_side(obj, data_801c7b94_slot04_09[k]);
         }
     } else {

@@ -46,10 +46,10 @@ void func_801b675c_slot04_11(Object *obj) {
     Object *o;
 
     obj->field_01 = 1;
-    obj->field_98 = data_80172a48;
+    obj->data_ptr_a = data_80172a48;
     obj->field_90 = (void *)0x800fb100;
     obj->state_0++;
-    obj->field_9c = data_80173c9c;
+    obj->data_ptr_b = data_80173c9c;
     func_801b6ca4_slot04_11(obj);
     o = ref_other.p->other;
     play_side_sound_at(o, o->side, 0xf);

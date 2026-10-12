@@ -11,7 +11,7 @@ void func_801b3054_slot04_07(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {
-        obj->other->field_249 = 5;
+        obj->other->other_state_code = 5;
         func_80131468(obj);
     }
 }
@@ -20,10 +20,10 @@ void func_801b309c_slot04_07(Object *obj) {
     int a;
 
     obj->state_3++;
-    obj->field_67 = 0;
-    ((Slot04aObj *)obj)->field_1cc = 0;
-    a = obj->field_12a >> 1;
-    a = data_801c2060_slot04_07[a][(s16)obj->field_46 >> 1];
+    obj->active_flag = 0;
+    ((Slot04aObj *)obj)->seen_flag = 0;
+    a = obj->direction_index >> 1;
+    a = data_801c2060_slot04_07[a][(s16)obj->countdown >> 1];
     if (a >= 0) {
         func_801307e0(obj, a);
     } else {

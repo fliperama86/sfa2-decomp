@@ -11,16 +11,16 @@ void init_draw_mode_prim_4(Tx *tx);
 void func_801e93c8_slot06_04(Slot06Layer *layer);
 
 void func_801e93c8_slot06_04(Slot06Layer *layer) {
-    layer->field_4a = data_801e9ce0_slot06_04[layer->table_index];
-    layer->field_30 = (s16)data_801e9ce0_slot06_04[layer->table_index + 1];
+    layer->flags_bits = data_801e9ce0_slot06_04[layer->table_index];
+    layer->countdown_timer = (s16)data_801e9ce0_slot06_04[layer->table_index + 1];
 }
 
 void func_801e9418_slot06_04(Slot06Layer *layer) {
-    layer->field_50 = data_801ed348_slot06_04;
-    layer->field_54 = data_801ed348_slot06_04;
-    layer->field_1e = 0x640c;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ed348_slot06_04;
+    layer->data_table = data_801ed348_slot06_04;
+    layer->packed_param = 0x640c;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e9444_slot06_04(void) {

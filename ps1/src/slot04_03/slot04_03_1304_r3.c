@@ -6,7 +6,7 @@
 void func_801b1550_slot04_03(Object *obj) {
     int a = 0x22;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->field_225 = 1;
     obj->state_3++;
     func_80141f28(obj, 5);
@@ -16,5 +16,5 @@ void func_801b1550_slot04_03(Object *obj) {
     if (obj->field_49 != 0) {
         a = 0x43;
     }
-    func_801307e0(obj, (obj->field_12a >> 1) + a);
+    func_801307e0(obj, (obj->direction_index >> 1) + a);
 }

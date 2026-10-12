@@ -27,9 +27,9 @@ void func_801b2108_slot04_01(Object *o) {
         o->field_165 = 0;
         if (o->field_4b == 0) {
             o->other->field_6b = 0xa;
-            i = (o->field_12a >> 1) + 1;
+            i = (o->direction_index >> 1) + 1;
         }
-        o->field_27b = data_801beffc_slot04_01[i];
+        o->other_lock = data_801beffc_slot04_01[i];
         play_side_sound_at(o, o->side, 5);
     }
     w = (s16)o->step_flags;

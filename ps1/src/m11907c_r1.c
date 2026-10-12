@@ -8,7 +8,7 @@ void func_8011907c(void) {
         switch (((SndVoice *)data_8018f5a0)->status) {
         case 3:
             func_801575dc();
-            ((SndVoice *)data_8018f5a0)->thread_handle = func_8015760c(((SndVoice *)data_8018f5a0)->field_0c, ((SndVoice *)data_8018f5a0)->stack_address, ((SndVoice *)data_8018f5a0)->field_10);
+            ((SndVoice *)data_8018f5a0)->thread_handle = func_8015760c(((SndVoice *)data_8018f5a0)->thread_entry, ((SndVoice *)data_8018f5a0)->stack_address, ((SndVoice *)data_8018f5a0)->thread_arg);
             func_8015786c();
         case 2:
             ((SndVoice *)data_8018f5a0)->status = 4;

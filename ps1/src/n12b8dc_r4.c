@@ -23,10 +23,10 @@ void func_801311a8(Object *object) {
     if ((s16)object->step_timer == 0) {
         if ((s16)object->step_flags < 0) {
             object->sequence = object->sequence + object->sequence->loop_offset;
-            object->field_a0 = 0;
+            object->variant_index_2 = 0;
         } else {
             object->sequence++;
-            object->field_a0 += 1;
+            object->variant_index_2 += 1;
         }
         object->step_timer = object->sequence->duration;
         object->step_flags = object->sequence->flags;

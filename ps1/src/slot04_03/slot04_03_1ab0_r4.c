@@ -17,9 +17,9 @@ void func_801b1df0_slot04_03(Object *obj) {
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 0xa;
-            i = (obj->field_12a >> 1) + 1;
+            i = (obj->direction_index >> 1) + 1;
         }
-        obj->field_27b = data_801c0674_slot04_03[i];
+        obj->other_lock = data_801c0674_slot04_03[i];
         play_side_sound_at(obj, obj->side, 5);
         play_side_sound_at(obj, obj->side, 0xd);
     }

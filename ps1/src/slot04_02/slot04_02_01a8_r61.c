@@ -8,34 +8,34 @@ void func_801b6e68_slot04_02(Object *obj);
 void func_801b6ec0_slot04_02(Object *obj);
 
 void func_801b6d08_slot04_02(Object *o) {
-    Object *p = o->field_3c;
+    Object *p = o->parent;
     o->state_0++;
     o->field_1c = p->field_1c;
-    o->field_03 = p->kind;
+    o->table_index = p->kind;
     o->field_0c = p->field_0c;
-    o->field_0d = p->field_0d;
+    o->image_row = p->image_row;
     o->field_0e = p->field_0e;
     o->spawn_x = 0x60;
-    o->field_48 = 0;
+    o->variant_index = 0;
     o->spawn_y = 0x1e0;
     o->ot_depth = 0;
 }
 
 void func_801b6d6c_slot04_02(Object *o) {
-    Object *p = o->field_3c;
+    Object *p = o->parent;
     int s;
     o->field_01 = 0;
-    if (o->field_03 != p->kind) {
+    if (o->table_index != p->kind) {
         func_801b6e18_slot04_02(o);
     } else {
-        s = p->frame->field_09;
+        s = p->frame->frame_param;
         if (s == 0) {
-            o->field_48 = 0;
+            o->variant_index = 0;
         } else {
             func_801b6ec0_slot04_02(o);
             o->field_01 = 1;
-            if (o->field_48 != s) {
-                o->field_48 = s;
+            if (o->variant_index != s) {
+                o->variant_index = s;
                 func_801b6e68_slot04_02(o);
             } else {
                 advance_sequence_checked(o);

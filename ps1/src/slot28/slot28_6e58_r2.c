@@ -7,6 +7,6 @@ void func_80016fb8_slot28(Object *obj) {
     obj->state_0 += 1;
     obj->field_0e = 0;
     obj->field_0c = 0;
-    obj->field_0b = 0;
-    obj->field_48 = 0;
+    obj->facing_side = 0;
+    obj->variant_index = 0;
 }

@@ -12,26 +12,26 @@ void func_8012332c(GameState *state)
   u8 v;
   if ((u8)func_80125394() == 0)
   {
-    t = entity->field_ca;
+    t = entity->countdown_timer;
     t--;
-    entity->field_ca = t;
+    entity->countdown_timer = t;
     s0 = ((short) t) >= 0;
     if (s0)
     {
       return;
     }
   }
-  ((HudBig *)data_8018f5a0)->field_4e = 0;
+  ((HudBig *)data_8018f5a0)->step_count = 0;
   entity->field_c8 = 0;
   ((HudBig *)data_8018f5a0)->state_index = 0;
-  entity->field_ca = 0;
+  entity->countdown_timer = 0;
   ((HudBig *)data_8018f5a0)->substate_index = 0;
   entity->field_cc = 0;
   entity->field_4d = 0;
   entity->field_4e = 0;
-  entity->field_4b = 0;
-  entity->field_27 = 0;
-  entity->field_09 = 1;
+  entity->table_compare_value = 0;
+  entity->ready_flag = 0;
+  entity->active_flag = 1;
   entity->field_6a = 1;
   entity->field_4a = 0x3c;
   entity->field_49 = entity->field_13;
@@ -48,9 +48,9 @@ void func_8012332c(GameState *state)
     func_80123534(entity);
   }
   else
-    if ((entity->field_a9 != 0) || (entity->field_87 != 0))
+    if ((entity->a9_flag != 0) || (entity->field_87 != 0))
   {
-    if (entity->field_2f == 0)
+    if (entity->mode_flag_a == 0)
     {
       func_80123748(entity);
     }
@@ -62,15 +62,15 @@ void func_8012332c(GameState *state)
   else
   {
     s0 = entity->field_48 - 1;
-    if (entity->field_42 == (s0 * 2))
+    if (entity->pass_count == (s0 * 2))
     {
       func_80123ac4(&player_left, s0);
       func_80123ac4((&player_left) + 1, s0);
     }
     func_8011eae4();
     func_80136c8c();
-    entity->field_4f = 1;
-    entity->field_42++;
+    entity->active_flag_2 = 1;
+    entity->pass_count++;
     if (data_80190568 != 0)
     {
       func_80135ef0(entity);

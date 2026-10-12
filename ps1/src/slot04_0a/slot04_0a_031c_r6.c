@@ -14,5 +14,5 @@ int func_801b0cd0_slot04_0a(Object *obj) {
 }
 
 int func_801b0cd8_slot04_0a(Object *obj) {
-    return obj->field_240 == 0;
+    return obj->link_flags == 0;
 }

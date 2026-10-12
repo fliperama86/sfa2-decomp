@@ -7,7 +7,7 @@ void func_80076f44_slot00(Object *o) {
     SequenceStep **t;
 
     o->state_1++;
-    if (o->field_3c->side == 0) {
+    if (o->parent->side == 0) {
         t = data_1f8000ac;
     } else {
         t = data_1f80015c;
@@ -27,10 +27,10 @@ void func_80076f9c_slot00(Object *o) {
 }
 
 void func_80076fe4_slot00(Object *o) {
-    ref_other.p = o->field_3c;
-    ref_other.p->field_240--;
-    if (ref_other.p->field_240 == 0) {
-        ref_other.p->field_14c = 0;
+    ref_other.p = o->parent;
+    ref_other.p->link_flags--;
+    if (ref_other.p->link_flags == 0) {
+        ref_other.p->linked_object_3 = 0;
     }
     func_8011f14c((Slab172 *)o);
 }

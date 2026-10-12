@@ -12,7 +12,7 @@ void func_801b4d84_slot04_09(Object *obj) {
         func_801312b8(obj);
     } else {
         if ((u8)t != 0) {
-            obj->field_17b = 0;
+            obj->active_flag_4 = 0;
             func_80142adc(obj);
         } else {
             func_801b5c6c_slot04_09(obj);
