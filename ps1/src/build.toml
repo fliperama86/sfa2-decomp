@@ -224,6 +224,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s13245cx_r1"
+source = "s13245cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013245c", address = 0x8013245c, size = 1748 },
+]
+
+[[unit]]
 name = "metrics_post"
 source = "metrics_post.c"
 flags = ["-O2", "-G0"]
