@@ -2140,10 +2140,16 @@ that comes before its first poll.
 Before that change the drive stood at the first such sector for ever. The
 position never passed the track's end, so a track that repeats fell
 silent where another channel of its file ended (issue 279) and a track
-that plays once never ended for the game (issue 258, the screen of the
-score ranking). The record
+that plays once never ended for the game (issue 258). The screen of the
+score ranking waits for that end: `count_down_then_advance_step_index_slot12`
+(`ps1/src/slot12/slot12_3a3c_r8.c`) goes on only when the byte at
+`0x80190949` is 0, the music object's mark that a track is on, and at a
+track's end it is `func_80150984` (`ps1/src/s14f9f0_r6.c`, the handler of
+the state that the position test sets for a track that plays once) that
+clears it. The record
 [`2026-10-12-music-stream-data-sectors.md`](../docs/records/2026-10-12-music-stream-data-sectors.md)
-has the two tracks of the user's disc on which this was measured.
+has the tracks of the user's disc on which this was measured and the
+runs of the game.
 
 The decoder. `port/src/xa.c` is pure C (`stdint.h` and `string.h`, no
 global). It takes a raw sector of 2,352 bytes, refuses it if the
