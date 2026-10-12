@@ -5,15 +5,15 @@
 
 int func_8001336c_slot01(u8 arg);
 
-void func_80010724_slot01(void) {
+void spawn_object_and_loop_while_busy_slot01(void) {
     if (func_8001336c_slot01(1)) {
         game_state.busy_flag = 0xff;
     }
     while (game_state.busy_flag != 0) {
-        func_80138164();
-        func_801510bc();
-        func_8011a784();
-        func_801192bc(1);
+        update_blocks();
+        call_active_block_handlers();
+        select_buffers_and_run_first_setup();
+        request_sound_command_and_switch_thread(1);
     }
 }
 
@@ -25,6 +25,6 @@ void func_80010790_slot01(void) {
     }
 }
 
-void func_800107d8_slot01(void) {
+void increment_substep_index_slot01(void) {
     data_8018f5a0->substep_index++;
 }

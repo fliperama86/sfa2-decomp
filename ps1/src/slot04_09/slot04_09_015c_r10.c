@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b188c_slot04_09(Object *obj);
+int clear_substate_counters_return_true_slot04_09(Object *obj);
 
-void func_801b1768_slot04_09(Object *obj) {
-    func_801b188c_slot04_09(obj);
+void load_velocities_from_table_5_slot04_09(Object *obj) {
+    clear_substate_counters_return_true_slot04_09(obj);
 }

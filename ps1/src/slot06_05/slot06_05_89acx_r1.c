@@ -5,7 +5,7 @@
 
 void func_801369b0(Cam *cam);
 
-void func_801e89ac_slot06_05(Slot06Layer *o) {
+void update_layer_follow_main_layer_quarter_slot06_05(Slot06Layer *o) {
     Slot06Layer *l2;
     s16 d;
 

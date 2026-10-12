@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 extern Slot12Pair table_80028148_slot12[];
-void func_80014a38_slot12(Object *obj);
+void set_position_from_table_entry_slot12(Object *obj);
 void func_80014dd0_slot12(Object *obj, int a);
 
-void func_800148f4_slot12(Object *obj) {
+void init_rank_object_motion_and_data_slot12(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     FrameRecord *rec;
@@ -36,7 +36,7 @@ void func_800148f4_slot12(Object *obj) {
     obj->field_0c = 0xff;
     obj->data_ptr_a = table_80028148_slot12[obj->field_60].first;
     obj->data_ptr_b = table_80028148_slot12[obj->field_60].second;
-    func_80014a38_slot12(obj);
+    set_position_from_table_entry_slot12(obj);
     func_80014dd0_slot12(obj, 0);
     obj->field_01 = 0;
     obj->pos_x += 0x60;

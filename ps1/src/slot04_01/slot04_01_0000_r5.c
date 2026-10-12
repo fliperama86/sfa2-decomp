@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0690_slot04_01(Object *obj) {
+void start_or_continue_move_by_state_3_slot04_01(Object *obj) {
     obj->field_157 = 1;
     if (obj->state_3 == 0) {
         obj->active_flag_3 = 1;
         obj->state_3 = obj->state_3 + 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     } else {
-        func_80142a14(obj);
+        update_sequence_with_input_check(obj);
     }
 }
 
@@ -20,8 +20,8 @@ void func_801b06dc_slot04_01(Object *obj) {
 
     obj->state_3 = 3;
     obj->active_flag_3 = one;
-    func_80130504(obj);
-    func_80141f28(obj, obj->direction_index >> 1);
+    set_direction_from_pressed_bits(obj);
+    add_to_meter_clamped(obj, obj->direction_index >> 1);
     if (obj->variant_index != 0) {
         t = 0x12;
     }
@@ -29,7 +29,7 @@ void func_801b06dc_slot04_01(Object *obj) {
         t += 3;
     } else if (obj->direction_index != 0) {
         if (obj->pos_y - obj->ground_y < -0x2f && (obj->input_bits_2 & 0xe000) != 0) {
-            if (func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) & 0xff) {
+            if (check_hit_other_active_state_nonzero(obj, -0x20, 0x20, 0, 0x10) & 0xff) {
                 obj->state_1 = 2;
                 obj->state_0 = one;
                 obj->state_2 = 0;
@@ -39,5 +39,5 @@ void func_801b06dc_slot04_01(Object *obj) {
             }
         }
     }
-    func_801307e0(obj, (s16)((obj->direction_index >> 1) + t));
+    set_sequence_by_side_and_mode(obj, (s16)((obj->direction_index >> 1) + t));
 }

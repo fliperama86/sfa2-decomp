@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b7d58_slot04_02(Object *obj);
+void set_state_0_to_2_slot04_02(Object *obj);
 void func_801b7e34_slot04_02(Object *obj, u8 arg);
 
 /*
@@ -13,7 +13,7 @@ void func_801b7e34_slot04_02(Object *obj, u8 arg);
  * table_index up by one unless the other object's health is 0x90, loads a
  * palette copy for that value, starts a sequence table chosen by the other
  * object's side and registers itself. Otherwise it only calls
- * func_801b7d58_slot04_02.
+ * set_state_0_to_2_slot04_02.
  */
 void func_801b7bfc_slot04_02(Object *obj) {
     Object *other;
@@ -49,12 +49,12 @@ void func_801b7bfc_slot04_02(Object *obj) {
         obj->table_index = palette;
         func_801b7e34_slot04_02(obj, palette);
         if (other->side == 0) {
-            func_80130768(obj, 8, data_1f8000b4);
+            set_sequence_from_table_5(obj, 8, data_1f8000b4);
         } else {
-            func_80130768(obj, 8, data_1f800164);
+            set_sequence_from_table_5(obj, 8, data_1f800164);
         }
         func_8011ffdc(obj);
     } else {
-        func_801b7d58_slot04_02(obj);
+        set_state_0_to_2_slot04_02(obj);
     }
 }

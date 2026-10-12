@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6e2c_slot04_02(Object *o) {
+void unlink_from_parent_and_release_object_slot04_02(Object *o) {
     Object *p = o->parent;
     if (p->linked_object == (u32)o) {
         p->linked_object = 0;
@@ -13,13 +13,13 @@ void func_801b6e2c_slot04_02(Object *o) {
 
 void func_801b6e68_slot04_02(Object *o) {
     if (o->parent->side == 0) {
-        func_80130768(o, o->variant_index, data_1f8000b4);
+        set_sequence_from_table_5(o, o->variant_index, data_1f8000b4);
     } else {
-        func_80130768(o, o->variant_index, data_1f800164);
+        set_sequence_from_table_5(o, o->variant_index, data_1f800164);
     }
 }
 
-void func_801b6ec0_slot04_02(Object *o) {
+void copy_parent_position_offset_by_facing_slot04_02(Object *o) {
     Object *p = o->parent;
     o->pos_x = p->pos_x;
     o->pos_y = p->pos_y;

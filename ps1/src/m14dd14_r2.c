@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014eb9c(int a, int b) {
+void load_player_sound_banks(int a, int b) {
     close_vab_and_sep(0);
     close_vab_and_sep(1);
     if (a == b) {

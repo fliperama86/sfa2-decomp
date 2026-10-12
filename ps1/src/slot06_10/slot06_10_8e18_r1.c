@@ -8,17 +8,17 @@ extern SeqRec data_801ea868_slot06_10[];
 extern SeqRec data_801ea8a0_slot06_10[];
 extern SeqRec data_801ea8d8_slot06_10[];
 
-void func_801e8f14_slot06_10(SeqRec *rec, Slot06Cursor *cur);
-void func_801e9018_slot06_10(Slot06Pal *pal);
-void func_801e906c_slot06_10(Slot06Pal *pal);
-void func_801e90a8_slot06_10(Slot06Pal *pal, SeqRec *rec);
-void func_801e913c_slot06_10(Slot06Cursor *cur);
+void init_sequence_cursor_from_record_slot06_10(SeqRec *rec, Slot06Cursor *cur);
+void advance_palette_record_countdown_slot06_10(Slot06Pal *pal);
+void load_palette_record_by_index_slot06_10(Slot06Pal *pal);
+void set_palette_record_and_copy_data_slot06_10(Slot06Pal *pal, SeqRec *rec);
+void advance_record_cursor_slot06_10(Slot06Cursor *cur);
 
-void func_801e8e18_slot06_10(Object *obj) {
+void call_handler_by_state_0_slot06_10(Object *obj) {
     data_801ea958_slot06_10[obj->state_0](obj);
 }
 
-void func_801e8e58_slot06_10(Object *o) {
+void init_object_params_palettes_and_cursors_slot06_10(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
     obj->init_param_b = 0x10;
     obj->table_base_index = 0x11;
@@ -31,15 +31,15 @@ void func_801e8e58_slot06_10(Object *o) {
     obj->init_param_c = 0x50;
     obj->init_param_d = 0x50;
     obj->step_count = obj->step_count + 1;
-    func_801e906c_slot06_10((Slot06Pal *)((u8 *)obj + 0x30));
-    func_801e906c_slot06_10((Slot06Pal *)((u8 *)obj + 0x40));
-    func_801e906c_slot06_10((Slot06Pal *)((u8 *)obj + 0x50));
-    func_801e8f14_slot06_10(data_801ea868_slot06_10, (Slot06Cursor *)((u8 *)obj + 0x28));
-    func_801e8f14_slot06_10(data_801ea8a0_slot06_10, (Slot06Cursor *)((u8 *)obj + 0x6c));
-    func_801e8f14_slot06_10(data_801ea8d8_slot06_10, (Slot06Cursor *)((u8 *)obj + 0x84));
+    load_palette_record_by_index_slot06_10((Slot06Pal *)((u8 *)obj + 0x30));
+    load_palette_record_by_index_slot06_10((Slot06Pal *)((u8 *)obj + 0x40));
+    load_palette_record_by_index_slot06_10((Slot06Pal *)((u8 *)obj + 0x50));
+    init_sequence_cursor_from_record_slot06_10(data_801ea868_slot06_10, (Slot06Cursor *)((u8 *)obj + 0x28));
+    init_sequence_cursor_from_record_slot06_10(data_801ea8a0_slot06_10, (Slot06Cursor *)((u8 *)obj + 0x6c));
+    init_sequence_cursor_from_record_slot06_10(data_801ea8d8_slot06_10, (Slot06Cursor *)((u8 *)obj + 0x84));
 }
 
-void func_801e8f14_slot06_10(SeqRec *rec, Slot06Cursor *cur) {
+void init_sequence_cursor_from_record_slot06_10(SeqRec *rec, Slot06Cursor *cur) {
     int w;
     int new_var;
     cur->rec = rec;
@@ -50,34 +50,34 @@ void func_801e8f14_slot06_10(SeqRec *rec, Slot06Cursor *cur) {
     cur->step_word = w;
 }
 
-void func_801e8f34_slot06_10(Object *obj) {
+void update_palette_and_cursor_records_slot06_10(Object *obj) {
     if (game_state.field_65 == 0) {
         if (game_state.field_74 == 0) {
-            func_801e9018_slot06_10((Slot06Pal *)((u8 *)obj + 0x30));
-            func_801e9018_slot06_10((Slot06Pal *)((u8 *)obj + 0x40));
+            advance_palette_record_countdown_slot06_10((Slot06Pal *)((u8 *)obj + 0x30));
+            advance_palette_record_countdown_slot06_10((Slot06Pal *)((u8 *)obj + 0x40));
             if (((Slot06Obj *)obj)->field_46 != 0) {
                 ((Slot06Obj *)obj)->pos_x = 0x340;
                 ((Slot06Obj *)obj)->pos_y = 0x80;
                 *(u16 *)&((Slot06Obj *)obj)->field_46 = *(u16 *)&((Slot06Obj *)obj)->field_46 & 0xff00;
             }
-            func_801e9018_slot06_10((Slot06Pal *)((u8 *)obj + 0x50));
+            advance_palette_record_countdown_slot06_10((Slot06Pal *)((u8 *)obj + 0x50));
             if (((Slot06Obj *)obj)->field_56 != 0) {
                 ((Slot06Obj *)obj)->pos_x = 0x1c0;
                 ((Slot06Obj *)obj)->pos_y = 0x80;
                 *(u16 *)&((Slot06Obj *)obj)->field_56 = *(u16 *)&((Slot06Obj *)obj)->field_56 & 0xff00;
             }
-            func_801e913c_slot06_10((Slot06Cursor *)((u8 *)obj + 0x28));
-            func_801e913c_slot06_10((Slot06Cursor *)((u8 *)obj + 0x6c));
-            func_801e913c_slot06_10((Slot06Cursor *)((u8 *)obj + 0x84));
+            advance_record_cursor_slot06_10((Slot06Cursor *)((u8 *)obj + 0x28));
+            advance_record_cursor_slot06_10((Slot06Cursor *)((u8 *)obj + 0x6c));
+            advance_record_cursor_slot06_10((Slot06Cursor *)((u8 *)obj + 0x84));
         }
     }
 }
 
-void func_801e8ff8_slot06_10(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot06_10(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e9018_slot06_10(Slot06Pal *pal) {
+void advance_palette_record_countdown_slot06_10(Slot06Pal *pal) {
     SeqRec *rec;
     int v = pal->countdown - 1;
     pal->countdown = v;
@@ -87,12 +87,12 @@ void func_801e9018_slot06_10(Slot06Pal *pal) {
         if ((s16)pal->step_value < 0) {
             rec = (SeqRec *)rec->header;
         }
-        func_801e90a8_slot06_10(pal, rec);
+        set_palette_record_and_copy_data_slot06_10(pal, rec);
     }
 }
 
-void func_801e906c_slot06_10(Slot06Pal *pal) {
+void load_palette_record_by_index_slot06_10(Slot06Pal *pal) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
-    func_801e90a8_slot06_10(pal, (SeqRec *)table_8017c910[pal->seq_rec_index]);
+    set_palette_record_and_copy_data_slot06_10(pal, (SeqRec *)table_8017c910[pal->seq_rec_index]);
 }

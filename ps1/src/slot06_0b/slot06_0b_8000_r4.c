@@ -20,7 +20,7 @@ void func_801e9208_slot06_0b(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e9234_slot06_0b(void) {
+void init_layer_poly_ft4_prims_slot06_0b(void) {
     int i;
     int j;
     Poly28 *r;
@@ -42,13 +42,13 @@ void func_801e9234_slot06_0b(void) {
     } while (i < 2);
 }
 
-void func_801e92d4_slot06_0b(Slot06Layer *layer) {
+void update_layer_position_half_offset_slot06_0b(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     s16 e;
 
     if (layer->mode == 0) {
-        func_801369d4((Cam *)layer, 0x140, 0);
+        init_cam_position_and_consume_pending((Cam *)layer, 0x140, 0);
     } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;
@@ -67,7 +67,7 @@ void func_801e92d4_slot06_0b(Slot06Layer *layer) {
     }
 }
 
-void func_801e93a4_slot06_0b(Slot06Layer *layer) {
+void init_layer_tile_map_fields_slot06_0b(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ebb7c_slot06_0b;
     layer->data_table = data_801ebb7c_slot06_0b;
     layer->packed_param = 0x6004;

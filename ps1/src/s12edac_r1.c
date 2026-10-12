@@ -5,7 +5,7 @@
 
 
 
-void func_8012edac(Object *object) {
+void update_move_until_countdown_expires(Object *object) {
     int v;
 
     if ((s16)object->step_flags < 0 && (v = object->countdown - 0x100, object->countdown = v, (s16)v < 0)) {
@@ -13,7 +13,7 @@ void func_8012edac(Object *object) {
         object->field_15b = 0;
         object->step_applied_flag = 0;
         object->flag_166_set = 0;
-        func_801312b8(object);
+        reset_object_to_state_1_0_sequence_0(object);
     } else {
         if (object->direction_index != 0) {
             *(s32 *)&object->pos_x_frac += object->vel_x;
@@ -22,7 +22,7 @@ void func_8012edac(Object *object) {
     }
 }
 
-void func_8012ee3c(Object *object) {
+void count_down_then_set_state_2(Object *object) {
     u16 old;
 
     old = object->countdown;
@@ -33,7 +33,7 @@ void func_8012ee3c(Object *object) {
     update_sequence(object);
 }
 
-void func_8012ee7c(Object *object) {
+void set_motion_from_vec_table(Object *object) {
     Vec4 *table;
 
     table = vec_table_80170274;
@@ -47,11 +47,11 @@ void func_8012ee7c(Object *object) {
         }
     }
     game_state.cursor = (u32 *)&table[object->vec_table_index & 0x3f];
-    func_8012efa4(object, (Vec4 *)game_state.cursor);
-    func_8012efcc(object, (Vec4 *)game_state.cursor);
+    set_x_velocity_from_entry(object, (Vec4 *)game_state.cursor);
+    set_y_motion_from_entry(object, (Vec4 *)game_state.cursor);
 }
 
-void func_8012ef24(Object *object) {
+void set_velocity_from_table(Object *object) {
     Vec4 *table;
     Vec4 *entry;
     int index;
@@ -78,7 +78,7 @@ void func_8012ef24(Object *object) {
     object->accel_y = entry->d;
 }
 
-void func_8012efa4(Object *object, Vec4 *entry) {
+void set_x_velocity_from_entry(Object *object, Vec4 *entry) {
     s32 a, b;
 
     a = entry->a;
@@ -91,11 +91,11 @@ void func_8012efa4(Object *object, Vec4 *entry) {
     object->accel_x = b;
 }
 
-void func_8012efcc(Object *object, Vec4 *entry) {
+void set_y_motion_from_entry(Object *object, Vec4 *entry) {
     object->vel_y = entry->c;
     object->accel_y = entry->d;
 }
 
-int func_8012efe4(Object *object) {
+int is_no_horizontal_input(Object *object) {
     return (object->input_bits_2 & 0xa000) == 0;
 }

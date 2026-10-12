@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e9a84_slot06_01(Object *obj, u8 index);
+void set_sequence_from_table_by_index_slot06_01(Object *obj, u8 index);
 
-void func_801e9988_slot06_01(Object *obj) {
+void init_object_spawn_with_player_parent_slot06_01(Object *obj) {
     int index = 6;
     u8 t;
 
@@ -27,7 +27,7 @@ void func_801e9988_slot06_01(Object *obj) {
         if (p->mode_flag_2 != 0 || p->kind != 1) {
             p++;
             if (p->mode_flag_2 != 0 || p->kind != 1) {
-                func_801e9a84_slot06_01(obj, 0);
+                set_sequence_from_table_by_index_slot06_01(obj, 0);
                 return;
             }
         }
@@ -35,5 +35,5 @@ void func_801e9988_slot06_01(Object *obj) {
         obj->parent = p;
         obj->accel_y = 1;
     }
-    func_801e9a84_slot06_01(obj, index);
+    set_sequence_from_table_by_index_slot06_01(obj, index);
 }

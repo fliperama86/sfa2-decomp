@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1334_slot04_08(Object *obj) {
+int clear_substate_index_return_one_slot04_08(Object *obj) {
     obj->substate_index = 0;
     return 1;
 }

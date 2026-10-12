@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1340_slot04_08(Object *obj) {
+int check_meter_and_clear_substate_index_slot04_08(Object *obj) {
     if ((s16)obj->meter >= 0x30) {
         obj->substate_index = 0;
         return 1;

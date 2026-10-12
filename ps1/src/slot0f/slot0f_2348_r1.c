@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e2348_slot0f(Object *o) {
+void update_menu_selection_with_enabled_mask_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     int up = 0;
     int i;

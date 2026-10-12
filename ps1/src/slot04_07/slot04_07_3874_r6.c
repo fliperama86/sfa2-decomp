@@ -7,7 +7,7 @@ int func_801b41c4_slot04_07(Object *obj);
 
 void func_801b3ecc_slot04_07(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    func_80141f28(obj, 4);
+    add_to_meter_clamped(obj, 4);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     play_side_sound_at(obj, obj->side, 9);
     *(s32 *)&obj->vel_x = 0;
@@ -17,10 +17,10 @@ void func_801b3ecc_slot04_07(Object *obj) {
         obj->facing_side = 1;
     }
     obj->countdown = 0xc00;
-    func_801307e0(obj, 0x1b);
+    set_sequence_by_side_and_mode(obj, 0x1b);
 }
 
-void func_801b3f5c_slot04_07(Object *obj) {
+void count_down_countdown_advance_state_3_slot04_07(Object *obj) {
     int t = obj->countdown - 0x100;
     obj->countdown = t;
     if ((s16)t == 0) {
@@ -38,8 +38,8 @@ void func_801b3f90_slot04_07(Object *obj) {
         obj->pos_y = ((Slot04aObj *)obj)->saved_pos_y;
         game_state.state_param = 0x40;
         play_side_sound_at(obj, obj->side, 8);
-        func_80140cd8(obj, 0xe, 0);
+        apply_damage_to_other_return_defeated(obj, 0xe, 0);
         play_sound_at(obj, obj->side, 0x319);
-        func_801307e0(obj, 0x1c);
+        set_sequence_by_side_and_mode(obj, 0x1c);
     }
 }

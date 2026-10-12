@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801218fc(Object *object) {
+void spawn_six_objects_on_first_state(Object *object) {
     int i;
     Object *o;
     if (object->state_2 == 0) {
@@ -13,7 +13,7 @@ void func_801218fc(Object *object) {
         object->linked_object_2 = 0;
         object->phase_state = 0;
         for (i = 0; i < 2; i++) {
-            o = (Object *)func_8011f1e0();
+            o = (Object *)pop_block_from_pool();
             if (o != 0) {
                 o->active_count = 1;
                 o->field_02 = 0x31;
@@ -21,7 +21,7 @@ void func_801218fc(Object *object) {
             }
         }
         for (i = 0; i < 2; i++) {
-            o = (Object *)func_8011f1e0();
+            o = (Object *)pop_block_from_pool();
             if (o != 0) {
                 o->active_count = 1;
                 o->field_02 = 0x32;
@@ -35,7 +35,7 @@ void func_801218fc(Object *object) {
             }
         }
         for (i = 0; i < 2; i++) {
-            o = (Object *)func_8011f1e0();
+            o = (Object *)pop_block_from_pool();
             if (o != 0) {
                 o->active_count = 1;
                 o->field_02 = 0x17;

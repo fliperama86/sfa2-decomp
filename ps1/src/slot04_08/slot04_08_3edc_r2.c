@@ -5,9 +5,9 @@
 
 void func_801b4180_slot04_08(Object *obj, Object *unused) {
     obj->state_3++;
-    func_80141f28(obj, 3);
+    add_to_meter_clamped(obj, 3);
     play_sound_at(obj, obj->side, 0x31a);
-    func_801307e0(obj, 0x19);
+    set_sequence_by_side_and_mode(obj, 0x19);
 }
 
 void func_801b41d4_slot04_08(Object *obj, Object *unused) {
@@ -15,7 +15,7 @@ void func_801b41d4_slot04_08(Object *obj, Object *unused) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;
         play_side_sound_at(obj, obj->side, 0xd);
-        func_80140770(obj, 0, 0xf, 0x12, 0, 1, 0);
+        set_other_hit_reaction_state_0(obj, 0, 0xf, 0x12, 0, 1, 0);
     }
     update_sequence(obj);
 }

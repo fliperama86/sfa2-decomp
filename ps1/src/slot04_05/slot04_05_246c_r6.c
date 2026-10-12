@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b3048_slot04_05(Object *object);
+int move_x_by_vel_x_facing_and_accelerate_slot04_05(Object *object);
 
 void func_801b2c84_slot04_05(Object *obj) {
     s16 t = obj->step_flags;
@@ -18,14 +18,14 @@ void func_801b2c84_slot04_05(Object *obj) {
         obj->accel_y = -0x7000;
         obj->accel_x = 0;
         obj->active_state = 1;
-        func_801307e0(obj, 0x2e);
+        set_sequence_by_side_and_mode(obj, 0x2e);
     } else {
         switch ((u8)t) {
         case 0:
             break;
         default:
             if (obj->vel_x >= 0) {
-                func_801b3048_slot04_05(obj);
+                move_x_by_vel_x_facing_and_accelerate_slot04_05(obj);
             }
             break;
         case 3:
@@ -37,8 +37,8 @@ void func_801b2c84_slot04_05(Object *obj) {
     }
 }
 
-void func_801b2d58_slot04_05(Object *obj) {
-    if ((u8)func_80130184(obj) != 0) {
+void update_air_motion_until_landing_step_1_slot04_05(Object *obj) {
+    if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         if ((u8)obj->step_flags != 1) {
             update_sequence(obj);
         }

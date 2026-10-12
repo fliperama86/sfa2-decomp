@@ -9,7 +9,7 @@ void func_801b2970_slot04_0a(Object *obj) {
     obj->field_225 = 1;
     obj->state_3++;
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     a = 0x80000;
     b = -0x4000;
     obj->active_state = 1;
@@ -23,7 +23,7 @@ void func_801b2970_slot04_0a(Object *obj) {
     obj->vel_x = a;
     obj->accel_x = b;
     play_sound_at(obj, obj->side, 0x31c);
-    func_801483a4(obj, -0x19, 0x44);
+    spawn_children_per_direction_index(obj, -0x19, 0x44);
     func_80145d20(obj);
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x30);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x30);
 }

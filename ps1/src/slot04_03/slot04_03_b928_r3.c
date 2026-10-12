@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0f44_slot04_03(Object *obj);
+void clear_three_slot_byte_runs_slot04_03(Object *obj);
 
-int func_801b0c90_slot04_03(Object *obj) {
+int enter_state_1_0_7_0_if_ready_a_slot04_03(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r = 1;
-        func_801b0f44_slot04_03(obj);
+        clear_three_slot_byte_runs_slot04_03(obj);
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 7;
@@ -18,7 +18,7 @@ int func_801b0c90_slot04_03(Object *obj) {
         obj->field_15a = 0;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
     }
     return r;
 }

@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-void func_8012bf74(Object *object) {
-    func_80155f30(object);
+void play_sound_and_reset_round_state(Object *object) {
+    add_round_score_to_other_side(object);
     play_sound_at(object, object->side, 0x323);
     object->field_69 = 0;
     object->round_count = 0;
@@ -20,13 +20,13 @@ void func_8012bf74(Object *object) {
     object->field_292 = 0x20;
     if (object->mode_flag_2 == 0) {
         if (func_8012f970(object) != 0) {
-            func_8012fe60(object);
+            enter_state_2_6_by_button_input(object);
         } else if ((object->input_bits_2 & 0x4000) != 0) {
-            func_80131468(object);
+            reset_object_to_state_1_0_0_2_sequence_1(object);
         } else {
-            func_801312b8(object);
+            reset_object_to_state_1_0_sequence_0(object);
         }
     } else {
-        func_801312b8(object);
+        reset_object_to_state_1_0_sequence_0(object);
     }
 }

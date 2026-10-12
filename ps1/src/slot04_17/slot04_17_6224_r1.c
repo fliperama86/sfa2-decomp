@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-Object *func_8011f32c(void);
+Object *pop_object_from_second_pool(void);
 
-void func_801b6430_slot04_17(Object *obj);
-void func_801b65bc_slot04_17(Object *obj);
-void func_801b6654_slot04_17(Object *obj);
-void func_801b66d0_slot04_17(Object *obj);
+void noop_slot00_slot04_17(Object *obj);
+void reset_countdown_and_set_indicator_boxes_slot04_17(Object *obj);
+void init_side_record_and_box_tables_slot04_17(Object *obj);
+void queue_palette_upload_and_copy_for_side_slot04_17(Object *obj);
 
 void func_801b6224_slot04_17(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
@@ -17,15 +17,15 @@ void func_801b6224_slot04_17(Object *o) {
 
     if (obj->field_47 != k) {
         obj->field_47 = k;
-        func_801b66d0_slot04_17(o);
+        queue_palette_upload_and_copy_for_side_slot04_17(o);
         play_side_sound_at(ref_other.p->other, ref_other.p->other->side, 0xf);
-        func_801b65bc_slot04_17(o);
+        reset_countdown_and_set_indicator_boxes_slot04_17(o);
     } else {
         obj->countdown--;
         if (obj->countdown == 0 && data_801a4fec != 0) {
             obj->countdown = 0xc;
             o->state_1++;
-            n = func_8011f32c();
+            n = pop_object_from_second_pool();
             if (n != 0) {
                 n->active_count = 1;
                 n->field_02 = 0x28;
@@ -49,23 +49,23 @@ void func_801b6224_slot04_17(Object *o) {
     }
 }
 
-void func_801b6370_slot04_17(Object *o) {
+void update_selection_change_countdown_slot04_17(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u8 k = ref_other.p->field_28c;
 
     if (obj->field_47 != k) {
         o->state_1 = 0;
         obj->field_47 = k;
-        func_801b66d0_slot04_17(o);
+        queue_palette_upload_and_copy_for_side_slot04_17(o);
         play_side_sound_at(ref_other.p->other, ref_other.p->other->side, 0xf);
-        func_801b65bc_slot04_17(o);
+        reset_countdown_and_set_indicator_boxes_slot04_17(o);
     } else {
         obj->countdown--;
         if (obj->countdown == 0) {
             o->state_1++;
-            func_801b6654_slot04_17(o);
+            init_side_record_and_box_tables_slot04_17(o);
         } else {
-            func_801b6430_slot04_17(o);
+            noop_slot00_slot04_17(o);
         }
     }
 }

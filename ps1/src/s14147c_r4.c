@@ -11,7 +11,7 @@ void func_80142718(Object *object) {
         u16 v = object->pressed_bits;
         game_state.field_354 = v;
         game_state.field_354 = (v | object->released_bits) & 0x95;
-        func_801427d8(object);
+        set_direction_index_from_meter_limit(object);
     }
 }
 
@@ -22,6 +22,6 @@ void func_80142778(Object *object) {
         u16 v = object->pressed_bits;
         game_state.field_354 = v;
         game_state.field_354 = (v | object->released_bits) & 0x6a;
-        func_801427d8(object);
+        set_direction_index_from_meter_limit(object);
     }
 }

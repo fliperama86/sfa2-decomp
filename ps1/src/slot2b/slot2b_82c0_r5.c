@@ -7,11 +7,11 @@ extern SequenceStep *data_8007eb48_slot2b[];
 extern ObjectFn data_8007ed98_slot2b[];
 extern ObjectFn data_8007eda8_slot2b[];
 extern Object *data_8007ef34_slot2b;
-void func_8007893c_slot2b(Object *o);
+void set_sequence_from_table_index_entry_slot2b(Object *o);
 
-void func_8007878c_slot2b(Object *o, u8 a) {
+void set_variant_and_sequence_from_table_slot2b(Object *o, u8 a) {
     o->variant_index = a;
-    func_80130700(o, data_8007eb48_slot2b[a]);
+    set_sequence_entry(o, data_8007eb48_slot2b[a]);
 }
 
 void func_800787c8_slot2b(Object *o) {
@@ -19,7 +19,7 @@ void func_800787c8_slot2b(Object *o) {
     data_8007ed98_slot2b[o->state_0](o);
 }
 
-void func_80078818_slot2b(Object *o) {
+void init_from_global_and_call_by_table_index_slot2b(Object *o) {
     Object *p;
 
     o->state_0++;
@@ -31,8 +31,8 @@ void func_80078818_slot2b(Object *o) {
     data_8007eda8_slot2b[o->table_index](o);
 }
 
-void func_800788b8_slot2b(Object *o) {
+void set_spawn_flag_and_start_table_sequence_slot2b(Object *o) {
     o->spawn_flag = 1;
     o->field_0e = data_8007ef34_slot2b->field_0e;
-    func_8007893c_slot2b(o);
+    set_sequence_from_table_index_entry_slot2b(o);
 }

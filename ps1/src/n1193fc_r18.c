@@ -8,7 +8,7 @@ extern u16 data_801a6966;
 void func_8012572c(void) {
 }
 
-int func_80125734(Object *object, int arg) {
+int get_input_mapped_value_or_default(Object *object, int arg) {
     u8 a = arg;
     u8 i;
     if (object->mode_flag_2 == 0) {

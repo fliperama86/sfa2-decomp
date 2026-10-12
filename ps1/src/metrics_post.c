@@ -8,8 +8,8 @@
 int func_80142424(Object *object, Box32 *box, s16 elapsed) {
     s16 mask;
     s16 i, shift;
-    mask = func_80142540(object, elapsed);
-    mask = func_801425d8(object, mask);
+    mask = build_mask_of_reached_thresholds(object, elapsed);
+    mask = clear_mask_bits_below_target_position(object, mask);
     for (i = 11; i != -1; --i) {
         if (game_state.other_object->input_dir_0) shift = shift_b[i];
         else shift = shift_a[i];
@@ -24,7 +24,7 @@ int func_80142424(Object *object, Box32 *box, s16 elapsed) {
     }
 }
 
-s16 func_80142540(Object *object, s16 value) {
+s16 build_mask_of_reached_thresholds(Object *object, s16 value) {
     s16 mask;
     s16 i, limit;
     i = 0;

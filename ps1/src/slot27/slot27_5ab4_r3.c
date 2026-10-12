@@ -5,7 +5,7 @@
 
 extern void (*data_80028b88_slot27)(Object *);
 
-void func_80015de0_slot27(Object *obj) {
+void init_slot27_object_position_by_mode_slot27(Object *obj) {
     obj->ot_depth = 1;
     obj->field_0c = 1;
     obj->image_row = 0x16;

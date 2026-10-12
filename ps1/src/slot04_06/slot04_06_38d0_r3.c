@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4850_slot04_06(Object *object);
+void apply_vertical_velocity_slot04_06(Object *object);
 
-void func_801b3b70_slot04_06(Object *o) {
+void update_fall_landing_set_side_flag_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    func_801b4850_slot04_06(o);
+    apply_vertical_velocity_slot04_06(o);
     if (o->pos_y >= o->ground_y) {
         o->state_3++;
         func_80130af0(o);
@@ -35,13 +35,13 @@ void func_801b3c34_slot04_06(Object *obj) {
     obj->step_count_2 = 0;
     obj->step_limit = 0;
     obj->state_3++;
-    func_80141f28(obj, 7);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 7);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     obj->facing_side = obj->saved_facing;
-    func_801307e0(obj, 0x31);
+    set_sequence_by_side_and_mode(obj, 0x31);
 }
 
-void func_801b3ca0_slot04_06(Object *o) {
+void wait_step_flag_then_set_step_index_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     if ((s16)o->step_flags >= 0) {
@@ -50,6 +50,6 @@ void func_801b3ca0_slot04_06(Object *o) {
         obj->step_index = 0x1e;
         o->active_flag_3 = 1;
         o->state_3++;
-        func_801307e0(o, 0x32);
+        set_sequence_by_side_and_mode(o, 0x32);
     }
 }

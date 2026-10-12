@@ -5,7 +5,7 @@
 
 extern Slot27Rec9328 data_80029328_slot27[];
 
-void func_80013cc4_slot27(Object *object) {
+void advance_palette_animation_and_upload_slot27(Object *object) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     int i;
@@ -32,5 +32,5 @@ void func_80013cc4_slot27(Object *object) {
         data_801a2b84[ref_other.p->side * 16 + i] = ((u16 (*)[16])0x800ed800)[w & 0x1f][i];
         data_801a2b84[ref_other.p->side * 16 + i + 0xa00] = ((u16 (*)[16])0x800ed800)[w & 0x1f][i];
     }
-    func_80137220(0, 0);
+    queue_image_upload_job(0, 0);
 }

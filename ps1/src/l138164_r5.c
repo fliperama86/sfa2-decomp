@@ -11,7 +11,7 @@ void func_8013d65c(Object *object, u8 index, u8 arg) {
 
     object->slots[index].timer--;
     if (object->slots[index].timer == 0) {
-        func_8013f2a8(object, index, arg);
+        reset_slot_stage_clear_result(object, index, arg);
         return;
     }
     if (data_801a6984[0] == 0) {
@@ -26,7 +26,7 @@ void func_8013d65c(Object *object, u8 index, u8 arg) {
         buttons = object->input_bits & 0xf000;
     }
     if (buttons != 0) {
-        func_8013dce0(object, index, arg);
+        set_neighbor_order_values_from_entry(object, index, arg);
         if (buttons == data_80188f4c) {
             dir = 1;
             goto apply;

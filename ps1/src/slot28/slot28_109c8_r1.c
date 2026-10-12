@@ -8,7 +8,7 @@ extern u8 data_8004231c_slot28[];
 extern u8 data_800426b8_slot28[];
 extern Object *data_80051b18_slot28[];
 
-void func_800209c8_slot28(Object *obj) {
+void count_down_then_spawn_object_next_pass_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
     Object *p;
     int t = h->countdown_timer - 1;
@@ -16,7 +16,7 @@ void func_800209c8_slot28(Object *obj) {
     if ((s16)t == 0) {
         h->countdown_timer = 0x168;
         h->pass_index++;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x2f;

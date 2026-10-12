@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_80011740_slot01(void) {
-    Object *p = (Object *)func_8011f1e0();
+    Object *p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0x30;
@@ -17,20 +17,20 @@ void func_80011740_slot01(void) {
     }
 }
 
-void func_800117b8_slot01(void) {
+void start_wait_with_two_halfword_stores_slot01(void) {
     if (game_state.fade_busy == 0) {
         game_state.wait_flag = 0x1f;
         ((u16 *)data_80190464)[0] = 0x2201;
         ((u16 *)data_8019046c)[0] = 0x1e00;
-        func_80119144(2, 4);
+        set_voice_thread_entry_and_open(2, 4);
     }
 }
 
-void func_8001180c_slot01(void) {
+void loop_updates_while_wait_flag_slot01(void) {
     while (game_state.wait_flag != 0) {
-        func_80138164();
-        func_801510bc();
-        func_8011a784();
-        func_801192bc(1);
+        update_blocks();
+        call_active_block_handlers();
+        select_buffers_and_run_first_setup();
+        request_sound_command_and_switch_thread(1);
     }
 }

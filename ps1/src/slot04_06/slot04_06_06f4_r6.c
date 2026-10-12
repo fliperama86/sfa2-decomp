@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801c52b8_slot04_06[];
 
-int func_801b13b8_slot04_06(Object *obj) {
+int has_remaining_count_slot04_06(Object *obj) {
     return obj->remaining_count != 0;
 }
 

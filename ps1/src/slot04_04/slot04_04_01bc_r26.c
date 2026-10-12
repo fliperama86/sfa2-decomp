@@ -10,8 +10,8 @@ void func_801b2188_slot04_04(Object *obj) {
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 10);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 10);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     if (obj->facing_side != 0) {
         *(u16 *)&obj->pos_x = *(u16 *)&obj->pos_x + 0x18;
     } else {
@@ -27,10 +27,10 @@ void func_801b2188_slot04_04(Object *obj) {
     } else {
         a = obj->direction_index + 0x30;
     }
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }
 
-void func_801b22c8_slot04_04(Object *obj) {
+void update_sequence_advance_on_flag_80_clear_slot04_04(Object *obj) {
     if ((obj->step_flags & 0x80) == 0) {
         obj->active_state = 1;
         obj->state_3++;

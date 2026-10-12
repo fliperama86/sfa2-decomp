@@ -5,9 +5,9 @@
 
 extern ObjectFn data_80015870_slot01[];
 extern ObjectFn data_8001587c_slot01[];
-void func_80014c3c_slot01(void);
+void call_handler_by_mode_byte_0_or_1_slot01(void);
 
-Poly28 *func_80012f60_slot01(Object *obj, Poly28 *p, int a2, int a3) {
+Poly28 *init_poly_ft4_run_with_tpage_clut_slot01(Object *obj, Poly28 *p, int a2, int a3) {
     int x = a2;
     int y = a3;
     u32 *d = (u32 *)obj->sequence->data_ptr;
@@ -29,11 +29,11 @@ Poly28 *func_80012f60_slot01(Object *obj, Poly28 *p, int a2, int a3) {
     return p;
 }
 
-void func_8001301c_slot01(Object *obj) {
+void call_handler_by_state_0_by_table_bit_slot01(Object *obj) {
     if (obj->table_index & 0x80) {
         data_8001587c_slot01[obj->state_0](obj);
     } else {
         data_80015870_slot01[obj->state_0](obj);
-        func_80014c3c_slot01();
+        call_handler_by_mode_byte_0_or_1_slot01();
     }
 }

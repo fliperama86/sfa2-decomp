@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-SlotCell *func_801e101c_slot0b(Object *obj, SlotCell *cell, int arg, int base) {
+SlotCell *init_list_cells_tpage_clut_slot0b(Object *obj, SlotCell *cell, int arg, int base) {
     Slot0bList *list = (Slot0bList *)obj->sequence->data_ptr;
     u8 *p;
     s16 a2 = arg;

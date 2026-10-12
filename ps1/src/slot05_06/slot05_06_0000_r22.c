@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801ca048_slot05_06(Object *obj);
+void set_vel_x_from_direction_table_slot05_06(Object *obj);
 
-void func_801c9c5c_slot05_06(Object *o) {
+void start_grab_attack_with_countdown_2_slot05_06(Object *o) {
     ((Slot04aObj *)o)->countdown_2 = 0x32;
     o->state_3++;
     func_801428e4(o);
-    func_80138b38(&game_state, o);
+    set_flag_225_add_direction_to_counter(&game_state, o);
     func_80145d20(o);
     play_side_sound_at(o, o->side, 7);
     o->substate_index = 0;
@@ -17,6 +17,6 @@ void func_801c9c5c_slot05_06(Object *o) {
     o->step_count_2 = 0;
     o->step_limit = 0;
     o->accel_x = -0x6000;
-    func_801ca048_slot05_06(o);
-    func_801307e0(o, (o->direction_index >> 1) + 0x34);
+    set_vel_x_from_direction_table_slot05_06(o);
+    set_sequence_by_side_and_mode(o, (o->direction_index >> 1) + 0x34);
 }

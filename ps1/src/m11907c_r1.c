@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011907c(void) {
+void start_pending_snd_voice_threads(void) {
     for (data_8018f5a0 = (HudState *)0x801fc200; (u32)data_8018f5a0 <= 0x801fc37f; data_8018f5a0 = (HudState *)((SndVoice *)data_8018f5a0 + 1)) {
         switch (((SndVoice *)data_8018f5a0)->status) {
         case 3:

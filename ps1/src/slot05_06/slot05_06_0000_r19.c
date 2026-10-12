@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cc814_slot05_06(Object *obj);
-void func_801cc84c_slot05_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
+void apply_vertical_velocity_slot05_06(Object *obj);
 
-void func_801c983c_slot05_06(Object *o) {
+void advance_state_3_on_step_flag_byte_slot05_06(Object *o) {
     if (*(u8 *)&o->step_flags != 0) {
         o->active_state = 1;
         ((Slot04aObj *)o)->field_1c8 = 0;
@@ -16,18 +16,18 @@ void func_801c983c_slot05_06(Object *o) {
 }
 
 void func_801c9880_slot05_06(Object *o) {
-    func_801cc84c_slot05_06(o);
+    apply_vertical_velocity_slot05_06(o);
     if (o->vel_y <= 0x1ffff && ((Slot04aObj *)o)->field_1c8 == 0) {
         ((Slot04aObj *)o)->field_1c8 = 1;
-        func_801307e0(o, 0x28);
+        set_sequence_by_side_and_mode(o, 0x28);
     } else if (o->vel_y >= 0) {
-        func_801cc814_slot05_06(o);
+        move_x_by_vel_x_facing_then_accelerate_slot05_06(o);
         update_sequence(o);
     } else {
         o->vel_x = 0x18000;
         o->vel_y = -0x80000;
         o->state_3++;
         play_side_sound_at(o, o->side, 4);
-        func_801307e0(o, 0x20);
+        set_sequence_by_side_and_mode(o, 0x20);
     }
 }

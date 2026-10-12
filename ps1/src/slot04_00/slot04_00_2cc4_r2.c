@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2d98_slot04_00(Object *obj) {
+void start_sequence_by_input_dir_set_facing_slot04_00(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    func_80141f28(obj, 3);
+    add_to_meter_clamped(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->facing_side = 0;
     if (obj->mode_flag_2 == 0) {
@@ -13,13 +13,13 @@ void func_801b2d98_slot04_00(Object *obj) {
             obj->facing_side = 1;
         }
     }
-    func_801307e0(obj, (obj->input_dir_second >> 1) + 0x18);
+    set_sequence_by_side_and_mode(obj, (obj->input_dir_second >> 1) + 0x18);
 }
 
 void func_801b2e20_slot04_00(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        func_80140770(obj, 0, 5, 0x11, 0, 1, 0);
+        set_other_hit_reaction_state_0(obj, 0, 5, 0x11, 0, 1, 0);
     }
     update_sequence(obj);
 }

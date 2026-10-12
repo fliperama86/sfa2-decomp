@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e93d8_slot06_00(Object *object) {
+void set_object_position_from_layer_offsets_slot06_00(Object *object) {
     Slot06Layer *layer = (Slot06Layer *)data_801aa544;
     s16 d;
 
@@ -17,5 +17,5 @@ void func_801e93d8_slot06_00(Object *object) {
     d -= d >> 2;
     d -= object->pos_y_frac + 0xff08;
     object->pos_y = 0xf8 - d;
-    func_80120028(object);
+    set_flag_and_push_if_mode_8(object);
 }

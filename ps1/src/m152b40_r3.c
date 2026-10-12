@@ -5,14 +5,14 @@
 
 
 
-void func_80153230(Effect *effect) {
+void update_effect_by_state_tables(Effect *effect) {
     Object *owner = effect->owner;
     Object *target = effect->target;
     if (owner->max_value_cc <= target->round_count) {
         owner->max_value_cc = target->round_count;
     }
     if (game_state.mode_flag != 0) {
-        func_80153c7c(effect);
+        clear_field_and_increment_step_count(effect);
     } else if ((s16)target->health & 0x8000) {
         func_801538f0(effect);
     } else {

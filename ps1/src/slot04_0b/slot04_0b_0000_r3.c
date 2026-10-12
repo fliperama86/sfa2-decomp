@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b05bc_slot04_0b(Object *obj);
+void noop_slot00_slot04_0b(Object *obj);
 
-void func_801b04e8_slot04_0b(Object *obj) {
+void reset_states_when_sequence_ends_slot04_0b(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        func_801b05bc_slot04_0b(obj);
+        noop_slot00_slot04_0b(obj);
         set_sequence_by_side(obj, 0);
     } else {
         update_sequence(obj);

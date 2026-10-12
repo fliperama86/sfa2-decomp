@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b390c_slot04_00(Object *obj) {
+void update_sequence_move_x_on_flag_or_reset_slot04_00(Object *obj) {
     s16 v = obj->step_flags;
     if (v & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if (v & 0xff) {
             if (obj->facing_side == 0) {

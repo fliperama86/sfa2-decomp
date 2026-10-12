@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b351c_slot04_07(Object *obj) {
+void count_down_then_init_timers_and_update_slot04_07(Object *obj) {
     int t;
     int u;
     obj->countdown = (s16)obj->countdown - 0x100;
@@ -22,6 +22,6 @@ void func_801b351c_slot04_07(Object *obj) {
         obj->cursor_timer_a = t;
         obj->field_180 = 0;
     }
-    func_80142fe8(obj);
+    push_other_by_vel_x(obj);
     update_sequence(obj);
 }

@@ -11,5 +11,5 @@ void func_801b4688_slot04_09(Object *obj) {
         obj->remaining_count--;
     }
     play_side_sound_at(obj, obj->side, 0xd);
-    func_801307e0(obj, 0x34);
+    set_sequence_by_side_and_mode(obj, 0x34);
 }

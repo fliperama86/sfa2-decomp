@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern Slot01Rec33bb4 data_80033bb4_slot01[2][2500];
-void func_80014dd0_slot01(Tx *tx);
+void init_draw_mode_prim_with_merge_slot01(Tx *tx);
 
-void func_80014c8c_slot01(Object *o) {
+void init_primitive_table_and_load_images_slot01(Object *o) {
     Slot01Obj *obj = (Slot01Obj *)o;
     int i;
     int j;
@@ -23,7 +23,7 @@ void func_80014c8c_slot01(Object *o) {
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 0x118; j++) {
             r = &data_80033bb4_slot01[i][j];
-            func_80014dd0_slot01((Tx *)r);
+            init_draw_mode_prim_with_merge_slot01((Tx *)r);
             r->color_r = 0x80;
             r->color_g = 0x80;
             r->color_b = 0x80;
@@ -42,7 +42,7 @@ void func_80014c8c_slot01(Object *o) {
     func_80157d9c(0);
 }
 
-void func_80014dd0_slot01(Tx *tx) {
+void init_draw_mode_prim_with_merge_slot01(Tx *tx) {
     func_80158a2c((Prim *)tx, 0, 0, 0, 0);
     tx->mode_id = 3;
     tx->prim_code = 0x74;

@@ -3,28 +3,28 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3e00_slot04_0a(Object *object);
+void apply_velocity_and_acceleration_slot04_0a(Object *object);
 
 void func_801b3c74_slot04_0a(Object *obj) {
     obj->state_3++;
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     obj->vel_y = 0;
-    func_80141f28(obj, 4);
-    func_801307e0(obj, 0x53);
+    add_to_meter_clamped(obj, 4);
+    set_sequence_by_side_and_mode(obj, 0x53);
 }
 
-void func_801b3cd0_slot04_0a(Object *obj) {
+void update_move_and_hit_other_on_flag_1_slot04_0a(Object *obj) {
     int v;
     if ((u8)obj->step_flags != 2) {
-        func_801b3e00_slot04_0a(obj);
+        apply_velocity_and_acceleration_slot04_0a(obj);
     }
     if ((u8)obj->step_flags == 1) {
         play_side_sound_at(obj, obj->side, 8);
         obj->state_3++;
         if (obj->other->field_15b != 0) {
-            func_80140770(obj, 0x24, 0xd, 0x11, 0, 0, 0);
+            set_other_hit_reaction_state_0(obj, 0x24, 0xd, 0x11, 0, 0, 0);
         } else {
-            func_80140770(obj, 0x24, 0xa, 0x11, 0, 0, 0);
+            set_other_hit_reaction_state_0(obj, 0x24, 0xa, 0x11, 0, 0, 0);
         }
         if (obj->facing_side != 0) {
             obj->vel_x = 0xffff0000;
@@ -39,8 +39,8 @@ void func_801b3cd0_slot04_0a(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b3da8_slot04_0a(Object *obj) {
-    func_801b3e00_slot04_0a(obj);
+void move_until_ground_then_land_slot04_0a(Object *obj) {
+    apply_velocity_and_acceleration_slot04_0a(obj);
     if (obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {

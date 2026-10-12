@@ -12,7 +12,7 @@ void call_kind_pair_handler(void);
    both table pointers are published in global slots, and func_801397d0 is
    called with a, b and b's box. A non-zero result ends the scan for this outer
    object; otherwise call_kind_pair_handler is called. */
-void func_8013b558(void) {
+void check_object_pair_box_collisions(void) {
     Box6 *box_a;
     Box6 *box_b;
     int index_a;

@@ -6,18 +6,18 @@
 extern Object *data_80051b00_slot28[];
 void func_8002005c_slot28(Object *obj, int arg);
 
-void func_8001fc0c_slot28(Object *obj) {
+void advance_pass_fade_and_set_sequence_2_slot28(Object *obj) {
     if (obj->field_f0 == 0) {
-        func_8014f4d4(6, 1);
+        set_menu_command_by_code(6, 1);
         data_8018f5a0->pass_index++;
         func_8002005c_slot28(obj, 2);
     }
 }
 
-void func_8001fc68_slot28(Object *obj) {
+void advance_pass_when_object_sequence_ends_slot28(Object *obj) {
     if ((s16)data_80051b00_slot28[4]->step_flags < 0) {
         data_8018f5a0->pass_index++;
-        func_8014f4d4(1, 0x400);
-        func_801282d4();
+        set_menu_command_by_code(1, 0x400);
+        start_fade_mode_1801_and_wait();
     }
 }

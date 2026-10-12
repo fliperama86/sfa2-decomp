@@ -4,8 +4,8 @@
 #include "../externs.h"
 
 extern u8 data_801c537c_slot04_06[];
-void func_801b2048_slot04_06(Object *obj);
-void func_801b4818_slot04_06(Object *obj);
+void set_vel_x_from_direction_table_slot04_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot04_06(Object *obj);
 
 void func_801b1cf4_slot04_06(Object *o) {
     u8 t;
@@ -16,7 +16,7 @@ void func_801b1cf4_slot04_06(Object *o) {
         }
         o->field_165 = t;
         play_sound_at(o, o->side, 0x31c);
-        func_801483a4(o, -2, 0x5c);
+        spawn_children_per_direction_index(o, -2, 0x5c);
     }
     if (((Slot04aObj *)o)->countdown_2 != 0) {
         ((Slot04aObj *)o)->countdown_2--;
@@ -34,10 +34,10 @@ void func_801b1cf4_slot04_06(Object *o) {
     if ((s16)o->step_flags >= 0) {
         if (*(u8 *)&o->step_flags != 0) {
             *(u8 *)&o->step_flags = 0;
-            func_801b2048_slot04_06(o);
+            set_vel_x_from_direction_table_slot04_06(o);
         }
         if (o->vel_x >= 0) {
-            func_801b4818_slot04_06(o);
+            move_x_by_vel_x_facing_then_accelerate_slot04_06(o);
         }
         update_sequence(o);
     } else if (o->direction_index == 4) {
@@ -54,8 +54,8 @@ void func_801b1cf4_slot04_06(Object *o) {
         }
         o->countdown = 0;
         play_side_sound_at(o, o->side, 6);
-        func_801307e0(o, 0x37);
+        set_sequence_by_side_and_mode(o, 0x37);
     } else {
-        func_801312b8(o);
+        reset_object_to_state_1_0_sequence_0(o);
     }
 }

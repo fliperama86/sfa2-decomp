@@ -19,5 +19,5 @@ void func_801b0f48_slot04_01(Object *obj) {
     obj->field_6b = 0;
     obj->other->field_6b = 0x15;
     obj->other_lock = 0x19;
-    func_801307e0(obj, 0x1b);
+    set_sequence_by_side_and_mode(obj, 0x1b);
 }

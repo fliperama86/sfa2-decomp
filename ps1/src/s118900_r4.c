@@ -3,13 +3,13 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801192bc(int a) {
+void request_sound_command_and_switch_thread(int a) {
     ((SndCtl *)data_8018f5a0)->request_arg = a;
     ((SndCtl *)data_8018f5a0)->mode = 1;
     func_801577ec(0xff000000);
 }
 
-void func_801192f0(void) {
+void close_snd_thread_and_switch_main(void) {
     ((SndCtl *)data_8018f5a0)->mode = 0;
     func_801575dc();
     func_801577bc(((SndCtl *)data_8018f5a0)->thread_handle);
@@ -27,7 +27,7 @@ void close_voice_thread(int a) {
     }
 }
 
-void func_801193a4(u32 a) {
+void close_sound_thread_and_switch_to_main(u32 a) {
     ((SndCtl *)data_8018f5a0)->mode = 3;
     ((SndCtl *)data_8018f5a0)->field_0c = a;
     func_801575dc();

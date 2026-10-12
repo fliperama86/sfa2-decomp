@@ -8,7 +8,7 @@ extern u8 data_801b9c20_slot04_sel;
 extern void (*data_801b9c24_slot04_sel[])(Object *, u8 *);
 extern u8 *data_801b9cd8_slot04_sel[];
 
-void func_801b6654_slot04_sel(void) {
+void clear_selection_state_values_slot04_sel(void) {
     data_801b9db8_slot04_sel[0] = 0;
     data_801b9db8_slot04_sel[1] = 0;
     data_801b9c20_slot04_sel = 0;
@@ -25,5 +25,5 @@ void func_801b6674_slot04_sel(void) {
             data_8018f5a0->phase_index = 1;
         }
     }
-    func_801519b4(data_801b9cd8_slot04_sel);
+    add_item_to_table(data_801b9cd8_slot04_sel);
 }

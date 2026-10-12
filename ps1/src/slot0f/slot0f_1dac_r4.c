@@ -13,7 +13,7 @@ extern Slot0fRec8508 data_800e8678_slot0f;
 extern Slot0fRec8508 data_800e8688_slot0f;
 extern Slot0fRec8508 data_800e86a8_slot0f;
 
-void func_800e20e4_slot0f(Object *o) {
+void queue_slot_marker_and_label_2_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     Object *first;
 
@@ -21,18 +21,18 @@ void func_800e20e4_slot0f(Object *o) {
     if (obj->field_0b == 0) {
         first = (Object *)&data_800e85f8_slot0f;
     }
-    func_801519b4(first);
-    func_801519b4(&data_800e8598_slot0f);
+    add_item_to_table(first);
+    add_item_to_table(&data_800e8598_slot0f);
 }
 
-void func_800e2130_slot0f(Object *o) {
+void queue_slot_marker_and_mode_message_2_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     Slot0fRec8508 *rec;
 
     if (obj->field_0b == 0) {
-        func_801519b4(&data_800e85f8_slot0f);
+        add_item_to_table(&data_800e85f8_slot0f);
     } else {
-        func_801519b4(&data_800e8608_slot0f);
+        add_item_to_table(&data_800e8608_slot0f);
     }
     switch (obj->mode) {
     case 0:
@@ -53,5 +53,5 @@ void func_800e2130_slot0f(Object *o) {
     default:
         return;
     }
-    func_801519b4(rec);
+    add_item_to_table(rec);
 }

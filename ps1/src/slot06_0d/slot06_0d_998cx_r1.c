@@ -9,12 +9,12 @@
  * record's header word into the entry's two halfwords (high half to
  * field_04, low half to step_value), computes a destination from the entry's
  * rect_x and rect_y (a position, read as a row and column of a
- * palette area), and copies the record's data there with func_8011fae0.
- * The same code is func_8011f994 of the resident image, which takes the
+ * palette area), and copies the record's data there with copy_block_pairs_wide.
+ * The same code is set_sequence_and_copy_block of the resident image, which takes the
  * destination base as an argument; here the base is the pointer word
  * data_801aa624.
  */
-void func_801e998c_slot06_0d(Slot06Pal *pal, SeqRec *rec) {
+void set_palette_record_and_copy_data_slot06_0d(Slot06Pal *pal, SeqRec *rec) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     int offset, q;
@@ -39,5 +39,5 @@ void func_801e998c_slot06_0d(Slot06Pal *pal, SeqRec *rec) {
     /* base is a local of its own; written inline in the call, the function differs from the original in 9 instruction slots. */
     base = data_801aa624;
     offset = (pal->rect_x & 0x1f0) / 16 * 4 + q + (((pal->rect_y / 16) << 23) >> 16);
-    func_8011fae0(rec->data, (u16 *)(base + ((offset << 15) >> 15)));
+    copy_block_pairs_wide(rec->data, (u16 *)(base + ((offset << 15) >> 15)));
 }

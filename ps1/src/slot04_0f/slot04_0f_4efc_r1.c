@@ -15,16 +15,16 @@ extern ObjectFn data_801c6088_slot04_0f[];
 extern ObjectFn data_801c6294_slot04_0f[];
 extern ObjectRef data_80190458;
 
-void func_801b52b4_slot04_0f(Object *obj);
-void func_801b5678_slot04_0f(Object *obj);
-void func_801b57b4_slot04_0f(Object *obj);
+void call_handler_by_state_1_then_offset_slot04_0f(Object *obj);
+void call_handler_by_state_1_then_offset_2_slot04_0f(Object *obj);
+void copy_parent_position_with_offset_slot04_0f(Object *obj);
 void func_801b5830_slot04_0f(Object *obj, int a);
-void func_801b54e8_slot04_0f(Object *obj);
-void func_80137be0(Object *obj);
-void func_80137cc0(Object *obj);
-void func_80137dc8(Object *obj);
-void func_80137f00(Object *obj);
-void func_8011f14c(Slab172 *o);
+void call_handler_by_state_1_2_slot04_0f(Object *obj);
+void call_state_2_handler_267c_unless_paused(Object *obj);
+void call_state_2_handler_2684_unless_paused(Object *obj);
+void call_state_2_handler_268c_unless_paused(Object *obj);
+void call_handler_2694_by_state_2(Object *obj);
+void reset_and_push_block_object_type_8(Slab172 *o);
 void func_8011ffdc(Object *o);
 
 void func_801b4efc_slot04_0f(Object *obj) {
@@ -44,25 +44,25 @@ void func_801b4efc_slot04_0f(Object *obj) {
             obj->state_1 = 0;
             obj->state_2 = 0;
             obj->state_3 = 0;
-            func_801b52b4_slot04_0f(obj);
+            call_handler_by_state_1_then_offset_slot04_0f(obj);
             return;
         }
         *(s32 *)&obj->pos_x_frac += obj->vel_x;
         *(s32 *)&obj->pos_y_frac -= obj->vel_y;
-        func_8011ff74(obj);
+        set_state_0_if_x_outside_margin_narrow(obj);
     }
     func_8011ffdc(obj);
 }
 
 void func_801b4fd0_slot04_0f(Object *obj) {
-    func_80137be0(obj);
+    call_state_2_handler_267c_unless_paused(obj);
 }
 
 void func_801b4ff0_slot04_0f(Object *obj) {
-    func_80137cc0(obj);
+    call_state_2_handler_2684_unless_paused(obj);
 }
 
-void func_801b5010_slot04_0f(Object *obj) {
+void call_handler_by_state_2_unless_paused_slot04_0f(Object *obj) {
     Config *config = game_state.config;
 
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
@@ -71,15 +71,15 @@ void func_801b5010_slot04_0f(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801b5080_slot04_0f(Object *o) {
+void flip_facing_and_advance_state_2_slot04_0f(Object *o) {
     o->state_2++;
     o->facing_side ^= 1;
-    func_801380f0(o);
+    call_kind_9_handler_for_player(o);
     o->countdown = 2;
     advance_sequence_checked(o);
 }
 
-void func_801b50d0_slot04_0f(Object *obj) {
+void count_down_then_reverse_velocity_x_slot04_0f(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown == 0) {
         obj->active_count = 1;
@@ -95,7 +95,7 @@ void func_801b50d0_slot04_0f(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_801b5150_slot04_0f(Object *obj) {
+void call_handler_by_state_2_unless_paused_2_slot04_0f(Object *obj) {
     Config *config = game_state.config;
 
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
@@ -104,15 +104,15 @@ void func_801b5150_slot04_0f(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801b51c0_slot04_0f(Object *o) {
+void flip_facing_and_advance_state_2_2_slot04_0f(Object *o) {
     o->state_2++;
     o->facing_side ^= 1;
-    func_801380f0(o);
+    call_kind_9_handler_for_player(o);
     o->countdown = 2;
     advance_sequence_checked(o);
 }
 
-void func_801b5210_slot04_0f(Object *obj) {
+void count_down_then_set_velocity_from_tables_slot04_0f(Object *obj) {
     int x;
     u8 i;
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
@@ -138,7 +138,7 @@ void func_801b5210_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b52b4_slot04_0f(Object *obj) {
+void call_handler_by_state_1_then_offset_slot04_0f(Object *obj) {
     data_801c5e94_slot04_0f[obj->state_1](obj);
     func_8011ffdc(obj);
 }
@@ -149,7 +149,7 @@ void func_801b5308_slot04_0f(Object *obj) {
     func_80138070(obj, 0xb);
 }
 
-void func_801b533c_slot04_0f(Object *obj) {
+void set_state_0_to_3_on_sequence_end_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 = 3;
         obj->state_1 = 0;
@@ -159,28 +159,28 @@ void func_801b533c_slot04_0f(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_801b537c_slot04_0f(Object *o) {
+void release_object_and_unlink_from_parent_slot04_0f(Object *o) {
     Object *p = o->parent;
     p->link_flags--;
     if (p->link_flags == 0) {
         p->linked_object_3 = 0;
     }
-    func_8011f14c((Slab172 *)o);
+    reset_and_push_block_object_type_8((Slab172 *)o);
 }
 
-void func_801b53c8_slot04_0f(Object *obj) {
+void call_handler_by_state_0_with_parent_slot04_0f(Object *obj) {
     ref_other.p = obj->parent;
     data_801c6064_slot04_0f[obj->state_0](obj);
 }
 
-void func_801b5418_slot04_0f(Object *obj) {
+void init_spawned_object_from_parent_slot04_0f(Object *obj) {
     obj->ot_depth = 0;
     obj->state_0++;
     obj->field_49 = ref_other.p->field_49;
     obj->field_1c = ref_other.p->field_1c;
     ((Slot04bObj *)obj)->data_table_ptr = data_801c605c_slot04_0f;
     obj->active_state = 0;
-    func_801b57b4_slot04_0f(obj);
+    copy_parent_position_with_offset_slot04_0f(obj);
     obj->variant_index_2 = 0xff;
     if (ref_other.p->side == 0) {
         ((Slot04bObj *)obj)->data_pointer = *(s32 *)0x1f8000a8;
@@ -188,21 +188,21 @@ void func_801b5418_slot04_0f(Object *obj) {
         ((Slot04bObj *)obj)->data_pointer = *(s32 *)0x1f800158;
     }
     func_801b5830_slot04_0f(obj, obj->vel_table_index >> 1);
-    func_801b54e8_slot04_0f(obj);
+    call_handler_by_state_1_2_slot04_0f(obj);
 }
 
-void func_801b54e8_slot04_0f(Object *obj) {
+void call_handler_by_state_1_2_slot04_0f(Object *obj) {
     data_801c6074_slot04_0f[obj->state_1](obj);
 }
 
-void func_801b5528_slot04_0f(Object *obj) {
+void update_attached_object_follow_parent_slot04_0f(Object *obj) {
     Config *config = game_state.config;
 
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
         ref_other.p = obj->parent;
         if (*(u16 *)&ref_other.p->state_0 == 1 && ref_other.p->state_2 == 7) {
             advance_sequence_checked(obj);
-            func_801b57b4_slot04_0f(obj);
+            copy_parent_position_with_offset_slot04_0f(obj);
             if ((s16)obj->step_flags >= 0) {
                 goto go;
             }
@@ -211,36 +211,36 @@ void func_801b5528_slot04_0f(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        func_801b5678_slot04_0f(obj);
+        call_handler_by_state_1_then_offset_2_slot04_0f(obj);
         return;
 go:
-        func_8011ff74(obj);
+        set_state_0_if_x_outside_margin_narrow(obj);
     }
     func_8011ffdc(obj);
 }
 
 void func_801b55f8_slot04_0f(Object *obj) {
-    func_80137be0(obj);
+    call_state_2_handler_267c_unless_paused(obj);
 }
 
 void func_801b5618_slot04_0f(Object *obj) {
-    func_80137cc0(obj);
+    call_state_2_handler_2684_unless_paused(obj);
 }
 
 void func_801b5638_slot04_0f(Object *obj) {
-    func_80137dc8(obj);
+    call_state_2_handler_268c_unless_paused(obj);
 }
 
 void func_801b5658_slot04_0f(Object *obj) {
-    func_80137f00(obj);
+    call_handler_2694_by_state_2(obj);
 }
 
-void func_801b5678_slot04_0f(Object *obj) {
+void call_handler_by_state_1_then_offset_2_slot04_0f(Object *obj) {
     data_801c6088_slot04_0f[obj->state_1](obj);
     func_8011ffdc(obj);
 }
 
-void func_801b56cc_slot04_0f(Object *obj) {
+void advance_state_1_call_6_or_7_slot04_0f(Object *obj) {
     int n = 6;
 
     obj->state_1++;
@@ -250,7 +250,7 @@ void func_801b56cc_slot04_0f(Object *obj) {
     func_801b5830_slot04_0f(obj, n);
 }
 
-void func_801b5708_slot04_0f(Object *obj) {
+void set_state_0_to_3_on_sequence_end_2_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 = 3;
         obj->state_1 = 0;
@@ -260,16 +260,16 @@ void func_801b5708_slot04_0f(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_801b5748_slot04_0f(Object *o) {
+void unlink_from_parent_and_release_slot04_0f(Object *o) {
     ref_other.p = o->parent;
     ref_other.p->link_flags--;
     if (ref_other.p->link_flags == 0) {
         ref_other.p->linked_object_3 = 0;
     }
-    func_8011f14c((Slab172 *)o);
+    reset_and_push_block_object_type_8((Slab172 *)o);
 }
 
-void func_801b57b4_slot04_0f(Object *obj) {
+void copy_parent_position_with_offset_slot04_0f(Object *obj) {
     int a;
     int b;
 
@@ -296,7 +296,7 @@ void func_801b5830_slot04_0f(Object *obj, int a) {
     func_80138070(obj, a);
 }
 
-void func_801b5864_slot04_0f(Object *obj) {
+void call_handler_by_state_0_with_parent_2_slot04_0f(Object *obj) {
     data_80190458.p = obj->parent;
     data_801c6294_slot04_0f[obj->state_0](obj);
 }

@@ -5,12 +5,12 @@
 
 #define VOICES ((SndVoice *)0x801fc200)
 
-void func_80119144(int a, int b) {
-    func_8011e938(&VOICES[a].thread_entry, b);
-    func_801191dc(a, VOICES[a].thread_entry);
+void set_voice_thread_entry_and_open(int a, int b) {
+    set_table_entry_and_global_pointer(&VOICES[a].thread_entry, b);
+    open_snd_voice_thread(a, VOICES[a].thread_entry);
 }
 
 void func_80119198(int a) {
-    func_8011e938(&((SndCtl *)data_8018f5a0)->field_0c, a);
-    func_801193a4(((SndCtl *)data_8018f5a0)->field_0c);
+    set_table_entry_and_global_pointer(&((SndCtl *)data_8018f5a0)->field_0c, a);
+    close_sound_thread_and_switch_to_main(((SndCtl *)data_8018f5a0)->field_0c);
 }

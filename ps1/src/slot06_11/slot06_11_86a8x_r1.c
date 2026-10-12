@@ -9,9 +9,9 @@ extern Slot06Tile data_801efe80_slot06_11[2][0x190];
    pixels, a tile record for each cell that is not blank, linked into the
    primitive list; the adjusted position goes back into the layer first
    (inferred). The locals t, sx, sy, mask and cc are 16-bit, as in
-   func_801e82c8_slot06_00. The local f12 holds scroll_x sign-extended, as
-   in the model func_801e86d8_slot06_00. */
-void func_801e86a8_slot06_11(void) {
+   draw_tile_layer_0_16px_slot06_00. The local f12 holds scroll_x sign-extended, as
+   in the model draw_tile_layer_1_16px_slot06_00. */
+void draw_tile_layer_1_16px_slot06_11(void) {
     Chan *c = &data_801aa544[1];
     int x;
     int pos;

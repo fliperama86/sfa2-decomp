@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_8014e7ec(Object *object)
+void set_limits_from_script_word(Object *object)
 {
   u16 v = *(data_80189460++);
   s16 new_var;

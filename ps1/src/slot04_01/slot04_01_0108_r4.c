@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3b4c_slot04_01(Object *obj);
+void play_side_sound_from_step_flags_slot04_01(Object *obj);
 extern ObjectFn data_801beec4_slot04_01[];
 
 void func_801b0458_slot04_01(Object *obj) {
     data_801beec4_slot04_01[obj->state_3](obj);
-    func_801b3b4c_slot04_01(obj);
+    play_side_sound_from_step_flags_slot04_01(obj);
 }

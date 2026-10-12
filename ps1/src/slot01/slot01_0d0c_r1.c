@@ -8,7 +8,7 @@ extern int data_80055f3c_slot01;
 extern char data_800100a0_slot01[];
 char *strcat(char *dst, const char *src);
 
-void func_80010d0c_slot01(int value, char *dst) {
+void format_hex_digits_eight_chars_slot01(int value, char *dst) {
     u8 digits[8];
     char *out = dst;
     int started = 0;
@@ -31,9 +31,9 @@ void func_80010d0c_slot01(int value, char *dst) {
     strcat(dst, data_800100a0_slot01);
 }
 
-void func_80010dcc_slot01(GameState *g) {
+void reset_hud_state_and_restore_kind_index_slot01(GameState *g) {
     HudState *h;
-    func_8014f4d4(6, 2);
+    set_menu_command_by_code(6, 2);
     game_state.kind_index = *(u16 *)&data_80055f3c_slot01;
     h = data_8018f5a0;
     data_80190568 = 0;

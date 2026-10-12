@@ -6,7 +6,7 @@
 extern ObjectFn data_801ef0d8_slot06_02[];
 extern SequenceStep *data_801ef0c8_slot06_02[];
 
-void func_801e9d24_slot06_02(Object *obj) {
+void call_handler_by_state_0_slot06_02(Object *obj) {
     data_801ef0d8_slot06_02[obj->state_0](obj);
 }
 
@@ -18,10 +18,10 @@ void func_801e9d64_slot06_02(Object *obj) {
     obj->field_0c = 0;
     obj->vel_x = *(s32 *)&obj->pos_x_frac;
     obj->vel_y = 0x1000000 - *(s32 *)&obj->pos_y_frac;
-    func_80130700(obj, data_801ef0c8_slot06_02[obj->table_index]);
+    set_sequence_entry(obj, data_801ef0c8_slot06_02[obj->table_index]);
 }
 
-void func_801e9dd8_slot06_02(Object *obj) {
+void set_object_position_from_camera_bounds_slot06_02(Object *obj) {
     Slot06Layer *l = (Slot06Layer *)cam_obj;
     s32 a;
     s32 b;
@@ -38,6 +38,6 @@ void func_801e9dd8_slot06_02(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801e9e54_slot06_02(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot06_02(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

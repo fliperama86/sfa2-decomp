@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b567c_slot04_02(Object *obj) {
+void update_knockback_arc_land_with_sound_slot04_02(Object *obj) {
     u16 t;
     update_sequence(obj);
     t = obj->step_flags;
@@ -24,7 +24,7 @@ void func_801b567c_slot04_02(Object *obj) {
         obj->active_flag_4 = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x5d);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x5d);
     }
 }

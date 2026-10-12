@@ -14,9 +14,9 @@ extern void func_801b420c_slot04_0e(Object *obj);
    the record that the object's side selects, and parent points at the
    partner; it then calls play_sound_at for the partner. In every case it
    ends by calling func_801b420c_slot04_0e on the object. */
-void func_801b4100_slot04_0e(Object *obj) {
+void spawn_effect_at_other_then_next_spawn_slot04_0e(Object *obj) {
     Slot04_0eRec62b4 *rec = &data_801c62b4_slot04_0e[obj->side];
-    Object *s = (Object *)func_8011f1e0();
+    Object *s = (Object *)pop_block_from_pool();
     Object *o;
     u8 side;
 

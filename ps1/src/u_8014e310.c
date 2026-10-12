@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-int func_8014e310(Object *object)
+int is_state_one_and_state_two_allowed(Object *object)
 {
   int new_var;
   if ((*((u16 *) (&object->state_0))) != 1)

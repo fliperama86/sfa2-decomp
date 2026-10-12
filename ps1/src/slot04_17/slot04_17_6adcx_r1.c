@@ -5,11 +5,11 @@
 extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
 
-void func_80130768(Object *object, int index, SequenceStep **table);
+void set_sequence_from_table_5(Object *object, int index, SequenceStep **table);
 
-void func_801b6adc_slot04_17(Object *obj, int idx);
+void set_variant_sequence_from_side_table_slot04_17(Object *obj, int idx);
 
-void func_801b6adc_slot04_17(Object *obj, int idx) {
+void set_variant_sequence_from_side_table_slot04_17(Object *obj, int idx) {
     SequenceStep **table;
 
     if (obj->sound_side == 0) {
@@ -18,5 +18,5 @@ void func_801b6adc_slot04_17(Object *obj, int idx) {
         table = data_1f800164;
     }
     obj->variant_index = idx;
-    func_80130768(obj, idx, table);
+    set_sequence_from_table_5(obj, idx, table);
 }

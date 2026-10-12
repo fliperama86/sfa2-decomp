@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800240d0_slot28(Object *o) {
+void spawn_six_objects_periodically_and_move_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     Slot28Obj *b;
     obj->timer_reload--;
     if (obj->timer_reload == 0) {
         obj->timer_reload = 8;
         obj->count += 1;
-        b = (Slot28Obj *)func_8011f1e0();
+        b = (Slot28Obj *)pop_block_from_pool();
         if (b != 0) {
             b->active_flag = 1;
             b->init_value = 0x79;
@@ -25,7 +25,7 @@ void func_800240d0_slot28(Object *o) {
             b->copied_ptr_c = obj->copied_ptr_c;
             b->sequence_ptr = obj->sequence_ptr;
         }
-        b = (Slot28Obj *)func_8011f1e0();
+        b = (Slot28Obj *)pop_block_from_pool();
         if (b != 0) {
             b->active_flag = 1;
             b->init_value = 0x79;
@@ -40,7 +40,7 @@ void func_800240d0_slot28(Object *o) {
             b->copied_ptr_c = obj->copied_ptr_c;
             b->sequence_ptr = obj->sequence_ptr;
         }
-        b = (Slot28Obj *)func_8011f1e0();
+        b = (Slot28Obj *)pop_block_from_pool();
         if (b != 0) {
             b->active_flag = 1;
             b->init_value = 0x79;
@@ -55,7 +55,7 @@ void func_800240d0_slot28(Object *o) {
             b->copied_ptr_c = obj->copied_ptr_c;
             b->sequence_ptr = obj->sequence_ptr;
         }
-        b = (Slot28Obj *)func_8011f1e0();
+        b = (Slot28Obj *)pop_block_from_pool();
         if (b != 0) {
             b->active_flag = 1;
             b->init_value = 0x79;
@@ -70,7 +70,7 @@ void func_800240d0_slot28(Object *o) {
             b->copied_ptr_c = obj->copied_ptr_c;
             b->sequence_ptr = obj->sequence_ptr;
         }
-        b = (Slot28Obj *)func_8011f1e0();
+        b = (Slot28Obj *)pop_block_from_pool();
         if (b != 0) {
             b->active_flag = 1;
             b->init_value = 0x79;
@@ -85,7 +85,7 @@ void func_800240d0_slot28(Object *o) {
             b->copied_ptr_c = obj->copied_ptr_c;
             b->sequence_ptr = obj->sequence_ptr;
         }
-        b = (Slot28Obj *)func_8011f1e0();
+        b = (Slot28Obj *)pop_block_from_pool();
         if (b != 0) {
             b->active_flag = 1;
             b->init_value = 0x79;

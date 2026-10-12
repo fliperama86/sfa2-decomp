@@ -7,6 +7,6 @@ void func_80129c40(Object *object) {
     if (object->hold_timer != 0) object->hold_timer--;
 }
 
-void func_80129c68(Object *object) {
+void decrement_cooldown_timer(Object *object) {
     if (object->cooldown_timer != 0) object->cooldown_timer--;
 }

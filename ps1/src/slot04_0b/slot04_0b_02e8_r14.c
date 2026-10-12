@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b16b8_slot04_0b(Object *o) {
+void update_sequence_set_active_on_flag_slot04_0b(Object *o) {
     if (*(u8 *)&o->step_flags == 0) {
         o->active_state = 1;
         o->state_3++;

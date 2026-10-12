@@ -16,18 +16,18 @@ void func_801b2f6c_slot04_08(Object *obj) {
         ((Slot04aObj *)obj)->sub_index++;
         if (((Slot04aObj *)obj)->sub_index == 3) {
             if (obj->direction_index != 2 && obj->other->field_163 == 0) {
-                func_801312b8(obj);
+                reset_object_to_state_1_0_sequence_0(obj);
             } else {
                 obj->state_3 = 4;
                 k = 0x4f;
                 if (obj->direction_index != 2) {
                     k = 0x50;
                 }
-                func_801307e0(obj, k);
+                set_sequence_by_side_and_mode(obj, k);
             }
         } else {
             obj->state_3 = 1;
-            func_801307e0(obj, (obj->direction_index >> 1) + 0x43);
+            set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x43);
         }
     } else {
         update_sequence(obj);

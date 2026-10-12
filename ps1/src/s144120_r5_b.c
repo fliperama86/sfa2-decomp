@@ -27,8 +27,8 @@ void func_80144938(Object *object) {
     }
 }
 
-void func_80144980(Object *object) {
-    func_80144244(object);
+void move_xy_until_countdown_state_2(Object *object) {
+    update_position_by_velocity(object);
     object->countdown = (s16)object->countdown - 1;
     if (object->countdown & 0x80) {
         object->state_2 = object->state_2 + 1;

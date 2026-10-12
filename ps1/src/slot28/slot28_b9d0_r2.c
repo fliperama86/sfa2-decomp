@@ -14,20 +14,20 @@ void func_8001c430_slot28(Object *obj, int arg);
 void func_8001c460_slot28(Object *obj);
 void func_8001c4c0_slot28(void);
 
-void func_8001bb30_slot28(Object *obj) {
+void advance_slot28_scene_spawn_eight_objects_slot28(Object *obj) {
     int i;
     Object *p;
     if (obj->field_f0 == 0) {
         data_8018f5a0->countdown_timer = 0x258;
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
         func_8001c4c0_slot28();
-        func_80130768(data_80051a00_slot28.p, 1, data_80039280_slot28);
+        set_sequence_from_table_5(data_80051a00_slot28.p, 1, data_80039280_slot28);
         p = data_80051a04_slot28[0];
         p->pos_x = 0x60;
         p->pos_y = -0x50;
-        func_80130768(p, 0, data_80039290_slot28);
+        set_sequence_from_table_5(p, 0, data_80039290_slot28);
         for (i = 0; i < 7; i++) {
-            p = (Object *)func_8011f1e0();
+            p = (Object *)pop_block_from_pool();
             if (p != 0) {
                 func_8001c460_slot28(p);
                 p->pos_x = data_8003a04c_slot28[i * 2];
@@ -36,11 +36,11 @@ void func_8001bb30_slot28(Object *obj) {
                 p->spawn_y = 0x1e0;
                 p->image_row = 0;
                 p->ot_depth = 2;
-                func_80130768(p, 3, data_8003929c_slot28);
+                set_sequence_from_table_5(p, 3, data_8003929c_slot28);
                 data_800519d8_slot28[i] = p;
             }
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             func_8001c460_slot28(p);
             p->pos_x = 0xc0;
@@ -49,10 +49,10 @@ void func_8001bb30_slot28(Object *obj) {
             p->spawn_y = 0x1e0;
             p->image_row = 0;
             p->ot_depth = 2;
-            func_80130768(p, 4, data_8003929c_slot28);
+            set_sequence_from_table_5(p, 4, data_8003929c_slot28);
             data_800519d8_slot28[7] = p;
         }
         func_8001c430_slot28(obj, 3);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

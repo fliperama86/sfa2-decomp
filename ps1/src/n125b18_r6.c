@@ -6,7 +6,7 @@
 /* The original loads data_801a6988 with a signed load; the shared declaration
    is unsigned, so the read says so. */
 
-void func_80129c90(Object *object) {
+void force_input_and_call_state_3_handler(Object *object) {
     if (game_state.versus_flag != 0 && game_state.mode != object->side + 1 && *(s8 *)&data_801a6988 != 0) {
         object->input_bits_2 = 0x1000;
         object->input_word = 0x1000;

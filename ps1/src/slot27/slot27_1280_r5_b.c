@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001188c_slot27(Object *obj);
+void copy_side_palette_from_table_and_upload_slot27(Object *obj);
 
-void func_8001186c_slot27(Object *object) {
-    func_8011f240((Slab172 *)object);
+void release_object_slot27(Object *object) {
+    reset_and_push_object_to_pool_table((Slab172 *)object);
 }

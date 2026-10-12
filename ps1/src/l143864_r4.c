@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801461c4(Object *object) {
+void init_spawned_object_with_random_offset(Object *object) {
     u8 facing;
     int hi;
 
@@ -17,15 +17,15 @@ void func_801461c4(Object *object) {
     object->data_ptr_b = &data_80173c9c;
     object->pos_x = object->pos_x + table_8017c9f0[get_random_byte() & 0xf];
     object->pos_y = object->pos_y - table_8017c9f0[get_random_byte() & 0xf];
-    func_80146450(object);
+    set_image_row_from_team_id(object);
     object->facing_side = object->parent->facing_side;
     facing = object->table_index;
     if ((facing & 0x80) == 0) {
         hi = object->variant_index != 0;
-        func_80130768(object, table_8017ca10[(hi << 3) + (facing & 7)], table_8017c7f8);
+        set_sequence_from_table_5(object, table_8017ca10[(hi << 3) + (facing & 7)], table_8017c7f8);
     } else {
         object->ot_depth = 8;
-        func_80146394(object);
-        func_80130768(object, table_8017ca20[facing & 7], table_8017c7f8);
+        follow_parent_position_with_frame_offset(object);
+        set_sequence_from_table_5(object, table_8017ca20[facing & 7], table_8017c7f8);
     }
 }

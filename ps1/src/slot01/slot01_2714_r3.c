@@ -7,10 +7,10 @@ extern u8 data_80019330_slot01[];
 extern u8 data_800195b8_slot01[];
 extern u8 data_800319b8_slot01[];
 extern SequenceStep *data_800212ac_slot01[];
-Poly28 *func_80012f60_slot01(Object *obj, Poly28 *p, int a2, int a3);
-void func_80012d08_slot01(Object *obj);
+Poly28 *init_poly_ft4_run_with_tpage_clut_slot01(Object *obj, Poly28 *p, int a2, int a3);
+void update_or_draw_sprite_set_slot01(Object *obj);
 
-void func_80012b90_slot01(Object *obj) {
+void init_object_copy_parent_position_slot01(Object *obj) {
     Object *r;
 
     obj->spawn_x = 0x70;
@@ -31,14 +31,14 @@ void func_80012b90_slot01(Object *obj) {
         obj->field_01 = 1;
         obj->field_0c = 1;
         obj->ot_depth = 0;
-        func_80130768(obj, obj->table_index - 0x80, data_800212ac_slot01);
+        set_sequence_from_table_5(obj, obj->table_index - 0x80, data_800212ac_slot01);
     } else {
         obj->field_01 = 0;
         obj->field_0c = 0;
         obj->ot_depth = 3;
-        func_80130768(obj, 0, (SequenceStep **)((ObjectWords *)obj)->word_58);
-        func_80012f60_slot01(obj, (Poly28 *)data_800319b8_slot01, (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));
-        func_80012f60_slot01(obj, (Poly28 *)(data_800319b8_slot01 + 0xf0), (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));
-        func_80012d08_slot01(obj);
+        set_sequence_from_table_5(obj, 0, (SequenceStep **)((ObjectWords *)obj)->word_58);
+        init_poly_ft4_run_with_tpage_clut_slot01(obj, (Poly28 *)data_800319b8_slot01, (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));
+        init_poly_ft4_run_with_tpage_clut_slot01(obj, (Poly28 *)(data_800319b8_slot01 + 0xf0), (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));
+        update_or_draw_sprite_set_slot01(obj);
     }
 }

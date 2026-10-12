@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b38d0_slot04_02(Object *obj) {
+void update_delayed_launch_fall_and_land_slot04_02(Object *obj) {
     s16 t = obj->countdown;
     int n;
 
@@ -23,7 +23,7 @@ void func_801b38d0_slot04_02(Object *obj) {
         } else {
             update_sequence(obj);
         }
-    } else if ((u8)func_80130184(obj) != 0) {
+    } else if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         if ((s16)obj->step_flags < 0) {
             obj->active_flag_3 = 0;
             obj->state_3 = obj->state_3 + 1;
@@ -35,11 +35,11 @@ void func_801b38d0_slot04_02(Object *obj) {
         obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         n = 0x39;
         if (obj->variant_index == 1) {
             n = 0x38;
         }
-        func_801307e0(obj, n);
+        set_sequence_by_side_and_mode(obj, n);
     }
 }

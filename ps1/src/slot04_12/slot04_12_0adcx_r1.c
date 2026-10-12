@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 /* functions of other units of this module */
-void func_801b0adc_slot04_12(Object *obj);
+void init_jump_velocity_by_screen_position_slot04_12(Object *obj);
 
-void func_801b0adc_slot04_12(Object *obj) {
+void init_jump_velocity_by_screen_position_slot04_12(Object *obj) {
     int vel;
     int acc;
     u16 lx;

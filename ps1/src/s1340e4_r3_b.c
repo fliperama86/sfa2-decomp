@@ -5,14 +5,14 @@
 
 
 
-void func_80136290(void) {
+void call_kind_handler_and_copy_fields_b(void) {
     data_80172410[game_state.kind_index](&data_801aa5d4);
     data_801aa5fe = data_801aa5f6;
     data_801aa602 = data_801aa5fa;
 }
 
 void func_801362f4(Sprite *sprite) {
-    func_80136404(sprite, 0x1c0, 0);
+    init_sprite_position_wide(sprite, 0x1c0, 0);
     if (sprite->pending != 0) {
         sprite->pending = 0;
         sprite->count++;
@@ -20,17 +20,17 @@ void func_801362f4(Sprite *sprite) {
     }
 }
 
-void func_8013635c(Sprite *sprite) {
-    func_80136404(sprite, 0x1c0, 0);
+void init_sprite_3ff_and_count_pending(Sprite *sprite) {
+    init_sprite_position_wide(sprite, 0x1c0, 0);
     if (sprite->pending != 0) {
         sprite->pending = 0;
         sprite->count++;
     }
 }
 
-void func_801363ac(Sprite *sprite) {
+void update_camera_if_active(Sprite *sprite) {
     if (sprite->active_flag != 0 && game_state.side_bits_2 == 0) {
-        func_801364a0(sprite);
-        func_80136744(sprite);
+        update_camera_x_from_player_span(sprite);
+        update_cam_y_toward_players(sprite);
     }
 }

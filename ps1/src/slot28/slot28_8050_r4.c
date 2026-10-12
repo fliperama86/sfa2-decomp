@@ -10,12 +10,12 @@ extern u8 data_80032a64_slot28[];
 extern u8 data_80032ec8_slot28[];
 extern SequenceStep *data_80034530_slot28[];
 
-void func_800185d0_slot28(Object *o) {
+void spawn_two_objects_when_sequence_ends_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     Object *b = data_8005198c_slot28.p;
     if ((s16)b->step_flags < 0) {
         data_8018f5a0->pass_index++;
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;
             b->field_02 = 0x20;
@@ -31,10 +31,10 @@ void func_800185d0_slot28(Object *o) {
             b->image_row = 0;
             b->ot_depth = 2;
             b->field_6b = 0;
-            func_80130768(b, 0xa, data_80034530_slot28);
+            set_sequence_from_table_5(b, 0xa, data_80034530_slot28);
             data_80051964_slot28.p = b;
         }
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;
             b->field_02 = 0x20;
@@ -49,7 +49,7 @@ void func_800185d0_slot28(Object *o) {
             b->field_01 = 1;
             b->image_row = 0;
             b->ot_depth = 2;
-            func_80130768(b, 0xa, data_80034530_slot28);
+            set_sequence_from_table_5(b, 0xa, data_80034530_slot28);
             data_80051968_slot28.p = b;
         }
         play_sound_at(0, obj->side, 0x300);

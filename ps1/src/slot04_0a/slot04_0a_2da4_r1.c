@@ -5,14 +5,14 @@
 
 extern s8 data_801c0424_slot04_0a[][21];
 
-void func_801b2da4_slot04_0a(Object *obj) {
+void start_jump_toward_other_b_slot04_0a(Object *obj) {
     Object *o;
     int t;
 
     obj->state_3++;
     obj->active_flag = 0;
-    func_80141f28(obj, 6);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 6);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     o = obj->other;
     t = *(s32 *)&o->pos_x_frac - *(s32 *)&obj->pos_x_frac;
     obj->vel_y = 0x60000;
@@ -34,8 +34,8 @@ void func_801b2da4_slot04_0a(Object *obj) {
     t >>= 5;
     obj->vel_y = obj->vel_y + t;
     if (obj->field_49 != 0) {
-        func_801307e0(obj, 0x55);
+        set_sequence_by_side_and_mode(obj, 0x55);
     } else {
-        func_801307e0(obj, 0x54);
+        set_sequence_by_side_and_mode(obj, 0x54);
     }
 }

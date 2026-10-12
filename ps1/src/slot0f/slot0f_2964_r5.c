@@ -6,7 +6,7 @@
 extern s8 data_800f8558_slot0f;
 extern Slot0fRec9540 data_800e9600_slot0f[];
 
-void func_800e2cdc_slot0f(void) {
+void update_eight_step_bar_selection_second_slot0f(void) {
     s8 *p;
     s8 *q;
     int i;
@@ -35,7 +35,7 @@ extern u8 data_800f855a_slot0f;
 extern Slot0fRec94ec data_800e951c_slot0f[];
 extern Slot0fRec94ec *data_800e96a8_slot0f;
 
-void func_800e2dcc_slot0f(void) {
+void toggle_two_option_selection_slot0f(void) {
     u8 *p;
     if ((data_801a696a | data_801a6976) & 0xa000) {
         p = &data_800f855a_slot0f;

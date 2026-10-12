@@ -6,11 +6,11 @@
 /* The form of func_801b5c6c_slot04_09 of a character file, with two other
    constants, another source field for the last byte, and without the byte
    that one clears. */
-void func_80078d78_slot00(Object *o) {
+void spawn_child_object_every_8_frames_slot00(Object *o) {
     Object *p;
     u16 y;
     if ((game_state.frame_counter & 7) == 0) {
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0xb;

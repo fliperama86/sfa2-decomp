@@ -6,7 +6,7 @@
 /*
  * What it does (inferred, not original names): steps one numbered slot of
  * an object. It decrements the slot's timer; when that reaches 0 it
- * calls func_8013f2a8 and returns. Otherwise it takes the table entry
+ * calls reset_slot_stage_clear_result and returns. Otherwise it takes the table entry
  * table_8017a8cc[arg * 7 + slot.entry_index], the object's two input halfwords
  * ORed together (pad) and the pad's low two bits (dir), and matches the
  * entry's mask (its low byte). Entry bit 0x200 clear: a hit when pad and
@@ -14,9 +14,9 @@
  * a bit of 0x68 and dir is 2. Entry bit 0x200 set: with m = pad & mask, a
  * hit when entry bit 0x100 is set and (m is 0x94 or dir is 1), or else when
  * entry bit 0x800 is set and (m is 0x68 or dir is 2). A hit calls
- * func_8013f2d8, anything else func_8013f2c8.
+ * reset_slot_stage_set_result, anything else func_8013f2c8.
  */
-void func_8013e028(Object *object, u8 index, u8 arg) {
+void check_slot_input_by_entry_index(Object *object, u8 index, u8 arg) {
     u16 mask;
     u16 entry;
     u16 pad;
@@ -24,7 +24,7 @@ void func_8013e028(Object *object, u8 index, u8 arg) {
 
     object->slots[index].timer--;
     if (object->slots[index].timer == 0) {
-        func_8013f2a8(object, index, arg);
+        reset_slot_stage_clear_result(object, index, arg);
         return;
     }
     mask = table_8017a8cc[arg * 7 + object->slots[index].entry_index];
@@ -38,13 +38,13 @@ void func_8013e028(Object *object, u8 index, u8 arg) {
        this function differs from the original in 14 to 35 instruction lines. */
     if (!(entry & 0x200)) {
         if (pad & mask & 0xfc)
-            func_8013f2d8(object, index, arg);
+            reset_slot_stage_set_result(object, index, arg);
         else if ((mask & 0x94) && dir == 1)
-            func_8013f2d8(object, index, arg);
+            reset_slot_stage_set_result(object, index, arg);
         /* 0x868 as in the original: mask has 8 bits, so 0x68 selects the same bits, but with 0x68 this
            function differs from the original in 1 instruction line. */
         else if ((mask & 0x868) && dir == 2)
-            func_8013f2d8(object, index, arg);
+            reset_slot_stage_set_result(object, index, arg);
         else
             func_8013f2c8(object);
         return;
@@ -53,15 +53,15 @@ void func_8013e028(Object *object, u8 index, u8 arg) {
        from the original in 1 instruction line. */
     mask &= pad & 0xff;
     if ((entry & 0x100) && mask == 0x94)
-        func_8013f2d8(object, index, arg);
+        reset_slot_stage_set_result(object, index, arg);
     else if ((entry & 0x100) && dir == 1)
-        func_8013f2d8(object, index, arg);
+        reset_slot_stage_set_result(object, index, arg);
     else if (!(entry & 0x800))
         func_8013f2c8(object);
     else if (mask == 0x68)
-        func_8013f2d8(object, index, arg);
+        reset_slot_stage_set_result(object, index, arg);
     else if (dir == 2)
-        func_8013f2d8(object, index, arg);
+        reset_slot_stage_set_result(object, index, arg);
     else
         func_8013f2c8(object);
 }

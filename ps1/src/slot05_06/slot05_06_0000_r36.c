@@ -4,21 +4,21 @@
 #include "../externs.h"
 
 extern ObjectFn data_801dd414_slot05_06[];
-void func_801cc814_slot05_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
 
 void func_801cae28_slot05_06(Object *obj) {
     data_801dd414_slot05_06[obj->state_3](obj);
 }
 
-void func_801cae68_slot05_06(Object *obj) {
+void call_effect_on_step_flag_byte_slot05_06(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
-        func_80146998(obj);
+        spawn_offset_effect_and_play_sounds(obj);
         obj->state_3++;
     }
     update_sequence(obj);
 }
 
-void func_801caebc_slot05_06(Object *obj) {
+void wait_step_flag_then_start_slide_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
@@ -29,16 +29,16 @@ void func_801caebc_slot05_06(Object *obj) {
         obj->step_limit = 0;
         obj->accel_x = 0xffff0000;
         obj->state_3++;
-        func_801307e0(obj, 0x3a);
+        set_sequence_by_side_and_mode(obj, 0x3a);
     }
 }
 
-void func_801caf24_slot05_06(Object *obj) {
+void slide_until_flag_2_or_vel_x_negative_slot05_06(Object *obj) {
     u8 t = obj->step_flags;
 
     if (t != 0) {
         if (t != 2 && obj->vel_x >= 0) {
-            func_801cc814_slot05_06(obj);
+            move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
             update_sequence(obj);
         } else {
             obj->accel_x = -0x6000;

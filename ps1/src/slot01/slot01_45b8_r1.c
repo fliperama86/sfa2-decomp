@@ -5,12 +5,12 @@
 
 extern ObjectFn data_80015ce0_slot01[];
 
-void func_800145b8_slot01(Object *object) {
+void call_handler_by_state_1_slot01_slot01(Object *object) {
     data_80015ce0_slot01[object->state_1](object);
     func_8011ffdc(object);
 }
 
-void func_8001460c_slot01(Object *obj) {
+void slide_pos_x_left_with_countdown_slot01(Object *obj) {
     if (game_state.status_flags != 0) {
         obj->pos_x = obj->health;
         obj->state_0++;
@@ -27,7 +27,7 @@ void func_8001460c_slot01(Object *obj) {
     }
 }
 
-void func_80014690_slot01(Object *obj) {
+void slide_pos_x_right_to_health_slot01(Object *obj) {
     if (game_state.status_flags != 0) {
         obj->pos_x = obj->health;
         obj->state_0++;

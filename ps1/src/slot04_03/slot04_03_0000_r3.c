@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b038c_slot04_03(Object *obj) {
+void update_directional_move_start_a_slot04_03(Object *obj) {
     int one = 1;
 
     obj->active_flag_3 = one;
@@ -16,13 +16,13 @@ void func_801b038c_slot04_03(Object *obj) {
             obj->state_3 = 0;
             obj->input_dir_0 = 0;
         } else if (obj->direction_index == 4 && (obj->input_bits_2 & 0x8000) != 0) {
-            func_80141f28(obj, 2);
-            func_80130ec0(obj);
-            func_801307e0(obj, 0x1b);
+            add_to_meter_clamped(obj, 2);
+            reset_direction_and_action_fields(obj);
+            set_sequence_by_side_and_mode(obj, 0x1b);
         } else {
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     } else {
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

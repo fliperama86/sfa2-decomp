@@ -3,24 +3,24 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013bbc4(void) {
+void choose_pair_handler_second_inactive(void) {
     Object *tmp;
     if (ref_second.p->active_flag_2 == 0 && ref_third.p->active_flag_2 != 0) {
-        func_8013b824();
+        damage_second_and_third_objects();
     } else {
         tmp = ref_second.p;
         ref_second.p = ref_third.p;
         ref_third.p = tmp;
-        func_8013b9e0();
+        link_second_object_to_third_parent();
         tmp = ref_second.p;
         ref_second.p = ref_third.p;
         ref_third.p = tmp;
     }
 }
 
-void func_8013bc64(void) {
+void choose_pair_response_third_to_state_2(void) {
     if (ref_third.p->active_flag_2 != 0 || ref_second.p->active_flag_2 == 0) {
-        func_8013b9e0();
+        link_second_object_to_third_parent();
     } else {
         ref_third.p->active_count = ref_third.p->active_count + 1;
         ref_third.p->state_0 = 2;

@@ -6,8 +6,8 @@
 extern u8 data_80026a94_slot27[];
 extern s16 data_80026a9c_slot27[];
 extern s16 data_80026a9e_slot27[];
-void func_80013b74_slot27(Object *obj);
-void func_80013930_slot27(Object *obj);
+void load_palette_anim_from_table_index_slot27(Object *obj);
+void set_side_bit_in_pass_index_slot27(Object *obj);
 
 void func_80013198_slot27(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
@@ -43,12 +43,12 @@ void func_80013198_slot27(Object *obj) {
             obj->y_offset = *(u16 *)t;
             *t = 6;
             *t = ref_other.p->field_d8 + 6;
-            func_80013b74_slot27(obj);
+            load_palette_anim_from_table_index_slot27(obj);
         } else {
             obj->sound_side = 0;
             obj->state_2 = obj->state_2 + 2;
             ref_second.p = ref_other.p;
-            ref_other.p = (Object *)func_8011f1e0();
+            ref_other.p = (Object *)pop_block_from_pool();
             if (ref_other.p != 0) {
                 ref_other.p->active_count = ref_other.p->active_count + 1;
                 ref_other.p->field_02 = 0x22;
@@ -61,7 +61,7 @@ void func_80013198_slot27(Object *obj) {
             p = obj->other;
             *t = 8;
             ref_other.p = p;
-            func_80013b74_slot27(obj);
+            load_palette_anim_from_table_index_slot27(obj);
             *t = ref_other.p->side * 2;
             data_80190464[0] = data_80026a9c_slot27[data_8019045c[0]];
             data_8019046c[0] = data_80026a9e_slot27[data_8019045c[0]];
@@ -76,6 +76,6 @@ void func_80013198_slot27(Object *obj) {
         obj->state_2 = 0;
         obj->state_1 = obj->state_1 + 1;
         data_8019045c[0] = 0;
-        func_80013930_slot27(obj);
+        set_side_bit_in_pass_index_slot27(obj);
     }
 }

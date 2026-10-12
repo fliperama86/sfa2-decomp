@@ -11,7 +11,7 @@ void func_801b20e0_slot04_08(Object *obj) {
         obj->facing_side = obj->facing_side ^ 1;
         p = obj->other;
         p->field_15b = 1;
-        func_80140770(obj, 2, 0xf, -0x200, 0xf, 0, 0);
+        set_other_hit_reaction_state_0(obj, 2, 0xf, -0x200, 0xf, 0, 0);
         if ((s16)p->health < 0) {
             obj->field_167 = 2;
             if (obj->field_49 != 0) {
@@ -29,7 +29,7 @@ void func_801b20e0_slot04_08(Object *obj) {
     }
 }
 
-void func_801b21c8_slot04_08(Object *obj) {
+void fall_to_ground_then_set_landing_sequence_slot04_08(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac + obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
@@ -37,7 +37,7 @@ void func_801b21c8_slot04_08(Object *obj) {
         obj->pos_y = obj->ground_y;
         obj->active_state = 0;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         obj->state_3 = obj->state_3 + 1;
         set_sequence_by_side(obj, 0x11);
     } else {

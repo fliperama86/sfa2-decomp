@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80028514_slot28(Object *obj) {
+void clear_fields_and_set_sequence_3_slot28(Object *obj) {
     obj->field_01 = 0;
     obj->field_0e = 0;
     obj->field_0c = 0;
@@ -11,10 +11,10 @@ void func_80028514_slot28(Object *obj) {
     obj->variant_index = 0;
     obj->field_01 = 0;
     obj->state_0 = obj->state_0 + 1;
-    func_80130768(obj, 3, (SequenceStep **)obj->box_tables);
+    set_sequence_from_table_5(obj, 3, (SequenceStep **)obj->box_tables);
 }
 
-void func_8002855c_slot28(Object *obj) {
+void limit_pos_y_and_advance_sequence_checked_slot28(Object *obj) {
     if (obj->pos_y < 0x201) {
         obj->field_01 = 1;
     }

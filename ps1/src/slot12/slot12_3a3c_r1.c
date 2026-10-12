@@ -5,7 +5,7 @@
 
 extern u16 data_8002317c_slot12[];
 
-void func_80013a3c_slot12(Object *obj) {
+void copy_rank_palette_to_two_buffers_slot12(Object *obj) {
     int a;
     int b;
     int i;

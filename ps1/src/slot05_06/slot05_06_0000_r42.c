@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cc814_slot05_06(Object *object);
-void func_801cc84c_slot05_06(Object *object);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *object);
+void apply_vertical_velocity_slot05_06(Object *object);
 
-void func_801cb8cc_slot05_06(Object *o) {
+void launch_other_and_start_knockback_jump_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *other;
     GameState *g = &game_state;
@@ -17,9 +17,9 @@ void func_801cb8cc_slot05_06(Object *o) {
         other = o->other;
         other->field_15b = 1;
         if (obj->table_value < 2 || (obj->table_value & 0x80)) {
-            func_80140770(o, 0, 0xc, 3, 0, 0, 0);
+            set_other_hit_reaction_state_0(o, 0, 0xc, 3, 0, 0, 0);
         } else {
-            func_80140770(o, 0, 0xa, 3, 0, 0, 0);
+            set_other_hit_reaction_state_0(o, 0, 0xa, 3, 0, 0, 0);
         }
         if ((s16)other->health < 0) {
             o->field_167 = 2;
@@ -27,7 +27,7 @@ void func_801cb8cc_slot05_06(Object *o) {
                 o->field_167 = 0x16;
                 o->field_255 = 6;
                 g->spawn_kind = 0;
-                func_80147000(o);
+                spawn_game_state_kind_object(o);
             }
         }
         other->step_applied_flag = 0;
@@ -37,19 +37,19 @@ void func_801cb8cc_slot05_06(Object *o) {
         o->accel_x = 0;
         o->active_state = 1;
         o->state_3++;
-        func_801307e0(o, 0x26);
+        set_sequence_by_side_and_mode(o, 0x26);
     }
 }
 
-void func_801cb9fc_slot05_06(Object *obj) {
-    func_801cc84c_slot05_06(obj);
+void update_air_motion_or_land_inclusive_slot05_06(Object *obj) {
+    apply_vertical_velocity_slot05_06(obj);
     if (obj->pos_y <= obj->ground_y) {
-        func_801cc814_slot05_06(obj);
+        move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
     } else {
         obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         obj->active_flag_4 = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

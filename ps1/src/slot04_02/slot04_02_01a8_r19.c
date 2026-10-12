@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1f10_slot04_02(Object *obj) {
+void update_sequence_with_high_byte_countdown_slot04_02(Object *obj) {
     s16 t;
 
     if (!((s16)obj->step_flags & 0x8000)) {
@@ -13,13 +13,13 @@ void func_801b1f10_slot04_02(Object *obj) {
             obj->countdown = t;
             if (!(t & 0xff00)) {
                 obj->active_flag_4 = 0;
-                func_80142adc(obj);
+                start_action_if_buttons_pressed(obj);
             }
         } else {
-            func_80142adc(obj);
+            start_action_if_buttons_pressed(obj);
         }
         update_sequence(obj);
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

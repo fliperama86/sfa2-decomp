@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b2f58_slot04_0e(Object *obj);
-void func_801b3284_slot04_0e(Object *obj);
+void set_direction_bytes_from_byte_pair_slot04_0e(Object *obj);
 
 void func_801b2f58_slot04_0e(Object *obj) {
     obj->state_3 = 6;
@@ -12,15 +12,15 @@ void func_801b2f58_slot04_0e(Object *obj) {
     obj->pos_y_frac = 0;
     obj->active_flag_4 = 0;
     obj->pos_y = (u16)obj->ground_y;
-    func_801209c4(obj);
-    func_801307e0(obj, 0x30);
+    play_object_sound_by_kind(obj);
+    set_sequence_by_side_and_mode(obj, 0x30);
 }
 
-void func_801b2fa8_slot04_0e(Object *o) {
+void update_sequence_then_launch_jump_on_end_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if (obj->state_flag == 0) {
-        func_801b3284_slot04_0e(o);
+        set_direction_bytes_from_byte_pair_slot04_0e(o);
     }
     if ((s16)o->step_flags >= 0) {
         update_sequence(o);
@@ -33,6 +33,6 @@ void func_801b2fa8_slot04_0e(Object *o) {
         if (o->facing_side == 0) {
             o->vel_x = -o->vel_x;
         }
-        func_801307e0(o, 0x2f);
+        set_sequence_by_side_and_mode(o, 0x2f);
     }
 }

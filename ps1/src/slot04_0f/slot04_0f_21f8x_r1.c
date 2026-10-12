@@ -21,7 +21,7 @@ extern s16 data_801c5ae4_slot04_0f[];
    for that reason: the second is used as a local (its incoming value is not
    read), the third is the value read. On another machine than the console
    the low 12 bits of vel_x are not defined by this text. */
-void func_801b21f8_slot04_0f(Object *o, int a, int pos) {
+void set_vel_x_toward_table_offset_target_slot04_0f(Object *o, int a, int pos) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int d;
     int index;

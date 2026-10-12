@@ -8,11 +8,11 @@ extern u8 data_80019dcc_slot01[];
 extern SequenceStep *data_80024330_slot01[];
 extern GameState *data_80015a4c_slot01;
 extern void (*data_80015a64_slot01[])(Object *obj);
-void func_80013a24_slot01(Object *obj);
-void func_80013a2c_slot01(Object *obj);
-void func_80013ac0_slot01(Object *obj);
+void noop_slot00_2_slot01(Object *obj);
+void set_scroll_origin_from_tables_slot01(Object *obj);
+void spawn_three_linked_objects_slot01(Object *obj);
 
-void func_80013734_slot01(Object *obj) {
+void init_object_by_table_index_slot01(Object *obj) {
     obj->field_01 = 1;
     obj->field_0c = 1;
     obj->ot_depth = 0x10;
@@ -23,20 +23,20 @@ void func_80013734_slot01(Object *obj) {
     obj->field_90 = (void *)0x8006d478;
     obj->state_0++;
     if (obj->table_index == 0) {
-        func_80013a2c_slot01(obj);
-        func_80013ac0_slot01(obj);
-        func_80130768(obj, 0, data_80024330_slot01);
+        set_scroll_origin_from_tables_slot01(obj);
+        spawn_three_linked_objects_slot01(obj);
+        set_sequence_from_table_5(obj, 0, data_80024330_slot01);
     } else if (obj->table_index == 1) {
-        func_80013a2c_slot01(obj);
+        set_scroll_origin_from_tables_slot01(obj);
         obj->state_0 = 2;
         obj->pos_x = data_80015a4c_slot01->field_d2;
         obj->pos_y = data_80015a4c_slot01->field_d4;
-        func_80013a24_slot01(obj);
-        func_80013ac0_slot01(obj);
-        func_80130768(obj, 1, data_80024330_slot01);
+        noop_slot00_2_slot01(obj);
+        spawn_three_linked_objects_slot01(obj);
+        set_sequence_from_table_5(obj, 1, data_80024330_slot01);
     } else if (obj->table_index >= 2) {
         obj->state_0 = 4;
-        func_80130768(obj, obj->table_index, data_80024330_slot01);
+        set_sequence_from_table_5(obj, obj->table_index, data_80024330_slot01);
     }
 }
 

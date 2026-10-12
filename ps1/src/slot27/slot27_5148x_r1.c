@@ -5,7 +5,7 @@
 
 extern SequenceStep **data_800282e8_slot27[];
 
-void func_80015148_slot27(Object *obj) {
+void update_sequence_on_active_state_change_slot27(Object *obj) {
     int *p = data_8019045c;
     int idx;
     *p = obj->field_62;
@@ -16,6 +16,6 @@ void func_80015148_slot27(Object *obj) {
         *p = *p * 2;
         idx = obj->table_index + *p;
         *p = idx;
-        func_80130768(obj, idx, data_800282e8_slot27[(*(Config **)&data_80190458)->table_index]);
+        set_sequence_from_table_5(obj, idx, data_800282e8_slot27[(*(Config **)&data_80190458)->table_index]);
     }
 }

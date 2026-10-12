@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80121a64(Object *object) {
+void count_down_or_skip_to_next_step_2(Object *object) {
     if ((u8)func_80125268() != 0) {
         data_8018f5a0->step_index_2 += 2;
         object->phase_state = 1;
@@ -25,40 +25,40 @@ void func_80121b00(Object *object) {
     func_80125dc0(1, 0x20, 0x10, 0);
     func_80125dc0(2, 0x20, 0x10, 0);
     func_80125dc0(3, 0x20, 0x10, 0);
-    func_80137220(0, 6);
-    func_80137220(1, 0);
-    func_80137220(2, 1);
-    func_80137220(3, 2);
+    queue_image_upload_job(0, 6);
+    queue_image_upload_job(1, 0);
+    queue_image_upload_job(2, 1);
+    queue_image_upload_job(3, 2);
 }
 
-void func_80121bc0(Object *object) {
+void advance_step_when_countdown_expires(Object *object) {
     int n;
     if ((u8)func_80125268() != 0 || (n = data_8018f5a0->countdown_timer - 1, data_8018f5a0->countdown_timer = n, (s16)n < 0)) {
         data_8018f5a0->step_index_2++;
         data_80190a40 = 1;
-        func_801373e8();
+        fill_row_columns_white_once();
         object->phase_state = 1;
     }
 }
 
 void func_80121c4c(Object *unused) {
     data_8018f5a0->step_index_2++;
-    func_801374c0();
-    func_80137564();
+    restore_rows_from_backup_rows();
+    clear_row_columns_once_and_update_jobs();
 }
 
 void func_80121c88(Object *object) {
     data_8018f5a0->step_index_2++;
     data_80190a40 = 0;
-    func_801374c0();
+    restore_rows_from_backup_rows();
     data_8018f5a0->countdown_timer = 0x78;
     object->team_id = 0;
 }
 
-void func_80121ce0(Object *object) {
+void wait_countdown_then_set_phase_state_2(Object *object) {
     int n;
     if ((u8)func_80125268() != 0) {
-        func_8014f4d4(6, 3);
+        set_menu_command_by_code(6, 3);
     }
     if ((u8)func_80125268() != 0 || (n = data_8018f5a0->countdown_timer - 1, data_8018f5a0->countdown_timer = n, (s16)n < 0)) {
         data_8018f5a0->step_index_2++;

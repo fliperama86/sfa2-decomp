@@ -3,10 +3,10 @@
 #include "protos.h"
 #include "externs.h"
 
-u8 func_8012faf8(Object *object);
+u8 check_condition_with_other(Object *object);
 
-/* What it does (inferred, not original names): looks through the 16 units of the table units_2c20 for one that is near the given object and belongs to the other side. A unit qualifies when its active is not 0, bit 0x80 of its status_flags is clear, its team_id differs from the object's, and the 16-bit horizontal distance between its pos_x and the object's pos_x is less than 0x50. The cursor ref_other.p walks the table, 0xc0 bytes per step. For a qualifying unit: if the object's input_word has bit 0x2000 set, field_24e and field_251 of the object are set to 1 when its field_d8 is not 0; if the bit is clear, the unit is passed over when field_d8 is 0 and field_24e and field_251 are set to 1 otherwise. Then data_80186000 is set to 1 and the function returns. After 16 units without a hit data_80186000 is set to the result of func_8012faf8(object). */
-void func_8012f9b0(Object *object)
+/* What it does (inferred, not original names): looks through the 16 units of the table units_2c20 for one that is near the given object and belongs to the other side. A unit qualifies when its active is not 0, bit 0x80 of its status_flags is clear, its team_id differs from the object's, and the 16-bit horizontal distance between its pos_x and the object's pos_x is less than 0x50. The cursor ref_other.p walks the table, 0xc0 bytes per step. For a qualifying unit: if the object's input_word has bit 0x2000 set, field_24e and field_251 of the object are set to 1 when its field_d8 is not 0; if the bit is clear, the unit is passed over when field_d8 is 0 and field_24e and field_251 are set to 1 otherwise. Then data_80186000 is set to 1 and the function returns. After 16 units without a hit data_80186000 is set to the result of check_condition_with_other(object). */
+void find_nearby_enemy_unit_set_flag(Object *object)
 {
     s16 i;
     /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. With 15 written at its use this function differs from the original in 5 instruction slots. */
@@ -63,5 +63,5 @@ next:
         if (i > limit)
             break;
     }
-    data_80186000 = func_8012faf8(object);
+    data_80186000 = check_condition_with_other(object);
 }

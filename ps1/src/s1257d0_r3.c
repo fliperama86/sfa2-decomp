@@ -4,6 +4,6 @@
 #include "protos.h"
 
 
-int func_80125afc(u8 index) {
+int get_table_entry(u8 index) {
     return data_8016f508[index];
 }

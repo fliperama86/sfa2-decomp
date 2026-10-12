@@ -9,13 +9,13 @@ void func_801b3d2c_slot04_08(Object *obj) {
 
     if (t & 0x8000) {
         obj->active_flag_4 = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if (t & 0xff) {
             o = obj->other;
             o->field_15b = 1;
             obj->step_flags = obj->step_flags & 0xff00;
-            func_80140770(obj, 2, 0xf, -0x200, 0, 1, 0);
+            set_other_hit_reaction_state_0(obj, 2, 0xf, -0x200, 0, 1, 0);
             if ((s16)o->health < 0) {
                 obj->field_167 = 2;
                 if (obj->field_49 != 0) {

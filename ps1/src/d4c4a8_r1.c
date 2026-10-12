@@ -3,14 +3,14 @@
 #include "protos.h"
 #include "externs.h"
 
-/* The same distance as func_8014362c, for the object's partner (object->other)
+/* The same distance as set_compare_limit_from_box_distance, for the object's partner (object->other)
    and a box chosen by the animation frame of the object that ref_second points
    at (inferred). The result goes to the global data_80189464. The partner's
    facing_side selects the mirrored arm. The distance: the object's x minus the sum
    of the partner's x and the box half-width (origin minus the extent byte,
    negated when the partner's facing_side is non-zero), as a 16-bit number made
    positive. */
-void func_8014c4a8(Object *object) {
+void store_box_distance_to_other_x(Object *object) {
     Box6 *box;
     Object *other;
     int i;

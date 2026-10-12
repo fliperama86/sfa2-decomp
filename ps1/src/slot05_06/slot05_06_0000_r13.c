@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 int func_801c904c_slot05_06(Object *obj) {
-    if (!(u8)func_80141c4c(obj)) return 0;
+    if (!(u8)is_state_01010101_and_ready(obj)) return 0;
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;
@@ -15,9 +15,9 @@ int func_801c904c_slot05_06(Object *obj) {
     return 1;
 }
 
-int func_801c90b4_slot05_06(Object *obj) {
+int try_enter_state_7_kind_7_slot05_06(Object *obj) {
     if (obj->field_7e != 0 || obj->remaining_count != 0) {
-        if (func_801417cc(obj) != 0) {
+        if (try_action_clearing_both_flags(obj) != 0) {
             obj->state_0 = 1;
             obj->state_1 = 0;
             obj->state_2 = 7;

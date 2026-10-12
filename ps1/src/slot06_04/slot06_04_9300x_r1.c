@@ -5,10 +5,10 @@
 
 extern u16 data_80190542;
 
-void func_801e9300_slot06_04(Slot06Layer *layer);
-void func_801e93c8_slot06_04(Slot06Layer *layer);
+void scroll_layer_left_and_update_offsets_slot06_04(Slot06Layer *layer);
+void set_layer_flags_and_timer_from_table_slot06_04(Slot06Layer *layer);
 
-void func_801e9300_slot06_04(Slot06Layer *layer) {
+void scroll_layer_left_and_update_offsets_slot06_04(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 
@@ -17,7 +17,7 @@ void func_801e9300_slot06_04(Slot06Layer *layer) {
         layer->countdown_timer -= 1;
         if (layer->countdown_timer == 0) {
             layer->table_index = (layer->table_index + 2) & 0xe;
-            func_801e93c8_slot06_04(layer);
+            set_layer_flags_and_timer_from_table_slot06_04(layer);
         }
     }
     l2 = (Slot06Layer *)data_801aa5d4;

@@ -6,7 +6,7 @@
 
 
 
-void func_8012ebfc(Object *object) {
+void call_state_2_handler_1a90_then_bound_x(Object *object) {
     handlers_1a90[object->state_2](object);
-    func_80130b10(object);
+    clamp_pos_x_to_bounds_and_push_other(object);
 }

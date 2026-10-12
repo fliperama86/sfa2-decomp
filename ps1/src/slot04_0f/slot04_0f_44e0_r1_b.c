@@ -6,10 +6,10 @@
 extern s16 data_801c54dc_slot04_0f[];
 extern ObjectFn data_801c5e38_slot04_0f[];
 
-void func_801b4d10_slot04_0f(void) {
+void noop_empty_function_slot04_0f(void) {
 }
 
-void func_801b4d18_slot04_0f(Object *obj) {
+void play_side_sound_from_step_flag_byte_slot04_0f(Object *obj) {
     u16 t = obj->step_flags;
     u8 k = t;
 
@@ -19,6 +19,6 @@ void func_801b4d18_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b4d68_slot04_0f(Object *obj) {
+void call_handler_by_state_0_slot04_0f(Object *obj) {
     data_801c5e38_slot04_0f[obj->state_0](obj);
 }

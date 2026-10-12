@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80141248(Object *object) {
+void update_gauge_from_pressed_bits(Object *object) {
     if ((ref_other.p->pressed_bits & 0xfc) == 0) {
         object->gauge = object->gauge + 1;
     } else {

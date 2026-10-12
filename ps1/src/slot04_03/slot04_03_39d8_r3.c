@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3c88_slot04_03(Object *obj) {
+void flag_parent_and_move_object_slot04_03(Object *obj) {
     ref_other.p = obj->parent;
     ref_other.p->field_225 = 1;
-    func_80137b64(obj);
+    update_object_motion_unless_paused(obj);
 }

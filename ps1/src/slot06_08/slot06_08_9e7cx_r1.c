@@ -20,5 +20,5 @@ void func_801e9e7c_slot06_08(Object *obj) {
     if (t & 1) obj->state_0 = 2;
     t = 6;
     if (obj->table_index != 0) t = 7;
-    func_80130700(obj, data_801ed480_slot06_08[t]);
+    set_sequence_entry(obj, data_801ed480_slot06_08[t]);
 }

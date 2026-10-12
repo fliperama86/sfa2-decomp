@@ -6,14 +6,14 @@
 
 
 /* Form found by automatic permutation search. */
-void func_801491bc(Object *object)
+void release_object_and_store_player_image(Object *object)
 {
   Object *other = object->parent;
   int index;
   int w;
   int d;
   Object *new_var;
-  func_8011f240(object);
+  reset_and_push_object_to_pool_table(object);
   d = other->field_02;
   new_var = other;
   if (d == 0)
@@ -28,6 +28,6 @@ void func_801491bc(Object *object)
     d = player_right.field_d4;
     w = 0x120;
   }
-  func_80136f10(new_var, index, w, (5 * d) + 0x1e0);
-  func_80137220(0, 6);
+  store_image_rows_to_table(new_var, index, w, (5 * d) + 0x1e0);
+  queue_image_upload_job(0, 6);
 }

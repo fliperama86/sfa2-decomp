@@ -5,7 +5,7 @@
 
 extern Object *data_801c575c_slot04_06;
 extern ObjectFn data_801c55e4_slot04_06[];
-void func_801b6264_slot04_06(Object *obj);
+void add_table_offset_to_position_slot04_06(Object *obj);
 void func_801b6218_slot04_06(Object *obj);
 
 void func_801b60a4_slot04_06(Object *obj) {
@@ -21,12 +21,12 @@ void func_801b60a4_slot04_06(Object *obj) {
     obj->ot_depth = 6;
     obj->facing_side = data_801c575c_slot04_06->facing_side;
     ((Slot04aObj *)obj)->saved_pos_y = ((Slot04aObj *)data_801c575c_slot04_06)->saved_pos_y;
-    func_801b6264_slot04_06(obj);
+    add_table_offset_to_position_slot04_06(obj);
     data_801c55e4_slot04_06[obj->table_index](obj);
     func_801b6218_slot04_06(obj);
 }
 
-void func_801b619c_slot04_06(Object *obj) {
+void set_ot_depth_1_variant_index_0_slot04_06(Object *obj) {
     obj->ot_depth = 1;
     obj->variant_index = 0;
 }

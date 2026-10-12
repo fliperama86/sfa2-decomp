@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80137564(void) {
+void clear_row_columns_once_and_update_jobs(void) {
     s16 i, j, k;
     u16 *p;
 
@@ -20,5 +20,5 @@ void func_80137564(void) {
         data_8018f598 = 1;
         data_8018db10 = data_8018db10 + 1;
     }
-    func_80137b10();
+    queue_five_jobs();
 }

@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b079c_slot04_05(Object *obj) {
+void update_decelerating_slide_or_finish_slot04_05(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if ((t & 0xff) == 0) {
             if (obj->facing_side != 0) {

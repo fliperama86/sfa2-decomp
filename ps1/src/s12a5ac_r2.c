@@ -9,7 +9,7 @@ void func_8012a8dc(Object *object) {
     handler_table_19b0[object->state_3](object);
 }
 
-void func_8012a91c(Object *object) {
+void advance_state_3_and_set_variant_sequence(Object *object) {
     int index;
     if ((s16)object->step_flags >= 0) {
         update_sequence(object);

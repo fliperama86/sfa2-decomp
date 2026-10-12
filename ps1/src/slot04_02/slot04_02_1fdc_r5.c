@@ -3,19 +3,19 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
+void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
 /* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
-void func_801b2660_slot04_02(Object *obj) {
+void update_airborne_spawn_child_or_land_slot04_02(Object *obj) {
     Object *p;
     u16 t;
 
-    if ((u8)func_80130184(obj) == 0) {
+    if ((u8)apply_velocity_and_check_ground(obj) == 0) {
         obj->active_flag_3 = 0;
         obj->active_state = 0;
         obj->pos_y = obj->ground_y;
-        func_801b631c_slot04_02(obj, 1, 0, 3, 2);
-        func_801209c4(obj);
+        set_object_states_0_to_3_slot04_02(obj, 1, 0, 3, 2);
+        play_object_sound_by_kind(obj);
         set_sequence_by_side(obj, 0x11);
     } else {
         update_sequence(obj);

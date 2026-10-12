@@ -5,9 +5,9 @@
 
 extern Object *data_8007ef34_slot2b;
 
-void func_8007893c_slot2b(Object *obj);
-void func_80079208_slot2b(Object *obj);
-void func_80079144_slot2b(Object *obj);
+void set_sequence_from_table_index_entry_slot2b(Object *obj);
+void set_velocity_accel_from_table_slot2b(Object *obj);
+void place_object_at_target_box_offset_slot2b(Object *obj);
 
 void func_80078f8c_slot2b(Object *o) {
     Slot2bObj *obj = (Slot2bObj *)o;
@@ -22,20 +22,20 @@ void func_80078f8c_slot2b(Object *o) {
             d = (get_random_byte() & 0x3f) - 0x20;
             *(u16 *)&o->pos_y -= d;
             o->variant_index = (game_state.field_24 & 1) + 0x51;
-            func_8007893c_slot2b(o);
+            set_sequence_from_table_index_entry_slot2b(o);
             play_side_sound_at(o, data_8007ef34_slot2b->side, 0xf);
         } else {
             o->state_1++;
             obj->countdown_timer = 0x18;
-            func_80079208_slot2b(o);
+            set_velocity_accel_from_table_slot2b(o);
         }
     } else {
-        func_80079144_slot2b(o);
+        place_object_at_target_box_offset_slot2b(o);
         advance_sequence_checked(o);
     }
 }
 
-void func_8007909c_slot2b(Object *obj) {
+void advance_state_or_sequence_on_flag_slot2b(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0++;
     } else {

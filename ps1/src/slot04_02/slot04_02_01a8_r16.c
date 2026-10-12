@@ -5,7 +5,7 @@
 
 void func_801b1cc0_slot04_02(Object *obj);
 
-void func_801b1a3c_slot04_02(Object *o) {
+void update_sequence_set_active_on_flag_slot04_02(Object *o) {
     if (*(u8 *)&o->step_flags == 0) {
         o->active_state = 1;
         o->state_3++;
@@ -30,12 +30,12 @@ void func_801b1a7c_slot04_02(Object *obj) {
         obj->field_49 = 0;
         obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
     }
     update_sequence(obj);
 }
 
-void func_801b1b3c_slot04_02(Object *o) {
+void update_fall_until_landing_or_mode_set_slot04_02(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     s16 y;
 
@@ -51,7 +51,7 @@ void func_801b1b3c_slot04_02(Object *o) {
         o->active_flag_4 = 0;
         o->active_flag_3 = 0;
         o->active_state = 0;
-        func_801209c4(o);
+        play_object_sound_by_kind(o);
     }
     update_sequence(o);
 }

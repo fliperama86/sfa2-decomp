@@ -7,7 +7,7 @@ extern u8 *data_801c2e14_slot04_0b[];
 extern u8 *data_801c2e4c_slot04_0b[];
 extern u8 *data_801c2e90_slot04_0b[];
 
-void func_801b3e88_slot04_0b(Object *o) {
+void select_box_data_pointer_by_health_slot04_0b(Object *o) {
     u8 *v;
 
     if (o->vel_table_index == 0xc) {

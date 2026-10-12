@@ -12,8 +12,8 @@ extern int data_8002121c_slot01[];
 extern void *data_80021170_slot01[];
 extern SequenceStep *data_80021224_slot01[];
 extern Slot01Rec152ec data_800152ec_slot01;
-void func_80011d00_slot01(Object *obj, u8 a);
-void func_80011fe8_slot01(Object *obj, Slot01Rec152ec *a1);
+void set_sequence_from_slot01_table_slot01(Object *obj, u8 a);
+void set_record_cursor_and_spawn_y_slot01(Object *obj, Slot01Rec152ec *a1);
 
 /*
  * Sets up an object as a panel piece (inferred, not an original name). It
@@ -24,7 +24,7 @@ void func_80011fe8_slot01(Object *obj, Slot01Rec152ec *a1);
  * placed at the left margin (table_index not 0) or at the right margin and
  * mirrored when variant_index is not 0 (table_index 0), and records a cursor.
  */
-void func_80011a14_slot01(Object *obj) {
+void init_intro_object_by_table_index_slot01(Object *obj) {
     Object *other = game_state.focus_object;
     int sel;
     int s;
@@ -73,12 +73,12 @@ void func_80011a14_slot01(Object *obj) {
         obj->field_90 = (void *)0x80071668;
         obj->data_ptr_a = data_80021170_slot01[other->kind * 2];
         obj->data_ptr_b = data_80021170_slot01[other->kind * 2 + 1];
-        func_80130768(obj, 0, data_80021224_slot01);
+        set_sequence_from_table_5(obj, 0, data_80021224_slot01);
     } else {
         if (obj->table_index != 0) {
             obj->pos_x = box_margin[0] + 5;
             obj->pos_y = 0x60;
-            func_80011fe8_slot01(obj, &data_800152ec_slot01);
+            set_record_cursor_and_spawn_y_slot01(obj, &data_800152ec_slot01);
         } else {
             obj->pos_x = box_margin[0] + 0x17f;
             obj->pos_y = 0x90;
@@ -91,8 +91,8 @@ void func_80011a14_slot01(Object *obj) {
                 obj->vel_x = -obj->vel_x;
                 obj->accel_x = -obj->accel_x;
             }
-            func_80011fe8_slot01(obj, &data_800152ec_slot01);
+            set_record_cursor_and_spawn_y_slot01(obj, &data_800152ec_slot01);
         }
-        func_80011d00_slot01(obj, 0);
+        set_sequence_from_slot01_table_slot01(obj, 0);
     }
 }

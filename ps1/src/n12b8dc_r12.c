@@ -3,23 +3,23 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013ada4(Object *object) {
+void set_hit_type_7(Object *object) {
     object->hit_type = 7;
     object->field_62 = 2;
     object->field_15b = 1;
 }
 
-void func_8013adc0(Object *object) {
+void set_hit_type_0c_state(Object *object) {
     object->hit_type = 0xc;
     object->field_62 = 2;
     object->field_15b = 1;
 }
 
-void func_8013addc(Object *object) {
+void set_hit_type_0d_state(Object *object) {
     object->hit_type = 0xd;
     object->field_62 = 2;
     object->field_15b = 1;
 }
 
-void func_8013adf8(Object *unused) {
+void noop_object_handler_2(Object *unused) {
 }

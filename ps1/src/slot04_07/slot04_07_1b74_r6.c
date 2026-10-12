@@ -3,32 +3,32 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2994_slot04_07(Object *obj);
-int func_801b23e4_slot04_07(Object *obj);
-void func_801b22bc_slot04_07(Object *obj);
+void move_x_by_facing_with_decel_stop_slot04_07(Object *obj);
+int is_compare_limit_below_threshold_slot04_07(Object *obj);
+void call_handler_by_direction_index_slot04_07(Object *obj);
 
-void func_801b213c_slot04_07(Object *obj) {
+void start_horizontal_dash_slot04_07(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3 = obj->state_3 + 1;
-    func_80141f28(obj, 5);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 5);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     obj->vel_x = 0x80000;
     obj->countdown = 0x1e;
     obj->accel_x = 0;
     obj->vel_y = 0;
     obj->accel_y = 0;
     *(s32 *)&((Slot04aObj *)obj)->field_1c0 = -0x8000;
-    func_801307e0(obj, 0x23);
+    set_sequence_by_side_and_mode(obj, 0x23);
 }
 
-void func_801b21bc_slot04_07(Object *obj) {
-    func_801b2994_slot04_07(obj);
+void update_countdown_dash_or_reset_sequence_slot04_07(Object *obj) {
+    move_x_by_facing_with_decel_stop_slot04_07(obj);
     if (obj->mode_flag_2 == 0) {
         if (obj->pressed_bits & 0x68) {
             goto call_x;
         }
         obj->countdown = (s16)obj->countdown - 1;
-        if ((s16)obj->countdown != 0 && (u16)func_801b23e4_slot04_07(obj) == 0) {
+        if ((s16)obj->countdown != 0 && (u16)is_compare_limit_below_threshold_slot04_07(obj) == 0) {
             goto fail;
         }
 reset:
@@ -38,18 +38,18 @@ reset:
         }
         obj->countdown = 8;
         obj->accel_x = *(s32 *)&((Slot04aObj *)obj)->field_1c0;
-        func_801307e0(obj, 0x24);
+        set_sequence_by_side_and_mode(obj, 0x24);
         return;
     }
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown == 0) {
         goto reset;
     }
-    if ((u16)func_801b23e4_slot04_07(obj) == 0) {
+    if ((u16)is_compare_limit_below_threshold_slot04_07(obj) == 0) {
         goto fail;
     }
 call_x:
-    func_801b22bc_slot04_07(obj);
+    call_handler_by_direction_index_slot04_07(obj);
     return;
 fail:
     update_sequence(obj);

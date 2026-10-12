@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
+void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
 void func_801b0118_slot04_02(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t < 0) {
-        func_801b631c_slot04_02(obj, 1, 0, 0, 0);
+        set_object_states_0_to_3_slot04_02(obj, 1, 0, 0, 0);
         set_sequence_by_side(obj, 0);
     } else {
         if ((t & 0xff) != 0) {

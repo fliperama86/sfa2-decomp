@@ -4,15 +4,15 @@
 #include "protos.h"
 
 
-void func_80143c1c(Object *object) {
+void switch_to_variant_7_or_release_object(Object *object) {
     s16 pos[4] = {0x1ca, 0x25, -0x4a, 0x25};
     if (object->variant_index_2 != 7) {
         if (object->variant_index_2 == 1 || (object->variant_index_2 == 0 && object->field_a4 == 1)) {
             if (object->field_a4 == 1) {
-                func_80144f10(0, 7);
-                func_80144f10(1, 7);
+                spawn_object_with_position_table(0, 7);
+                spawn_object_with_position_table(1, 7);
             }
-            func_8011f240(object);
+            reset_and_push_object_to_pool_table(object);
         } else {
             object->variant_index_2 = 7;
             object->health = 0x2a;
@@ -27,6 +27,6 @@ void func_80143c1c(Object *object) {
         }
     } else {
         game_state.config->mode = 4;
-        func_8011f240(object);
+        reset_and_push_object_to_pool_table(object);
     }
 }

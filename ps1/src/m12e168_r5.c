@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8012f408(Object *o) {
+int start_health_comparison_sequence(Object *o) {
     int a;
     u8 side;
     int k;

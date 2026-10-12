@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 
-void func_80011280_slot27(void) {
+void darken_backup_rows_and_queue_jobs_slot27(void) {
     int set;
     int i;
     int j;
@@ -33,11 +33,11 @@ void func_80011280_slot27(void) {
                 }
             }
         }
-        func_80137220(0, 0);
-        func_80137220(1, 1);
-        func_80137220(2, 2);
-        func_80137220(3, 3);
-        func_80137220(4, 7);
+        queue_image_upload_job(0, 0);
+        queue_image_upload_job(1, 1);
+        queue_image_upload_job(2, 2);
+        queue_image_upload_job(3, 3);
+        queue_image_upload_job(4, 7);
         data_8018db10 = data_8018db10 + 1;
     }
 }

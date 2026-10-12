@@ -4,16 +4,16 @@
 #include "protos.h"
 
 
-void func_801536b8(Effect *effect) {
+void update_effect_count_text_countdown(Effect *effect) {
     u8 t;
     if (effect->target->round_count >= 2) {
-        func_80153514(effect);
+        init_effect_count_text(effect);
         return;
     }
-    func_80153d7c(effect);
+    queue_text_from_table(effect);
     queue_two_digit_number_text(effect);
     if (effect->owner->mode_flag_2 == 0) {
-        func_80153dfc(effect);
+        format_score_text(effect);
     }
     effect->countdown_timer = effect->countdown_timer - 1;
     if (effect->countdown_timer & 0x8000) {
@@ -32,7 +32,7 @@ void func_801536b8(Effect *effect) {
         }
         effect->field_09 = effect->field_09 + 10;
         effect->table_index = effect->field_09;
-        func_80153d7c(effect);
+        queue_text_from_table(effect);
         if (effect->owner->mode_flag_2 == 0) {
             effect->field_09 = effect->current_count;
             if (effect->field_09 >= 100) {
@@ -41,7 +41,7 @@ void func_801536b8(Effect *effect) {
             if (effect->owner->mode_flag_2 == 0) {
                 effect->field_10 = table_80181380[effect->field_09];
                 table_8018049c[effect->side]->field_06 = 0x50;
-                func_80153dfc(effect);
+                format_score_text(effect);
             }
         }
     }

@@ -5,9 +5,9 @@
 
 extern ObjectFn data_8007a11c_slot00[];
 extern ObjectFn data_8007a124_slot00[];
-void func_80078b50_slot00(Object *o);
+void apply_velocity_and_acceleration_slot00(Object *o);
 
-void func_80078964_slot00(Object *obj) {
+void call_handler_by_state_2_slot00(Object *obj) {
     data_8007a11c_slot00[obj->state_2](obj);
 }
 
@@ -17,11 +17,11 @@ void func_800789a4_slot00(Object *obj) {
         obj->countdown = 8;
         obj->state_2++;
     }
-    func_80078b50_slot00(obj);
+    apply_velocity_and_acceleration_slot00(obj);
     advance_sequence_checked(obj);
 }
 
-void func_80078a04_slot00(Object *obj) {
+void blink_active_flag_until_countdown_ends_slot00(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {
         obj->state_0++;
@@ -32,6 +32,6 @@ void func_80078a04_slot00(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_80078a74_slot00(Object *obj) {
+void call_handler_by_state_2_2_slot00(Object *obj) {
     data_8007a124_slot00[obj->state_2](obj);
 }

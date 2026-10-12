@@ -8,7 +8,7 @@ extern u8 data_80019548_slot12[];
 extern SequenceStep *data_8001d4ec_slot12[];
 extern int data_8002d57c_slot12;
 
-void func_80012cdc_slot12(Object *obj) {
+void update_sequence_with_end_flags_slot12(Object *obj) {
     u16 *in = &data_801ae066;
 
     *in = obj->step_flags;

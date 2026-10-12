@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001188c_slot27(Object *obj);
+void copy_side_palette_from_table_and_upload_slot27(Object *obj);
 
-void func_8001175c_slot27(Object *obj) {
+void start_slide_out_and_sync_active_state_slot27(Object *obj) {
     Object *p = obj->other;
     int v;
     int k;
@@ -21,7 +21,7 @@ void func_8001175c_slot27(Object *obj) {
     k = p->field_d4;
     if (k != obj->active_state) {
         obj->active_state = k;
-        func_8001188c_slot27(obj);
+        copy_side_palette_from_table_and_upload_slot27(obj);
     }
     advance_sequence_checked(obj);
 }

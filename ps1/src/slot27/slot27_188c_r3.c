@@ -5,10 +5,10 @@
 
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
-void func_80011a18_slot27(Object *obj);
-void func_80011a64_slot27(void);
-void func_800139a8_slot27(Object *obj);
-void func_80013b74_slot27(Object *obj);
+void clear_object_fields_slot27(Object *obj);
+void clear_side_record_counters_slot27(void);
+void set_sequence_and_position_by_other_kind_slot27(Object *obj);
+void load_palette_anim_from_table_index_slot27(Object *obj);
 
 void func_80011aac_slot27(Object *obj) {
     int *state = (int *)data_8019045c;
@@ -25,8 +25,8 @@ void func_80011aac_slot27(Object *obj) {
     *mask = side;
     if (((u >> side) & 1) != 0) {
         *mask = 1 << ref_other.p->side;
-        func_80011a18_slot27(obj);
-        func_80011a64_slot27();
+        clear_object_fields_slot27(obj);
+        clear_side_record_counters_slot27();
         obj->ot_depth = 4;
         obj->field_90 = (void *)0x80038000;
         obj->data_ptr_a = data_80017c28_slot27;
@@ -55,9 +55,9 @@ void func_80011aac_slot27(Object *obj) {
             }
             obj->table_index = *state;
             obj->countdown = 0x4b0;
-            func_800139a8_slot27(obj);
+            set_sequence_and_position_by_other_kind_slot27(obj);
             ref_first.p = ref_other.p;
-            ref_other.p = func_8011f32c();
+            ref_other.p = pop_object_from_second_pool();
             if (ref_other.p != 0) {
                 ref_other.p->active_count = 1;
                 ref_other.p->field_02 = 0x24;
@@ -67,7 +67,7 @@ void func_80011aac_slot27(Object *obj) {
             }
             ref_other.p = obj->other;
             *state = 0;
-            func_80013b74_slot27(obj);
+            load_palette_anim_from_table_index_slot27(obj);
         } else {
             obj->state_1 += 2;
         }

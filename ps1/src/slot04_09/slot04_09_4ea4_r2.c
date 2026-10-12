@@ -20,22 +20,22 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
     if (f & 2) {
         w->step_flags = f & 0xfffd;
         o->countdown = o->countdown + 0x100;
-        if (func_80140cd8(o, 0, 0) != 0) {
-            func_80140770(o, 0, 0xd, 0, 0, 1, 1);
+        if (apply_damage_to_other_return_defeated(o, 0, 0) != 0) {
+            set_other_hit_reaction_state_0(o, 0, 0xd, 0, 0, 1, 1);
             play_side_sound_at(o, o->side, 0xb);
             func_801b51e0_slot04_09(o);
             return;
         }
     }
-    func_80140fe0(o);
+    update_sequence_by_pressed_bytes(o);
     if (((s16)o->countdown & 0xff00) != 0) {
         if (e->field_15b == 0) {
-            func_80140770(o, 0, 5, -1, 0, 1, 1);
+            set_other_hit_reaction_state_0(o, 0, 5, -1, 0, 1, 1);
             func_801b51e0_slot04_09(o);
             return;
         }
-        if ((u8)func_801410c8(o) != 0) {
-            func_80140770(o, 0, 0xd, 7, 0, 1, 1);
+        if ((u8)drain_gauge_by_other_input(o) != 0) {
+            set_other_hit_reaction_state_0(o, 0, 0xd, 7, 0, 1, 1);
             play_side_sound_at(o, o->side, 0xb);
             func_801b51e0_slot04_09(o);
             return;

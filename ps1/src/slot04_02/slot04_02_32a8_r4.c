@@ -5,7 +5,7 @@
 
 
 /* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
-void func_801b3764_slot04_02(Object *obj) {
+void spawn_linked_object_on_step_flag_1_slot04_02(Object *obj) {
     Object *p;
     u16 y;
 

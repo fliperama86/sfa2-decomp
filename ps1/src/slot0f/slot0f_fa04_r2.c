@@ -16,18 +16,18 @@ void func_800dfae0_slot0f(void) {
     for (;;) {
         data_800e83e8_slot0f[data_8018f5a0->state_index](state, menu);
         get_random_byte();
-        func_801192bc(1);
+        request_sound_command_and_switch_thread(1);
     }
 }
 
-void func_800dfb78_slot0f(GameState *state, Menu *menu) {
+void increment_state_index_slot0f(GameState *state, Menu *menu) {
     data_8018f5a0->state_index++;
 }
 
-void func_800dfb98_slot0f(GameState *state, Menu *menu) {
+void call_menu_handler_by_phase_index_slot0f(GameState *state, Menu *menu) {
     data_800e83f0_slot0f[data_8018f5a0->phase_index](state, menu);
 }
 
-void func_800dfbe0_slot0f(GameState *state, Menu *menu) {
+void call_menu_handler_by_step_index_slot0f(GameState *state, Menu *menu) {
     data_800e83fc_slot0f[data_8018f5a0->step_index](state, menu);
 }

@@ -5,7 +5,7 @@
 
 extern u8 data_80015440_slot01[][0x60];
 
-void func_80012668_slot01(Object *obj) {
+void load_and_store_16x3_image_by_parent_slot01(Object *obj) {
     Rect r;
     u8 *p;
     Object *o = obj->parent;

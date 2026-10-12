@@ -6,7 +6,7 @@
 extern Object *data_8007ef34_slot2b;
 extern ObjectFn data_8007edc8_slot2b[];
 
-void func_80078a14_slot2b(Object *o) {
+void start_hop_toward_other_shift_7_slot2b(Object *o) {
     o->field_0e = data_8007ef34_slot2b->field_0e;
     o->vel_x = (((Slot2bObj *)data_8007ef34_slot2b->other)->pos_x_hi - ((Slot2bObj *)data_8007ef34_slot2b)->pos_x_hi) >> 7;
     o->accel_x = 0;
@@ -15,7 +15,7 @@ void func_80078a14_slot2b(Object *o) {
     func_80138070(o, 4);
 }
 
-void func_80078a7c_slot2b(Object *o) {
+void start_vertical_hop_slot2b(Object *o) {
     o->field_0e = data_8007ef34_slot2b->field_0e;
     o->vel_x = 0;
     o->accel_x = 0;
@@ -24,13 +24,13 @@ void func_80078a7c_slot2b(Object *o) {
     func_80138070(o, 4);
 }
 
-void func_80078ac8_slot2b(Object *o) {
+void call_handler_by_table_index_unless_gated_slot2b(Object *o) {
     if (game_state.gate_flag != 0) {
         o->state_0 = o->state_0 + 1;
     } else {
         if (game_state.field_65 == 0) {
             data_8007edc8_slot2b[o->table_index](o);
         }
-        func_80120028(o);
+        set_flag_and_push_if_mode_8(o);
     }
 }

@@ -3,33 +3,33 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80129da8(Object *object) {
+void choose_transition_or_update_sequence(Object *object) {
     object->field_157 = 0;
     if (object->field_7e != 0) {
-        func_80128778(object);
+        move_object_x_by_table_value(object);
         if (object->field_7e == 1) {
             object->field_225 = 0;
             set_sequence_by_side(object, 0);
         }
     }
     if (game_state.config->mode_flag_b != 0) {
-        func_8012ff80(object);
+        set_win_or_lose_state_by_health(object);
     } else if (func_8012f56c(object)) {
-        func_8012f59c(object);
-    } else if ((u8)func_8012f408(object) == 0 && game_state.config->mode_flag_c == 0) {
-        if ((u8)func_8012f898(object)) {
+        set_win_state_and_store_result_byte(object);
+    } else if ((u8)start_health_comparison_sequence(object) == 0 && game_state.config->mode_flag_c == 0) {
+        if ((u8)is_facing_differs_from_saved(object)) {
             func_8012f8c4(object);
         } else if (object->mode_flag_2 == 0) {
-            if (func_80130470(object)) {
-                func_8013047c(object);
-            } else if ((u8)func_8012f618(object)) {
-                func_8012f6a0(object);
+            if (get_pressed_low_byte(object)) {
+                set_state_1_0_5_and_read_input_direction(object);
+            } else if ((u8)is_button_4000_held_or_other_flag(object)) {
+                set_state_1_0_1_0_sequence_7(object);
             } else if (object->field_7e == 0) {
-                if ((u8)func_80130258(object)) {
+                if ((u8)is_input_bit_1000_held(object)) {
                     func_80130280(object);
                 } else if (func_8012f970(object)) {
-                    func_8012fe60(object);
-                } else if ((u8)func_8012f7c0(object)) {
+                    enter_state_2_6_by_button_input(object);
+                } else if ((u8)is_single_horizontal_input_held(object)) {
                     func_8012f838(object);
                 } else {
                     update_sequence(object);
@@ -45,31 +45,31 @@ void func_80129da8(Object *object) {
     }
 }
 
-void func_80129f80(Object *object) {
+void select_transition_by_conditions_1(Object *object) {
     object->field_157 = 1;
     if (game_state.field_4d != 0) {
-        func_8012ff80(object);
+        set_win_or_lose_state_by_health(object);
     } else if (func_8012f56c(object)) {
-        func_8012f59c(object);
-    } else if ((u8)func_8012f408(object) != 0) {
-        func_8012a108(object);
-    } else if ((u8)func_8012f898(object)) {
+        set_win_state_and_store_result_byte(object);
+    } else if ((u8)start_health_comparison_sequence(object) != 0) {
+        update_sequence_or_set_step_flags_kind_6(object);
+    } else if ((u8)is_facing_differs_from_saved(object)) {
         func_8012f8c4(object);
     } else if (object->mode_flag_2 != 0) {
-        func_8012a108(object);
-    } else if (func_80130470(object)) {
-        func_8013047c(object);
-    } else if ((u8)func_8012f618(object)) {
-        if ((u8)func_80130258(object)) {
+        update_sequence_or_set_step_flags_kind_6(object);
+    } else if (get_pressed_low_byte(object)) {
+        set_state_1_0_5_and_read_input_direction(object);
+    } else if ((u8)is_button_4000_held_or_other_flag(object)) {
+        if ((u8)is_input_bit_1000_held(object)) {
             func_80130280(object);
         } else if (func_8012f970(object)) {
-            func_8012fe60(object);
+            enter_state_2_6_by_button_input(object);
         } else {
-            func_8012a108(object);
+            update_sequence_or_set_step_flags_kind_6(object);
         }
-    } else if (object->field_7e == 0 && (u8)func_8012f7c0(object)) {
+    } else if (object->field_7e == 0 && (u8)is_single_horizontal_input_held(object)) {
         func_8012f838(object);
     } else {
-        func_8012f784(object);
+        set_state_1_0_1_2_sequence_4(object);
     }
 }

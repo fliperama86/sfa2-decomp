@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80135ef0(ObjectView *object) {
+void set_capped_value_and_ot_indices(ObjectView *object) {
     u32 v;
     u8 f = object->packed_value;
     if (f & 1) {

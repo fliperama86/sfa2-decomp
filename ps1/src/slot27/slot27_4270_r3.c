@@ -5,7 +5,7 @@
 
 extern ObjectFn data_80027cbc_slot27[];
 
-void func_80014500_slot27(Object *o) {
+void add_angle_step_until_limit_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     obj->angle += obj->field_4c;
     if ((s16)obj->angle == 0x1a0) {
@@ -14,7 +14,7 @@ void func_80014500_slot27(Object *o) {
     }
 }
 
-void func_80014540_slot27(Object *obj) {
+void count_down_then_clear_flag_next_state_1_slot27(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown == 0) {
         obj->field_01 = 0;
@@ -23,14 +23,14 @@ void func_80014540_slot27(Object *obj) {
 }
 
 void func_80014574_slot27(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
 void func_80014594_slot27(Object *obj) {
     data_80027cbc_slot27[obj->state_1](obj);
 }
 
-void func_800145d4_slot27(Object *obj) {
+void start_move_down_set_vel_y_slot27(Object *obj) {
     obj->field_01 = 1;
     obj->vel_y = 8;
     obj->state_1 = obj->state_1 + 1;

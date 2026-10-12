@@ -12,16 +12,16 @@ void func_80010000_slot27(void) {
     data_80017bc4_slot27[data_8018f5a0->substep_index]();
     one = 1;
     data_80190568 = one;
-    func_80138164();
-    func_801510bc();
+    update_blocks();
+    call_active_block_handlers();
     if (data_80029324_slot27 != 0 && game_state.setup_done_flag == 0) {
-        func_8011abe4();
+        update_active_slab172_entries();
         func_8011b678();
         game_state.setup_done_flag = one;
     }
-    func_80135c88();
+    queue_player_status_text_items();
 }
 
-void func_800100b8_slot27(void) {
+void call_handler_by_hud_step_index_2_slot27(void) {
     data_80017bdc_slot27[data_8018f5a0->step_index_2]();
 }

@@ -10,8 +10,8 @@ extern Slot06Tile data_801f22d4_slot06_0e[2][0x7c];
    partial row when the vertical position is not a multiple of 16 (inferred).
    The tile mask and the column counter cc are 16-bit locals, and the locals r
    (a copy of row) and yy (the row's screen offset) are kept, as in the model
-   func_801e86bc_slot06_04. */
-void func_801e882c_slot06_0e(void) {
+   draw_tile_layer_sprites_with_partial_row_slot06_04. */
+void draw_tile_layer_sprites_with_partial_row_slot06_0e(void) {
     Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
     int q;
     int x;

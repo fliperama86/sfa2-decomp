@@ -5,7 +5,7 @@
 
 
 
-void func_80133848(u8 *base, Object *a, Object *b) {
+void update_meter_hud_primitives(u8 *base, Object *a, Object *b) {
     u16 raw = data_801a27d0;
     s16 index;
     u8 *p;
@@ -14,7 +14,7 @@ void func_80133848(u8 *base, Object *a, Object *b) {
         return;
     }
     if (a->field_165 != 1 && b->field_165 != 1) {
-        func_80133df4(base, (s16)raw);
+        write_player_color_bytes_to_table(base, (s16)raw);
     }
     index = (s16)raw;
     func_80133ed0(base, index);
@@ -55,7 +55,7 @@ void func_80133848(u8 *base, Object *a, Object *b) {
             data_80188d4c = t + 1;
         }
         index = (s16)raw;
-        func_80134154(base, index);
+        set_left_halfwords_and_bump_counters(base, index);
         if (game_state.tick_count & 4) {
             if (data_80188d4c != 0) {
                 u8 *q = (u8 *)((index << 4) + (int)base);
@@ -131,7 +131,7 @@ void func_80133848(u8 *base, Object *a, Object *b) {
             data_80188d58 = t + 1;
         }
         index = (s16)raw;
-        func_801341c4(base, index);
+        set_right_halfwords_and_bump_counters(base, index);
         if (game_state.tick_count & 8) {
             if (data_80188d58 != 0) {
                 u8 *q = (u8 *)((index << 4) + (int)base);

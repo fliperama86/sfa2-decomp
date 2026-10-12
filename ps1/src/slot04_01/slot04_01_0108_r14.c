@@ -12,7 +12,7 @@ void func_801b2720_slot04_01(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b2778_slot04_01(Object *obj) {
+void apply_gravity_until_landing_or_step_flag_2_slot04_01(Object *obj) {
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->pos_y < obj->ground_y) {
@@ -24,15 +24,15 @@ void func_801b2778_slot04_01(Object *obj) {
         obj->active_flag_3 = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
     }
     update_sequence(obj);
 }
 
-void func_801b2810_slot04_01(Object *obj) {
+void finish_sequence_or_set_other_state_5_4_slot04_01(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->other->other_state_code = 5;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }

@@ -5,13 +5,13 @@
 
 extern ObjectFn data_80015dcc_slot01[];
 extern Object *data_80033b98_slot01;
-void func_80014bd8_slot01(Object *obj);
+void set_position_from_parent_table_entry_slot01(Object *obj);
 
-void func_80014794_slot01(Object *object) {
+void call_handler_by_state_1_slot01(Object *object) {
     data_80015dcc_slot01[object->state_1](object);
 }
 
-void func_800147d4_slot01(Object *obj) {
+void init_object_from_parent_opposite_side_slot01(Object *obj) {
     Object *p;
     data_80033b98_slot01 = obj->parent;
     obj->field_01 = 0;
@@ -33,5 +33,5 @@ void func_800147d4_slot01(Object *obj) {
         obj->facing_side = 1;
     }
     obj->table_index = obj->variant_index = data_80033b98_slot01->kind;
-    func_80014bd8_slot01(obj);
+    set_position_from_parent_table_entry_slot01(obj);
 }

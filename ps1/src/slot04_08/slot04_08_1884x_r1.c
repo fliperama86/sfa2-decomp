@@ -7,7 +7,7 @@
    comparisons tested in place, this function differs from the original in 4
    instruction slots; with the local in one arm only, in 4; with one test of
    the local after both arms, in 2, and it is 4 bytes longer. */
-void func_801b1884_slot04_08(Object *obj) {
+void move_x_decel_advance_state_3_at_stop_slot04_08(Object *obj) {
     int below;
     ((Slot04aObj *)obj)->field_1c8--;
     if (((Slot04aObj *)obj)->field_1c8 == 0) {

@@ -5,7 +5,7 @@
 
 int func_801b41c4_slot04_07(Object *obj);
 
-void func_801b2074_slot04_07(Object *obj) {
+void update_fall_until_ground_state_5_slot04_07(Object *obj) {
     int y;
     func_801b41c4_slot04_07(obj);
     y = obj->ground_y;
@@ -16,7 +16,7 @@ void func_801b2074_slot04_07(Object *obj) {
         obj->state_3 = 5;
         obj->active_state = 0;
         obj->active_flag_4 = 0;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x3b);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x3b);
     }
 }

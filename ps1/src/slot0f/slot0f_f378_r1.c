@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800df520_slot0f(GameState *state);
-void func_800df858_slot0f(GameState *state);
-void func_800dfa40_slot0f(GameState *state, int a);
+void call_slot0f_state_handler_a_slot0f(GameState *state);
+void call_state_handler_b_then_check_pad_slot0f(GameState *state);
+void reset_hud_indices_and_state_counters_slot0f(GameState *state, int a);
 
-void func_800df378_slot0f(void) {
+void init_state_and_run_main_loop_slot0f_slot0f(void) {
     GameState *s = &game_state;
     game_state.field_01 = 1;
     game_state.field_dc = 0x1b0e;
@@ -43,22 +43,22 @@ void func_800df378_slot0f(void) {
     game_state.cam_param_b = 0;
     game_state.table_index_2 = 7;
     func_80138358(s);
-    func_801192bc(1);
+    request_sound_command_and_switch_thread(1);
     data_801a89f0 = 0;
     data_801ac61c = 0;
     {
         u32 *p = (u32 *)0x1f80000c;
         if (*p != 0) {
             *p = 0;
-            func_800dfa40_slot0f(s, 0);
+            reset_hud_indices_and_state_counters_slot0f(s, 0);
         }
     }
     while (1) {
         if (scratch_word_10 == 0) {
-            func_800df520_slot0f(s);
+            call_slot0f_state_handler_a_slot0f(s);
         } else {
-            func_800df858_slot0f(s);
+            call_state_handler_b_then_check_pad_slot0f(s);
         }
-        func_801192bc(1);
+        request_sound_command_and_switch_thread(1);
     }
 }

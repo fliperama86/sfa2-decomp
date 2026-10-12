@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1c00_slot04_0a(Object *obj);
-u16 func_801b1e04_slot04_0a(Object *obj);
-void func_801b2048_slot04_0a(Object *obj);
+void land_on_ground_set_state_3_seven_slot04_0a(Object *obj);
+u16 apply_velocity_and_check_ground_slot04_0a(Object *obj);
+void nudge_pos_x_from_input_bits_slot04_0a(Object *obj);
 
 void func_801b1ce8_slot04_0a(Object *obj) {
     u16 t;
@@ -25,27 +25,27 @@ void func_801b1ce8_slot04_0a(Object *obj) {
             goto back;
         }
         obj->state_3++;
-        func_801307e0(obj, k | 0x28);
+        set_sequence_by_side_and_mode(obj, k | 0x28);
         obj->vel_y = 0xfffd8000;
         obj->accel_y = -0x2000;
-        func_80141f28(obj, 2);
-        func_80138ae8(&game_state, obj);
+        add_to_meter_clamped(obj, 2);
+        add_one_to_ec4_if_object_unflagged(&game_state, obj);
         play_side_sound_at(obj, obj->side, 9);
-        func_801b2048_slot04_0a(obj);
-        if (func_801b1e04_slot04_0a(obj)) {
-            func_801b1c00_slot04_0a(obj);
+        nudge_pos_x_from_input_bits_slot04_0a(obj);
+        if (apply_velocity_and_check_ground_slot04_0a(obj)) {
+            land_on_ground_set_state_3_seven_slot04_0a(obj);
         }
     } else {
 back:
-        func_801b2048_slot04_0a(obj);
-        if (func_801b1e04_slot04_0a(obj)) {
-            func_801b1c00_slot04_0a(obj);
+        nudge_pos_x_from_input_bits_slot04_0a(obj);
+        if (apply_velocity_and_check_ground_slot04_0a(obj)) {
+            land_on_ground_set_state_3_seven_slot04_0a(obj);
         }
         update_sequence(obj);
     }
 }
 
-u16 func_801b1e04_slot04_0a(Object *obj) {
+u16 apply_velocity_and_check_ground_slot04_0a(Object *obj) {
     u16 r = 0;
 
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;

@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b7a4c_slot04_02(Object *obj);
-void func_801b7b10_slot04_02(Object *obj);
-void func_801b7b44_slot04_02(Object *obj);
-void func_801b7b74_slot04_02(Object *obj);
+void follow_parent_step_flags_for_sequence_slot04_02(Object *obj);
+void increment_state_0_2_slot04_02(Object *obj);
+void set_sequence_from_variant_index_slot04_02(Object *obj);
+void copy_parent_position_with_facing_offset_slot04_02(Object *obj);
 
-void func_801b79b4_slot04_02(Object *obj) {
+void init_object_from_parent_fields_2_slot04_02(Object *obj) {
     Object *p = obj->parent;
 
     obj->state_0++;
@@ -23,10 +23,10 @@ void func_801b79b4_slot04_02(Object *obj) {
     obj->field_90 = p->field_90;
     obj->data_ptr_a = p->data_ptr_a;
     obj->data_ptr_b = p->data_ptr_b;
-    func_801b7a4c_slot04_02(obj);
+    follow_parent_step_flags_for_sequence_slot04_02(obj);
 }
 
-void func_801b7a4c_slot04_02(Object *obj) {
+void follow_parent_step_flags_for_sequence_slot04_02(Object *obj) {
     Object *p = obj->parent;
     u16 t;
     u16 u;
@@ -34,7 +34,7 @@ void func_801b7a4c_slot04_02(Object *obj) {
 
     obj->field_01 = 0;
     if (obj->table_index != p->kind) {
-        func_801b7b10_slot04_02(obj);
+        increment_state_0_2_slot04_02(obj);
     } else {
         w = p->step_flags;
         t = w & 0xff;
@@ -42,13 +42,13 @@ void func_801b7a4c_slot04_02(Object *obj) {
         if (u == 0) {
             obj->variant_index = 0;
         } else if ((w & 0x80) != 0) {
-            func_801b7b10_slot04_02(obj);
+            increment_state_0_2_slot04_02(obj);
         } else {
-            func_801b7b74_slot04_02(obj);
+            copy_parent_position_with_facing_offset_slot04_02(obj);
             obj->field_01 = 1;
             if (obj->variant_index != u) {
                 obj->variant_index = t;
-                func_801b7b44_slot04_02(obj);
+                set_sequence_from_variant_index_slot04_02(obj);
             } else {
                 advance_sequence_checked(obj);
                 func_8011ffdc(obj);

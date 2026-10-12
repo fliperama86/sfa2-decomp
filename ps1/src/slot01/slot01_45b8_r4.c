@@ -5,24 +5,24 @@
 
 extern ObjectRef data_80033ba8_slot01;
 extern ObjectRef data_80033bac_slot01;
-void func_80014b28_slot01(Object *obj, int arg);
+void set_parent_kind_and_load_kind_pointers_slot01(Object *obj, int arg);
 
-void func_800149c8_slot01(Object *obj) {
+void sync_variant_index_with_parent_kind_slot01(Object *obj) {
     data_80033ba8_slot01.p = obj->parent;
     if (obj->table_index != obj->variant_index) {
         obj->table_index = obj->variant_index;
     }
     if (data_80033ba8_slot01.p->kind != obj->variant_index) {
         obj->variant_index = data_80033ba8_slot01.p->kind;
-        func_80014b28_slot01(obj, 0);
+        set_parent_kind_and_load_kind_pointers_slot01(obj, 0);
     } else if ((game_state.mode >> data_80033ba8_slot01.p->side) & 1) {
         obj->state_1++;
         obj->active_state = data_80033ba8_slot01.p->field_d4;
-        func_80014b28_slot01(obj, 1);
+        set_parent_kind_and_load_kind_pointers_slot01(obj, 1);
     }
 }
 
-void func_80014a8c_slot01(Object *obj) {
+void update_active_state_and_countdown_slot01(Object *obj) {
     Object *p = obj->parent;
     data_80033bac_slot01.p = p;
     if (p->field_d4 != obj->active_state) {

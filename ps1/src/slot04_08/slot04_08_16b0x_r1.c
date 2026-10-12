@@ -18,7 +18,7 @@ void func_801b16b0_slot04_08(Object *obj) {
     t = (obj->countdown + 1) & 7;
     obj->countdown = t;
     if (t == 0) {
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 8;
@@ -73,5 +73,5 @@ void func_801b16b0_slot04_08(Object *obj) {
     if (obj->field_49 != 0) {
         n = 0x68;
     }
-    func_801307e0(obj, (obj->direction_index >> 1) + n);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + n);
 }

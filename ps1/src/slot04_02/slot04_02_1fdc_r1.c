@@ -13,8 +13,8 @@ void func_801b1fdc_slot04_02(Object *obj) {
     obj->active_flag_4 = i;
     obj->active_state = i;
     obj->state_3 = i;
-    func_80141f28(obj, 6);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 6);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     i = obj->direction_index >> 1;
     *(s32 *)&obj->vel_y = 0x40000;
     obj->accel_y = -0x6000;
@@ -27,5 +27,5 @@ void func_801b1fdc_slot04_02(Object *obj) {
     } else {
         obj->vel_x = -data_801c630c_slot04_02[i];
     }
-    func_801307e0(obj, data_801c6318_slot04_02[i]);
+    set_sequence_by_side_and_mode(obj, data_801c6318_slot04_02[i]);
 }

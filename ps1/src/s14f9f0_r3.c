@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8015003c(Stream *stream) {
+void read_stream_sector_to_source_ptr(Stream *stream) {
     u32 n = stream->bytes_remaining;
     u8 *p = stream->source_ptr;
     u32 words;
@@ -25,7 +25,7 @@ void func_8015003c(Stream *stream) {
     }
 }
 
-void func_80150100(Stream *stream) {
+void read_stream_sector_to_write_slot(Stream *stream) {
     func_8015cdbc((u8 *)0x801e0000 + (stream->write_index << 11), 0x200);
     if (stream->bytes_remaining > 0x800) {
         stream->bytes_remaining = stream->bytes_remaining - 0x800;

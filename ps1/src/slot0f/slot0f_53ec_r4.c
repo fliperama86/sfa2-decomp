@@ -4,15 +4,15 @@
 #include "../externs.h"
 
 u8 func_800e58c8_slot0f(Object *obj);
-void func_800e5608_slot0f(Object *obj);
-void func_800e585c_slot0f(Object *obj);
+void call_image_job_with_index_0_slot0f(Object *obj);
+void set_phase_two_clear_step_slot0f(Object *obj);
 
 void func_800e5714_slot0f(Object *obj) {
     func_800e58c8_slot0f(obj);
     if (obj->field_f0 == 0) {
         data_8018f5a0->step_index++;
         data_801903c4[0] = 2;
-        func_800e5608_slot0f(obj);
+        call_image_job_with_index_0_slot0f(obj);
         data_801903ca = 0;
         if (obj->field_01 == 0) {
             if (data_801903c5 != 0) {
@@ -24,7 +24,7 @@ void func_800e5714_slot0f(Object *obj) {
     }
 }
 
-void func_800e57b4_slot0f(Object *obj) {
+void advance_step_when_value_is_nine_slot0f(Object *obj) {
     if (data_801903c4[0] == 9) {
         data_8018f5a0->step_index++;
         data_801903c8[0] = 0x32;
@@ -40,12 +40,12 @@ void func_800e57f8_slot0f(Object *obj) {
         *p = t;
         if (data_80190949 == 0) {
             data_801903c4[0] = 10;
-            func_800e585c_slot0f(obj);
+            set_phase_two_clear_step_slot0f(obj);
         }
     }
 }
 
-void func_800e585c_slot0f(Object *obj) {
+void set_phase_two_clear_step_slot0f(Object *obj) {
     data_8018f5a0->phase_index = 2;
     data_8018f5a0->step_index = 0;
 }

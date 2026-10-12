@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_801400fc(Object *object, s16 a, int b, int c, int d) {
+int check_range_and_set_other_state(Object *object, s16 a, int b, int c, int d) {
     if (object->facing_side != 0) a = -a;
     a = a + *(u16 *)&object->pos_x - *(u16 *)&ref_other.p->pos_x + b;
     if ((u16)a > (u16)(b * 2)) return 0;

@@ -6,7 +6,7 @@
 
 /* Exact. k is an s16 copy of the loaded byte m: the copy keeps the compare register apart from the index register. */
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_8012c100(Object *object)
+void start_hit_reaction_by_hit_type(Object *object)
 {
   s16 k;
   int m;
@@ -22,7 +22,7 @@ void func_8012c100(Object *object)
     {
       func_80136e90();
     }
-    func_801372c8(object);
+    queue_image_row_upload_job(object);
   }
   object->active_flag_3 = 0;
   object->field_243 = 0;
@@ -58,7 +58,7 @@ void func_8012c100(Object *object)
       new_var->field_1a2 = 1;
     }
     new_var->round_count = new_var->round_count + 1;
-    func_80138be4(&game_state, new_var);
+    add_one_to_ec4_if_other_in_state(&game_state, new_var);
     ref_other.p = new_var->other;
     ref_other.p->field_28c = 0;
     ref_other.p->damage_countdown = 0;
@@ -68,7 +68,7 @@ void func_8012c100(Object *object)
       game_state.config->field_75 = 0xff;
       ref_other.p = new_var->other;
       ref_other.p->effect_request = 8;
-      func_80155d4c(0x28, (s8) ref_other.p->side);
+      add_table_bcd_score_to_player(0x28, (s8) ref_other.p->side);
     }
     m = new_var->hit_type;
     k = m;
@@ -79,7 +79,7 @@ void func_8012c100(Object *object)
     else
       if (k == 0x1a)
     {
-      func_8012c6a4(new_var);
+      start_hit_sequence_base_7_or_4(new_var);
     }
     else
       if ((k == 0x12) || (k == 0x18))
@@ -89,7 +89,7 @@ void func_8012c100(Object *object)
     else
       if (k == 0x19)
     {
-      func_8012cc00(new_var);
+      start_hit_reaction_with_three_spawns(new_var);
     }
     else
     {
@@ -97,19 +97,19 @@ void func_8012c100(Object *object)
       new_var->field_60 = pairs_80170074[m].second;
       if ((k == 0x14) || (k == 0x16))
       {
-        func_8012ca04(new_var);
+        update_hit_reaction_type_16_sound_spawn(new_var);
       }
       else
         if ((k == 0x15) || (k == 0x17))
       {
-        func_8012cb3c(new_var);
+        update_hit_reaction_type_17_sound_spawn(new_var);
       }
       else
         if (k == 0xb)
       {
         new_var->active_state = 0xff;
         new_var->field_69 = new_var->field_69 + 1;
-        func_801308c4(new_var, new_var->pair_value);
+        set_sequence_by_side_and_mode_2(new_var, new_var->pair_value);
       }
       else
       {
@@ -131,7 +131,7 @@ void func_8012c100(Object *object)
         }
         else
         {
-          func_801308c4(new_var, new_var->pair_value);
+          set_sequence_by_side_and_mode_2(new_var, new_var->pair_value);
         }
       }
     }

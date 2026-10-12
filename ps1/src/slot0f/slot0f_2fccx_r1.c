@@ -11,7 +11,7 @@ extern u8 *data_800e9024_slot0f;
 extern u8 data_800e9008_slot0f[];
 extern u8 data_800e9044_slot0f[];
 
-void func_800e2fcc_slot0f(void) {
+void update_selection_index_from_pad_slot0f(void) {
     u8 *p;
     s8 *q;
     s8 sel;
@@ -46,9 +46,9 @@ void func_800e2fcc_slot0f(void) {
             *q = 0x32;
         }
     } else if (pad & 0x20) {
-        func_8014f4d4(1, data_800e9074_slot0f[data_800f855d_slot0f]);
+        set_menu_command_by_code(1, data_800e9074_slot0f[data_800f855d_slot0f]);
     } else if (pad & 0x40) {
-        func_8014f4d4(6, 2);
+        set_menu_command_by_code(6, 2);
     } else {
         goto skip;
     }
@@ -59,12 +59,12 @@ void func_800e2fcc_slot0f(void) {
     }
 skip:
     p = data_800e9008_slot0f;
-    func_801519b4(p);
+    add_item_to_table(p);
     if (data_800f855d_slot0f == 0x32) {
-        func_801519b4(p + 0x10);
+        add_item_to_table(p + 0x10);
     }
     p = data_800e9044_slot0f;
-    func_801519b4(p);
-    func_801519b4(p + 0x10);
-    func_801519b4(p + 0x20);
+    add_item_to_table(p);
+    add_item_to_table(p + 0x10);
+    add_item_to_table(p + 0x20);
 }

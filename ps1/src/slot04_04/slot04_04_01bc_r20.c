@@ -18,8 +18,8 @@ void func_801b1a54_slot04_04(Object *obj) {
         return;
     }
     obj->step_flags = t & 0x80ff;
-    func_80142c04(obj);
-    func_80138ae8(&game_state, obj);
+    reset_hold_flags_and_other_hit_count(obj);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     if (obj->input_matched_flag == 0) {
         obj->input_matched_flag = 0xff;
     }
@@ -30,7 +30,7 @@ void func_801b1a54_slot04_04(Object *obj) {
             return;
         }
     } else {
-        if (!(u8)func_8014a170(obj, data_801c4224_slot04_04)) {
+        if (!(u8)test_random_bit_in_table(obj, data_801c4224_slot04_04)) {
             update_sequence(obj);
             return;
         }
@@ -38,5 +38,5 @@ void func_801b1a54_slot04_04(Object *obj) {
 tail:
     obj->state_3++;
     obj->active_flag_4 = 0;
-    func_801307e0(obj, obj->direction_index + 0x22);
+    set_sequence_by_side_and_mode(obj, obj->direction_index + 0x22);
 }

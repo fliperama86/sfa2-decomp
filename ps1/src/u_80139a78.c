@@ -7,7 +7,7 @@
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual (2 slots): the second load of box->field_11 is scheduled after the load of
    field_7e here and before it in the original. */
 /* Form found by automatic permutation search. */
-void func_80139a78(Object *a, Object *b)
+void apply_hit_box_to_target(Object *a, Object *b)
 {
   Box32 *box;
   u8 t;
@@ -98,10 +98,10 @@ void func_80139a78(Object *a, Object *b)
   }
   if ((((s16) b->health) < 0) || (b->frame->handler_index == 0))
   {
-    func_8013a154(a, b, box);
+    dispatch_hit_handler_by_box_type(a, b, box);
   }
   else
   {
-    func_80139d04(a, b, box);
+    call_frame_handler_clear_action_timer(a, b, box);
   }
 }

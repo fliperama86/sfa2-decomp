@@ -6,7 +6,7 @@
 extern Slot12Pos data_80028200_slot12[];
 extern void (*data_800282a8_slot12[])(Object *);
 
-void func_80014a38_slot12(Object *obj) {
+void set_position_from_table_entry_slot12(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     u16 *q;

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80150758(Menu *menu) {
+void call_cd_command_handler_by_state(Menu *menu) {
     if (menu->mode_index == 2 && menu->field_08 == 0) {
         data_8017ec7c[menu->command_state](menu);
         if (menu->fade_mode != 0) {

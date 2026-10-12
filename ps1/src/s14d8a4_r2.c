@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014dbc8(Object *object) {
+void init_script_entry_by_script_index(Object *object) {
     u16 **table;
     u16 *p;
     u8 index;
@@ -22,7 +22,7 @@ void func_8014dbc8(Object *object) {
     object->field_20c = first;
 }
 
-void func_8014dc30(Object *object) {
+void set_countdown_from_table_with_random(Object *object) {
     u8 v = data_8017d320[object->table_column];
     object->countdown_3 = v;
     if (object->kind == 0x14) object->countdown_3 = v - 10;

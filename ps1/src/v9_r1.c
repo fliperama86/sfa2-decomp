@@ -11,13 +11,13 @@ void func_801285e0(void) {
         t = game_state.field_48 * 2 - 1;
         v = game_state.count_index;
         if (v != t) {
-            func_80144f10(0, 0);
-            func_80144f10(1, (u8)(v + 2));
+            spawn_object_with_position_table(0, 0);
+            spawn_object_with_position_table(1, (u8)(v + 2));
         } else {
-            func_80144f10(0, 1);
+            spawn_object_with_position_table(0, 1);
         }
-        func_80144f10(9, 0);
-        func_80144f10(10, 0);
+        spawn_object_with_position_table(9, 0);
+        spawn_object_with_position_table(10, 0);
     }
-    func_8012867c();
+    spawn_objects_from_table();
 }

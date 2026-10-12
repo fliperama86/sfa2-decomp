@@ -8,7 +8,7 @@ extern u8 data_801e25d8_slot2a[];
 extern SequenceStep *data_801e21f4_slot2a[];
 extern u32 data_801e21fc_slot2a[];
 
-void func_801e0850_slot2a(Object *obj) {
+void check_input_advance_state_or_reset_slot2a(Object *obj) {
     SlotInput *in;
     int k;
 
@@ -24,11 +24,11 @@ void func_801e0850_slot2a(Object *obj) {
     }
 }
 
-void func_801e08d4_slot2a(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot2a(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e08f4_slot2a(Object *obj, u8 idx) {
+void set_sequence_data_ptr_and_sequence_slot2a(Object *obj, u8 idx) {
     data_801e21f4_slot2a[obj->table_index]->data_ptr = data_801e21fc_slot2a[idx];
-    func_80130768(obj, obj->table_index, data_801e21f4_slot2a);
+    set_sequence_from_table_5(obj, obj->table_index, data_801e21f4_slot2a);
 }

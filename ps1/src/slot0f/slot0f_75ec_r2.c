@@ -5,13 +5,13 @@
 
 void func_800e78e0_slot0f(Object *obj);
 
-void func_800e7748_slot0f(Object *obj) {
+void spawn_three_pooled_objects_from_obj_slot0f(Object *obj) {
     Object *p;
     FrameRecord *fr;
     u8 t = obj->state_1;
     obj->state_1 = t + 1;
     func_800e78e0_slot0f(obj);
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0x97;
@@ -22,7 +22,7 @@ void func_800e7748_slot0f(Object *obj) {
         p->table_index = obj->table_index;
         p->health = obj->health;
     }
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0x97;
@@ -35,7 +35,7 @@ void func_800e7748_slot0f(Object *obj) {
     }
     fr = (FrameRecord *)ptr_8019040c;
     if (fr[obj->table_index].offset_index != 0) {
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x97;

@@ -13,7 +13,7 @@ extern u8 data_8007a010_slot00[];
    stepped, and later the index into the log. With a local of its own for the
    byte, or with the byte read in place: 2 slots. With the index written into
    the subscript: 49. The log's field c is read as 16 bits; read as it is: 1. */
-void func_80077808_slot00(Object *obj) {
+void update_trail_object_from_log_record_slot00(Object *obj) {
     Object *p;
     u8 t;
     u32 n;
@@ -58,7 +58,7 @@ void func_80077808_slot00(Object *obj) {
             if (game_state.field_226 != 0) {
                 obj->field_01 = 0;
             } else {
-                func_80120028(obj);
+                set_flag_and_push_if_mode_8(obj);
             }
         }
     } else {

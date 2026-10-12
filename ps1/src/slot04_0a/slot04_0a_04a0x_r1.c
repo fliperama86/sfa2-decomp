@@ -5,8 +5,8 @@
 
 extern s16 data_801c0508_slot04_0a[];
 
-void func_801b3e68_slot04_0a(Object *obj);
-void func_801b3f30_slot04_0a(Object *obj);
+void store_image_rows_for_object_slot04_0a(Object *obj);
+void load_velocities_from_table_5_slot04_0a(Object *obj);
 
 void func_801b04a0_slot04_0a(Object *obj) {
     u16 a;
@@ -19,7 +19,7 @@ void func_801b04a0_slot04_0a(Object *obj) {
             a = obj->step_flags;
             if ((a & 0x7f00) == 0x100) {
                 obj->step_flags = a & 0xff;
-                func_801b3e68_slot04_0a(obj);
+                store_image_rows_for_object_slot04_0a(obj);
             }
             if ((obj->step_flags & 0xff) != 0) {
                 obj->step_flags = obj->step_flags & m;
@@ -27,7 +27,7 @@ void func_801b04a0_slot04_0a(Object *obj) {
                 obj->active_state = 1;
                 obj->countdown = obj->countdown & m;
                 obj->pos_y = obj->ground_y - 0x20;
-                func_801b3f30_slot04_0a(obj);
+                load_velocities_from_table_5_slot04_0a(obj);
             }
         } else {
             k = (s16)obj->countdown;

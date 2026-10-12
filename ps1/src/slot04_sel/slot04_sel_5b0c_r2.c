@@ -8,28 +8,28 @@ extern TextItem *data_801b9b90_slot04_sel[];
 extern TextItem data_801b9964_slot04_sel[];
 extern u16 data_801b9da4_slot04_sel;
 
-void func_801b5f68_slot04_sel(void) {
+void start_timed_step_and_advance_2_slot04_sel(void) {
     game_state.field_09 = 0xff;
     data_801b9da4_slot04_sel = 0x40;
     data_8018f5a0->step_index_2++;
 }
 
-void func_801b5f98_slot04_sel(void) {
+void draw_versus_text_items_with_timer_slot04_sel(void) {
     TextItem *p;
     int t;
 
     p = data_801b9908_slot04_sel[player_left.kind];
     p->x = 0x30;
     p->y = 0x50;
-    func_801519b4(p);
+    add_item_to_table(p);
     p = data_801b9964_slot04_sel;
     data_801b9964_slot04_sel[0].x = 0xa0;
     data_801b9964_slot04_sel[0].y = 0x68;
-    func_801519b4(p);
+    add_item_to_table(p);
     p = data_801b9b90_slot04_sel[player_right.kind];
     p->x = 0xc0;
     p->y = 0x80;
-    func_801519b4(p);
+    add_item_to_table(p);
     t = data_801b9da4_slot04_sel - 1;
     data_801b9da4_slot04_sel = t;
     if ((u16)t == 0) {
@@ -37,7 +37,7 @@ void func_801b5f98_slot04_sel(void) {
     }
 }
 
-void func_801b607c_slot04_sel(void) {
+void reset_step_indices_to_step_2_slot04_sel(void) {
     game_state.field_09 = 0;
     game_state.alt_flag = 0;
     game_state.side_mask = 0;

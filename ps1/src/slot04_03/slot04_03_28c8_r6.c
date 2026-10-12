@@ -17,10 +17,10 @@ void func_801b3010_slot04_03(Object *obj) {
             a = -2;
             b = 0x4e;
         }
-        func_801495f8(obj, a, b);
-        func_8011fe40(obj);
-        func_80149af8(obj);
-        func_80143184(obj);
+        spawn_effect_objects_at_offset(obj, a, b);
+        reset_side_table_and_fields(obj);
+        spawn_object_type_6d_for_side(obj);
+        set_other_sequence_3_when_close(obj);
         func_801b3a5c_slot04_03(obj);
     }
     update_sequence(obj);

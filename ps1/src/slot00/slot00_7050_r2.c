@@ -5,8 +5,8 @@
 
 extern u16 data_80079878_slot00[];
 
-void func_80077150_slot00(Object *obj) {
-    Object *n = (Object *)func_8011f1e0();
+void spawn_child_object_at_table_offset_slot00(Object *obj) {
+    Object *n = (Object *)pop_block_from_pool();
     if (n != 0) {
         Object *p;
         n->active_count = 1;

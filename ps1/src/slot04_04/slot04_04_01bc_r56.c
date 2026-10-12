@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4adc_slot04_04(Object *obj) {
+void init_jump_velocity_by_scroll_position_slot04_04(Object *obj) {
     int vel;
     int acc;
     u16 lx;

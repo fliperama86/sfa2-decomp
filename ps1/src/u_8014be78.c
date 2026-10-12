@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_8014be78(Object *object)
+void branch_script_if_value_ge_table_column(Object *object)
 {
   short v = *(data_80189460++);
   u16 new_var;
@@ -13,10 +13,10 @@ void func_8014be78(Object *object)
   object->script_byte_lo = v;
   if ((v & 0x1f) >= object->table_column)
   {
-    func_8014c914(object);
+    read_script_word_and_dispatch(object);
   }
   else
   {
-    func_8014c528(object);
+    skip_script_block_then_read_opcode(object);
   }
 }

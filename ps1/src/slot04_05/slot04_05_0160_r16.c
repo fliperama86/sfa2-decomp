@@ -6,7 +6,7 @@
 extern ObjectFn data_801c1574_slot04_05[];
 extern ObjectFn data_801c1580_slot04_05[];
 
-void func_801b2960_slot04_05(Object *obj) {
+void call_handler_by_direction_index_2_slot04_05(Object *obj) {
     data_801c1574_slot04_05[obj->direction_index >> 1](obj);
 }
 

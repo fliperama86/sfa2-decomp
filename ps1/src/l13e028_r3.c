@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8013fab4(Object *object) {
+int apply_forced_state_to_other_object(Object *object) {
     if (ref_other.p->field_7e != 0) {
         ref_other.p->meter -= 0x30;
         if (*(s16 *)&ref_other.p->meter < 0) ref_other.p->meter = 0;
@@ -20,7 +20,7 @@ int func_8013fab4(Object *object) {
     object->damage_countdown = 0;
     object->reference_count = 0;
     ref_other.p->other = object;
-    func_80138ac8((GameState *)game_state.config, object);
+    call_add_one_to_ec4_wrapper_2((GameState *)game_state.config, object);
     object->active_flag_3 = 0;
     ref_other.p->active_flag_3 = 0;
     object->field_225 = 0;

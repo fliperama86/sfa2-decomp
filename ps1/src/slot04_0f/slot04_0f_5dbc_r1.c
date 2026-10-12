@@ -14,35 +14,35 @@ extern ObjectFn data_801c6300_slot04_0f[];
 extern ObjectFn data_801c630c_slot04_0f[];
 extern s32 data_801c6324_slot04_0f[];
 
-void func_80130dc0(Object *obj);
-void func_80131468(Object *object);
+void set_sequence_and_tables_from_direction(Object *obj);
+void reset_object_to_state_1_0_0_2_sequence_1(Object *object);
 void func_801b0e68_slot04_0f(Object *obj);
 void func_801b1cc4_slot04_0f(Object *obj);
-void func_801b67b0_slot04_0f(Object *obj);
-void func_801b5e40_slot04_0f(Object *obj);
+void enter_state_3_pick_sequence_by_input_dir_slot04_0f(Object *obj);
+void call_handler_by_direction_index_2_slot04_0f(Object *obj);
 void func_801b5e84_slot04_0f(Object *obj);
-void func_801b601c_slot04_0f(Object *obj);
+void call_handler_by_direction_index_3_slot04_0f(Object *obj);
 void func_801b6060_slot04_0f(Object *obj);
-void func_801b61f4_slot04_0f(Object *obj);
+void call_handler_by_direction_index_4_slot04_0f(Object *obj);
 void func_801b6238_slot04_0f(Object *obj);
-void func_801b638c_slot04_0f(Object *obj);
+void call_handler_by_direction_index_5_slot04_0f(Object *obj);
 void func_801b63d0_slot04_0f(Object *obj);
 void func_801b66ac_slot04_0f(Object *obj);
 
-void func_801b5dbc_slot04_0f(Object *obj) {
+void call_handler_by_input_dir_0_2_slot04_0f(Object *obj) {
     data_801c62b8_slot04_0f[obj->input_dir_0 >> 1](obj);
 }
 
-void func_801b5e00_slot04_0f(Object *obj) {
+void call_handler_by_input_dir_second_2_slot04_0f(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second != 0) {
-        func_801b601c_slot04_0f(obj);
+        call_handler_by_direction_index_3_slot04_0f(obj);
     } else {
-        func_801b5e40_slot04_0f(obj);
+        call_handler_by_direction_index_2_slot04_0f(obj);
     }
 }
 
-void func_801b5e40_slot04_0f(Object *obj) {
+void call_handler_by_direction_index_2_slot04_0f(Object *obj) {
     data_801c62c4_slot04_0f[obj->direction_index >> 1](obj);
 }
 
@@ -67,10 +67,10 @@ void func_801b5f04_slot04_0f(Object *obj) {
         obj->active_flag_3 = 1;
         if (obj->attack_param_d != 0) {
             t = obj->direction_index >> 1;
-            func_80130ec0(obj);
-            func_801307e0(obj, t + 0x1a);
+            reset_direction_and_action_fields(obj);
+            set_sequence_by_side_and_mode(obj, t + 0x1a);
         } else {
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     } else {
         obj->state_0 = 1;
@@ -80,18 +80,18 @@ void func_801b5f04_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b5fbc_slot04_0f(Object *obj) {
+void update_sequence_or_reset_on_end_flag_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        if (func_80149b80(obj)) {
+        if (consume_active_frame_flag(obj)) {
             obj->state_3 = 0;
         }
         update_sequence(obj);
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
-void func_801b601c_slot04_0f(Object *obj) {
+void call_handler_by_direction_index_3_slot04_0f(Object *obj) {
     data_801c62d8_slot04_0f[obj->direction_index >> 1](obj);
 }
 
@@ -112,34 +112,34 @@ void func_801b60e0_slot04_0f(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->attack_param_d != 0) {
-        func_80130ec0(obj);
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x1d);
+        reset_direction_and_action_fields(obj);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x1d);
     } else {
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }
 
-void func_801b6154_slot04_0f(Object *obj) {
+void update_sequence_or_reset_on_end_flag_2_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        if (func_80149b80(obj)) {
+        if (consume_active_frame_flag(obj)) {
             obj->state_3 = 0;
         }
         update_sequence(obj);
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
 void func_801b61b4_slot04_0f(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second != 0) {
-        func_801b638c_slot04_0f(obj);
+        call_handler_by_direction_index_5_slot04_0f(obj);
     } else {
-        func_801b61f4_slot04_0f(obj);
+        call_handler_by_direction_index_4_slot04_0f(obj);
     }
 }
 
-void func_801b61f4_slot04_0f(Object *obj) {
+void call_handler_by_direction_index_4_slot04_0f(Object *obj) {
     data_801c62ec_slot04_0f[obj->direction_index >> 1](obj);
 }
 
@@ -160,25 +160,25 @@ void func_801b62b8_slot04_0f(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->attack_param_d == 0) {
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     } else {
-        func_80130ec0(obj);
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x20);
+        reset_direction_and_action_fields(obj);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x20);
     }
 }
 
-void func_801b632c_slot04_0f(Object *obj) {
+void update_sequence_or_reset_on_end_flag_3_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        if (func_80149b80(obj)) {
+        if (consume_active_frame_flag(obj)) {
             obj->state_3 = 0;
         }
         update_sequence(obj);
     } else {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     }
 }
 
-void func_801b638c_slot04_0f(Object *obj) {
+void call_handler_by_direction_index_5_slot04_0f(Object *obj) {
     data_801c6300_slot04_0f[obj->direction_index >> 1](obj);
 }
 
@@ -200,21 +200,21 @@ void func_801b6450_slot04_0f(Object *obj) {
     obj->facing_side = obj->saved_facing;
     if (obj->attack_param_d == 0) {
         obj->state_3 = obj->state_3 + 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     } else {
-        func_80130ec0(obj);
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x23);
+        reset_direction_and_action_fields(obj);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x23);
     }
 }
 
-void func_801b64d0_slot04_0f(Object *obj) {
+void update_sequence_or_reset_on_end_flag_4_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        if (func_80149b80(obj)) {
+        if (consume_active_frame_flag(obj)) {
             obj->state_3 = 0;
         }
         update_sequence(obj);
     } else {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     }
 }
 
@@ -244,20 +244,20 @@ void func_801b6598_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b65dc_slot04_0f(Object *obj) {
+void slide_x_until_stop_seq_by_direction_slot04_0f(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     obj->vel_x += obj->accel_x;
     if (obj->vel_x == 0) {
         obj->state_3 = obj->state_3 + 1;
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x36);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x36);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b664c_slot04_0f(Object *obj) {
+void update_sequence_or_finish_8_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
         update_sequence(obj);
     }
@@ -286,14 +286,14 @@ void func_801b66ac_slot04_0f(Object *obj) {
     } else {
         obj->script_opcode_high = obj->script_opcode_high & 0xfe;
         obj->limit_lo = obj->limit_lo | 0x40;
-        func_801b67b0_slot04_0f(obj);
+        enter_state_3_pick_sequence_by_input_dir_slot04_0f(obj);
     }
 }
 
-void func_801b676c_slot04_0f(Object *obj) {
+void call_handler_by_limit_lo_bit_slot04_0f(Object *obj) {
     if (obj->limit_lo & 1) {
         func_801b66ac_slot04_0f(obj);
     } else {
-        func_801b67b0_slot04_0f(obj);
+        enter_state_3_pick_sequence_by_input_dir_slot04_0f(obj);
     }
 }

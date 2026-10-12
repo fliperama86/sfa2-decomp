@@ -18,7 +18,7 @@ extern s16 data_800212d8_slot01[];
    1/256 units, minus 8. The four corners are then the position plus the
    object's pos_x, pos_y and a square of 16. A non-zero flag starts filling
    the primitive array at entry count instead of at entry 0. */
-void func_80012714_slot01(Object *obj, u8 *prim_arg, int unused, int flag) {
+void build_scaled_sprite_quads_into_ot_slot01(Object *obj, u8 *prim_arg, int unused, int flag) {
     Poly28 *prim = (Poly28 *)prim_arg;
     s16 *t;
     SpriteSet *set = (SpriteSet *)obj->sequence->data_ptr;

@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1548_slot04_15(Object *obj);
+void advance_state_3_start_table_sequence_alt_slot04_15(Object *obj);
 
 extern u8 data_801c2dec_slot04_15[];
 extern u8 data_801c2df4_slot04_15[];
 
-void func_801b1460_slot04_15(Object *o) {
+void update_sequence_chain_next_on_button_slot04_15(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u16 a;
 
@@ -20,19 +20,19 @@ void func_801b1460_slot04_15(Object *o) {
         }
     } else {
         if (obj->active_flag_2 == 0 || (obj->active_flag_2 = 0, obj->table_index_3 == 2)) {
-            func_801b1548_slot04_15(o);
+            advance_state_3_start_table_sequence_alt_slot04_15(o);
         } else {
             u16 t;
 
             obj->table_index_3 = obj->table_index_3 + 1;
-            func_80141f28(o, 1);
+            add_to_meter_clamped(o, 1);
             t = data_801c2df4_slot04_15[obj->table_index_3];
             a = 0x28;
             if (o->field_49 != 0) {
                 a = 0x46;
             }
             a += t;
-            func_801307e0(o, (u16)a);
+            set_sequence_by_side_and_mode(o, (u16)a);
         }
     }
 }

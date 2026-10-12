@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801350c0(u8 a, u8 b) {
+void update_meter_animation_indices(u8 a, u8 b) {
     Object *left = &player_left;
     Object *right = left + 1;
 

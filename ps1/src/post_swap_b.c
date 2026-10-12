@@ -5,7 +5,7 @@
 
 
 
-void func_80132370(Object *object) {
+void enter_state_7_if_airborne_conditions(Object *object) {
     if (object->mode_flag_2 != 0 && object->table_column >= 0x1d &&
         game_state.loop_counter == 0 &&
         (object->active_flag != 0 || ((s16)object->step_flags & 0x8000)) &&

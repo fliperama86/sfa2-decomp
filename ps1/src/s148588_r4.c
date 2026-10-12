@@ -12,11 +12,11 @@ void func_8014886c(Block172 *block) {
 
 void func_801488ac(Object *object) {
     object->state_0 = object->state_0 + 1;
-    func_80148a74(object);
-    func_801488ec(object);
+    place_object_at_parent_with_two_tables(object);
+    set_sequence_by_variant_index_half(object);
 }
 
-void func_801488ec(Object *object) {
+void set_sequence_by_variant_index_half(Object *object) {
     int base = object->table_index * 2;
     u8 index = base + 0x18;
     object->ot_depth = 4;
@@ -26,5 +26,5 @@ void func_801488ec(Object *object) {
         object->ot_depth = 8;
         object->facing_side = 0;
     }
-    func_80130768(object, index, seqs_8017c7f8);
+    set_sequence_from_table_5(object, index, seqs_8017c7f8);
 }

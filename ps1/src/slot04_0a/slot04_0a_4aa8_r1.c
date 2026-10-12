@@ -3,16 +3,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4aa8_slot04_0a(Object *obj) {
+void start_sequence_0b_with_sound_slot04_0a(Object *obj) {
     obj->active_flag_3 = 1;
     obj->active_flag = 0;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     play_sound_at(obj, obj->side, 0x324);
-    func_801307e0(obj, 0xb);
+    set_sequence_by_side_and_mode(obj, 0xb);
 }
 
-void func_801b4b04_slot04_0a(Object *obj) {
+void start_slide_on_mode_no_sound_slot04_0a(Object *obj) {
     if (((Slot04aObj *)obj)->mode != 0) {
         obj->state_3++;
         if (obj->facing_side != 0) {
@@ -26,11 +26,11 @@ void func_801b4b04_slot04_0a(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b4b68_slot04_0a(Object *obj) {
+void slide_until_stopped_then_advance_step_slot04_0a(Object *obj) {
     SequenceStep *s;
     FrameRecord *f;
     if (obj->active_flag != 0) {
-        if ((u8)func_80149b80(obj)) {
+        if ((u8)consume_active_frame_flag(obj)) {
             obj->state_3 = 0;
         }
     }

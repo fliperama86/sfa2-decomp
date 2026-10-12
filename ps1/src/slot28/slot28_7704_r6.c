@@ -9,7 +9,7 @@ void func_80017f34_slot28(Object *object) {
     data_80032a5c_slot28[object->state_1](object);
 }
 
-void func_80017f74_slot28(Object *o) {
+void update_countdown_with_decreasing_reload_slot28(Object *o) {
     ((Slot28Obj *)o)->field_01 = 0;
     if (((Slot28Obj *)o)->timer_reload != 0) {
         ((Slot28Obj *)o)->countdown_timer --;

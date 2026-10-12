@@ -5,7 +5,7 @@
 
 
 void func_80124220(void) {
-    func_8012411c();
+    scale_palette_rows_and_refresh();
     data_80185fae[0] = 0;
     data_80185fae[3] = 0;
     data_8018f5a0->pass_index++;
@@ -25,5 +25,5 @@ void func_80124220(void) {
     data_8016e800 = 0;
     game_state.field_6d = 0;
     data_80190568 = 1;
-    func_8014f4d4(4, 0);
+    set_menu_command_by_code(4, 0);
 }

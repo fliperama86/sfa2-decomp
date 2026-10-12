@@ -4,18 +4,18 @@
 #include "protos.h"
 
 
-void func_80128bb8(void) {
+void update_players_right_first(void) {
     Object *right = &player_right;
-    func_80128edc(right);
+    update_object_input_and_timers(right);
     if (player_right.status_flag != 0) {
-        func_80128e1c();
+        update_both_players();
     } else {
-        func_80128edc(right - 1);
+        update_object_input_and_timers(right - 1);
         if (player_left.status_flag != 0) {
             func_80128e7c();
         } else {
             func_80128d58();
-            func_80128d08();
+            clear_flags_when_player_frames_inactive();
         }
     }
 }

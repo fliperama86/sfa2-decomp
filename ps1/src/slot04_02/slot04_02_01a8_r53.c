@@ -3,37 +3,37 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6cb0_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
+void set_object_states_0_to_3_2_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-void func_801b63f8_slot04_02(Object *obj) {
+void start_state_choose_hit_or_jump_sequence_slot04_02(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
         if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
-            func_801b6cb0_slot04_02(obj, 1, 2, 0, 0);
+            set_object_states_0_to_3_2_slot04_02(obj, 1, 2, 0, 0);
             return;
         }
     }
     if (obj->direction_index == 2 && obj->attack_param_d != 0) {
         obj->active_flag_3 = 1;
         obj->state_3 = 2;
-        func_80141f28(obj, 1);
-        func_801307e0(obj, 0x27);
+        add_to_meter_clamped(obj, 1);
+        set_sequence_by_side_and_mode(obj, 0x27);
         return;
     }
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b64d8_slot04_02(Object *obj) {
+void update_sequence_or_reset_by_input_dir_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         if (obj->input_dir_0 == 2) {
-            func_80131468(obj);
+            reset_object_to_state_1_0_0_2_sequence_1(obj);
         } else {
-            func_801312b8(obj);
+            reset_object_to_state_1_0_sequence_0(obj);
         }
     } else {
-        if (func_80149b80(obj) & 0xff) {
+        if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
         }
         update_sequence(obj);

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4d28_slot04_02(Object *obj);
+void nudge_other_x_by_table_every_fourth_tick_slot04_02(Object *obj);
 
-void func_801b5184_slot04_02(Object *obj) {
+void slide_with_decaying_vel_x_variant_slot04_02(Object *obj) {
     if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
@@ -14,22 +14,22 @@ void func_801b5184_slot04_02(Object *obj) {
     obj->vel_x = obj->vel_x + obj->accel_x;
     if (obj->vel_x < 0) {
         obj->state_3 = obj->state_3 + 1;
-        func_801307e0(obj, 0x56);
-        func_80142adc(obj);
+        set_sequence_by_side_and_mode(obj, 0x56);
+        start_action_if_buttons_pressed(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
-        func_801b4d28_slot04_02(obj);
+        nudge_other_x_by_table_every_fourth_tick_slot04_02(obj);
     }
 }
 
-void func_801b5234_slot04_02(Object *obj) {
+void update_sequence_or_clear_and_reset_idle_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->field_157 = 0;
         obj->active_state = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }

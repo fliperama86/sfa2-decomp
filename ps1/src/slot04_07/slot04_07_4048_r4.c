@@ -5,9 +5,9 @@
 
 void func_801b45a8_slot04_07(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        if (func_80149b80(obj) & 0xff) {
+        if (consume_active_frame_flag(obj) & 0xff) {
             if (obj->direction_index != 0) {
                 if (obj->facing_side == 0) {
                     obj->pos_x = obj->pos_x - 0x18;
@@ -21,7 +21,7 @@ void func_801b45a8_slot04_07(Object *obj) {
     }
 }
 
-void func_801b464c_slot04_07(Object *obj) {
+void update_sequence_shift_x_by_flag_byte_slot04_07(Object *obj) {
     s16 t;
     s16 d;
     int m;
@@ -39,6 +39,6 @@ void func_801b464c_slot04_07(Object *obj) {
             obj->step_flags = obj->step_flags & 0xff00;
         }
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

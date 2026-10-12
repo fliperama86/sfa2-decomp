@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-s16 func_801415c0(Object *object, u16 *mask, BytePair dir)
+s16 get_direction_mask_bit(Object *object, u16 *mask, BytePair dir)
 {
   u16 m = *mask;
   unsigned short new_var;

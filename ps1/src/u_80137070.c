@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80137070(void)
+void store_image_rect_e0_1e0_slot_2(void)
 {
   Rect r;
   u8 *p = data_801a27e4 + 0x800;

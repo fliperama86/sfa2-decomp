@@ -12,16 +12,16 @@ void func_8014d7d4(Object *object)
   int lo;
   int hi;
   unsigned int sum;
-  if ((u8) func_8014de94(object))
+  if ((u8) roll_random_bit_check_from_kind_table(object))
   {
-    func_8014e080(object);
+    init_object_mode_2(object);
   }
   else
   {
     lo = object->state_2 == 0;
     if (lo || (object->countdown_3 == 0) || ((object->countdown_3--, object->bound_push_flag != 0)))
     {
-      func_8014d99c(object);
+      clear_three_script_bytes(object);
     }
     else
     {
@@ -32,7 +32,7 @@ void func_8014d7d4(Object *object)
       ;
       if (((u16) (new_var + (sum - object->compare_limit))) < 6)
       {
-        func_8014d99c(object);
+        clear_three_script_bytes(object);
       }
       else
       {

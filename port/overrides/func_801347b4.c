@@ -6,7 +6,7 @@
  * What is different from the unit's C: the local `col` is set to 0 at its
  * declaration. The unit declares it without a value.
  *
- * Why: after its two loops the function calls func_801350c0(kind, col) when
+ * Why: after its two loops the function calls update_meter_animation_indices(kind, col) when
  * the kind is 2 or 3. When the map has no rows the loops do not run, and
  * `col` was never set. On the console the register that holds it (s7, first
  * written at 8013483c, inside the loop over the rows) then still has what
@@ -28,11 +28,11 @@
  *     argument e (low 16 bits count) and the sixth f (low 8 bits count) on
  *     the stack at sp + 0x10 and sp + 0x14. No return value.
  *   Reads: the header and cells; data_801a27d0 (low halfword);
- *     data_80188d04; data_80188d28 after func_80134e94; data_801987c8.
+ *     data_80188d04; data_80188d28 after select_meter_level_table_entry; data_801987c8.
  *   Writes: for each non-zero tile, the page word and the corner and
  *     texture fields of one record (offsets 0x08 to 0x25), data_80188d28
- *     (set to 0), data_80188d04 (plus 1); whatever func_80134e94 and
- *     func_801350c0 write.
+ *     (set to 0), data_80188d04 (plus 1); whatever select_meter_level_table_entry and
+ *     update_meter_animation_indices write.
  *   Variables the callees reach by address (the function's own text names
  *     none of them; what the callees reach is inferred): the byte table at
  *     data_80171bf8 + 0x60 (0x108 bytes of which the callees read the bytes
@@ -40,7 +40,7 @@
  *     0xc6 and the byte at 0xd8 of player_left and of player_right (the
  *     object 0x394 bytes after player_left), and the stretch of data from
  *     data_80188d28 - 0x20.
- *   Callees: func_80134e94 and func_801350c0 are game code that only reads
+ *   Callees: select_meter_level_table_entry and update_meter_animation_indices are game code that only reads
  *     and writes variables (inferred); they run as the original code in both
  *     runs (the setup randomizes the variables they read). func_8015bf34 (a
  *     library call, inferred) is replaced by a recorder taking two arguments
@@ -58,7 +58,7 @@
  *     overwrite the variables after the table). The buffer selector (the low
  *     halfword of data_801a27d0) is 0, 1 or 0xffff (-1). Rows equal to 0
  *     with the kind 2 or 3: the original then passes its caller's untouched
- *     register as the column count to func_801350c0, a value no C can
+ *     register as the column count to update_meter_animation_indices, a value no C can
  *     express (read from the original's listing, not tested); with rows 0
  *     this C passes 0, so the test does not use this case.
  *   Not reached by any input: four instruction slots of the original, at
@@ -72,8 +72,8 @@
 
 extern PolyBlk data_80186004[];
 extern s16 data_80188d04;
-void func_80134e94(u8 a, u8 b);
-void func_801350c0(u8 a, u8 b);
+void select_meter_level_table_entry(u8 a, u8 b);
+void update_meter_animation_indices(u8 a, u8 b);
 
 /*
  * What it does (inferred, not an original name): draws a tile map as sprite
@@ -81,7 +81,7 @@ void func_801350c0(u8 a, u8 b);
  * free index data_80188d04 of the buffer data_801a27d0, and hands each record
  * to func_8015bf34 with a pointer into the list array at data_801987c8. The
  * kind changes the page word and the corner layout. Kinds 2 and 3 call
- * func_80134e94 for each tile and func_801350c0 once at the end.
+ * select_meter_level_table_entry for each tile and update_meter_animation_indices once at the end.
  * Parameters: the kind (low 8 bits count), the map header (an address, columns
  * at byte 0, rows at byte 2, then rows * columns halfword cells), the x base
  * (low 16 bits count), the y base, the list index (low 16 bits count) and the
@@ -122,7 +122,7 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
                    differs in 21 instruction lines, (u8)kind != 5 for the flag test below in 118, and
                    kind - 2 for the test after the loops in 2. */
                 if ((unsigned)((kind + 0xfe) & 0xff) < 2) {
-                    func_80134e94(kind, col);
+                    select_meter_level_table_entry(kind, col);
                 }
                 if ((u8)kind < 4) {
                     data_80186004[idx].polys[data_80188d04].clut = (page + map->page_offset + data_80188d28) * 64 + 0x7807;
@@ -185,6 +185,6 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
     }
     /* With no rows col is still the 0 of its declaration here; in the unit it is not set (see the header). */
     if ((unsigned)((kind - 2) & 0xff) < 2) {
-        func_801350c0(kind, col);
+        update_meter_animation_indices(kind, col);
     }
 }

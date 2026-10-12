@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-void func_8013df68(Object *object, u8 index, u8 arg) {
+void tick_slot_timer_and_check_input_2(Object *object, u8 index, u8 arg) {
     u16 entry;
 
     object->slots[index].timer--;
     if (object->slots[index].timer == 0) {
-        func_8013f2a8(object, index, arg);
+        reset_slot_stage_clear_result(object, index, arg);
     } else {
         entry = table_8017a8cc[arg * 7 + object->slots[index].entry_index];
         if ((entry & 0xf000) != (object->input_word & 0xf000)) {
@@ -18,7 +18,7 @@ void func_8013df68(Object *object, u8 index, u8 arg) {
             if (entry & 1) {
                 object->slots[index].stage++;
             }
-            func_8013f0c8(object, index, arg);
+            set_slot_random_timer_and_advance(object, index, arg);
         }
     }
 }

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2ed4_slot04_00(Object *obj);
+void clear_slots_bytes_slot04_00(Object *obj);
 
-void func_801b2a90_slot04_00(Object *obj) {
+void update_sequence_spawn_effects_on_flag_slot04_00(Object *obj) {
     int a = 0x13;
     int b = 0x33;
 
@@ -17,11 +17,11 @@ void func_801b2a90_slot04_00(Object *obj) {
             a = -3;
             b = 0x41;
         }
-        func_801495f8(obj, a, b);
-        func_8011fe40(obj);
-        func_80149af8(obj);
-        func_80143184(obj);
-        func_801b2ed4_slot04_00(obj);
+        spawn_effect_objects_at_offset(obj, a, b);
+        reset_side_table_and_fields(obj);
+        spawn_object_type_6d_for_side(obj);
+        set_other_sequence_3_when_close(obj);
+        clear_slots_bytes_slot04_00(obj);
     }
     update_sequence(obj);
 }

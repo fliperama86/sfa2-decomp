@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 /* Functions of this image that the shared headers do not declare, as the image's units declare them. */
-void func_801b4970_slot04_11(Object *obj);
-u8 func_801b49b8_slot04_11(Object *obj, int a);
-u8 func_801b49e8_slot04_11(Object *obj);
+void latch_pressed_bits_into_input_bits_slot04_11(Object *obj);
+u8 mirror_value_by_facing_side_slot04_11(Object *obj, int a);
+u8 get_random_table_byte_slot04_11(Object *obj);
 Object *func_801b5914_slot04_11(Object *obj);
 
 extern u32 data_801c719c_slot04_11[];
@@ -19,7 +19,7 @@ extern s32 data_801c7648_slot04_11[];
  * clear) it only calls update_sequence. Otherwise it advances state_3 by 3
  * and forms a direction code. For an object with mode_flag_2 clear the code
  * is the halfword input_bits (the collector's result). For one with
- * mode_flag_2 set the code comes from a table test (func_8014a170): when it
+ * mode_flag_2 set the code comes from a table test (test_random_bit_in_table): when it
  * answers yes, from a random pick (func_801b49e8); when no, from the
  * distance of the other object's field_12 to this one's (8 when 0x100 or
  * more, 0x20 from 0x80, else 0x40), and ref_other is set to field_40. The
@@ -31,7 +31,7 @@ extern s32 data_801c7648_slot04_11[];
  * step_count_2 up, clears input_bits, and starts the sequence k plus the table
  * word at row direction_index, offset step_count_2 (old value) plus 12.
  */
-void func_801b43e8_slot04_11(Object *obj) {
+void start_jump_from_input_table_slot04_11(Object *obj) {
     int c;
     int k;
     int d;
@@ -40,13 +40,13 @@ void func_801b43e8_slot04_11(Object *obj) {
     s32 x;
     s32 y;
 
-    func_801b4970_slot04_11(obj);
+    latch_pressed_bits_into_input_bits_slot04_11(obj);
     /* Bit 15 of step_flags, tested as the sign of the word shifted up by 16 (a shift of an unsigned value; its conversion to a signed word is implementation-defined and keeps the bit on this compiler and on the PC's). With (s16)obj->step_flags < 0 this function differs from the original in 4 instruction slots, with ((u32)obj->step_flags << 16) >> 31 in 2, with (obj->step_flags & 0x8000) == 0 and an early return in 11. */
     if ((s32)((u32)obj->step_flags << 16) < 0) {
         c = *(u16 *)&((Slot04bObj *)obj)->input_bits;
         obj->state_3 += 3;
         if (obj->mode_flag_2 != 0) {
-            if (func_8014a170(obj, data_801c719c_slot04_11) == 0) {
+            if (test_random_bit_in_table(obj, data_801c719c_slot04_11) == 0) {
                 func_801b5914_slot04_11(obj);
                 ref_other.p = obj->other;
                 d = ref_other.p->pos_x - obj->pos_x;
@@ -58,10 +58,10 @@ void func_801b43e8_slot04_11(Object *obj) {
                     }
                 }
             } else {
-                c = func_801b49e8_slot04_11(obj);
+                c = get_random_table_byte_slot04_11(obj);
             }
         }
-        c = func_801b49b8_slot04_11(obj, c);
+        c = mirror_value_by_facing_side_slot04_11(obj, c);
         d = 0;
         if ((c & 8) == 0) {
             d = 2;
@@ -92,7 +92,7 @@ void func_801b43e8_slot04_11(Object *obj) {
         *(u16 *)&((Slot04bObj *)obj)->input_bits = 0;
         obj->vel_x = x;
         obj->accel_x = y;
-        func_801307e0(obj, d + data_801c7648_slot04_11[i]);
+        set_sequence_by_side_and_mode(obj, d + data_801c7648_slot04_11[i]);
     } else {
         update_sequence(obj);
     }

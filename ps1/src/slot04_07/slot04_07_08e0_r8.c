@@ -5,7 +5,7 @@
 
 int func_801b41c4_slot04_07(Object *obj);
 
-void func_801b0fec_slot04_07(Object *obj) {
+void update_airborne_motion_until_ground_slot04_07(Object *obj) {
     int limit;
 
     if (func_801b41c4_slot04_07(obj) >= 0) {
@@ -19,8 +19,8 @@ void func_801b0fec_slot04_07(Object *obj) {
             obj->pos_y = limit;
             obj->pos_y_frac = 0;
             obj->active_state = 0;
-            func_801209c4(obj);
-            func_801307e0(obj, 0x2e);
+            play_object_sound_by_kind(obj);
+            set_sequence_by_side_and_mode(obj, 0x2e);
         }
     }
 }

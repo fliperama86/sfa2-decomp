@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2048_slot04_0a(Object *obj) {
+void nudge_pos_x_from_input_bits_slot04_0a(Object *obj) {
     int t;
 
     if (obj->mode_flag_2 == 0) {

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80123254(GameState *g)
+void raise_focus_health_to_max_step(GameState *g)
 {
   u16 new_var;
   Object *o;

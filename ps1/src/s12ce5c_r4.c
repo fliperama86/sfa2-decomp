@@ -3,20 +3,20 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012d910(Object *object) {
-    if ((u8)func_80130184(object) != 0) {
+void update_fall_and_land_second_variant(Object *object) {
+    if ((u8)apply_velocity_and_check_ground(object) != 0) {
         update_sequence(object);
     } else {
         object->state_3 = object->state_3 + 1;
-        func_80131d68(object);
+        push_other_object_x_by_table(object);
         object->active_state = 0;
         object->countdown = 8;
         object->pos_y = object->ground_y;
-        func_801308c4(object, 0x16);
+        set_sequence_by_side_and_mode_2(object, 0x16);
         if ((s16)object->health >= 0) {
-            func_80120a30(object, 1, 0);
+            play_kind_dependent_sound_by_a_and_b(object, 1, 0);
         } else {
-            func_80120a30(object, 1, 1);
+            play_kind_dependent_sound_by_a_and_b(object, 1, 1);
         }
     }
 }
@@ -26,9 +26,9 @@ void func_8012d9b4(Object *object) {
     if ((s16)object->countdown != 0) {
         update_sequence(object);
     } else if ((s16)object->health < 0) {
-        func_8012f4dc(object);
+        enter_state_1_6_and_set_sequence(object);
     } else {
         object->state_3 = object->state_3 + 1;
-        func_801308c4(object, 0x19);
+        set_sequence_by_side_and_mode_2(object, 0x19);
     }
 }

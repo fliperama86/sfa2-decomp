@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014f918(int a) {
+void update_stream_control_by_mode(int a) {
     Ctl *ctl = &ctl_80190948;
     if (ctl_80190948.mode != 0) {
         if (a != 1) {

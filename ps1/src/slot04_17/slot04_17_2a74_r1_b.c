@@ -7,12 +7,12 @@ extern ObjectRef data_80190468;
 extern ObjectFn data_801ce49c_slot04_17[];
 
 void func_801428e4(Object *object);
-void func_80138b38(GameState *state, Object *object);
+void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void func_80145d20(Object *object);
 void func_801b57f0_slot04_17(Object *obj);
 void func_801b3784_slot04_17(Object *obj);
 
-void func_801b36e4_slot04_17(Object *obj) {
+void move_x_decelerating_then_update_or_end_slot04_17(Object *obj) {
     int a = obj->vel_x;
 
     if (obj->facing_side == 0) {
@@ -38,7 +38,7 @@ void func_801b3784_slot04_17(Object *obj) {
     if (obj->step_limit == 0) {
         obj->step_limit = 0xff;
         data_80190468.p->field_6b = 5;
-        func_80147000(obj);
+        spawn_game_state_kind_object(obj);
     }
 }
 
@@ -49,7 +49,7 @@ void func_801b37d0_slot04_17(Object *obj) {
 void func_801b3810_slot04_17(Object *obj) {
     obj->state_3++;
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     func_80145d20(obj);
-    func_801307e0(obj, 0x40);
+    set_sequence_by_side_and_mode(obj, 0x40);
 }

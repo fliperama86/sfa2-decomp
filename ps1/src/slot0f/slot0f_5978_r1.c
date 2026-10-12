@@ -5,11 +5,11 @@
 
 extern s16 data_800f728c_slot0f[16];
 extern u16 data_800f77ac_slot0f;
-int func_800e5ddc_slot0f(u8 a, int b, u16 *dst, u16 *src);
+int fade_palette_step_slot0f(u8 a, int b, u16 *dst, u16 *src);
 void func_800e5364_slot0f(void);
 void func_800e52e0_slot0f(void);
-void func_800e5ae4_slot0f(Slot0fObj *obj);
-void func_800e5a9c_slot0f(Slot0fObj *obj, int flag);
+void advance_hud_state_index_and_reset_slot0f(Slot0fObj *obj);
+void reset_phase_step_and_object_fields_slot0f(Slot0fObj *obj, int flag);
 
 u8 func_800e5978_slot0f(void) {
     u16 *dst;
@@ -23,14 +23,14 @@ u8 func_800e5978_slot0f(void) {
     src = base - 0x140;
     dst = base;
     for (; i < 0x14; i++) {
-        func_800e5ddc_slot0f(0, -1, dst, src);
+        fade_palette_step_slot0f(0, -1, dst, src);
         src += 16;
         dst += 16;
     }
     func_800e5364_slot0f();
     p = (u16 *)data_800f728c_slot0f;
     data_800f77ac_slot0f += 0x14;
-    r = func_800e5ddc_slot0f(1, -1, p, p - 16) & 0xff;
+    r = fade_palette_step_slot0f(1, -1, p, p - 16) & 0xff;
     func_800e52e0_slot0f();
     return r;
 }

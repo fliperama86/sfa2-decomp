@@ -10,7 +10,7 @@
 extern Slot06Tile data_801f8344_slot06_08[2][0x90];
 
 /* What it does (inferred, not an original name): draws a tile map as
-   sprite records, like func_801e9080_slot06_00 of the first stage. The
+   sprite records, like draw_object_tile_grid_sprites_slot06_00 of the first stage. The
    object selects a layer by its field_0e (8, 4 or 0xc pick one of three
    layer blocks, any other value uses no layer). For the first layer the
    object's position is also shifted by a fraction of the layer's own

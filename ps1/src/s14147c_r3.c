@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_80141c4c(Object *object) {
+int is_state_01010101_and_ready(Object *object) {
     if (*(u32 *)&object->state_0 == 0x1010101 && object->active_state != 0 && object->field_163 == 0 &&
         *(s16 *)&object->health >= 0 &&
         (game_state.config->mode_flag_b | game_state.config->mode_flag_c | game_state.config->mode_flag_a) == 0 &&

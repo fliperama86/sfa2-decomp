@@ -4,17 +4,17 @@
 #include "protos.h"
 
 
-void func_80136c8c(void) {
+void call_handler_by_kind_index_a(void) {
     table_80172500[game_state.kind_index]();
 }
 
-void func_80136ccc(void) {
+void call_kind_handler_if_flag_set(void) {
     if (data_80190568 != 0) {
         table_801725a0[game_state.kind_index]();
     }
 }
 
-void func_80136d1c(Tx *tx) {
+void init_draw_mode_prim_3(Tx *tx) {
     func_80158a2c(tx, 0, 0, 0, 0);
     tx->mode_id = 3;
     tx->prim_code = 0x7c;
@@ -30,35 +30,35 @@ void init_draw_mode_prim_4(Tx *tx) {
 
 void func_80136dc4(void) {
     func_80136dfc();
-    func_80137004();
-    func_80137070();
-    func_801370dc();
+    store_image_rect_d0_1e0_slot_1();
+    store_image_rect_e0_1e0_slot_2();
+    store_image_rect_f0_1e0_slot_3();
 }
 
 void func_80136dfc(void) {
-    func_80136f90();
-    func_80137148();
-    func_801371b4();
-    func_80136e68();
-    func_80137364(4, 0, 0xb0, 0x1e0, 0xe);
-    func_80137220(0, 6);
-    func_80137220(4, 7);
+    store_image_rect_b0_1f0_to_table();
+    store_image_rect_c0_1e0_slot_0();
+    store_image_rect_160_1f0_slot_4();
+    call_left_and_right_func_pair();
+    store_image_pair_to_table(4, 0, 0xb0, 0x1e0, 0xe);
+    queue_image_upload_job(0, 6);
+    queue_image_upload_job(4, 7);
 }
 
-void func_80136e68(void) {
+void call_left_and_right_func_pair(void) {
     func_80136e90();
     func_80136ed0();
 }
 
 void func_80136e90(void) {
-    func_80136f10(&player_left, 0x10, 0x100, player_left.field_d4 * 5 + 0x1e0);
+    store_image_rows_to_table(&player_left, 0x10, 0x100, player_left.field_d4 * 5 + 0x1e0);
 }
 
 void func_80136ed0(void) {
-    func_80136f10(&player_right, 0xb, 0x120, player_right.field_d4 * 5 + 0x1e0);
+    store_image_rows_to_table(&player_right, 0xb, 0x120, player_right.field_d4 * 5 + 0x1e0);
 }
 
-void func_80136f10(Object *object, short index, int w, int h) {
+void store_image_rows_to_table(Object *object, short index, int w, int h) {
     Rect rect;
 
     object->field_f4 = index;

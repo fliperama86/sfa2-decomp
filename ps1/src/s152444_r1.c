@@ -5,31 +5,31 @@
 
 
 
-void func_80152444(Object *object) {
+void call_handler_by_variant_index(Object *object) {
     table_80180284[object->variant_index >> 1](object);
 }
 
 void func_80152488(Object *object) {
     table_80180294[object->state_1](object);
-    func_80120028(object);
+    set_flag_and_push_if_mode_8(object);
 }
 
-void func_801524dc(Object *object) {
+void start_random_sequence_by_variant(Object *object) {
     object->state_1++;
-    func_80152ad8(object, object->variant_index);
-    func_801528e0(object);
+    set_random_sequence_from_variant(object, object->variant_index);
+    set_position_from_parent_table(object);
 }
 
 void func_8015251c(Object *object) {
-    if (func_801528b0(object)) {
+    if (is_linked_object_field_clear(object)) {
         object->state_1++;
-        func_80130768(object, (object->variant_index * 2 + 0x33) & 0xff, table_8017c7f8);
+        set_sequence_from_table_5(object, (object->variant_index * 2 + 0x33) & 0xff, table_8017c7f8);
     }
-    func_801528e0(object);
+    set_position_from_parent_table(object);
     advance_sequence_checked(object);
 }
 
-void func_80152588(Object *object) {
+void advance_sequence_or_next_state(Object *object) {
     if ((s16)object->step_flags >= 0) {
         advance_sequence_checked(object);
     } else {
@@ -41,22 +41,22 @@ void func_801525d0(Object *object) {
     func_80152488(object);
 }
 
-void func_801525f0(Object *object) {
-    if (func_801528b0(object)) {
+void call_state_1_handler_unless_released(Object *object) {
+    if (is_linked_object_field_clear(object)) {
         object->state_0++;
     } else {
         table_801802a0[object->state_1](object);
-        func_80120028(object);
+        set_flag_and_push_if_mode_8(object);
     }
 }
 
-void func_80152668(Object *object) {
+void start_sequence_from_countdown_table(Object *object) {
     object->state_1++;
-    func_80130768(object, (table_801802a8[(s16)object->countdown] + (object->table_index >> 2)) & 0xff, table_8017c7f8);
-    func_801529f4(object);
+    set_sequence_from_table_5(object, (table_801802a8[(s16)object->countdown] + (object->table_index >> 2)) & 0xff, table_8017c7f8);
+    set_position_from_parent_offset_table(object);
 }
 
 void func_801526d0(Object *object) {
     advance_sequence_checked(object);
-    func_801529f4(object);
+    set_position_from_parent_offset_table(object);
 }

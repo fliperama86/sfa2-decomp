@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801368c0(Cam *cam) {
+void save_cam_prev_pos_and_set_table_ptr(Cam *cam) {
     cam->prev_pos_x = cam->pos_x;
     cam->prev_pos_y = cam->pos_y;
     cam->table_ptr = cam->base_ptr;

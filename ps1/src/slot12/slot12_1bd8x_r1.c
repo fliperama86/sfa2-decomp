@@ -5,7 +5,7 @@
 
 extern Slot12Bank data_80028b48_slot12[];
 
-void func_80011bd8_slot12(Object *obj, Slot12List *list) {
+void position_and_link_scaled_sprite_cells_slot12(Object *obj, Slot12List *list) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
     Cell20 *c;

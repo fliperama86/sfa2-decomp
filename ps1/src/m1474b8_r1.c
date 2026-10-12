@@ -15,9 +15,9 @@ void func_801474b8(Object *object) {
         play_side_sound_at(object->parent, object->parent->side, 0xd);
         set_cd_volume(2);
         object->field_01 = 1;
-        func_801476f8(object);
-        func_80130768(object, game_state.spawn_kind, seqs_8017cbac);
-        func_801477ac(object, 1, 0x10);
+        set_countdown_random_by_active_state(object);
+        set_sequence_from_table_5(object, game_state.spawn_kind, seqs_8017cbac);
+        store_image_row_and_queue_job(object, 1, 0x10);
     } else {
         object->state_0 = 2;
     }

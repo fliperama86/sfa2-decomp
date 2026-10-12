@@ -3,12 +3,12 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80152b40(Object *object) {
+void spawn_two_counted_objects_variant_0(Object *object) {
     u16 i;
     Object *o;
     for (i = 0; i < 2; i++) {
         if (data_801a27cc != 0) {
-            o = (Object *)func_8011f1e0();
+            o = (Object *)pop_block_from_pool();
             if (o != 0) {
                 o->active_count = 1;
                 o->field_02 = 10;
@@ -30,12 +30,12 @@ void func_80152b40(Object *object) {
     }
 }
 
-void func_80152c34(Object *object) {
+void spawn_two_counted_objects_variant_2(Object *object) {
     u16 i;
     Object *o;
     for (i = 0; i < 2; i++) {
         if (data_801a27cc != 0) {
-            o = (Object *)func_8011f1e0();
+            o = (Object *)pop_block_from_pool();
             if (o != 0) {
                 o->active_count = 1;
                 o->field_02 = 10;
@@ -57,11 +57,11 @@ void func_80152c34(Object *object) {
     }
 }
 
-void func_80152d28(Object *object) {
+void spawn_three_objects_variant_4(Object *object) {
     u16 i;
     Object *o;
     for (i = 0; i < 3; i++) {
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->active_count = 1;
             o->field_02 = 10;
@@ -81,12 +81,12 @@ void func_80152d28(Object *object) {
     }
 }
 
-void func_80152df4(Object *object) {
+void spawn_two_counted_objects_variant_6(Object *object) {
     u16 i;
     Object *o;
     for (i = 0; i < 2; i++) {
         if (data_801a27cc != 0) {
-            o = (Object *)func_8011f1e0();
+            o = (Object *)pop_block_from_pool();
             if (o != 0) {
                 o->active_count = 1;
                 o->field_02 = 10;

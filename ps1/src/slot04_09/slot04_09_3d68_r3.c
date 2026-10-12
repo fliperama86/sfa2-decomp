@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5478_slot04_09(Object *obj);
+void spawn_linked_pooled_object_health_2_slot04_09(Object *obj);
 
-void func_801b3eec_slot04_09(Object *obj) {
+void update_attack_hit_spawn_linked_object_slot04_09(Object *obj) {
     u16 t;
     update_sequence(obj);
     t = obj->step_flags;
@@ -17,7 +17,7 @@ void func_801b3eec_slot04_09(Object *obj) {
             obj->other->field_6b = 10;
             obj->other_lock = 10;
         }
-        func_801b5478_slot04_09(obj);
+        spawn_linked_pooled_object_health_2_slot04_09(obj);
         play_side_sound_at(obj, ((Slot04aObj *)obj)->side, 4);
     } else if ((u8)t != 2) {
         obj->step_flags = (t & 0xff00) | 2;
@@ -26,14 +26,14 @@ void func_801b3eec_slot04_09(Object *obj) {
             obj->field_165 = 1;
         }
         play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x31c);
-        func_801483a4(obj, 0, 0x54);
+        spawn_children_per_direction_index(obj, 0, 0x54);
     }
 }
 
-void func_801b3fbc_slot04_09(Object *obj) {
+void end_sequence_clear_variant_index_2_slot04_09(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->variant_index_2 = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }

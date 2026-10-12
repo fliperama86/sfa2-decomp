@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80141e34(Object *object);
+int is_not_state_2_five(Object *object);
 void func_80142718(Object *object);
 void func_80142778(Object *object);
 
-int func_801b132c_slot04_0f(Object *obj) {
+int try_start_meter_special_state_8_type_4_slot04_0f(Object *obj) {
     if (obj->field_292 != 0) return 0;
     if ((s16)obj->meter < 0x30) return 0;
     if (obj->active_state == 0) {
-        if (!func_80141e34(obj)) return 0;
+        if (!is_not_state_2_five(obj)) return 0;
         if (!(u8)func_80141788(obj)) return 0;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -30,7 +30,7 @@ int func_801b132c_slot04_0f(Object *obj) {
     return 1;
 }
 
-int func_801b1418_slot04_0f(Object *obj) {
+int try_start_meter_special_state_8_type_7_slot04_0f(Object *obj) {
     if (obj->link_flags != 0) return 0;
     if ((s16)obj->meter < 0x30) return 0;
     if (!(u8)func_80141788(obj)) return 0;
@@ -45,7 +45,7 @@ int func_801b1418_slot04_0f(Object *obj) {
     return 1;
 }
 
-int func_801b14b0_slot04_0f(Object *obj) {
+int try_start_meter_special_state_8_type_8_slot04_0f(Object *obj) {
     if ((s16)obj->meter < 0x30) return 0;
     if (!(u8)func_80141788(obj)) return 0;
     obj->state_0 = 1;

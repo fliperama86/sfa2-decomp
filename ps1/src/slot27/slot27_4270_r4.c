@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800145f4_slot27(Object *o) {
+void move_y_offset_and_spawn_at_limit_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Object *n;
     if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
@@ -14,7 +14,7 @@ void func_800145f4_slot27(Object *o) {
         if ((u32)y >= 0x1e1) {
             obj->field_01 = 0;
             obj->field_05 = obj->field_05 + 1;
-            n = (Object *)func_8011f1e0();
+            n = (Object *)pop_block_from_pool();
             if (n != 0) {
                 n->active_count = 1;
                 n->field_02 = 0xaa;
@@ -25,7 +25,7 @@ void func_800145f4_slot27(Object *o) {
     func_8011ffdc(o);
 }
 
-void func_800146a8_slot27(Object *o) {
+void move_y_offset_until_limit_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
         int sum = *(u16 *)&o->pos_y + obj->pos_y_offset;

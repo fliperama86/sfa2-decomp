@@ -10,7 +10,7 @@ extern Rect data_800e934c_slot0f[];
 extern u8 data_800e96dc_slot0f[];
 extern Rect *data_800e96e8_slot0f;
 
-void func_800e31d4_slot0f(void) {
+void update_cycling_option_display_slot0f(void) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     u8 *p;
@@ -33,11 +33,11 @@ void func_800e31d4_slot0f(void) {
         data_800e96e8_slot0f = &data_800e934c_slot0f[sel];
     }
     p = data_800e96dc_slot0f;
-    func_801519b4(p);
+    add_item_to_table(p);
     if ((u8)(data_800f855e_slot0f - 2) < 3) {
-        func_801519b4(p + 0x10);
+        add_item_to_table(p + 0x10);
     } else {
-        func_801519b4(p + 0x20);
-        func_801519b4(p + 0x30);
+        add_item_to_table(p + 0x20);
+        add_item_to_table(p + 0x30);
     }
 }

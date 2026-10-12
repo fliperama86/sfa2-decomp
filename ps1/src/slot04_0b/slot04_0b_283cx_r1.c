@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b2510_slot04_0b(Object *object);
+u8 move_ballistic_and_check_ground_slot04_0b(Object *object);
 
-void func_801b283c_slot04_0b(Object *obj) {
+void update_airborne_until_landing_to_saved_y_slot04_0b(Object *obj) {
     int t;
     unsigned u;
     int y;
 
-    if (func_801b2510_slot04_0b(obj)) {
+    if (move_ballistic_and_check_ground_slot04_0b(obj)) {
         if ((u8)obj->step_flags != 4) {
             update_sequence(obj);
         }
@@ -23,6 +23,6 @@ void func_801b283c_slot04_0b(Object *obj) {
         t++;
         obj->state_3 = t;
         obj->pos_y = y;
-        func_801307e0(obj, (u >> 1) + 0x45);
+        set_sequence_by_side_and_mode(obj, (u >> 1) + 0x45);
     }
 }

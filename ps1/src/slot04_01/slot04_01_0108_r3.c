@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b02bc_slot04_01(Object *object) {
+void update_countdown_set_config_side_bits_slot04_01(Object *object) {
     s16 t = object->countdown;
 
     if (t != 0) {

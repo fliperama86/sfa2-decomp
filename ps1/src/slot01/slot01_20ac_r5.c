@@ -5,6 +5,6 @@
 
 extern u8 data_80015680_slot01[];
 
-int func_800126f8_slot01(u8 index) {
+int get_table_entry_slot01(u8 index) {
     return data_80015680_slot01[index];
 }

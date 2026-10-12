@@ -5,7 +5,7 @@
 
 extern Slot01State55e94 data_80055e94_slot01;
 extern Slot01Rec152ec data_800152e4_slot01;
-void func_80011fe8_slot01(Object *obj, Slot01Rec152ec *a1);
+void set_record_cursor_and_spawn_y_slot01(Object *obj, Slot01Rec152ec *a1);
 
 void func_80011e28_slot01(Object *obj) {
     Object *o = obj;
@@ -22,19 +22,19 @@ void func_80011e28_slot01(Object *obj) {
     }
 }
 
-void func_80011eb8_slot01(Object *obj) {
+void advance_state_0_on_record_value_flag_slot01(Object *obj) {
     if (data_80055e94_slot01.value & 0x8000) {
         obj->state_0++;
     }
 }
 
-void func_80011ee8_slot01(Object *obj) {
+void init_object_and_activate_linked_object_slot01(Object *obj) {
     obj->state_0++;
     obj->pos_x = box_margin[0] + 5;
     ((Object *)obj->linked_object)->state_0 = 2;
-    func_80011fe8_slot01(obj, &data_800152e4_slot01);
+    set_record_cursor_and_spawn_y_slot01(obj, &data_800152e4_slot01);
 }
 
-void func_80011f34_slot01(Object *obj) {
-    func_80120028(obj);
+void load_velocities_from_table_slot01(Object *obj) {
+    set_flag_and_push_if_mode_8(obj);
 }

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801374c0(void) {
+void restore_rows_from_backup_rows(void) {
     s16 i, j;
 
     if (data_8018db10) {
@@ -13,7 +13,7 @@ void func_801374c0(void) {
                 data_801a27e4_rows[i][j] = data_801a27e4_rows[i + 5][j];
             }
         }
-        func_80137b10();
+        queue_five_jobs();
         data_8018db10 = 0;
     }
 }

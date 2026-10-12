@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801518a0(void) {
+void init_sprite_buffers(void) {
     int i;
     Cell20 *a;
     Cell20 *b;

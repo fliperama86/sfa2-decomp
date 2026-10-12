@@ -7,9 +7,9 @@ extern u8 data_801c098c_slot04_03[];
 extern s32 data_801c09a4_slot04_03[];
 extern u16 data_801c09b0_slot04_03[];
 
-void func_801b3c48_slot04_03(Object *obj, Object *unused);
+void call_handler_by_state_1_slot04_03(Object *obj, Object *unused);
 
-/* The call of func_801b3c48_slot04_03 passes one argument although the function takes two: the original does not set the second argument register before it. Written with a second parameter passed on, this function is 12 bytes longer than the original. */
+/* The call of call_handler_by_state_1_slot04_03 passes one argument although the function takes two: the original does not set the second argument register before it. Written with a second parameter passed on, this function is 12 bytes longer than the original. */
 void func_801b3ae8_slot04_03(Object *obj, Object *unused) {
     u8 a2;
     int a1;
@@ -42,5 +42,5 @@ void func_801b3ae8_slot04_03(Object *obj, Object *unused) {
     obj->pos_x = a1 + obj->pos_x;
     obj->pos_y = obj->pos_y - 0x44;
     func_80138070(obj, a2 + (obj->vel_table_index >> 1));
-    ((void (*)(Object *))func_801b3c48_slot04_03)(obj);
+    ((void (*)(Object *))call_handler_by_state_1_slot04_03)(obj);
 }

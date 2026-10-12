@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013a320(Object *a, Object *object, Box32 *c) {
+void set_hit_type_from_box_type_with_flag(Object *a, Object *object, Box32 *c) {
     object->field_15b = 1;
     object->hit_type = c->box_type;
     if (object->hit_type == 0x1d) {

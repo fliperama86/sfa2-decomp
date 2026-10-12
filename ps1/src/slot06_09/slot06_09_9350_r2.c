@@ -6,9 +6,9 @@
 extern ObjectFn data_801ec944_slot06_09[];
 extern SequenceStep *data_801ec92c_slot06_09[];
 
-void func_801e9cc0_slot06_09(Object *obj);
+void set_accel_and_countdown_from_tables_slot06_09(Object *obj);
 
-void func_801e9b18_slot06_09(Object *obj) {
+void call_handler_by_state_0_slot06_09(Object *obj) {
     data_801ec944_slot06_09[obj->state_0](obj);
 }
 
@@ -20,6 +20,6 @@ void func_801e9b58_slot06_09(Object *obj) {
     obj->image_row = 0;
     obj->field_0c = 0;
     obj->state_0++;
-    func_801e9cc0_slot06_09(obj);
-    func_80130700(obj, data_801ec92c_slot06_09[obj->table_index]);
+    set_accel_and_countdown_from_tables_slot06_09(obj);
+    set_sequence_entry(obj, data_801ec92c_slot06_09[obj->table_index]);
 }

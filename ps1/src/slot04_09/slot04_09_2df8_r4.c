@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3190_slot04_09(Object *obj) {
+void update_attack_spawn_then_advance_state_3_slot04_09(Object *obj) {
     u16 t;
 
     update_sequence(obj);
@@ -23,6 +23,6 @@ void func_801b3190_slot04_09(Object *obj) {
             obj->field_165 = 1;
         }
         play_sound_at(obj, obj->side, 0x31c);
-        func_801483a4(obj, -0x19, 0x31);
+        spawn_children_per_direction_index(obj, -0x19, 0x31);
     }
 }

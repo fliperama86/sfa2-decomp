@@ -17,12 +17,12 @@ void func_80022594_slot28(Object *obj) {
         a->variant_index = 0xff;
         a = data_80051ba4_slot28[1];
         a->variant_index = 0xff;
-        func_8014f4d4(6, 3);
+        set_menu_command_by_code(6, 3);
         data_8018f5a0->countdown_timer = 0x1e;
     }
 }
 
-void func_80022618_slot28(Object *obj) {
+void advance_pass_when_countdown_negative_slot28(Object *obj) {
     int t = data_8018f5a0->countdown_timer - 1;
     data_8018f5a0->countdown_timer = t;
     if ((s16)t < 0) {
@@ -34,8 +34,8 @@ void func_80022618_slot28(Object *obj) {
 
 void func_8002266c_slot28(Object *obj) {
     if (((Slot28Obj *)data_80051bdc_slot28.p)->field_3a < 0) {
-        func_8014f4d4(1, 0x505);
+        set_menu_command_by_code(1, 0x505);
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
-        func_801282d4();
+        start_fade_mode_1801_and_wait();
     }
 }

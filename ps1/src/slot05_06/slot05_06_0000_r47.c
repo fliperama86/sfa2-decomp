@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cd1f4_slot05_06(Object *obj);
+void clear_slots_bytes_slot05_06(Object *obj);
 
-void func_801cbff4_slot05_06(Object *obj) {
+void start_sequence_by_active_state_slot05_06(Object *obj) {
     int a;
 
     obj->state_3 = obj->state_3 + 1;
-    func_80142fbc(obj);
-    func_801428a8(obj);
-    func_80138b38(&game_state, obj);
+    save_facing_and_set_x_motion(obj);
+    set_direction_index_from_meter_and_save(obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     a = 0x2f;
     if (obj->active_state == 0) {
         a = 0x2b;
@@ -19,7 +19,7 @@ void func_801cbff4_slot05_06(Object *obj) {
     set_sequence_by_side(obj, a);
 }
 
-void func_801cc060_slot05_06(Object *obj) {
+void spawn_effects_on_status_flags_slot05_06(Object *obj) {
     s16 a;
     int b;
 
@@ -35,16 +35,16 @@ void func_801cc060_slot05_06(Object *obj) {
             a = -0xa;
             b = 0x6a;
         }
-        func_801495f8(obj, a, b);
-        func_8011fe40(obj);
-        func_80149af8(obj);
-        func_80143184(obj);
-        func_801cd1f4_slot05_06(obj);
+        spawn_effect_objects_at_offset(obj, a, b);
+        reset_side_table_and_fields(obj);
+        spawn_object_type_6d_for_side(obj);
+        set_other_sequence_3_when_close(obj);
+        clear_slots_bytes_slot05_06(obj);
     }
     update_sequence(obj);
 }
 
-void func_801cc108_slot05_06(Object *obj) {
+void count_down_timer_then_advance_state_3_slot05_06(Object *obj) {
     int a;
     ((Slot04aObj *)obj)->timer--;
     if (((Slot04aObj *)obj)->timer == 0) {
@@ -60,6 +60,6 @@ void func_801cc108_slot05_06(Object *obj) {
         obj->cursor_timer_a = a;
         obj->field_180 = 0;
     }
-    func_80142fe8(obj);
+    push_other_by_vel_x(obj);
     update_sequence(obj);
 }

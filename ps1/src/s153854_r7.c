@@ -4,16 +4,16 @@
 #include "protos.h"
 
 
-void func_801542e4(Object *o) {
+void noop_object_handler_3(Object *o) {
 }
 
 void init_memory_card_events(void) {
     s32 *flag = (s32 *)0x1f800000;
     int *d = data_8018fef8;
     if (*flag < 0) {
-        func_801544a8(d);
+        disable_and_close_events(d);
     }
-    func_80154364(d);
+    open_and_enable_events(d);
     if (*flag == 0) {
         func_8016d8e0(1);
         func_8016d8f0();

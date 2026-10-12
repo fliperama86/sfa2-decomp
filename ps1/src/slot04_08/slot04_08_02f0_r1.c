@@ -3,21 +3,21 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0330_slot04_08(Object *obj);
-void func_801b05c4_slot04_08(Object *obj);
+void call_handler_by_input_dir_0_2_slot04_08(Object *obj);
+void call_handler_by_state_3_set_flag_slot04_08(Object *obj);
 void func_801b0370_slot04_08(Object *obj);
 void func_801b0458_slot04_08(Object *obj);
 extern ObjectFn data_801c3b58_slot04_08[];
 
-void func_801b02f0_slot04_08(Object *obj) {
+void call_handler_by_input_dir_0_slot04_08(Object *obj) {
     if (obj->input_dir_0 == 0) {
-        func_801b0330_slot04_08(obj);
+        call_handler_by_input_dir_0_2_slot04_08(obj);
     } else {
-        func_801b05c4_slot04_08(obj);
+        call_handler_by_state_3_set_flag_slot04_08(obj);
     }
 }
 
-void func_801b0330_slot04_08(Object *obj) {
+void call_handler_by_input_dir_0_2_slot04_08(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second == 0) {
         func_801b0370_slot04_08(obj);

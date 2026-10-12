@@ -15,17 +15,17 @@ extern SequenceStep *data_80045c58_slot28[];
 void func_80021d64_slot28(Object *obj, int arg);
 void func_80021df4_slot28(void);
 
-void func_80021afc_slot28(Object *obj) {
+void advance_slot28_pass_to_step_three_c_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
         data_8018f5a0->countdown_timer = 0x258;
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
         func_80021df4_slot28();
-        func_80130768(data_80051b8c_slot28.p, 0, data_80045c40_slot28);
+        set_sequence_from_table_5(data_80051b8c_slot28.p, 0, data_80045c40_slot28);
         b = data_80051b90_slot28[0];
         b->pos_y = -0x50;
-        func_80130768(b, 1, data_80045c4c_slot28);
-        b = (Object *)func_8011f1e0();
+        set_sequence_from_table_5(b, 1, data_80045c4c_slot28);
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;
             b->field_02 = 0x7a;
@@ -44,7 +44,7 @@ void func_80021afc_slot28(Object *obj) {
             data_80051b64_slot28[0] = b;
         }
         func_80021d64_slot28(obj, 3);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }
 

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5478_slot04_09(Object *obj);
+void spawn_linked_pooled_object_health_2_slot04_09(Object *obj);
 
-void func_801b43f0_slot04_09(Object *obj) {
+void update_sequence_play_side_sound_on_flag_slot04_09(Object *obj) {
     if (obj->active_flag != 0) {
         obj->active_flag = 0;
         obj->other->field_6b = 4;
@@ -18,10 +18,10 @@ void func_801b43f0_slot04_09(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b4470_slot04_09(Object *obj) {
+void update_sequence_spawn_linked_on_flag_slot04_09(Object *obj) {
     if (obj->step_flags & 0xf) {
         obj->state_3++;
-        func_801b5478_slot04_09(obj);
+        spawn_linked_pooled_object_health_2_slot04_09(obj);
     }
     update_sequence(obj);
 }

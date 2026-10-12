@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b45b4_slot04_03(Object *obj) {
+void move_with_gravity_until_landing_slot04_03(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac += obj->vel_y;
     obj->vel_y += obj->accel_y;
@@ -13,9 +13,9 @@ void func_801b45b4_slot04_03(Object *obj) {
         obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         update_sequence(obj);
-        func_801307e0(obj, 0x1e);
+        set_sequence_by_side_and_mode(obj, 0x1e);
     }
 }
 
@@ -24,6 +24,6 @@ void func_801b465c_slot04_03(Object *obj) {
         update_sequence(obj);
     } else {
         obj->other->other_state_code = 8;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

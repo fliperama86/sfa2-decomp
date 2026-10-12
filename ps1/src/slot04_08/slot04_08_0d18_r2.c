@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
-int func_801b0ea0_slot04_08(Object *obj) {
+int start_meter_move_15a_3_choose_direction_slot04_08(Object *obj) {
     if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -35,7 +35,7 @@ int func_801b0ea0_slot04_08(Object *obj) {
 }
 
 /* Declared int although it returns nothing itself: the caller tests the result register as the last call left it. */
-int func_801b0f80_slot04_08(Object *obj) {
+int start_meter_move_15a_4_clear_substate_slot04_08(Object *obj) {
     if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 0;

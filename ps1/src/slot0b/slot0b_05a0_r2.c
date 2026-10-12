@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e08d8_slot0b(ModObj *obj);
-void func_801e0578_slot0b(Object *obj, u8 a);
+void spawn_child_object_for_owner_side_slot0b(ModObj *obj);
+void set_sequence_from_slot01_table_slot0b(Object *obj, u8 a);
 
 void func_801e06d0_slot0b(ModObj *obj) {
     int t;
@@ -23,15 +23,15 @@ void func_801e06d0_slot0b(ModObj *obj) {
     obj->counter_a = 0;
     obj->counter_b = 0;
     obj->substate_index += 1;
-    func_801e08d8_slot0b(obj);
+    spawn_child_object_for_owner_side_slot0b(obj);
 }
 
-void func_801e0760_slot0b(ModObj *obj) {
+void advance_substate_on_phase_2_slot0b(ModObj *obj) {
     if (data_80190468.p->phase_state == 2) {
         obj->countdown_timer = 0xf;
         obj->substate_index += 1;
         ref_other.p = obj->owner_object;
-        func_801e0578_slot0b((Object *)obj, func_80125b18(ref_other.p->kind));
+        set_sequence_from_slot01_table_slot0b((Object *)obj, get_byte_from_table_by_index(ref_other.p->kind));
         if (obj->child != 0) {
             obj->child->mode = 2;
         }

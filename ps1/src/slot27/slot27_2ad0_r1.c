@@ -3,17 +3,17 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80012e84_slot27(void);
-void func_80012ef8_slot27(Object *obj);
-void func_80012f64_slot27(Object *obj);
-void func_80013a6c_slot27(void);
-void func_80013cc4_slot27(Object *obj);
+void update_choice_from_pressed_buttons_slot27(void);
+void add_y_offset_to_clamped_health_slot27(Object *obj);
+void sync_vec_table_index_from_field_slot27(Object *obj);
+void check_opposite_player_same_selection_slot27(void);
+void advance_palette_animation_and_upload_slot27(Object *obj);
 
-void func_80012ad0_slot27(Object *obj) {
+void update_two_choice_selector_state_slot27(Object *obj) {
     u8 v;
-    func_80012e84_slot27();
+    update_choice_from_pressed_buttons_slot27();
     if (ref_other.p->field_d8 != data_8019045c[0]) {
-        func_801205c4(ref_other.p->side, 0);
+        call_func_with_side_x_origin(ref_other.p->side, 0);
         data_80190464[0] = 2;
         ref_other.p->field_d8 = v = data_8019045c[0];
         if (v == 0) {
@@ -21,7 +21,7 @@ void func_80012ad0_slot27(Object *obj) {
         }
         obj->y_offset = data_80190464[0];
     }
-    func_80012ef8_slot27(obj);
+    add_y_offset_to_clamped_health_slot27(obj);
     if (game_state.busy_flag == 0) {
         int m;
         int t;
@@ -38,21 +38,21 @@ void func_80012ad0_slot27(Object *obj) {
             }
         }
         obj->state_2 = obj->state_2 + 1;
-        func_801205c4(ref_other.p->side, 1);
+        call_func_with_side_x_origin(ref_other.p->side, 1);
         data_8019045c[0] = ref_other.p->field_d8;
         if (ref_other.p->field_d8 != 0) {
             ref_other.p->field_d4 = ref_other.p->field_d4 & 1;
             ref_other.p->field_d4 = ref_other.p->field_d4 + 4;
-            func_80013a6c_slot27();
+            check_opposite_player_same_selection_slot27();
             if (data_8019045c[0] != 0) {
                 ref_other.p->field_d4 = ref_other.p->field_d4 ^ data_8019045c[0];
             }
         }
         data_8019045c[0] = ref_other.p->field_d8 << 4;
         obj->health = data_8019045c[0];
-        func_80012f64_slot27(obj);
+        sync_vec_table_index_from_field_slot27(obj);
         return;
     }
 call:
-    func_80013cc4_slot27(obj);
+    advance_palette_animation_and_upload_slot27(obj);
 }

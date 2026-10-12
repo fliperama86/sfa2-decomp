@@ -10,7 +10,7 @@
    becomes (head + 1) & 0xff, or 1 when that is 0 (word 0 is never an
    entry slot after a wrap), and is written back into word 0. The head is
    used as a signed halfword index; the function has no check of it. */
-void func_8013f3e8(Object *object) {
+void push_object_value_to_side_ring(Object *object) {
     s16 head;
 
     /* The read of the head and the store are written once per side: the

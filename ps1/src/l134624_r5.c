@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801376b8(Object *object) {
+void store_image_row_for_hit_type(Object *object) {
     u8 *src;
     Rect rect;
 
@@ -24,7 +24,7 @@ void func_801376b8(Object *object) {
             rect.w = 0x10;
             rect.h = 1;
             func_80158028(&rect, src);
-            func_80137220(0, 6);
+            queue_image_upload_job(0, 6);
         }
     } else {
         Job *job;
@@ -35,7 +35,7 @@ void func_801376b8(Object *object) {
         rect.w = 0x10;
         rect.h = 1;
         func_80158028(&rect, src);
-        job = (Job *)func_8011f4a4();
+        job = (Job *)alloc_pooled_b();
         if (job == 0) {
             return;
         }

@@ -6,31 +6,31 @@
 extern u16 data_801edc10_slot06_10[];
 extern Slot06TileW data_801f50b0_slot06_10[2][0x5d];
 
-void func_801e89c8_slot06_10(Slot06Layer *layer);
-void func_801e8a1c_slot06_10(Slot06Layer *layer);
+void init_layer_cam_and_advance_mode_slot06_10(Slot06Layer *layer);
+void update_layer_flags_and_parallax_position_slot06_10(Slot06Layer *layer);
 void init_draw_mode_prim_4(Tx *tx);
 
-void func_801e8960_slot06_10(void) {
+void noop_empty_function_slot06_10(void) {
 }
 
-void func_801e8968_slot06_10(void) {
+void noop_empty_function_2_slot06_10(void) {
 }
 
-void func_801e8970_slot06_10(u8 *p) {
+void noop_byte_pointer_slot06_10(u8 *p) {
 }
 
-void func_801e8978_slot06_10(void) {
+void noop_empty_function_3_slot06_10(void) {
 }
 
-void func_801e8980_slot06_10(Slot06Layer *layer) {
+void call_layer_handler_by_mode_slot06_10(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801e89c8_slot06_10(layer);
+        init_layer_cam_and_advance_mode_slot06_10(layer);
     } else if (layer->mode == 1) {
-        func_801e8a1c_slot06_10(layer);
+        update_layer_flags_and_parallax_position_slot06_10(layer);
     }
 }
 
-void func_801e89c8_slot06_10(Slot06Layer *layer) {
+void init_layer_cam_and_advance_mode_slot06_10(Slot06Layer *layer) {
     init_cam_position((Cam *)layer, 0x1c0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
@@ -39,7 +39,7 @@ void func_801e89c8_slot06_10(Slot06Layer *layer) {
     }
 }
 
-void func_801e8a1c_slot06_10(Slot06Layer *layer) {
+void update_layer_flags_and_parallax_position_slot06_10(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     s16 e;
@@ -73,7 +73,7 @@ void func_801e8ad0_slot06_10(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8afc_slot06_10(void) {
+void init_two_banks_of_93_sprite_prims_slot06_10(void) {
     Slot06TileW *p;
     int i;
     int k;

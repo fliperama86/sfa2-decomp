@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80138838(GameState *state, int delta) {
+void add_clamped_value(GameState *state, int delta) {
     data_80188ec4 += delta;
     func_8013886c(state);
 }
@@ -27,11 +27,11 @@ void func_801388a8(GameState *state, Object *object) {
     cost = 0x48;
     if (object->cost_index < 0x10) cost = table_80176d70[object->cost_index];
     data_80188ec4 = data_80188ec4 - cost;
-    func_80138838(state, table_80176d80[get_random_byte() & 0x1f] - 0x18);
+    add_clamped_value(state, table_80176d80[get_random_byte() & 0x1f] - 0x18);
     func_8013886c(state);
 }
 
-void func_80138964(GameState *state) {
+void update_ec4_from_round_time_and_health(GameState *state) {
     short a;
     Object *other;
 
@@ -47,7 +47,7 @@ void func_80138964(GameState *state) {
     } else {
         a = 0xa;
     }
-    func_80138838(state, a);
+    add_clamped_value(state, a);
     other = state->focus_object;
     if (other != 0 && other->mode_flag_2 == 0) {
         if ((s16)other->health >= 0x70) {
@@ -59,44 +59,44 @@ void func_80138964(GameState *state) {
         } else {
             a = -((s16)other->health < 0x10) & 0xfff8;
         }
-        func_80138838(state, a);
+        add_clamped_value(state, a);
     }
     if (state->field_4d != 0) {
         a = 2;
         other = state->focus_object;
         if (other != 0 && other->mode_flag_2 != 0) a = -8;
-        func_80138838(state, a);
+        add_clamped_value(state, a);
     }
-    func_80138628(state);
+    adjust_counter_c_by_table_and_random(state);
     func_8013886c(state);
-    func_8013860c(state);
+    set_counter_shifted_from_counter_c(state);
 }
 
-void func_80138ac8(GameState *state, Object *object) {
-    func_80138ae8(state, object);
+void call_add_one_to_ec4_wrapper_2(GameState *state, Object *object) {
+    add_one_to_ec4_if_object_unflagged(state, object);
 }
 
-void func_80138ae8(GameState *state, Object *object) {
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object) {
     if ((state->mode != 3 || state->mode3_active_flag != 0) && object->mode_flag_2 == 0)
-        func_80138838(state, 1);
+        add_clamped_value(state, 1);
 }
 
-void func_80138b38(GameState *state, Object *object) {
+void set_flag_225_add_direction_to_counter(GameState *state, Object *object) {
     object->field_225 = 1;
     if ((state->mode != 3 || state->mode3_active_flag != 0) && object->mode_flag_2 == 0)
-        func_80138838(state, object->direction_index + 2);
+        add_clamped_value(state, object->direction_index + 2);
 }
 
-void func_80138b94(GameState *state, Object *object) {
+void add_three_to_ec4_if_object_unflagged(GameState *state, Object *object) {
     if ((state->mode != 3 || state->mode3_active_flag != 0) && object->mode_flag_2 == 0)
-        func_80138838(state, 3);
+        add_clamped_value(state, 3);
 }
 
-void func_80138be4(GameState *state, Object *object) {
+void add_one_to_ec4_if_other_in_state(GameState *state, Object *object) {
     if ((state->mode != 3 || state->mode3_active_flag != 0) && object->mode_flag_2 == 0 &&
         object->round_count >= 2) {
         Object *other = object->other;
         if (*(u16 *)&other->state_0 == 2 && (u8)(other->state_2 - 5) < 2)
-            func_80138838(state, 1);
+            add_clamped_value(state, 1);
     }
 }

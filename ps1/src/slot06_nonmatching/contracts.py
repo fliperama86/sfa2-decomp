@@ -482,5 +482,5 @@ def control_func_801e9080_slot06_00(words):
 
 
 CONTRACTS = {
-    "func_801e9080_slot06_00": Contract(setup_func_801e9080_slot06_00, control_func_801e9080_slot06_00),
+    "draw_object_tile_grid_sprites_slot06_00": Contract(setup_func_801e9080_slot06_00, control_func_801e9080_slot06_00),
 }

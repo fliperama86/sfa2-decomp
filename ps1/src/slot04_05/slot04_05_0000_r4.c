@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b04c8_slot04_05(Object *obj) {
+void update_sequence_then_shift_pos_x_on_flag_slot04_05(Object *obj) {
     int d = 0x2a;
 
     update_sequence(obj);

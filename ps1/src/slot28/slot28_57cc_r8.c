@@ -4,13 +4,13 @@
 #include "../externs.h"
 
 extern SequenceStep *data_8002e190_slot28[];
-void func_80015fcc_slot28(Object *obj, SeqRec **table, u8 index);
-void func_80015f50_slot28(Object *obj);
+void set_sequence_from_table_index_slot28(Object *obj, SeqRec **table, u8 index);
+void advance_sequence_and_queue_step_jobs_slot28(Object *obj);
 
-void func_80015ea4_slot28(Object *obj) {
+void set_sequence_from_table_by_table_index_slot28(Object *obj) {
     obj->variant_index = 0;
     obj->state_0++;
-    func_80015fcc_slot28(obj, (SeqRec **)data_8002e190_slot28, obj->table_index);
+    set_sequence_from_table_index_slot28(obj, (SeqRec **)data_8002e190_slot28, obj->table_index);
 }
 
 void func_80015edc_slot28(Object *obj) {
@@ -18,6 +18,6 @@ void func_80015edc_slot28(Object *obj) {
         obj->state_0++;
     }
     if (game_state.wait_flag == 0) {
-        func_80015f50_slot28(obj);
+        advance_sequence_and_queue_step_jobs_slot28(obj);
     }
 }

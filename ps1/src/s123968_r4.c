@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801246a4(ObjectView *a, Object *b, Object *c) {
+void reset_fields_and_clear_position_fracs(ObjectView *a, Object *b, Object *c) {
     a->field_1e = 0x1c3;
     a->field_32 = 0;
     a->field_33 = 0;

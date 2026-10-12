@@ -4,9 +4,9 @@
 #include "protos.h"
 
 
-void func_8011c568(Slab172 *p, u16 *unused) {
+void drop_second_stream_cell_run(Slab172 *p, u16 *unused) {
     u16 i = p->stream_index;
-    func_8011a6b8(data_80183ffc[i][1], data_801841bc[i][1]);
+    free_slot_chain(data_80183ffc[i][1], data_801841bc[i][1]);
     data_80183ffc[i][1] = data_80183ffc[i][0];
     data_801841bc[i][1] = data_801841bc[i][0];
     data_8018437c[i][1] = data_8018437c[i][0];

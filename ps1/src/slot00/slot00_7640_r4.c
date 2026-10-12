@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80077a18_slot00(Object *obj) {
+void check_parent_state_key_or_set_state_3_slot00(Object *obj) {
     if ((((Slot00Obj *)obj->parent)->state_key & 0xffffff) == 0x80001) {
-        func_80120028(obj);
+        set_flag_and_push_if_mode_8(obj);
     } else {
         obj->state_0 = 3;
         obj->state_1 = 0;
@@ -14,8 +14,8 @@ void func_80077a18_slot00(Object *obj) {
     }
 }
 
-void func_80077a78_slot00(Object *obj) {
+void decrement_parent_counter_and_release_slot00(Object *obj) {
     Object *p = obj->parent;
     p->counter--;
-    func_8011f14c((Slab172 *)obj);
+    reset_and_push_block_object_type_8((Slab172 *)obj);
 }

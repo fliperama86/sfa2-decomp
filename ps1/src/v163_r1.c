@@ -10,7 +10,7 @@
    first local is then reused for the high half. Written that way the
    compiler keeps both registers, as the original does: the copy is stored as
    the low half and the loaded register is shifted in place. */
-void func_8011f994(Object *object, SeqRec *rec, u8 *base) {
+void set_sequence_and_copy_block(Object *object, SeqRec *rec, u8 *base) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     int offset, p, q;
@@ -25,5 +25,5 @@ void func_8011f994(Object *object, SeqRec *rec, u8 *base) {
     q = (object->pos_x & 0xe00) * 4;
     p = (object->pos_x & 0x1f0) / 16 * 4;
     offset = p + q + (((object->pos_y / 16) << 23) >> 16);
-    func_8011fae0(rec->data, (u16 *)(base + ((offset << 15) >> 15)));
+    copy_block_pairs_wide(rec->data, (u16 *)(base + ((offset << 15) >> 15)));
 }

@@ -6,7 +6,7 @@
 extern u16 data_801c5320_slot04_06[];
 extern s32 data_801c532c_slot04_06[];
 
-void func_801b169c_slot04_06(Object *o) {
+void resolve_hit_range_sounds_and_sequence_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int i = o->direction_index >> 1;
     s16 x;
@@ -25,17 +25,17 @@ void func_801b169c_slot04_06(Object *o) {
         play_side_sound_at(o, o->side, 9);
         play_sound_at(o->other, o->other->side, 0x31a);
         if (o->state_2 == 8) {
-            func_80145f98(o);
+            spawn_three_child_records_at_other(o);
         }
-        func_801307e0(o, 0x1f);
+        set_sequence_by_side_and_mode(o, 0x1f);
     } else {
         o->state_3++;
         play_side_sound_at(o, o->side, 1);
-        func_801307e0(o, 0x27);
+        set_sequence_by_side_and_mode(o, 0x27);
     }
 }
 
-void func_801b17ac_slot04_06(Object *o) {
+void start_move_with_velocities_from_table_slot04_06(Object *o) {
     s32 *p;
 
     o->substate_index = 0;
@@ -43,11 +43,11 @@ void func_801b17ac_slot04_06(Object *o) {
     o->step_count_2 = 0;
     o->step_limit = 0;
     o->state_3++;
-    func_80141f28(o, 5);
+    add_to_meter_clamped(o, 5);
     p = &data_801c532c_slot04_06[o->direction_index * 2];
     o->vel_x = *p++;
     o->vel_y = *p++;
     o->accel_x = *p++;
     o->accel_y = *p;
-    func_801307e0(o, 0x1f);
+    set_sequence_by_side_and_mode(o, 0x1f);
 }

@@ -5,7 +5,7 @@
 
 extern u16 data_801a6966;
 
-void func_8011f5a0(void) {
+void update_player_inputs_and_handlers(void) {
     Object *p;
     player_left.prev_input_bits = player_left.input_bits;
     player_right.prev_input_bits = player_right.input_bits;

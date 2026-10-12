@@ -12,6 +12,6 @@ void func_801b07d0_slot04_09(Object *obj) {
         obj->state_3 = 0;
     } else {
         obj->active_flag_3 = 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

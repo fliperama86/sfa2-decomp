@@ -7,7 +7,7 @@ extern u8 data_80019330_slot01[];
 extern u8 data_800195b8_slot01[];
 extern int data_80055f3c_slot01;
 extern s16 data_80055e9a_slot01;
-void func_80012020_slot01(Object *obj);
+void advance_record_list_and_set_spawn_y_slot01(Object *obj);
 
 void func_80013da4_slot01(Object *obj) {
     Object *p;
@@ -21,7 +21,7 @@ void func_80013da4_slot01(Object *obj) {
         func_8011ffdc(obj);
     } else if (data_80055e9a_slot01 < 0) {
         obj->state_1++;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x30;
@@ -37,6 +37,6 @@ void func_80013da4_slot01(Object *obj) {
             p->table_index = *(u8 *)&data_80055f3c_slot01;
         }
     } else {
-        func_80012020_slot01(obj);
+        advance_record_list_and_set_spawn_y_slot01(obj);
     }
 }

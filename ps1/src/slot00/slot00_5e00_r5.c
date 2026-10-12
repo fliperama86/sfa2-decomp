@@ -12,20 +12,20 @@ void func_8007632c_slot00(Object *obj) {
         obj->field_225 = 1;
         if (obj->counter == 0) {
             obj->field_225 = 0;
-            func_80141f28(obj, 1);
+            add_to_meter_clamped(obj, 1);
         }
         play_side_sound_at(obj, obj->side, 9);
-        func_801307e0(obj, 0x2b);
+        set_sequence_by_side_and_mode(obj, 0x2b);
     } else {
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }
 
-void func_800763c4_slot00(Object *obj) {
+void update_sequence_or_finish_on_flag_5_slot00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
-        if (func_80149b80(obj) & 0xff) {
+        if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
         }
         update_sequence(obj);

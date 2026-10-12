@@ -5,9 +5,9 @@
 
 extern u16 data_801c3e98_slot04_08;
 
-void func_801b4298_slot04_08(Object *obj);
+void push_other_x_if_hit_check_slot04_08(Object *obj);
 
-void func_801b1b00_slot04_08(Object *obj) {
+void move_x_toward_target_then_set_sequence_slot04_08(Object *obj) {
     u16 t;
     u16 a;
     unsigned lim;
@@ -20,7 +20,7 @@ void func_801b1b00_slot04_08(Object *obj) {
     t = (obj->countdown + 1) & 7;
     obj->countdown = t;
     if (t == 0) {
-        func_801b4298_slot04_08(obj);
+        push_other_x_if_hit_check_slot04_08(obj);
     }
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     x = *(u16 *)&obj->pos_x;
@@ -60,6 +60,6 @@ tail:
         if (obj->field_49 != 0) {
             n = 0x71;
         }
-        func_801307e0(obj, (obj->direction_index >> 1) + n);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + n);
     }
 }

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3ef8_slot04_02(Object *o) {
+void update_moving_countdown_hit_check_or_end_slot04_02(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *p = o->other;
 
@@ -17,7 +17,7 @@ void func_801b3ef8_slot04_02(Object *o) {
                 o->state_3++;
                 o->countdown = (o->countdown & 0xff00) | 0x10;
                 play_sound_at(p, p->side, 0x31a);
-                func_801307e0(o, 0x3b);
+                set_sequence_by_side_and_mode(o, 0x3b);
             }
         } else {
             o->state_3 = 8;
@@ -31,12 +31,12 @@ void func_801b3ef8_slot04_02(Object *o) {
     }
 }
 
-void func_801b3fec_slot04_02(Object *o) {
+void count_down_then_advance_state_3_slot04_02(Object *o) {
     o->countdown = (s16)o->countdown - 1;
     if ((o->countdown & 0xff) == 0) {
         o->state_3++;
         o->countdown = o->countdown | 0x3b;
-        func_80126130();
+        fill_palette_banks_white();
         update_sequence(o);
     }
 }

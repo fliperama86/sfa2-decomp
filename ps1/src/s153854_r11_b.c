@@ -30,7 +30,7 @@ int add_bcd(int a, int b) {
     return res;
 }
 
-int func_80156018(int a, int b) {
+int subtract_bcd(int a, int b) {
     int borrow = 0;
     int res = 0;
     int mask = 0xf;
@@ -60,6 +60,6 @@ void func_80156084(void) {
     data_8018d268 = 0;
 }
 
-void func_80156094(void) {
+void call_handler_by_data_index(void) {
     table_80181650[data_8018d268]();
 }

@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3274_slot04_07(Object *obj);
+void move_xy_by_facing_with_x_decel_stop_slot04_07(Object *obj);
 void func_801b3120_slot04_07(Object *obj);
-void func_801b320c_slot04_07(Object *obj);
+void update_motion_until_ground_state_4_slot04_07(Object *obj);
 
-void func_801b315c_slot04_07(Object *obj) {
-    func_801b3274_slot04_07(obj);
+void update_motion_with_active_flag_branch_slot04_07(Object *obj) {
+    move_xy_by_facing_with_x_decel_stop_slot04_07(obj);
     if (((Slot04aObj *)obj)->seen_flag == 0 && obj->active_flag != 0) {
         obj->vel_x = 0x10000;
         obj->vel_y = 0x10000;
@@ -27,10 +27,10 @@ void func_801b315c_slot04_07(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b320c_slot04_07(Object *obj) {
+void update_motion_until_ground_state_4_slot04_07(Object *obj) {
     int t;
 
-    func_801b3274_slot04_07(obj);
+    move_xy_by_facing_with_x_decel_stop_slot04_07(obj);
     t = obj->ground_y;
     if (obj->pos_y < t) {
         update_sequence(obj);
@@ -38,11 +38,11 @@ void func_801b320c_slot04_07(Object *obj) {
         obj->state_3 = 4;
         obj->pos_y = t;
         obj->active_state = 0;
-        func_801307e0(obj, 0x2e);
+        set_sequence_by_side_and_mode(obj, 0x2e);
     }
 }
 
-void func_801b3274_slot04_07(Object *obj) {
+void move_xy_by_facing_with_x_decel_stop_slot04_07(Object *obj) {
     if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {

@@ -7,60 +7,60 @@ extern u16 data_801ea52c_slot06_12[];
 extern Slot06Tile data_801ef340_slot06_12[2][0x8c];
 extern Slot06Tile data_801f6070_slot06_12[2][0x100];
 
-void func_801e8224_slot06_12(Slot06Layer *layer);
+void init_first_layer_tile_map_slot06_12(Slot06Layer *layer);
 void func_801e8778_slot06_12(Slot06Layer *layer);
 void func_801e8dcc_slot06_12(Slot06Layer *layer);
 void func_801e8cc4_slot06_12(Slot06Layer *layer);
-void func_801e8174_slot06_12(Slot06Layer *layer);
-void func_801e8250_slot06_12(void);
-void func_801e87bc_slot06_12(void);
-void func_801e8df8_slot06_12(void);
-void func_801e8ccc_slot06_12(void);
-void func_801e8364_slot06_12(void);
-void func_801e885c_slot06_12(void);
-void func_801e8e98_slot06_12(void);
-void func_801e8cbc_slot06_12(void);
+void scroll_layer_parallax_half_x_slot06_12(Slot06Layer *layer);
+void init_tile_prims_gray_two_banks_slot06_12(void);
+void init_tile_prims_gray_bank_slot06_12(void);
+void init_two_buffers_of_32px_sprite_prims_slot06_12(void);
+void noop_empty_function_2_slot06_12(void);
+void draw_tile_layer_0_16px_slot06_12(void);
+void draw_scrolling_tile_map_layer_slot06_12(void);
+void draw_tilemap_layer_32px_9x13_slot06_12(void);
+void noop_empty_function_slot06_12(void);
 
-void func_801e8000_slot06_12(void) {
+void draw_background_layers_by_flags_slot06_12(void) {
     u16 *flags = &game_state.field_dc;
 
     if (*flags & 2) {
-        func_801e8364_slot06_12();
+        draw_tile_layer_0_16px_slot06_12();
     }
     if (*flags & 4) {
-        func_801e885c_slot06_12();
+        draw_scrolling_tile_map_layer_slot06_12();
     }
     if (*flags & 8) {
-        func_801e8e98_slot06_12();
+        draw_tilemap_layer_32px_9x13_slot06_12();
     }
     if (*flags & 4) {
-        func_801e8cbc_slot06_12();
+        noop_empty_function_slot06_12();
     }
 }
 
-void func_801e8098_slot06_12(void) {
-    func_801e8224_slot06_12((Slot06Layer *)data_801aa544);
+void init_four_layers_tile_maps_slot06_12(void) {
+    init_first_layer_tile_map_slot06_12((Slot06Layer *)data_801aa544);
     func_801e8778_slot06_12((Slot06Layer *)data_801aa5d4);
     func_801e8dcc_slot06_12((Slot06Layer *)cam_obj);
     func_801e8cc4_slot06_12((Slot06Layer *)data_801904d8);
 }
 
 void func_801e80f0_slot06_12(void) {
-    func_801e8250_slot06_12();
-    func_801e87bc_slot06_12();
-    func_801e8df8_slot06_12();
-    func_801e8ccc_slot06_12();
+    init_tile_prims_gray_two_banks_slot06_12();
+    init_tile_prims_gray_bank_slot06_12();
+    init_two_buffers_of_32px_sprite_prims_slot06_12();
+    noop_empty_function_2_slot06_12();
 }
 
-void func_801e8128_slot06_12(Slot06Layer *layer) {
+void update_layer_by_mode_scroll_slot06_12(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801361a4((Sprite *)layer, 0x40, -0x10);
+        init_sprite_counted((Sprite *)layer, 0x40, -0x10);
     } else if (layer->mode == 1) {
-        func_801e8174_slot06_12(layer);
+        scroll_layer_parallax_half_x_slot06_12(layer);
     }
 }
 
-void func_801e8174_slot06_12(Slot06Layer *layer) {
+void scroll_layer_parallax_half_x_slot06_12(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 
@@ -82,7 +82,7 @@ void func_801e8174_slot06_12(Slot06Layer *layer) {
     layer->field_26 = d;
 }
 
-void func_801e8224_slot06_12(Slot06Layer *layer) {
+void init_first_layer_tile_map_slot06_12(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ea52c_slot06_12;
     layer->data_table = data_801ea52c_slot06_12;
     layer->packed_param = 0x5800;
@@ -90,7 +90,7 @@ void func_801e8224_slot06_12(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8250_slot06_12(void) {
+void init_tile_prims_gray_two_banks_slot06_12(void) {
     int i;
     int j;
     Slot06Tile *r;
@@ -103,7 +103,7 @@ void func_801e8250_slot06_12(void) {
         j = 0;
         do {
             r = (Slot06Tile *)((u8 *)data_801ef340_slot06_12 + i * 0xf50 + j * 0x1c);
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = 0x80;
             r->sprt.color_g = 0x80;
             r->sprt.color_b = 0x80;
@@ -117,7 +117,7 @@ void func_801e8250_slot06_12(void) {
     do {
         j = 0;
         do {
-            func_80136d1c((Tx *)(i * 0x1c00 + (u32)(t + j)));
+            init_draw_mode_prim_3((Tx *)(i * 0x1c00 + (u32)(t + j)));
             q = (Slot06Sprt16 *)((j * 0x1c + i * 0x1c00) + (u32)sp);
             q->color_r = 0x80;
             q->color_g = 0x80;

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011f504(Pooled *p) {
+void release_pooled_to_stack_a(Pooled *p) {
     Pooled **sp;
     sp = data_801a4fe4;
     data_801ac618++;

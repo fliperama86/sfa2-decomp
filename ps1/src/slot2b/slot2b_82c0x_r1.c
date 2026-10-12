@@ -5,14 +5,14 @@
 
 extern ObjectFn data_80079a2c_slot2b[];
 extern s16 data_8007ef2c_slot2b;
-void func_80078554_slot2b(Object *o);
+void apply_velocity_and_acceleration_slot2b(Object *o);
 
-void func_800782c0_slot2b(Object *o) {
+void call_handler_by_state_2_unless_paused_slot2b(Object *o) {
     if ((game_state_second.pause_flag_a | game_state_second.pause_flag_b) != 0) {
         func_8011ffdc(o);
         return;
     }
     data_80079a2c_slot2b[o->state_2](o);
-    func_8011ff74(o);
+    set_state_0_if_x_outside_margin_narrow(o);
     func_8011ffdc(o);
 }

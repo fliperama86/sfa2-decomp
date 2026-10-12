@@ -9,7 +9,7 @@
 
 
 /* Form found by automatic permutation search. */
-int func_8014a4f4(Object *object)
+int read_script_word_and_run_opcode(Object *object)
 {
   u16 *p = (u16 *) object->script_ptr;
   u16 t;
@@ -23,7 +23,7 @@ int func_8014a4f4(Object *object)
   w = object->script_opcode_high;
   if (w == 0xff)
   {
-    func_8014c994(object);
+    call_script_switch_by_arg(object);
   }
   func_8014a5c0(object);
   object->script_ptr = (s32) data_80189460;

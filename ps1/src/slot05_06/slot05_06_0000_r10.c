@@ -3,19 +3,19 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801c8bfc_slot05_06(Object *obj) {
-    if (!func_801417cc(obj)) return 0;
+int try_enter_state_7_kind_0_slot05_06(Object *obj) {
+    if (!try_action_clearing_both_flags(obj)) return 0;
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;
     obj->state_3 = 0;
     obj->field_15a = 0;
     obj->facing_side = obj->saved_facing;
-    func_80142b3c(obj);
+    set_direction_index_from_buttons_group_a(obj);
     return 1;
 }
 
-int func_801c8c64_slot05_06(Object *obj) {
+int try_start_meter_move_15a_1_direction_4_slot05_06(Object *obj) {
     if ((s16)obj->meter < 0x30) return 0;
     if (!(u8)func_80141788(obj)) return 0;
     obj->state_0 = 1;
@@ -30,8 +30,8 @@ int func_801c8c64_slot05_06(Object *obj) {
     return 1;
 }
 
-int func_801c8cf0_slot05_06(Object *obj) {
-    if (!func_801417cc(obj)) return 0;
+int try_enter_state_7_kind_2_slot05_06(Object *obj) {
+    if (!try_action_clearing_both_flags(obj)) return 0;
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;
@@ -39,6 +39,6 @@ int func_801c8cf0_slot05_06(Object *obj) {
     obj->field_15a = 2;
     obj->active_flag_3 = 1;
     obj->facing_side = obj->saved_facing;
-    func_80142b3c(obj);
+    set_direction_index_from_buttons_group_a(obj);
     return 1;
 }

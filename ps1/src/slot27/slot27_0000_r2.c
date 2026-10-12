@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern u8 data_80029324_slot27;
-void func_800105ec_slot27(void);
+void call_handler_by_hud_step_index_2_2_slot27(void);
 
-void func_80010100_slot27(void) {
+void load_slot27_screen_graphics_and_camera_slot27(void) {
     Rect r;
     s16 i;
     func_80151020(0x307);
@@ -29,27 +29,27 @@ void func_80010100_slot27(void) {
         data_801a27e4_rows[0][i] = ((u16 *)0x800e0c00)[i];
         data_801a27e4_rows[5][i] = ((u16 *)0x800e0c00)[i];
     }
-    func_80137220(0, 0);
+    queue_image_upload_job(0, 0);
     for (i = 0; i < 0x200; i++) {
         data_801a27e4_rows[1][i] = ((u16 *)0x800e0000)[i];
         data_801a27e4_rows[6][i] = ((u16 *)0x800e0000)[i];
     }
-    func_80137220(1, 1);
+    queue_image_upload_job(1, 1);
     for (i = 0; i < 0x200; i++) {
         data_801a27e4_rows[2][i] = ((u16 *)0x800e0400)[i];
         data_801a27e4_rows[7][i] = ((u16 *)0x800e0400)[i];
     }
-    func_80137220(2, 2);
+    queue_image_upload_job(2, 2);
     for (i = 0; i < 0x200; i++) {
         data_801a27e4_rows[3][i] = ((u16 *)0x800e0800)[i];
         data_801a27e4_rows[8][i] = ((u16 *)0x800e0800)[i];
     }
-    func_80137220(3, 3);
+    queue_image_upload_job(3, 3);
     for (i = 0; i < 0xa0; i++) {
         data_801a27e4_rows[2][0x160 + i] = ((u16 *)0x800ed400)[i];
         data_801a27e4_rows[7][0x160 + i] = ((u16 *)0x800ed400)[i];
     }
-    func_80137220(2, 2);
+    queue_image_upload_job(2, 2);
     data_801aa544[0].scroll_x = 0x248;
     ((u16 *)&data_801aa544[0].scroll_y)[1] = 0x100;
     data_801aa544[1].scroll_x = 0x148;
@@ -67,7 +67,7 @@ void func_80010100_slot27(void) {
     if (game_state.pause_flag != 0) {
         data_8018f5a0->substep_index++;
         game_state.pause_flag = 0;
-        func_800105ec_slot27();
+        call_handler_by_hud_step_index_2_2_slot27();
     } else {
         HudState *h = data_8018f5a0;
         h->step_index_2++;

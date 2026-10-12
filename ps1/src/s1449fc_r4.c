@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80144e90(Object *object) {
+void advance_state_0_and_clear_config_mode(Object *object) {
     object->state_0++;
     game_state.config->mode = 0;
 }

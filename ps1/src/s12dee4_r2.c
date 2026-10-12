@@ -9,11 +9,11 @@ void func_8012e00c(Object *object) {
     handlers_1a6c[object->state_3](object);
 }
 
-void func_8012e04c(Object *object) {
+void update_airborne_or_bounce_land(Object *object) {
     int value = object->vel_y;
     int a1;
 
-    if ((u8)func_80130184(object)) {
+    if ((u8)apply_velocity_and_check_ground(object)) {
         if (value < 0) {
             update_sequence(object);
         }
@@ -32,7 +32,7 @@ void func_8012e04c(Object *object) {
         }
         object->facing_side = a1;
         object->vel_x = value;
-        func_801308c4(object, 0x1f);
+        set_sequence_by_side_and_mode_2(object, 0x1f);
     }
 }
 
@@ -40,7 +40,7 @@ void func_8012e0fc(Object *object) {
     handlers_1a74[object->state_3](object);
 }
 
-void func_8012e13c(Object *object) {
+void advance_state_3_and_call_step_2(Object *object) {
     object->state_3 = object->state_3 + 1;
     func_8012e168(object);
 }

@@ -6,8 +6,8 @@
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
 
-void func_80015838_slot27(Object *obj) {
-    Object *p = (Object *)func_8011f1e0();
+void spawn_child_object_with_kind_index_slot27(Object *obj) {
+    Object *p = (Object *)pop_block_from_pool();
     Object *b = p;
     if (b != 0) {
         b->active_count = 1;

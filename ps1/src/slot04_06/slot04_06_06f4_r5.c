@@ -7,7 +7,7 @@ int func_801b1338_slot04_06(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b134c_slot04_06(Object *obj) {
+int return_true_always_slot04_06(Object *obj) {
     return 1;
 }
 

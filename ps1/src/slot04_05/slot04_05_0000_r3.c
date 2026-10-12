@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b033c_slot04_05(Object *obj) {
+void start_jump_flip_facing_near_edge_slot04_05(Object *obj) {
     int e;
     s16 d;
     int base;
@@ -33,15 +33,15 @@ void func_801b033c_slot04_05(Object *obj) {
     obj->active_state = 1;
 }
 
-void func_801b03d0_slot04_05(Object *obj) {
+void advance_state_3_if_step_flags_byte_zero_slot04_05(Object *obj) {
     if (*(u8 *)&obj->step_flags == 0) {
         obj->state_3 = obj->state_3 + 1;
     }
     update_sequence(obj);
 }
 
-void func_801b0410_slot04_05(Object *obj) {
-    if ((u8)func_80130184(obj) == 0) {
+void update_air_motion_until_landing_step_2_slot04_05(Object *obj) {
+    if ((u8)apply_velocity_and_check_ground(obj) == 0) {
         obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = (u16)obj->ground_y;
@@ -51,7 +51,7 @@ void func_801b0410_slot04_05(Object *obj) {
     }
 }
 
-void func_801b0474_slot04_05(Object *obj) {
+void set_side_bit_on_sequence_flag_and_update_slot04_05(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         game_state.side_bits_2 |= 1 << obj->side;
     }

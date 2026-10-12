@@ -3,24 +3,24 @@
 #include "protos.h"
 #include "externs.h"
 
-/* What it does (inferred, not original names): a sibling of func_8013e028,
+/* What it does (inferred, not original names): a sibling of check_slot_input_by_entry_index,
    with the table halfword fixed at step 1 and the pad compared as a whole.
    It decrements the slot's timer; when that reaches 0 it calls
-   func_8013f2a8 and returns. Otherwise it takes the table halfword
+   reset_slot_stage_clear_result and returns. Otherwise it takes the table halfword
    table_8017a8cc[arg * 7 + 1], the object's two input halfwords ORed
    together (bits, pressed_bits | released_bits) and the entry's mask (its low
    byte, q):
-     - entry bit 0x200 clear: a hit (func_8013f2d8) when the pad and mask
+     - entry bit 0x200 clear: a hit (reset_slot_stage_set_result) when the pad and mask
        share a bit among 0xfc, or the mask has a bit of 0x94 and the pad is
        exactly 1, or it has a bit of 0x68 and the pad is exactly 2 (the
        original tests the mask against 0x868; the mask has 8 bits);
        otherwise func_8013f2c8;
      - entry bit 0x200 set, with m = pad & mask: when entry bit 0x100 is set
-       and m is 0x94, func_8013f2d8 and return; when bit 0x100 is set and
-       the pad is exactly 1, func_8013f2d8 is called and the function goes
+       and m is 0x94, reset_slot_stage_set_result and return; when bit 0x100 is set and
+       the pad is exactly 1, reset_slot_stage_set_result is called and the function goes
        on; then, when entry bit 0x800 is set and (m is 0x68 or the pad is
-       exactly 2), func_8013f2d8, else func_8013f2c8. */
-void func_8013db48(Object *object, u8 index, u8 arg) {
+       exactly 2), reset_slot_stage_set_result, else func_8013f2c8. */
+void check_slot_input_against_table_entry(Object *object, u8 index, u8 arg) {
     u16 entry;
     u16 q;
     u16 m;
@@ -28,7 +28,7 @@ void func_8013db48(Object *object, u8 index, u8 arg) {
 
     object->slots[index].timer--;
     if (object->slots[index].timer == 0) {
-        func_8013f2a8(object, index, arg);
+        reset_slot_stage_clear_result(object, index, arg);
         return;
     }
     entry = table_8017a8cc[(arg * 7) + 1];
@@ -40,11 +40,11 @@ void func_8013db48(Object *object, u8 index, u8 arg) {
     m = q;
     if (!(entry & 0x200)) {
         if ((bits & q) & 0xfc) {
-            func_8013f2d8(object, index, arg);
+            reset_slot_stage_set_result(object, index, arg);
         } else if ((q & 0x94) && (bits == 1)) {
-            func_8013f2d8(object, index, arg);
+            reset_slot_stage_set_result(object, index, arg);
         } else if ((m & 0x868) && (bits == 2)) {
-            func_8013f2d8(object, index, arg);
+            reset_slot_stage_set_result(object, index, arg);
         } else {
             func_8013f2c8(object);
         }
@@ -52,15 +52,15 @@ void func_8013db48(Object *object, u8 index, u8 arg) {
         m = bits & q;
         if (entry & 0x100) {
             if (m == 0x94) {
-                func_8013f2d8(object, index, arg);
+                reset_slot_stage_set_result(object, index, arg);
                 return;
             }
             if (bits == 1) {
-                func_8013f2d8(object, index, arg);
+                reset_slot_stage_set_result(object, index, arg);
             }
         }
         if ((entry & 0x800) && ((m == 0x68) || (bits == 2))) {
-            func_8013f2d8(object, index, arg);
+            reset_slot_stage_set_result(object, index, arg);
         } else {
             func_8013f2c8(object);
         }

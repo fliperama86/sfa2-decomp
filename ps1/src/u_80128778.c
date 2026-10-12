@@ -6,7 +6,7 @@
 #include "externs.h"
 #include "protos.h"
 /* Form found by automatic permutation search. */
-void func_80128778(Object *object)
+void move_object_x_by_table_value(Object *object)
 {
   int d;
   s16 x;
@@ -17,7 +17,7 @@ void func_80128778(Object *object)
     x |= player_right.status_flag;
     if ((x == 0) && (object->field_7e != 0))
     {
-      d = func_80128814(object);
+      d = get_direction_table_value(object);
       if (object->facing_side == 0)
       {
         d = -d;

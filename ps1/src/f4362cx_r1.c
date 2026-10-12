@@ -9,7 +9,7 @@
    for the difference, the test and both values of r, in 6; with r an int,
    in 3. In the mirrored case the extent is negated a second time, as the
    original does. */
-void func_8014362c(Object *object, Object *other) {
+void set_compare_limit_from_box_distance(Object *object, Object *other) {
     Box6 *box = other->unknown_148;
     int neg;
     int ext;

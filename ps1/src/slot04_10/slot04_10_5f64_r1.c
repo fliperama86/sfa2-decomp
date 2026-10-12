@@ -13,14 +13,14 @@ extern ObjectFn data_801c6dd8_slot04_10[];
 extern ObjectFn data_801c6e9c_slot04_10[];
 extern ObjectRef data_80190468;
 
-int func_80130184(Object *object);
-void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
+int apply_velocity_and_check_ground(Object *object);
+void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void func_80146960(Object *object);
 void func_8011ffdc(Object *o);
-void func_8011f14c(Slab172 *o);
-void func_801b1078_slot04_10(Object *obj);
-void func_801b1098_slot04_10(Object *obj);
-void func_801b5dd0_slot04_10(Object *obj);
+void reset_and_push_block_object_type_8(Slab172 *o);
+void load_velocities_from_table_slot04_10(Object *obj);
+void load_velocities_from_table_2_slot04_10(Object *obj);
+void set_vertical_motion_from_table_slot04_10(Object *obj);
 
 void func_801b5f64_slot04_10(Object *obj) {
     u16 t = obj->step_flags;
@@ -33,10 +33,10 @@ void func_801b5f64_slot04_10(Object *obj) {
         func_80146960(obj);
         update_sequence(obj);
         play_side_sound_at(obj, obj->side, 6);
-        if ((u8)func_80140cd8(obj, *(s16 *)((u8 *)data_801c6ce0_slot04_10 + (obj->direction_index & 0xfe)), 0) != 0) {
+        if ((u8)apply_damage_to_other_return_defeated(obj, *(s16 *)((u8 *)data_801c6ce0_slot04_10 + (obj->direction_index & 0xfe)), 0) != 0) {
             obj->field_167 = (obj->direction_index >> 1) + 0xc;
             data_80190468.p->field_6b = 4;
-            func_80147000(obj);
+            spawn_game_state_kind_object(obj);
         }
         play_sound_at(obj, obj->side, 0x319);
     } else {
@@ -46,7 +46,7 @@ void func_801b5f64_slot04_10(Object *obj) {
         ref_other.p = obj->other;
         ref_other.p->field_15b = 1;
         ref_other.p->hit_flag = 1;
-        func_80140770(obj, 0x23, 0xf, -0x200, 0, 0, 1);
+        set_other_hit_reaction_state_0(obj, 0x23, 0xf, -0x200, 0, 0, 1);
         ref_other.p = obj->other;
         if ((s16)ref_other.p->health < 0) {
             obj->field_167 = (obj->direction_index >> 1) + 0xc;
@@ -62,15 +62,15 @@ void func_801b5f64_slot04_10(Object *obj) {
 }
 
 void func_801b6148_slot04_10(Object *obj) {
-    if ((u8)func_80130184(obj) != 0) {
+    if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->active_state = 0;
         obj->pos_y = ((Slot04bObj *)obj)->ground_y;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x2f);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x2f);
     }
 }
 
@@ -81,15 +81,15 @@ void func_801b61c4_slot04_10(Object *obj) {
         ref_other.p = obj->other;
         ref_other.p->other_state_code = 5;
         obj->facing_side = obj->facing_side ^ 1;
-        func_801b1098_slot04_10(obj);
+        load_velocities_from_table_2_slot04_10(obj);
     }
 }
 
-void func_801b6230_slot04_10(Object *obj) {
+void update_sequence_or_finish_sequence_4_slot04_10(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
-        func_801b1078_slot04_10(obj);
+        load_velocities_from_table_slot04_10(obj);
     }
 }
 
@@ -98,7 +98,7 @@ void func_801b6270_slot04_10(Object *obj) {
 
     if (t >= 0) {
         if ((t & 0xff) == 0xf) {
-            func_80140cd8(obj, -0xed, 0);
+            apply_damage_to_other_return_defeated(obj, -0xed, 0);
             obj->step_flags = obj->step_flags & 0xff00;
             data_80190468.p->vec_table_index = obj->direction_index * 4 + 0x3c;
             play_sound_at(obj, obj->side, 0x319);
@@ -110,8 +110,8 @@ void func_801b6270_slot04_10(Object *obj) {
         obj->active_state = 1;
         ((Slot04bObj *)obj)->field_298 = 0;
         ((Slot04bObj *)obj)->table_index_2 = 2;
-        func_801b5dd0_slot04_10(obj);
-        func_801307e0(obj, 0x2c);
+        set_vertical_motion_from_table_slot04_10(obj);
+        set_sequence_by_side_and_mode(obj, 0x2c);
     }
 }
 
@@ -119,7 +119,7 @@ void func_801b6338_slot04_10(Object *obj) {
     data_801ad398 = data_801c6ce8_slot04_10[obj->field_15a](obj);
 }
 
-int func_801b6380_slot04_10(Object *obj) {
+int has_remaining_count_slot04_10(Object *obj) {
     return obj->remaining_count != 0;
 }
 
@@ -131,43 +131,43 @@ int func_801b63a0_slot04_10(Object *obj) {
     return *(s16 *)&obj->meter >= 0x30;
 }
 
-int func_801b63b4_slot04_10(Object *obj) {
+int return_true_always_slot04_10(Object *obj) {
     return 1;
 }
 
-int func_801b63bc_slot04_10(Object *obj) {
+int return_true_always_2_slot04_10(Object *obj) {
     return 1;
 }
 
-int func_801b63c4_slot04_10(Object *obj) {
+int return_true_always_3_slot04_10(Object *obj) {
     return 1;
 }
 
-int func_801b63cc_slot04_10(Object *obj) {
+int return_true_always_4_slot04_10(Object *obj) {
     return 1;
 }
 
-int func_801b63d4_slot04_10(Object *obj) {
+int return_true_always_5_slot04_10(Object *obj) {
     return 1;
 }
 
-int func_801b63dc_slot04_10(Object *obj) {
+int return_true_always_6_slot04_10(Object *obj) {
     return 1;
 }
 
-int func_801b63e4_slot04_10(Object *obj) {
+int return_true_always_7_slot04_10(Object *obj) {
     return 1;
 }
 
-int func_801b63ec_slot04_10(Object *obj) {
+int return_true_always_8_slot04_10(Object *obj) {
     return 1;
 }
 
-int func_801b63f4_slot04_10(Object *obj) {
+int return_true_always_9_slot04_10(Object *obj) {
     return 1;
 }
 
-void func_801b63fc_slot04_10(Object *obj) {
+void clear_seven_eight_byte_blocks_slot04_10(Object *obj) {
     s16 i;
     u16 j;
 
@@ -179,11 +179,11 @@ void func_801b63fc_slot04_10(Object *obj) {
     }
 }
 
-void func_801b6464_slot04_10(Object *obj) {
+void call_handler_by_state_0_slot04_10(Object *obj) {
     data_801c6dc8_slot04_10[obj->state_0](obj);
 }
 
-void func_801b64a4_slot04_10(Object *obj) {
+void init_child_object_from_parent_tables_slot04_10(Object *obj) {
     u8 t;
 
     obj->variant_index_2 = 0xff;
@@ -196,10 +196,10 @@ void func_801b64a4_slot04_10(Object *obj) {
     obj->active_state = 0;
     ((Slot04bObj *)obj)->field_5c = 0;
     obj->field_49 = t;
-    func_80130700(obj, data_801c6dbc_slot04_10[obj->vel_table_index >> 1]);
+    set_sequence_entry(obj, data_801c6dbc_slot04_10[obj->vel_table_index >> 1]);
 }
 
-void func_801b6534_slot04_10(Object *obj) {
+void call_handler_by_state_1_then_offset_slot04_10(Object *obj) {
     data_801c6dd8_slot04_10[obj->state_1](obj);
     func_8011ffdc(obj);
 }
@@ -211,20 +211,20 @@ void func_801b6588_slot04_10(Object *obj) {
     }
 }
 
-void func_801b65d4_slot04_10(Object *obj) {
+void increment_state_0_slot04_10(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
 }
 
-void func_801b65e8_slot04_10(Object *obj) {
-    func_8011f14c((Slab172 *)obj);
+void release_object_record_slot04_10(Object *obj) {
+    reset_and_push_block_object_type_8((Slab172 *)obj);
 }
 
-void func_801b6608_slot04_10(Object *obj) {
+void call_handler_by_state_0_with_parent_slot04_10(Object *obj) {
     ref_other.p = obj->parent;
     data_801c6e9c_slot04_10[obj->state_0](obj);
 }
 
-void func_801b6658_slot04_10(Object *obj) {
+void copy_data_pointers_from_ref_other_slot04_10(Object *obj) {
     obj->data_ptr_a = ref_other.p->data_ptr_a;
     obj->data_ptr_b = ref_other.p->data_ptr_b;
     obj->state_0 = obj->state_0 + 1;

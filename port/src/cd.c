@@ -148,7 +148,7 @@
  * for ever. So the drive does not deliver a sector of a streamed load while the ring holds 4 sectors or more that the game has
  * not read.
  *  - Where it applies: a read is on, the mode's XA bit (0x40) is clear, and the ready handler stored in the library variable is
- *    the game's stream handler, func_8014f918 at 0x8014f918 (ps1/src/n14a648_r9.c; the game's function v10_r1.c stores it before a
+ *    the game's stream handler, update_stream_control_by_mode at 0x8014f918 (ps1/src/n14a648_r9.c; the game's function v10_r1.c stores it before a
  *    streamed load and the loaders store 0). With another handler, with none (the game polls) or with the XA bit set, there is no
  *    guard, whatever the ring holds.
  *  - The ring: bytes 0x16 and 0x17 of the game's stream object, ctl_80190948 at 0x80190948. The source shows that byte 0x16 is the
@@ -188,7 +188,7 @@ void (*port_cd_call)(unsigned handler, int intr, unsigned char *result);
 #define ST_ERR  0x03u   /* motor on, error */
 #define WAIT_LIMIT 600  /* polls of a wait with nothing to wait for (about ten seconds) */
 #define GUARD_STREAM  0x80190948u   /* ctl_80190948: the game's stream object */
-#define GUARD_HANDLER 0x8014f918u   /* func_8014f918: the ready handler of a streamed load */
+#define GUARD_HANDLER 0x8014f918u   /* update_stream_control_by_mode: the ready handler of a streamed load */
 #define GUARD_FILL    4u            /* the fill at which the drive waits */
 #define GUARD_HOLD    30u           /* vblanks held in a row before the next row is delivered regardless */
 

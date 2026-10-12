@@ -6,11 +6,11 @@
 extern Slot12Prim data_800f7b94_slot0f[];
 extern HudSlot data_800f7c94_slot0f[4];
 
-void func_800e6dfc_slot0f(Object *obj) {
+void link_hud_slots_to_ordering_table_slot0f(Object *obj) {
     s16 i;
 
     for (i = 0; i < 4; i++) {
-        func_801519b4(&data_800f7c94_slot0f[i]);
+        add_item_to_table(&data_800f7c94_slot0f[i]);
         ((PrimTag *)((u8 *)data_800f7b94_slot0f + (data_801a27d0 << 5) + (i << 6)))->addr = ((PrimTag *)data_801987c8)->addr;
         ((PrimTag *)data_801987c8)->addr = (u32)((u8 *)data_800f7b94_slot0f + (i << 6) + (data_801a27d0 << 5));
     }
@@ -19,6 +19,6 @@ void func_800e6dfc_slot0f(Object *obj) {
     }
 }
 
-void func_800e6f0c_slot0f(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_3_slot0f(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

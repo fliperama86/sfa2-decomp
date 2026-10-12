@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801c8238_slot05_06(Object *obj);
+void call_handler_by_input_dir_second_slot05_06(Object *obj);
 void func_801c8630_slot05_06(Object *obj);
-void func_801c8278_slot05_06(Object *obj);
-void func_801c83a4_slot05_06(Object *obj);
+void call_handler_by_direction_index_slot05_06(Object *obj);
+void call_handler_by_direction_index_2_slot05_06(Object *obj);
 
-void func_801c80f8_slot05_06(Object *obj) {
+void update_sequence_spawn_child_on_flag_slot05_06(Object *obj) {
     Object *c;
     u8 d;
 
@@ -21,7 +21,7 @@ void func_801c80f8_slot05_06(Object *obj) {
     } else {
         if (*(u8 *)&obj->step_flags != 0) {
             *(u8 *)&obj->step_flags = 0;
-            c = (Object *)func_8011f1e0();
+            c = (Object *)pop_block_from_pool();
             if (c != 0) {
                 c->active_count = 1;
                 c->table_index = 4;
@@ -43,19 +43,19 @@ void func_801c80f8_slot05_06(Object *obj) {
     }
 }
 
-void func_801c81f8_slot05_06(Object *obj) {
+void call_handler_by_input_dir_0_nonzero_slot05_06(Object *obj) {
     if (obj->input_dir_0 != 0) {
         func_801c8630_slot05_06(obj);
     } else {
-        func_801c8238_slot05_06(obj);
+        call_handler_by_input_dir_second_slot05_06(obj);
     }
 }
 
-void func_801c8238_slot05_06(Object *obj) {
+void call_handler_by_input_dir_second_slot05_06(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second != 0) {
-        func_801c83a4_slot05_06(obj);
+        call_handler_by_direction_index_2_slot05_06(obj);
     } else {
-        func_801c8278_slot05_06(obj);
+        call_handler_by_direction_index_slot05_06(obj);
     }
 }

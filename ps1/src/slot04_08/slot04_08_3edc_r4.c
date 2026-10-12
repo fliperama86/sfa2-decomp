@@ -5,9 +5,9 @@
 
 extern SequenceStep **data_801c3e9c_slot04_08;
 extern SequenceStep **data_801c3ea0_slot04_08;
-void func_801b44a8_slot04_08(Object *obj, Object *other);
+void follow_other_frame_param_sequence_slot04_08(Object *obj, Object *other);
 
-void func_801b43fc_slot04_08(Object *obj, Object *other) {
+void init_follower_from_other_slot04_08(Object *obj, Object *other) {
     obj->state_0++;
     obj->field_1c = other->field_1c;
     obj->table_index = other->kind;
@@ -20,5 +20,5 @@ void func_801b43fc_slot04_08(Object *obj, Object *other) {
     } else {
         data_801c3ea0_slot04_08 = data_1f800164;
     }
-    func_801b44a8_slot04_08(obj, other);
+    follow_other_frame_param_sequence_slot04_08(obj, other);
 }

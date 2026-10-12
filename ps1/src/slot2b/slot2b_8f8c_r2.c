@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800795b4_slot2b(Object *obj);
+void apply_velocity_and_acceleration_2_slot2b(Object *obj);
 
-void func_800790e0_slot2b(Object *o) {
+void move_and_animate_until_timer_expires_slot2b(Object *o) {
     Slot2bObj *obj = (Slot2bObj *)o;
     obj->countdown_timer--;
     if ((obj->countdown_timer & 0x80) != 0) {
         o->state_0++;
     } else {
-        func_800795b4_slot2b(o);
+        apply_velocity_and_acceleration_2_slot2b(o);
         advance_sequence_checked(o);
     }
 }

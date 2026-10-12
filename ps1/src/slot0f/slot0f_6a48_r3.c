@@ -6,7 +6,7 @@
 extern Slot12Count data_800f7b74_slot0f[4];
 extern void (*data_800eff78_slot0f[])(Object *);
 
-void func_800e6ce4_slot0f(Object *o) {
+void count_records_with_type_16_or_more_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u8 *p;
     int n;
@@ -52,9 +52,9 @@ void func_800e6d44_slot0f(Object *o) {
     data_800f7b74_slot0f[3].value = n;
 }
 
-void func_800e6db4_slot0f(Object *obj) {
+void noop_slot00_9_slot0f(Object *obj) {
 }
 
-void func_800e6dbc_slot0f(Object *object) {
+void call_handler_by_state_1_2_slot0f(Object *object) {
     data_800eff78_slot0f[object->state_1](object);
 }

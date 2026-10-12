@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: same code, but the original keeps the second 16-bit read in $a1 and the kind in $v1 (registers swapped). */
-void func_801239cc(ObjectView *entity, Object *other) {
+void init_entity_from_other_object(ObjectView *entity, Object *other) {
     HudBig *hud;
     entity->kind_table_value = table_8016f4f0[other->kind];
     entity->field_62 = other->field_d4;
@@ -47,10 +47,10 @@ void func_80123a64(GameState *state) {
     entity->field_ee = 0;
     entity->field_f0 = 0;
     entity->field_20 = 0;
-    func_80152ee8();
+    switch_to_next_table_entry_and_wait();
 }
 
-void func_80123ac4(ObjectView *entity, s16 count) {
+void fill_zero_entries_with_8_up_to_count(ObjectView *entity, s16 count) {
     int i;
     entity->entry_count = count;
     if (count >= 0) {

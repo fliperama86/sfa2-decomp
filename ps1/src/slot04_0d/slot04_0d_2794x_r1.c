@@ -6,7 +6,7 @@
 extern s32 data_801c2808_slot04_0d[];
 extern u8 data_801c2820_slot04_0d[];
 
-void func_801b2794_slot04_0d(Object *obj) {
+void slide_with_deceleration_and_launch_slot04_0d(Object *obj) {
     int i;
     u8 t;
     u16 a;

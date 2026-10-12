@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800111c8_slot27(void);
+void restore_rows_from_backup_and_queue_jobs_slot27(void);
 
-void func_80010d10_slot27(void) {
+void count_down_then_reset_to_step_index_2_slot27(void) {
     u16 *c = &game_state.countdown_2;
     int t = *c - 1;
     *c = t;
     if ((s16)t == 0) {
         func_8011eae4();
-        func_800111c8_slot27();
+        restore_rows_from_backup_and_queue_jobs_slot27();
         data_8018f5a0->step_index = 2;
         data_8018f5a0->substep_index = 0;
         data_8018f5a0->step_index_2 = 0;
@@ -20,7 +20,7 @@ void func_80010d10_slot27(void) {
     }
 }
 
-void func_80010d7c_slot27(void) {
+void save_player_select_values_slot27(void) {
     Object *p;
     u8 k;
     p = &player_left;

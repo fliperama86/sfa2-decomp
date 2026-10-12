@@ -13,13 +13,13 @@ void func_801b1938_slot04_03(Object *obj) {
             obj->field_165 = 0xff;
         }
         play_sound_at(obj, obj->side, 0x31c);
-        func_801483a4(obj, 0xf, 0x4e);
+        spawn_children_per_direction_index(obj, 0xf, 0x4e);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b19d0_slot04_03(Object *obj) {
+void release_other_lock_on_step_flag_slot04_03(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         obj->state_3++;
@@ -32,7 +32,7 @@ void func_801b19d0_slot04_03(Object *obj) {
     }
 }
 
-void func_801b1a3c_slot04_03(Object *obj) {
+void set_vel_x_by_facing_on_step_flag_slot04_03(Object *obj) {
     if ((u8)obj->step_flags == 0) {
         update_sequence(obj);
     } else {

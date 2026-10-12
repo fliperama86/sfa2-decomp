@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 void func_801b4560_slot04_04(Object *obj);
-void func_801b42ec_slot04_04(Object *obj);
+void call_handler_by_input_dir_second_2_slot04_04(Object *obj);
 void func_801b4a40_slot04_04(Object *obj);
 
-void func_801b4258_slot04_04(Object *obj) {
+void release_object_and_clear_parent_link_slot04_04(Object *obj) {
     Object *p = obj->parent;
 
     if (obj->table_index == 0) {
@@ -18,12 +18,12 @@ void func_801b4258_slot04_04(Object *obj) {
     func_8011f38c(obj);
 }
 
-void func_801b4294_slot04_04(Object *obj) {
+void dispatch_by_input_dir_0_2_slot04_04(Object *obj) {
     if (obj->input_dir_0 == 4) {
         func_801b4a40_slot04_04(obj);
     } else if (obj->input_dir_0 != 0) {
         func_801b4560_slot04_04(obj);
     } else {
-        func_801b42ec_slot04_04(obj);
+        call_handler_by_input_dir_second_2_slot04_04(obj);
     }
 }

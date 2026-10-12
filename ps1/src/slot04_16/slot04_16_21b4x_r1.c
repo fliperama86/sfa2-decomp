@@ -18,5 +18,5 @@ void func_801b21b4_slot04_16(Object *obj) {
     obj->facing_side = obj->saved_facing;
     ref_other.p = obj->other;
     ref_other.p->field_6b = 0xd;
-    func_801307e0(obj, 0x20);
+    set_sequence_by_side_and_mode(obj, 0x20);
 }

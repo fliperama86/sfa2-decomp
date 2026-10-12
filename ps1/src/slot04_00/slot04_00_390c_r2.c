@@ -16,7 +16,7 @@ void func_801b39dc_slot04_00(Object *obj) {
         }
         if (obj->direction_index == 2 && obj->attack_param_d != 0) {
             obj->state_3 = 2;
-            func_80141f28(obj, 1);
+            add_to_meter_clamped(obj, 1);
             if (obj->facing_side == 0) {
                 obj->vel_x = -0x36000;
             } else {
@@ -24,10 +24,10 @@ void func_801b39dc_slot04_00(Object *obj) {
             }
             obj->vel_y = 0x40000;
             obj->accel_y = -0x6000;
-            func_801307e0(obj, 0x2f);
+            set_sequence_by_side_and_mode(obj, 0x2f);
             return;
         }
     }
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }

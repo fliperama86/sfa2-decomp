@@ -4,7 +4,7 @@
 #include "externs.h"
 
 void func_8011cbb8(Slab172 *p);
-void func_80151324(Object *object, FrameRecord *frames);
+void draw_object_tile_grid_prims(Object *object, FrameRecord *frames);
 
 /* What it does (inferred, not an original name): sets field_09 of the two
    fighters (player_left, player_right). When either has a non-zero field_73,
@@ -13,7 +13,7 @@ void func_80151324(Object *object, FrameRecord *frames);
    Otherwise the one with the smaller frame value_a gets 1 and the other 0,
    and with equal values nothing is stored. Then, for each fighter, the four
    part blocks that are present and active get field_09 + 4 and go to
-   func_8011bc84, and func_8011cbb8 and func_80151324 run when field_00 and
+   func_8011bc84, and func_8011cbb8 and draw_object_tile_grid_prims run when field_00 and
    field_01 are set. */
 void func_8011a880(void) {
     Fighter *left = (Fighter *)&player_left;
@@ -69,7 +69,7 @@ void func_8011a880(void) {
         func_8011bc84((Slab172 *)p);
     }
     if (left->field_00 != 0 && left->parts_active_flag != 0) {
-        func_80151324((Object *)left, frames_left);
+        draw_object_tile_grid_prims((Object *)left, frames_left);
     }
     p = right->part_28;
     if (p != 0 && p->enabled_flag != 0) {
@@ -95,6 +95,6 @@ void func_8011a880(void) {
         func_8011bc84((Slab172 *)p);
     }
     if (right->field_00 != 0 && right->parts_active_flag != 0) {
-        func_80151324((Object *)right, frames_right);
+        draw_object_tile_grid_prims((Object *)right, frames_right);
     }
 }

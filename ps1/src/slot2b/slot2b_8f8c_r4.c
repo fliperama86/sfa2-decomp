@@ -5,11 +5,11 @@
 
 extern Object *data_8007ef34_slot2b;
 
-void func_800795b4_slot2b(Object *obj);
+void apply_velocity_and_acceleration_2_slot2b(Object *obj);
 
-void func_80079334_slot2b(Object *o) {
+void update_airborne_state_1_landing_bounce_slot2b(Object *o) {
     Object *p;
-    func_800795b4_slot2b(o);
+    apply_velocity_and_acceleration_2_slot2b(o);
     if (data_8007ef34_slot2b->ground_y < o->pos_y) {
         o->state_1++;
         p = data_8007ef34_slot2b;

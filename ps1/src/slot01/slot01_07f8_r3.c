@@ -3,6 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80011720_slot01(void) {
+void increment_substep_index_8_slot01(void) {
     data_8018f5a0->substep_index++;
 }

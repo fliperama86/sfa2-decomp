@@ -31,10 +31,10 @@ void func_801ca350_slot05_06(Object *obj) {
     obj->vel_x = 0x20000;
     obj->vel_y = 0x78000;
     obj->accel_y = -0x6000;
-    func_801307e0(obj, 0x1f);
+    set_sequence_by_side_and_mode(obj, 0x1f);
 }
 
-void func_801ca3ac_slot05_06(Object *o) {
+void wait_countdown_2_then_advance_on_mode_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     if (obj->countdown_2 != 0) {

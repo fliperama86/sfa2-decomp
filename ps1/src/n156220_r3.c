@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801567e4(void *a, Object *object) {
+void count_down_then_next_phase(void *a, Object *object) {
     int t = object->countdown_timer - 1;
     object->countdown_timer = t;
     if (t << 16 < 0) {

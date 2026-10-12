@@ -6,7 +6,7 @@
 extern SlotCell data_80029350_slot12[];
 extern SlotCell data_80029b70_slot12[];
 
-void func_800123e0_slot12(void) {
+void init_polyft4_cell_arrays_slot12(void) {
     int i;
 
     for (i = 0; i < 0x34; i++) {

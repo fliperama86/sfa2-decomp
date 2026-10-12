@@ -1,6 +1,6 @@
 /* Reconstruction. Names/roles inferred, not original symbols.
-   Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: func_801384c4 (original keeps only the left cf address in a
-   register), func_80138628 (table byte lands in a0 in the original). */
+   Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: set_table_columns_by_win_counts (original keeps only the left cf address in a
+   register), adjust_counter_c_by_table_and_random (table byte lands in a0 in the original). */
 #include "game.h"
 #include "externs.h"
 #include "protos.h"
@@ -17,19 +17,19 @@ void func_80138358(GameState *state) {
 
 void func_8013839c(GameState *state) {
     if (state->mode == 3 && state->mode3_active_flag == 0) {
-        func_801384c4(state);
+        set_table_columns_by_win_counts(state);
     } else {
-        func_801386f0(state);
+        update_counter_limit_from_table(state);
         func_8013886c(state);
-        func_8013860c(state);
-        func_801387c0(state);
+        set_counter_shifted_from_counter_c(state);
+        set_player_table_column_from_object(state);
     }
 }
 
-void func_80138410(GameState *state) {
+void reset_counter_a_and_table_columns(GameState *state) {
     counter_a = 0x780;
     if (state->mode == 3 && state->mode3_active_flag == 0) {
-        func_801384c4(state);
+        set_table_columns_by_win_counts(state);
     } else {
         if (player_left.mode_flag_2 == 0 && game_state.mode3_active_flag == 0) {
             player_left.table_column = 0x10;

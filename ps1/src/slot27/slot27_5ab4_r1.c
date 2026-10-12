@@ -13,7 +13,7 @@ extern SequenceStep *data_800289b4_slot27[];
 extern u16 data_80028a74_slot27[];
 extern u16 data_80055f30;
 extern u16 data_80055f34;
-void func_800167d0_slot27(Object *obj, s16 *p);
+void start_frame_list_set_image_row_slot27(Object *obj, s16 *p);
 
 void func_80015ab4_slot27(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
@@ -30,7 +30,7 @@ void func_80015ab4_slot27(Object *obj) {
     if (obj->field_60 != 0) {
         obj->pos_x = data_80028b38_slot27[obj->table_index].first + data_80055f30;
         obj->pos_y = -data_80028b38_slot27[obj->table_index].second + data_80055f34 + 0x200;
-        func_80130768(obj, 0, table_80028a4c_slot27);
+        set_sequence_from_table_5(obj, 0, table_80028a4c_slot27);
         obj->ot_depth = 8;
         obj->spawn_x = 0;
         obj->spawn_y = 0x1e0;
@@ -39,15 +39,15 @@ void func_80015ab4_slot27(Object *obj) {
             data_801a2b84[i] = src[i];
             data_801a2b84[i + 0xa00] = src[i];
         }
-        func_80137220(0, 0);
+        queue_image_upload_job(0, 0);
     } else {
         obj->pos_x = data_80028abc_slot27[obj->table_index].first + data_80055f30;
         obj->pos_y = -data_80028abc_slot27[obj->table_index].second + data_80055f34 + 0x230;
-        func_80130768(obj, data_80028b0c_slot27[obj->table_index], data_800289b4_slot27);
+        set_sequence_from_table_5(obj, data_80028b0c_slot27[obj->table_index], data_800289b4_slot27);
         obj->ot_depth = 9;
         obj->spawn_x = 0x20;
         obj->spawn_y = 0x1e0;
         obj->image_row = 0x16;
-        func_800167d0_slot27(obj, (s16 *)data_80028a74_slot27);
+        start_frame_list_set_image_row_slot27(obj, (s16 *)data_80028a74_slot27);
     }
 }

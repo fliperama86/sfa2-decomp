@@ -14,10 +14,10 @@ void func_801b2f40_slot04_01(Object *obj) {
     } else {
         *(s32 *)&obj->vel_x = 0x40000;
     }
-    func_801307e0(obj, 0x48);
+    set_sequence_by_side_and_mode(obj, 0x48);
 }
 
-void func_801b2f9c_slot04_01(Object *obj) {
+void update_sequence_step_shift_x_and_move_slot04_01(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         obj->state_3++;
@@ -27,7 +27,7 @@ void func_801b2f9c_slot04_01(Object *obj) {
             obj->pos_x += 0x14;
         }
         play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x317);
-        func_80131d68(obj);
+        push_other_object_x_by_table(obj);
     }
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
 }

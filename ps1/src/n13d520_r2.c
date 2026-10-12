@@ -3,21 +3,21 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80140f00(void) {
+void reduce_other_damage_by_quarter(void) {
     ref_other.p->damage = ref_other.p->damage - (ref_other.p->damage >> 2);
 }
 
-void func_80140f24(void) {
+void reduce_other_damage_by_eighth(void) {
     ref_other.p->damage = ref_other.p->damage - (ref_other.p->damage >> 3);
 }
 
 void func_80140f48(void) {
 }
 
-void func_80140f50(void) {
+void increase_other_damage_by_quarter(void) {
     ref_other.p->damage = ref_other.p->damage + (ref_other.p->damage >> 2);
 }
 
-void func_80140f74(void) {
+void increase_other_damage_by_half(void) {
     ref_other.p->damage = ref_other.p->damage + (ref_other.p->damage >> 1);
 }

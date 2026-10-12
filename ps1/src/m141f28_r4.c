@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014377c(Object *object) {
+void start_sequence_from_table_in_mode_1(Object *object) {
     u8 mode = game_state.config->mode;
     if (mode == 1) {
         object->field_01 = 1;

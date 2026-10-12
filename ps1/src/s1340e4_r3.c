@@ -6,18 +6,18 @@
 
 
 void func_8013600c(void) {
-    func_80136290();
-    func_8013606c();
-    func_801368fc();
+    call_kind_handler_and_copy_fields_b();
+    call_kind_handler_and_copy_fields_a();
+    call_cam_kind_handler_and_save_pos();
 }
 
 void func_8013603c(void) {
-    func_80136290();
-    func_801368fc();
-    func_8013606c();
+    call_kind_handler_and_copy_fields_b();
+    call_cam_kind_handler_and_save_pos();
+    call_kind_handler_and_copy_fields_a();
 }
 
-void func_8013606c(void) {
+void call_kind_handler_and_copy_fields_a(void) {
     u16 p, q;
     data_801723c0[game_state.kind_index](&data_801aa544);
     p = data_801aa566;
@@ -31,20 +31,20 @@ void func_8013606c(void) {
     data_801aa572 = q;
 }
 
-void func_80136120(Sprite *sprite) {
-    func_801361fc(sprite, 0x1c0, (game_state.field_0a == 6) << 8);
+void init_sprite_once_with_mode_y(Sprite *sprite) {
+    init_sprite_position(sprite, 0x1c0, (game_state.field_0a == 6) << 8);
     if (sprite->pending != 0) {
         sprite->pending = 0;
         sprite->count++;
     }
 }
 
-void func_80136180(Sprite *sprite) {
-    func_801361a4(sprite, 0x1c0, 0);
+void init_sprite_at_1c0_zero(Sprite *sprite) {
+    init_sprite_counted(sprite, 0x1c0, 0);
 }
 
-void func_801361a4(Sprite *sprite, s16 x, s16 y) {
-    func_801361fc(sprite, x, y);
+void init_sprite_counted(Sprite *sprite, s16 x, s16 y) {
+    init_sprite_position(sprite, x, y);
     if (sprite->pending != 0) {
         sprite->pending = 0;
         sprite->count++;

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80078bf4_slot00(Object *obj) {
+void flip_accel_and_depth_on_three_countdowns_slot00(Object *obj) {
     obj->field_60 -= 1;
     if (obj->field_60 & 0x80) {
         obj->field_60 = 0x13;

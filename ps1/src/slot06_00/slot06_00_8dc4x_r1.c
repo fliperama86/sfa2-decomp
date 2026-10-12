@@ -20,7 +20,7 @@ extern Slot06_00Rec3010 data_801f3010_slot06_00[];
  * after it); the object's sequence is set to the first. Then it sets
  * fixed size fields and mirrors pos_y (0xf8 minus its low 16 bits).
  */
-void func_801e8dc4_slot06_00(Object *obj) {
+void init_object_from_start_table_slot06_00(Object *obj) {
     Slot06_00Rec3010 *r;
     int i;
     /* One local for the three indices; a fresh expression per access gives 51 differing slots (392 bytes). */

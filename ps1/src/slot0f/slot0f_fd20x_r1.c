@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void func_800e004c_slot0f(Object *obj);
-void func_800e07b8_slot0f(int a);
+void queue_menu_items_with_highlight_slot0f(int a);
 
-void func_800dfd20_slot0f(GameState *state, Menu *menu) {
+void update_menu_mode_selection_slot0f(GameState *state, Menu *menu) {
     u16 buttons;
     func_800e004c_slot0f((Object *)menu);
     buttons = data_801a696a | data_801a6976;
@@ -50,5 +50,5 @@ void func_800dfd20_slot0f(GameState *state, Menu *menu) {
         data_8018f5a0->phase_index++;
         play_sound_at(0, 0, 0x205);
     }
-    func_800e07b8_slot0f((s8)menu->mode_index);
+    queue_menu_items_with_highlight_slot0f((s8)menu->mode_index);
 }

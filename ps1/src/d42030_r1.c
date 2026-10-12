@@ -10,7 +10,7 @@
    more, or the cell's index byte has bit 7 set, it returns 0. Otherwise it
    copies the four bytes of the indexed record to input_dir_0, input_dir_second,
    direction_index and attack_param_d and returns 1. */
-u8 func_80142030(Object *object)
+u8 select_direction_from_distance_table(Object *object)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   /* Without it this function differs from the original in 7 instruction slots. */

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b6584_slot04_09(Object *obj, Object *parent, int i);
+void set_position_from_parent_table_offset_slot04_09(Object *obj, Object *parent, int i);
 
-void func_801b63c4_slot04_09(Object *obj, Object *parent) {
+void follow_parent_frame_param_with_blink_slot04_09(Object *obj, Object *parent) {
     int n;
     int c;
     int d;
@@ -20,7 +20,7 @@ void func_801b63c4_slot04_09(Object *obj, Object *parent) {
         obj->variant_index = 0;
         return;
     }
-    func_801b6584_slot04_09(obj, parent, n);
+    set_position_from_parent_table_offset_slot04_09(obj, parent, n);
     obj->field_0c = parent->field_0c;
     obj->image_row = parent->image_row;
     obj->field_01 = 1;
@@ -50,7 +50,7 @@ void func_801b63c4_slot04_09(Object *obj, Object *parent) {
         } else {
             t = data_1f800164;
         }
-        func_80130768(obj, n, t);
+        set_sequence_from_table_5(obj, n, t);
         if (((Slot04aObj *)obj)->mode == 1) {
             obj->facing_side = 0;
         }

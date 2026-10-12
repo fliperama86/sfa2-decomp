@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4b8c_slot04_07(Object *obj) {
+void update_slide_decelerate_then_next_step_slot04_07(Object *obj) {
     s16 t = obj->step_flags;
     SequenceStep *s;
 
     if (t & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else if ((t & 0xff) == 0) {
         update_sequence(obj);
     } else {
@@ -30,7 +30,7 @@ void func_801b4b8c_slot04_07(Object *obj) {
     }
 }
 
-void func_801b4c78_slot04_07(Object *obj) {
+void start_jump_on_step_flag_by_facing_slot04_07(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         if (obj->facing_side == 0) {

@@ -7,9 +7,9 @@ void func_801b1bc0_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->other->other_state_code = 5;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }
@@ -23,11 +23,11 @@ void func_801b1c30_slot04_02(Object *obj) {
         obj->accel_x = -0x8000;
         obj->vel_y = 0x90000;
         obj->accel_y = -0x6000;
-        func_801307e0(obj, 0x60);
+        set_sequence_by_side_and_mode(obj, 0x60);
     } else {
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;
-            func_80146998(obj);
+            spawn_offset_effect_and_play_sounds(obj);
         }
         update_sequence(obj);
     }

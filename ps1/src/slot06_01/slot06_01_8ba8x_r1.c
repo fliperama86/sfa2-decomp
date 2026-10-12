@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e8ba8_slot06_01(Slot06Layer *layer) {
+void init_layer_accumulators_from_bound_delta_slot06_01(Slot06Layer *layer) {
     s32 d;
     int i;
 

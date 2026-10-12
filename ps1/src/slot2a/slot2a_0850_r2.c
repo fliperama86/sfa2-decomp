@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e0d94_slot2a(Object *obj, SlotCell *cell, s16 value) {
+void init_poly_cells_from_sequence_list_slot2a(Object *obj, SlotCell *cell, s16 value) {
     SlotList *list = (SlotList *)obj->sequence->data_ptr;
     int n = list->count;
     int c = 0x80;

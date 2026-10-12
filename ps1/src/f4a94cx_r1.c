@@ -9,7 +9,7 @@
    statements; in one statement: 13. Its high byte is stored through t; stored
    straight from w >> 8: 6, and 8 bytes shorter. It reaches w through t; read
    straight into w: 3, and 4 bytes shorter. */
-void func_8014a94c(Object *object) {
+void branch_script_by_linked_object_distance(Object *object) {
     u16 *p = data_80189460;
     Object *other;
     s16 w;
@@ -30,12 +30,12 @@ void func_8014a94c(Object *object) {
         goto none;
     }
     ref_second.p = other->linked_object_3;
-    func_8014c4a8(object);
+    store_box_distance_to_other_x(object);
     t = object->limit_lo;
     t = t | (object->limit_hi << 8);
     if (t >= data_80189464) {
     none:
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
         object->field_209 = 7;
         object->field_208 = 0;

@@ -9,14 +9,14 @@ void func_801b599c_slot04_06(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b59e8_slot04_06(Object *obj) {
+void update_slide_with_sound_by_step_flags_slot04_06(Object *obj) {
     int d;
 
     if ((s16)obj->step_flags >= 0) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
         if ((s16)obj->step_flags == 3) {
             play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x324);
@@ -30,7 +30,7 @@ void func_801b59e8_slot04_06(Object *obj) {
             obj->vel_x += obj->accel_x;
             update_sequence(obj);
         } else {
-            if (((Slot04aObj *)obj)->mode != 0 && (func_80149b80(obj) & 0xff) != 0) {
+            if (((Slot04aObj *)obj)->mode != 0 && (consume_active_frame_flag(obj) & 0xff) != 0) {
                 obj->state_3 = 0;
             }
             update_sequence(obj);

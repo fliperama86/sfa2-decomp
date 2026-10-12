@@ -6,7 +6,7 @@
 extern void (*data_80032a4c_slot28[])(Object *);
 extern void (*data_80032a54_slot28[])(Object *);
 
-void func_80017b54_slot28(Object *obj) {
+void init_object_countdown_and_start_sequence_slot28(Object *obj) {
     int arg;
     obj->countdown = 0x1818;
     obj->field_0e = 0;
@@ -18,7 +18,7 @@ void func_80017b54_slot28(Object *obj) {
     if (obj->table_index == 1) {
         arg = 3;
     }
-    func_80130768(obj, arg, (SequenceStep **)obj->box_tables);
+    set_sequence_from_table_5(obj, arg, (SequenceStep **)obj->box_tables);
 }
 
 void func_80017bac_slot28(Object *obj) {

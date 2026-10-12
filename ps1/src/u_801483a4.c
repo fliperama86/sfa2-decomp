@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_801483a4(Object *object, int a_arg, int b_arg)
+void spawn_children_per_direction_index(Object *object, int a_arg, int b_arg)
 {
   u16 a = a_arg;
   u16 b = b_arg;
@@ -13,7 +13,7 @@ void func_801483a4(Object *object, int a_arg, int b_arg)
   u16 side;
   for (i = 0; i <= (object->direction_index >> 1); i++)
   {
-    new_object = (Object *)func_8011f1e0();
+    new_object = (Object *)pop_block_from_pool();
     if (new_object != 0)
     {
       new_object->active_count = 1;

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801312b8(Object *object) {
+void reset_object_to_state_1_0_sequence_0(Object *object) {
     func_80131f7c(object);
     set_sequence_by_side(object, 0);
     object->state_0 = 1;
@@ -11,8 +11,8 @@ void func_801312b8(Object *object) {
     object->state_2 = 0;
     object->state_3 = 0;
     object->field_157 = 0;
-    func_8013151c(object);
-    func_80155f30(object);
+    reset_object_fields_2(object);
+    add_round_score_to_other_side(object);
     object->field_170 = 0;
     object->round_count = 0;
     if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
@@ -24,23 +24,23 @@ void func_801312b8(Object *object) {
     object->field_69 = 0;
 }
 
-void func_8013136c(Object *object) {
+void reset_idle_or_kind_10_sequence(Object *object) {
     if (object->mode_flag_2 == 0 && object->kind == 10) {
-        func_801313bc(object, 0x30);
+        reset_object_to_state_1_0_sequence_arg(object, 0x30);
     } else {
-        func_801312b8(object);
+        reset_object_to_state_1_0_sequence_0(object);
     }
 }
 
-void func_801313bc(Object *object, unsigned short arg) {
+void reset_object_to_state_1_0_sequence_arg(Object *object, unsigned short arg) {
     set_sequence_by_side(object, arg);
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 0;
     object->state_3 = 0;
     object->field_157 = 0;
-    func_8013151c(object);
-    func_80155f30(object);
+    reset_object_fields_2(object);
+    add_round_score_to_other_side(object);
     object->field_170 = 0;
     object->round_count = 0;
     if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
@@ -52,15 +52,15 @@ void func_801313bc(Object *object, unsigned short arg) {
     object->field_69 = 0;
 }
 
-void func_80131468(Object *object) {
+void reset_object_to_state_1_0_0_2_sequence_1(Object *object) {
     func_80131f7c(object);
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 0;
     object->state_3 = 2;
     object->field_157 = 1;
-    func_8013151c(object);
-    func_80155f30(object);
+    reset_object_fields_2(object);
+    add_round_score_to_other_side(object);
     object->field_170 = 0;
     object->round_count = 0;
     if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
@@ -73,7 +73,7 @@ void func_80131468(Object *object) {
     set_sequence_by_side(object, 1);
 }
 
-void func_8013151c(Object *object) {
+void reset_object_fields_2(Object *object) {
     object->active_state = 0;
     object->field_15b = 0;
     object->field_15c = 0;
@@ -138,19 +138,19 @@ void func_80131638(Object *object) {
     object->state_1 = 0;
     object->state_3 = 2;
     object->pos_y = object->ground_y;
-    func_8013151c(object);
+    reset_object_fields_2(object);
     if (object->mode_flag_2 == 0) {
-        if (func_80130470(object)) {
-            func_8013047c(object);
+        if (get_pressed_low_byte(object)) {
+            set_state_1_0_5_and_read_input_direction(object);
         } else if (func_8012f970(object)) {
-            func_8012fe60(object);
-        } else if ((u8)func_8012f898(object)) {
+            enter_state_2_6_by_button_input(object);
+        } else if ((u8)is_facing_differs_from_saved(object)) {
             func_8012f8c4(object);
         } else {
             set_sequence_by_side(object, 0x11);
         }
     } else {
-        if ((u8)func_8012f898(object)) {
+        if ((u8)is_facing_differs_from_saved(object)) {
             func_8012f8c4(object);
         } else {
             set_sequence_by_side(object, 0x11);

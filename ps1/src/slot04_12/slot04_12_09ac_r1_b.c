@@ -3,17 +3,17 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_80141b28(Object *object);
+int try_spend_meter_for_action(Object *object);
 /* functions of other units of this module */
-void func_801b1378_slot04_12(Object *obj);
+void start_action_variant_9_lock_other_slot04_12(Object *obj);
 u8 func_801b1328_slot04_12(Object *obj);
 
 u8 func_801b1328_slot04_12(Object *obj) {
     int r = 0;
 
-    if ((u8)func_80141b28(obj)) {
+    if ((u8)try_spend_meter_for_action(obj)) {
         r = 1;
-        func_801b1378_slot04_12(obj);
+        start_action_variant_9_lock_other_slot04_12(obj);
     }
     return r;
 }

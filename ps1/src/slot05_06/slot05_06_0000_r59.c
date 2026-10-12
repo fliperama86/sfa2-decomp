@@ -3,16 +3,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cd258_slot05_06(Object *obj);
+void call_handler_by_input_dir_second_2_slot05_06(Object *obj);
 void func_801cd6d8_slot05_06(Object *obj);
 
-void func_801cd0e4_slot05_06(Object *obj) {
+void spawn_child_index_5_and_count_timer_slot05_06(Object *obj) {
     GameState *g = &game_state;
     Object *p;
 
     if (((Slot04aObj *)obj)->mode != 0) {
         ((Slot04aObj *)obj)->mode = 0;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->table_index = 5;
@@ -37,7 +37,7 @@ void func_801cd0e4_slot05_06(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801cd1f4_slot05_06(Object *obj) {
+void clear_slots_bytes_slot05_06(Object *obj) {
     int i;
     u8 z = 0;
     u8 *p = (u8 *)&obj->slots;
@@ -47,10 +47,10 @@ void func_801cd1f4_slot05_06(Object *obj) {
     }
 }
 
-void func_801cd218_slot05_06(Object *obj) {
+void call_handler_by_input_dir_0_nonzero_2_slot05_06(Object *obj) {
     if (obj->input_dir_0 != 0) {
         func_801cd6d8_slot05_06(obj);
     } else {
-        func_801cd258_slot05_06(obj);
+        call_handler_by_input_dir_second_2_slot05_06(obj);
     }
 }

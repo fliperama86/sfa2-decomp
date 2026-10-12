@@ -15,63 +15,63 @@ extern u16 data_801c7d10_slot04_11[];
 extern u16 data_801a2944[];
 extern u16 data_801a29e4[];
 
-Pooled *func_8011f4a4(void);
-Object *func_8011f32c(void);
-void func_8011f240(Slab172 *s);
+Pooled *alloc_pooled_b(void);
+Object *pop_object_from_second_pool(void);
+void reset_and_push_object_to_pool_table(Slab172 *s);
 
-void func_801b68c0_slot04_11(Object *obj);
-void func_801b6b58_slot04_11(Object *obj);
-void func_801b6ca4_slot04_11(Object *obj);
-void func_801b6cf4_slot04_11(Object *obj);
-void func_801b6d8c_slot04_11(Object *obj);
-void func_801b6e08_slot04_11(Object *obj);
-void func_801b6f8c_slot04_11(Object *obj);
+void queue_side_record_at_offset_position_slot04_11(Object *obj);
+void noop_slot00_slot04_11(Object *obj);
+void set_position_above_other_by_kind_slot04_11(Object *obj);
+void reset_countdown_and_set_indicator_boxes_slot04_11(Object *obj);
+void init_side_record_and_box_tables_slot04_11(Object *obj);
+void queue_palette_upload_and_copy_for_side_slot04_11(Object *obj);
+void call_side_routine_and_set_side_flag_slot04_11(Object *obj);
 Object *func_801b6ffc_slot04_11(Object *obj);
-void func_801b70e8_slot04_11(Object *obj);
-void func_801b71cc_slot04_11(Object *obj);
+void follow_other_by_frame_param_slot04_11(Object *obj);
+void increment_state_0_slot04_11(Object *obj);
 void func_801b7208_slot04_11(Object *obj);
-void func_801b7214_slot04_11(Object *obj, int idx);
+void set_variant_sequence_from_side_table_slot04_11(Object *obj, int idx);
 void func_8011f38c(Object *o);
 
 void func_801b6800_slot04_11(Object *obj) {
     Object *s = obj->other;
 
-    func_801b6ca4_slot04_11(obj);
+    set_position_above_other_by_kind_slot04_11(obj);
     if ((*(u32 *)&s->field_28c & 0x80ff) != 0x8000 && (game_state.config->mode_flag_b | game_state.config->mode_flag_c | game_state.config->mode_flag_a) == 0) {
         data_801c7bf0_slot04_11[obj->state_1](obj);
-        func_801b68c0_slot04_11(obj);
+        queue_side_record_at_offset_position_slot04_11(obj);
     } else {
         obj->state_0++;
-        func_801b6f8c_slot04_11(obj);
+        call_side_routine_and_set_side_flag_slot04_11(obj);
     }
 }
 
-void func_801b68c0_slot04_11(Object *obj) {
+void queue_side_record_at_offset_position_slot04_11(Object *obj) {
     Slot04_11Rec7cf0 *r = &data_801c7cf0_slot04_11[obj->other->side];
     Object *t = func_801b6ffc_slot04_11(ref_other.p);
 
     r->c = obj->box_tables;
     r->x = obj->pos_x - t->pos_x - 8;
     r->y = obj->pos_y + t->pos_y;
-    func_801519b4((Object *)r);
+    add_item_to_table((Object *)r);
 }
 
-void func_801b694c_slot04_11(Object *o) {
+void update_track_other_value_spawn_child_slot04_11(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     Object *n;
     u8 k = ref_other.p->field_28c;
 
     if (obj->field_47 != k) {
         obj->field_47 = k;
-        func_801b6e08_slot04_11(o);
+        queue_palette_upload_and_copy_for_side_slot04_11(o);
         play_side_sound_at(ref_other.p->other, ref_other.p->other->side, 0xf);
-        func_801b6cf4_slot04_11(o);
+        reset_countdown_and_set_indicator_boxes_slot04_11(o);
     } else {
         obj->countdown--;
         if (obj->countdown == 0 && data_801a4fec != 0) {
             obj->countdown = 0xc;
             o->state_1++;
-            n = func_8011f32c();
+            n = pop_object_from_second_pool();
             if (n != 0) {
                 n->active_count = 1;
                 n->field_02 = 0x1e;
@@ -95,46 +95,46 @@ void func_801b694c_slot04_11(Object *o) {
     }
 }
 
-void func_801b6a98_slot04_11(Object *o) {
+void update_selection_change_countdown_slot04_11(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u8 k = ref_other.p->field_28c;
 
     if (obj->field_47 != k) {
         o->state_1 = 0;
         obj->field_47 = k;
-        func_801b6e08_slot04_11(o);
+        queue_palette_upload_and_copy_for_side_slot04_11(o);
         play_side_sound_at(ref_other.p->other, ref_other.p->other->side, 0xf);
-        func_801b6cf4_slot04_11(o);
+        reset_countdown_and_set_indicator_boxes_slot04_11(o);
     } else {
         obj->countdown--;
         if (obj->countdown == 0) {
             o->state_1++;
-            func_801b6d8c_slot04_11(o);
+            init_side_record_and_box_tables_slot04_11(o);
         } else {
-            func_801b6b58_slot04_11(o);
+            noop_slot00_slot04_11(o);
         }
     }
 }
 
-void func_801b6b58_slot04_11(Object *obj) {
+void noop_slot00_slot04_11(Object *obj) {
 }
 
-void func_801b6b60_slot04_11(Object *o) {
+void update_reset_on_other_value_change_slot04_11(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u8 k = ref_other.p->field_28c;
 
     if (obj->field_47 == k) {
-        func_801b6b58_slot04_11(o);
+        noop_slot00_slot04_11(o);
     } else {
         o->state_1 = 0;
         obj->field_47 = k;
-        func_801b6e08_slot04_11(o);
+        queue_palette_upload_and_copy_for_side_slot04_11(o);
         play_side_sound_at(ref_other.p->other, ref_other.p->other->side, 0xf);
-        func_801b6cf4_slot04_11(o);
+        reset_countdown_and_set_indicator_boxes_slot04_11(o);
     }
 }
 
-void func_801b6be8_slot04_11(Object *obj) {
+void unlink_parent_and_advance_linked_state_0_slot04_11(Object *obj) {
     obj->state_0++;
     ref_other.p = obj->parent;
     if (ref_other.p->parent == obj) {
@@ -149,18 +149,18 @@ void func_801b6be8_slot04_11(Object *obj) {
     }
 }
 
-void func_801b6c84_slot04_11(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot04_11(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801b6ca4_slot04_11(Object *obj) {
+void set_position_above_other_by_kind_slot04_11(Object *obj) {
     int d = data_801c7bfc_slot04_11[ref_other.p->kind].b;
 
     obj->pos_x = ref_other.p->pos_x;
     obj->pos_y = ref_other.p->pos_y - d - 0x18;
 }
 
-void func_801b6cf4_slot04_11(Object *o) {
+void reset_countdown_and_set_indicator_boxes_slot04_11(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     Slot04_11Rec7cf0 *r;
 
@@ -174,7 +174,7 @@ void func_801b6cf4_slot04_11(Object *o) {
     o->box_tables = data_801c7b58_slot04_11[obj->field_47];
 }
 
-void func_801b6d54_slot04_11(u8 *src, u8 *dst) {
+void copy_zero_terminated_bytes_slot04_11(u8 *src, u8 *dst) {
     if (*src != 0) {
         do {
             *dst = *src;
@@ -185,7 +185,7 @@ void func_801b6d54_slot04_11(u8 *src, u8 *dst) {
     }
 }
 
-void func_801b6d8c_slot04_11(Object *obj) {
+void init_side_record_and_box_tables_slot04_11(Object *obj) {
     Slot04_11Rec7cf0 *r = &data_801c7cf0_slot04_11[ref_other.p->side];
 
     r->a = 0;
@@ -194,14 +194,14 @@ void func_801b6d8c_slot04_11(Object *obj) {
     r->ba = 2;
     r->bb = 0x10;
     obj->box_tables = data_801c7bd0_slot04_11[0];
-    func_801b6f8c_slot04_11(obj);
+    call_side_routine_and_set_side_flag_slot04_11(obj);
 }
 
-int func_801b6dec_slot04_11(u16 index) {
+int get_table_entry_by_index_slot04_11(u16 index) {
     return data_801c7c5c_slot04_11[index];
 }
 
-void func_801b6e08_slot04_11(Object *obj) {
+void queue_palette_upload_and_copy_for_side_slot04_11(Object *obj) {
     u16 *s = data_801c7d10_slot04_11 + ref_other.p->side * 16;
     Job *job;
     Rect rect;
@@ -209,7 +209,7 @@ void func_801b6e08_slot04_11(Object *obj) {
     u16 *q;
     int i;
 
-    job = (Job *)func_8011f4a4();
+    job = (Job *)alloc_pooled_b();
     if (job != 0) {
         rect.x = 0x60;
         rect.y = ref_other.p->image_row + 0x1e0;
@@ -247,7 +247,7 @@ void func_801b6f28_slot04_11(Object *obj) {
     func_80158028(&rect, (u8 *)(data_801c7d10_slot04_11 + p->side * 16));
 }
 
-void func_801b6f8c_slot04_11(Object *obj) {
+void call_side_routine_and_set_side_flag_slot04_11(Object *obj) {
     if (game_state.field_65 == 0) {
         if (ref_other.p->side == 0) {
             func_80136e90();
@@ -258,35 +258,35 @@ void func_801b6f8c_slot04_11(Object *obj) {
     }
 }
 
-void func_801b6ff4_slot04_11(Object *obj) {
+void noop_slot00_2_slot04_11(Object *obj) {
 }
 
 Object *func_801b6ffc_slot04_11(Object *obj) {
     return data_801c7cc0_slot04_11[obj->field_0e];
 }
 
-void func_801b7020_slot04_11(Object *obj) {
+void call_handler_by_state_0_with_parent_slot04_11(Object *obj) {
     ref_other.p = obj->parent;
     data_801c7cd0_slot04_11[obj->state_0](obj);
 }
 
-void func_801b7070_slot04_11(Object *obj) {
+void advance_state_0_copy_other_fields_slot04_11(Object *obj) {
     obj->state_0++;
     obj->field_1c = ref_other.p->field_1c;
     obj->field_0c = ref_other.p->field_0c;
     obj->field_0e = ref_other.p->field_0e;
     obj->variant_index = 0;
     obj->field_01 = 0;
-    func_801b70e8_slot04_11(obj);
+    follow_other_by_frame_param_slot04_11(obj);
 }
 
-void func_801b70e8_slot04_11(Object *obj) {
+void follow_other_by_frame_param_slot04_11(Object *obj) {
     Object *p;
     u8 f;
 
     obj->field_01 = 0;
     if (ref_other.p->kind != 0x11 && ref_other.p->kind != 0x13) {
-        func_801b71cc_slot04_11(obj);
+        increment_state_0_slot04_11(obj);
     }
     p = ref_other.p;
     f = p->frame->frame_param;
@@ -298,18 +298,18 @@ void func_801b70e8_slot04_11(Object *obj) {
         if (obj->variant_index == f) {
             advance_sequence_checked(obj);
         } else {
-            func_801b7214_slot04_11(obj, f);
+            set_variant_sequence_from_side_table_slot04_11(obj, f);
         }
     } else {
         func_801b7208_slot04_11(obj);
     }
 }
 
-void func_801b71cc_slot04_11(Object *obj) {
+void increment_state_0_slot04_11(Object *obj) {
     obj->state_0++;
 }
 
-void func_801b71e0_slot04_11(Object *obj) {
+void clear_other_link_and_release_object_slot04_11(Object *obj) {
     ref_other.p->linked_object = 0;
     func_8011f38c(obj);
 }

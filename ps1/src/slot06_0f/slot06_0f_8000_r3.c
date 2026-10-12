@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e8b8c_slot06_0f(Slot06Layer *layer) {
+void compute_layer_scroll_step_accums_div88_slot06_0f(Slot06Layer *layer) {
     int i;
     int n;
 

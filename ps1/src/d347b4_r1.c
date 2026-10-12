@@ -5,8 +5,8 @@
 
 extern PolyBlk data_80186004[];
 extern s16 data_80188d04;
-void func_80134e94(u8 a, u8 b);
-void func_801350c0(u8 a, u8 b);
+void select_meter_level_table_entry(u8 a, u8 b);
+void update_meter_animation_indices(u8 a, u8 b);
 
 /*
  * What it does (inferred, not an original name): draws a tile map as sprite
@@ -14,7 +14,7 @@ void func_801350c0(u8 a, u8 b);
  * free index data_80188d04 of the buffer data_801a27d0, and hands each record
  * to func_8015bf34 with a pointer into the list array at data_801987c8. The
  * kind changes the page word and the corner layout. Kinds 2 and 3 call
- * func_80134e94 for each tile and func_801350c0 once at the end.
+ * select_meter_level_table_entry for each tile and update_meter_animation_indices once at the end.
  * Parameters: the kind (low 8 bits count), the map header (an address, columns
  * at byte 0, rows at byte 2, then rows * columns halfword cells), the x base
  * (low 16 bits count), the y base, the list index (low 16 bits count) and the
@@ -55,7 +55,7 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
                    differs in 21 instruction lines, (u8)kind != 5 for the flag test below in 118, and
                    kind - 2 for the test after the loops in 2. */
                 if ((unsigned)((kind + 0xfe) & 0xff) < 2) {
-                    func_80134e94(kind, col);
+                    select_meter_level_table_entry(kind, col);
                 }
                 if ((u8)kind < 4) {
                     data_80186004[idx].polys[data_80188d04].clut = (page + map->page_offset + data_80188d28) * 64 + 0x7807;
@@ -116,11 +116,11 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
             }
         }
     }
-    /* col is not set when the map has no rows. The original then passes to func_801350c0 whatever its caller
+    /* col is not set when the map has no rows. The original then passes to update_meter_animation_indices whatever its caller
        left in the register that holds col (a saved register that this function has not written yet), a value
        C cannot express; with col set to 0 at its declaration 58 instruction lines differ. The PC program runs
        port/overrides/func_801347b4.c in place of this function, which is this C with col set to 0. */
     if ((unsigned)((kind - 2) & 0xff) < 2) {
-        func_801350c0(kind, col);
+        update_meter_animation_indices(kind, col);
     }
 }

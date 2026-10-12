@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1a18_slot04_0b(Object *obj) {
+void spawn_linked_pooled_object_on_flag_2_slot04_0b(Object *obj) {
     Object *p;
     s16 y;
 

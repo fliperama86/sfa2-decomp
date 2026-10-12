@@ -17,16 +17,16 @@ void func_80120b34(void) {
     data_8018f5a0->field_54 = 0;
     game_state.fade_busy = 0;
     game_state.wait_flag = 0;
-    func_801192bc(1);
+    request_sound_command_and_switch_thread(1);
     for (;;) {
         g->loop_counter++;
         g->pass_flag = 0xff;
         func_80120c14(g);
-        func_8011f5a0();
+        update_player_inputs_and_handlers();
         g->field_04 = 0;
-        func_80120ca0(g);
+        call_handler_by_stage_0_1(g);
         if (g->pass_flag == 0 || g->pending_flag == 0) {
-            func_801192bc(1);
+            request_sound_command_and_switch_thread(1);
         }
     }
 }

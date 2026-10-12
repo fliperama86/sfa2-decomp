@@ -18,5 +18,5 @@ void func_801b3068_slot04_0f(Object *obj) {
     obj->once_flag_2 = 0;
     obj->flag_25a_set = 0;
     play_side_sound_at(obj, obj->side, 0xe);
-    func_801307e0(obj, 0x47);
+    set_sequence_by_side_and_mode(obj, 0x47);
 }

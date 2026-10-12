@@ -10,5 +10,5 @@ int func_8013fd98(Object *object, s16 a, s16 b, s16 c, u16 d) {
     frame = ref_other.p->frame;
     if (frame->handler_index | ref_other.p->other_lock | ref_other.p->field_163) return 0;
     if (frame->box_a == 0 && frame->box_b == 0 && frame->box_c == 0) return 0;
-    return func_801400fc(object, a, b, c, (s16)d) & 0xff;
+    return check_range_and_set_other_state(object, a, b, c, (s16)d) & 0xff;
 }

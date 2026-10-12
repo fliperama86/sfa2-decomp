@@ -9,14 +9,14 @@ extern u8 data_8002f158_slot27;
    compares, and then the byte that goes to kind_index. With a second local for
    the byte, this function differs from the original in 11 instruction slots;
    with the first test written without a local, in 15. */
-void func_80010840_slot27(void) {
+void finish_selection_pass_and_set_kind_index_slot27(void) {
     int value;
     data_8002f158_slot27 = 0;
     value = game_state.mode | game_state.side_mask;
     if (data_8018f5a0->pass_index == value) {
         data_8018f5a0->substep_index++;
         game_state.field_09 = 1;
-        func_801257f4((Select *)&game_state);
+        select_kind_for_second_player((Select *)&game_state);
         if (game_state.b0_flag != 0) {
             value = game_state.selection_value;
             if ((value & 0x80) == 0) {

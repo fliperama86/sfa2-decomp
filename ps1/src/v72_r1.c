@@ -33,7 +33,7 @@ void func_8014b340(Object *object) {
         t = w >> 8;
         object->limit_hi_2 = t;
         object->y_margin = v;
-        func_8014dd14(object);
+        decode_input_word_into_object_fields(object);
         object->direction_flag = object->script_byte_hi;
         object->saved_mode_bits = object->script_byte_lo;
         if ((object->script_byte_lo & 0xfe) == 4) {
@@ -58,7 +58,7 @@ void func_8014b340(Object *object) {
         t = w >> 8;
         object->limit_hi_2 = t;
         object->y_margin = v;
-        func_8014dd14(object);
+        decode_input_word_into_object_fields(object);
         object->field_15a = 3;
         if ((u8)func_8014dcc0(object) != 0) {
         if (*(u32 *)&object->state_0 == 0x20101) {
@@ -82,7 +82,7 @@ void func_8014b340(Object *object) {
             object->countdown_3 = t;
         }
         } else {
-            func_8014c914(object);
+            read_script_word_and_dispatch(object);
         }
     }
 }

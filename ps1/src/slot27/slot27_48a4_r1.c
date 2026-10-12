@@ -5,7 +5,7 @@
 
 extern ObjectFn data_80027cfc_slot27[];
 
-void func_800148a4_slot27(Object *o) {
+void add_angle_step_and_advance_state_1_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     int v;
     if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
@@ -18,20 +18,20 @@ void func_800148a4_slot27(Object *o) {
     func_8011ffdc(o);
 }
 
-void func_8001492c_slot27(Object *obj) {
+void hide_and_advance_state_1_slot27(Object *obj) {
     obj->field_01 = 0;
     obj->state_1++;
 }
 
 void func_80014940_slot27(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
 void func_80014960_slot27(Object *obj) {
     data_80027cfc_slot27[obj->state_1](obj);
 }
 
-void func_800149a0_slot27(Object *obj) {
+void start_spawn_x10_move_right_slot27(Object *obj) {
     obj->spawn_x = 0x10;
     obj->spawn_y = 0x1e0;
     obj->field_01 = 1;

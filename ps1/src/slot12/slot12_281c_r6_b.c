@@ -4,13 +4,13 @@
 #include "../externs.h"
 
 extern void (*data_80023170_slot12[])(Object *);
-void func_8001281c_slot12(Object *obj);
+void call_handler_by_state_0_with_tile_update_slot12(Object *obj);
 
-void func_80012e2c_slot12(Object *obj) {
+void call_handler_by_state_0_3_slot12(Object *obj) {
     data_80023170_slot12[obj->state_0](obj);
 }
 
-void func_80012e6c_slot12(Object *obj) {
+void init_object_fields_and_advance_state_0_slot12(Object *obj) {
     obj->field_0c = 1;
     obj->variant_index = 9;
     obj->pos_x = 0xf8;

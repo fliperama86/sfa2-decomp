@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3f58_slot04_0a(Object *object);
+void clear_twenty_slot_words_slot04_0a(Object *object);
 
 void func_801b37fc_slot04_0a(Object *obj) {
     int a = 0;
@@ -17,16 +17,16 @@ void func_801b37fc_slot04_0a(Object *obj) {
             a = -0x1d;
             b = 0x56;
         }
-        func_801495f8(obj, a, b);
-        func_8011fe40(obj);
-        func_80149af8(obj);
-        func_80143184(obj);
-        func_801b3f58_slot04_0a(obj);
+        spawn_effect_objects_at_offset(obj, a, b);
+        reset_side_table_and_fields(obj);
+        spawn_object_type_6d_for_side(obj);
+        set_other_sequence_3_when_close(obj);
+        clear_twenty_slot_words_slot04_0a(obj);
     }
     update_sequence(obj);
 }
 
-void func_801b3894_slot04_0a(Object *o) {
+void count_down_high_byte_then_start_timer_slot04_0a(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     u8 a = 0x48;
     o->countdown = (s16)o->countdown - 0x100;
@@ -41,6 +41,6 @@ void func_801b3894_slot04_0a(Object *o) {
         o->cursor_timer_a = a;
         o->field_180 = 0;
     }
-    func_80142fe8(o);
+    push_other_by_vel_x(o);
     update_sequence(o);
 }

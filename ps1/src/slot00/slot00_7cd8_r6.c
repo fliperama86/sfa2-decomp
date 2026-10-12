@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80078458_slot00(Object *obj, int mode);
+void set_sequence_by_sound_side_slot00(Object *obj, int mode);
 
-void func_80078258_slot00(Object *obj) {
-    func_80078458_slot00(obj, 1);
+void set_sequence_index_1_slot00(Object *obj) {
+    set_sequence_by_sound_side_slot00(obj, 1);
 }
 
-void func_80078278_slot00(Object *obj) {
+void init_object_at_parent_offset_sequence_3_slot00(Object *obj) {
     Object *p = obj->parent;
     obj->facing_side = p->facing_side;
     if (obj->facing_side != 0) {
@@ -19,9 +19,9 @@ void func_80078278_slot00(Object *obj) {
     }
     obj->pos_y = (u16)p->pos_y + 5;
     obj->variant_index = (get_random_byte() & 0x1f) + 0xa;
-    func_80078458_slot00(obj, 3);
+    set_sequence_by_sound_side_slot00(obj, 3);
 }
 
-void func_80078308_slot00(Object *obj) {
-    func_80078458_slot00(obj, (get_random_byte() & 3) | 4);
+void set_random_sequence_index_4_to_7_slot00(Object *obj) {
+    set_sequence_by_sound_side_slot00(obj, (get_random_byte() & 3) | 4);
 }

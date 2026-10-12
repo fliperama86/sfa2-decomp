@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014f690(Menu *m, int a, int b) {
+void start_cd_track_from_table(Menu *m, int a, int b) {
     s32 v = data_8017e9d4[a][b];
     u8 *p;
     int i;
@@ -25,7 +25,7 @@ void func_8014f690(Menu *m, int a, int b) {
         p[0x20] = 0;
         p--;
     }
-    func_80150c6c(m, v);
-    func_8015c990((int) func_8014f918);
-    func_8014f7f8(m);
+    set_sprite_fields_from_table(m, v);
+    func_8015c990((int) update_stream_control_by_mode);
+    seek_cd_position_with_retries(m);
 }

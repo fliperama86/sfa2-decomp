@@ -21,7 +21,7 @@ texture page from the second halfword, increments the record counter
 data_800f7264_slot0f (16 bits), and links the record into the list head
 selected by c->field_8a in the array data_801987c8 points at. */
 /* count is an int: the original does not narrow it at entry. With an s16 parameter this function is 604 bytes and differs from the original in 43 instruction slots. */
-void func_800e4ab0_slot0f(Chan *c, Strip1c *buf, int count) {
+void build_tilemap_row_primitives_slot0f(Chan *c, Strip1c *buf, int count) {
     int row;
     int n;
     int yy;

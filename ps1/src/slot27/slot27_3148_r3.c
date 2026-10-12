@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013b74_slot27(Object *obj);
-void func_80012fd4_slot27(Object *obj);
+void load_palette_anim_from_table_index_slot27(Object *obj);
+void set_linked_objects_velocity_from_health_slot27(Object *obj);
 
-void func_800134e8_slot27(Object *obj) {
+void add_vel_x_to_chosen_object_until_zero_slot27(Object *obj) {
     s32 *t = (s32 *)data_8019045c;
     ref_first.p = (Object *)((ObjectWords *)obj)->word_54;
     if (obj->sound_side != 0) {
@@ -34,7 +34,7 @@ void func_80013570_slot27(Object *obj) {
     if (obj->vec_table_index != *u) {
         obj->vec_table_index = *(u8 *)u;
         *u = *u + 8;
-        func_80013b74_slot27(obj);
+        load_palette_anim_from_table_index_slot27(obj);
     }
-    func_80012fd4_slot27(obj);
+    set_linked_objects_velocity_from_health_slot27(obj);
 }

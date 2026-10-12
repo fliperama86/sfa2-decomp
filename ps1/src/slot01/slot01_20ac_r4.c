@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 extern u8 data_80023d9c_slot01[];
-void func_8001257c_slot01(void);
+void load_and_store_16x1_image_slot01(void);
 
-void func_800124f4_slot01(Object *o) {
+void spawn_child_object_and_load_image_slot01(Object *o) {
     Slot01Obj *obj = (Slot01Obj *)o;
     Object *s = o->parent;
-    Object *p = func_8011f32c();
+    Object *p = pop_object_from_second_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0x23;
@@ -23,5 +23,5 @@ void func_800124f4_slot01(Object *o) {
         p->parent = o;
         obj->child = p;
     }
-    func_8001257c_slot01();
+    load_and_store_16x1_image_slot01();
 }

@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001b1c4_slot28(Object *o);
-void func_8001af9c_slot28(Object *o);
+void integrate_position_and_ground_y_motion_slot28(Object *o);
+void update_fall_until_ground_then_bounce_slot28(Object *o);
 
 void func_8001af40_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
@@ -17,12 +17,12 @@ void func_8001af40_slot28(Object *o) {
     *(u16 *)&o->ground_y = *(u16 *)&o->pos_y;
     o->accel_x = 0;
     o->y_offset = 0;
-    func_8001af9c_slot28(o);
+    update_fall_until_ground_then_bounce_slot28(o);
 }
 
-void func_8001af9c_slot28(Object *o) {
+void update_fall_until_ground_then_bounce_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
-    func_8001b1c4_slot28(o);
+    integrate_position_and_ground_y_motion_slot28(o);
     if (o->pos_y >= o->ground_y) {
         o->state_1++;
         play_sound_at(0, 0, 0x301);
@@ -35,9 +35,9 @@ void func_8001af9c_slot28(Object *o) {
     }
 }
 
-void func_8001b028_slot28(Object *o) {
+void land_on_ground_and_start_bounce_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
-    func_8001b1c4_slot28(o);
+    integrate_position_and_ground_y_motion_slot28(o);
     if (o->pos_y >= o->ground_y) {
         obj->timer_reload = 1;
         o->vel_x = 0x30000;

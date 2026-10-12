@@ -8,21 +8,21 @@
  * none.
  *
  * Why: the function that the module slot28 has at that address
- * (func_80013834_slot28; inferred: this arm runs while that module is
+ * (load_velocities_from_table_slot28; inferred: this arm runs while that module is
  * loaded) hands its a0 on, unchanged, to the function after it (jal 0x80013854
  * at 8001383c, a0 not written before it), and that one hands it on again to
  * an entry of a table (jalr at 80013884, a0 not written before it). On the
  * console a0 still holds this function's first parameter at the call,
  * because the second arm of the original code does not write a0 (a0 is
  * written at 8012129c, in the first arm only, which then calls
- * func_8014efa8). Compiled for a PC, the chain would pass on something else.
+ * load_command_7_and_wait). Compiled for a PC, the chain would pass on something else.
  * Whether the entries of that table read a0 is not checked here (inferred:
  * they take the record); the test shows that the callee gets the same a0
  * as in the original code.
  *
  * What the function does (inferred): when the u16 step_index of the record
  * data_8018f5a0 points at is 0, it raises that field by one and calls
- * func_8014efa8 with the low seven bits of state->audio_arg; otherwise it
+ * load_command_7_and_wait with the low seven bits of state->audio_arg; otherwise it
  * calls func_80013834 with the state.
  *
  * Contract:
@@ -32,7 +32,7 @@
  *   Result: none.
  *   Writes: the halfword at 0x4c of the record data_8018f5a0 points at
  *     (the first arm).
- *   Callees: func_8014efa8 (1 argument) and func_80013834 are replaced in
+ *   Callees: load_command_7_and_wait (1 argument) and func_80013834 are replaced in
  *     the test by recorders that log their arguments and return 0. What they
  *     do is outside the test. The test watches the state and the record at
  *     every call, so the write to step_index is seen at the call.
@@ -48,7 +48,7 @@
 void func_8012126c(GameState *state) {
     if (data_8018f5a0->step_index == 0) {
         data_8018f5a0->step_index++;
-        func_8014efa8(state->audio_arg & 0x7f);
+        load_command_7_and_wait(state->audio_arg & 0x7f);
     } else {
         ((void (*)(GameState *))func_80013834)(state);
     }

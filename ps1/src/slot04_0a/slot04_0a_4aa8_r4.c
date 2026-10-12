@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 /* The two locals are read without having been set: the original stores two saved registers that it never assigns. */
-void func_801b4e38_slot04_0a(Object *obj) {
+void spawn_three_delayed_child_objects_slot04_0a(Object *obj) {
     Object *p[3];
     u8 a;
     int b;
     Object *t;
 
     if (data_80197f10 >= 3) {
-        func_801460ec((u32 *)p);
+        get_three_pool_objects_sorted((u32 *)p);
         t = p[0];
         t->active_count = 1;
         t->field_02 = 0x15;

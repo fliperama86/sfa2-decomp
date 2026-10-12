@@ -2,18 +2,18 @@
 #include "../game.h"
 #include "../externs.h"
 
-void func_801307e0(Object *object, int arg);
-void func_80141f28(Object *object, short delta);
-void func_801312b8(Object *object);
-void func_80131468(Object *obj);
+void set_sequence_by_side_and_mode(Object *object, int arg);
+void add_to_meter_clamped(Object *object, short delta);
+void reset_object_to_state_1_0_sequence_0(Object *object);
+void reset_object_to_state_1_0_0_2_sequence_1(Object *obj);
 extern s16 data_8007e878_slot16[];
 void overlay_left_kind(Object *object);
 void select_box_tables(Object *object);
 void build_metrics(Object *object);
-void func_80130dc0(Object *object);
+void set_sequence_and_tables_from_direction(Object *object);
 void func_801b63fc(Object *object);
 
-void func_8007be8c_slot16(Object *object) {
+void set_sequence_by_direction_index_slot16(Object *object) {
     int t;
 
     if (object->attack_param_d != 0) {
@@ -30,7 +30,7 @@ void func_8007be8c_slot16(Object *object) {
     object->state_3 = 3;
     object->input_dir_0 = 4;
     object->active_flag_3 = 1;
-    func_80141f28(object, *(s16 *) ((char *) data_8007e878_slot16 + (object->direction_index & 0xfe)));
+    add_to_meter_clamped(object, *(s16 *) ((char *) data_8007e878_slot16 + (object->direction_index & 0xfe)));
     t = 0xc;
     if (object->variant_index != 0) {
         t = 0x12;
@@ -38,18 +38,18 @@ void func_8007be8c_slot16(Object *object) {
     if (object->input_dir_second != 0) {
         t += 3;
     }
-    func_801307e0(object, (object->direction_index >> 1) + t);
+    set_sequence_by_side_and_mode(object, (object->direction_index >> 1) + t);
 }
 
 void func_8007bf74_slot16(Object *object) {
     object->active_flag_3 = 1;
-    func_80130dc0(object);
+    set_sequence_and_tables_from_direction(object);
 }
 
 void func_8007bf98_slot16(Object *object) {
-    func_801312b8(object);
+    reset_object_to_state_1_0_sequence_0(object);
 }
 
-void func_8007bfb8_slot16(Object *obj) {
-    func_80131468(obj);
+void load_velocities_from_table_slot16(Object *obj) {
+    reset_object_to_state_1_0_0_2_sequence_1(obj);
 }

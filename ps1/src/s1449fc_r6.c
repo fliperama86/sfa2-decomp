@@ -13,10 +13,10 @@ void func_8014598c(Object *object) {
     object->field_01 = 0;
     object->state_0++;
     if (object->field_0e == 4) {
-        func_8011f8e4(object, table_8017c90c, object->table_index);
+        set_sequence_from_table(object, table_8017c90c, object->table_index);
     } else if (object->field_0e == 8) {
-        func_8011f93c(object, table_8017c910, object->table_index);
+        set_sequence_from_table_2(object, table_8017c910, object->table_index);
     } else if (object->field_0e == 0xc) {
-        func_8011fa20(object, table_8017c960, object->table_index);
+        set_sequence_from_table_3(object, table_8017c960, object->table_index);
     }
 }

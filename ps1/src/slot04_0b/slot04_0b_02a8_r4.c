@@ -5,12 +5,12 @@
 
 extern ObjectFn data_801c24a8_slot04_0b[];
 
-void func_801b05bc_slot04_0b(Object *obj) {
+void noop_slot00_slot04_0b(Object *obj) {
 }
 
-void func_801b05c4_slot04_0b(Object *obj) {
+void noop_slot00_2_slot04_0b(Object *obj) {
 }
 
-void func_801b05cc_slot04_0b(Object *obj) {
+void call_handler_by_state_2_2_slot04_0b(Object *obj) {
     data_801c24a8_slot04_0b[obj->state_2](obj);
 }

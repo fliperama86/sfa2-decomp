@@ -6,18 +6,18 @@
 extern ObjectFn data_801c6a54_slot04_10[];
 extern ObjectRef data_80190468;
 
-void func_80138ae8(GameState *state, Object *object);
-void func_80142adc(Object *object);
-void func_801b1078_slot04_10(Object *obj);
-void func_801b2f98_slot04_10(Object *obj);
-void func_801b3220_slot04_10(Object *obj);
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
+void start_action_if_buttons_pressed(Object *object);
+void load_velocities_from_table_slot04_10(Object *obj);
+void update_sequence_or_end_move_a_slot04_10(Object *obj);
+void add_flag_indexed_offset_to_pos_x_slot04_10(Object *obj);
 
-void func_801b2f98_slot04_10(Object *obj) {
+void update_sequence_or_end_move_a_slot04_10(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     } else {
-        func_801b1078_slot04_10(obj);
+        load_velocities_from_table_slot04_10(obj);
     }
 }
 
@@ -25,19 +25,19 @@ void func_801b2fec_slot04_10(Object *obj) {
     data_801c6a54_slot04_10[obj->state_3](obj);
 }
 
-void func_801b302c_slot04_10(Object *obj) {
+void start_state_3_sequence_by_direction_slot04_10(Object *obj) {
     int a;
 
     obj->active_flag_4 = 1;
     ((Slot04bObj *)obj)->field_298 = 0;
     obj->field_225 = 1;
     obj->state_3++;
-    func_80141f28(obj, 7);
-    func_80138ae8((GameState *)data_80190468.p, obj);
+    add_to_meter_clamped(obj, 7);
+    add_one_to_ec4_if_object_unflagged((GameState *)data_80190468.p, obj);
     a = 0x49;
     if (obj->field_49 != 0) {
         a = 0x53;
     }
-    func_801307e0(obj, a + (obj->direction_index >> 1));
-    func_801b3220_slot04_10(obj);
+    set_sequence_by_side_and_mode(obj, a + (obj->direction_index >> 1));
+    add_flag_indexed_offset_to_pos_x_slot04_10(obj);
 }

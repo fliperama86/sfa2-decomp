@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b48fc_slot04_17(Object *obj);
-u8 func_801b4974_slot04_17(Object *obj);
+void latch_pressed_bits_into_input_bits_slot04_17(Object *obj);
+u8 get_random_table_byte_slot04_17(Object *obj);
 
 extern u32 data_801ce0d0_slot04_17[];
 extern s32 data_801ce63c_slot04_17[];
 
-void func_801b45ec_slot04_17(Object *obj) {
+void start_jump_from_input_table_v2_slot04_17(Object *obj) {
     int a;
     int d;
     int m;
@@ -19,12 +19,12 @@ void func_801b45ec_slot04_17(Object *obj) {
     s32 x;
     s32 y;
 
-    func_801b48fc_slot04_17(obj);
+    latch_pressed_bits_into_input_bits_slot04_17(obj);
     if ((obj->step_flags << 16) < 0) {
         a = *(u16 *)&((Slot04bObj *)obj)->input_bits;
         obj->state_3++;
         if (obj->mode_flag_2 != 0) {
-            if (func_8014a170(obj, data_801ce0d0_slot04_17) == 0) {
+            if (test_random_bit_in_table(obj, data_801ce0d0_slot04_17) == 0) {
                 ref_other.p = obj->other;
                 d = ref_other.p->pos_x - obj->pos_x;
                 a = 0x40;
@@ -36,7 +36,7 @@ void func_801b45ec_slot04_17(Object *obj) {
                     a = 0x20;
                 }
             } else {
-                a = func_801b4974_slot04_17(obj);
+                a = get_random_table_byte_slot04_17(obj);
             }
         }
         d = 1;
@@ -68,7 +68,7 @@ void func_801b45ec_slot04_17(Object *obj) {
         }
         obj->vel_x = x;
         obj->accel_x = y;
-        func_801307e0(obj, d + data_801ce63c_slot04_17[s]);
+        set_sequence_by_side_and_mode(obj, d + data_801ce63c_slot04_17[s]);
     } else {
         update_sequence(obj);
     }

@@ -9,7 +9,7 @@
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: the original computes both 0x30/0x18 masks branch-free and keeps
    the index sum in v1/a2; here the 0x18 term compiles to a branch (4 bytes
    longer). Forcing it branch-free moves object out of a0. */
-int func_801425d8(Object *object, s16 mask)
+int clear_mask_bits_below_target_position(Object *object, s16 mask)
 {
   s16 i;
   int delta;

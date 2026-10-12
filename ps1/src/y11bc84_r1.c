@@ -11,30 +11,30 @@ void func_8011bc84(Slab172 *p) {
         p->reload_flag = 0;
         old = data_8018437c[p->stream_index][0];
         if (old != cur) {
-            func_8011be18(p);
+            shift_stream_second_cell_to_first(p);
             if (*cur != 0) {
-                func_8011bf70(p, cur);
+                unpack_cell_list_into_stream_cells(p, cur);
             } else {
-                func_8011c568(p, cur);
+                drop_second_stream_cell_run(p, cur);
             }
             func_80119d88(p);
-            q = func_8011bdc0(p);
+            q = get_sequence_data_address(p);
             if (*q != 0 && q != cur) {
-                func_8011bf70(p, q);
+                unpack_cell_list_into_stream_cells(p, q);
             } else {
-                func_8011c568(p, q);
+                drop_second_stream_cell_run(p, q);
             }
         } else {
             func_80119d88(p);
-            q = func_8011bdc0(p);
+            q = get_sequence_data_address(p);
             if (*q != 0 && q != old) {
-                func_8011bf70(p, q);
+                unpack_cell_list_into_stream_cells(p, q);
             } else {
-                func_8011c568(p, q);
+                drop_second_stream_cell_run(p, q);
             }
         }
     } else {
-        func_80119ddc(p);
+        decode_blocks_divided_by_step_divisor(p);
     }
-    func_8011c724(p);
+    build_sprite_quads_from_stream(p);
 }

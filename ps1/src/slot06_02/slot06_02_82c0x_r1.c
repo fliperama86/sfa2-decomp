@@ -5,9 +5,9 @@
 extern Slot06Tile data_801ef0e8_slot06_02[2][0xd4];
 extern Slot06Tile data_801f897c_slot06_02[2][0x65];
 
-void func_801e82c0_slot06_02(void);
+void init_two_tile_arrays_gray_color_slot06_02(void);
 
-void func_801e82c0_slot06_02(void) {
+void init_two_tile_arrays_gray_color_slot06_02(void) {
     int i;
     int j;
     Slot06Tile *r;
@@ -19,7 +19,7 @@ void func_801e82c0_slot06_02(void) {
         j = 0;
         do {
             r = (Slot06Tile *)((u8 *)data_801ef0e8_slot06_02 + i * 0x1730 + j * 0x1c);
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = 0x80;
             r->sprt.color_g = 0x80;
             r->sprt.color_b = 0x80;
@@ -33,7 +33,7 @@ void func_801e82c0_slot06_02(void) {
         do {
             t = data_801f897c_slot06_02[0];
             sp = &t->sprt;
-            func_80136d1c((Tx *)(i * 0xb0c + (u32)(t + j)));
+            init_draw_mode_prim_3((Tx *)(i * 0xb0c + (u32)(t + j)));
             q = (Slot06Sprt16 *)((j * 0x1c + i * 0xb0c) + (u32)sp);
             q->color_r = 0x80;
             q->color_g = 0x80;

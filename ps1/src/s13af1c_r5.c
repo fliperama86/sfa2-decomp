@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013ca3c(Object *a, Object *b) {
+void set_pair_hit_states_and_play_sound(Object *a, Object *b) {
     b->state_0 = 1;
     b->state_2 = 7;
     b->field_15a = 11;
@@ -17,7 +17,7 @@ void func_8013ca3c(Object *a, Object *b) {
     a->field_6b = 16;
     b->field_6b = 12;
     play_sound_at(b, b->side, 0x313);
-    func_801465b0(a, 2, -0x40, 0x51);
+    spawn_effect_at_other_offset(a, 2, -0x40, 0x51);
 }
 
 int func_8013cac8(Object *object, u8 a, u8 b) {
@@ -26,22 +26,22 @@ int func_8013cac8(Object *object, u8 a, u8 b) {
 }
 
 int func_8013caf0(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d06c(object) && func_8013d038(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+    u8 r = (func_8013d06c(object) && func_8013d038(object)) ? func_8013de2c(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013cb70(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d004(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+    u8 r = (func_8013d004(object)) ? func_8013de2c(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013cbdc(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d038(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+    u8 r = (func_8013d038(object)) ? func_8013de2c(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013cc48(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d06c(object)) ? func_8013de2c(object, a, b) : func_8013d0a0(object, a);
+    u8 r = (func_8013d06c(object)) ? func_8013de2c(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
@@ -50,11 +50,11 @@ u8 func_8013ccb4(Object *object, u8 a, u8 b) {
 }
 
 u8 func_8013ccdc(Object *object, u8 a, u8 b) {
-    return (func_8013d06c(object) && func_8013d038(object)) ? func_8013d4cc(object, a, b) : func_8013d0a0(object, a);
+    return (func_8013d06c(object) && func_8013d038(object)) ? func_8013d4cc(object, a, b) : reset_slot_stage_and_count(object, a);
 }
 
 u8 func_8013cd5c(Object *object, u8 a, u8 b) {
-    return (func_8013d004(object)) ? func_8013d4cc(object, a, b) : func_8013d0a0(object, a);
+    return (func_8013d004(object)) ? func_8013d4cc(object, a, b) : reset_slot_stage_and_count(object, a);
 }
 
 int func_8013cdc8(Object *object, u8 a, u8 b) {
@@ -63,22 +63,22 @@ int func_8013cdc8(Object *object, u8 a, u8 b) {
 }
 
 int func_8013cdf0(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d004(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+    u8 r = (func_8013d004(object)) ? func_8013e574(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013ce5c(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d038(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+    u8 r = (func_8013d038(object)) ? func_8013e574(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013cec8(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d06c(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+    u8 r = (func_8013d06c(object)) ? func_8013e574(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 u8 func_8013cf34(Object *object, u8 a, u8 b) {
-    return (func_8013d038(object) && func_8013d06c(object)) ? func_8013e574(object, a, b) : func_8013d0a0(object, a);
+    return (func_8013d038(object) && func_8013d06c(object)) ? func_8013e574(object, a, b) : reset_slot_stage_and_count(object, a);
 }
 
 u8 func_8013cfb4(Object *object, u8 a, u8 b) {
@@ -111,7 +111,7 @@ u8 func_8013d06c(Object *object) {
     return 1;
 }
 
-u8 func_8013d0a0(Object *object, u8 a) {
+u8 reset_slot_stage_and_count(Object *object, u8 a) {
     object->slots[a].stage = 0;
     object->field_25c = object->field_25c + 1;
     return 1;

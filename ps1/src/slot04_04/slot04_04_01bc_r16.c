@@ -6,11 +6,11 @@
 extern ObjectFn data_801c41a8_slot04_04[];
 extern ObjectFn data_801c41d4_slot04_04[];
 
-int func_801b15b4_slot04_04(Object *obj) {
+int return_true_always_slot04_04(Object *obj) {
     return 1;
 }
 
-int func_801b15bc_slot04_04(Object *obj) {
+int is_link_flags_zero_slot04_04(Object *obj) {
     return obj->link_flags == 0;
 }
 
@@ -26,7 +26,7 @@ int func_801b15f0_slot04_04(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b1604_slot04_04(Object *obj) {
+int has_remaining_count_slot04_04(Object *obj) {
     return obj->remaining_count != 0;
 }
 

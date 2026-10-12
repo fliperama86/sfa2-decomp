@@ -3,14 +3,14 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012318c(GameState *state) {
+void wait_countdown_or_set_state_index_5(GameState *state) {
     Entity *entity = (Entity *)state;
     if (entity->a9_flag == 0) {
         if ((u8)func_80125394() == 0) {
             int v = entity->countdown_timer - 1;
             entity->countdown_timer = v;
             if ((s16)v >= 0) {
-                func_80156094();
+                call_handler_by_data_index();
                 return;
             }
         }

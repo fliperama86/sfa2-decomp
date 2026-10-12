@@ -10,7 +10,7 @@ int func_801b1250_slot04_00(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b1264_slot04_00(Object *obj) {
+int has_remaining_count_slot04_00(Object *obj) {
     return obj->remaining_count != 0;
 }
 

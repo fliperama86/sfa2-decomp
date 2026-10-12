@@ -4,35 +4,35 @@
 #include "../externs.h"
 
 extern void (*data_800e83e0_slot0f[])(GameState *state);
-void func_800e4d10_slot0f(Object *obj);
-void func_800e4d60_slot0f(Object *obj);
-void func_800e0150_slot0f(Object *obj);
-void func_800e483c_slot0f(void);
+void call_phase_handler_mode_0_slot0f(Object *obj);
+void call_phase_handler_mode_1_slot0f(Object *obj);
+void call_object_handler_by_phase_index_slot0f(Object *obj);
+void init_strips_and_load_three_images_slot0f(void);
 void func_800e4988_slot0f(void);
 
 void func_800df8b0_slot0f(GameState *state) {
-    func_800e4d10_slot0f((Object *)state);
+    call_phase_handler_mode_0_slot0f((Object *)state);
 }
 
 void func_800df8d0_slot0f(GameState *state) {
-    func_800e4d60_slot0f((Object *)state);
+    call_phase_handler_mode_1_slot0f((Object *)state);
 }
 
 void func_800df8f0_slot0f(GameState *state) {
-    func_800e0150_slot0f((Object *)state);
+    call_object_handler_by_phase_index_slot0f((Object *)state);
 }
 
-void func_800df910_slot0f(GameState *state) {
+void call_handler_by_phase_index_slot0f(GameState *state) {
     data_800e83e0_slot0f[data_8018f5a0->phase_index](state);
 }
 
-void func_800df958_slot0f(GameState *state) {
+void start_slot0f_timed_scene_slot0f(GameState *state) {
     data_8018f5a0->phase_index++;
     state->step_counter = 300;
-    func_800e483c_slot0f();
+    init_strips_and_load_three_images_slot0f();
 }
 
-void func_800df994_slot0f(GameState *state) {
+void count_down_step_then_advance_state_index_slot0f(GameState *state) {
     int t = state->step_counter - 1;
     state->step_counter = t;
     if ((s16)t == 0) {
@@ -42,7 +42,7 @@ void func_800df994_slot0f(GameState *state) {
     func_800e4988_slot0f();
 }
 
-void func_800df9ec_slot0f(GameState *state) {
+void clear_scratch_word_10_and_state_index_slot0f(GameState *state) {
     scratch_word_10 = 0;
     data_8018f5a0->state_index = 0;
 }

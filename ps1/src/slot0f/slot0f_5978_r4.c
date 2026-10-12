@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e5d18_slot0f(Object *obj, Slot12Prim *c, int x, int y) {
+void init_two_prims_with_draw_mode_slot0f(Object *obj, Slot12Prim *c, int x, int y) {
     int i;
     u8 *p = (u8 *)c + 0xc;
     for (i = 0; i < 2; i++, c++) {

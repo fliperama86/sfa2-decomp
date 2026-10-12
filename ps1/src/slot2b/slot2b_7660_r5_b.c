@@ -6,10 +6,10 @@
 extern ObjectFn data_80079938_slot2b[];
 extern s16 data_8007ef24_slot2b;
 
-void func_80077bf8_slot2b(Object *obj) {
-    func_80137be0(obj);
+void load_velocities_from_table_slot2b(Object *obj) {
+    call_state_2_handler_267c_unless_paused(obj);
 }
 
-void func_80077c18_slot2b(Object *obj) {
-    func_80137cc0(obj);
+void load_velocities_from_table_2_slot2b(Object *obj) {
+    call_state_2_handler_2684_unless_paused(obj);
 }

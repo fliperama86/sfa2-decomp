@@ -8,11 +8,11 @@ extern Slot0fRec8490 data_800e8490_slot0f[];
 extern s8 data_800f8576_slot0f;
 
 /* The 16-bit local w holds the constant 3 and then 0x1b. Written with the two literals, this function differs from the original in 11 instruction slots; with w as an int, in 17. */
-void func_800e07b8_slot0f(int sel) {
+void queue_menu_items_with_highlight_slot0f(int sel) {
     int i;
     s16 w;
     Slot0fRec8490 *p;
-    func_801519b4(data_800e8480_slot0f);
+    add_item_to_table(data_800e8480_slot0f);
     for (i = 0; i < 6; i++) {
         p = &data_800e8490_slot0f[i];
         p->highlight_value = sel == i ? 0x10 : 0x1a;
@@ -23,6 +23,6 @@ void func_800e07b8_slot0f(int sel) {
                 p->highlight_value = w;
             }
         }
-        func_801519b4(p);
+        add_item_to_table(p);
     }
 }

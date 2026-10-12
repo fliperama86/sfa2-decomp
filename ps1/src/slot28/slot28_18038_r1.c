@@ -5,7 +5,7 @@
 
 extern Poly28 data_80051df4_slot28[];
 
-void func_80028038_slot28(Object *obj) {
+void init_four_textured_screen_quads_slot28(Object *obj) {
     int i;
 
     Poly28 *p = data_80051df4_slot28;

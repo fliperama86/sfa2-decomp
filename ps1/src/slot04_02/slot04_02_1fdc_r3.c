@@ -10,8 +10,8 @@ void func_801b2310_slot04_02(Object *o) {
     u16 a;
 
     o->state_3++;
-    func_80141f28(o, 6);
-    func_80138ae8(&game_state, o);
+    add_to_meter_clamped(o, 6);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
     o->accel_y = -0x3000;
     t = data_801c6334_slot04_02[o->direction_index >> 1];
     if (o->facing_side != 0) {
@@ -32,5 +32,5 @@ void func_801b2310_slot04_02(Object *o) {
         ((Slot04aObj *)o)->step_count = 1;
     }
     a += o->direction_index >> 1;
-    func_801307e0(o, a);
+    set_sequence_by_side_and_mode(o, a);
 }

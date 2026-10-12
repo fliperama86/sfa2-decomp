@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1c70_slot04_05(Object *obj) {
+void start_jump_toward_target_x_position_slot04_05(Object *obj) {
     int x;
     int base = 0x1f;
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 2);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 2);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     x = data_801aa5e4[0];
     if (obj->facing_side == 0) {
         x += 0x1800000;
@@ -24,10 +24,10 @@ void func_801b1c70_slot04_05(Object *obj) {
         obj->vel_x <<= 2;
         base = 0x3b;
     }
-    func_801307e0(obj, (obj->direction_index >> 1) + base);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + base);
 }
 
-void func_801b1d34_slot04_05(Object *o) {
+void update_sequence_save_pos_x_from_data_slot04_05(Object *o) {
     update_sequence(o);
     if (*(u8 *)&o->step_flags != 0) {
         o->active_state = 1;

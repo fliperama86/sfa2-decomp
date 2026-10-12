@@ -25,7 +25,7 @@ extern Poly28 data_801f4ae0_slot06_04[2][0x58];
      shorter.
    - sy2 is made from the int local t: without it the function is 4 bytes
      shorter. */
-void func_801e8bc4_slot06_04(void) {
+void draw_skewed_tile_layer_quads_slot06_04(void) {
     Slot06Layer *c = (Slot06Layer *)data_801aa5d4;
     u16 sx;
     u16 sy;

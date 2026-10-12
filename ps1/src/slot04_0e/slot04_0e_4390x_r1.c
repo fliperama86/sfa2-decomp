@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void play_sound_at(Object *o, int b, unsigned c);
-void func_80146478(Object *object, u8 a, int dx, int dy);
+void spawn_effect_at_object_offset(Object *object, u8 a, int dx, int dy);
 
-void func_801b4390_slot04_0e(Object *o) {
+void spawn_effect_at_other_distance_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     Object *p;
     s16 a;
@@ -18,6 +18,6 @@ void func_801b4390_slot04_0e(Object *o) {
     if (o->facing_side != 0) {
         a = -a;
     }
-    func_80146478(o, 6, a, 0);
+    spawn_effect_at_object_offset(o, 6, a, 0);
     play_sound_at(p, p->side, 0x306);
 }

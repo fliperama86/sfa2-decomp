@@ -6,9 +6,9 @@
 
 
 
-void func_80144120(Object *object) {
+void move_until_countdown_set_pos_play_sound(Object *object) {
     if (*(u8 *)&object->step_flags == 0) {
-        func_80144220(object);
+        update_position_x_with_accel(object);
         object->countdown = (s16)object->countdown - 1;
         if (object->countdown & 0x80) {
             object->pos_x = 0xc0;
@@ -18,8 +18,8 @@ void func_80144120(Object *object) {
     }
 }
 
-void func_80144198(Object *object) {
+void call_next_state_0_on_sequence_end(Object *object) {
     if ((s16)object->step_flags < 0) {
-        func_80144e90(object);
+        advance_state_0_and_clear_config_mode(object);
     }
 }

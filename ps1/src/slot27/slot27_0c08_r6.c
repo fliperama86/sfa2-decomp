@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800111c8_slot27(void) {
+void restore_rows_from_backup_and_queue_jobs_slot27(void) {
     int i;
     int j;
     if (data_8018db10 != 0) {
@@ -12,11 +12,11 @@ void func_800111c8_slot27(void) {
                 data_801a27e4_rows[i][j] = data_801a27e4_rows[i + 5][j];
             }
         }
-        func_80137220(0, 0);
-        func_80137220(1, 1);
-        func_80137220(2, 2);
-        func_80137220(3, 3);
-        func_80137220(4, 7);
+        queue_image_upload_job(0, 0);
+        queue_image_upload_job(1, 1);
+        queue_image_upload_job(2, 2);
+        queue_image_upload_job(3, 3);
+        queue_image_upload_job(4, 7);
         data_8018db10 = 0;
     }
 }

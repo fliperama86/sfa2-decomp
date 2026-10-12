@@ -7,12 +7,12 @@ extern ObjectFn data_801c5aec_slot04_0f[];
 extern u16 data_801a2944[];
 extern u16 data_801a29e4[];
 
-Pooled *func_8011f4a4(void);
+Pooled *alloc_pooled_b(void);
 
-void func_801b22ec_slot04_0f(Object *obj);
-void func_801b2340_slot04_0f(Object *obj, u16 *src);
+void call_side_routine_and_set_side_flag_slot04_0f(Object *obj);
+void queue_16_word_row_upload_job_slot04_0f(Object *obj, u16 *src);
 
-void func_801b22ec_slot04_0f(Object *o) {
+void call_side_routine_and_set_side_flag_slot04_0f(Object *o) {
     if (o->side == 0) {
         func_80136e90();
     } else {
@@ -21,7 +21,7 @@ void func_801b22ec_slot04_0f(Object *o) {
     set_side_flag(o);
 }
 
-void func_801b2340_slot04_0f(Object *o, u16 *src) {
+void queue_16_word_row_upload_job_slot04_0f(Object *o, u16 *src) {
     Job *job;
     u16 *dst;
     u16 *dst2;
@@ -40,7 +40,7 @@ void func_801b2340_slot04_0f(Object *o, u16 *src) {
             *dst2++ = *src++;
             i++;
         } while (i < 0x10);
-        job = (Job *)func_8011f4a4();
+        job = (Job *)alloc_pooled_b();
         if (job != 0) {
             r.x = 0x60;
             r.y = o->image_row + 0x1e0;

@@ -32,7 +32,7 @@ void func_801b0090_slot04_sel(Object *unused_obj, Slot04SelRec *unused_rec) {
     }
 }
 
-void func_801b0184_slot04_sel(Object *obj, Slot04SelRec *rec) {
+void init_select_record_from_object_slot04_sel(Object *obj, Slot04SelRec *rec) {
     rec->state = 0;
     rec->kind = obj->kind;
     rec->field_04 = 0;

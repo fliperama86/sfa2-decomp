@@ -5,13 +5,13 @@
 
 extern ObjectFnInt data_801c3b70_slot04_08[];
 
-int func_801b11f8_slot04_08(Object *obj) {
+int try_start_meter_move_state_8_type_8_slot04_08(Object *obj) {
     int r = 0;
 
     if (obj->field_292 == 0) {
         if ((s16)obj->meter >= 0x30) {
             if (obj->active_state == 0) {
-                if ((u8)func_80141e34(obj)) {
+                if ((u8)is_not_state_2_five(obj)) {
                     if ((u8)func_80141788(obj)) {
                         r = 1;
                         obj->state_0 = 1;

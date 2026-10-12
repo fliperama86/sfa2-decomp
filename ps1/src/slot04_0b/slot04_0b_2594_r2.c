@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b2510_slot04_0b(Object *object);
+u8 move_ballistic_and_check_ground_slot04_0b(Object *object);
 
-void func_801b2738_slot04_0b(Object *obj) {
+void shift_pos_x_with_sounds_on_flag_2_slot04_0b(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags == 2) {
         obj->active_state = 1;
@@ -20,13 +20,13 @@ void func_801b2738_slot04_0b(Object *obj) {
     }
 }
 
-void func_801b27cc_slot04_0b(Object *obj) {
-    func_801b2510_slot04_0b(obj);
+void update_rise_then_start_descent_sequence_slot04_0b(Object *obj) {
+    move_ballistic_and_check_ground_slot04_0b(obj);
     if (obj->vel_y < 0) {
         obj->accel_y = -0x8000;
         obj->state_3++;
         obj->vel_x = 0;
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x42);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x42);
     } else {
         update_sequence(obj);
     }

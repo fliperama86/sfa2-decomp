@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800165a8_slot12(Object *obj) {
+void raise_pos_y_to_limit_then_next_state_1_slot12(Object *obj) {
     s16 y;
 
     if (obj->variant_index == 2 && obj->table_index == 0) {
@@ -29,12 +29,12 @@ void func_80016634_slot12(Object *obj) {
 }
 
 void func_80016660_slot12(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
 extern void (*data_80028a04_slot12[])(Object *);
 
-void func_80016680_slot12(Object *obj) {
+void call_handler_by_state_0_7_slot12(Object *obj) {
     data_80190468.p = (Object *)&game_state;
     data_80028a04_slot12[obj->state_0](obj);
 }

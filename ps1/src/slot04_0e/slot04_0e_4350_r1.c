@@ -5,6 +5,6 @@
 
 extern ObjectFn data_801c60c0_slot04_0e[];
 
-void func_801b4350_slot04_0e(Object *obj) {
+void call_handler_by_substate_index_slot04_0e(Object *obj) {
     data_801c60c0_slot04_0e[obj->substate_index](obj);
 }

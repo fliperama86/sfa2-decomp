@@ -5,7 +5,7 @@
 
 /* 0x4e is the high half of vel_x (s32 in the table); accessed as s16. */
 /* The shared tail via goto reproduces the block order of the original. */
-int func_8012f2b8(Object *o) {
+int is_pushing_toward_bound_in_air(Object *o) {
     int side;
     s16 v;
     int bit;

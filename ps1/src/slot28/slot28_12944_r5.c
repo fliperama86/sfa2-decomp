@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern u16 data_80048d48_slot28[][2];
-void func_80022f04_slot28(Object *obj, int idx);
+void set_sequence_from_box_tables_index_slot28(Object *obj, int idx);
 
-void func_80022f84_slot28(Object *obj) {
+void move_object_with_wrap_or_start_sequence_slot28(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     Slot28Obj *o = (Slot28Obj *)obj;
@@ -22,11 +22,11 @@ void func_80022f84_slot28(Object *obj) {
     } else if (obj->variant_index != 0) {
         obj->variant_index = 0;
         obj->state_1++;
-        func_80022f04_slot28(obj, 1);
+        set_sequence_from_box_tables_index_slot28(obj, 1);
     }
 }
 
-void func_80023044_slot28(Object *obj) {
+void move_x_until_limit_then_advance_state_1_slot28(Object *obj) {
     ((Slot28Obj *)obj)->pos_x += 0xc000;
     if (obj->pos_x >= 0xd8) {
         obj->pos_x = 0xd8;

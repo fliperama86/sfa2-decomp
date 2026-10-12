@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0998_slot04_07(Object *obj) {
+void start_move_or_enter_state_1_2_slot04_07(Object *obj) {
     u8 one;
 
     obj->state_3++;
@@ -16,7 +16,7 @@ void func_801b0998_slot04_07(Object *obj) {
     } else {
         one = 1;
         obj->active_flag_3 = one;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
         if (obj->direction_index == 4) {
             obj->state_3 = 2;
             obj->field_278 = one;
@@ -24,14 +24,14 @@ void func_801b0998_slot04_07(Object *obj) {
     }
 }
 
-void func_801b0a44_slot04_07(Object *obj) {
+void update_sequence_with_input_restart_slot04_07(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
         ((Slot04aObj *)obj)->field_1ca = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        if ((t & 0x80) != 0 && func_80141618(obj) != 0 || (u8)func_801412a4(obj) != 0) {
+        if ((t & 0x80) != 0 && match_pressed_direction_input(obj) != 0 || (u8)try_set_direction_from_pressed_bits(obj) != 0) {
             obj->field_25f = 0xff;
             obj->state_3 = 0;
         }

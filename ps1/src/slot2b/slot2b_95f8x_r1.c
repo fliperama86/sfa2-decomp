@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800795f8_slot2b(Object *o) {
+void spawn_child_object_above_self_slot2b(Object *o) {
     Object *p = o->parent;
-    Object *n = (Object *)func_8011f1e0();
+    Object *n = (Object *)pop_block_from_pool();
     if (n != 0) {
         n->active_count = 1;
         n->field_02 = 0x3b;

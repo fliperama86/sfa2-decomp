@@ -5,9 +5,9 @@
 
 extern ObjectFn data_801c7dc4_slot04_09[];
 
-void func_801b47c8_slot04_09(Object *obj) {
+void update_sequence_or_call_finish_on_flag_3_slot04_09(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
         update_sequence(obj);
     }

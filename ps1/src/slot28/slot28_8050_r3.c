@@ -10,12 +10,12 @@ extern u8 data_80032ec8_slot28[];
 extern SequenceStep *data_80034530_slot28[];
 void func_80019100_slot28(Object *obj, int arg);
 
-void func_80018458_slot28(Object *obj) {
+void spawn_two_objects_and_advance_pass_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
     Object *b;
     h->countdown_timer = 0x12c;
     h->pass_index++;
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         b->active_count = 1;
         b->field_02 = 0x20;
@@ -30,10 +30,10 @@ void func_80018458_slot28(Object *obj) {
         b->field_01 = 1;
         b->image_row = 0;
         b->ot_depth = 3;
-        func_80130768(b, 2, data_80034530_slot28);
+        set_sequence_from_table_5(b, 2, data_80034530_slot28);
         data_8005195c_slot28.p = b;
     }
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         b->active_count = 1;
         b->field_02 = 0x20;
@@ -48,9 +48,9 @@ void func_80018458_slot28(Object *obj) {
         b->field_01 = 1;
         b->image_row = 0;
         b->ot_depth = 3;
-        func_80130768(b, 3, data_80034530_slot28);
+        set_sequence_from_table_5(b, 3, data_80034530_slot28);
         data_80051960_slot28.p = b;
     }
-    func_80128370();
+    start_fade_mode_1a01_and_wait();
     func_80019100_slot28(obj, 1);
 }

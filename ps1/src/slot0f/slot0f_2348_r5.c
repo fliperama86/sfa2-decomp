@@ -8,9 +8,9 @@ extern int data_800f0200_slot0f;
 extern int data_800f0204_slot0f;
 extern int data_800f0208_slot0f;
 extern int data_800f8578_slot0f;
-void func_800e3478_slot0f(void);
-void func_800e3794_slot0f(void);
-void func_800e3a14_slot0f(void);
+void load_options_from_saved_data_slot0f(void);
+void noop_empty_function_slot0f(void);
+void store_and_darken_palette_row_slot0f(void);
 
 void func_800e27ec_slot0f(void) {
     HudState *h = data_8018f5a0;
@@ -20,9 +20,9 @@ void func_800e27ec_slot0f(void) {
     data_800f0208_slot0f = 1;
     data_800f8578_slot0f = 0;
     h->step_index = h->step_index + 1;
-    func_800e3478_slot0f();
-    func_800e3794_slot0f();
-    func_800e3a14_slot0f();
+    load_options_from_saved_data_slot0f();
+    noop_empty_function_slot0f();
+    store_and_darken_palette_row_slot0f();
     for (i = 10; i >= 0; i--) {
         data_800e929c_slot0f[i].cell_value = 0x1a;
     }

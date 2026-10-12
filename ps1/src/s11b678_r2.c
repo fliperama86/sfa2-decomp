@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u32 func_8011bdc0(Block172 *block) {
+u32 get_sequence_data_address(Block172 *block) {
     SequenceStep *seq = block->sequence;
     u32 v;
     u32 base;

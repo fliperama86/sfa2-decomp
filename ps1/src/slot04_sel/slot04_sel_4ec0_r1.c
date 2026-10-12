@@ -31,35 +31,35 @@ extern Slot04SelRec9d78 data_801b9d78_slot04_sel[];
 extern u8 data_801b9da8_slot04_sel;
 extern u8 data_801b9dac_slot04_sel;
 
-void func_801b4ec0_slot04_sel(void) {
+void update_select_screen_step_f_slot04_sel(void) {
     Object *l = &player_left;
     Object *r = l + 1;
     Slot04SelRec9d78 *a = data_801b9d78_slot04_sel;
     Slot04SelRec9d78 *b = a + 1;
-    func_801519b4(data_801b9310_slot04_sel);
+    add_item_to_table(data_801b9310_slot04_sel);
     if (data_8018f5a0->step_index_2 == 1) {
-        func_801519b4(data_801b9330_slot04_sel);
+        add_item_to_table(data_801b9330_slot04_sel);
     } else if (data_8018f5a0->step_index_2 == 2) {
-        func_801519b4(data_801b9358_slot04_sel);
+        add_item_to_table(data_801b9358_slot04_sel);
     }
-    func_801519b4(data_801b8fe0_slot04_sel + 0);
-    func_801519b4(data_801b9004_slot04_sel);
-    func_801519b4(data_801b9028_slot04_sel);
-    func_801519b4(data_801b904c_slot04_sel);
-    func_801519b4(data_801b9070_slot04_sel);
-    func_801519b4(data_801b9094_slot04_sel);
-    func_801519b4(data_801b90b8_slot04_sel);
-    func_801519b4(data_801b90dc_slot04_sel);
-    func_801519b4(data_801b9100_slot04_sel);
-    func_801519b4(data_801b9124_slot04_sel);
-    func_801519b4(data_801b9148_slot04_sel);
-    func_801519b4(data_801b916c_slot04_sel);
-    func_801519b4(data_801b9190_slot04_sel);
-    func_801519b4(data_801b91b4_slot04_sel);
-    func_801519b4(data_801b91d8_slot04_sel);
-    func_801519b4(data_801b91fc_slot04_sel);
-    func_801519b4(data_801b9220_slot04_sel);
-    func_801519b4(data_801b9244_slot04_sel);
+    add_item_to_table(data_801b8fe0_slot04_sel + 0);
+    add_item_to_table(data_801b9004_slot04_sel);
+    add_item_to_table(data_801b9028_slot04_sel);
+    add_item_to_table(data_801b904c_slot04_sel);
+    add_item_to_table(data_801b9070_slot04_sel);
+    add_item_to_table(data_801b9094_slot04_sel);
+    add_item_to_table(data_801b90b8_slot04_sel);
+    add_item_to_table(data_801b90dc_slot04_sel);
+    add_item_to_table(data_801b9100_slot04_sel);
+    add_item_to_table(data_801b9124_slot04_sel);
+    add_item_to_table(data_801b9148_slot04_sel);
+    add_item_to_table(data_801b916c_slot04_sel);
+    add_item_to_table(data_801b9190_slot04_sel);
+    add_item_to_table(data_801b91b4_slot04_sel);
+    add_item_to_table(data_801b91d8_slot04_sel);
+    add_item_to_table(data_801b91fc_slot04_sel);
+    add_item_to_table(data_801b9220_slot04_sel);
+    add_item_to_table(data_801b9244_slot04_sel);
     data_801b8cc8_slot04_sel[a->field_00](l, r, a);
     data_801b8cc8_slot04_sel[b->field_00](r, l, b);
     if (data_8018f5a0->step_index_2 == 1) {
@@ -77,8 +77,8 @@ void func_801b4ec0_slot04_sel(void) {
     } else if (data_8018f5a0->step_index_2 == 2) {
         Object *o1 = data_801b8fc4_slot04_sel[game_state.side_mask];
         Object *o0 = data_801b8f74_slot04_sel[game_state.side_mask];
-        func_801519b4(o1);
-        func_801519b4(o0);
+        add_item_to_table(o1);
+        add_item_to_table(o0);
         if (game_state.side_mask == (a->field_04 | b->field_04)) {
             a->field_00 = 0;
             b->field_00 = 0;
@@ -86,7 +86,7 @@ void func_801b4ec0_slot04_sel(void) {
             r->mode_flag_2 = 0;
             data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
             data_8018f5a0->step_index_2 = 0;
-            game_state.kind_index = (u8)func_80125afc(game_state.selection_value);
+            game_state.kind_index = (u8)get_table_entry(game_state.selection_value);
         }
     }
     data_801b9da8_slot04_sel = game_state.side_mask;

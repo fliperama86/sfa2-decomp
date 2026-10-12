@@ -3,7 +3,7 @@
 #include "protos.h"
 #include "externs.h"
 
-void func_801427d8(Object *object) {
+void set_direction_index_from_meter_limit(Object *object) {
     s16 mode = game_state.field_354;
     s16 limit = 0;
     int level;
@@ -28,5 +28,5 @@ void func_801427d8(Object *object) {
         limit = level;
     object->direction_index = limit;
     object->field_255 = limit;
-    func_80142c04(object);
+    reset_hold_flags_and_other_hit_count(object);
 }

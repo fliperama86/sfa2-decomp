@@ -22,8 +22,8 @@ void init_strips(void) {
             a = &strips[i][j];
             b = &data_80190014[i][j];
 
-            func_80136d1c(a);
-            func_80136d1c(b);
+            init_draw_mode_prim_3(a);
+            init_draw_mode_prim_3(b);
             a->color_r = 0x80;
             a->color_g = 0x80;
             a->color_b = 0x80;

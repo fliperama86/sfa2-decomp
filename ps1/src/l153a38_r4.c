@@ -5,7 +5,7 @@
 
 
 /* r is deliberately left unassigned before the first loop pass, as in the original. */
-void func_80156898(void *a, Object *object) {
+void insert_score_in_table(void *a, Object *object) {
     ScoreRec *r;
     ScoreRec *p;
     Object *other;
@@ -58,7 +58,7 @@ void func_80156898(void *a, Object *object) {
     }
 }
 
-void func_80156a20(void *a, Object *object) {
+void insert_score_into_ranking_table(void *a, Object *object) {
     ScoreRec *r;
     ScoreRec *p;
     Object *other;

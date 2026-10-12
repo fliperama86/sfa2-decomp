@@ -13,10 +13,10 @@ extern u16 data_8007ee64_slot2b[];
  * from data_8007ee64_slot2b, chosen by a random even index below 32. Then it
  * calls play_side_sound_at with the spawning object, the parent's side and 0xf.
  */
-void func_800796e4_slot2b(Object *obj) {
+void spawn_child_object_at_random_offset_slot2b(Object *obj) {
     Object *parent = obj->parent;
-    /* func_8011f1e0 is declared in protos.h as returning Block172 *; without the cast the build warns (incompatible pointer type), same code. */
-    Object *child = (Object *)func_8011f1e0();
+    /* pop_block_from_pool is declared in protos.h as returning Block172 *; without the cast the build warns (incompatible pointer type), same code. */
+    Object *child = (Object *)pop_block_from_pool();
     if (child != 0) {
         int index;
         u16 x;

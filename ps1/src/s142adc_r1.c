@@ -3,14 +3,14 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80142adc(Object *object) {
-    if (object->field_49 != 0 && object->active_flag_4 == 0 && func_80130470(object)) {
-        func_8013047c(object);
+void start_action_if_buttons_pressed(Object *object) {
+    if (object->field_49 != 0 && object->active_flag_4 == 0 && get_pressed_low_byte(object)) {
+        set_state_1_0_5_and_read_input_direction(object);
     }
 }
 
-void func_80142b3c(Object *object) {
-    func_80142c04(object);
+void set_direction_index_from_buttons_group_a(Object *object) {
+    reset_hold_flags_and_other_hit_count(object);
     if (((object->pressed_bits | object->released_bits) & 0x80) || ((object->pressed_bits | object->released_bits) & 1)) {
         object->direction_index = 0;
     } else if ((object->pressed_bits | object->released_bits) & 0x10) {
@@ -20,8 +20,8 @@ void func_80142b3c(Object *object) {
     }
 }
 
-void func_80142ba0(Object *object) {
-    func_80142c04(object);
+void set_direction_index_from_buttons_group_b(Object *object) {
+    reset_hold_flags_and_other_hit_count(object);
     if (((object->pressed_bits | object->released_bits) & 0x40) || ((object->pressed_bits | object->released_bits) & 2)) {
         object->direction_index = 0;
     } else if ((object->pressed_bits | object->released_bits) & 0x20) {
@@ -31,7 +31,7 @@ void func_80142ba0(Object *object) {
     }
 }
 
-void func_80142c04(Object *object) {
+void reset_hold_flags_and_other_hit_count(Object *object) {
     object->field_49 = 0;
     object->field_29c = 0;
     object->sequence_hold_flag = 0;

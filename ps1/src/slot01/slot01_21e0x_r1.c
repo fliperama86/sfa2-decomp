@@ -4,20 +4,20 @@
 #include "../externs.h"
 
 extern u8 **data_80018a6c_slot01[];
-int func_800126f8_slot01(u8 index);
-void func_800125f4_slot01(u8 *src, u8 unused);
-void func_80012668_slot01(Object *obj);
-void func_8001231c_slot01(Object *obj, u8 a);
+int get_table_entry_slot01(u8 index);
+void load_and_store_16x3_image_from_src_slot01(u8 *src, u8 unused);
+void load_and_store_16x3_image_by_parent_slot01(Object *obj);
+void set_sequence_from_slot01_table_2_slot01(Object *obj, u8 a);
 
-void func_800121e0_slot01(Object *obj) {
+void init_effect_motion_and_load_image_slot01(Object *obj) {
     Object *o = obj->parent;
     u8 side;
     u8 **p = data_80018a6c_slot01[o->kind];
     p += o->field_d4;
     if (o->kind == 0x14) {
-        func_80012668_slot01(obj);
+        load_and_store_16x3_image_by_parent_slot01(obj);
     } else {
-        func_800125f4_slot01(*p, func_800126f8_slot01(o->kind));
+        load_and_store_16x3_image_from_src_slot01(*p, get_table_entry_slot01(o->kind));
     }
     side = obj->variant_index;
     obj->field_0c = 1;
@@ -38,5 +38,5 @@ void func_800121e0_slot01(Object *obj) {
         obj->vel_x = -obj->vel_x;
         obj->accel_x = -obj->accel_x;
     }
-    func_8001231c_slot01(obj, func_800126f8_slot01(o->kind));
+    set_sequence_from_slot01_table_2_slot01(obj, get_table_entry_slot01(o->kind));
 }

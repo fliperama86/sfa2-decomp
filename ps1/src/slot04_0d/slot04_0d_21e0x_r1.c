@@ -14,8 +14,8 @@ void func_801b21e0_slot04_0d(Object *obj) {
         obj->active_flag_4 = 0;
         obj->state_3++;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x34);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x34);
     } else {
         if (obj->facing_side != 0) {
             a = obj->vel_x;

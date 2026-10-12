@@ -8,11 +8,11 @@ extern s16 data_8007ef24_slot2b;
 
 void func_80077908_slot2b(Object *obj) {
     obj->vel_x = obj->vel_x >> 1;
-    func_80141f28(obj, 1);
-    func_801307e0(obj, 0x1a);
+    add_to_meter_clamped(obj, 1);
+    set_sequence_by_side_and_mode(obj, 0x1a);
 }
 
-void func_8007794c_slot2b(Object *obj) {
+void call_handler_by_state_0_store_ground_y_slot2b(Object *obj) {
     data_8007ef24_slot2b = (u16)obj->parent->ground_y;
     data_80079900_slot2b[obj->state_0](obj);
 }

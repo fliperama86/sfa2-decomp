@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b3048_slot04_05(Object *object);
+int move_x_by_vel_x_facing_and_accelerate_slot04_05(Object *object);
 
 void func_801b2e04_slot04_05(Object *obj) {
     u8 t;
@@ -14,7 +14,7 @@ void func_801b2e04_slot04_05(Object *obj) {
         obj->state_3++;
     } else if (t != 0) {
         if (obj->vel_x >= 0) {
-            func_801b3048_slot04_05(obj);
+            move_x_by_vel_x_facing_and_accelerate_slot04_05(obj);
         }
     }
 }
@@ -33,14 +33,14 @@ void func_801b2e74_slot04_05(Object *o) {
         o->accel_y = -0x7000;
         o->accel_x = 0;
         o->active_state = 1;
-        func_801307e0(o, 0x30);
+        set_sequence_by_side_and_mode(o, 0x30);
     } else {
         if ((u8)t != 0) {
             switch ((u8)t) {
             default:
             dflt:
                 if (o->vel_x >= 0) {
-                    func_801b3048_slot04_05(o);
+                    move_x_by_vel_x_facing_and_accelerate_slot04_05(o);
                 }
                 break;
             case 3:

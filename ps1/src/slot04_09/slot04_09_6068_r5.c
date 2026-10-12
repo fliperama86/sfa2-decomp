@@ -5,14 +5,14 @@
 
 extern u8 data_801c7e24_slot04_09[];
 
-void func_801b6550_slot04_09(Object *o, Object *p) {
+void unlink_from_parent_and_release_object_slot04_09(Object *o, Object *p) {
     if ((s32)o == *(s32 *)&p->linked_object_2) {
         *(s32 *)&p->linked_object_2 = 0;
     }
     func_8011f38c(o);
 }
 
-void func_801b6584_slot04_09(Object *obj, Object *parent, int i) {
+void set_position_from_parent_table_offset_slot04_09(Object *obj, Object *parent, int i) {
     u16 x; int t;
     obj->facing_side = parent->facing_side;
     if (obj->facing_side != 0) {

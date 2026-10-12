@@ -6,7 +6,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8011fc84(Object *object, SeqRec *rec)
+void set_sequence_record(Object *object, SeqRec *rec)
 {
   int w;
   int new_var;
@@ -16,5 +16,5 @@ void func_8011fc84(Object *object, SeqRec *rec)
   new_var = w >> 16;
   object->step_timer = new_var;
   object->step_flags = w;
-  func_8011fcc0(rec);
+  store_rect_entries_and_queue_kinds(rec);
 }

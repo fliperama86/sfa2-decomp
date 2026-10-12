@@ -14,7 +14,7 @@ extern u8 data_800f855a_slot0f;
 extern u8 data_800f855b_slot0f;
 extern u8 data_800f8564_slot0f[2][8];
 
-void func_800e32dc_slot0f(void) {
+void apply_menu_options_to_game_state_slot0f(void) {
     Slot0fRecf32c buf = data_800df32c_slot0f;
     int i;
     int j;
@@ -45,5 +45,5 @@ void func_800e32dc_slot0f(void) {
         }
     }
     play_sound_at((Object *)0, 0, 0x205);
-    func_8014f4d4(6, 2);
+    set_menu_command_by_code(6, 2);
 }

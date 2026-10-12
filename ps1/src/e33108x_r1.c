@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* The copy j = index; stands after the first block that follows the call of
-   func_801336a0: with the copy right after p = base + (index << 4); this
+   write_two_player_color_bytes_to_table: with the copy right after p = base + (index << 4); this
    function differs from the original in 41 instruction slots. The unused
    local reproduces stack space the original reserves: without it this
    function differs from the original in 14 instruction slots. The s16 copy j
@@ -13,7 +13,7 @@
    pointers q are written (u8 *)((j << 4) + (int)base) rather than base + (j
    << 4): with the plain form in all four this function differs from the
    original in 4 instruction slots. */
-void func_80133108(u8 *base, Object *left, Object *right)
+void fill_meter_segments_for_both_objects(u8 *base, Object *left, Object *right)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[8];
@@ -40,7 +40,7 @@ void func_80133108(u8 *base, Object *left, Object *right)
   *(u16 *)(p + 0x130) = 0;
   *(u16 *)(p + 0x150) = 0;
   *(u16 *)(p + 0x170) = 0;
-  func_801336a0(base, left, right, index);
+  write_two_player_color_bytes_to_table(base, left, right, index);
   if (left->field_d8 != 0)
   {
     left->meter = (s16)left->meter * 3;
@@ -192,5 +192,5 @@ void func_80133108(u8 *base, Object *left, Object *right)
   {
     right->meter = (s16)right->meter / 3;
   }
-  func_80133848(base, left, right);
+  update_meter_hud_primitives(base, left, right);
 }

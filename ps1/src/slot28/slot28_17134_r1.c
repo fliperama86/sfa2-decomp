@@ -6,7 +6,7 @@
 extern Object *data_80051cd0_slot28[];
 extern ObjectRef data_80051cdc_slot28;
 
-void func_80027134_slot28(Object *obj) {
+void bounce_object_y_until_step_flag_slot28(Object *obj) {
     Object *o = data_80051cd0_slot28[0];
     if ((u32)(o->pos_y - 0x10) >= 9) {
         o->vel_y = -o->vel_y;

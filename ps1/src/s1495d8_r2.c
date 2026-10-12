@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80149888(Object *object) {
+void shift_pos_x_by_parent_kind_table(Object *object) {
     int delta;
     ref_other.p = object->parent;
     delta = data_8017cf30[ref_other.p->kind];

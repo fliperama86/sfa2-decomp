@@ -5,7 +5,7 @@
 
 int func_801b41c4_slot04_07(Object *obj);
 
-void func_801b01ec_slot04_07(Object *obj) {
+void spawn_three_children_and_land_at_ground_slot04_07(Object *obj) {
     u16 t = obj->step_flags;
     int i;
     Object *c;
@@ -13,7 +13,7 @@ void func_801b01ec_slot04_07(Object *obj) {
     if ((t & 0xff) != 0) {
         obj->step_flags = t & 0xff00;
         for (i = 0; i < 3; i++) {
-            c = (Object *)func_8011f1e0();
+            c = (Object *)pop_block_from_pool();
             if (c != 0) {
                 c->active_count = 1;
                 c->field_02 = 7;

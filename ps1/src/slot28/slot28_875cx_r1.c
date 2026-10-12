@@ -13,13 +13,13 @@ extern SequenceStep *data_80034530_slot28[];
 void func_80019190_slot28(void);
 void func_80019100_slot28(Object *obj, int arg);
 
-void func_8001875c_slot28(Object *obj) {
+void advance_hud_pass_when_object_flag_set_slot28(Object *obj) {
     Object *b = data_80051964_slot28.p;
     if (b->field_6b != 0) {
         data_8018f5a0->countdown_timer = 0x258;
         data_8018f5a0->pass_index += 1;
         func_80019190_slot28();
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             int one = 1;
             b->active_count = one;
@@ -35,10 +35,10 @@ void func_8001875c_slot28(Object *obj) {
             b->field_01 = one;
             b->image_row = 0;
             b->ot_depth = 2;
-            func_80130768(b, 4, data_80034530_slot28);
+            set_sequence_from_table_5(b, 4, data_80034530_slot28);
             data_80051954_slot28[0] = b;
         }
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             int one = 1;
             b->active_count = one;
@@ -54,10 +54,10 @@ void func_8001875c_slot28(Object *obj) {
             b->field_01 = one;
             b->image_row = 0;
             b->ot_depth = 4;
-            func_80130768(b, 0xa, data_80034530_slot28);
+            set_sequence_from_table_5(b, 0xa, data_80034530_slot28);
             data_80051958_slot28.p = b;
         }
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             int one = 1;
             b->active_count = one;
@@ -73,10 +73,10 @@ void func_8001875c_slot28(Object *obj) {
             b->field_01 = one;
             b->image_row = 0;
             b->ot_depth = 4;
-            func_80130768(b, 0xa, data_80034530_slot28);
+            set_sequence_from_table_5(b, 0xa, data_80034530_slot28);
             data_8005195c_slot28.p = b;
         }
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
         func_80019100_slot28(obj, 2);
     }
 }

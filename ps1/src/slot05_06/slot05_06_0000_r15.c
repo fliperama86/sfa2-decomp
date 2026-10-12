@@ -11,7 +11,7 @@ void func_801c92e0_slot05_06(Object *obj) {
     data_801ad398 = data_801dd288_slot05_06[obj->field_15a](obj);
 }
 
-int func_801c9328_slot05_06(Object *obj) {
+int set_direction_index_2_return_true_slot05_06(Object *obj) {
     obj->direction_index = 2;
     return 1;
 }
@@ -20,7 +20,7 @@ int func_801c9338_slot05_06(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801c934c_slot05_06(Object *obj) {
+int return_true_always_slot05_06(Object *obj) {
     return 1;
 }
 
@@ -28,7 +28,7 @@ int func_801c9354_slot05_06(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801c9368_slot05_06(Object *obj) {
+int is_all_states_one_and_healthy_slot05_06(Object *obj) {
     if (*(u32 *)&obj->state_0 == 0x1010101) {
         if (obj->active_state == 0) {
             if (obj->field_163 == 0) {
@@ -41,7 +41,7 @@ yes:
     return 1;
 }
 
-int func_801c93b8_slot05_06(Object *obj) {
+int has_remaining_count_slot05_06(Object *obj) {
     return obj->remaining_count != 0;
 }
 

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80139a1c(void) {
+void reset_hit_results(void) {
     table_80188ed0[0] = 0x7fff;
     table_80188ed0[2] = 0x7fff;
     table_80188ed0[4] = 0x7fff;

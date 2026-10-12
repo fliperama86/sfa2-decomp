@@ -6,11 +6,11 @@
 /*
  * What it does (inferred, not an original name): copies a strip of 0x30
  * halfwords from a table in RAM into two rows of the table at
- * data_801a2824 (rows 0 and 5), then calls func_80137220 with two zero
+ * data_801a2824 (rows 0 and 5), then calls queue_image_upload_job with two zero
  * arguments. The strip is chosen by the object's other object: its field_d4
  * and kind pick the source, its side picks where in the row the strip lands.
  */
-void func_8001188c_slot27(Object *obj) {
+void copy_side_palette_from_table_and_upload_slot27(Object *obj) {
     int i;
     int three;
     Object *other = obj->other;
@@ -23,5 +23,5 @@ void func_8001188c_slot27(Object *obj) {
         /* The figure is the one above: both places together. */
         data_801a2824[other->side * 0x30 + i + 0xa00] = *(u16 *)((u8 *)0x800e2000 + (((other->field_d4 * 0x3f) + (other->kind * (three = 3))) * 0x20 + i * 2));
     }
-    func_80137220(0, 0);
+    queue_image_upload_job(0, 0);
 }

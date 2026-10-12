@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801387c0(Object *object) {
+void set_player_table_column_from_object(Object *object) {
     if (player_left.mode_flag_2 != 0) {
         if (player_left.kind == 0x14) {
             player_left.table_column = 0x1f;

@@ -9,8 +9,8 @@ extern Slot06Tile data_801f29dc_slot06_01[2][300];
    primitive list, one row of 25 cells per pass, and a last partial row when
    the vertical position is not a multiple of 16 (inferred).
    The tile mask and the column counter cc are 16-bit locals, and the locals r
-   and yy are kept, as in the model func_801e86bc_slot06_04. */
-void func_801e8718_slot06_01(void) {
+   and yy are kept, as in the model draw_tile_layer_sprites_with_partial_row_slot06_04. */
+void draw_tile_layer_sprites_with_partial_row_slot06_01(void) {
     Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
     int q;
     int x;

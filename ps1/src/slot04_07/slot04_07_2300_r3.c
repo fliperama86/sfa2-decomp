@@ -5,17 +5,17 @@
 
 extern u8 data_801c1f80_slot04_07[];
 
-void func_801b2620_slot04_07(Object *obj) {
+void start_move_with_countdown_and_sound_slot04_07(Object *obj) {
     obj->state_3++;
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     func_80145d20(obj);
     obj->countdown = 0x400;
     play_sound_at(obj, obj->side, 0x31c);
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x49);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x49);
 }
 
-void func_801b269c_slot04_07(Object *obj) {
+void count_down_then_spawn_pooled_objects_a_slot04_07(Object *obj) {
     int t = obj->countdown - 0x100;
 
     obj->countdown = t;
@@ -28,11 +28,11 @@ void func_801b269c_slot04_07(Object *obj) {
         } else {
             obj->field_165 = 0xff;
         }
-        func_801483a4(obj, -0x28, 0x3c);
+        spawn_children_per_direction_index(obj, -0x28, 0x3c);
     }
 }
 
-void func_801b2724_slot04_07(Object *obj) {
+void count_down_then_stop_and_set_other_lock_slot04_07(Object *obj) {
     int t = obj->countdown - 0x100;
     int i = 0;
 

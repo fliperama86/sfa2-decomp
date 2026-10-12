@@ -9,7 +9,7 @@
    differs from the original in 16 instruction slots; with the parameter
    masked in place and used everywhere, in 4. The last argument of the third
    call goes through f: with (u8)arg passed there it differs in 5. */
-void func_8013e1e4(Object *object, int index, int arg) {
+void advance_slot_stage_on_pressed_match(Object *object, int index, int arg) {
     u8 slot = index;
     u16 entry;
     u16 m;
@@ -20,14 +20,14 @@ void func_8013e1e4(Object *object, int index, int arg) {
     f = object->pressed_bits;
     m = entry & 0xf0ff;
     if ((f & m) == 0 || (!(entry & 0x400) && m != (object->input_bits_2 & 0xf0ff))) {
-        func_8013f2a8(object, index, (u8)arg);
+        reset_slot_stage_clear_result(object, index, (u8)arg);
     } else {
         object->slots[slot].stage++;
         if (entry & 1) {
-            func_8013f2d8(object, slot, (u8)arg);
+            reset_slot_stage_set_result(object, slot, (u8)arg);
         } else {
             f = arg;
-            func_8013f0c8(object, slot, (u8)f);
+            set_slot_random_timer_and_advance(object, slot, (u8)f);
         }
     }
 }

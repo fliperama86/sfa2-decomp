@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80122424(GameState *state) {
+void update_phase_by_pass_index(GameState *state) {
     if (data_80197fc4 != 0x701 && data_80198358 != 0x701) {
         if (((Attacker *)state)->phase != 0) {
             if (data_8018f5a0->pass_index == 0) {
@@ -12,12 +12,12 @@ void func_80122424(GameState *state) {
                 func_80125dc0(1, 0x20, 0xd, 0);
                 func_80125dc0(2, 0x20, 0xd, 0);
                 func_80125dc0(3, 0x20, 0xd, 0);
-                func_80137b10();
+                queue_five_jobs();
                 data_801ac6a8[0] = 0;
                 ((Attacker *)state)->phase = 0x80;
             } else if (data_8018f5a0->pass_index == 1) {
                 data_8018f5a0->pass_index++;
-                func_8014f038();
+                load_command_8_for_player_kind_and_stage();
             } else {
                 func_801e0020((Attacker *)state);
             }

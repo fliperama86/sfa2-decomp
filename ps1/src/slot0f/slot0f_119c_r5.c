@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e1580_slot0f(Slot0fRece5c4 *src, Slot0fRece5c4 *dst) {
+void copy_six_rece5c4_records_slot0f(Slot0fRece5c4 *src, Slot0fRece5c4 *dst) {
     int i;
     int j;
     for (i = 0; i < 6; i++) {
@@ -21,7 +21,7 @@ void func_800e1580_slot0f(Slot0fRece5c4 *src, Slot0fRece5c4 *dst) {
     }
 }
 
-void func_800e1618_slot0f(u8 *src, u8 *dst) {
+void copy_64_bytes_slot0f(u8 *src, u8 *dst) {
     int i;
     for (i = 0; i < 64; i++) {
         *dst++ = *src++;

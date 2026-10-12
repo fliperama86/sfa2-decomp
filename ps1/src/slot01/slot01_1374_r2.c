@@ -5,7 +5,7 @@
 
 int func_8001336c_slot01(u8 a);
 
-void func_800114b4_slot01(void) {
+void enable_display_and_advance_substep_slot01(void) {
     func_80157d00(1);
     if (game_state.busy_flag == 0) {
         data_8018f5a0->substep_index++;
@@ -15,11 +15,11 @@ void func_800114b4_slot01(void) {
     }
 }
 
-void func_80011520_slot01(void) {
+void wait_input_or_timer_then_next_substep_slot01(void) {
     int t;
     if (game_state.field_04 == 0) {
         if (func_80125268() != 0 || (t = game_state.timer_or_bits - 1, game_state.timer_or_bits = t, (s16)t < 0)) {
-            func_8014f4d4(6, 2);
+            set_menu_command_by_code(6, 2);
             data_8018f5a0->substep_index++;
             game_state.status_flags = 0xff;
             game_state.field_09 = 1;
@@ -30,9 +30,9 @@ void func_80011520_slot01(void) {
 
 void func_800115bc_slot01(void) {
     while (game_state.wait_flag != 0) {
-        func_801192bc(1);
+        request_sound_command_and_switch_thread(1);
     }
-    func_801280f0();
+    start_fade_mode_1_and_wait();
     if (func_8001336c_slot01(2) != 0) {
         game_state.busy_flag = 0xff;
         data_8018f5a0->substep_index++;

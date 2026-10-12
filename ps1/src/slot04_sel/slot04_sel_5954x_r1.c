@@ -12,15 +12,15 @@ extern u8 data_801b8c91_slot04_sel;
 extern Slot04SelRec9d78 data_801b9d78_slot04_sel[];
 
 /* The local w holds the first player and then the second record. Written with one local for each, this function differs from the original in 4 instruction slots. */
-void func_801b5954_slot04_sel(void) {
+void update_select_screen_step_g_slot04_sel(void) {
     Slot04SelRec9d78 *r;
     Object *second;
     void *w;
 
-    func_801519b4(&data_801b8eac_slot04_sel);
-    func_801519b4(&data_801b8edc_slot04_sel);
-    func_801519b4(&data_801b8f00_slot04_sel);
-    func_801519b4(&data_801b8f30_slot04_sel);
+    add_item_to_table(&data_801b8eac_slot04_sel);
+    add_item_to_table(&data_801b8edc_slot04_sel);
+    add_item_to_table(&data_801b8f00_slot04_sel);
+    add_item_to_table(&data_801b8f30_slot04_sel);
     w = &player_left;
     r = data_801b9d78_slot04_sel;
     data_801b8dd8_slot04_sel[r->field_00](w, r);

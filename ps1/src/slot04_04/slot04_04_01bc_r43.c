@@ -10,7 +10,7 @@ int func_801b3a40_slot04_04(Object *obj) {
     return obj->vel_y = obj->vel_y + obj->accel_y;
 }
 
-int func_801b3a84_slot04_04(Object *obj) {
+int apply_facing_velocity_with_x_stop_slot04_04(Object *obj) {
     if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {

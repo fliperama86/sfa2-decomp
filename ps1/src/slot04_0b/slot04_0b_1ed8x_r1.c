@@ -12,8 +12,8 @@ void func_801b1ed8_slot04_0b(Object *o) {
     k = 0x20;
     o->active_flag_4 = 1;
     o->state_3++;
-    func_80141f28(o, 6);
-    func_80138ae8(&game_state, o);
+    add_to_meter_clamped(o, 6);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
     play_side_sound_at(o, o->side, 0xf);
     play_side_sound_at(o, o->side, 6);
     o->accel_y = 0xfffe6000;
@@ -28,5 +28,5 @@ void func_801b1ed8_slot04_0b(Object *o) {
     if (o->field_49 != 0) {
         k = 0x36;
     }
-    func_801307e0(o, (o->direction_index >> 1) + k);
+    set_sequence_by_side_and_mode(o, (o->direction_index >> 1) + k);
 }

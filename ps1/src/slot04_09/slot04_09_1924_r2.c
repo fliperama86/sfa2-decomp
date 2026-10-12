@@ -11,18 +11,18 @@ void func_801b1b04_slot04_09(Object *obj) {
     obj->state_3++;
     if (obj->counter == 0) {
         obj->field_225 = 0;
-        func_80141f28(obj, 4);
+        add_to_meter_clamped(obj, 4);
     }
-    func_80138ae8(&game_state, obj);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     play_side_sound_at(obj, obj->side, 6);
     play_side_sound_at(obj, obj->side, 0x16);
     if (obj->field_49 != 0) {
         n = 0x40;
     }
-    func_801307e0(obj, (obj->direction_index >> 1) + n);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + n);
 }
 
-void func_801b1bb8_slot04_09(Object *obj) {
+void spawn_pooled_object_on_step_flags_slot04_09(Object *obj) {
     Object *p;
 
     update_sequence(obj);

@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b127c_slot04_0b(Object *obj) {
+int try_enter_state_7_kind_3_slot04_0b(Object *obj) {
     int r = 0;
     u8 one;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         one = 1;
         obj->state_0 = one;
@@ -17,7 +17,7 @@ int func_801b127c_slot04_0b(Object *obj) {
         obj->field_15a = 3;
         obj->active_flag_3 = one;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
     }
     return r;
 }

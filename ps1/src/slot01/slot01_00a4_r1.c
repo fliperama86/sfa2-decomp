@@ -5,9 +5,9 @@
 
 extern void (*data_8001514c_slot01[])(void);
 
-void func_800100a4_slot01(void) {
+void call_substep_handler_and_update_blocks_slot01(void) {
     data_8001514c_slot01[data_8018f5a0->substep_index]();
-    func_80138164();
-    func_801510bc();
-    func_8011a784();
+    update_blocks();
+    call_active_block_handlers();
+    select_buffers_and_run_first_setup();
 }

@@ -39,15 +39,15 @@ void func_801b3104_slot04_08(Object *obj) {
     if (obj->direction_index != 4) {
         k = 0x51;
     }
-    func_801307e0(obj, k);
+    set_sequence_by_side_and_mode(obj, k);
 }
 
-void func_801b31f0_slot04_08(Object *obj) {
+void move_x_with_accel_until_sequence_ends_slot04_08(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     obj->vel_x = obj->vel_x + obj->accel_x;
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_3++;
-        func_801307e0(obj, 0x53);
+        set_sequence_by_side_and_mode(obj, 0x53);
     } else {
         update_sequence(obj);
     }

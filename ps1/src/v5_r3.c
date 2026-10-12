@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8012ea94(Object *object) {
+void tick_countdown_set_side_bit(Object *object) {
     s16 t = object->countdown;
     if (t != 0) {
         t = t - 1;

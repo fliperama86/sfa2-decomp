@@ -5,7 +5,7 @@
 
 
 
-void func_8012e888(Object *object) {
+void call_scratch_function_by_side(Object *object) {
     if (object->side == 0) {
         scratch_call_5c(object);
     } else {
@@ -13,7 +13,7 @@ void func_8012e888(Object *object) {
     }
 }
 
-void func_8012e8d4(Object *object) {
+void call_handler_by_kind_and_side(Object *object) {
     if (object->kind == 2 || object->kind == 6 || object->kind == 0xc ||
         object->kind == 0xe || object->kind == 0x11 ||
         (u8)(object->kind - 0x13) < 2) {
@@ -23,28 +23,28 @@ void func_8012e8d4(Object *object) {
             scratch_call_148(object);
         }
     } else {
-        func_8012e984(object);
+        call_handler_by_state_2(object);
     }
 }
 
-void func_8012e984(Object *object) {
+void call_handler_by_state_2(Object *object) {
     handlers_1a80[object->state_2](object);
 }
 
-void func_8012e9c4(Object *object) {
+void advance_state_2_and_restore_facing(Object *object) {
     object->state_2 = object->state_2 + 1;
     object->facing_side = object->saved_facing;
     set_sequence_by_side(object, 0);
 }
 
-void func_8012e9f8(Object *object) {
+void advance_state_2_unless_hold_flag(Object *object) {
     if (game_state.config->hold_flag == 0) {
         object->state_2 = object->state_2 + 1;
     }
     update_sequence(object);
 }
 
-void func_8012ea40(Object *object) {
+void start_countdown_and_set_sequence(Object *object) {
     int arg = 0x28;
 
     object->countdown = 0x78;

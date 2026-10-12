@@ -5,7 +5,7 @@
 
 extern void (*data_800353a0_slot28[])(Object *);
 
-void func_80019310_slot28(Object *obj) {
+void advance_state_0_and_init_upward_velocity_slot28(Object *obj) {
     obj->state_0++;
     obj->field_0c = 0;
     obj->field_0e = 0;
@@ -21,7 +21,7 @@ void func_80019310_slot28(Object *obj) {
     }
 }
 
-void func_80019374_slot28(Object *obj) {
+void call_table_handler_by_table_index_slot28(Object *obj) {
     data_800353a0_slot28[obj->table_index](obj);
     obj->field_01 = 1;
 }

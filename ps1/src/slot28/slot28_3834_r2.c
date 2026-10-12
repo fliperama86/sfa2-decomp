@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800139c0_slot28(Object *obj) {
+void advance_substep_when_countdown_expires_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;

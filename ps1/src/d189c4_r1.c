@@ -15,16 +15,16 @@ extern u8 data_801a6964[]; /* the first pad's buffer (inferred) */
 extern u8 data_801a6970[]; /* the second pad's buffer (inferred) */
 
 void func_80118900(void);
-void func_80155c90(Object *o);
-void func_80118d10(short a, short b);
-void func_80118e58(int a, int b, int c, int d);
-void func_80119030(void);
+void init_compare_limit_and_copy_bytes(Object *o);
+void init_system_and_pads(short a, short b);
+void init_display_buffers(int a, int b, int c, int d);
+void init_snd_voices(void);
 void func_80157784(unsigned counter);
 int func_80118fc8(u8 *pad, int number);
-void func_8011907c(void);
+void start_pending_snd_voice_threads(void);
 void draw_text_items(void);
 int func_801576e8(unsigned counter);
-void func_801194f4(void);
+void swap_buffers_and_submit_draw_list(void);
 void update_voice_delay_timers(void);
 
 /*
@@ -34,8 +34,8 @@ void update_voice_delay_timers(void);
  * ResetCallback and StopCallback), a wait until the disc start-up function
  * reports done, the call that loads and runs the stand-alone program, a
  * clear of seven scratchpad words, the game_state set-up. Then the display
- * is built (func_80118d10 once per session, func_80118e58 / func_80119030 /
- * func_80119144 after each soft reset) and the frame loop runs. One frame:
+ * is built (init_system_and_pads once per session, init_display_buffers / init_snd_voices /
+ * set_voice_thread_entry_and_open after each soft reset) and the frame loop runs. One frame:
  * reset root counter 1 (inferred ResetRCnt), read the pads unless
  * game_state.loop_mode is set; if either pad check says reset, run the
  * soft-reset path (stop sound and disc, end three threads) and rebuild the
@@ -61,7 +61,7 @@ void func_801189c4(void) {
     func_8015f0b4();
     while (init_cd_menu() == 0) {
     }
-    func_80150cd0(0);
+    load_and_exec_program_by_index(0);
     scratch_word_14 = 0;
     scratch_word_10 = 0;
     scratch_word_0c = 0;
@@ -70,15 +70,15 @@ void func_801189c4(void) {
     scratch_word_00 = 0;
     scratch_word_18 = 0;
     game_state.field_1e = 0x1c3;
-    func_80155c90((Object *)&game_state);
+    init_compare_limit_and_copy_bytes((Object *)&game_state);
     game_state.field_0a = 0;
     game_state.field_0c = 0;
 session:
-    func_80118d10(1, 1);
+    init_system_and_pads(1, 1);
 display:
-    func_80118e58(0x180, 0xf0, 0x180, 0xe0);
-    func_80119030();
-    func_80119144(0, 0);
+    init_display_buffers(0x180, 0xf0, 0x180, 0xe0);
+    init_snd_voices();
+    set_voice_thread_entry_and_open(0, 0);
     for (;;) {
         /* The counter is volatile (an interrupt counts it up; inferred): declared without it, this function differs from the original in 5 instruction slots. */
         data_801ac310 = 0;
@@ -90,8 +90,8 @@ display:
             reset |= func_80118fc8(data_801a6970, 1);
         }
         if (reset != 0) {
-            func_80120408();
-            func_8014f4d4(4, 0);
+            stop_all_keys_clear_table();
+            set_menu_command_by_code(4, 0);
             func_80157d00(0);
             close_voice_thread(0);
             close_voice_thread(1);
@@ -99,8 +99,8 @@ display:
             goto display;
         }
         if (data_801ac620 <= 0x4000) {
-            func_8011907c();
-            func_8014f59c();
+            start_pending_snd_voice_threads();
+            update_cd_control();
             draw_text_items();
             game_state.pass_flag = 0;
             game_state.tick_count++;
@@ -131,7 +131,7 @@ display:
             func_801578fc(1);
         }
         if (data_801ac620 <= 0x4000) {
-            func_801194f4();
+            swap_buffers_and_submit_draw_list();
             update_voice_delay_timers();
         }
         if ((data_801ac620 & 0x1f) != 0) {

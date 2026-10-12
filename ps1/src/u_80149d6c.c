@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-int func_80149d6c(Object *object)
+int is_enemy_unit_or_other_in_range(Object *object)
 {
   u16 new_var;
   s32 i;
@@ -18,5 +18,5 @@ int func_80149d6c(Object *object)
     }
   }
 
-  return func_80149e3c(object, object->other) != 0;
+  return check_object_pair_condition(object, object->other) != 0;
 }

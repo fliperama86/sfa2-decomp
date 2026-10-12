@@ -7,7 +7,7 @@
 #include "protos.h"
 
 
-void func_8014f038(void) {
+void load_command_8_for_player_kind_and_stage(void) {
     GameState *g = &game_state;
     Object *p;
     int kind;

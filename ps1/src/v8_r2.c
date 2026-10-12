@@ -5,7 +5,7 @@
 
 
 
-void func_8013e84c(Object *object, int index, int arg) {
+void check_slot_high_input_bits_and_advance(Object *object, int index, int arg) {
     u16 entry = table_8017aaf8[(u8)arg * 7 + object->slots[(u8)index].entry_index];
     int mine = entry & -0x1000;
     int theirs = object->input_word & -0x1000;
@@ -21,7 +21,7 @@ void func_8013e84c(Object *object, int index, int arg) {
     return;
 ok:
     if (!(entry & 1)) {
-        func_8013f0c8(object, (u8)index, (u8)arg);
+        set_slot_random_timer_and_advance(object, (u8)index, (u8)arg);
     } else {
         object->slots[(u8)index].timer = 0xb;
         object->slots[(u8)index].repeat_count = 6;

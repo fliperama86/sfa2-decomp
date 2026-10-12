@@ -7,16 +7,16 @@ extern u8 data_800469cc_slot28[];
 extern void (*data_800469d0_slot28[])(Object *);
 extern ObjectFn data_800469d8_slot28[];
 
-void func_80021f74_slot28(Object *o) {
+void init_object_and_start_indexed_sequence_3_slot28(Object *o) {
     o->field_0e = 0;
     o->field_0c = 0;
     o->facing_side = 0;
     o->variant_index = 0;
     o->state_0++;
-    func_80130768(o, data_800469cc_slot28[o->table_index], (SequenceStep **)o->box_tables);
+    set_sequence_from_table_5(o, data_800469cc_slot28[o->table_index], (SequenceStep **)o->box_tables);
 }
 
-void func_80021fc8_slot28(Object *obj) {
+void call_table_handler_by_table_index_4_slot28(Object *obj) {
     data_800469d0_slot28[obj->table_index](obj);
     obj->field_01 = 1;
 }
@@ -26,7 +26,7 @@ void func_8002201c_slot28(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_80022070_slot28(Object *obj) {
+void advance_state_1_if_variant_set_4_slot28(Object *obj) {
     if (obj->variant_index != 0) {
         obj->state_1 += 1;
     }

@@ -5,7 +5,7 @@
 
 extern s16 data_8007ef24_slot2b;
 
-void func_80077fcc_slot2b(Object *o) {
+void fall_to_ground_then_set_bounce_velocity_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
     s->pos_y_hi -= s->vel_y_hi;
     s->vel_y_hi += s->accel_y_hi;
@@ -19,7 +19,7 @@ void func_80077fcc_slot2b(Object *o) {
     advance_sequence_checked(o);
 }
 
-void func_80078050_slot2b(Object *o) {
+void fall_to_ground_then_set_state_0_three_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
     s->pos_y_hi -= s->vel_y_hi;
     s->vel_y_hi += s->accel_y_hi;
@@ -33,11 +33,11 @@ void func_80078050_slot2b(Object *o) {
     advance_sequence_checked(o);
 }
 
-void func_800780c0_slot2b(Object *o) {
+void release_object_and_unlink_from_parent_slot2b(Object *o) {
     Object *p = o->parent;
     p->link_flags--;
     if (p->link_flags == 0) {
         p->linked_object_3 = 0;
     }
-    func_8011f14c((Slab172 *)o);
+    reset_and_push_block_object_type_8((Slab172 *)o);
 }

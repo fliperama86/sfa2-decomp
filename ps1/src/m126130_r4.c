@@ -6,9 +6,9 @@
 
 void func_80126bcc(GameState *state, Object *object) {
     s32 v;
-    func_80126de8(state, object);
-    if (func_80126e74(state, object) == 0) {
-        func_80126cd0(state, object);
+    update_countdown_timer_on_pad_input(state, object);
+    if (is_pad_button_pressed_3(state, object) == 0) {
+        count_down_timer_or_advance_step(state, object);
         return;
     }
     if (object->side == 0)
@@ -25,5 +25,5 @@ void func_80126bcc(GameState *state, Object *object) {
     object->score = object->score_2;
     object->phase_index = 0;
     object->cost_index++;
-    func_80126778(state, object);
+    select_phase_handler_by_phase_index(state, object);
 }

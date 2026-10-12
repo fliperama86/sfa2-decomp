@@ -9,12 +9,12 @@ void func_801b2df8_slot04_07(Object *obj) {
     ((Slot04aObj *)obj)->seen_flag = 0;
     func_80145d20(obj);
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     play_sound_at(obj, obj->side, 0x31c);
-    func_801307e0(obj, 0x40);
+    set_sequence_by_side_and_mode(obj, 0x40);
 }
 
-void func_801b2e68_slot04_07(Object *obj) {
+void spawn_pooled_objects_on_step_flag_byte_slot04_07(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3++;
         if (obj->field_4b != 0) {
@@ -24,7 +24,7 @@ void func_801b2e68_slot04_07(Object *obj) {
         }
         play_side_sound_at(obj, obj->side, 4);
         obj->countdown |= 0x3800;
-        func_801483a4(obj, 0, 0x5c);
+        spawn_children_per_direction_index(obj, 0, 0x5c);
     }
     update_sequence(obj);
 }

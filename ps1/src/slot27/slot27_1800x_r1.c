@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001188c_slot27(Object *obj);
+void copy_side_palette_from_table_and_upload_slot27(Object *obj);
 
-void func_80011800_slot27(Object *o) {
+void update_angle_and_advance_sequence_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
 
     int sum = obj->angle + obj->field_4c;

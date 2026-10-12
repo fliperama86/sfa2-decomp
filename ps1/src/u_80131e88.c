@@ -7,7 +7,7 @@ extern u16 data_801a6966;
 
 
 /* Form found by automatic permutation search. */
-void func_80131e88(Object *object)
+void move_other_by_kind_table_on_hit(Object *object)
 {
   Pair *new_var;
   u16 d;

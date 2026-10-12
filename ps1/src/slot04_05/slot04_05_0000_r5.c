@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0654_slot04_05(Object *obj) {
+void update_range_check_or_seq_34_with_vel_x_slot04_05(Object *obj) {
     int one;
 
     obj->state_3 = obj->state_3 + 1;
@@ -18,19 +18,19 @@ void func_801b0654_slot04_05(Object *obj) {
             obj->active_flag_3 = one;
             obj->state_3 = 2;
             obj->field_157 = 0;
-            func_80141f28(obj, 1);
+            add_to_meter_clamped(obj, 1);
             obj->vel_x = 0x68000;
             obj->accel_x = -0x8000;
-            func_80130ec0(obj);
+            reset_direction_and_action_fields(obj);
             obj->field_278 = one;
             obj->sequence_hold_flag = one;
-            func_801307e0(obj, 0x34);
+            set_sequence_by_side_and_mode(obj, 0x34);
         } else {
             obj->active_flag_3 = 1;
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     } else {
         obj->active_flag_3 = 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

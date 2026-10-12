@@ -6,13 +6,13 @@
 extern HudState *data_8018f5a0;
 /* A table of 16 bytes, inferred from the code. */
 extern u8 data_80051ea8_slot28[16];
-void func_80013c38_slot28(Object *obj);
+void copy_table_twice_call_state_handler_slot28(Object *obj);
 
 /* What it does (inferred, not an original name): resets state at the start
    of a scene part. It clears three halfwords of the HUD state, adds 1 to a
    fourth, clears a byte of the object (offset 0x4f) and damage, clears a
    16-byte table of the module, sets the HUD state's field_5e to 0xf0, calls
-   func_8011eae4 and func_80013c38_slot28, and sets the object's active_flag_2
+   func_8011eae4 and copy_table_twice_call_state_handler_slot28, and sets the object's active_flag_2
    to 0xff. */
 /* The call of func_8011eae4 passes one argument although the callee takes none: the original sets the first argument register before it. Written without the argument, this function differs from the original in 1 instruction slots. */
 void func_8001389c_slot28(Object *obj) {
@@ -43,7 +43,7 @@ void func_8001389c_slot28(Object *obj) {
     } while (--i >= 0);
     data_8018f5a0->field_5e = 0xf0;
     ((void (*)(Object *))func_8011eae4)(obj);
-    func_80013c38_slot28(obj);
+    copy_table_twice_call_state_handler_slot28(obj);
     /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
     /* Without it this function differs from the original in 4 instruction slots. */
     do {

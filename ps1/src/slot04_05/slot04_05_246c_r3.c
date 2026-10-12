@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2814_slot04_05(Object *obj) {
+void update_air_motion_land_and_set_bounce_b_slot04_05(Object *obj) {
     if (obj->vel_y < 0) {
         obj->accel_y -= 0x3000;
     }
-    if ((u8)func_80130184(obj) != 0) {
+    if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         if ((u8)obj->step_flags != 2) {
             update_sequence(obj);
         }

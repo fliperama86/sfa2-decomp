@@ -26,7 +26,7 @@ void func_80147360(Object *object) {
                 a = 1;
                 b = 0x10;
             }
-            func_801477ac(object, a, data_80189458 + b);
+            store_image_row_and_queue_job(object, a, data_80189458 + b);
             data_80189458 = data_80189458 + 1;
             if (data_80189458 == 0x10) data_80189458 = 0;
         }

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80152404(Object *object) {
+void init_object_from_parent_depth_4(Object *object) {
     object->ot_depth = 4;
     object->field_0f = 1;
     object->state_0++;

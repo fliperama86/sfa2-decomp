@@ -5,7 +5,7 @@
 
 extern void (*data_800269f4_slot27[])(Object *);
 
-void func_8001271c_slot27(Object *obj) {
+void call_handler_by_state_2_clear_flag_slot27(Object *obj) {
     data_800269f4_slot27[obj->state_2](obj);
     obj->field_01 = 0;
 }

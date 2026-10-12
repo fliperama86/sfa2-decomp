@@ -12,12 +12,12 @@ void func_801b1458_slot04_06(Object *o) {
     if (o->field_49 != 0) {
         o->field_225 = 1;
     }
-    func_80141f28(o, 5);
-    func_80138ae8(&game_state, o);
-    func_801307e0(o, 0x1e);
+    add_to_meter_clamped(o, 5);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
+    set_sequence_by_side_and_mode(o, 0x1e);
 }
 
-void func_801b14c8_slot04_06(Object *obj) {
+void init_jump_velocity_and_advance_state_3_slot04_06(Object *obj) {
     obj->vel_x = 0x40000;
     obj->vel_y = 0x28000;
     obj->substate_index = 0;

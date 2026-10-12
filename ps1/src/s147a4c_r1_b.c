@@ -5,10 +5,10 @@
 
 
 
-void func_801482e0(Object *parent, int x_arg, int y_arg) {
+void spawn_child_object_with_offsets(Object *parent, int x_arg, int y_arg) {
     u16 x = x_arg;
     u16 y = y_arg;
-    Object *object = (Object *)func_8011f1e0();
+    Object *object = (Object *)pop_block_from_pool();
     if (object != 0) {
         object->active_count = 1;
         object->field_02 = 7;

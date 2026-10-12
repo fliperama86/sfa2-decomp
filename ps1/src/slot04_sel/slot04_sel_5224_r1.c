@@ -14,10 +14,10 @@ extern u8 data_801b8d8c_slot04_sel[];
 extern u8 data_801b9d70_slot04_sel;
 extern u8 data_801b9d74_slot04_sel;
 
-void func_801b64c0_slot04_sel(Object *obj, Slot04SelRec9d78 *rec, int a);
-void func_801b56e0_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);
-void func_801b57c8_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);
-void func_801b60b8_slot04_sel(void);
+void set_selection_from_direction_buttons_b_slot04_sel(Object *obj, Slot04SelRec9d78 *rec, int a);
+void update_kind_2_4_hold_counters_c_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);
+void update_button_sequence_matcher_3_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);
+void check_opposite_player_same_selection_3_slot04_sel(void);
 
 void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
@@ -46,13 +46,13 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
             return;
         }
         data_801b9d74_slot04_sel = rec->field_04;
-        func_801b64c0_slot04_sel(obj, rec, 0x11);
+        set_selection_from_direction_buttons_b_slot04_sel(obj, rec, 0x11);
         rec->selection_index = data_801b8d20_slot04_sel[rec->selection_index * 5 + data_801b9d70_slot04_sel];
         data_801b9d70_slot04_sel = rec->selection_index;
         rec->field_04 = data_801b9d74_slot04_sel;
         p->kind = data_801b9d70_slot04_sel;
         game_state.selection_value = data_801b9d70_slot04_sel;
-        func_801b56e0_slot04_sel(p, obj, rec);
+        update_kind_2_4_hold_counters_c_slot04_sel(p, obj, rec);
         if (rec->field_14 == 0xb4 && p->kind == 4) {
             p->kind = 0x12;
         }
@@ -61,14 +61,14 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
                 p->kind = 0x14;
             }
         }
-        func_801b57c8_slot04_sel(p, obj, rec);
+        update_button_sequence_matcher_3_slot04_sel(p, obj, rec);
         if (rec->field_04 != 0 && p->kind == 2 && rec->set_flag_d != 0) {
             p->kind = 0x14;
             data_8016e68e = -1;
         }
         s5->table_value_plus_side = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].base_value + side * 0x18;
         s5->table_value = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].copied_value;
-        func_801519b4(s5);
+        add_item_to_table(s5);
 
         i = 0;
         s0 = data_801b8fc8_slot04_sel[side];
@@ -78,7 +78,7 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
             i++;
         } while (i < 0x10);
         s0->copied_byte = a1->copied_byte;
-        func_801519b4(s0);
+        add_item_to_table(s0);
 
         i = 0;
         s2 = data_801b8f78_slot04_sel[side];
@@ -88,12 +88,12 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
             i++;
         } while (i < 10);
         s2->palette = b1->palette;
-        func_801519b4(s2);
+        add_item_to_table(s2);
 
         if (rec->field_04 == 0) {
             return;
         }
-        func_801205c4(side, data_801b8d8c_slot04_sel[data_801b9d70_slot04_sel]);
+        call_func_with_side_x_origin(side, data_801b8d8c_slot04_sel[data_801b9d70_slot04_sel]);
         game_state.side = p->side;
         game_state.mode |= 1 << obj->side;
         if (rec->input_bits == 0x10 || rec->input_bits == 0x80) {
@@ -121,7 +121,7 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
             p->select_value_1 = 5;
         }
         ref_other.p = p;
-        func_801b60b8_slot04_sel();
+        check_opposite_player_same_selection_3_slot04_sel();
         if (data_8019045c[0] != 0) {
             data_8019045c[0] = 0;
             if (p->field_d4 == 0) {
@@ -130,8 +130,8 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
             p->field_d4 = data_8019045c[0];
         }
     } else {
-        func_801519b4(s5);
-        func_801519b4(s0);
-        func_801519b4(s2);
+        add_item_to_table(s5);
+        add_item_to_table(s0);
+        add_item_to_table(s2);
     }
 }

@@ -4,13 +4,13 @@
 #include "protos.h"
 
 
-void func_80123bd4(Entity *entity, Object *a, Object *b) {
+void update_best_scores_for_pair(Entity *entity, Object *a, Object *b) {
     int t;
     a->best_score = a->score;
     b->best_score = b->score;
     if (entity->field_1b == 0) {
-        func_80123d0c(entity, &player_left);
-        func_80123d0c(entity, &player_left + 1);
+        update_object_scores_from_source(entity, &player_left);
+        update_object_scores_from_source(entity, &player_left + 1);
     } else if (entity->field_1b == 3) {
         t = a->score;
         a->score = a->score_2;
@@ -25,15 +25,15 @@ void func_80123bd4(Entity *entity, Object *a, Object *b) {
         }
     } else {
         if (a->mode_flag_2 != 0) {
-            func_80123d0c(entity, b);
+            update_object_scores_from_source(entity, b);
         } else {
             if (a->count < 0x63) {
                 a->count++;
             }
-            t = func_80156018(a->best_score, a->score_2);
+            t = subtract_bcd(a->best_score, a->score_2);
             a->best_score = t;
             a->score_2 = a->score;
         }
     }
-    func_80123d0c(entity, b);
+    update_object_scores_from_source(entity, b);
 }

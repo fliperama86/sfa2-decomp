@@ -11,8 +11,8 @@ extern u16 data_801f8978_slot06_02;
    linked into the primitive list (inferred). A counter at data_801f8978 is
    cleared on entry and counted per record; the function returns when it
    reaches 0xd4, the number of records per buffer (inferred). The locals t,
-   sx, mask and cc are 16-bit, as in the model func_801e82c8_slot06_00. */
-void func_801e83cc_slot06_02(void) {
+   sx, mask and cc are 16-bit, as in the model draw_tile_layer_0_16px_slot06_00. */
+void draw_tile_map_layer_16px_slot06_02(void) {
     Chan *c = data_801aa544;
     int x;
     int pos;

@@ -6,7 +6,7 @@
 
 
 /* Form found by automatic permutation search, then cleaned by hand. */
-void func_8011fae0(u16 *src, u16 *dst)
+void copy_block_pairs_wide(u16 *src, u16 *dst)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[4];

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013e04_slot12(Object *obj);
+void call_image_job_with_index_0_slot12(Object *obj);
 u8 func_80014754_slot12(Object *obj);
 
 void func_80014134_slot12(Object *obj) {
@@ -11,23 +11,23 @@ void func_80014134_slot12(Object *obj) {
     if (obj->field_f0 == 0) {
         data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
         game_state.field_2bc = 2;
-        func_80013e04_slot12(obj);
+        call_image_job_with_index_0_slot12(obj);
         game_state.countdown_4 = 0;
     }
 }
 
-void func_800141a4_slot12(Object *obj) {
+void increment_substep_index_5_slot12(Object *obj) {
     data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
 }
 
-void func_800141c4_slot12(Object *obj) {
+void advance_substep_when_flag_is_9_slot12(Object *obj) {
     if (game_state.field_2bc == 9) {
         data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
         game_state.field_2c0 = 0x32;
     }
 }
 
-void func_80014208_slot12(Object *obj) {
+void count_down_then_advance_step_index_slot12(Object *obj) {
     s16 t = game_state.field_2c0;
     t -= 1;
     game_state.field_2c0 = t;

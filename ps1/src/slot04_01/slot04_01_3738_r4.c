@@ -7,9 +7,9 @@ extern u8 data_801bf228_slot04_01[];
 extern s32 data_801bf240_slot04_01[];
 extern u8 data_801bf250_slot04_01[];
 
-void func_801b3cfc_slot04_01(Object *obj);
+void call_handler_by_state_1_slot04_01(Object *obj);
 
-void func_801b3be0_slot04_01(Object *obj) {
+void init_projectile_from_parent_slot04_01(Object *obj) {
     Object *parent;
     u8 i;
     int k;
@@ -41,5 +41,5 @@ void func_801b3be0_slot04_01(Object *obj) {
         ((Slot04aObj *)obj)->scratchpad_value = *(int *)0x1f800158;
     }
     func_80138070(obj, obj->vel_table_index >> 1);
-    func_801b3cfc_slot04_01(obj);
+    call_handler_by_state_1_slot04_01(obj);
 }

@@ -9,7 +9,7 @@ void func_8001ca08_slot28(Object *object) {
     data_8003a198_slot28[object->state_1](object);
 }
 
-void func_8001ca48_slot28(Object *obj) {
+void count_down_then_advance_state_1_3_slot28(Object *obj) {
     int t = obj->countdown - 1;
     obj->countdown = t;
     if ((s16)t == 0) {

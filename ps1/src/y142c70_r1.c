@@ -14,7 +14,7 @@ void func_80142c70(Object *object) {
     u8 t;
     ref_other.p = object->other;
     object->field_165 = 0;
-    hit = (u8) func_801433ac(object) != 0;
+    hit = (u8) set_other_sequence_0_when_close(object) != 0;
     x = 0;
     y = 0xf;
     if ((ref_other.p->active_state | object->active_state) == 0) {
@@ -42,7 +42,7 @@ void func_80142c70(Object *object) {
     object->cursor_timer_b = object->field_7e;
     object->frame_count = 0;
     if (data_80197f10 >= 3) {
-        func_801460ec(p);
+        get_three_pool_objects_sorted(p);
         o = p[0];
         o->active_count = 1;
         o->field_02 = 0x14;
@@ -93,10 +93,10 @@ void func_80142c70(Object *object) {
         o->field_20 = 0x18;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
-        func_801379bc(object, 0);
+        store_image_rows_by_mode_and_queue_job(object, 0);
         o->field_90 = object->field_90;
         o->data_ptr_a = object->data_ptr_a;
         o->data_ptr_b = object->data_ptr_b;
     }
-    if (object->active_state == 0) func_801312b8(object);
+    if (object->active_state == 0) reset_object_to_state_1_0_sequence_0(object);
 }

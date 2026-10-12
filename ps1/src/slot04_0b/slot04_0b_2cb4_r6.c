@@ -11,32 +11,32 @@ void func_801b3550_slot04_0b(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->step_count = 1;
         obj->step_flags = obj->step_flags & 0xff00;
-        func_80146478(obj, 1, -0x54, 0x55);
+        spawn_effect_at_object_offset(obj, 1, -0x54, 0x55);
         a = 0;
         if (obj->offset_index == 0) {
             obj->offset_index++;
             a = 9;
         }
-        if (func_80140cd8(obj, a, 0) != 0) {
+        if (apply_damage_to_other_return_defeated(obj, a, 0) != 0) {
             obj->state_3 = 4;
             play_sound_at(obj, o->side, 0x340);
             play_side_sound_at(obj, obj->side, 0xb);
-            func_801307e0(obj, 0x19);
+            set_sequence_by_side_and_mode(obj, 0x19);
         }
         obj->countdown = obj->countdown + 1;
     }
-    func_80140fe0(obj);
+    update_sequence_by_pressed_bytes(obj);
     if ((s16)obj->countdown != 0) {
         if (o->field_15b != 0) {
-            if ((u8)func_801410c8(obj) == 0) {
+            if ((u8)drain_gauge_by_other_input(obj) == 0) {
                 goto check;
             }
-            func_80146478(obj, 1, -0x54, 0x55);
+            spawn_effect_at_object_offset(obj, 1, -0x54, 0x55);
         }
         play_sound_at(obj, o->side, 0x30d);
         play_side_sound_at(obj, obj->side, 0xb);
         obj->state_3 = 3;
-        func_801307e0(obj, 0x19);
+        set_sequence_by_side_and_mode(obj, 0x19);
     }
 check:
     if (obj->step_count != 0) {

@@ -35,7 +35,7 @@ void func_800e75ec_slot0f(Object *obj) {
     }
 }
 
-void func_800e768c_slot0f(Object *obj) {
+void count_down_and_update_when_2bc_is_2_slot0f(Object *obj) {
     u8 *p = &game_state.field_2bc;
     s16 t;
     if (*p == 2) {
@@ -55,6 +55,6 @@ void func_800e768c_slot0f(Object *obj) {
     }
 }
 
-void func_800e7708_slot0f(Object *obj) {
+void call_handler_by_state_1_5_slot0f(Object *obj) {
     data_800f01bc_slot0f[obj->state_1](obj);
 }

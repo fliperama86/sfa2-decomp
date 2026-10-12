@@ -13,7 +13,7 @@ extern u8 data_801b9d6c_slot04_sel;
 extern void (*data_801b7df0_slot04_sel[])(Object *, Slot04SelRec9d38 *);
 
 /* What it does (inferred, not an original name): the per-frame update of
-   a two-player selection screen. It calls func_801519b4 for two text
+   a two-player selection screen. It calls add_item_to_table for two text
    buffers, then runs for each player a handler picked from a table by the
    first byte of the player's selection record (records of 0x15 bytes at
    data_801b9d38_slot04_sel, one per player, the handler gets the player
@@ -23,13 +23,13 @@ extern void (*data_801b7df0_slot04_sel[])(Object *, Slot04SelRec9d38 *);
    when the byte data_801b9d68_slot04_sel differs from game_state.side_mask
    or data_801b9d6c_slot04_sel from game_state.mode, it clears both records'
    first byte and the hud state's step_index_2. */
-void func_801b3f38_slot04_sel(void) {
+void update_select_screen_step_e_slot04_sel(void) {
     Slot04SelRec9d38 *r;
     Slot04SelRec9d38 *q;
     Object *w;
 
-    func_801519b4((Object *)&data_801b8638_slot04_sel);
-    func_801519b4((Object *)&data_801b874c_slot04_sel);
+    add_item_to_table((Object *)&data_801b8638_slot04_sel);
+    add_item_to_table((Object *)&data_801b874c_slot04_sel);
     w = &player_left;
     r = data_801b9d38_slot04_sel;
     /* The do-while wrapper reproduces the original's order of instructions: the compiler does not move an instruction across its ends. It emits no instruction of its own. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */

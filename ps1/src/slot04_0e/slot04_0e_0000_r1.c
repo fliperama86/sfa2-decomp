@@ -14,21 +14,21 @@ extern ObjectFn data_801c5e98_slot04_0e[];
 extern Slot04_0eRec5eb0 data_801c5eb0_slot04_0e[];
 extern ObjectFn data_801c5ee0_slot04_0e[];
 
-Block172 *func_8011f1e0(void);
-Object *func_8011f32c(void);
-void func_80152df4(Object *object);
+Block172 *pop_block_from_pool(void);
+Object *pop_object_from_second_pool(void);
+void spawn_two_counted_objects_variant_6(Object *object);
 void set_sequence_by_side(Object *object, int arg);
 
-int func_801b0a68_slot04_0e(Object *obj, Object *other);
-void func_801b0a94_slot04_0e(Object *obj, int a);
-void func_801b0b10_slot04_0e(Object *obj);
+int apply_vel_y_to_other_position_slot04_0e(Object *obj, Object *other);
+void set_sequence_by_index_per_side_slot04_0e(Object *obj, int a);
+void advance_sequence_with_changed_flag_slot04_0e(Object *obj);
 void func_801b0bb8_slot04_0e(Object *obj);
-void func_801b0bd8_slot04_0e(Object *obj);
+void store_image_row_and_queue_job_slot04_0e(Object *obj);
 void func_801b0cd0_slot04_0e(Object *obj);
-void func_801b6808_slot04_0e(Object *obj);
-void func_801b687c_slot04_0e(Object *obj);
+void copy_sixteen_table_entries_by_image_row_slot04_0e(Object *obj);
+void load_velocities_from_table_slot04_0e(Object *obj);
 
-void func_801b0000_slot04_0e(Object *obj) {
+void init_object_copy_palette_and_spawn_child_slot04_0e(Object *obj) {
     u32 *dst;
     int i;
     Object *c;
@@ -49,7 +49,7 @@ void func_801b0000_slot04_0e(Object *obj) {
     } else {
         ((Slot04bObj *)obj)->field_1da = 0;
     }
-    c = (Object *)func_8011f32c();
+    c = (Object *)pop_object_from_second_pool();
     if (c != 0) {
         c->active_count = 1;
         c->field_02 = 0xe;
@@ -71,11 +71,11 @@ void func_801b0000_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b015c_slot04_0e(Object *obj) {
+void call_handler_by_state_2_slot04_0e(Object *obj) {
     data_801c5e64_slot04_0e[obj->state_2](obj);
 }
 
-void func_801b019c_slot04_0e(Object *obj) {
+void start_rise_when_mode_zero_slot04_0e(Object *obj) {
     if (((Slot04bObj *)obj)->mode == 0) {
         obj->active_state = 1;
         obj->vel_y = 0;
@@ -85,7 +85,7 @@ void func_801b019c_slot04_0e(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b01e8_slot04_0e(Object *obj) {
+void update_vertical_motion_until_landing_slot04_0e(Object *obj) {
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->pos_y < obj->ground_y) {
@@ -97,12 +97,12 @@ void func_801b01e8_slot04_0e(Object *obj) {
         obj->pos_y_frac = 0;
         obj->state_2 = obj->state_2 + 1;
         obj->pos_y = ((Slot04bObj *)obj)->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         set_sequence_by_side(obj, 0x11);
     }
 }
 
-void func_801b0284_slot04_0e(Object *obj) {
+void update_sequence_or_reset_states_slot04_0e(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
@@ -114,17 +114,17 @@ void func_801b0284_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b02d4_slot04_0e(Object *obj) {
+void call_handler_by_state_2_2_slot04_0e(Object *obj) {
     data_801c5e70_slot04_0e[obj->state_2](obj);
 }
 
-void func_801b0314_slot04_0e(Object *obj) {
+void restore_facing_and_set_sequence_0_slot04_0e(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->facing_side = obj->saved_facing;
     set_sequence_by_side(obj, 0);
 }
 
-void func_801b0348_slot04_0e(Object *obj) {
+void choose_random_variant_or_update_sequence_slot04_0e(Object *obj) {
     u16 a;
 
     if (game_state.field_64 == 0 && game_state.countdown_timer == 0) {
@@ -132,7 +132,7 @@ void func_801b0348_slot04_0e(Object *obj) {
         obj->state_3 = 0;
         ((Slot04bObj *)obj)->field_47 = 0x3c;
         game_state.countdown = 0x1e;
-        a = (s8)func_80125734(obj, (s8)data_801c5e7c_slot04_0e[get_random_byte() & 0xf]);
+        a = (s8)get_input_mapped_value_or_default(obj, (s8)data_801c5e7c_slot04_0e[get_random_byte() & 0xf]);
         if ((game_state.field_4d | game_state.field_04) != 0) {
             if (a == 1) {
                 a = 5;
@@ -145,7 +145,7 @@ void func_801b0348_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b043c_slot04_0e(Object *obj) {
+void count_down_side_bit_then_call_by_variant_slot04_0e(Object *obj) {
     u8 t;
 
     if (((Slot04bObj *)obj)->field_47 != 0) {
@@ -158,13 +158,13 @@ void func_801b043c_slot04_0e(Object *obj) {
     data_801c5e98_slot04_0e[obj->variant_index](obj);
 }
 
-void func_801b04c8_slot04_0e(Object *obj) {
+void update_sequence_with_mode_actions_slot04_0e(Object *obj) {
     Object *c;
     u8 *r;
     u16 x;
 
     if (((Slot04bObj *)obj)->mode == 1) {
-        c = (Object *)func_8011f1e0();
+        c = (Object *)pop_block_from_pool();
         if (c != 0) {
             c->active_count = 1;
             c->field_02 = 0x14;
@@ -204,12 +204,12 @@ void func_801b0618_slot04_0e(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b066c_slot04_0e(Object *obj) {
+void spawn_child_when_mode_is_one_type_two_slot04_0e(Object *obj) {
     Object *c;
     int x;
 
     if (((Slot04bObj *)obj)->mode == 1) {
-        c = (Object *)func_8011f1e0();
+        c = (Object *)pop_block_from_pool();
         if (c != 0) {
             c->active_count = 1;
             c->field_02 = 0x3b;
@@ -243,47 +243,47 @@ void func_801b0780_slot04_0e(Object *obj) {
     if (((Slot04bObj *)obj)->mode == 2) {
         ((Slot04bObj *)obj)->mode = 0;
         obj->state_3 = obj->state_3 + 1;
-        func_801b6808_slot04_0e(obj);
+        copy_sixteen_table_entries_by_image_row_slot04_0e(obj);
     }
 }
 
-void func_801b07bc_slot04_0e(Object *obj) {
+void launch_other_on_mode_3_slot04_0e(Object *obj) {
     Object *o;
 
     if (((Slot04bObj *)obj)->mode == 3) {
         ((Slot04bObj *)obj)->mode = 0;
         obj->state_3++;
         o = obj->other;
-        func_80152df4(o);
+        spawn_two_counted_objects_variant_6(o);
         play_sound_at(o, o->field_02, 0x321);
         obj->vel_y = 0x5c000;
         obj->accel_y = -0x5400;
         o->active_state = 1;
-        func_801b0a94_slot04_0e(o, 0x13);
-        func_801b0bd8_slot04_0e(o);
+        set_sequence_by_index_per_side_slot04_0e(o, 0x13);
+        store_image_row_and_queue_job_slot04_0e(o);
     }
 }
 
-void func_801b0854_slot04_0e(Object *obj) {
+void update_other_object_fall_until_ground_slot04_0e(Object *obj) {
     Object *o = obj->other;
 
-    func_801b0a68_slot04_0e(obj, o);
+    apply_vel_y_to_other_position_slot04_0e(obj, o);
     if (o->ground_y >= o->pos_y) {
-        func_801b0b10_slot04_0e(o);
-        func_801b0bd8_slot04_0e(o);
+        advance_sequence_with_changed_flag_slot04_0e(o);
+        store_image_row_and_queue_job_slot04_0e(o);
     } else {
         obj->state_3 = obj->state_3 + 1;
         o->active_state = 0;
         o->pos_y_frac = 0;
         o->pos_y = ((Slot04bObj *)o)->ground_y;
         ((Slot04bObj *)obj)->countdown = 4;
-        func_801b0a94_slot04_0e(o, 0x14);
+        set_sequence_by_index_per_side_slot04_0e(o, 0x14);
         func_801b0bb8_slot04_0e(o);
-        func_801b687c_slot04_0e(obj);
+        load_velocities_from_table_slot04_0e(obj);
     }
 }
 
-void func_801b08fc_slot04_0e(Object *obj) {
+void countdown_then_launch_other_object_slot04_0e(Object *obj) {
     Object *o;
 
     ((Slot04bObj *)obj)->countdown--;
@@ -293,27 +293,27 @@ void func_801b08fc_slot04_0e(Object *obj) {
         o->active_state = 1;
         obj->vel_y = 0x28000;
         obj->accel_y = -0x4800;
-        func_801b0a94_slot04_0e(o, 0x15);
+        set_sequence_by_index_per_side_slot04_0e(o, 0x15);
     } else {
-        func_801b0b10_slot04_0e(o);
+        advance_sequence_with_changed_flag_slot04_0e(o);
     }
 }
 
-void func_801b0974_slot04_0e(Object *obj) {
+void update_other_fall_until_ground_slot04_0e(Object *obj) {
     Object *o = obj->other;
 
-    func_801b0a68_slot04_0e(obj, o);
+    apply_vel_y_to_other_position_slot04_0e(obj, o);
     if (o->ground_y >= o->pos_y) {
-        func_801b0b10_slot04_0e(o);
+        advance_sequence_with_changed_flag_slot04_0e(o);
     } else {
         obj->state_3 = obj->state_3 + 1;
         o->active_state = 0;
         o->pos_y_frac = 0;
         o->pos_y = ((Slot04bObj *)o)->ground_y;
-        func_801b0a94_slot04_0e(o, 0x16);
+        set_sequence_by_index_per_side_slot04_0e(o, 0x16);
     }
 }
 
-void func_801b09fc_slot04_0e(Object *obj) {
-    func_801b0b10_slot04_0e(obj->other);
+void advance_other_sequence_slot04_0e(Object *obj) {
+    advance_sequence_with_changed_flag_slot04_0e(obj->other);
 }

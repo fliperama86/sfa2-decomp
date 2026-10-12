@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80012990_slot01(Object *obj, u8 *a, int b, int c, int d);
+void init_sprite_set_textured_quads_slot01(Object *obj, u8 *a, int b, int c, int d);
 
 /* What it does (inferred, not an original name): fills textured-quad
    primitives for a set of sprites, twice over the same set (the second
@@ -18,7 +18,7 @@ void func_80012990_slot01(Object *obj, u8 *a, int b, int c, int d);
    0x6f and the right pair the offset + 0x60, instead of the offset + 0x60
    and the offset + 0x70. A set with a count of 0 or less
    still runs its loop once (the loop is a do-while). */
-void func_80012990_slot01(Object *obj, u8 *a, int b, int c, int d) {
+void init_sprite_set_textured_quads_slot01(Object *obj, u8 *a, int b, int c, int d) {
     Poly28 *prim = (Poly28 *)a;
     u16 tpage = b;
     /* bs is a copy of the argument c (u16 and int give the same code); using c directly differs from the original in 14 instruction slots. */

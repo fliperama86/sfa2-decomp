@@ -4,15 +4,15 @@
 #include "protos.h"
 
 void update_airborne_object(Object *object) {
-    if ((u8)func_80130184(object)) {
+    if ((u8)apply_velocity_and_check_ground(object)) {
         if (object->mode_flag_2 != 0) {
-            func_8012ab5c(object);
-        } else if (func_80130470(object)) {
-            func_80130304(object);
-        } else if ((u8)func_8012f2b8(object)) {
-            func_8012f384(object);
+            update_sequence_or_start_special_state(object);
+        } else if (get_pressed_low_byte(object)) {
+            call_scratch_fn_by_side_and_mode(object);
+        } else if ((u8)is_pushing_toward_bound_in_air(object)) {
+            start_wall_bounce_sequence(object);
         } else if (func_8012f970(object)) {
-            func_8012f3e0(object);
+            set_state_3_4_and_sequence(object);
         } else {
             update_sequence(object);
         }
@@ -21,15 +21,15 @@ void update_airborne_object(Object *object) {
         object->active_state = 0;
         object->active_flag_3 = 0;
         *(u32 *)&object->pos_y_frac &= 0xffff0000;
-        func_801209c4(object);
+        play_object_sound_by_kind(object);
         if (object->mode_flag_2 == 0) {
-            if (object->kind == 0xe && (u8)func_801320e8(object)) {
-                func_80132140(object);
-            } else if (func_80130470(object)) {
-                func_8013047c(object);
+            if (object->kind == 0xe && (u8)is_input_and_state_check_passed(object)) {
+                set_state_7_variant_from_input(object);
+            } else if (get_pressed_low_byte(object)) {
+                set_state_1_0_5_and_read_input_direction(object);
             } else if (func_8012f970(object)) {
-                func_8012fe60(object);
-            } else if ((u8)func_8012f898(object)) {
+                enter_state_2_6_by_button_input(object);
+            } else if ((u8)is_facing_differs_from_saved(object)) {
                 func_8012f8c4(object);
             } else {
                 object->state_3 = object->state_3 + 1;

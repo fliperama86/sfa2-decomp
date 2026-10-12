@@ -4,7 +4,7 @@ Choices of the setup:
   - the object is a 0x394-byte block of random bytes; its halfword pos_y
     (offset 0x16) is 0xd0 or more in half of the cases (the arm that raises
     field_04) and below it in the other half;
-  - func_80020608_slot28 (the leaf that runs before the call) is the image's
+  - apply_velocity_and_accel_slot28 (the leaf that runs before the call) is the image's
     own code and runs as it is; it reads and writes only words of the object
     (offsets 0x10, 0x14, 0x4c, 0x50, 0x54, 0x58), which the block holds;
   - advance_sequence_checked (1 argument) is a recorder that returns 0; the log watches

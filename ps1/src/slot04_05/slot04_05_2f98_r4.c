@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3b14_slot04_05(Object *obj);
+void clear_slots_bytes_slot04_05(Object *obj);
 
 void func_801b32c8_slot04_05(Object *obj) {
     int a;
@@ -15,11 +15,11 @@ void func_801b32c8_slot04_05(Object *obj) {
         if (obj->active_state != 0) {
             a = -1;
         }
-        func_801495f8(obj, a, 0x50);
-        func_8011fe40(obj);
-        func_80149af8(obj);
-        func_80143184(obj);
-        func_801b3b14_slot04_05(obj);
+        spawn_effect_objects_at_offset(obj, a, 0x50);
+        reset_side_table_and_fields(obj);
+        spawn_object_type_6d_for_side(obj);
+        set_other_sequence_3_when_close(obj);
+        clear_slots_bytes_slot04_05(obj);
     }
     update_sequence(obj);
 }

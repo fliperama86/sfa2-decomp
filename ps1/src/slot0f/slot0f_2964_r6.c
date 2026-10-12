@@ -10,7 +10,7 @@ extern Slot0fRec94ec data_800e950c_slot0f[];
 extern Slot0fRec94ec *data_800e96b8_slot0f;
 extern Slot0fRec94ec *data_800e96c8_slot0f;
 
-void func_800e2e44_slot0f(void) {
+void toggle_two_option_selection_2_slot0f(void) {
     u8 *p;
     if ((data_801a696a | data_801a6976) & 0xa000) {
         p = &data_800f855b_slot0f;
@@ -20,7 +20,7 @@ void func_800e2e44_slot0f(void) {
     }
 }
 
-void func_800e2ebc_slot0f(void) {
+void toggle_two_option_selection_3_slot0f(void) {
     u8 *p;
     if ((data_801a696a | data_801a6976) & 0xa000) {
         p = &data_800f8559_slot0f;

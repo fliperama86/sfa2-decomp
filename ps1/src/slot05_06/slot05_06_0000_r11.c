@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801c8d60_slot05_06(Object *obj) {
+int try_start_meter_move_3_slot05_06(Object *obj) {
     if ((s16)obj->meter < 0x30) return 0;
     if (!(u8)func_80141788(obj)) return 0;
     obj->state_0 = 1;
@@ -17,7 +17,7 @@ int func_801c8d60_slot05_06(Object *obj) {
 }
 
 int func_801c8de4_slot05_06(Object *o) {
-    if (!(u8)func_80141b28(o)) return 0;
+    if (!(u8)try_spend_meter_for_action(o)) return 0;
     o->state_0 = 1;
     o->state_1 = 0;
     o->state_3 = 0;
@@ -30,11 +30,11 @@ int func_801c8de4_slot05_06(Object *o) {
     o->field_15a = 4;
     o->other_lock = 0x1d;
     o->other->field_6b = 0x19;
-    func_801307e0(o, 0x39);
+    set_sequence_by_side_and_mode(o, 0x39);
     return 1;
 }
 
-void func_801c8e78_slot05_06(Object *obj) {
+void start_move_4_without_check_slot05_06(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
@@ -50,5 +50,5 @@ void func_801c8e78_slot05_06(Object *obj) {
     obj->direction_index = 0;
     obj->field_6b = 0;
     obj->other->field_6b = 0x19;
-    func_801307e0(obj, 0x39);
+    set_sequence_by_side_and_mode(obj, 0x39);
 }

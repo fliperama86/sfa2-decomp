@@ -15,26 +15,26 @@ u8 func_801416ec(Object *object) {
 int func_80141788(Object *object) {
     if (object->field_7e != 0) return 0;
     data_8019046c[0] = 1;
-    return func_80141848(object);
+    return try_action_clearing_one_flag(object);
 }
 
-u8 func_801417cc(Object *object) {
+u8 try_action_clearing_both_flags(Object *object) {
     s32 *flag = data_80190464;
     data_8019046c[0] = 0;
     *flag = 0;
-    if (*(u32 *)&object->state_0 == 0x20101) return func_80141a00(object);
+    if (*(u32 *)&object->state_0 == 0x20101) return try_start_effect_request(object);
     *flag = 1;
     if (object->active_state != 0) return 0;
-    return func_80141908(object);
+    return try_action_if_state_allows(object);
 }
 
-u8 func_80141848(Object *object) {
+u8 try_action_clearing_one_flag(Object *object) {
     s32 *flag = data_80190464;
     *flag = 0;
-    if (*(u32 *)&object->state_0 == 0x20101) return func_80141a00(object);
+    if (*(u32 *)&object->state_0 == 0x20101) return try_start_effect_request(object);
     *flag = 1;
     if (object->active_state != 0) return 0;
-    return func_80141908(object);
+    return try_action_if_state_allows(object);
 }
 
 int func_801418bc(Object *object) {
@@ -42,5 +42,5 @@ int func_801418bc(Object *object) {
     if (*(u32 *)&object->state_0 == 0x3030001) {
         return 0;
     }
-    return (u8)func_80141908(object);
+    return (u8)try_action_if_state_allows(object);
 }

@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* The form of func_801b2638_slot04_0c of another character file, but for the
+/* The form of update_countdown_state_with_counter_slot04_0c of another character file, but for the
    last call: there it follows both arms, here it is in the second arm only.
    With the call after both arms, this function differs from the original in
    1 instruction slot, the jump that ends the first arm. */
-void func_801b33e8_slot04_05(Object *o) {
+void update_countdown_then_finish_or_continue_slot04_05(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int t;
 
@@ -30,6 +30,6 @@ void func_801b33e8_slot04_05(Object *o) {
         } else if ((t & 0xff00) != 0) {
             o->countdown = t - 0x100;
         }
-        func_80142fe8(o);
+        push_other_by_vel_x(o);
     }
 }

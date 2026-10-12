@@ -5,6 +5,6 @@
 
 extern void (*data_801b8cb0_slot04_sel[])(void);
 
-void func_801b4c6c_slot04_sel(Object *unused) {
+void call_handler_by_step_index_2_table_b_7_slot04_sel(Object *unused) {
     data_801b8cb0_slot04_sel[data_8018f5a0->step_index_2]();
 }

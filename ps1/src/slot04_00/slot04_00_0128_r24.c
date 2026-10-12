@@ -4,23 +4,23 @@
 #include "../externs.h"
 
 extern void (*data_801c0574_slot04_00[])(Object *, Object *);
-void func_801b35d4_slot04_00(Object *obj, Object *parent);
+void follow_parent_frame_param_sequence_slot04_00(Object *obj, Object *parent);
 
-void func_801b3538_slot04_00(Object *obj) {
+void call_handler_by_state_0_with_parent_slot04_00(Object *obj) {
     data_801c0574_slot04_00[obj->state_0](obj, obj->parent);
 }
 
-void func_801b3578_slot04_00(Object *obj, Object *parent) {
+void init_child_from_parent_fields_slot04_00(Object *obj, Object *parent) {
     obj->state_0++;
     obj->field_1c = parent->field_1c;
     obj->table_index = parent->kind;
     obj->field_0c = parent->field_0c;
     obj->field_0e = parent->field_0e;
     obj->variant_index = 0;
-    func_801b35d4_slot04_00(obj, parent);
+    follow_parent_frame_param_sequence_slot04_00(obj, parent);
 }
 
-void func_801b35d4_slot04_00(Object *obj, Object *parent) {
+void follow_parent_frame_param_sequence_slot04_00(Object *obj, Object *parent) {
     int idx;
     int old;
 
@@ -45,8 +45,8 @@ void func_801b35d4_slot04_00(Object *obj, Object *parent) {
     }
     obj->variant_index = idx;
     if (parent->side == 0) {
-        func_80130768(obj, idx, data_1f8000b4);
+        set_sequence_from_table_5(obj, idx, data_1f8000b4);
     } else {
-        func_80130768(obj, idx, data_1f800164);
+        set_sequence_from_table_5(obj, idx, data_1f800164);
     }
 }

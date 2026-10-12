@@ -5,10 +5,10 @@
 
 extern Slot0fRec7d80 data_800f7d80_slot0f[];
 extern u8 data_800f8020_slot0f[][16];
-void func_800e826c_slot0f(u8 *buf, unsigned int n, int pos, int flags);
-void func_800e7f90_slot0f(u8 *src, u8 *dst, int mode);
+void format_decimal_padded_slot0f(u8 *buf, unsigned int n, int pos, int flags);
+void copy_string_with_suffix_by_mode_slot0f(u8 *src, u8 *dst, int mode);
 
-void func_800e7a4c_slot0f(Object *obj, int a) {
+void build_win_count_text_record_slot0f(Object *obj, int a) {
     Slot0fRec7d80 *e;
     FrameRecord *fr;
     u8 buf[16];
@@ -25,11 +25,11 @@ void func_800e7a4c_slot0f(Object *obj, int a) {
         if (a == 1) {
             e->field_0b = 0x1d;
         }
-        func_800e826c_slot0f(buf, fr->field_0c, 7, 0);
+        format_decimal_padded_slot0f(buf, fr->field_0c, 7, 0);
         if (fr->field_0c == 1) {
-            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->table_index], 2);
+            copy_string_with_suffix_by_mode_slot0f(buf, data_800f8020_slot0f[obj->table_index], 2);
         } else {
-            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->table_index], 3);
+            copy_string_with_suffix_by_mode_slot0f(buf, data_800f8020_slot0f[obj->table_index], 3);
         }
         e->data_ptr = data_800f8020_slot0f[obj->table_index];
         e->pos_x = obj->base_x + 0x28;
@@ -42,11 +42,11 @@ void func_800e7a4c_slot0f(Object *obj, int a) {
         if (a == 1) {
             e->field_0b = 0x1d;
         }
-        func_800e826c_slot0f(buf, fr->field_0c, 7, 0);
+        format_decimal_padded_slot0f(buf, fr->field_0c, 7, 0);
         if (fr->field_0c == 1) {
-            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->table_index], 2);
+            copy_string_with_suffix_by_mode_slot0f(buf, data_800f8020_slot0f[obj->table_index], 2);
         } else {
-            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->table_index], 3);
+            copy_string_with_suffix_by_mode_slot0f(buf, data_800f8020_slot0f[obj->table_index], 3);
         }
         e->data_ptr = data_800f8020_slot0f[obj->table_index];
         e->pos_x = obj->base_x + 0x40;

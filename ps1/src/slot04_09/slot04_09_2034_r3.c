@@ -17,6 +17,6 @@ void func_801b231c_slot04_09(Object *obj) {
             obj->vel_x = 0xfff80000;
             obj->accel_x = 0x8000;
         }
-        func_801307e0(obj, 0x47);
+        set_sequence_by_side_and_mode(obj, 0x47);
     }
 }

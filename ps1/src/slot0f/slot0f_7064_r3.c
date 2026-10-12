@@ -6,7 +6,7 @@
 extern u16 data_800f013c_slot0f[];
 extern u16 data_800f0164_slot0f[];
 
-void func_800e72bc_slot0f(Object *obj) {
+void set_base_and_spawn_from_index_table_slot0f(Object *obj) {
     int i = obj->table_index;
     if (i != 5) {
         i <<= 2;

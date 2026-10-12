@@ -5,16 +5,16 @@
 
 extern Slot12Prim data_8002c528_slot12[];
 extern u8 data_80028970_slot12[];
-void func_80014434_slot12(Object *obj, Slot12Prim *a, int b, int c);
+void init_two_prims_with_draw_mode_slot12(Object *obj, Slot12Prim *a, int b, int c);
 
-void func_80016864_slot12(Object *obj) {
+void init_entry_primitive_pairs_slot12(Object *obj) {
     Slot12Prim *a = data_8002c528_slot12;
     int i;
     int r;
     u8 *src;
 
     for (i = 0; i <= ((Slot12Obj *)obj)->entry_count; i++) {
-        func_80014434_slot12(obj, a, 0x10, 0x10);
+        init_two_prims_with_draw_mode_slot12(obj, a, 0x10, 0x10);
         a->tpage = 0x7f07;
         r = func_8015bd0c(0, 0, 0x3c0, 0x100);
         a->cmd = 0xe1000000 + (((Object *)data_801987c8)->step_count << 9) + (((Object *)data_801987c8)->field_a3 << 10) + (r & 0x1f);

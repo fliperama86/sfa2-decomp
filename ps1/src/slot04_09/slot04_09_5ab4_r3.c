@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5d3c_slot04_09(Object *obj) {
+void spawn_three_pooled_objects_slot04_09(Object *obj) {
     Object *a;
     Object *b;
     Object *c;

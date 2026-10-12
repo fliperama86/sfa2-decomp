@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b51dc_slot04_07(Object *obj);
+void set_random_velocities_from_table_slot04_07(Object *obj);
 
-void func_801b4ecc_slot04_07(Object *obj) {
+void init_random_position_effect_object_slot04_07(Object *obj) {
     Object *o;
     s32 *p;
     int a;
@@ -39,7 +39,7 @@ void func_801b4ecc_slot04_07(Object *obj) {
     w = v << 16;
     *(s32 *)&obj->field_60 = w;
     *(s32 *)&obj->ground_y = w;
-    func_801b51dc_slot04_07(obj);
+    set_random_velocities_from_table_slot04_07(obj);
     if (o->side == 0) {
         p = (s32 *)data_1f8000b4;
     } else {

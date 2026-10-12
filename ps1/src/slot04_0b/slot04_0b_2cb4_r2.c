@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2ebc_slot04_0b(Object *obj) {
+void set_launch_velocities_and_advance_state_slot04_0b(Object *obj) {
     obj->vel_x = 0x98000;
     obj->vel_y = 0x90000;
     obj->accel_x = -0x8000;
@@ -11,7 +11,7 @@ void func_801b2ebc_slot04_0b(Object *obj) {
     obj->state_3++;
 }
 
-void func_801b2ef0_slot04_0b(Object *obj) {
+void play_sounds_on_high_flag_advance_on_zero_slot04_0b(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0xff00) {

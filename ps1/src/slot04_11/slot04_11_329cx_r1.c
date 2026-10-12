@@ -6,9 +6,9 @@
 extern u16 data_801c7514_slot04_11[];
 
 int func_8013fd98(Object *object, s16 a, s16 b, s16 c, u16 d);
-void func_801b329c_slot04_11(Object *obj);
+void update_dash_grab_or_end_slot04_11(Object *obj);
 
-void func_801b329c_slot04_11(Object *obj) {
+void update_dash_grab_or_end_slot04_11(Object *obj) {
     int a;
     int b;
     u8 k;
@@ -38,7 +38,7 @@ void func_801b329c_slot04_11(Object *obj) {
             }
             n = obj->direction_index;
             n += 0x54;
-            func_801307e0(obj, n);
+            set_sequence_by_side_and_mode(obj, n);
             return;
         }
     }
@@ -73,5 +73,5 @@ void func_801b329c_slot04_11(Object *obj) {
     }
     obj->vel_x = 0x80000;
     obj->accel_x = 0xffff0000;
-    func_801307e0(obj, 0x59);
+    set_sequence_by_side_and_mode(obj, 0x59);
 }

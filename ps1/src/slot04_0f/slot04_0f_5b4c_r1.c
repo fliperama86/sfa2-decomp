@@ -6,7 +6,7 @@
 extern ObjectRef data_80190458;
 extern Slot04_0fRec6194 data_801c6194_slot04_0f[];
 
-Block172 *func_8011f1e0(void);
+Block172 *pop_block_from_pool(void);
 
 void func_801b5b4c_slot04_0f(Object *obj) {
     Object *p;
@@ -25,7 +25,7 @@ void func_801b5b4c_slot04_0f(Object *obj) {
                 a = 3;
             }
             obj->variant_index = (obj->variant_index + a) & 0x3f;
-            p = (Object *)func_8011f1e0();
+            p = (Object *)pop_block_from_pool();
             if (p != 0) {
                 p->active_count = 1;
                 p->field_02 = 0x25;

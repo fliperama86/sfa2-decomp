@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5d68_slot04_06(Object *obj, int idx) {
+void set_variant_sequence_by_sound_side_slot04_06(Object *obj, int idx) {
     SequenceStep **table;
 
     obj->variant_index = idx;
@@ -12,5 +12,5 @@ void func_801b5d68_slot04_06(Object *obj, int idx) {
     } else {
         table = data_1f800164;
     }
-    func_80130768(obj, (u8)idx, table);
+    set_sequence_from_table_5(obj, (u8)idx, table);
 }

@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80153c90(Effect *effect) {
+void increment_active_count(Effect *effect) {
     Object *object = (Object *)effect;
     object->active_count++;
 }
 
-void func_80153ca4(Effect *unused) {
+void noop_effect_handler(Effect *unused) {
 }

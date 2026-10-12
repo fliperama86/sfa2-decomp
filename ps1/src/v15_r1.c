@@ -8,8 +8,8 @@ void func_80151020(s16 value) {
     Sprite *s = &data_80190948;
     GameState *g = &game_state;
     g->loop_mode = 0;
-    func_8014f4d4(1, value);
+    set_menu_command_by_code(1, value);
     while (s->pending == 0 || g->wait_flag != 0) {
-        func_801192bc(1);
+        request_sound_command_and_switch_thread(1);
     }
 }

@@ -5,7 +5,7 @@
 
 extern Slot12Img data_800ebc94_slot0f[];
 
-void func_800e5a9c_slot0f(Slot0fObj *obj, int flag) {
+void reset_phase_step_and_object_fields_slot0f(Slot0fObj *obj, int flag) {
     if (flag == 0) {
         data_8018f5a0->phase_index++;
     }
@@ -16,7 +16,7 @@ void func_800e5a9c_slot0f(Slot0fObj *obj, int flag) {
     obj->field_f0 = 0;
 }
 
-void func_800e5ae4_slot0f(Slot0fObj *obj) {
+void advance_hud_state_index_and_reset_slot0f(Slot0fObj *obj) {
     HudState *h = data_8018f5a0;
     h->state_index++;
     h->phase_index = 0;
@@ -31,7 +31,7 @@ void func_800e5ae4_slot0f(Slot0fObj *obj) {
 void func_800e5b30_slot0f(int idx) {
     Rect rect;
     Slot12Img *img = &data_800ebc94_slot0f[idx];
-    Job *job = (Job *)func_8011f4a4();
+    Job *job = (Job *)alloc_pooled_b();
     if (job != 0) {
         rect.x = img->rect.x;
         rect.y = img->rect.y;

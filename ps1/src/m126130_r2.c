@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801262fc(Attacker *a) {
+void check_hit_count_trigger_kind_swap(Attacker *a) {
     Object *p, *q;
     if (a->field_1b == 3)
         return;
@@ -23,7 +23,7 @@ void func_801262fc(Attacker *a) {
     }
 }
 
-void func_801263d8(Attacker *a) {
+void check_repeat_count_trigger_kind_code(Attacker *a) {
     Object *p, *q;
     if (a->field_1b == 3)
         return;

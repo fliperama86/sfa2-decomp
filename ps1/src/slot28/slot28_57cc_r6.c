@@ -5,15 +5,15 @@
 
 extern ObjectFn data_8002c7b0_slot28[];
 
-void func_80015c9c_slot28(Object *obj) {
+void call_handler_by_state_1_show_and_advance_slot28(Object *obj) {
     data_8002c7b0_slot28[obj->state_1](obj);
     obj->field_01 = 1;
     advance_sequence_checked(obj);
 }
 
-void func_80015cf8_slot28(Object *obj) {
+void set_sequence_0f_when_variant_set_slot28(Object *obj) {
     if (obj->variant_index != 0) {
         obj->state_1++;
-        func_80130768(obj, 0xf, (SequenceStep **)obj->box_tables);
+        set_sequence_from_table_5(obj, 0xf, (SequenceStep **)obj->box_tables);
     }
 }

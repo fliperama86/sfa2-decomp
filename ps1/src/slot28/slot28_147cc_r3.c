@@ -21,7 +21,7 @@ void func_80025114_slot28(Object *o);
 void func_80025174_slot28(void);
 void func_800250e4_slot28(Object *o, int arg);
 
-void func_80024cd0_slot28(Object *obj) {
+void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
     HudState *h;
     Object *p;
     int one;
@@ -30,13 +30,13 @@ void func_80024cd0_slot28(Object *obj) {
         h->countdown_timer = 0x258;
         h->pass_index++;
         func_80025174_slot28();
-        func_80130768(data_80051c4c_slot28.p, 1, data_8004bd74_slot28);
+        set_sequence_from_table_5(data_80051c4c_slot28.p, 1, data_8004bd74_slot28);
         p = data_80051c50_slot28[0];
         p->pos_y = 0x20;
-        func_80130768(p, 1, data_8004bd7c_slot28);
+        set_sequence_from_table_5(p, 1, data_8004bd7c_slot28);
         one = 1;
         p->field_01 = one;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             func_80025114_slot28(p);
             p->pos_x = 0xb4;
@@ -45,10 +45,10 @@ void func_80024cd0_slot28(Object *obj) {
             p->spawn_y = 0x1e0;
             p->image_row = 0;
             p->ot_depth = 2;
-            func_80130768(p, 2, data_8004bd84_slot28);
+            set_sequence_from_table_5(p, 2, data_8004bd84_slot28);
             data_80051c24_slot28[0] = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             func_80025114_slot28(p);
             p->pos_x = 0xbb;
@@ -57,10 +57,10 @@ void func_80024cd0_slot28(Object *obj) {
             p->spawn_y = 0x1e0;
             p->image_row = 0;
             p->ot_depth = 2;
-            func_80130768(p, 3, data_8004bd84_slot28);
+            set_sequence_from_table_5(p, 3, data_8004bd84_slot28);
             data_80051c28_slot28.p = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             func_80025114_slot28(p);
             p->pos_x = 0xc8;
@@ -69,10 +69,10 @@ void func_80024cd0_slot28(Object *obj) {
             p->spawn_y = 0x1e0;
             p->image_row = 0;
             p->ot_depth = 2;
-            func_80130768(p, 4, data_8004bd84_slot28);
+            set_sequence_from_table_5(p, 4, data_8004bd84_slot28);
             data_80051c2c_slot28.p = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             func_80025114_slot28(p);
             p->pos_x = 0xd9;
@@ -81,10 +81,10 @@ void func_80024cd0_slot28(Object *obj) {
             p->spawn_y = 0x1e0;
             p->image_row = 0;
             p->ot_depth = 2;
-            func_80130768(p, 5, data_8004bd84_slot28);
+            set_sequence_from_table_5(p, 5, data_8004bd84_slot28);
             data_80051c30_slot28.p = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             func_80025114_slot28(p);
             p->pos_x = 0xf3;
@@ -93,10 +93,10 @@ void func_80024cd0_slot28(Object *obj) {
             p->spawn_y = 0x1e0;
             p->image_row = 0;
             p->ot_depth = 2;
-            func_80130768(p, 6, data_8004bd84_slot28);
+            set_sequence_from_table_5(p, 6, data_8004bd84_slot28);
             data_80051c34_slot28.p = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             func_80025114_slot28(p);
             p->pos_x = 0xb8;
@@ -105,10 +105,10 @@ void func_80024cd0_slot28(Object *obj) {
             p->spawn_y = 0x1e0;
             p->image_row = 0;
             p->ot_depth = 2;
-            func_80130768(p, 7, data_8004bd84_slot28);
+            set_sequence_from_table_5(p, 7, data_8004bd84_slot28);
             data_80051c38_slot28.p = p;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->field_02 = 0x1c;
             p->field_90 = (void *)0x80060000;
@@ -126,6 +126,6 @@ void func_80024cd0_slot28(Object *obj) {
             data_80051c3c_slot28.p = p;
         }
         func_800250e4_slot28(obj, 3);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

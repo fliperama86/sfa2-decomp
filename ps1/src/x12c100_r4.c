@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80134e94(u8 a, u8 b) {
+void select_meter_level_table_entry(u8 a, u8 b) {
     Object *left = &player_left;
     Object *right = left + 1;
 

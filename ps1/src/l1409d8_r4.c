@@ -4,14 +4,14 @@
 #include "protos.h"
 
 
-void func_80142fe8(Object *object) {
+void push_other_by_vel_x(Object *object) {
     int z;
     int limit;
     int x;
     int t;
     Object *other = object->other;
     ref_other.p = other;
-    func_8014362c(object, other);
+    set_compare_limit_from_box_distance(object, other);
     if (object->facing_side != 0) {
         if (!(object->pos_x < ref_other.p->pos_x)) return;
     } else {

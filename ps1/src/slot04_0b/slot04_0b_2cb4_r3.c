@@ -3,16 +3,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801b2510_slot04_0b(Object *obj);
+u8 move_ballistic_and_check_ground_slot04_0b(Object *obj);
 
-void func_801b3024_slot04_0b(Object *obj) {
-    if ((u8)func_801b2510_slot04_0b(obj) != 0) {
+void update_airborne_until_landing_on_ground_slot04_0b(Object *obj) {
+    if ((u8)move_ballistic_and_check_ground_slot04_0b(obj) != 0) {
         update_sequence(obj);
     } else {
         obj->state_3++;
         obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x2a);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x2a);
     }
 }

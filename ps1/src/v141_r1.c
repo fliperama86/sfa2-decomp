@@ -23,7 +23,7 @@ void func_8013ae00(Object *a, Object *b, Tx *c)
   }
   if (ref_first.p->counter == 0)
   {
-    func_80141f28(ref_first.p, value);
+    add_to_meter_clamped(ref_first.p, value);
   }
   if (a->team_id)
   {
@@ -34,9 +34,9 @@ void func_8013ae00(Object *a, Object *b, Tx *c)
     ref_first.p = &player_right;
   }
   mask = (-(b->hit_type != 0xff)) & 3;
-  func_80141f28(ref_first.p, mask);
+  add_to_meter_clamped(ref_first.p, mask);
   if (b->field_7e != 0)
   {
-    func_80141f28(ref_first.p, mask - 0x30);
+    add_to_meter_clamped(ref_first.p, mask - 0x30);
   }
 }

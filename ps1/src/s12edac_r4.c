@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8012f4dc(Object *object) {
+void enter_state_1_6_and_set_sequence(Object *object) {
     object->state_0 = 1;
     object->state_1 = 6;
     object->state_2 = 0;
@@ -15,9 +15,9 @@ void func_8012f4dc(Object *object) {
     set_side_flag(object);
     game_state.other_object = object->other;
     if (game_state.other_object->field_167 < 0xb) {
-        func_80155f30(object);
+        add_round_score_to_other_side(object);
     }
-    func_801308c4(object, 0x1b);
+    set_sequence_by_side_and_mode_2(object, 0x1b);
 }
 
 unsigned char func_8012f56c(Object *object) {
@@ -25,7 +25,7 @@ unsigned char func_8012f56c(Object *object) {
     return *(u16 *)&game_state.other_object->state_0 == 0x601;
 }
 
-void func_8012f59c(Object *object) {
+void set_win_state_and_store_result_byte(Object *object) {
     object->state_0 = 1;
     object->state_1 = 4;
     object->state_2 = 0;
@@ -46,7 +46,7 @@ void func_8012f5ec(Object *object) {
     }
 }
 
-int func_8012f618(Object *object) {
+int is_button_4000_held_or_other_flag(Object *object) {
     unsigned char result;
 
     result = 0;
@@ -62,7 +62,7 @@ int func_8012f618(Object *object) {
     return result;
 }
 
-void func_8012f6a0(Object *object) {
+void set_state_1_0_1_0_sequence_7(Object *object) {
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 1;
@@ -71,7 +71,7 @@ void func_8012f6a0(Object *object) {
     set_sequence_by_side(object, 7);
 }
 
-int func_8012f6d8(Object *object) {
+int is_button_4000_pressed(Object *object) {
     int bits;
 
     if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
@@ -89,7 +89,7 @@ int func_8012f6d8(Object *object) {
     return bits != 0;
 }
 
-void func_8012f784(Object *object) {
+void set_state_1_0_1_2_sequence_4(Object *object) {
     object->state_0 = 1;
     object->state_2 = 1;
     object->state_1 = 0;
@@ -98,7 +98,7 @@ void func_8012f784(Object *object) {
     set_sequence_by_side(object, 4);
 }
 
-int func_8012f7c0(Object *object) {
+int is_single_horizontal_input_held(Object *object) {
     int result;
     u16 bits;
 
@@ -112,7 +112,7 @@ int func_8012f7c0(Object *object) {
     return result;
 }
 
-int func_8012f800(Object *object) {
+int is_only_horizontal_input_held(Object *object) {
     int result;
     u16 flags;
 
@@ -133,7 +133,7 @@ void func_8012f838(Object *object) {
     object->state_1 = 0;
     object->state_2 = 2;
     object->state_3 = 1;
-    func_80130038(object);
+    set_vel_x_from_motion_speed_table(object);
     if (object->input_bits_2 & 0x8000) {
         arg = 2;
     } else {

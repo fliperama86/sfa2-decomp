@@ -11,7 +11,7 @@ extern s32 data_801c6198_slot04_0e[];
 
 /* What it does (inferred, not an original name): the start of a character
    action. It advances the object's state byte, takes 2 points off a
-   counter (func_80141f28), plays two sounds (play_side_sound_at,
+   counter (add_to_meter_clamped), plays two sounds (play_side_sound_at,
    play_sound_at), clears two velocity words, and sets a launch velocity
    from tables indexed by the object's direction byte variant_index: a byte
    table (index variant_index / 2) gives field_47, two word tables (index
@@ -25,7 +25,7 @@ void func_801b5e34_slot04_0e(Object *o) {
     int t;
 
     o->state_3++;
-    func_80141f28(o, 2);
+    add_to_meter_clamped(o, 2);
     /* The local t holds the side here and the halved direction at the end: one local for two values. With the halved direction written at the last call this function differs from the original in 3 instruction slots: the value is then tied to the argument register that the sum goes to. */
     t = o->side;
     play_side_sound_at(o, t, 6);
@@ -42,5 +42,5 @@ void func_801b5e34_slot04_0e(Object *o) {
         o->accel_x = -o->accel_x;
     }
     t = o->variant_index >> 1;
-    func_801307e0(o, t + 0x27);
+    set_sequence_by_side_and_mode(o, t + 0x27);
 }

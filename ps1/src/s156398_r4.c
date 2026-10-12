@@ -1,11 +1,11 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
-/* func_80156bc8: the unused 16-byte local reproduces the original 0x28 frame. */
+/* queue_name_text: the unused 16-byte local reproduces the original 0x28 frame. */
 #include "game.h"
 #include "externs.h"
 #include "protos.h"
 
 
-void func_80156bc8(GameState *state, Object *object) {
+void queue_name_text(GameState *state, Object *object) {
     TextBuf *text;
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
@@ -22,7 +22,7 @@ void func_80156bc8(GameState *state, Object *object) {
                     u8 byte = ((u8 *)object + i)[0x11c];
                     text->buf[i] = byte;
                 }
-                func_801519b4(text);
+                add_item_to_table(text);
             }
         }
     }

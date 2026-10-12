@@ -6,21 +6,21 @@
 
 void func_80144bdc(Object *object) {
     int v;
-    func_80144220(object);
+    update_position_x_with_accel(object);
     v = object->countdown - 1;
     object->countdown = v;
     if (v & 0x80) {
-        func_801449fc(object);
+        advance_state_0_2(object);
     }
 }
 
-void func_80144c28(Object *object) {
+void call_handler_by_state_2_b5d4_and_advance_3(Object *object) {
     table_8017b668[object->state_2](object);
     advance_sequence_checked(object);
-    func_80120028(object);
+    set_flag_and_push_if_mode_8(object);
 }
 
-void func_80144c84(Object *object) {
+void init_move_right_from_left_sequence_b(Object *object) {
     object->pos_x = -0x40;
     object->pos_y = 0x70;
     object->countdown = 0x1f;
@@ -32,7 +32,7 @@ void func_80144c84(Object *object) {
 
 void func_80144cd8(Object *object) {
     int v;
-    func_80144220(object);
+    update_position_x_with_accel(object);
     v = object->countdown - 1;
     object->countdown = v;
     if (v & 0x80) {
@@ -42,9 +42,9 @@ void func_80144cd8(Object *object) {
     }
 }
 
-void func_80144d34(Object *object) {
+void accelerate_until_countdown_set_pos_x_b_2(Object *object) {
     int v;
-    func_80144220(object);
+    update_position_x_with_accel(object);
     v = object->countdown - 1;
     object->countdown = v;
     if (v & 0x80) {

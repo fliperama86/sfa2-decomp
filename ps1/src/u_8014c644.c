@@ -52,7 +52,7 @@ void func_8014c644(Object *object)
         {
           table = table_8017d534[object->kind];
         }
-        if (func_8014a170(object, table) != 0)
+        if (test_random_bit_in_table(object, table) != 0)
         {
           return;
         }
@@ -62,6 +62,6 @@ void func_8014c644(Object *object)
   }
   else
   {
-    func_8014c914(object);
+    read_script_word_and_dispatch(object);
   }
 }

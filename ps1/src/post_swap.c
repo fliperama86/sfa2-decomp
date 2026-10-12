@@ -10,11 +10,11 @@ void func_80132070(Object *object) {
         object->field_15a == 1 && object->field_7e == 0 &&
         object->active_flag != 0) {
         object->active_flag = 0;
-        func_801307e0(object, 0x28);
+        set_sequence_by_side_and_mode(object, 0x28);
     }
 }
 
-int func_801320e8(Object *object) {
+int is_input_and_state_check_passed(Object *object) {
     int result;
     if (object->mode_flag_2 != 0) {
         result = 0;
@@ -26,7 +26,7 @@ int func_801320e8(Object *object) {
     return result;
 }
 
-void func_80132140(Object *object) {
+void set_state_7_variant_from_input(Object *object) {
     object->variant_index = 1;
     if (!(object->input_bits_2 & 0x8000)) object->variant_index = 0xff;
     object->field_15a = 2;
@@ -35,10 +35,10 @@ void func_80132140(Object *object) {
     object->state_1 = 0;
     object->state_2 = 7;
     object->state_3 = 0;
-    func_80132198(object);
+    reset_substate_and_set_direction_index(object);
 }
 
-void func_80132198(Object *object) {
+void reset_substate_and_set_direction_index(Object *object) {
     u8 side = object->saved_facing;
     u16 bits = object->pressed_bits | object->released_bits;
     u8 value;

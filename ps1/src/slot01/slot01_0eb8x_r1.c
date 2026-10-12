@@ -6,7 +6,7 @@
 void func_80010eb8_slot01(void) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     int unused[2];
-    func_8011a744();
+    init_sprite_tables();
     data_8018f5a0->substep_index++;
     data_801aa65e[0] = 1;
     data_80190562[0] = 1;
@@ -22,9 +22,9 @@ void func_80010eb8_slot01(void) {
     func_801260ac(1, 0x20, 0);
     func_801260ac(2, 0x20, 0);
     func_801260ac(3, 0x20, 0);
-    func_80137220(0, 6);
-    func_80137220(1, 0);
-    func_80137220(2, 1);
-    func_80137220(3, 2);
+    queue_image_upload_job(0, 6);
+    queue_image_upload_job(1, 0);
+    queue_image_upload_job(2, 1);
+    queue_image_upload_job(3, 2);
     func_80157d00(0);
 }

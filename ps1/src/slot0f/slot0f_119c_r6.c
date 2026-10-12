@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800e1e00_slot0f(Object *o);
+void call_handler_by_handler_index_b_slot0f(Object *o);
 extern Slot0fObj data_800f857c_slot0f;
 extern void (*data_800e8778_slot0f[])(Object *);
 
@@ -17,12 +17,12 @@ void func_800e1640_slot0f(void) {
     do {
         o->input_bits = data_801a696a | data_801a6976;
         data_800e8778_slot0f[(s8)o->state_index]((Object *)o);
-        func_800e1e00_slot0f((Object *)o);
-        func_801192bc(1);
+        call_handler_by_handler_index_b_slot0f((Object *)o);
+        request_sound_command_and_switch_thread(1);
     } while (o->loop_flag != 0);
 }
 
-void func_800e16f4_slot0f(Object *o) {
+void clear_states_and_increment_active_count_slot0f(Object *o) {
     u8 n = o->active_count;
     o->state_3 = 0;
     o->state_2 = 0;

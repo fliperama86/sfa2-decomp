@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1984_slot04_sel(void);
+void check_opposite_player_same_selection_slot04_sel(void);
 void func_801b1a8c_slot04_sel(Object *obj, Slot04SelRec *rec, int a);
 
 extern TextBuf *data_801b7618_slot04_sel[];
@@ -29,12 +29,12 @@ void func_801b10d0_slot04_sel(Object *obj, Slot04SelRec *rec) {
             rec->confirm_mask = data_801b9cec_slot04_sel;
             s2->x = data_801b6e7c_slot04_sel[obj->side];
             s2->y = s3->row_height * (data_801b9ce8_slot04_sel + 1) + 0x60;
-            func_801519b4(s3);
-            func_801519b4(s2);
-            func_801519b4(data_801b7504_slot04_sel[obj->side]);
+            add_item_to_table(s3);
+            add_item_to_table(s2);
+            add_item_to_table(data_801b7504_slot04_sel[obj->side]);
             if (rec->confirm_mask != 0) {
                 data_8016e694[obj->side] = data_801b9ce8_slot04_sel;
-                func_801205c4(obj->side, 1);
+                call_func_with_side_x_origin(obj->side, 1);
                 s3->buf[data_801b7348_slot04_sel[0]] = 0x1b;
                 s3->buf[data_801b7348_slot04_sel[1]] = 0x1b;
                 s3->buf[data_801b7348_slot04_sel[data_801b9ce8_slot04_sel]] = data_801b7350_slot04_sel[obj->side];
@@ -42,7 +42,7 @@ void func_801b10d0_slot04_sel(Object *obj, Slot04SelRec *rec) {
                 if (obj->field_d8 != 0) {
                     obj->field_d4 = (obj->field_d4 & 1) + 4;
                     ref_other.p = obj;
-                    func_801b1984_slot04_sel();
+                    check_opposite_player_same_selection_slot04_sel();
                     if (data_8019045c[0] != 0) {
                         obj->field_d4 = obj->field_d4 ^ data_8019045c[0];
                     }
@@ -50,10 +50,10 @@ void func_801b10d0_slot04_sel(Object *obj, Slot04SelRec *rec) {
                 rec->state = rec->state + 1;
             }
         } else if (((game_state.mode >> obj->side) & 1) == 0) {
-            func_801519b4(data_801b6f64_slot04_sel[obj->side]);
+            add_item_to_table(data_801b6f64_slot04_sel[obj->side]);
         } else {
-            func_801519b4(s3);
-            func_801519b4(data_801b7504_slot04_sel[obj->side]);
+            add_item_to_table(s3);
+            add_item_to_table(data_801b7504_slot04_sel[obj->side]);
         }
     } else {
         rec->state = 2;

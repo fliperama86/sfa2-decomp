@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b56e0_slot04_17(Object *obj);
+int apply_velocity_and_acceleration_slot04_17(Object *obj);
 
 void func_801b2730_slot04_17(Object *obj) {
-    func_801b56e0_slot04_17(obj);
+    apply_velocity_and_acceleration_slot04_17(obj);
     if (obj->pos_y <= obj->ground_y - 0x8a) {
         obj->state_3++;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x2d);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x2d);
     } else {
         update_sequence(obj);
     }

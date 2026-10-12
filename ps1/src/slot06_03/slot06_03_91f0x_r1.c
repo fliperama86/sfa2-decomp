@@ -5,7 +5,7 @@
 
 void func_801369b0(Cam *cam);
 
-void func_801e91f0_slot06_03(Slot06Layer *layer) {
+void update_layer_half_parallax_by_mode_slot06_03(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 

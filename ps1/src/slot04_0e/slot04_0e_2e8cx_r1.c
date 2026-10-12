@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 void func_801b2f58_slot04_0e(Object *obj);
-void func_801b4914_slot04_0e(Object *obj);
+void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 
-void func_801b2e8c_slot04_0e(Object *o) {
+void update_arc_land_on_wall_push_check_slot04_0e(Object *o) {
     /* Stand-in, not recovered source: the one 8-bit local a, which holds the field, then the facing, then the sequence number, reproduces the original's choice of registers. Without it this function differs from the original in 9 instruction slots. */
     /* The figure is for each of the three values in a u8 local of its own. Only the sequence number in a local of its own: 3 slots. The one local as an int: 2 slots; without the (s8) cast below: 7. */
     u8 a;
 
-    func_801b4914_slot04_0e(o);
+    apply_velocity_and_accel_to_position_slot04_0e(o);
     if (o->ground_y < o->pos_y) {
         func_801b2f58_slot04_0e(o);
     } else if ((s16)(o->ground_y - 0x30) < o->pos_y) {
@@ -33,8 +33,8 @@ void func_801b2e8c_slot04_0e(Object *o) {
             if (o->field_49 == 0) {
                 a = 0x2e;
             }
-            func_801307e0(o, a);
-            func_801209c4(o);
+            set_sequence_by_side_and_mode(o, a);
+            play_object_sound_by_kind(o);
         }
     }
 }

@@ -7,7 +7,7 @@ extern u16 data_8004c2f8_slot28[];
 extern u16 data_8004bef8_slot28[];
 extern void (*data_8004c724_slot28[])(Object *);
 
-void func_800251e0_slot28(Object *obj) {
+void copy_two_tables_to_row_pairs_6_slot28(Object *obj) {
     int i;
     for (i = 0; i < 0x200; i++) {
         data_801a27e4_rows[0][i] = data_8004c2f8_slot28[i];

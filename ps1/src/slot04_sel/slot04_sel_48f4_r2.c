@@ -6,7 +6,7 @@
 extern void (*data_801b8ca8_slot04_sel[])(Object *, Slot04SelRec9d78 *);
 extern Slot04SelRec9d78 data_801b9d78_slot04_sel[];
 
-void func_801b4b18_slot04_sel(Object *unused_obj, Slot04SelRec9d78 *unused_rec) {
+void finish_selection_and_advance_substep_slot04_sel(Object *unused_obj, Slot04SelRec9d78 *unused_rec) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     Object *p = &player_left;
@@ -31,7 +31,7 @@ void func_801b4b18_slot04_sel(Object *unused_obj, Slot04SelRec9d78 *unused_rec) 
     data_801ae028 = 0;
 }
 
-void func_801b4c18_slot04_sel(Object *obj, Slot04SelRec9d78 *rec) {
+void init_selection_record_initial_value_3_slot04_sel(Object *obj, Slot04SelRec9d78 *rec) {
     rec->field_00 = 0;
     rec->selection_index = 0;
     rec->field_04 = 0;

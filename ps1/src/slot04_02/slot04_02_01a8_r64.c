@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b772c_slot04_02(Object *obj, Object *parent);
+int dispatch_table_pick_by_table_index_slot04_02(Object *obj, Object *parent);
 
 void func_801b72b0_slot04_02(Object *obj) {
     if (obj->table_index != 0) {
-        func_801b772c_slot04_02(obj, obj->parent);
+        dispatch_table_pick_by_table_index_slot04_02(obj, obj->parent);
     }
-    func_80137be0(obj);
+    call_state_2_handler_267c_unless_paused(obj);
 }

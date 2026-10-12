@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b4cac_slot04_0f(Object *obj, u16 *mask, BytePair dir);
+int test_input_mask_with_direction_slot04_0f(Object *obj, u16 *mask, BytePair dir);
 
-int func_801b4cac_slot04_0f(Object *obj, u16 *mask, BytePair dir) {
+int test_input_mask_with_direction_slot04_0f(Object *obj, u16 *mask, BytePair dir) {
     u8 a;
     u16 m;
 

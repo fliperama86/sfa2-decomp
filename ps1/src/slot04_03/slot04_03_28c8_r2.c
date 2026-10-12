@@ -9,7 +9,7 @@ void func_801b2a58_slot04_03(Object *obj) {
 
     if (t & 0x8000) {
         obj->state_3 = 0xb;
-        func_801307e0(obj, 0x31);
+        set_sequence_by_side_and_mode(obj, 0x31);
     } else if (t != 0) {
         if (obj->direction_index < 3) {
             goto set;
@@ -19,12 +19,12 @@ void func_801b2a58_slot04_03(Object *obj) {
         if (c & 0x80) {
         set:
             obj->state_3 = 0xb;
-            func_801307e0(obj, 0x31);
+            set_sequence_by_side_and_mode(obj, 0x31);
         } else {
             obj->state_3++;
             play_side_sound_at(obj, obj->side, 6);
             play_side_sound_at(obj, obj->side, 0xc);
-            func_801307e0(obj, 0x2e);
+            set_sequence_by_side_and_mode(obj, 0x2e);
         }
     } else {
         update_sequence(obj);

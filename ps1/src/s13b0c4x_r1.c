@@ -27,10 +27,10 @@ extern s16 table_80197ef8[];
  * (play_sound_at with other's side and table_8017736c[index]), otherwise
  * two (play_sound_at with other's side and 0x32e, then play_side_sound_at with
  * the other side value, side ^ 1, and table_8017736c[index]); then a
- * follow-up step from a table by other's sound_side (func_80120444), left
+ * follow-up step from a table by other's sound_side (stop_sep_by_index), left
  * out when the table entry is 3.
  */
-void func_8013b0c4(Object *object, Object *other, Box32 *g)
+void spawn_hit_effects_and_play_sounds(Object *object, Object *other, Box32 *g)
 {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     /* Without it this function differs from the original in 22 instruction slots. */
@@ -41,7 +41,7 @@ void func_8013b0c4(Object *object, Object *other, Box32 *g)
     int x0;
 
     data_80188f20 = ref_other.p;
-    if ((data_801a27d4 != 0) && ((ref_other.p = (Object *)func_8011f1e0()) != 0)) {
+    if ((data_801a27d4 != 0) && ((ref_other.p = (Object *)pop_block_from_pool()) != 0)) {
         ref_other.p->active_count++;
         ref_other.p->field_02 = 4;
         ref_other.p->team_id = object->team_id;
@@ -66,7 +66,7 @@ void func_8013b0c4(Object *object, Object *other, Box32 *g)
         ref_other.p->variant_index = 0;
         if (other->hit_type & 0x80) {
             ref_other.p->variant_index = 1;
-        } else if (((g->effect_param & 0x80) && (data_801a27d4 != 0)) && ((ref_other.p = (Object *)func_8011f1e0()) != 0)) {
+        } else if (((g->effect_param & 0x80) && (data_801a27d4 != 0)) && ((ref_other.p = (Object *)pop_block_from_pool()) != 0)) {
             ref_other.p->active_count++;
             ref_other.p->field_02 = 4;
             ref_other.p->table_index = g->effect_param;
@@ -105,7 +105,7 @@ void func_8013b0c4(Object *object, Object *other, Box32 *g)
         v = table_80197ef8[k];
         if (v != 3) {
             /* The second argument is the halfword v, passed whole: the original does not mask it here; the callee takes its low byte. */
-            func_80120444(k, v);
+            stop_sep_by_index(k, v);
         }
     }
 }

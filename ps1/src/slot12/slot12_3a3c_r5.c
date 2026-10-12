@@ -8,7 +8,7 @@ extern Slot12Img data_80024450_slot12[];
 void func_80013e24_slot12(int idx) {
     Rect rect;
     Slot12Img *img = &data_80024450_slot12[idx];
-    Job *job = (Job *)func_8011f4a4();
+    Job *job = (Job *)alloc_pooled_b();
     if (job != 0) {
         rect.x = img->rect.x;
         rect.y = img->rect.y;

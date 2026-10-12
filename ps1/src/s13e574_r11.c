@@ -6,7 +6,7 @@
 
 int drain_gauge(Object *object) {
     int v;
-    if (func_8014a170(object, table_8017d598)) {
+    if (test_random_bit_in_table(object, table_8017d598)) {
         v = object->gauge - 1;
         object->gauge = v;
         if ((s16)v >= 0) {

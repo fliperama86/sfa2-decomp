@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3dec_slot04_05(Object *obj) {
+void start_move_or_cancel_with_forward_dash_slot04_05(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x17, 0x14) != 0) {
@@ -15,16 +15,16 @@ void func_801b3dec_slot04_05(Object *obj) {
         if (obj->attack_param_d != 0) {
             obj->active_flag_3 = 1;
             obj->state_3 = 2;
-            func_80141f28(obj, 1);
+            add_to_meter_clamped(obj, 1);
             *(s32 *)&obj->vel_x = 0x68000;
             obj->accel_x = -0x8000;
-            func_801307e0(obj, 0x34);
+            set_sequence_by_side_and_mode(obj, 0x34);
         } else {
             obj->active_flag_3 = 1;
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     } else {
         obj->active_flag_3 = 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

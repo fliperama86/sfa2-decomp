@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b605c_slot04_02(Object *obj) {
+void update_sequence_with_countdown_side_bit_slot04_02(Object *obj) {
     u16 t = obj->step_flags;
     s16 c;
     if ((t & 0xff) == 1) {

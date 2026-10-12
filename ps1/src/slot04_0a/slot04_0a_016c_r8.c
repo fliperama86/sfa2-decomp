@@ -3,6 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b09d0_slot04_0a(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_4_slot04_0a(Object *obj) {
+    update_sequence_with_input_check(obj);
 }

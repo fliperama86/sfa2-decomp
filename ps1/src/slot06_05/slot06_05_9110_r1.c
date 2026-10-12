@@ -11,20 +11,20 @@ extern SequenceStep *data_801ec344_slot06_05[];
 
 
 
-Object *func_8011f32c(void);
+Object *pop_object_from_second_pool(void);
 int rand(void);
-void func_80130700(Object *object, SequenceStep *entry);
+void set_sequence_entry(Object *object, SequenceStep *entry);
 void func_8011f38c(Object *o);
 
-void func_801e9110_slot06_05(Object *obj) {
+void call_handler_by_state_0_slot06_05(Object *obj) {
     data_801ec378_slot06_05[obj->state_0](obj);
 }
 
-void func_801e9150_slot06_05(Object *obj) {
+void init_object_oscillation_and_spawn_child_slot06_05(Object *obj) {
     Object *c;
     u32 x;
     obj->state_0 = obj->state_0 + 1;
-    c = func_8011f32c();
+    c = pop_object_from_second_pool();
     if (c != 0) {
         c->active_count = 1;
         c->field_02 = 0x18;
@@ -44,10 +44,10 @@ void func_801e9150_slot06_05(Object *obj) {
     obj->accel_y = 0;
     obj->spawn_mode = 4;
     obj->vel_y = x;
-    func_80130700(obj, data_801ec344_slot06_05[5]);
+    set_sequence_entry(obj, data_801ec344_slot06_05[5]);
 }
 
-void func_801e920c_slot06_05(Object *obj) {
+void update_object_oscillate_around_target_x_slot06_05(Object *obj) {
     int a;
     int b;
     int v;
@@ -74,18 +74,18 @@ void func_801e920c_slot06_05(Object *obj) {
         }
         advance_sequence_checked(obj);
     }
-    func_80120028(obj);
+    set_flag_and_push_if_mode_8(obj);
 }
 
-void func_801e92d8_slot06_05(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_slot06_05(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e92f8_slot06_05(Object *obj) {
+void call_handler_by_state_0_2_slot06_05(Object *obj) {
     data_801ec388_slot06_05[obj->state_0](obj);
 }
 
-void func_801e9338_slot06_05(Object *obj) {
+void init_object_sequence_by_table_index_slot06_05(Object *obj) {
     int x = 0x800000;
     obj->field_0a = 1;
     obj->vel_x = 0x8000;
@@ -95,10 +95,10 @@ void func_801e9338_slot06_05(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
     obj->spawn_mode = 4;
     obj->vel_y = *(u32 *)&obj->pos_x_frac - x;
-    func_80130700(obj, data_801ec344_slot06_05[obj->table_index]);
+    set_sequence_entry(obj, data_801ec344_slot06_05[obj->table_index]);
 }
 
-void func_801e93b0_slot06_05(Object *obj) {
+void update_object_x_from_masked_accumulator_slot06_05(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         obj->vel_y += obj->vel_x;
         *(u32 *)&obj->pos_x_frac = (obj->vel_y & 0x3ff0000) + obj->accel_y;
@@ -106,15 +106,15 @@ void func_801e93b0_slot06_05(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801e9410_slot06_05(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot06_05(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801e9430_slot06_05(Object *obj) {
+void call_handler_by_state_0_3_slot06_05(Object *obj) {
     data_801ec398_slot06_05[obj->state_0](obj);
 }
 
-void func_801e9470_slot06_05(Object *obj) {
+void init_child_from_parent_position_slot06_05(Object *obj) {
     Object *p = obj->parent;
     obj->image_row = 0;
     obj->field_0c = 0;
@@ -126,10 +126,10 @@ void func_801e9470_slot06_05(Object *obj) {
     obj->scroll_factor = p->scroll_factor;
     *(u16 *)&obj->pos_x = *(u16 *)&p->pos_x;
     *(u16 *)&obj->pos_y = *(u16 *)&p->pos_y;
-    func_80130700(obj, data_801ec344_slot06_05[6]);
+    set_sequence_entry(obj, data_801ec344_slot06_05[6]);
 }
 
-void func_801e94f8_slot06_05(Object *obj) {
+void call_state_handler_then_follow_parent_slot06_05(Object *obj) {
     Object *p = obj->parent;
     s16 a;
     s16 b;
@@ -156,7 +156,7 @@ void func_801e94f8_slot06_05(Object *obj) {
     *(u16 *)&obj->pos_y = *(u16 *)&p->pos_y;
 }
 
-void func_801e9618_slot06_05(Object *obj, int arg) {
+void select_sequence_by_arg_or_random_slot06_05(Object *obj, int arg) {
     int i;
     if ((s16)obj->step_flags & 0x8000) {
         if ((u8)arg != obj->state_1) {
@@ -168,38 +168,38 @@ void func_801e9618_slot06_05(Object *obj, int arg) {
             }
             i = ((rand() & 1) + 0xb) << 2;
         }
-        func_80130700(obj, *(SequenceStep **)((u8 *)data_801ec344_slot06_05 + i));
+        set_sequence_entry(obj, *(SequenceStep **)((u8 *)data_801ec344_slot06_05 + i));
     } else {
 skip:
         advance_sequence_checked(obj);
     }
 }
 
-void func_801e96c0_slot06_05(Object *obj, int arg) {
+void reset_states_on_arg_mismatch_sequence_8_slot06_05(Object *obj, int arg) {
     if (((s16)obj->step_flags & 0x8000) && (u8)arg != obj->state_1) {
         obj->state_0 = 1;
         obj->state_3 = 0;
         obj->state_2 = 0;
         obj->state_1 = 0;
-        func_80130700(obj, data_801ec344_slot06_05[8]);
+        set_sequence_entry(obj, data_801ec344_slot06_05[8]);
     } else {
         advance_sequence_checked(obj);
     }
 }
 
-void func_801e972c_slot06_05(Object *obj, int arg) {
+void restart_sequence_10_if_arg_changed_slot06_05(Object *obj, int arg) {
     if (((s16)obj->step_flags & 0x8000) && (u8)arg != obj->state_1) {
         obj->state_0 = 1;
         obj->state_3 = 0;
         obj->state_2 = 0;
         obj->state_1 = 0;
-        func_80130700(obj, data_801ec344_slot06_05[10]);
+        set_sequence_entry(obj, data_801ec344_slot06_05[10]);
     } else {
         advance_sequence_checked(obj);
     }
 }
 
-void func_801e9798_slot06_05(Object *obj) {
+void unlink_from_parent_and_release_object_slot06_05(Object *obj) {
     Object *p = obj->parent;
     if (p->linked_object == (u32)obj) {
         p->linked_object = 0;

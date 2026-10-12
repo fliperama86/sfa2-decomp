@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011f010(void) {
+void clear_four_144_byte_arrays(void) {
     u8 *a = data_801aa544;
     u8 *b = data_801aa5d4;
     u8 *c = cam_obj;

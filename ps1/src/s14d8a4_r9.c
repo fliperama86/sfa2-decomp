@@ -3,15 +3,15 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014e6b0(void) {
+void skip_three_script_words_3(void) {
     data_80189460 += 3;
 }
 
-void func_8014e6d0(void) {
+void skip_two_script_words(void) {
     data_80189460 += 2;
 }
 
-void func_8014e6f0(void) {
+void skip_one_script_word(void) {
     data_80189460 += 1;
 }
 

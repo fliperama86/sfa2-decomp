@@ -6,7 +6,7 @@
 extern u16 data_800285d4_slot28[];
 extern void (*data_80028a4c_slot28[])(Object *);
 
-void func_80013b9c_slot28(void) {
+void reset_hud_and_game_state_fields_slot28(void) {
     HudState *h = data_8018f5a0;
     h->phase_index = 9;
     game_state.step_delay_timer = 0;
@@ -29,7 +29,7 @@ void func_80013b9c_slot28(void) {
     game_state.field_44 = 1;
 }
 
-void func_80013c38_slot28(Object *o) {
+void copy_table_twice_call_state_handler_slot28(Object *o) {
     u16 *a = data_801a2be4;
     u16 *b = a + 0xa00;
     int i;

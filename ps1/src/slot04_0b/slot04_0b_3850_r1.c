@@ -8,10 +8,10 @@ extern u8 data_801c2eb8_slot04_0b[];
 extern s32 data_801c2ebc_slot04_0b[];
 extern u8 data_801c2ee0_slot04_0b[];
 
-void func_801b39f0_slot04_0b(Object *o, Object *unused);
-void func_801b3e88_slot04_0b(Object *o);
+void call_handler_by_state_1_slot04_0b(Object *o, Object *unused);
+void select_box_data_pointer_by_health_slot04_0b(Object *o);
 
-/* The call of func_801b39f0_slot04_0b passes one argument although the function takes two: the original does not set the second argument register before it. Written with a second parameter passed on, this function is 12 bytes longer than the original. */
+/* The call of call_handler_by_state_1_slot04_0b passes one argument although the function takes two: the original does not set the second argument register before it. Written with a second parameter passed on, this function is 12 bytes longer than the original. */
 void func_801b3850_slot04_0b(Object *o, Object *second) {
     s32 vx;
     s32 dx;
@@ -28,7 +28,7 @@ void func_801b3850_slot04_0b(Object *o, Object *second) {
     ((Slot04aObj *)o)->data_pointer = data_801c284c_slot04_0b;
     if (o->vel_table_index >= 0xc) {
         o->health = data_801c2eb8_slot04_0b[ref_other.p->direction_index >> 1];
-        func_801b3e88_slot04_0b(o);
+        select_box_data_pointer_by_health_slot04_0b(o);
     }
     o->active_state = 0;
     o->vel_y = 0;
@@ -51,5 +51,5 @@ void func_801b3850_slot04_0b(Object *o, Object *second) {
         ((Slot04aObj *)o)->scratchpad_value = *(int *)0x1f800158;
     }
     func_80138070(o, o->vel_table_index >> 1);
-    ((void (*)(Object *))func_801b39f0_slot04_0b)(o);
+    ((void (*)(Object *))call_handler_by_state_1_slot04_0b)(o);
 }

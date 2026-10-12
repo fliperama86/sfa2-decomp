@@ -12,7 +12,7 @@ extern u16 data_801a6966;
    implementation: a port has to give buttons a value on that path. A
    fourth parameter in place of the local was tried and gives other code. */
 /* The call of set_slot_random_timer passes a fourth argument although the callee takes three: the original has entry in the fourth argument register at the call. Written with three arguments, this function differs from the original in 7 instruction slots. */
-void func_8013d520(Object *object, u8 index, u8 arg) {
+void start_slot_stage_from_single_direction(Object *object, u8 index, u8 arg) {
     u16 entry;
     u8 t0;
     int buttons;
@@ -27,7 +27,7 @@ void func_8013d520(Object *object, u8 index, u8 arg) {
         buttons = object->input_bits & 0xf000;
     }
     if ((u16)buttons == 0) {
-        func_8013f2a8(object, (u8)index, (u8)arg);
+        reset_slot_stage_clear_result(object, (u8)index, (u8)arg);
     } else {
         if ((u16)buttons == 0x1000) {
             t0 = 0;
@@ -38,7 +38,7 @@ void func_8013d520(Object *object, u8 index, u8 arg) {
         } else if ((u16)buttons == 0x2000) {
             t0 = 3;
         } else {
-            func_8013f2a8(object, (u8)index, (u8)arg);
+            reset_slot_stage_clear_result(object, (u8)index, (u8)arg);
             return;
         }
         object->slots[(u8)index].stage = object->slots[(u8)index].stage + 1;

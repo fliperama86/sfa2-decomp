@@ -6,5 +6,5 @@
 void func_801b4b68_slot04_02(Object *obj) {
     obj->state_3 = 0x11;
     obj->active_flag_3 = 1;
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x5a);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x5a);
 }

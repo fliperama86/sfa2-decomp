@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0ef4_slot04_10(Object *obj) {
+void update_countdown_set_side_bit_slot04_10(Object *obj) {
     s16 t;
 
     if ((s16)obj->step_flags < 0 && *(u8 *)&((Slot04bObj *)obj)->saved_pos_x_frac == 3 && (s16)obj->countdown < 0x1e) {

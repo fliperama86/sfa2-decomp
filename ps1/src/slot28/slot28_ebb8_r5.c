@@ -17,7 +17,7 @@ void func_8001f258_slot28(Object *obj) {
     ((Slot28Obj *)obj)->pos_y = ((Slot28Obj *)obj)->pos_y - d;
 }
 
-void func_8001f2ac_slot28(Object *obj) {
+void move_down_until_y_c0_then_next_state_1_slot28(Object *obj) {
     ((Slot28Obj *)obj)->pos_y += 0x4000;
     if (obj->pos_y >= 0xc0) {
         obj->pos_y = 0xc0;

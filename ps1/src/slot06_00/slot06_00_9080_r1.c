@@ -5,6 +5,6 @@
 
 extern void (*data_801e9f80_slot06_00[])(Object *);
 
-void func_801e933c_slot06_00(Object *object) {
+void call_handler_by_state_0_2_slot06_00(Object *object) {
     data_801e9f80_slot06_00[object->state_0](object);
 }

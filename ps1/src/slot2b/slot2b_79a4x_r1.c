@@ -7,10 +7,10 @@ extern u16 data_80079910_slot2b[];
 extern s32 data_80079920_slot2b[];
 extern u8 data_8007991c_slot2b[];
 extern u8 data_800798f8_slot2b[];
-void func_80077afc_slot2b(Object *obj);
+void call_handler_by_state_1_slot2b(Object *obj);
 
 /* The local k holds the byte vel_table_index, then the half index idx that is passed to func_80138070: written with a local for each, this function differs from the original in 30 instruction slots. The store of 0 to vel_y before the store of speed_y stays: without it 2 instruction slots differ. The locals dy and speed_y hold the table values before the stores: written in place, 24 and 28 instruction slots differ. */
-void func_800779a4_slot2b(Object *obj) {
+void init_projectile_from_parent_tables_slot2b(Object *obj) {
     Object *p;
     u8 k = obj->vel_table_index;
     int i = (s8)k;
@@ -50,5 +50,5 @@ void func_800779a4_slot2b(Object *obj) {
         obj->frames = data_1f800158;
     }
     func_80138070(obj, k);
-    func_80077afc_slot2b(obj);
+    call_handler_by_state_1_slot2b(obj);
 }

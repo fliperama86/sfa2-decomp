@@ -5,15 +5,15 @@
 
 extern void (*data_801c0924_slot04_0a[])(Object *);
 
-void func_801b4ff0_slot04_0a(Object *obj) {
+void noop_slot00_2_slot04_0a(Object *obj) {
 }
 
-void func_801b4ff8_slot04_0a(Object *obj) {
+void noop_slot00_3_slot04_0a(Object *obj) {
 }
 
-void func_801b5000_slot04_0a(Object *obj) {
+void noop_slot00_4_slot04_0a(Object *obj) {
 }
 
-void func_801b5008_slot04_0a(Object *obj) {
+void call_handler_by_state_0_3_slot04_0a(Object *obj) {
     data_801c0924_slot04_0a[obj->state_0](obj);
 }

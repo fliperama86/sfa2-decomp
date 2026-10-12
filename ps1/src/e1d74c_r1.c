@@ -15,9 +15,9 @@ void func_80158150(Quad *list, int n);
  * Each header count fills a cell and registers it; every 16th cell also gets
  * a row primitive, and the size value moves on along a chain table.
  */
-void func_8011d74c(Object *obj, u16 column, u16 frame, Block172 *second) {
+void build_cell_prim_list_from_history(Object *obj, u16 column, u16 frame, Block172 *second) {
     u16 idx = obj->field_02;
-    u16 *call_block = (u16 *)func_801250c0(obj, frame);
+    u16 *call_block = (u16 *)get_log_record_at_offset(obj, frame);
     u16 dist = data_801900f8[idx] - *call_block + 1;
     u16 size;
     u16 *hdr;

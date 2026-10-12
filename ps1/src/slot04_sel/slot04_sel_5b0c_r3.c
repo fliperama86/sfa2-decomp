@@ -5,7 +5,7 @@
 
 #define SEL (*(int *)&game_state.field_354)
 
-void func_801b60b8_slot04_sel(void) {
+void check_opposite_player_same_selection_3_slot04_sel(void) {
     ObjectRef *ref;
     int *sel = (int *)data_8019045c;
     int v;

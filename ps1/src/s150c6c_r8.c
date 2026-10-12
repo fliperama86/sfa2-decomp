@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80151f64(int a, u8 b, s16 c, s16 d) {
+void add_glyph_8x8_prim(int a, u8 b, s16 c, s16 d) {
     if (b != 0x20) {
         Cmd *cmd = data_8018d13c;
         u8 lo = (b & 0xf) << 3;
@@ -22,7 +22,7 @@ void func_80151f64(int a, u8 b, s16 c, s16 d) {
     }
 }
 
-void func_80151fec(int a, int b, s16 c, s16 d) {
+void add_glyph_8x16_prim(int a, int b, s16 c, s16 d) {
     if ((u8)b != 0x20) {
         int v = b + 0xe0;
         b = v;
@@ -44,7 +44,7 @@ void func_80151fec(int a, int b, s16 c, s16 d) {
     }
 }
 
-void func_80152088(int a, int b, s16 c, s16 d) {
+void add_glyph_16x16_prim(int a, int b, s16 c, s16 d) {
     if ((u8)b != 0x20) {
         int v = b + 0xe0;
         if ((u8)v < 0xe0) {

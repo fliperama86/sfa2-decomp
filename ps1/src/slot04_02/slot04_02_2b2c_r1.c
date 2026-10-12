@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 /* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 5 instruction slots. */
-void func_801b2b2c_slot04_02(Object *obj) {
+void update_sequence_spawn_child_or_finish_slot04_02(Object *obj) {
     Object *p;
     s16 t;
     u16 y;
@@ -46,6 +46,6 @@ void func_801b2b2c_slot04_02(Object *obj) {
             }
         }
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801564f0(void *a, Object *o) {
+void init_name_entry_after_ranking(void *a, Object *o) {
     u8 x, y;
     o->name_char_0 = 0x41;
     o->name_char_1 = 0x60;
@@ -14,12 +14,12 @@ void func_801564f0(void *a, Object *o) {
     o->name_char_count = 0;
     o->countdown_timer = 0x3c;
     o->phase_index++;
-    func_80156898(a, o);
-    func_80156a20(a, o);
+    insert_score_in_table(a, o);
+    insert_score_into_ranking_table(a, o);
     x = o->score_rank;
     y = o->field_121;
     if ((u8)(x + y) >= 12) {
-        func_80156818(a, o);
+        finish_name_entry_update_rank_indices(a, o);
     } else {
         if (y < x) {
             x = y;

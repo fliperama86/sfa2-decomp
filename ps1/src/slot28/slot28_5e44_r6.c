@@ -3,6 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001adb0_slot28(Object *obj) {
+void call_advance_sequence_checked_slot28(Object *obj) {
     advance_sequence_checked(obj);
 }

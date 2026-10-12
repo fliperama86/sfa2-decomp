@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014f4d4(int a, int arg) {
+void set_menu_command_by_code(int a, int arg) {
     s16 b = arg;
     Menu *m = &data_80190948;
     switch (a) {
@@ -13,7 +13,7 @@ void func_8014f4d4(int a, int arg) {
         m->active_flag = 0;
         m->flag_a = 0;
         m->flag_b = 1;
-        func_80150b80(m, b);
+        start_cd_track_from_code(m, b);
         break;
     case 2:
         m->flag_a = 1;

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4dd4_slot04_06(Object *obj) {
+void update_timer_and_spawn_two_children_slot04_06(Object *obj) {
     Object *p;
 
     if (((Slot04aObj *)obj)->timer != 0) {
@@ -14,7 +14,7 @@ void func_801b4dd4_slot04_06(Object *obj) {
     }
     if (((Slot04aObj *)obj)->mode != 0) {
         ((Slot04aObj *)obj)->mode = 0;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->table_index = 2;
@@ -30,7 +30,7 @@ void func_801b4dd4_slot04_06(Object *obj) {
             p->data_ptr_a = obj->data_ptr_a;
             p->data_ptr_b = obj->data_ptr_b;
         }
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->table_index = 3;

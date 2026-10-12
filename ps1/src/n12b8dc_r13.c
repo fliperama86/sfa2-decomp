@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8013bdf4(void) {
+void hit_both_objects_with_type_exception(void) {
     Object *o;
     u32 hi;
 

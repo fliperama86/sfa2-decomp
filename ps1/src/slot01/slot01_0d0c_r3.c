@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80011048_slot01(void) {
+void load_images_and_spawn_two_objects_slot01(void) {
     Rect r;
     Object *o;
     if (data_80197f10 >= 5) {
@@ -43,13 +43,13 @@ void func_80011048_slot01(void) {
         r.h = 0xb;
         func_80157fc4(&r, (u8 *)0x80070fa8);
         func_80157d9c(0);
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->active_count = 1;
             o->field_02 = 0x1a;
             o->table_index = 0;
         }
-        o = (Object *)func_8011f1e0();
+        o = (Object *)pop_block_from_pool();
         if (o != 0) {
             o->active_count = 1;
             o->field_02 = 0xe;

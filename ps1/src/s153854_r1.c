@@ -4,14 +4,14 @@
 #include "protos.h"
 
 
-void func_80153854(Effect *effect) {
+void update_text_until_timer_or_round_count(Effect *effect) {
     int t;
     if (((Actor *)effect)->target->round_count >= 2) {
-        func_80153514((Actor *)effect);
+        init_effect_count_text((Actor *)effect);
     } else {
-        func_80153d7c((Actor *)effect);
+        queue_text_from_table((Actor *)effect);
         if (((Actor *)effect)->owner->mode_flag_2 == 0) {
-            func_80153dfc((Actor *)effect);
+            format_score_text((Actor *)effect);
         }
         t = ((Actor *)effect)->countdown_timer - 1;
         ((Actor *)effect)->countdown_timer = t;
@@ -25,8 +25,8 @@ void func_80153854(Effect *effect) {
 void func_801538f0(Actor *a) {
     a->field_02 = 1;
     if (a->owner->effect_code_bc != 0) {
-        func_80153a38(a);
+        show_round_count_text(a);
     } else {
-        func_8015393c(a);
+        show_round_count_text_or_clear(a);
     }
 }

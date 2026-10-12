@@ -19,7 +19,7 @@ extern SequenceStep *data_80045c58_slot28[];
 void func_80021d94_slot28(Object *obj);
 void func_80021dd0_slot28(void);
 
-void func_800214bc_slot28(Object *obj) {
+void init_slot28_scene_c_objects_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
     Object *b;
     int one = 1;
@@ -27,9 +27,9 @@ void func_800214bc_slot28(Object *obj) {
     h->step_index_2++;
     func_80151020(0x401);
     func_80021dd0_slot28();
-    func_801280f0();
+    start_fade_mode_1_and_wait();
     data_80190568 = one;
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         func_80021d94_slot28(b);
         data_80051b8c_slot28.p = b;
@@ -39,10 +39,10 @@ void func_800214bc_slot28(Object *obj) {
         b->spawn_y = 0x1e0;
         b->image_row = 0;
         b->ot_depth = one;
-        func_80130768(b, 1, data_80045c40_slot28);
+        set_sequence_from_table_5(b, 1, data_80045c40_slot28);
         b->field_01 = one;
     }
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         func_80021d94_slot28(b);
         data_80051ba0_slot28.p = b;
@@ -52,9 +52,9 @@ void func_800214bc_slot28(Object *obj) {
         b->spawn_y = 0x1e0;
         b->image_row = 0;
         b->ot_depth = one;
-        func_80130768(b, 0, data_80045c3c_slot28);
+        set_sequence_from_table_5(b, 0, data_80045c3c_slot28);
     }
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         func_80021d94_slot28(b);
         data_80051b90_slot28[0] = b;
@@ -64,9 +64,9 @@ void func_800214bc_slot28(Object *obj) {
         b->spawn_y = 0x1e0;
         b->image_row = 0;
         b->ot_depth = 5;
-        func_80130768(b, 0, data_80045c4c_slot28);
+        set_sequence_from_table_5(b, 0, data_80045c4c_slot28);
     }
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         func_80021d94_slot28(b);
         data_80051b94_slot28.p = b;
@@ -78,7 +78,7 @@ void func_800214bc_slot28(Object *obj) {
         b->image_row = 0;
         b->ot_depth = 4;
     }
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         func_80021d94_slot28(b);
         data_80051b9c_slot28.p = b;
@@ -89,9 +89,9 @@ void func_800214bc_slot28(Object *obj) {
         b->table_index = one;
         b->vel_y = 0xb8;
         b->ot_depth = 0;
-        func_80130768(b, 0, data_80045c6c_slot28);
+        set_sequence_from_table_5(b, 0, data_80045c6c_slot28);
     }
-    b = (Object *)func_8011f1e0();
+    b = (Object *)pop_block_from_pool();
     if (b != 0) {
         b->field_02 = 0x7a;
         b->ot_depth = 2;
@@ -109,5 +109,5 @@ void func_800214bc_slot28(Object *obj) {
         b->box_tables = (BoxTables *)data_80045c58_slot28;
         data_80051b64_slot28[0] = b;
     }
-    func_8012818c();
+    start_fade_mode_c01_and_wait();
 }

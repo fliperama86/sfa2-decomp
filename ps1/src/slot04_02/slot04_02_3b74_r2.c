@@ -21,7 +21,7 @@ void func_801b3d94_slot04_02(Object *o) {
             o->vel_x = -0x48000;
         }
         play_sound_at(o, o->side, 0x31c);
-        func_801483a4(o, -0x10, 0x58);
+        spawn_children_per_direction_index(o, -0x10, 0x58);
     }
     update_sequence(o);
 }

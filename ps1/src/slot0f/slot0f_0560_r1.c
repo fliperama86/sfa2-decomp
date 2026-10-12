@@ -4,19 +4,19 @@
 #include "../externs.h"
 
 extern s8 data_800f01fc_slot0f;
-void func_800e0784_slot0f(int a);
-void func_800e06b8_slot0f(GameState *g, int x);
+void queue_item_from_table_by_index_slot0f(int a);
+void update_frame_objects_and_effects_slot0f(GameState *g, int x);
 
-void func_800e0560_slot0f(Object *obj) {
+void advance_state_index_and_reinit_slot0f(Object *obj) {
     HudState *h = data_8018f5a0;
     h->state_index++;
     h->phase_index = 0;
     h->step_index = 0;
-    func_80120408();
+    stop_all_keys_clear_table();
     func_8011eb14();
 }
 
-void func_800e05a0_slot0f(int a, int b) {
+void update_blink_counter_and_queue_entries_slot0f(int a, int b) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     int unused[2];
     int hi;
@@ -27,10 +27,10 @@ void func_800e05a0_slot0f(int a, int b) {
         return;
     }
     if (a == 0) {
-        func_800e0784_slot0f(1);
+        queue_item_from_table_by_index_slot0f(1);
     }
     if (data_800f01fc_slot0f & 0x80) {
-        func_800e0784_slot0f(0);
+        queue_item_from_table_by_index_slot0f(0);
     }
     v = data_800f01fc_slot0f;
     hi = v & 0x80;
@@ -47,7 +47,7 @@ void func_800e05a0_slot0f(int a, int b) {
     data_800f01fc_slot0f = hi | lo;
 }
 
-void func_800e0640_slot0f(GameState *g) {
+void update_countdown_timer_and_run_frame_slot0f(GameState *g) {
     int x;
     if (g->field_4f != 0) {
         return;
@@ -62,5 +62,5 @@ void func_800e0640_slot0f(GameState *g) {
             g->countdown_timer_b = g->reload_value;
         }
     }
-    func_800e06b8_slot0f(g, x);
+    update_frame_objects_and_effects_slot0f(g, x);
 }

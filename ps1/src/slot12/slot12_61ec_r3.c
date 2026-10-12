@@ -9,9 +9,9 @@ extern SequenceStep *data_800287a4_slot12[];
 extern u8 data_8002bfe8_slot12[];
 extern u8 data_8002c128_slot12[];
 extern u8 data_8002c268_slot12[];
-void func_80014434_slot12(Object *obj, Slot12Prim *a, int b, int c);
+void init_two_prims_with_draw_mode_slot12(Object *obj, Slot12Prim *a, int b, int c);
 
-void func_80016368_slot12(Object *obj) {
+void init_slot12_variant_sprite_slot12(Object *obj) {
     FrameRecord *rec = table_8016e614;
     u8 t;
 
@@ -23,16 +23,16 @@ void func_80016368_slot12(Object *obj) {
     rec += ((Slot12Obj *)obj)->entry_count;
     switch (obj->variant_index) {
     case 0:
-        func_80130768(obj, rec->level, data_8002874c_slot12);
-        func_80014434_slot12(obj, (Slot12Prim *)(data_8002bfe8_slot12 + obj->table_index * 64), 0x20, 0x20);
+        set_sequence_from_table_5(obj, rec->level, data_8002874c_slot12);
+        init_two_prims_with_draw_mode_slot12(obj, (Slot12Prim *)(data_8002bfe8_slot12 + obj->table_index * 64), 0x20, 0x20);
         break;
     case 1:
-        func_80130768(obj, 0, data_800287a0_slot12);
-        func_80014434_slot12(obj, (Slot12Prim *)(data_8002c128_slot12 + obj->table_index * 64), 0x20, 0x20);
+        set_sequence_from_table_5(obj, 0, data_800287a0_slot12);
+        init_two_prims_with_draw_mode_slot12(obj, (Slot12Prim *)(data_8002c128_slot12 + obj->table_index * 64), 0x20, 0x20);
         break;
     case 2:
-        func_80130768(obj, 0, data_800287a4_slot12);
-        func_80014434_slot12(obj, (Slot12Prim *)(data_8002c268_slot12 + obj->table_index * 64), 0x20, 0x10);
+        set_sequence_from_table_5(obj, 0, data_800287a4_slot12);
+        init_two_prims_with_draw_mode_slot12(obj, (Slot12Prim *)(data_8002c268_slot12 + obj->table_index * 64), 0x20, 0x10);
         break;
     }
     obj->pos_x = obj->pos_x + 8;

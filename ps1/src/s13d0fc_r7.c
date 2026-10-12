@@ -9,7 +9,7 @@ u8 func_8013e3b4(Object *object, u8 index, u8 arg) {
     return data_80188f44;
 }
 
-void func_8013e408(Object *object, u8 index, u8 arg) {
+void start_slot_stage_match_pressed_bits(Object *object, u8 index, u8 arg) {
     u16 entry;
     int mask;
 
@@ -17,13 +17,13 @@ void func_8013e408(Object *object, u8 index, u8 arg) {
     entry = table_8017a8cc[arg * 7];
     mask = entry & 0xf0ff;
     if ((mask & object->pressed_bits) == 0) {
-        func_8013f2a8(object, index, arg);
+        reset_slot_stage_clear_result(object, index, arg);
     } else {
         object->slots[index].stage++;
         if (entry & 1) {
-            func_8013f2d8(object, index, arg);
+            reset_slot_stage_set_result(object, index, arg);
         } else {
-            func_8013f0c8(object, index, arg);
+            set_slot_random_timer_and_advance(object, index, arg);
         }
     }
 }

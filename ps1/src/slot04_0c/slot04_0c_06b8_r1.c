@@ -3,52 +3,52 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_8013d210(Object *object);
-int func_8013d1a8(Object *object);
+u8 get_pressed_bit_8(Object *object);
+int is_pressed_bits_in_table(Object *object);
 int func_8013cb70(Object *object, u8 index, u8 arg);
 int func_8013cbdc(Object *object, u8 index, u8 arg);
 int func_8013cc48(Object *object, u8 index, u8 arg);
-u8 func_801417cc(Object *object);
-int func_80141e34(Object *object);
-int func_80141b28(Object *object);
+u8 try_action_clearing_both_flags(Object *object);
+int is_not_state_2_five(Object *object);
+int try_spend_meter_for_action(Object *object);
 void func_80142718(Object *object);
 void func_80142778(Object *object);
 /* functions of other units of this module */
-int func_801b0f9c_slot04_0c(Object *obj);
-int func_801b0f18_slot04_0c(Object *obj);
-int func_801b1010_slot04_0c(Object *obj);
-void func_801b0eb0_slot04_0c(Object *obj);
+int try_enter_state_07_move_0_slot04_0c(Object *obj);
+int try_enter_state_7_kind_1_unlinked_slot04_0c(Object *obj);
+int try_enter_state_7_kind_3_slot04_0c(Object *obj);
+void start_move_sequence_19_lock_other_slot04_0c(Object *obj);
 
-int func_801b08d4_slot04_0c(Object *obj);
-int func_801b0958_slot04_0c(Object *obj);
-int func_801b09bc_slot04_0c(Object *obj);
-void func_801b0a24_slot04_0c(Object *obj);
-int func_801b0a3c_slot04_0c(Object *obj);
-int func_801b0b30_slot04_0c(Object *obj);
-int func_801b0bf4_slot04_0c(Object *obj);
-int func_801b0c80_slot04_0c(Object *obj);
+int try_start_meter_move_type_c_slot04_0c(Object *obj);
+int try_enter_state_7_via_0a24_state_3_0_slot04_0c(Object *obj);
+int try_enter_state_7_via_0a24_state_3_3_slot04_0c(Object *obj);
+void restore_facing_side_slot04_0c(Object *obj);
+int try_start_meter_move_state_8_type_8_slot04_0c(Object *obj);
+int try_enter_state_7_kind_7_or_9_slot04_0c(Object *obj);
+int try_start_meter_move_type_b_with_input_slot04_0c(Object *obj);
+int try_start_meter_move_type_4_link_check_slot04_0c(Object *obj);
 int func_801b0d1c_slot04_0c(Object *obj);
 int func_801b0da8_slot04_0c(Object *obj);
-void func_801b0df8_slot04_0c(Object *obj);
+void start_move_sequence_1a_lock_other_slot04_0c(Object *obj);
 int func_801b0e60_slot04_0c(Object *obj);
 
-void func_801b06b8_slot04_0c(Object *obj) {
-    if (func_8013d21c(obj, 8, 0x18) && func_801b08d4_slot04_0c(obj)) return;
-    if (func_8013d21c(obj, 9, 0x1f) && func_801b0958_slot04_0c(obj)) return;
-    if (func_8013d21c(obj, 10, 0x20) && func_801b09bc_slot04_0c(obj)) return;
-    if (func_8013d210(obj) && func_801b0b30_slot04_0c(obj)) return;
-    if ((u8)func_8013d1a8(obj) && func_801b0a3c_slot04_0c(obj)) return;
-    if ((u8)func_8013cb70(obj, 0, 0x14) && func_801b0c80_slot04_0c(obj)) return;
+void select_slot04_0c_action_from_inputs_slot04_0c(Object *obj) {
+    if (func_8013d21c(obj, 8, 0x18) && try_start_meter_move_type_c_slot04_0c(obj)) return;
+    if (func_8013d21c(obj, 9, 0x1f) && try_enter_state_7_via_0a24_state_3_0_slot04_0c(obj)) return;
+    if (func_8013d21c(obj, 10, 0x20) && try_enter_state_7_via_0a24_state_3_3_slot04_0c(obj)) return;
+    if (get_pressed_bit_8(obj) && try_enter_state_7_kind_7_or_9_slot04_0c(obj)) return;
+    if ((u8)is_pressed_bits_in_table(obj) && try_start_meter_move_state_8_type_8_slot04_0c(obj)) return;
+    if ((u8)func_8013cb70(obj, 0, 0x14) && try_start_meter_move_type_4_link_check_slot04_0c(obj)) return;
     if ((u8)func_8013cbdc(obj, 1, 0x15) && func_801b0d1c_slot04_0c(obj)) return;
-    if ((u8)func_8013cc48(obj, 2, 0x17) && func_801b0bf4_slot04_0c(obj)) return;
-    if ((u8)func_8013de2c(obj, 3, 4) && func_801b0f9c_slot04_0c(obj)) return;
-    if ((u8)func_8013de2c(obj, 4, 0) && func_801b0f18_slot04_0c(obj)) return;
-    if ((u8)func_8013de2c(obj, 5, 3) && func_801b1010_slot04_0c(obj)) return;
+    if ((u8)func_8013cc48(obj, 2, 0x17) && try_start_meter_move_type_b_with_input_slot04_0c(obj)) return;
+    if ((u8)func_8013de2c(obj, 3, 4) && try_enter_state_07_move_0_slot04_0c(obj)) return;
+    if ((u8)func_8013de2c(obj, 4, 0) && try_enter_state_7_kind_1_unlinked_slot04_0c(obj)) return;
+    if ((u8)func_8013de2c(obj, 5, 3) && try_enter_state_7_kind_3_slot04_0c(obj)) return;
     if ((u8)func_8013de2c(obj, 6, 0xe) && func_801b0da8_slot04_0c(obj)) return;
     if ((u8)func_8013de2c(obj, 7, 0xd)) func_801b0e60_slot04_0c(obj);
 }
 
-int func_801b08d4_slot04_0c(Object *obj) {
+int try_start_meter_move_type_c_slot04_0c(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj)) {
@@ -64,47 +64,47 @@ int func_801b08d4_slot04_0c(Object *obj) {
     return r;
 }
 
-int func_801b0958_slot04_0c(Object *obj) {
+int try_enter_state_7_via_0a24_state_3_0_slot04_0c(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 7;
         obj->state_3 = 0;
-        func_801b0a24_slot04_0c(obj);
+        restore_facing_side_slot04_0c(obj);
     }
     return r;
 }
 
-int func_801b09bc_slot04_0c(Object *obj) {
+int try_enter_state_7_via_0a24_state_3_3_slot04_0c(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_2 = 7;
         obj->state_1 = 0;
         obj->state_3 = 3;
-        func_801b0a24_slot04_0c(obj);
+        restore_facing_side_slot04_0c(obj);
     }
     return r;
 }
 
-void func_801b0a24_slot04_0c(Object *obj) {
+void restore_facing_side_slot04_0c(Object *obj) {
     obj->facing_side = obj->saved_facing;
     obj->field_15a = 10;
     obj->active_flag_3 = 0;
 }
 
-int func_801b0a3c_slot04_0c(Object *obj) {
+int try_start_meter_move_state_8_type_8_slot04_0c(Object *obj) {
     int r = 0;
 
     if (obj->field_292 == 0) {
         if ((s16)obj->meter >= 0x30) {
             if (obj->active_state == 0) {
-                if ((u8)func_80141e34(obj)) {
+                if ((u8)is_not_state_2_five(obj)) {
                     if ((u8)func_80141788(obj)) {
                         r = 1;
                         obj->state_0 = 1;
@@ -130,7 +130,7 @@ int func_801b0a3c_slot04_0c(Object *obj) {
     return r;
 }
 
-int func_801b0b30_slot04_0c(Object *obj) {
+int try_enter_state_7_kind_7_or_9_slot04_0c(Object *obj) {
     int r = 0;
 
     if (obj->active_state != 0) {
@@ -144,7 +144,7 @@ int func_801b0b30_slot04_0c(Object *obj) {
                 obj->field_15a = 9;
             }
         }
-    } else if (func_801417cc(obj)) {
+    } else if (try_action_clearing_both_flags(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -156,7 +156,7 @@ int func_801b0b30_slot04_0c(Object *obj) {
     return r;
 }
 
-int func_801b0bf4_slot04_0c(Object *obj) {
+int try_start_meter_move_type_b_with_input_slot04_0c(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter >= 0x30 && (u8)func_80141788(obj)) {
@@ -173,7 +173,7 @@ int func_801b0bf4_slot04_0c(Object *obj) {
     return r;
 }
 
-int func_801b0c80_slot04_0c(Object *obj) {
+int try_start_meter_move_type_4_link_check_slot04_0c(Object *obj) {
     int r = 0;
 
     if ((s16)obj->meter >= 0x30) {
@@ -214,14 +214,14 @@ int func_801b0d1c_slot04_0c(Object *obj) {
 int func_801b0da8_slot04_0c(Object *obj) {
     int r = 0;
 
-    if ((u8)func_80141b28(obj)) {
+    if ((u8)try_spend_meter_for_action(obj)) {
         r = 1;
-        func_801b0df8_slot04_0c(obj);
+        start_move_sequence_1a_lock_other_slot04_0c(obj);
     }
     return r;
 }
 
-void func_801b0df8_slot04_0c(Object *obj) {
+void start_move_sequence_1a_lock_other_slot04_0c(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
@@ -236,15 +236,15 @@ void func_801b0df8_slot04_0c(Object *obj) {
     obj->field_157 = 0;
     obj->field_6b = 0;
     obj->other->field_6b = 0x17;
-    func_801307e0(obj, 0x1a);
+    set_sequence_by_side_and_mode(obj, 0x1a);
 }
 
 int func_801b0e60_slot04_0c(Object *obj) {
     int r = 0;
 
-    if ((u8)func_80141b28(obj)) {
+    if ((u8)try_spend_meter_for_action(obj)) {
         r = 1;
-        func_801b0eb0_slot04_0c(obj);
+        start_move_sequence_19_lock_other_slot04_0c(obj);
     }
     return r;
 }

@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80014288_slot12(Object *o);
-void func_80013ed8_slot12(Object *obj);
-void func_80013b5c_slot12(int a);
+void advance_hud_phase_index_and_reset_slot12(Object *o);
+void spawn_pool_blocks_or_fail_slot12(Object *obj);
+void init_palette_buffers_from_table_slot12(int a);
 void func_80013bec_slot12(void);
-void func_80013e04_slot12(Object *obj);
-void func_80013a3c_slot12(Object *obj);
+void call_image_job_with_index_0_slot12(Object *obj);
+void copy_rank_palette_to_two_buffers_slot12(Object *obj);
 
-void func_800138cc_slot12(Object *obj) {
+void advance_right_rank_and_reload_screen_slot12(Object *obj) {
     Rect rect;
     Object *p;
     HudState *h = data_8018f5a0;
@@ -19,9 +19,9 @@ void func_800138cc_slot12(Object *obj) {
     game_state.field_2bc = 0;
     game_state.right_rank_index--;
     if (game_state.right_rank_index == 5) {
-        func_80014288_slot12(obj);
+        advance_hud_phase_index_and_reset_slot12(obj);
     } else {
-        func_801280f0();
+        start_fade_mode_1_and_wait();
         func_80151020(0x606);
         func_8011eb14();
         func_8011eae4();
@@ -39,13 +39,13 @@ void func_800138cc_slot12(Object *obj) {
         rect.h = 0x100;
         func_80157fc4(&rect, (u8 *)0x800b9000);
         func_80157d9c(0);
-        func_80013ed8_slot12(obj);
-        func_80013b5c_slot12(1);
+        spawn_pool_blocks_or_fail_slot12(obj);
+        init_palette_buffers_from_table_slot12(1);
         func_80013bec_slot12();
-        func_80013e04_slot12(obj);
-        func_80013a3c_slot12(obj);
-        func_80137220(0, 6);
-        p = (Object *)func_8011f1e0();
+        call_image_job_with_index_0_slot12(obj);
+        copy_rank_palette_to_two_buffers_slot12(obj);
+        queue_image_upload_job(0, 6);
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->table_index = 3;
             p->active_count = 1;

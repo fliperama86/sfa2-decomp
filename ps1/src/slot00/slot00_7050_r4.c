@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern void (*data_80079948_slot00[])(Object *);
-void func_800776a8_slot00(Object *obj, short delta);
+void add_delta_to_parent_if_counter_zero_slot00(Object *obj, short delta);
 
-void func_800773b8_slot00(Object *o) {
+void update_follower_copy_parent_position_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
     Object *other;
     if (game_state.field_65 == 0 && game_state.field_a8 == 0) {
@@ -23,7 +23,7 @@ void func_800773b8_slot00(Object *o) {
     func_8011ffdc(o);
 }
 
-void func_80077490_slot00(Object *obj) {
+void next_state_if_parent_step_flag_clear_slot00(Object *obj) {
     if ((obj->parent->step_flags & 0x80) == 0) {
         obj->state_0 = obj->state_0 + 1;
     }
@@ -31,5 +31,5 @@ void func_80077490_slot00(Object *obj) {
 
 void func_800774c4_slot00(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
-    func_800776a8_slot00(obj, 5);
+    add_delta_to_parent_if_counter_zero_slot00(obj, 5);
 }

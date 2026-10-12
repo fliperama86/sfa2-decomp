@@ -6,11 +6,11 @@
 extern ObjectFn data_801c5270_slot04_06[];
 extern ObjectFn data_801c527c_slot04_06[];
 
-void func_801b0724_slot04_06(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_3_slot04_06(Object *obj) {
+    update_sequence_with_input_check(obj);
 }
 
-void func_801b0744_slot04_06(Object *obj) {
+void call_handler_by_direction_index_4_slot04_06(Object *obj) {
     data_801c5270_slot04_06[obj->direction_index >> 1](obj);
 }
 

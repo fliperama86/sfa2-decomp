@@ -8,7 +8,7 @@ extern ObjectRef data_80055f44_slot01;
 extern int data_80055f3c_slot01;
 extern u8 data_80015174_slot01[];
 
-void func_80010104_slot01(void) {
+void init_slot01_screen_and_spawn_objects_slot01(void) {
     u16 pal[80] = {
         0x0000, 0x5840, 0x6040, 0x68c0, 0x7900, 0x7980, 0x79c0, 0x7a04, 0x7a46, 0x7a8a, 0x7acc, 0x7b10, 0x7b54, 0x7b96, 0x7bda, 0x7bde,
         0x0000, 0x2816, 0x3058, 0x3098, 0x38da, 0x411c, 0x495e, 0x51de, 0x5a1e, 0x625e, 0x6a9e, 0x72de, 0x731e, 0x735e, 0x7b9e, 0x7bde,
@@ -31,7 +31,7 @@ void func_80010104_slot01(void) {
     if (data_801abf08 != 0x12) {
         func_801285e0();
     }
-    func_8011a744();
+    init_sprite_tables();
     s2->kind_copy = s1;
     rect.x = 0x70;
     rect.y = 0x1f0;
@@ -52,7 +52,7 @@ void func_80010104_slot01(void) {
         rect.h = 5;
         func_80157fc4(&rect, (u8 *)pal);
         func_80157d9c(0);
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p) {
             p->active_count = 1;
             p->field_02 = 0x95;
@@ -60,7 +60,7 @@ void func_80010104_slot01(void) {
             p->variant_index = s2->team_id;
             p->parent = s2;
         }
-        data_8002ceb0_slot01 = (Object *)func_8011f1e0();
+        data_8002ceb0_slot01 = (Object *)pop_block_from_pool();
         if (data_8002ceb0_slot01) {
             data_8002ceb0_slot01->active_count = 1;
             data_8002ceb0_slot01->field_02 = 0x1b;
@@ -85,9 +85,9 @@ void func_80010104_slot01(void) {
         func_80125dc0(1, 0x20, 0xd, 0);
         func_80125dc0(2, 0x20, 0xd, 0);
         func_80125dc0(3, 0x20, 0xd, 0);
-        func_80137220(0, 6);
-        func_80137220(1, 0);
-        func_80137220(2, 1);
-        func_80137220(3, 2);
+        queue_image_upload_job(0, 6);
+        queue_image_upload_job(1, 0);
+        queue_image_upload_job(2, 1);
+        queue_image_upload_job(3, 2);
     }
 }

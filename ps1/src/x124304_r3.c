@@ -37,7 +37,7 @@ void func_80125b80(GameState *a) {
                     func_80125dc0(0, 1, 8, (player_right.image_row + 2) & 0xff);
                 }
             }
-            func_80137b10();
+            queue_five_jobs();
         }
     } else if ((s16)a->palette_swap_flag != 0) {
         a->palette_swap_flag = 0;
@@ -46,6 +46,6 @@ void func_80125b80(GameState *a) {
         func_801260ac(2, 0x20, 0);
         func_801260ac(3, 0x20, 0);
         func_801260ac(4, 0x20, 0);
-        func_80137b10();
+        queue_five_jobs();
     }
 }

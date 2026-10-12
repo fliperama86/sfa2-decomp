@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3e00_slot04_0a(Object *obj);
+void apply_velocity_and_acceleration_slot04_0a(Object *obj);
 
 void func_801b2b60_slot04_0a(Object *obj) {
     s16 y;
     int a;
-    func_801b3e00_slot04_0a(obj);
+    apply_velocity_and_acceleration_slot04_0a(obj);
     y = obj->ground_y;
     if (obj->pos_y < y) {
         update_sequence(obj);
@@ -26,11 +26,11 @@ void func_801b2b60_slot04_0a(Object *obj) {
                 a = 0x38;
             }
         }
-        func_801307e0(obj, a);
+        set_sequence_by_side_and_mode(obj, a);
     }
 }
 
-void func_801b2bf4_slot04_0a(Object *obj) {
+void set_slide_velocity_when_mode_set_slot04_0a(Object *obj) {
     int a;
     int b;
     if (((Slot04aObj *)obj)->mode != 0) {

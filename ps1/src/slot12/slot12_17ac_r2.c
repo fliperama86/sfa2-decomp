@@ -7,10 +7,10 @@ extern Slot12List data_80022dc4_slot12;
 extern u8 data_800175e0_slot12[];
 extern u8 data_80017630_slot12[];
 extern SequenceStep *table_80017870_slot12[];
-void func_80011a78_slot12(Object *obj, Slot12List *list);
-void func_80011bd8_slot12(Object *obj, Slot12List *list);
+void init_sprite_cells_from_list_slot12(Object *obj, Slot12List *list);
+void position_and_link_scaled_sprite_cells_slot12(Object *obj, Slot12List *list);
 
-void func_800117ec_slot12(Object *obj) {
+void init_slot12_object_by_table_index_slot12(Object *obj) {
     obj->field_0e = 0;
     obj->table_index_2 = 0;
     obj->facing_side = 0;
@@ -24,8 +24,8 @@ void func_800117ec_slot12(Object *obj) {
         obj->field_0c = 0;
         obj->spawn_x = 0;
         obj->spawn_y = 0x1e2;
-        func_80011a78_slot12(obj, &data_80022dc4_slot12);
-        func_80011bd8_slot12(obj, &data_80022dc4_slot12);
+        init_sprite_cells_from_list_slot12(obj, &data_80022dc4_slot12);
+        position_and_link_scaled_sprite_cells_slot12(obj, &data_80022dc4_slot12);
     } else {
         obj->field_01 = 1;
         obj->field_0c = 1;
@@ -38,6 +38,6 @@ void func_800117ec_slot12(Object *obj) {
         obj->field_20 = 0;
         obj->spawn_x = 0;
         obj->data_ptr_b = data_80017630_slot12;
-        func_80130768(obj, 3, table_80017870_slot12);
+        set_sequence_from_table_5(obj, 3, table_80017870_slot12);
     }
 }

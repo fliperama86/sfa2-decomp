@@ -14,7 +14,7 @@ void func_801ca7a4_slot05_06(Object *obj) {
         obj->vel_y = -0x100000;
         obj->vel_x = 0;
         obj->accel_x = 0;
-        func_801307e0(obj, 0x24);
+        set_sequence_by_side_and_mode(obj, 0x24);
     } else {
         a = 0x4000;
         if (obj->facing_side == 0) {

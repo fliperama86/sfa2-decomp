@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801373e8(void) {
+void fill_row_columns_white_once(void) {
     s16 i, j, k;
     u16 *p;
 
@@ -17,7 +17,7 @@ void func_801373e8(void) {
                 }
             }
         }
-        func_80137b10();
+        queue_five_jobs();
         data_8018db10 = data_8018db10 + 1;
     }
 }

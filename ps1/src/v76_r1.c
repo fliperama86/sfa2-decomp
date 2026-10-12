@@ -2,7 +2,7 @@
 #include "externs.h"
 #include "protos.h"
 /* Exact. */
-u8 func_8014a170(Object *object, u32 *table) {
+u8 test_random_bit_in_table(Object *object, u32 *table) {
     u32 mask;
     short i, n;
     u32 v;

@@ -4,19 +4,19 @@
 #include "protos.h"
 
 
-u8 func_80149c30(Object *object) {
+u8 check_script_condition_by_mode(Object *object) {
     u8 mode = object->script_byte_lo & 0xfe;
     if (mode == 0) return 0;
-    if (mode == 2) return func_80149cb0(object);
-    if (mode == 4) return func_80149cc8(object);
-    if (mode == 6) return func_80149cf8(object);
+    if (mode == 2) return is_compare_limit_within_limit_hi(object);
+    if (mode == 4) return tick_counter_21c_is_done(object);
+    if (mode == 6) return is_within_limit_and_y_range_of_other(object);
 }
 
-u8 func_80149cb0(Object *object) {
+u8 is_compare_limit_within_limit_hi(Object *object) {
     return !((s16)object->compare_limit > object->limit_hi_2);
 }
 
-u8 func_80149cc8(Object *object) {
+u8 tick_counter_21c_is_done(Object *object) {
     u8 result;
     if (object->countdown_3 != 0) {
         object->countdown_3--;
@@ -27,7 +27,7 @@ u8 func_80149cc8(Object *object) {
     return result;
 }
 
-u8 func_80149cf8(Object *object) {
+u8 is_within_limit_and_y_range_of_other(Object *object) {
     Object *other;
     int margin;
     if (!((s16)object->compare_limit > object->limit_hi_2)) {
@@ -41,5 +41,5 @@ u8 func_80149cf8(Object *object) {
 }
 
 u8 func_80149d48(Object *object) {
-    return func_80149d6c(object);
+    return is_enemy_unit_or_other_in_range(object);
 }

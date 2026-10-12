@@ -5,7 +5,7 @@
 
 extern u16 *data_801b7d4c_slot04_sel[];
 
-void func_801b310c_slot04_sel(Object *obj, Slot04SelRec9d38 *r) {
+void update_kind_2_4_hold_counters_b_slot04_sel(Object *obj, Slot04SelRec9d38 *r) {
     if (obj->kind == 2 && (*data_801b7d4c_slot04_sel[obj->side] & 0x100) != 0) {
         u8 t = r->field_14 + 1;
         r->field_14 = t;

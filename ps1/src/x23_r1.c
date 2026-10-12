@@ -38,15 +38,15 @@ void draw_text_items(void)
             switch (mode)
           {
             case 0:
-              func_80151f64((int)base, c, x, y);
+              add_glyph_8x8_prim((int)base, c, x, y);
               break;
 
             case 1:
-              func_80151fec((int)base, c, x, y);
+              add_glyph_8x16_prim((int)base, c, x, y);
               break;
 
             case 2:
-              func_80152088((int)base, c, x, y);
+              add_glyph_16x16_prim((int)base, c, x, y);
               break;
 
           }
@@ -92,15 +92,15 @@ void draw_text_items(void)
           switch (mode)
           {
             case 0:
-              func_80151f64((int)base, c, x, y);
+              add_glyph_8x8_prim((int)base, c, x, y);
               break;
 
             case 1:
-              func_80151fec((int)base, c, x, y);
+              add_glyph_8x16_prim((int)base, c, x, y);
               break;
 
             case 2:
-              func_80152088((int)base, c, x, y);
+              add_glyph_16x16_prim((int)base, c, x, y);
               break;
 
           }
@@ -164,7 +164,7 @@ void draw_text_items(void)
         else
         {
           draw:
-          func_80152124(base, c, *(s++), x, y);
+          add_glyph_16x16_prim_paged(base, c, *(s++), x, y);
 
           x = x + step;
         }

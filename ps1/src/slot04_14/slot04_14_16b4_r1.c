@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801417cc(Object *object);
+u8 try_action_clearing_both_flags(Object *object);
 void func_80142718(Object *object);
-void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
+void set_object_states_0_to_3_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
 extern ObjectFnInt data_801c61b0_slot04_14[];
 extern ObjectFn data_801c61f0_slot04_14[];
@@ -23,7 +23,7 @@ u8 func_801b16b4_slot04_14(Object *obj) {
             r = func_801418bc(obj);
             if (r != 0) {
                 obj->field_4b = obj->field_25c;
-                func_801b62a8_slot04_14(obj, 1, 0, 8, 0);
+                set_object_states_0_to_3_slot04_14(obj, 1, 0, 8, 0);
                 obj->field_15a = 9;
                 obj->active_flag_3 = 1;
                 func_80142718(obj);
@@ -37,13 +37,13 @@ u8 func_801b1764_slot04_14(Object *obj) {
     u8 r;
 
     if (obj->field_7e != 0 || obj->link_flags == 0) {
-        r = func_801417cc(obj);
+        r = try_action_clearing_both_flags(obj);
         if (r != 0) {
             obj->field_15a = 10;
             obj->facing_side = obj->saved_facing;
-            func_801b62a8_slot04_14(obj, 1, 0, 7, 0);
+            set_object_states_0_to_3_slot04_14(obj, 1, 0, 7, 0);
             obj->active_flag_3 = 1;
-            func_80142b3c(obj);
+            set_direction_index_from_buttons_group_a(obj);
         }
         return r;
     }
@@ -54,19 +54,19 @@ void func_801b17fc_slot04_14(Object *obj) {
     data_801ad398 = data_801c61b0_slot04_14[obj->field_15a](obj);
 }
 
-int func_801b1844_slot04_14(Object *obj) {
+int return_true_always_slot04_14(Object *obj) {
     return 1;
 }
 
-int func_801b184c_slot04_14(Object *obj) {
+int is_link_flags_zero_slot04_14(Object *obj) {
     return obj->link_flags == 0;
 }
 
-int func_801b1858_slot04_14(Object *obj) {
+int is_active_state_set_slot04_14(Object *obj) {
     return obj->active_state != 0;
 }
 
-int func_801b1864_slot04_14(Object *obj) {
+int is_airborne_without_link_slot04_14(Object *obj) {
     int r = 0;
     int t;
 
@@ -80,7 +80,7 @@ int func_801b1864_slot04_14(Object *obj) {
     return r;
 }
 
-int func_801b18a4_slot04_14(Object *obj) {
+int has_meter_30_and_no_link_slot04_14(Object *obj) {
     u8 r = 0;
 
     if ((s16)obj->meter >= 0x30) {
@@ -93,7 +93,7 @@ int func_801b18d0_slot04_14(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b18e4_slot04_14(Object *obj) {
+int has_meter_30_active_and_no_link_slot04_14(Object *obj) {
     u8 r = 0;
 
     if ((s16)obj->meter >= 0x30) {
@@ -108,7 +108,7 @@ int func_801b1920_slot04_14(Object *obj) {
     return (s16)obj->meter >= 0x90;
 }
 
-int func_801b1934_slot04_14(Object *obj) {
+int has_remaining_count_slot04_14(Object *obj) {
     return obj->remaining_count != 0;
 }
 

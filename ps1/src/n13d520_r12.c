@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80144320(Object *object) {
+void move_by_velocity_then_snap_pos_x(Object *object) {
     int t;
     *(int *)&object->pos_x_frac = *(int *)&object->pos_x_frac + object->vel_x;
     t = object->countdown - 1;

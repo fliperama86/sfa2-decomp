@@ -5,8 +5,8 @@
 
 
 
-/* Written by hand in the form of func_8011fae0, whose form the automatic permutation search had found. */
-void func_8011fb70(u16 *src, u16 *dst)
+/* Written by hand in the form of copy_block_pairs_wide, whose form the automatic permutation search had found. */
+void copy_block_pairs_narrow(u16 *src, u16 *dst)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[4];

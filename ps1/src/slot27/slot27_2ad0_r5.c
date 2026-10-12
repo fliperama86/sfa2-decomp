@@ -5,7 +5,7 @@
 
 extern s16 data_80026a58_slot27[];
 
-void func_80012fd4_slot27(Object *obj) {
+void set_linked_objects_velocity_from_health_slot27(Object *obj) {
     int t;
     int u;
     data_8019045c[0] = 0;

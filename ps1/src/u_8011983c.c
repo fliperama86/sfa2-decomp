@@ -18,10 +18,10 @@ void func_8011983c(void) {
             data_8019093c = z;
             data_80190940 = z;
             func_8011eb14();
-            func_8011a744();
-            func_801199ec();
+            init_sprite_tables();
+            load_images_to_vram();
             if (*(int *)0x1f800000 == 0) {
-                func_801201e8();
+                start_sound_and_set_volumes();
             }
             data_8018f5a0->state_index = data_8018f5a0->state_index + 1;
             break;
@@ -48,9 +48,9 @@ void func_8011983c(void) {
             data_8018f5a0->step_index = 0;
             data_8018f5a0->substep_index = 0;
             data_8018f5a0->step_index_2 = 0;
-            func_80152ee8();
+            switch_to_next_table_entry_and_wait();
             break;
         }
-        func_801192bc(1);
+        request_sound_command_and_switch_thread(1);
     }
 }

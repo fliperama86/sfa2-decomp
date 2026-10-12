@@ -10,7 +10,7 @@
 extern Slot06Tile data_801f685c_slot06_0d[0x78][2];
 
 /* What it does (inferred, not an original name): draws a tile map as sprite
-   records, like func_801e9080_slot06_00, with three differences: the object
+   records, like draw_object_tile_grid_sprites_slot06_00, with three differences: the object
    may be drawn mirrored (facing_side not 0), the layer of field_0e 8 scales part
    of the offset by the object's scroll_factor, and the records take their place in
    a table that interleaves the two buffers. The object selects a layer by its
@@ -26,7 +26,7 @@ extern Slot06Tile data_801f685c_slot06_0d[0x78][2];
    0xc), x and y are read without a first value. Nothing is claimed here
    about whether such a call happens, or about what the original's registers
    hold then. */
-void func_801e9f20_slot06_0d(Object *object) {
+void draw_tile_map_sprites_with_facing_slot06_0d(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

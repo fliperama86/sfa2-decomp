@@ -3,16 +3,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80138ae8(GameState *state, Object *object);
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 
-void func_801b13fc_slot04_15(Object *o) {
+void start_chained_sequence_state_3_slot04_15(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     o->active_flag_4 = 1;
     o->state_3++;
-    func_80141f28(o, 4);
-    func_80138ae8(&game_state, o);
+    add_to_meter_clamped(o, 4);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
     obj->active_flag_2 = 0;
     obj->table_index_3 = 0;
-    func_801307e0(o, 0x27);
+    set_sequence_by_side_and_mode(o, 0x27);
 }

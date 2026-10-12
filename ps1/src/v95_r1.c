@@ -6,7 +6,7 @@
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
 /* Exact. The digit index is written as digits[7 - i] in the loop (no separate pointer local). */
-void func_80156398(TextBuf *text, u32 value)
+void format_bcd_text(TextBuf *text, u32 value)
 {
   u8 digits[8];
   int i;
@@ -37,5 +37,5 @@ void func_80156398(TextBuf *text, u32 value)
   }
 
   text->buf[i] = digits[7 - i] + 0x30;
-  func_801519b4(text);
+  add_item_to_table(text);
 }

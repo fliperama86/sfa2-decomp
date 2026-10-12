@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8013e4a8(Object *object, u8 index, u8 arg)
+void update_slot_stage_pressed_bits_any_match(Object *object, u8 index, u8 arg)
 {
   u16 entry;
   int new_var;
@@ -14,7 +14,7 @@ void func_8013e4a8(Object *object, u8 index, u8 arg)
   object->slots[index].timer--;
   if (object->slots[index].timer == 0)
   {
-    func_8013f2a8(object, index, arg);
+    reset_slot_stage_clear_result(object, index, arg);
   }
   else
   {
@@ -30,11 +30,11 @@ void func_8013e4a8(Object *object, u8 index, u8 arg)
     else
       if (entry & 1)
     {
-      func_8013f2d8(object, index, arg);
+      reset_slot_stage_set_result(object, index, arg);
     }
     else
     {
-      func_8013f0c8(object, index, arg);
+      set_slot_random_timer_and_advance(object, index, arg);
     }
   }
 }

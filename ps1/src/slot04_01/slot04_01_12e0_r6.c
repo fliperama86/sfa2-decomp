@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1b58_slot04_01(Object *obj);
+int move_with_gravity_and_check_ground_slot04_01(Object *obj);
 
-void func_801b1a14_slot04_01(Object *obj) {
+void update_step_count_loop_with_sound_b_slot04_01(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         play_sound_at(obj, obj->side, 0x320);
         ((Slot04aObj *)obj)->step_count += 0xff;
         if (((Slot04aObj *)obj)->step_count & 0x80) {
             obj->state_3++;
-            func_801307e0(obj, 0x21);
+            set_sequence_by_side_and_mode(obj, 0x21);
             return;
         }
     }
@@ -20,8 +20,8 @@ void func_801b1a14_slot04_01(Object *obj) {
 }
 
 void func_801b1aa8_slot04_01(Object *obj) {
-    if (func_801b1b58_slot04_01(obj) != 0) {
-        func_801209c4(obj);
+    if (move_with_gravity_and_check_ground_slot04_01(obj) != 0) {
+        play_object_sound_by_kind(obj);
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         obj->pos_y = obj->ground_y;

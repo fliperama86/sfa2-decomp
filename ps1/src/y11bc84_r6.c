@@ -4,13 +4,13 @@
 #include "protos.h"
 
 
-void func_8011d5b8(Slab172 *p, u32 q) {
+void push_front_of_cell_history(Slab172 *p, u32 q) {
     u8 i = p->field_02;
     u16 k;
     u8 b;
     u32 j;
     k = p->stream_index;
-    func_8011a6b8(data_80183d9c[i][9], data_80183dc4[i][9]);
+    free_slot_chain(data_80183d9c[i][9], data_80183dc4[i][9]);
     for (j = 10; j >= 2; j--) {
         data_80183d74[i][j - 1] = data_80183d74[i][j - 2];
         data_80183d9c[i][j - 1] = data_80183d9c[i][j - 2];

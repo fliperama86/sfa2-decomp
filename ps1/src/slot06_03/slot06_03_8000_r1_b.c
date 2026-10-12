@@ -7,15 +7,15 @@ extern Slot06Tile data_801ee810_slot06_03[2][0xaa];
 extern u16 data_801eb410_slot06_03[];
 extern s16 data_801e9fa4_slot06_03[];
 
-void func_801e84d8_slot06_03(Slot06Layer *layer);
+void init_first_layer_tile_map_slot06_03(Slot06Layer *layer);
 void func_801e8504_slot06_03(void);
-void func_801e8230_slot06_03(Slot06Layer *layer);
-void func_801e8268_slot06_03(Slot06Layer *layer);
-void func_801e830c_slot06_03(Slot06Layer *layer);
-void func_801e8398_slot06_03(Slot06Layer *layer, s16 a, s16 b);
-void func_801e8438_slot06_03(Slot06Layer *layer, s16 a, s16 b);
+void init_layer_motion_and_advance_state_slot06_03(Slot06Layer *layer);
+void move_layer_until_above_screen_slot06_03(Slot06Layer *layer);
+void move_layer_with_x_y_velocity_updates_slot06_03(Slot06Layer *layer);
+void set_random_vel_x_on_direction_change_slot06_03(Slot06Layer *layer, s16 a, s16 b);
+void set_random_vel_y_on_direction_change_slot06_03(Slot06Layer *layer, s16 a, s16 b);
 
-void func_801e8230_slot06_03(Slot06Layer *layer) {
+void init_layer_motion_and_advance_state_slot06_03(Slot06Layer *layer) {
     layer->vel_x = 0x2000;
     layer->accel_x = -0x100;
     layer->vel_y = 0xfffe0000;
@@ -25,13 +25,13 @@ void func_801e8230_slot06_03(Slot06Layer *layer) {
     layer->state_index++;
 }
 
-void func_801e8268_slot06_03(Slot06Layer *layer) {
+void move_layer_until_above_screen_slot06_03(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         *(s32 *)&layer->pos_x += layer->vel_x;
         layer->vel_x += layer->accel_x;
         *(s32 *)&layer->pos_y += layer->vel_y;
         layer->vel_y += layer->accel_y;
-        func_801e8398_slot06_03(layer, 0, layer->pos_x_int);
+        set_random_vel_x_on_direction_change_slot06_03(layer, 0, layer->pos_x_int);
         if ((s16)layer->pos_y_int < -0x13f) {
             layer->accel_y = 0xfffe0000;
             layer->state_index++;
@@ -39,18 +39,18 @@ void func_801e8268_slot06_03(Slot06Layer *layer) {
     }
 }
 
-void func_801e830c_slot06_03(Slot06Layer *layer) {
+void move_layer_with_x_y_velocity_updates_slot06_03(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         *(s32 *)&layer->pos_x += layer->vel_x;
         layer->vel_x += layer->accel_x;
         *(s32 *)&layer->pos_y += layer->vel_y;
         layer->vel_y += layer->accel_y;
-        func_801e8398_slot06_03(layer, 0, layer->pos_x_int);
-        func_801e8438_slot06_03(layer, -0x140, layer->pos_y_int);
+        set_random_vel_x_on_direction_change_slot06_03(layer, 0, layer->pos_x_int);
+        set_random_vel_y_on_direction_change_slot06_03(layer, -0x140, layer->pos_y_int);
     }
 }
 
-void func_801e8398_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
+void set_random_vel_x_on_direction_change_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
     s8 d;
     int x;
     int y;
@@ -73,7 +73,7 @@ void func_801e8398_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
     }
 }
 
-void func_801e8438_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
+void set_random_vel_y_on_direction_change_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
     s8 d;
     int x;
     int y;
@@ -96,7 +96,7 @@ void func_801e8438_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
     }
 }
 
-void func_801e84d8_slot06_03(Slot06Layer *layer) {
+void init_first_layer_tile_map_slot06_03(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eb410_slot06_03;
     layer->data_table = data_801eb410_slot06_03;
     layer->packed_param = 0x5800;
@@ -116,7 +116,7 @@ void func_801e8504_slot06_03(void) {
         c = 0x80;
         do {
             r = &data_801ee810_slot06_03[i][j];
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = c;
             r->sprt.color_g = c;
             r->sprt.color_b = c;

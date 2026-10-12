@@ -6,7 +6,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_80130088(Object *object)
+void set_motion_from_table(Object *object)
 {
   u16 index;
   s32 a;

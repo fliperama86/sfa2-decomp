@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5154_slot04_0a(Object *obj);
+void release_object_record_2_slot04_0a(Object *obj);
 
 void func_801b5048_slot04_0a(Object *obj) {
     Object *p;
@@ -22,12 +22,12 @@ void func_801b5048_slot04_0a(Object *obj) {
     } else {
         t = data_1f800164;
     }
-    func_80130768(obj, 0x15, t);
+    set_sequence_from_table_5(obj, 0x15, t);
 }
 
-void func_801b50f4_slot04_0a(Object *obj) {
+void release_or_advance_by_parent_state_2_slot04_0a(Object *obj) {
     if (obj->parent->state_2 >= 2) {
-        func_801b5154_slot04_0a(obj);
+        release_object_record_2_slot04_0a(obj);
     } else {
         advance_sequence_checked(obj);
         func_8011ffdc(obj);

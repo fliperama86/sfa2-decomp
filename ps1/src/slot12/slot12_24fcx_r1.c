@@ -7,7 +7,7 @@ extern Slot12Tiles *data_80018d80_slot12[];
 extern SlotCell data_80029350_slot12[];
 
 /* The read of value_b into t stands before the test of field_64: written after that test, this function differs from the original in 13 instruction slots. */
-void func_800124fc_slot12(Object *obj, FrameRecord *frames) {
+void add_tile_map_quads_for_frame_slot12(Object *obj, FrameRecord *frames) {
     FrameRecord *f = &frames[obj->sequence->frame_index];
     int t;
     u16 cx;

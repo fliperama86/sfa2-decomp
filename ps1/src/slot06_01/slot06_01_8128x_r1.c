@@ -5,12 +5,12 @@
 
 extern u16 data_80190542;
 
-void func_801e8128_slot06_01(Slot06Layer *layer) {
+void update_layer_by_mode_halved_offset_slot06_01(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 
     if (layer->mode == 0) {
-        func_801361a4((Sprite *)layer, 0xc0, 0);
+        init_sprite_counted((Sprite *)layer, 0xc0, 0);
     } else if (layer->mode == 1) {
         if (game_state.field_65 == 0) {
             *(s32 *)&layer->pos_x += -0x8000;

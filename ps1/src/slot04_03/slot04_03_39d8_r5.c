@@ -6,7 +6,7 @@
 extern SequenceStep **data_801c0aa8_slot04_03;
 extern SequenceStep **data_801c0aac_slot04_03;
 
-void func_801b3f8c_slot04_03(Object *obj, Object *p);
+void follow_parent_frame_param_sequence_slot04_03(Object *obj, Object *p);
 
 void func_801b3eec_slot04_03(Object *obj, Object *p) {
     obj->state_0++;
@@ -20,10 +20,10 @@ void func_801b3eec_slot04_03(Object *obj, Object *p) {
     } else {
         data_801c0aac_slot04_03 = *(SequenceStep ***)0x1f800164;
     }
-    func_801b3f8c_slot04_03(obj, p);
+    follow_parent_frame_param_sequence_slot04_03(obj, p);
 }
 
-void func_801b3f8c_slot04_03(Object *obj, Object *p) {
+void follow_parent_frame_param_sequence_slot04_03(Object *obj, Object *p) {
     obj->field_01 = 0;
     if (p->kind == obj->table_index) {
         if (p->frame->frame_param != 0) {
@@ -34,9 +34,9 @@ void func_801b3f8c_slot04_03(Object *obj, Object *p) {
             if (obj->variant_index != p->frame->frame_param) {
                 obj->variant_index = p->frame->frame_param;
                 if (p->side == 0) {
-                    func_80130768(obj, obj->variant_index, data_801c0aa8_slot04_03);
+                    set_sequence_from_table_5(obj, obj->variant_index, data_801c0aa8_slot04_03);
                 } else {
-                    func_80130768(obj, obj->variant_index, data_801c0aac_slot04_03);
+                    set_sequence_from_table_5(obj, obj->variant_index, data_801c0aac_slot04_03);
                 }
             } else {
                 advance_sequence_checked(obj);

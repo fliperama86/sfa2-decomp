@@ -15,6 +15,6 @@ void func_8001b660_slot28(Object *obj) {
         p = data_800519d8_slot28[2];
         p->state_0 = 2;
         data_80051eb8_slot28[0] = 0xfff;
-        func_80128410();
+        start_fade_command_2a01_1f00_if_idle();
     }
 }

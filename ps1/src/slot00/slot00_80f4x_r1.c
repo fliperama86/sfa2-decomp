@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 extern s32 data_8007a0ac_slot00[];
-void func_80078458_slot00(Object *obj, int mode);
+void set_sequence_by_sound_side_slot00(Object *obj, int mode);
 
 void func_800780f4_slot00(Object *obj) {
     obj->field_a4 = 2;
@@ -18,5 +18,5 @@ void func_800780f4_slot00(Object *obj) {
         obj->vel_x = -data_8007a0ac_slot00[obj->table_index * 2 - 1];
         obj->accel_x = -data_8007a0ac_slot00[obj->table_index * 2 + 1];
     }
-    func_80078458_slot00(obj, 2);
+    set_sequence_by_sound_side_slot00(obj, 2);
 }

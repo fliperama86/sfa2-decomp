@@ -8,18 +8,18 @@ extern Slot06Tile data_801efe80_slot06_11[2][0x190];
 extern Slot06Tile data_801f620c_slot06_11[2][0x100];
 
 void func_801362f4(Sprite *sprite);
-void func_801363ac(Sprite *sprite);
-void func_801368c0(Cam *cam);
-void func_80136abc(void);
+void update_camera_if_active(Sprite *sprite);
+void save_cam_prev_pos_and_set_table_ptr(Cam *cam);
+void update_cam_and_store_scroll_y_diff(void);
 
-void func_801e8504_slot06_11(Slot06Layer *layer) {
+void update_layer_by_mode_then_cam_and_scroll_slot06_11(Slot06Layer *layer) {
     if (layer->mode == 0) {
         func_801362f4((Sprite *)layer);
     } else if (layer->mode == 1) {
-        func_801363ac((Sprite *)layer);
+        update_camera_if_active((Sprite *)layer);
     }
-    func_801368c0((Cam *)layer);
-    func_80136abc();
+    save_cam_prev_pos_and_set_table_ptr((Cam *)layer);
+    update_cam_and_store_scroll_y_diff();
 }
 
 void func_801e8568_slot06_11(Slot06Layer *layer) {
@@ -30,7 +30,7 @@ void func_801e8568_slot06_11(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8594_slot06_11(void) {
+void init_two_tile_groups_gray_slot06_11(void) {
     int i;
     int j;
     Slot06Tile *r;
@@ -43,7 +43,7 @@ void func_801e8594_slot06_11(void) {
         j = 0;
         do {
             r = (Slot06Tile *)((u8 *)data_801efe80_slot06_11 + i * 0x2bc0 + j * 0x1c);
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = 0x80;
             r->sprt.color_g = 0x80;
             r->sprt.color_b = 0x80;
@@ -57,7 +57,7 @@ void func_801e8594_slot06_11(void) {
     do {
         j = 0;
         do {
-            func_80136d1c((Tx *)(i * 0x1c00 + (u32)(t + j)));
+            init_draw_mode_prim_3((Tx *)(i * 0x1c00 + (u32)(t + j)));
             q = (Slot06Sprt16 *)((j * 0x1c + i * 0x1c00) + (u32)sp);
             q->color_r = 0x80;
             q->color_g = 0x80;

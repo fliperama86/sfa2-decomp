@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011f240(Slab172 *s) {
+void reset_and_push_object_to_pool_table(Slab172 *s) {
     if (s->field_02 == 10) {
         if (s->mode != 4) {
             data_801a27cc++;
@@ -13,7 +13,7 @@ void func_8011f240(Slab172 *s) {
     if (s->field_02 == 4) {
         data_801a27d4++;
     }
-    func_80119b3c(s);
+    release_stream_pair_cells(s);
     clear_bytes(s, 0xac);
     s->field_44 = 0;
     s->type_code = 12;

@@ -16,7 +16,7 @@ void func_801b7e34_slot04_02(Object *obj, u8 arg) {
             data_801a2bc4[i] = data_801c7b44_slot04_02[i];
         }
     }
-    func_80137220(0, 6);
+    queue_image_upload_job(0, 6);
 }
 
 void func_801b7ebc_slot04_02(Object *obj) {
@@ -31,6 +31,6 @@ void func_801b7ebc_slot04_02(Object *obj) {
             data_801a2bc4[i] = data_801c7b44_slot04_02[row + i];
         }
     }
-    func_80137220(0, 6);
+    queue_image_upload_job(0, 6);
     obj->variant_index_2++;
 }

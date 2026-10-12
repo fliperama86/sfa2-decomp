@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4674_slot04_01(Object *obj) {
+void init_child_sequence_from_parent_side_slot04_01(Object *obj) {
     obj->spawn_flag = 1;
     obj->state_0++;
     if (obj->parent->side == 0) {
-        func_80130768(obj, obj->variant_index, data_1f8000b4);
+        set_sequence_from_table_5(obj, obj->variant_index, data_1f8000b4);
     } else {
-        func_80130768(obj, obj->variant_index, data_1f800164);
+        set_sequence_from_table_5(obj, obj->variant_index, data_1f800164);
     }
 }
 
@@ -31,7 +31,7 @@ void func_801b46dc_slot04_01(Object *obj) {
     }
     advance_sequence_checked(obj);
     if ((obj->table_index + (game_state.frame_counter + p->side)) & 1) {
-        func_80120028(obj);
+        set_flag_and_push_if_mode_8(obj);
     } else {
         obj->field_01 = 0;
     }

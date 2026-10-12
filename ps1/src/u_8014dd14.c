@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8014dd14(Object *object)
+void decode_input_word_into_object_fields(Object *object)
 {
   s16 v;
   u16 *new_var;

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80129d14(Object *object) {
+void advance_state_3_and_set_sequence_by_side(Object *object) {
     int arg = 0;
     object->state_3 = object->state_3 + 1;
     if (object->mode_flag_2 != 0) {
@@ -19,5 +19,5 @@ void func_80129d14(Object *object) {
         }
     }
     set_sequence_by_side(object, arg);
-    func_80129da8(object);
+    choose_transition_or_update_sequence(object);
 }

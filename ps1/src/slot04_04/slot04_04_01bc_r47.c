@@ -5,7 +5,7 @@
 
 extern SequenceStep **data_801c4670_slot04_04[];
 
-void func_801b40ec_slot04_04(Object *obj, Object *p) {
+void follow_parent_frame_param_sequence_a_slot04_04(Object *obj, Object *p) {
     u8 a;
 
     a = p->frame->frame_param;
@@ -20,12 +20,12 @@ void func_801b40ec_slot04_04(Object *obj, Object *p) {
             advance_sequence_checked(obj);
         } else {
             obj->variant_index = a;
-            func_80130700(obj, data_801c4670_slot04_04[p->side][a]);
+            set_sequence_entry(obj, data_801c4670_slot04_04[p->side][a]);
         }
     }
 }
 
-void func_801b4198_slot04_04(Object *obj, Object *p) {
+void follow_parent_frame_variant_sequence_slot04_04(Object *obj, Object *p) {
     u8 a;
 
     a = p->frame->field_0f;
@@ -40,7 +40,7 @@ void func_801b4198_slot04_04(Object *obj, Object *p) {
             advance_sequence_checked(obj);
         } else {
             obj->variant_index = a;
-            func_80130700(obj, data_801c4670_slot04_04[2 + p->side][a]);
+            set_sequence_entry(obj, data_801c4670_slot04_04[2 + p->side][a]);
         }
     }
 }

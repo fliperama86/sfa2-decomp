@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b27f8_slot04_09(Object *obj);
+void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
 
 void func_801b2ef8_slot04_09(Object *obj) {
     u16 t;
@@ -27,7 +27,7 @@ void func_801b2ef8_slot04_09(Object *obj) {
             obj->vel_x = -0x80000;
             obj->accel_x = 0x8000;
         }
-        func_801307e0(obj, 0x33);
+        set_sequence_by_side_and_mode(obj, 0x33);
     } else if ((u8)t != 2) {
         obj->step_flags = (t & 0xff00) | 2;
         obj->field_165 = 0xff;
@@ -35,12 +35,12 @@ void func_801b2ef8_slot04_09(Object *obj) {
             obj->field_165 = 1;
         }
         play_sound_at(obj, obj->side, 0x31c);
-        func_801483a4(obj, -0x1f, 0x2e);
+        spawn_children_per_direction_index(obj, -0x1f, 0x2e);
     }
 }
 
-void func_801b3000_slot04_09(Object *obj) {
+void advance_state_3_and_update_moving_slot04_09(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    func_801b27f8_slot04_09(obj);
+    stop_x_motion_against_facing_then_move_slot04_09(obj);
     update_sequence(obj);
 }

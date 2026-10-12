@@ -6,18 +6,18 @@
 extern ObjectFn data_801ea530_slot06_0d[];
 extern SequenceStep *data_801eb1b0_slot06_0d[];
 
-Object *func_8011f32c(void);
+Object *pop_object_from_second_pool(void);
 
-void func_801e9a20_slot06_0d(Object *obj) {
+void call_handler_by_state_0_2_slot06_0d(Object *obj) {
     data_801ea530_slot06_0d[obj->state_0](obj);
 }
 
-void func_801e9a60_slot06_0d(Object *o) {
+void spawn_three_child_objects_slot06_0d(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
     Object *c;
     int one = 1;
     o->state_0 = o->state_0 + 1;
-    c = func_8011f32c();
+    c = pop_object_from_second_pool();
     if (c != 0) {
         c->field_02 = 0x19;
         c->spawn_x = 0x60;
@@ -29,7 +29,7 @@ void func_801e9a60_slot06_0d(Object *o) {
         c->image_row = 0;
         *(Object **)&o->linked_object_2 = c;
     }
-    c = func_8011f32c();
+    c = pop_object_from_second_pool();
     if (c != 0) {
         c->table_index = 1;
         c->active_count = 1;
@@ -41,7 +41,7 @@ void func_801e9a60_slot06_0d(Object *o) {
         c->image_row = 0;
         obj->field_30 = (s32)c;
     }
-    c = func_8011f32c();
+    c = pop_object_from_second_pool();
     if (c != 0) {
         c->table_index = 2;
         c->field_02 = 0x19;
@@ -58,5 +58,5 @@ void func_801e9a60_slot06_0d(Object *o) {
     o->image_row = 0;
     o->field_0c = 0;
     o->spawn_mode = 4;
-    func_80130700(o, data_801eb1b0_slot06_0d[4]);
+    set_sequence_entry(o, data_801eb1b0_slot06_0d[4]);
 }

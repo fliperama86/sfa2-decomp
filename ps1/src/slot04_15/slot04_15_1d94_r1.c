@@ -9,20 +9,20 @@ extern ObjectFn data_801c30f8_slot04_15[];
 extern s32 data_801c2df8_slot04_15[];
 extern s32 data_801c2e58_slot04_15[];
 extern u8 data_801c2e88_slot04_15[];
-void func_80142adc(Object *object);
+void start_action_if_buttons_pressed(Object *object);
 void func_801428e4(Object *object);
-void func_80138ae8(GameState *state, Object *object);
-void func_80138b38(GameState *state, Object *object);
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
+void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void func_80145d20(Object *object);
-void func_801483a4(Object *object, int a, int b);
+void spawn_children_per_direction_index(Object *object, int a, int b);
 
-void func_801b1d94_slot04_15(Object *obj) {
+void start_dash_sequence_by_direction_index_slot04_15(Object *obj) {
     u16 a;
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 7);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 7);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     if (obj->facing_side != 0) {
         obj->vel_x = 0x60000;
     } else {
@@ -33,10 +33,10 @@ void func_801b1d94_slot04_15(Object *obj) {
         a = 0x40;
     }
     a += obj->direction_index >> 1;
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }
 
-void func_801b1e28_slot04_15(Object *o) {
+void move_or_launch_from_table_by_mode_slot04_15(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     s32 *t;
     s32 *p;
@@ -61,20 +61,20 @@ void func_801b1e28_slot04_15(Object *o) {
     }
 }
 
-void func_801b2020_slot04_15(Object *obj);
+void apply_gravity_vertical_motion_slot04_15(Object *obj);
 
 void func_801b1f00_slot04_15(Object *obj) {
     int d;
 
-    func_801b2020_slot04_15(obj);
+    apply_gravity_vertical_motion_slot04_15(obj);
     if (obj->ground_y <= obj->pos_y) {
         obj->state_3++;
         obj->pos_y_frac = 0;
         obj->active_state = 0;
         obj->active_flag_4 = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x26);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x26);
     } else {
         if (obj->facing_side != 0) {
             d = obj->vel_x;
@@ -87,17 +87,17 @@ void func_801b1f00_slot04_15(Object *obj) {
     }
 }
 
-void func_801b1fc4_slot04_15(Object *obj) {
+void update_sequence_or_finish_set_other_code_slot04_15(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     } else {
         obj->other->other_state_code = 5;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
-void func_801b2020_slot04_15(Object *obj) {
+void apply_gravity_vertical_motion_slot04_15(Object *obj) {
     s16 t = ((s16 *)&obj->vel_y)[1];
 
     if (t > 0) {
@@ -119,18 +119,18 @@ void func_801b20b8_slot04_15(Object *obj) {
 
     obj->active_flag_4 = 1;
     obj->state_3++;
-    func_80141f28(obj, 6);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 6);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     obj->field_157 = 0;
     a = 0x43;
     if (obj->field_49 == 0) {
         a = 0x31;
     }
     a += obj->direction_index >> 1;
-    func_801307e0(obj, a);
+    set_sequence_by_side_and_mode(obj, a);
 }
 
-void func_801b2134_slot04_15(Object *obj) {
+void launch_from_table_on_step_flag_slot04_15(Object *obj) {
     s32 *t = data_801c2e58_slot04_15;
     s32 *p;
 
@@ -160,8 +160,8 @@ void func_801b21e8_slot04_15(Object *obj) {
         obj->active_flag_4 = 0;
         obj->state_3++;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
-        func_801307e0(obj, 0x34);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x34);
     } else {
         if (obj->facing_side != 0) {
             a = obj->vel_x;
@@ -174,13 +174,13 @@ void func_801b21e8_slot04_15(Object *obj) {
     }
 }
 
-void func_801b22c0_slot04_15(Object *obj) {
+void update_sequence_or_finish_set_other_code_2_slot04_15(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     } else {
         obj->other->other_state_code = 5;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
@@ -193,8 +193,8 @@ void func_801b235c_slot04_15(Object *obj) {
     *(u8 *)&obj->countdown = 0x32;
     func_80145d20(obj);
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
-    func_801307e0(obj, 0x3e);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, 0x3e);
 }
 
 void func_801b23bc_slot04_15(Object *obj) {
@@ -210,7 +210,7 @@ void func_801b23bc_slot04_15(Object *obj) {
         }
         obj->field_165 = a;
         play_sound_at(obj, obj->side, 0x31c);
-        func_801483a4(obj, 0x11, 0x40);
+        spawn_children_per_direction_index(obj, 0x11, 0x40);
     }
     update_sequence(obj);
 }
@@ -227,13 +227,13 @@ void func_801b2448_slot04_15(Object *obj) {
             a = (obj->direction_index >> 1) + 1;
         }
         obj->other_lock = data_801c2e88_slot04_15[a];
-        func_801307e0(obj, 0x35);
+        set_sequence_by_side_and_mode(obj, 0x35);
     } else {
         update_sequence(obj);
     }
 }
 
-void func_801b24e0_slot04_15(Object *obj) {
+void spawn_projectile_child_table_index_2_slot04_15(Object *obj) {
     Object *p;
     s8 t;
     s32 w;
@@ -276,11 +276,11 @@ void func_801b24e0_slot04_15(Object *obj) {
     }
 }
 
-void func_801b2628_slot04_15(Object *obj) {
+void update_sequence_or_finish_sequence_3_slot04_15(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
@@ -288,15 +288,15 @@ void func_801b2668_slot04_15(Object *obj) {
     data_801c30f8_slot04_15[obj->state_3](obj);
 }
 
-void func_801b26a8_slot04_15(Object *obj) {
+void start_slide_sequence_by_direction_index_slot04_15(Object *obj) {
     obj->other_state_code = 2;
     *(s32 *)&obj->vel_x = 0x80000;
     obj->accel_x = -0x8000;
     obj->state_3++;
     func_80145d20(obj);
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x38);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x38);
 }
 
 void func_801b2720_slot04_15(Object *obj) {
@@ -311,7 +311,7 @@ void func_801b2720_slot04_15(Object *obj) {
         }
         obj->field_165 = a;
         play_sound_at(obj, obj->side, 0x31c);
-        func_801483a4(obj, 0xf, 0x44);
+        spawn_children_per_direction_index(obj, 0xf, 0x44);
     }
     update_sequence(obj);
 }

@@ -3,8 +3,8 @@
 #include "externs.h"
 #include "protos.h"
 
-/* Written by hand in the form of func_80136668, which was finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_801366d4(Cam *cam, short step)
+/* Written by hand in the form of move_cam_right, which was finished by hand from a candidate that the automatic permutation search had reshaped. */
+void move_cam_left(Cam *cam, short step)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[8];

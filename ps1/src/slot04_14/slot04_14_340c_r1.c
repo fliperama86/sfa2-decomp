@@ -9,15 +9,15 @@ extern ObjectFn data_801c6398_slot04_14[];
 extern ObjectFn data_801c63a8_slot04_14[];
 
 void set_sequence_by_side(Object *object, int arg);
-void func_8013788c(Object *object);
+void call_side_func_then_queue_job(Object *object);
 void func_80145d20(Object *object);
-void func_80157380(Object *object);
+void spawn_three_child_objects(Object *object);
 void func_801428e4(Object *object);
-void func_80138ae8(GameState *state, Object *object);
-void func_80138b38(GameState *state, Object *object);
-void func_801482e0(Object *parent, int x, int y);
-int func_80130184(Object *object);
-void func_801b3564_slot04_14(Object *obj);
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
+void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
+void spawn_child_object_with_offsets(Object *parent, int x, int y);
+int apply_velocity_and_check_ground(Object *object);
+void move_x_until_slow_then_reset_slot04_14(Object *obj);
 void func_801b3654_slot04_14(Object *obj);
 
 void func_801b340c_slot04_14(Object *obj) {
@@ -30,8 +30,8 @@ void func_801b340c_slot04_14(Object *obj) {
     if (obj->mode_flag_2 != 0) {
         obj->variant_index = obj->facing_side ^ obj->direction_flag;
     }
-    func_80141f28(obj, 2);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 2);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     obj->accel_x = -0x3000;
     obj->vel_x = 0xb8000;
     if (obj->input_dir_second != 0) {
@@ -42,25 +42,25 @@ void func_801b340c_slot04_14(Object *obj) {
         n = 0x64;
         obj->field_252 = 0;
     }
-    func_801307e0(obj, n);
+    set_sequence_by_side_and_mode(obj, n);
     if (obj->field_7e == 0) {
-        func_80157380(obj);
+        spawn_three_child_objects(obj);
         func_801b3654_slot04_14(obj);
     }
 }
 
-void func_801b34e8_slot04_14(Object *obj) {
+void update_sequence_with_signed_x_step_slot04_14(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_3 = obj->state_3 + 1;
         play_side_sound_at(obj, obj->side, 0xc);
-        func_801b3564_slot04_14(obj);
+        move_x_until_slow_then_reset_slot04_14(obj);
     } else {
         obj->pos_x = obj->pos_x + (s8)*(u8 *)&obj->step_flags;
         update_sequence(obj);
     }
 }
 
-void func_801b3564_slot04_14(Object *obj) {
+void move_x_until_slow_then_reset_slot04_14(Object *obj) {
     Object *other = obj->other;
     int t;
 
@@ -83,15 +83,15 @@ void func_801b3564_slot04_14(Object *obj) {
     }
     obj->facing_side = obj->saved_facing;
     other->other_state_code = 5;
-    func_801312b8(obj);
+    reset_object_to_state_1_0_sequence_0(obj);
     if (obj->field_7e == 0) {
-        func_8013788c(obj);
+        call_side_func_then_queue_job(obj);
     }
 }
 
 void func_801b3654_slot04_14(Object *obj) {
     if (obj->field_49 == 0) {
-        func_801379bc(obj, 1);
+        store_image_rows_by_mode_and_queue_job(obj, 1);
     }
 }
 
@@ -106,11 +106,11 @@ void func_801b36c4_slot04_14(Object *obj) {
         func_80145d20(obj);
     }
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
-    func_801307e0(obj, (obj->direction_index >> 1) + 0x3c);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x3c);
 }
 
-void func_801b3730_slot04_14(Object *obj) {
+void update_sequence_spawn_from_table_on_flag_slot04_14(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     s32 unused[2];
     Object *other = obj->other;
@@ -137,12 +137,12 @@ void func_801b3730_slot04_14(Object *obj) {
         play_sound_at(obj, obj->side, 0x31c);
         i = (((u8)obj->step_flags - 1) << 2) & 0x1fc;
         obj->step_flags = obj->step_flags & 0xff00;
-        func_801482e0(obj, *(s16 *)((u8 *)data_801c6390_slot04_14 + i), *(s16 *)((u8 *)data_801c6390_slot04_14 + i + 2));
+        spawn_child_object_with_offsets(obj, *(s16 *)((u8 *)data_801c6390_slot04_14 + i), *(s16 *)((u8 *)data_801c6390_slot04_14 + i + 2));
     }
 }
 
 /* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
-void func_801b382c_slot04_14(Object *obj) {
+void spawn_pooled_child_at_step_flag_one_slot04_14(Object *obj) {
     Object *p;
     u16 y;
 
@@ -202,7 +202,7 @@ void func_801b3998_slot04_14(Object *obj) {
         } else {
             update_sequence(obj);
         }
-    } else if ((u8)func_80130184(obj) != 0) {
+    } else if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         if ((s16)obj->step_flags < 0) {
             obj->active_flag_3 = 0;
             obj->state_3 = obj->state_3 + 1;
@@ -214,28 +214,28 @@ void func_801b3998_slot04_14(Object *obj) {
         obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         n = 0x39;
         if (obj->variant_index == 1) {
             n = 0x38;
         }
-        func_801307e0(obj, n);
+        set_sequence_by_side_and_mode(obj, n);
     }
 }
 
-void func_801b3ab0_slot04_14(Object *obj) {
+void update_airborne_until_landing_slot04_14(Object *obj) {
     int n;
 
-    if ((u8)func_80130184(obj) == 0) {
+    if ((u8)apply_velocity_and_check_ground(obj) == 0) {
         obj->state_3 = obj->state_3 + 1;
         obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         n = 0x39;
         if (obj->variant_index == 1) {
             n = 0x38;
         }
-        func_801307e0(obj, n);
+        set_sequence_by_side_and_mode(obj, n);
     } else {
         update_sequence(obj);
     }
@@ -248,12 +248,12 @@ void func_801b3b2c_slot04_14(Object *obj) {
 void func_801b3b6c_slot04_14(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3 = 1;
-    func_80141f28(obj, 4);
-    func_80138ae8(&game_state, obj);
-    func_801307e0(obj, obj->field_49 != 0 ? 0x68 : 0x37);
+    add_to_meter_clamped(obj, 4);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, obj->field_49 != 0 ? 0x68 : 0x37);
 }
 
-void func_801b3bd0_slot04_14(Object *obj) {
+void advance_to_directional_sequence_at_end_slot04_14(Object *obj) {
     u16 n = 0x32;
 
     if ((s16)obj->step_flags < 0) {
@@ -262,14 +262,14 @@ void func_801b3bd0_slot04_14(Object *obj) {
             n = 0x69;
         }
         n = (obj->direction_index >> 1) + n;
-        func_801307e0(obj, n);
+        set_sequence_by_side_and_mode(obj, n);
     } else {
         update_sequence(obj);
     }
 }
 
 /* The call of pop_object_from_pool passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
-void func_801b3c38_slot04_14(Object *obj) {
+void spawn_child_object_table_4_on_step_flag_slot04_14(Object *obj) {
     Object *p;
     u16 y;
     int x;

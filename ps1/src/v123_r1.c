@@ -6,9 +6,9 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_8012b024(Object *object)
+void update_airborne_motion_simple_or_land(Object *object)
 {
-  if ((u8) func_80130184(object))
+  if ((u8) apply_velocity_and_check_ground(object))
   {
     if ((s16) object->step_flags >= 0)
     {
@@ -26,10 +26,10 @@ void func_8012b024(Object *object)
     object->pos_y = object->ground_y;
     object->active_state = 0;
     object->active_flag_3 = 0;
-    func_801209c4(object);
+    play_object_sound_by_kind(object);
     if (object->mode_flag_2 == 0 && func_8012f970(object))
     {
-      func_8012fe60(object);
+      enter_state_2_6_by_button_input(object);
     }
     else
     {

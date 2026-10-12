@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b08e0_slot04_07(Object *obj) {
+void update_sequence_then_reset_at_end_slot04_07(Object *obj) {
     s16 t;
 
     update_sequence(obj);
     t = obj->step_flags;
     if (t & 0x8000) {
         ((Slot04aObj *)obj)->field_1ca = 0;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else if ((t & 0xff) == 0) {
         /* The listing stores pos_x to itself. Written as the facing-dependent offset with zero in both arms; inferred from the allocation, not known from the original. */
         if (obj->facing_side == 0) {

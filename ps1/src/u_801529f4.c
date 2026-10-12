@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_801529f4(Object *object)
+void set_position_from_parent_offset_table(Object *object)
 {
   int idx;
   int v;

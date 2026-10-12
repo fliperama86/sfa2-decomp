@@ -5,20 +5,20 @@
 
 extern u8 data_801c4164_slot04_04[];
 
-void func_801b0250_slot04_04(Object *obj) {
+void restore_facing_and_set_sequence_0_slot04_04(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->facing_side = obj->saved_facing;
     set_sequence_by_side(obj, 0);
 }
 
-void func_801b0284_slot04_04(Object *obj) {
+void update_sequence_advance_state_2_on_timer_slot04_04(Object *obj) {
     if (game_state.field_64 == 0 || game_state.countdown_timer == 0) {
         obj->state_2++;
     }
     update_sequence(obj);
 }
 
-void func_801b02d4_slot04_04(Object *obj) {
+void start_random_sequence_set_countdown_slot04_04(Object *obj) {
     s16 k;
 
     obj->countdown = 0x3c;
@@ -28,12 +28,12 @@ void func_801b02d4_slot04_04(Object *obj) {
     if ((s16)obj->health != 0x90) {
         k = data_801c4164_slot04_04[get_random_byte() & 0xf];
     }
-    k = (s8)func_80125734(obj, (s8)k);
+    k = (s8)get_input_mapped_value_or_default(obj, (s8)k);
     k += 0x23;
     set_sequence_by_side(obj, k);
 }
 
-void func_801b0370_slot04_04(Object *obj) {
+void count_down_and_set_side_bit_slot04_04(Object *obj) {
     s16 t = obj->countdown;
     if (t != 0) {
         t = t - 1;

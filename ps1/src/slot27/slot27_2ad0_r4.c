@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013b74_slot27(Object *obj);
-void func_80012fd4_slot27(Object *obj);
-void func_80012f64_slot27(Object *obj);
+void load_palette_anim_from_table_index_slot27(Object *obj);
+void set_linked_objects_velocity_from_health_slot27(Object *obj);
+void sync_vec_table_index_from_field_slot27(Object *obj);
 
-void func_80012e84_slot27(void) {
+void update_choice_from_pressed_buttons_slot27(void) {
     Object *p = ref_other.p;
     int *x = (int *)data_8019045c;
     *x = p->field_d8;
@@ -31,7 +31,7 @@ void func_80012e84_slot27(void) {
     }
 }
 
-void func_80012ef8_slot27(Object *obj) {
+void add_y_offset_to_clamped_health_slot27(Object *obj) {
     *(int *)data_8019045c = (s16)obj->y_offset;
     obj->health += *(int *)data_8019045c;
     if (obj->health & 0x8000) {
@@ -40,17 +40,17 @@ void func_80012ef8_slot27(Object *obj) {
     if ((s16)obj->health >= 0x11) {
         obj->health = 0x10;
     }
-    func_80012f64_slot27(obj);
+    sync_vec_table_index_from_field_slot27(obj);
 }
 
-void func_80012f64_slot27(Object *obj) {
+void sync_vec_table_index_from_field_slot27(Object *obj) {
     *(int *)data_8019045c = obj->field_62;
     if (obj->vec_table_index == *(int *)data_8019045c) {
-        func_80012fd4_slot27(obj);
+        set_linked_objects_velocity_from_health_slot27(obj);
     } else {
         obj->vec_table_index = *(int *)data_8019045c;
         *(int *)data_8019045c = *(int *)data_8019045c + 2;
-        func_80013b74_slot27(obj);
-        func_80012fd4_slot27(obj);
+        load_palette_anim_from_table_index_slot27(obj);
+        set_linked_objects_velocity_from_health_slot27(obj);
     }
 }

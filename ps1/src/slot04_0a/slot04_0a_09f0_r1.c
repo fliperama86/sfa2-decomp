@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b09f0_slot04_0a(Object *obj) {
+void advance_state_3_and_set_flags_slot04_0a(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
     obj->field_278 = 1;
 }
 
-void func_801b0a38_slot04_0a(Object *o) {
+void start_sound_and_horizontal_slide_on_mode_slot04_0a(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     if (obj->mode != 0) {
         o->state_3++;
@@ -26,7 +26,7 @@ void func_801b0a38_slot04_0a(Object *o) {
     update_sequence(o);
 }
 
-void func_801b0ab4_slot04_0a(Object *obj) {
+void slide_until_vel_x_zero_then_next_step_slot04_0a(Object *obj) {
     SequenceStep *s;
     FrameRecord *f;
     *(s32 *)&obj->pos_x_frac += obj->vel_x;

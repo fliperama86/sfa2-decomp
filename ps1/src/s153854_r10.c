@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80155c90(Object *o) {
+void init_compare_limit_and_copy_bytes(Object *o) {
     u8 *dst;
     u8 *src;
     int i;
@@ -16,7 +16,7 @@ void func_80155c90(Object *o) {
     }
 }
 
-void func_80155cc8(int amount, s8 side) {
+void add_bcd_score_to_player(int amount, s8 side) {
     Object *o;
     if (!(side & 0x80)) {
         o = &player_left;
@@ -33,7 +33,7 @@ void func_80155cc8(int amount, s8 side) {
     }
 }
 
-void func_80155d4c(int idx_arg, int side_arg) {
+void add_table_bcd_score_to_player(int idx_arg, int side_arg) {
     u8 idx = idx_arg;
     s8 side = side_arg;
     Object *o;

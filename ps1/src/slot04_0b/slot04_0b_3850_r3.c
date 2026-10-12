@@ -5,7 +5,7 @@
 
 extern s32 data_801c2f0c_slot04_0b[];
 
-void func_801b3cc0_slot04_0b(Object *o) {
+void reverse_velocity_when_countdown_ends_slot04_0b(Object *o) {
     o->countdown = (s16)o->countdown - 1;
     if ((s16)o->countdown == 0) {
         o->active_count = 1;

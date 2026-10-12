@@ -6,20 +6,20 @@
 extern u16 data_801e95b8_slot06_13[];
 extern Slot06Tile data_801eec68_slot06_13[2][0xc3];
 
-void func_8013635c(Sprite *sprite);
-void func_801363ac(Sprite *sprite);
-void func_801368c0(Cam *cam);
+void init_sprite_3ff_and_count_pending(Sprite *sprite);
+void update_camera_if_active(Sprite *sprite);
+void save_cam_prev_pos_and_set_table_ptr(Cam *cam);
 
-void func_801e8540_slot06_13(Slot06Layer *layer) {
+void update_layer_by_mode_then_cam_slot06_13(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_8013635c((Sprite *)layer);
+        init_sprite_3ff_and_count_pending((Sprite *)layer);
     } else if (layer->mode == 1) {
-        func_801363ac((Sprite *)layer);
+        update_camera_if_active((Sprite *)layer);
     }
-    func_801368c0((Cam *)layer);
+    save_cam_prev_pos_and_set_table_ptr((Cam *)layer);
 }
 
-void func_801e859c_slot06_13(Slot06Layer *layer) {
+void init_layer_tile_map_fields_slot06_13(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801e95b8_slot06_13;
     layer->data_table = data_801e95b8_slot06_13;
     layer->packed_param = 0x581c;
@@ -39,7 +39,7 @@ void func_801e85c8_slot06_13(void) {
         c = 0x80;
         do {
             r = &data_801eec68_slot06_13[i][j];
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = c;
             r->sprt.color_g = c;
             r->sprt.color_b = c;

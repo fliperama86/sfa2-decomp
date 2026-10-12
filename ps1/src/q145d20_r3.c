@@ -6,13 +6,13 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80145f98(Object *object) {
+void spawn_three_child_records_at_other(Object *object) {
   Object *p[3];
   Object *o;
   int e, e2, e3;
   Object *t;
   if (data_80197f10 >= 3) {
-    func_801460ec((u32 *) p);
+    get_three_pool_objects_sorted((u32 *) p);
     t = object->other;
     t->field_27a = 1;
     o = p[0];

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b0d54_slot04_01(Object *obj) {
+int try_enter_state_07_move_2_or_3_slot04_01(Object *obj) {
     int r = 0;
 
     if (obj->active_state != 0) {
@@ -11,7 +11,7 @@ int func_801b0d54_slot04_01(Object *obj) {
         r = 1;
         obj->field_15a = 3;
     } else {
-        if (!func_801417cc(obj)) return 0;
+        if (!try_action_clearing_both_flags(obj)) return 0;
         r = 1;
         obj->field_15a = 2;
         obj->facing_side = obj->saved_facing;
@@ -21,6 +21,6 @@ int func_801b0d54_slot04_01(Object *obj) {
     obj->state_2 = 7;
     obj->state_3 = 0;
     obj->active_flag_3 = 1;
-    func_80142ba0(obj);
+    set_direction_index_from_buttons_group_b(obj);
     return r;
 }

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b128c_slot04_04(Object *obj);
+void start_action_variant_8_lock_other_slot04_04(Object *obj);
 
-u8 func_801b11b0_slot04_04(Object *obj) {
+u8 enter_state_1_0_7_0_type_7_if_remaining_slot04_04(Object *obj) {
     u8 r = 0;
 
     if (obj->field_7e == 0) {
@@ -13,7 +13,7 @@ u8 func_801b11b0_slot04_04(Object *obj) {
             return 0;
         }
     }
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r++;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -29,14 +29,14 @@ u8 func_801b11b0_slot04_04(Object *obj) {
 int func_801b123c_slot04_04(Object *obj) {
     int r = 0;
 
-    if ((u8)func_80141b28(obj)) {
+    if ((u8)try_spend_meter_for_action(obj)) {
         r = 1;
-        func_801b128c_slot04_04(obj);
+        start_action_variant_8_lock_other_slot04_04(obj);
     }
     return r;
 }
 
-void func_801b128c_slot04_04(Object *obj) {
+void start_action_variant_8_lock_other_slot04_04(Object *obj) {
     ref_other.p = obj->other;
     obj->state_0 = 1;
     obj->state_1 = 0;
@@ -50,6 +50,6 @@ void func_801b128c_slot04_04(Object *obj) {
     obj->facing_side = obj->saved_facing;
     ref_other.p->field_6b = 0x14;
     ref_other.p->other_lock = 0x18;
-    func_80146998(obj);
-    func_801307e0(obj, 0x1f);
+    spawn_offset_effect_and_play_sounds(obj);
+    set_sequence_by_side_and_mode(obj, 0x1f);
 }

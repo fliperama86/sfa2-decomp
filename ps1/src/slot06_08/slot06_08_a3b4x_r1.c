@@ -10,10 +10,10 @@
    that byte is not 0, the followed object's state_2 differs from the low byte
    of the object's accel_x and equals 8; in that second case it first clears
    the low byte of step_flags. Unless vel_x was not 0, it then copies the
-   followed object's state_2 to accel_x. It always ends with func_80120028 on
+   followed object's state_2 to accel_x. It always ends with set_flag_and_push_if_mode_8 on
    the object. */
 /* The call of advance_sequence_checked passes a second argument although the callee takes one: the original has a, the object's step_flags, in the second argument register at both calls. Written with one argument, this function differs from the original in 12 instruction slots. */
-void func_801ea3b4_slot06_08(Object *obj) {
+void update_object_following_parent_state_2_slot06_08(Object *obj) {
     u16 a;
     Object *target = obj->parent;
 
@@ -34,5 +34,5 @@ void func_801ea3b4_slot06_08(Object *obj) {
     }
     obj->accel_x = target->state_2;
 done:
-    func_80120028(obj);
+    set_flag_and_push_if_mode_8(obj);
 }

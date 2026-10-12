@@ -6,7 +6,7 @@
 extern s16 data_801f67f0_slot06_10;
 extern s16 data_801f67f4_slot06_10;
 
-void func_801e9da8_slot06_10(Object *obj, Object *other) {
+void store_ordered_pos_x_by_facing_side_slot06_10(Object *obj, Object *other) {
     if (obj->facing_side != 0) {
         data_801f67f0_slot06_10 = other->pos_x;
         data_801f67f4_slot06_10 = obj->pos_x;

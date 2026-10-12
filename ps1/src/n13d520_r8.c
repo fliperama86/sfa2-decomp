@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80143b3c(Object *object) {
+void count_down_then_set_image_row(Object *object) {
     int t;
     if (object->variant_index_2 == 7) data_8018f598 = 0;
     t = object->countdown - 1;

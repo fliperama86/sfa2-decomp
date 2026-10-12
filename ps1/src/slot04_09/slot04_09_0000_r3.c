@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801c7b9c_slot04_09[];
 
-void func_801b03b4_slot04_09(Object *obj) {
+void tick_countdown_call_variant_handler_slot04_09(Object *obj) {
     s16 t = obj->countdown;
 
     if (t != 0) {

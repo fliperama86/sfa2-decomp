@@ -6,12 +6,12 @@
 extern ObjectRef data_80051918_slot28;
 extern int data_80051950_slot28;
 
-void func_8001788c_slot28(Object *obj) {
+void release_object_when_countdown_expires_slot28(Object *obj) {
     data_8018f5a0->countdown_timer = (s16)data_8018f5a0->countdown_timer - 1;
     if ((s16)data_8018f5a0->countdown_timer < 0) {
-        func_8011f240((Slab172 *)data_80051918_slot28.p);
-        func_8014f4d4(6, 3);
-        func_801280f0();
+        reset_and_push_object_to_pool_table((Slab172 *)data_80051918_slot28.p);
+        set_menu_command_by_code(6, 3);
+        start_fade_mode_1_and_wait();
         data_8018f5a0->pass_index++;
     }
 }

@@ -13,7 +13,7 @@ extern u16 data_800f77ac_slot0f;
 extern u16 data_800f77b0_slot0f;
 void func_800e52e0_slot0f(void);
 
-void func_800e51c8_slot0f(int a) {
+void init_palette_buffers_from_table_slot0f(int a) {
     int i;
     s16 c;
     for (i = 0; i < 16; i++) {

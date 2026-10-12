@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5118_slot04_07(Object *o) {
+void update_two_axis_positions_by_bit_flags_slot04_07(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int t;
     if ((obj->bit_flags & 1) == 0) {

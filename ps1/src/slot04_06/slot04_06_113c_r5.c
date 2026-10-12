@@ -5,17 +5,17 @@
 
 extern u8 data_801c531c_slot04_06[];
 
-void func_801b4818_slot04_06(Object *obj);
-void func_801b4850_slot04_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot04_06(Object *obj);
+void apply_vertical_velocity_slot04_06(Object *obj);
 
-void func_801b1514_slot04_06(Object *o) {
+void update_countdown_2_then_set_other_lock_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     u8 i;
 
     if (obj->countdown_2 != 0) {
         if (obj->countdown_2 == 0x31) {
             play_sound_at(o, o->side, 0x31c);
-            func_801483a4(o, -0x26, 0x62);
+            spawn_children_per_direction_index(o, -0x26, 0x62);
         }
         obj->countdown_2--;
         if (obj->countdown_2 == 0) {
@@ -37,11 +37,11 @@ void func_801b1514_slot04_06(Object *o) {
     }
 }
 
-void func_801b1600_slot04_06(Object *o) {
+void move_until_landed_or_countdown_2_ends_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    func_801b4818_slot04_06(o);
-    func_801b4850_slot04_06(o);
+    move_x_by_vel_x_facing_then_accelerate_slot04_06(o);
+    apply_vertical_velocity_slot04_06(o);
     if (obj->countdown_2 != 0) {
         if (--obj->countdown_2 == 0) goto done;
     }
@@ -50,6 +50,6 @@ done:
     o->active_state = 0;
     o->other_state_code = 5;
     o->state_3++;
-    func_801209c4(o);
+    play_object_sound_by_kind(o);
     update_sequence(o);
 }

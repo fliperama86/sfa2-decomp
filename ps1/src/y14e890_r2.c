@@ -28,7 +28,7 @@ Node *func_8014f194(int index) {
     m->mode_index = 1;
     m->active_flag = 0;
     m->reset_done_flag = 0;
-    func_80150c6c(m, arg);
+    set_sprite_fields_from_table(m, arg);
     func_8015cec4(m->cd_sector, &m->cd_position);
 again:
     {

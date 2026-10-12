@@ -9,8 +9,8 @@ extern Slot06TileW data_801f3eb0_slot06_0a[2][0x3d];
    a tile record for each cell that is not blank, linked into the primitive
    list (inferred). The vertical scroll is the position minus half of
    game_state.scroll_y. The locals t, sx, sy, mask and cc are 16-bit, as in
-   func_801e82c8_slot06_00. */
-void func_801e8b6c_slot06_0a(void) {
+   draw_tile_layer_0_16px_slot06_00. */
+void draw_tile_map_layer_32px_slot06_0a(void) {
     Chan *c = &data_801aa544[2];
     int x;
     int pos;

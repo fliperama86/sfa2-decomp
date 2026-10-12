@@ -7,9 +7,9 @@ extern void (*data_80079938_slot00[])(Object *);
 extern BoxTables data_800798d0_slot00;
 extern SequenceStep *data_800798fc_slot00[];
 extern FrameRecord data_80079908_slot00[];
-extern void func_800773b8_slot00(Object *obj);
+extern void update_follower_copy_parent_position_slot00(Object *obj);
 
-void func_800772c0_slot00(Object *obj) {
+void call_handler_by_state_0_2_slot00(Object *obj) {
     data_80079938_slot00[obj->state_0](obj);
 }
 
@@ -26,7 +26,7 @@ void func_80077300_slot00(Object *obj) {
     obj->pos_y = p->pos_y;
     obj->facing_side = p->facing_side;
     obj->frames = data_80079908_slot00;
-    func_80130768(obj, obj->vel_table_index >> 1, data_800798fc_slot00);
+    set_sequence_from_table_5(obj, obj->vel_table_index >> 1, data_800798fc_slot00);
     obj->frame = obj->frames + obj->sequence->frame_index;
-    func_800773b8_slot00(obj);
+    update_follower_copy_parent_position_slot00(obj);
 }

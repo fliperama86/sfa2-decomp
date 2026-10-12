@@ -9,8 +9,8 @@ extern u16 data_801c7754_slot04_02[];
 extern s32 data_801c7760_slot04_02[];
 extern s32 data_801c779c_slot04_02[];
 
-int func_801b772c_slot04_02(Object *object, Object *parent);
-void func_801b7920_slot04_02(Object *object, u8 a_arg);
+int dispatch_table_pick_by_table_index_slot04_02(Object *object, Object *parent);
+void set_sequence_a_by_sound_side_slot04_02(Object *object, u8 a_arg);
 
 /* The local t holds the 0x7754 table value for the y offset; d holds the later x offsets. Written with one local for both, this function differs from the original in 16 instruction slots. */
 void func_801b6f48_slot04_02(Object *object) {
@@ -26,7 +26,7 @@ void func_801b6f48_slot04_02(Object *object) {
     object->field_49 = parent->field_49;
     object->field_1c = parent->field_1c;
     if (object->table_index != 0) {
-        func_801b772c_slot04_02(object, parent);
+        dispatch_table_pick_by_table_index_slot04_02(object, parent);
     }
     t = data_801c7754_slot04_02[object->table_index >> 1];
     object->vel_y = data_801c779c_slot04_02[object->vel_table_index];
@@ -45,7 +45,7 @@ void func_801b6f48_slot04_02(Object *object) {
     } else {
         ((Slot04aObj *)object)->scratchpad_value = (int)data_1f800158;
     }
-    func_801b7920_slot04_02(object, object->vel_table_index);
+    set_sequence_a_by_sound_side_slot04_02(object, object->vel_table_index);
     if (object->table_index == 2 && ((Slot04aObj *)parent)->parent_state == -1) {
         if (parent->facing_side != 0) {
             object->vel_x -= 0x10000;

@@ -3,16 +3,16 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2858_slot04_09(Object *o);
+void apply_velocity_and_acceleration_slot04_09(Object *o);
 void func_801b2d6c_slot04_09(Object *o);
 
 /* The local t holds the facing_side read for the later p->facing_flag store: written with the field read in place, this function differs from the original in 25 instruction slots. */
-void func_801b2ae4_slot04_09(Object *obj) {
+void reset_other_and_reverse_on_step_flag_slot04_09(Object *obj) {
     Object *p;
     int t;
 
     func_801b2d6c_slot04_09(obj);
-    func_801b2858_slot04_09(obj);
+    apply_velocity_and_acceleration_slot04_09(obj);
     if (obj->step_flags & 1) {
         obj->state_3++;
         p = obj->other;
@@ -42,7 +42,7 @@ void func_801b2ae4_slot04_09(Object *obj) {
         obj->vel_x <<= 1;
         obj->facing_side ^= 1;
         p->facing_side = obj->facing_side;
-        func_801307e0(obj, 0x23);
+        set_sequence_by_side_and_mode(obj, 0x23);
     } else {
         update_sequence(obj);
     }

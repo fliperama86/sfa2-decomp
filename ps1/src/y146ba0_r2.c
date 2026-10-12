@@ -3,8 +3,8 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_80148ecc(Object *object, int n) {
-    ref_other.p = (Object *) func_8011f1e0();
+int spawn_random_offset_object_with_variant(Object *object, int n) {
+    ref_other.p = (Object *) pop_block_from_pool();
     if (ref_other.p != 0) {
         ref_other.p->active_count = 1;
         ref_other.p->field_02 = 15;

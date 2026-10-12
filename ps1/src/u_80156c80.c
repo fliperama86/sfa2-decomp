@@ -1,5 +1,5 @@
 /* Reconstruction. Names/roles inferred, not original symbols. */
-/* func_80156bc8: the unused 16-byte local reproduces the original 0x28 frame. */
+/* queue_name_text: the unused 16-byte local reproduces the original 0x28 frame. */
 #include "game.h"
 #include "externs.h"
 #include "protos.h"
@@ -17,7 +17,7 @@ void func_80156c80(GameState *state, Object *object) {
                 if (object->side != 0) {
                     index = index + 5;
                 }
-                func_801519b4(table_801817e0[index]);
+                add_item_to_table(table_801817e0[index]);
             }
         }
     }

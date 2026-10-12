@@ -9,8 +9,8 @@ extern Slot06Tile data_801ec3b4_slot06_05[2][0x7d];
    pixels, a tile record for each cell that is not blank, linked into the
    primitive list (inferred). The locals t, sx, mask and cc are 16-bit and x
    holds the position before the sign change, as in the model
-   func_801e82c8_slot06_00, where the effect of each is measured. */
-void func_801e8364_slot06_05(void) {
+   draw_tile_layer_0_16px_slot06_00, where the effect of each is measured. */
+void draw_tile_layer_0_16px_slot06_05(void) {
     Chan *c = data_801aa544;
     int x;
     int pos;

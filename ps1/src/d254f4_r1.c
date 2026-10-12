@@ -16,7 +16,7 @@ extern u16 data_801a6966;
  * fails. Success increments input_step_index and sets input_match_offset; failure clears
  * input_step_index and input_match_offset and sets input_timer to 0x3c.
  */
-void func_801254f4(void) {
+void check_input_code_step(void) {
     u16 *code;
     u8 byte;
     u16 nib;

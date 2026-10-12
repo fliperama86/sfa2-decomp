@@ -5,9 +5,9 @@
 
 extern Strip1c data_800f0264_slot0f[2][0x200];
 extern int data_800f7268_slot0f;
-void func_800e05a0_slot0f(int a, int b);
+void update_blink_counter_and_queue_entries_slot0f(int a, int b);
 
-void func_800e483c_slot0f(void) {
+void init_strips_and_load_three_images_slot0f(void) {
     Rect rect;
     u8 *src;
     int i;
@@ -21,14 +21,14 @@ void func_800e483c_slot0f(void) {
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 0x200; j++) {
             Strip1c *s = &data_800f0264_slot0f[i][j];
-            func_80136d1c((Tx *)s);
+            init_draw_mode_prim_3((Tx *)s);
             s->color_r = 0x80;
             s->color_g = 0x80;
             s->color_b = 0x80;
         }
     }
     data_800f7268_slot0f = 1;
-    func_800e05a0_slot0f(0, 0);
+    update_blink_counter_and_queue_entries_slot0f(0, 0);
     src = (u8 *)0x800c7000;
     rect.x = 0x180;
     rect.y = 0;

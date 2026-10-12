@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1280_slot04_09(Object *obj) {
+void set_move_8_state_without_check_slot04_09(Object *obj) {
     obj->state_0 = 1;
     obj->state_2 = 7;
     obj->field_15a = 8;
@@ -16,7 +16,7 @@ void func_801b1280_slot04_09(Object *obj) {
     obj->facing_side = obj->saved_facing;
 }
 
-int func_801b12c4_slot04_09(Object *obj) {
+int try_start_move_0_unless_linked_slot04_09(Object *obj) {
     int r = 0;
 
     if (obj->field_7e == 0) {
@@ -24,7 +24,7 @@ int func_801b12c4_slot04_09(Object *obj) {
             return 0;
         }
     }
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r++;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -37,15 +37,15 @@ int func_801b12c4_slot04_09(Object *obj) {
         obj->step_count_2 = 0;
         obj->step_limit = 0;
         obj->facing_side = obj->saved_facing;
-        func_80142b3c(obj);
+        set_direction_index_from_buttons_group_a(obj);
     }
     return r;
 }
 
-int func_801b1368_slot04_09(Object *obj) {
+int try_start_move_1_slot04_09(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj)) {
+    if (try_action_clearing_both_flags(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -58,7 +58,7 @@ int func_801b1368_slot04_09(Object *obj) {
         obj->step_count_2 = 0;
         obj->step_limit = 0;
         obj->facing_side = obj->saved_facing;
-        func_80142b3c(obj);
+        set_direction_index_from_buttons_group_a(obj);
     }
     return r;
 }

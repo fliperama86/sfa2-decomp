@@ -6,9 +6,9 @@
 extern ObjectFn table_80022e14_slot12[];
 
 void func_80011ea4_slot12(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_80011ec4_slot12(Object *obj) {
+void call_handler_by_state_0_2_slot12(Object *obj) {
     table_80022e14_slot12[obj->state_0](obj);
 }

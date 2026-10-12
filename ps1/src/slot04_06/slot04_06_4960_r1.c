@@ -23,7 +23,7 @@ void func_801b4960_slot04_06(Object *obj) {
     } else {
         v = data_801c5510_slot04_06[t & 7];
     }
-    v = (s8)func_80125734(obj, (s8)v);
+    v = (s8)get_input_mapped_value_or_default(obj, (s8)v);
     *p = v + v;
     set_sequence_by_side(obj, data_801c5520_slot04_06[v]);
 }

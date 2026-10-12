@@ -3,7 +3,7 @@
 #include "protos.h"
 
 /* The local r is 16 bits wide: as an int, this function differs from the original in 7 instruction slots. */
-void func_8015057c(Stream *stream) {
+void transfer_vab_body(Stream *stream) {
     s16 r;
     while (stream->transfer_remaining > 0x1000) {
         r = func_8015fe50((u8 *)0x801e0000, 0x1000, stream->vab_id);

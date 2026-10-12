@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b03dc_slot04_07(Object *obj) {
+void restore_facing_and_set_sequence_0_slot04_07(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->facing_side = obj->saved_facing;
     set_sequence_by_side(obj, 0);
 }
 
-void func_801b0410_slot04_07(Object *obj) {
+void advance_state_2_when_timers_clear_slot04_07(Object *obj) {
     if (game_state.field_64 == 0 && game_state.countdown_timer == 0) {
         obj->state_2 = obj->state_2 + 1;
     }

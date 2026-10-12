@@ -6,7 +6,7 @@
 extern ObjectFn data_8007a0d8_slot00[];
 extern ObjectFn data_8007a104_slot00[];
 
-void func_800784a4_slot00(Object *obj) {
+void update_object_by_table_index_handler_slot00(Object *obj) {
     if (game_state.gate_flag != 0) {
         obj->state_0 = 2;
         obj->field_01 = 0;
@@ -15,7 +15,7 @@ void func_800784a4_slot00(Object *obj) {
             data_8007a0d8_slot00[obj->table_index >> 1](obj);
         }
         if (obj->active_flag == 0) {
-            func_80120028(obj);
+            set_flag_and_push_if_mode_8(obj);
         }
     }
 }

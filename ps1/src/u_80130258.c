@@ -6,7 +6,7 @@
 
 
 /* Form found by automatic permutation search. */
-int func_80130258(Object *object)
+int is_input_bit_1000_held(Object *object)
 {
   int new_var4;
   int held;

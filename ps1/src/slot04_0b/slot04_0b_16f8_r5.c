@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1b4c_slot04_0b(Object *obj) {
+void count_down_then_end_or_update_sequence_slot04_0b(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {
         obj->active_flag_4 = 0;
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
     }
     if ((s16)obj->step_flags & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }

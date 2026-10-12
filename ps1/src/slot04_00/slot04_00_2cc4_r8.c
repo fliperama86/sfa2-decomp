@@ -7,16 +7,16 @@ extern u32 data_801c0168_slot04_00[];
 extern u32 data_801c0314_slot04_00[];
 extern u32 data_801c052c_slot04_00[];
 
-void func_801b3454_slot04_00(Object *obj) {
+void unlink_from_parent_and_release_object_slot04_00(Object *obj) {
     ref_other.p = obj->parent;
     ref_other.p->link_flags--;
     if (ref_other.p->link_flags & 0x80) {
         ref_other.p->linked_object_3 = 0;
     }
-    func_8011f14c((Slab172 *)obj);
+    reset_and_push_block_object_type_8((Slab172 *)obj);
 }
 
-void func_801b34c4_slot04_00(Object *obj) {
+void set_box_tables_from_health_index_slot04_00(Object *obj) {
     if (obj->vel_table_index == 6) {
         game_state.cursor = data_801c0168_slot04_00;
     } else if (obj->vel_table_index == 8) {

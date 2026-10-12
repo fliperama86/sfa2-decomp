@@ -6,25 +6,25 @@
 extern u8 *data_800517b8_slot28[];
 extern u32 data_800517d8_slot28[];
 extern Slot28Rec51e94 data_80051e94_slot28;
-void func_80028038_slot28(Object *obj);
-void func_800281ec_slot28(Object *obj);
+void init_four_textured_screen_quads_slot28(Object *obj);
+void link_two_quads_into_ordering_table_slot28(Object *obj);
 void func_80027f78_slot28(Object *obj);
 
-void func_80027e98_slot28(Object *obj) {
+void load_image_by_index_and_start_countdown_slot28(Object *obj) {
     HudState *h;
     load_image_from_stream(data_800517b8_slot28[(s8)data_8016e685]);
     h = data_8018f5a0;
     h->countdown_timer = 0x12c;
     h->step_index_2 = h->step_index_2 + 1;
-    func_80028038_slot28(obj);
-    func_8012818c();
+    init_four_textured_screen_quads_slot28(obj);
+    start_fade_mode_c01_and_wait();
 }
 
 void func_80027f0c_slot28(Object *obj) {
     HudState *h;
     int t;
     func_80027f78_slot28(obj);
-    func_800281ec_slot28(obj);
+    link_two_quads_into_ordering_table_slot28(obj);
     h = data_8018f5a0;
     t = h->countdown_timer - 1;
     h->countdown_timer = t;
@@ -51,6 +51,6 @@ void func_80027f78_slot28(Object *obj) {
         data_80051e94_slot28.pos_x = 0x60;
         data_80051e94_slot28.pos_y = 0x20;
         data_80051e94_slot28.data_word = data_800517d8_slot28[idx];
-        func_801519b4(&data_80051e94_slot28);
+        add_item_to_table(&data_80051e94_slot28);
     }
 }

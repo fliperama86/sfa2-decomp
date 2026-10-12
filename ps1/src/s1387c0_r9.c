@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8013ad2c(Object *object) {
+void remap_hit_type_from_table(Object *object) {
     u8 v = table_8017727c[object->hit_type][0];
 
     object->field_15b = 1;
@@ -14,6 +14,6 @@ void func_8013ad2c(Object *object) {
     object->hit_type = v;
 }
 
-void func_8013ad64(Object *object) {
+void call_handler_by_hit_type(Object *object) {
     handlers_72f4[object->hit_type](object);
 }

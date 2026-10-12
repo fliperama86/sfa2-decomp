@@ -8,7 +8,7 @@
  * it with none (and names the parameter `unused`).
  *
  * Why: the function that the module slot12 has at that address
- * (func_8001365c_slot12; inferred: this function runs while that module is
+ * (call_step_handler_mode_0_slot12; inferred: this function runs while that module is
  * loaded) reads a0 at its start (`sb zero,0x1(a0)` at 80013664, read in the
  * original code's listing). On the console a0 still holds this
  * function's first parameter at the call, because the original code does

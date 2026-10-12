@@ -8,10 +8,10 @@
 void func_80136b34(Cam *cam) {
     cam->field_04++;
     cam->field_70 = 0;
-    func_80136b60(cam);
+    load_cam_sources_and_call_kind_handler(cam);
 }
 
-void func_80136b60(Cam *cam) {
+void load_cam_sources_and_call_kind_handler(Cam *cam) {
     cam->src_a = cam_src_a.a;
     cam->src_b = cam_src_a.b;
     table_801724b0[game_state.kind_index](cam);

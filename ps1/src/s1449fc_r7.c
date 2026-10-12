@@ -4,9 +4,9 @@
 #include "protos.h"
 
 
-/* The parameter is passed on to func_8011f240, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_8017c978 holds this function and is declared with this parameter. */
+/* The parameter is passed on to reset_and_push_object_to_pool_table, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_8017c978 holds this function and is declared with this parameter. */
 void func_80145aa0(Object *p) {
-    func_8011f240((Slab172 *)p);
+    reset_and_push_object_to_pool_table((Slab172 *)p);
 }
 
 void func_80145ac0(Block172 *block) {
@@ -16,10 +16,10 @@ void func_80145ac0(Block172 *block) {
 
 void func_80145b00(Object *object) {
     if (object->table_index == 3 || object->table_index == 10) {
-        func_8011f240((Slab172 *)object);
+        reset_and_push_object_to_pool_table((Slab172 *)object);
     } else {
         object->field_01 = 0;
         object->state_0++;
-        func_8011fc54(object, (SeqRec **)table_8017c988, object->table_index);
+        set_sequence_from_table_4(object, (SeqRec **)table_8017c988, object->table_index);
     }
 }

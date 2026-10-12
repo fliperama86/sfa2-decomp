@@ -3,13 +3,13 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014afd4(Object *object)
+void set_move_state_dir_by_limit_near(Object *object)
 {
-  func_8014e7ec(object);
+  set_limits_from_script_word(object);
   data_80189464 = (data_80189464 - object->compare_limit) + 3;
   if (data_80189464 < 6)
   {
-    func_8014c914(object);
+    read_script_word_and_dispatch(object);
   }
   else
   {

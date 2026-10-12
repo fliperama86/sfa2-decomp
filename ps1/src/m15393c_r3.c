@@ -27,5 +27,5 @@ void queue_two_digit_number_text(Actor *a) {
         t->buf[0] = 0x20;
     }
     t->buf[1] = d[0] + 0x30;
-    func_801519b4(t);
+    add_item_to_table(t);
 }

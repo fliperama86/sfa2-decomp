@@ -4,19 +4,19 @@
 #include "protos.h"
 
 
-void func_80153fb8(void) {
+void update_player_text_objects_both_sides(void) {
     Object *p = &player_left;
-    func_8015406c(p);
+    copy_kind_text_to_buffer(p);
     if (game_state.mode & 1) {
-        func_801541e0(p);
-        func_801540ec(p);
-        func_801542e4(p);
+        format_win_streak_text(p);
+        format_object_score_text(p);
+        noop_object_handler_3(p);
     }
     p++;
-    func_8015406c(p);
+    copy_kind_text_to_buffer(p);
     if (game_state.mode & 2) {
-        func_801541e0(p);
-        func_801540ec(p);
-        func_801542e4(p);
+        format_win_streak_text(p);
+        format_object_score_text(p);
+        noop_object_handler_3(p);
     }
 }

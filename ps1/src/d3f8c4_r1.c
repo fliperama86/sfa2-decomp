@@ -11,7 +11,7 @@
    positions: the object's pos_x plus a (minus a when facing_side is set), and
    game_state.other_object's pos_x plus the box's origin minus its extent
    (negated when that object's facing_side is set). It returns
-   func_8013fab4(object) as a byte when they are at most b apart; b grows by
+   apply_forced_state_to_other_object(object) as a byte when they are at most b apart; b grows by
    4 when hold_timer is set, unless the object's halfword at offset 4 is 1
    and its state_2 is 7 or 8. */
 int func_8013f8c4(Object *object, int a_arg, int b_arg) {
@@ -68,7 +68,7 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
             a = -a;
         if (b < a)
             return 0;
-        return func_8013fab4(object) & 0xff;
+        return apply_forced_state_to_other_object(object) & 0xff;
     }
     /* The path with field_49 set and the halfword not 1 ends here. The original has no instruction for this result: it branches to the function's end with the 1 of the comparison still in the result register. The compiler adds none for this line either. Without the line the PS1 code is the same and the result is undefined in C. */
     return 1;

@@ -6,14 +6,14 @@
 extern void (*data_800284d8_slot12[])(Object *);
 void func_80015850_slot12(Object *obj);
 void func_800158b0_slot12(Object *obj);
-void func_80015fd4_slot12(Object *obj, int a);
+void spawn_variant_2_object_if_offset_slot12(Object *obj, int a);
 
-void func_800154f8_slot12(Object *obj) {
+void start_countdown_and_spawn_effects_slot12(Object *obj) {
     u8 t = obj->state_1;
     obj->countdown = 0x1e;
     obj->state_1 = t + 1;
     func_80015850_slot12(obj);
-    func_80015fd4_slot12(obj, 0);
+    spawn_variant_2_object_if_offset_slot12(obj, 0);
     game_state.field_2bc = 1;
 }
 
@@ -45,6 +45,6 @@ void func_8001554c_slot12(Object *obj) {
     }
 }
 
-void func_800155ec_slot12(Object *obj) {
+void call_handler_by_state_1_5_slot12(Object *obj) {
     data_800284d8_slot12[obj->state_1](obj);
 }

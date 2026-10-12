@@ -45,7 +45,7 @@ void func_801b2cb4_slot04_0b(Object *obj) {
 
 void func_801b2df0_slot04_0b(Object *obj) {
     if ((s16)obj->step_flags & 0xff00) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         update_sequence(obj);
     }

@@ -30,7 +30,7 @@ void func_8013411c(u8 *base, s16 index) {
     p[0x16a] = 0;
 }
 
-void func_80134154(u8 *base, s16 index) {
+void set_left_halfwords_and_bump_counters(u8 *base, s16 index) {
     if (player_left.field_d8 != 0) {
         u8 *p = base + (index << 4);
         u8 c = data_80188d4c;
@@ -46,7 +46,7 @@ void func_80134154(u8 *base, s16 index) {
     }
 }
 
-void func_801341c4(u8 *base, s16 index) {
+void set_right_halfwords_and_bump_counters(u8 *base, s16 index) {
     if (player_right.field_d8 != 0) {
         u8 *p = base + (index << 4);
         u8 c = data_80188d58;

@@ -10,8 +10,8 @@ extern int data_8002d570_slot12;
 extern int data_8002d578_slot12;
 extern int data_8002a390_slot12;
 extern void *data_80021b34_slot12[][2];
-void func_800121ec_slot12(Object *obj, int a);
-void func_8001224c_slot12(Object *obj);
+void set_sequence_and_copy_to_shared_object_slot12(Object *obj, int a);
+void copy_object_state_to_shared_object_slot12(Object *obj);
 
 void func_80011f04_slot12(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
@@ -51,6 +51,6 @@ void func_80011f04_slot12(Object *obj) {
         obj->state_1 = one;
         a = 2;
     }
-    func_800121ec_slot12(obj, a);
-    func_8001224c_slot12(obj);
+    set_sequence_and_copy_to_shared_object_slot12(obj, a);
+    copy_object_state_to_shared_object_slot12(obj);
 }

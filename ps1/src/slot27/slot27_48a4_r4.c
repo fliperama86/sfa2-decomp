@@ -9,7 +9,7 @@ extern ObjectFn data_80028110_slot27[];
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
 
-void func_80014c1c_slot27(Object *o) {
+void init_object_from_table_index_entry_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
@@ -27,11 +27,11 @@ void func_80014c1c_slot27(Object *o) {
     *(u16 *)&o->pos_y = data_80027d14_slot27[o->table_index].init_pos_y;
 }
 
-void func_80014cd8_slot27(Object *obj) {
-    func_80130768(obj, obj->table_index, data_80027fa8_slot27);
+void set_sequence_from_table_index_slot27(Object *obj) {
+    set_sequence_from_table_5(obj, obj->table_index, data_80027fa8_slot27);
 }
 
-void func_80014d04_slot27(Object *obj) {
+void call_handler_by_state_0_with_refs_slot27(Object *obj) {
     ref_other.p = obj->parent;
     (*(Object **)&data_80190458) = obj->other;
     data_80028110_slot27[obj->state_0](obj);

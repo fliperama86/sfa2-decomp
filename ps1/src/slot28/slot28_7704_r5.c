@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80017ed0_slot28(Object *obj, Object *src) {
+void init_child_object_from_source_slot28(Object *obj, Object *src) {
     obj->active_count = 1;
     obj->field_02 = 0xa5;
     obj->table_index = 0;

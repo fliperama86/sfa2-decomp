@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5478_slot04_09(Object *obj) {
+void spawn_linked_pooled_object_health_2_slot04_09(Object *obj) {
     Object *n = pop_object_from_pool(obj);
 
     if (n != 0) {

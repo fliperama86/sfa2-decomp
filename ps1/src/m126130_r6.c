@@ -7,7 +7,7 @@
 void func_8012a804(Object *object) {
     int index;
     s32 speed;
-    if ((u8)func_8012f898(object) == 0) {
+    if ((u8)is_facing_differs_from_saved(object) == 0) {
         if (object->direction_flag == object->variant_index) {
             *(s32 *)&object->pos_x_frac += object->vel_x;
             update_sequence(object);

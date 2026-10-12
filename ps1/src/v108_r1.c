@@ -8,16 +8,16 @@
  * is stored next to the kind test). Only the delay slots and targets of the early-out
  * branches differ: the original sends the kind, field_163 and hit_flag tests to the
  * move before the call (nop slots) and fills the slot of the health test with it. */
-void func_8012d7e4(Object *object) {
+void choose_recovery_sequence_or_state(Object *object) {
     if (object->mode_flag_2 == 0) {
-        func_801308c4(object, 0x14);
+        set_sequence_by_side_and_mode_2(object, 0x14);
         return;
     }
     if ((object->kind != 6 && object->kind != 0xf) ||
         object->field_163 != 0 || object->hit_flag != 0 || (s16)object->health < 0 ||
         ((game_state.config->mode_flag_b | game_state.config->mode_flag_c) | game_state.config->mode_flag_a) != 0 ||
-        func_8012f56c(object) || !func_8014a170(object, data_8017d898)) {
-        func_801308c4(object, 0x14);
+        func_8012f56c(object) || !test_random_bit_in_table(object, data_8017d898)) {
+        set_sequence_by_side_and_mode_2(object, 0x14);
     } else {
         object->state_0 = 1;
         object->state_2 = 7;

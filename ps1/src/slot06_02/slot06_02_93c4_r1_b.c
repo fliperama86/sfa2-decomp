@@ -9,9 +9,9 @@ extern u16 data_801e9e7c_slot06_02[];
 extern s16 data_801e9e7e_slot06_02[];
 
 void init_draw_mode_prim_4(Tx *tx);
-void func_801e9604_slot06_02(Object *obj);
+void set_sequence_index_from_table_slot06_02(Object *obj);
 
-void func_801e9604_slot06_02(Object *o) {
+void set_sequence_index_from_table_slot06_02(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u16 unused[4];
@@ -28,7 +28,7 @@ void func_801e9654_slot06_02(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e9680_slot06_02(void) {
+void init_sprite_buffers_13_32x32_gray_slot06_02(void) {
     Slot06TileW *p;
     int i;
     int k;

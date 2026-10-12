@@ -12,17 +12,17 @@ void func_801c86b4_slot05_06(Object *obj) {
     data_801dd264_slot05_06[obj->state_3](obj);
 }
 
-void func_801c86f4_slot05_06(Object *obj) {
+void advance_state_3_and_start_sequence_slot05_06(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801c8724_slot05_06(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_3_slot05_06(Object *obj) {
+    update_sequence_with_input_check(obj);
 }
 
-void func_801c8744_slot05_06(Object *obj) {
+void call_handler_by_direction_index_4_slot05_06(Object *obj) {
     data_801dd26c_slot05_06[obj->direction_index >> 1](obj);
 }
 
@@ -30,14 +30,14 @@ void func_801c8788_slot05_06(Object *obj) {
     data_801dd278_slot05_06[obj->state_3](obj);
 }
 
-void func_801c87c8_slot05_06(Object *obj) {
+void advance_state_3_and_start_sequence_2_slot05_06(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801c87f8_slot05_06(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_4_slot05_06(Object *obj) {
+    update_sequence_with_input_check(obj);
 }
 
 void func_801c8818_slot05_06(Object *obj) {

@@ -5,34 +5,34 @@
 
 extern Object *data_8007ef34_slot2b;
 
-void func_800795b4_slot2b(Object *obj);
-void func_800795f8_slot2b(Object *obj);
-void func_800796e4_slot2b(Object *obj);
-void func_80079594_slot2b(Object *obj);
+void apply_velocity_and_acceleration_2_slot2b(Object *obj);
+void spawn_child_object_above_self_slot2b(Object *obj);
+void spawn_child_object_at_random_offset_slot2b(Object *obj);
+void release_object_to_pool_slot2b(Object *obj);
 
 void func_800794e0_slot2b(Object *o) {
-    func_800795b4_slot2b(o);
+    apply_velocity_and_acceleration_2_slot2b(o);
     if (data_8007ef34_slot2b->ground_y < o->pos_y) {
         o->state_0++;
         o->pos_y = (u16)data_8007ef34_slot2b->ground_y;
         o->pos_y_frac = 0;
-        func_800795f8_slot2b(o);
-        func_800796e4_slot2b(o);
-        func_800796e4_slot2b(o);
+        spawn_child_object_above_self_slot2b(o);
+        spawn_child_object_at_random_offset_slot2b(o);
+        spawn_child_object_at_random_offset_slot2b(o);
     } else {
         advance_sequence_checked(o);
     }
 }
 
 void func_80079574_slot2b(Object *o) {
-    func_80079594_slot2b(o);
+    release_object_to_pool_slot2b(o);
 }
 
-void func_80079594_slot2b(Object *o) {
-    func_8011f240((Slab172 *)o);
+void release_object_to_pool_slot2b(Object *o) {
+    reset_and_push_object_to_pool_table((Slab172 *)o);
 }
 
-void func_800795b4_slot2b(Object *o) {
+void apply_velocity_and_acceleration_2_slot2b(Object *o) {
     Slot2bObj *obj = (Slot2bObj *)o;
     obj->pos_x_hi += o->vel_x;
     o->vel_x += o->accel_x;

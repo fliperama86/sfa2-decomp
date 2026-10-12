@@ -3,5 +3,5 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013a24_slot01(Object *obj) {
+void noop_slot00_2_slot01(Object *obj) {
 }

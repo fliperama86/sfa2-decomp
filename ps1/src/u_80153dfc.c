@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80153dfc(Actor *a)
+void format_score_text(Actor *a)
 {
   int new_var;
   u8 d[7];
@@ -48,5 +48,5 @@ void func_80153dfc(Actor *a)
   }
   while (i < 6);
   t->buf[i] = d[6 - i] + 0x30;
-  func_801519b4(t);
+  add_item_to_table(t);
 }

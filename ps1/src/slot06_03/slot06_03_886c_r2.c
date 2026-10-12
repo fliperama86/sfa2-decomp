@@ -3,5 +3,5 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e8d08_slot06_03(void) {
+void noop_empty_function_slot06_03(void) {
 }

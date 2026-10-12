@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801c8670_slot05_06(Object *obj);
-void func_801c8744_slot05_06(Object *obj);
+void call_handler_by_direction_index_3_slot05_06(Object *obj);
+void call_handler_by_direction_index_4_slot05_06(Object *obj);
 extern ObjectFn data_801dd258_slot05_06[];
 
 void func_801c8510_slot05_06(Object *obj) {
@@ -19,12 +19,12 @@ void func_801c8510_slot05_06(Object *obj) {
     } else {
         one = 1;
         obj->active_flag_3 = one;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
         obj->field_278 = one;
     }
 }
 
-void func_801c8598_slot05_06(Object *obj) {
+void shift_pos_x_and_advance_state_3_on_flag_slot05_06(Object *obj) {
     int d = -0x10;
 
     if ((u8)obj->step_flags != 0) {
@@ -37,23 +37,23 @@ void func_801c8598_slot05_06(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801c85f0_slot05_06(Object *obj) {
+void update_sequence_or_finish_sequence_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
 void func_801c8630_slot05_06(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second != 0) {
-        func_801c8744_slot05_06(obj);
+        call_handler_by_direction_index_4_slot05_06(obj);
     } else {
-        func_801c8670_slot05_06(obj);
+        call_handler_by_direction_index_3_slot05_06(obj);
     }
 }
 
-void func_801c8670_slot05_06(Object *obj) {
+void call_handler_by_direction_index_3_slot05_06(Object *obj) {
     data_801dd258_slot05_06[obj->direction_index >> 1](obj);
 }

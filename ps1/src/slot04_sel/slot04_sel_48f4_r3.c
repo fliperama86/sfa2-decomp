@@ -6,7 +6,7 @@
 extern u16 data_801b9da4_slot04_sel;
 extern u8 data_801b9c10_slot04_sel[];
 
-void func_801b4cb4_slot04_sel(void) {
+void start_countdown_and_advance_step_slot04_sel(void) {
     HudState *h = data_8018f5a0;
     game_state.b0_flag = 1;
     game_state.field_80 = 0;
@@ -16,9 +16,9 @@ void func_801b4cb4_slot04_sel(void) {
     h->step_index_2 = h->step_index_2 + 1;
 }
 
-void func_801b4d00_slot04_sel(void) {
+void queue_item_and_count_down_to_next_step_slot04_sel(void) {
     u16 t;
-    func_801519b4(data_801b9c10_slot04_sel);
+    add_item_to_table(data_801b9c10_slot04_sel);
     t = data_801b9da4_slot04_sel - 1;
     data_801b9da4_slot04_sel = t;
     if (t == 0) {
@@ -27,7 +27,7 @@ void func_801b4d00_slot04_sel(void) {
     }
 }
 
-void func_801b4d68_slot04_sel(void) {
+void advance_substep_reset_step_b_slot04_sel(void) {
     HudState *h = data_8018f5a0;
     game_state.field_09 = 0;
     h->step_index_2 = 0;

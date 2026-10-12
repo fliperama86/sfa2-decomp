@@ -9,18 +9,18 @@ void func_8011ffdc(Object *o) {
     if (o->pos_x - m + 64 > 512) {
         o->field_01 = 0;
     } else {
-        func_80120028(o);
+        set_flag_and_push_if_mode_8(o);
     }
 }
 
-void func_80120028(Object *o) {
+void set_flag_and_push_if_mode_8(Object *o) {
     o->field_01 = 1;
     if (o->mode_id == 8) {
-        func_80120060(o);
+        push_object_by_ot_depth_wrapper(o);
     }
 }
 
-void func_80120060(Object *o) {
+void push_object_by_ot_depth_wrapper(Object *o) {
     push_object_by_ot_depth(o);
 }
 
@@ -57,7 +57,7 @@ void init_sound_system(void) {
     ptr_80197ee8[3] = p - 0x1720;
 }
 
-void func_801201e8(void) {
+void start_sound_and_set_volumes(void) {
     func_801656cc();
     func_80165d34(0x7f, 0x7f);
     func_80164ec0(data_80190a44[4], 0x7f, 0x7f);
@@ -66,5 +66,5 @@ void func_801201e8(void) {
     func_80164ec0(data_80190a44[7], 0x7f, 0x7f);
     func_8016a730(0, 0, 1);
     func_8016904c(0, 0x50, 0x50);
-    func_80120374(1);
+    set_sound_mono_or_stereo(1);
 }

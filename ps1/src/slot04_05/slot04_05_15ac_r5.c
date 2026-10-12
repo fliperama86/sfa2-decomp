@@ -12,11 +12,11 @@ void func_801b1b44_slot04_05(Object *obj) {
         obj->accel_x = -0x8000;
         obj->vel_y = 0x80000;
         obj->accel_y = -0x6000;
-        func_801307e0(obj, 0x1b);
+        set_sequence_by_side_and_mode(obj, 0x1b);
     } else {
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;
-            func_80146998(obj);
+            spawn_offset_effect_and_play_sounds(obj);
             obj->other->field_6b = 0x14;
         }
         update_sequence(obj);

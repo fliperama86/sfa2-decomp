@@ -16,7 +16,7 @@ void func_801b1f8c_slot04_08(Object *obj) {
             func_80146960(obj);
         }
         obj->state_3 = obj->state_3 + 1;
-        func_80140cd8(obj, *(s16 *)(data_801c3c60_slot04_08 + (obj->direction_index & 0xfe)), 0);
+        apply_damage_to_other_return_defeated(obj, *(s16 *)(data_801c3c60_slot04_08 + (obj->direction_index & 0xfe)), 0);
         p = obj->other;
         obj->countdown = 0x18;
         if ((s16)p->health < 0) {
@@ -26,7 +26,7 @@ void func_801b1f8c_slot04_08(Object *obj) {
                 obj->field_167 = 0x18;
                 obj->field_255 = 6;
                 game_state.spawn_kind = 0;
-                func_80147000(obj);
+                spawn_game_state_kind_object(obj);
             }
         } else {
             play_sound_at(obj, obj->side, 0x319);
@@ -35,11 +35,11 @@ void func_801b1f8c_slot04_08(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b2088_slot04_08(Object *obj) {
+void flip_facing_at_sequence_end_slot04_08(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_3 = obj->state_3 + 1;
         obj->facing_side = obj->facing_side ^ 1;
-        func_801307e0(obj, 0x3c);
+        set_sequence_by_side_and_mode(obj, 0x3c);
     } else {
         update_sequence(obj);
     }

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014fd9c(Ctl *ctl) {
+void open_vab_and_queue_body_transfer(Ctl *ctl) {
     Stream *stream = (Stream *)ctl;
     StreamEntry *e;
     int t;
@@ -32,7 +32,7 @@ void func_8014fd9c(Ctl *ctl) {
     } else {
         e->byte_count = stream->bytes_remaining;
     }
-    func_80150100(stream);
+    read_stream_sector_to_write_slot(stream);
     e->pending_flag = 1;
     e->handler_index = 4;
     e->rect_y = stream->vab_id;

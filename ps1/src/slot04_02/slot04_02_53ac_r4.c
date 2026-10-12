@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
+void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-void func_801b591c_slot04_02(Object *obj) {
+void update_countdown_then_init_cursor_timer_slot04_02(Object *obj) {
     int a;
     obj->countdown = (s16)obj->countdown - 0x100;
     if ((obj->countdown & 0xff00) == 0) {
@@ -21,11 +21,11 @@ void func_801b591c_slot04_02(Object *obj) {
         obj->cursor_timer_a = a;
         obj->field_180 = 0;
     }
-    func_80142fe8(obj);
+    push_other_by_vel_x(obj);
     update_sequence(obj);
 }
 
-void func_801b59ac_slot04_02(Object *obj) {
+void update_countdown_hold_sequence_slot04_02(Object *obj) {
     Object *p;
     s16 t;
     u16 u;
@@ -35,7 +35,7 @@ void func_801b59ac_slot04_02(Object *obj) {
     obj->countdown = u;
     if ((u8)u == 0) {
         if (obj->active_state != 0) {
-            func_801b631c_slot04_02(obj, 1, 0, 3, 1);
+            set_object_states_0_to_3_slot04_02(obj, 1, 0, 3, 1);
         } else {
             p = obj->parent;
             if (p->field_02 == 9) {
@@ -56,6 +56,6 @@ void func_801b59ac_slot04_02(Object *obj) {
         if ((t & 0xff00) != 0) {
             obj->countdown = t - 0x100;
         }
-        func_80142fe8(obj);
+        push_other_by_vel_x(obj);
     }
 }

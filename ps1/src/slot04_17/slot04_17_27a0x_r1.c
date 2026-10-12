@@ -6,7 +6,7 @@
 extern u32 data_801ce050_slot04_17[];
 extern s32 data_801ce3e4_slot04_17[];
 
-void func_801b27a0_slot04_17(Object *obj) {
+void choose_jump_variant_at_sequence_end_slot04_17(Object *obj) {
     int s;
     s16 w;
     int d;
@@ -21,7 +21,7 @@ void func_801b27a0_slot04_17(Object *obj) {
 
     if ((obj->step_flags << 16) < 0) {
         if (obj->mode_flag_2 != 0) {
-            if (func_8014a170(obj, data_801ce050_slot04_17) != 0) {
+            if (test_random_bit_in_table(obj, data_801ce050_slot04_17) != 0) {
                 goto act_b;
             }
             goto act_c;
@@ -38,7 +38,7 @@ act_b:
         obj->accel_x = 0;
         obj->accel_y = -0x6000;
         obj->vel_x = d;
-        func_801307e0(obj, 0x34);
+        set_sequence_by_side_and_mode(obj, 0x34);
         return;
 act_c:
         obj->state_3++;
@@ -88,7 +88,7 @@ act_c:
         obj->accel_x = vz;
         obj->vel_y = vy;
         obj->accel_y = vw;
-        func_801307e0(obj, d + obj->direction_index);
+        set_sequence_by_side_and_mode(obj, d + obj->direction_index);
     } else {
         update_sequence(obj);
     }

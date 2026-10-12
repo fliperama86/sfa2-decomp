@@ -3,7 +3,7 @@
 #include "protos.h"
 #include "externs.h"
 
-void func_801386f0(GameState *state)
+void update_counter_limit_from_table(GameState *state)
 {
   s16 t;
   s16 index;

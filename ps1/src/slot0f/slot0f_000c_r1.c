@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 void func_800e000c_slot0f(GameState *state, Menu *menu) {
-    func_801192bc(0x3c);
+    request_sound_command_and_switch_thread(0x3c);
     scratch_word_00 = -1;
     scratch_word_04 = 1;
-    func_80150cd0(2);
+    load_and_exec_program_by_index(2);
 }
 
 void func_800e004c_slot0f(Object *obj) {
@@ -22,7 +22,7 @@ void func_800e004c_slot0f(Object *obj) {
     }
 }
 
-void func_800e009c_slot0f(Object *obj, int arg) {
+void reset_hud_state_and_sound_by_arg_slot0f(Object *obj, int arg) {
     HudState *h = data_8018f5a0;
     h->state_index = 0;
     h->phase_index = 0;
@@ -42,7 +42,7 @@ void func_800e009c_slot0f(Object *obj, int arg) {
     player_right.side = 1;
     close_voice_thread(1);
     if (arg == 0) {
-        func_80119144(1, 5);
+        set_voice_thread_entry_and_open(1, 5);
         func_80119198(1);
     } else if (arg == 1) {
         func_80119198(3);

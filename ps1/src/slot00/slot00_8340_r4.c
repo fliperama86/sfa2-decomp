@@ -5,7 +5,7 @@
 
 extern ObjectFn data_8007a110_slot00[];
 
-void func_800786f0_slot00(Object *obj) {
+void update_child_image_row_then_call_state_2_slot00(Object *obj) {
     Object *p = obj->parent;
     obj->field_a4 = obj->field_a4 - 1;
     if (obj->field_a4 & 0x80) {
@@ -21,7 +21,7 @@ void func_800786f0_slot00(Object *obj) {
     data_8007a110_slot00[obj->state_2](obj);
 }
 
-void func_80078790_slot00(Object *obj) {
+void set_countdown_ten_and_advance_state_2_slot00(Object *obj) {
     obj->countdown = 0xa;
     obj->state_2 = obj->state_2 + 1;
     advance_sequence_checked(obj);

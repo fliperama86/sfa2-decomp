@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b04e8_slot04_03(Object *obj) {
+void update_range_check_or_seq_1c_or_1d_jump_slot04_03(Object *obj) {
     int one = 1;
 
     obj->active_flag_3 = one;
@@ -20,12 +20,12 @@ void func_801b04e8_slot04_03(Object *obj) {
                 obj->state_3 = 2;
                 *(s16 *)&obj->countdown = -1;
                 obj->variant_index = obj->facing_side ^ 1;
-                func_80141f28(obj, 2);
-                func_80130ec0(obj);
+                add_to_meter_clamped(obj, 2);
+                reset_direction_and_action_fields(obj);
                 obj->field_278 = one;
-                func_801307e0(obj, 0x1c);
+                set_sequence_by_side_and_mode(obj, 0x1c);
             } else {
-                func_80130dc0(obj);
+                set_sequence_and_tables_from_direction(obj);
             }
         } else if ((obj->input_bits_2 & 0xa000) != 0 && obj->field_262 != 0) {
             obj->vel_y = -0x40000;
@@ -37,15 +37,15 @@ void func_801b04e8_slot04_03(Object *obj) {
             }
             obj->pos_y_frac = 0;
             obj->state_3 = 3;
-            func_80141f28(obj, 1);
-            func_80130ec0(obj);
+            add_to_meter_clamped(obj, 1);
+            reset_direction_and_action_fields(obj);
             obj->field_278 = 1;
             obj->sequence_hold_flag = 1;
-            func_801307e0(obj, 0x1d);
+            set_sequence_by_side_and_mode(obj, 0x1d);
         } else {
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     } else {
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

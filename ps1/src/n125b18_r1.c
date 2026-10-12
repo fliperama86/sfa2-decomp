@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_80125b18(u8 a) {
+u8 get_byte_from_table_by_index(u8 a) {
     return table_8016f520[a];
 }

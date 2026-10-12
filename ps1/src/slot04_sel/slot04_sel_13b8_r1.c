@@ -28,12 +28,12 @@ void func_801b13b8_slot04_sel(Object *obj, Slot04SelRec *r) {
             r->field_0b = data_801b9cec_slot04_sel;
             s2->x = data_801b6e80_slot04_sel[obj->side];
             s2->y = data_801b7648_slot04_sel.row_height * (data_801b9ce8_slot04_sel + 1) + 0x90;
-            func_801519b4(s3);
-            func_801519b4(s2);
-            func_801519b4(data_801b7504_slot04_sel[obj->side]);
+            add_item_to_table(s3);
+            add_item_to_table(s2);
+            add_item_to_table(data_801b7504_slot04_sel[obj->side]);
             if (r->field_0b != 0) {
                 data_8016e696 = data_801b9ce8_slot04_sel;
-                func_801205c4(obj->side, 1);
+                call_func_with_side_x_origin(obj->side, 1);
                 data_801b7648_slot04_sel.text_buf[data_801b734c_slot04_sel[0]] = 0x1b;
                 data_801b7648_slot04_sel.text_buf[data_801b734c_slot04_sel[1]] = 0x1b;
                 data_801b7648_slot04_sel.text_buf[data_801b734c_slot04_sel[data_801b9ce8_slot04_sel]] = data_801b7350_slot04_sel[obj->side];
@@ -44,13 +44,13 @@ void func_801b13b8_slot04_sel(Object *obj, Slot04SelRec *r) {
                 }
             }
         } else if (((game_state.mode >> obj->side) & 1) == 0) {
-            func_801519b4(data_801b6f64_slot04_sel[obj->side]);
+            add_item_to_table(data_801b6f64_slot04_sel[obj->side]);
         } else {
             goto both;
         }
     } else {
 both:
-        func_801519b4(s3);
-        func_801519b4(data_801b7504_slot04_sel[obj->side]);
+        add_item_to_table(s3);
+        add_item_to_table(data_801b7504_slot04_sel[obj->side]);
     }
 }

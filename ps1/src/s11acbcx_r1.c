@@ -3,14 +3,14 @@
 #include "protos.h"
 #include "externs.h"
 
-void func_80134624(Object *object);
+void update_bar_entry_and_add_prim(Object *object);
 void func_801452ec(Object *object);
 
 /* What it does (inferred, not an original name): updates the 40 records of the table data_801a89f4 (172 bytes each),
  * one by one, using the byte data_8019045c as the loop counter (it is 40 when the function ends). A record is skipped
  * unless its active_flag and enabled_flag are not 0. Then:
- *   - field_02 is 3, 0xb, 0x14, 0x27 or 0x6d and type_code is not 0x20: type 3, 0xb or 0x14 calls func_8011cd68, 0x6d
- *     calls func_80134624, 0x27 with enabled_flag equal to 1 calls func_801452ec; 0x27 with another enabled_flag calls
+ *   - field_02 is 3, 0xb, 0x14, 0x27 or 0x6d and type_code is not 0x20: type 3, 0xb or 0x14 calls build_block_primitives, 0x6d
+ *     calls update_bar_entry_and_add_prim, 0x27 with enabled_flag equal to 1 calls func_801452ec; 0x27 with another enabled_flag calls
  *     func_8011bc84. Each of these records is then done.
  *   - otherwise, handler_gate equal to 4: when data_80190568 is not 0, the stage handler selected by game_state.kind_index
  *     (0 to 18) is called with the record (a value outside 0 to 18 calls none);
@@ -19,7 +19,7 @@ void func_801452ec(Object *object);
  *     when its pointer is not null and its enabled_flag is not 0, and gets the record's copied_byte first;
  *   - otherwise func_8011bc84 is called with the record.
  */
-void func_8011acbc(void) {
+void draw_all_block172_entries(void) {
     u8 *z = (u8 *)data_8019045c;
     u8 *i;
     int idx;
@@ -44,9 +44,9 @@ void func_8011acbc(void) {
                 if (data_801a89f4[idx].type_code != 0x20) {
                     if (((data_801a89f4[idx].field_02 == 3) || (data_801a89f4[idx].field_02 == 0xb)) ||
                         (data_801a89f4[idx].field_02 == 0x14)) {
-                        func_8011cd68((Block172 *)(((u8 *)data_801a89f4) + off));
+                        build_block_primitives((Block172 *)(((u8 *)data_801a89f4) + off));
                     } else if (data_801a89f4[idx].field_02 == 0x6d) {
-                        func_80134624((Object *)(((u8 *)data_801a89f4) + off));
+                        update_bar_entry_and_add_prim((Object *)(((u8 *)data_801a89f4) + off));
                     } else if ((data_801a89f4[idx].field_02 == 0x27) && (data_801a89f4[idx].enabled_flag == 1)) {
                         func_801452ec((Object *)(((u8 *)data_801a89f4) + off));
                     } else {

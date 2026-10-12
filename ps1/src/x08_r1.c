@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_801199ec(void)
+void load_images_to_vram(void)
 {
   u8 fifteen;
   Rect r;

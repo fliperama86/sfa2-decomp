@@ -7,7 +7,7 @@ extern u16 data_800f020c_slot0f[];
 extern u16 data_800f022c_slot0f[];
 extern void (*data_800e99a0_slot0f[])(void);
 
-void func_800e3a14_slot0f(void) {
+void store_and_darken_palette_row_slot0f(void) {
     Rect rect;
     int i;
     u16 *dst;
@@ -50,6 +50,6 @@ void func_800e3a14_slot0f(void) {
     func_80157d9c(0);
 }
 
-void func_800e3b18_slot0f(void) {
+void call_handler_by_substate_index_slot0f(void) {
     data_800e99a0_slot0f[((HudBig *)data_8018f5a0)->substate_index]();
 }

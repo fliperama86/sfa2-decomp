@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801223e4(GameState *state) {
+void advance_step_and_clear_entity_fields(GameState *state) {
     Entity *e = (Entity *)state;
     e->field_83 = 0;
     data_8018f5a0->step_index_2++;

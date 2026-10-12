@@ -19,14 +19,14 @@ void func_80129468(Object *object) {
         }
     }
     if (object->mode_flag_2 != 0) {
-        if ((u8)func_8014e0b4(object)) {
-            func_8014e3d0(object);
+        if ((u8)find_matching_script_condition_bit(object)) {
+            init_object_mode_3(object);
         }
     } else if (game_state.versus_flag == 0 || game_state.mode == object->side + 1) {
         func_8013060c(object);
-        func_8012dd5c(object);
+        enter_state_1_8_if_check_passes(object);
     }
-    func_80129678(object);
+    count_down_damage_countdown_and_recover(object);
     func_801299d0(object);
     table_8017193c[object->state_1](object);
 }

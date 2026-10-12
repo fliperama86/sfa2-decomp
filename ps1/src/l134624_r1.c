@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80134624(Object *object) {
+void update_bar_entry_and_add_prim(Object *object) {
     s16 index = data_801a27d0;
     u8 *base = data_801ac6a8;
 

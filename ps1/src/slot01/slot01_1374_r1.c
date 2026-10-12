@@ -5,7 +5,7 @@
 
 int func_8001336c_slot01(u8 a);
 
-void func_80011374_slot01(void) {
+void store_five_images_then_next_substep_slot01(void) {
     Rect r;
     r.x = 0;
     r.y = 0x1e0;

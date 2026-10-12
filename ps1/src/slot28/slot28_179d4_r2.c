@@ -8,7 +8,7 @@ extern u8 data_80051528_slot28[];
 extern BoxTables data_800516dc_slot28;
 extern ObjectRef data_80051df0_slot28;
 
-void func_80027b18_slot28(Object *o) {
+void spawn_objects_by_state_index_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     Object *p;
     int i = 0;
@@ -18,7 +18,7 @@ void func_80027b18_slot28(Object *o) {
     case 2:
     case 0x14:
         for (i = 0; i < 2; i++) {
-            p = (Object *)func_8011f1e0();
+            p = (Object *)pop_block_from_pool();
             if (p != 0) {
                 p->active_count = 1;
                 p->field_02 = 0xaf;
@@ -36,7 +36,7 @@ void func_80027b18_slot28(Object *o) {
         break;
     default:
         for (i = 0; i < 6; i++) {
-            p = (Object *)func_8011f1e0();
+            p = (Object *)pop_block_from_pool();
             if (p != 0) {
                 p->active_count = 1;
                 p->field_02 = 0xae;
@@ -53,7 +53,7 @@ void func_80027b18_slot28(Object *o) {
         }
         break;
     }
-    p = (Object *)func_8011f1e0();
+    p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;
         p->field_02 = 0xb0;

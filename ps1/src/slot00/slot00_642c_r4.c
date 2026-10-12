@@ -6,7 +6,7 @@
 extern ObjectFn data_800797c0_slot00[];
 extern ObjectFn data_800797d4_slot00[];
 
-void func_80076810_slot00(Object *o) {
+void update_blink_call_handler_by_state_1_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
     int t;
     ref_other.p = o->parent;
@@ -25,7 +25,7 @@ void func_80076810_slot00(Object *o) {
     data_800797c0_slot00[o->state_1](o);
 }
 
-void func_800768d4_slot00(Object *obj) {
+void call_handler_by_state_2_unless_paused_a_slot00(Object *obj) {
     if (game_state.field_65 == 0 && game_state.field_a8 == 0) {
         data_800797d4_slot00[obj->state_2](obj);
     }

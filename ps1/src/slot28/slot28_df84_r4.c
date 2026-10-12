@@ -12,7 +12,7 @@ extern u16 data_8003d3d8_slot28[];
 extern u16 data_8003d7d8_slot28[];
 
 void func_8001e2ec_slot28(Object *obj, int arg) {
-    func_80130768(data_80051a84_slot28[3], arg, data_8003d2f4_slot28);
+    set_sequence_from_table_5(data_80051a84_slot28[3], arg, data_8003d2f4_slot28);
 }
 
 void func_8001e31c_slot28(Object *obj) {
@@ -38,13 +38,13 @@ void func_8001e37c_slot28(void) {
     for (i = 0; i < 10; i++) {
         Object *p = data_80051a58_slot28[i];
         if (p != 0 && p->active_count != 0) {
-            func_8011f240((Slab172 *)p);
+            reset_and_push_object_to_pool_table((Slab172 *)p);
             data_80051a58_slot28[i] = 0;
         }
     }
 }
 
-void func_8001e3e8_slot28(Object *obj) {
+void copy_two_tables_to_row_pairs_3_slot28(Object *obj) {
     int i;
     for (i = 0; i < 0x200; i++) {
         data_801a27e4_rows[0][i] = data_8003d3d8_slot28[i];

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80126130(void) {
+void fill_palette_banks_white(void) {
     s16 i, j;
     game_state.field_64 = 0xff;
     data_8019032e = 1;
@@ -22,5 +22,5 @@ void func_80126130(void) {
         }
     func_801260ac(0, 1, 0x15);
     func_801260ac(0, 1, 0x17);
-    func_80137b10();
+    queue_five_jobs();
 }

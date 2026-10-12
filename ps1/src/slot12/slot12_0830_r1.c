@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001129c_slot12(void);
+void play_sounds_at_countdown_timer_values_slot12(void);
 
-void func_80010830_slot12(void) {
+void reset_phase_indices_on_timer_expiry_slot12(void) {
     u16 *p = &game_state.timer_or_bits;
     int t = *p - 1;
     *p = t;
@@ -16,17 +16,17 @@ void func_80010830_slot12(void) {
         game_state.field_4f = 0;
         game_state.field_09 = 1;
         while (game_state.wait_flag != 0) {
-            func_80138164();
-            func_8011abe4();
-            func_8001129c_slot12();
-            func_801192bc(1);
+            update_blocks();
+            update_active_slab172_entries();
+            play_sounds_at_countdown_timer_values_slot12();
+            request_sound_command_and_switch_thread(1);
         }
-        func_801280f0();
+        start_fade_mode_1_and_wait();
         while (game_state.wait_flag != 0) {
-            func_80138164();
-            func_8011abe4();
-            func_8001129c_slot12();
-            func_801192bc(1);
+            update_blocks();
+            update_active_slab172_entries();
+            play_sounds_at_countdown_timer_values_slot12();
+            request_sound_command_and_switch_thread(1);
         }
         data_8018f5a0->phase_index = 0;
         game_state.step_delay_timer = 0;

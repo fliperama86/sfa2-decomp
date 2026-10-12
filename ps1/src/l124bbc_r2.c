@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801257f4(Select *sel) {
+void select_kind_for_second_player(Select *sel) {
     Object *first = &player_left;
     Object *second = first + 1;
     Object *tmp;
@@ -53,6 +53,6 @@ void func_801257f4(Select *sel) {
         sel->selected_index = i;
         second->kind = flag;
     }
-    sel->kind_value = (u8)func_80125afc(second->kind);
-    func_80125b34(sel, first);
+    sel->kind_value = (u8)get_table_entry(second->kind);
+    set_kind_value_when_index_at_limit(sel, first);
 }

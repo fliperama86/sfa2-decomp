@@ -15,7 +15,7 @@ void func_801ce330_slot05_06(Object *obj) {
     }
 }
 
-void func_801ce388_slot05_06(Object *obj) {
+void bob_pos_y_and_advance_sequence_slot05_06(Object *obj) {
     int t;
     int a;
 

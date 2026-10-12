@@ -7,18 +7,18 @@ extern ObjectFn data_801c60e8_slot04_0e[];
 extern Slot04_0eRec62b4 data_801c62b4_slot04_0e[];
 extern u16 data_801aa618[];
 
-Block172 *func_8011f1e0(void);
-void func_80138ae8(GameState *state, Object *object);
+Block172 *pop_block_from_pool(void);
+void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 void func_801b5088_slot04_0e(Object *obj);
-void func_801b6d7c_slot04_0e(Slot04bObj *obj);
+void call_handler_by_handler_index_if_active_slot04_0e(Slot04bObj *obj);
 
-void func_801b4b40_slot04_0e(Object *obj) {
+void spawn_object_in_front_store_in_record_slot04_0e(Object *obj) {
     Slot04_0eRec62b4 *r = &data_801c62b4_slot04_0e[obj->side];
     Object *c;
     s16 x;
     s16 lim;
 
-    c = (Object *)func_8011f1e0();
+    c = (Object *)pop_block_from_pool();
     if (c != 0) {
         c->active_count = 1;
         c->field_02 = 0x14;
@@ -59,7 +59,7 @@ void func_801b4cb0_slot04_0e(Object *obj) {
     data_801c60e8_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b4cf0_slot04_0e(Object *o) {
+void start_timed_sequence_state_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int a;
 
@@ -68,12 +68,12 @@ void func_801b4cf0_slot04_0e(Object *o) {
     obj->state_flag = 0;
     o->state_3 = o->state_3 + 1;
     func_801b5088_slot04_0e(o);
-    func_80141f28(o, 4);
-    func_80138ae8(&game_state, o);
-    func_801b6d7c_slot04_0e((Slot04bObj *)o);
+    add_to_meter_clamped(o, 4);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
+    call_handler_by_handler_index_if_active_slot04_0e((Slot04bObj *)o);
     a = 0x62;
     if (o->field_49 == 0) {
         a = 0x4c;
     }
-    func_801307e0(o, a);
+    set_sequence_by_side_and_mode(o, a);
 }

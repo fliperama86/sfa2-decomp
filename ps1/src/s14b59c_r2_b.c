@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014bf58(Object *object) {
+void branch_script_if_no_link(Object *object) {
     if (object->link_flags == 0 && object->linked_object_3 == 0) {
-        func_8014c914(object);
+        read_script_word_and_dispatch(object);
     } else {
-        func_8014c528(object);
+        skip_script_block_then_read_opcode(object);
     }
 }

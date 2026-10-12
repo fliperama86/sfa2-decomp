@@ -4,13 +4,13 @@
 #include "protos.h"
 
 
-void func_8012ab5c(Object *object) {
-    if (func_80149c30(object)) {
-        func_80130304(object);
-    } else if ((u8)func_8014a058(object)) {
-        func_8012f384(object);
-    } else if ((u8)func_8014a0fc(object)) {
-        func_8012f3e0(object);
+void update_sequence_or_start_special_state(Object *object) {
+    if (check_script_condition_by_mode(object)) {
+        call_scratch_fn_by_side_and_mode(object);
+    } else if ((u8)is_pushed_against_bound_while_moving(object)) {
+        start_wall_bounce_sequence(object);
+    } else if ((u8)is_once_random_bit_and_script_ready(object)) {
+        set_state_3_4_and_sequence(object);
     } else {
         update_sequence(object);
     }

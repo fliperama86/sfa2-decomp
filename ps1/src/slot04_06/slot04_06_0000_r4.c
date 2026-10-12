@@ -15,12 +15,12 @@ void func_801b0510_slot04_06(Object *obj) {
     } else {
         one = 1;
         obj->active_flag_3 = one;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
         obj->field_278 = one;
     }
 }
 
-void func_801b0598_slot04_06(Object *obj) {
+void shift_pos_x_and_advance_state_3_on_flag_slot04_06(Object *obj) {
     int d = -0x10;
 
     if ((u8)obj->step_flags != 0) {

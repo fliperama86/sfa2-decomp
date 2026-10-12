@@ -5,7 +5,7 @@
 
 extern u8 data_80028508_slot12[];
 
-void func_800161ec_slot12(u8 *buf, unsigned int n, int pos, int flags) {
+void format_decimal_padded_slot12(u8 *buf, unsigned int n, int pos, int flags) {
     buf += pos;
     *buf = 0;
     pos--;
@@ -34,7 +34,7 @@ void func_800161ec_slot12(u8 *buf, unsigned int n, int pos, int flags) {
     }
 }
 
-void func_80016294_slot12(u8 *buf, unsigned int n, int pos, int flags) {
+void format_hex_padded_slot12(u8 *buf, unsigned int n, int pos, int flags) {
     buf += pos;
     *buf = 0;
     pos--;

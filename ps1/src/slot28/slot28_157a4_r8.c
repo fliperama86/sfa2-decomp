@@ -6,7 +6,7 @@
 void func_800262d8_slot28(Object *obj) {
 }
 
-void func_800262e0_slot28(Object *obj) {
+void advance_state_0_on_negative_step_flags_2_slot28(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 = obj->state_0 + 1;
     }

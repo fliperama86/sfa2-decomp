@@ -6,7 +6,7 @@
 int func_801b0e04_slot04_01(Object *obj) {
     int r = 0;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -18,7 +18,7 @@ int func_801b0e04_slot04_01(Object *obj) {
     return r;
 }
 
-int func_801b0e70_slot04_01(Object *obj) {
+int try_enter_state_07_move_7_with_count_slot04_01(Object *obj) {
     int r = 0;
 
     if (obj->field_7e == 0) {
@@ -26,7 +26,7 @@ int func_801b0e70_slot04_01(Object *obj) {
             return 0;
         }
     }
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r++;
         obj->state_0 = 1;
         obj->state_1 = 0;

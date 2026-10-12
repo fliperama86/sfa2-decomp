@@ -3,15 +3,15 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cc814_slot05_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
 
-/* The same form as func_801b33b8_slot04_06 of the first side's file, whose
+/* The same form as advance_on_other_hit_or_slow_slot04_06 of the first side's file, whose
    unit has the measured variants. The two differ in their addresses only. */
-void func_801cb3b8_slot05_06(Object *obj) {
+void advance_on_other_hit_or_slow_slot05_06(Object *obj) {
     int v;
     if (obj->vel_x >= 0) {
         Object *other;
-        func_801cc814_slot05_06(obj);
+        move_x_by_vel_x_facing_then_accelerate_slot05_06(obj);
         other = obj->other;
         v = other->field_6b != 0;
         if (v && other->hit_type == 1) {
@@ -26,6 +26,6 @@ void func_801cb3b8_slot05_06(Object *obj) {
     set:
         obj->state_3++;
         v = obj->direction_index >> 1;
-        func_801307e0(obj, v + 0x45);
+        set_sequence_by_side_and_mode(obj, v + 0x45);
     }
 }

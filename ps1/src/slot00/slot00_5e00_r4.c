@@ -6,7 +6,7 @@
 extern ObjectFn data_80079164_slot00[];
 extern ObjectFn data_8007916c_slot00[];
 
-void func_8007620c_slot00(Object *obj) {
+void call_handler_by_state_3_4_slot00(Object *obj) {
     data_80079164_slot00[obj->state_3](obj);
 }
 
@@ -14,20 +14,20 @@ void func_8007624c_slot00(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }
 
-void func_80076284_slot00(Object *obj) {
+void update_sequence_or_finish_on_flag_4_slot00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
-        if (func_80149b80(obj) & 0xff) {
+        if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
         }
         update_sequence(obj);
     }
 }
 
-void func_800762ec_slot00(Object *obj) {
+void call_handler_by_state_3_5_slot00(Object *obj) {
     data_8007916c_slot00[obj->state_3](obj);
 }

@@ -6,7 +6,7 @@
 extern u16 data_801a6966;
 
 
-void func_80131c7c(Object *object) {
+void replay_input_log(Object *object) {
     if (input_log.index >= 0xffd) {
         object->input_bits = 0;
         object->input_bits_2 = 0;
@@ -36,7 +36,7 @@ void func_80131c7c(Object *object) {
     }
 }
 
-void func_80131d68(Object *object) {
+void push_other_object_x_by_table(Object *object) {
     int i;
     for (i = 0; i < 4; i++) {
         int d;
@@ -47,7 +47,7 @@ void func_80131d68(Object *object) {
     }
 }
 
-void func_80131df8(Object *object) {
+void push_other_object_x_by_table_2(Object *object) {
     int i;
     for (i = 0; i < 4; i++) {
         int d;

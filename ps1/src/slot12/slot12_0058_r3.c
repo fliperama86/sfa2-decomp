@@ -4,11 +4,11 @@
 #include "../externs.h"
 
 extern void (*data_80017574_slot12[])(void);
-void func_8001129c_slot12(void);
+void play_sounds_at_countdown_timer_values_slot12(void);
 
-void func_80010228_slot12(void) {
+void call_substep_handler_and_update_blocks_slot12(void) {
     data_80017574_slot12[data_8018f5a0->substep_index]();
-    func_80138164();
-    func_8011abe4();
-    func_8001129c_slot12();
+    update_blocks();
+    update_active_slab172_entries();
+    play_sounds_at_countdown_timer_values_slot12();
 }

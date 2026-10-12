@@ -7,10 +7,10 @@ void func_801b4864_slot04_08(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
         if (t & 0xff) {
-            if (func_80149b80(obj) & 0xff) {
+            if (consume_active_frame_flag(obj) & 0xff) {
                 obj->state_3 = 0;
             }
         }

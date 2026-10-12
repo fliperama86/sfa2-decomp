@@ -17,22 +17,22 @@ void func_8001a958_slot28(Object *o, int arg);
 void func_8001a988_slot28(Object *o);
 void func_8001a9e8_slot28(void);
 
-void func_8001a69c_slot28(Object *obj) {
+void advance_slot28_scene_spawn_two_objects_slot28(Object *obj) {
     Object *s;
     if (data_80190949 != 0 && obj->field_f0 == 0) {
         data_8018f5a0->pass_index++;
         data_8018f5a0->countdown_timer = 0x1e0;
         func_8001a9e8_slot28();
-        func_80130768(data_800519c0_slot28.p, 1, data_80036694_slot28);
+        set_sequence_from_table_5(data_800519c0_slot28.p, 1, data_80036694_slot28);
         s = data_800519c4_slot28[0];
         s->pos_y = -0x60;
-        func_80130768(s, 0, data_8003669c_slot28);
+        set_sequence_from_table_5(s, 0, data_8003669c_slot28);
         s = data_800519c8_slot28.p;
         s->field_01 = 1;
         s->pos_y = 0x20;
         /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
         do {
-            s = (Object *)func_8011f1e0();
+            s = (Object *)pop_block_from_pool();
             if (s != 0) {
                 func_8001a988_slot28(s);
                 s->pos_x = 0xc0;
@@ -42,13 +42,13 @@ void func_8001a69c_slot28(Object *obj) {
                 s->spawn_y = 0x1e0;
                 s->image_row = 0;
                 s->ot_depth = 3;
-                func_80130768(s, 5, data_800366a8_slot28);
+                set_sequence_from_table_5(s, 5, data_800366a8_slot28);
                 data_80051998_slot28[0] = s;
             }
         } while (0);
         /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
         do {
-            s = (Object *)func_8011f1e0();
+            s = (Object *)pop_block_from_pool();
             if (s != 0) {
                 s->field_02 = 0x33;
                 s->table_index = 2;
@@ -71,6 +71,6 @@ void func_8001a69c_slot28(Object *obj) {
             }
         } while (0);
         func_8001a958_slot28(obj, 4);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }

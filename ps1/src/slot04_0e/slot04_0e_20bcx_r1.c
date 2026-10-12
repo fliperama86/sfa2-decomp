@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_801417cc(Object *object);
-void func_801b2658_slot04_0e(Object *obj);
-int func_801b20bc_slot04_0e(Object *obj);
+u8 try_action_clearing_both_flags(Object *object);
+void reset_substate_and_set_direction_index_slot04_0e(Object *obj);
+int try_start_action_3_with_variant_slot04_0e(Object *obj);
 
-int func_801b20bc_slot04_0e(Object *obj) {
-    if (!func_801417cc(obj)) return 0;
+int try_start_action_3_with_variant_slot04_0e(Object *obj) {
+    if (!try_action_clearing_both_flags(obj)) return 0;
     obj->field_15a = 3;
     obj->active_flag_3 = 0;
     obj->state_0 = 1;
@@ -19,6 +19,6 @@ int func_801b20bc_slot04_0e(Object *obj) {
     if (!(obj->input_bits_2 & 0x2000)) {
         obj->variant_index = 1;
     }
-    func_801b2658_slot04_0e(obj);
+    reset_substate_and_set_direction_index_slot04_0e(obj);
     return 1;
 }

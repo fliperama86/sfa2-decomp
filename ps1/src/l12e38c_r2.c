@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-void func_8012ec50(Object *object) {
-    if ((u8)func_80130184(object) == 0) {
+void update_airborne_or_land_with_speed(Object *object) {
+    if ((u8)apply_velocity_and_check_ground(object) == 0) {
         s32 speed;
         int arg;
 
@@ -33,7 +33,7 @@ void func_8012ec50(Object *object) {
         object->countdown = *(u16 *)(data_80171a9c + (object->direction_index & 0xfe));
         set_side_flag(object);
         func_80130af0(object);
-        func_801209c4(object);
+        play_object_sound_by_kind(object);
         speed = data_80171aa4[object->kind];
         arg = 0x1e;
         if (object->facing_side != 0) {
@@ -47,6 +47,6 @@ void func_8012ec50(Object *object) {
         set_sequence_by_side(object, arg);
     } else {
         update_sequence(object);
-        func_801376b8(object);
+        store_image_row_for_hit_type(object);
     }
 }

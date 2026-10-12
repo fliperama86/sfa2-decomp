@@ -4,10 +4,10 @@
 #include "protos.h"
 
 int func_8014e758(Object *object) {
-    return func_8014e784(object->other) != 0;
+    return is_state_one_with_frame_boxes(object->other) != 0;
 }
 
-u8 func_8014e784(Object *object) {
+u8 is_state_one_with_frame_boxes(Object *object) {
     FrameRecord *frame;
     u8 a, b, c;
     if (*(u16 *)&object->state_0 != 1) return 0;

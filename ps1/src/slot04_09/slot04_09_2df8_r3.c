@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b27f8_slot04_09(Object *obj);
+void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
 void func_801b5ba0_slot04_09(Object *obj);
 
 void func_801b3040_slot04_09(Object *obj) {
     Object *p;
 
-    func_801b27f8_slot04_09(obj);
+    stop_x_motion_against_facing_then_move_slot04_09(obj);
     func_801b5ba0_slot04_09(obj);
     p = obj->other;
     if (obj->vel_y > 0) {
@@ -24,7 +24,7 @@ void func_801b3040_slot04_09(Object *obj) {
             }
             play_sound_at(obj, obj->side ^ 1, 0x31a);
             play_side_sound_at(obj, obj->side, 5);
-            func_801307e0(obj, 0x21);
+            set_sequence_by_side_and_mode(obj, 0x21);
         } else {
             update_sequence(obj);
         }
@@ -32,6 +32,6 @@ void func_801b3040_slot04_09(Object *obj) {
         obj->state_3 = 7;
         obj->vel_x = 0;
         obj->accel_x = 0;
-        func_801307e0(obj, 0x23);
+        set_sequence_by_side_and_mode(obj, 0x23);
     }
 }

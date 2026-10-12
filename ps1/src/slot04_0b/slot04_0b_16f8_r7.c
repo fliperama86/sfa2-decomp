@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1ce8_slot04_0b(Object *obj) {
+void spawn_linked_pooled_object_offset_6_slot04_0b(Object *obj) {
     Object *p;
     s16 y;
 

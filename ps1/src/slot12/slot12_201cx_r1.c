@@ -7,8 +7,8 @@ extern Object *data_8002d56c_slot12;
 extern int data_8002d578_slot12;
 extern int data_8002a390_slot12;
 extern ObjectFn data_80022e20_slot12[];
-void func_800121ec_slot12(Object *obj, int a);
-void func_800124fc_slot12(Object *obj, FrameRecord *f);
+void set_sequence_and_copy_to_shared_object_slot12(Object *obj, int a);
+void add_tile_map_quads_for_frame_slot12(Object *obj, FrameRecord *f);
 
 void func_8001201c_slot12(Object *obj) {
     Object *p;
@@ -23,6 +23,6 @@ void func_8001201c_slot12(Object *obj) {
     } else {
         f = frames_left;
     }
-    func_800124fc_slot12(p, f);
-    func_80120028(obj);
+    add_tile_map_quads_for_frame_slot12(p, f);
+    set_flag_and_push_if_mode_8(obj);
 }

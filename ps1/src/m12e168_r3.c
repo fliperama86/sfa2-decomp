@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-u8 func_8012eff8(Object *o) {
+u8 apply_table_step_to_pos_x(Object *o) {
     u8 ret = 1;
     int d;
     o->step_applied_flag = 0;
@@ -23,7 +23,7 @@ u8 func_8012eff8(Object *o) {
 
 void func_8012f0e0(Object *o) {
     int d, x;
-    func_8012f1b8(o);
+    call_handler_by_mode_flag_2(o);
     o->step_applied_flag = 0;
     if (o->countdown & 1) {
         if (o->bound_push_flag == 0 && o->active_state == 0) func_80148e84(o);

@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b50e8_slot04_06(Object *obj) {
+void spawn_child_index_5_and_count_timer_slot04_06(Object *obj) {
     GameState *g = &game_state;
     Object *p;
 
     if (((Slot04aObj *)obj)->mode != 0) {
         ((Slot04aObj *)obj)->mode = 0;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->table_index = 5;
@@ -34,7 +34,7 @@ void func_801b50e8_slot04_06(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b51f8_slot04_06(Object *obj) {
+void clear_slots_bytes_slot04_06(Object *obj) {
     int i;
     u8 z = 0;
     u8 *p = (u8 *)&obj->slots;

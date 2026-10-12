@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 extern SequenceStep *data_801e4614_slot0b[];
-void func_801e09f4_slot0b(Object *obj);
-void func_801e0578_slot0b(Object *obj, u8 a);
+void queue_pooled_clut_upload_job_b_slot0b(Object *obj);
+void set_sequence_from_slot01_table_slot0b(Object *obj, u8 a);
 
-void func_801e0480_slot0b(Object *obj) {
+void init_object_from_parent_kind_slot0b(Object *obj) {
     u8 k;
 
     ref_other.p = obj->parent;
@@ -29,9 +29,9 @@ void func_801e0480_slot0b(Object *obj) {
     }
     k = ref_other.p->kind;
     if (k == 0x14) {
-        func_801e09f4_slot0b(obj);
+        queue_pooled_clut_upload_job_b_slot0b(obj);
     } else {
-        func_80125b18(k);
+        get_byte_from_table_by_index(k);
     }
-    func_801e0578_slot0b(obj, func_80125b18(ref_other.p->kind));
+    set_sequence_from_slot01_table_slot0b(obj, get_byte_from_table_by_index(ref_other.p->kind));
 }

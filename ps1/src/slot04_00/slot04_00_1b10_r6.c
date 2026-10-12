@@ -9,11 +9,11 @@ void func_801b20a8_slot04_00(Object *obj) {
     obj->state_3++;
     func_80145d20(obj);
     func_801428e4(obj);
-    func_80138b38(&game_state, obj);
-    func_801307e0(obj, 0x2a);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, 0x2a);
 }
 
-void func_801b2104_slot04_00(Object *obj) {
+void update_sequence_spawn_on_flag_high_byte_slot04_00(Object *obj) {
     if ((s16)obj->step_flags & 0xff00) {
         obj->state_3++;
         if (obj->field_4b == 0) {
@@ -22,7 +22,7 @@ void func_801b2104_slot04_00(Object *obj) {
             obj->field_165 = 1;
         }
         play_sound_at(obj, obj->side, 0x31c);
-        func_80148494(obj, 0x1b, 0x3c);
+        spawn_children_per_direction_active_ff(obj, 0x1b, 0x3c);
     }
     update_sequence(obj);
 }

@@ -5,8 +5,8 @@
 
 extern ObjectFn data_801c24e8_slot04_0b[];
 
-void func_801b09a8_slot04_0b(Object *obj) {
-    func_80142a14(obj);
+void load_velocities_from_table_2_slot04_0b(Object *obj) {
+    update_sequence_with_input_check(obj);
 }
 
 void func_801b09c8_slot04_0b(Object *obj) {

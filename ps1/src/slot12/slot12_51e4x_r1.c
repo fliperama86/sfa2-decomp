@@ -6,11 +6,11 @@
 extern u8 data_8002bc78_slot12;
 extern u8 data_8002bc90_slot12[];
 extern Slot12Cell data_8002bdd4_slot12[];
-void func_80014434_slot12(Object *obj, Slot12Prim *p, int w, int h);
-void func_800152b4_slot12(Object *obj);
-void func_80015334_slot12(Object *obj);
+void init_two_prims_with_draw_mode_slot12(Object *obj, Slot12Prim *p, int w, int h);
+void set_base_and_spawn_from_table_slot12(Object *obj);
+void set_health_from_y_offset_and_table_index_slot12(Object *obj);
 
-void func_800151e4_slot12(Object *obj) {
+void init_slot_object_by_table_index_slot12(Object *obj) {
     u8 *p;
     int i;
     obj->pos_y = 0;
@@ -35,8 +35,8 @@ void func_800151e4_slot12(Object *obj) {
         } while (i >= 0);
         if (obj->table_index == 5) goto tail;
     }
-    func_80014434_slot12(obj, (Slot12Prim *)((u8 *)data_8002bdd4_slot12 + obj->table_index * 64), 0x20, 0x20);
+    init_two_prims_with_draw_mode_slot12(obj, (Slot12Prim *)((u8 *)data_8002bdd4_slot12 + obj->table_index * 64), 0x20, 0x20);
 tail:
-    func_800152b4_slot12(obj);
-    func_80015334_slot12(obj);
+    set_base_and_spawn_from_table_slot12(obj);
+    set_health_from_y_offset_and_table_index_slot12(obj);
 }

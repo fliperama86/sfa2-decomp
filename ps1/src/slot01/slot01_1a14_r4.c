@@ -5,8 +5,8 @@
 
 extern Slot01State55e94 data_80055e94_slot01;
 
-void func_80011f74_slot01(Object *obj) {
-    Object *p = (Object *)func_8011f1e0();
+void spawn_linked_object_by_variant_slot01(Object *obj) {
+    Object *p = (Object *)pop_block_from_pool();
     int t;
     if (p != 0) {
         p->active_count = 1;
@@ -25,7 +25,7 @@ void func_80011f74_slot01(Object *obj) {
     }
 }
 
-void func_80011fe8_slot01(Object *obj, Slot01Rec152ec *a1) {
+void set_record_cursor_and_spawn_y_slot01(Object *obj, Slot01Rec152ec *a1) {
     u16 v;
     int c;
     data_80055e94_slot01.cursor = a1;
@@ -36,7 +36,7 @@ void func_80011fe8_slot01(Object *obj, Slot01Rec152ec *a1) {
     obj->spawn_y = (v & 0x1f) + 0x1e0;
 }
 
-void func_80012020_slot01(Object *obj) {
+void advance_record_list_and_set_spawn_y_slot01(Object *obj) {
     int t = (u16)data_80055e94_slot01.count - 1;
     data_80055e94_slot01.count = t;
     if ((s16)t == 0) {

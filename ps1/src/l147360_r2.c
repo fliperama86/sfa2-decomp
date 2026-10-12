@@ -14,7 +14,7 @@ void func_80147584(Object *object) {
             object->offset_index = 0x17;
             data_8018945c = 0;
         }
-        func_801477ac(object, object->variant_index_2, data_8018945c + object->offset_index);
+        store_image_row_and_queue_job(object, object->variant_index_2, data_8018945c + object->offset_index);
         data_80189458 = data_80189458 + 1;
         if (data_80189458 >= 6) {
             data_8018945c = data_8018945c + 1;

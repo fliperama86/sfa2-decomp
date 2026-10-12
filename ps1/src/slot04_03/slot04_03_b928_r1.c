@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0928_slot04_03(Object *obj) {
+void update_direction_sequence_or_start_move_slot04_03(Object *obj) {
     int t = 0xf;
     int one = 1;
 
     obj->state_3 = 3;
     obj->active_flag_3 = one;
-    func_80130504(obj);
-    func_80141f28(obj, obj->direction_index >> 1);
+    set_direction_from_pressed_bits(obj);
+    add_to_meter_clamped(obj, obj->direction_index >> 1);
     if (obj->variant_index != 0) {
         t = 0x15;
     }
@@ -18,7 +18,7 @@ void func_801b0928_slot04_03(Object *obj) {
         t -= 3;
         if (obj->direction_index != 0) {
             if (obj->ground_y - obj->pos_y >= 0x30 && (obj->input_bits_2 & 0xe000) != 0) {
-                if (func_8013ffe4(obj, -0x30, 0x10, 8, 0x10)) {
+                if (check_hit_other_active_state_nonzero(obj, -0x30, 0x10, 8, 0x10)) {
                     obj->state_0 = one;
                     obj->state_1 = 2;
                     obj->state_2 = 0;
@@ -29,6 +29,6 @@ void func_801b0928_slot04_03(Object *obj) {
             }
         }
     }
-    func_801307e0(obj, (s16)((obj->direction_index >> 1) + t));
+    set_sequence_by_side_and_mode(obj, (s16)((obj->direction_index >> 1) + t));
 }
 

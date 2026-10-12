@@ -1,5 +1,5 @@
 /* Reconstruction. Names/roles inferred, not original symbols.
- * Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual in func_8014cb1c: same swapped-register pair as func_8014ca7c (move present, registers
+ * Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual in restore_script_pointer_and_read_word: same swapped-register pair as read_script_word_or_restore_script (move present, registers
  * reversed, script_arg store scheduled one slot earlier). Calls without an argument (nop in the delay
  * slot) are written as unprototyped declarations. */
 #include "game.h"
@@ -7,7 +7,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_8014cb1c(Object *object)
+void restore_script_pointer_and_read_word(Object *object)
 {
   Object *new_var2;
   u16 v;
@@ -25,7 +25,7 @@ void func_8014cb1c(Object *object)
   v = new_var2->script_opcode_high;
   if (v == 0xff)
   {
-    func_8014d9ac(object);
-    func_8014c994(new_var2);
+    init_script_from_table_index(object);
+    call_script_switch_by_arg(new_var2);
   }
 }

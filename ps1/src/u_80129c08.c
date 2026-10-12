@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_80129c08(Object *object)
+void decrement_meter_clamped_at_zero(Object *object)
 {
   int new_var;
   u16 new_var2;

@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80137220(u8 a, u8 b) {
+void queue_image_upload_job(u8 a, u8 b) {
     Rect r;
     Job *job;
 
-    job = (Job *)func_8011f4a4();
+    job = (Job *)alloc_pooled_b();
     if (job) {
         r.x = b << 4;
         r.y = 0x1e0;
@@ -20,11 +20,11 @@ void func_80137220(u8 a, u8 b) {
     }
 }
 
-void func_801372c8(Object *object) {
+void queue_image_row_upload_job(Object *object) {
     Rect r;
     Job *job;
 
-    job = (Job *)func_8011f4a4();
+    job = (Job *)alloc_pooled_b();
     if (job) {
         r.x = 0x60;
         r.y = object->image_row + 0x1e0;
@@ -37,7 +37,7 @@ void func_801372c8(Object *object) {
     }
 }
 
-void func_80137364(u8 a, u8 b, s16 x, s16 y, u8 h) {
+void store_image_pair_to_table(u8 a, u8 b, s16 x, s16 y, u8 h) {
     Rect r;
 
     r.x = x;

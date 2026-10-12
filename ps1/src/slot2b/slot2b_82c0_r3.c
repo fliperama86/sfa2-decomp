@@ -8,16 +8,16 @@ extern Object *data_8007ef28_slot2b;
 extern Object *data_8007ef30_slot2b;
 void func_80078654_slot2b(Object *o);
 
-void func_80078518_slot2b(Object *o) {
+void unlink_and_release_object_slot2b(Object *o) {
     Object *p = data_8007ef28_slot2b;
 
     if ((s32)o == p->linked_object_3) {
         p->linked_object_3 = 0;
     }
-    func_8011f14c((Slab172 *)o);
+    reset_and_push_block_object_type_8((Slab172 *)o);
 }
 
-void func_80078554_slot2b(Object *o) {
+void apply_velocity_and_acceleration_slot2b(Object *o) {
     Slot2bObj *obj = (Slot2bObj *)o;
 
     obj->pos_x_hi += o->vel_x;
@@ -31,7 +31,7 @@ void func_80078598_slot2b(Object *o) {
     data_8007ed88_slot2b[o->state_0](o);
 }
 
-void func_800785e8_slot2b(Object *o) {
+void init_object_from_linked_data_object_slot2b(Object *o) {
     Object *p;
 
     o->state_0++;

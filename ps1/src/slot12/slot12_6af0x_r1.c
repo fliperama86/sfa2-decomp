@@ -14,7 +14,7 @@ extern u16 data_80028a10_slot12[];
    values for a library call whose result goes into the command word; the
    position is obj->pos_x plus data_80028a10_slot12[idx] and obj->pos_y, the
    page 0x7f07. */
-void func_80016af0_slot12(Object *obj, Slot12Prim *prim, int idx) {
+void fill_two_prims_from_list_slot12(Object *obj, Slot12Prim *prim, int idx) {
     Slot12Prim *next = prim + 1;
     u16 *list;
     u16 u;

@@ -7,7 +7,7 @@ extern SequenceStep *data_80029ed8_slot28[];
 extern Object *data_8005187c_slot28[];
 void func_80014854_slot28(Object *obj, int arg);
 
-void func_800146dc_slot28(Object *obj) {
+void advance_pass_and_show_first_object_slot28(Object *obj) {
     if (obj->field_f0 == 0) {
         HudState *h = data_8018f5a0;
         Object *o;
@@ -16,9 +16,9 @@ void func_800146dc_slot28(Object *obj) {
         o = data_8005187c_slot28[0];
         o->pos_y = -0x50;
         o->field_01 = 1;
-        func_80130768(o, 1, data_80029ed8_slot28);
+        set_sequence_from_table_5(o, 1, data_80029ed8_slot28);
         func_80014854_slot28(obj, 5);
-        func_80128370();
+        start_fade_mode_1a01_and_wait();
     }
 }
 
@@ -34,8 +34,8 @@ void func_800147b4_slot28(Object *obj) {
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;
     if ((s16)t < 0) {
-        func_8014f4d4(6, 3);
-        func_801280f0();
+        set_menu_command_by_code(6, 3);
+        start_fade_mode_1_and_wait();
         data_8018f5a0->pass_index += 1;
     }
 }

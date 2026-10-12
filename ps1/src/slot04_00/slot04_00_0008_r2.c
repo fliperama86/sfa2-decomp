@@ -6,7 +6,7 @@
 extern s8 data_801bfd3c_slot04_00[];
 extern s8 data_801bfd4c_slot04_00[];
 
-void func_801b0240_slot04_00(Object *obj) {
+void pick_random_sequence_and_set_countdowns_slot04_00(Object *obj) {
     int r;
 
     obj->state_2 = obj->state_2 + 1;
@@ -14,6 +14,6 @@ void func_801b0240_slot04_00(Object *obj) {
     if (game_state.countdown == 0) {
         game_state.countdown = 0x1e;
     }
-    r = func_80125734(obj, data_801bfd3c_slot04_00[get_random_byte() & 0xf]);
+    r = get_input_mapped_value_or_default(obj, data_801bfd3c_slot04_00[get_random_byte() & 0xf]);
     set_sequence_by_side(obj, data_801bfd4c_slot04_00[(s8)r]);
 }

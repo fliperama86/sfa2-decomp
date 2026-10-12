@@ -16,7 +16,7 @@ extern u32 table_801e47a8_slot0b[];
    position, widened by width and height; the texture coordinates are formed
    the same way. The record is linked into the list head
    data_801987c8[table_801e47a8_slot0b[object.ot_depth]]. */
-void func_801e0ea8_slot0b(Object *obj, u8 *p) {
+void build_sprite_set_quads_into_ot_slot0b(Object *obj, u8 *p) {
     Poly28 *prim = (Poly28 *)p;
     SpriteSet *shape = (SpriteSet *)obj->sequence->data_ptr;
     u32 idx = table_801e47a8_slot0b[obj->ot_depth];

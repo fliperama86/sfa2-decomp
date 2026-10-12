@@ -7,7 +7,7 @@ extern u16 data_80022e48_slot12[];
 extern Slot12Tile data_8002a394_slot12[];
 extern Slot12Tile data_8002a794_slot12[];
 
-void func_80012b5c_slot12(Object *obj) {
+void link_offset_tiles_into_ot_slot12(Object *obj) {
     u16 *t = data_80022e48_slot12;
     u32 *ot = (u32 *)((u8 *)data_801987c8 + 0x3c);
     Slot12Tile *p;

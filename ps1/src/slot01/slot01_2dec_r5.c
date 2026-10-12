@@ -12,7 +12,7 @@ int func_8001336c_slot01(u8 arg) {
         *flag = 1;
         data_801ae02e = arg;
         data_801ae02d = 0;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             ret = 1;
             p->active_count = 1;

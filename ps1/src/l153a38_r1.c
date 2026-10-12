@@ -3,27 +3,27 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80153a38(Actor *a) {
+void show_round_count_text(Actor *a) {
     if (a->owner->effect_code_bc == 8) {
-        func_80153b74(a);
+        show_round_text_and_score(a);
         return;
     }
     if (a->target->round_count < 2) {
         a->text_index = 8;
-        func_80153d7c(a);
+        queue_text_from_table(a);
     } else {
         a->text_index = 9;
-        func_80153d7c(a);
+        queue_text_from_table(a);
         a->number_value = a->target->round_count;
         table_801803c4[a->side]->text_x = table_80180340[a->side];
         queue_two_digit_number_text(a);
     }
-    func_80153f0c(a);
+    update_owner_field_text(a);
     if (a->owner->mode_flag_2 == 0) {
-        func_80153ed8(a);
+        set_score_value_from_target_field(a);
         if (a->owner->mode_flag_2 == 0) {
             table_8018049c[a->side]->field_06 = 0x60;
-            func_80153dfc(a);
+            format_score_text(a);
         }
     }
 }

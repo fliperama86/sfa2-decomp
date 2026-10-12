@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3e84_slot04_06(Object *obj) {
+void call_effect_on_step_flag_byte_2_slot04_06(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
-        func_80146998(obj);
+        spawn_offset_effect_and_play_sounds(obj);
     }
     update_sequence(obj);
 }

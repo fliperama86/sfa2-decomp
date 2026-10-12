@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0adc_slot04_04(Object *obj) {
+void init_jump_velocity_by_screen_position_slot04_04(Object *obj) {
     int vel;
     int acc;
     u16 lx;

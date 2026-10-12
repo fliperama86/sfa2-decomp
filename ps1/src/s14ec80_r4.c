@@ -17,6 +17,6 @@ void func_8014f76c(Ctl *p) {
     p->field_17 = 0;
     p->field_1c = 0;
     p->field_1f = 0;
-    func_80150c6c(p, p->handler_arg);
-    func_8014f7f8(p);
+    set_sprite_fields_from_table(p, p->handler_arg);
+    seek_cd_position_with_retries(p);
 }

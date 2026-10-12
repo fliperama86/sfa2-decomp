@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3f30_slot04_0a(Object *obj) {
-    func_8013788c(obj);
+void load_velocities_from_table_5_slot04_0a(Object *obj) {
+    call_side_func_then_queue_job(obj);
 }
 
-void func_801b3f50_slot04_0a(Object *obj) {
+void noop_slot00_slot04_0a(Object *obj) {
 }

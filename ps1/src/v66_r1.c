@@ -5,7 +5,7 @@
 #include "protos.h"
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_8013e944(Object *object, int index, int arg)
+void check_slot_input_with_level_limit(Object *object, int index, int arg)
 {
   unsigned entry;
   unsigned pad;
@@ -63,7 +63,7 @@ void func_8013e944(Object *object, int index, int arg)
     check:
     if ((*((u8 *) ((u8 *) object + ((u8) index << 3)) + 0x2b2)) >= limit)
     {
-      func_8013f2d8(object, (u8) index, (u8) arg);
+      reset_slot_stage_set_result(object, (u8) index, (u8) arg);
       return;
     }
 
@@ -76,7 +76,7 @@ void func_8013e944(Object *object, int index, int arg)
     object->slots[(u8) index].repeat_count -= 2;
     if (object->slots[(u8) index].repeat_count == 0)
     {
-      func_8013f2a8(object, (u8) index, (u8) arg);
+      reset_slot_stage_clear_result(object, (u8) index, (u8) arg);
     }
     object->slots[(u8) index].timer = 2;
   }

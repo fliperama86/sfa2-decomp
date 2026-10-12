@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3b4c_slot04_01(Object *obj);
+void play_side_sound_from_step_flags_slot04_01(Object *obj);
 extern ObjectFn data_801bf128_slot04_01[];
 
-int func_801b388c_slot04_01(Object *obj) {
+int move_by_velocity_return_falling_slot04_01(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
     obj->vel_y += obj->accel_y;
@@ -15,5 +15,5 @@ int func_801b388c_slot04_01(Object *obj) {
 
 void func_801b38c4_slot04_01(Object *obj) {
     data_801bf128_slot04_01[obj->state_3](obj);
-    func_801b3b4c_slot04_01(obj);
+    play_side_sound_from_step_flags_slot04_01(obj);
 }

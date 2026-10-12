@@ -8,8 +8,8 @@ extern Slot06TileW data_801f30a4_slot06_05[2][0x68];
 /* Draws the layer of data_801aa544[2]: for 9 rows of 13 cells of 32 pixels,
    a tile record for each cell that is not blank, linked into the primitive
    list (inferred). The locals t, sx, sy, mask and cc are 16-bit, as in the model
-   func_801e8b08_slot06_00. */
-void func_801e8b4c_slot06_05(void) {
+   draw_tilemap_layer_32px_9x13_slot06_00. */
+void draw_tilemap_layer_32px_9x13_slot06_05(void) {
     Chan *c = &data_801aa544[2];
     int x;
     int pos;

@@ -6,7 +6,7 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_8012bbac(Object *object)
+void set_sequence_by_other_state(Object *object)
 {
   object->facing_side = object->saved_facing;
   ref_other.p = object->other;

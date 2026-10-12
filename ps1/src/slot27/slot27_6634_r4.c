@@ -5,7 +5,7 @@
 extern s16 data_80055eb2;
 extern ObjectFn data_80028e74_slot27[];
 
-void func_800169c4_slot27(Object *obj) {
+void slide_x_right_to_limit_slot27(Object *obj) {
     s16 *p;
     s16 x = obj->pos_x;
     s16 m = *(s16 *)box_margin;
@@ -23,10 +23,10 @@ void func_800169c4_slot27(Object *obj) {
 }
 
 void func_80016a54_slot27(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_80016a74_slot27(Object *obj) {
+void call_handler_by_state_0_with_refs_2_slot27(Object *obj) {
     ref_other.p = obj->parent;
     (*(Object **)&data_80190458) = obj->other;
     data_80028e74_slot27[obj->state_0](obj);

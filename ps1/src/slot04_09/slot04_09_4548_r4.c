@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5348_slot04_09(Object *obj);
+void clear_slots_bytes_slot04_09(Object *obj);
 
-void func_801b484c_slot04_09(Object *obj) {
+void start_state_with_sound_7_and_sequence_slot04_09(Object *obj) {
     int a = 0x2b;
     obj->state_3 = obj->state_3 + 1;
-    func_80142fbc(obj);
-    func_801428a8(obj);
-    func_80138b38(&game_state, obj);
+    save_facing_and_set_x_motion(obj);
+    set_direction_index_from_meter_and_save(obj);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
     play_side_sound_at(obj, obj->side, 7);
     if (obj->active_state != 0) {
         a = 0x2f;
@@ -28,11 +28,11 @@ void func_801b48d4_slot04_09(Object *obj) {
         if (obj->active_state != 0) {
             a = -7;
         }
-        func_801495f8(obj, a, 0x50);
-        func_8011fe40(obj);
-        func_80149af8(obj);
-        func_80143184(obj);
-        func_801b5348_slot04_09(obj);
+        spawn_effect_objects_at_offset(obj, a, 0x50);
+        reset_side_table_and_fields(obj);
+        spawn_object_type_6d_for_side(obj);
+        set_other_sequence_3_when_close(obj);
+        clear_slots_bytes_slot04_09(obj);
     }
     update_sequence(obj);
 }

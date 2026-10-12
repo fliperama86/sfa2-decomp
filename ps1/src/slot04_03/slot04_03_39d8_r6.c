@@ -14,9 +14,9 @@ void func_801b4170_slot04_03(Object *obj) {
         obj->state_3 = 0;
         obj->input_dir_0 = 0;
     } else if (obj->direction_index == 4 && obj->attack_param_d != 0 && obj->direction_flag == 0) {
-        func_80141f28(obj, 2);
-        func_801307e0(obj, 0x1b);
+        add_to_meter_clamped(obj, 2);
+        set_sequence_by_side_and_mode(obj, 0x1b);
     } else {
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

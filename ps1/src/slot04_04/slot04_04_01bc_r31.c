@@ -17,11 +17,11 @@ void func_801b28b8_slot04_04(Object *o) {
         }
         play_side_sound_at(o, o->side, 6);
         play_sound_at(o, o->side, 0x31c);
-        func_801483a4(o, -0xc, 0x30);
+        spawn_children_per_direction_index(o, -0xc, 0x30);
     }
 }
 
-void func_801b295c_slot04_04(Object *o) {
+void count_down_then_set_table_value_sound_7_slot04_04(Object *o) {
     o->countdown = (s16)o->countdown - 0x100;
     if ((o->countdown & 0xff00) == 0) {
         o->state_3++;
@@ -37,7 +37,7 @@ void func_801b295c_slot04_04(Object *o) {
     }
 }
 
-void func_801b2a08_slot04_04(Object *o) {
+void update_sequence_set_active_on_flag_slot04_04(Object *o) {
     if (*(u8 *)&o->step_flags == 0) {
         o->active_state = 1;
         o->state_3++;

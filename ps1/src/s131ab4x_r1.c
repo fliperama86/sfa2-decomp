@@ -24,7 +24,7 @@ extern u16 data_801a6966;
  *     word; the flag is cleared; the index moves on by 1.
  * With the index at 0xffd or more nothing happens.
  */
-void func_80131ab4(Object *object) {
+void record_input_log(Object *object) {
     u16 n;
     u16 n1;
     if (input_log.index < 0xffd) {

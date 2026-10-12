@@ -15,18 +15,18 @@ extern int data_8002cea4_slot01;
 extern int data_8002cea0_slot01;
 extern Strip1c *data_8002ce9c_slot01;
 extern Slot01TextRec data_800150cc_slot01[];
-void func_80010d0c_slot01(int value, char *buf);
-void func_80010bf0_slot01(int value, char *buf);
+void format_hex_digits_eight_chars_slot01(int value, char *buf);
+void format_decimal_six_chars_slot01(int value, char *buf);
 /*
  * What it does (inferred, not an original name): draws the status panel of
  * the object that game_state.focus_object points at, unless its mode_flag_2 is not
  * 0. It picks a left position (0x10 or 0xe0 by team_id), sets the x of
  * text records in data_800150cc_slot01, formats two or three numbers into
- * their buffers and queues each record with func_801519b4. Last it fills
+ * their buffers and queues each record with add_item_to_table. Last it fills
  * win_count + 1 strips and links them into the ordering table head of the
  * buffer data_801a27d0.
  */
-void func_800108d4_slot01(void) {
+void queue_score_text_and_win_strips_slot01(void) {
     Object *o = game_state.focus_object;
     Slot01TextRec *q;
     data_8002cea8_slot01 = o;
@@ -38,19 +38,19 @@ void func_800108d4_slot01(void) {
         }
         data_800150cc_slot01[0].x = data_8002cea4_slot01;
         data_800150cc_slot01[1].x = data_8002cea4_slot01 + 0x38;
-        func_80010d0c_slot01(data_8002cea8_slot01->best_score, data_800150cc_slot01[1].text);
-        func_801519b4(&data_800150cc_slot01[0]);
-        func_801519b4(&data_800150cc_slot01[1]);
+        format_hex_digits_eight_chars_slot01(data_8002cea8_slot01->best_score, data_800150cc_slot01[1].text);
+        add_item_to_table(&data_800150cc_slot01[0]);
+        add_item_to_table(&data_800150cc_slot01[1]);
         data_800150cc_slot01[2].x = data_8002cea4_slot01;
         data_800150cc_slot01[3].x = data_8002cea4_slot01 + 0x48;
-        func_80010bf0_slot01(game_state.select_flag != 0 ? data_8002cea8_slot01->win_streak : data_8002cea8_slot01->count, data_800150cc_slot01[3].text);
-        func_801519b4(&data_800150cc_slot01[2]);
-        func_801519b4(&data_800150cc_slot01[3]);
+        format_decimal_six_chars_slot01(game_state.select_flag != 0 ? data_8002cea8_slot01->win_streak : data_8002cea8_slot01->count, data_800150cc_slot01[3].text);
+        add_item_to_table(&data_800150cc_slot01[2]);
+        add_item_to_table(&data_800150cc_slot01[3]);
         data_800150cc_slot01[4].x = data_8002cea4_slot01;
-        func_801519b4(&data_800150cc_slot01[4]);
+        add_item_to_table(&data_800150cc_slot01[4]);
         if (data_8002cea8_slot01->max_value_cc != 0) {
             data_800150cc_slot01[5].x = data_8002cea4_slot01 + 0x48;
-            func_80010bf0_slot01(data_8002cea8_slot01->max_value_cc, data_800150cc_slot01[5].text);
+            format_decimal_six_chars_slot01(data_8002cea8_slot01->max_value_cc, data_800150cc_slot01[5].text);
             q = &data_800150cc_slot01[5];
         } else {
             if (data_8002cea8_slot01->team_id != 0) {
@@ -60,9 +60,9 @@ void func_800108d4_slot01(void) {
             }
             q = &data_800150cc_slot01[7];
         }
-        func_801519b4(q);
+        add_item_to_table(q);
         data_800150cc_slot01[6].x = data_8002cea4_slot01;
-        func_801519b4(&data_800150cc_slot01[6]);
+        add_item_to_table(&data_800150cc_slot01[6]);
         if (data_8002cea8_slot01->team_id != 0) {
             data_8002cea4_slot01 = 0x88;
             data_8002ce9c_slot01 = data_80190014[data_801a27d0];

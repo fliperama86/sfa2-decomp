@@ -5,7 +5,7 @@
 
 
 
-void func_8011fc00(Object *object) {
+void advance_sequence_rec_4(Object *object) {
     SeqRec *rec;
     int v = object->step_timer - 1;
     object->step_timer = v;
@@ -15,11 +15,11 @@ void func_8011fc00(Object *object) {
         if ((s16)object->step_flags < 0) {
             rec = (SeqRec *)rec->header;
         }
-        func_8011fc84(object, rec);
+        set_sequence_record(object, rec);
     }
 }
 
-void func_8011fc54(Object *object, SeqRec **table, u8 index) {
+void set_sequence_from_table_4(Object *object, SeqRec **table, u8 index) {
     SeqRec **p = table + index;
-    func_8011fc84(object, *p);
+    set_sequence_record(object, *p);
 }

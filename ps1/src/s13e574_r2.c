@@ -5,6 +5,6 @@
 
 void func_8013e7f0(Object *object, int index, int arg) {
     object->slots[(u8)index].timer--;
-    if (object->slots[(u8)index].timer == 0) func_8013f2a8(object, (u8)index, (u8)arg);
-    else func_8013e84c(object, (u8)index, (u8)arg);
+    if (object->slots[(u8)index].timer == 0) reset_slot_stage_clear_result(object, (u8)index, (u8)arg);
+    else check_slot_high_input_bits_and_advance(object, (u8)index, (u8)arg);
 }

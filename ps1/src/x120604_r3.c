@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801213c0(GameState *g) {
+void init_match_state_and_players(GameState *g) {
     Object *l;
     Object *r;
     int z;
@@ -85,19 +85,19 @@ void func_801213c0(GameState *g) {
     g->init_timer_value = 0x3c;
     g->round_time = g->table_value_b;
     if (g->mode3_active_flag == 0 && g->versus_flag == 0) {
-        func_801263d8(g);
-        func_801262fc(g);
+        check_repeat_count_trigger_kind_code(g);
+        check_hit_count_trigger_kind_swap(g);
     }
     func_80123b88(g);
     link_players(g, l, r);
     g->state_2c_flag = 1;
     func_8011eae4();
     func_8013839c(g);
-    func_8014e890(game_state.kind_index);
-    func_8014eb9c(data_801a8067, data_801a83fb);
+    load_kind_images_to_vram(game_state.kind_index);
+    load_player_sound_banks(data_801a8067, data_801a83fb);
     func_80136dc4();
     func_80151020(0x604);
-    func_801192bc(1);
+    request_sound_command_and_switch_thread(1);
     func_80157d00(1);
     data_80190568 = 1;
     data_801a6938 = z;

@@ -12,7 +12,7 @@ void func_8011b594(void) {
         k = UNIT_INDEX;
         if (units_2c20[k].active != 0 && units_2c20[k].handler_enable != 0) {
             if (units_2c20[k].handler_index == 0x17) {
-                func_8011cd68(&units_2c20[k]);
+                build_block_primitives(&units_2c20[k]);
             } else {
                 func_8011bc84((Slab172 *)&units_2c20[k]);
             }

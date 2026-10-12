@@ -5,11 +5,11 @@
 
 extern ObjectFn data_801c542c_slot04_06[];
 
-void func_801b3004_slot04_06(Object *obj) {
+void update_sequence_or_finish_sequence_2_slot04_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 

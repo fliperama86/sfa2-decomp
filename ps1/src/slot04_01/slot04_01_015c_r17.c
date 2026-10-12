@@ -6,7 +6,7 @@
 extern void (*data_801bf254_slot04_01[])(Object *);
 extern ObjectFn data_801bf268_slot04_01[];
 
-void func_801b3cfc_slot04_01(Object *obj) {
+void call_handler_by_state_1_slot04_01(Object *obj) {
     data_801bf254_slot04_01[obj->state_1](obj);
 }
 

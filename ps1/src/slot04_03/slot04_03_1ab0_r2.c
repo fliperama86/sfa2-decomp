@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1c08_slot04_03(Object *obj) {
+void shift_pos_x_by_facing_on_step_flag_slot04_03(Object *obj) {
     int d;
 
     update_sequence(obj);

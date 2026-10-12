@@ -20,7 +20,7 @@ void func_801e91dc_slot06_07(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e9208_slot06_07(void) {
+void init_two_banks_of_poly_ft4_slot06_07(void) {
     int i;
     int j;
     Poly28 *r;
@@ -42,13 +42,13 @@ void func_801e9208_slot06_07(void) {
     } while (i < 2);
 }
 
-void func_801e92a8_slot06_07(Slot06Layer *layer) {
+void update_layer_follow_main_layer_half_slot06_07(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     s16 e;
 
     if (layer->mode == 0) {
-        func_801369d4((Cam *)layer, 0x1a0, 0);
+        init_cam_position_and_consume_pending((Cam *)layer, 0x1a0, 0);
     } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;

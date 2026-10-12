@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001b1c4_slot28(Object *o) {
+void integrate_position_and_ground_y_motion_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     obj->pos_x += o->vel_x;
     o->vel_x += o->accel_x;

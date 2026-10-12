@@ -7,7 +7,7 @@ extern ObjectRef data_80051890_slot28;
 extern ObjectRef data_800518c8_slot28;
 void func_8001581c_slot28(Object *obj, int arg);
 
-void func_800156b0_slot28(Object *obj) {
+void advance_pass_when_object_field_negative_slot28(Object *obj) {
     Object *p;
     if (obj->field_f0 == 0) {
         p = data_800518c8_slot28.p;

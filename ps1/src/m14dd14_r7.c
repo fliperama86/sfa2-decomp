@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014fa60(Ctl *ctl) {
+void read_stream_sector_for_record_kind(Ctl *ctl) {
     Stream *stream = (Stream *)ctl;
     int v = (u16)stream->current_record->kind;
     u32 n;
@@ -21,7 +21,7 @@ void func_8014fa60(Ctl *ctl) {
             }
             stream->source_ptr = (u8 *)(0x800fb100 - data_8017d918[player_right.kind]);
         }
-        func_8015003c(stream);
+        read_stream_sector_to_source_ptr(stream);
     } else {
         n = stream->bytes_remaining;
         if (n > 0x800) {
@@ -33,11 +33,11 @@ void func_8014fa60(Ctl *ctl) {
     stream->step_count++;
 }
 
-void func_8014fb54(Ctl *ctl) {
+void queue_stream_image_rect_row(Ctl *ctl) {
     Stream *stream = (Stream *)ctl;
     StreamEntry *e;
     int a;
-    func_80150100(stream);
+    read_stream_sector_to_write_slot(stream);
     if (stream->step_count == 0) {
         a = 0;
     } else {
@@ -59,12 +59,12 @@ void func_8014fb54(Ctl *ctl) {
     }
 }
 
-void func_8014fc4c(Ctl *ctl) {
+void queue_stream_rect_entry_grid(Ctl *ctl) {
     Stream *stream = (Stream *)ctl;
     StreamEntry *e;
     u32 v;
     int a, b;
-    func_80150100(stream);
+    read_stream_sector_to_write_slot(stream);
     v = stream->step_count;
     if (v == 0) {
         b = 0;

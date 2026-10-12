@@ -5,10 +5,10 @@
 
 extern s32 data_801c64e8_slot04_02[];
 
-void func_801b482c_slot04_02(Object *obj);
-void func_801b494c_slot04_02(Object *obj);
+void choose_air_attack_branch_by_button_bits_slot04_02(Object *obj);
+void choose_air_attack_branch_by_distance_slot04_02(Object *obj);
 
-void func_801b46d4_slot04_02(Object *obj) {
+void update_airborne_motion_until_landing_a_slot04_02(Object *obj) {
     u16 a;
 
     update_sequence(obj);
@@ -26,7 +26,7 @@ void func_801b46d4_slot04_02(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         obj->active_state = 0;
         obj->pos_y = obj->ground_y;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         a = obj->direction_index >> 1;
         obj->accel_x = data_801c64e8_slot04_02[a];
         if (obj->field_49 != 0 && obj->mode_flag_2 == 0) {
@@ -34,11 +34,11 @@ void func_801b46d4_slot04_02(Object *obj) {
         } else {
             a += 0x4d;
         }
-        func_801307e0(obj, a);
+        set_sequence_by_side_and_mode(obj, a);
         play_sound_at(obj, obj->side, 0x324);
     } else if (obj->mode_flag_2 != 0) {
-        func_801b494c_slot04_02(obj);
+        choose_air_attack_branch_by_distance_slot04_02(obj);
     } else {
-        func_801b482c_slot04_02(obj);
+        choose_air_attack_branch_by_button_bits_slot04_02(obj);
     }
 }

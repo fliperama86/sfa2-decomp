@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80121dc4(Object *object) {
+void advance_pass_index_then_next_step(Object *object) {
     Entity *entity = (Entity *)object;
     int v;
     switch (data_8018f5a0->pass_index) {
@@ -13,7 +13,7 @@ void func_80121dc4(Object *object) {
         if ((s16)v < 0) {
             data_8018f5a0->sub_timer = 4;
             data_8018f5a0->pass_index++;
-            func_8011a744();
+            init_sprite_tables();
         }
         break;
     case 1:
@@ -34,7 +34,7 @@ void func_80121dc4(Object *object) {
             data_8018f5a0->step_index = 5;
         }
         entity->active_flag = 1;
-        func_8013245c();
+        init_hud_primitives();
         if (entity->mode_flag_b != 0) {
             data_80197f1c = 0xff;
         }

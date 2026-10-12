@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 /* Declared here because the published headers lack them (inferred). */
-void func_801b8354_slot04_14(Object *obj);
+void set_state_0_to_2_slot04_14(Object *obj);
 void func_801b8430_slot04_14(Object *obj, u8 arg);
 
 void func_801b81f8_slot04_14(Object *obj) {
@@ -40,12 +40,12 @@ void func_801b81f8_slot04_14(Object *obj) {
         obj->table_index = palette;
         func_801b8430_slot04_14(obj, palette);
         if (other->side == 0) {
-            func_80130768(obj, 8, data_1f8000b4);
+            set_sequence_from_table_5(obj, 8, data_1f8000b4);
         } else {
-            func_80130768(obj, 8, data_1f800164);
+            set_sequence_from_table_5(obj, 8, data_1f800164);
         }
         func_8011ffdc(obj);
     } else {
-        func_801b8354_slot04_14(obj);
+        set_state_0_to_2_slot04_14(obj);
     }
 }

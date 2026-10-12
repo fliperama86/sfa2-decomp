@@ -19,7 +19,7 @@ void func_801507e8(Menu *menu) {
     }
 }
 
-void func_80150878(Menu *menu) {
+void send_cd_command_nine_set_state_three(Menu *menu) {
     menu->active_flag = 1;
     if (menu->flag_a & menu->flag_b) {
         if (func_8015c938(1, 0)) {
@@ -33,7 +33,7 @@ void func_80150878(Menu *menu) {
     }
 }
 
-void func_801508fc(Menu *menu) {
+void send_cd_command_1b_set_state_two(Menu *menu) {
     if (func_8015c938(1, 0) && menu->active_flag != 0 && menu->flag_a == 0) {
         if (func_8015c9c0(0x1b, 0, &menu->cd_result)) {
             menu->flag_b = 0;
@@ -56,7 +56,7 @@ void func_80150984(Menu *menu) {
     }
 }
 
-void func_801509ec(Menu *menu) {
+void send_cd_command_15_set_state_one(Menu *menu) {
     if (func_8015c938(1, 0)) {
         if (func_8015c9c0(0x15, &menu->cd_position, 0)) {
             menu->command_state = 1;
@@ -64,7 +64,7 @@ void func_801509ec(Menu *menu) {
     }
 }
 
-void func_80150a3c(Menu *menu) {
+void send_cd_command_0d_set_state_five(Menu *menu) {
     if (func_8015c938(1, 0)) {
         if (func_8015c9c0(0xd, &menu->cd_param, 0)) {
             menu->command_state = 5;
@@ -72,7 +72,7 @@ void func_80150a3c(Menu *menu) {
     }
 }
 
-void func_80150a8c(Menu *menu) {
+void send_cd_command_0e_set_state_six(Menu *menu) {
     if (func_8015c938(1, 0)) {
         u8 buf = 0xc8;
         if (func_8015c9c0(0xe, &buf, &menu->cd_result)) {

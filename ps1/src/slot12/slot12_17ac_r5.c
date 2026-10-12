@@ -5,7 +5,7 @@
 
 extern Slot12Bank data_80028b48_slot12[];
 
-void func_80011a78_slot12(Object *obj, Slot12List *list) {
+void init_sprite_cells_from_list_slot12(Object *obj, Slot12List *list) {
     Cell20 *a = data_80028b48_slot12[0].cells;
     Cell20 *b = data_80028b48_slot12[1].cells;
     int i;

@@ -7,7 +7,7 @@ extern u16 *data_801b7d54_slot04_sel[];
 extern u16 *data_801b7d5c_slot04_sel[];
 extern u16 data_801b7d64_slot04_sel[];
 
-void func_801b31f4_slot04_sel(Object *obj, Slot04SelRec9d38 *r) {
+void update_button_sequence_matcher_2_slot04_sel(Object *obj, Slot04SelRec9d38 *r) {
     if (r->field_0e == 0) {
         if (r->field_0f == 0) {
             if (obj->kind == 2 && *data_801b7d54_slot04_sel[obj->side] == 0x100) {

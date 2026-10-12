@@ -18,10 +18,10 @@ void func_801b37c8_slot04_00(Object *obj) {
     if (obj->direction_index == 2 && obj->attack_param_d != 0) {
         obj->active_flag_3 = 1;
         obj->state_3 = 2;
-        func_80141f28(obj, 1);
-        func_801307e0(obj, 0x23);
+        add_to_meter_clamped(obj, 1);
+        set_sequence_by_side_and_mode(obj, 0x23);
         return;
     }
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }

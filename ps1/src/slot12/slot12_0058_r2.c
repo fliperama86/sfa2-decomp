@@ -6,7 +6,7 @@
 extern Object *data_8002d56c_slot12;
 extern Object *data_8002d568_slot12;
 
-void func_80010100_slot12(void) {
+void init_pools_and_store_player_pointers_slot12(void) {
     HudState *h = data_8018f5a0;
     int one = 1;
     data_80190568 = one;
@@ -14,17 +14,17 @@ void func_80010100_slot12(void) {
     game_state.field_09 = one;
     game_state.state_2c_flag = 0xff;
     game_state.field_65 = one;
-    func_8011a744();
+    init_sprite_tables();
     init_object_pools();
     data_8002d56c_slot12 = game_state.object;
     data_8002d568_slot12 = &player_left + (game_state.object->side ^ 1);
 }
 
-void func_800101b4_slot12(void) {
+void increment_substep_index_slot12(void) {
     data_8018f5a0->substep_index++;
 }
 
-void func_800101d4_slot12(void) {
+void advance_step_index_and_clear_timers_slot12(void) {
     HudState *h = data_8018f5a0;
     h->step_index++;
     h->substep_index = 0;

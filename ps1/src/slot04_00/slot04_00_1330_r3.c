@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b15a4_slot04_00(Object *obj) {
+void finish_sequence_set_other_code_5_slot04_00(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->other->other_state_code = 5;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     } else {
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }
@@ -23,11 +23,11 @@ void func_801b1600_slot04_00(Object *obj) {
         obj->vel_y = 0x90000;
         obj->accel_y = -0x6000;
         play_side_sound_at(obj, obj->side, 8);
-        func_801307e0(obj, 0x2e);
+        set_sequence_by_side_and_mode(obj, 0x2e);
     } else {
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;
-            func_80146998(obj);
+            spawn_offset_effect_and_play_sounds(obj);
         }
         update_sequence(obj);
     }

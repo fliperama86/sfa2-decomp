@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_80141f28(Object *object, short delta)
+void add_to_meter_clamped(Object *object, short delta)
 {
   s16 old;
   if (object->mode_flag != 0)

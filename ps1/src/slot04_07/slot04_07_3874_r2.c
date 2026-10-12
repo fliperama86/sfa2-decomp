@@ -5,12 +5,12 @@
 
 void func_801b3974_slot04_07(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    func_80141f28(obj, 3);
+    add_to_meter_clamped(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     if ((obj->input_bits & 0x8000) == 0) {
         obj->facing_side = 0;
     } else {
         obj->facing_side = 1;
     }
-    func_801307e0(obj, 0x18);
+    set_sequence_by_side_and_mode(obj, 0x18);
 }

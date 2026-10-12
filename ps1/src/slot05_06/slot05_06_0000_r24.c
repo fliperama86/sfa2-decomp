@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801c9eb8_slot05_06(Object *o) {
+void update_arc_until_landing_at_saved_y_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     s16 t;
 
@@ -15,7 +15,7 @@ void func_801c9eb8_slot05_06(Object *o) {
         o->state_3++;
         o->active_state = 0;
         o->pos_y = obj->saved_pos_y;
-        func_801307e0(o, 0x3b);
+        set_sequence_by_side_and_mode(o, 0x3b);
     } else {
         t = o->countdown;
         if (t == 0) {
@@ -55,6 +55,6 @@ void func_801c9fac_slot05_06(Object *obj) {
             update_sequence(obj);
         }
     } else {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     }
 }

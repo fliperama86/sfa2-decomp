@@ -5,7 +5,7 @@
 
 extern Slot01Rec31b98 data_80031b98_slot01[];
 
-void func_80013440_slot01(Object *obj) {
+void init_two_sprite_grids_slot01(Object *obj) {
     Cell20 *a = data_80031b98_slot01[0].cells;
     Cell20 *b = data_80031b98_slot01[1].cells;
     int i;

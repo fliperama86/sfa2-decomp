@@ -19,7 +19,7 @@ void func_8007642c_slot00(Object *o) {
     update_sequence(o);
 }
 
-void func_800764a8_slot00(Object *o) {
+void update_slide_push_other_object_slot00(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
     obj->pos_x_hi += o->vel_x;
     o->vel_x += o->accel_x;

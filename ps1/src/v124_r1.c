@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_8012eb18(Object *o)
+void update_or_reset_object_by_kind(Object *o)
 {
   int z = 0;
   if (game_state.config->mode_flag_c == 0)

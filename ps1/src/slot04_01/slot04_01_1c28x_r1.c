@@ -5,7 +5,7 @@
 
 extern s32 data_801befc4_slot04_01[];
 
-void func_801b1c28_slot04_01(Object *o) {
+void start_air_move_with_vel_x_boost_slot04_01(Object *o) {
     Slot04aObj *obj;
     int a3;
     s32 t;
@@ -22,8 +22,8 @@ void func_801b1c28_slot04_01(Object *o) {
         obj->field_1a5 = 1;
         play_side_sound_at(o, o->side, 0xc);
     }
-    func_80141f28(o, 6);
-    func_80138ae8(&game_state, o);
+    add_to_meter_clamped(o, 6);
+    add_one_to_ec4_if_object_unflagged(&game_state, o);
     o->accel_y = -0x3000;
     a3 = data_801befc4_slot04_01[o->direction_index >> 1];
     if (o->facing_side == 0) {
@@ -39,5 +39,5 @@ void func_801b1c28_slot04_01(Object *o) {
     play_sound_at(o, o->side, 0x320);
     a3 = o->direction_index >> 1;
     ((Slot04aObj *)o)->step_count = a3 + 1;
-    func_801307e0(o, a3 + 0x25);
+    set_sequence_by_side_and_mode(o, a3 + 0x25);
 }

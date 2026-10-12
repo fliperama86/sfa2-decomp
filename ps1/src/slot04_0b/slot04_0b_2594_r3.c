@@ -5,7 +5,7 @@
 
 extern s32 data_801c260c_slot04_0b[];
 
-void func_801b28c0_slot04_0b(Object *obj) {
+void launch_from_velocity_table_on_flag_6_slot04_0b(Object *obj) {
     int k;
 
     if ((u8)obj->step_flags == 6) {
@@ -20,7 +20,7 @@ void func_801b28c0_slot04_0b(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b296c_slot04_0b(Object *obj) {
+void move_arc_until_vel_x_negative_slot04_0b(Object *obj) {
     if (obj->vel_x >= 0) {
         *(s32 *)&obj->pos_y_frac -= obj->vel_y;
         obj->vel_y += obj->accel_y;

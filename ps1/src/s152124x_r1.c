@@ -13,7 +13,7 @@
    third and an s16 fifth; c is narrowed to a byte at entry and a is
    passed on as a number. The incoming value of the second argument takes
    no part in what the function does. */
-void func_80152124(u8 *a, int b, int arg_c, s16 d, s16 e) {
+void add_glyph_16x16_prim_paged(u8 *a, int b, int arg_c, s16 d, s16 e) {
     u8 c = arg_c;
 
     if (c != 0) {

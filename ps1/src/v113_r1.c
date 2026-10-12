@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-/* Written by hand in the form of func_801395f8, whose form the automatic permutation search had found. */
-void func_8013950c(s32 a, Object *object)
+/* Written by hand in the form of record_box_b_overlap, whose form the automatic permutation search had found. */
+void record_box_a_overlap(s32 a, Object *object)
 {
   u16 x;
   long new_var;

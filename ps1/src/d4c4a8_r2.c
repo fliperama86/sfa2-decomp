@@ -6,7 +6,7 @@ extern TextObj *table_80180454[];
 extern u8 *table_80180ecc[];
 
 /* The offset of the record is added to src in a statement of its own: written in the statement that reads the table, this function differs from the original in 9 instruction slots. */
-void func_80153d7c(Actor *a) {
+void queue_text_from_table(Actor *a) {
     TextObj *t;
     u8 *src;
     int i;
@@ -16,5 +16,5 @@ void func_80153d7c(Actor *a) {
     for (i = 0; i < 0x30; i++) {
         t->buf[i] = src[i];
     }
-    func_801519b4(t);
+    add_item_to_table(t);
 }

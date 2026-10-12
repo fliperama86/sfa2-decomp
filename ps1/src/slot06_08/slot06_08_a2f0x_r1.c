@@ -31,5 +31,5 @@ void func_801ea2f0_slot06_08(Object *obj) {
     if (obj->vel_x != 0) {
         idx = 5;
     }
-    func_80130700(obj, data_801ed480_slot06_08[idx]);
+    set_sequence_entry(obj, data_801ed480_slot06_08[idx]);
 }

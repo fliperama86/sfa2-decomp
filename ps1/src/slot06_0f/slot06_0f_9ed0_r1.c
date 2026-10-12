@@ -10,21 +10,21 @@ extern ObjectFn data_801eefe4_slot06_0f[];
 extern ObjectFn data_801eefec_slot06_0f[];
 extern ObjectFn data_801eeff4_slot06_0f[];
 
-Block172 *func_8011f1e0(void);
-void func_801ea1a8_slot06_0f(Object *obj);
+Block172 *pop_block_from_pool(void);
+void update_child_object_by_state_1_handler_slot06_0f(Object *obj);
 void func_801ea704_slot06_0f(Object *obj);
-void func_801ea734_slot06_0f(Object *obj);
+void update_variant_by_relative_x_slot06_0f(Object *obj);
 int func_801ea77c_slot06_0f(Object *obj);
 void func_801ea7b4_slot06_0f(Object *obj);
-int func_801ea7e4_slot06_0f(Object *obj);
+int is_other_object_state_attacking_with_hit_slot06_0f(Object *obj);
 void func_801ea828_slot06_0f(Object *obj);
-int func_801ea85c_slot06_0f(Object *obj);
+int is_both_state_checks_true_slot06_0f(Object *obj);
 void func_801ea898_slot06_0f(Object *obj);
-int func_801ea8c8_slot06_0f(Object *obj);
-void func_801ea8e0_slot06_0f(Object *obj);
-void func_801ea91c_slot06_0f(Object *obj, int idx);
+int is_config_enabled_flag_set_slot06_0f(Object *obj);
+void set_states_1_3_0_0_slot06_0f(Object *obj);
+void set_sequence_from_other_side_table_slot06_0f(Object *obj, int idx);
 
-void func_801e9ed0_slot06_0f(void) {
+void spawn_object_for_kind_0f_player_slot06_0f(void) {
     Object *s;
     Object *n;
     Object *right;
@@ -45,7 +45,7 @@ void func_801e9ed0_slot06_0f(void) {
                 s = right;
             }
         }
-        n = (Object *)func_8011f1e0();
+        n = (Object *)pop_block_from_pool();
         if (n != 0) {
             n->active_count = 1;
             n->field_02 = 0x46;
@@ -63,12 +63,12 @@ void func_801e9ed0_slot06_0f(void) {
     }
 }
 
-void func_801ea010_slot06_0f(Object *obj) {
+void call_handler_by_state_0_3_slot06_0f(Object *obj) {
     data_80190468.p = (Object *)&game_state;
     data_801eefc4_slot06_0f[obj->state_0](obj);
 }
 
-void func_801ea060_slot06_0f(Object *obj) {
+void init_object_from_parent_position_slot06_0f(Object *obj) {
     s16 t;
     game_state.other_object = obj->parent;
     if (game_state.other_object->field_01 != 0) {
@@ -89,12 +89,12 @@ void func_801ea060_slot06_0f(Object *obj) {
         obj->countdown = 1;
         obj->facing_side = 0;
         obj->variant_index = 0;
-        func_801ea91c_slot06_0f(obj, 0);
-        func_801ea1a8_slot06_0f(obj);
+        set_sequence_from_other_side_table_slot06_0f(obj, 0);
+        update_child_object_by_state_1_handler_slot06_0f(obj);
     }
 }
 
-void func_801ea1a8_slot06_0f(Object *obj) {
+void update_child_object_by_state_1_handler_slot06_0f(Object *obj) {
     GameState *g = (GameState *)data_80190468.p;
     if (g->gate_flag == 0) {
         game_state.other_object = obj->parent;
@@ -113,54 +113,54 @@ void func_801ea1a8_slot06_0f(Object *obj) {
     obj->state_0 = 2;
 }
 
-void func_801ea278_slot06_0f(Object *obj) {
+void call_handler_by_state_2_slot06_0f(Object *obj) {
     data_801eefe4_slot06_0f[obj->state_2](obj);
 }
 
 void func_801ea2b8_slot06_0f(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
-    func_801ea734_slot06_0f(obj);
+    update_variant_by_relative_x_slot06_0f(obj);
 }
 
 void func_801ea2e4_slot06_0f(Object *obj) {
-    if (func_801ea8c8_slot06_0f(obj)) {
-        func_801ea8e0_slot06_0f(obj);
-    } else if (func_801ea85c_slot06_0f(obj)) {
+    if (is_config_enabled_flag_set_slot06_0f(obj)) {
+        set_states_1_3_0_0_slot06_0f(obj);
+    } else if (is_both_state_checks_true_slot06_0f(obj)) {
         func_801ea898_slot06_0f(obj);
     } else if (func_801ea77c_slot06_0f(obj)) {
         func_801ea7b4_slot06_0f(obj);
-    } else if (func_801ea7e4_slot06_0f(obj)) {
+    } else if (is_other_object_state_attacking_with_hit_slot06_0f(obj)) {
         func_801ea828_slot06_0f(obj);
     } else {
-        func_801ea734_slot06_0f(obj);
+        update_variant_by_relative_x_slot06_0f(obj);
         advance_sequence_checked(obj);
     }
 }
 
-void func_801ea394_slot06_0f(Object *obj) {
+void call_handler_by_state_2_2_slot06_0f(Object *obj) {
     data_801eefec_slot06_0f[obj->state_2](obj);
 }
 
-void func_801ea3d4_slot06_0f(Object *obj) {
+void count_down_then_set_sequence_2_slot06_0f(Object *obj) {
     int v = obj->countdown - 1;
     obj->countdown = v;
     if ((s16)v < 0) {
         obj->facing_side = 0;
         obj->state_2++;
-        func_801ea91c_slot06_0f(obj, 2);
+        set_sequence_from_other_side_table_slot06_0f(obj, 2);
     } else {
         advance_sequence_checked(obj);
     }
 }
 
-void func_801ea42c_slot06_0f(Object *obj) {
+void update_state_by_other_object_state_a_slot06_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         func_801ea704_slot06_0f(obj);
     } else {
-        if (func_801ea8c8_slot06_0f(obj)) {
-            func_801ea8e0_slot06_0f(obj);
+        if (is_config_enabled_flag_set_slot06_0f(obj)) {
+            set_states_1_3_0_0_slot06_0f(obj);
         }
-        if (func_801ea77c_slot06_0f(obj) == 0 && func_801ea85c_slot06_0f(obj) == 0 && func_801ea7e4_slot06_0f(obj) != 0) {
+        if (func_801ea77c_slot06_0f(obj) == 0 && is_both_state_checks_true_slot06_0f(obj) == 0 && is_other_object_state_attacking_with_hit_slot06_0f(obj) != 0) {
             func_801ea828_slot06_0f(obj);
         } else {
             advance_sequence_checked(obj);
@@ -168,26 +168,26 @@ void func_801ea42c_slot06_0f(Object *obj) {
     }
 }
 
-void func_801ea4d0_slot06_0f(Object *obj) {
+void call_handler_by_state_2_3_slot06_0f(Object *obj) {
     data_801eeff4_slot06_0f[obj->state_2](obj);
 }
 
-void func_801ea510_slot06_0f(Object *obj) {
+void count_down_then_set_sequence_3_slot06_0f(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {
         obj->facing_side = 0;
         obj->state_2++;
-        func_801ea91c_slot06_0f(obj, 3);
+        set_sequence_from_other_side_table_slot06_0f(obj, 3);
     }
     advance_sequence_checked(obj);
 }
 
-void func_801ea56c_slot06_0f(Object *obj) {
+void update_state_by_other_object_state_b_slot06_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         func_801ea704_slot06_0f(obj);
-    } else if (func_801ea8c8_slot06_0f(obj)) {
-        func_801ea8e0_slot06_0f(obj);
-    } else if (func_801ea7e4_slot06_0f(obj) == 0 && func_801ea85c_slot06_0f(obj) == 0 && func_801ea77c_slot06_0f(obj) != 0) {
+    } else if (is_config_enabled_flag_set_slot06_0f(obj)) {
+        set_states_1_3_0_0_slot06_0f(obj);
+    } else if (is_other_object_state_attacking_with_hit_slot06_0f(obj) == 0 && is_both_state_checks_true_slot06_0f(obj) == 0 && func_801ea77c_slot06_0f(obj) != 0) {
         func_801ea7b4_slot06_0f(obj);
     } else {
         advance_sequence_checked(obj);

@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e9790_slot06_0f(Object *obj);
+void update_object_by_table_index_handler_slot06_0f(Object *obj);
 
 extern SequenceStep *data_801ecba4_slot06_0f[];
 
-void func_801e9708_slot06_0f(Object *obj) {
+void init_slot06_0f_object_and_set_sequence_slot06_0f(Object *obj) {
     int idx = 2;
 
     obj->field_0f = 1;
@@ -19,6 +19,6 @@ void func_801e9708_slot06_0f(Object *obj) {
     if (obj->table_index != 0) {
         idx = 4;
     }
-    func_80130700(obj, data_801ecba4_slot06_0f[idx]);
-    func_801e9790_slot06_0f(obj);
+    set_sequence_entry(obj, data_801ecba4_slot06_0f[idx]);
+    update_object_by_table_index_handler_slot06_0f(obj);
 }

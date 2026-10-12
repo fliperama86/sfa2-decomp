@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4298_slot04_08(Object *obj);
+void push_other_x_if_hit_check_slot04_08(Object *obj);
 extern u16 data_801c3e98_slot04_08;
 
 void func_801b3260_slot04_08(Object *obj) {
@@ -22,7 +22,7 @@ void func_801b3260_slot04_08(Object *obj) {
         }
         obj->countdown = 0;
         data_801c3e98_slot04_08 = x + obj->pos_x;
-        func_801b4298_slot04_08(obj);
+        push_other_x_if_hit_check_slot04_08(obj);
     }
     update_sequence(obj);
 }
@@ -56,5 +56,5 @@ void func_801b3304_slot04_08(Object *obj) {
         }
     }
     obj->state_3++;
-    func_801307e0(obj, 0x54);
+    set_sequence_by_side_and_mode(obj, 0x54);
 }

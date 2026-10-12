@@ -5,10 +5,10 @@
 
 extern u8 data_801c4220_slot04_04[];
 void func_801b19bc_slot04_04(Object *obj);
-void func_801b1a08_slot04_04(Object *obj);
+void start_end_direction_sequence_slot04_04(Object *obj);
 void func_801b1a54_slot04_04(Object *obj);
 
-void func_801b17c4_slot04_04(Object *obj) {
+void update_direction_hold_sequence_slot04_04(Object *obj) {
     s16 a;
     int s;
     u8 t;
@@ -21,13 +21,13 @@ void func_801b17c4_slot04_04(Object *obj) {
         func_801b1a54_slot04_04(obj);
     } else {
         if ((*(u32 *)&game_state.leader_bits & 0xffff00) != 0 || game_state.field_04 != 0 || (u8)func_8012f56c(obj)) {
-            func_801b1a08_slot04_04(obj);
+            start_end_direction_sequence_slot04_04(obj);
             return;
         }
         if ((s & 0x7f) != 0) {
             obj->step_flags = obj->step_flags & 0x80ff;
-            func_80142c04(obj);
-            func_80138ae8(&game_state, obj);
+            reset_hold_flags_and_other_hit_count(obj);
+            add_one_to_ec4_if_object_unflagged(&game_state, obj);
             if (obj->input_matched_flag == 0) {
                 obj->input_matched_flag = 0xff;
             }
@@ -60,7 +60,7 @@ void func_801b17c4_slot04_04(Object *obj) {
         } else {
             a += 0x21;
         }
-        func_801307e0(obj, a);
+        set_sequence_by_side_and_mode(obj, a);
         obj->sequence = &obj->sequence[u];
         obj->step_flags = obj->sequence->flags;
         obj->step_timer = obj->sequence->duration;

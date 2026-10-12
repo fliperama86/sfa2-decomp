@@ -7,58 +7,58 @@ extern Slot06Tile data_801ef004_slot06_0f[2][0xc9];
 extern u16 data_801ecbc4_slot06_0f[];
 extern u16 data_80190542;
 
-void func_801e81f4_slot06_0f(Slot06Layer *layer);
+void init_first_layer_tile_map_slot06_0f(Slot06Layer *layer);
 void func_801e8220_slot06_0f(void);
-void func_801e85a0_slot06_0f(Slot06Layer *layer);
-void func_801e9380_slot06_0f(Slot06Layer *layer);
-void func_801e91dc_slot06_0f(Slot06Layer *layer);
-void func_801e85e4_slot06_0f(void);
-void func_801e93ac_slot06_0f(void);
-void func_801e9208_slot06_0f(void);
-void func_801e82c0_slot06_0f(void);
-void func_801e86fc_slot06_0f(void);
-void func_801e944c_slot06_0f(void);
-void func_801e8c0c_slot06_0f(void);
-void func_80136180(Sprite *sprite);
+void init_layer_tile_map_0f_with_bounds_slot06_0f(Slot06Layer *layer);
+void init_layer_tile_map_fields_slot06_0f(Slot06Layer *layer);
+void init_layer_tile_map_params_short_slot06_0f(Slot06Layer *layer);
+void init_two_tile_prim_tables_gray_slot06_0f(void);
+void init_two_buffers_of_32px_sprite_prims_slot06_0f(void);
+void init_poly_ft4_buffers_gray_slot06_0f(void);
+void draw_tile_layer_0_16px_slot06_0f(void);
+void draw_tile_layer_sprites_with_partial_row_slot06_0f(void);
+void draw_tilemap_layer_32px_9x13_slot06_0f(void);
+void draw_skewed_tile_layer_quads_slot06_0f(void);
+void init_sprite_at_1c0_zero(Sprite *sprite);
 
-void func_801e8000_slot06_0f(void) {
+void draw_background_layers_by_flags_slot06_0f(void) {
     u16 *flags = &game_state.field_dc;
 
     if (*flags & 2) {
-        func_801e82c0_slot06_0f();
+        draw_tile_layer_0_16px_slot06_0f();
     }
     if (*flags & 4) {
-        func_801e86fc_slot06_0f();
+        draw_tile_layer_sprites_with_partial_row_slot06_0f();
     }
     if (*flags & 8) {
-        func_801e944c_slot06_0f();
+        draw_tilemap_layer_32px_9x13_slot06_0f();
     }
     if (*flags & 4) {
-        func_801e8c0c_slot06_0f();
+        draw_skewed_tile_layer_quads_slot06_0f();
     }
 }
 
-void func_801e8098_slot06_0f(void) {
-    func_801e81f4_slot06_0f((Slot06Layer *)data_801aa544);
-    func_801e85a0_slot06_0f((Slot06Layer *)data_801aa5d4);
-    func_801e9380_slot06_0f((Slot06Layer *)cam_obj);
-    func_801e91dc_slot06_0f((Slot06Layer *)data_801904d8);
+void init_four_layers_tile_maps_slot06_0f(void) {
+    init_first_layer_tile_map_slot06_0f((Slot06Layer *)data_801aa544);
+    init_layer_tile_map_0f_with_bounds_slot06_0f((Slot06Layer *)data_801aa5d4);
+    init_layer_tile_map_fields_slot06_0f((Slot06Layer *)cam_obj);
+    init_layer_tile_map_params_short_slot06_0f((Slot06Layer *)data_801904d8);
 }
 
 void func_801e80f0_slot06_0f(void) {
     func_801e8220_slot06_0f();
-    func_801e85e4_slot06_0f();
-    func_801e93ac_slot06_0f();
-    func_801e9208_slot06_0f();
+    init_two_tile_prim_tables_gray_slot06_0f();
+    init_two_buffers_of_32px_sprite_prims_slot06_0f();
+    init_poly_ft4_buffers_gray_slot06_0f();
 }
 
-void func_801e8128_slot06_0f(Slot06Layer *layer) {
+void update_layer_by_mode_half_scroll_slot06_0f(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
     s16 e;
 
     if (layer->mode == 0) {
-        func_80136180((Sprite *)layer);
+        init_sprite_at_1c0_zero((Sprite *)layer);
     } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;
@@ -77,7 +77,7 @@ void func_801e8128_slot06_0f(Slot06Layer *layer) {
     }
 }
 
-void func_801e81f4_slot06_0f(Slot06Layer *layer) {
+void init_first_layer_tile_map_slot06_0f(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ecbc4_slot06_0f;
     layer->data_table = data_801ecbc4_slot06_0f;
     layer->packed_param = 0x5800;
@@ -97,7 +97,7 @@ void func_801e8220_slot06_0f(void) {
         c = 0x80;
         do {
             r = &data_801ef004_slot06_0f[i][j];
-            func_80136d1c((Tx *)r);
+            init_draw_mode_prim_3((Tx *)r);
             r->sprt.color_r = c;
             r->sprt.color_g = c;
             r->sprt.color_b = c;

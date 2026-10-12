@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3920_slot04_0a(Object *o) {
+void update_hit_count_countdown_enter_state_slot04_0a(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int t;
 
@@ -32,6 +32,6 @@ void func_801b3920_slot04_0a(Object *o) {
                 set_side_flag(o);
             }
         }
-        func_80142fe8(o);
+        push_other_by_vel_x(o);
     }
 }

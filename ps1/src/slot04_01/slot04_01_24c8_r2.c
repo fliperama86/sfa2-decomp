@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b265c_slot04_01(Object *obj) {
+void update_arc_move_until_vel_x_negative_slot04_01(Object *obj) {
     obj->other_state_code = 2;
     if (obj->vel_x < 0) {
         obj->state_3++;

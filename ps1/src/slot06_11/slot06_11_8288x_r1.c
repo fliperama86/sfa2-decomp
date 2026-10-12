@@ -8,8 +8,8 @@ extern Slot06Tile data_801ee328_slot06_11[2][0x7d];
 /* Draws the first layer: for 16 rows of 25 cells of 16 pixels, a tile record
    for each cell that is not blank, linked into the primitive list (inferred).
    The locals t, sx, sy, mask and cc are 16-bit, as in the model
-   func_801e82c8_slot06_00. */
-void func_801e8288_slot06_11(void) {
+   draw_tile_layer_0_16px_slot06_00. */
+void draw_tile_layer_0_16px_slot06_11(void) {
     Chan *c = data_801aa544;
     int x;
     int pos;

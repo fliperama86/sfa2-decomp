@@ -24,15 +24,15 @@ void link_players(GameState *state, Object *a1, Object *a2) {
     }
 }
 
-void func_80121730(GameState *state) {
+void call_handler_by_substep_index(GameState *state) {
     if (data_8018f5a0->substep_index == 0) {
-        func_80121780((Object *)state);
+        advance_substep_and_reset_object_ids((Object *)state);
     } else if (data_8018f5a0->substep_index == 1) {
         func_801217d4((Object *)state);
     }
 }
 
-void func_80121780(Object *object) {
+void advance_substep_and_reset_object_ids(Object *object) {
     data_8018f5a0->substep_index++;
     object->phase_state = 0;
     func_801285e0();
@@ -48,13 +48,13 @@ void func_801217d4(Object *object) {
         func_801e1b64();
         func_801e1d6c(flag);
     }
-    func_80138164();
-    func_801510bc();
-    func_80135ef0(object);
-    func_8011a784();
+    update_blocks();
+    call_active_block_handlers();
+    set_capped_value_and_ot_indices(object);
+    select_buffers_and_run_first_setup();
 }
 
-void func_80121874(Object *object) {
+void advance_step_and_finish_on_field_af(Object *object) {
     data_8018f5a0->step_index_2++;
     object->field_dc |= 0xe;
     if (object->countdown_2 != 0) {
@@ -62,7 +62,7 @@ void func_80121874(Object *object) {
         data_8018f5a0->countdown_timer = 0x10;
         object->ot_depth = 1;
         object->linked_object_2 = 0xff;
-        func_8013245c();
+        init_hud_primitives();
         object->phase_state = 0;
         player_left.field_01 = 0;
         player_right.field_01 = 0;

@@ -6,11 +6,11 @@
 extern void (*data_801dd5d0_slot05_06[])(Object *);
 extern Object *data_801dd758_slot05_06;
 extern ObjectFn data_801dd5e0_slot05_06[];
-void func_801ce260_slot05_06(Object *obj);
+void add_table_offset_to_position_slot05_06(Object *obj);
 void func_801ce214_slot05_06(Object *obj);
-void func_801ce2c0_slot05_06(Object *obj);
+void load_velocities_from_table_by_index_slot05_06(Object *obj);
 
-void func_801ce050_slot05_06(Object *obj) {
+void call_handler_by_state_0_with_parent_2_slot05_06(Object *obj) {
     data_801dd758_slot05_06 = obj->parent;
     data_801dd5d0_slot05_06[obj->state_0](obj);
 }
@@ -28,12 +28,12 @@ void func_801ce0a0_slot05_06(Object *obj) {
     obj->ot_depth = 6;
     obj->facing_side = data_801dd758_slot05_06->facing_side;
     ((Slot04aObj *)obj)->saved_pos_y = ((Slot04aObj *)data_801dd758_slot05_06)->saved_pos_y;
-    func_801ce260_slot05_06(obj);
+    add_table_offset_to_position_slot05_06(obj);
     data_801dd5e0_slot05_06[obj->table_index](obj);
     func_801ce214_slot05_06(obj);
 }
 
-void func_801ce198_slot05_06(Object *obj) {
+void set_ot_depth_1_variant_index_0_slot05_06(Object *obj) {
     obj->ot_depth = 1;
     obj->variant_index = 0;
 }
@@ -43,6 +43,6 @@ void func_801ce1a8_slot05_06(Object *obj) {
     obj->variant_index = 0x10;
 }
 
-void func_801ce1bc_slot05_06(Object *obj) {
-    func_801ce2c0_slot05_06(obj);
+void load_velocities_from_table_6_slot05_06(Object *obj) {
+    load_velocities_from_table_by_index_slot05_06(obj);
 }

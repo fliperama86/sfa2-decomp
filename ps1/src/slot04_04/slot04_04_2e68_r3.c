@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3d18_slot04_04(Object *obj);
+void advance_state_0_on_sequence_loop_flag_slot04_04(Object *obj);
 
-void func_801b3cb0_slot04_04(Object *obj) {
+void update_linked_object_state_slot04_04(Object *obj) {
     if (obj->state_1 != 0) {
-        func_801b3d18_slot04_04(obj);
+        advance_state_0_on_sequence_loop_flag_slot04_04(obj);
     } else {
         obj->state_1 = obj->state_1 + 1;
         obj->parent->linked_object_3 = 0;

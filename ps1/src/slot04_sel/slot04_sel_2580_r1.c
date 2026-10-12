@@ -10,7 +10,7 @@ extern TextBuf data_801b8618_slot04_sel;
 extern u8 data_801b9d3b_slot04_sel;
 extern u8 data_801b9d4d_slot04_sel[];
 
-void func_801b2580_slot04_sel(void) {
+void remap_selection_and_set_text_markers_slot04_sel(void) {
     Object *left = &player_left;
     Object *right = left + 1;
     TextBuf *t;

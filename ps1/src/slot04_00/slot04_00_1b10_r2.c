@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801bfe4c_slot04_00[];
 
-int func_801b1c5c_slot04_00(Object *obj) {
+int move_with_gravity_and_check_ground_slot04_00(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
     obj->vel_y += obj->accel_y;

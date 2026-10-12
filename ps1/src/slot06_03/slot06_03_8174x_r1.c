@@ -3,21 +3,21 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e8174_slot06_03(Slot06Layer *layer);
-void func_801e8230_slot06_03(Slot06Layer *layer);
-void func_801e8268_slot06_03(Slot06Layer *layer);
-void func_801e830c_slot06_03(Slot06Layer *layer);
+void update_layer_motion_and_follow_scroll_slot06_03(Slot06Layer *layer);
+void init_layer_motion_and_advance_state_slot06_03(Slot06Layer *layer);
+void move_layer_until_above_screen_slot06_03(Slot06Layer *layer);
+void move_layer_with_x_y_velocity_updates_slot06_03(Slot06Layer *layer);
 
-void func_801e8174_slot06_03(Slot06Layer *layer) {
+void update_layer_motion_and_follow_scroll_slot06_03(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 
     if (layer->state_index == 0) {
-        func_801e8230_slot06_03(layer);
+        init_layer_motion_and_advance_state_slot06_03(layer);
     } else if (layer->state_index == 1) {
-        func_801e8268_slot06_03(layer);
+        move_layer_until_above_screen_slot06_03(layer);
     } else if (layer->state_index == 2) {
-        func_801e830c_slot06_03(layer);
+        move_layer_with_x_y_velocity_updates_slot06_03(layer);
     }
     l2 = (Slot06Layer *)data_801aa5d4;
     d = l2->field_22;

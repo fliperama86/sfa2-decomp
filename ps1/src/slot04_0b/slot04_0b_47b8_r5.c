@@ -3,17 +3,17 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4db8_slot04_0b(Object *obj, int index) {
+void set_sequence_from_other_side_table_slot04_0b(Object *obj, int index) {
     SequenceStep **table;
     if (((Slot04aObj *)ref_other.p)->side == 0) {
         table = data_1f8000b4;
     } else {
         table = data_1f800164;
     }
-    func_80130768(obj, (s16)index, table);
+    set_sequence_from_table_5(obj, (s16)index, table);
 }
 
-void func_801b4e0c_slot04_0b(Object *obj, int dx, int dy) {
+void set_position_relative_to_ref_other_slot04_0b(Object *obj, int dx, int dy) {
     s16 x = dx;
     if (obj->facing_side == 0) {
         x = -x;

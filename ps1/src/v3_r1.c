@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012a194(Object *object) {
+void advance_state_3_set_sequence_7_if_flag(Object *object) {
     object->state_3++;
     if (object->mode_flag_2 == 0) {
         func_8012a1e4(object);

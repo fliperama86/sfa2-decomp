@@ -5,7 +5,7 @@
 
 extern Slot06Tile data_801ec390_slot06_00[2][0x72];
 
-void func_801e82c8_slot06_00(void);
+void draw_tile_layer_0_16px_slot06_00(void);
 
 /* Draws the first layer: for 16 rows of 25 cells of 16 pixels, a tile record
    for each cell that is not blank, linked into the primitive list (inferred).
@@ -13,7 +13,7 @@ void func_801e82c8_slot06_00(void);
    slots: `int t` or `s16 t` two, `int sx` twelve, `u32 mask` 31, `int cc` 26.
    The local x holds the position before the sign change: with one expression
    for both steps the function is 4 bytes short. */
-void func_801e82c8_slot06_00(void) {
+void draw_tile_layer_0_16px_slot06_00(void) {
     Chan *c = data_801aa544;
     int x;
     int pos;

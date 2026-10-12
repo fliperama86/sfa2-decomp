@@ -13,8 +13,8 @@ void func_801b4e68_slot04_02(Object *obj) {
             obj->state_3 = obj->state_3 + 1;
             obj->active_state = 0;
             obj->pos_y = obj->ground_y;
-            func_801209c4(obj);
-            func_801307e0(obj, 0x4b);
+            play_object_sound_by_kind(obj);
+            set_sequence_by_side_and_mode(obj, 0x4b);
         }
     }
 }

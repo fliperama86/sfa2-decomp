@@ -16,16 +16,16 @@ void func_801b1d40_slot04_09(Object *obj) {
         obj->field_225 = 1;
     }
     if (obj->counter == 0) {
-        func_80141f28(obj, 5);
+        add_to_meter_clamped(obj, 5);
     }
-    func_80138ae8(&game_state, obj);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     if (obj->field_49 != 0) {
         n = 0x46;
     }
-    func_801307e0(obj, n);
+    set_sequence_by_side_and_mode(obj, n);
 }
 
-void func_801b1de0_slot04_09(Object *obj) {
+void launch_jump_velocity_from_table_slot04_09(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->active_state = 1;
         obj->accel_x = -0x8000;
@@ -37,7 +37,7 @@ void func_801b1de0_slot04_09(Object *obj) {
             obj->vel_x = -obj->vel_x;
             obj->accel_x = -obj->accel_x;
         }
-        func_801307e0(obj, 0x20);
+        set_sequence_by_side_and_mode(obj, 0x20);
     } else {
         update_sequence(obj);
     }

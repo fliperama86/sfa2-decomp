@@ -9,13 +9,13 @@ void func_801b1718_slot04_05(Object *obj) {
     if (obj->vel_y < 0) {
         obj->accel_y = obj->accel_y - data_801c1454_slot04_05[obj->direction_index >> 1];
     }
-    if ((u8)func_80130184(obj) != 0) {
+    if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         if (obj->step_flags & 0x80) {
             return;
         }
     } else {
         obj->state_3++;
-        func_801209c4(obj);
+        play_object_sound_by_kind(obj);
         obj->active_state = 0;
         obj->active_flag_4 = 0;
         obj->pos_y = (u16)obj->ground_y;

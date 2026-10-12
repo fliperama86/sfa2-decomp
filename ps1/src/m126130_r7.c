@@ -3,29 +3,29 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012abf0(Object *object) {
+void select_transition_at_sequence_end(Object *object) {
     if (object->mode_flag_2 != 0) {
         if ((s16)object->step_flags < 0)
-            func_801312b8(object);
+            reset_object_to_state_1_0_sequence_0(object);
         else
             update_sequence(object);
-    } else if (func_80130470(object)) {
-        func_8013047c(object);
-    } else if ((u8)func_8012f898(object)) {
+    } else if (get_pressed_low_byte(object)) {
+        set_state_1_0_5_and_read_input_direction(object);
+    } else if ((u8)is_facing_differs_from_saved(object)) {
         func_8012f8c4(object);
     } else if (func_8012f970(object)) {
-        func_8012fe60(object);
+        enter_state_2_6_by_button_input(object);
     } else if ((s16)object->step_flags >= 0) {
         update_sequence(object);
-    } else if ((u8)func_8012f618(object)) {
-        func_8012f6a0(object);
+    } else if ((u8)is_button_4000_held_or_other_flag(object)) {
+        set_state_1_0_1_0_sequence_7(object);
     } else {
-        func_801312b8(object);
+        reset_object_to_state_1_0_sequence_0(object);
     }
 }
 
-void func_8012acf4(Object *object) {
-    if ((u8)func_80130184(object)) {
+void update_airborne_motion_with_kind_effects(Object *object) {
+    if ((u8)apply_velocity_and_check_ground(object)) {
         if ((s16)object->step_flags < 0 && object->field_7e != 0) {
             object->state_3 = 1;
             object->active_flag_3 = 0;
@@ -37,15 +37,15 @@ void func_8012acf4(Object *object) {
                 func_80120af8(object);
             }
         } else if (object->kind == 0x14) {
-            func_80132370(object);
+            enter_state_7_if_airborne_conditions(object);
         }
     } else {
         object->pos_y = object->ground_y;
         object->active_state = 0;
         object->active_flag_3 = 0;
-        func_801209c4(object);
+        play_object_sound_by_kind(object);
         if (object->mode_flag_2 == 0 && func_8012f970(object)) {
-            func_8012fe60(object);
+            enter_state_2_6_by_button_input(object);
         } else {
             object->state_3 = 2;
             set_sequence_by_side(object, 0x11);
@@ -53,12 +53,12 @@ void func_8012acf4(Object *object) {
     }
 }
 
-void func_8012ae00(Object *object) {
-    if ((u8)func_80130184(object)) {
+void update_airborne_motion_or_land(Object *object) {
+    if ((u8)apply_velocity_and_check_ground(object)) {
         if (object->mode_flag_2 != 0) {
-            func_8012aef8(object);
-        } else if (func_80130470(object)) {
-            func_80130304(object);
+            update_sequence_or_set_state_3_to_1(object);
+        } else if (get_pressed_low_byte(object)) {
+            call_scratch_fn_by_side_and_mode(object);
         } else {
             if (func_8012f970(object) == 0)
                 object->state_3 = 1;
@@ -68,9 +68,9 @@ void func_8012ae00(Object *object) {
         object->pos_y = object->ground_y;
         object->active_state = 0;
         object->active_flag_3 = 0;
-        func_801209c4(object);
+        play_object_sound_by_kind(object);
         if (object->mode_flag_2 == 0 && func_8012f970(object)) {
-            func_8012fe60(object);
+            enter_state_2_6_by_button_input(object);
         } else {
             object->state_3 = 2;
             set_sequence_by_side(object, 0x11);

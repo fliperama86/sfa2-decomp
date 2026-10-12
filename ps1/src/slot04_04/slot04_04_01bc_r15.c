@@ -5,7 +5,7 @@
 
 extern ObjectFnInt data_801c4188_slot04_04[];
 
-int func_801b1414_slot04_04(Object *obj) {
+int try_start_meter_action_state_8_variant_a_slot04_04(Object *obj) {
     int r = 0;
 
     if (obj->field_292 == 0) {
@@ -22,7 +22,7 @@ int func_801b1414_slot04_04(Object *obj) {
                     }
                 }
             } else {
-                if ((u8)func_80141e34(obj)) {
+                if ((u8)is_not_state_2_five(obj)) {
                     if ((u8)func_80141788(obj)) {
                         r = 1;
                         obj->state_0 = 1;
@@ -39,7 +39,7 @@ int func_801b1414_slot04_04(Object *obj) {
     return r;
 }
 
-void func_801b1510_slot04_04(Object *obj) {
+void clear_slot_byte_runs_unless_kind_4_slot04_04(Object *obj) {
     int z = 0;
     u32 i;
     u8 *p;

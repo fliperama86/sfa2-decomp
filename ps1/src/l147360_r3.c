@@ -3,9 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8014780c(Object *object) {
+void spawn_child_object_with_parent(Object *object) {
     int zero = 0;
-    game_state.other_object = (Object *)func_8011f1e0();
+    game_state.other_object = (Object *)pop_block_from_pool();
     if (game_state.other_object != 0) {
         game_state.other_object->active_count = game_state.other_object->active_count + 1;
         if (object->kind == 2) {

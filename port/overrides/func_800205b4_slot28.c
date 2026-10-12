@@ -10,7 +10,7 @@
  * 80131094, and everything after it goes through a1). On the console a0
  * holds at that call what the earlier call left in it, and that is this
  * function's own first parameter. The earlier call is
- * func_80020608_slot28(obj), read to its end in the listing of the module
+ * apply_velocity_and_accel_slot28(obj), read to its end in the listing of the module
  * slot28: it is a leaf with one return, `jr ra` at 80020644 (the delay slot
  * at 80020648 is a store), and it writes no a0 on any path (the instructions
  * from 80020608 to 80020648 write v0, a1, v1 and a2 only). Between that call
@@ -19,7 +19,7 @@
  * write a0). So a0 is the parameter at the call. Compiled for a PC, the
  * callee would read something else.
  *
- * What the function does (inferred): it runs func_80020608_slot28 on the
+ * What the function does (inferred): it runs apply_velocity_and_accel_slot28 on the
  * object, raises the u8 state_0 by one when the halfword pos_y (offset 0x16)
  * is at least 0xd0, then calls advance_sequence_checked with the object.
  *
@@ -28,7 +28,7 @@
  *   Reads and writes: the state_0 byte and the pos_y halfword itself; the
  *     earlier callee reads and writes the words of the object at offsets 0x10,
  *     0x14, 0x4c, 0x50, 0x54 and 0x58 (as original code, see below).
- *   Callees: func_80020608_slot28 runs as the original code of the module
+ *   Callees: apply_velocity_and_accel_slot28 runs as the original code of the module
  *     image slot28 in the test (a leaf; the test keeps no copy of it). That is
  *     so that what it leaves in a0 is what the console's code leaves.
  *     advance_sequence_checked (1 argument) is replaced in the test by a recorder that
@@ -41,10 +41,10 @@
 #include "../../ps1/src/protos.h"
 #include "../../ps1/src/externs.h"
 
-void func_80020608_slot28(Object *o);
+void apply_velocity_and_accel_slot28(Object *o);
 
 void func_800205b4_slot28(Object *obj) {
-    func_80020608_slot28(obj);
+    apply_velocity_and_accel_slot28(obj);
     if (obj->pos_y >= 0xd0) {
         obj->state_0++;
     }

@@ -8,7 +8,7 @@ int func_8014e25c(Object *object) {
     Object *other;
     FrameRecord *frame;
     u8 a, b, c;
-    if (!func_8014e310(object)) return 0;
+    if (!is_state_one_and_state_two_allowed(object)) return 0;
     other = object->other;
     if (other->active_state != 0) return 0;
     if (object->compare_limit >= 0x30) return 0;

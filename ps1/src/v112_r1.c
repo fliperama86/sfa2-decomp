@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-/* Same form as func_8013606c, which does this for the first camera object:
+/* Same form as call_kind_handler_and_copy_fields_a, which does this for the first camera object:
    the members are separate externs here. With members of one struct the
    compiler schedules the pointer chain before the two halfword loads. */
 
-void func_801368fc(void) {
+void call_cam_kind_handler_and_save_pos(void) {
     u16 p, q;
     table_80172460[game_state.kind_index](&cam_obj);
     p = cam_f22;

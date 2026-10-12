@@ -9,6 +9,6 @@ void func_80078f2c_slot2b(Object *o) {
     advance_sequence_checked(o);
 }
 
-void func_80078f4c_slot2b(Object *o) {
+void call_handler_by_state_1_6_slot2b(Object *o) {
     data_8007ee08_slot2b[o->state_1](o);
 }

@@ -4,8 +4,8 @@
 #include "protos.h"
 
 
-void func_80123504(GameState *unused) {
+void call_menu_command_if_input_enabled(GameState *unused) {
     if (game_state.input_enable_bits != 0) {
-        func_8014f4d4(6, 2);
+        set_menu_command_by_code(6, 2);
     }
 }

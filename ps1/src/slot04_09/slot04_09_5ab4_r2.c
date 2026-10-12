@@ -7,7 +7,7 @@ void func_801b5ba0_slot04_09(Object *o) {
     Object *p;
     u16 y;
     if ((game_state.frame_counter & 3) == 0) {
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0xb;
@@ -35,7 +35,7 @@ void func_801b5c6c_slot04_09(Object *o) {
     Object *p;
     u16 y;
     if ((game_state.frame_counter & 3) == 0) {
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0xb;

@@ -7,7 +7,7 @@ extern u16 data_80190542;
 
 void func_801369b0(Cam *cam);
 
-void func_801e92ac_slot06_01(Slot06Layer *layer) {
+void update_layer_by_mode_offset_slot06_01(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 

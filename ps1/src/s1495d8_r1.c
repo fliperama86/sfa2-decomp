@@ -5,5 +5,5 @@
 
 
 void func_801495d8(Object *object) {
-    func_8011f240(object);
+    reset_and_push_object_to_pool_table(object);
 }

@@ -6,7 +6,7 @@
 extern u16 data_800f77ac_slot0f;
 extern u16 data_800f77b0_slot0f;
 
-int func_800e5ddc_slot0f(u8 mode, int delta, u16 *dst, u16 *src) {
+int fade_palette_step_slot0f(u8 mode, int delta, u16 *dst, u16 *src) {
     u16 n;
     s16 lvl;
     s16 r;

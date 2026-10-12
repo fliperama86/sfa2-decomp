@@ -11,9 +11,9 @@ void func_801b3a30_slot04_0b(Object *o) {
         *(s32 *)&o->pos_y_frac += o->vel_y;
         advance_sequence_checked(o);
         if (o->vel_table_index >= 0xc) {
-            func_8011ffa8(o);
+            set_state_0_if_x_outside_margin_wide(o);
         } else {
-            func_8011ff74(o);
+            set_state_0_if_x_outside_margin_narrow(o);
         }
     }
     func_8011ffdc(o);

@@ -5,16 +5,16 @@
 
 extern u8 data_801c5478_slot04_06[];
 
-void func_801b346c_slot04_06(Object *obj) {
+void set_sequence_45_or_reset_state_3_slot04_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         obj->state_3++;
-        func_801307e0(obj, (obj->direction_index >> 1) + 0x45);
+        set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x45);
     } else {
         obj->state_3 = 0;
     }
 }
 
-void func_801b34bc_slot04_06(Object *obj) {
+void start_grab_setting_other_states_slot04_06(Object *obj) {
     Object *other;
     obj->state_3++;
     other = obj->other;
@@ -34,5 +34,5 @@ void func_801b34bc_slot04_06(Object *obj) {
     obj->status_flag = 1;
     obj->gauge = 0x80;
     ((Slot04aObj *)obj)->table_value = data_801c5478_slot04_06[obj->direction_index >> 1];
-    func_801307e0(obj, 0x2c);
+    set_sequence_by_side_and_mode(obj, 0x2c);
 }

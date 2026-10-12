@@ -11,7 +11,7 @@ extern ObjectRef data_800519a0_slot28;
 extern ObjectRef data_800519d0_slot28;
 void func_8001a958_slot28(Object *obj, int arg);
 
-void func_80019eb4_slot28(Object *obj) {
+void spawn_object_when_sequence_ends_slot28(Object *obj) {
     Object *p;
     p = data_800519d0_slot28.p;
     if ((s16)p->step_flags < 0) {
@@ -20,7 +20,7 @@ void func_80019eb4_slot28(Object *obj) {
         h->countdown_timer = 0xb4;
         p = data_8005199c_slot28.p;
         p->variant_index = 0xff;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x33;
@@ -39,6 +39,6 @@ void func_80019eb4_slot28(Object *obj) {
             data_800519a0_slot28.p = p;
         }
         func_8001a958_slot28(obj, 1);
-        func_8014f4d4(6, 1);
+        set_menu_command_by_code(6, 1);
     }
 }

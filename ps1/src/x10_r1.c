@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_801511c8(void)
+void init_poly_ft4_buffers(void)
 {
   int i;
   int j;

@@ -6,7 +6,7 @@
 extern Object *data_80051980_slot28[];
 extern ObjectRef data_80051994_slot28;
 
-void func_80019090_slot28(Object *obj) {
+void scroll_two_objects_x_with_wrap_slot28(Object *obj) {
     Object *p = data_80051980_slot28[0];
     int t = *(u16 *)&p->pos_x + 1;
     p->pos_x = t;

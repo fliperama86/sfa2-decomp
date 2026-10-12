@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1c48_slot04_0a(Object *obj) {
+void start_jump_velocity_after_sequence_step_slot04_0a(Object *obj) {
     int a;
     int b;
 
@@ -26,6 +26,6 @@ void func_801b1c48_slot04_0a(Object *obj) {
         }
         obj->vel_x = a;
         obj->accel_x = b;
-        func_801307e0(obj, 0x24);
+        set_sequence_by_side_and_mode(obj, 0x24);
     }
 }

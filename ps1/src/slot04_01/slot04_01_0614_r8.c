@@ -8,6 +8,6 @@ void func_801b3ad8_slot04_01(Object *obj) {
         update_sequence(obj);
     } else {
         obj->facing_side = obj->facing_side ^ 1;
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

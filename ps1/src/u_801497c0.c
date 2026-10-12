@@ -4,11 +4,11 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_801497c0(Object *object)
+void spawn_effect_object_type_3_at_object(Object *object)
 {
   Object *new_object;
   u8 side;
-  new_object = (Object *)func_8011f1e0();
+  new_object = (Object *)pop_block_from_pool();
   if (new_object != 0)
   {
     new_object->active_count = 1;

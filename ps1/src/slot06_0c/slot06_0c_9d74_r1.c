@@ -12,10 +12,10 @@ extern u16 data_801eabd6_slot06_0c[];
 extern u8 data_801eabdc_slot06_0c[];
 extern ObjectFn data_801eabe0_slot06_0c[];
 
-void func_801ea18c_slot06_0c(Object *obj);
-void func_801ea1e0_slot06_0c(Object *obj);
-void func_801ea43c_slot06_0c(Object *obj);
-void func_801ea490_slot06_0c(Object *obj);
+void start_sequence_14_if_player_state_2_is_7_slot06_0c(Object *obj);
+void start_sequence_15_if_player_state_2_is_8_slot06_0c(Object *obj);
+void set_position_from_variant_table_slot06_0c(Object *obj);
+void set_sequence_by_variant_index_threshold_slot06_0c(Object *obj);
 
 void func_801e9d74_slot06_0c(Object *obj, u16 unused) {
     int i;
@@ -49,10 +49,10 @@ void func_801e9d74_slot06_0c(Object *obj, u16 unused) {
         obj->facing_side = 1;
         i = 0xb;
     }
-    func_80130700(obj, data_801ebc1c_slot06_0c[i]);
+    set_sequence_entry(obj, data_801ebc1c_slot06_0c[i]);
 }
 
-void func_801e9e5c_slot06_0c(Object *obj, int arg) {
+void call_handler_by_state_2_2_slot06_0c(Object *obj, int arg) {
     data_801eaba4_slot06_0c[obj->state_2](obj, arg);
 }
 
@@ -60,8 +60,8 @@ void func_801e9e9c_slot06_0c(Object *obj, u16 arg) {
     int i;
 
     if (arg == 1) {
-        func_801ea18c_slot06_0c(obj);
-        func_801ea1e0_slot06_0c(obj);
+        start_sequence_14_if_player_state_2_is_7_slot06_0c(obj);
+        start_sequence_15_if_player_state_2_is_8_slot06_0c(obj);
         advance_sequence_checked(obj);
         return;
     }
@@ -74,10 +74,10 @@ void func_801e9e9c_slot06_0c(Object *obj, u16 arg) {
         obj->state_2++;
         i = 0xc;
     }
-    func_80130700(obj, data_801ebc1c_slot06_0c[i]);
+    set_sequence_entry(obj, data_801ebc1c_slot06_0c[i]);
 }
 
-void func_801e9f34_slot06_0c(Object *obj, u16 unused) {
+void set_state_2_sequence_by_vel_x_zero_slot06_0c(Object *obj, u16 unused) {
     int i = 0xb;
     int v;
 
@@ -88,13 +88,13 @@ void func_801e9f34_slot06_0c(Object *obj, u16 unused) {
             v = 2;
         }
         obj->state_2 = v;
-        func_80130700(obj, data_801ebc1c_slot06_0c[i]);
+        set_sequence_entry(obj, data_801ebc1c_slot06_0c[i]);
     } else {
         advance_sequence_checked(obj);
     }
 }
 
-void func_801e9fa8_slot06_0c(Object *obj, u16 arg) {
+void set_sequence_by_arg_1_or_2_else_reset_slot06_0c(Object *obj, u16 arg) {
     int i;
 
     if (arg == 2) {
@@ -110,14 +110,14 @@ void func_801e9fa8_slot06_0c(Object *obj, u16 arg) {
         obj->state_1 = 0;
         i = 5;
     }
-    func_80130700(obj, data_801ebc1c_slot06_0c[i]);
+    set_sequence_entry(obj, data_801ebc1c_slot06_0c[i]);
 }
 
-void func_801ea020_slot06_0c(Object *obj, u16 arg) {
+void start_sequence_from_arg_table_or_advance_slot06_0c(Object *obj, u16 arg) {
     if (((s16)obj->step_flags & 0xff00) != 0) {
         obj->state_2++;
         obj->vel_x = data_801eabb8_slot06_0c[arg];
-        func_80130700(obj, data_801ebc1c_slot06_0c[data_801eabb8_slot06_0c[arg]]);
+        set_sequence_entry(obj, data_801ebc1c_slot06_0c[data_801eabb8_slot06_0c[arg]]);
     } else {
         advance_sequence_checked(obj);
     }
@@ -155,24 +155,24 @@ void func_801ea0ac_slot06_0c(Object *obj, u16 unused) {
         obj->state_2 = 0;
         i = 0xb;
     }
-    func_80130700(obj, data_801ebc1c_slot06_0c[i]);
+    set_sequence_entry(obj, data_801ebc1c_slot06_0c[i]);
 }
 
-void func_801ea18c_slot06_0c(Object *obj) {
+void start_sequence_14_if_player_state_2_is_7_slot06_0c(Object *obj) {
     if (player_left.state_2 == 7 || player_right.state_2 == 7) {
         obj->state_2 = 3;
-        func_80130700(obj, data_801ebc1c_slot06_0c[14]);
+        set_sequence_entry(obj, data_801ebc1c_slot06_0c[14]);
     }
 }
 
-void func_801ea1e0_slot06_0c(Object *obj) {
+void start_sequence_15_if_player_state_2_is_8_slot06_0c(Object *obj) {
     if (player_left.state_2 == 8 || player_right.state_2 == 8) {
         obj->state_2 = 3;
-        func_80130700(obj, data_801ebc1c_slot06_0c[15]);
+        set_sequence_entry(obj, data_801ebc1c_slot06_0c[15]);
     }
 }
 
-int func_801ea234_slot06_0c(Object *obj) {
+int classify_object_x_against_players_slot06_0c(Object *obj) {
     int r;
     s16 rt;
     s16 l;
@@ -212,15 +212,15 @@ int func_801ea234_slot06_0c(Object *obj) {
     return r;
 }
 
-void func_801ea2c8_slot06_0c(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_2_slot06_0c(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801ea2e8_slot06_0c(Object *obj) {
+void call_handler_by_state_0_3_slot06_0c(Object *obj) {
     data_801eabc4_slot06_0c[obj->state_0](obj);
 }
 
-void func_801ea328_slot06_0c(Object *obj) {
+void init_variant_object_with_start_values_slot06_0c(Object *obj) {
     obj->state_0 = 1;
     obj->field_0a = 1;
     obj->field_0f = 1;
@@ -230,29 +230,29 @@ void func_801ea328_slot06_0c(Object *obj) {
     obj->field_0c = 0;
     obj->spawn_mode = 4;
     obj->vel_y -= 0x20;
-    func_801ea490_slot06_0c(obj);
-    func_801ea43c_slot06_0c(obj);
+    set_sequence_by_variant_index_threshold_slot06_0c(obj);
+    set_position_from_variant_table_slot06_0c(obj);
 }
 
-void func_801ea394_slot06_0c(Object *obj) {
+void update_object_variant_by_scroll_slot06_0c(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         if (obj->vel_y >= (s16)((Slot06Layer *)data_801aa5d4)->scroll_x) {
             if (obj->variant_index != 0) {
                 obj->variant_index = 0;
-                func_801ea490_slot06_0c(obj);
-                func_801ea43c_slot06_0c(obj);
+                set_sequence_by_variant_index_threshold_slot06_0c(obj);
+                set_position_from_variant_table_slot06_0c(obj);
             }
         } else if (obj->variant_index == 0) {
             obj->variant_index = 2;
-            func_801ea490_slot06_0c(obj);
-            func_801ea43c_slot06_0c(obj);
+            set_sequence_by_variant_index_threshold_slot06_0c(obj);
+            set_position_from_variant_table_slot06_0c(obj);
         }
         advance_sequence_checked(obj);
     }
     func_8011ffdc(obj);
 }
 
-void func_801ea43c_slot06_0c(Object *obj) {
+void set_position_from_variant_table_slot06_0c(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
 
@@ -260,19 +260,19 @@ void func_801ea43c_slot06_0c(Object *obj) {
     obj->pos_y = 0x100 - data_801eabd6_slot06_0c[obj->variant_index];
 }
 
-void func_801ea490_slot06_0c(Object *obj) {
-    func_80130700(obj, data_801ebc1c_slot06_0c[data_801eabdc_slot06_0c[obj->variant_index >= 2]]);
+void set_sequence_by_variant_index_threshold_slot06_0c(Object *obj) {
+    set_sequence_entry(obj, data_801ebc1c_slot06_0c[data_801eabdc_slot06_0c[obj->variant_index >= 2]]);
 }
 
-void func_801ea4e8_slot06_0c(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_3_slot06_0c(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 
-void func_801ea508_slot06_0c(Object *obj) {
+void call_handler_by_state_0_4_slot06_0c(Object *obj) {
     data_801eabe0_slot06_0c[obj->state_0](obj);
 }
 
-void func_801ea548_slot06_0c(Object *obj) {
+void init_object_vel_accel_from_position_word_slot06_0c(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->spawn_mode = 4;
@@ -281,10 +281,10 @@ void func_801ea548_slot06_0c(Object *obj) {
     obj->field_0c = 0;
     obj->state_0++;
     obj->accel_x = 0xf80000 - *(s32 *)&obj->pos_y_frac;
-    func_80130700(obj, data_801ebc1c_slot06_0c[0]);
+    set_sequence_entry(obj, data_801ebc1c_slot06_0c[0]);
 }
 
-void func_801ea5b0_slot06_0c(Object *obj) {
+void set_object_position_from_layer_bounds_slot06_0c(Object *obj) {
     Slot06Layer *l = (Slot06Layer *)data_801aa5d4;
     s32 a;
 
@@ -296,9 +296,9 @@ void func_801ea5b0_slot06_0c(Object *obj) {
     a >>= 1;
     a += obj->accel_x;
     *(s32 *)&obj->pos_y_frac = 0x1000000 - a;
-    func_80120028(obj);
+    set_flag_and_push_if_mode_8(obj);
 }
 
-void func_801ea620_slot06_0c(Object *obj) {
-    func_8011f240((Slab172 *)obj);
+void release_object_record_4_slot06_0c(Object *obj) {
+    reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

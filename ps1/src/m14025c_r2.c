@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_801410c8(Object *object) {
+int drain_gauge_by_other_input(Object *object) {
     if (game_state.config->mode_flag_b == 0) {
         if (object->mode_flag_2 != 0) return drain_gauge(object) & 0xff;
         ref_other.p = object->other;

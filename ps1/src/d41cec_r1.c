@@ -11,9 +11,9 @@
  * byte 6 is not 7, 8 or 9); otherwise it returns 0. It clears field_69 and
  * round_count, clears field_19f and field_1a2 when game_state.mode differs from
  * the object's side plus 1, returns 0 when a configuration byte or the
- * partner test is set, and otherwise calls func_80142c04 and returns 1.
+ * partner test is set, and otherwise calls reset_hold_flags_and_other_hit_count and returns 1.
  */
-u8 func_80141cec(Object *object) {
+u8 try_start_effect_by_state(Object *object) {
     short checked = 0;
     u32 partial;
     u32 idle;
@@ -49,11 +49,11 @@ u8 func_80141cec(Object *object) {
     if (!checked) {
         object->effect_request = 2;
         if (object->mode_flag_2 == 0) {
-            func_80155d4c(0xd, (s8)object->side);
+            add_table_bcd_score_to_player(0xd, (s8)object->side);
         }
     }
     object->field_157 = 0;
     object->field_4b = object->field_25c;
-    func_80142c04(object);
+    reset_hold_flags_and_other_hit_count(object);
     return 1;
 }

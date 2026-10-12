@@ -13,7 +13,7 @@ void set_cam_pos_y(Cam *cam, int delta);
    given to set_cam_pos_y is the new field_26 clamped by max_step_y after a move
    up, by move_limit_b after a move down, and the unchanged field_26 when equal.
    field_26 is stored uncapped. */
-void func_80136744(Sprite *sprite) {
+void update_cam_y_toward_players(Sprite *sprite) {
     Object *left = &player_left;
     /* The second player is reached from the first: with &player_right 14 instruction lines differ. */
     Object *right = left + 1;

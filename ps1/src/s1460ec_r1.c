@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801460ec(u32 *p) {
-    p[0] = (u32)func_8011f1e0();
-    p[1] = (u32)func_8011f1e0();
-    p[2] = (u32)func_8011f1e0();
+void get_three_pool_objects_sorted(u32 *p) {
+    p[0] = (u32)pop_block_from_pool();
+    p[1] = (u32)pop_block_from_pool();
+    p[2] = (u32)pop_block_from_pool();
     if (p[0] > p[1]) {
         u32 t = p[0];
         p[0] = p[1];

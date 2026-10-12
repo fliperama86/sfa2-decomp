@@ -4,12 +4,12 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_8014edac(int a)
+void close_sounds_and_load_command_4(int a)
 {
   GameState *g = &game_state;
   g->loop_mode = 1;
-  func_80119144(2, 7);
-  func_801192bc(1);
+  set_voice_thread_entry_and_open(2, 7);
+  request_sound_command_and_switch_thread(1);
   close_vab_and_sep(0);
   close_vab_and_sep(1);
   close_vab_and_sep(2);
@@ -24,6 +24,6 @@ void func_8014edac(int a)
   g->loop_mode = 0;
   while (g->wait_flag)
   {
-    func_801192bc(1);
+    request_sound_command_and_switch_thread(1);
   }
 }

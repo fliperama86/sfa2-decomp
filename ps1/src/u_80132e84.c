@@ -6,7 +6,7 @@
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: the original keeps the stores in source order between the table
    loads; the compiler here hoists the flag loads above them (19 slots). */
 /* Form found by automatic permutation search. */
-void func_80132e84(void)
+void update_hud_bars_and_meters(void)
 {
   u8 *p = data_801ac6a8;
   u32 *new_var;
@@ -23,7 +23,7 @@ void func_80132e84(void)
   }
   l = &player_left;
   update_health_bars(p, l, l + 1);
-  func_80133108(p, l, l + 1);
-  func_80135858();
-  func_80135a10();
+  fill_meter_segments_for_both_objects(p, l, l + 1);
+  update_round_timer_display_cells();
+  update_win_marker_strips();
 }

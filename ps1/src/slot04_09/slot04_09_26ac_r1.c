@@ -3,20 +3,20 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2858_slot04_09(Object *o);
+void apply_velocity_and_acceleration_slot04_09(Object *o);
 
-void func_801b26ac_slot04_09(Object *obj) {
-    func_801b2858_slot04_09(obj);
+void apply_velocity_until_vel_y_negative_slot04_09(Object *obj) {
+    apply_velocity_and_acceleration_slot04_09(obj);
     if (obj->vel_y < 0) {
         obj->state_3++;
         obj->accel_y = obj->accel_y * 3;
         obj->facing_side = obj->facing_side ^ 1;
-        func_801307e0(obj, 0x4a);
+        set_sequence_by_side_and_mode(obj, 0x4a);
     }
 }
 
-void func_801b2714_slot04_09(Object *obj) {
-    func_801b2858_slot04_09(obj);
+void update_air_state_until_landing_slot04_09(Object *obj) {
+    apply_velocity_and_acceleration_slot04_09(obj);
     if (obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
@@ -25,18 +25,18 @@ void func_801b2714_slot04_09(Object *obj) {
         obj->pos_y_frac = 0;
         obj->active_flag_4 = 0;
         obj->pos_y = obj->ground_y;
-        func_80142adc(obj);
-        func_801209c4(obj);
-        func_801307e0(obj, 0x4b);
+        start_action_if_buttons_pressed(obj);
+        play_object_sound_by_kind(obj);
+        set_sequence_by_side_and_mode(obj, 0x4b);
     }
 }
 
-void func_801b279c_slot04_09(Object *obj) {
+void update_sequence_or_call_end_handler_slot04_09(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        func_80131468(obj);
+        reset_object_to_state_1_0_0_2_sequence_1(obj);
     } else {
         obj->active_flag_4 = 0;
-        func_80142adc(obj);
+        start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }

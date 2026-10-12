@@ -3,18 +3,18 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2994_slot04_07(Object *obj);
+void move_x_by_facing_with_decel_stop_slot04_07(Object *obj);
 
-void func_801b293c_slot04_07(Object *obj) {
+void update_slide_set_other_code_until_end_slot04_07(Object *obj) {
     update_sequence(obj);
-    func_801b2994_slot04_07(obj);
+    move_x_by_facing_with_decel_stop_slot04_07(obj);
     obj->other->other_state_code = 5;
     if ((s16)obj->step_flags & 0x8000) {
-        func_801312b8(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }
 
-void func_801b2994_slot04_07(Object *obj) {
+void move_x_by_facing_with_decel_stop_slot04_07(Object *obj) {
     if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {

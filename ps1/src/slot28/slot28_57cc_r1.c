@@ -5,9 +5,9 @@
 
 extern ObjectRef data_80051890_slot28;
 
-void func_800157cc_slot28(Object *obj) {
+void increment_substep_and_release_object_slot28(Object *obj) {
     if (game_state.wait_flag == 0) {
         data_8018f5a0->substep_index++;
-        func_8011f240((Slab172 *)data_80051890_slot28.p);
+        reset_and_push_object_to_pool_table((Slab172 *)data_80051890_slot28.p);
     }
 }

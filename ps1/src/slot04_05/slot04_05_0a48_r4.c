@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1064_slot04_05(Object *obj);
+int is_state_2_8_variant_5_grounded_slot04_05(Object *obj);
 
-int func_801b0f04_slot04_05(Object *obj) {
+int enter_state_1_0_7_0_type_2_slot5_slot04_05(Object *obj) {
     int r = 0;
     u8 one;
 
-    if (func_801417cc(obj) != 0) {
+    if (try_action_clearing_both_flags(obj) != 0) {
         r = 1;
         one = 1;
         obj->state_0 = one;
@@ -19,12 +19,12 @@ int func_801b0f04_slot04_05(Object *obj) {
         obj->field_15a = 2;
         obj->active_flag_3 = one;
         obj->facing_side = obj->saved_facing;
-        func_80142ba0(obj);
+        set_direction_index_from_buttons_group_b(obj);
     }
     return r;
 }
 
-int func_801b0f7c_slot04_05(Object *o) {
+int clear_slot_stages_7_set_flag_1_slot04_05(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int r = 0;
     int i;
@@ -32,7 +32,7 @@ int func_801b0f7c_slot04_05(Object *o) {
     u8 c;
 
     p = &o->slots[7].stage;
-    if (func_801b1064_slot04_05(o)) {
+    if (is_state_2_8_variant_5_grounded_slot04_05(o)) {
         for (c = r, i = 7; i >= 0; i--) {
             *p++ = c;
         }
@@ -43,7 +43,7 @@ int func_801b0f7c_slot04_05(Object *o) {
     return r;
 }
 
-int func_801b0ff0_slot04_05(Object *o) {
+int clear_slot_stages_8_set_flag_2_slot04_05(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int r = 0;
     int i;
@@ -51,7 +51,7 @@ int func_801b0ff0_slot04_05(Object *o) {
     u8 c;
 
     p = &o->slots[8].stage;
-    if (func_801b1064_slot04_05(o)) {
+    if (is_state_2_8_variant_5_grounded_slot04_05(o)) {
         for (c = r, i = 7; i >= 0; i--) {
             *p++ = c;
         }
@@ -62,7 +62,7 @@ int func_801b0ff0_slot04_05(Object *o) {
     return r;
 }
 
-int func_801b1064_slot04_05(Object *obj) {
+int is_state_2_8_variant_5_grounded_slot04_05(Object *obj) {
     int r = 0;
 
     if (obj->state_2 == 8 && obj->field_15a == 5) {

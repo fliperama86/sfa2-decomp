@@ -10,8 +10,8 @@ void func_801b3d14_slot04_02(Object *obj) {
     obj->state_3++;
     obj->countdown = (u8)obj->countdown | 0x3200;
     obj->variant_index = obj->facing_side;
-    func_80145e70(obj);
-    func_80141f28(obj, -0x90);
-    func_80138b38(&game_state, obj);
-    func_801307e0(obj, 0x3a);
+    spawn_three_child_objects_at_fixed_spawn(obj);
+    add_to_meter_clamped(obj, -0x90);
+    set_flag_225_add_direction_to_counter(&game_state, obj);
+    set_sequence_by_side_and_mode(obj, 0x3a);
 }

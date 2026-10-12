@@ -5,9 +5,9 @@
 
 extern Slot04_11Rec785c data_801c785c_slot04_11[];
 
-void func_801b5ab8_slot04_11(Object *obj);
+void copy_kind_table_to_scratch_by_side_slot04_11(Object *obj);
 
-void func_801b5ab8_slot04_11(Object *obj) {
+void copy_kind_table_to_scratch_by_side_slot04_11(Object *obj) {
     u32 *dst;
     Slot04_11Rec785c *p;
     int k;

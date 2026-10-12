@@ -8,21 +8,21 @@ extern ObjectFn data_801c6554_slot04_14[];
 
 void func_801b6344_slot04_14(Object *obj);
 void func_801b657c_slot04_14(Object *obj);
-void func_801b6c3c_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
-void func_80130dc0(Object *object);
+void set_object_states_0_to_3_2_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
+void set_sequence_and_tables_from_direction(Object *object);
 
-void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d) {
+void set_object_states_0_to_3_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d) {
     obj->state_0 = a;
     obj->state_1 = b;
     obj->state_2 = c;
     obj->state_3 = d;
 }
 
-void func_801b62c0_slot04_14(Object *obj) {
+void call_handler_by_input_dir_0_2_slot04_14(Object *obj) {
     data_801c6548_slot04_14[obj->input_dir_0 >> 1](obj);
 }
 
-void func_801b6304_slot04_14(Object *obj) {
+void call_handler_by_input_dir_second_2_slot04_14(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second != 0) {
         func_801b657c_slot04_14(obj);
@@ -35,22 +35,22 @@ void func_801b6344_slot04_14(Object *obj) {
     data_801c6554_slot04_14[obj->state_3](obj);
 }
 
-void func_801b6384_slot04_14(Object *obj) {
+void start_state_choose_hit_or_jump_sequence_slot04_14(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
         if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
-            func_801b6c3c_slot04_14(obj, 1, 2, 0, 0);
+            set_object_states_0_to_3_2_slot04_14(obj, 1, 2, 0, 0);
             return;
         }
     }
     if (obj->direction_index == 2 && obj->attack_param_d != 0) {
         obj->active_flag_3 = 1;
         obj->state_3 = 2;
-        func_80141f28(obj, 1);
-        func_801307e0(obj, 0x27);
+        add_to_meter_clamped(obj, 1);
+        set_sequence_by_side_and_mode(obj, 0x27);
         return;
     }
     obj->active_flag_3 = 1;
-    func_80130dc0(obj);
+    set_sequence_and_tables_from_direction(obj);
 }

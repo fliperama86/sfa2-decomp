@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80157270(Object *obj) {
+void update_child_countdown_follow_parent(Object *obj) {
     Object *other = obj->parent;
     u32 w;
 
@@ -21,7 +21,7 @@ void func_80157270(Object *obj) {
     }
     if (other->field_15a == 8 || game_state.check_flag == 0) {
         if ((s16)obj->countdown <= 0) {
-            func_80120028(obj);
+            set_flag_and_push_if_mode_8(obj);
         }
     }
     if (other->field_15a != 8 || game_state.check_flag != 0) {

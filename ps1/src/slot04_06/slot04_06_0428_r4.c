@@ -3,17 +3,17 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4818_slot04_06(Object *obj);
-void func_801b4850_slot04_06(Object *obj);
+void move_x_by_vel_x_facing_then_accelerate_slot04_06(Object *obj);
+void apply_vertical_velocity_slot04_06(Object *obj);
 
-void func_801b2dc0_slot04_06(Object *obj) {
-    func_801b4850_slot04_06(obj);
+void update_air_motion_or_land_2_slot04_06(Object *obj) {
+    apply_vertical_velocity_slot04_06(obj);
     if (obj->pos_y < obj->ground_y) {
-        func_801b4818_slot04_06(obj);
+        move_x_by_vel_x_facing_then_accelerate_slot04_06(obj);
     } else {
         obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
-        func_801209c4(obj);
-        func_801312b8(obj);
+        play_object_sound_by_kind(obj);
+        reset_object_to_state_1_0_sequence_0(obj);
     }
 }

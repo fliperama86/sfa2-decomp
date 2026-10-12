@@ -7,7 +7,7 @@ extern ObjectRef data_80051b48_slot28;
 extern ObjectRef data_80051b50_slot28;
 void func_80020fa4_slot28(Object *obj);
 
-void func_80020a98_slot28(Object *obj) {
+void finish_pass_when_slot28_flag_negative_slot28(Object *obj) {
     Object *p;
     func_80020fa4_slot28(obj);
     p = data_80051b50_slot28.p;

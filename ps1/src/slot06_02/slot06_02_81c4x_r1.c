@@ -5,9 +5,9 @@
 
 extern u16 data_80190542;
 
-void func_801e81c4_slot06_02(Slot06Layer *layer);
+void update_layer_follow_and_flag_blink_slot06_02(Slot06Layer *layer);
 
-void func_801e81c4_slot06_02(Slot06Layer *layer) {
+void update_layer_follow_and_flag_blink_slot06_02(Slot06Layer *layer) {
     Slot06Layer *l2 = (Slot06Layer *)data_801aa5d4;
     s16 d;
 

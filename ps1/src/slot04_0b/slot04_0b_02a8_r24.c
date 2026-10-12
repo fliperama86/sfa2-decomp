@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void func_801b3bbc_slot04_0b(Object *o) {
-    func_80137cc0(o);
+    call_state_2_handler_2684_unless_paused(o);
 }
 
-void func_801b3bdc_slot04_0b(Object *obj) {
-    func_80137dc8(obj);
+void load_velocities_from_table_5_slot04_0b(Object *obj) {
+    call_state_2_handler_268c_unless_paused(obj);
 }

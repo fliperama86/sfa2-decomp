@@ -11,7 +11,7 @@ void store_name_in_score_tables(void *a, Object *object) {
     object->name_char_3 = 0x20;
     object->phase_index++;
     replace_blocked_name(a, object);
-    func_80157174(a, object);
+    copy_top_rank_data_by_side(a, object);
     r = table_8016e5c4;
     i = object->score_rank - 1;
     if (i < 5) {

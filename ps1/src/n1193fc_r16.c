@@ -6,13 +6,13 @@
 void func_800100a4(void);
 void func_80010e60(void);
 
-void func_80123804(GameState *state) {
+void update_phase_or_init_object_pools(GameState *state) {
     HudState *h;
     if (data_8016e68b == 0) {
         h = data_8018f5a0;
         if (h->pass_index == 0) {
             h->pass_index++;
-            func_8014ee5c(game_state.focus_object->kind);
+            load_command_5_for_kind_and_wait(game_state.focus_object->kind);
         } else {
             func_800100a4();
         }

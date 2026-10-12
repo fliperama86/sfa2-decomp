@@ -6,9 +6,9 @@
 extern u8 data_80017c28_slot27[];
 extern u8 data_8001aa14_slot27[];
 extern s16 data_8002b386_slot27;
-void func_80016810_slot27(Object *obj);
+void advance_frame_list_set_image_row_slot27(Object *obj);
 
-void func_80015ca4_slot27(Object *obj) {
+void update_slot27_object_by_flags_slot27(Object *obj) {
     Object *b;
     if (obj->field_60 != 0) {
         advance_sequence_checked(obj);
@@ -20,7 +20,7 @@ void func_80015ca4_slot27(Object *obj) {
         func_8011ffdc(obj);
     } else if (data_8002b386_slot27 < 0) {
         obj->state_1++;
-        b = (Object *)func_8011f1e0();
+        b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;
             b->field_02 = 0xaa;
@@ -35,6 +35,6 @@ void func_80015ca4_slot27(Object *obj) {
             b->image_row = 0;
         }
     } else {
-        func_80016810_slot27(obj);
+        advance_frame_list_set_image_row_slot27(obj);
     }
 }

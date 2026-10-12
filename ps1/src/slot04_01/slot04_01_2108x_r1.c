@@ -6,7 +6,7 @@
 extern u16 data_801beff4_slot04_01[];
 extern u8 data_801beffc_slot04_01[];
 
-void func_801b2108_slot04_01(Object *o) {
+void set_pos_y_from_table_and_run_step_events_slot04_01(Object *o) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
     int y;
@@ -38,6 +38,6 @@ void func_801b2108_slot04_01(Object *o) {
     if (w == 0x100) {
         o->step_flags = v & 0xff;
         play_sound_at(o, o->side, 0x31c);
-        func_801483a4(o, -0x18, 0x1c);
+        spawn_children_per_direction_index(o, -0x18, 0x1c);
     }
 }

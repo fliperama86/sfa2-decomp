@@ -18,8 +18,8 @@ extern Object *alloc_cursor_80190478;
 
 /* Not in protos.h (inferred from the listing and the callers' use). */
 void func_8013ae00(Object *a, Object *b, Tx *c);
-void func_8013ad2c(Object *object);
-void func_8013ad64(Object *object);
+void remap_hit_type_from_table(Object *object);
+void call_handler_by_hit_type(Object *object);
 
 /* What it does (inferred, not an original name): applies one hit to the
    fighter a1. a0 is the attacker, a2 the attack's record. A damage value
@@ -40,15 +40,15 @@ void func_8013ad64(Object *object);
    -1 (with a1's field_163, countdown_timer_2 and accum_count cleared), except that a1
    with field_d8 not 0 in the state 0xff hit by a record with check_flag equal
    to 0 is set to 0, which is no defeat. When the health is below 0 the
-   function records the defeat: it calls func_8013a154 (when data_80188f34 is
-   not 0) or func_8013ad64, writes a code into the attacking player's
+   function records the defeat: it calls dispatch_hit_handler_by_box_type (when data_80188f34 is
+   not 0) or call_handler_by_hit_type, writes a code into the attacking player's
    field_167 (only when that is 0) and config->defeated_kind, and calls
-   func_80147000 (when a0->field_49 is not 0; otherwise when bit 0x40 of
+   spawn_game_state_kind_object (when a0->field_49 is not 0; otherwise when bit 0x40 of
    a2->field_08 is set, config->mode_flag_c is 0 and a2->config_value is not 0). The
    global pointers ref_first, ref_third and data_80188f24 are used as scratch
    by the original and written here in the same order, because their last
    values stay in memory (inferred). */
-void func_8013a3a8(Object *a0, Object *a1, Box32 *a2) {
+void apply_hit_damage_to_object(Object *a0, Object *a1, Box32 *a2) {
     unsigned dmg;
     s16 s1;
     s16 t;
@@ -194,7 +194,7 @@ g:
     }
     s1 = (u8)s1;
     if (!(a1->accum_count < a1->count_limit)) {
-        func_8013ad2c(a1);
+        remap_hit_type_from_table(a1);
     }
     if (a1->mode_flag_2) {
         ref_first.p = (Object *)table_80178274;
@@ -300,9 +300,9 @@ dec:
 chk:
     if ((s16)a1->health < 0) {
         if (data_80188f34) {
-            func_8013a154(a0, a1, a2);
+            dispatch_hit_handler_by_box_type(a0, a1, a2);
         } else {
-            func_8013ad64(a1);
+            call_handler_by_hit_type(a1);
         }
         if (a0->team_id) {
             ref_first.p = &player_right;
@@ -329,7 +329,7 @@ chk:
             ref_first.p->field_255 = 6;
             ref_first.p->meter = 0;
             game_state.config->countdown = 0;
-            func_80147000(a0);
+            spawn_game_state_kind_object(a0);
             ref_other.p = data_80188f20;
         } else if (a2->box_flags & 0x40) {
             if (game_state.config->mode_flag_c != 0) return;
@@ -337,7 +337,7 @@ chk:
             data_80188f20 = ref_other.p;
             if (a0->facing_side != 0) {
                 game_state.config->countdown = a2->config_value - 1;
-                func_80147000(a0);
+                spawn_game_state_kind_object(a0);
                 ref_other.p = data_80188f20;
             } else {
                 e = a2->config_value;
@@ -349,7 +349,7 @@ chk:
                 }
                 e = e - 1;
                 game_state.config->countdown = e;
-                func_80147000(a0);
+                spawn_game_state_kind_object(a0);
                 ref_other.p = data_80188f20;
             }
         }

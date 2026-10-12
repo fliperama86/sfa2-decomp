@@ -10,7 +10,7 @@
 extern Slot06Tile data_801fa57c_slot06_01[2][108];
 
 /* What it does (inferred, not an original name): the stage 01 relative of
-   func_801e9080_slot06_00, draws a tile map as sprite records. The object
+   draw_object_tile_grid_sprites_slot06_00, draws a tile map as sprite records. The object
    must be of kind field_0e 8: its position is then taken relative to the
    layer block data_801aa5d4 (scroll_x and scroll_y), with a parallax term
    ((layer scroll_x - layer ref_x) * object parallax_factor / 128) added to x.
@@ -25,7 +25,7 @@ extern Slot06Tile data_801fa57c_slot06_01[2][108];
    For a value of field_0e that has no case here (any value but 8), x and y
    are read without a first value. Nothing is claimed here about whether such
    a call happens, or about what the original's registers hold then. */
-void func_801e9f90_slot06_01(Object *object) {
+void draw_object_cell_grid_sprites_slot06_01(Object *object) {
     Slot06Layer *layer;
     u8 *hdr;
     Slot06Tile *prim;

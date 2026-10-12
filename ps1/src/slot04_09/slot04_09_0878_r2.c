@@ -5,7 +5,7 @@
 
 void func_801b5ba0_slot04_09(Object *obj);
 
-void func_801b24c4_slot04_09(Object *obj) {
+void count_down_then_halve_velocities_2_slot04_09(Object *obj) {
     func_801b5ba0_slot04_09(obj);
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {

@@ -18,10 +18,10 @@ void func_801b42fc_slot04_03(Object *obj) {
             if (obj->attack_param_d != 0 && obj->direction_flag == 0) {
                 obj->state_3 = 2;
                 *(s16 *)&obj->countdown = -1;
-                func_80141f28(obj, 2);
-                func_801307e0(obj, 0x1c);
+                add_to_meter_clamped(obj, 2);
+                set_sequence_by_side_and_mode(obj, 0x1c);
             } else {
-                func_80130dc0(obj);
+                set_sequence_and_tables_from_direction(obj);
             }
         } else if (obj->attack_param_d != 0) {
             obj->state_3 = 3;
@@ -32,12 +32,12 @@ void func_801b42fc_slot04_03(Object *obj) {
             } else {
                 obj->vel_x = 0x36000;
             }
-            func_80141f28(obj, 1);
-            func_801307e0(obj, 0x1d);
+            add_to_meter_clamped(obj, 1);
+            set_sequence_by_side_and_mode(obj, 0x1d);
         } else {
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     } else {
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

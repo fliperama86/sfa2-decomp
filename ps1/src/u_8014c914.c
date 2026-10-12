@@ -8,7 +8,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_8014c914(Object *object)
+void read_script_word_and_dispatch(Object *object)
 {
   u16 v = *(data_80189460++);
   s16 w;
@@ -23,6 +23,6 @@ void func_8014c914(Object *object)
     func_8014a5c0(object);
     return;
   }
-  func_8014c994(object);
+  call_script_switch_by_arg(object);
   func_8014a5c0(object);
 }

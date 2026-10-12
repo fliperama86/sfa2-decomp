@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-Object *func_8011f32c(void) {
+Object *pop_object_from_second_pool(void) {
     Object *o;
     Object *result;
     int n = data_801a4fec;

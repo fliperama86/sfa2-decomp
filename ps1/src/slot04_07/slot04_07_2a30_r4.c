@@ -5,9 +5,9 @@
 
 extern u8 data_801c2034_slot04_07[];
 
-void func_801b3274_slot04_07(Object *obj);
+void move_xy_by_facing_with_x_decel_stop_slot04_07(Object *obj);
 
-void func_801b2ef4_slot04_07(Object *obj) {
+void launch_when_step_flag_byte_zero_slot04_07(Object *obj) {
     int a;
 
     update_sequence(obj);
@@ -28,17 +28,17 @@ void func_801b2ef4_slot04_07(Object *obj) {
     }
 }
 
-void func_801b2fa4_slot04_07(Object *obj) {
+void update_jump_arc_until_ground_state_slot04_07(Object *obj) {
     int y;
 
-    func_801b3274_slot04_07(obj);
+    move_xy_by_facing_with_x_decel_stop_slot04_07(obj);
     if (obj->vel_y >= 0) {
         obj->state_3 = 5;
         obj->countdown = 0;
     } else {
         if (((Slot04aObj *)obj)->once_flag == 0) {
             ((Slot04aObj *)obj)->once_flag++;
-            func_801307e0(obj, 0x21);
+            set_sequence_by_side_and_mode(obj, 0x21);
         }
         y = obj->ground_y;
         if (obj->pos_y < y) {
@@ -48,7 +48,7 @@ void func_801b2fa4_slot04_07(Object *obj) {
             obj->pos_y = y;
             obj->active_state = 0;
             obj->other_lock = 0;
-            func_801307e0(obj, 0x2e);
+            set_sequence_by_side_and_mode(obj, 0x2e);
         }
     }
 }

@@ -9,13 +9,13 @@ extern BoxTables data_801c618c_slot04_0f[];
 extern ObjectFn data_801c62a4_slot04_0f[];
 extern ObjectRef data_80190458;
 
-void func_8011f14c(Slab172 *o);
+void reset_and_push_block_object_type_8(Slab172 *o);
 void func_8011ffdc(Object *o);
-void func_801b5958_slot04_0f(Object *obj);
-void func_801b5a28_slot04_0f(Object *obj);
+void call_handler_by_state_1_unless_paused_slot04_0f(Object *obj);
+void advance_or_reset_states_on_frame_param_slot04_0f(Object *obj);
 void func_801b5b4c_slot04_0f(Object *obj);
 
-void func_801b58b4_slot04_0f(Object *obj) {
+void init_child_object_with_tables_slot04_0f(Object *obj) {
     obj->ot_depth = 0;
     obj->variant_index_2 = 0xff;
     obj->state_0 = obj->state_0 + 1;
@@ -25,12 +25,12 @@ void func_801b58b4_slot04_0f(Object *obj) {
     obj->health = 0xff;
     obj->active_state = 0;
     obj->frames = data_801c6150_slot04_0f;
-    func_80130768(obj, obj->vel_table_index >> 1, data_801c6144_slot04_0f);
+    set_sequence_from_table_5(obj, obj->vel_table_index >> 1, data_801c6144_slot04_0f);
     obj->variant_index = 0x16;
-    func_801b5958_slot04_0f(obj);
+    call_handler_by_state_1_unless_paused_slot04_0f(obj);
 }
 
-void func_801b5958_slot04_0f(Object *obj) {
+void call_handler_by_state_1_unless_paused_slot04_0f(Object *obj) {
     Config *config = game_state.config;
 
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
@@ -39,7 +39,7 @@ void func_801b5958_slot04_0f(Object *obj) {
     func_8011ffdc(obj);
 }
 
-void func_801b59c8_slot04_0f(Object *obj) {
+void advance_state_0_on_frame_param_zero_slot04_0f(Object *obj) {
     if (data_80190458.p->frame->frame_param == 0) {
         obj->state_0 = obj->state_0 + 1;
     }
@@ -47,7 +47,7 @@ void func_801b59c8_slot04_0f(Object *obj) {
     func_801b5b4c_slot04_0f(obj);
 }
 
-void func_801b5a28_slot04_0f(Object *obj) {
+void advance_or_reset_states_on_frame_param_slot04_0f(Object *obj) {
     if (data_80190458.p->frame->frame_param == 0) {
         obj->state_0 = obj->state_0 + 1;
     } else {
@@ -63,21 +63,21 @@ void func_801b5a28_slot04_0f(Object *obj) {
 }
 
 void func_801b5aac_slot04_0f(Object *obj) {
-    func_801b5a28_slot04_0f(obj);
+    advance_or_reset_states_on_frame_param_slot04_0f(obj);
 }
 
 void func_801b5acc_slot04_0f(Object *obj) {
-    func_801b5a28_slot04_0f(obj);
+    advance_or_reset_states_on_frame_param_slot04_0f(obj);
 }
 
 void func_801b5aec_slot04_0f(Object *obj) {
-    func_801b5a28_slot04_0f(obj);
+    advance_or_reset_states_on_frame_param_slot04_0f(obj);
 }
 
-void func_801b5b0c_slot04_0f(Object *obj) {
-    func_8011f14c((Slab172 *)obj);
+void release_object_record_slot04_0f(Object *obj) {
+    reset_and_push_block_object_type_8((Slab172 *)obj);
 }
 
-void func_801b5b2c_slot04_0f(Object *obj) {
-    func_8011f14c((Slab172 *)obj);
+void release_object_record_2_slot04_0f(Object *obj) {
+    reset_and_push_block_object_type_8((Slab172 *)obj);
 }

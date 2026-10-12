@@ -6,7 +6,7 @@
 void func_801b35d4_slot04_04(Object *obj) {
     obj->state_3++;
     play_sound_at(obj, obj->side ^ 1, 0x31a);
-    func_80141f28(obj, 3);
+    add_to_meter_clamped(obj, 3);
     obj->facing_side = 0;
     if (obj->mode_flag_2 != 0) {
         if (!((s16)(box_margin[0] + 0xc0) < obj->pos_x)) {
@@ -15,14 +15,14 @@ void func_801b35d4_slot04_04(Object *obj) {
     } else if ((obj->input_bits & 0x8000) == 0) {
         obj->facing_side = 1;
     }
-    func_801307e0(obj, 0x18);
+    set_sequence_by_side_and_mode(obj, 0x18);
 }
 
 void func_801b3684_slot04_04(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         play_side_sound_at(obj, obj->side, 0xc);
-        func_80140770(obj, 4, 0xa, 0xf, 0, 0, 1);
+        set_other_hit_reaction_state_0(obj, 4, 0xa, 0xf, 0, 0, 1);
     }
     update_sequence(obj);
 }

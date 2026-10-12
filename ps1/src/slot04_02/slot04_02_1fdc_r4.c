@@ -5,8 +5,8 @@
 
 void func_801b2604_slot04_02(Object *obj) {
     obj->state_3++;
-    func_80141f28(obj, 3);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 3);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     obj->field_29c = 2;
-    func_801307e0(obj, 0x26);
+    set_sequence_by_side_and_mode(obj, 0x26);
 }

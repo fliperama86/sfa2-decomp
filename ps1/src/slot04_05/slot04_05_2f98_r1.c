@@ -5,14 +5,14 @@
 
 void func_801b2f98_slot04_05(Object *obj) {
     if (((Slot04aObj *)obj)->field_1a6 != 2) {
-        func_801307e0(obj, 0x25);
+        set_sequence_by_side_and_mode(obj, 0x25);
         obj->state_0 = 1;
         obj->state_2 = 8;
         obj->state_1 = 0;
         obj->state_3 = 0;
         obj->field_15a = 3;
     } else {
-        func_801307e0(obj, 0x27);
+        set_sequence_by_side_and_mode(obj, 0x27);
         obj->state_0 = 1;
         obj->state_2 = 8;
         obj->vel_x = 0xc0000;
@@ -27,7 +27,7 @@ void func_801b2f98_slot04_05(Object *obj) {
     ((Slot04aObj *)obj)->field_1a6 = 0;
 }
 
-int func_801b3048_slot04_05(Object *obj) {
+int move_x_by_vel_x_facing_and_accelerate_slot04_05(Object *obj) {
     if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {

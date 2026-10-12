@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801264d4(void) {
+void loop_update_players_and_switch_thread(void) {
     GameState *g = &game_state;
     Object *left;
 
@@ -14,9 +14,9 @@ void func_801264d4(void) {
 loop:
     if (data_8019032d == 0) {
         left = &player_left;
-        func_8012655c(g, left);
-        func_8012655c(g, left + 1);
+        call_step_handler_by_step_index(g, left);
+        call_step_handler_by_step_index(g, left + 1);
     }
-    func_801192bc(1);
+    request_sound_command_and_switch_thread(1);
     goto loop;
 }

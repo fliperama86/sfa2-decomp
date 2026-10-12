@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b1328_slot04_06(Object *obj) {
+int set_direction_index_2_return_true_slot04_06(Object *obj) {
     obj->direction_index = 2;
     return 1;
 }

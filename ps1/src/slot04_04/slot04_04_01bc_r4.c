@@ -5,7 +5,7 @@
 
 void func_801b046c_slot04_04(Object *obj) {
     if (obj->state_3 != 0) {
-        func_80142a14(obj);
+        update_sequence_with_input_check(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
@@ -16,24 +16,24 @@ void func_801b046c_slot04_04(Object *obj) {
                 obj->state_3 = 0;
             } else {
                 obj->active_flag_3 = 1;
-                func_80130dc0(obj);
+                set_sequence_and_tables_from_direction(obj);
             }
         } else {
             obj->active_flag_3 = 1;
-            func_80130dc0(obj);
+            set_sequence_and_tables_from_direction(obj);
         }
     }
 }
 
-void func_801b0528_slot04_04(Object *obj) {
+void update_state_3_start_move_with_sound_slot04_04(Object *obj) {
     if (obj->state_3 != 0) {
-        func_80142a14(obj);
+        update_sequence_with_input_check(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         if (obj->direction_index == 4) {
             play_side_sound_at(obj, obj->side, 0xb);
         }
         obj->active_flag_3 = 1;
-        func_80130dc0(obj);
+        set_sequence_and_tables_from_direction(obj);
     }
 }

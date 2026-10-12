@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80123e34(void) {
+void toggle_pause_flags_on_button(void) {
     unsigned char v;
     if (game_state.field_74 == 0) {
         if (((HudBig *)data_8018f5a0)->step_count == 1 && game_state.field_04 == 0) {
@@ -34,12 +34,12 @@ void func_80123f78(int a) {
         game_state.field_09 = 1;
         game_state.palette_swap_flag = 0;
         i = 0;
-        func_80120408();
-        func_8014f4d4(2, 0);
+        stop_all_keys_clear_table();
+        set_menu_command_by_code(2, 0);
         p = base;
-        func_8012411c();
+        scale_palette_rows_and_refresh();
         for (; i < 2; i++) {
-            func_80133df4(p, i);
+            write_player_color_bytes_to_table(p, i);
             func_80133ed0(p, i);
             func_80133fd8(p, i);
             p[(i << 4) + 0x188] = 0;
@@ -51,13 +51,13 @@ void func_80123f78(int a) {
         }
     } else {
         game_state.field_09 = 0;
-        func_8014f4d4(3, 0);
+        set_menu_command_by_code(3, 0);
         func_801260ac(0, 0x20, 0);
         func_801260ac(1, 0x20, 0);
         func_801260ac(2, 0x20, 0);
         func_801260ac(3, 0x20, 0);
         func_801260ac(4, 0x20, 0);
-        func_80137b10();
+        queue_five_jobs();
         ((HudBig *)data_8018f5a0)->substate_index = 0;
         for (i = 0; i < 2; i++) {
             base[(i << 4) + 0x188] = 0x49;

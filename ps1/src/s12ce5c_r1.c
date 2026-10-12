@@ -9,12 +9,12 @@ void func_8012ce5c(Object *object) {
     table_80171a08[object->field_60](object);
 }
 
-void func_8012ce9c(Object *object) {
+void call_state_3_table_function_2(Object *object) {
     table_80171a20[object->state_3](object);
 }
 
-void func_8012cedc(Object *object) {
+void advance_state_3_play_sound_and_step(Object *object) {
     object->state_3 = object->state_3 + 1;
-    func_8012d0bc(object);
+    play_side_sound_0(object);
     func_8012cf1c(object);
 }

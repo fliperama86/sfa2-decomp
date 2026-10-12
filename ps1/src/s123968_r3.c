@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8012411c(void) {
+void scale_palette_rows_and_refresh(void) {
     func_80125dc0(0, 0x20, 8, 0);
     func_80125dc0(1, 0x20, 8, 0);
     func_80125dc0(2, 0x20, 8, 0);
@@ -13,9 +13,9 @@ void func_8012411c(void) {
     func_801260ac(4, 0xf, 0x11);
     func_80125dc0(4, 1, 8, 0x18);
     func_80125dc0(4, 1, 8, 0x1c);
-    func_80137b10();
+    queue_five_jobs();
 }
 
-void func_801241d8(void) {
+void call_substate_table_entry(void) {
     table_8016e804[((HudBig *)data_8018f5a0)->substate_index]();
 }

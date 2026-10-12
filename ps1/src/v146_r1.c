@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801336a0(u8 *base, Object *a, Object *b, s16 index) {
+void write_two_player_color_bytes_to_table(u8 *base, Object *a, Object *b, s16 index) {
     if ((a->field_165 | b->field_165) != 0) {
         return;
     }

@@ -11,6 +11,6 @@ void func_801b3a90_slot04_0a(Object *obj) {
         obj->facing_side = 1;
     }
     play_sound_at(obj, obj->side ^ 1, 0x31a);
-    func_80141f28(obj, 3);
-    func_801307e0(obj, 0x18);
+    add_to_meter_clamped(obj, 3);
+    set_sequence_by_side_and_mode(obj, 0x18);
 }

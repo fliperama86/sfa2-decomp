@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80013cc4_slot27(Object *obj);
+void advance_palette_animation_and_upload_slot27(Object *obj);
 
-void func_80012d78_slot27(Object *obj) {
+void ramp_child_vel_x_until_target_slot27(Object *obj) {
     ref_first.p = (Object *)((ObjectWords *)obj)->word_54;
     if (ref_other.p->field_d8 == 0) {
         ref_first.p = (Object *)((ObjectWords *)obj)->word_58;
@@ -27,5 +27,5 @@ void func_80012d78_slot27(Object *obj) {
         obj->state_3 = 0;
         obj->state_1 = obj->state_1 + 1;
     }
-    func_80013cc4_slot27(obj);
+    advance_palette_animation_and_upload_slot27(obj);
 }

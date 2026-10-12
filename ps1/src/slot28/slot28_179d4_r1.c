@@ -6,7 +6,7 @@
 extern Slot28Rec50ce4 data_80050ce4_slot28[];
 extern s16 data_8005175c_slot28[];
 
-void func_800279d4_slot28(Object *o) {
+void update_cells_from_entry_table_slot28(Object *o) {
     Slot28Rec50ce4Obj *obj = (Slot28Rec50ce4Obj *)o;
     int i;
     int x;
@@ -28,7 +28,7 @@ void func_800279d4_slot28(Object *o) {
             c->entry_byte = e->entry_byte;
             c->data_word = e->data_word;
             e++;
-            func_801519b4(c);
+            add_item_to_table(c);
         }
         x += 0x10;
         i++;

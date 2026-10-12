@@ -13,8 +13,8 @@ void func_801b1304_slot04_03(Object *obj) {
     obj->state_3++;
     obj->active_flag_4 = 1;
     obj->active_state = 1;
-    func_80141f28(obj, 9);
-    func_80138ae8(&game_state, obj);
+    add_to_meter_clamped(obj, 9);
+    add_one_to_ec4_if_object_unflagged(&game_state, obj);
     play_side_sound_at(obj, obj->side, 5);
     play_side_sound_at(obj, obj->side, 0xd);
     v = obj->facing_side;
@@ -30,5 +30,5 @@ void func_801b1304_slot04_03(Object *obj) {
     if (obj->field_49 != 0) {
         a = 0x46;
     }
-    func_801307e0(obj, (obj->direction_index >> 1) + a);
+    set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + a);
 }

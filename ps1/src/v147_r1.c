@@ -22,13 +22,13 @@ void func_8012e600(Object *object)
     game_state.config->field_75 = 0xff;
     ref_other.p = object->other;
     ref_other.p->effect_request = 8;
-    func_80155d4c(0x28, (s8) ref_other.p->side);
+    add_table_bcd_score_to_player(0x28, (s8) ref_other.p->side);
   }
   if ((*((s16 *) (&object->countdown))) != 0)
   {
     if (((--(*((s16 *) (&object->countdown)))) == 0) && (object->mode_flag_2 != 0))
     {
-      if (func_8014a170(object, table_8017d718))
+      if (test_random_bit_in_table(object, table_8017d718))
       {
         object->field_15b = 0;
         object->field_2a3 = 1;
@@ -81,5 +81,5 @@ void func_8012e600(Object *object)
   }
   object->frame = object->frames + object->sequence->frame_index;
   object->step_flags = 0;
-  func_80130c80(object);
+  push_both_objects_inside_bounds(object);
 }

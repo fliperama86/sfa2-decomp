@@ -5,7 +5,7 @@
 
 extern Slot28Rec42274 data_80042274_slot28[];
 
-void func_8002026c_slot28(Object *obj) {
+void init_object_motion_from_table_slot28(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[24];
 
@@ -21,10 +21,10 @@ void func_8002026c_slot28(Object *obj) {
     if (obj->table_index != 0) {
         obj->image_row = 0;
         obj->facing_side = get_random_byte() & 1;
-        func_80130768(obj, 2, (SequenceStep **)obj->box_tables);
+        set_sequence_from_table_5(obj, 2, (SequenceStep **)obj->box_tables);
     } else {
         obj->facing_side = 1;
         obj->image_row = 0;
-        func_80130768(obj, 0, (SequenceStep **)obj->box_tables);
+        set_sequence_from_table_5(obj, 0, (SequenceStep **)obj->box_tables);
     }
 }

@@ -11,24 +11,24 @@ extern ObjectFn data_801c35cc_slot04_0d[];
 extern ObjectFn data_801c35dc_slot04_0d[];
 extern ObjectFn data_801c35f0_slot04_0d[];
 
-Block172 *func_8011f1e0(void);
-void func_80137b64(Object *object);
-void func_80137be0(Object *object);
-void func_80137cc0(Object *object);
-void func_80137dc8(Object *object);
-void func_80137f00(Object *object);
-void func_801b39c8_slot04_0d(Object *object, GameState *g);
-void func_801b3d0c_slot04_0d(Object *object);
-void func_801b3d38_slot04_0d(Object *object);
-void func_801b3f7c_slot04_0d(Object *object);
+Block172 *pop_block_from_pool(void);
+void update_object_motion_unless_paused(Object *object);
+void call_state_2_handler_267c_unless_paused(Object *object);
+void call_state_2_handler_2684_unless_paused(Object *object);
+void call_state_2_handler_268c_unless_paused(Object *object);
+void call_handler_2694_by_state_2(Object *object);
+void count_down_then_set_side_bit_slot04_0d(Object *object, GameState *g);
+void set_countdown_low_from_table_slot04_0d(Object *object);
+void call_handler_by_state_1_slot04_0d(Object *object);
+void call_handler_by_state_1_then_offset_slot04_0d(Object *object);
 void func_801b40bc_slot04_0d(Object *object);
 
-void func_801b3990_slot04_0d(Object *object) {
-    func_801b39c8_slot04_0d(object, &game_state);
+void tick_countdown_and_update_sequence_slot04_0d(Object *object) {
+    count_down_then_set_side_bit_slot04_0d(object, &game_state);
     update_sequence(object);
 }
 
-void func_801b39c8_slot04_0d(Object *object, GameState *g) {
+void count_down_then_set_side_bit_slot04_0d(Object *object, GameState *g) {
     if (((Slot04bObj *)object)->countdown != 0) {
         ((Slot04bObj *)object)->countdown--;
         if (((Slot04bObj *)object)->countdown == 0) {
@@ -46,7 +46,7 @@ void func_801b3a14_slot04_0d(Object *object) {
     update_sequence(object);
     if (object->step_flags & 0xff) {
         object->step_flags = object->step_flags & 0xff00;
-        p = (Object *)func_8011f1e0();
+        p = (Object *)pop_block_from_pool();
         if (p != 0) {
             p->active_count = 1;
             p->field_02 = 0x77;
@@ -78,7 +78,7 @@ void func_801b3a14_slot04_0d(Object *object) {
             p->pos_x = dx + p->pos_x;
         }
     }
-    func_801b39c8_slot04_0d(object, &game_state);
+    count_down_then_set_side_bit_slot04_0d(object, &game_state);
 }
 
 void func_801b3b6c_slot04_0d(Object *object) {
@@ -91,11 +91,11 @@ void func_801b3b6c_slot04_0d(Object *object) {
     }
 }
 
-void func_801b3b90_slot04_0d(Object *object) {
+void call_handler_by_state_0_slot04_0d(Object *object) {
     data_801c35cc_slot04_0d[object->state_0](object);
 }
 
-void func_801b3bd0_slot04_0d(Object *object) {
+void init_child_object_from_parent_slot04_0d(Object *object) {
     Object *parent;
     int dx;
     int i;
@@ -130,19 +130,19 @@ void func_801b3bd0_slot04_0d(Object *object) {
         ((Slot04bObj *)object)->data_pointer = *(int *)0x1f800158;
     }
     func_80138070(object, i);
-    func_801b3d0c_slot04_0d(object);
-    func_801b3d38_slot04_0d(object);
+    set_countdown_low_from_table_slot04_0d(object);
+    call_handler_by_state_1_slot04_0d(object);
 }
 
-void func_801b3d0c_slot04_0d(Object *object) {
+void set_countdown_low_from_table_slot04_0d(Object *object) {
     object->countdown = *(u16 *)(data_801c35c0_slot04_0d + (object->vel_table_index & 0xfe)) | (object->countdown & 0xff00);
 }
 
-void func_801b3d38_slot04_0d(Object *object) {
+void call_handler_by_state_1_slot04_0d(Object *object) {
     data_801c35dc_slot04_0d[object->state_1](object);
 }
 
-void func_801b3d78_slot04_0d(Object *object) {
+void update_or_switch_to_state_2_on_countdown_slot04_0d(Object *object) {
     u16 t;
 
     if ((game_state.field_65 | game_state.field_a8) != 0) {
@@ -160,19 +160,19 @@ void func_801b3d78_slot04_0d(Object *object) {
         goto set;
     }
 call:
-    func_80137b64(object);
+    update_object_motion_unless_paused(object);
     return;
 set:
     object->state_0 = 2;
     object->state_1 = 0;
     object->state_2 = 0;
     object->state_3 = 0;
-    func_801b3f7c_slot04_0d(object);
+    call_handler_by_state_1_then_offset_slot04_0d(object);
 }
 
-void func_801b3e10_slot04_0d(Object *object) {
+void call_handler_by_state_2_unless_paused_slot04_0d(Object *object) {
     if ((game_state.field_65 | game_state.field_a8) != 0) {
-        func_80137be0(object);
+        call_state_2_handler_267c_unless_paused(object);
     } else {
         data_801c35f0_slot04_0d[object->state_2](object);
     }
@@ -185,7 +185,7 @@ void func_801b3e78_slot04_0d(Object *object) {
     advance_sequence_checked(object);
 }
 
-void func_801b3ec0_slot04_0d(Object *object) {
+void count_down_then_reset_states_slot04_0d(Object *object) {
     ((Slot04bObj *)object)->countdown--;
     if (((Slot04bObj *)object)->countdown == 0) {
         object->active_count = 1;
@@ -197,15 +197,15 @@ void func_801b3ec0_slot04_0d(Object *object) {
 }
 
 void func_801b3efc_slot04_0d(Object *object) {
-    func_80137cc0(object);
+    call_state_2_handler_2684_unless_paused(object);
 }
 
 void func_801b3f1c_slot04_0d(Object *object) {
-    func_801b3d0c_slot04_0d(object);
-    func_80137dc8(object);
+    set_countdown_low_from_table_slot04_0d(object);
+    call_state_2_handler_268c_unless_paused(object);
 }
 
 void func_801b3f4c_slot04_0d(Object *object) {
-    func_801b3d0c_slot04_0d(object);
-    func_80137f00(object);
+    set_countdown_low_from_table_slot04_0d(object);
+    call_handler_2694_by_state_2(object);
 }

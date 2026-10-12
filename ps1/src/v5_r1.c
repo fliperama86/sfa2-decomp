@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8013ed1c(Object *object, int index) {
+void tick_slot_count_and_timer(Object *object, int index) {
     Slot *slot = &object->slots[(u8)index];
     (*(u16 *)&slot->repeat_count)++;
     object->slots[(u8)index].timer--;

@@ -6,9 +6,9 @@
 
 
 
-void func_801299f8(Object *object) {
+void update_object_timers_and_state_2_handler(Object *object) {
     func_80129bb8(object);
-    func_80129c08(object);
+    decrement_meter_clamped_at_zero(object);
     if (object->field_6b != 0) {
         object->field_6b--;
         if (object->kind == 4) func_80132070(object);
@@ -17,7 +17,7 @@ void func_801299f8(Object *object) {
         func_80129b68(object);
         func_80129c40(object);
         func_80129b90(object);
-        func_80129c68(object);
+        decrement_cooldown_timer(object);
         if (object->mode_flag_2 != 0 && object->field_256 == 0 &&
             (game_state.config->mode_flag_c | game_state.config->mode_flag_a) == 0 &&
             object->state_2 != 9) {
@@ -28,5 +28,5 @@ void func_801299f8(Object *object) {
         }
         handler_table_1960[object->state_2](object);
     }
-    func_80130b10(object);
+    clamp_pos_x_to_bounds_and_push_other(object);
 }

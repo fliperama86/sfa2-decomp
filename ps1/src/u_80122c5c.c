@@ -5,7 +5,7 @@
 
 
 /* Form found by automatic permutation search. */
-int func_80122c5c(Entity *entity)
+int update_entity_countdowns_and_sounds(Entity *entity)
 {
   Object *s0;
   int new_var;

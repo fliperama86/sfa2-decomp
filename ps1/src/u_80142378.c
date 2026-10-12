@@ -6,7 +6,7 @@
 
 
 /* Form found by automatic permutation search. */
-u8 func_80142378(Object *object)
+u8 find_active_wide_box_and_check_other(Object *object)
 {
   SequenceStep *step;
   FrameRecord *frame;

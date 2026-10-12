@@ -31,7 +31,7 @@ void func_80120f98(GameState *state) {
     }
 }
 
-void func_80121004(GameState *state) {
+void advance_phase_and_clear_player_flags(GameState *state) {
     data_8018f5a0->phase_index++;
     state->alt_flag = 1;
     state->field_64 = 0;

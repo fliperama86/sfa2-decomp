@@ -15,12 +15,12 @@ extern u8 data_8016e801;
 extern u8 data_8016e802;
 extern u8 data_8016e803;
 extern HudState *data_8018f5a0;
-void func_801246cc(Object *a, Triple *b);
-void func_801246a4(ObjectView *a, Object *b, Object *c);
+void update_option_menu_selection(Object *a, Triple *b);
+void reset_fields_and_clear_position_fracs(ObjectView *a, Object *b, Object *c);
 
 /* What it does (inferred, not original names): per-frame update of the
-   demo/replay recorder. It first runs func_801519b4 on four text buffers
-   and func_801246cc on each of the two players with their pad record
+   demo/replay recorder. It first runs add_item_to_table on four text buffers
+   and update_option_menu_selection on each of the two players with their pad record
    (data_80185fac, 3 bytes each). If game_state.side_bits is not 0 and one
    of the two pad records has a non-zero third byte (c), it acts on the
    mode byte data_8016e800:
@@ -28,17 +28,17 @@ void func_801246a4(ObjectView *a, Object *b, Object *c);
      - otherwise: increments pass_index of the HUD block data_8018f5a0,
        clears the input block data_801a6984 (field_00, field_01, index, last,
        flag), clears round_count, field_19f, hit_count_2, field_1a1 and field_1a2
-       of both players, calls func_8013788c on each player, clears
+       of both players, calls call_side_func_then_queue_job on each player, clears
        game_state.pending_flag and field_6d, calls set_selected_flag_by_index with
        data_8016e801 and func_80124ae8 with data_8016e802, and copies
        data_8016e803 to the input block's selection. Then by mode:
-         1: calls func_801246a4(game_state, left, right); sets the input
+         1: calls reset_fields_and_clear_position_fracs(game_state, left, right); sets the input
             block's field_01 to 1; data_801ae028 = 0x88; saves the three
             bytes data_8016e801..803 in data_80185fbc, fc0, fc4; calls
             set_selected_flag_by_index and func_80124ae8 again with the first two;
             game_state.round_time = 0x63; selection = data_8016e803 again; and
             zeroes the 4096 halfwords of the input block's buffer;
-         2: calls func_801246a4(game_state, left, right); sets the input
+         2: calls reset_fields_and_clear_position_fracs(game_state, left, right); sets the input
             block's field_00 to 1; calls set_selected_flag_by_index with data_80185fbc
             and func_80124ae8 with data_80185fc0; game_state.round_time =
             0x63; selection = data_80185fc4;
@@ -55,14 +55,14 @@ void func_80124304(void) {
     Object *l;
     Object *r;
 
-    func_801519b4(&data_8016e8fc);
-    func_801519b4(&data_8016e92c);
-    func_801519b4(&data_8016e95c);
-    func_801519b4(&data_8016e98c);
+    add_item_to_table(&data_8016e8fc);
+    add_item_to_table(&data_8016e92c);
+    add_item_to_table(&data_8016e95c);
+    add_item_to_table(&data_8016e98c);
     l = &player_left;
-    func_801246cc(l, t = data_80185fac);
+    update_option_menu_selection(l, t = data_80185fac);
     r = l + 1;
-    func_801246cc(r, ++t);
+    update_option_menu_selection(r, ++t);
     p = (InputBlock *)data_801a6984;
     g = &game_state;
     /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
@@ -92,15 +92,15 @@ void func_80124304(void) {
             r->hit_count_2 = 0;
             r->field_1a1 = 0;
             r->field_1a2 = 0;
-            func_8013788c(l);
-            func_8013788c(r);
+            call_side_func_then_queue_job(l);
+            call_side_func_then_queue_job(r);
             g->pending_flag = 0;
             g->field_6d = 0;
             set_selected_flag_by_index(data_8016e801);
             func_80124ae8(data_8016e802);
             p->selection = data_8016e803;
             if (data_8016e800 == 1) {
-                func_801246a4((ObjectView *)g, l, r);
+                reset_fields_and_clear_position_fracs((ObjectView *)g, l, r);
                 p->field_01 = 1;
                 data_801ae028 = 0x88;
                 data_80185fbc = data_8016e801;
@@ -114,7 +114,7 @@ void func_80124304(void) {
                     p->buf[i] = blank;
                 }
             } else if (data_8016e800 == 2) {
-                func_801246a4((ObjectView *)g, l, r);
+                reset_fields_and_clear_position_fracs((ObjectView *)g, l, r);
                 p->field_00 = 1;
                 set_selected_flag_by_index(data_80185fbc);
                 func_80124ae8(data_80185fc0);

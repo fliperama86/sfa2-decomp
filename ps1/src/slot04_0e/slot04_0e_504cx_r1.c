@@ -5,7 +5,7 @@
 
 /* t and a are 16-bit locals: with int locals this function differs from the
    original in three instruction slots. */
-void func_801b504c_slot04_0e(Object *obj) {
+void apply_step_flags_byte_to_pos_x_slot04_0e(Object *obj) {
     s16 t;
     s16 a;
     t = *(u8 *)&obj->step_flags;

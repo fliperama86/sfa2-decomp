@@ -6,7 +6,7 @@
 extern u8 data_80079fec_slot00[];
 extern u8 data_8007a008_slot00[];
 
-void func_80077720_slot00(Object *obj) {
+void init_object_from_parent_with_frames_slot00(Object *obj) {
     Object *p;
     obj->ot_depth = 2;
     obj->vel_y = 0;
@@ -29,5 +29,5 @@ void func_80077720_slot00(Object *obj) {
     } else {
         obj->frames = frames_right;
     }
-    func_8011a55c(obj);
+    clear_object_side_table_entries(obj);
 }

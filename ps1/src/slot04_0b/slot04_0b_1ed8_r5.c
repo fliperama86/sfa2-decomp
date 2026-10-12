@@ -7,8 +7,8 @@ void func_801b2460_slot04_0b(Object *o) {
     if ((s16)o->step_flags & 0x8000) {
         o->state_3++;
         o->active_state = 0;
-        func_801209c4(o);
-        func_801307e0(o, 0x30);
+        play_object_sound_by_kind(o);
+        set_sequence_by_side_and_mode(o, 0x30);
     } else {
         update_sequence(o);
     }

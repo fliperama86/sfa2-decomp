@@ -26,7 +26,7 @@ extern Poly28 data_801f4c40_slot06_03[2][0x48];
      is their stack slot order.
    - The four x stores are four statements: chained two and two, 19
      instruction slots differ. */
-void func_801e8d10_slot06_03(void) {
+void draw_tile_map_layer_polys_slot06_03(void) {
     u16 sx;
     u16 sy;
     u16 col;

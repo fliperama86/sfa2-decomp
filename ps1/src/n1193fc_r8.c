@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8011fe40(Object *object) {
+void reset_side_table_and_fields(Object *object) {
     u32 *p;
     int z = 0;
     short i;

@@ -39,7 +39,7 @@ void func_801b3b50_slot04_07(Object *obj) {
         case 3:
             if ((obj->pressed_bits & 0x14) != 0) {
                 obj->state_3 = obj->state_3 + 1;
-                func_801307e0(obj, 0x18);
+                set_sequence_by_side_and_mode(obj, 0x18);
                 return;
             }
             ((Slot04aObj *)obj)->field_1c9 = ((Slot04aObj *)obj)->field_1c9 - 1;
@@ -50,7 +50,7 @@ void func_801b3b50_slot04_07(Object *obj) {
         }
     }
     if (*(u8 *)&obj->step_flags != 0) {
-        func_80146478(obj, 1, -0x1a, 0x3a);
+        spawn_effect_at_object_offset(obj, 1, -0x1a, 0x3a);
         play_sound_at(obj, obj->side ^ 1, 0x30b);
         play_side_sound_at(obj, obj->side, 9);
         k = 0;
@@ -59,9 +59,9 @@ void func_801b3b50_slot04_07(Object *obj) {
             ((Slot04aObj *)obj)->field_1ce = 1;
             k = 7;
         }
-        if ((u8)func_80140cd8(obj, (s16)k, 0) != 0) {
+        if ((u8)apply_damage_to_other_return_defeated(obj, (s16)k, 0) != 0) {
             obj->state_3 = obj->state_3 + 3;
-            func_801307e0(obj, 0x1a);
+            set_sequence_by_side_and_mode(obj, 0x1a);
             return;
         }
         obj->countdown = obj->countdown + 0x100;
@@ -72,10 +72,10 @@ void func_801b3b50_slot04_07(Object *obj) {
             obj->step_timer = *(s16 *)&obj->step_timer - 1;
         }
     }
-    if ((*(s16 *)&obj->countdown & 0xff00) == 0 || (obj->other->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
+    if ((*(s16 *)&obj->countdown & 0xff00) == 0 || (obj->other->field_15b != 0 && (u8)drain_gauge_by_other_input(obj) == 0)) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 3;
-        func_801307e0(obj, 0x1a);
+        set_sequence_by_side_and_mode(obj, 0x1a);
     }
 }

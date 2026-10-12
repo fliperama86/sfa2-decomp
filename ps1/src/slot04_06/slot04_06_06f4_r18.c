@@ -5,7 +5,7 @@
 
 extern Object *data_801c5758_slot04_06;
 
-void func_801b5d24_slot04_06(Object *o) {
+void release_object_unlink_global_link_slot04_06(Object *o) {
     Object *p = data_801c5758_slot04_06;
 
     if ((s32)o == p->linked_object) {

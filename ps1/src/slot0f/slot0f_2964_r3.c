@@ -7,7 +7,7 @@ extern s8 data_800f8556_slot0f;
 extern Slot0fRec94ec data_800e94ec_slot0f[];
 extern Slot0fRec94ec *data_800e9698_slot0f;
 
-void func_800e2b24_slot0f(void) {
+void update_three_option_selection_slot0f(void) {
     s8 *p;
     if ((data_801a696a | data_801a6976) & 0x2000) {
         p = &data_800f8556_slot0f;

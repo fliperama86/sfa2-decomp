@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b422c_slot04_06(Object *obj);
+void update_timer_or_record_hit_count_slot04_06(Object *obj);
 
 void func_801b4198_slot04_06(Object *obj) {
     obj->hit_count_3++;
     update_sequence(obj);
     ((Slot04bObj *)obj)->countdown--;
     if (((Slot04bObj *)obj)->countdown != 0) {
-        func_801b422c_slot04_06(obj);
+        update_timer_or_record_hit_count_slot04_06(obj);
     } else {
         if (obj->active_state != 0) {
             obj->state_0 = 1;

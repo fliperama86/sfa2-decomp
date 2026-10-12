@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801e9cc0_slot06_09(Object *obj);
+void set_accel_and_countdown_from_tables_slot06_09(Object *obj);
 
 void func_801e9bd0_slot06_09(Object *o) {
     Slot06Layer *l2 = (Slot06Layer *)data_801aa5d4;
@@ -17,7 +17,7 @@ void func_801e9bd0_slot06_09(Object *o) {
             if (o->vel_x >= 0x20) {
                 o->vel_x = 0;
             }
-            func_801e9cc0_slot06_09(o);
+            set_accel_and_countdown_from_tables_slot06_09(o);
         }
     }
     d = l2->ref_x;
@@ -30,5 +30,5 @@ void func_801e9bd0_slot06_09(Object *o) {
     d -= l2->field_26;
     d += p->size_param;
     o->pos_y = 0xf0 - d;
-    func_80120028(o);
+    set_flag_and_push_if_mode_8(o);
 }
