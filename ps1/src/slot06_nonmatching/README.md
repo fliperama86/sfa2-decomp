@@ -212,50 +212,6 @@ was changed for them. A function's lines are replaced when the mode is run
 for that function again.
 
 ```
-func_801e8bd8_slot06_08 edges: constants 71, altered runs 142, unnoticed 43, all discarded 1
-  slot 38: addiu v0,v0,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
-  slot 50: addiu a1,a1,0xffb1, immediate 0xffb1 -> 0xffb2: different 0 of 2000, discarded 0
-  slot 50: addiu a1,a1,0xffb1, immediate 0xffb1 -> 0xffb0: different 0 of 2000, discarded 0
-  slot 155: slti v0,t2,0x1b, immediate 0x1b -> 0x1c: different 0 of 2000, discarded 0
-  slot 155: slti v0,t2,0x1b, immediate 0x1b -> 0x1a: different 0 of 2000, discarded 0
-  slot 159: addiu t1,t3,0x1d, immediate 0x1d -> 0x1e: different 0 of 2000, discarded 925
-  slot 159: addiu t1,t3,0x1d, immediate 0x1d -> 0x1c: different 0 of 2000, discarded 925
-  slot 207: addiu t1,t1,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 911
-  slot 207: addiu t1,t1,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 911
-  slot 217: addiu t3,t3,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 923
-  slot 217: addiu t3,t3,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 923
-  slot 223: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 981
-  slot 236: addiu v0,v0,0xf, immediate 0xf -> 0x10: different 0 of 2000, discarded 0
-  slot 272: addiu v1,v1,0xf, immediate 0xf -> 0x10: different 0 of 2000, discarded 0
-  slot 308: addiu at,zero,0xffff, immediate 0xffff -> 0x0: different 0 of 2000, discarded 0
-  slot 308: addiu at,zero,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
-  slot 324: addiu at,zero,0xffff, immediate 0xffff -> 0x0: different 0 of 2000, discarded 0
-  slot 324: addiu at,zero,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
-  slot 333: slti v0,t2,0x1b, immediate 0x1b -> 0x1c: different 0 of 2000, discarded 0
-  slot 333: slti v0,t2,0x1b, immediate 0x1b -> 0x1a: different 0 of 2000, discarded 0
-  slot 337: addiu t1,t3,0x1d, immediate 0x1d -> 0x1e: different 0 of 2000, discarded 1417
-  slot 337: addiu t1,t3,0x1d, immediate 0x1d -> 0x1c: different 0 of 2000, discarded 1417
-  slot 385: addiu t1,t1,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 1385
-  slot 385: addiu t1,t1,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 1385
-  slot 394: addiu t3,t3,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 1413
-  slot 394: addiu t3,t3,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 1413
-  slot 400: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1524
-  slot 406: ori fp,zero,0x88, immediate 0x88 -> 0x89: different 0 of 2000, discarded 0
-  slot 406: ori fp,zero,0x88, immediate 0x88 -> 0x87: different 0 of 2000, discarded 0
-  slot 419: addiu at,zero,0xffff, immediate 0xffff -> 0x0: different 0 of 2000, discarded 0
-  slot 419: addiu at,zero,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
-  slot 435: addiu at,zero,0xffff, immediate 0xffff -> 0x0: different 0 of 2000, discarded 0
-  slot 435: addiu at,zero,0xffff, immediate 0xffff -> 0xfffe: different 0 of 2000, discarded 0
-  slot 444: slti v0,t2,0x1b, immediate 0x1b -> 0x1c: different 0 of 2000, discarded 0
-  slot 444: slti v0,t2,0x1b, immediate 0x1b -> 0x1a: different 0 of 2000, discarded 0
-  slot 448: addiu t1,t3,0x1d, immediate 0x1d -> 0x1e: different 0 of 2000, discarded 1260
-  slot 448: addiu t1,t3,0x1d, immediate 0x1d -> 0x1c: different 0 of 2000, discarded 1260
-  slot 496: addiu t1,t1,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 1242
-  slot 496: addiu t1,t1,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 1242
-  slot 505: addiu t3,t3,0x28, immediate 0x28 -> 0x29: different 0 of 2000, discarded 1249
-  slot 505: addiu t3,t3,0x28, immediate 0x28 -> 0x27: different 0 of 2000, discarded 1249
-  slot 511: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1334
-  slot 516: addiu s2,s2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1524
 func_801e9738_slot06_0e edges: constants 17, altered runs 32, unnoticed 6, all discarded 4
   slot 96: addiu a1,t2,0x4, immediate 0x4 -> 0x5: different 0 of 2000, discarded 1883
   slot 96: addiu a1,t2,0x4, immediate 0x4 -> 0x3: different 0 of 2000, discarded 1883
@@ -462,7 +418,6 @@ file would publish.
 Functions of this folder without a fixtures file, by reason:
 
 - The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801e9738_slot06_0e`.
-- The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_801e8bd8_slot06_08`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
@@ -635,8 +590,6 @@ function is run again.
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
-func_801e8bd8_slot06_08: built 1496 bytes, original 2124 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e8bd8_slot06_08 coverage: 523 of 531 instruction slots of the original executed
 func_801e9738_slot06_0e: built 588 bytes, original 628 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e9738_slot06_0e coverage: 156 of 157 instruction slots of the original executed
 ```
@@ -644,8 +597,6 @@ func_801e9738_slot06_0e coverage: 156 of 157 instruction slots of the original e
 The control (`--cases 2000 --control FUNC`):
 
 ```
-func_801e8bd8_slot06_08 control: different 110 of 2000 (expected more than 0)
-  altered: row count limit 0x20 changed to 0x10, instruction slot 67
 func_801e9738_slot06_0e control: different 1883 of 2000 (expected more than 0)
   altered: v coordinate store moved by one byte, instruction slot 107
 ```
@@ -653,7 +604,6 @@ func_801e9738_slot06_0e control: different 1883 of 2000 (expected more than 0)
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
-func_801e8bd8_slot06_08 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e9738_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 

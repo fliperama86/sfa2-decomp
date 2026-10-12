@@ -4308,6 +4308,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s1452ecx_r1"
+source = "s1452ecx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801452ec", address = 0x801452ec, size = 1632 },
+]
+
+[[unit]]
 name = "l143864_r4"
 source = "l143864_r4.c"
 flags = ["-O2", "-G0"]
@@ -13655,6 +13663,15 @@ source = "slot06_08/slot06_08_8000_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801e8b58_slot06_08", address = 0x801e8b58, size = 128 },
+]
+
+[[unit]]
+name = "slot06_08_8bd8x_r1"
+image = "slot06_08"
+source = "slot06_08/slot06_08_8bd8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e8bd8_slot06_08", address = 0x801e8bd8, size = 2124 },
 ]
 
 [[unit]]
