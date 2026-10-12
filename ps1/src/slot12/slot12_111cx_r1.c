@@ -10,7 +10,7 @@ void func_8001111c_slot12(void) {
     u8 unused[8];
 
     if (func_80125268() == 0) {
-        u16 *t = &game_state.field_c6;
+        u16 *t = &game_state.countdown_2;
         int v = *t - 1;
 
         *t = v;
@@ -18,7 +18,7 @@ void func_8001111c_slot12(void) {
             return;
         }
     }
-    data_8018f5a0->field_4c++;
+    data_8018f5a0->step_index++;
     func_8014f4d4(6, 2);
     func_80011190_slot12();
 }

@@ -7,8 +7,8 @@ extern SequenceStep *data_8002fce8_slot28[];
 extern Object *data_800518fc_slot28[];
 
 void func_80016df0_slot28(Object *obj) {
-    if (game_state.field_f0 == 0) {
-        data_8018f5a0->field_4e += 1;
+    if (game_state.wait_flag == 0) {
+        data_8018f5a0->substep_index += 1;
     }
 }
 

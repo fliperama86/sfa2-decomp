@@ -10,9 +10,9 @@ void func_801b14ac_slot04_0b(Object *obj) {
 }
 
 int func_801b14f4_slot04_0b(Object *obj) {
-    return obj->field_177 != 0;
+    return obj->remaining_count != 0;
 }
 
 int func_801b1500_slot04_0b(Object *obj) {
-    return (s16)obj->field_c6 >= 0x30;
+    return (s16)obj->meter >= 0x30;
 }

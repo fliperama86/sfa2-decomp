@@ -7,11 +7,11 @@ void set_cam_pos_y(Cam *cam, int delta);
 
 /* What it does (inferred, not an original name): one step of a vertical
    scroll follower. It picks a target height from the two players' pos_y: the
-   other player's 0xd0 - pos_y when one has bit 7 of field_73 set and field_261
+   other player's 0xd0 - pos_y when one has bit 7 of status_flag set and field_261
    equal to 0, else the larger (as signed 16-bit) of the two. The sprite's
    field_26 moves one unit toward target - 0x39 (16-bit arithmetic). The value
-   given to set_cam_pos_y is the new field_26 clamped by field_40 after a move
-   up, by field_42 after a move down, and the unchanged field_26 when equal.
+   given to set_cam_pos_y is the new field_26 clamped by max_step_y after a move
+   up, by move_limit_b after a move down, and the unchanged field_26 when equal.
    field_26 is stored uncapped. */
 void func_80136744(Sprite *sprite) {
     Object *left = &player_left;
@@ -23,9 +23,9 @@ void func_80136744(Sprite *sprite) {
     s16 next;
     s16 value;
 
-    if (left->field_73 & 0x80 && left->field_261 == 0) {
+    if (left->status_flag & 0x80 && left->field_261 == 0) {
         target = 0xd0 - right->pos_y;
-    } else if (right->field_73 & 0x80 && right->field_261 == 0) {
+    } else if (right->status_flag & 0x80 && right->field_261 == 0) {
         target = 0xd0 - left->pos_y;
     } else {
         value = 0xd0 - left->pos_y;
@@ -40,7 +40,7 @@ void func_80136744(Sprite *sprite) {
         next = field + 1;
         sprite->field_26 = next;
         /* value held the left player's height above and is used again here for the limit; a separate local for the limit differs in 24 instruction lines. */
-        value = sprite->field_40;
+        value = sprite->max_step_y;
         if (next < value) {
             value = next;
         }
@@ -49,7 +49,7 @@ void func_80136744(Sprite *sprite) {
     } else if (delta < 0) {
         next = field - 1;
         sprite->field_26 = next;
-        value = sprite->field_42;
+        value = sprite->move_limit_b;
         if (value < next) {
             value = next;
         }

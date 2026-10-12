@@ -13,12 +13,12 @@ void func_80147a4c(Block172 *block) {
 void func_80147a8c(Object *object) {
     object->ot_depth = 0;
     object->state_0++;
-    object->field_a0 = bytes_cbe0[object->field_03 + object->field_48];
+    object->variant_index_2 = bytes_cbe0[object->table_index + object->variant_index];
     func_80130768(object, 0x13, (SequenceStep **)seqs_c7f8);
 }
 
 void func_80147ae4(Object *object) {
-    fns_cbe8[object->field_03](object);
+    fns_cbe8[object->table_index](object);
 }
 
 void func_80147b24(Object *object) {
@@ -28,14 +28,14 @@ void func_80147b24(Object *object) {
 }
 
 void func_80147b80(Object *object) {
-    object->field_46 = 0x1d;
+    object->countdown = 0x1d;
     object->state_1++;
     advance_sequence_checked(object);
 }
 
 void func_80147bb0(Object *object) {
-    int v = object->field_46 - 1;
-    object->field_46 = v;
+    int v = object->countdown - 1;
+    object->countdown = v;
     if ((s16)v < 0) {
         object->state_1++;
         func_80130768(object, 0x14, (SequenceStep **)seqs_c7f8);
@@ -59,14 +59,14 @@ void func_80147c50(Object *object) {
 }
 
 void func_80147ca4(Object *object) {
-    object->field_46 = 5;
+    object->countdown = 5;
     object->state_1++;
     advance_sequence_checked(object);
     func_80147ce8(object);
 }
 
 void func_80147ce8(Object *object) {
-    if (object->field_48 != 0) {
+    if (object->variant_index != 0) {
         object->vel_x = 0xffc60000;
         object->vel_y = 0x180000;
         object->accel_x = 0x74000;
@@ -81,20 +81,20 @@ void func_80147ce8(Object *object) {
 }
 
 void func_80147d54(Object *object) {
-    int v = object->field_46 - 1;
-    object->field_46 = v;
+    int v = object->countdown - 1;
+    object->countdown = v;
     if ((s16)v < 0) {
-        object->field_46 = 7;
+        object->countdown = 7;
         object->state_1++;
     }
     advance_sequence_checked(object);
 }
 
 void func_80147da0(Object *object) {
-    int v = object->field_46 - 1;
-    object->field_46 = v;
+    int v = object->countdown - 1;
+    object->countdown = v;
     if ((s16)v < 0) {
-        object->field_46 = 7;
+        object->countdown = 7;
         object->state_1++;
         func_80147ce8(object);
     } else {
@@ -107,10 +107,10 @@ void func_80147df8(Object *object) {
 }
 
 void func_80147e18(Object *object) {
-    int v = object->field_46 - 1;
-    object->field_46 = v;
+    int v = object->countdown - 1;
+    object->countdown = v;
     if ((s16)v < 0) {
-        if (object->field_45 != 0) {
+        if (object->active_state != 0) {
             func_80147ef0(object);
         } else {
             object->state_1++;
@@ -141,7 +141,7 @@ void func_80147f04(Object *object) {
 }
 
 void func_80147f58(Object *object) {
-    object->field_46 = 5;
+    object->countdown = 5;
     object->state_1++;
     func_80147f88(object);
 }
@@ -152,26 +152,26 @@ void func_80147f88(Object *object) {
 }
 
 void func_80147fb8(Object *object) {
-    int v = object->field_46 - 1;
-    object->field_46 = v;
+    int v = object->countdown - 1;
+    object->countdown = v;
     if ((s16)v < 0) {
-        object->field_46 = 0x17;
+        object->countdown = 0x17;
         object->state_1++;
     }
     advance_sequence_checked(object);
 }
 
 void func_80148004(Object *object) {
-    int v = object->field_46 - 1;
-    object->field_46 = v;
+    int v = object->countdown - 1;
+    object->countdown = v;
     if ((s16)v < 0) {
-        if (object->field_45 != 0) {
+        if (object->active_state != 0) {
             func_80147ef0(object);
         } else {
             object->state_1++;
             func_80130768(object, 0x14, (SequenceStep **)seqs_c7f8);
         }
-    } else if (object->field_a0 != 0 || object->field_48 != 0) {
+    } else if (object->variant_index_2 != 0 || object->variant_index != 0) {
         func_80148220(object);
     } else {
         advance_sequence_checked(object);
@@ -198,28 +198,28 @@ void func_80148114(Object *p) {
 }
 
 void set_position_from_parent(Object *object) {
-    Object *parent = object->field_3c;
-    object->field_0b = parent->field_0b;
-    if (object->field_0b != 0) {
+    Object *parent = object->parent;
+    object->facing_side = parent->facing_side;
+    if (object->facing_side != 0) {
         object->pos_x = parent->pos_x - object->health;
     } else {
         object->pos_x = parent->pos_x + object->health;
     }
-    object->pos_y = parent->pos_y - object->field_5e;
+    object->pos_y = parent->pos_y - object->y_offset;
 }
 
 void func_80148194(Object *object) {
-    Object *parent = object->field_3c;
+    Object *parent = object->parent;
     int a = object->vel_x;
     int b;
-    object->field_0b = parent->field_0b;
+    object->facing_side = parent->facing_side;
     b = object->vel_y;
-    if (object->field_0b != 0) {
+    if (object->facing_side != 0) {
         object->pos_x = parent->pos_x + (a >> 16) - object->health;
     } else {
         object->pos_x = parent->pos_x + (a >> 16) + object->health;
     }
-    object->pos_y = parent->pos_y - ((b >> 16) + object->field_5e);
+    object->pos_y = parent->pos_y - ((b >> 16) + object->y_offset);
     object->vel_x += object->accel_x;
     object->vel_y += object->accel_y;
 }

@@ -18,8 +18,8 @@ void func_800e06b8_slot0f(GameState *g, int x) {
     if (data_80190568 != 0) {
         func_80135ef0(g);
     }
-    if (g->field_63 != 0) {
-        g->field_63--;
+    if (g->state_param != 0) {
+        g->state_param--;
     }
     func_80138ec4();
     func_80132e84();

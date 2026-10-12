@@ -5,9 +5,9 @@
 
 
 void func_8014147c(Object *object, BytePair dir) {
-    object->field_279 = 0;
+    object->dir_match_flag = 0;
     if (object->field_25f != 0 && object->dir_first == dir.first && object->dir_second == dir.second &&
-        object->field_17e == object->field_128) {
-        object->field_279 = 1;
+        object->field_17e == object->input_dir_0) {
+        object->dir_match_flag = 1;
     }
 }

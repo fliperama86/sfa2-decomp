@@ -11,5 +11,5 @@ void func_801b360c_slot04_02(Object *obj) {
     }
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
-    func_801307e0(obj, (obj->field_12a >> 1) + 0x3c);
+    func_801307e0(obj, (obj->direction_index >> 1) + 0x3c);
 }

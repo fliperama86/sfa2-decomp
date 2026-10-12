@@ -12,5 +12,5 @@ void func_8014a648(Object *object) {
     object->state_1 = 0;
     object->state_2 = 0;
     object->state_3 = 0;
-    object->field_21c = value;
+    object->countdown_3 = value;
 }

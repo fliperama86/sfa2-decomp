@@ -10,7 +10,7 @@ void func_801b0878_slot04_09(Object *obj) {
         func_801312b8(obj);
     } else {
         if ((t & 0xff) != 0) {
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 obj->pos_x -= 2;
             } else {
                 obj->pos_x += 2;

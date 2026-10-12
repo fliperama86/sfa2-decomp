@@ -15,13 +15,13 @@ void func_80017944_slot28(Object *obj, int arg) {
 
 void func_80017974_slot28(Object *obj) {
     int one = 1;
-    obj->field_00 = one;
+    obj->active_count = one;
     obj->field_02 = 0xa5;
     obj->field_90 = (void *)0x80060000;
-    obj->field_98 = data_800306d4_slot28;
-    obj->field_03 = 0;
+    obj->data_ptr_a = data_800306d4_slot28;
+    obj->table_index = 0;
     obj->field_01 = one;
-    obj->field_9c = data_80030a4c_slot28;
+    obj->data_ptr_b = data_80030a4c_slot28;
 }
 
 void func_800179b0_slot28(void) {
@@ -35,7 +35,7 @@ void func_800179d4_slot28(void) {
     int i;
     for (i = 0; i < 10; i++) {
         Object *p = data_80051910_slot28[i];
-        if (p != 0 && p->field_00 != 0) {
+        if (p != 0 && p->active_count != 0) {
             func_8011f240((Slab172 *)p);
             data_80051910_slot28[i] = 0;
         }

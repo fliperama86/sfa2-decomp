@@ -15,16 +15,16 @@ void func_800e483c_slot0f(void) {
     Chan *c = &data_801aa544[1];
     func_80136dc4();
     c->field_1e = 0x1800;
-    c->field_58 = 0x400;
-    c->field_5c = 0x100;
+    c->map_width = 0x400;
+    c->map_height = 0x100;
     c->ot_index = 0x1b;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 0x200; j++) {
             Strip1c *s = &data_800f0264_slot0f[i][j];
             func_80136d1c((Tx *)s);
-            s->field_10 = 0x80;
-            s->field_11 = 0x80;
-            s->field_12 = 0x80;
+            s->color_r = 0x80;
+            s->color_g = 0x80;
+            s->color_b = 0x80;
         }
     }
     data_800f7268_slot0f = 1;

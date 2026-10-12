@@ -8,15 +8,15 @@ void func_801b605c_slot04_02(Object *obj) {
     s16 c;
     if ((t & 0xff) == 1) {
         obj->step_flags = t & 0xff00;
-        game_state.field_63 = 0x18;
+        game_state.state_param = 0x18;
         play_side_sound_at(obj, obj->side, 0xe);
     }
-    c = obj->field_46;
+    c = obj->countdown;
     if (c != 0) {
         c = c - 1;
-        obj->field_46 = c;
+        obj->countdown = c;
         if (c == 0) {
-            game_state.field_4b |= 1 << obj->side;
+            game_state.side_bits_2 |= 1 << obj->side;
         }
     }
     update_sequence(obj);

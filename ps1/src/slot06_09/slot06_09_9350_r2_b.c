@@ -16,13 +16,13 @@ void func_801e9ca0_slot06_09(Object *obj) {
 }
 
 void func_801e9cc0_slot06_09(Object *obj) {
-    int i = (u8)(obj->field_03 * 32 + ((Slot06Obj *)obj)->field_4c);
+    int i = (u8)(obj->table_index * 32 + ((Slot06Obj *)obj)->table_base_index);
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[16];
 
     obj->accel_x = data_801ec954_slot06_09[i];
     obj->accel_y = data_801ec956_slot06_09[i];
-    obj->field_46 = data_801ec958_slot06_09[i];
+    obj->countdown = data_801ec958_slot06_09[i];
 }
 
 void func_801e9d2c_slot06_09(Object *obj) {
@@ -32,9 +32,9 @@ void func_801e9d2c_slot06_09(Object *obj) {
 void func_801e9d6c_slot06_09(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->vel_x = obj->pos_x;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_0c = 0;
     obj->state_0++;
     obj->accel_x = 0xf0 - obj->pos_y;
@@ -45,10 +45,10 @@ void func_801e9dd4_slot06_09(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
 
     if (game_state.field_65 == 0) {
-        o->pos_y = 0xf0 - (obj->field_54 + ((Slot06Layer *)data_801aa544)->field_3a);
+        o->pos_y = 0xf0 - (obj->y_offset + ((Slot06Layer *)data_801aa544)->pos_y_int);
         advance_sequence_checked(o);
     }
-    if (((Slot06Layer *)data_801aa544)->field_36 >= 0x3a0) {
+    if (((Slot06Layer *)data_801aa544)->pos_x_int >= 0x3a0) {
         o->state_0++;
     }
     func_80120028(o);

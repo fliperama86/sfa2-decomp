@@ -5,8 +5,8 @@
 
 void func_80144734(Object *object) {
     func_80144220(object);
-    object->field_46 = (s16)object->field_46 - 1;
-    if (object->field_46 & 0x80) {
+    object->countdown = (s16)object->countdown - 1;
+    if (object->countdown & 0x80) {
         func_80144e90(object);
     }
 }

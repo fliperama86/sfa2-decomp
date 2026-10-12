@@ -15,15 +15,15 @@ void func_800123e0_slot12(void) {
 
         func_8015c09c(p);
         func_8015c09c(q);
-        p->field_04 = 0x80;
-        p->field_05 = 0x80;
-        p->field_06 = 0x80;
-        q->field_04 = 0x80;
-        q->field_05 = 0x80;
-        q->field_06 = 0x80;
-        data_80029350_slot12[i].field_16 = func_8015bd0c(0, 0, 0x3c0, 0);
-        data_80029b70_slot12[i].field_16 = func_8015bd0c(0, 0, 0x3c0, 0);
-        data_80029350_slot12[i].field_0e = func_8015bdd4(0, 0x1f0);
-        data_80029b70_slot12[i].field_0e = func_8015bdd4(0, 0x1f0);
+        p->color_r = 0x80;
+        p->color_g = 0x80;
+        p->color_b = 0x80;
+        q->color_r = 0x80;
+        q->color_g = 0x80;
+        q->color_b = 0x80;
+        data_80029350_slot12[i].tpage = func_8015bd0c(0, 0, 0x3c0, 0);
+        data_80029b70_slot12[i].tpage = func_8015bd0c(0, 0, 0x3c0, 0);
+        data_80029350_slot12[i].clut = func_8015bdd4(0, 0x1f0);
+        data_80029b70_slot12[i].clut = func_8015bdd4(0, 0x1f0);
     }
 }

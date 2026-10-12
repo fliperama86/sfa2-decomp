@@ -15,7 +15,7 @@ void func_80012cdc_slot12(Object *obj) {
     if (*in & 0x8000) {
         obj->field_01 = 0;
         obj->state_0++;
-        game_state.field_06 = 0;
+        game_state.busy_flag = 0;
         data_801ae02c = 0;
     }
     if (data_8002d57c_slot12 != 0) {

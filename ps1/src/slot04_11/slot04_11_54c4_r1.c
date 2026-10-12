@@ -30,14 +30,14 @@ void func_801b5548_slot04_11(Object *obj) {
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     play_side_sound_at(obj, obj->side, 8);
-    obj->field_0b = 0;
-    if (obj->field_cd != 0) {
+    obj->facing_side = 0;
+    if (obj->mode_flag_2 != 0) {
         if (func_801b5914_slot04_11(obj)->pos_x + 0xc0 >= obj->pos_x) {
             goto inc;
         }
-    } else if ((obj->field_c2 & 0x8000) == 0) {
+    } else if ((obj->input_bits & 0x8000) == 0) {
 inc:
-        obj->field_0b++;
+        obj->facing_side++;
     }
     func_801307e0(obj, 0x1b);
     set_position_from_other_box(obj);
@@ -50,7 +50,7 @@ void func_801b5614_slot04_11(Object *obj) {
         func_80140770(obj, 8, 5, 0xf, 0, 0, 1);
     } else if (obj->step_flags & 2) {
         obj->step_flags = obj->step_flags & 0xfffd;
-        func_80146478(obj, obj->field_12a >> 1, -0x59, 0x1e);
+        func_80146478(obj, obj->direction_index >> 1, -0x59, 0x1e);
         play_sound_at(obj, obj->side ^ 1, 0x30d);
         play_side_sound_at(obj, obj->side, 6);
     }
@@ -69,6 +69,6 @@ void func_801b56fc_slot04_11(Object *obj) {
 }
 
 void func_801b5740_slot04_11(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     func_80130dc0(obj);
 }

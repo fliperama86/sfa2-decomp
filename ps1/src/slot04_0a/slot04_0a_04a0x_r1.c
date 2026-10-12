@@ -14,7 +14,7 @@ void func_801b04a0_slot04_0a(Object *obj) {
     int d;
     int m = -0x100;
 
-    if (obj->field_48 == 2) {
+    if (obj->variant_index == 2) {
         if (obj->state_3 == 0) {
             a = obj->step_flags;
             if ((a & 0x7f00) == 0x100) {
@@ -24,20 +24,20 @@ void func_801b04a0_slot04_0a(Object *obj) {
             if ((obj->step_flags & 0xff) != 0) {
                 obj->step_flags = obj->step_flags & m;
                 obj->state_3 = obj->state_3 + 1;
-                obj->field_45 = 1;
-                obj->field_46 = obj->field_46 & m;
+                obj->active_state = 1;
+                obj->countdown = obj->countdown & m;
                 obj->pos_y = obj->ground_y - 0x20;
                 func_801b3f30_slot04_0a(obj);
             }
         } else {
-            k = (s16)obj->field_46;
+            k = (s16)obj->countdown;
             k += 1;
-            obj->field_46 = k & 0xff3f;
+            obj->countdown = k & 0xff3f;
             k = get_random_byte() & 1;
             if (k != 0) {
                 k = 0x40;
             }
-            k += (u8)obj->field_46;
+            k += (u8)obj->countdown;
             k = data_801c0508_slot04_0a[k >> 2];
             d = *(u32 *)&obj->pos_y_frac;
             *(u32 *)&obj->pos_y_frac = d - (k << 8);
@@ -47,13 +47,13 @@ void func_801b04a0_slot04_0a(Object *obj) {
             obj->state_3 = obj->state_3 + 1;
         }
     }
-    if ((s16)obj->field_46 & 0xff00) {
-        obj->field_46 = (s16)obj->field_46 - 0x100;
-        if ((obj->field_46 & 0xff00) == 0) {
+    if ((s16)obj->countdown & 0xff00) {
+        obj->countdown = (s16)obj->countdown - 0x100;
+        if ((obj->countdown & 0xff00) == 0) {
             if (obj->side == 0) {
-                game_state.field_4b |= 1;
+                game_state.side_bits_2 |= 1;
             } else {
-                game_state.field_4b |= 2;
+                game_state.side_bits_2 |= 2;
             }
         }
     }

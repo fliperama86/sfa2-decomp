@@ -13,8 +13,8 @@ void func_801b0000_slot04_07(Object *obj) {
     Object *c;
 
     dst = (u32 *)0x1f800100;
-    obj->field_98 = data_801b52b4_slot04_07;
-    obj->field_9c = data_801b7630_slot04_07;
+    obj->data_ptr_a = data_801b52b4_slot04_07;
+    obj->data_ptr_b = data_801b7630_slot04_07;
     if (obj->side == 0) {
         dst = (u32 *)0x1f800050;
     }
@@ -24,20 +24,20 @@ void func_801b0000_slot04_07(Object *obj) {
     }
     c = func_8011f32c();
     if (c != 0) {
-        c->field_00 = 1;
+        c->active_count = 1;
         c->field_02 = 7;
-        c->field_3c = obj;
-        obj->field_28 = (u32)c;
-        c->field_03 = obj->kind;
-        c->field_66 = obj->side;
-        c->field_0d = obj->field_0d;
+        c->parent = obj;
+        obj->linked_object = (u32)c;
+        c->table_index = obj->kind;
+        c->sound_side = obj->side;
+        c->image_row = obj->image_row;
         c->spawn_x = obj->spawn_x;
         c->spawn_y = obj->spawn_y;
         c->field_90 = obj->field_90;
-        c->field_98 = obj->field_98;
-        c->field_9c = obj->field_9c;
+        c->data_ptr_a = obj->data_ptr_a;
+        c->data_ptr_b = obj->data_ptr_b;
     }
-    if (game_state.field_42 == 0) {
+    if (game_state.count_index == 0) {
         if (obj->side == 0) {
             obj->pos_x = 0x1a0;
         } else {

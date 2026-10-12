@@ -19,7 +19,7 @@ void func_8013603c(void) {
 
 void func_8013606c(void) {
     u16 p, q;
-    data_801723c0[game_state.field_40](&data_801aa544);
+    data_801723c0[game_state.kind_index](&data_801aa544);
     p = data_801aa566;
     q = data_801aa56a;
     data_801aa556 = p;

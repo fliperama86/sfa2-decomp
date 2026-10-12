@@ -5,20 +5,20 @@
 
 void func_80122230(GameState *state) {
     Attacker *a = (Attacker *)state;
-    data_8018f5a0->field_50++;
-    data_8018f5a0->field_52 = 0;
+    data_8018f5a0->step_index_2++;
+    data_8018f5a0->pass_index = 0;
     data_801a6938 = 1;
     a->field_cc = 0;
     a->field_4e = 1;
     a->field_4f = 0;
-    a->field_4c = 0;
+    a->mode = 0;
     a->field_4b = 0;
-    a->field_47 = 0;
+    a->active_flag_2 = 0;
     a->field_66 = 0;
     a->field_6c = 0;
     a->field_64 = 0;
     a->field_75 = 0;
-    a->field_a6 = 0;
+    a->a6_flag = 0;
     a->winner = 0;
     a->loser = 0;
     a->field_138 = 0;
@@ -37,25 +37,25 @@ void func_80122230(GameState *state) {
     a->field_dc |= 0xe;
     player_left.field_01 = 1;
     player_right.field_01 = 1;
-    player_left.field_bc = 0;
-    player_left.field_bd = 0;
-    player_left.field_be = 0;
+    player_left.effect_code_bc = 0;
+    player_left.effect_request = 0;
+    player_left.sound_index = 0;
     player_left.field_bf = 0;
-    player_right.field_bc = 0;
-    player_right.field_bd = 0;
-    player_right.field_be = 0;
+    player_right.effect_code_bc = 0;
+    player_right.effect_request = 0;
+    player_right.sound_index = 0;
     player_right.field_bf = 0;
     player_left.field_165 = 0;
     player_right.field_165 = 0;
-    if (a->field_42 == a->field_48 * 2 - 1) {
+    if (a->round_count == a->win_target * 2 - 1) {
         a->field_87 = 0xff;
     }
-    if (a->field_83 == 0 && a->field_af == 0 && a->field_1b != 3 &&
-        a->field_54 == a->field_a4 && a->field_42 == 0) {
-        a->field_84 = 1;
-        a->field_8b = player_left.kind;
+    if (a->special_off_flag == 0 && a->mode_marker == 0 && a->field_1b != 3 &&
+        a->field_54 == a->compare_value && a->round_count == 0) {
+        a->phase = 1;
+        a->kind_code = player_left.kind;
         if ((a->field_1b & 1) == 0) {
-            a->field_8b = player_right.kind;
+            a->kind_code = player_right.kind;
         }
     }
     func_80138410((GameState *)a);

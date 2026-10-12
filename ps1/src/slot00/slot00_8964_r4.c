@@ -7,23 +7,23 @@ void func_80078c8c_slot00(Object *o) {
     Object *obj = o;
     Object *p = (Object *)func_8011f1e0();
     if (p != 0) {
-        p->field_00 = 1;
+        p->active_count = 1;
         p->field_02 = 0xc;
-        p->field_08 = 0x20;
-        p->field_03 = 0xe;
+        p->mode_id = 0x20;
+        p->table_index = 0xe;
         p->field_0e = obj->field_0e;
         p->field_0c = obj->field_0c;
-        p->field_0d = obj->field_0d;
-        p->field_26 = obj->field_26;
-        p->field_3c = o;
-        p->field_0b = obj->field_0b;
+        p->image_row = obj->image_row;
+        p->scroll_factor = obj->scroll_factor;
+        p->parent = o;
+        p->facing_side = obj->facing_side;
         p->pos_x = (u16)o->pos_x;
         p->pos_y = (u16)o->pos_y;
         p->field_90 = obj->field_90;
-        p->field_98 = obj->field_98;
-        p->field_9c = obj->field_9c;
+        p->data_ptr_a = obj->data_ptr_a;
+        p->data_ptr_b = obj->data_ptr_b;
         p->spawn_x = obj->spawn_x;
         p->spawn_y = obj->spawn_y;
-        p->field_66 = obj->field_66;
+        p->sound_side = obj->sound_side;
     }
 }

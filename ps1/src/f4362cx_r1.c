@@ -21,7 +21,7 @@ void func_8014362c(Object *object, Object *other) {
     ext = box->extent;
     org = (u16)box->origin;
     neg = -ext;
-    flip = object->field_158 ^ 1;
+    flip = object->saved_facing ^ 1;
     ext = neg;
     if (flip) {
         org = -org;
@@ -33,5 +33,5 @@ void func_8014362c(Object *object, Object *other) {
     if ((s16)neg < 0) {
         r = -d;
     }
-    object->field_21e = r;
+    object->compare_limit = r;
 }

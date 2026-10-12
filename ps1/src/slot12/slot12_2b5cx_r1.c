@@ -13,7 +13,7 @@ void func_80012b5c_slot12(Object *obj) {
     Slot12Tile *p;
     int i;
 
-    if (obj->field_03 == 0) {
+    if (obj->table_index == 0) {
         p = data_8002a394_slot12 + data_801a27d0 * 0x20;
     } else {
         p = data_8002a794_slot12 + data_801a27d0 * 0x20;

@@ -9,7 +9,7 @@ void func_801b2c84_slot04_05(Object *obj) {
     s16 t = obj->step_flags;
     if (t & 0x8000) {
         obj->state_3++;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->vel_x = 0x40000;
         } else {
             obj->vel_x = 0xfffc0000;
@@ -17,7 +17,7 @@ void func_801b2c84_slot04_05(Object *obj) {
         obj->vel_y = 0x90000;
         obj->accel_y = -0x7000;
         obj->accel_x = 0;
-        obj->field_45 = 1;
+        obj->active_state = 1;
         func_801307e0(obj, 0x2e);
     } else {
         switch ((u8)t) {
@@ -44,7 +44,7 @@ void func_801b2d58_slot04_05(Object *obj) {
         }
     } else {
         obj->state_3++;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->pos_y = obj->ground_y;
     }
 }

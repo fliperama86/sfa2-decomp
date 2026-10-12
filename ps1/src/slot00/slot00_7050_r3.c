@@ -14,19 +14,19 @@ void func_800772c0_slot00(Object *obj) {
 }
 
 void func_80077300_slot00(Object *obj) {
-    Object *p = obj->field_3c;
+    Object *p = obj->parent;
     obj->state_0 = obj->state_0 + 1;
     obj->ot_depth = 0;
     obj->field_1c = p->field_1c;
-    obj->field_1e = p->field_1e;
+    obj->cycle_value = p->cycle_value;
     obj->box_tables = &data_800798d0_slot00;
-    obj->field_45 = 0;
+    obj->active_state = 0;
     obj->health = 0;
     obj->pos_x = p->pos_x;
     obj->pos_y = p->pos_y;
-    obj->field_0b = p->field_0b;
+    obj->facing_side = p->facing_side;
     obj->frames = data_80079908_slot00;
-    func_80130768(obj, obj->field_ac >> 1, data_800798fc_slot00);
+    func_80130768(obj, obj->vel_table_index >> 1, data_800798fc_slot00);
     obj->frame = obj->frames + obj->sequence->frame_index;
     func_800773b8_slot00(obj);
 }

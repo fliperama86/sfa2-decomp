@@ -10,9 +10,9 @@ void func_8014fd9c(Ctl *ctl) {
     int t;
     e = &stream->entries[stream->write_index];
     if (stream->step_count == 0) {
-        if (func_80165884(stream->field_44, stream->vab_id, stream->source_ptr) == -1) {
+        if (func_80165884(stream->open_source_ptr, stream->vab_id, stream->source_ptr) == -1) {
             stream->error_code = 2;
-            stream->field_40 = (StreamRec *)((u8 *)stream->field_40 - 0x40);
+            stream->current_record = (StreamRec *)((u8 *)stream->current_record - 0x40);
             t = stream->record_count;
             stream->record_count = t - 2;
             advance_stream_record(stream);
@@ -35,7 +35,7 @@ void func_8014fd9c(Ctl *ctl) {
     func_80150100(stream);
     e->pending_flag = 1;
     e->handler_index = 4;
-    e->field_0e = stream->vab_id;
+    e->rect_y = stream->vab_id;
     if (++stream->write_index == 8) {
         stream->write_index = 1;
     }

@@ -26,11 +26,11 @@ void func_801b2004_slot04_0c(Object *obj) {
             obj->field_165 = 0;
             if (obj->field_4b == 0) {
                 obj->other->field_6b = 10;
-                i = (obj->field_12a >> 1) + 1;
+                i = (obj->direction_index >> 1) + 1;
             }
-            obj->field_27b = data_801bda50_slot04_0c[i];
+            obj->other_lock = data_801bda50_slot04_0c[i];
         }
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
         } else {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
@@ -51,7 +51,7 @@ void func_801b20f8_slot04_0c(Object *obj) {
         obj->accel_y = -0x6000;
         obj->state_3 = obj->state_3 + 1;
     } else {
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
         } else {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
@@ -66,7 +66,7 @@ void func_801b20f8_slot04_0c(Object *obj) {
 
 void func_801b21a4_slot04_0c(Object *obj) {
     if ((u8)obj->step_flags == 0) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
         obj->vel_y = obj->vel_y + obj->accel_y;
         if (obj->vel_y < 0) {
@@ -84,8 +84,8 @@ void func_801b2210_slot04_0c(Object *obj) {
             return;
         }
     } else {
-        obj->field_45 = 0;
-        obj->field_159 = 0;
+        obj->active_state = 0;
+        obj->active_flag_3 = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         func_801209c4(obj);
@@ -110,15 +110,15 @@ void func_801b232c_slot04_0c(Object *obj) {
     int s = 3;
     int one = 1;
     int t;
-    obj->field_46 = 0x48;
+    obj->countdown = 0x48;
     obj->state_3 = obj->state_3 + 1;
-    obj->field_159 = 0;
-    obj->field_17b = one;
+    obj->active_flag_3 = 0;
+    obj->active_flag_4 = one;
     obj->field_157 = 0;
-    if (obj->field_cd == 0) {
-        t = obj->field_c2 & 0x4000;
+    if (obj->mode_flag_2 == 0) {
+        t = obj->input_bits & 0x4000;
     } else {
-        t = obj->field_129;
+        t = obj->input_dir_second;
     }
     if (t != 0) {
         a = 0x34;
@@ -133,8 +133,8 @@ void func_801b232c_slot04_0c(Object *obj) {
 }
 
 void func_801b23e8_slot04_0c(Object *obj) {
-    obj->field_46 = (s16)obj->field_46 - 1;
-    if ((s16)obj->field_46 == 0) {
+    obj->countdown = (s16)obj->countdown - 1;
+    if ((s16)obj->countdown == 0) {
         if (obj->field_157 == 0) {
             func_801312b8(obj);
         } else {
@@ -155,7 +155,7 @@ void func_801b2494_slot04_0c(Object *obj) {
     func_80142fbc(obj);
     func_801428a8(obj);
     func_80138b38(&game_state, obj);
-    if (obj->field_45 != 0) {
+    if (obj->active_state != 0) {
         a = 0x2f;
     }
     set_sequence_by_side(obj, a);
@@ -166,9 +166,9 @@ void func_801b250c_slot04_0c(Object *obj) {
     int b = 0x3b;
     if ((s16)obj->step_flags & 0xff00) {
         obj->field_165 = 0xff;
-        obj->field_46 = 0x1e01;
+        obj->countdown = 0x1e01;
         obj->state_3 = obj->state_3 + 1;
-        if (obj->field_45 != 0) {
+        if (obj->active_state != 0) {
             a = 8;
             b = 0x3f;
         }
@@ -183,17 +183,17 @@ void func_801b250c_slot04_0c(Object *obj) {
 
 void func_801b25ac_slot04_0c(Object *obj) {
     int a;
-    obj->field_46 = (s16)obj->field_46 - 0x100;
-    if ((obj->field_46 & 0xff00) == 0) {
+    obj->countdown = (s16)obj->countdown - 0x100;
+    if ((obj->countdown & 0xff00) == 0) {
         obj->state_3++;
         a = ((Slot04bObj *)obj)->field_c6 + 0x1e;
-        obj->field_27c = 0;
-        ((Slot04bObj *)obj)->field_27d = 0;
-        obj->field_46 = (u8)obj->field_46 | 0x1400;
+        obj->hit_count_3 = 0;
+        ((Slot04bObj *)obj)->saved_count = 0;
+        obj->countdown = (u8)obj->countdown | 0x1400;
         if (obj->field_4b != 0) {
             a = 0x48;
         }
-        obj->field_2a1 = a;
+        obj->cursor_timer_a = a;
         obj->field_180 = 0;
     }
     func_80142fe8(obj);

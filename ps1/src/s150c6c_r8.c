@@ -11,7 +11,7 @@ void func_80151f64(int a, u8 b, s16 c, s16 d) {
         u8 hi = (b & 0xf0) >> 1;
         u16 e = data_8018d208;
         cmd->tex_v = hi;
-        cmd->field_0e = e;
+        cmd->clut_word = e;
         cmd->tex_u = lo;
         cmd->pos_x = c;
         cmd->pos_y = d;
@@ -33,7 +33,7 @@ void func_80151fec(int a, int b, s16 c, s16 d) {
             u16 e = data_8018d208;
             cmd->tex_v = hi;
             cmd->width = 8;
-            cmd->field_0e = e;
+            cmd->clut_word = e;
             cmd->tex_u = lo;
             cmd->pos_x = c;
             cmd->pos_y = d;
@@ -53,7 +53,7 @@ void func_80152088(int a, int b, s16 c, s16 d) {
             Cmd *cmd = data_8018d13c;
             u16 e = data_8018d208;
             cmd->tex_u = lo;
-            cmd->field_0e = e;
+            cmd->clut_word = e;
             cmd->tex_v = hi;
             cmd->pos_x = c;
             cmd->pos_y = d;

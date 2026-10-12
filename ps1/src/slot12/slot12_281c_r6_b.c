@@ -12,13 +12,13 @@ void func_80012e2c_slot12(Object *obj) {
 
 void func_80012e6c_slot12(Object *obj) {
     obj->field_0c = 1;
-    obj->field_48 = 9;
+    obj->variant_index = 9;
     obj->pos_x = 0xf8;
     obj->field_01 = 0;
     obj->ot_depth = 0;
     obj->field_20 = 0;
-    obj->field_22 = 0;
-    obj->field_24 = 0;
+    obj->y_scale = 0;
+    obj->table_index_2 = 0;
     obj->pos_y = 0x80;
     obj->state_0++;
 }

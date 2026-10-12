@@ -12,18 +12,18 @@ void func_801b73f4_slot04_11(Object *obj);
 void func_801b735c_slot04_11(Object *obj);
 
 void func_801b725c_slot04_11(Object *obj) {
-    ref_other.p = obj->field_3c;
-    data_80190458.p = ref_other.p->field_3c;
+    ref_other.p = obj->parent;
+    data_80190458.p = ref_other.p->parent;
     data_80190414.p = obj->other;
     data_801c7ce0_slot04_11[obj->state_0](obj);
 }
 
 void func_801b72d8_slot04_11(Object *obj) {
     obj->field_01 = 1;
-    obj->field_0d = 2;
+    obj->image_row = 2;
     obj->field_0c = 0;
     obj->field_20 = 0;
-    obj->field_24 = 0;
+    obj->table_index_2 = 0;
     obj->ot_depth = 0;
     obj->state_0++;
     obj->field_1c = ref_other.p->field_1c;
@@ -41,7 +41,7 @@ void func_801b735c_slot04_11(Object *obj) {
 }
 
 void func_801b73ac_slot04_11(Object *o) {
-    Object **p = (Object **)ref_other.p->field_3c;
+    Object **p = (Object **)ref_other.p->parent;
     int i;
 
     i = 4;
@@ -58,7 +58,7 @@ void func_801b73ac_slot04_11(Object *o) {
 void func_801b73f4_slot04_11(Object *obj) {
     obj->pos_x = (u16)ref_other.p->pos_x;
     obj->pos_y = ref_other.p->pos_y + 0x10;
-    if (obj->field_03 != 0) {
+    if (obj->table_index != 0) {
         obj->pos_x = obj->pos_x - 0xc;
         obj->pos_y = obj->pos_y - 6;
     }

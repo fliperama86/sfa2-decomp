@@ -6,6 +6,6 @@
 extern void (*data_801c2fd4_slot04_0b[])(Object *);
 
 void func_801b44fc_slot04_0b(Object *obj) {
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->parent;
     data_801c2fd4_slot04_0b[obj->state_0](obj);
 }

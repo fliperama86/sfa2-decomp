@@ -4,8 +4,8 @@
 #include "protos.h"
 
 void func_80119e74(AnimObj *obj, u16 n) {
-    void *p90 = obj->field_90;
-    u16 idx = obj->field_94;
+    void *p90 = obj->compressed_src;
+    u16 idx = obj->stream_index;
     int col = data_80183910[idx];
     u16 row = data_801839f0[idx];
     u16 cnt = data_80183ad0[idx];

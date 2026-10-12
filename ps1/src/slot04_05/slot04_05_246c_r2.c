@@ -8,7 +8,7 @@ void func_801b26c8_slot04_05(Object *obj) {
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
     func_80145d20(obj);
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         obj->vel_x = 0xfffb0000;
     } else {
         obj->vel_x = 0x50000;

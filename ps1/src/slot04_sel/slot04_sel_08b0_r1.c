@@ -32,7 +32,7 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
     int i;
 
     if (p->field_04 == 0) {
-        u8 a0 = game_state.field_07;
+        u8 a0 = game_state.side_mask;
         if ((a0 >> obj->side) & 1) {
             u8 v1 = data_801b9d28_slot04_sel;
             if (v1 != a0) {
@@ -56,7 +56,7 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
             data_801b9ce8_slot04_sel = p->kind;
             p->field_04 = data_801b9cec_slot04_sel;
             obj->kind = data_801b9ce8_slot04_sel;
-            game_state.field_b1 = data_801b9ce8_slot04_sel;
+            game_state.selection_value = data_801b9ce8_slot04_sel;
             func_801b1f20_slot04_sel(obj, p);
             if (p->field_17 == 0xb4 && obj->kind == 4) {
                 obj->kind = 0x12;
@@ -65,12 +65,12 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
                 obj->kind = 0x14;
             }
             func_801b2008_slot04_sel(obj, p);
-            if (p->field_04 != 0 && obj->kind == 2 && p->field_16 != 0) {
+            if (p->field_04 != 0 && obj->kind == 2 && p->slot_d_flag != 0) {
                 obj->kind = 0x14;
                 data_8016e68e = -1;
             }
-            s4->field_04 = data_801b6d8c_slot04_sel[data_801b9ce8_slot04_sel].field_00 + obj->side * 0x18;
-            s4->field_06 = data_801b6d8c_slot04_sel[data_801b9ce8_slot04_sel].field_02;
+            s4->x = data_801b6d8c_slot04_sel[data_801b9ce8_slot04_sel].field_00 + obj->side * 0x18;
+            s4->y = data_801b6d8c_slot04_sel[data_801b9ce8_slot04_sel].field_02;
             func_801519b4(s4);
             s2 = data_801b701c_slot04_sel[obj->side];
             a1 = data_801b72f4_slot04_sel[obj->kind];
@@ -88,31 +88,31 @@ void func_801b08b0_slot04_sel(Object *obj, Slot04SelRec *p) {
             func_801519b4(s1);
             if (p->field_04 != 0) {
                 func_801205c4(obj->side, data_801b6e4c_slot04_sel[data_801b9ce8_slot04_sel]);
-                game_state.field_71 = obj->side;
+                game_state.side = obj->side;
                 game_state.mode |= 1 << obj->side;
-                if (p->field_05 == 0x10 || p->field_05 == 0x80) {
+                if (p->input_value == 0x10 || p->input_value == 0x80) {
                     obj->field_d4 = 0;
-                    obj->field_119 = 0;
+                    obj->select_value_1 = 0;
                 }
-                if (p->field_05 == 0x20 || p->field_05 == 0x40) {
+                if (p->input_value == 0x20 || p->input_value == 0x40) {
                     obj->field_d4 = 1;
-                    obj->field_119 = 1;
+                    obj->select_value_1 = 1;
                 }
-                if (p->field_05 == 0x90) {
+                if (p->input_value == 0x90) {
                     obj->field_d4 = 2;
-                    obj->field_119 = 2;
+                    obj->select_value_1 = 2;
                 }
-                if (p->field_05 == 0x60) {
+                if (p->input_value == 0x60) {
                     obj->field_d4 = 3;
-                    obj->field_119 = 3;
+                    obj->select_value_1 = 3;
                 }
-                if (p->field_05 == 0xc0) {
+                if (p->input_value == 0xc0) {
                     obj->field_d4 = 4;
-                    obj->field_119 = 4;
+                    obj->select_value_1 = 4;
                 }
-                if (p->field_05 == 0x30) {
+                if (p->input_value == 0x30) {
                     obj->field_d4 = 5;
-                    obj->field_119 = 5;
+                    obj->select_value_1 = 5;
                 }
                 ref_other.p = obj;
                 func_801b1984_slot04_sel();

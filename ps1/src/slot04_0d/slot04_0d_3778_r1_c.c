@@ -29,10 +29,10 @@ void func_801b3990_slot04_0d(Object *object) {
 }
 
 void func_801b39c8_slot04_0d(Object *object, GameState *g) {
-    if (((Slot04bObj *)object)->field_46 != 0) {
-        ((Slot04bObj *)object)->field_46--;
-        if (((Slot04bObj *)object)->field_46 == 0) {
-            g->field_4b |= 1 << object->side;
+    if (((Slot04bObj *)object)->countdown != 0) {
+        ((Slot04bObj *)object)->countdown--;
+        if (((Slot04bObj *)object)->countdown == 0) {
+            g->side_bits_2 |= 1 << object->side;
         }
     }
 }
@@ -48,31 +48,31 @@ void func_801b3a14_slot04_0d(Object *object) {
         object->step_flags = object->step_flags & 0xff00;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0x77;
-            p->field_3c = object;
+            p->parent = object;
             p->field_0c = object->field_0c;
-            p->field_0d = object->field_0d;
+            p->image_row = object->image_row;
             p->field_0e = object->field_0e;
-            p->field_0b = object->field_0b;
+            p->facing_side = object->facing_side;
             p->field_1c = object->field_1c;
-            e = object->field_1e;
+            e = object->cycle_value;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
-            p->field_1e = e;
-            d = object->field_0d;
+            p->cycle_value = e;
+            d = object->image_row;
             p->field_02 = 5;
-            p->field_08 = 0x20;
-            p->field_0d = d;
+            p->mode_id = 0x20;
+            p->image_row = d;
             p->field_90 = object->field_90;
-            p->field_98 = object->field_98;
-            p->field_9c = object->field_9c;
-            p->field_66 = object->field_66;
+            p->data_ptr_a = object->data_ptr_a;
+            p->data_ptr_b = object->data_ptr_b;
+            p->sound_side = object->sound_side;
             *(s32 *)&p->pos_x_frac = *(s32 *)&object->pos_x_frac;
             *(s32 *)&p->pos_y_frac = *(s32 *)&object->pos_y_frac;
             p->pos_y = p->pos_y - 0x63;
             dx = -0x3b;
-            if (object->field_0b != 0) {
+            if (object->facing_side != 0) {
                 dx = 0x3b;
             }
             p->pos_x = dx + p->pos_x;
@@ -100,34 +100,34 @@ void func_801b3bd0_slot04_0d(Object *object) {
     int dx;
     int i;
 
-    parent = object->field_3c;
+    parent = object->parent;
     object->ot_depth = 0;
     object->state_0 = object->state_0 + 1;
     object->field_49 = parent->field_49;
     object->field_1c = parent->field_1c;
-    object->field_1e = parent->field_1e;
-    ((Slot04bObj *)object)->field_6c = data_801c2c00_slot04_0d;
-    if (object->field_03 != 0) {
+    object->cycle_value = parent->cycle_value;
+    ((Slot04bObj *)object)->data_table_ptr = data_801c2c00_slot04_0d;
+    if (object->table_index != 0) {
         func_801b40bc_slot04_0d(object);
     }
-    object->field_45 = 0;
+    object->active_state = 0;
     object->vel_y = 0;
-    i = object->field_ac >> 1;
+    i = object->vel_table_index >> 1;
     i = data_801c35a8_slot04_0d[i];
     dx = 0x59;
-    if (object->field_0b == 0) {
+    if (object->facing_side == 0) {
         i = -i;
         dx = -0x59;
     }
     object->vel_x = i;
     object->pos_x = object->pos_x + dx;
     object->pos_y = object->pos_y - 0x36;
-    i = object->field_ac >> 1;
-    object->field_a0 = data_801c35a0_slot04_0d[i];
+    i = object->vel_table_index >> 1;
+    object->variant_index_2 = data_801c35a0_slot04_0d[i];
     if (parent->side == 0) {
-        ((Slot04bObj *)object)->field_8c = *(int *)0x1f8000a8;
+        ((Slot04bObj *)object)->data_pointer = *(int *)0x1f8000a8;
     } else {
-        ((Slot04bObj *)object)->field_8c = *(int *)0x1f800158;
+        ((Slot04bObj *)object)->data_pointer = *(int *)0x1f800158;
     }
     func_80138070(object, i);
     func_801b3d0c_slot04_0d(object);
@@ -135,7 +135,7 @@ void func_801b3bd0_slot04_0d(Object *object) {
 }
 
 void func_801b3d0c_slot04_0d(Object *object) {
-    object->field_46 = *(u16 *)(data_801c35c0_slot04_0d + (object->field_ac & 0xfe)) | (object->field_46 & 0xff00);
+    object->countdown = *(u16 *)(data_801c35c0_slot04_0d + (object->vel_table_index & 0xfe)) | (object->countdown & 0xff00);
 }
 
 void func_801b3d38_slot04_0d(Object *object) {
@@ -148,14 +148,14 @@ void func_801b3d78_slot04_0d(Object *object) {
     if ((game_state.field_65 | game_state.field_a8) != 0) {
         goto call;
     }
-    if (object->field_03 != 0) {
+    if (object->table_index != 0) {
         if ((s16)object->step_flags >= 0) {
             goto call;
         }
         goto set;
     }
-    t = object->field_46 - 1;
-    object->field_46 = t;
+    t = object->countdown - 1;
+    object->countdown = t;
     if ((u8)t == 0) {
         goto set;
     }
@@ -181,14 +181,14 @@ void func_801b3e10_slot04_0d(Object *object) {
 void func_801b3e78_slot04_0d(Object *object) {
     object->state_2 = object->state_2 + 1;
     func_801b40bc_slot04_0d(object);
-    ((Slot04bObj *)object)->field_46 = 2;
+    ((Slot04bObj *)object)->countdown = 2;
     advance_sequence_checked(object);
 }
 
 void func_801b3ec0_slot04_0d(Object *object) {
-    ((Slot04bObj *)object)->field_46--;
-    if (((Slot04bObj *)object)->field_46 == 0) {
-        object->field_00 = 1;
+    ((Slot04bObj *)object)->countdown--;
+    if (((Slot04bObj *)object)->countdown == 0) {
+        object->active_count = 1;
         object->state_0 = 1;
         object->state_1 = 0;
         object->state_2 = 0;

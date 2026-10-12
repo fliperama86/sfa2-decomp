@@ -13,7 +13,7 @@ void func_801b2eb4_slot04_16(Object *obj);
 void func_801b2bac_slot04_16(Object *obj) {
     int a;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     ((Slot04bObj *)obj)->field_298 = 4;
     obj->state_3++;
     func_80141f28(obj, 6);
@@ -24,7 +24,7 @@ void func_801b2bac_slot04_16(Object *obj) {
         a = 0x51;
     }
     func_801307e0(obj, a);
-    if (obj->field_cd != 0) {
+    if (obj->mode_flag_2 != 0) {
         func_801b2d10_slot04_16(obj, 0x68);
     }
 }
@@ -36,7 +36,7 @@ void func_801b2c40_slot04_16(Object *obj) {
 void func_801b2c80_slot04_16(Object *obj) {
     int a;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     ((Slot04bObj *)obj)->field_298 = 4;
     obj->state_3++;
     func_80141f28(obj, 6);
@@ -47,7 +47,7 @@ void func_801b2c80_slot04_16(Object *obj) {
         a = 0x52;
     }
     func_801307e0(obj, a);
-    if (obj->field_cd != 0) {
+    if (obj->mode_flag_2 != 0) {
         func_801b2d10_slot04_16(obj, 0x98);
     }
 }
@@ -57,22 +57,22 @@ void func_801b2d10_slot04_16(Object *obj, int arg) {
     u8 b[4] = { 0, 4, 8, 0x10 };
     u8 c[4] = { 8, 0xc, 0x10, 0x20 };
 
-    ((Slot04bObj *)obj)->field_1a9 = 0;
+    ((Slot04bObj *)obj)->random_value_a = 0;
     ((Slot04bObj *)obj)->field_1aa = 0;
-    ((Slot04bObj *)obj)->field_1ab = 0;
+    ((Slot04bObj *)obj)->random_countdown = 0;
     if (get_random_byte() & 3) {
-        if (obj->other->field_240 != 0) {
-            ((Slot04bObj *)obj)->field_1a9 = 1;
+        if (obj->other->link_flags != 0) {
+            ((Slot04bObj *)obj)->random_value_a = 1;
             ((Slot04bObj *)obj)->field_1aa = 0;
-            ((Slot04bObj *)obj)->field_1ab = 0x46;
-        } else if ((s16)obj->field_21e <= (s16)arg) {
-            ((Slot04bObj *)obj)->field_1a9 = 1;
+            ((Slot04bObj *)obj)->random_countdown = 0x46;
+        } else if ((s16)obj->compare_limit <= (s16)arg) {
+            ((Slot04bObj *)obj)->random_value_a = 1;
             ((Slot04bObj *)obj)->field_1aa = 0;
-            ((Slot04bObj *)obj)->field_1ab = 0x46;
+            ((Slot04bObj *)obj)->random_countdown = 0x46;
         } else {
-            ((Slot04bObj *)obj)->field_1a9 = a[get_random_byte() & 3];
+            ((Slot04bObj *)obj)->random_value_a = a[get_random_byte() & 3];
             ((Slot04bObj *)obj)->field_1aa = b[get_random_byte() & 3];
-            ((Slot04bObj *)obj)->field_1ab = c[get_random_byte() & 3];
+            ((Slot04bObj *)obj)->random_countdown = c[get_random_byte() & 3];
         }
     }
 }

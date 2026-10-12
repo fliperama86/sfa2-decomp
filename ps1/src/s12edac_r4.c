@@ -9,9 +9,9 @@ void func_8012f4dc(Object *object) {
     object->state_1 = 6;
     object->state_2 = 0;
     object->state_3 = 0;
-    object->field_259 = 0;
-    object->field_258 = 0;
-    object->field_25a = 0;
+    object->done_flag = 0;
+    object->once_flag_2 = 0;
+    object->flag_25a_set = 0;
     set_side_flag(object);
     game_state.other_object = object->other;
     if (game_state.other_object->field_167 < 0xb) {
@@ -33,11 +33,11 @@ void func_8012f59c(Object *object) {
     if ((s16)object->health == 0x90) {
         u8 count;
 
-        count = object->field_ee + 1;
+        count = object->repeat_count + 1;
         object->field_167 |= 0x80;
-        object->field_ee = count;
+        object->repeat_count = count;
     }
-    ((u8 *)object + object->field_ce)[0xcf] = object->field_167;
+    ((u8 *)object + object->win_count)[0xcf] = object->field_167;
 }
 
 void func_8012f5ec(Object *object) {
@@ -50,13 +50,13 @@ int func_8012f618(Object *object) {
     unsigned char result;
 
     result = 0;
-    if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {
+    if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
         ref_other.p = object->other;
-        if (object->field_1a0 != 0) {
+        if (object->hit_count_2 != 0) {
             result = ref_other.p->field_157 != 0;
         }
     }
-    if (object->field_130 & 0x4000) {
+    if (object->input_bits_2 & 0x4000) {
         result = 1;
     }
     return result;
@@ -74,17 +74,17 @@ void func_8012f6a0(Object *object) {
 int func_8012f6d8(Object *object) {
     int bits;
 
-    if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {
+    if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
         ref_other.p = object->other;
-        if (object->field_1a0 != 0 && ref_other.p->field_157 != 0 &&
+        if (object->hit_count_2 != 0 && ref_other.p->field_157 != 0 &&
             object->field_15b == 0) {
             return 1;
         }
     }
-    if (object->field_29f != 0) {
+    if (object->action_timer != 0) {
         bits = object->pressed_bits & 0x4000;
     } else {
-        bits = object->field_130 & 0x4000;
+        bits = object->input_bits_2 & 0x4000;
     }
     return bits != 0;
 }
@@ -103,7 +103,7 @@ int func_8012f7c0(Object *object) {
     u16 bits;
 
     result = 0;
-    bits = object->field_130 & 0xa000;
+    bits = object->input_bits_2 & 0xa000;
     if (object->field_7e == 0) {
         if (bits == 0x8000 || bits == 0x2000) {
             result = 1;
@@ -116,7 +116,7 @@ int func_8012f800(Object *object) {
     int result;
     u16 flags;
 
-    flags = object->field_130;
+    flags = object->input_bits_2;
     result = 0;
     if (object->field_7e == 0) {
         if (flags == 0x8000 || flags == 0x2000) {
@@ -134,7 +134,7 @@ void func_8012f838(Object *object) {
     object->state_2 = 2;
     object->state_3 = 1;
     func_80130038(object);
-    if (object->field_130 & 0x8000) {
+    if (object->input_bits_2 & 0x8000) {
         arg = 2;
     } else {
         arg = 3;

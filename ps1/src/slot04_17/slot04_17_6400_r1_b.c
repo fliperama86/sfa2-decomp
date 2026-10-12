@@ -32,18 +32,18 @@ void func_801b70cc_slot04_17(Object *obj);
 void func_801b70ec_slot04_17(Object *obj);
 
 void func_801b6b24_slot04_17(Object *obj) {
-    ref_other.p = obj->field_3c;
-    data_80190458.p = ref_other.p->field_3c;
+    ref_other.p = obj->parent;
+    data_80190458.p = ref_other.p->parent;
     data_80190414.p = obj->other;
     data_801ce9f0_slot04_17[obj->state_0](obj);
 }
 
 void func_801b6ba0_slot04_17(Object *obj) {
     obj->field_01 = 1;
-    obj->field_0d = 2;
+    obj->image_row = 2;
     obj->field_0c = 0;
     obj->field_20 = 0;
-    obj->field_24 = 0;
+    obj->table_index_2 = 0;
     obj->ot_depth = 0;
     obj->state_0++;
     obj->field_1c = ref_other.p->field_1c;
@@ -61,7 +61,7 @@ void func_801b6c24_slot04_17(Object *obj) {
 }
 
 void func_801b6c74_slot04_17(Object *o) {
-    Object **p = (Object **)ref_other.p->field_3c;
+    Object **p = (Object **)ref_other.p->parent;
     int i;
 
     i = 4;
@@ -78,20 +78,20 @@ void func_801b6c74_slot04_17(Object *o) {
 void func_801b6cbc_slot04_17(Object *obj) {
     obj->pos_x = (u16)ref_other.p->pos_x;
     obj->pos_y = ref_other.p->pos_y + 0x10;
-    if (obj->field_03 != 0) {
+    if (obj->table_index != 0) {
         obj->pos_x = obj->pos_x - 0xc;
         obj->pos_y = obj->pos_y - 6;
     }
 }
 
 void func_801b6d14_slot04_17(Object *obj) {
-    if (obj->field_219 != 0) {
+    if (obj->attack_param_d != 0) {
         obj->kind = 0x13;
         func_801b5a34_slot04_17(obj);
         select_box_tables(obj);
         build_metrics(obj);
         func_801b70ec_slot04_17(obj);
-    } else if (obj->field_128 != 0) {
+    } else if (obj->input_dir_0 != 0) {
         func_801b6ec8_slot04_17(obj);
     } else {
         func_801b6d98_slot04_17(obj);
@@ -105,8 +105,8 @@ void func_801b6d98_slot04_17(Object *obj) {
 
 void func_801b6dd8_slot04_17(Object *obj) {
     obj->state_3++;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a == 0 || obj->field_218 == 0 || (u8)func_8013f8c4(obj, -0x17, 0x14) == 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index == 0 || obj->hit_flag_a == 0 || (u8)func_8013f8c4(obj, -0x17, 0x14) == 0) {
         func_801b7088_slot04_17(obj);
     } else {
         obj->state_0 = 1;
@@ -134,7 +134,7 @@ void func_801b6ec8_slot04_17(Object *obj) {
 
 void func_801b6f0c_slot04_17(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_801b7088_slot04_17(obj);
 }
 
@@ -152,7 +152,7 @@ void func_801b6f3c_slot04_17(Object *obj) {
 void func_801b6fa0_slot04_17(Object *object) {
     int t;
 
-    if (object->field_219 != 0) {
+    if (object->attack_param_d != 0) {
         object->kind = 0x13;
         func_801b5a34_slot04_17(object);
         select_box_tables(object);
@@ -160,25 +160,25 @@ void func_801b6fa0_slot04_17(Object *object) {
         func_801b63fc(object);
         return;
     }
-    if (object->field_211 & 1) {
-        object->field_129 = 2;
+    if (object->limit_lo & 1) {
+        object->input_dir_second = 2;
     }
     object->state_3 = 3;
-    object->field_128 = 4;
-    object->field_159 = 1;
-    func_80141f28(object, *(s16 *) ((char *) data_801cea10_slot04_17 + (object->field_12a & 0xfe)));
+    object->input_dir_0 = 4;
+    object->active_flag_3 = 1;
+    func_80141f28(object, *(s16 *) ((char *) data_801cea10_slot04_17 + (object->direction_index & 0xfe)));
     t = 0xc;
-    if (object->field_48 != 0) {
+    if (object->variant_index != 0) {
         t = 0x12;
     }
-    if (object->field_129 != 0) {
+    if (object->input_dir_second != 0) {
         t += 3;
     }
-    func_801307e0(object, (object->field_12a >> 1) + t);
+    func_801307e0(object, (object->direction_index >> 1) + t);
 }
 
 void func_801b7088_slot04_17(Object *object) {
-    object->field_159 = 1;
+    object->active_flag_3 = 1;
     func_80130dc0(object);
 }
 
@@ -191,14 +191,14 @@ void func_801b70cc_slot04_17(Object *obj) {
 }
 
 void func_801b70ec_slot04_17(Object *obj) {
-    if (obj->field_219 == 0) {
+    if (obj->attack_param_d == 0) {
         obj->kind = 0x11;
         func_801b5a34_slot04_17(obj);
         select_box_tables(obj);
         build_metrics(obj);
         func_801b6d14_slot04_17(obj);
     } else {
-        data_801cea18_slot04_17[obj->field_128 >> 1](obj);
+        data_801cea18_slot04_17[obj->input_dir_0 >> 1](obj);
     }
 }
 
@@ -209,8 +209,8 @@ void func_801b7174_slot04_17(Object *obj) {
 
 void func_801b71b4_slot04_17(Object *obj) {
     obj->state_3++;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x17, 0x14) != 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x17, 0x14) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

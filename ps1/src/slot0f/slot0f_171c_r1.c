@@ -26,13 +26,13 @@ void func_800e171c_slot0f(Object *o) {
     }
     if (b & 0x860) {
         if (b & 0x820) {
-            o->field_00 = data_800e8790_slot0f[(s8)o->field_0a];
+            o->active_count = data_800e8790_slot0f[(s8)o->field_0a];
             play_sound_at(0, 0, 0x205);
         } else {
-            o->field_00 = 5;
+            o->active_count = 5;
             play_sound_at(0, 0, 0x202);
         }
-        o->field_03 = 0;
+        o->table_index = 0;
         o->field_02 = 0;
         o->field_01 = 0;
         o->state_3 = 0;

@@ -5,7 +5,7 @@
 
 void func_801b33c8_slot04_00(Object *obj) {
     obj->state_1 = obj->state_1 + 1;
-    ref_other.p = obj->field_3c;
-    ref_other.p->field_14c = 0;
+    ref_other.p = obj->parent;
+    ref_other.p->linked_object_3 = 0;
     func_80138070(obj, 6);
 }

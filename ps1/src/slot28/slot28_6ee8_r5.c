@@ -8,14 +8,14 @@ extern Object *data_8005193c_slot28[];
 
 void func_800174fc_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
-    h->field_52 = h->field_52 + 1;
+    h->pass_index = h->pass_index + 1;
     func_80017944_slot28(obj, 0);
 }
 
 void func_80017530_slot28(Object *obj) {
     if (*(s16 *)&data_8005193c_slot28[3]->step_flags < 0) {
         HudState *h = data_8018f5a0;
-        h->field_52 = h->field_52 + 1;
+        h->pass_index = h->pass_index + 1;
         func_801282d4();
     }
 }

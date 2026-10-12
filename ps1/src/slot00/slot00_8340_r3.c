@@ -10,7 +10,7 @@ extern void func_80078d78_slot00(Object *obj);
 
 void func_800785f4_slot00(Object *obj) {
     obj->field_60 = 0x1f;
-    obj->field_61 = 0x1f;
+    obj->hit_type = 0x1f;
     obj->state_2 = obj->state_2 + 1;
     advance_sequence_checked(obj);
 }

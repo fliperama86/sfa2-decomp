@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void func_801b3b84_slot04_0b(Object *obj) {
-    obj->field_46 = (s16)obj->field_46 - 1;
-    if ((s16)obj->field_46 == 0) {
-        obj->field_00 = 1;
+    obj->countdown = (s16)obj->countdown - 1;
+    if ((s16)obj->countdown == 0) {
+        obj->active_count = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 0;

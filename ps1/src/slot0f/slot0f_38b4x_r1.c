@@ -9,7 +9,7 @@ extern int data_800f0204_slot0f;
 void func_800e38b4_slot0f(void) {
     HudState *h = data_8018f5a0;
     u16 pad = data_801a696a | data_801a6976;
-    int sel = h->field_4e;
+    int sel = h->substep_index;
     int i;
     u8 c;
     if (pad & 0x1000) {
@@ -18,12 +18,12 @@ void func_800e38b4_slot0f(void) {
         u16 cur;
         q = h;
         if (v < 0) {
-            h->field_4e = 10;
+            h->substep_index = 10;
         } else {
-            h->field_4e = v;
+            h->substep_index = v;
         }
-        cur = q->field_4e;
-        q->field_4e = cur;
+        cur = q->substep_index;
+        q->substep_index = cur;
         sel = cur;
     } else if (pad & 0x4000) {
         int v = sel + 1;
@@ -31,21 +31,21 @@ void func_800e38b4_slot0f(void) {
         u16 cur;
         q = h;
         if (v < 11) {
-            h->field_4e = v;
+            h->substep_index = v;
         } else {
-            h->field_4e = 0;
+            h->substep_index = 0;
         }
-        cur = q->field_4e;
-        q->field_4e = cur;
+        cur = q->substep_index;
+        q->substep_index = cur;
         sel = cur;
     } else if (pad & 4) {
         if (sel == 10) {
             sel = 5;
-            h->field_4e = 5;
+            h->substep_index = 5;
         } else {
             sel -= 6;
             if (sel >= 0) {
-                h->field_4e = sel;
+                h->substep_index = sel;
             } else {
                 sel += 6;
             }
@@ -53,11 +53,11 @@ void func_800e38b4_slot0f(void) {
     } else if (pad & 8) {
         if (sel == 5) {
             sel = 10;
-            h->field_4e = 10;
+            h->substep_index = 10;
         } else {
             sel += 6;
             if (sel < 11) {
-                h->field_4e = sel;
+                h->substep_index = sel;
             } else {
                 sel -= 6;
             }

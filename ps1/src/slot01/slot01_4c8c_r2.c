@@ -10,10 +10,10 @@ void func_80014e24_slot01(Object *obj) {
     s16 w = *(u32 *)&o->health >> 3;
     s16 px = *(u16 *)&o->pos_x;
     int ox = px & 7;
-    int t = -(((Slot01Obj *)o)->field_14 + -0x100000) >> 16;
+    int t = -(((Slot01Obj *)o)->pos_y + -0x100000) >> 16;
     int oy = t & 7;
-    s16 cell = o->field_1e;
-    int x0 = (px & (((Slot01Obj *)o)->field_58 - 1)) >> 3;
+    s16 cell = o->cycle_value;
+    int x0 = (px & (((Slot01Obj *)o)->width - 1)) >> 3;
     s16 y = t;
     s16 row;
     Slot01Rec33bb4 *p;
@@ -31,7 +31,7 @@ void func_80014e24_slot01(Object *obj) {
     for (i = 0; i < 10; i++) {
         x = x0;
         if (row >= 0 && row < w) {
-            base = (u8 *)(o->vel_y + ((u16)row >> 5) * ((((Slot01Obj *)o)->field_58 >> 9) << 12) * 2 + ((row & 0x1f) << 8));
+            base = (u8 *)(o->vel_y + ((u16)row >> 5) * ((((Slot01Obj *)o)->width >> 9) << 12) * 2 + ((row & 0x1f) << 8));
             for (j = 0; j < 0x30; j++, x++) {
                 if ((u16)x < 0x40) {
                     src = (u16 *)(base + ((s16)x / 64 << 13) + ((x & 0x3f) << 2));

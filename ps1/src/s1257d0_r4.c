@@ -5,6 +5,6 @@
 
 
 void func_80125b34(Select *a, Object *b) {
-    if (a->field_1b != 3 && a->selected_index == a->field_a4)
-        a->field_40 = data_8016f538[b->kind];
+    if (a->mode != 3 && a->selected_index == a->index_limit)
+        a->kind_value = data_8016f538[b->kind];
 }

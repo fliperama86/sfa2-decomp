@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 void func_800790e4_slot00(Object *o) {
-    Slot00Obj *t = (Slot00Obj *)o->field_3c;
-    if (o->field_03 == 0) {
-        if (o == t->field_30) {
-            t->field_30 = 0;
+    Slot00Obj *t = (Slot00Obj *)o->parent;
+    if (o->table_index == 0) {
+        if (o == t->linked_object_a) {
+            t->linked_object_a = 0;
         }
     } else {
-        if (o == t->field_34) {
-            t->field_34 = 0;
+        if (o == t->linked_object_b) {
+            t->linked_object_b = 0;
         }
     }
     func_8011f38c(o);

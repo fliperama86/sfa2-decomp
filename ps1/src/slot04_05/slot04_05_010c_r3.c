@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 void func_801b0530_slot04_05(Object *obj) {
-    s16 t = obj->field_46;
+    s16 t = obj->countdown;
     if (t != 0) {
         t = t - 1;
-        obj->field_46 = t;
+        obj->countdown = t;
         if (t == 0) {
-            game_state.field_4b |= 1 << obj->side;
+            game_state.side_bits_2 |= 1 << obj->side;
         }
     }
     update_sequence(obj);

@@ -11,38 +11,38 @@ void func_801e1908_slot0b(Object *obj, Object *other);
 void func_801e17a4_slot0b(Object *obj) {
     Object *o;
     obj->field_0a = 1;
-    obj->field_46 = 0x1f;
+    obj->countdown = 0x1f;
     obj->pos_x = -0xb8;
     obj->pos_y = 0xc9;
     obj->health = 0x48;
     obj->vel_x = 0x80000;
     obj->field_0e = 0;
     obj->ot_depth = 0;
-    obj->field_24 = 0;
-    obj->field_0b = 0;
+    obj->table_index_2 = 0;
+    obj->facing_side = 0;
     obj->field_20 = 0;
-    obj->field_22 = 0;
+    obj->y_scale = 0;
     obj->field_0c = 0;
     obj->accel_x = 0;
     obj->state_0++;
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         obj->pos_x = 0x228;
         obj->health = 0x128;
         obj->vel_x = -obj->vel_x;
         obj->accel_x = -obj->accel_x;
     }
-    o = obj->field_3c;
+    o = obj->parent;
     ref_other.p = o;
     func_801e1860_slot0b(obj, o);
 }
 
 void func_801e1860_slot0b(Object *obj, Object *other) {
     HudSlot *s = &data_801e7648_slot0b[other->side];
-    s->field_08 = 0x10;
-    s->field_09 = 0x10;
+    s->init_size_a = 0x10;
+    s->init_size_b = 0x10;
     s->field_0a = 2;
-    s->field_00 = 0;
-    s->field_0b = 0x18;
-    s->field_0c = data_801e4cfc_slot0b[other->kind];
+    s->slot_type = 0;
+    s->init_const_byte = 0x18;
+    s->data_ptr = data_801e4cfc_slot0b[other->kind];
     func_801e1908_slot0b(obj, other);
 }

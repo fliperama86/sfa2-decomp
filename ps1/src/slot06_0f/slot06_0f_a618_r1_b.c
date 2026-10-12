@@ -6,5 +6,5 @@
 void func_801ea96c_slot06_0f(Object *obj);
 
 void func_801ea96c_slot06_0f(Object *obj) {
-    obj->field_46 = get_random_byte() & 0x3c;
+    obj->countdown = get_random_byte() & 0x3c;
 }

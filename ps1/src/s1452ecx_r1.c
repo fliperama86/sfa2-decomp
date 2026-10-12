@@ -36,13 +36,13 @@ void func_801452ec(Object *object) {
     s16 dy;
 
     /* Four separate tests, one per kind; with 0 and 9 joined, 1 and 10 joined, this function differs from the original in 6 instruction slots. */
-    if (object->field_03 == 0) {
+    if (object->table_index == 0) {
         side = 0;
-    } else if (object->field_03 == 1) {
+    } else if (object->table_index == 1) {
         side = 1;
-    } else if (object->field_03 == 9) {
+    } else if (object->table_index == 9) {
         side = 0;
-    } else if (object->field_03 == 10) {
+    } else if (object->table_index == 10) {
         side = 1;
     }
     idx = 0;
@@ -64,9 +64,9 @@ void func_801452ec(Object *object) {
                 hi = n / 16;
                 func_8015c09c(&data_801a4ff0[side].pairs[idx].polys[data_801a27d0]);
                 /* The (u8) cast narrows the quotient (at most 63) and makes the shift unsigned; without it this function differs from the original in 1 instruction slots. */
-                data_801a4ff0[side].pairs[idx].polys[data_801a27d0].tpage = func_8015bd0c(0, 0, (s16)object->field_76 + ((u8)(n / 256)) * 64, (s16)object->field_78);
-                data_801a4ff0[side].pairs[idx].polys[data_801a27d0].clut = func_8015bdd4((s16)object->spawn_x, (s16)object->spawn_y + object->field_0d * object->field_0c + m->field_03);
-                if (object->field_03 < 2) {
+                data_801a4ff0[side].pairs[idx].polys[data_801a27d0].tpage = func_8015bd0c(0, 0, (s16)object->base_x + ((u8)(n / 256)) * 64, (s16)object->base_y);
+                data_801a4ff0[side].pairs[idx].polys[data_801a27d0].clut = func_8015bdd4((s16)object->spawn_x, (s16)object->spawn_y + object->image_row * object->field_0c + m->page_offset);
+                if (object->table_index < 2) {
                     /* Stand-in, not recovered source: one stand-in at 27 places, the byte offset from the pointer cast to u8 (side * 0xc80 + idx * 0x50, which is the address of data_801a4ff0[side].pairs[idx]) written out for each store of the quad, reproduces the original's order of instructions. Without it this function differs from the original in 322 instruction slots. */
                     ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].r0 = 0x80;
                     /* The second place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
@@ -76,7 +76,7 @@ void func_801452ec(Object *object) {
                     func_8015bfe8(&data_801a4ff0[side].pairs[idx].polys[data_801a27d0], 1);
                 }
                 dy = object->health;
-                if (object->field_03 == 9 || object->field_03 == 10) {
+                if (object->table_index == 9 || object->table_index == 10) {
                     dy = 0;
                 }
                 if (flag == 0) {

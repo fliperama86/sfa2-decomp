@@ -18,21 +18,21 @@ void func_801b3ad8_slot04_09(Object *obj) {
     }
     other = obj->other;
     obj->state_3++;
-    obj->field_48 = 0;
+    obj->variant_index = 0;
     other->field_15b = one;
-    other->field_260 = one;
+    other->hit_flag = one;
     if (((Slot04aObj *)other)->field_5c < 0) {
-        obj->field_48 = 0xff;
+        obj->variant_index = 0xff;
     }
-    func_80140770(obj, 5, 0xd, data_801c7d64_slot04_09[(obj->field_12a & 0xfe) >> 1], 0, 1, 0);
+    func_80140770(obj, 5, 0xd, data_801c7d64_slot04_09[(obj->direction_index & 0xfe) >> 1], 0, 1, 0);
     other = obj->other;
     if (((Slot04aObj *)other)->field_5c < 0) {
-        obj->field_167 = (obj->field_12a >> 1) + 0xc;
-        if (obj->field_48 == 0) {
-            if (obj->field_0b != 0) {
-                game_state.field_6b = one;
+        obj->field_167 = (obj->direction_index >> 1) + 0xc;
+        if (obj->variant_index == 0) {
+            if (obj->facing_side != 0) {
+                game_state.spawn_kind = one;
             } else {
-                game_state.field_6b = 2;
+                game_state.spawn_kind = 2;
             }
             func_80147000(obj);
         }
@@ -40,7 +40,7 @@ void func_801b3ad8_slot04_09(Object *obj) {
     obj->vel_y = 0x40000;
     obj->accel_x = 0;
     obj->accel_y = -0x4000;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         obj->vel_x = 0x20000;
     } else {
         obj->vel_x = -0x20000;

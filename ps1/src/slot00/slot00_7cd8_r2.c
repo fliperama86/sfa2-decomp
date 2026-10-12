@@ -18,7 +18,7 @@ void func_80077e54_slot00(Object *obj, s16 *out) {
     int r = get_random_byte() & 0xff;
     int i = r & 7;
     int k;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         out[4] = -data_8007a064_slot00[i];
     } else {
         out[4] = data_8007a064_slot00[i];

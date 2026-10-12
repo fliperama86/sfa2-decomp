@@ -5,7 +5,7 @@
 
 void func_80153c90(Effect *effect) {
     Object *object = (Object *)effect;
-    object->field_00++;
+    object->active_count++;
 }
 
 void func_80153ca4(Effect *unused) {

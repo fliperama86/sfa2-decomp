@@ -28,9 +28,9 @@ void func_801b49e4_slot04_16(Object *obj) {
 
 void func_801b4a54_slot04_16(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
         ref_other.p = obj->other;
-        ref_other.p->field_249 = 5;
+        ref_other.p->other_state_code = 5;
         func_801b10b0_slot04_16(obj);
     } else {
         func_80142adc(obj);
@@ -49,7 +49,7 @@ void func_801b4ac4_slot04_16(Object *obj) {
 void func_801b4b08_slot04_16(Object *obj) {
     s32 d = obj->vel_x;
 
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         d = -d;
     }
     *(s32 *)&obj->pos_x_frac += d;
@@ -72,11 +72,11 @@ void func_801b4b90_slot04_16(Object *o) {
     func_801428e4(o);
     func_80138b38((GameState *)game_state.config, o);
     func_80145d20(o);
-    o->vel_x = data_801ca3cc_slot04_16[o->field_12a * 2];
-    o->vel_y = data_801ca3cc_slot04_16[o->field_12a * 2 + 1];
-    o->accel_x = data_801ca3cc_slot04_16[o->field_12a * 2 + 2];
-    o->accel_y = data_801ca3cc_slot04_16[o->field_12a * 2 + 3];
-    if (o->field_0b == 0) {
+    o->vel_x = data_801ca3cc_slot04_16[o->direction_index * 2];
+    o->vel_y = data_801ca3cc_slot04_16[o->direction_index * 2 + 1];
+    o->accel_x = data_801ca3cc_slot04_16[o->direction_index * 2 + 2];
+    o->accel_y = data_801ca3cc_slot04_16[o->direction_index * 2 + 3];
+    if (o->facing_side == 0) {
         o->vel_x = -o->vel_x;
         o->accel_x = -o->accel_x;
     }

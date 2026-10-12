@@ -1,5 +1,5 @@
 /* Reconstruction. Names/roles inferred, not original symbols.
-   Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: func_80137e38 (original stores field_46 through a0 in the delay slot). */
+   Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: func_80137e38 (original stores countdown through a0 in the delay slot). */
 #include "game.h"
 #include "externs.h"
 #include "protos.h"
@@ -7,9 +7,9 @@
 
 
 void func_80137e94(Object *object) {
-    *(s16 *)&object->field_46 -= 0x100;
-    if ((object->field_46 & 0xff00) == 0) {
-        object->field_00 = 1;
+    *(s16 *)&object->countdown -= 0x100;
+    if ((object->countdown & 0xff00) == 0) {
+        object->active_count = 1;
         object->state_0 = 1;
         object->state_1 = 0;
         object->state_2 = 0;
@@ -24,7 +24,7 @@ void func_80137e94(Object *object) {
 void func_80137f00(Object *object) {
     Config *config = game_state.config;
 
-    if ((config->field_65 | config->field_a8) == 0) {
+    if ((config->pause_flag_a | config->pause_flag_b) == 0) {
         handlers_2694[object->state_2](object);
     }
     func_8011ffdc(object);
@@ -33,32 +33,32 @@ void func_80137f00(Object *object) {
 void func_80137f70(Object *object) {
     object->sequence_changed_flag = 1;
     object->state_2++;
-    object->field_0b ^= 1;
+    object->facing_side ^= 1;
     func_801380f0(object);
-    object->field_46 = (u8)object->field_46 | 0x200;
-    if ((object->field_a0 & 0x80) == 0) {
-        func_80138070(object, object->field_a0);
+    object->countdown = (u8)object->countdown | 0x200;
+    if ((object->variant_index_2 & 0x80) == 0) {
+        func_80138070(object, object->variant_index_2);
     }
     advance_sequence_checked(object);
 }
 
 void func_80137fe4(Object *object) {
-    *(s16 *)&object->field_46 -= 0x100;
-    if ((s16)object->field_46 < 0) {
-        object->field_00 = 1;
+    *(s16 *)&object->countdown -= 0x100;
+    if ((s16)object->countdown < 0) {
+        object->active_count = 1;
         object->state_0 = 1;
         object->state_1 = 0;
         object->state_2 = 0;
         object->state_3 = 0;
         object->vel_x = -object->vel_x;
         object->accel_x = -object->accel_x;
-        object->vel_y = table_269c[object->field_ac >> 1];
+        object->vel_y = table_269c[object->vel_table_index >> 1];
     }
     advance_sequence_checked(object);
 }
 
 void func_80138070(Object *object, u8 index) {
-    if (object->field_66 == 0) {
+    if (object->sound_side == 0) {
         object->sequence = seqs_a4_left[index];
     } else {
         object->sequence = seqs_154_right[index];

@@ -47,9 +47,9 @@ void func_801b10b8_slot04_10(Object *obj) {
 }
 
 void func_801b10d8_slot04_10(Object *obj) {
-    if (obj->field_128 != 0) {
+    if (obj->input_dir_0 != 0) {
         func_801b16c8_slot04_10(obj);
-    } else if (obj->field_129 != 0) {
+    } else if (obj->input_dir_second != 0) {
         func_801b1308_slot04_10(obj);
     } else {
         data_801c69a0_slot04_10[obj->state_3](obj);

@@ -9,14 +9,14 @@ void func_80011fe8_slot01(Object *obj, Slot01Rec152ec *a1);
 
 void func_80011e28_slot01(Object *obj) {
     Object *o = obj;
-    int t = o->field_46 - 1;
-    o->field_46 = t;
+    int t = o->countdown - 1;
+    o->countdown = t;
     if ((s16)t < 0) {
-        o->field_46 = 1;
+        o->countdown = 1;
         o->vel_x = o->vel_x + o->accel_x;
         if (o->vel_x == 0) {
             o->state_1++;
-            ((Object *)o->field_28)->state_0 = 2;
+            ((Object *)o->linked_object)->state_0 = 2;
         }
         o->pos_x = (o->vel_x & 2) ? o->pos_x - o->vel_x : o->pos_x + o->vel_x;
     }
@@ -31,7 +31,7 @@ void func_80011eb8_slot01(Object *obj) {
 void func_80011ee8_slot01(Object *obj) {
     obj->state_0++;
     obj->pos_x = box_margin[0] + 5;
-    ((Object *)obj->field_28)->state_0 = 2;
+    ((Object *)obj->linked_object)->state_0 = 2;
     func_80011fe8_slot01(obj, &data_800152e4_slot01);
 }
 

@@ -20,9 +20,9 @@ void func_801b6674_slot04_sel(void) {
     u8 *b = data_801b9db8_slot04_sel;
     data_801b9c24_slot04_sel[0](l, b);
     data_801b9c24_slot04_sel[0](r, b + 1);
-    if (game_state.field_07 != 0) {
+    if (game_state.side_mask != 0) {
         if (b[0] != 0 || b[1] != 0) {
-            data_8018f5a0->field_4a = 1;
+            data_8018f5a0->phase_index = 1;
         }
     }
     func_801519b4(data_801b9cd8_slot04_sel);

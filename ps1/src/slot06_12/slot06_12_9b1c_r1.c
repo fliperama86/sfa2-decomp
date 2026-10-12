@@ -39,13 +39,13 @@ void func_801e9be8_slot06_12(Object *obj) {
 
     *c = 0;
     *c = (obj->accel_x >> 8) & 0x7f;
-    obj->field_03 = *(u8 *)c;
+    obj->table_index = *(u8 *)c;
 }
 
 void func_801e9c14_slot06_12(Object *obj) {
     if (game_state.field_65 == 0) {
         func_801e9db4_slot06_12(obj);
-        data_801ef330_slot06_12[obj->field_03](obj);
+        data_801ef330_slot06_12[obj->table_index](obj);
     } else {
         obj->field_01 = 0;
     }

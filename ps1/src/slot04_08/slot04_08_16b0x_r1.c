@@ -15,32 +15,32 @@ void func_801b16b0_slot04_08(Object *obj) {
     int n;
     u16 x;
 
-    t = (obj->field_46 + 1) & 7;
-    obj->field_46 = t;
+    t = (obj->countdown + 1) & 7;
+    obj->countdown = t;
     if (t == 0) {
         p = (Object *)func_8011f1e0();
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 8;
-            p->field_03 = 1;
-            p->field_3c = obj;
+            p->table_index = 1;
+            p->parent = obj;
             p->pos_x = obj->pos_x;
             p->pos_y = obj->pos_y - 0x6c;
             p->spawn_x = obj->spawn_x;
             p->spawn_y = obj->spawn_y;
-            p->field_0d = obj->field_0d;
-            p->field_08 = 0x20;
-            p->field_66 = obj->field_66;
+            p->image_row = obj->image_row;
+            p->mode_id = 0x20;
+            p->sound_side = obj->sound_side;
             p->field_90 = obj->field_90;
-            p->field_98 = obj->field_98;
-            p->field_9c = obj->field_9c;
+            p->data_ptr_a = obj->data_ptr_a;
+            p->data_ptr_b = obj->data_ptr_b;
         }
     }
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     x = *(u16 *)&obj->pos_x;
     v = x - data_801c3e98_slot04_08;
     a = v;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         a = (u16)-v;
     }
     if ((s16)a >= 0) {
@@ -48,10 +48,10 @@ void func_801b16b0_slot04_08(Object *obj) {
         if (obj->vel_x < 0) {
             a = 1;
         }
-        if (obj->field_164 != (s16)a) {
+        if (obj->bound_push_flag != (s16)a) {
             q = obj->other;
             a = -0x20;
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 a = 0x20;
             }
             a = (a + x - *(u16 *)&q->pos_x) + 0x40;
@@ -63,7 +63,7 @@ void func_801b16b0_slot04_08(Object *obj) {
         }
     }
     obj->state_3++;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         obj->vel_x = 0x80000;
     } else {
         obj->vel_x = -0x80000;
@@ -73,5 +73,5 @@ void func_801b16b0_slot04_08(Object *obj) {
     if (obj->field_49 != 0) {
         n = 0x68;
     }
-    func_801307e0(obj, (obj->field_12a >> 1) + n);
+    func_801307e0(obj, (obj->direction_index >> 1) + n);
 }

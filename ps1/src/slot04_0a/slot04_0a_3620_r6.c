@@ -26,7 +26,7 @@ void func_801b3cd0_slot04_0a(Object *obj) {
         } else {
             func_80140770(obj, 0x24, 0xa, 0x11, 0, 0, 0);
         }
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->vel_x = 0xffff0000;
             v = 0x500;
         } else {

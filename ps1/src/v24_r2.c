@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Exact. The stores at offsets 0x2c and 0x30 are 32-bit in the original, but
-   Object has field_2c as u8 and field_32 at 0x32, so a u32 field cannot be
+   Object has linked_object_2 as u8 and field_32 at 0x32, so a u32 field cannot be
    added there; both are written through a u32 cast. Needs a decision on the
    layout of 0x2c..0x33 (see report). */
 void func_8011ef88(Object *o) {
@@ -15,20 +15,20 @@ void func_8011ef88(Object *o) {
     o->state_1 = 0;
     o->state_2 = 0;
     o->state_3 = 0;
-    o->field_28 = 0;
-    *(u32 *)&o->field_2c = 0;
+    o->linked_object = 0;
+    *(u32 *)&o->linked_object_2 = 0;
     *(u32 *)((u8 *)o + 0x30) = 0;
-    o->field_34 = 0;
-    o->field_45 = 0;
-    o->field_6a = 0;
+    o->linked_object_b = 0;
+    o->active_state = 0;
+    o->round_count = 0;
     o->field_69 = 0;
-    o->field_bc = 0;
-    o->field_bd = 0;
-    o->field_be = 0;
+    o->effect_code_bc = 0;
+    o->effect_request = 0;
+    o->sound_index = 0;
     o->field_bf = 0;
     o->field_7e = 0;
     z = 0;
-    for (p = &o->field_128; p != (u8 *)o + 0x391; p++) {
+    for (p = &o->input_dir_0; p != (u8 *)o + 0x391; p++) {
         *p = z;
     }
 }

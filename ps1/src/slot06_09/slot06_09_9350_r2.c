@@ -15,11 +15,11 @@ void func_801e9b18_slot06_09(Object *obj) {
 void func_801e9b58_slot06_09(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->vel_x = 0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_0c = 0;
     obj->state_0++;
     func_801e9cc0_slot06_09(obj);
-    func_80130700(obj, data_801ec92c_slot06_09[obj->field_03]);
+    func_80130700(obj, data_801ec92c_slot06_09[obj->table_index]);
 }

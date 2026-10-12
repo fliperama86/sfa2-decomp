@@ -7,7 +7,7 @@
    func_8012a3f4, and the compiler merges only the call instruction. */
 void func_8012a3a4(Object *object) {
     object->state_3++;
-    if (object->field_cd == 0) {
+    if (object->mode_flag_2 == 0) {
         func_8012a3f4(object);
         return;
     }

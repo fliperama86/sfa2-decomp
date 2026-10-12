@@ -14,7 +14,7 @@ void func_801b0118_slot04_02(Object *obj) {
     } else {
         if ((t & 0xff) != 0) {
             obj->step_flags = t & 0xff;
-            game_state.field_63 = 0x18;
+            game_state.state_param = 0x18;
             play_side_sound_at(obj, obj->side, 0xe);
         }
         update_sequence(obj);

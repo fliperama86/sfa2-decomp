@@ -20,10 +20,10 @@ void func_80015140_slot28(Object *obj) {
     int t;
     if (data_80190949 != 0 && obj->field_f0 == 0) {
         h = data_8018f5a0;
-        t = h->field_60 - 1;
-        h->field_60 = t;
+        t = h->countdown_timer - 1;
+        h->countdown_timer = t;
         if ((s16)t == 0) {
-            h->field_52 = h->field_52 + 1;
+            h->pass_index = h->pass_index + 1;
             func_801282d4();
         }
     }

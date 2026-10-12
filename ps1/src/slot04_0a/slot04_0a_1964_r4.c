@@ -12,7 +12,7 @@ void func_801b1ce8_slot04_0a(Object *obj) {
     int k;
 
     if (obj->vel_y < 0) {
-        t = obj->field_c2;
+        t = obj->input_bits;
         if (t & 0x80) {
             k = 0;
         } else if (t & 0x10) {

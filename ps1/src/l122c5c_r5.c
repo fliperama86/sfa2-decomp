@@ -6,7 +6,7 @@
 void func_80123e34(void) {
     unsigned char v;
     if (game_state.field_74 == 0) {
-        if (((HudBig *)data_8018f5a0)->field_4e == 1 && game_state.field_04 == 0) {
+        if (((HudBig *)data_8018f5a0)->step_count == 1 && game_state.field_04 == 0) {
             if ((game_state.mode & 1) && (data_801a696a & 0x800) && game_state.field_31 < 2) {
                 if (((HudBig *)data_8018f5a0)->substate_index == 0) {
                     game_state.field_31 = game_state.field_31 ^ 1;

@@ -17,7 +17,7 @@ void func_801ca7a4_slot05_06(Object *obj) {
         func_801307e0(obj, 0x24);
     } else {
         a = 0x4000;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             a = -0x4000;
         }
         *(s32 *)&obj->pos_x_frac += a;

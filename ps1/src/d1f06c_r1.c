@@ -4,9 +4,9 @@
 #include "externs.h"
 
 /* Inferred, not an original name: clears 128 bytes of game_state starting at
-   field_40, then clears the byte at field_226. */
+   kind_index, then clears the byte at field_226. */
 void clear_game_state_fields(void) {
-    u8 *p = (u8 *)&game_state.field_40;
+    u8 *p = (u8 *)&game_state.kind_index;
     unsigned int i;
 
     /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */

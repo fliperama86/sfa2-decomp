@@ -12,16 +12,16 @@ void func_801b2d88_slot04_08(Object *obj) {
     u16 t;
     Object *other;
 
-    t = obj->field_46 + 1;
+    t = obj->countdown + 1;
     t &= 7;
-    obj->field_46 = t;
+    obj->countdown = t;
     if (t == 0) {
         func_801b4298_slot04_08(obj);
     }
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     other = obj->other;
     d = (u16)obj->pos_x - data_801c3e98_slot04_08;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         d = -d;
     }
     if (d >= 0) {
@@ -29,9 +29,9 @@ void func_801b2d88_slot04_08(Object *obj) {
         if (obj->vel_x < 0) {
             d = 1;
         }
-        if (obj->field_164 != d && obj->field_67 == 0) {
+        if (obj->bound_push_flag != d && obj->active_flag == 0) {
             d = -0x20;
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 d = 0x20;
             }
             d = d + (u16)obj->pos_x - other->pos_x + 0x40;
@@ -42,5 +42,5 @@ void func_801b2d88_slot04_08(Object *obj) {
         }
     }
     obj->state_3++;
-    func_801307e0(obj, ((Slot04aObj *)obj)->field_1c4 + 0x46 + (obj->field_12a >> 1) * 3);
+    func_801307e0(obj, ((Slot04aObj *)obj)->sub_index + 0x46 + (obj->direction_index >> 1) * 3);
 }

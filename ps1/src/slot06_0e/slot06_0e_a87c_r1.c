@@ -24,9 +24,9 @@ void func_801eaa08_slot06_0e(Object *obj) {
 }
 
 void func_801eaa28_slot06_0e(Object *obj) {
-    Object *c = (Object *)obj->field_34;
+    Object *c = (Object *)obj->linked_object_b;
 
-    data_801f8474_slot06_0e = obj->field_03 + obj->field_46;
+    data_801f8474_slot06_0e = obj->table_index + obj->countdown;
     data_801f8474_slot06_0e = data_801fb1f8_slot06_0e[data_801f8474_slot06_0e];
     c->field_01 = 0;
     if (data_801f8474_slot06_0e == 3) {
@@ -49,10 +49,10 @@ void func_801eab3c_slot06_0e(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->state_0 = 1;
-    obj->field_46 = 0;
-    obj->field_0d = 0;
+    obj->countdown = 0;
+    obj->image_row = 0;
     obj->field_0c = 0;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     func_80130700(obj, data_801ef418_slot06_0e[0]);
     off = rand() & 0xf;
     off <<= 3;
@@ -67,8 +67,8 @@ void func_801eabd4_slot06_0e(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         advance_sequence_checked(obj);
     }
-    if (((Slot06Layer *)cam_obj)->field_16 >= 0x500) {
-        if (((Slot06Layer *)data_801aa544)->field_05 == 2) {
+    if (((Slot06Layer *)cam_obj)->scroll_y >= 0x500) {
+        if (((Slot06Layer *)data_801aa544)->state_index == 2) {
             obj->state_0++;
         }
         func_8011ffdc(obj);

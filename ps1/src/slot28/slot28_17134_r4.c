@@ -21,7 +21,7 @@ void func_80027748_slot28(int *p) {
         *(s32 *)&o->pos_y_frac -= p[0];
         *(s32 *)&o->pos_y_frac -= p[0];
     }
-    if (o->field_48 == 0xff) {
+    if (o->variant_index == 0xff) {
         if (((*a | *b) & 0x40) != 0) {
             p[1] -= p[0];
             p[1] -= p[0];
@@ -29,8 +29,8 @@ void func_80027748_slot28(int *p) {
         } else {
             p[1] -= p[0];
         }
-        data_8018f5a0->field_60 = 0xb4;
-        data_8018f5a0->field_50++;
+        data_8018f5a0->countdown_timer = 0xb4;
+        data_8018f5a0->step_index_2++;
     }
     func_800279d4_slot28((Object *)p);
     func_80138164();

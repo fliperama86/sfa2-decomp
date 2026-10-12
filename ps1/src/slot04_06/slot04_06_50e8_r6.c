@@ -15,12 +15,12 @@ void func_801b5bb8_slot04_06(Object *obj) {
     obj->state_0++;
     p = data_801c5758_slot04_06;
     obj->field_1c = p->field_1c;
-    obj->field_1e = p->field_1e;
-    obj->field_03 = p->kind;
+    obj->cycle_value = p->cycle_value;
+    obj->table_index = p->kind;
     obj->field_0c = data_801c5758_slot04_06->field_0c;
-    obj->field_0d = data_801c5758_slot04_06->field_0d;
+    obj->image_row = data_801c5758_slot04_06->image_row;
     obj->field_0e = data_801c5758_slot04_06->field_0e;
-    obj->field_48 = 0;
+    obj->variant_index = 0;
     func_801b5c5c_slot04_06(obj);
 }
 
@@ -30,16 +30,16 @@ void func_801b5c5c_slot04_06(Object *obj) {
 
     obj->field_01 = 0;
     p = data_801c5758_slot04_06;
-    if (obj->field_03 == p->kind) {
-        a = p->frame->field_09;
+    if (obj->table_index == p->kind) {
+        a = p->frame->frame_param;
         if (a == 0) {
-            obj->field_48 = 0;
+            obj->variant_index = 0;
         } else {
             obj->pos_x = p->pos_x;
             obj->pos_y = p->pos_y;
-            obj->field_0b = p->field_0b;
+            obj->facing_side = p->facing_side;
             obj->field_01 = 1;
-            if (obj->field_48 != a) {
+            if (obj->variant_index != a) {
                 func_801b5d68_slot04_06(obj, a);
             } else {
                 advance_sequence_checked(obj);

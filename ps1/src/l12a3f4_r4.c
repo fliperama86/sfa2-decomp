@@ -5,7 +5,7 @@
 
 void func_8012b184(Object *object) {
     u16 saved;
-    if (object->field_cd != 0) {
+    if (object->mode_flag_2 != 0) {
         func_8012b2c4(object);
     } else if (func_80130470(object)) {
         func_8013047c(object);
@@ -23,7 +23,7 @@ void func_8012b184(Object *object) {
     } else if ((s16)object->step_flags < 0) {
         func_801312b8(object);
     } else {
-        object->field_0b = object->field_158;
+        object->facing_side = object->saved_facing;
         update_sequence(object);
     }
 }

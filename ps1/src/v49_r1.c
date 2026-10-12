@@ -20,9 +20,9 @@ void func_8013d834(Object *object, u8 index, u8 arg) {
             buttons = data_801a6972 & 0xf000;
         }
     }
-    if (game_state.field_30 != 0 && data_801a6984[0] != 0 &&
+    if (game_state.versus_flag != 0 && data_801a6984[0] != 0 &&
         game_state.mode == object->field_02 + 1) {
-        buttons = object->field_c2 & 0xf000;
+        buttons = object->input_bits & 0xf000;
     }
     if (buttons != 0) {
         func_8013dd8c(object, index, arg);
@@ -33,10 +33,10 @@ void func_8013d834(Object *object, u8 index, u8 arg) {
     func_8013f2c8(object);
     return;
 apply:
-    object->slots[index].field_02--;
-    if (object->slots[index].field_02 == 0) {
+    object->slots[index].repeat_count--;
+    if (object->slots[index].repeat_count == 0) {
         object->slots[index].stage++;
     }
-    object->slots[index].field_01 = game_state.field_35c;
+    object->slots[index].entry_index = game_state.step_value;
     set_slot_random_timer(object, index, arg);
 }

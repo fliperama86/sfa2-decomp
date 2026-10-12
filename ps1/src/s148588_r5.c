@@ -11,8 +11,8 @@ void func_80148a04(Object *object) {
 
 void func_80148a24(Object *object) {
     Object *other;
-    if (object->field_45 != 0) {
-        other = object->field_3c;
+    if (object->active_state != 0) {
+        other = object->parent;
         other->field_29e = 0;
         play_sound_at(other, other->side, 0x323);
     }

@@ -21,9 +21,9 @@ void func_8012af5c(Object *object)
     object->vel_y = motion_recs[object->kind].vel_y;
     b = motion_recs[object->kind].accel_x;
     object->accel_y = motion_recs[object->kind].accel_y;
-    new_var = object->field_0b ^ 1;
-    object->field_0b = new_var;
-    if (object->field_0b != 0)
+    new_var = object->facing_side ^ 1;
+    object->facing_side = new_var;
+    if (object->facing_side != 0)
     {
       a = -a;
       b = -b;

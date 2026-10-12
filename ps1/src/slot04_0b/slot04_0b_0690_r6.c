@@ -5,6 +5,6 @@
 
 int func_801b1514_slot04_0b(Object *obj) {
     int r = 0;
-    if ((s16)obj->field_c6 >= 0x30) { if (obj->field_240 == 0) return 1; }
+    if ((s16)obj->meter >= 0x30) { if (obj->link_flags == 0) return 1; }
     return r;
 }

@@ -15,7 +15,7 @@ void func_801b3784_slot04_17(Object *obj);
 void func_801b36e4_slot04_17(Object *obj) {
     int a = obj->vel_x;
 
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         a = -a;
     }
     *(s32 *)&obj->pos_x_frac = a + *(s32 *)&obj->pos_x_frac;
@@ -26,7 +26,7 @@ void func_801b36e4_slot04_17(Object *obj) {
     }
     if ((obj->step_flags << 16) < 0) {
         ref_other.p = obj->other;
-        ref_other.p->field_249 = 5;
+        ref_other.p->other_state_code = 5;
         func_801b57f0_slot04_17(obj);
     } else {
         update_sequence(obj);
@@ -34,9 +34,9 @@ void func_801b36e4_slot04_17(Object *obj) {
 }
 
 void func_801b3784_slot04_17(Object *obj) {
-    obj->field_167 = (obj->field_12a >> 1) + 0xc;
-    if (obj->field_12f == 0) {
-        obj->field_12f = 0xff;
+    obj->field_167 = (obj->direction_index >> 1) + 0xc;
+    if (obj->step_limit == 0) {
+        obj->step_limit = 0xff;
         data_80190468.p->field_6b = 5;
         func_80147000(obj);
     }

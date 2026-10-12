@@ -57,7 +57,7 @@ void init_object_pools(void) {
         }
         kind = 8;
         rt = alloc_cursor_80190478;
-        rt->field_08 = kind;
+        rt->mode_id = kind;
         cur = *slot;
         *slot = (Object *)((Unit *)cur + 1);
         data_801a89b0[i] = cur;
@@ -76,7 +76,7 @@ void init_object_pools(void) {
         }
         kind = 0xc;
         rt = alloc_cursor_80190478;
-        rt->field_08 = kind;
+        rt->mode_id = kind;
         cur = *slot2;
         *slot2 = (Object *)((Block172 *)cur + 1);
         table_80197f20[i] = (Block172 *)cur;
@@ -97,7 +97,7 @@ void init_object_pools(void) {
             }
             kind = 0x10;
             rt = alloc_cursor_80190478;
-            rt->field_08 = kind;
+            rt->mode_id = kind;
             cur = *slot3;
             *slot3 = (Object *)((Slab172 *)cur + 1);
             data_801a68f0[i] = cur;
@@ -114,7 +114,7 @@ void init_object_pools(void) {
         {
             u32 base = 0x801e0000;
             for (i = 0; i < 256; i++) {
-                data_8018e598[i].field_04 = base;
+                data_8018e598[i].base_address = base;
                 base += 0x80;
                 data_8018e598[i].active_flag = 0;
                 data_801abf10[i] = &data_8018e598[i];

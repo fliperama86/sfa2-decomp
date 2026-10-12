@@ -15,23 +15,23 @@ void func_80012b90_slot01(Object *obj) {
 
     obj->spawn_x = 0x70;
     obj->spawn_y = 0x1ea;
-    obj->field_98 = data_80019330_slot01;
-    obj->field_9c = data_800195b8_slot01;
+    obj->data_ptr_a = data_80019330_slot01;
+    obj->data_ptr_b = data_800195b8_slot01;
     obj->field_90 = (void *)0x80059000;
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     obj->field_0e = 0;
     obj->field_20 = 0;
-    obj->field_22 = 0;
-    obj->field_24 = 0;
+    obj->y_scale = 0;
+    obj->table_index_2 = 0;
     obj->state_0 = obj->state_0 + 1;
-    r = obj->field_3c;
+    r = obj->parent;
     obj->pos_x = r->pos_x;
     obj->pos_y = r->pos_y;
-    if (obj->field_03 & 0x80) {
+    if (obj->table_index & 0x80) {
         obj->field_01 = 1;
         obj->field_0c = 1;
         obj->ot_depth = 0;
-        func_80130768(obj, obj->field_03 - 0x80, data_800212ac_slot01);
+        func_80130768(obj, obj->table_index - 0x80, data_800212ac_slot01);
     } else {
         obj->field_01 = 0;
         obj->field_0c = 0;

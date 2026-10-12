@@ -15,7 +15,7 @@ void func_800164d8_slot12(Object *obj) {
     int t;
 
     data_800287b4_slot12[obj->state_1](obj);
-    switch (obj->field_48) {
+    switch (obj->variant_index) {
     case 0:
         base = data_8002bfe8_slot12;
         break;
@@ -29,6 +29,6 @@ void func_800164d8_slot12(Object *obj) {
         return;
     }
     o = obj;
-    t = o->field_03 * 64;
+    t = o->table_index * 64;
     func_80014300_slot12(o, (Slot12Sprite *)((u8 *)t + (data_801a27d0 * 32 + (int)base)));
 }

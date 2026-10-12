@@ -20,10 +20,10 @@ void func_801531cc(Effect *effect) {
 
     effect->kind++;
     effect->active_flag = 0;
-    effect->field_03 = 0;
+    effect->state_index = 0;
     effect->field_04 = 0;
-    effect->field_05 = 0;
-    effect->field_06 = 0;
+    effect->substep_index = 0;
+    effect->current_count = 0;
     if (effect->side != 0) {
         Object *tmp = first;
         first = second;

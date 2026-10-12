@@ -18,7 +18,7 @@ void func_800e1dac_slot0f(Object *obj) {
     t--;
     obj->field_0f = t;
     if (t == 0) {
-        obj->field_00 = 1;
+        obj->active_count = 1;
         obj->field_01 = 0;
         obj->ot_depth = 0;
         obj->state_0 = 0;
@@ -28,13 +28,13 @@ void func_800e1dac_slot0f(Object *obj) {
 void func_800e1df8_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
 
-    obj->field_08 = 0;
+    obj->loop_flag = 0;
 }
 
 void func_800e1e00_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
 
-    data_800e87cc_slot0f[(s8)obj->field_09](o);
+    data_800e87cc_slot0f[(s8)obj->handler_index_b](o);
 }
 
 void func_800e1e40_slot0f(Object *o) {

@@ -7,19 +7,19 @@ void func_801b3510_slot04_08(Object *obj) {
     s16 a;
 
     a = 0x58;
-    obj->field_17b = 1;
-    obj->field_159 = 1;
+    obj->active_flag_4 = 1;
+    obj->active_flag_3 = 1;
     obj->field_157 = 0;
     obj->state_3++;
     if (obj->field_49 == 0) {
-        obj->field_177--;
+        obj->remaining_count--;
     }
-    if (obj->field_130 & 0x8000) {
-        obj->field_159 = 0;
+    if (obj->input_bits_2 & 0x8000) {
+        obj->active_flag_3 = 0;
         a = 0x59;
     }
-    if (obj->field_130 & 0x2000) {
-        obj->field_159 = 0;
+    if (obj->input_bits_2 & 0x2000) {
+        obj->active_flag_3 = 0;
         a += 2;
     }
     func_801307e0(obj, a);

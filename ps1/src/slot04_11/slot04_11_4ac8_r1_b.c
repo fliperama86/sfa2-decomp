@@ -18,7 +18,7 @@ void func_801b51ec_slot04_11(Object *obj) {
 }
 
 void func_801b520c_slot04_11(Object *obj) {
-    data_801c7804_slot04_11[obj->field_129 >> 1](obj);
+    data_801c7804_slot04_11[obj->input_dir_second >> 1](obj);
 }
 
 void func_801b5250_slot04_11(Object *obj) {
@@ -30,9 +30,9 @@ void func_801b5290_slot04_11(Object *obj) {
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     play_side_sound_at(obj, obj->side, 8);
-    obj->field_0b = 0;
-    if (!(obj->field_cd != 0 ? (s16)((u16)func_801b5914_slot04_11(obj)->pos_x + 0xc0) < obj->pos_x : (obj->field_c2 & 0x8000) != 0)) {
-        obj->field_0b++;
+    obj->facing_side = 0;
+    if (!(obj->mode_flag_2 != 0 ? (s16)((u16)func_801b5914_slot04_11(obj)->pos_x + 0xc0) < obj->pos_x : (obj->input_bits & 0x8000) != 0)) {
+        obj->facing_side++;
     }
     func_801307e0(obj, 0x1a);
 }
@@ -53,7 +53,7 @@ void func_801b535c_slot04_11(Object *obj) {
         obj->step_flags = 0;
         c = *(u16 *)(data_801c7818_slot04_11 + i + 8);
         d = *(u16 *)(data_801c7818_slot04_11 + i + 12);
-        func_80146478(obj, obj->field_12a >> 1, *(s16 *)(data_801c7818_slot04_11 + i), *(s16 *)(data_801c7818_slot04_11 + i + 4));
+        func_80146478(obj, obj->direction_index >> 1, *(s16 *)(data_801c7818_slot04_11 + i), *(s16 *)(data_801c7818_slot04_11 + i + 4));
         if (func_80140cd8(obj, c, d)) {
             play_sound_at(obj, obj->side, 0x336);
             obj->state_3++;

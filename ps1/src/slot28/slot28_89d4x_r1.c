@@ -22,8 +22,8 @@ void func_800189d4_slot28(Object *obj) {
     Object *b;
     Object *prev;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->field_60 = 0x12c;
-        data_8018f5a0->field_52 += 1;
+        data_8018f5a0->countdown_timer = 0x12c;
+        data_8018f5a0->pass_index += 1;
         func_80019190_slot28();
         func_80130768(data_8005197c_slot28.p, 0, data_80034518_slot28);
         b = data_80051980_slot28[0];
@@ -32,7 +32,7 @@ void func_800189d4_slot28(Object *obj) {
         b->pos_y = 0x20;
         b->spawn_x = 0x10;
         b->spawn_y = 0x1e0;
-        b->field_0d = 0;
+        b->image_row = 0;
         b->ot_depth = 4;
         func_80130768(b, 0, data_80034520_slot28);
         b = (Object *)func_8011f1e0();
@@ -43,7 +43,7 @@ void func_800189d4_slot28(Object *obj) {
             b->pos_y = 0x20;
             b->spawn_x = 0x10;
             b->spawn_y = 0x1e0;
-            b->field_0d = 0;
+            b->image_row = 0;
             b->ot_depth = 4;
             func_80130768(b, 1, data_80034520_slot28);
         }
@@ -51,43 +51,43 @@ void func_800189d4_slot28(Object *obj) {
         b->field_01 = 0;
         prev = b = (Object *)func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x20;
             b->field_90 = (void *)0x80060000;
-            b->field_98 = data_80032a64_slot28;
-            b->field_9c = data_80032ec8_slot28;
+            b->data_ptr_a = data_80032a64_slot28;
+            b->data_ptr_b = data_80032ec8_slot28;
             b->pos_x = 0xf8;
             b->pos_y = 0xa0;
-            b->field_46 = 0x100;
-            b->field_03 = 4;
+            b->countdown = 0x100;
+            b->table_index = 4;
             b->field_01 = 1;
             b->spawn_x = 0x60;
             b->spawn_y = 0x1e0;
-            b->field_0d = 0;
+            b->image_row = 0;
             b->ot_depth = 2;
             func_80130768(b, 5, data_80034530_slot28);
             data_80051954_slot28[0] = b;
         }
         b = (Object *)func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x20;
-            b->field_03 = 5;
+            b->table_index = 5;
             b->field_90 = (void *)0x80060000;
-            b->field_98 = data_80032a64_slot28;
-            b->field_9c = data_80032ec8_slot28;
+            b->data_ptr_a = data_80032a64_slot28;
+            b->data_ptr_b = data_80032ec8_slot28;
             b->pos_x = 0x150;
             b->pos_y = 0xa0;
-            b->field_46 = 0x100;
+            b->countdown = 0x100;
             b->field_01 = 1;
             b->spawn_x = 0x60;
             b->spawn_y = 0x1e0;
-            b->field_0d = 0;
+            b->image_row = 0;
             b->ot_depth = 3;
-            b->field_48 = 0;
+            b->variant_index = 0;
             func_80130768(b, 6, data_80034530_slot28);
             data_80051958_slot28.p = b;
-            b->field_3c = prev;
+            b->parent = prev;
             b->box_tables = (BoxTables *)data_80034530_slot28;
         }
         func_80128370();

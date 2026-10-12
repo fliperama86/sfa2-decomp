@@ -24,7 +24,7 @@ void set_sequence_by_side(Object *object, int arg) {
     object->step_flags = object->sequence->flags;
     object->sequence_changed_flag = 1;
     object->frame = object->frames + object->sequence->frame_index;
-    object->field_4a = object->frame->field_0d;
+    object->frame_sound_index = object->frame->sequence_param;
 }
 
 void func_80130700(Object *object, SequenceStep *entry) {
@@ -32,11 +32,11 @@ void func_80130700(Object *object, SequenceStep *entry) {
     object->step_timer = entry->duration;
     object->step_flags = object->sequence->flags;
     object->sequence_changed_flag = 1;
-    if (object->field_08 == 0 || object->field_08 == 8) {
+    if (object->mode_id == 0 || object->mode_id == 8) {
         object->frame = object->frames + object->sequence->frame_index;
-        object->field_4a = object->frame->field_0d;
+        object->frame_sound_index = object->frame->sequence_param;
     } else {
-        object->field_4a = 0;
+        object->frame_sound_index = 0;
     }
 }
 
@@ -46,17 +46,17 @@ void func_80130768(Object *object, int arg, SequenceStep **table) {
     object->step_timer = object->sequence->duration;
     object->step_flags = object->sequence->flags;
     object->sequence_changed_flag = 1;
-    if (object->field_08 == 0 || object->field_08 == 8) {
+    if (object->mode_id == 0 || object->mode_id == 8) {
         object->frame = object->frames + object->sequence->frame_index;
-        object->field_4a = object->frame->field_0d;
+        object->frame_sound_index = object->frame->sequence_param;
     } else {
-        object->field_4a = 0;
+        object->frame_sound_index = 0;
     }
 }
 
 void func_801307e0(Object *object, int arg) {
     u16 index = arg;
-    if (object->field_cd == 0) {
+    if (object->mode_flag_2 == 0) {
         if (object->side == 0) object->sequence = sequences_left[index];
         else object->sequence = sequences_right[index];
     } else {
@@ -67,7 +67,7 @@ void func_801307e0(Object *object, int arg) {
     object->step_flags = object->sequence->flags;
     object->sequence_changed_flag = 1;
     object->frame = object->frames + object->sequence->frame_index;
-    object->field_4a = object->frame->field_0d;
+    object->frame_sound_index = object->frame->sequence_param;
     func_80131020(object);
 }
 
@@ -85,5 +85,5 @@ void func_801308c4(Object *object, u16 index) {
     object->step_timer = entry->duration;
     object->step_flags = object->sequence->flags;
     object->frame = object->frames + object->sequence->frame_index;
-    object->field_4a = object->frame->field_0d;
+    object->frame_sound_index = object->frame->sequence_param;
 }

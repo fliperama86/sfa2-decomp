@@ -6,7 +6,7 @@
 /* What it does (inferred, not an original name): one step of a jump or fall
    toward a target height, ground_y. func_80130184 moves the object by its
    velocity words and reports whether pos_y has reached ground_y. When it
-   has, the object lands: pos_x_frac, field_45 and field_159 are cleared, the
+   has, the object lands: pos_x_frac, active_state and active_flag_3 are cleared, the
    state byte state_3 advances, pos_y is set to the target, a sound is
    played and sequence 0x36 starts. Otherwise the remaining distance
    (target minus pos_y, as a signed halfword) picks a sequence: 0x3b below
@@ -25,8 +25,8 @@ void func_801b339c_slot04_0e(Object *o) {
     p = (Object *)((u8 *)o + (((u32)res << 24) & 0x100));
     if (res == 0) {
         o->pos_x_frac = 0;
-        o->field_45 = 0;
-        o->field_159 = 0;
+        o->active_state = 0;
+        o->active_flag_3 = 0;
         o->state_3++;
         o->pos_y = obj->ground_y;
         play_side_sound_at(o, o->side, 0x1b);

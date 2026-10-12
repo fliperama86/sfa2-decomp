@@ -22,7 +22,7 @@ void func_801cd588_slot05_06(Object *obj) {
 
 void func_801cd5c8_slot05_06(Object *obj) {
     obj->state_3++;
-    if (obj->field_218 != 0) {
+    if (obj->hit_flag_a != 0) {
         if ((u8)func_8013f8c4(obj, -0x18, 0x14) != 0) {
             obj->state_0 = 1;
             obj->state_1 = 2;
@@ -30,7 +30,7 @@ void func_801cd5c8_slot05_06(Object *obj) {
             obj->state_3 = 0;
         }
     } else {
-        obj->field_159 = 1;
+        obj->active_flag_3 = 1;
         func_80130dc0(obj);
     }
 }
@@ -40,7 +40,7 @@ void func_801cd640_slot05_06(Object *obj) {
 
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             d = -0x18;
         }
         obj->pos_x = d + obj->pos_x;

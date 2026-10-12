@@ -10,7 +10,7 @@ void func_8001175c_slot27(Object *obj) {
     int v;
     int k;
 
-    if (data_8018f5a0->field_4e >= 3 && game_state.mode != 3) {
+    if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
         obj->state_0 = obj->state_0 + 1;
         v = 8;
         if (p->side == 0) {
@@ -19,8 +19,8 @@ void func_8001175c_slot27(Object *obj) {
         obj->vel_x = v;
     }
     k = p->field_d4;
-    if (k != obj->field_45) {
-        obj->field_45 = k;
+    if (k != obj->active_state) {
+        obj->active_state = k;
         func_8001188c_slot27(obj);
     }
     advance_sequence_checked(obj);

@@ -13,10 +13,10 @@ void func_80077ed0_slot2b(Object *o) {
 }
 
 void func_80077f3c_slot2b(Object *o) {
-    Object *p = o->field_3c;
+    Object *p = o->parent;
     o->state_1++;
-    p->field_14c = 0;
-    if (o->field_67 != 0) {
+    p->linked_object_3 = 0;
+    if (o->active_flag != 0) {
         o->state_0 = 3;
         o->state_1 = 0;
         o->state_2 = 0;

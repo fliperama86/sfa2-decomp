@@ -17,8 +17,8 @@ void func_8001d000_slot28(Object *obj) {
     Object *p;
     SequenceStep **t;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->field_60 = 0x1e0;
-        data_8018f5a0->field_52 += 1;
+        data_8018f5a0->countdown_timer = 0x1e0;
+        data_8018f5a0->pass_index += 1;
         func_8001d5d8_slot28();
         p = (Object *)func_8011f1e0();
         if (p != 0) {
@@ -28,11 +28,11 @@ void func_8001d000_slot28(Object *obj) {
             p->pos_y = 0x90;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
-            p->field_0d = 0;
+            p->image_row = 0;
             p->ot_depth = 8;
             func_80130768(p, 2, t);
             data_80051a18_slot28[0] = p;
-            ((Slot28Obj *)p)->field_6c = t;
+            ((Slot28Obj *)p)->sequence_ptr = t;
         }
         func_80130768(data_80051a40_slot28.p, 0, data_8003b504_slot28);
         p = data_80051a44_slot28[0];

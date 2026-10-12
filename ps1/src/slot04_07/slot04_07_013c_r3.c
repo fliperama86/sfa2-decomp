@@ -5,7 +5,7 @@
 
 void func_801b0b50_slot04_07(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        obj->other->field_249 = 6;
+        obj->other->other_state_code = 6;
         func_801312b8(obj);
     } else {
         update_sequence(obj);

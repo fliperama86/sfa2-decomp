@@ -51,21 +51,21 @@ void func_8011d74c(Object *obj, u16 column, u16 frame, Block172 *second) {
             }
         }
         sel = data_801a27d0;
-        if (data_80185c84[obj->side][column][sel] == (int)hdr && data_80185cc4[obj->side][column][sel] == size && data_80185ce4[obj->side][column][sel] == second->field_0d) {
+        if (data_80185c84[obj->side][column][sel] == (int)hdr && data_80185cc4[obj->side][column][sel] == size && data_80185ce4[obj->side][column][sel] == second->clut_offset) {
             return;
         }
         data_80185c84[obj->side][column][sel] = (int)hdr;
         data_80185cc4[obj->side][column][sel] = size;
-        data_80185ce4[obj->side][column][sel] = second->field_0d;
+        data_80185ce4[obj->side][column][sel] = second->clut_offset;
         list = &data_80185c04[sel][obj->side * 4 + column];
         cell = &data_801987cc[sel][0x280 + obj->side * 320 + column * 80];
         prim = &data_8019056c[sel][(obj->side * 320 + column * 80) / 16];
         func_80158150(list, 2);
         col = 0;
         for (i = 0; i < count; i++) {
-            cell->field_0c = size << 4;
-            cell->field_0d = col << 4;
-            cell->clut = func_8015bdd4(second->field_7a, second->field_7c + second->field_0d + data_80185504[size][col]);
+            cell->size_shifted = size << 4;
+            cell->col_shifted = col << 4;
+            cell->clut = func_8015bdd4(second->clut_x, second->clut_y + second->clut_offset + data_80185504[size][col]);
             func_8015bf34((int)list, (Cmd *)cell++);
             col = (col + 1) & 0xf;
             if (col == 0) {

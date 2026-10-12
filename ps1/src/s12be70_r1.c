@@ -6,7 +6,7 @@
 
 
 int func_8012be70(Object *object) {
-    if (object->field_cd == 0) {
+    if (object->mode_flag_2 == 0) {
         if ((s16)object->pressed_bits & 0xf000) return 1;
     } else {
         func_8012bf4c(object);
@@ -16,8 +16,8 @@ int func_8012be70(Object *object) {
 
 int func_8012bec0(Object *object) {
     int result;
-    if (object->field_cd == 0) {
-        result = *(u8 *)&object->field_132 == 0;
+    if (object->mode_flag_2 == 0) {
+        result = *(u8 *)&object->prev_input_bits_2 == 0;
     } else {
         func_8012bf4c(object);
         result = 0;
@@ -27,7 +27,7 @@ int func_8012bec0(Object *object) {
 
 int func_8012bf00(Object *object) {
     int result;
-    if (object->field_cd == 0) {
+    if (object->mode_flag_2 == 0) {
         result = ((object->pressed_bits >> 8) & 0xfc) != 0;
     } else {
         func_8012bf4c(object);

@@ -10,8 +10,8 @@ void func_801b47f4_slot04_04(Object *obj) {
     if (func_801b4be8_slot04_04(obj) < 0 && obj->ground_y <= obj->pos_y) {
         obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
-        obj->field_45 = 0;
-        obj->field_0b = obj->field_0b ^ 1;
+        obj->active_state = 0;
+        obj->facing_side = obj->facing_side ^ 1;
         func_801209c4(obj);
         func_801312b8(obj);
     } else {

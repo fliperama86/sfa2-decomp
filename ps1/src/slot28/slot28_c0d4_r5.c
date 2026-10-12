@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void func_8001c864_slot28(Object *o) {
-    if (o->field_48 != 0) {
+    if (o->variant_index != 0) {
         o->state_1++;
-        func_80130768(o, 11, ((Slot28Obj *)o)->field_6c);
+        func_80130768(o, 11, ((Slot28Obj *)o)->sequence_ptr);
     }
 }
 

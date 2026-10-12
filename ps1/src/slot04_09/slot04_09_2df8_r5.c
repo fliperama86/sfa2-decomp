@@ -5,12 +5,12 @@
 
 void func_801b324c_slot04_09(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) != 0) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->accel_y = -0x6000;
         obj->state_3++;
         obj->vel_y = 0x88000;
         if (obj->field_a3 == 0) {
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 obj->vel_x = 0xc0000;
                 obj->accel_x = -0x8000;
             } else {
@@ -24,7 +24,7 @@ void func_801b324c_slot04_09(Object *obj) {
             func_801307e0(obj, 0x33);
         }
     } else {
-        if (obj->field_67 != 0 && obj->other->field_61 != 0xff) {
+        if (obj->active_flag != 0 && obj->other->hit_type != 0xff) {
             obj->field_a3 = 0x80;
         }
         update_sequence(obj);

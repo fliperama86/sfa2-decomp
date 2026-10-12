@@ -11,31 +11,31 @@ void func_80010fa8_slot27(void) {
     for (; i < 2; i++) {
         Object *p = &player_left + i;
         Object *o;
-        if ((game_state.field_07 >> p->side) & 1) {
+        if ((game_state.side_mask >> p->side) & 1) {
             p->field_d4 = 0;
         }
         o = (Object *)func_8011f1e0();
         if (o != 0) {
-            o->field_00 = one;
+            o->active_count = one;
             o->field_02 = 0xac;
             o->other = p;
         }
         o = (Object *)func_8011f1e0();
         if (o != 0) {
-            o->field_00 = one;
+            o->active_count = one;
             o->field_02 = 0xc;
             o->other = p;
         }
         o = (Object *)func_8011f1e0();
         if (o != 0) {
             o->field_02 = 0x10;
-            o->field_00 = one;
-            o->field_03 = 3;
+            o->active_count = one;
+            o->table_index = 3;
             o->other = p;
         }
         o = (Object *)func_8011f1e0();
         if (o != 0) {
-            o->field_00 = one;
+            o->active_count = one;
             o->field_02 = 0xd;
             o->other = p;
         }

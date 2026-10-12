@@ -22,32 +22,32 @@ void func_80015ab4_slot27(Object *obj) {
     u16 *src = (u16 *)0x800edb00;
 
     obj->field_01 = 1;
-    obj->field_98 = data_80017c28_slot27;
-    obj->field_9c = data_8001aa14_slot27;
+    obj->data_ptr_a = data_80017c28_slot27;
+    obj->data_ptr_b = data_8001aa14_slot27;
     obj->field_90 = (void *)0x80038000;
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     obj->state_0++;
     if (obj->field_60 != 0) {
-        obj->pos_x = data_80028b38_slot27[obj->field_03].first + data_80055f30;
-        obj->pos_y = -data_80028b38_slot27[obj->field_03].second + data_80055f34 + 0x200;
+        obj->pos_x = data_80028b38_slot27[obj->table_index].first + data_80055f30;
+        obj->pos_y = -data_80028b38_slot27[obj->table_index].second + data_80055f34 + 0x200;
         func_80130768(obj, 0, table_80028a4c_slot27);
         obj->ot_depth = 8;
         obj->spawn_x = 0;
         obj->spawn_y = 0x1e0;
-        obj->field_0d = 0;
+        obj->image_row = 0;
         for (i = 0; i < 16; i++) {
             data_801a2b84[i] = src[i];
             data_801a2b84[i + 0xa00] = src[i];
         }
         func_80137220(0, 0);
     } else {
-        obj->pos_x = data_80028abc_slot27[obj->field_03].first + data_80055f30;
-        obj->pos_y = -data_80028abc_slot27[obj->field_03].second + data_80055f34 + 0x230;
-        func_80130768(obj, data_80028b0c_slot27[obj->field_03], data_800289b4_slot27);
+        obj->pos_x = data_80028abc_slot27[obj->table_index].first + data_80055f30;
+        obj->pos_y = -data_80028abc_slot27[obj->table_index].second + data_80055f34 + 0x230;
+        func_80130768(obj, data_80028b0c_slot27[obj->table_index], data_800289b4_slot27);
         obj->ot_depth = 9;
         obj->spawn_x = 0x20;
         obj->spawn_y = 0x1e0;
-        obj->field_0d = 0x16;
+        obj->image_row = 0x16;
         func_800167d0_slot27(obj, (s16 *)data_80028a74_slot27);
     }
 }

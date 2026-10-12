@@ -5,7 +5,7 @@
 
 extern Slot0bRot table_801e1fec_slot0b[];
 
-/* What it does (inferred): fills a run of 0x28-byte polygon records with the corners of a list of squares and links each into an ordering-table list. A layout reached through the object's sequence holds a count and a list of coordinate pairs; each pair is mirrored (field_48), scaled (field_20, field_22) and rotated (field_24 indexes a table of sine and cosine pairs) by the object's state. The records are written from buf, or from buf + count when flag is not 0. */
+/* What it does (inferred): fills a run of 0x28-byte polygon records with the corners of a list of squares and links each into an ordering-table list. A layout reached through the object's sequence holds a count and a list of coordinate pairs; each pair is mirrored (variant_index), scaled (field_20, y_scale) and rotated (table_index_2 indexes a table of sine and cosine pairs) by the object's state. The records are written from buf, or from buf + count when flag is not 0. */
 void func_801e0a78_slot0b(ModObj *obj_arg, void *buf_arg, int unused, int flag) {
     Object *obj = (Object *)obj_arg;
     Poly28 *buf = (Poly28 *)buf_arg;
@@ -23,7 +23,7 @@ void func_801e0a78_slot0b(ModObj *obj_arg, void *buf_arg, int unused, int flag) 
         s16 x = *coords++;
         s16 y = *coords++;
 
-        if (obj->field_48 == 0) {
+        if (obj->variant_index == 0) {
             if (obj->field_20 != 0) {
                 x += (x + 8) * (s16)obj->field_20 >> 4;
             }
@@ -33,11 +33,11 @@ void func_801e0a78_slot0b(ModObj *obj_arg, void *buf_arg, int unused, int flag) 
                 x += (x + 8) * (s16)obj->field_20 >> 4;
             }
         }
-        if (obj->field_22 != 0) {
-            y += (y + 8) * (s16)obj->field_22 >> 4;
+        if (obj->y_scale != 0) {
+            y += (y + 8) * (s16)obj->y_scale >> 4;
         }
-        if (obj->field_24 != 0) {
-            s16 *t = (s16 *)&table_801e1fec_slot0b[(u8)obj->field_24];
+        if (obj->table_index_2 != 0) {
+            s16 *t = (s16 *)&table_801e1fec_slot0b[(u8)obj->table_index_2];
             s16 c = *t++;
             s16 s = *t;
             int nx = (s * (s16)(x + 8) >> 8) + (c * (s16)(y + 8) >> 8) - 8;

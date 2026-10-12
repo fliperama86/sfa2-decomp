@@ -16,9 +16,9 @@ void func_801540ec(Object *o)
   unsigned v;
   u8 nz;
   TextObj *t;
-  if ((game_state.field_30 == 0) && (game_state.field_2f == 0))
+  if ((game_state.versus_flag == 0) && (game_state.mode3_active_flag == 0))
   {
-    v = o->field_b8;
+    v = o->score;
     i = 0;
     do
     {

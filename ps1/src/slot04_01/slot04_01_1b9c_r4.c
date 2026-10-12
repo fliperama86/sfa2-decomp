@@ -14,9 +14,9 @@ void func_801b1fa8_slot04_01(Object *o) {
     func_80145d20(o);
     func_801428e4(o);
     func_80138b38(&game_state, o);
-    a = o->field_12a >> 1;
+    a = o->direction_index >> 1;
     o->accel_y = -0x6000;
-    o->vel_y = data_801befe8_slot04_01[o->field_12a >> 1];
+    o->vel_y = data_801befe8_slot04_01[o->direction_index >> 1];
     func_801307e0(o, a + 0x38);
 }
 
@@ -36,9 +36,9 @@ void func_801b2034_slot04_01(Object *o) {
 void func_801b2098_slot04_01(Object *o) {
     update_sequence(o);
     if ((s16)o->step_flags & 0x8000) {
-        o->field_45 = 1;
+        o->active_state = 1;
         o->state_3++;
-        func_801307e0(o, (o->field_12a >> 1) + 0x3b);
+        func_801307e0(o, (o->direction_index >> 1) + 0x3b);
     } else {
         func_801b2108_slot04_01(o);
     }

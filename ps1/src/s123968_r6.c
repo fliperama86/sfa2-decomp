@@ -7,8 +7,8 @@
 
 Object *func_80125060(Object *object) {
     Object *result = &player_left;
-    if (object->field_08 != 3) {
-        if ((object->field_08 & 1) == 0) {
+    if (object->mode_id != 3) {
+        if ((object->mode_id & 1) == 0) {
             result++;
         }
     } else if (data_80198406 > data_80198072) {

@@ -8,11 +8,11 @@ void func_801b0d24_slot04_07(Object *obj) {
 
     obj->state_3++;
     one = 1;
-    obj->field_159 = one;
+    obj->active_flag_3 = one;
     ((Slot04aObj *)obj)->field_1ca = 0;
-    if (obj->field_12a != 4 || obj->field_25f != 0) {
+    if (obj->direction_index != 4 || obj->field_25f != 0) {
         func_80130dc0(obj);
-    } else if ((obj->field_130 & 0x8000) == 0) {
+    } else if ((obj->input_bits_2 & 0x8000) == 0) {
         obj->state_3 = 2;
         play_sound_at(obj, obj->side, 0x324);
         obj->vel_x = 0x90000;

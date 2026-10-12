@@ -22,17 +22,17 @@
  *   No argument, no return value.
  *   Reads: count_8018f59c (16 bits; the count less one is kept as a
  *     signed 16-bit bound), the table data_8018f5e0 (words at 0, -4, -8, ...
- *     from its start); the table object's field_00, field_02, field_49,
- *     health, field_65, frame (active, field_04), box_tables (boxes_b),
+ *     from its start); the table object's active_count, field_02, field_49,
+ *     health, team_id, frame (active, value_a), box_tables (boxes_b),
  *     and, through func_801397d0, its field_08, field_0b, pos_x, pos_y and
- *     wide_boxes; the player's field_163, field_263, field_27b, field_295,
- *     field_69, field_45, field_61, health, boxes_a, boxes_b, boxes_c,
+ *     wide_boxes; the player's field_163, countdown_4, other_lock, field_295,
+ *     field_69, active_state, hit_type, health, boxes_a, boxes_b, boxes_c,
  *     frame (box_a, box_b, box_c); data_80190468 (a pointer to an object
  *     whose bytes at 0x5c to 0x5e it writes).
  *   Writes: ref_other, ref_third, ref_second, ref_first, data_80190458,
  *     data_801904c0, the overlap record at 80188ed0 (its in_ and f_ words,
  *     and the out_ fields through func_801397d0), data_80188f30; the
- *     player's field_241 and field_61; the table object's field_00,
+ *     player's field_241 and hit_type; the table object's active_count,
  *     state_0 to state_3, health; three bytes at data_80190468 + 0x5c.
  *   Callees that run as the original code: func_80139a1c (clears the
  *     overlap record; inferred) and func_801397d0 (computes the overlap).
@@ -82,16 +82,16 @@ typedef struct {
 
 /* What it does (inferred, not an original name): for each object of the object table
    (data_8018f5e0, read downward, count_8018f59c entries) of type 1 it picks a player object
-   (player_left, or player_right when the object's field_65 is 0), skips it when the
-   player's field_263, field_27b or field_163 is not 0, when (the object's field_49 is 0 or
-   the player's field_295 is 0) and the object's frame field_04 is below the player's
+   (player_left, or player_right when the object's team_id is 0), skips it when the
+   player's countdown_4, other_lock or field_163 is not 0, when (the object's field_49 is 0 or
+   the player's field_295 is 0) and the object's frame value_a is below the player's
    field_69, or when the object's frame active is 0, and tests the player's three box sets
    (boxes_a, boxes_b, boxes_c, each indexed by the player's frame and tested only when that
    index is not 0) against the box of the table object's current frame (func_801397d0).
    Each box set that overlaps adds its bit (1, 2, 4) to data_80188f30 and records the
    overlap's corners and size in the record at data_80188ed0. When any overlapped, the object hits the
    player: the callees apply the hit, the player and an effect object get state bytes, and
-   the table object counts the hit (field_00 + 1, a countdown in health with two state
+   the table object counts the hit (active_count + 1, a countdown in health with two state
    bytes sets). */
 void func_8013bfa4(void) {
     s16 i;
@@ -109,17 +109,17 @@ void func_8013bfa4(void) {
     ((ObjectStackRef *)&ref_other)->pp = (Object **)data_8018f5e0;
     for (i = 0; i <= last; i++) {
         ref_third.p = *((ObjectStackRef *)&ref_other)->pp--;
-        if (ref_third.p->field_00 != 1) {
+        if (ref_third.p->active_count != 1) {
             continue;
         }
         ref_second.p = &player_left;
-        if (ref_third.p->field_65 == 0) {
+        if (ref_third.p->team_id == 0) {
             ref_second.p++;
         }
-        if (ref_second.p->field_263 != 0) {
+        if (ref_second.p->countdown_4 != 0) {
             continue;
         }
-        if (ref_second.p->field_27b != 0) {
+        if (ref_second.p->other_lock != 0) {
             continue;
         }
         if (ref_second.p->field_163 != 0) {
@@ -131,7 +131,7 @@ void func_8013bfa4(void) {
             if (ref_third.p->field_49 == 0 || ref_second.p->field_295 == 0) {
                 /* Without the local limit the unit differs in 1 instruction line. */
                 limit = ref_second.p->field_69;
-                if (ref_third.p->frame->field_04 < limit) {
+                if (ref_third.p->frame->value_a < limit) {
                     continue;
                 }
             }
@@ -210,15 +210,15 @@ void func_8013bfa4(void) {
             func_80139a78(ref_third.p, ref_second.p);
             if (ref_third.p->field_02 == 0x17) {
                 ref_second.p->field_241 = 0;
-                if (ref_second.p->field_61 != 0xff) {
-                    if (ref_second.p->field_45 == 0) {
-                        ref_second.p->field_61 = 0;
+                if (ref_second.p->hit_type != 0xff) {
+                    if (ref_second.p->active_state == 0) {
+                        ref_second.p->hit_type = 0;
                     }
                 }
             }
             func_8013a3a8(ref_third.p, ref_second.p, box);
             /* health is u16; the signed test is the original's (a compare with 0x8000 differs in 17 instruction lines). */
-            if (ref_second.p->field_61 != 0xff && (s16)ref_second.p->health >= 0) {
+            if (ref_second.p->hit_type != 0xff && (s16)ref_second.p->health >= 0) {
                 /* The override: the count is masked, as the console's shift does it. */
                 if (0x800000 >> (ref_third.p->field_02 & 31)) {
                     ((StateBytes *)data_80190468.p)->state = 0xf;
@@ -240,7 +240,7 @@ void func_8013bfa4(void) {
             if (ref_third.p->field_02 & 0x100) {
                 continue;
             }
-            ref_third.p->field_00 += 1;
+            ref_third.p->active_count += 1;
             ref_third.p->state_0 = 1;
             ref_third.p->state_1 = 1;
             ref_third.p->state_2 = 0;

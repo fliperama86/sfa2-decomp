@@ -9,7 +9,7 @@ extern u16 data_800175cc_slot12[];
 
 void func_8001129c_slot12(void) {
     Object *o = data_8002d56c_slot12;
-    int k = (s16)o->field_b0;
+    int k = (s16)o->countdown_timer;
     u16 t;
 
     if (k == 0x5f) {

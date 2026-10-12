@@ -33,7 +33,7 @@ void func_80017064_slot27(Object *unused) {
     g->field_5c = 0x500;
     g->field_10 = 0x2000000;
     g->field_28 = 0xffd00000;
-    data_800292d4_slot27[game_state.field_40]((Object *)g);
+    data_800292d4_slot27[game_state.kind_index]((Object *)g);
     func_80157d9c(0);
     a = (u16 *)data_801a3fe4;
     b = a - 0xa00;

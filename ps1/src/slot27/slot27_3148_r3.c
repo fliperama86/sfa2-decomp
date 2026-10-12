@@ -9,7 +9,7 @@ void func_80012fd4_slot27(Object *obj);
 void func_800134e8_slot27(Object *obj) {
     s32 *t = (s32 *)data_8019045c;
     ref_first.p = (Object *)((ObjectWords *)obj)->word_54;
-    if (obj->field_66 != 0) {
+    if (obj->sound_side != 0) {
         ref_first.p = (Object *)((ObjectWords *)obj)->word_58;
     }
     *t = obj->vel_x;
@@ -23,7 +23,7 @@ void func_80013570_slot27(Object *obj) {
     s32 *t = (s32 *)data_8019045c;
     s32 *u;
     s16 v;
-    *t = (s16)obj->field_5e;
+    *t = (s16)obj->y_offset;
     obj->health = obj->health + *(u16 *)t;
     v = obj->health;
     if (v == 0 || v == 0x10) {
@@ -31,8 +31,8 @@ void func_80013570_slot27(Object *obj) {
     }
     u = (s32 *)data_8019045c;
     *u = obj->field_62;
-    if (obj->field_63 != *u) {
-        obj->field_63 = *(u8 *)u;
+    if (obj->vec_table_index != *u) {
+        obj->vec_table_index = *(u8 *)u;
         *u = *u + 8;
         func_80013b74_slot27(obj);
     }

@@ -13,12 +13,12 @@ void func_801b1ecc_slot04_08(Object *obj) {
     if ((u8)t != 0) {
         if ((t & 0x80) == 0) {
             obj->step_flags = t & 0xff00;
-            game_state.field_63 = 0x18;
+            game_state.state_param = 0x18;
             func_80146960(obj);
             play_sound_at(obj, obj->side, 0x319);
         }
         obj->state_3++;
-        i = obj->field_12a >> 1;
+        i = obj->direction_index >> 1;
         if (obj->field_49 != 0) {
             i += 3;
         }

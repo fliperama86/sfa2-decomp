@@ -5,11 +5,11 @@
 
 
 void func_8011cbb8(Slab172 *p) {
-    u16 *cur = (u16 *)(((p->sequence->data_ptr >> 1) << 1) + p->field_9c);
+    u16 *cur = (u16 *)(((p->sequence->data_ptr >> 1) << 1) + p->stream_base);
     u16 *q;
-    if (p->reload_flag != 0 || data_80183d74[p->field_02][0] != p->field_0b) {
+    if (p->reload_flag != 0 || data_80183d74[p->field_02][0] != p->stream_key) {
         p->reload_flag = 0;
-        if (data_80183dec[p->field_02][0] != (u32)cur || data_80183d74[p->field_02][0] != p->field_0b) {
+        if (data_80183dec[p->field_02][0] != (u32)cur || data_80183d74[p->field_02][0] != p->stream_key) {
             func_8011cdc0(p);
             if (*cur != 0) {
                 func_8011cf98(p, cur);

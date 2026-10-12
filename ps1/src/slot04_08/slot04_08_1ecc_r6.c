@@ -12,11 +12,11 @@ void func_801b249c_slot04_08(Object *obj) {
     obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->ground_y < obj->pos_y) {
         obj->pos_y = obj->ground_y;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         func_801209c4(obj);
         if ((u8)func_8013f8c4(obj, -0x20, 0x30) != 0) {
             obj->state_3++;
-            obj->field_46 = 0;
+            obj->countdown = 0;
             play_sound_at(obj, obj->side ^ 1, 0x31a);
             func_80145f98(obj);
             play_side_sound_at(obj, obj->side, 0x12);

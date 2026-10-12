@@ -30,7 +30,7 @@ Poly28 *func_80012f60_slot01(Object *obj, Poly28 *p, int a2, int a3) {
 }
 
 void func_8001301c_slot01(Object *obj) {
-    if (obj->field_03 & 0x80) {
+    if (obj->table_index & 0x80) {
         data_8001587c_slot01[obj->state_0](obj);
     } else {
         data_80015870_slot01[obj->state_0](obj);

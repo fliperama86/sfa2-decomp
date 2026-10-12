@@ -7,7 +7,7 @@ void func_801e93d8_slot06_00(Object *object) {
     Slot06Layer *layer = (Slot06Layer *)data_801aa544;
     s16 d;
 
-    d = layer->field_0a;
+    d = layer->ref_x;
     d -= layer->field_22;
     d -= d >> 2;
     d += object->pos_x_frac;

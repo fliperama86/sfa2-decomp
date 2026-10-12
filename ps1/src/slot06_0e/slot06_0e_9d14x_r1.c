@@ -11,10 +11,10 @@ extern Slot06Tile data_801f8478_slot06_0e[2][0xd0];
 
 /* What it does (inferred, not an original name): draws a tile map as sprite
    records, like func_801e9080_slot06_00, with two differences: the layer of
-   field_0e 8 scales part of the offset by the object's field_26 (divided by
+   field_0e 8 scales part of the offset by the object's scroll_factor (divided by
    79), and objects whose field_02 is 0x41 or 0x16 take another texture page
    for some cell values. The object selects a layer by its field_0e (8, 4 or
-   0xc; any other value uses no layer); the layer's field_12 and field_16
+   0xc; any other value uses no layer); the layer's scroll_x and scroll_y
    offset the object's position. A header reached through the object's sequence
    describes a grid of 16-bit cells. For each non-zero cell (low 14 bits) it
    takes a record from the table, fills in position, texture coordinates,
@@ -44,27 +44,27 @@ void func_801e9d14_slot06_0e(Object *object) {
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
         layer = (Slot06Layer *)data_801aa5d4;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        x += ((s16)layer->field_12 - (s16)layer->field_0a) * (s16)object->field_26 / 79;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        x += ((s16)layer->scroll_x - (s16)layer->ref_x) * (s16)object->scroll_factor / 79;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 4) {
         layer = (Slot06Layer *)data_801aa544;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 0xc) {
         layer = (Slot06Layer *)cam_obj;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else {
         x = ((Slot06Obj *)object)->pos_x;
         y = ((Slot06Obj *)object)->pos_y;
     }
-    if (object->field_0f != 0) y = y + game_state.field_92;
+    if (object->field_0f != 0) y = y + game_state.scroll_y;
     cnt = data_801adfe4;
     hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
-    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
+    tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
     ot = (u32 *)data_801987c8 + object->ot_depth;
     sel = *(u8 *)&data_801a27d0;
     for (row = 0; row < hdr[2]; row++) {
@@ -77,28 +77,28 @@ void func_801e9d14_slot06_0e(Object *object) {
                 nib = lo / 16;
                 prim = &data_801f8478_slot06_0e[sel][(u16)cnt];
                 if (object->field_02 == 0x41 || object->field_02 == 0x16) {
-                    if (cell == 0x65) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x66) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x6b) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x6c) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x70) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x71) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x67) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x68) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x6d) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x6e) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x75) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x76) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x77) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x7b) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x7c) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x7d) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x82) { tpage = (object->field_0d << 6) + 0x7906; }
-                    else if (cell == 0x7e) { tpage = (object->field_0d << 6) + 0x78c6; }
-                    else if (cell == 0x7f) { tpage = (object->field_0d << 6) + 0x78c6; }
-                    else if (cell == 0x83) { tpage = (object->field_0d << 6) + 0x78c6; }
-                    else if (cell == 0x84) { tpage = (object->field_0d << 6) + 0x78c6; }
-                    else { tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806; }
+                    if (cell == 0x65) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x66) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x6b) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x6c) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x70) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x71) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x67) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x68) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x6d) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x6e) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x75) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x76) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x77) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x7b) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x7c) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x7d) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x82) { tpage = (object->image_row << 6) + 0x7906; }
+                    else if (cell == 0x7e) { tpage = (object->image_row << 6) + 0x78c6; }
+                    else if (cell == 0x7f) { tpage = (object->image_row << 6) + 0x78c6; }
+                    else if (cell == 0x83) { tpage = (object->image_row << 6) + 0x78c6; }
+                    else if (cell == 0x84) { tpage = (object->image_row << 6) + 0x78c6; }
+                    else { tpage = ((object->image_row + hdr[3]) << 6) + 0x7806; }
                 }
                 tu = (nib & 0xff) << 4;
                 tv = (nib2 & 0xff) << 4;

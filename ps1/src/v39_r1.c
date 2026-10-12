@@ -25,19 +25,19 @@ void func_801227d4(Attacker *a, int side)
   }
   a->winner = p;
   a->loser = q;
-  if (q->field_cd == 0)
+  if (q->mode_flag_2 == 0)
   {
-    q->field_db = 0xff;
+    q->db_flag = 0xff;
   }
-  p->field_ce++;
-  n = a->field_48;
-  if (p->field_ce == n)
+  p->win_count++;
+  n = a->win_target;
+  if (p->win_count == n)
   {
     a->field_45 = 0xff;
     a->field_60 = 0;
     n = n - 1;
     new_var = (new_var3 = (u8) n);
-    if (a->field_42 == new_var)
+    if (a->round_count == new_var)
     {
       a->field_60 = 0xff;
       a->field_77++;
@@ -50,7 +50,7 @@ void func_801227d4(Attacker *a, int side)
         v++;
       }
       p->win_streak = v;
-      p->field_124 = v;
+      p->score_sort_key = v;
       q->win_streak = 0;
       if (a->field_2f != 0)
       {
@@ -60,11 +60,11 @@ void func_801227d4(Attacker *a, int side)
       }
     }
     else
-      if (p->field_cd == 0)
+      if (p->mode_flag_2 == 0)
     {
-      p->field_fc = p->health;
-      p->field_fe = p->field_c6;
-      if ((a->field_af == 0) && (a->field_54 == a->field_a4))
+      p->saved_health = p->health;
+      p->field_fe = p->meter;
+      if ((a->mode_marker == 0) && (a->field_54 == a->compare_value))
       {
         a->field_90 = 0xff;
         a->field_2c = 0xff;

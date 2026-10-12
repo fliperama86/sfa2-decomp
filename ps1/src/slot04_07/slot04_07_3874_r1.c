@@ -7,7 +7,7 @@ extern ObjectFn data_801c20a8_slot04_07[];
 void func_801b3e8c_slot04_07(Object *obj);
 
 void func_801b3874_slot04_07(Object *obj) {
-    if (obj->field_48 == 0) {
+    if (obj->variant_index == 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
@@ -20,9 +20,9 @@ void func_801b3874_slot04_07(Object *obj) {
 }
 
 void func_801b38d0_slot04_07(Object *obj) {
-    if (obj->field_128 == 4) {
+    if (obj->input_dir_0 == 4) {
         func_801b3e8c_slot04_07(obj);
     } else {
-        data_801c20a8_slot04_07[obj->field_129 >> 1](obj);
+        data_801c20a8_slot04_07[obj->input_dir_second >> 1](obj);
     }
 }

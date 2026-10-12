@@ -10,12 +10,12 @@ void func_801b2a48_slot04_04(Object *o) {
         o->accel_y = -0x6000;
         if (o->pos_y > o->ground_y) {
             o->pos_y_frac = 0;
-            o->field_45 = 0;
-            o->field_159 = 0;
+            o->active_state = 0;
+            o->active_flag_3 = 0;
             o->state_3++;
             o->pos_y = o->ground_y;
             func_801209c4(o);
-            func_801307e0(o, o->field_12a + 0x54);
+            func_801307e0(o, o->direction_index + 0x54);
             return;
         }
     }
@@ -27,7 +27,7 @@ void func_801b2aec_slot04_04(Object *o) {
         update_sequence(o);
     } else {
         ref_other.p = o->other;
-        ref_other.p->field_249 = 5;
+        ref_other.p->other_state_code = 5;
         func_801312b8(o);
     }
 }

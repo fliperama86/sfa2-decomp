@@ -12,11 +12,11 @@ void func_801e9300_slot06_04(Slot06Layer *layer);
 void func_801e93c8_slot06_04(Slot06Layer *layer);
 
 void func_801e9194_slot06_04(Slot06Layer *layer) {
-    layer->field_50 = data_801ec348_slot06_04;
-    layer->field_54 = data_801ec348_slot06_04;
-    layer->field_1e = 0x580e;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ec348_slot06_04;
+    layer->data_table = data_801ec348_slot06_04;
+    layer->packed_param = 0x580e;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e91c0_slot06_04(void) {
@@ -42,9 +42,9 @@ void func_801e91c0_slot06_04(void) {
 }
 
 void func_801e9260_slot06_04(Slot06Layer *layer) {
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_801e92a8_slot06_04(layer);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         func_801e9300_slot06_04(layer);
     }
 }
@@ -54,7 +54,7 @@ void func_801e92a8_slot06_04(Slot06Layer *layer) {
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->table_index = 0;
-        layer->field_04++;
+        layer->mode++;
         func_801e93c8_slot06_04(layer);
     }
 }

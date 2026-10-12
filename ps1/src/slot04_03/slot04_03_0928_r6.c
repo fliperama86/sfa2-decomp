@@ -7,12 +7,12 @@ void func_801b0fd4_slot04_03(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
-    obj->field_159 = t;
-    t = obj->field_158;
+    obj->active_flag_3 = t;
+    t = obj->saved_facing;
     obj->state_2 = 7;
-    obj->field_0b = t;
+    obj->facing_side = t;
     obj->field_15a = 5;
-    obj->field_27b = 0x1b;
+    obj->other_lock = 0x1b;
     obj->state_1 = 0;
     obj->state_3 = 0;
     obj->field_157 = 0;

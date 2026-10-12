@@ -11,6 +11,6 @@ void func_801b16f0_slot04_09(Object *obj) {
 }
 
 int func_801b1738_slot04_09(Object *obj) {
-    if (obj->field_240 != 0) return 0;
+    if (obj->link_flags != 0) return 0;
     return func_801b188c_slot04_09(obj);
 }

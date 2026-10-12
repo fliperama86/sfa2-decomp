@@ -5,7 +5,7 @@
 
 void func_80156220(void) {
     u32 *p = &data_8018d270;
-    *p = game_state.field_104;
+    *p = game_state.bcd_amount;
     if (data_8018d26a != 0) {
         func_80156398(&data_80181668, data_8018d26c << 8);
         func_80156398(&data_80181684, data_8018d269);

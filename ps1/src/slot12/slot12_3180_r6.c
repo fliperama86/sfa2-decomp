@@ -7,11 +7,11 @@ void func_8001387c_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     int i;
 
-    obj->field_21e = 0;
+    obj->tick_counter = 0;
     for (i = 0; i < 4; i += 2) {
         obj->tbl[i] = i + 1;
-        obj->field_21e++;
+        obj->tick_counter++;
         obj->tbl[i + 1] = i - 0x7f;
-        obj->field_21e++;
+        obj->tick_counter++;
     }
 }

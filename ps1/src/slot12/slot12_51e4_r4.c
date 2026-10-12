@@ -10,7 +10,7 @@ void func_80015fd4_slot12(Object *obj, int a);
 
 void func_800154f8_slot12(Object *obj) {
     u8 t = obj->state_1;
-    obj->field_46 = 0x1e;
+    obj->countdown = 0x1e;
     obj->state_1 = t + 1;
     func_80015850_slot12(obj);
     func_80015fd4_slot12(obj, 0);
@@ -21,7 +21,7 @@ void func_8001554c_slot12(Object *obj) {
     s16 t;
     int a;
     int b;
-    if (game_state.field_2bd == 0) {
+    if (game_state.mode_flag_2 == 0) {
         a = game_state.field_2bc;
         b = 3;
     } else {
@@ -29,9 +29,9 @@ void func_8001554c_slot12(Object *obj) {
         b = 5;
     }
     if (a == b) {
-        t = obj->field_46;
+        t = obj->countdown;
         t -= 1;
-        obj->field_46 = t;
+        obj->countdown = t;
         if (t != 0) {
             if ((t & 3) == 0) {
                 func_800158b0_slot12(obj);

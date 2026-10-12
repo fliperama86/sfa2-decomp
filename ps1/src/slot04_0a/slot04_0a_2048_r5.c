@@ -29,7 +29,7 @@ void func_801b23d0_slot04_0a(Object *obj) {
         func_801b3e68_slot04_0a(obj);
     }
     if ((s16)obj->step_flags & 0x8000) {
-        obj->field_46 = 0xc;
+        obj->countdown = 0xc;
         obj->state_3++;
     }
 }

@@ -11,7 +11,7 @@ void func_80016de4_slot27(Object *obj);
 void func_80016bd8_slot27(Object *unused) {
     int t = (*(Object **)&data_80190458)->side * 2;
     data_8019045c[0] = t;
-    data_8019045c[0] = ref_other.p->field_03 + t;
+    data_8019045c[0] = ref_other.p->table_index + t;
 }
 
 void func_80016c10_slot27(Object *obj) {

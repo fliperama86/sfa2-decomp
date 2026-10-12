@@ -12,8 +12,8 @@ Pooled *func_8011f430(void) {
         data_801ac618 = n - 1;
         data_801abefc++;
         p = *--data_801a4fe4;
-        p->field_08 = 0;
-        p->field_0a = 0;
+        p->rect_x = 0;
+        p->rect_y = 0;
         p->field_0c = 0;
         p->field_0e = 0;
         result = p;

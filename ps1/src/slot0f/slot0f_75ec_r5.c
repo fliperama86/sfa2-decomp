@@ -15,11 +15,11 @@ void func_800e7a4c_slot0f(Object *obj, int a) {
 
     fr = (FrameRecord *)ptr_8019040c;
     fr += (s16)obj->health;
-    e = &data_800f7d80_slot0f[obj->field_03];
-    if (obj->field_03 == 0) {
-        e->field_08 = 0x10;
-        e->field_09 = 0x10;
-        e->field_0a = 2;
+    e = &data_800f7d80_slot0f[obj->table_index];
+    if (obj->table_index == 0) {
+        e->width = 0x10;
+        e->height = 0x10;
+        e->mode_param = 2;
         e->field_00 = 0;
         e->field_0b = 0x18;
         if (a == 1) {
@@ -27,16 +27,16 @@ void func_800e7a4c_slot0f(Object *obj, int a) {
         }
         func_800e826c_slot0f(buf, fr->field_0c, 7, 0);
         if (fr->field_0c == 1) {
-            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->field_03], 2);
+            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->table_index], 2);
         } else {
-            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->field_03], 3);
+            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->table_index], 3);
         }
-        e->field_0c = data_800f8020_slot0f[obj->field_03];
-        e->field_04 = obj->field_76 + 0x28;
+        e->data_ptr = data_800f8020_slot0f[obj->table_index];
+        e->pos_x = obj->base_x + 0x28;
     } else {
-        e->field_08 = 8;
-        e->field_09 = 0x10;
-        e->field_0a = 1;
+        e->width = 8;
+        e->height = 0x10;
+        e->mode_param = 1;
         e->field_00 = 0;
         e->field_0b = 0x18;
         if (a == 1) {
@@ -44,14 +44,14 @@ void func_800e7a4c_slot0f(Object *obj, int a) {
         }
         func_800e826c_slot0f(buf, fr->field_0c, 7, 0);
         if (fr->field_0c == 1) {
-            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->field_03], 2);
+            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->table_index], 2);
         } else {
-            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->field_03], 3);
+            func_800e7f90_slot0f(buf, data_800f8020_slot0f[obj->table_index], 3);
         }
-        e->field_0c = data_800f8020_slot0f[obj->field_03];
-        e->field_04 = obj->field_76 + 0x40;
+        e->data_ptr = data_800f8020_slot0f[obj->table_index];
+        e->pos_x = obj->base_x + 0x40;
     }
-    e->field_06 = obj->field_78;
-    e->field_04 = e->field_04 - 8;
-    e->field_06 = e->field_06 - 8;
+    e->pos_y = obj->base_y;
+    e->pos_x = e->pos_x - 8;
+    e->pos_y = e->pos_y - 8;
 }

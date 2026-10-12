@@ -9,10 +9,10 @@ void func_801564f0(void *a, Object *o) {
     o->name_char_1 = 0x60;
     o->name_char_2 = 0x60;
     o->name_char_3 = 0x20;
-    o->field_b4 = 0x960;
+    o->countdown_timer_b = 0x960;
     *(s16 *)&o->field_b2 = -0x1000;
-    o->field_123 = 0;
-    o->field_b0 = 0x3c;
+    o->name_char_count = 0;
+    o->countdown_timer = 0x3c;
     o->phase_index++;
     func_80156898(a, o);
     func_80156a20(a, o);

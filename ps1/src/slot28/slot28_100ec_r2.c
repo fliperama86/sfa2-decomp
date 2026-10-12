@@ -7,7 +7,7 @@ extern ObjectFn data_800422e4_slot28[];
 extern void (*data_80042308_slot28[])(Object *);
 
 void func_8002036c_slot28(Object *obj) {
-    data_800422e4_slot28[obj->field_03](obj);
+    data_800422e4_slot28[obj->table_index](obj);
 }
 
 void func_800203ac_slot28(Object *obj) {

@@ -7,25 +7,25 @@ void func_80019640_slot28(Object *obj) {
     int t = *(u16 *)&obj->pos_y - 0x10;
     obj->pos_y = t;
     if ((s16)t < 0xa0) {
-        obj->field_46 = 4;
+        obj->countdown = 4;
         obj->pos_y = 0xa0;
         obj->state_1++;
     }
 }
 
 void func_80019684_slot28(Object *obj) {
-    int t = obj->field_46 - 1;
-    obj->field_46 = t;
+    int t = obj->countdown - 1;
+    obj->countdown = t;
     if ((s16)t == 0) {
-        obj->field_46 = 0x20;
+        obj->countdown = 0x20;
         obj->spawn_y = 0x1e2;
         obj->state_1++;
     }
 }
 
 void func_800196c0_slot28(Object *obj) {
-    int t = obj->field_46 - 1;
-    obj->field_46 = t;
+    int t = obj->countdown - 1;
+    obj->countdown = t;
     if ((s16)t == 0) {
         obj->state_1++;
     }

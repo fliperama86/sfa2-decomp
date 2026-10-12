@@ -14,8 +14,8 @@ void func_801b3edc_slot04_08(Object *obj, Object *unused) {
         obj->step_flags = t & 0xff00;
         func_80146478(obj, 1, -0x1d, 0x52);
         a = 1;
-        if (((Slot04aObj *)obj)->field_1c7 == 0) {
-            ((Slot04aObj *)obj)->field_1c7 = 0xff;
+        if (((Slot04aObj *)obj)->done_flag == 0) {
+            ((Slot04aObj *)obj)->done_flag = 0xff;
             a = 0xa;
         }
         if ((u8)func_80140cd8(obj, a, 0) != 0) {
@@ -23,12 +23,12 @@ void func_801b3edc_slot04_08(Object *obj, Object *unused) {
             play_sound_at(game_state.other_object, ref_other.p->side, 0x336);
             goto tail;
         }
-        obj->field_46++;
+        obj->countdown++;
         play_side_sound_at(obj, obj->side, 0xc);
         q = &game_state.other_object;
         play_sound_at(*q, ref_other.p->side, 0x304);
         func_80140fe0(obj);
-        if ((s16)obj->field_46 != 0) {
+        if ((s16)obj->countdown != 0) {
             *q = obj->other;
             if (game_state.other_object->field_15b == 0 || (u8)func_801410c8(obj) != 0) {
                 goto act;
@@ -38,7 +38,7 @@ void func_801b3edc_slot04_08(Object *obj, Object *unused) {
         return;
     }
     func_80140fe0(obj);
-    if ((s16)obj->field_46 != 0) {
+    if ((s16)obj->countdown != 0) {
         *r = obj->other;
         if (ref_other.p->field_15b == 0 || (u8)func_801410c8(obj) != 0) {
 act:

@@ -47,31 +47,31 @@ void func_801e8c1c_slot06_0c(void) {
     s32 a;
     s32 s0;
     s32 s1;
-    blank = c->field_1e;
+    blank = c->packed_param;
     k0 = -11;
-    n = (s16)c->field_3e;
+    n = (s16)c->signed_param;
     y = c->field_4c - n;
-    f12 = (s16)c->field_12;
+    f12 = (s16)c->scroll_x;
     d1 = c->field_1c - n;
     sx = (f12 - 0xb0) & 0xf;
     sy = y & 0xf;
-    col = (((s16)f12 - 0xb0) & (c->field_58 - 1)) >> 4;
-    d2 = c->field_4e - c->field_1c;
+    col = (((s16)f12 - 0xb0) & (c->map_width - 1)) >> 4;
+    d2 = c->rect_right - c->field_1c;
     row = (s16)c->field_4c / 16;
-    mask = (c->field_58 >> 4) - 1;
+    mask = (c->map_width >> 4) - 1;
     t = (s16)c->field_4c - (row << 4);
     ot = &((u32 *)data_801987c8)[data_801aa544[1].ot_index - 1];
     sy2 = t;
     first = 0;
     rec = data_801f2980_slot06_0c[data_801a27d0];
     for (i = (s16)y / 16, d1x = d1, d2x = d2, sy2s = (s16)sy2, m16 = (s16)sy2 - 16; i < (lim = (s16)y / 16 + 15) - (s16)c->field_4c / 16; i++, row++) {
-        line = c->field_50 + ((u16)row >> 4) * ((c->field_58 >> 9) << 10) + ((row & 0xf) << 6);
+        line = c->tile_map_ptr + ((u16)row >> 4) * ((c->map_width >> 9) << 10) + ((row & 0xf) << 6);
         ya = sy + (i << 4);
         cc = col;
         yu = ya;
         if (first == 0) {
-            a = *(s32 *)&c->field_10;
-            a -= *(s32 *)&c->field_08;
+            a = *(s32 *)&c->bound_x_b;
+            a -= *(s32 *)&c->bound_x_a;
             s1 = a - a * ((u16)yu - d1x) / d2x;
             s0 = a - a * ((u16)yu - m16 - d1x) / d2x;
             for (k = k0; k < 33; k++) {
@@ -104,8 +104,8 @@ void func_801e8c1c_slot06_0c(void) {
             }
             first = 0x88;
         } else {
-            a = *(s32 *)&c->field_10;
-            a -= *(s32 *)&c->field_08;
+            a = *(s32 *)&c->bound_x_b;
+            a -= *(s32 *)&c->bound_x_a;
             s1 = a - a * ((u16)yu - sy2s - d1x) / d2x;
             s0 = a - a * ((u16)yu - m16 - d1x) / d2x;
             for (k = k0; k < 33; k++) {

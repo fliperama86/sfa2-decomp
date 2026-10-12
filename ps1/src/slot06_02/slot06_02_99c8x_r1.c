@@ -12,9 +12,9 @@ extern Slot06Tile data_801f897c_slot06_02[2][0x65];
 /* What it does (inferred, not an original name): the stage 02 relative of
    func_801e9080_slot06_00, draws a tile map as sprite records. The object
    selects a layer by its field_0e (8, 4 or 0xc pick one of three layer blocks,
-   any other value uses no layer); the layer's field_12 and field_16 offset the
-   object's position, and for field_0e 8 a parallax term ((layer field_12 -
-   layer field_0a) * object parallax_factor / 144) is added to x. A header reached
+   any other value uses no layer); the layer's scroll_x and scroll_y offset the
+   object's position, and for field_0e 8 a parallax term ((layer scroll_x -
+   layer ref_x) * object parallax_factor / 144) is added to x. A header reached
    through the object's sequence describes a grid of 16-bit cells. For each
    non-zero cell (low 14 bits) it takes a record from the table, fills in
    position, texture coordinates, texture page and a command word, and links
@@ -46,27 +46,27 @@ void func_801e99c8_slot06_02(Object *object) {
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
         layer = (Slot06Layer *)data_801aa5d4;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        x += ((s16)layer->field_12 - (s16)layer->field_0a) * (s16)((Slot06Obj *)object)->parallax_factor / 144;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        x += ((s16)layer->scroll_x - (s16)layer->ref_x) * (s16)((Slot06Obj *)object)->parallax_factor / 144;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 4) {
         layer = (Slot06Layer *)data_801aa544;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 0xc) {
         layer = (Slot06Layer *)cam_obj;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else {
         x = ((Slot06Obj *)object)->pos_x;
         y = ((Slot06Obj *)object)->pos_y;
     }
-    if (object->field_0f != 0) y = y + game_state.field_92;
+    if (object->field_0f != 0) y = y + game_state.scroll_y;
     cnt = data_801adfe4;
     hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
-    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
+    tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
     ot = (u32 *)data_801987c8 + object->ot_depth;
     sel = *(u8 *)&data_801a27d0;
     for (row = 0; row < hdr[2]; row++) {
@@ -78,8 +78,8 @@ void func_801e99c8_slot06_02(Object *object) {
                 nib2 = lo - (lo / 16) * 16;
                 nib = lo / 16;
                 prim = &data_801f897c_slot06_02[sel][(u16)cnt];
-                if (object->field_02 == 0 && object->field_03 == 4 && row >= 8) {
-                    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                if (object->field_02 == 0 && object->table_index == 4 && row >= 8) {
+                    tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                 }
                 prim->sprt.clut = tpage;
                 prim->sprt.x = x + col * 16 - ox;

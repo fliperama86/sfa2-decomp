@@ -12,21 +12,21 @@ void func_8012e600(Object *object)
   int t;
   set_side_flag(object);
   object->field_7e = 0;
-  object->field_263 = 0;
-  object->field_27b = 0;
-  object->field_258 = 0;
-  object->field_259 = 0;
-  object->field_25a = 0;
+  object->countdown_4 = 0;
+  object->other_lock = 0;
+  object->once_flag_2 = 0;
+  object->done_flag = 0;
+  object->flag_25a_set = 0;
   if (game_state.config->field_75 == 0)
   {
     game_state.config->field_75 = 0xff;
     ref_other.p = object->other;
-    ref_other.p->field_bd = 8;
+    ref_other.p->effect_request = 8;
     func_80155d4c(0x28, (s8) ref_other.p->side);
   }
-  if ((*((s16 *) (&object->field_46))) != 0)
+  if ((*((s16 *) (&object->countdown))) != 0)
   {
-    if (((--(*((s16 *) (&object->field_46)))) == 0) && (object->field_cd != 0))
+    if (((--(*((s16 *) (&object->countdown)))) == 0) && (object->mode_flag_2 != 0))
     {
       if (func_8014a170(object, table_8017d718))
       {
@@ -35,7 +35,7 @@ void func_8012e600(Object *object)
       }
     }
     else
-      if ((object->field_130 & 0xa000) && (object->pressed_bits & 0x3c))
+      if ((object->input_bits_2 & 0xa000) && (object->pressed_bits & 0x3c))
     {
       object->field_15b = 0;
       object->field_2a3 = 1;
@@ -50,11 +50,11 @@ void func_8012e600(Object *object)
     box = boxes_74_left[object->kind];
   }
   ref_other.p = object->other;
-  box += ref_other.p->frame->field_0b;
+  box += ref_other.p->frame->box_table_index;
   if (object->field_261 == 0)
   {
     t = box->origin;
-    if (ref_other.p->field_0b != 0)
+    if (ref_other.p->facing_side != 0)
     {
       t = -t;
     }
@@ -68,12 +68,12 @@ void func_8012e600(Object *object)
     object->field_17a = 0xff;
   }
   t = t & 3;
-  object->field_0b = t ^ ref_other.p->field_0b;
+  object->facing_side = t ^ ref_other.p->facing_side;
   if (object->side != 0)
     next = seqs_118_right[0];
   else
     next = seqs_68_left[0];
-  next += box->field_05;
+  next += box->extent_y;
   if (next != object->sequence)
   {
     object->sequence_changed_flag = 1;

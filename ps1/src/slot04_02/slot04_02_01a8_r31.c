@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 void func_801b3d14_slot04_02(Object *obj) {
-    obj->field_12a = 4;
+    obj->direction_index = 4;
     obj->field_255 = 4;
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     obj->state_3++;
-    obj->field_46 = (u8)obj->field_46 | 0x3200;
-    obj->field_48 = obj->field_0b;
+    obj->countdown = (u8)obj->countdown | 0x3200;
+    obj->variant_index = obj->facing_side;
     func_80145e70(obj);
     func_80141f28(obj, -0x90);
     func_80138b38(&game_state, obj);

@@ -8,23 +8,23 @@ void func_801e1598_slot0b(Slot0bObj *obj, int arg);
 void func_801e1624_slot0b(Slot0bObj *obj);
 
 void func_801e13bc_slot0b(Slot0bObj *obj) {
-    if (data_80190468.p->field_ab == 1 || obj->anim.loop < 0) {
+    if (data_80190468.p->phase_state == 1 || obj->anim.loop < 0) {
         obj->countdown_timer = 0xf;
-        obj->field_4c = 0x180000;
-        obj->field_50 = 0xfff40000;
-        obj->field_58 = 0xc000;
+        obj->fx_step = 0x180000;
+        obj->fy_step = 0xfff40000;
+        obj->fy_step_accel = 0xc000;
         obj->anim.cur = data_801e4c30_slot0b;
         obj->anim.timer = 1;
-        obj->field_54 = 0xfffe8000;
-        obj->field_05++;
+        obj->fx_step_accel = 0xfffe8000;
+        obj->step_count++;
         obj->anim.loop = obj->anim.cur->loop;
-        if (obj->field_03 != 0) {
-            obj->field_4c = -obj->field_4c;
-            obj->field_54 = -obj->field_54;
-            obj->field_50 = -obj->field_50;
-            obj->field_58 = -obj->field_58;
+        if (obj->entry_index != 0) {
+            obj->fx_step = -obj->fx_step;
+            obj->fx_step_accel = -obj->fx_step_accel;
+            obj->fy_step = -obj->fy_step;
+            obj->fy_step_accel = -obj->fy_step_accel;
         }
-        func_801e1598_slot0b(obj, obj->field_03 + 2);
+        func_801e1598_slot0b(obj, obj->entry_index + 2);
     }
     func_801e1624_slot0b(obj);
 }

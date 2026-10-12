@@ -17,9 +17,9 @@ int func_8013fe54(Object *object, s16 a, s16 b, s16 c, u16 d)
   ref_other.p = object->other;
   frame = ref_other.p->frame;
   new_var2 = frame->handler_index;
-  y = ref_other.p->field_27b;
+  y = ref_other.p->other_lock;
   new_var = (x = new_var2);
-  w = ref_other.p->field_45;
+  w = ref_other.p->active_state;
   z = ref_other.p->field_163;
   if ((w == 0) ? (((new_var | (y | 1)) | z) != 0) : (((y | new_var) | z) != 0))
   {

@@ -6,10 +6,10 @@
 /* The table of signed halfwords: a local declaration, inferred. */
 extern s16 data_801c5ae4_slot04_0f[];
 
-/* What it does (inferred, not an original name): the object's byte field_338
+/* What it does (inferred, not an original name): the object's byte index
    selects a signed halfword of a table (data_801c5ae4_slot04_0f, the byte
    with its lowest bit cleared is the byte offset) and is cleared. The
-   halfword is negated when the object's field_0b is not 0. The object's
+   halfword is negated when the object's facing_side is not 0. The object's
    pos_x_frac is cleared. A 32-bit value is then made whose high half is
    (field_332 + that halfword) minus the object's position x, as a 16-bit
    quantity. The object's vel_x receives that value shifted right by 4,
@@ -26,10 +26,10 @@ void func_801b21f8_slot04_0f(Object *o, int a, int pos) {
     int d;
     int index;
 
-    index = obj->field_338;
-    obj->field_338 = 0;
+    index = obj->index;
+    obj->index = 0;
     a = *(u16 *)((u8 *)data_801c5ae4_slot04_0f + (index & 0xfe)) << 16;
-    if (o->field_0b != 0) {
+    if (o->facing_side != 0) {
         a = ((u32)-a >> 16) << 16;
     }
     pos &= 0xffff;

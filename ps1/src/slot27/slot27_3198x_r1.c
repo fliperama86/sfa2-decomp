@@ -15,17 +15,17 @@ void func_80013198_slot27(Object *obj) {
     if (data_8018f5a0->field_54 == 0) {
         int *t = data_8019045c;
         Object *p;
-        obj->field_46 = 0x258;
+        obj->countdown = 0x258;
         obj->state_2 = obj->state_2 + 1;
         data_8018f5a0->field_54 = 0xff;
         *t = 1;
-        game_state.field_2e = *(u8 *)t;
-        if (game_state.field_14 != 3) {
+        game_state.selection = *(u8 *)t;
+        if (game_state.table_index != 3) {
             *t = 2;
         }
-        game_state.field_56 = data_80026a94_slot27[data_8019045c[0]];
-        game_state.field_56 = (s8)data_8016e68c;
-        if (obj->field_45 != 0) {
+        game_state.table_index_3 = data_80026a94_slot27[data_8019045c[0]];
+        game_state.table_index_3 = (s8)data_8016e68c;
+        if (obj->active_state != 0) {
             p = (Object *)((ObjectWords *)obj)->word_54;
             *t = -2;
             data_80190464[0] = 0;
@@ -36,25 +36,25 @@ void func_80013198_slot27(Object *obj) {
                 data_80190464[0] = 1;
                 ref_first.p = p;
             }
-            obj->field_66 = data_80190464[0];
+            obj->sound_side = data_80190464[0];
             ref_first.p->state_1 = ref_first.p->state_1 + 1;
-            ref_first.p->field_03 = ref_first.p->field_03 + 2;
+            ref_first.p->table_index = ref_first.p->table_index + 2;
             obj->vel_x = -obj->vel_x;
-            obj->field_5e = *(u16 *)t;
+            obj->y_offset = *(u16 *)t;
             *t = 6;
             *t = ref_other.p->field_d8 + 6;
             func_80013b74_slot27(obj);
         } else {
-            obj->field_66 = 0;
+            obj->sound_side = 0;
             obj->state_2 = obj->state_2 + 2;
             ref_second.p = ref_other.p;
             ref_other.p = (Object *)func_8011f1e0();
             if (ref_other.p != 0) {
-                ref_other.p->field_00 = ref_other.p->field_00 + 1;
+                ref_other.p->active_count = ref_other.p->active_count + 1;
                 ref_other.p->field_02 = 0x22;
-                ref_other.p->field_03 = 2;
+                ref_other.p->table_index = 2;
                 ref_other.p->other = ref_second.p;
-                ref_other.p->field_3c = obj;
+                ref_other.p->parent = obj;
                 ((ObjectWords *)obj)->word_54 = (s32)ref_other.p;
                 ref_other.p->field_62 = 0;
             }

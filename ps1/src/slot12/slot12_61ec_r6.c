@@ -15,7 +15,7 @@ void func_800166d0_slot12(Object *obj) {
     obj->ot_depth = 4;
     obj->field_01 = 0;
     obj->field_20 = 0;
-    obj->field_22 = 0;
+    obj->y_scale = 0;
     obj->pos_x = 0;
     obj->pos_y = 0;
     obj->field_0c = 0;
@@ -26,9 +26,9 @@ void func_800166d0_slot12(Object *obj) {
     data_8002c3a8_slot12[3].value = 0;
     obj->pos_x = 0xe8;
     obj->pos_y = 0x58;
-    obj->field_5e = 0xa;
-    obj->field_76 = 0;
-    obj->field_48 = table_8016e5c4[game_state.field_2b8].field_08;
+    obj->y_offset = 0xa;
+    obj->base_x = 0;
+    obj->variant_index = table_8016e5c4[game_state.left_rank_index].level;
     if (game_state.field_2bf == 0) {
         ((ObjectWords *)obj)->word_50 = (int)game_state.config + 0x19e;
         obj->accel_x = *(s16 *)((u8 *)game_state.config + 0x220);

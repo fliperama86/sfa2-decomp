@@ -14,12 +14,12 @@ void func_80012984_slot12(Object *o) {
     int v;
 
     *(s32 *)&o->pos_y_frac += obj->field_50;
-    obj->field_50 += obj->field_58;
-    v = obj->field_46 - 1;
-    obj->field_46 = v;
+    obj->field_50 += obj->accel_y_step;
+    v = obj->countdown - 1;
+    obj->countdown = v;
     if ((s16)v < 0) {
         o->pos_y = 0;
-        obj->field_05++;
+        obj->tick_count++;
         if (obj->field_03 != 0) {
             o->pos_y = 0x70;
         }

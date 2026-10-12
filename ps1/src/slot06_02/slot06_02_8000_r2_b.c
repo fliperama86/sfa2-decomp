@@ -10,17 +10,17 @@ extern u16 data_801eaf18_slot06_02[];
 void func_801e87dc_slot06_02(Slot06Layer *layer);
 
 void func_801e87dc_slot06_02(Slot06Layer *layer) {
-    layer->field_4a = data_801e9e74_slot06_02[layer->table_index];
+    layer->flags_bits = data_801e9e74_slot06_02[layer->table_index];
 }
 
 void func_801e8800_slot06_02(Slot06Layer *layer) {
-    layer->field_50 = data_801eaf18_slot06_02;
-    layer->field_54 = data_801eaf18_slot06_02;
-    layer->field_1e = 0x5816;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801eaf18_slot06_02;
+    layer->data_table = data_801eaf18_slot06_02;
+    layer->packed_param = 0x5816;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
     layer->field_4c = 0xca;
-    layer->field_4e = 0xd8;
+    layer->rect_right = 0xd8;
     layer->field_1c = 0x48;
 }
 

@@ -11,9 +11,9 @@ void func_801b3010_slot04_03(Object *obj) {
 
     if (*(u8 *)&obj->step_flags != 0) {
         obj->field_165 = 0xff;
-        obj->field_46 = 0x1e01;
+        obj->countdown = 0x1e01;
         obj->state_3++;
-        if (obj->field_45 != 0) {
+        if (obj->active_state != 0) {
             a = -2;
             b = 0x4e;
         }

@@ -11,9 +11,9 @@ void func_8014bee8(Object *object)
   u16 new_var;
   new_var2 = v;
   new_var = new_var2 >> 8;
-  object->field_212 = new_var;
-  object->field_213 = v;
-  if ((*object).field_cf >= (new_var2 & 0x1f))
+  object->script_byte_hi = new_var;
+  object->script_byte_lo = v;
+  if ((*object).table_column >= (new_var2 & 0x1f))
   {
     func_8014c914(object);
   }

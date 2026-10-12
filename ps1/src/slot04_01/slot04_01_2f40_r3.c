@@ -8,9 +8,9 @@ void func_801b31dc_slot04_01(Object *obj);
 void func_801b35ec_slot04_01(Object *obj);
 
 void func_801b317c_slot04_01(Object *obj) {
-    if (obj->field_128 == 4) {
+    if (obj->input_dir_0 == 4) {
         func_801b38c4_slot04_01(obj);
-    } else if (obj->field_129 != 0) {
+    } else if (obj->input_dir_second != 0) {
         func_801b31dc_slot04_01(obj);
     } else {
         func_801b35ec_slot04_01(obj);

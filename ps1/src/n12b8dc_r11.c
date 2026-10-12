@@ -5,8 +5,8 @@
 
 void func_8013a320(Object *a, Object *object, Box32 *c) {
     object->field_15b = 1;
-    object->field_61 = c->field_0d;
-    if (object->field_61 == 0x1d) {
-        object->field_61 = 0x12;
+    object->hit_type = c->box_type;
+    if (object->hit_type == 0x1d) {
+        object->hit_type = 0x12;
     }
 }

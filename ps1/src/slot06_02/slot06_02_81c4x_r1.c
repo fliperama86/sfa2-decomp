@@ -17,18 +17,18 @@ void func_801e81c4_slot06_02(Slot06Layer *layer) {
         layer->field_8b = 3;
         d = 0x400;
     }
-    layer->field_4a = d;
+    layer->flags_bits = d;
     d = l2->field_22;
-    d -= l2->field_0a;
+    d -= l2->ref_x;
     d += data_80190542;
     d -= d / 16;
-    d += layer->field_0a;
-    d += layer->field_36;
+    d += layer->ref_x;
+    d += layer->pos_x_int;
     layer->field_22 = d;
     d = l2->field_26;
     d -= l2->field_0e;
     d -= d / 8;
     d += layer->field_0e;
-    d += layer->field_3a;
+    d += layer->pos_y_int;
     layer->field_26 = d;
 }

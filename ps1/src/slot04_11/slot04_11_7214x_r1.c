@@ -12,11 +12,11 @@ void func_80130768(Object *object, int index, SequenceStep **table);
 void func_801b7214_slot04_11(Object *obj, int idx) {
     SequenceStep **table;
 
-    if (obj->field_66 == 0) {
+    if (obj->sound_side == 0) {
         table = data_1f8000b4;
     } else {
         table = data_1f800164;
     }
-    obj->field_48 = idx;
+    obj->variant_index = idx;
     func_80130768(obj, idx, table);
 }

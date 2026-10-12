@@ -9,8 +9,8 @@ void func_801b22ec_slot04_0f(Object *obj);
 void func_801b2340_slot04_0f(Object *obj, u16 *src);
 
 /* What it does (inferred, not an original name): a character object holds a
-   wanted state byte in field_3a and the state it last acted on in field_339.
-   When they differ it copies field_3a to field_339. If bit 7 of the new value
+   wanted state byte in mode and the state it last acted on in field_339.
+   When they differ it copies mode to field_339. If bit 7 of the new value
    is set it calls func_801b22ec (one argument, the object). Otherwise it
    calls func_801b2340 with the object and a row of 16 halfwords of a table,
    data_801c5500_slot04_0f, chosen by field_339 plus 5 times the object's
@@ -19,8 +19,8 @@ void func_801b2270_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u16 (*p)[0x10];
 
-    if (obj->field_3a != obj->field_339) {
-        obj->field_339 = obj->field_3a;
+    if (obj->mode != obj->field_339) {
+        obj->field_339 = obj->mode;
         if (obj->field_339 & 0x80) {
             func_801b22ec_slot04_0f(o);
         } else {

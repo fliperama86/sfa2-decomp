@@ -10,7 +10,7 @@ void func_80125b80(GameState *a) {
     u8 *p = &player_left.field_165;
     int x = *p | p[0x394];
 
-    if (a->field_47 == 0 && x != 0) {
+    if (a->pause_flag_2 == 0 && x != 0) {
         if ((x & 0x80) == 0) {
             a->palette_swap_flag = 0xff;
         }
@@ -30,11 +30,11 @@ void func_80125b80(GameState *a) {
             func_80125dc0(3, 0x20, 8, 0);
             func_80125dc0(4, 0x20, 8, 0);
             func_801260ac(0, 1, 0x1b);
-            if (game_state.field_40 == 0xf && game_state.field_226 == 0) {
+            if (game_state.kind_index == 0xf && game_state.field_226 == 0) {
                 if (player_left.kind == 0xf) {
-                    func_80125dc0(0, 1, 8, (player_left.field_0d + 2) & 0xff);
+                    func_80125dc0(0, 1, 8, (player_left.image_row + 2) & 0xff);
                 } else if (player_right.kind == 0xf) {
-                    func_80125dc0(0, 1, 8, (player_right.field_0d + 2) & 0xff);
+                    func_80125dc0(0, 1, 8, (player_right.image_row + 2) & 0xff);
                 }
             }
             func_80137b10();

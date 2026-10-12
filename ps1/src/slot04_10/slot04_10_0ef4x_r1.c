@@ -6,16 +6,16 @@
 void func_801b0ef4_slot04_10(Object *obj) {
     s16 t;
 
-    if ((s16)obj->step_flags < 0 && *(u8 *)&((Slot04bObj *)obj)->field_330 == 3 && (s16)obj->field_46 < 0x1e) {
+    if ((s16)obj->step_flags < 0 && *(u8 *)&((Slot04bObj *)obj)->saved_pos_x_frac == 3 && (s16)obj->countdown < 0x1e) {
         play_side_sound_at(obj, obj->side, 0xe);
-        ((Slot04bObj *)obj)->field_330 = 0;
+        ((Slot04bObj *)obj)->saved_pos_x_frac = 0;
     }
-    t = obj->field_46;
+    t = obj->countdown;
     if (t == 0) {
         update_sequence(obj);
     } else {
         t -= 1;
-        obj->field_46 = t;
+        obj->countdown = t;
         if (t != 0) {
             update_sequence(obj);
         } else {

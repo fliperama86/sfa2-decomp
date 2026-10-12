@@ -11,7 +11,7 @@ void func_80156c80(GameState *state, Object *object) {
 
     if (object->score_rank + object->field_121 < 12) {
         if ((u8)(object->phase_index - 2) < 2) {
-            if (object->phase_index != 3 || (state->field_33 & 1)) {
+            if (object->phase_index != 3 || (state->loop_counter & 1)) {
                 index = object->min_rank;
                 index = index - 1;
                 if (object->side != 0) {

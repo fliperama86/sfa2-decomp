@@ -27,13 +27,13 @@ void func_801372c8(Object *object) {
     job = (Job *)func_8011f4a4();
     if (job) {
         r.x = 0x60;
-        r.y = object->field_0d + 0x1e0;
+        r.y = object->image_row + 0x1e0;
         r.w = 0x10;
         r.h = 4;
         job->kind = 1;
         job->mode = 2;
         job->rect = r;
-        job->src = data_801a27e4 + (object->field_0d << 5);
+        job->src = data_801a27e4 + (object->image_row << 5);
     }
 }
 

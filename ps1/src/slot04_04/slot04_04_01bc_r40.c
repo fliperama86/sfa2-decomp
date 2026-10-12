@@ -7,13 +7,13 @@ void func_801b35d4_slot04_04(Object *obj) {
     obj->state_3++;
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_80141f28(obj, 3);
-    obj->field_0b = 0;
-    if (obj->field_cd != 0) {
+    obj->facing_side = 0;
+    if (obj->mode_flag_2 != 0) {
         if (!((s16)(box_margin[0] + 0xc0) < obj->pos_x)) {
-            obj->field_0b = 1;
+            obj->facing_side = 1;
         }
-    } else if ((obj->field_c2 & 0x8000) == 0) {
-        obj->field_0b = 1;
+    } else if ((obj->input_bits & 0x8000) == 0) {
+        obj->facing_side = 1;
     }
     func_801307e0(obj, 0x18);
 }

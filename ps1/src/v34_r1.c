@@ -13,10 +13,10 @@ void func_801259a8(Select *sel, Object *a, Object *b)
   u8 count;
   u8 flag;
   u32 mask;
-  if (a->field_cd == 0)
+  if (a->mode_flag_2 == 0)
   {
     flags = sel->excluded_mask;
-    if (b->field_cd != 0)
+    if (b->mode_flag_2 != 0)
     {
       count = table_8016f4f0[b->kind];
       j = 0;
@@ -36,7 +36,7 @@ void func_801259a8(Select *sel, Object *a, Object *b)
     i++;
 
     flag = sel->entries[i];
-    if (!(i < sel->field_a4))
+    if (!(i < sel->index_limit))
     {
       goto out;
     }
@@ -55,12 +55,12 @@ void func_801259a8(Select *sel, Object *a, Object *b)
     out:
     sel->selected_index = i;
 
-    if (i > sel->field_a4)
+    if (i > sel->index_limit)
     {
       return;
     }
     b->kind = flag;
-    sel->field_40 = (u8) func_80125afc(flag);
+    sel->kind_value = (u8) func_80125afc(flag);
     func_80125b34(sel, a);
   }
 }

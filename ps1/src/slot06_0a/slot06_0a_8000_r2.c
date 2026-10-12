@@ -11,28 +11,28 @@ void func_801368c0(Cam *cam);
 void func_801e8610_slot06_0a(Slot06Layer *layer);
 
 void func_801e85b4_slot06_0a(Slot06Layer *layer) {
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_8013635c((Sprite *)layer);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         func_801e8610_slot06_0a(layer);
     }
     func_801368c0((Cam *)layer);
 }
 
 void func_801e8610_slot06_0a(Slot06Layer *layer) {
-    layer->field_4a ^= 0x800;
-    if (layer->field_00 != 0 && game_state.field_4b == 0) {
+    layer->flags_bits ^= 0x800;
+    if (layer->field_00 != 0 && game_state.side_bits_2 == 0) {
         func_801364a0((Sprite *)layer);
         func_80136744((Sprite *)layer);
     }
 }
 
 void func_801e866c_slot06_0a(Slot06Layer *layer) {
-    layer->field_50 = data_801ea11c_slot06_0a;
-    layer->field_54 = data_801ea11c_slot06_0a;
-    layer->field_1e = 0x5818;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ea11c_slot06_0a;
+    layer->data_table = data_801ea11c_slot06_0a;
+    layer->packed_param = 0x5818;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e8698_slot06_0a(void) {

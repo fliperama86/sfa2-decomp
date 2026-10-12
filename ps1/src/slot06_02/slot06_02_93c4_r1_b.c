@@ -21,11 +21,11 @@ void func_801e9604_slot06_02(Object *o) {
 }
 
 void func_801e9654_slot06_02(Slot06Layer *layer) {
-    layer->field_50 = data_801edf18_slot06_02;
-    layer->field_54 = data_801edf18_slot06_02;
-    layer->field_1e = 0x6410;
-    layer->field_58 = 0x200;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801edf18_slot06_02;
+    layer->data_table = data_801edf18_slot06_02;
+    layer->packed_param = 0x6410;
+    layer->map_width = 0x200;
+    layer->scale = 0x100;
 }
 
 void func_801e9680_slot06_02(void) {

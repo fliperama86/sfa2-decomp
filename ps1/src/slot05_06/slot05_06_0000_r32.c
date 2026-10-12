@@ -31,18 +31,18 @@ void func_801ca850_slot05_06(Object *obj) {
             }
         }
         obj->pos_y = obj->ground_y;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         ((Slot04aObj *)obj)->field_1c2 = 0xc;
-        if (obj->field_12a != 4) {
+        if (obj->direction_index != 4) {
             ((Slot04aObj *)obj)->field_1c2 = 0x1c;
         }
-        g->field_63 = 0x1c;
-        if ((u8)func_80140cd8(obj, *(s16 *)(data_801dd40c_slot05_06 + (obj->field_12a & 0xfe)), 0) != 0 && obj->field_12a != 4) {
-            g->field_6b = 4;
+        g->state_param = 0x1c;
+        if ((u8)func_80140cd8(obj, *(s16 *)(data_801dd40c_slot05_06 + (obj->direction_index & 0xfe)), 0) != 0 && obj->direction_index != 4) {
+            g->spawn_kind = 4;
             func_80147000(obj);
             play_sound_at(obj, obj->side, 0x319);
             ((Slot04aObj *)obj)->field_1c2 = 0x30;
-            g->field_63 = 0x20;
+            g->state_param = 0x20;
             func_801307e0(obj, 0x25);
         } else {
             play_sound_at(obj, obj->side, 0x319);

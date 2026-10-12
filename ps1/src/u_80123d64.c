@@ -12,11 +12,11 @@ void append_object_bytes_to_ring(GameState *g)
   u16 head;
   if (g->mode != 3)
   {
-    o = g->field_78;
-    if (o->field_cd == 0)
+    o = g->focus_object;
+    if (o->mode_flag_2 == 0)
     {
-      n = o->field_ce;
-      if (o->field_65 == 0)
+      n = o->win_count;
+      if (o->team_id == 0)
       {
         head = g->head_a;
         for (i = 0; i < n; i++)

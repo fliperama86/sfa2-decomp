@@ -20,9 +20,9 @@
  * they take the record); the test shows that the callee gets the same a0
  * as in the original code.
  *
- * What the function does (inferred): when the u16 field_4c of the record
+ * What the function does (inferred): when the u16 step_index of the record
  * data_8018f5a0 points at is 0, it raises that field by one and calls
- * func_8014efa8 with the low seven bits of state->field_70; otherwise it
+ * func_8014efa8 with the low seven bits of state->audio_arg; otherwise it
  * calls func_80013834 with the state.
  *
  * Contract:
@@ -35,7 +35,7 @@
  *   Callees: func_8014efa8 (1 argument) and func_80013834 are replaced in
  *     the test by recorders that log their arguments and return 0. What they
  *     do is outside the test. The test watches the state and the record at
- *     every call, so the write to field_4c is seen at the call.
+ *     every call, so the write to step_index is seen at the call.
  *   Aliasing: the state and the record are separate blocks.
  *   Excluded inputs: a null state or a null data_8018f5a0 (the original
  *     reads through them).
@@ -46,9 +46,9 @@
 #include "../../ps1/src/externs.h"
 
 void func_8012126c(GameState *state) {
-    if (data_8018f5a0->field_4c == 0) {
-        data_8018f5a0->field_4c++;
-        func_8014efa8(state->field_70 & 0x7f);
+    if (data_8018f5a0->step_index == 0) {
+        data_8018f5a0->step_index++;
+        func_8014efa8(state->audio_arg & 0x7f);
     } else {
         ((void (*)(GameState *))func_80013834)(state);
     }

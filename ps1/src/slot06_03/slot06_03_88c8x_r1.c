@@ -14,13 +14,13 @@ void func_801e88c8_slot06_03(Slot06Layer *layer) {
     Slot06Sprt16 *sp0 = &data_801f8004_slot06_03[0][0].sprt;
     u8 c;
 
-    layer->field_50 = data_801ec410_slot06_03;
-    layer->field_54 = data_801ec410_slot06_03;
-    layer->field_1e = 0x581a;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ec410_slot06_03;
+    layer->data_table = data_801ec410_slot06_03;
+    layer->packed_param = 0x581a;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
     layer->field_4c = 0xc5;
-    layer->field_4e = 0xc5;
+    layer->rect_right = 0xc5;
     layer->field_1c = 0x62;
     do {
         j = 0;

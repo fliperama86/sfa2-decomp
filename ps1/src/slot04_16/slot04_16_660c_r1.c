@@ -38,35 +38,35 @@ void func_801b6620_slot04_16(Object *obj) {
 }
 
 void func_801b6640_slot04_16(Object *obj) {
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->parent;
     data_801ca630_slot04_16[obj->state_0](obj);
 }
 
 void func_801b6690_slot04_16(Object *obj) {
-    obj->field_98 = ref_other.p->field_98;
-    obj->field_9c = ref_other.p->field_9c;
+    obj->data_ptr_a = ref_other.p->data_ptr_a;
+    obj->data_ptr_b = ref_other.p->data_ptr_b;
     obj->state_0 = obj->state_0 + 1;
     obj->field_1c = ref_other.p->field_1c;
-    obj->field_03 = ref_other.p->kind;
+    obj->table_index = ref_other.p->kind;
     obj->field_0c = ref_other.p->field_0c;
     obj->field_0e = ref_other.p->field_0e;
-    obj->field_66 = ref_other.p->field_66;
-    obj->field_48 = 0;
+    obj->sound_side = ref_other.p->sound_side;
+    obj->variant_index = 0;
 }
 
 void func_801b6740_slot04_16(Object *obj) {
     obj->field_01 = 0;
-    if (ref_other.p->kind != obj->field_03) {
+    if (ref_other.p->kind != obj->table_index) {
         func_801b6830_slot04_16(obj);
-    } else if (ref_other.p->frame->field_09 == 0) {
+    } else if (ref_other.p->frame->frame_param == 0) {
         func_801b6888_slot04_16(obj);
     } else {
         obj->pos_x = ref_other.p->pos_x;
         obj->pos_y = ref_other.p->pos_y;
-        obj->field_0b = ref_other.p->field_0b;
+        obj->facing_side = ref_other.p->facing_side;
         obj->field_01 = 1;
-        if (ref_other.p->frame->field_09 != obj->field_48) {
-            func_801b6890_slot04_16(obj, ref_other.p->frame->field_09);
+        if (ref_other.p->frame->frame_param != obj->variant_index) {
+            func_801b6890_slot04_16(obj, ref_other.p->frame->frame_param);
         } else {
             advance_sequence_checked(obj);
         }
@@ -80,26 +80,26 @@ void func_801b6830_slot04_16(Object *obj) {
 void func_801b6844_slot04_16(Object *o) {
     Object *p = ref_other.p;
 
-    if (p->field_28 != (s32)o) {
+    if (p->linked_object != (s32)o) {
         func_8011f38c(o);
     } else {
-        p->field_28 = 0;
+        p->linked_object = 0;
     }
 }
 
 void func_801b6888_slot04_16(Object *obj) {
-    obj->field_48 = 0;
+    obj->variant_index = 0;
 }
 
 void func_801b6890_slot04_16(Object *obj, s16 idx) {
-    obj->field_48 = idx;
+    obj->variant_index = idx;
     func_80130768(obj, idx, data_801ca604_slot04_16);
 }
 
 void func_801b68c0_slot04_16(Object *obj) {
-    if (obj->field_128 == 4) {
+    if (obj->input_dir_0 == 4) {
         func_801b090c_slot04_16(obj);
-    } else if (obj->field_128 != 0) {
+    } else if (obj->input_dir_0 != 0) {
         func_801b6c0c_slot04_16(obj);
     } else {
         func_801b6918_slot04_16(obj);
@@ -108,7 +108,7 @@ void func_801b68c0_slot04_16(Object *obj) {
 
 void func_801b6918_slot04_16(Object *obj) {
     obj->field_157 = 0;
-    if (obj->field_129 != 0) {
+    if (obj->input_dir_second != 0) {
         func_801b6ad8_slot04_16(obj);
     } else {
         func_801b6958_slot04_16(obj);
@@ -125,11 +125,11 @@ void func_801b6958_slot04_16(Object *obj) {
 
 void func_801b69a0_slot04_16(Object *obj) {
     obj->state_3++;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x26, 0x14) != 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x26, 0x14) != 0) {
         func_801b6a28_slot04_16(obj);
     } else {
-        obj->field_159 = 1;
+        obj->active_flag_3 = 1;
         func_80130dc0(obj);
     }
 }
@@ -150,7 +150,7 @@ void func_801b6a44_slot04_16(Object *obj) {
     } else {
         if (t & 0x100) {
             n = 3;
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 n = -3;
             }
             obj->pos_x = n + obj->pos_x;
@@ -172,11 +172,11 @@ void func_801b6ad8_slot04_16(Object *obj) {
 
 void func_801b6b20_slot04_16(Object *obj) {
     obj->state_3++;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x24, 0x14) != 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x24, 0x14) != 0) {
         func_801b6a28_slot04_16(obj);
     } else {
-        obj->field_159 = 1;
+        obj->active_flag_3 = 1;
         func_80130dc0(obj);
     }
 }
@@ -203,11 +203,11 @@ void func_801b6c0c_slot04_16(Object *obj) {
 
 void func_801b6c58_slot04_16(Object *obj) {
     obj->state_3++;
-    obj->field_0b = obj->field_158;
-    if (obj->field_129 == 0 && obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x26, 0x14) != 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->input_dir_second == 0 && obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x26, 0x14) != 0) {
         func_801b6a28_slot04_16(obj);
     } else {
-        obj->field_159 = 1;
+        obj->active_flag_3 = 1;
         func_80130dc0(obj);
     }
 }
@@ -227,26 +227,26 @@ void func_801b6d54_slot04_16(Object *obj) {
     s16 n;
 
     obj->state_3 = 3;
-    obj->field_128 = 4;
-    obj->field_159 = 1;
-    func_80141f28(obj, obj->field_12a >> 1);
-    if (obj->field_219 != 0) {
-        if (obj->field_129 != 0) {
+    obj->input_dir_0 = 4;
+    obj->active_flag_3 = 1;
+    func_80141f28(obj, obj->direction_index >> 1);
+    if (obj->attack_param_d != 0) {
+        if (obj->input_dir_second != 0) {
             func_801b0c8c_slot04_16(obj);
-        } else if (obj->field_48 == 0) {
+        } else if (obj->variant_index == 0) {
             func_801b0ce8_slot04_16(obj);
         } else {
             func_801b0c38_slot04_16(obj);
         }
     } else {
         n = 0xc;
-        if (obj->field_48 != 0) {
+        if (obj->variant_index != 0) {
             n = 0x12;
         }
-        if (obj->field_129 != 0) {
+        if (obj->input_dir_second != 0) {
             n += 3;
         }
-        n += obj->field_12a >> 1;
+        n += obj->direction_index >> 1;
         func_801307e0(obj, n);
     }
 }

@@ -18,7 +18,7 @@ void func_801cd3ac_slot05_06(Object *obj) {
 }
 
 void func_801cd410_slot05_06(Object *obj) {
-    data_801dd560_slot05_06[obj->field_12a >> 1](obj);
+    data_801dd560_slot05_06[obj->direction_index >> 1](obj);
 }
 
 void func_801cd454_slot05_06(Object *obj) {
@@ -27,14 +27,14 @@ void func_801cd454_slot05_06(Object *obj) {
 
 void func_801cd494_slot05_06(Object *obj) {
     obj->state_3++;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x18, 0x14) != 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x18, 0x14) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;
         obj->state_3 = 0;
     } else {
-        obj->field_159 = 1;
+        obj->active_flag_3 = 1;
         func_80130dc0(obj);
     }
 }

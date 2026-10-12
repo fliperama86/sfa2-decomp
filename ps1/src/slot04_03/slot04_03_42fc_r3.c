@@ -10,7 +10,7 @@ void func_801b45b4_slot04_03(Object *obj) {
     if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);
     } else {
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         func_801209c4(obj);
@@ -23,7 +23,7 @@ void func_801b465c_slot04_03(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {
-        obj->other->field_249 = 8;
+        obj->other->other_state_code = 8;
         func_801312b8(obj);
     }
 }

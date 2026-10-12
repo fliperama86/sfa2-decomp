@@ -9,8 +9,8 @@ void func_80143dcc(Object *object) {
 }
 
 void func_80143dfc(Object *object) {
-    int t = object->field_46 - 1;
-    object->field_46 = t;
+    int t = object->countdown - 1;
+    object->countdown = t;
     if ((s16)t < 0) object->state_1 = object->state_1 + 1;
 }
 

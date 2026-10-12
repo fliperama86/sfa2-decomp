@@ -28,7 +28,7 @@ void func_801b0778_slot04_14(Object *obj) {
 void func_801b07bc_slot04_14(Object *obj) {
     int one = 1;
 
-    obj->field_159 = one;
+    obj->active_flag_3 = one;
     obj->state_3 = one;
     func_80130dc0(obj);
 }
@@ -36,21 +36,21 @@ void func_801b07bc_slot04_14(Object *obj) {
 void func_801b07e4_slot04_14(Object *obj) {
     u16 x;
 
-    obj->field_128 = 4;
+    obj->input_dir_0 = 4;
     obj->state_3 = 3;
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     func_80130504(obj);
-    func_80141f28(obj, obj->field_12a >> 1);
+    func_80141f28(obj, obj->direction_index >> 1);
     x = 0xc;
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         x = 0x12;
     }
-    if (obj->field_129 != 0) {
+    if (obj->input_dir_second != 0) {
         x += 3;
     }
-    x += obj->field_12a >> 1;
+    x += obj->direction_index >> 1;
     func_801307e0(obj, x);
-    if ((u16)obj->pos_y < (u16)(obj->ground_y - 0x50) && obj->field_48 != 0 && (obj->field_48 & 0x80) == 0 && obj->field_129 != 0 && obj->field_12a == 2 && (obj->field_130 & 0x4000) != 0) {
+    if ((u16)obj->pos_y < (u16)(obj->ground_y - 0x50) && obj->variant_index != 0 && (obj->variant_index & 0x80) == 0 && obj->input_dir_second != 0 && obj->direction_index == 2 && (obj->input_bits_2 & 0x4000) != 0) {
         func_801b62a8_slot04_14(obj, 1, 0, 5, 0);
         func_801307e0(obj, 0x29);
     }
@@ -64,7 +64,7 @@ void func_801b0948_slot04_14(Object *obj) {
     obj->vel_y = -0x4c000;
     obj->vel_x = -0x40000;
     obj->state_3 = obj->state_3 + 1;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         obj->vel_x = 0x40000;
     }
     func_801b0998_slot04_14(obj);

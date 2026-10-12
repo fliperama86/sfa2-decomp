@@ -23,10 +23,10 @@ void func_800279d4_slot28(Object *o) {
     do {
         c = &obj->cells[i];
         if (e->field_00 != 0xff) {
-            c->field_04 = e->field_00;
-            c->field_06 = x;
-            c->field_0b = e->field_02;
-            c->field_0c = e->field_04;
+            c->pos_x = e->field_00;
+            c->pos_y = x;
+            c->entry_byte = e->entry_byte;
+            c->data_word = e->data_word;
             e++;
             func_801519b4(c);
         }
@@ -37,5 +37,5 @@ void func_800279d4_slot28(Object *o) {
 
 void func_80027adc_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
-    func_80151020(data_8005175c_slot28[obj->field_70]);
+    func_80151020(data_8005175c_slot28[obj->state_index]);
 }

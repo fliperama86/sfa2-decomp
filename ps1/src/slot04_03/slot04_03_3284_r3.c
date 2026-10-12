@@ -13,7 +13,7 @@ void func_801b3530_slot04_03(Object *obj) {
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
-        game_state.field_63 = 0x30;
+        game_state.state_param = 0x30;
         func_80146478(obj, 2, 0, 0x40);
         if ((func_80140cd8(obj, 0x10, 0) & 0xff) != 0) {
             ref_other.p = obj->other;

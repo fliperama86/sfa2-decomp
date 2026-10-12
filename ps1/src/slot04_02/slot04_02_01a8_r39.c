@@ -9,7 +9,7 @@ extern u16 data_801c64f8_slot04_02[];
 void func_801b4d28_slot04_02(Object *obj) {
     int i;
 
-    if ((game_state.field_32 & 3) == 0) {
+    if ((game_state.tick_count & 3) == 0) {
         i = 1;
         if ((u8)obj->step_flags != 0) {
             i = 2;
@@ -25,7 +25,7 @@ void func_801b4d28_slot04_02(Object *obj) {
             } else {
                 a = data_801c64f4_slot04_02[i];
             }
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 a = -a;
             }
             ref_other.p->pos_x = a + ref_other.p->pos_x;

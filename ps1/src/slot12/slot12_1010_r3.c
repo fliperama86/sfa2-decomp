@@ -6,29 +6,29 @@
 void func_80011190_slot12(void) {
     HudState *h;
 
-    if (game_state.field_17 == 0) {
-        while (game_state.field_f0 != 0) {
+    if (game_state.side_bits == 0) {
+        while (game_state.wait_flag != 0) {
             func_80138164();
             func_8011abe4();
             func_80135c88();
             func_801192bc(1);
         }
         func_801280f0();
-        while (game_state.field_f0 != 0) {
+        while (game_state.wait_flag != 0) {
             func_80138164();
             func_8011abe4();
             func_80135c88();
             func_801192bc(1);
         }
         h = data_8018f5a0;
-        h->field_4a = 7;
-        h->field_4c = 0;
-        game_state.field_c6 = 0;
-        h->field_4e = 0;
-        game_state.field_c8 = 0;
-        h->field_50 = 0;
-        game_state.field_ca = 0;
-        h->field_52 = 0;
+        h->phase_index = 7;
+        h->step_index = 0;
+        game_state.countdown_2 = 0;
+        h->substep_index = 0;
+        game_state.timer_or_bits = 0;
+        h->step_index_2 = 0;
+        game_state.countdown_timer_2 = 0;
+        h->pass_index = 0;
         game_state.field_cc = 0;
         func_8011eae4();
         close_voice_thread(1);

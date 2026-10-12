@@ -16,7 +16,7 @@ void func_801e1598_slot0b(Slot0bObj *obj, int arg) {
     int a;
     func_80130768((Object *)obj, index, data_801e4cc0_slot0b);
     a = func_8015bd0c(0, 0, 0x300, 0) & 0xffff;
-    func_801e101c_slot0b((Object *)obj, (SlotCell *)&data_801e7a2c_slot0b[obj->field_03 * 0x50], a, (u16)func_8015bdd4(0x140, 0x1e7));
+    func_801e101c_slot0b((Object *)obj, (SlotCell *)&data_801e7a2c_slot0b[obj->entry_index * 0x50], a, (u16)func_8015bdd4(0x140, 0x1e7));
 }
 
 void func_801e1624_slot0b(Slot0bObj *obj) {

@@ -8,12 +8,12 @@ void func_80157174(Object *dest, Object *object) {
 
     if (object->score_rank == 1) {
         if (object->side == 0) {
-            dest->field_21e = *(u16 *)&dest->list_offset;
+            dest->compare_limit = *(u16 *)&dest->list_offset;
             for (i = 0; i < 0x40; i++) {
                 ((u8 *)dest + i)[0x15e] = ((u8 *)dest + i)[0x19e];
             }
         } else {
-            dest->field_21e = dest->field_222;
+            dest->compare_limit = dest->saved_script_word;
             for (i = 0; i < 0x40; i++) {
                 ((u8 *)dest + i)[0x15e] = ((u8 *)dest + i)[0x1de];
             }

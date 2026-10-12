@@ -13,10 +13,10 @@ void func_80010a94_slot12(void) {
         b->active_flag = 1;
         b->handler_index = 0x7c;
         p = &player_left;
-        if ((game_state.field_28 & 1) == 0) {
+        if ((game_state.mode_copy & 1) == 0) {
             p = p + 1;
         }
-        b->field_03 = p->field_118;
+        b->block_mode = p->saved_side;
     }
 }
 
@@ -27,7 +27,7 @@ void func_80010af8_slot12(void) {
 }
 
 void func_80010b2c_slot12(void) {
-    data_800175b4_slot12[data_8018f5a0->field_4c]();
+    data_800175b4_slot12[data_8018f5a0->step_index]();
     func_80138164();
     func_8011abe4();
     func_80135c88();

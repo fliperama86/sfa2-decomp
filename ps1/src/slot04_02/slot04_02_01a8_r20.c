@@ -10,8 +10,8 @@ void func_801b21a4_slot04_02(Object *obj) {
 
     if ((s16)obj->step_flags & 0x8000) {
         play_sound_at(obj, obj->side, 0x320);
-        ((Slot04bObj *)obj)->field_1a4--;
-        if (((Slot04bObj *)obj)->field_1a4 == 0) {
+        ((Slot04bObj *)obj)->countdown_2--;
+        if (((Slot04bObj *)obj)->countdown_2 == 0) {
             obj->state_3++;
             func_801307e0(obj, 0x1f);
             return;
@@ -31,7 +31,7 @@ void func_801b223c_slot04_02(Object *obj) {
 
 void func_801b2288_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        obj->other->field_249 = 5;
+        obj->other->other_state_code = 5;
         func_801312b8(obj);
     } else {
         update_sequence(obj);

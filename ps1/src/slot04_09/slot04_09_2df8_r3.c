@@ -13,9 +13,9 @@ void func_801b3040_slot04_09(Object *obj) {
     func_801b5ba0_slot04_09(obj);
     p = obj->other;
     if (obj->vel_y > 0) {
-        if (p->field_163 == 0 && p->field_45 != 0 && (u8)func_8013fd98(obj, -0x20, 0x20, 0, 0x30) != 0) {
-            obj->field_a2 = 0xff;
-            obj->field_46 = 4;
+        if (p->field_163 == 0 && p->active_state != 0 && (u8)func_8013fd98(obj, -0x20, 0x20, 0, 0x30) != 0) {
+            obj->step_count = 0xff;
+            obj->countdown = 4;
             obj->state_3++;
             if (obj->vel_x >= 0) {
                 obj->vel_x = 0x80000;

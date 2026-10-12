@@ -9,7 +9,7 @@ void func_801285e0(void) {
     int t;
     if (data_80197f10 >= 6) {
         t = game_state.field_48 * 2 - 1;
-        v = game_state.field_42;
+        v = game_state.count_index;
         if (v != t) {
             func_80144f10(0, 0);
             func_80144f10(1, (u8)(v + 2));

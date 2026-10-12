@@ -6,7 +6,7 @@
 
 void func_8013f0c8(Object *object, int index, int unused) {
     Bytes32 table = data_8016d9ac;
-    object->slots[(u8)index].field_01++;
+    object->slots[(u8)index].entry_index++;
     object->slots[(u8)index].timer = table.b[get_random_byte() & 0x1f];
     func_8013f2c8(object);
 }

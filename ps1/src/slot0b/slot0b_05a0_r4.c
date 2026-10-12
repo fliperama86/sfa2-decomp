@@ -8,20 +8,20 @@ extern u8 data_801e4728_slot0b[];
 void func_801e0970_slot0b(void);
 
 void func_801e08d8_slot0b(ModObj *obj) {
-    Object *p = obj->field_3c;
+    Object *p = obj->owner_object;
     ModObj *c = (ModObj *)func_8011f32c();
     u8 side;
     if (c != 0) {
-        c->field_00 = 1;
-        c->field_02 = 0x1c;
+        c->active_flag = 1;
+        c->init_param = 0x1c;
         c->state_index = 0;
         side = p->side;
         c->field_66 = 0;
-        c->field_58 = (s32)data_801e46b0_slot0b;
+        c->table_ptr = (s32)data_801e46b0_slot0b;
         c->field_4c = 0;
         c->field_50 = 0;
         c->field_0b = 0;
-        c->field_3c = (Object *)obj;
+        c->owner_object = (Object *)obj;
         c->side = side;
         obj->child = c;
     }
@@ -38,9 +38,9 @@ void func_801e0970_slot0b(void) {
         r.y = 0x1e6;
         r.w = 0x10;
         r.h = 1;
-        p->field_00 = 1;
-        p->field_02 = 2;
+        p->active_flag = 1;
+        p->init_param = 2;
         p->rect = r;
-        p->field_04 = (u32)data_801e4728_slot0b;
+        p->table_ptr = (u32)data_801e4728_slot0b;
     }
 }

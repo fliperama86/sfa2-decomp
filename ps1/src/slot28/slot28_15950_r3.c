@@ -6,10 +6,10 @@
 void func_80026368_slot28(Object *obj);
 
 void func_8002603c_slot28(Object *obj) {
-    int t = obj->field_03;
+    int t = obj->table_index;
     obj->field_0e = 0;
     obj->field_0c = 0;
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     obj->state_0 = obj->state_0 + 1;
     switch (t) {
     case 3:

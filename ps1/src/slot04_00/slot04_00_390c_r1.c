@@ -9,7 +9,7 @@ void func_801b390c_slot04_00(Object *obj) {
         func_801312b8(obj);
     } else {
         if (v & 0xff) {
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 *(s32 *)&obj->pos_x_frac += -0x20000;
             } else {
                 *(s32 *)&obj->pos_x_frac += 0x20000;

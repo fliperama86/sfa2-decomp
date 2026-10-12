@@ -24,7 +24,7 @@ void func_801b44e0_slot04_0f(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         ref_other.p = obj->other;
         if ((s16)ref_other.p->health < 0) {
-            if (obj->field_130 & 0x1000) {
+            if (obj->input_bits_2 & 0x1000) {
                 func_80130280(obj);
             }
         }
@@ -47,9 +47,9 @@ void func_801b45e8_slot04_0f(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->other->side, 0x31a);
-    obj->field_0b = 0;
-    if ((obj->field_c2 & 0x2000) == 0) {
-        obj->field_0b = 1;
+    obj->facing_side = 0;
+    if ((obj->input_bits & 0x2000) == 0) {
+        obj->facing_side = 1;
     }
     func_801307e0(obj, 0x19);
 }
@@ -64,7 +64,7 @@ void func_801b465c_slot04_0f(Object *obj) {
 
 void func_801b46c0_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        obj->field_0b = obj->field_0b ^ 1;
+        obj->facing_side = obj->facing_side ^ 1;
         func_801312b8(obj);
     } else {
         update_sequence(obj);
@@ -85,13 +85,13 @@ void func_801b474c_slot04_0f(Object *obj) {
 
 void func_801b478c_slot04_0f(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     set_sequence_by_side(obj, 0);
 }
 
 void func_801b47c0_slot04_0f(Object *obj) {
     Config *c = game_state.config;
-    if (c->field_64 == 0 && c->field_5c == 0) {
+    if (c->field_64 == 0 && c->hold_flag == 0) {
         obj->state_2 = obj->state_2 + 1;
     }
     update_sequence(obj);
@@ -102,10 +102,10 @@ void func_801b4818_slot04_0f(Object *obj) {
     int r;
 
     obj->state_2 = obj->state_2 + 1;
-    obj->field_46 = 0x3c;
+    obj->countdown = 0x3c;
     c = game_state.config;
-    if (c->field_76 == 0) {
-        c->field_76 = 0x1e;
+    if (c->countdown_2 == 0) {
+        c->countdown_2 = 0x1e;
     }
     r = func_80125734(obj, data_801c5c0c_slot04_0f[get_random_byte() & 0xf]);
     obj->state_2 = data_801c5c1c_slot04_0f[(u8)r];
@@ -122,12 +122,12 @@ void func_801b48bc_slot04_0f(Object *obj) {
 }
 
 void func_801b4908_slot04_0f(Object *obj) {
-    s16 t = obj->field_46;
+    s16 t = obj->countdown;
     if (t != 0) {
         t = t - 1;
-        obj->field_46 = t;
+        obj->countdown = t;
         if (t == 0) {
-            game_state.field_4b |= 1 << obj->side;
+            game_state.side_bits_2 |= 1 << obj->side;
         }
     }
     update_sequence(obj);
@@ -165,7 +165,7 @@ void func_801b4a3c_slot04_0f(Object *obj) {
         }
         update_sequence(obj);
     } else {
-        if (obj->field_128 == 0) {
+        if (obj->input_dir_0 == 0) {
             func_801312b8(obj);
         } else {
             func_80131468(obj);
@@ -177,10 +177,10 @@ void func_801b4a3c_slot04_0f(Object *obj) {
 int func_801b4ad8_slot04_0f(Object *obj) {
     BytePair dir;
     u16 *a;
-    if ((game_state.config->field_4d | game_state.config->field_04) != 0) {
+    if ((game_state.config->mode_flag_b | game_state.config->mode_flag_a) != 0) {
         return 0;
     }
-    if ((func_8012f56c(obj) & 0xff) != 0 || obj->field_67 == 0 || (obj->pressed_bits & 0xfc) == 0) {
+    if ((func_8012f56c(obj) & 0xff) != 0 || obj->active_flag == 0 || (obj->pressed_bits & 0xfc) == 0) {
         return 0;
     }
     a = func_801b4c64_slot04_0f(obj);
@@ -188,14 +188,14 @@ int func_801b4ad8_slot04_0f(Object *obj) {
     if (obj->field_7e == 0) {
         if (func_801b4cac_slot04_0f(obj, a, dir) == 0) return 0;
     }
-    dir.first = obj->field_12a;
-    dir.second = obj->field_129;
-    obj->field_128 = 0;
-    if (obj->field_130 & 0x4000) obj->field_128 = 2;
+    dir.first = obj->direction_index;
+    dir.second = obj->input_dir_second;
+    obj->input_dir_0 = 0;
+    if (obj->input_bits_2 & 0x4000) obj->input_dir_0 = 2;
     func_8014147c(obj, dir);
     obj->dir_first = dir.first;
     obj->dir_second = dir.second;
-    obj->field_17e = obj->field_128;
+    obj->field_17e = obj->input_dir_0;
     ((void (*)(Config *, Object *))func_80138c78)(game_state.config, obj);
     func_80142c04(obj);
     return 1;

@@ -10,17 +10,17 @@ void func_80078e44_slot00(Object *o) {
     Object *p = (Object *)func_8011f1e0();
     Object *src;
     if (p != 0) {
-        p->field_00 = 1;
+        p->active_count = 1;
         p->field_02 = 0xc;
-        p->field_08 = 0x20;
-        p->field_03 = 0xa;
+        p->mode_id = 0x20;
+        p->table_index = 0xa;
         p->field_0e = obj->field_0e;
-        src = obj->field_3c;
+        src = obj->parent;
         p->field_0c = src->field_0c;
-        p->field_0d = src->field_0d;
-        p->field_26 = obj->field_26;
-        p->field_3c = o;
-        p->field_0b = obj->field_0b;
+        p->image_row = src->image_row;
+        p->scroll_factor = obj->scroll_factor;
+        p->parent = o;
+        p->facing_side = obj->facing_side;
         p->pos_x = (u16)o->pos_x;
         p->pos_y = (u16)o->pos_y;
         if (player_left.kind == 9) {
@@ -29,11 +29,11 @@ void func_80078e44_slot00(Object *o) {
             src = &player_left + 1;
         }
         p->field_90 = src->field_90;
-        p->field_98 = src->field_98;
-        p->field_9c = src->field_9c;
+        p->data_ptr_a = src->data_ptr_a;
+        p->data_ptr_b = src->data_ptr_b;
         p->spawn_x = src->spawn_x;
         p->spawn_y = src->spawn_y;
-        p->field_66 = src->side;
+        p->sound_side = src->side;
     }
 }
 

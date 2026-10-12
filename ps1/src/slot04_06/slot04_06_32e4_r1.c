@@ -9,10 +9,10 @@ void func_801b32e4_slot04_06(Object *obj) {
     if (obj->vel_x >= 0) {
         Object *other;
         func_801b4818_slot04_06(obj);
-        if (obj->field_67 != 0) {
+        if (obj->active_flag != 0) {
             other = obj->other;
-            obj->field_67 = 0;
-            if (other->field_45 == 0 && other->field_61 != 0xff) {
+            obj->active_flag = 0;
+            if (other->active_state == 0 && other->hit_type != 0xff) {
                 if ((s16)other->health >= 0) {
                     obj->state_3 += 4;
                 } else {

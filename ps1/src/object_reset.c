@@ -14,47 +14,47 @@ void reset_object(Object *object) {
     /* The original stores this zeroed local, not a constant, then reuses it. */
     int value = 0;
 
-    object->field_45 = 0;
-    object->field_73 = 0;
+    object->active_state = 0;
+    object->status_flag = 0;
     object->field_157 = 0;
-    object->field_15e = 0;
-    object->field_15d = 0;
+    object->accum_count = 0;
+    object->countdown_timer_2 = 0;
     object->field_163 = 0;
-    object->field_159 = 0;
+    object->active_flag_3 = 0;
     object->field_15b = 0;
     object->field_15c = 0;
     object->field_167 = 0;
-    object->field_6a = 0;
-    if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {
-        player_right.field_cd = 0;
+    object->round_count = 0;
+    if (game_state.versus_flag != 0 && game_state.mode != object->side + 1) {
+        player_right.mode_flag_2 = 0;
         object->field_19f = 0;
         object->field_1a2 = 0;
     }
     i = 0;
     object->field_0e = 2;
     object->field_69 = value;
-    object->field_67 = value;
-    object->field_74 = value;
-    object->field_bc = value;
+    object->active_flag = value;
+    object->mode_flag = value;
+    object->effect_code_bc = value;
     object->field_262 = value;
     object->field_49 = value;
     object->sequence_changed_flag = value;
-    game_state.cursor = (unsigned int *)&object->field_1a0;
+    game_state.cursor = (unsigned int *)&object->hit_count_2;
     do {
         i++;
         *game_state.cursor++ = 0;
     } while (i < 0x4d);
-    if (object->field_cd) {
+    if (object->mode_flag_2) {
         object->field_d8 = 0;
         func_8014a038(object);
     }
     object->field_01 = 1;
     object->health = 0x90;
-    object->field_5e = 0x90;
+    object->y_offset = 0x90;
     if (game_state.config->field_a9 != 0 && object->field_f1 != 0) {
-        object->health = object->field_fc;
-        object->field_5e = object->field_fc;
-        object->field_c6 = object->field_fe;
+        object->health = object->saved_health;
+        object->y_offset = object->saved_health;
+        object->meter = object->field_fe;
     }
     init_table_fields(object);
     set_start_position(object);
@@ -85,12 +85,12 @@ void reset_object(Object *object) {
     set_side_field_0d(object);
     func_80129448(object);
     func_80129428(object);
-    object->field_0b = 1;
-    object->field_158 = 1;
+    object->facing_side = 1;
+    object->saved_facing = 1;
     object->field_0c = 0xff;
     if (object->side != 0) {
-        object->field_0b = 0;
-        object->field_158 = 0;
+        object->facing_side = 0;
+        object->saved_facing = 0;
         object->field_0c = 0xff;
     }
     build_metrics(object);
@@ -105,19 +105,19 @@ void reset_object(Object *object) {
         }
         if (object->kind != 0x17) set_sequence_by_side(object, 0x22);
     }
-    object->field_177 = 1;
+    object->remaining_count = 1;
     set_side_ring_flag(object);
 }
 
 void func_801293d4(Object *object) {
-    object->field_76 = 0x180;
+    object->base_x = 0x180;
     object->spawn_x = 0x60;
-    object->field_78 = 0;
+    object->base_y = 0;
     object->spawn_y = 0x1e0;
     object->field_90 = data_801a27d8;
     if (object->side != 0) {
-        object->field_76 = 0x1c0;
-        object->field_78 = 0;
+        object->base_x = 0x1c0;
+        object->base_y = 0;
         object->field_90 = data_801a27dc;
     }
 }
@@ -127,5 +127,5 @@ void func_80129428(Object *object) {
 }
 
 void func_80129448(Object *object) {
-    object->field_f3 = kind_table_f3[object->kind];
+    object->kind_table_f3_value = kind_table_f3[object->kind];
 }

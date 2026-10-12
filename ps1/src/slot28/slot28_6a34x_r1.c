@@ -22,7 +22,7 @@ void func_80026a34_slot28(Object *obj) {
     p = data_80051cdc_slot28.p;
     if ((s16)p->step_flags < 0) {
         p = (Object *)data_8018f5a0;
-        ((HudState *)p)->field_52++;
+        ((HudState *)p)->pass_index++;
         func_80128370();
     }
 }

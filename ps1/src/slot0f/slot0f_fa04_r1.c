@@ -14,17 +14,17 @@ void func_800dfa04_slot0f(GameState *state) {
 void func_800dfa40_slot0f(GameState *state, int flag) {
     HudState *hud = data_8018f5a0;
     scratch_word_10 = 0;
-    hud->field_48 = 0;
-    hud->field_4a = 0;
-    hud->field_4c = 0;
-    hud->field_4e = 0;
-    hud->field_50 = 0;
-    hud->field_52 = 0;
-    state->field_c2 = 0;
-    state->field_c4 = 0;
-    state->field_c6 = 0;
-    state->field_c8 = 0;
-    state->field_ca = 0;
+    hud->state_index = 0;
+    hud->phase_index = 0;
+    hud->step_index = 0;
+    hud->substep_index = 0;
+    hud->step_index_2 = 0;
+    hud->pass_index = 0;
+    state->step_counter = 0;
+    state->step_delay_timer = 0;
+    state->countdown_2 = 0;
+    state->timer_or_bits = 0;
+    state->countdown_timer_2 = 0;
     state->field_cc = 0;
     func_8011eb14();
     func_80120408();

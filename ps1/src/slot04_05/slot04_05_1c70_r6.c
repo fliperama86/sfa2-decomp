@@ -14,15 +14,15 @@ void func_801b22e0_slot04_05(Object *obj) {
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 0xa;
-            i = (obj->field_12a >> 1) + 1;
+            i = (obj->direction_index >> 1) + 1;
         }
-        obj->field_27b = data_801c1528_slot04_05[i];
+        obj->other_lock = data_801c1528_slot04_05[i];
     }
 }
 
 void func_801b2370_slot04_05(Object *obj) {
     if (*(u8 *)&obj->step_flags == 1) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
     }
     update_sequence(obj);
@@ -39,8 +39,8 @@ void func_801b23b0_slot04_05(Object *obj) {
     } else {
         obj->state_3++;
         obj->pos_y = obj->ground_y;
-        obj->field_45 = 0;
-        if (obj->field_0b != 0) {
+        obj->active_state = 0;
+        if (obj->facing_side != 0) {
             obj->vel_x = 0x70000;
         } else {
             obj->vel_x = -0x70000;

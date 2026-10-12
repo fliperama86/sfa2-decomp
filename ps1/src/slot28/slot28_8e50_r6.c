@@ -6,25 +6,25 @@
 void func_80019510_slot28(Object *obj) {
     *(u16 *)&obj->pos_y += 0x10;
     if (obj->pos_y >= 0x61) {
-        obj->field_46 = 4;
+        obj->countdown = 4;
         obj->pos_y = 0x60;
         obj->state_1++;
     }
 }
 
 void func_80019554_slot28(Object *obj) {
-    int t = obj->field_46 - 1;
-    obj->field_46 = t;
+    int t = obj->countdown - 1;
+    obj->countdown = t;
     if ((s16)t == 0) {
-        obj->field_46 = 4;
+        obj->countdown = 4;
         obj->spawn_y = 0x1e2;
         obj->state_1++;
     }
 }
 
 void func_80019590_slot28(Object *obj) {
-    int t = obj->field_46 - 1;
-    obj->field_46 = t;
+    int t = obj->countdown - 1;
+    obj->countdown = t;
     if ((s16)t == 0) {
         obj->field_6b = 0xff;
         obj->state_1++;
@@ -32,8 +32,8 @@ void func_80019590_slot28(Object *obj) {
 }
 
 void func_800195c4_slot28(Object *obj) {
-    int t = obj->field_46 - 1;
-    obj->field_46 = t;
+    int t = obj->countdown - 1;
+    obj->countdown = t;
     if ((s16)t != 0) {
         obj->state_1++;
     }

@@ -18,19 +18,19 @@ int func_801b10b8_slot04_01(Object *obj) {
 }
 
 int func_801b10c0_slot04_01(Object *obj) {
-    return obj->field_14c == 0;
+    return obj->linked_object_3 == 0;
 }
 
 int func_801b10cc_slot04_01(Object *obj) {
-    return obj->field_45 != 0;
+    return obj->active_state != 0;
 }
 
 int func_801b10d8_slot04_01(Object *obj) {
-    return (s16)obj->field_c6 >= 0x30;
+    return (s16)obj->meter >= 0x30;
 }
 
 int func_801b10ec_slot04_01(Object *obj) {
-    return obj->field_177 != 0;
+    return obj->remaining_count != 0;
 }
 
 void func_801b10f8_slot04_01(Object *obj) {

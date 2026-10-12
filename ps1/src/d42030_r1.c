@@ -4,12 +4,12 @@
 #include "externs.h"
 
 /* Looks the object up in a coarse grid around the reference object (inferred).
-   The column comes from field_21e plus 0x10 (32 units a column), the row from
+   The column comes from compare_limit plus 0x10 (32 units a column), the row from
    the absolute vertical distance to ref_other (16 units a row, 4 columns to a
    row of the table). If the column is above 0x100, the distance is 0x80 or
    more, or the cell's index byte has bit 7 set, it returns 0. Otherwise it
-   copies the four bytes of the indexed record to field_128, field_129,
-   field_12a and field_219 and returns 1. */
+   copies the four bytes of the indexed record to input_dir_0, input_dir_second,
+   direction_index and attack_param_d and returns 1. */
 u8 func_80142030(Object *object)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
@@ -19,7 +19,7 @@ u8 func_80142030(Object *object)
   u16 x;
   s16 dy;
   s16 col;
-  x = object->field_21e;
+  x = object->compare_limit;
   dy = object->pos_y;
   dy = dy - ref_other.p->pos_y;
   if (dy < 0)
@@ -36,9 +36,9 @@ u8 func_80142030(Object *object)
   {
     return 0;
   }
-  object->field_128 = table_8017ac7c[x][0];
-  object->field_129 = table_8017ac7c[x][1];
-  object->field_12a = table_8017ac7c[x][2];
-  object->field_219 = table_8017ac7c[x][3];
+  object->input_dir_0 = table_8017ac7c[x][0];
+  object->input_dir_second = table_8017ac7c[x][1];
+  object->direction_index = table_8017ac7c[x][2];
+  object->attack_param_d = table_8017ac7c[x][3];
   return 1;
 }

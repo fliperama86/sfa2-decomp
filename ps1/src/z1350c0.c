@@ -9,7 +9,7 @@ void func_801350c0(u8 a, u8 b) {
     Object *right = left + 1;
 
     if (left->field_d8 == 0) {
-        if (a == 3 && (u16)(left->field_c6 - 0x30) <= 0x30 && (b >= 7 || b == 0)) {
+        if (a == 3 && (u16)(left->meter - 0x30) <= 0x30 && (b >= 7 || b == 0)) {
         data_80188d10 -= 1;
         if (data_80188d10 & 0x80) {
             table_80188d08[0] += data_80188d2c;
@@ -26,7 +26,7 @@ void func_801350c0(u8 a, u8 b) {
             data_80188d10 = 4;
         }
         }
-        if (a == 3 && (u16)(left->field_c6 - 0x60) <= 0x30 && (b >= 4 || b == 0)) {
+        if (a == 3 && (u16)(left->meter - 0x60) <= 0x30 && (b >= 4 || b == 0)) {
         data_80188d14 -= 1;
         if (data_80188d14 & 0x80) {
             table_80188d08[1] += data_80188d30;
@@ -43,7 +43,7 @@ void func_801350c0(u8 a, u8 b) {
             data_80188d14 = 4;
         }
         }
-        if (a == 3 && (s16)left->field_c6 >= 0x90) {
+        if (a == 3 && (s16)left->meter >= 0x90) {
         data_80188d18 -= 1;
         if (data_80188d18 & 0x80) {
             table_80188d08[2] += data_80188d34;
@@ -78,7 +78,7 @@ void func_801350c0(u8 a, u8 b) {
         }
     }
     if (right->field_d8 == 0) {
-        if (a == 2 && (u16)(right->field_c6 - 0x30) <= 0x30 && (u8)(b - 4) >= 6) {
+        if (a == 2 && (u16)(right->meter - 0x30) <= 0x30 && (u8)(b - 4) >= 6) {
         data_80188d1c -= 1;
         if (data_80188d1c & 0x80) {
             table_80188d08[4] += data_80188d38;
@@ -95,7 +95,7 @@ void func_801350c0(u8 a, u8 b) {
             data_80188d1c = 4;
         }
         }
-        if (a == 2 && (u16)(right->field_c6 - 0x60) <= 0x30 && (u8)(b - 7) >= 3) {
+        if (a == 2 && (u16)(right->meter - 0x60) <= 0x30 && (u8)(b - 7) >= 3) {
         data_80188d20 -= 1;
         if (data_80188d20 & 0x80) {
             table_80188d08[5] += data_80188d3c;
@@ -112,7 +112,7 @@ void func_801350c0(u8 a, u8 b) {
             data_80188d20 = 4;
         }
         }
-        if (a == 3 && (s16)right->field_c6 >= 0x90) {
+        if (a == 3 && (s16)right->meter >= 0x90) {
         data_80188d24 -= 1;
         if (data_80188d24 & 0x80) {
             table_80188d08[6] += data_80188d40;

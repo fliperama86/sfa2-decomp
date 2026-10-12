@@ -11,7 +11,7 @@ void func_801e0840_slot0b(ModObj *obj) {
 }
 
 void func_801e0848_slot0b(Object *o) {
-    Object *p = ((ModObj *)o)->field_3c;
+    Object *p = ((ModObj *)o)->owner_object;
     ModObj *obj = (ModObj *)o;
     if (data_801ae02c != 0) {
         func_801e06b0_slot0b(obj);

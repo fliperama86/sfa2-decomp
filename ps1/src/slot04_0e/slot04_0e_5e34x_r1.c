@@ -13,10 +13,10 @@ extern s32 data_801c6198_slot04_0e[];
    action. It advances the object's state byte, takes 2 points off a
    counter (func_80141f28), plays two sounds (play_side_sound_at,
    play_sound_at), clears two velocity words, and sets a launch velocity
-   from tables indexed by the object's direction byte field_48: a byte
-   table (index field_48 / 2) gives field_47, two word tables (index
-   field_48) give the velocity words vel_x and accel_x, both negated
-   when field_0b is not 0. It then selects the sequence 0x27 + field_48 / 2. */
+   from tables indexed by the object's direction byte variant_index: a byte
+   table (index variant_index / 2) gives field_47, two word tables (index
+   variant_index) give the velocity words vel_x and accel_x, both negated
+   when facing_side is not 0. It then selects the sequence 0x27 + variant_index / 2. */
 void func_801b5e34_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u8 i;
@@ -32,15 +32,15 @@ void func_801b5e34_slot04_0e(Object *o) {
     play_sound_at(o, o->field_02, 0x324);
     o->vel_y = 0;
     o->accel_y = 0;
-    obj->field_46 = 7;
-    obj->field_47 = data_801c6190_slot04_0e[o->field_48 >> 1];
-    i = o->field_48;
+    obj->countdown = 7;
+    obj->field_47 = data_801c6190_slot04_0e[o->variant_index >> 1];
+    i = o->variant_index;
     o->vel_x = data_801c6194_slot04_0e[i];
     o->accel_x = data_801c6198_slot04_0e[i];
-    if (o->field_0b != 0) {
+    if (o->facing_side != 0) {
         o->vel_x = -o->vel_x;
         o->accel_x = -o->accel_x;
     }
-    t = o->field_48 >> 1;
+    t = o->variant_index >> 1;
     func_801307e0(o, t + 0x27);
 }

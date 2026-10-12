@@ -8,11 +8,11 @@ void func_8001188c_slot27(Object *obj);
 void func_80011800_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
 
-    int sum = obj->field_12 + obj->field_4c;
+    int sum = obj->angle + obj->field_4c;
     int x = (s16)sum;
 
     x -= 0xe8;
-    obj->field_12 = sum;
+    obj->angle = sum;
     if ((u32)x >= 0x240) {
         o->state_0 = o->state_0 + 1;
     }

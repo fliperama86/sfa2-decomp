@@ -11,8 +11,8 @@ void func_801b28c8_slot04_03(Object *obj) {
         obj->state_3 = 0xb;
         func_801307e0(obj, 0x2f);
     } else if (t == 0) {
-        c = obj->field_129 - 1;
-        obj->field_129 = c;
+        c = obj->input_dir_second - 1;
+        obj->input_dir_second = c;
         if (c & 0x80) {
             obj->state_3 = 0xb;
             func_801307e0(obj, 0x2f);
@@ -35,11 +35,11 @@ void func_801b298c_slot04_03(Object *obj) {
         obj->state_3 = 0xb;
         func_801307e0(obj, 0x30);
     } else if (t == 0) {
-        if (obj->field_12a == 0) {
+        if (obj->direction_index == 0) {
             goto set;
         }
-        c = obj->field_129 - 1;
-        obj->field_129 = c;
+        c = obj->input_dir_second - 1;
+        obj->input_dir_second = c;
         if (c & 0x80) {
         set:
             obj->state_3 = 0xb;

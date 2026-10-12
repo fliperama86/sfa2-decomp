@@ -5,9 +5,9 @@
 
 void func_80076c74_slot00(Object *o) {
     o->state_2++;
-    o->field_0b ^= 1;
+    o->facing_side ^= 1;
     func_801380f0(o);
-    o->field_46 = 2;
-    ((Slot00Obj *)o)->field_b3++;
-    func_80138070(o, o->field_ad);
+    o->countdown = 2;
+    ((Slot00Obj *)o)->step_count++;
+    func_80138070(o, o->active_flag_2);
 }

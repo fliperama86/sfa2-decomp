@@ -15,9 +15,9 @@ void func_801b0000_slot04_09(Object *o) {
     Object *c;
 
     dst = (u32 *)0x1f800100;
-    p = (u8 *)&obj->field_330;
-    o->field_98 = data_801b6608_slot04_09;
-    o->field_9c = data_801ba1b0_slot04_09;
+    p = (u8 *)&obj->linked_object;
+    o->data_ptr_a = data_801b6608_slot04_09;
+    o->data_ptr_b = data_801ba1b0_slot04_09;
     if (o->side == 0) {
         dst = (u32 *)0x1f800050;
     }
@@ -28,27 +28,27 @@ void func_801b0000_slot04_09(Object *o) {
     p[4] = 0;
     p[5] = 0;
     *(u32 *)p = 0;
-    o->field_a0 = 0;
-    o->field_a2 = 0;
+    o->variant_index_2 = 0;
+    o->step_count = 0;
     o->field_a3 = 0;
     c = func_8011f32c();
     if (c != 0) {
-        c->field_00 = 1;
+        c->active_count = 1;
         c->field_02 = 9;
-        c->field_3c = o;
-        *(u32 *)&o->field_2c = (u32)c;
+        c->parent = o;
+        *(u32 *)&o->linked_object_2 = (u32)c;
         *(u32 *)&c->pos_x_frac = *(u32 *)&o->pos_x_frac;
         *(u32 *)&c->pos_y_frac = *(u32 *)&o->pos_y_frac;
-        c->field_0b = o->field_0b;
+        c->facing_side = o->facing_side;
         c->field_0e = o->field_0e;
         c->field_0c = o->field_0c;
-        c->field_0d = o->field_0d;
-        c->field_03 = o->kind;
-        c->field_66 = o->side;
+        c->image_row = o->image_row;
+        c->table_index = o->kind;
+        c->sound_side = o->side;
         c->spawn_x = o->spawn_x;
         c->spawn_y = o->spawn_y;
         c->field_90 = o->field_90;
-        c->field_98 = o->field_98;
-        c->field_9c = o->field_9c;
+        c->data_ptr_a = o->data_ptr_a;
+        c->data_ptr_b = o->data_ptr_b;
     }
 }

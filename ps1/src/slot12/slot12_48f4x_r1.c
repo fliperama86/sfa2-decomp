@@ -18,24 +18,24 @@ void func_800148f4_slot12(Object *obj) {
     obj->accel_x = 0x500;
     obj->accel_y = -0x5000;
     obj->vel_x = 0xfffa7000;
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     obj->state_0 = obj->state_0 + 1;
-    if (obj->field_03 == 0) {
-        k = game_state.field_2b8;
+    if (obj->table_index == 0) {
+        k = game_state.left_rank_index;
         rec = table_8016e5c4 + k;
     } else {
-        k = game_state.field_2ba;
+        k = game_state.right_rank_index;
         rec = table_8016e614 + k;
     }
     obj->spawn_x = 0x60;
     obj->spawn_y = 0x1f0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_60 = 0;
-    obj->field_60 = rec->field_08;
-    obj->field_61 = rec->field_09;
+    obj->field_60 = rec->level;
+    obj->hit_type = rec->frame_param;
     obj->field_0c = 0xff;
-    obj->field_98 = table_80028148_slot12[obj->field_60].first;
-    obj->field_9c = table_80028148_slot12[obj->field_60].second;
+    obj->data_ptr_a = table_80028148_slot12[obj->field_60].first;
+    obj->data_ptr_b = table_80028148_slot12[obj->field_60].second;
     func_80014a38_slot12(obj);
     func_80014dd0_slot12(obj, 0);
     obj->field_01 = 0;

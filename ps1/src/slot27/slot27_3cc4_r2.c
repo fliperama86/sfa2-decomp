@@ -23,20 +23,20 @@ void func_80013f64_slot27(Object *obj) {
     Object *o;
 
     obj->ot_depth = 8;
-    obj->field_98 = data_80017c28_slot27;
-    obj->field_9c = data_8001aa14_slot27;
+    obj->data_ptr_a = data_80017c28_slot27;
+    obj->data_ptr_b = data_8001aa14_slot27;
     obj->spawn_y = 0x1e0;
-    obj->field_46 = 0x40ff;
+    obj->countdown = 0x40ff;
     obj->field_90 = (void *)0x80038000;
     obj->spawn_x = 0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_01 = 0;
     obj->state_1 = obj->state_1 + 1;
     o = obj->other;
-    obj->field_0d = o->side;
-    obj->field_0b = obj->field_0d ^ 1;
-    obj->field_03 = o->kind;
-    obj->field_48 = obj->field_03;
+    obj->image_row = o->side;
+    obj->facing_side = obj->image_row ^ 1;
+    obj->table_index = o->kind;
+    obj->variant_index = obj->table_index;
     func_8001435c_slot27(obj);
     func_80014298_slot27(obj);
 }

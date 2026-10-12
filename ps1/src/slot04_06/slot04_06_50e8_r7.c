@@ -6,8 +6,8 @@
 void func_801b5d68_slot04_06(Object *obj, int idx) {
     SequenceStep **table;
 
-    obj->field_48 = idx;
-    if (obj->field_66 == 0) {
+    obj->variant_index = idx;
+    if (obj->sound_side == 0) {
         table = data_1f8000b4;
     } else {
         table = data_1f800164;

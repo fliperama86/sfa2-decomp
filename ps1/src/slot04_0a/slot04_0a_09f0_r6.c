@@ -7,7 +7,7 @@ void func_801b1114_slot04_0a(Object *obj) {
     obj->state_0 = 1;
     obj->state_2 = 7;
     obj->field_15a = 7;
-    obj->field_27b = 0x12;
+    obj->other_lock = 0x12;
     obj->state_1 = 0;
     obj->state_3 = 0;
     obj->field_157 = 0;

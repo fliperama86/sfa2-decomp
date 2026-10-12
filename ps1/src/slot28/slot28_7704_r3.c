@@ -8,14 +8,14 @@ extern void (*data_80032a54_slot28[])(Object *);
 
 void func_80017b54_slot28(Object *obj) {
     int arg;
-    obj->field_46 = 0x1818;
+    obj->countdown = 0x1818;
     obj->field_0e = 0;
     obj->field_0c = 0;
-    obj->field_0b = 0;
-    obj->field_48 = 0;
+    obj->facing_side = 0;
+    obj->variant_index = 0;
     obj->state_0++;
     arg = 1;
-    if (obj->field_03 == 1) {
+    if (obj->table_index == 1) {
         arg = 3;
     }
     func_80130768(obj, arg, (SequenceStep **)obj->box_tables);
@@ -23,7 +23,7 @@ void func_80017b54_slot28(Object *obj) {
 
 void func_80017bac_slot28(Object *obj) {
     advance_sequence_checked(obj);
-    data_80032a4c_slot28[obj->field_03](obj);
+    data_80032a4c_slot28[obj->table_index](obj);
 }
 
 void func_80017bfc_slot28(Object *obj) {

@@ -15,12 +15,12 @@ void func_801b1c48_slot04_0a(Object *obj) {
         obj->accel_y = -0x5000;
         obj->state_3++;
         obj->vel_y = a;
-        if (obj->field_130 & 0x8000) {
+        if (obj->input_bits_2 & 0x8000) {
             a = 0x80000;
-            obj->field_0b = obj->field_0b ^ 1;
+            obj->facing_side = obj->facing_side ^ 1;
             b = -0x5000;
         }
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             a = -a;
             b = -b;
         }

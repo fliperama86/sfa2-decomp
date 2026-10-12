@@ -11,15 +11,15 @@ void func_80017f34_slot28(Object *object) {
 
 void func_80017f74_slot28(Object *o) {
     ((Slot28Obj *)o)->field_01 = 0;
-    if (((Slot28Obj *)o)->field_47 != 0) {
+    if (((Slot28Obj *)o)->timer_reload != 0) {
         ((Slot28Obj *)o)->countdown_timer --;
         if (((Slot28Obj *)o)->countdown_timer == 0) {
             ((Slot28Obj *)o)->field_01 = 1;
-            ((Slot28Obj *)o)->field_47 --;
-            ((Slot28Obj *)o)->countdown_timer = ((Slot28Obj *)o)->field_47;
+            ((Slot28Obj *)o)->timer_reload --;
+            ((Slot28Obj *)o)->countdown_timer = ((Slot28Obj *)o)->timer_reload;
         }
     } else {
-        ((Slot28Obj *)o)->field_05 ++;
+        ((Slot28Obj *)o)->count ++;
     }
 }
 

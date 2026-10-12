@@ -17,8 +17,8 @@ void func_80023be0_slot28(Object *obj, int arg);
 void func_800238b0_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->field_60 = 0x258;
-        data_8018f5a0->field_52 = data_8018f5a0->field_52 + 1;
+        data_8018f5a0->countdown_timer = 0x258;
+        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
         func_80023c70_slot28();
         func_80130768(data_80051c0c_slot28.p, 2, data_8004a088_slot28);
         b = data_80051c10_slot28[0];
@@ -27,41 +27,41 @@ void func_800238b0_slot28(Object *obj) {
         func_80130768(b, 1, data_8004a094_slot28);
         b = (Object *)func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x1d;
-            b->field_03 = 3;
+            b->table_index = 3;
             b->ot_depth = 2;
             b->spawn_x = 0x60;
             b->spawn_y = 0x1e0;
             b->pos_x = 0x1a8;
             b->pos_y = 0xd5;
             b->field_90 = (void *)0x80060000;
-            b->field_98 = data_80048d70_slot28;
-            b->field_9c = data_800490f4_slot28;
+            b->data_ptr_a = data_80048d70_slot28;
+            b->data_ptr_b = data_800490f4_slot28;
             b->box_tables = (BoxTables *)data_8004a09c_slot28;
             b->field_01 = 1;
-            b->field_0d = 0;
+            b->image_row = 0;
             data_80051be4_slot28[0] = b;
-            ((Slot28Obj *)b)->field_47 = 0x20;
+            ((Slot28Obj *)b)->timer_reload = 0x20;
         }
         b = (Object *)func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x1d;
-            b->field_03 = 2;
+            b->table_index = 2;
             b->ot_depth = 3;
             b->spawn_x = 0x60;
             b->spawn_y = 0x1e0;
             b->pos_x = -0x3d;
             b->pos_y = 0xc1;
             b->field_90 = (void *)0x80060000;
-            b->field_98 = data_80048d70_slot28;
-            b->field_9c = data_800490f4_slot28;
+            b->data_ptr_a = data_80048d70_slot28;
+            b->data_ptr_b = data_800490f4_slot28;
             b->box_tables = (BoxTables *)data_8004a09c_slot28;
             b->field_01 = 1;
-            b->field_0d = 0;
+            b->image_row = 0;
             data_80051be4_slot28[1] = b;
-            ((Slot28Obj *)b)->field_47 = 0x20;
+            ((Slot28Obj *)b)->timer_reload = 0x20;
         }
         func_80023be0_slot28(obj, 3);
         func_80128370();

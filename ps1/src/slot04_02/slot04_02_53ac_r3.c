@@ -12,22 +12,22 @@ void func_801b57b0_slot04_02(Object *obj) {
     func_80142fbc(obj);
     func_801428a8(obj);
     func_80138b38(&game_state, obj);
-    if (obj->field_45 != 0) {
+    if (obj->active_state != 0) {
         a = 0x2f;
     } else {
         p = (Object *)func_8011f1e0();
         a = 0x2b;
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0x7d;
-            p->field_3c = obj;
+            p->parent = obj;
             p->field_0c = obj->field_0c;
-            p->field_0d = obj->field_0d;
+            p->image_row = obj->image_row;
             p->field_0e = obj->field_0e;
-            obj->field_3c = p;
+            obj->parent = p;
             p->field_02 = 9;
-            p->field_08 = 0x20;
-            p->field_66 = obj->field_66;
+            p->mode_id = 0x20;
+            p->sound_side = obj->sound_side;
         }
     }
     set_sequence_by_side(obj, a);
@@ -38,9 +38,9 @@ void func_801b5884_slot04_02(Object *obj) {
     int b;
     if ((s16)obj->step_flags != 0) {
         obj->field_165 = 0xff;
-        obj->field_46 = 0x1e01;
+        obj->countdown = 0x1e01;
         obj->state_3 = obj->state_3 + 1;
-        if (obj->field_45 != 0) {
+        if (obj->active_state != 0) {
             a = 0xd;
             b = 0x39;
         } else {

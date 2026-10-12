@@ -13,7 +13,7 @@ void func_801b248c_slot04_07(Object *obj) {
         obj->state_3 = 5;
         obj->pos_y = t;
         obj->pos_y_frac = 0;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         func_801209c4(obj);
         func_801307e0(obj, 0x39);
     } else {

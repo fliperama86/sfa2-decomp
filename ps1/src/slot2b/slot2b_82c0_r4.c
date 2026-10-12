@@ -13,20 +13,20 @@ void func_80078654_slot2b(Object *o) {
 
     o->field_01 = 0;
     p = data_8007ef30_slot2b;
-    if (o->field_03 != p->kind) {
+    if (o->table_index != p->kind) {
         func_80078734_slot2b(o);
     } else {
-        t = p->frame->field_09;
+        t = p->frame->frame_param;
         if (t == 0) {
-            o->field_48 = 0;
+            o->variant_index = 0;
         } else {
             o->pos_x = p->pos_x;
             o->pos_y = p->pos_y;
-            o->field_0b = p->field_0b;
+            o->facing_side = p->facing_side;
             o->field_0c = data_8007ef30_slot2b->field_0c;
-            o->field_0d = data_8007ef30_slot2b->field_0d;
+            o->image_row = data_8007ef30_slot2b->image_row;
             o->field_01 = 1;
-            if (o->field_48 != t) {
+            if (o->variant_index != t) {
                 func_8007878c_slot2b(o, t);
             } else {
                 advance_sequence_checked(o);
@@ -42,12 +42,12 @@ void func_80078734_slot2b(Object *o) {
 void func_80078748_slot2b(Object *o) {
     Slot2bObj *p = (Slot2bObj *)data_8007ef30_slot2b;
 
-    if ((u32)o == p->field_2c) {
-        p->field_2c = 0;
+    if ((u32)o == p->linked_object) {
+        p->linked_object = 0;
     }
     func_8011f38c(o);
 }
 
 void func_80078784_slot2b(Object *o) {
-    o->field_48 = 0;
+    o->variant_index = 0;
 }

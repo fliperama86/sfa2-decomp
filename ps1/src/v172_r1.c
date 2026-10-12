@@ -13,12 +13,12 @@ void func_80139304(Object *a, Object *b) {
     u8 yb;
     int lvl;
 
-    if (b->field_263 != 0 || b->field_27b != 0 || b->field_163 != 0) {
+    if (b->countdown_4 != 0 || b->other_lock != 0 || b->field_163 != 0) {
         return;
     }
-    if (a->field_49 == 0 || (b->field_295 == 0 && b->field_28f == 0)) {
+    if (a->field_49 == 0 || (b->field_295 == 0 && b->cooldown_timer == 0)) {
         lvl = b->field_69;
-        if (a->frame->field_08 < lvl) {
+        if (a->frame->level < lvl) {
             return;
         }
     }
@@ -27,23 +27,23 @@ void func_80139304(Object *a, Object *b) {
         return;
     }
     box = &a->wide_boxes[index];
-    xi = box->field_12 & 0x7f;
-    if (a->field_66 != 0) {
-        yi = b->field_265 & 0x7f;
+    xi = box->hit_flags & 0x7f;
+    if (a->sound_side != 0) {
+        yi = b->hit_box_index_b & 0x7f;
     } else {
-        yi = b->field_264 & 0x7f;
+        yi = b->hit_box_index_a & 0x7f;
     }
     yb = yi;
     if (yb == (u8)xi) {
         return;
     }
-    if (a->field_08 != 8) {
-        if (a->field_66 != 0) {
-            yi = b->field_289;
+    if (a->mode_id != 8) {
+        if (a->sound_side != 0) {
+            yi = b->hit_count_b;
         } else {
-            yi = b->field_288;
+            yi = b->hit_count_a;
         }
-        if (box->field_18 < yi) {
+        if (box->y_limit < yi) {
             return;
         }
     }
@@ -59,7 +59,7 @@ void func_80139304(Object *a, Object *b) {
     if (data_80188f30 != 0) {
         b->field_241 = 0;
         func_80139a78(a, b);
-        if (a->field_29d == 0) {
+        if (a->hit_skip_flag == 0) {
             func_8013a3a8(a, b, box);
             func_8013af1c(a, b, box);
             func_80155de0(box, b);

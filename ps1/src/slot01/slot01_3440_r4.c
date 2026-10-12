@@ -41,7 +41,7 @@ void func_80013908_slot01(Object *obj) {
 }
 
 void func_8001398c_slot01(Object *obj) {
-    if (*(u16 *)&obj->field_3c->state_0 == 0x101) {
+    if (*(u16 *)&obj->parent->state_0 == 0x101) {
         obj->state_0++;
     }
 }

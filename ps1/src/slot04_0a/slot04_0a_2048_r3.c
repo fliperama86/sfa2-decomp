@@ -13,28 +13,28 @@ void func_801b2158_slot04_0a(Object *obj) {
         play_side_sound_at(obj, obj->side, 0xe);
         n = pop_object_from_pool(obj);
         if (n != 0) {
-            n->field_00 = 1;
+            n->active_count = 1;
             n->field_02 = 0xa;
-            n->field_66 = obj->field_66;
-            n->field_65 = obj->field_65;
-            n->field_ac = obj->field_12a;
-            n->field_ad = 0;
+            n->sound_side = obj->sound_side;
+            n->team_id = obj->team_id;
+            n->vel_table_index = obj->direction_index;
+            n->active_flag_2 = 0;
             n->field_0e = obj->field_0e;
-            n->field_0b = obj->field_0b;
+            n->facing_side = obj->facing_side;
             n->field_0c = obj->field_0c;
-            n->field_0d = obj->field_0d;
-            n->field_26 = obj->field_26;
+            n->image_row = obj->image_row;
+            n->scroll_factor = obj->scroll_factor;
             *(u16 *)&n->pos_x = *(u16 *)&obj->pos_x;
             *(u16 *)&n->pos_y = *(u16 *)&obj->pos_y;
             n->spawn_x = 0x60;
             n->health = 0;
-            n->field_3c = obj;
+            n->parent = obj;
             n->spawn_y = 0x1e0;
             n->field_90 = obj->field_90;
-            n->field_98 = obj->field_98;
-            n->field_9c = obj->field_9c;
-            obj->field_14c = (s32)n;
-            obj->field_240++;
+            n->data_ptr_a = obj->data_ptr_a;
+            n->data_ptr_b = obj->data_ptr_b;
+            obj->linked_object_3 = (s32)n;
+            obj->link_flags++;
         }
     }
     update_sequence(obj);

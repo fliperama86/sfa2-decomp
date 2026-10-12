@@ -13,7 +13,7 @@ void func_801b08e0_slot04_07(Object *obj) {
         func_801312b8(obj);
     } else if ((t & 0xff) == 0) {
         /* The listing stores pos_x to itself. Written as the facing-dependent offset with zero in both arms; inferred from the allocation, not known from the original. */
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->pos_x -= 0;
         } else {
             obj->pos_x += 0;

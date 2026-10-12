@@ -8,10 +8,10 @@ extern SequenceStep *data_801e7630_slot0b[];
 void func_801e1c00_slot0b(Object *obj) {
     obj->field_01 = 1;
     obj->ot_depth = 0;
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     obj->field_0e = 0;
     obj->field_0f = 0;
-    obj->field_26 = 0;
+    obj->scroll_factor = 0;
     obj->state_0++;
     obj->pos_x = box_margin[0];
     obj->pos_y = data_801aa5ea[0] + 8;
@@ -37,5 +37,5 @@ void func_801e1cdc_slot0b(Object *obj) {
     p[3] = 0;
     ((u8 *)p)[8] = 0x18;
     data_801ae02c = 0;
-    game_state.field_06 = 0;
+    game_state.busy_flag = 0;
 }

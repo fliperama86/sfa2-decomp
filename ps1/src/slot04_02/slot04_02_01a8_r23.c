@@ -5,7 +5,7 @@
 
 void func_801b29bc_slot04_02(Object *obj) {
     obj->state_3++;
-    obj->field_46 = *(u8 *)&obj->field_46 | 0x3200;
+    obj->countdown = *(u8 *)&obj->countdown | 0x3200;
     func_80145d20(obj);
     func_801428e4(obj);
     func_80138b38(&game_state, obj);

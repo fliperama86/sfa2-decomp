@@ -4,8 +4,8 @@
 #include "protos.h"
 
 void func_80139d4c(Object *a0, Object *a1, Box32 *unused) {
-    if (game_state.field_30) {
-        if (a1->field_1a0) {
+    if (game_state.versus_flag) {
+        if (a1->hit_count_2) {
 call:
             func_8013a050(a0, a1);
         }

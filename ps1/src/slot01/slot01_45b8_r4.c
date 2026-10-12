@@ -8,33 +8,33 @@ extern ObjectRef data_80033bac_slot01;
 void func_80014b28_slot01(Object *obj, int arg);
 
 void func_800149c8_slot01(Object *obj) {
-    data_80033ba8_slot01.p = obj->field_3c;
-    if (obj->field_03 != obj->field_48) {
-        obj->field_03 = obj->field_48;
+    data_80033ba8_slot01.p = obj->parent;
+    if (obj->table_index != obj->variant_index) {
+        obj->table_index = obj->variant_index;
     }
-    if (data_80033ba8_slot01.p->kind != obj->field_48) {
-        obj->field_48 = data_80033ba8_slot01.p->kind;
+    if (data_80033ba8_slot01.p->kind != obj->variant_index) {
+        obj->variant_index = data_80033ba8_slot01.p->kind;
         func_80014b28_slot01(obj, 0);
     } else if ((game_state.mode >> data_80033ba8_slot01.p->side) & 1) {
         obj->state_1++;
-        obj->field_45 = data_80033ba8_slot01.p->field_d4;
+        obj->active_state = data_80033ba8_slot01.p->field_d4;
         func_80014b28_slot01(obj, 1);
     }
 }
 
 void func_80014a8c_slot01(Object *obj) {
-    Object *p = obj->field_3c;
+    Object *p = obj->parent;
     data_80033bac_slot01.p = p;
-    if (p->field_d4 != obj->field_45) {
-        obj->field_45 = p->field_d4;
+    if (p->field_d4 != obj->active_state) {
+        obj->active_state = p->field_d4;
     }
     if ((obj->step_flags << 16) < 0) {
         obj->health = 0;
     }
     if (*(s16 *)&obj->health == 0) {
-        s16 t = *(s16 *)&obj->field_46;
+        s16 t = *(s16 *)&obj->countdown;
         if (t != 0) {
-            obj->field_46 = t - 1;
+            obj->countdown = t - 1;
         }
     }
 }

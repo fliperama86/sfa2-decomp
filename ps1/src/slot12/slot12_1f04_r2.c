@@ -15,7 +15,7 @@ void func_800120bc_slot12(Object *obj) {
     if (game_state.field_44 != 0 && data_8002d578_slot12 == 0) {
         obj->state_1 = 3;
         func_800121ec_slot12(obj, 1);
-    } else if (game_state.field_ab & 0x80) {
+    } else if (game_state.status_flags & 0x80) {
         obj->state_1 = obj->state_1 + 1;
         func_800121ec_slot12(obj, 2);
     }

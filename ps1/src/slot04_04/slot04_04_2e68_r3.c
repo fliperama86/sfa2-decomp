@@ -10,7 +10,7 @@ void func_801b3cb0_slot04_04(Object *obj) {
         func_801b3d18_slot04_04(obj);
     } else {
         obj->state_1 = obj->state_1 + 1;
-        obj->field_3c->field_14c = 0;
+        obj->parent->linked_object_3 = 0;
         func_80138070(obj, 3);
     }
     func_8011ffdc(obj);

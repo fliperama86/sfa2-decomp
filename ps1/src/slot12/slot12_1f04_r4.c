@@ -12,10 +12,10 @@ void func_8001224c_slot12(Object *obj) {
     data_8002d56c_slot12->sequence = obj->sequence;
     data_8002d56c_slot12->pos_x = obj->pos_x;
     data_8002d56c_slot12->pos_y = obj->pos_y;
-    data_8002d56c_slot12->field_0b = obj->field_0b;
+    data_8002d56c_slot12->facing_side = obj->facing_side;
     data_8002d56c_slot12->spawn_x = obj->spawn_x;
     data_8002d56c_slot12->spawn_y = obj->spawn_y;
-    data_8002d56c_slot12->field_0d = 0;
+    data_8002d56c_slot12->image_row = 0;
     func_800123e0_slot12();
 }
 

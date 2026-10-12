@@ -14,10 +14,10 @@ void func_8014c914(Object *object)
   s16 w;
   w = v;
   v = w >> 8;
-  object->field_20e = v;
-  object->field_20f = w;
+  object->script_opcode_high = v;
+  object->script_arg = w;
   object->script_ptr = (s32) data_80189460;
-  w = object->field_20e;
+  w = object->script_opcode_high;
   if (w != 0xff)
   {
     func_8014a5c0(object);

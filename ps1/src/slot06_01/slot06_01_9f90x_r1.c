@@ -12,8 +12,8 @@ extern Slot06Tile data_801fa57c_slot06_01[2][108];
 /* What it does (inferred, not an original name): the stage 01 relative of
    func_801e9080_slot06_00, draws a tile map as sprite records. The object
    must be of kind field_0e 8: its position is then taken relative to the
-   layer block data_801aa5d4 (field_12 and field_16), with a parallax term
-   ((layer field_12 - layer field_0a) * object parallax_factor / 128) added to x.
+   layer block data_801aa5d4 (scroll_x and scroll_y), with a parallax term
+   ((layer scroll_x - layer ref_x) * object parallax_factor / 128) added to x.
    A header reached through the object's sequence describes a grid of
    16-bit cells. For each non-zero cell (low 14 bits) it takes a record from
    the table, fills in position, texture coordinates, texture page and a
@@ -51,16 +51,16 @@ void func_801e9f90_slot06_01(Object *object) {
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
         layer = (Slot06Layer *)data_801aa5d4;
-        x = ((Slot06Obj *)object)->pos_x - layer->field_12 +
-            ((s16)layer->field_12 - (s16)layer->field_0a) * (s16)((Slot06Obj *)object)->parallax_factor / 128;
-        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->scroll_x +
+            ((s16)layer->scroll_x - (s16)layer->ref_x) * (s16)((Slot06Obj *)object)->parallax_factor / 128;
+        y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     }
-    if (object->field_0f != 0) y = y + game_state.field_92;
+    if (object->field_0f != 0) y = y + game_state.scroll_y;
     cnt = data_801adfe4;
     hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
-    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
+    tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
     ot = (u32 *)data_801987c8 + object->ot_depth;
     sel = *(u8 *)&data_801a27d0;
     for (row = 0; row < hdr[2]; row++) {

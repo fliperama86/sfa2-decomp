@@ -12,13 +12,13 @@ void func_80014b28_slot01(Object *obj, int arg) {
     u8 unused[8];
     void *t;
     Object *p;
-    t = obj->field_3c;
+    t = obj->parent;
     data_80033bb0_slot01 = t;
     t = (void *)0x800767c0;
     *(u32 *)&obj->field_90 = (u32)t;
-    data_80033bb0_slot01->kind = obj->field_48;
+    data_80033bb0_slot01->kind = obj->variant_index;
     p = data_80033bb0_slot01;
-    obj->field_98 = data_8002b484_slot01[p->kind].field_00;
-    obj->field_9c = data_8002b484_slot01[p->kind].field_04;
+    obj->data_ptr_a = data_8002b484_slot01[p->kind].kind_ptr_a;
+    obj->data_ptr_b = data_8002b484_slot01[p->kind].kind_ptr_b;
     func_80130768(obj, p->kind, data_8002bb2c_slot01);
 }

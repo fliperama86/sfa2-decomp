@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 void func_801b4244_slot04_02(Object *obj) {
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3 = 1;
     if (obj->field_49 == 0) {
-        obj->field_177--;
+        obj->remaining_count--;
     }
     obj->field_157 = 0;
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     func_801307e0(obj, 0x3f);
 }

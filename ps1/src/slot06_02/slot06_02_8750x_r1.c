@@ -14,7 +14,7 @@ void func_801e8750_slot06_02(Slot06Layer *layer) {
         }
         func_801e87dc_slot06_02(layer);
     }
-    if (layer->field_00 != 0 && game_state.field_4b == 0) {
+    if (layer->field_00 != 0 && game_state.side_bits_2 == 0) {
         func_801364a0((Sprite *)layer);
         func_80136744((Sprite *)layer);
     }

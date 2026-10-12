@@ -6,8 +6,8 @@
 void func_801b5478_slot04_09(Object *obj);
 
 void func_801b43f0_slot04_09(Object *obj) {
-    if (obj->field_67 != 0) {
-        obj->field_67 = 0;
+    if (obj->active_flag != 0) {
+        obj->active_flag = 0;
         obj->other->field_6b = 4;
     }
     if (obj->step_flags & 0xf) {

@@ -11,10 +11,10 @@ int func_80122c5c(Entity *entity)
   int new_var;
   if ((entity->field_4d == 0) && (entity->field_116 == 0))
   {
-    entity->field_117--;
-    if (entity->field_117 == 0)
+    entity->countdown_timer_2--;
+    if (entity->countdown_timer_2 == 0)
     {
-      if (entity->field_a6 == 0)
+      if (entity->nonzero_flag == 0)
       {
         func_80123b20(entity->field_7c, entity);
       }
@@ -26,12 +26,12 @@ int func_80122c5c(Entity *entity)
       }
     }
   }
-  if ((entity->field_76 != 0) && (entity->field_76 == 0x1e))
+  if ((entity->countdown_2 != 0) && (entity->countdown_2 == 0x1e))
   {
-    entity->field_76--;
-    if (entity->field_a6 == 0)
+    entity->countdown_2--;
+    if (entity->nonzero_flag == 0)
     {
-      if (entity->field_30 == 0)
+      if (entity->mode_flag_b == 0)
       {
         data_80190474 = 1;
       }
@@ -39,7 +39,7 @@ int func_80122c5c(Entity *entity)
       {
         new_var = 0;
         s0 = entity->field_78;
-        if (s0->field_cd == new_var)
+        if (s0->mode_flag_2 == new_var)
         {
           play_sound_at(0, 0, 0x208);
         }

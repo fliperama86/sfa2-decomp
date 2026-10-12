@@ -17,13 +17,13 @@ void func_801b2e8c_slot04_0e(Object *o) {
     } else if ((s16)(o->ground_y - 0x30) < o->pos_y) {
         update_sequence(o);
     } else {
-        a = o->field_0b;
+        a = o->facing_side;
         if (a == 0) {
             a = 2;
         } else {
             a = 1;
         }
-        if (o->field_164 != (s8)a) {
+        if (o->bound_push_flag != (s8)a) {
             update_sequence(o);
         } else {
             a = 0x60;

@@ -4,9 +4,9 @@
 #include "protos.h"
 
 void func_80129c40(Object *object) {
-    if (object->field_25e != 0) object->field_25e--;
+    if (object->hold_timer != 0) object->hold_timer--;
 }
 
 void func_80129c68(Object *object) {
-    if (object->field_28f != 0) object->field_28f--;
+    if (object->cooldown_timer != 0) object->cooldown_timer--;
 }

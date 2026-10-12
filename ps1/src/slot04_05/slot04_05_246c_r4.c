@@ -12,9 +12,9 @@ void func_801b29e4_slot04_05(Object *o) {
     func_801428e4(o);
     func_80138b38(&game_state, o);
     func_80145d20(o);
-    o->vel_x = data_801c1598_slot04_05[o->field_12a];
-    o->accel_x = data_801c1598_slot04_05[o->field_12a + 1];
-    func_801307e0(o, *(s16 *)((u8 *)data_801c1590_slot04_05 + (o->field_12a & 0xfe)));
+    o->vel_x = data_801c1598_slot04_05[o->direction_index];
+    o->accel_x = data_801c1598_slot04_05[o->direction_index + 1];
+    func_801307e0(o, *(s16 *)((u8 *)data_801c1590_slot04_05 + (o->direction_index & 0xfe)));
 }
 
 void func_801b2a9c_slot04_05(Object *o) {

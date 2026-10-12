@@ -11,20 +11,20 @@ void func_801363ac(Sprite *sprite);
 void func_801368c0(Cam *cam);
 
 void func_801e85e0_slot06_05(Slot06Layer *layer) {
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_8013635c((Sprite *)layer);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         func_801363ac((Sprite *)layer);
     }
     func_801368c0((Cam *)layer);
 }
 
 void func_801e863c_slot06_05(Slot06Layer *layer) {
-    layer->field_50 = data_801ea938_slot06_05;
-    layer->field_54 = data_801ea938_slot06_05;
-    layer->field_1e = 0x580a;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ea938_slot06_05;
+    layer->data_table = data_801ea938_slot06_05;
+    layer->packed_param = 0x580a;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e8668_slot06_05(void) {

@@ -9,7 +9,7 @@ void func_801b4e0c_slot04_0b(Object *obj, int dx, int dy);
 void func_801b4928_slot04_0b(Object *obj) {
     if (!(ref_other.p->step_flags & 1)) {
         obj->state_1++;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->vel_x = 0xfff80000;
         } else {
             obj->vel_x = 0x80000;

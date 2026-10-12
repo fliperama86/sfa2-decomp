@@ -12,7 +12,7 @@ void func_80012990_slot01(Object *obj, u8 *a, int b, int c, int d);
 
 void func_800120ac_slot01(Object *obj) {
     data_80190468.p = (Object *)&game_state;
-    if (obj->field_03 & 0x80) {
+    if (obj->table_index & 0x80) {
         func_80012b50_slot01(obj);
     } else {
         data_80015408_slot01[obj->state_0](obj);
@@ -24,12 +24,12 @@ void func_80012120_slot01(Object *obj) {
     int b;
     obj->field_0e = 0;
     obj->ot_depth = 0;
-    obj->field_24 = 0;
+    obj->table_index_2 = 0;
     obj->field_20 = 0xfff0;
-    obj->field_22 = 0xfff0;
+    obj->y_scale = 0xfff0;
     obj->state_0++;
     func_800121e0_slot01(obj);
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->parent;
     a = (u16)func_8015bd0c(0, 0, data_80015418_slot01[0], data_80015418_slot01[1]);
     b = (u16)func_8015bdd4(data_80015418_slot01[2], data_80015418_slot01[3]);
     func_80012990_slot01(obj, data_8002ceb8_slot01, a, b, ref_other.p->side);

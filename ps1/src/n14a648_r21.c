@@ -4,5 +4,5 @@
 #include "protos.h"
 
 void func_80154978(void) {
-    data_8018f5a0->field_52++;
+    data_8018f5a0->pass_index++;
 }

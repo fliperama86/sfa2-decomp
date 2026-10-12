@@ -19,19 +19,19 @@ void func_80012ad0_slot27(Object *obj) {
         if (v == 0) {
             data_80190464[0] = -data_80190464[0];
         }
-        obj->field_5e = data_80190464[0];
+        obj->y_offset = data_80190464[0];
     }
     func_80012ef8_slot27(obj);
-    if (game_state.field_06 == 0) {
+    if (game_state.busy_flag == 0) {
         int m;
         int t;
-        s16 n = obj->field_46;
+        s16 n = obj->countdown;
         n -= 1;
-        obj->field_46 = n;
+        obj->countdown = n;
         if (n != 0) {
-            m = ~ref_other.p->field_c4;
+            m = ~ref_other.p->prev_input_bits;
             data_8019045c[0] = m;
-            t = ref_other.p->field_c2 & m;
+            t = ref_other.p->input_bits & m;
             data_8019045c[0] = t & 0xf0;
             if (data_8019045c[0] == 0) {
                 goto call;

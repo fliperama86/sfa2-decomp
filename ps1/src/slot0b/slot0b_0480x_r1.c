@@ -10,18 +10,18 @@ void func_801e0578_slot0b(Object *obj, u8 a);
 void func_801e0480_slot0b(Object *obj) {
     u8 k;
 
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->parent;
     obj->pos_x = 0x48;
-    obj->field_46 = 0xf;
+    obj->countdown = 0xf;
     obj->health = 0x48;
     obj->pos_y = 0x68;
-    obj->field_5e = 0x88;
+    obj->y_offset = 0x88;
     obj->vel_x = 0;
     obj->accel_x = 0;
     obj->vel_y = 0;
     obj->accel_y = 0;
-    obj->field_0b = obj->field_48;
-    if (obj->field_48 != 0) {
+    obj->facing_side = obj->variant_index;
+    if (obj->variant_index != 0) {
         obj->pos_x = 0x128;
         obj->health = 0x128;
         obj->vel_x = -obj->vel_x;

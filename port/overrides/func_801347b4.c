@@ -125,11 +125,11 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
                     func_80134e94(kind, col);
                 }
                 if ((u8)kind < 4) {
-                    data_80186004[idx].polys[data_80188d04].clut = (page + map->field_03 + data_80188d28) * 64 + 0x7807;
+                    data_80186004[idx].polys[data_80188d04].clut = (page + map->page_offset + data_80188d28) * 64 + 0x7807;
                 } else if ((u8)kind == 6) {
                     data_80186004[idx].polys[data_80188d04].clut = 0x7f07;
                 } else {
-                    data_80186004[idx].polys[data_80188d04].clut = (page + map->field_03) * 64 + 0x7806;
+                    data_80186004[idx].polys[data_80188d04].clut = (page + map->page_offset) * 64 + 0x7806;
                 }
                 if ((flag == 0 && (kind & 0xff) != 5) || tile == 0x3b || tile == 0x3e) {
                     /* The record is addressed as (&...)->field in these stores; the plain data_80186004[idx].polys[data_80188d04].x0 form differs in 212 instruction lines for all 32 of them, and in 50 to 202 for any one group of eight. */

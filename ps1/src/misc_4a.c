@@ -4,7 +4,7 @@
 #include "protos.h"
 
 u8 func_80149f14(Object *object) {
-    return object->field_254 == 0;
+    return object->input_matched_flag == 0;
 }
 
 /* x is read before it is set: the original reads the fourth argument register as it is at entry, and the one caller passes two arguments. Reading the unset local is undefined behaviour in C. It reproduces the original's instructions with this compiler and is not a defined implementation: a port has to give x a value. */
@@ -31,7 +31,7 @@ void func_80149fc4(Object *object) {
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 6;
-    if (other->field_45 == 0 && other->field_157 != 0) {
+    if (other->active_state == 0 && other->field_157 != 0) {
         arg = 0x18;
         object->field_157 = 1;
         object->state_3 = 2;
@@ -44,26 +44,26 @@ void func_80149fc4(Object *object) {
 }
 
 void func_8014a038(Object *object) {
-    object->field_257 = data_8017cf7c[object->field_cf];
+    object->table_flag = data_8017cf7c[object->table_column];
 }
 
 int func_8014a058(Object *object) {
-    if ((object->field_217 & 1) == 0) return 0;
+    if ((object->saved_mode_bits & 1) == 0) return 0;
     if (object->kind != 4 && object->kind != 7) return 0;
     if (!(object->pos_y < (s16)(object->ground_y - 0x20))) return 0;
-    if (object->field_48 == 0) return 0;
-    if (object->field_164 == 0) return 0;
+    if (object->variant_index == 0) return 0;
+    if (object->bound_push_flag == 0) return 0;
     if (object->vel_x == 0) return 0;
     if (object->vel_x < 0) {
-        return object->field_164 == 1;
+        return object->bound_push_flag == 1;
     }
-    return object->field_164 == 2;
+    return object->bound_push_flag == 2;
 }
 
 int func_8014a0fc(Object *object) {
-    if (object->field_242 != 0) return 0;
+    if (object->once_flag != 0) return 0;
     if (func_8014a170(object, data_8017d698) == 0) return 0;
     if (func_80149d48(object) == 0) return 0;
-    object->field_242 = 1;
+    object->once_flag = 1;
     return 1;
 }

@@ -29,7 +29,7 @@ void func_80026d54_slot28(Object *obj) {
     }
     o = data_80051cdc_slot28.p;
     if ((s16)o->step_flags < 0) {
-        data_8018f5a0->field_52++;
+        data_8018f5a0->pass_index++;
         func_80128370();
     }
 }

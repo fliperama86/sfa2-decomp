@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_8013b97c(void) {
-    if (ref_third.p->field_ad == 0 && ref_second.p->field_ad != 0) {
+    if (ref_third.p->active_flag_2 == 0 && ref_second.p->active_flag_2 != 0) {
         func_8013b824();
     } else {
         func_8013b9e0();

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_8012867c(void) {
-    u16 *p = table_8016f658[game_state.field_40];
+    u16 *p = table_8016f658[game_state.kind_index];
     Object *o;
     s16 h;
     while ((h = *p++) >= 0) {
@@ -13,16 +13,16 @@ void func_8012867c(void) {
         o = (Object *)func_8011f1e0();
         if (o == 0)
             break;
-        o->field_00++;
+        o->active_count++;
         o->pos_x = *p++;
         o->pos_y = *p++;
         o->ot_depth = *p++;
         o->field_02 = *p++;
-        o->field_03 = *p++;
-        o->field_0b = *p++;
+        o->table_index = *p++;
+        o->facing_side = *p++;
         o->field_0e = *p++;
-        o->field_1e = *p++;
+        o->cycle_value = *p++;
         o->field_1c = *p++;
-        o->field_26 = *p++;
+        o->scroll_factor = *p++;
     }
 }

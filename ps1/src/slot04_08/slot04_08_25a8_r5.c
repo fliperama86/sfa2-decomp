@@ -31,10 +31,10 @@ void func_801b2bf8_slot04_08(Object *obj) {
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 0xa;
-            i = (obj->field_12a >> 1) + 1;
+            i = (obj->direction_index >> 1) + 1;
         }
-        obj->field_27b = data_801c3d48_slot04_08[i];
-        func_801307e0(obj, (obj->field_12a >> 1) + 0x55);
+        obj->other_lock = data_801c3d48_slot04_08[i];
+        func_801307e0(obj, (obj->direction_index >> 1) + 0x55);
         func_801b2cec_slot04_08(obj);
     }
 }
@@ -46,15 +46,15 @@ void func_801b2cec_slot04_08(Object *obj) {
         obj->vel_x = 0x90000;
         obj->accel_x = -0x4000;
         obj->state_3++;
-        obj->field_67 = 0;
+        obj->active_flag = 0;
         a = 0xc0;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             a = -0xc0;
             obj->vel_x = -obj->vel_x;
             obj->accel_x = -obj->accel_x;
         }
         data_801c3e98_slot04_08 = a + obj->pos_x;
-        obj->field_46 = 0;
+        obj->countdown = 0;
         func_801b4298_slot04_08(obj);
     }
     update_sequence(obj);

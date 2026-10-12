@@ -6,8 +6,8 @@
 
 void func_8014b13c(Object *object) {
     func_8014e7ec(object);
-    object->field_21c = *data_80189460++;
-    data_80189464 = data_80189464 - object->field_21e;
+    object->countdown_3 = *data_80189460++;
+    data_80189464 = data_80189464 - object->compare_limit;
     if ((s16)data_80189464 >= 0) {
         func_8014c914(object);
     } else {
@@ -17,15 +17,15 @@ void func_8014b13c(Object *object) {
         object->state_1 = 0;
         object->state_2 = 2;
         object->state_3 = 0;
-        object->field_48 = 0;
-        object->field_21a = 0;
+        object->variant_index = 0;
+        object->direction_flag = 0;
     }
 }
 
 void func_8014b1dc(Object *object) {
     func_8014e7ec(object);
-    object->field_21c = *data_80189460++;
-    data_80189464 = data_80189464 - object->field_21e;
+    object->countdown_3 = *data_80189460++;
+    data_80189464 = data_80189464 - object->compare_limit;
     if ((s16)data_80189464 < 0) {
         func_8014c914(object);
     } else {
@@ -35,8 +35,8 @@ void func_8014b1dc(Object *object) {
         object->state_1 = 0;
         object->state_2 = 2;
         object->state_3 = 0;
-        object->field_48 = 1;
-        object->field_21a = 1;
+        object->variant_index = 1;
+        object->direction_flag = 1;
     }
 }
 
@@ -46,8 +46,8 @@ void func_8014b27c(Object *object) {
     func_8014e7ec(object);
     value = *data_80189460++;
     old = data_80189464;
-    object->field_21c = value;
-    data_80189464 = old - object->field_21e + 3;
+    object->countdown_3 = value;
+    data_80189464 = old - object->compare_limit + 3;
     if (data_80189464 < 6) {
         func_8014c914(object);
     } else {
@@ -57,11 +57,11 @@ void func_8014b27c(Object *object) {
         object->state_1 = 0;
         object->state_2 = 2;
         object->state_3 = 0;
-        object->field_48 = 0;
-        object->field_21a = 0;
-        if (old >= object->field_21e) {
-            object->field_48 = 1;
-            object->field_21a = 1;
+        object->variant_index = 0;
+        object->direction_flag = 0;
+        if (old >= object->compare_limit) {
+            object->variant_index = 1;
+            object->direction_flag = 1;
         }
     }
 }

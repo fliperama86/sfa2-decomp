@@ -16,7 +16,7 @@ void func_801b2a38_slot04_0a(Object *obj) {
         k = 1;
     }
     obj->field_165 = k;
-    f = ((Slot04aObj *)obj)->field_3a;
+    f = ((Slot04aObj *)obj)->mode;
     if (f == 0) {
         obj->field_165 = 0;
         if (((s16)obj->step_flags & 0xff00) != 0x100) {
@@ -27,13 +27,13 @@ void func_801b2a38_slot04_0a(Object *obj) {
                 obj->vel_y = 0x28000;
                 obj->accel_y = -0x3000;
                 obj->state_3++;
-                if (obj->field_0b == 0) {
+                if (obj->facing_side == 0) {
                     k = 0xfff60000;
                     b = 0x1000;
                 }
                 obj->vel_x = k;
                 obj->accel_x = b;
-                func_801307e0(obj, (obj->field_12a >> 1) + 0x33);
+                func_801307e0(obj, (obj->direction_index >> 1) + 0x33);
             }
         }
     } else if (f == 2) {
@@ -41,8 +41,8 @@ void func_801b2a38_slot04_0a(Object *obj) {
         obj->field_165 = 0;
         if (obj->field_4b == 0) {
             obj->other->field_6b = 0xa;
-            k = (obj->field_12a >> 1) + 1;
+            k = (obj->direction_index >> 1) + 1;
         }
-        obj->field_27b = data_801c06ac_slot04_0a[k];
+        obj->other_lock = data_801c06ac_slot04_0a[k];
     }
 }

@@ -13,8 +13,8 @@ void func_80144830(Object *object)
   margin = box_margin[0];
   object->pos_y = 0x70;
   object->field_01 = 2;
-  object->field_98 = data_80172a48;
-  object->field_9c = data_80173c9c;
+  object->data_ptr_a = data_80172a48;
+  object->data_ptr_b = data_80173c9c;
   object->spawn_x = 0x60;
   object->field_90 = (void *) 0x800fb100;
   object->pos_x = margin + 0xc0;

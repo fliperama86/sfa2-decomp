@@ -6,9 +6,9 @@
 extern ObjectFn data_801dd4f8_slot05_06[];
 
 void func_801cc750_slot05_06(Object *obj) {
-    if (((Slot04aObj *)obj)->field_3a != 0) {
+    if (((Slot04aObj *)obj)->mode != 0) {
         obj->state_3++;
-        if (obj->field_129 == 0) {
+        if (obj->input_dir_second == 0) {
             func_80140770(obj, 0x26, 5, 0x11, 0, 0, 1);
         } else {
             func_80140770(obj, 0x29, 5, 1, 0, 0, 1);
@@ -28,7 +28,7 @@ void func_801cc7d4_slot05_06(Object *obj) {
 void func_801cc814_slot05_06(Object *obj) {
     int t = obj->vel_x;
 
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         t = -t;
     }
     *(s32 *)&obj->pos_x_frac += t;
@@ -41,7 +41,7 @@ void func_801cc84c_slot05_06(Object *obj) {
 }
 
 void func_801cc870_slot05_06(Object *obj, u16 *p) {
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         *p = -*p;
     }
 }

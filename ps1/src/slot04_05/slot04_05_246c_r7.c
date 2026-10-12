@@ -24,7 +24,7 @@ void func_801b2e74_slot04_05(Object *o) {
     s16 t = o->step_flags;
     if (t & 0x8000) {
         o->state_3++;
-        if (o->field_0b != 0) {
+        if (o->facing_side != 0) {
             o->vel_x = 0x40000;
         } else {
             o->vel_x = 0xfffc0000;
@@ -32,7 +32,7 @@ void func_801b2e74_slot04_05(Object *o) {
         o->vel_y = 0x90000;
         o->accel_y = -0x7000;
         o->accel_x = 0;
-        o->field_45 = 1;
+        o->active_state = 1;
         func_801307e0(o, 0x30);
     } else {
         if ((u8)t != 0) {
@@ -54,8 +54,8 @@ void func_801b2e74_slot04_05(Object *o) {
         update_sequence(o);
         return;
     c4:
-        if (o->field_cd != 0) {
-            obj->field_1a6 = o->field_129;
+        if (o->mode_flag_2 != 0) {
+            obj->field_1a6 = o->input_dir_second;
         }
         if (obj->field_1a6 == 0) {
             goto dflt;

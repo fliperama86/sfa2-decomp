@@ -8,7 +8,7 @@ void func_801b4db8_slot04_0b(Object *obj, int index);
 void func_801b4e0c_slot04_0b(Object *obj, int dx, int dy);
 
 void func_801b4acc_slot04_0b(Object *obj) {
-    obj->field_0d = 0x1f;
+    obj->image_row = 0x1f;
     obj->state_1++;
     func_801b4e0c_slot04_0b(obj, 0xe, 0xe);
     func_801b4db8_slot04_0b(obj, 0x14);
@@ -22,21 +22,21 @@ void func_801b4b24_slot04_0b(Object *obj) {
         obj->state_3 = 0;
         obj->pos_x_frac = 0;
         obj->pos_y_frac = 0;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             obj->health = 0x340;
-            obj->field_5e = 0x2c0;
+            obj->y_offset = 0x2c0;
             obj->vel_x = *(s32 *)&obj->pos_x_frac + 0x40000;
             obj->vel_y = *(s32 *)&obj->pos_x_frac + 0x110000;
         } else {
             *(s16 *)&obj->health = -0x340;
-            *(s16 *)&obj->field_5e = -0x2c0;
+            *(s16 *)&obj->y_offset = -0x2c0;
             obj->vel_x = *(s32 *)&obj->pos_x_frac - 0x40000;
             obj->vel_y = *(s32 *)&obj->pos_x_frac - 0x110000;
         }
         obj->ground_y = 0x500;
-        obj->field_76 = 0x400;
-        *(s16 *)&obj->field_26 = -0xa0;
-        *(s16 *)&obj->field_46 = -0xa0;
+        obj->base_x = 0x400;
+        *(s16 *)&obj->scroll_factor = -0xa0;
+        *(s16 *)&obj->countdown = -0xa0;
         obj->accel_x = *(s32 *)&obj->pos_y_frac - 0x340000;
         obj->accel_y = *(s32 *)&obj->pos_y_frac - 0x4d0000;
         func_801b4c28_slot04_0b(obj);

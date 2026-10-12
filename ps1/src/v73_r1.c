@@ -15,15 +15,15 @@ void func_80148220(Object *object)
   Object *new_var3;
   s32 *new_var2;
   s32 y;
-  if (object->field_a0 != 0)
+  if (object->variant_index_2 != 0)
   {
-    object->field_a0--;
+    object->variant_index_2--;
   }
-  parent = object->field_3c;
+  parent = object->parent;
   x = (s16) object->health;
-  object->field_0b = parent->field_0b;
-  y = (s16) object->field_5e;
-  if (object->field_0b != 0)
+  object->facing_side = parent->facing_side;
+  y = (s16) object->y_offset;
+  if (object->facing_side != 0)
   {
     x = -x;
   }
@@ -32,7 +32,7 @@ void func_80148220(Object *object)
   y = parent->pos_y - y;
   x = (((u32) x) >> 16) + (x << 16);
   new_var2 = (s32 *) (&object->pos_x_frac);
-  *new_var2 = x + offsets_cc28[new_var3->field_a0].x;
+  *new_var2 = x + offsets_cc28[new_var3->variant_index_2].x;
   y = (((u32) y) >> 16) + (y << 16);
-  *((s32 *) (&object->pos_y_frac)) = y + offsets_cc28[object->field_a0].y;
+  *((s32 *) (&object->pos_y_frac)) = y + offsets_cc28[object->variant_index_2].y;
 }

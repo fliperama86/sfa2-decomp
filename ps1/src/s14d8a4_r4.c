@@ -5,8 +5,8 @@
 
 
 void func_8014e080(Object *object) {
-    object->field_20a = 2;
-    object->field_206 = 0;
+    object->script_mode = 2;
+    object->init_done_flag = 0;
     object->field_207 = 0;
     object->field_208 = 0;
     object->field_209 = 0;
