@@ -43,7 +43,7 @@ void func_801b34e4_slot04_11(Object *obj) {
                 func_80140770(obj, 0x10, 5, data_801c7518_slot04_11[i], data_801c7518_slot04_11[i + 1], 0, 0);
             } while (0);
             ref_other.p = obj->other;
-            if ((s16)ref_other.p->field_5c < 0) {
+            if ((s16)ref_other.p->health < 0) {
                 play_sound_at(ref_other.p, ref_other.p->side, 0x339);
                 func_801b37f8_slot04_11(obj);
             } else {

@@ -30,9 +30,9 @@ void func_800238b0_slot28(Object *obj) {
             b->field_00 = 1;
             b->field_02 = 0x1d;
             b->field_03 = 3;
-            b->field_09 = 2;
-            b->field_7a = 0x60;
-            b->field_7c = 0x1e0;
+            b->ot_depth = 2;
+            b->spawn_x = 0x60;
+            b->spawn_y = 0x1e0;
             b->pos_x = 0x1a8;
             b->pos_y = 0xd5;
             b->field_90 = (void *)0x80060000;
@@ -49,9 +49,9 @@ void func_800238b0_slot28(Object *obj) {
             b->field_00 = 1;
             b->field_02 = 0x1d;
             b->field_03 = 2;
-            b->field_09 = 3;
-            b->field_7a = 0x60;
-            b->field_7c = 0x1e0;
+            b->ot_depth = 3;
+            b->spawn_x = 0x60;
+            b->spawn_y = 0x1e0;
             b->pos_x = -0x3d;
             b->pos_y = 0xc1;
             b->field_90 = (void *)0x80060000;

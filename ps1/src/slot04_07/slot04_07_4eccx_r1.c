@@ -12,7 +12,7 @@ void func_801b4ecc_slot04_07(Object *obj) {
     int v;
     int w;
 
-    obj->field_09 = 2;
+    obj->ot_depth = 2;
     obj->state_0 = obj->state_0 + 1;
     o = obj->other;
     obj->field_45 = 0;
@@ -32,13 +32,13 @@ void func_801b4ecc_slot04_07(Object *obj) {
     a += *(s16 *)box_margin;
     v += a;
     w = v << 16;
-    *(s32 *)&obj->field_5c = w;
+    *(s32 *)&obj->health = w;
     *(s32 *)&obj->box_tables = w;
     v = get_random_byte() & 0x3f;
     v = 0xb8 - v;
     w = v << 16;
     *(s32 *)&obj->field_60 = w;
-    *(s32 *)&obj->field_70 = w;
+    *(s32 *)&obj->ground_y = w;
     func_801b51dc_slot04_07(obj);
     if (o->side == 0) {
         p = (s32 *)data_1f8000b4;

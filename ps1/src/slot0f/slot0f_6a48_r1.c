@@ -34,6 +34,6 @@ void func_800e6aac_slot0f(Object *o, HudSlot *c, s16 i) {
     dst = (char *)data_800f7cd4_slot0f + i * 8;
     func_800e6b8c_slot0f(buf, dst);
     c->field_0c = (int)dst;
-    c->field_04 = (u16)obj->pos_x + data_800eff70_slot0f[i];
-    c->field_06 = obj->field_16 + 8;
+    c->pos_x = (u16)obj->pos_x + data_800eff70_slot0f[i];
+    c->pos_y = obj->field_16 + 8;
 }

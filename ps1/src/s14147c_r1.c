@@ -6,7 +6,7 @@
 
 void func_8014147c(Object *object, BytePair dir) {
     object->field_279 = 0;
-    if (object->field_25f != 0 && object->field_17d == dir.first && object->field_17c == dir.second &&
+    if (object->field_25f != 0 && object->dir_first == dir.first && object->dir_second == dir.second &&
         object->field_17e == object->field_128) {
         object->field_279 = 1;
     }

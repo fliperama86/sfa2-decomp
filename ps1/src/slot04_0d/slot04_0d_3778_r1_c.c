@@ -57,8 +57,8 @@ void func_801b3a14_slot04_0d(Object *object) {
             p->field_0b = object->field_0b;
             p->field_1c = object->field_1c;
             e = object->field_1e;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_1e = e;
             d = object->field_0d;
             p->field_02 = 5;
@@ -101,7 +101,7 @@ void func_801b3bd0_slot04_0d(Object *object) {
     int i;
 
     parent = object->field_3c;
-    object->field_09 = 0;
+    object->ot_depth = 0;
     object->state_0 = object->state_0 + 1;
     object->field_49 = parent->field_49;
     object->field_1c = parent->field_1c;

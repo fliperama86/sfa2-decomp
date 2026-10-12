@@ -14,7 +14,7 @@ void func_801560d4(void)
   s16 *new_var;
   c = &data_8018d268;
   *c = (*c) + 1;
-  w = game_state.field_78->field_5c;
+  w = game_state.field_78->health;
   if (w == 0x90)
   {
     w = 300;

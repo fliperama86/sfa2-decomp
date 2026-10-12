@@ -25,7 +25,7 @@ void func_801b35a8_slot04_07(Object *obj) {
         set_side_flag(obj);
         func_80142c70(obj);
     } else {
-        if (obj->field_134 != 0) {
+        if (obj->pressed_bits != 0) {
             if (((Slot04aObj *)obj)->field_27d == 0) {
                 ((Slot04aObj *)obj)->field_27d = obj->field_27c;
             }

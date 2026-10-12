@@ -153,11 +153,11 @@ void func_801b5830_slot04_17(Object *obj) {
 }
 
 int func_801b5850_slot04_17(Object *obj) {
-    return ((obj->field_134 | obj->field_136) & 0x94) == 0x94;
+    return ((obj->pressed_bits | obj->released_bits) & 0x94) == 0x94;
 }
 
 int func_801b5870_slot04_17(Object *obj) {
-    return ((obj->field_134 | obj->field_136) & 0x68) == 0x68;
+    return ((obj->pressed_bits | obj->released_bits) & 0x68) == 0x68;
 }
 
 Object *func_801b5890_slot04_17(Object *obj) {
@@ -280,9 +280,9 @@ void func_801b5d08_slot04_17(Object *obj) {
 }
 
 void func_801b5d38_slot04_17(Object *obj) {
-    if (obj->field_67 != 0 && *(u8 *)&obj->step_flags != 0 && (obj->field_134 & 8)) {
+    if (obj->field_67 != 0 && *(u8 *)&obj->step_flags != 0 && (obj->pressed_bits & 8)) {
         func_801307e0(obj, obj->field_48 != 0 ? 0x19 : 0x18);
-    } else if (func_801b5f44_slot04_17(obj) < 0 && obj->pos_y >= obj->field_70) {
+    } else if (func_801b5f44_slot04_17(obj) < 0 && obj->pos_y >= obj->ground_y) {
         func_801b5fc8_slot04_17(obj);
         func_801209c4(obj);
     } else {

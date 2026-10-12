@@ -5,7 +5,7 @@
 
 
 int func_8013d0fc(Object *object) {
-    int bits = (object->field_134 | object->field_136) & 0x6a;
+    int bits = (object->pressed_bits | object->released_bits) & 0x6a;
 
     if (bits != 0x68) {
         return bits == 2;

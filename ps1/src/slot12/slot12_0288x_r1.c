@@ -51,15 +51,15 @@ void func_80010288_slot12(void) {
         o->field_00 = 1;
         o->field_02 = 0x7b;
         o->field_03 = 1;
-        o->field_7a = 0;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0;
+        o->spawn_y = 0x1e0;
     }
     o = (Object *)func_8011f1e0();
     if (o != 0) {
         o->field_00 = 1;
         o->field_02 = 0x7b;
         o->field_03 = 2;
-        o->field_7a = 0;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0;
+        o->spawn_y = 0x1e0;
     }
 }

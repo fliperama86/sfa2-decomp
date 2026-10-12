@@ -43,7 +43,7 @@ void func_80131d68(Object *object) {
         if (!func_80148e84(object)) break;
         d = table_80171b38[i];
         if (object->field_0b != 0) d = -d;
-        game_state.field_358->pos_x = game_state.field_358->pos_x + d;
+        game_state.other_object->pos_x = game_state.other_object->pos_x + d;
     }
 }
 
@@ -54,6 +54,6 @@ void func_80131df8(Object *object) {
         if (!func_80148ea8(object)) break;
         d = table_80171b40[i];
         if (object->field_0b != 0) d = -d;
-        game_state.field_358->pos_x = game_state.field_358->pos_x + d;
+        game_state.other_object->pos_x = game_state.other_object->pos_x + d;
     }
 }

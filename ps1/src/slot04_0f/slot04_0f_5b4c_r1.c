@@ -31,8 +31,8 @@ void func_801b5b4c_slot04_0f(Object *obj) {
                 p->field_02 = 0x25;
                 p->field_3c = data_80190458.p;
                 p->field_0c = data_80190458.p->field_0c;
-                p->field_7a = 0x60;
-                p->field_7c = 0x1e0;
+                p->spawn_x = 0x60;
+                p->spawn_y = 0x1e0;
                 p->field_0d = obj->field_0d;
                 p->field_90 = data_80190458.p->field_90;
                 p->field_98 = data_80190458.p->field_98;
@@ -48,7 +48,7 @@ void func_801b5b4c_slot04_0f(Object *obj) {
                     a = -0x28;
                 }
                 p->pos_x += a;
-                p->field_09 = 6;
+                p->ot_depth = 6;
                 p->field_1c = data_80190458.p->field_1c;
                 p->field_0b = data_80190458.p->field_0b;
                 a = obj->field_48 & 0x1f;

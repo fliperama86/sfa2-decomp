@@ -35,7 +35,7 @@ void func_8012e600(Object *object)
       }
     }
     else
-      if ((object->field_130 & 0xa000) && (object->field_134 & 0x3c))
+      if ((object->field_130 & 0xa000) && (object->pressed_bits & 0x3c))
     {
       object->field_15b = 0;
       object->field_2a3 = 1;
@@ -59,7 +59,7 @@ void func_8012e600(Object *object)
       t = -t;
     }
     object->pos_x = ref_other.p->pos_x + t;
-    object->pos_y = ref_other.p->pos_y - box->field_02;
+    object->pos_y = ref_other.p->pos_y - box->origin_y;
   }
   object->field_17a = 0;
   t = box->extent;
@@ -76,7 +76,7 @@ void func_8012e600(Object *object)
   next += box->field_05;
   if (next != object->sequence)
   {
-    object->field_80 = 1;
+    object->sequence_changed_flag = 1;
     object->sequence = next;
   }
   object->frame = object->frames + object->sequence->frame_index;

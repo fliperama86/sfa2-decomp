@@ -27,7 +27,7 @@ void func_800764a8_slot00(Object *o) {
         o->state_3++;
         o->pos_x_frac = 0;
     }
-    if ((game_state.field_1d & 3) == 0) {
+    if ((game_state.frame_counter & 3) == 0) {
         if (func_80148e84(o) & 0xff) {
             if (o->field_0b == 0) {
                 ref_other.p->pos_x -= 0x30;

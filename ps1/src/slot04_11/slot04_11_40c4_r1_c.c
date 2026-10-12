@@ -19,8 +19,8 @@ void func_801b4824_slot04_11(Object *obj) {
 
     func_801b4970_slot04_11(obj);
     func_801b5764_slot04_11(obj);
-    if (obj->pos_y >= obj->field_70) {
-        obj->pos_y = obj->field_70;
+    if (obj->pos_y >= obj->ground_y) {
+        obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         func_801209c4(obj);
@@ -51,8 +51,8 @@ void func_801b4970_slot04_11(Object *o) {
 
     if (o->field_cd == 0) {
         if (*(u16 *)&obj->field_1c0 == 0) {
-            if (o->field_134 != 0) {
-                *(u16 *)&obj->field_1c0 = o->field_134 & 0x68;
+            if (o->pressed_bits != 0) {
+                *(u16 *)&obj->field_1c0 = o->pressed_bits & 0x68;
             }
         }
     }

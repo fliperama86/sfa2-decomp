@@ -15,14 +15,14 @@ void func_801536b8(Effect *effect) {
     if (effect->owner->field_cd == 0) {
         func_80153dfc(effect);
     }
-    effect->field_0c = effect->field_0c - 1;
-    if (effect->field_0c & 0x8000) {
-        effect->field_0c = 0x20;
+    effect->countdown_timer = effect->countdown_timer - 1;
+    if (effect->countdown_timer & 0x8000) {
+        effect->countdown_timer = 0x20;
         effect->field_05++;
         t = effect->field_06;
         effect->field_09 = t;
         if (t == 0) {
-            effect->field_02 = 0;
+            effect->active_flag = 0;
             effect->field_05 = 0;
             return;
         }
@@ -31,7 +31,7 @@ void func_801536b8(Effect *effect) {
             effect->field_09 = 12;
         }
         effect->field_09 = effect->field_09 + 10;
-        effect->field_08 = effect->field_09;
+        effect->table_index = effect->field_09;
         func_80153d7c(effect);
         if (effect->owner->field_cd == 0) {
             effect->field_09 = effect->field_06;

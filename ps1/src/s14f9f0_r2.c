@@ -7,13 +7,13 @@
 void func_8014fd28(Ctl *ctl) {
     Stream *stream = (Stream *)ctl;
     int v;
-    if (stream->field_24 == 0) {
-        v = stream->field_40->field_00;
+    if (stream->step_count == 0) {
+        v = stream->field_40->kind;
         if (v < 4) {
-            stream->field_1a = v;
-            stream->field_44 = stream->field_38;
+            stream->vab_id = v;
+            stream->field_44 = stream->source_ptr;
         }
     }
     func_8015003c(stream);
-    stream->field_24++;
+    stream->step_count++;
 }

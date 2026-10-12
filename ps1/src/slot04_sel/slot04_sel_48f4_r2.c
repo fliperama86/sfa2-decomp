@@ -46,7 +46,7 @@ void func_801b4c18_slot04_sel(Object *obj, Slot04SelRec9d78 *rec) {
     rec->field_0e = 0;
     rec->field_0f = 0;
     rec->field_10 = 0;
-    rec->field_11 = 0;
+    rec->sequence_index = 0;
     rec->field_12 = 0;
     rec->field_13 = 0;
     rec->field_14 = 0;

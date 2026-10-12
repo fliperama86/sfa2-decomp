@@ -10,7 +10,7 @@ void func_801cccf8_slot05_06(Object *obj) {
     s8 r;
 
     if (((Slot04aObj *)obj)->field_3b & 0x80) {
-        game_state_second.field_4b = game_state.field_4b | (1 << obj->side);
+        game_state_second.side_bits = game_state.field_4b | (1 << obj->side);
     }
     if (((Slot04aObj *)obj)->field_3a == 1) {
         r = func_80146918(obj);

@@ -14,7 +14,7 @@ void func_80014e30_slot12(Object *obj) {
 void func_80014e70_slot12(Object *obj) {
     Slot12Cell *c;
     int i;
-    obj->field_09 = 2;
+    obj->ot_depth = 2;
     obj->state_0++;
     if (obj->field_03 == 0) {
         obj->pos_x = data_800282d4_slot12[0];
@@ -27,8 +27,8 @@ void func_80014e70_slot12(Object *obj) {
     for (i = 0; i < 2; i++) {
         c->field_03 = 3;
         c->field_07 = 0x60;
-        c->field_08 = obj->pos_x;
-        c->field_0a = obj->pos_y;
+        c->pos_x = obj->pos_x;
+        c->pos_y = obj->pos_y;
         if (obj->field_03 == 0) {
             c->field_0c = 0x58;
         } else {

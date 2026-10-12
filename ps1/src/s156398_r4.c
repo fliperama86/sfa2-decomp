@@ -11,9 +11,9 @@ void func_80156bc8(GameState *state, Object *object) {
     u8 unused[16];
     int i;
 
-    if (object->field_120 + object->field_121 < 12) {
-        if ((u8)(object->field_aa - 2) < 2) {
-            if (object->field_aa != 3 || (state->field_33 & 1)) {
+    if (object->score_rank + object->field_121 < 12) {
+        if ((u8)(object->phase_index - 2) < 2) {
+            if (object->phase_index != 3 || (state->field_33 & 1)) {
                 text = &data_801817d0;
                 if (object->side == 0) {
                     text = &data_801817c0;

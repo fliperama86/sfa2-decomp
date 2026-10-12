@@ -11,7 +11,7 @@ extern u16 *data_80028b44_slot12;
 void func_800113e4_slot12(void) {
     Rect r;
     u8 tbl[21] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 17, 2};
-    Object *obj = game_state.field_154;
+    Object *obj = game_state.object;
     u8 *buf;
     int x;
 

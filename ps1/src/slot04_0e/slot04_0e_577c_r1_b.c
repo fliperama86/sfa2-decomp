@@ -89,6 +89,6 @@ void func_801b6128_slot04_0e(Object *obj) {
     obj->pos_x_frac = 0;
     obj->pos_y_frac = 0;
     obj->field_17b = 0;
-    obj->pos_y = (u16)obj->field_70;
+    obj->pos_y = (u16)obj->ground_y;
     func_801307e0(obj, 0x2b);
 }

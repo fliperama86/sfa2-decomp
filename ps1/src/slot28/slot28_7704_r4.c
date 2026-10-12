@@ -17,11 +17,11 @@ void func_80017c50_slot28(Object *obj) {
             p->field_02 = 0x34;
             p->pos_x = 0xf0;
             p->pos_y = 0x80;
-            p->field_7a = 0x60;
+            p->spawn_x = 0x60;
             p->field_03 = 1;
-            p->field_7c = 0x1e0;
+            p->spawn_y = 0x1e0;
             p->field_0d = 0;
-            p->field_09 = 1;
+            p->ot_depth = 1;
             p->field_01 = 1;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
@@ -33,7 +33,7 @@ void func_80017c50_slot28(Object *obj) {
             func_80017ed0_slot28(p, obj);
             p->pos_x = 0xf0;
             p->pos_y = 0x80;
-            p->field_09 = 2;
+            p->ot_depth = 2;
             func_80130768(p, 2, (SequenceStep **)obj->box_tables);
         }
         p = (Object *)func_8011f1e0();
@@ -41,7 +41,7 @@ void func_80017c50_slot28(Object *obj) {
             func_80017ed0_slot28(p, obj);
             p->pos_x = 0xe0;
             p->pos_y = 0x50;
-            p->field_09 = 3;
+            p->ot_depth = 3;
             func_80130768(p, 4, (SequenceStep **)obj->box_tables);
         }
         p = (Object *)func_8011f1e0();
@@ -49,7 +49,7 @@ void func_80017c50_slot28(Object *obj) {
             func_80017ed0_slot28(p, obj);
             p->pos_x = 0xf0;
             p->pos_y = 0x90;
-            p->field_09 = 3;
+            p->ot_depth = 3;
             func_80130768(p, 5, (SequenceStep **)obj->box_tables);
         }
         p = (Object *)func_8011f1e0();
@@ -57,7 +57,7 @@ void func_80017c50_slot28(Object *obj) {
             func_80017ed0_slot28(p, obj);
             p->pos_x = 0x70;
             p->pos_y = 0x50;
-            p->field_09 = 3;
+            p->ot_depth = 3;
             func_80130768(p, 6, (SequenceStep **)obj->box_tables);
         }
         p = (Object *)func_8011f1e0();
@@ -65,7 +65,7 @@ void func_80017c50_slot28(Object *obj) {
             func_80017ed0_slot28(p, obj);
             p->pos_x = 0x70;
             p->pos_y = 0x80;
-            p->field_09 = 3;
+            p->ot_depth = 3;
             func_80130768(p, 7, (SequenceStep **)obj->box_tables);
         }
         p = (Object *)func_8011f1e0();

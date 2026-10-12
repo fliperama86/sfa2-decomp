@@ -29,6 +29,6 @@ void func_801e08d4_slot2a(Object *obj) {
 }
 
 void func_801e08f4_slot2a(Object *obj, u8 idx) {
-    data_801e21f4_slot2a[obj->field_03]->field_04 = data_801e21fc_slot2a[idx];
+    data_801e21f4_slot2a[obj->field_03]->data_ptr = data_801e21fc_slot2a[idx];
     func_80130768(obj, obj->field_03, data_801e21f4_slot2a);
 }

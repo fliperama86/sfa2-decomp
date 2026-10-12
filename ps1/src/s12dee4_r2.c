@@ -25,7 +25,7 @@ void func_8012e04c(Object *object) {
         object->field_46 = 4;
         object->field_45 = 0;
         object->field_166 = 1;
-        object->pos_y = (u16)object->field_70;
+        object->pos_y = (u16)object->ground_y;
         if (object->vel_x >= 0) {
             a1 = 0;
             value = 0x60000;

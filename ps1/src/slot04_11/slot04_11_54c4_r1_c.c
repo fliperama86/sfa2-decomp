@@ -72,9 +72,9 @@ void func_801b5d8c_slot04_11(Object *obj) {
 }
 
 void func_801b5dbc_slot04_11(Object *obj) {
-    if (obj->field_67 != 0 && *(u8 *)&obj->step_flags != 0 && (obj->field_134 & 8)) {
+    if (obj->field_67 != 0 && *(u8 *)&obj->step_flags != 0 && (obj->pressed_bits & 8)) {
         func_801307e0(obj, obj->field_48 != 0 ? 0x19 : 0x18);
-    } else if (func_801b5fc8_slot04_11(obj) < 0 && obj->pos_y >= obj->field_70) {
+    } else if (func_801b5fc8_slot04_11(obj) < 0 && obj->pos_y >= obj->ground_y) {
         func_801b604c_slot04_11(obj);
         func_801209c4(obj);
     } else {

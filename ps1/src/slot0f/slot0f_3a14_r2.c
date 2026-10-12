@@ -17,7 +17,7 @@ extern u8 data_800e981b_slot0f[];
 void func_800e3b60_slot0f(void) {
     u8 i;
 
-    ((HudBig *)data_8018f5a0)->field_52++;
+    ((HudBig *)data_8018f5a0)->substate_index++;
     data_800f024c_slot0f = 0;
     data_800f0250_slot0f = 0;
     data_800f0254_slot0f = 0;

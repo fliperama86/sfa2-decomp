@@ -10,6 +10,6 @@ void func_80136668(Cam *cam, short step)
   {
     step = 5;
   }
-  cam->field_22 += step;
-  func_80136898(cam, (short) ((short) cam->field_22 < cam->field_46 ? cam->field_22 : cam->field_46));
+  cam->pos_x += step;
+  func_80136898(cam, (short) ((short) cam->pos_x < cam->max_x ? cam->pos_x : cam->max_x));
 }

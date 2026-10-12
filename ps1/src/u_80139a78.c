@@ -35,7 +35,7 @@ void func_80139a78(Object *a, Object *b)
   }
   if (a->field_08 == 0)
   {
-    a->field_296 = table_80177000[a->kind];
+    a->kind_timer = table_80177000[a->kind];
   }
   a->field_67 = 1;
   data_80188f34 = 0;
@@ -57,14 +57,14 @@ void func_80139a78(Object *a, Object *b)
   {
     b->field_63 = box->field_19;
   }
-  b->field_72 = a->field_0b;
+  b->facing_flag = a->field_0b;
   if (box->field_0b & 0x80)
   {
-    b->field_72 = a->pos_x < b->pos_x;
+    b->facing_flag = a->pos_x < b->pos_x;
   }
   else
   {
-    b->field_72 = box->field_0b ^ b->field_72;
+    b->facing_flag = box->field_0b ^ b->facing_flag;
   }
   if (a->field_66 != 0)
   {
@@ -96,7 +96,7 @@ void func_80139a78(Object *a, Object *b)
     }
     a->field_6b = t;
   }
-  if ((((s16) b->field_5c) < 0) || (b->frame->field_06 == 0))
+  if ((((s16) b->health) < 0) || (b->frame->handler_index == 0))
   {
     func_8013a154(a, b, box);
   }

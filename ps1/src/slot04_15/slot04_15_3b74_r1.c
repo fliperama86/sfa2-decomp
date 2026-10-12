@@ -59,7 +59,7 @@ void func_801b3bd8_slot04_15(Object *object) {
     int i;
 
     parent = object->field_3c;
-    object->field_09 = 0;
+    object->ot_depth = 0;
     object->state_0 = object->state_0 + 1;
     object->field_49 = parent->field_49;
     object->field_1c = parent->field_1c;
@@ -216,7 +216,7 @@ void func_801b40cc_slot04_15(Object *obj) {
             t = data_801c3810_slot04_15;
         }
     }
-    t = (BoxTables **)t[(s16)obj->field_5c];
+    t = (BoxTables **)t[(s16)obj->health];
     obj->box_tables = (BoxTables *)t;
 }
 
@@ -318,7 +318,7 @@ void func_801b446c_slot04_15(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac += obj->vel_y;
     obj->vel_y += obj->accel_y;
-    t = (u16)obj->field_3c->field_70;
+    t = (u16)obj->field_3c->ground_y;
     t -= 0x55;
     if (obj->pos_y < t) {
         func_80131094(obj);

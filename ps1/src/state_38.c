@@ -29,18 +29,18 @@ void func_80138ce0(Object *object, Object *other) {
     } else {
         a = 6;
     }
-    if ((short)other->field_5c >= 0x70) {
+    if ((short)other->health >= 0x70) {
         b = 0;
-    } else if ((short)other->field_5c >= 0x48) {
+    } else if ((short)other->health >= 0x48) {
         b = 2;
-    } else if ((short)other->field_5c >= 0x20) {
+    } else if ((short)other->health >= 0x20) {
         b = 4;
     } else {
         b = 6;
     }
     if (b >= a) {
-        other->field_20b = b;
+        other->script_table_index = b;
     } else {
-        other->field_20b = a;
+        other->script_table_index = a;
     }
 }

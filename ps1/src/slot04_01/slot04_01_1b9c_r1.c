@@ -11,7 +11,7 @@ void func_801b1b9c_slot04_01(Object *o) {
     data_801befb0_slot04_01[o->state_3](o);
     if (obj->field_1a5 != 0) {
         if (o->vel_y < 0) {
-            if (o->pos_y - o->field_70 >= -0x1f) {
+            if (o->pos_y - o->ground_y >= -0x1f) {
                 obj->field_1a5 = 0;
             }
         }

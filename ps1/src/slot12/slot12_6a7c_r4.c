@@ -24,8 +24,8 @@ void func_80016cb4_slot12(Object *o, HudSlot *c, s16 i) {
     dst = (char *)data_8002c508_slot12 + i * 8;
     func_80016d98_slot12(buf, dst);
     c->field_0c = (int)dst;
-    c->field_04 = obj->field_12 + data_80028a28_slot12[i];
-    c->field_06 = obj->field_16 + 8;
+    c->pos_x = obj->field_12 + data_80028a28_slot12[i];
+    c->pos_y = obj->field_16 + 8;
 }
 
 void func_80016d98_slot12(char *src, char *dst) {

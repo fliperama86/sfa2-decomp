@@ -21,7 +21,7 @@ void func_801b2bf8_slot04_08(Object *obj) {
         } else {
             obj->field_165 = 1;
         }
-        play_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 0x31c);
+        play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x31c);
         func_801483a4(obj, -0xa, 0x72);
     }
     if (obj->step_flags != 0) {

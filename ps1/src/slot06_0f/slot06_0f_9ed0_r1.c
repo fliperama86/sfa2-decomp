@@ -41,7 +41,7 @@ void func_801e9ed0_slot06_0f(void) {
             if (k == 0) {
                 return;
             }
-            if (k == 2 || (k == 3 && player_right.field_d7 != 0)) {
+            if (k == 2 || (k == 3 && player_right.win_streak != 0)) {
                 s = right;
             }
         }
@@ -51,10 +51,10 @@ void func_801e9ed0_slot06_0f(void) {
             n->field_02 = 0x46;
             n->field_3c = s;
             n->field_66 = s->side;
-            n->field_09 = 0xe;
+            n->ot_depth = 0xe;
             n->field_1c = s->field_1c;
-            n->field_7a = 0x60;
-            n->field_7c = 0x1e0;
+            n->spawn_x = 0x60;
+            n->spawn_y = 0x1e0;
             n->field_0d = s->field_0d;
             n->field_90 = s->field_90;
             n->field_98 = s->field_98;
@@ -70,21 +70,21 @@ void func_801ea010_slot06_0f(Object *obj) {
 
 void func_801ea060_slot06_0f(Object *obj) {
     s16 t;
-    game_state.field_358 = obj->field_3c;
-    if (game_state.field_358->field_01 != 0) {
+    game_state.other_object = obj->field_3c;
+    if (game_state.other_object->field_01 != 0) {
         obj->state_0 = obj->state_0 + 1;
-        obj->field_0c = game_state.field_358->field_0c;
-        obj->field_0e = game_state.field_358->field_0e;
-        obj->field_09 = 0xe;
-        obj->field_1c = game_state.field_358->field_1c;
-        obj->pos_x = game_state.field_358->pos_x;
-        obj->pos_y = game_state.field_358->pos_y - 6;
+        obj->field_0c = game_state.other_object->field_0c;
+        obj->field_0e = game_state.other_object->field_0e;
+        obj->ot_depth = 0xe;
+        obj->field_1c = game_state.other_object->field_1c;
+        obj->pos_x = game_state.other_object->pos_x;
+        obj->pos_y = game_state.other_object->pos_y - 6;
         t = 0x30;
-        if (game_state.field_358->field_0b == 0) {
+        if (game_state.other_object->field_0b == 0) {
             t = -0x30;
         }
         obj->pos_x += t;
-        obj->field_03 = game_state.field_358->kind;
+        obj->field_03 = game_state.other_object->kind;
         obj->field_0f = 1;
         obj->field_46 = 1;
         obj->field_0b = 0;
@@ -97,8 +97,8 @@ void func_801ea060_slot06_0f(Object *obj) {
 void func_801ea1a8_slot06_0f(Object *obj) {
     GameState *g = (GameState *)data_80190468.p;
     if (g->field_6a == 0) {
-        game_state.field_358 = obj->field_3c;
-        if (obj->field_03 == game_state.field_358->kind) {
+        game_state.other_object = obj->field_3c;
+        if (obj->field_03 == game_state.other_object->kind) {
             if (g->field_65 == 0) {
                 data_801eefd4_slot06_0f[obj->state_1](obj);
             }

@@ -13,7 +13,7 @@ void func_80153230(Effect *effect) {
     }
     if (game_state.field_ac != 0) {
         func_80153c7c(effect);
-    } else if ((s16)target->field_5c & 0x8000) {
+    } else if ((s16)target->health & 0x8000) {
         func_801538f0(effect);
     } else {
         table_80180304[effect->field_03](effect);

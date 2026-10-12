@@ -12,8 +12,8 @@ void func_800152b4_slot12(Object *obj) {
     if (i != 5) {
         obj->field_76 = data_80028484_slot12[i][0];
         obj->field_78 = data_80028484_slot12[i][1];
-        obj->field_7a = data_80028484_slot12[i][2];
-        obj->field_7c = data_80028484_slot12[i][3];
+        obj->spawn_x = data_80028484_slot12[i][2];
+        obj->spawn_y = data_80028484_slot12[i][3];
     }
 }
 
@@ -30,13 +30,13 @@ void func_80015334_slot12(Object *obj) {
         if (c == 0) goto same;
         if (k == 0) goto copy;
         if (c < k) goto same;
-        obj->field_5c = k - 1;
+        obj->health = k - 1;
         goto end;
 copy:
-        obj->field_5c = c;
+        obj->health = c;
         goto end;
 same:
-        obj->field_5c = obj->field_03;
+        obj->health = obj->field_03;
     }
 end:;
 }

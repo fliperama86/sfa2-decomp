@@ -31,14 +31,14 @@ void func_80010694_slot27(void) {
     h->field_50++;
     b = func_8011f1e0();
     if (b != 0) {
-        b->field_00 = 1;
-        b->field_02 = 0xa8;
+        b->active_flag = 1;
+        b->handler_index = 0xa8;
         b->field_03 = 0;
     }
     b = func_8011f1e0();
     if (b != 0) {
-        b->field_00 = 1;
-        b->field_02 = 0x10;
+        b->active_flag = 1;
+        b->handler_index = 0x10;
         b->field_03 = 7;
     }
     func_80010ed0_slot27();

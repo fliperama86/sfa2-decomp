@@ -6,9 +6,9 @@
 void func_80157174(Object *dest, Object *object) {
     int i;
 
-    if (object->field_120 == 1) {
+    if (object->score_rank == 1) {
         if (object->side == 0) {
-            dest->field_21e = *(u16 *)&dest->field_220;
+            dest->field_21e = *(u16 *)&dest->list_offset;
             for (i = 0; i < 0x40; i++) {
                 ((u8 *)dest + i)[0x15e] = ((u8 *)dest + i)[0x19e];
             }
@@ -27,7 +27,7 @@ void func_801571f4(Block172 *block) {
 }
 
 void func_80157234(Object *object) {
-    object->field_09 = 1;
+    object->ot_depth = 1;
     object->field_0c = 0xff;
     object->field_01 = 0;
     object->state_0++;

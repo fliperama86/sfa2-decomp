@@ -9,7 +9,7 @@
    state_2 is not 7, and 1 when the halfword is not 1. Otherwise, with the
    other object (ref_other) in mode 1 and with a box, it compares two x
    positions: the object's pos_x plus a (minus a when field_0b is set), and
-   game_state.field_358's pos_x plus the box's origin minus its extent
+   game_state.other_object's pos_x plus the box's origin minus its extent
    (negated when that object's field_0b is set). It returns
    func_8013fab4(object) as a byte when they are at most b apart; b grows by
    4 when field_25e is set, unless the object's halfword at offset 4 is 1
@@ -46,7 +46,7 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
         if (object->field_0b != 0)
             a = -a;
         a = a + object->pos_x;
-        box = &((Box6 *)ref_other.p->unknown_148)[frame->field_07];
+        box = &((Box6 *)ref_other.p->unknown_148)[frame->box_index];
         half_width = box->origin - box->extent;
         if (*(u16 *)&object->state_0 == mode) {
             if (object->state_2 == 7)
@@ -60,9 +60,9 @@ int func_8013f8c4(Object *object, int a_arg, int b_arg) {
                 b = b + 4;
         } while (0);
     keep:
-        if (game_state.field_358->field_0b != 0)
+        if (game_state.other_object->field_0b != 0)
             half_width = -half_width;
-        distance = half_width + game_state.field_358->pos_x;
+        distance = half_width + game_state.other_object->pos_x;
         a = a - distance;
         if (a < 0)
             a = -a;

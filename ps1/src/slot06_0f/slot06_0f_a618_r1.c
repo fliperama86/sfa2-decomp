@@ -21,7 +21,7 @@ void func_801ea658_slot06_0f(Object *obj) {
     if (game_state.config->field_5c == 0) {
         obj->state_2 = obj->state_2 + 1;
         idx = 5;
-        if (*(s32 *)&game_state.config->field_78 == (s32)game_state.field_358) {
+        if (*(s32 *)&game_state.config->field_78 == (s32)game_state.other_object) {
             play_side_sound_at(obj, obj->field_66, 0x12);
             idx = 4;
         }
@@ -43,7 +43,7 @@ void func_801ea704_slot06_0f(Object *obj) {
 }
 
 void func_801ea734_slot06_0f(Object *obj) {
-    int idx = (s16)obj->pos_x > (s16)game_state.field_358->pos_x;
+    int idx = (s16)obj->pos_x > (s16)game_state.other_object->pos_x;
 
     if (obj->field_48 != idx) {
         obj->field_48 = idx;
@@ -52,7 +52,7 @@ void func_801ea734_slot06_0f(Object *obj) {
 }
 
 int func_801ea77c_slot06_0f(Object *obj) {
-    s16 v = *(s16 *)&game_state.field_358->other->state_0;
+    s16 v = *(s16 *)&game_state.other_object->other->state_0;
 
     if (v != 0x101) {
         return v == 0x103;
@@ -69,7 +69,7 @@ void func_801ea7b4_slot06_0f(Object *obj) {
 }
 
 int func_801ea7e4_slot06_0f(Object *obj) {
-    s16 v = *(s16 *)&game_state.field_358->state_0;
+    s16 v = *(s16 *)&game_state.other_object->state_0;
 
     if (v == 0x101) {
         if (obj->field_61 != 0xff) {

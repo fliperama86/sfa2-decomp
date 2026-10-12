@@ -11,12 +11,12 @@ int func_801b5ed8_slot04_06(Object *obj) {
         ref_other.p->field_03 = 0;
         ref_other.p->field_0e = obj->field_0e;
         ref_other.p->field_1c = obj->field_1c;
-        ref_other.p->field_09 = obj->field_09;
+        ref_other.p->ot_depth = obj->ot_depth;
         ref_other.p->pos_x = obj->pos_x;
         ref_other.p->pos_y = obj->pos_y;
         ref_other.p->field_0b = obj->field_0b;
-        ref_other.p->field_7a = obj->field_7a;
-        ref_other.p->field_7c = obj->field_7c;
+        ref_other.p->spawn_x = obj->spawn_x;
+        ref_other.p->spawn_y = obj->spawn_y;
         ref_other.p->field_02 = 0x10;
         ref_other.p->field_08 = 0x20;
         ref_other.p->field_90 = (void *)0x800fb100;

@@ -10,7 +10,7 @@ int func_8012f2b8(Object *o) {
     s16 v;
     int bit;
     if (o->kind == 4 || o->kind == 0x12 || o->kind == 7) {
-        if (o->pos_y < (s16)(o->field_70 - 0x20) && o->field_48 != 0 && (o->field_130 & 0x4000) == 0) {
+        if (o->pos_y < (s16)(o->ground_y - 0x20) && o->field_48 != 0 && (o->field_130 & 0x4000) == 0) {
             side = o->field_164;
             if (side == 0) return 0;
             v = ((s16 *)&o->vel_x)[1];

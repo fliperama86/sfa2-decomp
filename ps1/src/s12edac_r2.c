@@ -5,7 +5,7 @@
 
 
 void func_8012f1b8(Object *object) {
-    if (object->field_60 == 1 && object->field_6b != 0 && object->frame->field_06 != 0) {
+    if (object->field_60 == 1 && object->field_6b != 0 && object->frame->handler_index != 0) {
         if (object->field_cd != 0) {
             func_8012d310(object);
         } else {

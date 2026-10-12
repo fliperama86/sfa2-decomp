@@ -29,9 +29,9 @@ void func_80014a8c_slot01(Object *obj) {
         obj->field_45 = p->field_d4;
     }
     if ((obj->step_flags << 16) < 0) {
-        obj->field_5c = 0;
+        obj->health = 0;
     }
-    if (*(s16 *)&obj->field_5c == 0) {
+    if (*(s16 *)&obj->health == 0) {
         s16 t = *(s16 *)&obj->field_46;
         if (t != 0) {
             obj->field_46 = t - 1;

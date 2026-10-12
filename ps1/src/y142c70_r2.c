@@ -15,8 +15,8 @@ void func_80143184(Object *object) {
     if (ref_other.p->frame->active == 0 && ref_other.p->frame->box_c == 0 &&
         ref_other.p->frame->box_b == 0 && ref_other.p->frame->box_a == 0 &&
         ref_other.p->frame->field_04 == 0 && ref_other.p->frame->field_05 == 0 &&
-        ref_other.p->frame->field_06 == 0) return;
-    if (ref_other.p->frame->field_06 != 0) return;
+        ref_other.p->frame->handler_index == 0) return;
+    if (ref_other.p->frame->handler_index != 0) return;
     if (ref_other.p->field_27b != 0) return;
     if (ref_other.p->field_7e != 0) return;
     if (*(u16 *)&ref_other.p->state_0 == 0x801) return;
@@ -27,7 +27,7 @@ void func_80143184(Object *object) {
     else ref_other.p->sequence = seqs_118_right[3];
     ref_other.p->step_timer = ref_other.p->sequence->duration;
     ref_other.p->step_flags = ref_other.p->sequence->flags;
-    ref_other.p->field_80 = 1;
+    ref_other.p->sequence_changed_flag = 1;
     ref_other.p->frame = (FrameRecord *)((char *)ref_other.p->frames + (ref_other.p->sequence->frame_index << 4));
     ref_other.p->field_157 = 0;
 }
@@ -47,7 +47,7 @@ int func_801433ac(Object *object) {
 out:
         return 0;
     }
-    if (ref_other.p->frame->field_06 != 0) goto out;
+    if (ref_other.p->frame->handler_index != 0) goto out;
     if (ref_other.p->field_27b != 0) goto out;
     if (ref_other.p->field_7e != 0) goto out;
     if (*(u16 *)&ref_other.p->state_0 == 0x801) goto out;
@@ -58,7 +58,7 @@ out:
     else ref_other.p->sequence = seqs_110_right[0];
     ref_other.p->step_timer = ref_other.p->sequence->duration;
     ref_other.p->step_flags = ref_other.p->sequence->flags;
-    ref_other.p->field_80 = 1;
+    ref_other.p->sequence_changed_flag = 1;
     ref_other.p->frame = (FrameRecord *)((char *)ref_other.p->frames + (ref_other.p->sequence->frame_index << 4));
     ref_other.p->field_157 = 0;
     ref_other.p->state_0 = 1;

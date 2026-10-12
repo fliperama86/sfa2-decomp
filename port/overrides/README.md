@@ -70,6 +70,15 @@ The three that return the result:
 | `func_800e1250_slot0f` | `ps1/src/slot0f/slot0f_119c_r1.c` | returns the result of `read` | `read` | `func_800e0a1c_slot0f`, `bltz v0` at 800e0b00 |
 | `func_800e12cc_slot0f` | `ps1/src/slot0f/slot0f_119c_r2.c` | returns the result of `write` | `write` | `func_800e0850_slot0f`, `bne v0,v1` at 800e09d4 |
 
+Since 2026-10-12 the units of these three define them with their result
+(`int`, `long`, `long`): the same bytes build from a definition that returns
+the last result of the call it repeats, and the two callers became exact
+with it. The three overrides, and the sentences of this page and of their
+header comments that say the unit defines the function `void`, describe the
+units as they were before that day. The overrides compute what the units
+now compute; they stay in the PC program's build until its list of
+overrides is changed.
+
 The test of a result override replaces the library call and
 `func_8015fb30` by recorders. The recorder of the library call answers from
 a script, one result per call: the loop ends at the first try, at a later

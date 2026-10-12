@@ -14,8 +14,8 @@ void func_801297b8(Object *object)
   int t;
   int new_var;
   t = object->field_290;
-  object->field_5c = object->field_5c - t;
-  if (((s16) object->field_5c) < 0)
+  object->health = object->health - t;
+  if (((s16) object->health) < 0)
   {
     object->state_0 = 1;
     object->state_1 = 1;
@@ -26,26 +26,26 @@ void func_801297b8(Object *object)
     object->field_62 = t;
     object->field_61 = 7;
     object->field_15b = 1;
-    game_state.field_358->field_167 = object->field_28e;
+    game_state.other_object->field_167 = object->field_28e;
     if (object->field_73 != 0)
     {
-      game_state.field_358->state_0 = 1;
-      game_state.field_358->state_1 = 1;
-      game_state.field_358->state_2 = 1;
-      game_state.field_358->state_3 = 0;
-      game_state.field_358->field_63 = 0;
-      game_state.field_358->field_60 = t;
-      game_state.field_358->field_61 = 5;
+      game_state.other_object->state_0 = 1;
+      game_state.other_object->state_1 = 1;
+      game_state.other_object->state_2 = 1;
+      game_state.other_object->state_3 = 0;
+      game_state.other_object->field_63 = 0;
+      game_state.other_object->field_60 = t;
+      game_state.other_object->field_61 = 5;
       object->field_73 = 0;
-      game_state.field_358->field_73 = 0;
-      game_state.field_358->field_261 = 0;
-      game_state.field_358->field_72 = object->field_0b;
-      game_state.field_358->field_72 = game_state.field_358->field_72 ^ 1;
-      game_state.field_358->field_243 = 1;
+      game_state.other_object->field_73 = 0;
+      game_state.other_object->field_261 = 0;
+      game_state.other_object->facing_flag = object->field_0b;
+      game_state.other_object->facing_flag = game_state.other_object->facing_flag ^ 1;
+      game_state.other_object->field_243 = 1;
     }
     t = object->field_28e;
     t = (t - 12) * 2;
-    game_state.field_358->field_255 = t;
+    game_state.other_object->field_255 = t;
     game_state.field_6b = 0;
     func_80147000(object);
   }
@@ -65,7 +65,7 @@ void func_801297b8(Object *object)
     object->field_163 = 1;
     object->field_15d = 0;
     object->field_15e = 0;
-    object->field_72 = game_state.field_358->field_0b;
+    object->facing_flag = game_state.other_object->field_0b;
     object->field_63 = 0;
     object->field_01 = 1;
     play_side_sound_at(object, object->side ^ 1, 0xf);

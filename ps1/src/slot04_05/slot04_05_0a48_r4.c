@@ -31,7 +31,7 @@ int func_801b0f7c_slot04_05(Object *o) {
     u8 *p;
     u8 c;
 
-    p = &o->slots[7].field_00;
+    p = &o->slots[7].stage;
     if (func_801b1064_slot04_05(o)) {
         for (c = r, i = 7; i >= 0; i--) {
             *p++ = c;
@@ -50,7 +50,7 @@ int func_801b0ff0_slot04_05(Object *o) {
     u8 *p;
     u8 c;
 
-    p = &o->slots[8].field_00;
+    p = &o->slots[8].stage;
     if (func_801b1064_slot04_05(o)) {
         for (c = r, i = 7; i >= 0; i--) {
             *p++ = c;

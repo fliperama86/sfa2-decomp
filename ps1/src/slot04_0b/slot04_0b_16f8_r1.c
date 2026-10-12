@@ -28,11 +28,11 @@ void func_801b179c_slot04_0b(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     func_801b18a8_slot04_0b(obj);
     a = 0x29;
-    if (obj->pos_y >= obj->field_70) {
+    if (obj->pos_y >= obj->ground_y) {
         obj->state_3++;
         obj->field_45 = 0;
         obj->pos_y_frac = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         obj->field_17b = 0;
         if (obj->field_12a != 0) {

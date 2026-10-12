@@ -21,7 +21,7 @@
  * other (play_sound_at, or play_side_sound_at when other's kind is 6) from the
  * tables at 0x80177390; else, unless g->field_10 has bit 0x80, it starts
  * one chosen by an index from g->field_10 (doubled, with bit 0 set when
- * other's field_5c is negative): for an index below 16 one animation
+ * other's health is negative): for an index below 16 one animation
  * (play_sound_at with other's side and table_8017736c[index]), otherwise
  * two (play_sound_at with other's side and 0x32e, then play_side_sound_at with
  * the other side value, side ^ 1, and table_8017736c[index]); then a
@@ -32,7 +32,7 @@
  *   Arguments: a0 = object, a1 = other, a2 = g (Box32 *, as in the prototype; its field_10 and field_17 are read). No return value.
  *   Reads: ref_other (a word; kept in data_80188f20 and put back),
  *     data_801a27d4, g's field_10 and field_17, object's field_65, other's
- *     field_72, field_0e, field_61, field_5c, kind, side and field_66, the
+ *     facing_flag, field_0e, field_61, health, kind, side and field_66, the
  *     rectangle data_80188ed0 (out_3c, out_40, out_44, out_48), the tables
  *     table_8017736c (halfwords, index up to 255, see Aliasing),
  *     table_80177390 (one halfword per kind) and table_80197ef8 (one
@@ -88,15 +88,15 @@ void func_8013b0c4(Object *object, Object *other, Box32 *g)
     fx->field_00++;
     fx->field_02 = 4;
     fx->field_65 = object->field_65;
-    fx->field_0b = other->field_72;
+    fx->field_0b = other->facing_flag;
     fx->field_0e = other->field_0e;
     fx->field_3c = other;
     fx->field_03 = g->field_17 & 0x7f;
     other->field_17f = g->field_17 & 0x7f;
     fx->field_76 = 0x240;
     fx->field_78 = 0;
-    fx->field_7a = 0x60;
-    fx->field_7c = 0x1e0;
+    fx->spawn_x = 0x60;
+    fx->spawn_y = 0x1e0;
     fx->field_90 = (void *) 0x800fb100;
     data_801a27d4--;
     centre_x = ((s16) data_80188ed0.out_3c - (s16) data_80188ed0.out_40) >> 1;
@@ -114,14 +114,14 @@ void func_8013b0c4(Object *object, Object *other, Box32 *g)
       fx->field_02 = 4;
       fx->field_03 = g->field_17;
       fx->field_65 = object->field_65;
-      fx->field_0b = other->field_72;
+      fx->field_0b = other->facing_flag;
       fx->field_0e = other->field_0e;
       fx->field_3c = other;
       fx->field_48 = 0;
       fx->field_76 = 0x240;
       fx->field_78 = 0;
-      fx->field_7a = 0x60;
-      fx->field_7c = 0x1e0;
+      fx->spawn_x = 0x60;
+      fx->spawn_y = 0x1e0;
       data_801a27d4--;
       fx->field_90 = (void *) 0x800fb100;
     }
@@ -141,7 +141,7 @@ void func_8013b0c4(Object *object, Object *other, Box32 *g)
   else if (!(g->field_10 & 0x80))
   {
     index = g->field_10 * 2;
-    if ((s16) other->field_5c < 0)
+    if ((s16) other->health < 0)
     {
       index |= 1;
     }

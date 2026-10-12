@@ -9,7 +9,7 @@
 void func_80078d78_slot00(Object *o) {
     Object *p;
     u16 y;
-    if ((game_state.field_1d & 7) == 0) {
+    if ((game_state.frame_counter & 7) == 0) {
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             p->field_00 = 1;
@@ -22,8 +22,8 @@ void func_80078d78_slot00(Object *o) {
             p->pos_x = (u16)o->pos_x;
             y = (u16)o->pos_y;
             p->field_44 = 1;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_98 = &data_80172a48;
             p->field_90 = (void *)0x800fb100;
             p->field_9c = &data_80173c9c;

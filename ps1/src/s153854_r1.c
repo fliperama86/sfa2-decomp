@@ -6,15 +6,15 @@
 
 void func_80153854(Effect *effect) {
     int t;
-    if (((Actor *)effect)->field_1c->field_6a >= 2) {
+    if (((Actor *)effect)->target->field_6a >= 2) {
         func_80153514((Actor *)effect);
     } else {
         func_80153d7c((Actor *)effect);
-        if (((Actor *)effect)->field_18->field_cd == 0) {
+        if (((Actor *)effect)->owner->field_cd == 0) {
             func_80153dfc((Actor *)effect);
         }
-        t = ((Actor *)effect)->field_0c - 1;
-        ((Actor *)effect)->field_0c = t;
+        t = ((Actor *)effect)->countdown_timer - 1;
+        ((Actor *)effect)->countdown_timer = t;
         if (t & 0x8000) {
             ((Actor *)effect)->field_02 = 0;
             ((Actor *)effect)->field_05 = 0;
@@ -24,7 +24,7 @@ void func_80153854(Effect *effect) {
 
 void func_801538f0(Actor *a) {
     a->field_02 = 1;
-    if (a->field_18->field_bc != 0) {
+    if (a->owner->field_bc != 0) {
         func_80153a38(a);
     } else {
         func_8015393c(a);

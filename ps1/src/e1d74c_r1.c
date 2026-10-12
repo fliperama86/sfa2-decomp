@@ -65,7 +65,7 @@ void func_8011d74c(Object *obj, u16 column, u16 frame, Block172 *second) {
         for (i = 0; i < count; i++) {
             cell->field_0c = size << 4;
             cell->field_0d = col << 4;
-            cell->field_0e = func_8015bdd4(second->field_7a, second->field_7c + second->field_0d + data_80185504[size][col]);
+            cell->clut = func_8015bdd4(second->field_7a, second->field_7c + second->field_0d + data_80185504[size][col]);
             func_8015bf34((int)list, (Cmd *)cell++);
             col = (col + 1) & 0xf;
             if (col == 0) {

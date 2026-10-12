@@ -22,10 +22,10 @@ void func_8002616c_slot28(Object *obj) {
             b->field_9c = obj->field_9c;
             b->pos_x = 0xb0;
             b->pos_y = 0x70;
-            b->field_7a = 0x60;
-            b->field_7c = 0x1e0;
+            b->spawn_x = 0x60;
+            b->spawn_y = 0x1e0;
             b->field_0d = 0;
-            b->field_09 = 2;
+            b->ot_depth = 2;
             b->box_tables = (BoxTables *)((ObjectWords *)obj)->word_58;
         }
     }

@@ -16,7 +16,7 @@ void func_8014dbc8(Object *object) {
     p = table[index];
     data_80189460 = p + 1;
     first = *p;
-    object->field_234 = (s32)data_80189460;
+    object->script_ptr_3 = (s32)data_80189460;
     object->field_224 = 0;
     object->field_25d = 0;
     object->field_20c = first;

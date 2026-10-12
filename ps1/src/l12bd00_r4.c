@@ -18,7 +18,7 @@ void func_8012d4e4(Object *object) {
         } else if (object->vel_y < 0) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
-                if ((s16)object->field_5c < 0 || object->field_15b != 0) {
+                if ((s16)object->health < 0 || object->field_15b != 0) {
                     update_sequence(object);
                 } else {
                     object->state_3 = 6;
@@ -31,14 +31,14 @@ void func_8012d4e4(Object *object) {
         }
     } else {
         object->state_3 = object->state_3 + 1;
-        if ((s16)object->field_5c < 0) {
+        if ((s16)object->health < 0) {
             func_80120a30(object, 0, 1);
         } else {
             func_80120a30(object, 0, 0);
         }
         object->field_45 = 0;
         object->field_46 = 4;
-        object->pos_y = (u16)object->field_70;
+        object->pos_y = (u16)object->ground_y;
         func_80131df8(object);
         set_side_flag(object);
         object->field_258 = 0;
@@ -64,7 +64,7 @@ void func_8012d680(Object *object) {
         } else if (object->vel_y < 0) {
             ref_other.p = object->other;
             if (ref_other.p->field_7e == 0) {
-                if ((s16)object->field_5c < 0 || object->field_15b != 0) {
+                if ((s16)object->health < 0 || object->field_15b != 0) {
                     update_sequence(object);
                 } else {
                     object->state_3 = 6;

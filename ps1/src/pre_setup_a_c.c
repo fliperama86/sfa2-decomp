@@ -36,8 +36,8 @@ void func_801303a0(Object *object) {
     object->field_256 = 1;
     object->field_257 = 1;
     func_80141f28(object, -0x30);
-    game_state.field_358 = object->other;
-    if (game_state.field_358->field_45 != 0) {
+    game_state.other_object = object->other;
+    if (game_state.other_object->field_45 != 0) {
         if (object->side == 0) scratch_fn_c_left(object);
         else scratch_fn_c_right(object);
     } else {

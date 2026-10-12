@@ -15,7 +15,7 @@ void func_80120b34(void) {
     data_8018f5a0->field_50 = 0;
     data_8018f5a0->field_52 = 0;
     data_8018f5a0->field_54 = 0;
-    game_state.field_ee = 0;
+    game_state.fade_busy = 0;
     game_state.field_f0 = 0;
     func_801192bc(1);
     for (;;) {

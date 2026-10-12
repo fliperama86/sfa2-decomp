@@ -140,3 +140,13 @@ the function has no look-alike in the resident program and is not inside Sony's 
 passed fixed rules: no empty verb such
 as `handle_`, no placeholder in it, and no word that the tree already uses. A function without a name there
 keeps `func_` and its address; its sentence is still what the readers of its callers were given.
+
+## A note on every field that was read
+
+`ps1/docs/field-notes.tsv` has one line per field whose uses were read for naming: its struct, its offset, its
+name where it has one, and a sentence on what its uses show. The sentences and the names were written by a
+model that was given, for each field, lines of code that use it (found by the compiler, as the rename tool
+finds them) and the sentences of `function-notes.tsv` for the functions of those lines. They are inferred,
+like every name on this page. A name was taken only when two separate readings gave the same name, neither
+gave that name to another field of the struct, and the name passed fixed rules: no placeholder word, no
+offset in it, not a keyword and not a macro of the tree. A name is per struct, as the rules above say.

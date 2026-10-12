@@ -15,8 +15,8 @@ void func_800282c0_slot28(Object *obj) {
     obj->field_0b = 0;
     obj->field_48 = 0;
     obj->state_0 = obj->state_0 + 1;
-    obj->pos_x = data_800517fc_slot28[obj->field_03].field_00;
-    obj->pos_y = data_800517fc_slot28[obj->field_03].field_02;
+    obj->pos_x = data_800517fc_slot28[obj->field_03].pos_x;
+    obj->pos_y = data_800517fc_slot28[obj->field_03].pos_y;
     func_80130768(obj, 0, (SequenceStep **)obj->box_tables);
 }
 

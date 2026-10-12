@@ -11,7 +11,7 @@ void func_801b29b0_slot04_17(Object *obj) {
     u8 s;
 
     if (func_801b56e0_slot04_17(obj) < 0) {
-        t = obj->field_70;
+        t = obj->ground_y;
         if (obj->pos_y >= t) {
             obj->pos_y = t;
             func_801209c4(obj);

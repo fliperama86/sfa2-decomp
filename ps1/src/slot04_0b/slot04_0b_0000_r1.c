@@ -36,8 +36,8 @@ void func_801b0000_slot04_0b(Object *obj) {
         obj->field_28 = (u32)d;
         d->field_66 = obj->side;
         d->field_0d = obj->field_0d;
-        d->field_7a = obj->field_7a;
-        d->field_7c = obj->field_7c;
+        d->spawn_x = obj->spawn_x;
+        d->spawn_y = obj->spawn_y;
         d->field_90 = obj->field_90;
         d->field_98 = obj->field_98;
         d->field_9c = obj->field_9c;
@@ -60,8 +60,8 @@ void func_801b0000_slot04_0b(Object *obj) {
                     c->field_3c = obj;
                     c->field_08 = 0x20;
                     c->field_90 = obj->field_90;
-                    c->field_7a = obj->field_7a;
-                    c->field_7c = obj->field_7c;
+                    c->spawn_x = obj->spawn_x;
+                    c->spawn_y = obj->spawn_y;
                     c->field_66 = obj->side;
                     c->field_98 = obj->field_98;
                     c->field_9c = obj->field_9c;
@@ -78,11 +78,11 @@ void func_801b0000_slot04_0b(Object *obj) {
                     c->field_98 = obj->field_98;
                     c->field_9c = obj->field_9c;
                     if (c->field_66 == 0) {
-                        c->field_7a = 0x110;
+                        c->spawn_x = 0x110;
                     } else {
-                        c->field_7a = 0x130;
+                        c->spawn_x = 0x130;
                     }
-                    c->field_7c = 0x1e0;
+                    c->spawn_y = 0x1e0;
                 }
                 func_80130678(obj, 0x30);
             } else {

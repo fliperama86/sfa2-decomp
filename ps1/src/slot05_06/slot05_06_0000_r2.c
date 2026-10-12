@@ -27,8 +27,8 @@ void func_801c80f8_slot05_06(Object *obj) {
                 c->field_03 = 4;
                 c->field_3c = obj;
                 c->field_1c = obj->field_1c;
-                c->field_7a = obj->field_7a;
-                c->field_7c = obj->field_7c;
+                c->spawn_x = obj->spawn_x;
+                c->spawn_y = obj->spawn_y;
                 d = obj->field_0d;
                 c->field_02 = 0x11;
                 c->field_08 = 0x20;

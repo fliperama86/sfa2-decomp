@@ -26,10 +26,10 @@ void func_801b4ea4_slot04_09(Object *o, Object *unused) {
         p->field_90 = o->field_90;
         p->field_98 = o->field_98;
         p->field_9c = o->field_9c;
-        p->field_7a = o->field_7a;
-        p->field_7c = o->field_7c;
+        p->spawn_x = o->spawn_x;
+        p->spawn_y = o->spawn_y;
         p->field_66 = o->side;
-        o->field_160 = 0x3c;
+        o->gauge = 0x3c;
         obj->field_330 = (u32)p;
         o->field_46 = 0;
         o->state_3++;

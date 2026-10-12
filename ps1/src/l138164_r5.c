@@ -9,8 +9,8 @@ void func_8013d65c(Object *object, u8 index, u8 arg) {
     u16 buttons;
     s16 dir;
 
-    object->slots[index].field_04--;
-    if (object->slots[index].field_04 == 0) {
+    object->slots[index].timer--;
+    if (object->slots[index].timer == 0) {
         func_8013f2a8(object, index, arg);
         return;
     }
@@ -39,9 +39,9 @@ void func_8013d65c(Object *object, u8 index, u8 arg) {
     func_8013f2c8(object);
     return;
 apply:
-    object->slots[index].field_00++;
+    object->slots[index].stage++;
     object->slots[index].field_02--;
-    object->slots[index].field_03 = dir;
+    object->slots[index].direction = dir;
     if (dir == -1) {
         object->slots[index].field_01--;
     } else {

@@ -20,12 +20,12 @@ extern u8 data_800f01e0_slot0f[];
    object's field_03). It clears the record's first word, sets three
    bytes (8, 9, 0xa) to 0x10, 0x10, 2, and a fourth (0xb) to 0x14 or 0x10
    according to game_state.field_2bd (zero or not), and hands the object, a
-   byte of data_800f01e0_slot0f chosen by the object's field_5c, and a
+   byte of data_800f01e0_slot0f chosen by the object's health, and a
    sequence table (entry 0 of data_800f00fc_slot0f for zero, entry 8
    otherwise) to func_80130768. When the second argument is 1 it sets the
    record's byte 0xb to 0x1d and calls func_80130768 again with the table
    at entry 4. It then stores a pointer from data_800f01cc_slot0f
-   (by field_5c) into the record, sets a flag byte for the object in
+   (by health) into the record, sets a flag byte for the object in
    data_800f7d48_slot0f, copies the object's field_76 and field_78 into the
    record (minus 8 each) and sets the object's position to field_76 + 8 and
    field_78 - 8. */
@@ -41,22 +41,22 @@ void func_800e80ec_slot0f(Object *obj, int a) {
         SequenceStep **p = &data_800f00fc_slot0f[0];
 
         e->field_0b = 0x14;
-        func_80130768(obj, data_800f01e0_slot0f[(s16)obj->field_5c], p);
+        func_80130768(obj, data_800f01e0_slot0f[(s16)obj->health], p);
         if (a == 1) {
             e->field_0b = 0x1d;
-            func_80130768(obj, data_800f01e0_slot0f[(s16)obj->field_5c], &data_800f00fc_slot0f[4]);
+            func_80130768(obj, data_800f01e0_slot0f[(s16)obj->health], &data_800f00fc_slot0f[4]);
         }
     } else {
         SequenceStep **p = &data_800f00fc_slot0f[8];
 
         e->field_0b = 0x10;
-        func_80130768(obj, data_800f01e0_slot0f[(s16)obj->field_5c], p);
+        func_80130768(obj, data_800f01e0_slot0f[(s16)obj->health], p);
         if (a == 1) {
             e->field_0b = 0x1d;
-            func_80130768(obj, data_800f01e0_slot0f[(s16)obj->field_5c], &data_800f00fc_slot0f[4]);
+            func_80130768(obj, data_800f01e0_slot0f[(s16)obj->health], &data_800f00fc_slot0f[4]);
         }
     }
-    e->field_0c = data_800f01cc_slot0f[(s16)obj->field_5c];
+    e->field_0c = data_800f01cc_slot0f[(s16)obj->health];
     data_800f7d48_slot0f[obj->field_03] = 1;
     e->field_04 = obj->field_76;
     e->field_06 = obj->field_78;

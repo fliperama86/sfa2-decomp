@@ -45,11 +45,11 @@ void func_801b3178_slot04_06(Object *obj) {
     if (((Slot04aObj *)obj)->field_1c3 != 0) {
         if (--((Slot04aObj *)obj)->field_1c3 == 0) goto go;
     }
-    if (obj->pos_y > obj->field_70) {
+    if (obj->pos_y > obj->ground_y) {
 go:
         obj->state_3++;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         update_sequence(obj);
     }
 }

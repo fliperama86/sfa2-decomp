@@ -51,11 +51,11 @@ void func_801b58b4_slot04_11(Object *obj) {
 }
 
 int func_801b58d4_slot04_11(Object *obj) {
-    return ((obj->field_134 | obj->field_136) & 0x94) == 0x94;
+    return ((obj->pressed_bits | obj->released_bits) & 0x94) == 0x94;
 }
 
 int func_801b58f4_slot04_11(Object *obj) {
-    return ((obj->field_134 | obj->field_136) & 0x68) == 0x68;
+    return ((obj->pressed_bits | obj->released_bits) & 0x68) == 0x68;
 }
 
 Object *func_801b5914_slot04_11(Object *obj) {

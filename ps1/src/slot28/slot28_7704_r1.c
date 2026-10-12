@@ -38,10 +38,10 @@ void func_80017704_slot28(Object *obj) {
             p->field_90 = (void *)0x80060000;
             p->field_98 = data_800306d4_slot28;
             p->field_9c = data_80030a4c_slot28;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->box_tables = (BoxTables *)data_80031ca0_slot28;
-            p->field_09 = 4;
+            p->ot_depth = 4;
             p->pos_x = 0x98;
             p->field_03 = 0;
             p->field_01 = 1;

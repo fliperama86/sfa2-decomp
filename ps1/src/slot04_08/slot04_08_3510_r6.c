@@ -16,7 +16,7 @@ void func_801b3d2c_slot04_08(Object *obj) {
             o->field_15b = 1;
             obj->step_flags = obj->step_flags & 0xff00;
             func_80140770(obj, 2, 0xf, -0x200, 0, 1, 0);
-            if ((s16)o->field_5c < 0) {
+            if ((s16)o->health < 0) {
                 obj->field_167 = 2;
                 if (obj->field_49 != 0) {
                     obj->field_167 = 0x18;

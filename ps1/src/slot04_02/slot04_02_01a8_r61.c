@@ -15,10 +15,10 @@ void func_801b6d08_slot04_02(Object *o) {
     o->field_0c = p->field_0c;
     o->field_0d = p->field_0d;
     o->field_0e = p->field_0e;
-    o->field_7a = 0x60;
+    o->spawn_x = 0x60;
     o->field_48 = 0;
-    o->field_7c = 0x1e0;
-    o->field_09 = 0;
+    o->spawn_y = 0x1e0;
+    o->ot_depth = 0;
 }
 
 void func_801b6d6c_slot04_02(Object *o) {

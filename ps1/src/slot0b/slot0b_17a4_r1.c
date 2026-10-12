@@ -14,10 +14,10 @@ void func_801e17a4_slot0b(Object *obj) {
     obj->field_46 = 0x1f;
     obj->pos_x = -0xb8;
     obj->pos_y = 0xc9;
-    obj->field_5c = 0x48;
+    obj->health = 0x48;
     obj->vel_x = 0x80000;
     obj->field_0e = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_24 = 0;
     obj->field_0b = 0;
     obj->field_20 = 0;
@@ -27,7 +27,7 @@ void func_801e17a4_slot0b(Object *obj) {
     obj->state_0++;
     if (obj->field_48 != 0) {
         obj->pos_x = 0x228;
-        obj->field_5c = 0x128;
+        obj->health = 0x128;
         obj->vel_x = -obj->vel_x;
         obj->accel_x = -obj->accel_x;
     }

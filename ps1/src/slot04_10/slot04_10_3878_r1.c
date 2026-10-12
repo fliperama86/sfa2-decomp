@@ -31,11 +31,11 @@ void func_801b3878_slot04_10(Object *obj) {
         obj->field_45 = 1;
         obj->state_3++;
         obj->step_flags &= 0xff00;
-        game_state.field_358 = obj->other;
-        game_state.field_358->field_15b = 1;
+        game_state.other_object = obj->other;
+        game_state.other_object->field_15b = 1;
         func_80140770(obj, ((u8 *)b)[obj->field_12a & 0xfe], 0xf, -0x200, 0, 0, 1);
-        game_state.field_358 = obj->other;
-        if ((s16)game_state.field_358->field_5c < 0) {
+        game_state.other_object = obj->other;
+        if ((s16)game_state.other_object->health < 0) {
             obj->field_167 = 2;
             if (obj->field_49 != 0) {
                 obj->field_167 = 0x20;
@@ -74,7 +74,7 @@ void func_801b3b6c_slot04_10(Object *obj) {
     } else {
         obj->field_45 = 0;
         obj->state_3++;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
         func_801307e0(obj, 0x1f);
@@ -87,8 +87,8 @@ void func_801b3be8_slot04_10(Object *obj) {
         update_sequence(obj);
     } else {
         obj->field_17b = 0;
-        game_state.field_358 = obj->other;
-        game_state.field_358->field_249 = 5;
+        game_state.other_object = obj->other;
+        game_state.other_object->field_249 = 5;
         func_801b1078_slot04_10(obj);
     }
 }
@@ -99,8 +99,8 @@ void func_801b3c5c_slot04_10(Object *obj) {
 
 void func_801b3c9c_slot04_10(Object *obj) {
     obj->field_17b = 1;
-    game_state.field_358 = obj->other;
-    game_state.field_358->field_249 = 0;
+    game_state.other_object = obj->other;
+    game_state.other_object->field_249 = 0;
     obj->state_3++;
     func_801307e0(obj, (obj->field_12a >> 1) + 0x39);
     func_80141f28(obj, 5);

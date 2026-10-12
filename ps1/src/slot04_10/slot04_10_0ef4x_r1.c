@@ -19,7 +19,7 @@ void func_801b0ef4_slot04_10(Object *obj) {
         if (t != 0) {
             update_sequence(obj);
         } else {
-            game_state.config->field_4b |= 1 << obj->side;
+            game_state.config->side_bits |= 1 << obj->side;
             update_sequence(obj);
         }
     }

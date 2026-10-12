@@ -29,9 +29,9 @@ void func_80021afc_slot28(Object *obj) {
         if (b != 0) {
             b->field_00 = 1;
             b->field_02 = 0x7a;
-            b->field_09 = 2;
-            b->field_7a = 0x60;
-            b->field_7c = 0x1e0;
+            b->ot_depth = 2;
+            b->spawn_x = 0x60;
+            b->spawn_y = 0x1e0;
             b->pos_x = 0xb8;
             b->pos_y = 0x90;
             b->field_90 = (void *)0x80060000;

@@ -20,7 +20,7 @@ void func_801e0344_slot0b(Object *obj) {
     obj->field_20 = 0xfff0;
     obj->field_22 = 0xfff0;
     obj->field_0e = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_24 = 0;
     obj->state_0 = obj->state_0 + 1;
     data_801e4704_slot0b[obj->field_03](obj);

@@ -21,7 +21,7 @@ void func_801e05f4_slot2a(Object *obj) {
     obj->state_1 = 2;
     obj->field_01 = 0;
     obj->field_0e = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_0f = 0;
     obj->field_26 = 0;
     obj->state_0 = obj->state_0 + 1;

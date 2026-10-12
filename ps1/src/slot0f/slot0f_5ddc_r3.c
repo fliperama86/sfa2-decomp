@@ -11,7 +11,7 @@ void func_800e6410_slot0f(Object *obj, int a);
 void func_800e6078_slot0f(Object *obj) {
     FrameRecord *rec;
 
-    obj->field_09 = 4;
+    obj->ot_depth = 4;
     obj->field_01 = 1;
     obj->vel_y = 0x70000;
     obj->accel_x = 0x500;
@@ -23,8 +23,8 @@ void func_800e6078_slot0f(Object *obj) {
     if (obj->field_03 == 0) {
         rec = table_8016e5c4;
     }
-    obj->field_7a = 0x60;
-    obj->field_7c = 0x1f0;
+    obj->spawn_x = 0x60;
+    obj->spawn_y = 0x1f0;
     obj->field_0d = 0;
     obj->field_60 = 0;
     obj->field_60 = rec->field_08;

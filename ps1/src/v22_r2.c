@@ -8,8 +8,8 @@ void func_80119030(void) {
     int i;
     for (i = 0; i < 3; i++) {
         base += 0xc0;
-        v->field_00 = 0;
-        v->field_08 = 0x801fec00 + i * 0x800;
+        v->status = 0;
+        v->stack_address = 0x801fec00 + i * 0x800;
         *(int *)(base + 0x94) = 0x40000404;
         v++;
     }

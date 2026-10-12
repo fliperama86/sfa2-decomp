@@ -11,13 +11,13 @@ void func_801e9c58_slot06_06(Object *obj, Slot06_06Rece1d8 *src, Slot06_06Rec83d
 
 void func_801e9c58_slot06_06(Object *obj, Slot06_06Rece1d8 *src, Slot06_06Rec83d8 *dst) {
     dst->field_00 = src->field_01;
-    dst->field_02 = src->field_02;
-    dst->field_04 = src->field_04;
+    dst->pos_x = src->field_02;
+    dst->pos_y = src->field_04;
     dst->field_06 = src->field_07;
     dst->field_08 = src->field_08;
     dst->field_0a = src->field_0a;
     func_80130700(obj, data_801ee190_slot06_06[src->field_00]);
-    dst->field_0c = obj->sequence;
+    dst->sequence = obj->sequence;
 }
 
 void func_801e9cf8_slot06_06(Object *obj) {
@@ -28,13 +28,13 @@ void func_801e9cf8_slot06_06(Object *obj) {
     } else {
         r = &data_801f83d8_slot06_06[obj->field_03][1];
     }
-    obj->sequence = r->field_0c;
-    obj->field_80 = 1;
-    obj->pos_x = r->field_02;
-    obj->pos_y = 0xf8 - r->field_04;
+    obj->sequence = r->sequence;
+    obj->sequence_changed_flag = 1;
+    obj->pos_x = r->pos_x;
+    obj->pos_y = 0xf8 - r->pos_y;
     obj->field_1c = r->field_08;
     obj->field_26 = r->field_0a;
-    obj->field_09 = r->field_00;
+    obj->ot_depth = r->field_00;
     obj->field_0e = r->field_06;
     func_80120028(obj);
 }

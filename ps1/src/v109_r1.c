@@ -9,11 +9,11 @@ void func_8012e168(Object *o) {
     u16 state;
     if (func_8012eff8(o)) {
         o->state_3++;
-        o->field_0b = (o->field_72 ^ 1) & 1;
+        o->field_0b = (o->facing_flag ^ 1) & 1;
         func_8012e334(o);
         return;
     }
-    if ((s16)o->field_5c >= 0) {
+    if ((s16)o->health >= 0) {
         if (o->field_cd) {
             func_8012e264(o);
         } else if ((o->field_130 & 0x2000) == 0) {
@@ -23,7 +23,7 @@ void func_8012e168(Object *o) {
             state = 0xc;
         }
     }
-    if ((o->field_134 & 0x4000) == 0) {
+    if ((o->pressed_bits & 0x4000) == 0) {
         func_801308c4(o, state);
         return;
     }

@@ -19,7 +19,7 @@ void func_8002603c_slot28(Object *obj) {
         func_80130768(obj, t != 0 ? 3 : 1, (SequenceStep **)obj->box_tables);
         break;
     case 2:
-        obj->field_09 = 1;
+        obj->ot_depth = 1;
         func_80130768(obj, 3, (SequenceStep **)obj->box_tables);
         break;
     }

@@ -113,12 +113,12 @@ void func_801b31e8_slot04_0d(Object *obj) {
 
 void func_801b3284_slot04_0d(Object *obj) {
     func_801b36c4_slot04_0d(obj);
-    if (obj->field_70 > obj->pos_y) {
+    if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x1b);
     }
@@ -137,7 +137,7 @@ void func_801b3348_slot04_0d(Object *obj) {
     s16 y;
 
     func_801b36c4_slot04_0d(obj);
-    if (((Slot04bObj *)obj)->field_52 <= 0 || obj->pos_y < (y = obj->field_70)) {
+    if (((Slot04bObj *)obj)->field_52 <= 0 || obj->pos_y < (y = obj->ground_y)) {
         update_sequence(obj);
         update_sequence(obj);
     } else {
@@ -184,7 +184,7 @@ void func_801b347c_slot04_0d(Object *obj) {
         func_80140770(obj, 0x1d, 5, 0xf, 0, 0, 0);
         o = obj->other;
         ref_other.p = o;
-        if ((s16)obj->field_5c >= 0) {
+        if ((s16)obj->health >= 0) {
             play_sound_at(o, ref_other.p->side, 0x30f);
         } else {
             play_sound_at(o, ref_other.p->side, 0x346);
@@ -194,7 +194,7 @@ void func_801b347c_slot04_0d(Object *obj) {
 
 void func_801b3590_slot04_0d(Object *obj) {
     func_801b36c4_slot04_0d(obj);
-    if (((Slot04bObj *)obj)->field_52 < 0 || obj->pos_y < (s16)(obj->field_70 - 0x50)) {
+    if (((Slot04bObj *)obj)->field_52 < 0 || obj->pos_y < (s16)(obj->ground_y - 0x50)) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
@@ -204,12 +204,12 @@ void func_801b3590_slot04_0d(Object *obj) {
 
 void func_801b360c_slot04_0d(Object *obj) {
     func_801b36c4_slot04_0d(obj);
-    if (obj->field_70 > obj->pos_y) {
+    if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x22);
     }

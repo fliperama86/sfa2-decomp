@@ -15,13 +15,13 @@ void func_8001152c_slot27(Object *obj) {
     int d;
     int v;
 
-    obj->field_09 = 0xc;
+    obj->ot_depth = 0xc;
     obj->field_98 = data_80017c28_slot27;
     obj->field_9c = data_8001aa14_slot27;
-    obj->field_7c = 0x1e0;
+    obj->spawn_y = 0x1e0;
     obj->field_90 = (void *)0x80038000;
     p = obj->other;
-    obj->field_7a = 0;
+    obj->spawn_x = 0;
     obj->field_0d = 0;
     obj->field_01 = 0;
     obj->state_1 = obj->state_1 + 1;

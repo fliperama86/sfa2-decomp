@@ -53,7 +53,7 @@ void func_8015c09c(void *prim);
 void func_80012990_slot01(Object *obj, unsigned char *prim_arg, int tpage_arg, int base, int flag) {
     Poly28 *prim = (Poly28 *)prim_arg;
     u16 tpage = tpage_arg;
-    SpriteSet *set = (SpriteSet *)obj->sequence->field_04;
+    SpriteSet *set = (SpriteSet *)obj->sequence->data_ptr;
     int pass;
     int n;
     u8 *codes;
@@ -67,28 +67,28 @@ void func_80012990_slot01(Object *obj, unsigned char *prim_arg, int tpage_arg, i
         offs = set->offsets;
         do {
             func_8015c09c(prim);
-            prim->field_04 = 0x80;
-            prim->field_05 = 0x80;
-            prim->field_06 = 0x80;
-            prim->field_16 = tpage;
+            prim->r0 = 0x80;
+            prim->g0 = 0x80;
+            prim->b0 = 0x80;
+            prim->tpage = tpage;
             x = *offs++ + 0x60;
             y = *offs++ + 0x50;
             if (flag == 0) {
-                prim->field_0c = x;
-                prim->field_1c = x;
-                prim->field_14 = x + 0x10;
-                prim->field_24 = x + 0x10;
+                prim->u0 = x;
+                prim->u2 = x;
+                prim->u1 = x + 0x10;
+                prim->u3 = x + 0x10;
             } else {
-                prim->field_0c = x + 0xf;
-                prim->field_1c = x + 0xf;
-                prim->field_14 = x;
-                prim->field_24 = x;
+                prim->u0 = x + 0xf;
+                prim->u2 = x + 0xf;
+                prim->u1 = x;
+                prim->u3 = x;
             }
-            prim->field_0d = y;
-            prim->field_15 = y;
-            prim->field_1d = y + 0x10;
-            prim->field_25 = y + 0x10;
-            prim->field_0e = base + (*codes++ << 6);
+            prim->v0 = y;
+            prim->v1 = y;
+            prim->v2 = y + 0x10;
+            prim->v3 = y + 0x10;
+            prim->clut = base + (*codes++ << 6);
             prim++;
             n--;
         } while (n > 0);

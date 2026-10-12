@@ -37,15 +37,15 @@ void init_strips2(void) {
         q = &strips2[i][1];
         p->field_18 = 0;
         q->field_18 = 0x10;
-        p->field_14 = 0x78;
-        q->field_14 = 0x88;
+        p->pos_x = 0x78;
+        q->pos_x = 0x88;
     }
     for (i = 0; i < 2; i++) {
         p = &data_80188e4c[i][0];
         q = &data_80188e4c[i][1];
         p->field_18 = 0;
         q->field_18 = 0x10;
-        p->field_14 = 0xd8;
-        q->field_14 = 0xe8;
+        p->pos_x = 0xd8;
+        q->pos_x = 0xe8;
     }
 }

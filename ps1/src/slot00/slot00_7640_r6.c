@@ -11,7 +11,7 @@ void func_80077b90_slot00(Object *obj) {
     u8 *rec = (u8 *)obj + 0x40;
     obj->field_0c = 0xff;
     obj->field_0d = 2;
-    obj->field_09 = 4;
+    obj->ot_depth = 4;
     obj->field_44 = 1;
     obj->field_1e = 3;
     obj->state_0++;

@@ -17,14 +17,14 @@ void func_801b26ac_slot04_09(Object *obj) {
 
 void func_801b2714_slot04_09(Object *obj) {
     func_801b2858_slot04_09(obj);
-    if (obj->pos_y < obj->field_70) {
+    if (obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
         obj->state_3++;
         obj->field_45 = 0;
         obj->pos_y_frac = 0;
         obj->field_17b = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_80142adc(obj);
         func_801209c4(obj);
         func_801307e0(obj, 0x4b);

@@ -19,8 +19,8 @@ void func_801b01ec_slot04_07(Object *obj) {
                 c->field_02 = 7;
                 c->other = obj;
                 c->field_03 = i;
-                c->field_7a = obj->field_7a;
-                c->field_7c = obj->field_7c;
+                c->spawn_x = obj->spawn_x;
+                c->spawn_y = obj->spawn_y;
                 c->field_0d = obj->field_0d;
                 c->field_08 = 0x20;
                 c->field_66 = obj->field_66;
@@ -31,7 +31,7 @@ void func_801b01ec_slot04_07(Object *obj) {
         }
     }
     func_801b41c4_slot04_07(obj);
-    if (obj->vel_y >= 0 || (i = obj->field_70, obj->pos_y < i)) {
+    if (obj->vel_y >= 0 || (i = obj->ground_y, obj->pos_y < i)) {
         update_sequence(obj);
     } else {
         obj->state_2 += 1;

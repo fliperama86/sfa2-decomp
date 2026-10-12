@@ -31,7 +31,7 @@ void func_801b374c_slot04_0c(Object *object) {
         t = t - 1;
         object->field_46 = t;
         if (t == 0) {
-            game_state.config->field_4b |= object->side + 1;
+            game_state.config->side_bits |= object->side + 1;
         }
     }
     update_sequence(object);
@@ -76,8 +76,8 @@ void func_801b38c0_slot04_0c(Object *object) {
             p->field_00 = 1;
             p->field_02 = 0xe;
             p->field_3c = object;
-            p->field_7a = object->field_7a;
-            p->field_7c = object->field_7c;
+            p->spawn_x = object->spawn_x;
+            p->spawn_y = object->spawn_y;
             p->field_0d = object->field_0d;
             p->field_08 = 0x20;
             p->field_66 = object->field_66;
@@ -91,7 +91,7 @@ void func_801b38c0_slot04_0c(Object *object) {
         t = t - 1;
         object->field_46 = t;
         if (t == 0) {
-            game_state.config->field_4b |= object->side + 1;
+            game_state.config->side_bits |= object->side + 1;
         }
     }
     update_sequence(object);
@@ -118,7 +118,7 @@ void func_801b3a20_slot04_0c(Object *object) {
     object->field_a0 = 0xff;
     object->state_0 = object->state_0 + 1;
     parent = object->field_3c;
-    object->field_09 = 0;
+    object->ot_depth = 0;
     object->field_49 = parent->field_49;
     object->field_1c = parent->field_1c;
     ((Slot04bObj *)object)->field_6c = data_801be104_slot04_0c;

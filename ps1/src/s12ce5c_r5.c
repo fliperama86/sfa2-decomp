@@ -15,7 +15,7 @@ void func_8012dbd4(Object *object) {
         object->field_15b = 0;
         object->field_247 = 0;
         object->field_45 = 0;
-        object->pos_y = object->field_70;
+        object->pos_y = object->ground_y;
         *(u32 *)&object->pos_y_frac &= 0xffff0000;
         func_801209c4(object);
     }
@@ -33,7 +33,7 @@ void func_8012dc58(Object *object) {
         object->field_15b = 0;
         object->field_247 = 0;
         object->field_166 = 0;
-        if ((s16)object->field_5c < 0) {
+        if ((s16)object->health < 0) {
             func_8012f4dc(object);
         } else {
             object->field_157 = 1;
@@ -47,7 +47,7 @@ void func_8012dd00(Object *object) {
     if ((s16)object->field_46 == 0) {
         object->state_3 = 5;
         object->field_166 = 0;
-        if ((s16)object->field_5c < 0) {
+        if ((s16)object->health < 0) {
             func_8012f4dc(object);
         } else {
             func_801308c4(object, 0x19);

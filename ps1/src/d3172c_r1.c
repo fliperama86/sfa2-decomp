@@ -3,7 +3,7 @@
 #include "protos.h"
 #include "externs.h"
 
-/* What it does (inferred, not original names): per-frame update of an object's button words. When game_state.field_30 is not 0 it checks the object's side against game_state.mode: on a mismatch it clears the object's field_c2, field_130 and field_150, and sets all three to 0x4000 when the flag byte data_801a6984[3] is not 0; on a match it calls func_80131ab4(object) when data_801a6984[1] is not 0. Then, when field_0b is not 0, it swaps bits 0x2000 and 0x8000 of field_130 (bit 13 moves to bit 15 and bit 15 to bit 13); when field_158 is not 0 it does the same for field_150. Last it stores in field_134 the bits of field_130 not in field_132, and in field_136 the bits of field_132 not in field_130 (the pressed and the released bits). */
+/* What it does (inferred, not original names): per-frame update of an object's button words. When game_state.field_30 is not 0 it checks the object's side against game_state.mode: on a mismatch it clears the object's field_c2, field_130 and field_150, and sets all three to 0x4000 when the flag byte data_801a6984[3] is not 0; on a match it calls func_80131ab4(object) when data_801a6984[1] is not 0. Then, when field_0b is not 0, it swaps bits 0x2000 and 0x8000 of field_130 (bit 13 moves to bit 15 and bit 15 to bit 13); when field_158 is not 0 it does the same for field_150. Last it stores in pressed_bits the bits of field_130 not in field_132, and in released_bits the bits of field_132 not in field_130 (the pressed and the released bits). */
 void func_8013172c(Object *object) {
     unsigned a, b, c, d;
     u16 x;
@@ -42,9 +42,9 @@ void func_8013172c(Object *object) {
     a = object->field_132;
     a = ~a;
     a &= object->field_130;
-    object->field_134 = a;
+    object->pressed_bits = a;
     a = object->field_130;
     a = ~a;
     a &= object->field_132;
-    object->field_136 = a;
+    object->released_bits = a;
 }

@@ -16,7 +16,7 @@ void func_800e675c_slot0f(Object *obj) {
     obj->pos_x = 0x58;
     obj->pos_y = 0x58;
     obj->field_01 = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_20 = 0;
     obj->field_22 = 0;
     obj->field_0c = 0;
@@ -28,12 +28,12 @@ void func_800e675c_slot0f(Object *obj) {
     game_state.field_308 = (Row *)((u8 *)data_80190468.p + 0x21e);
     ((ObjectWords *)obj)->word_54 = (s32)game_state.field_308;
     t = ((Object *)((u8 *)data_80190468.p + ((Slot0fObj *)data_80190468.p)->field_21e))->field_15e & 0x3f;
-    /* field_5c is stored twice. The first store goes through a plain pointer:
+    /* health is stored twice. The first store goes through a plain pointer:
        written as a member store, this compiler moves the load of the second
        value above it. What the original source had here is not known. */
     *(u16 *)((u8 *)obj + 0x5c) = t;
     t = *(u16 *)&game_state.ring_b[0x3f] & 0x3f;
-    obj->field_5c = t;
+    obj->health = t;
     func_800e6bd8_slot0f(obj);
     game_state.field_2bf = 0;
     func_800e6874_slot0f(obj);

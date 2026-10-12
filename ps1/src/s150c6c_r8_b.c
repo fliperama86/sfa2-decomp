@@ -10,13 +10,13 @@ void func_801521a0(int a, u8 b, s16 c, s16 d) {
         u8 lo = (b & 0xf) << 4;
         u8 hi = b & 0xf0;
         u16 e = data_8018d208;
-        cmd->field_0c = lo;
+        cmd->tex_u = lo;
         cmd->field_0e = e;
-        cmd->field_0d = hi;
-        cmd->field_08 = c;
-        cmd->field_0a = d;
-        cmd->field_10 = 0x10;
-        cmd->field_12 = 0x10;
+        cmd->tex_v = hi;
+        cmd->pos_x = c;
+        cmd->pos_y = d;
+        cmd->width = 0x10;
+        cmd->height = 0x10;
         func_8015bf34(a, cmd++);
         data_8018d13c = cmd;
     }

@@ -32,8 +32,8 @@ void func_800774f0_slot00(Object *obj) {
         n->field_90 = p->field_90;
         n->field_98 = p->field_98;
         n->field_9c = p->field_9c;
-        n->field_7a = p->field_7a;
-        n->field_7c = p->field_7c;
+        n->spawn_x = p->spawn_x;
+        n->spawn_y = p->spawn_y;
         n->field_66 = p->side;
     }
     play_side_sound_at(p, p->side, 0x15);

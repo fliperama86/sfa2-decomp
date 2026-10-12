@@ -14,7 +14,7 @@ extern SequenceStep *data_8001d4ec_slot12[];
 void func_80012c34_slot12(Object *obj) {
     u16 margin;
     obj->field_01 = 1;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_0b = 0;
     obj->field_0c = 0;
     obj->field_0d = 0;
@@ -24,8 +24,8 @@ void func_80012c34_slot12(Object *obj) {
     obj->field_98 = data_80019054_slot12;
     obj->field_9c = data_80019548_slot12;
     obj->field_90 = (void *)0x80055598;
-    obj->field_7a = 0;
-    obj->field_7c = 0x1f1;
+    obj->spawn_x = 0;
+    obj->spawn_y = 0x1f1;
     obj->pos_x = margin + 0xc0;
     func_80130768(obj, 0, data_8001d4ec_slot12);
     func_80131094(obj);

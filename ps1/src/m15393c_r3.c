@@ -9,11 +9,11 @@ void func_80153cac(Actor *a) {
     u8 c;
     unsigned n;
     TextObj *t;
-    if (a->field_09 >= 100) {
-        a->field_09 = 99;
+    if (a->number_value >= 100) {
+        a->number_value = 99;
     }
-    t = table_801803c4[a->field_01];
-    n = a->field_09;
+    t = table_801803c4[a->side];
+    n = a->number_value;
     i = 0;
     do {
         d[i] = n % 10;

@@ -37,8 +37,8 @@ void func_80017334_slot12(Object *o) {
     i = 0;
     q = data_8002c4c8_slot12;
     do {
-        q[i].field_04 = obj->field_12 + data_80028a60_slot12[i] + t + 16;
-        q[i].field_06 = obj->field_16 + 8;
+        q[i].pos_x = obj->field_12 + data_80028a60_slot12[i] + t + 16;
+        q[i].pos_y = obj->field_16 + 8;
         i++;
     } while (i < 4);
 }

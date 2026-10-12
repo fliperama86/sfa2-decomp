@@ -24,7 +24,7 @@ void func_801b213c_slot04_07(Object *obj) {
 void func_801b21bc_slot04_07(Object *obj) {
     func_801b2994_slot04_07(obj);
     if (obj->field_cd == 0) {
-        if (obj->field_134 & 0x68) {
+        if (obj->pressed_bits & 0x68) {
             goto call_x;
         }
         obj->field_46 = (s16)obj->field_46 - 1;

@@ -32,7 +32,7 @@ int func_801c9368_slot05_06(Object *obj) {
     if (*(u32 *)&obj->state_0 == 0x1010101) {
         if (obj->field_45 == 0) {
             if (obj->field_163 == 0) {
-                if (*(s16 *)&obj->field_5c >= 0) goto yes;
+                if (*(s16 *)&obj->health >= 0) goto yes;
             }
         }
     }

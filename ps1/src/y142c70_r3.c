@@ -12,11 +12,11 @@ int func_80144f10(u8 a, u8 b) {
     ref_other.p->field_02 = 0x27;
     ref_other.p->field_76 = 0x340;
     ref_other.p->field_78 = 0;
-    ref_other.p->field_7a = 0xb0;
-    ref_other.p->field_7c = 0x1e0;
+    ref_other.p->spawn_x = 0xb0;
+    ref_other.p->spawn_y = 0x1e0;
     ref_other.p->field_0d = 0xd;
     ref_other.p->field_0c = 1;
-    ref_other.p->field_09 = 0;
+    ref_other.p->ot_depth = 0;
     ref_other.p->field_03 = a;
     ref_other.p->field_a0 = b;
     ref_other.p->field_a2 = 0;
@@ -33,14 +33,14 @@ int func_80144f10(u8 a, u8 b) {
     if (a == 2) {
         ref_other.p->field_03 = 1;
         ref_other.p->pos_y = 0x70;
-        ref_other.p->field_5c = 0;
+        ref_other.p->health = 0;
     }
     if (ref_other.p->field_a0 == 1) {
         ref_other.p->field_0d = 0;
         ref_other.p->pos_y = 0x70;
     }
     if (ref_other.p->field_03 >= 9) {
-        ref_other.p->field_7a = 0x80;
+        ref_other.p->spawn_x = 0x80;
         ref_other.p->field_0d = 0;
     }
 }

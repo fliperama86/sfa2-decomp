@@ -15,7 +15,7 @@ void func_80144830(Object *object)
   object->field_01 = 2;
   object->field_98 = data_80172a48;
   object->field_9c = data_80173c9c;
-  object->field_7a = 0x60;
+  object->spawn_x = 0x60;
   object->field_90 = (void *) 0x800fb100;
   object->pos_x = margin + 0xc0;
   func_80130768(object, 0x41, table_8017c7f8);

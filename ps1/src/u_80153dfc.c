@@ -13,7 +13,7 @@ void func_80153dfc(Actor *a)
   unsigned v;
   u8 nz;
   TextObj *t;
-  v = a->field_10;
+  v = a->score_value;
   i = 0;
   do
   {
@@ -25,7 +25,7 @@ void func_80153dfc(Actor *a)
   nz = 0;
   i = 0;
   new_var = 0x20;
-  t = table_8018049c[a->field_01];
+  t = table_8018049c[a->side];
   q = d + 6;
   do
   {

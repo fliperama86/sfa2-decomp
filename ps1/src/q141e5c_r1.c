@@ -21,5 +21,5 @@ void set_position_from_other_box(Object *object) {
     if (object->field_0b != 0) ox = -ox;
     object->pos_x = x - ox;
     x = ref_other.p->pos_y;
-    object->pos_y = x + box->field_02;
+    object->pos_y = x + box->origin_y;
 }

@@ -76,7 +76,7 @@ void func_801b40bc_slot04_0d(Object *obj) {
             t = data_801c318c_slot04_0d;
         }
     }
-    t = (BoxTables **)t[(s16)obj->field_5c];
+    t = (BoxTables **)t[(s16)obj->health];
     obj->box_tables = (BoxTables *)t;
 }
 

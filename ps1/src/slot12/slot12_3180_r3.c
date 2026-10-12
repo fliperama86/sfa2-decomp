@@ -11,7 +11,7 @@ void func_80013180_slot12(void);
 void func_80013224_slot12(Object *obj, u8 a, s16 x, s16 y);
 
 void func_80013450_slot12(Object *obj, int a) {
-    Object *o = game_state.field_154;
+    Object *o = game_state.object;
     u16 fp;
     s16 y;
     int x0;
@@ -47,7 +47,7 @@ void func_80013450_slot12(Object *obj, int a) {
             m = 1 << j;
             if (a & m) {
                 func_80013224_slot12(obj, code & 0xff, x, y);
-                obj->field_5c++;
+                obj->health++;
             }
             x += 0xc;
         }

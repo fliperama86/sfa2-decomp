@@ -27,7 +27,7 @@ void func_80120060(Object *o) {
 void func_80120080(Object *o) {
     *stack_801ad354-- = o;
     count_8018f59c++;
-    if (o->field_09 == 0) {
+    if (o->ot_depth == 0) {
         push_object_stack_a(o);
     } else {
         push_object_stack_b(o);

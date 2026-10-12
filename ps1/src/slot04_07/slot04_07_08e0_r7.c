@@ -27,7 +27,7 @@ void func_801b0e8c_slot04_07(Object *obj) {
                 fr = obj->frames + obj->sequence->frame_index;
                 obj->frame = fr;
                 obj->field_4a = fr->field_0d;
-                obj->field_80 = 1;
+                obj->sequence_changed_flag = 1;
             }
         }
         update_sequence(obj);

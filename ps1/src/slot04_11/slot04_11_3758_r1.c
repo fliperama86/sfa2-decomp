@@ -128,10 +128,10 @@ void func_801b3a50_slot04_11(Object *obj) {
 void func_801b3b34_slot04_11(Object *obj) {
     if ((u8)obj->step_flags == 0 && func_801b57a8_slot04_11(obj) < 0) {
         obj->accel_y = -0x3800;
-        if (obj->field_70 - 8 <= obj->pos_y) {
+        if (obj->ground_y - 8 <= obj->pos_y) {
             obj->state_3++;
             obj->pos_y_frac = 0;
-            obj->pos_y = (u16)((Slot04bObj *)obj)->field_70 - 8;
+            obj->pos_y = (u16)((Slot04bObj *)obj)->ground_y - 8;
             obj->field_0b = obj->field_0b ^ 1;
             func_801307e0(obj, obj->field_12a + 0x44);
             return;
@@ -165,7 +165,7 @@ void func_801b3bd8_slot04_11(Object *obj) {
         ref_other.p->field_15b = 1;
         func_80140770(obj, 0, 0xa, -0x200, 0, 0, 0);
         ref_other.p = obj->other;
-        if ((s16)ref_other.p->field_5c < 0) {
+        if ((s16)ref_other.p->health < 0) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
         }
         a = 0x40000;
@@ -191,12 +191,12 @@ void func_801b3d94_slot04_11(Object *obj) {
     } else {
         r = func_801b57a8_slot04_11(obj);
     }
-    if (r < 0 && obj->pos_y >= obj->field_70) {
+    if (r < 0 && obj->pos_y >= obj->ground_y) {
         obj->state_3++;
         func_801209c4(obj);
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801307e0(obj, 0x42);
     } else {
         update_sequence(obj);

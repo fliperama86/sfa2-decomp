@@ -16,7 +16,7 @@ void func_801e9300_slot06_04(Slot06Layer *layer) {
         *(s32 *)&layer->field_34 += -0x18000;
         layer->field_30 -= 1;
         if (layer->field_30 == 0) {
-            layer->field_88 = (layer->field_88 + 2) & 0xe;
+            layer->table_index = (layer->table_index + 2) & 0xe;
             func_801e93c8_slot06_04(layer);
         }
     }

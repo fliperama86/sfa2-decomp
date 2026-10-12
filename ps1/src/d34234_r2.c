@@ -45,7 +45,7 @@ void func_8011a018(void) {
             c->field_04 = 0x80;
             c->field_05 = 0x80;
             c->field_06 = 0x80;
-            data_801987cc[j][i].field_0e = func_8015bdd4(0x60, 0x1e0);
+            data_801987cc[j][i].clut = func_8015bdd4(0x60, 0x1e0);
         }
     }
     for (i = 0; i < 0x280; i++) {
@@ -58,7 +58,7 @@ void func_8011a018(void) {
             c->field_04 = 0x80;
             c->field_05 = 0x80;
             c->field_06 = 0x80;
-            data_801987cc[j][0x280 + i].field_0e = func_8015bdd4(0x60, 0x1e0);
+            data_801987cc[j][0x280 + i].clut = func_8015bdd4(0x60, 0x1e0);
         }
     }
     for (i = 0; i < 0x70; i++) {

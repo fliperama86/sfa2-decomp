@@ -6,10 +6,10 @@
 
 void func_8013ebf4(Object *object, int index, int arg) {
     Slot *slot;
-    object->slots[(u8)index].field_00++;
+    object->slots[(u8)index].stage++;
     arg = 0x20;
     if (object->field_7e != 0) arg = 5;
-    object->slots[(u8)index].field_04 = arg;
+    object->slots[(u8)index].timer = arg;
     slot = &object->slots[(u8)index];
     *(u16 *)&slot->field_02 = 0;
     func_8013f2c8(object);

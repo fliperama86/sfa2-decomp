@@ -9,8 +9,8 @@
  *
  * What it does (inferred, not an original name): draws a window of a tile
  * map as sprite records. The map layer c has a pixel width (field_58), a
- * pixel height (field_5c), a data block (field_50) and a scroll position
- * (field_12 horizontal, field_14 a 16.16 vertical value, which is
+ * pixel height (field_5c), a data block (map_data) and a scroll position
+ * (scroll_x horizontal, field_14 a 16.16 vertical value, which is
  * subtracted from 0x100000 before use). The map is stored in blocks of 32 by 16 cells of 4 bytes (a cell
  * word, then a texture-page word). The function walks 15 rows and `count`
  * columns from the scroll position; a row outside the map is skipped, and
@@ -21,13 +21,13 @@
  * the cell, the command word from its top bits (arithmetic shift), the
  * texture page from the second halfword, increments the record counter
  * data_800f7264_slot0f (16 bits), and links the record into the list head
- * selected by c->field_8a in the array data_801987c8 points at.
+ * selected by c->ot_index in the array data_801987c8 points at.
  *
  * Contract (what the code reads and writes; the roles named are inferred):
  *   Arguments: a0 = layer, a1 = first record (records are 0x1c bytes),
  *     a2 = count (only its low 16 bits, as signed). No return value.
- *   Reads: the layer's field_12, field_14, field_1e, field_50, field_58,
- *     field_5c, field_8a; the cells it reaches; the counter; data_801987c8
+ *   Reads: the layer's scroll_x, field_14, field_1e, map_data, field_58,
+ *     field_5c, ot_index; the cells it reaches; the counter; data_801987c8
  *     and the list head word it selects.
  *   Writes: for each drawn cell one record (offsets 0, 4, 0x14 to 0x1b),
  *     the list head word, and the counter.
@@ -67,24 +67,24 @@ void func_800e4ab0_slot0f(Chan *c, Strip1c *buf, short count_arg) {
 
     h = (s16)(c->field_5c >> 4);
     wmask = (c->field_58 >> 4) - 1;
-    xoff = c->field_12 & 0xf;
-    x = ((s16)c->field_12 & (c->field_58 - 1)) >> 4;
+    xoff = c->scroll_x & 0xf;
+    x = ((s16)c->scroll_x & (c->field_58 - 1)) >> 4;
     fy = (0x100000 - c->field_14) >> 16;
     yoff = fy & 0xf;
     ty = (s16)fy >> 4;
-    ot = (u32 *)data_801987c8 + c->field_8a;
+    ot = (u32 *)data_801987c8 + c->ot_index;
     for (row = 0; row < 15; row++, ty++) {
         ix = x;
         if ((s16)ty < 0 || (s16)ty >= h) {
             continue;
         }
-        base = (u8 *)c->field_50 + ((ty >> 4) * ((c->field_58 >> 9) << 10)) * 2 + (ty & 0xf) * 128;
+        base = (u8 *)c->map_data + ((ty >> 4) * ((c->field_58 >> 9) << 10)) * 2 + (ty & 0xf) * 128;
         for (col = 0; col < (s16)count; col++) {
             p = (u16 *)(base + ((ix >> 5) << 11) + ((ix & 0x1f) << 2));
             if (*p != (s16)c->field_1e) {
                 cell = *p;
                 buf->field_1a = p[1];
-                buf->field_14 = col * 16 - xoff;
+                buf->pos_x = col * 16 - xoff;
                 buf->field_16 = row * 16 - yoff;
                 buf->field_18 = (cell << 3) & -8;
                 buf->field_19 = ((s16)cell >> 2) & -8;

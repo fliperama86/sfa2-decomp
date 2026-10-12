@@ -39,7 +39,7 @@ void func_801b27a4_slot04_08(Object *obj) {
         }
         obj->field_46 = 0x10;
         obj->state_3++;
-        play_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 0x319);
+        play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x319);
     }
     update_sequence(obj);
 }

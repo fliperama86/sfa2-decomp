@@ -20,15 +20,15 @@ void func_8001cde0_slot28(Object *obj) {
             data_80051a44_slot28[0] = p;
             p->pos_x = 0x48;
             p->pos_y = -0x60;
-            p->field_7a = 0x10;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x10;
+            p->spawn_y = 0x1e0;
             p->field_0d = 0;
-            p->field_09 = 5;
+            p->ot_depth = 5;
             func_80130768(p, 0, data_8003b50c_slot28);
         }
         p = data_80051a44_slot28[0];
         p->pos_y = 0x20;
-        p->field_09 = 5;
+        p->ot_depth = 5;
         func_80130768(p, 0, data_8003b50c_slot28);
         func_80130768(data_80051a40_slot28.p, 1, data_8003b504_slot28);
         func_8001d548_slot28(obj, 1);

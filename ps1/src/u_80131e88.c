@@ -25,13 +25,13 @@ void func_80131e88(Object *object)
     if (hit)
     {
       new_var = table_80171b48;
-      game_state.field_358->pos_y -= new_var[object->kind].second;
+      game_state.other_object->pos_y -= new_var[object->kind].second;
       d = new_var[object->kind].first;
       if (object->field_0b != 0)
       {
         d = -d;
       }
-      game_state.field_358->pos_x += d;
+      game_state.other_object->pos_x += d;
     }
   }
 }

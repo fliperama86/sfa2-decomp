@@ -9,7 +9,7 @@ void func_801cbb6c_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     func_801cc84c_slot05_06(o);
-    if (o->pos_y >= o->field_70) {
+    if (o->pos_y >= o->ground_y) {
         o->state_3++;
         func_80130af0(o);
         o->field_6a = 0;
@@ -19,7 +19,7 @@ void func_801cbb6c_slot05_06(Object *o) {
         o->field_258 = 0;
         o->field_25a = 0;
         set_side_flag(o);
-        o->pos_y = (u16)o->field_70;
+        o->pos_y = (u16)o->ground_y;
         obj->field_1c2 = 0xa;
         game_state.field_63 = 0xa;
         play_side_sound_at(o, o->side, 0xa);

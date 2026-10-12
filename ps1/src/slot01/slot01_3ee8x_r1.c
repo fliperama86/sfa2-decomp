@@ -8,7 +8,7 @@ extern void (*data_80015cdc_slot01)(Object *obj);
 /* The form of func_80015de0_slot27 of another module, with other values and
    three more fields cleared. */
 void func_80013ee8_slot01(Object *obj) {
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_20 = 0;
     obj->field_22 = 0;
     obj->field_24 = 0;

@@ -15,7 +15,7 @@ void func_801b4da8_slot04_0f(Object *obj) {
     int i;
 
     parent = obj->field_3c;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->state_0 = obj->state_0 + 1;
     obj->field_49 = parent->field_49;
     obj->field_1c = parent->field_1c;
