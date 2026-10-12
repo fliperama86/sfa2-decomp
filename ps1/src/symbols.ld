@@ -2723,7 +2723,6 @@ data_801ee218_slot06_07 = 0x801ee218;
 data_801ee21c_slot06_07 = 0x801ee21c;
 
 /* Added by src.u_slot06_08_8000. */
-func_801e8bd8_slot06_08 = 0x801e8bd8;
 data_801ea6d8_slot06_08 = 0x801ea6d8;
 data_801eb6d8_slot06_08 = 0x801eb6d8;
 data_801ec6d8_slot06_08 = 0x801ec6d8;
