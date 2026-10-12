@@ -140,6 +140,23 @@
  * game sends meanwhile (Pause, a new read) is served at once, and the held sector is read again at the next row from the same
  * position (a new read or a seek moves the position, and the hold ends with the old one).
  *
+ * A stream of audio that no one polls. The polling rule (without a handler the next sector waits until the last one is taken) is
+ * for a reader that takes every sector. It does not apply to a read with the mode's XA bit (0x40) set during which CdReady has
+ * not been called. The game's music is such a read: ReadS with the mode 0xc8, driven by functions that call CdSync and never
+ * CdReady (ps1/src/s14f9f0_r6.c), and the game learns that a track has ended from the drive's position alone:
+ * check_cd_position_and_set_command_state (ps1/src/m14ff20_r2.c) asks GetlocP at every pass and, once the position is above the
+ * track's end, stops the track or starts it again. The disc's audio files hold sectors that are no audio between the audio
+ * sectors (the places of a channel whose track is shorter than its file hold sectors with the submode 0). Such a sector is a data
+ * sector: it goes into the FIFO and sets the ready flag, and the next one replaces it, as on the console, where the drive waits
+ * for no one. With the polling rule applied to it the drive stood at the first such sector for ever, the position never passed
+ * the track's end, and a track neither ended nor began again.
+ * A call of CdReady during the read (either mode of the call) shows a reader that polls, and from then on one sector waits for
+ * the poll as before, whatever the mode's bits; a new read (ReadN, ReadS) begins the question again. With the XA bit clear the
+ * rule holds from the read's start, polled or not yet: the game's two readers that poll set the mode 0x80 first
+ * (ps1/src/y14e890_r2.c, ps1/src/v6_r1.c), and their first sector must wait even when a vblank comes before their first poll.
+ * Not covered, and no code of the game does it: a reader that polls with the XA bit set loses the sectors of a vblank's row that
+ * comes before its first poll.
+ *
  * THE DRIVE WAITS FOR THE GAME'S RING (a game-specific exception: this layer reads the game's memory).
  * The rate above is the console's and nothing more. The game reads a streamed load into a ring of seven places that its main loop
  * empties once per pass. On the console a pass fits in a frame or two. Here a pass can take several frames of the wall clock (a
@@ -208,6 +225,7 @@ static struct {
     unsigned char sync;             /* 0 none yet, 3 first response only, 2 complete, 5 error */
     unsigned char sync_result[8];
     unsigned char ready;            /* 0, 1 data, 5 error */
+    int polled;                     /* CdReady was called since the read began: the reader polls (see "A stream of audio that no one polls") */
     unsigned char ready_result[8];
     /* the sector under the FIFO */
     int have_sector;
@@ -632,6 +650,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         clear_carry();
         xa_begin();
         cd.ready = 0;
+        cd.polled = 0;
         set_status(ST_READ);
         one[0] = cd.status;
         respond(one, 1, 2);
@@ -778,6 +797,7 @@ int port_CdReady(int mode, unsigned char *result)
 {
     int n;
     need_disc();
+    cd.polled = 1;
     for (n = 0; n < WAIT_LIMIT; n++) {
         if (!cd.in_delivery) port_tick();
         if (cd.ready == 0 && !mode && cd.reading && !cd.in_delivery) {
@@ -942,8 +962,10 @@ static int deliver_one(void)
 
     if (!cd.reading) return 0;
     /* without a handler the game polls; the next sector waits for the poll
-     * to take the last one (the controller's FIFO holds one) */
-    if (!handler && !cd.host_ready && cd.ready) return 0;
+     * to take the last one (the controller's FIFO holds one). Not in a read with the mode's XA bit set that has not been
+     * polled: that is a stream of audio, and a data sector between its audio sectors is replaced by the next (the header: "A
+     * stream of audio that no one polls") */
+    if (!handler && !cd.host_ready && cd.ready && (!(cd.mode & 0x40) || cd.polled)) return 0;
     sector = cd.pos;
     if ((unsigned long long)sector >= cd.total ||
         fseek(cd.disc->f, (long)((unsigned long long)sector * PORT_SECTOR), SEEK_SET) != 0 ||
