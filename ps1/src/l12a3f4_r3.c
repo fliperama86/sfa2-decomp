@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012a9a0(Object *object) {
+void update_airborne_object(Object *object) {
     if ((u8)func_80130184(object)) {
         if (object->field_cd != 0) {
             func_8012ab5c(object);
@@ -33,11 +33,11 @@ void func_8012a9a0(Object *object) {
                 func_8012f8c4(object);
             } else {
                 object->state_3 = object->state_3 + 1;
-                func_80130678(object, 0x11);
+                set_sequence_by_side(object, 0x11);
             }
         } else {
             object->state_3 = object->state_3 + 1;
-            func_80130678(object, 0x11);
+            set_sequence_by_side(object, 0x11);
         }
     }
 }

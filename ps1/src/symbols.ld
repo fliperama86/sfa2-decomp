@@ -1473,8 +1473,6 @@ func_801631f8 = 0x801631f8;
 func_801633ac = 0x801633ac;
 func_8016310c = 0x8016310c;
 GetVideoMode = 0x8015f74c;
-SpuVmSetVol = 0x80163794;
-_SsContDataEntry = 0x80167388;
 SpuInitHot = 0x8016a7c4;
 D_8002D3B4 = 0x8018192c;
 D_8002D3B8 = 0x80181930;
@@ -1619,7 +1617,6 @@ str_8016ddf8 = 0x8016ddf8;
 str_8016de00 = 0x8016de00;
 str_8016de08 = 0x8016de08;
 _spu_addrMode = 0x80183154;
-func_8014e890 = 0x8014e890;
 func_80158e50 = 0x80158e50;
 func_80158d84 = 0x80158d84;
 func_8013245c = 0x8013245c;
@@ -1789,7 +1786,6 @@ func_8016cc94 = 0x8016cc94;
 func_8016d168 = 0x8016d168;
 
 /* Added by src.u_slot0b_00c4. */
-func_801e0ce8_slot0b = 0x801e0ce8;
 data_801e1fdc_slot0b = 0x801e1fdc;
 data_801e766c_slot0b = 0x801e766c;
 data_801e46bc_slot0b = 0x801e46bc;
@@ -2144,7 +2140,6 @@ data_801e1bdc_slot2a = 0x801e1bdc;
 data_801e2318_slot2a = 0x801e2318;
 
 /* Added by src.u_slot0f_f378. */
-func_800e4ab0_slot0f = 0x800e4ab0;
 data_800e83a8_slot0f = 0x800e83a8;
 data_800e83b4_slot0f = 0x800e83b4;
 data_800e83c8_slot0f = 0x800e83c8;
@@ -4474,7 +4469,6 @@ data_80051814_slot28 = 0x80051814;
 data_80051828_slot28 = 0x80051828;
 
 /* Added by src.u_slot01_00a4. */
-func_80012990_slot01 = 0x80012990;
 data_8001514c_slot01 = 0x8001514c;
 data_8002ceb0_slot01 = 0x8002ceb0;
 data_80055f44_slot01 = 0x80055f44;

@@ -15,7 +15,7 @@ void func_8014fd9c(Ctl *ctl) {
             stream->field_40 = (StreamRec *)((u8 *)stream->field_40 - 0x40);
             t = stream->record_count;
             stream->record_count = t - 2;
-            func_801501a0(stream);
+            advance_stream_record(stream);
             close_vab_and_sep(stream->vab_id);
             return;
         }

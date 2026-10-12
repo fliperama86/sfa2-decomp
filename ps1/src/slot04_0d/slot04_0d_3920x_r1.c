@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_801b39c8_slot04_0d(Object *object, GameState *g);
 
 void func_801b3920_slot04_0d(Object *object) {
@@ -18,7 +18,7 @@ void func_801b3920_slot04_0d(Object *object) {
         } else {
             a = 0x33;
         }
-        func_80130678(object, (u8)a);
+        set_sequence_by_side(object, (u8)a);
     }
     func_801b39c8_slot04_0d(object, &game_state);
     update_sequence(object);

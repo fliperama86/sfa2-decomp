@@ -26,7 +26,7 @@ void func_801cdc58_slot05_06(Object *obj) {
             if (obj->field_48 != a) {
                 func_801cdd64_slot05_06(obj, a);
             } else {
-                func_80131094(obj);
+                advance_sequence_checked(obj);
             }
         }
     } else {

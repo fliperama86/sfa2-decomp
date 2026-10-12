@@ -24,13 +24,13 @@ void func_80017018_slot28(Object *o) {
 }
 
 void func_80017090_slot28(Object *obj) {
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     obj->field_01 = 1;
 }
 
 void func_800170c0_slot28(Object *obj) {
     data_800306c4_slot28[obj->state_1](obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     obj->field_01 = 1;
 }
 

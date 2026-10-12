@@ -5,7 +5,7 @@
 
 
 void func_80147584(Object *object) {
-    func_80131094(object);
+    advance_sequence_checked(object);
     if (game_state.field_64 != 0) {
         if (*(u8 *)&object->step_flags != 0) return;
         if (object->field_a2 == 0) game_state.field_dc = 0;

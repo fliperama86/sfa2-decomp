@@ -32,5 +32,5 @@ void func_801b7580_slot04_02(Object *obj) {
         obj->vel_x = -obj->vel_x;
         obj->vel_y = data_801c7830_slot04_02[obj->field_ac];
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

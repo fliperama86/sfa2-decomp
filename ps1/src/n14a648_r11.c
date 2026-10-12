@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801507dc(Menu *menu) {
+void clear_menu_fade_mode(Menu *menu) {
     menu->fade_mode = 0;
     menu->field_01 = 0;
 }

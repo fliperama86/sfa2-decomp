@@ -16,7 +16,7 @@ void func_800e62dc_slot0f(Object *obj) {
             return;
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_800e6348_slot0f(Object *obj) {
@@ -28,14 +28,14 @@ void func_800e6348_slot0f(Object *obj) {
             game_state.field_2bc = 9;
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_800e63b0_slot0f(Object *obj) {
     if (game_state.field_2bc == 10) {
         obj->state_0++;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_800e63f0_slot0f(Object *obj) {

@@ -21,7 +21,7 @@ void func_8015003c(Stream *stream) {
         stream->source_ptr = stream->source_ptr + (words << 2);
     }
     if (stream->step_count == 0) {
-        func_80150180(stream, p);
+        check_stream_word(stream, p);
     }
 }
 
@@ -33,17 +33,17 @@ void func_80150100(Stream *stream) {
         stream->bytes_remaining = 0;
     }
     if (stream->step_count == 0) {
-        func_80150180(stream, (u8 *)0x801e0000 + (stream->write_index << 11));
+        check_stream_word(stream, (u8 *)0x801e0000 + (stream->write_index << 11));
     }
 }
 
-void func_80150180(Stream *stream, u8 *p) {
+void check_stream_word(Stream *stream, u8 *p) {
     if (stream->field_34 != *(u32 *)p) {
         stream->error_code = 3;
     }
 }
 
-int func_801501a0(Stream *stream) {
+int advance_stream_record(Stream *stream) {
     u16 t;
     stream->record_count++;
     if (stream->record_limit < (s8)stream->record_count) {

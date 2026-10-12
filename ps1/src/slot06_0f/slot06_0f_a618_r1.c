@@ -31,7 +31,7 @@ void func_801ea658_slot06_0f(Object *obj) {
 }
 
 void func_801ea6e4_slot06_0f(Object *obj) {
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801ea704_slot06_0f(Object *obj) {

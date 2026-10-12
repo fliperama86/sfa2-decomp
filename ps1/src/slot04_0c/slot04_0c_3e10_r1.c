@@ -24,7 +24,7 @@ void func_801b3e44_slot04_0c(Object *obj) {
         obj->state_2 = 0;
         obj->state_3 = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b3e88_slot04_0c(Object *o) {

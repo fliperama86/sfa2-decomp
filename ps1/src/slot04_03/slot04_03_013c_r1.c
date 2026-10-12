@@ -6,7 +6,7 @@
 void func_801b013c_slot04_03(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
-    func_80130678(obj, 0);
+    set_sequence_by_side(obj, 0);
 }
 
 void func_801b0170_slot04_03(Object *obj) {

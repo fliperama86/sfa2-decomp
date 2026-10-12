@@ -20,7 +20,7 @@ void func_800794e0_slot2b(Object *o) {
         func_800796e4_slot2b(o);
         func_800796e4_slot2b(o);
     } else {
-        func_80131094(o);
+        advance_sequence_checked(o);
     }
 }
 

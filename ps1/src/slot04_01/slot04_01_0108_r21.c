@@ -13,7 +13,7 @@ void func_801b3dc4_slot04_01(Object *obj) {
         obj->state_2 = 0;
         obj->state_3 = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b3e08_slot04_01(Object *o) {

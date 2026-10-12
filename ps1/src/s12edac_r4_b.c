@@ -26,7 +26,7 @@ void func_8012f8c4(Object *object) {
             object->state_3 = 1;
             arg = 13;
         }
-        func_80130678(object, arg);
+        set_sequence_by_side(object, arg);
     }
 }
 

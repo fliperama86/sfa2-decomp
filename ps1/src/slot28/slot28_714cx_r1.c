@@ -5,9 +5,9 @@
 
 extern void (*data_800306cc_slot28[])(Object *);
 
-/* The call of func_80131094 passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
+/* The call of advance_sequence_checked passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 1 instruction slots. */
 void func_8001714c_slot28(Object *obj) {
     data_800306cc_slot28[obj->state_1](obj);
-    ((void (*)(void))func_80131094)();
+    ((void (*)(void))advance_sequence_checked)();
     obj->field_01 = 1;
 }

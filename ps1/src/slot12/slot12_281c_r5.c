@@ -19,7 +19,7 @@ void func_80012cdc_slot12(Object *obj) {
         data_801ae02c = 0;
     }
     if (data_8002d57c_slot12 != 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     if (*in & 0x80) {
         data_8002d57c_slot12 = 0;

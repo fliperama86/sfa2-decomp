@@ -43,7 +43,7 @@ void func_801b59c8_slot04_0f(Object *obj) {
     if (data_80190458.p->frame->field_09 == 0) {
         obj->state_0 = obj->state_0 + 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_801b5b4c_slot04_0f(obj);
 }
 
@@ -58,7 +58,7 @@ void func_801b5a28_slot04_0f(Object *obj) {
         obj->state_3 = 0;
         obj->health = 0xff;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_801b5b4c_slot04_0f(obj);
 }
 

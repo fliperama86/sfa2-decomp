@@ -34,5 +34,5 @@ void func_80077d04_slot2b(Object *o) {
         o->vel_y = 0;
         o->vel_x = -o->vel_x;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

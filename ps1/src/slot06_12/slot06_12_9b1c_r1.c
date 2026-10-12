@@ -64,7 +64,7 @@ void func_801e9ccc_slot06_12(Object *obj) {
         func_801e9be8_slot06_12(obj);
         func_801e9b1c_slot06_12(obj);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     if ((s16)obj->step_flags != 0) {
         obj->pos_x += 8;
     }
@@ -76,7 +76,7 @@ void func_801e9d40_slot06_12(Object *obj) {
         func_801e9be8_slot06_12(obj);
         func_801e9b1c_slot06_12(obj);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_80120028(obj);
 }
 

@@ -23,7 +23,7 @@ void func_801ea160_slot06_08(Object *obj) {
                 }
                 func_80130700(obj, data_801ed480_slot06_08[v]);
             }
-            func_80131094(obj);
+            advance_sequence_checked(obj);
         } else {
             func_801ea230_slot06_08(obj);
         }

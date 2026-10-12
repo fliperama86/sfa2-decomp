@@ -6,7 +6,7 @@
 extern ObjectFn data_801c5ac0_slot04_0f[];
 extern ObjectFn data_801c5ad4_slot04_0f[];
 
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 
 void func_801b1fd8_slot04_0f(Object *obj);
 void func_801b1ddc_slot04_0f(Object *obj);
@@ -70,7 +70,7 @@ void func_801b1ec8_slot04_0f(Object *o) {
         o->state_3 = o->state_3 + 1;
         if (o->field_45 == 0) {
             o->field_46 = (o->field_46 & 0xff00) | 6;
-            func_80130678(o, 0);
+            set_sequence_by_side(o, 0);
         }
     }
 }
@@ -90,7 +90,7 @@ void func_801b1f3c_slot04_0f(Object *o) {
             o->accel_x = 0;
             o->vel_x = 0;
             o->accel_y = -0x3000;
-            func_80130678(o, 0x21);
+            set_sequence_by_side(o, 0x21);
         } else {
             func_801312b8(o);
         }
@@ -153,7 +153,7 @@ void func_801b2168_slot04_0f(Object *o) {
             o->accel_x = 0;
             o->vel_x = 0;
             o->accel_y = -0x6000;
-            func_80130678(o, 0x21);
+            set_sequence_by_side(o, 0x21);
         }
     }
 }

@@ -11,5 +11,5 @@ void func_800794a0_slot2b(Object *o) {
     if ((s16)o->step_flags < 0) {
         o->state_0++;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

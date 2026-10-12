@@ -31,7 +31,7 @@ void func_80146794(Object *object) {
     if ((s16)object->step_flags < 0) {
         object->state_0 = object->state_0 + 1;
     }
-    func_80131094(object);
+    advance_sequence_checked(object);
     ((void (*)(void))func_80120028)();
 }
 

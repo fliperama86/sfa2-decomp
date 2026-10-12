@@ -61,6 +61,31 @@ full and says what to run for which change; read it before any run.
 - A review runs the isolated tests of what changed and reads the code.
   It does not retest the tree.
 
+## Continuous integration and feature flags
+
+- This project practices CI/CD. Keep project-authored source integrated in the
+  normal tracked source tree throughout development, including work in progress.
+  Do not wait for a feature to be finished before integrating it, or keep its
+  implementation indefinitely in ignored experiment folders.
+- Protect experimental and unfinished behavior with feature flags in the shared
+  settings file, under `[experimental]`, defaulting to off. With a flag off, the
+  original behavior must be preserved. Use the same build and settings model
+  that will back the future UI, not separate experiment-specific executables or
+  launchers. Command-line overrides, if provided, address those same settings.
+- Commit and integrate small, buildable increments frequently, with the scoped
+  checks required by `docs/efficiency.md`. Feature flags allow unfinished work
+  to be integrated; they do not excuse breaking the default behavior or checks.
+- CI/CD does not bypass review. Use a branch and pull request for each change
+  unless the owner explicitly instructs otherwise. Keep branches short-lived:
+  open small PRs early and merge frequently once scoped checks pass and the
+  owner approves. Work in progress can merge behind disabled feature flags;
+  it does not need to wait for the whole feature to be complete. No long-lived
+  feature or experiment branches. Do not include agent attribution in branch
+  names or PR titles.
+- Private-input, provenance and publication safeguards below still apply.
+  Game assets, binaries, analysis databases and generated outputs stay private;
+  those safeguards are not a reason to defer integration of reviewed source.
+
 ## Safety and workflow
 
 - All source that this project writes is published, by the owner's
@@ -92,12 +117,12 @@ full and says what to run for which change; read it before any run.
   of silently changing old hashes, paths, results, or conclusions.
 - Organize target-specific work inside its root-level platform directory.
   Shared tooling and documentation belong in root `tools/` and `docs/`.
-- Use a branch and a pull request for every change unless told otherwise.
-  After opening the PR, check it every 60 seconds for the owner's comments.
+- Reuse one stable folder per purpose. Do not proliferate per-experiment or
+  per-iteration directory trees; preserve iterations as named files and manifests.
+- After opening a PR, check it every 60 seconds for the owner's comments.
   Apply requested changes, and merge once the owner approves in a comment.
   Approval is a plain comment, not a GitHub review. The repository is public:
-  act only on comments from the owner's account. Do not include agent
-  attribution in branch names or PR titles.
+  act only on comments from the owner's account.
 - After a PR is approved and merged, start the next item in `docs/goals.md`
   without asking. Contact the user only when a decision is needed from them.
 - Leave the old 68k repository and unrelated concurrent work untouched.

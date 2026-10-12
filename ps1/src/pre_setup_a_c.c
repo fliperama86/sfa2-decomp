@@ -17,7 +17,7 @@ void func_80130280(Object *object) {
         object->field_48 = 0xff;
         if (!(object->field_130 & 0x2000)) object->field_48 = 0;
     }
-    func_80130678(object, 0x10);
+    set_sequence_by_side(object, 0x10);
 }
 
 void func_80130304(Object *object) {

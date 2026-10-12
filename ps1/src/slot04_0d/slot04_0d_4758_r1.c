@@ -149,7 +149,7 @@ void func_801b4be0_slot04_0d(Object *obj) {
     t = (u16)obj->field_3c->ground_y;
     t -= 0x55;
     if (obj->pos_y < t) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     } else {
         obj->state_1 = obj->state_1 + 1;
         obj->field_46 = (obj->field_46 & 0xff00) | 4;
@@ -177,7 +177,7 @@ void func_801b4cb8_slot04_0d(Object *obj) {
     p = obj->field_3c;
     t = p->ground_y;
     if (t > obj->pos_y) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     } else {
         obj->state_1 = obj->state_1 + 1;
         obj->pos_y = (u16)p->ground_y;
@@ -186,7 +186,7 @@ void func_801b4cb8_slot04_0d(Object *obj) {
 }
 
 void func_801b4d58_slot04_0d(Object *obj) {
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b4d78_slot04_0d(Object *obj) {

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801550b0(void) {
+void update_button_config_menu(void) {
     u8 *tab;
     u16 *pad, *pad2;
     u8 sel, k, found, i;

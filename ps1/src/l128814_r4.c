@@ -36,7 +36,7 @@ void func_8012a1e4(Object *object) {
     } else {
         saved = object->step_timer;
         object->state_3++;
-        func_80130678(object, (u8)object->step_flags + 4);
+        set_sequence_by_side(object, (u8)object->step_flags + 4);
         object->step_timer = saved;
     }
 }

@@ -15,7 +15,7 @@ int init_cd_menu(void) {
             break;
         }
     }
-    func_8014f604(0);
+    set_cd_volume(0);
     m->field_00 = 0;
     m->field_01 = 0;
     m->field_02 = 0;

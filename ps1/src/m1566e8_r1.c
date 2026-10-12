@@ -4,13 +4,13 @@
 #include "protos.h"
 
 
-void func_801566e8(void *a, Object *object) {
+void store_name_in_score_tables(void *a, Object *object) {
     FrameRecord *r;
     u8 i;
     object->field_b0 = 0x3c;
     object->name_char_3 = 0x20;
     object->phase_index++;
-    func_80157090(a, object);
+    replace_blocked_name(a, object);
     func_80157174(a, object);
     r = table_8016e5c4;
     i = object->score_rank - 1;

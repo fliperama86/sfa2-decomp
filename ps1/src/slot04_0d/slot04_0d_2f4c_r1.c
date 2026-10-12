@@ -11,7 +11,7 @@ void set_position_from_other_box(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 int func_801410c8(Object *object);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_80131468(Object *object);
 void func_801b30c0_slot04_0d(Object *obj, s16 a);
 void func_801b3034_slot04_0d(Object *obj);
@@ -74,7 +74,7 @@ void func_801b30c0_slot04_0d(Object *obj, s16 a) {
     obj->vel_y = -0x40000;
     obj->accel_y = 0x6000;
     func_80140770(obj, 0x1e, 0xf, a, 0, 0, 0);
-    func_80130678(obj, 0x14);
+    set_sequence_by_side(obj, 0x14);
 }
 
 void func_801b314c_slot04_0d(Object *obj) {

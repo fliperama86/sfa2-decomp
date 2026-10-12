@@ -15,7 +15,7 @@ void func_8001201c_slot12(Object *obj) {
     FrameRecord *f;
 
     data_80022e20_slot12[obj->state_1](obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     data_8002d56c_slot12->sequence = obj->sequence;
     p = data_8002d56c_slot12;
     if (p->side != 0) {

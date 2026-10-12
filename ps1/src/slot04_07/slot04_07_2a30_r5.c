@@ -37,5 +37,5 @@ void func_801b3120_slot04_07(Object *obj) {
     obj->accel_y = -0x5600;
     obj->vel_x = 0;
     obj->accel_x = 0;
-    func_80130678(obj, 0x21);
+    set_sequence_by_side(obj, 0x21);
 }

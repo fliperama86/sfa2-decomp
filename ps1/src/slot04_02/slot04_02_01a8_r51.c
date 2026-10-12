@@ -18,7 +18,7 @@ void func_801b617c_slot04_02(Object *obj) {
     if (game_state.field_a6 != 0) {
         idx = 0x29;
     }
-    func_80130678(obj, idx);
+    set_sequence_by_side(obj, idx);
 }
 
 void func_801b61d4_slot04_02(Object *obj) {

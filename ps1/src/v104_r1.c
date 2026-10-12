@@ -11,6 +11,6 @@ void func_8012a3a4(Object *object) {
         func_8012a3f4(object);
         return;
     }
-    func_80130678(object, 4);
+    set_sequence_by_side(object, 4);
     func_8012a3f4(object);
 }

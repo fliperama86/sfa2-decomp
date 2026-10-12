@@ -17,7 +17,7 @@ void func_80144780(Object *object) {
 
 void func_801447c0(Object *object) {
     handlers_b640[object->state_2](object);
-    func_80131094(object);
+    advance_sequence_checked(object);
     if (object->state_2 >= 2) {
         func_80120028(object);
     }

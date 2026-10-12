@@ -29,7 +29,7 @@ void func_801e9f7c_slot06_08(Object *obj) {
             func_80130700(obj, data_801ed498_slot06_08[0]);
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_80120028(obj);
 }
 
@@ -42,7 +42,7 @@ void func_801e9fe8_slot06_08(Object *obj) {
             }
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801ea06c_slot06_08(Object *obj) {

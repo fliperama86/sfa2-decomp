@@ -22,7 +22,7 @@ void SpuVmDamperOff();
 void SpuVmDamperOn();
 void SpuVmSetProgVol(s16, u8, u8);
 s16 SpuVmGetProgVol(s16, s16);
-void SpuVmSetVol(s32, s16, u8, s32, s32);
+s32 SpuVmSetVol(s16, s16, s16, u16, u16);
 void SpuVmKeyOff(s16, s16, u8, s32);
 void SpuVmKeyOn(s16, s16, u8, s32, s32, s32);
 void SpuVmPitchBend(s32, s16, u8, u8);

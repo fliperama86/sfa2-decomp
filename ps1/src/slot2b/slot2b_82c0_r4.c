@@ -29,7 +29,7 @@ void func_80078654_slot2b(Object *o) {
             if (o->field_48 != t) {
                 func_8007878c_slot2b(o, t);
             } else {
-                func_80131094(o);
+                advance_sequence_checked(o);
             }
         }
     }

@@ -17,7 +17,7 @@ void func_801ea900_slot06_0e(Object *obj) {
 
     v |= game_state.field_74;
     if (v == 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     v = (s16)obj->field_46 + obj->field_03;
     if (!((s16)((Slot06Layer *)cam_obj)->field_16 < data_801ef494_slot06_0e[v])) {

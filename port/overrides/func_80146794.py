@@ -3,10 +3,10 @@
 Choices of the setup:
   - the object is a 0x394-byte block of random bytes; its byte field_03 is
     0x10 or 0x11 in two cases of five (the pos_x arms), otherwise random; its
-    byte at 8 is 0 or 8 in half of the cases (the arm of func_80131094 that
+    byte at 8 is 0 or 8 in half of the cases (the arm of advance_sequence_checked that
     reads the frame table);
   - three kinds of case in equal shares, for the three paths of
-    func_80131094, which runs as the image's own code: kind 0, the halfword at
+    advance_sequence_checked, which runs as the image's own code: kind 0, the halfword at
     0x38 is not 1 (0 or 2 to 65535); kind 1, it is 1 and the halfword at 0x3a
     is 0 to 0x7fff; kind 2, it is 1 and the halfword at 0x3a is 0x8000 to
     0xffff. In kind 0 the halfword at 0x3a is any value;
@@ -14,11 +14,11 @@ Choices of the setup:
     bytes, four records of 12 bytes, that this setup builds; the halfword at 8
     of the first record is 0 to 3 and the halfword at 0xa of each record is 0
     to 15; the word at 0x8c leads to a block of 16 records of 16 bytes of
-    random bytes. These are the memory that func_80131094 reads through the
+    random bytes. These are the memory that advance_sequence_checked reads through the
     two pointers, and it writes nothing of them;
   - func_80120028 (1 argument) is a recorder that returns 0; the log watches
     the object whole at every call. The sequence block is not watched: the
-    callee func_80131094 does not write it.
+    callee advance_sequence_checked does not write it.
 """
 from contracts import CallLog, Contract, Setup, fill
 

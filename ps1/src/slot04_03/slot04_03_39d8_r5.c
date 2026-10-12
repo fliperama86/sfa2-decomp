@@ -39,7 +39,7 @@ void func_801b3f8c_slot04_03(Object *obj, Object *p) {
                     func_80130768(obj, obj->field_48, data_801c0aac_slot04_03);
                 }
             } else {
-                func_80131094(obj);
+                advance_sequence_checked(obj);
             }
         } else {
             obj->field_48 = 0;

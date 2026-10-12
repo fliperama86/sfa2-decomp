@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80157090(void *a, Object *object) {
+void replace_blocked_name(void *a, Object *object) {
     int i;
     for (i = 0; i < 25; i++) {
         if (object->name_char_0 == table_801818d0[i * 3] &&

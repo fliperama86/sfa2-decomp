@@ -10,7 +10,7 @@ void func_801507e8(Menu *menu) {
             if (!(menu->field_0c & 0x40) && func_8015c9c0(0x1b, &menu->field_f0, 0)) {
                 menu->field_02 = 2;
                 if (menu->fade_mode == 0) {
-                    func_8014f604(0x55);
+                    set_cd_volume(0x55);
                 }
             }
         } else {
@@ -49,7 +49,7 @@ void func_80150984(Menu *menu) {
     if (func_8015c938(1, 0)) {
         if (func_8015c9c0(9, 0, 0)) {
             func_8016a730(0, 0, 0);
-            func_8014f604(0);
+            set_cd_volume(0);
             menu->field_01 = 0;
             menu->field_02 = 0;
         }
@@ -101,5 +101,5 @@ void update_cd_volume_fade(Menu *menu) {
             menu->field_02 = 4;
         }
     }
-    func_8014f604(vol);
+    set_cd_volume(vol);
 }

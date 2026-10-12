@@ -22,7 +22,9 @@ void SpuVmDamperOff();
 void SpuVmDamperOn();
 void SpuVmSetProgVol(s16, u8, u8);
 s16 SpuVmGetProgVol(s16, s16);
-void SpuVmSetVol(s32, s16, u8, s32, s32);
+/* The declaration of SpuVmSetVol has a full word for its first and fourth parameter although the definition takes 16 bits there: the original's calls in this file do not narrow these two arguments. With the definition's widths in this declaration, this unit differs from the original in 126 instruction slots. */
+/* Not portable C: the calls below go through a declaration that is not compatible with the definition. They rely on the PS1's calling convention, under which each of these arguments is passed in a whole register and the callee narrows it itself. */
+s32 SpuVmSetVol(s32, s16, s16, s32, u16);
 void SpuVmKeyOff(s16, s16, u8, s32);
 void SpuVmKeyOn(s16, s16, u8, s32, s32, s32);
 void SpuVmPitchBend(s32, s16, u8, u8);

@@ -12,7 +12,7 @@ void func_8014f918(int a) {
         } else if (ctl_80190948.field_14 == 0) {
             data_8017ec44[ctl_80190948.state_index](ctl);
             if (*(u32 *) ((u8 *) &ctl_80190948 + 0x30) == 0) {
-                if (func_801501a0((Stream *)ctl) == 0) {
+                if (advance_stream_record((Stream *)ctl) == 0) {
                     func_80150244((Stream *)ctl);
                 }
             }

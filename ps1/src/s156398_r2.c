@@ -25,7 +25,7 @@ void func_801565f4(void *a, Object *object) {
             return;
         }
     }
-    func_801566e8(a, object);
+    store_name_in_score_tables(a, object);
 }
 
 void fill_name_chars_with_spaces(void *a, Object *object) {

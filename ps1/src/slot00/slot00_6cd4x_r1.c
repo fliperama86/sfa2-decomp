@@ -34,5 +34,5 @@ void func_80076cd4_slot00(Object *o) {
             }
         }
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

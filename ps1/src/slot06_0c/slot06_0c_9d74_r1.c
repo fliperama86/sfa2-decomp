@@ -21,13 +21,13 @@ void func_801e9d74_slot06_0c(Object *obj, u16 unused) {
     int i;
 
     if (((s16)obj->step_flags & 0xff00) == 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         return;
     }
     if (obj->vel_x == 0x10) {
         obj->state_2 = 0;
         obj->state_1 = 0;
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         return;
     }
     if (obj->vel_x == 0x11) {
@@ -62,7 +62,7 @@ void func_801e9e9c_slot06_0c(Object *obj, u16 arg) {
     if (arg == 1) {
         func_801ea18c_slot06_0c(obj);
         func_801ea1e0_slot06_0c(obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         return;
     }
     i = 5;
@@ -90,7 +90,7 @@ void func_801e9f34_slot06_0c(Object *obj, u16 unused) {
         obj->state_2 = v;
         func_80130700(obj, data_801ebc1c_slot06_0c[i]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -98,7 +98,7 @@ void func_801e9fa8_slot06_0c(Object *obj, u16 arg) {
     int i;
 
     if (arg == 2) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         return;
     }
     if (arg == 1) {
@@ -119,7 +119,7 @@ void func_801ea020_slot06_0c(Object *obj, u16 arg) {
         obj->vel_x = data_801eabb8_slot06_0c[arg];
         func_80130700(obj, data_801ebc1c_slot06_0c[data_801eabb8_slot06_0c[arg]]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -127,13 +127,13 @@ void func_801ea0ac_slot06_0c(Object *obj, u16 unused) {
     int i;
 
     if (((s16)obj->step_flags & 0xff00) == 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         return;
     }
     if (obj->vel_x == 0x10) {
         obj->state_2 = 0;
         obj->state_1 = 0;
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         return;
     }
     if (obj->vel_x == 0x11) {
@@ -247,7 +247,7 @@ void func_801ea394_slot06_0c(Object *obj) {
             func_801ea490_slot06_0c(obj);
             func_801ea43c_slot06_0c(obj);
         }
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_8011ffdc(obj);
 }

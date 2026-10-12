@@ -97,7 +97,7 @@ void func_801e9760_slot06_12(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0++;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_8011ffdc(obj);
 }
 
@@ -173,7 +173,7 @@ void func_801e99dc_slot06_12(Object *obj) {
         d += d >> 2;
         obj->pos_y = (u16)obj->vel_y - d;
         obj->pos_x = l2->field_0a - l2->field_12 + (u16)obj->vel_x;
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_80120028(obj);
 }

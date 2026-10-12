@@ -12,5 +12,5 @@ void func_800785f4_slot00(Object *obj) {
     obj->field_60 = 0x1f;
     obj->field_61 = 0x1f;
     obj->state_2 = obj->state_2 + 1;
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

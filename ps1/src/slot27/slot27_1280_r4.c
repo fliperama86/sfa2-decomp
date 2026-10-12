@@ -30,5 +30,5 @@ void func_800116a0_slot27(Object *obj) {
         obj->field_45 = p->field_d4;
         func_8001188c_slot27(obj);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

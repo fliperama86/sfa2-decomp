@@ -79,7 +79,7 @@ void func_801e93fc_slot06_0a(Object *obj) {
 void func_801e9488_slot06_0a(Object *obj) {
     func_801e9720_slot06_0a(obj);
     func_801e96cc_slot06_0a(obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e94c0_slot06_0a(Object *obj) {
@@ -87,7 +87,7 @@ void func_801e94c0_slot06_0a(Object *obj) {
         obj->state_1 = 2;
         func_80130700(obj, data_801ed400_slot06_0a[5]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -95,7 +95,7 @@ void func_801e9510_slot06_0a(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         func_801e97c0_slot06_0a(obj);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e9558_slot06_0a(Object *obj) {
@@ -103,7 +103,7 @@ void func_801e9558_slot06_0a(Object *obj) {
         obj->state_1 = 0;
         func_80130700(obj, data_801ed400_slot06_0a[7]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -114,7 +114,7 @@ void func_801e95a8_slot06_0a(Object *obj) {
 
 void func_801e95fc_slot06_0a(Object *obj) {
     func_801e9720_slot06_0a(obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e962c_slot06_0a(Object *obj) {
@@ -122,7 +122,7 @@ void func_801e962c_slot06_0a(Object *obj) {
         obj->state_1 = 2;
         func_80130700(obj, data_801ed400_slot06_0a[0xa]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -131,7 +131,7 @@ void func_801e967c_slot06_0a(Object *obj) {
         obj->state_1 = 0;
         func_80130700(obj, data_801ed400_slot06_0a[0xd]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 

@@ -12,7 +12,7 @@ void func_801366d4(Cam *cam, short step);
  * [lo, hi] that the players cover (each covers pos_x +- field_154), then
  * moves the sprite with func_80136668 or func_801366d4 toward the span's
  * middle when the span is 0xc0 or wider, else toward its edges, or calls
- * func_80136898 when neither edge is out of range.
+ * set_cam_pos_x when neither edge is out of range.
  */
 void func_801364a0(Sprite *sprite) {
     Object *left = &player_left;
@@ -77,8 +77,8 @@ void func_801364a0(Sprite *sprite) {
             if (amount <= 0) {
                 func_801366d4((Cam *)sprite, amount);
             } else {
-                /* The tree declares func_80136898 with a Cam pointer; the sprite is cast to it. */
-                func_80136898((Cam *)sprite, (s16)sprite->field_22);
+                /* The tree declares set_cam_pos_x with a Cam pointer; the sprite is cast to it. */
+                set_cam_pos_x((Cam *)sprite, (s16)sprite->field_22);
             }
         }
     }

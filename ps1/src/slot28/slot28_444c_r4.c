@@ -21,9 +21,9 @@ void func_800148c4_slot28(Object *obj) {
 
 void func_800148d8_slot28(Object *obj) {
     if (obj->field_03 == 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         if ((obj->step_flags & 0x7fff) == 1) {
             obj->pos_y = *(u16 *)&obj->vel_y + 8;
         } else {

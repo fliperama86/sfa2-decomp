@@ -29,12 +29,14 @@ project.
   `libcard/card.s` (`_card_clear`): explicit assembly exceptions, below.
 
 A few functions that the reference does not have were written by this
-project. They are in the same files, except one that has a file of its
-own: `libsnd/sepopen.c` (`func_80166144`, inferred `SsSepOpen`), written
+project. They are in the same files, except two that have a file of their
+own: `libsnd/sepopen.c` (`func_80166144`, inferred `SsSepOpen`) and
+`libsnd/dataentry.c` (`_SsContDataEntry`; the reference declares a function
+of this name and has no definition of it), both written
 by this project from the listing of the original, with no text of the
-reference and no license line. It is not one of the files counted
-above. It includes the game's headers (`../../game.h` and the two beside
-it) and declares what it needs of the library itself, so it needs none
+reference and no license line. Neither is one of the files counted
+above. Both include the game's headers (`../../game.h` and the two beside
+it) and declare what they need of the library itself, so they need none
 of the headers of `include/`.
 
 One function that the reference has in a file with others stands in a
@@ -44,6 +46,16 @@ this game's voice record, with the reference's license line. It is not
 one of the files counted above either; like `sepopen.c` it includes
 the game's headers and declares its own view of the library's records,
 and needs none of the headers of `include/`.
+
+A second function of the reference's `libsnd/vmanager.c` stands in a file of
+its own: `libsnd/vm_vol.c` (`SpuVmSetVol`). Only its outline is the reference's
+(the call of `SpuVmVSetUp`, then a loop over the voices that match three keys
+and set two volume cells); the volume computation, its divisors and the stores
+were written by this project from the listing of this game's version of the
+library, which differs from the reference's. It carries the reference's
+license line. It is not one of the files counted above; like `vm_alloc.c` it
+includes the game's headers and declares its own view of the library's
+records.
 
 One function has a second source: `libsnd/sepinit.c` (`func_80165d84`,
 inferred `_SsInitSoundSep`). It was written by this project from the listing

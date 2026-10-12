@@ -68,7 +68,7 @@ void func_801b4d3c_slot04_12(Object *obj) {
             obj->state_0++;
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_8011ff74(obj);
     func_8011ffdc(obj);
 }

@@ -10,7 +10,7 @@
  * its state_2, sets game_state.field_76 to 0x1e, draws a number from the
  * random generator, divides it by 52, passes it to func_80125734 together
  * with the object, stores the result as a signed byte in field_48 and
- * starts the sequence numbered 0x23 plus that result with func_80130678.
+ * starts the sequence numbered 0x23 plus that result with set_sequence_by_side.
  * Otherwise it only calls update_sequence.
  */
 void func_801b03e4_slot04_0a(Object *obj) {
@@ -24,7 +24,7 @@ void func_801b03e4_slot04_0a(Object *obj) {
         variant = get_random_byte();
         variant = (s8)func_80125734(obj, (s8)(variant / 52));
         obj->field_48 = variant;
-        func_80130678(obj, (s16)(variant + 0x23));
+        set_sequence_by_side(obj, (s16)(variant + 0x23));
     } else {
         update_sequence(obj);
     }

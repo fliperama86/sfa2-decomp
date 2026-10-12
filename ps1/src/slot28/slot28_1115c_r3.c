@@ -10,5 +10,5 @@ void func_80021394_slot28(Object *obj) {
 
 void func_8002139c_slot28(Object *obj) {
     data_80044618_slot28[obj->state_1](obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

@@ -6,7 +6,7 @@
 
 int func_801410c8(Object *object) {
     if (game_state.config->field_4d == 0) {
-        if (object->field_cd != 0) return func_801411c4(object) & 0xff;
+        if (object->field_cd != 0) return drain_gauge(object) & 0xff;
         ref_other.p = object->other;
         if (ref_other.p->pressed_bits & 0xf000) {
             if ((s16)(*(s16 *)&object->gauge -= 3) < 0) goto reset;

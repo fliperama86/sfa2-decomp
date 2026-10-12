@@ -13,7 +13,7 @@ void func_80142fe8(Object *object);
 void func_80142fbc(Object *object);
 void func_801428a8(Object *object);
 void func_80142c70(Object *object);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_801495f8(Object *object, int x, int y);
 void func_8011fe40(Object *object);
 void func_80149af8(Object *object);
@@ -195,7 +195,7 @@ void func_801b2c64_slot04_0f(Object *obj) {
     } else {
         a = 0x2b;
     }
-    func_80130678(obj, a);
+    set_sequence_by_side(obj, a);
 }
 
 void func_801b2cd0_slot04_0f(Object *obj) {

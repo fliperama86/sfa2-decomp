@@ -140,7 +140,7 @@ void func_801e9490_slot06_10(Object *obj, Object *other) {
         func_801e95c0_slot06_10(obj, (int)other, 0);
         func_801e960c_slot06_10(obj, other);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -150,6 +150,6 @@ void func_801e94f4_slot06_10(Object *obj, Object *other) {
         func_801e96e8_slot06_10(obj, other);
         func_801e9678_slot06_10(obj, other);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }

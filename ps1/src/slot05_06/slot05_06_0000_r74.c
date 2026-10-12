@@ -12,7 +12,7 @@ void func_801ce638_slot05_06(Object *obj) {
         obj->step_timer = 1;
         obj->state_1++;
         obj->pos_y = obj->ground_y;
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -24,7 +24,7 @@ void func_801ce694_slot05_06(Object *obj) {
 }
 
 void func_801ce6c8_slot05_06(Object *obj) {
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_8011ffdc(obj);
 }
 

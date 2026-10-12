@@ -151,7 +151,7 @@ void func_80131020(Object *object) {
     }
 }
 
-void func_80131094(Object *object) {
+void advance_sequence_checked(Object *object) {
     SequenceStep *next;
 
     if (--*(s16 *)&object->step_timer == 0) {

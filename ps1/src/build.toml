@@ -83,7 +83,7 @@ source = "setup_pre.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8013060c", address = 0x8013060c, size = 108 },
-  { name = "func_80130678", address = 0x80130678, size = 136 },
+  { name = "set_sequence_by_side", address = 0x80130678, size = 136 },
   { name = "func_80130700", address = 0x80130700, size = 104 },
   { name = "func_80130768", address = 0x80130768, size = 120 },
   { name = "func_801307e0", address = 0x801307e0, size = 228 },
@@ -180,7 +180,7 @@ functions = [
   { name = "update_sequence", address = 0x80130efc, size = 48 },
   { name = "advance_sequence", address = 0x80130f2c, size = 244 },
   { name = "func_80131020", address = 0x80131020, size = 116 },
-  { name = "func_80131094", address = 0x80131094, size = 276 },
+  { name = "advance_sequence_checked", address = 0x80131094, size = 276 },
 ]
 
 [[unit]]
@@ -708,8 +708,8 @@ name = "s136668_r2"
 source = "s136668_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80136898", address = 0x80136898, size = 20 },
-  { name = "func_801368ac", address = 0x801368ac, size = 20 },
+  { name = "set_cam_pos_x", address = 0x80136898, size = 20 },
+  { name = "set_cam_pos_y", address = 0x801368ac, size = 20 },
 ]
 
 [[unit]]
@@ -867,7 +867,7 @@ name = "d3902c_r1"
 source = "d3902c_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8013902c", address = 0x8013902c, size = 728 },
+  { name = "separate_overlapping_players", address = 0x8013902c, size = 728 },
 ]
 
 [[unit]]
@@ -1155,7 +1155,7 @@ name = "s13e574_r11"
 source = "s13e574_r11.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801411c4", address = 0x801411c4, size = 132 },
+  { name = "drain_gauge", address = 0x801411c4, size = 132 },
 ]
 
 [[unit]]
@@ -1516,7 +1516,7 @@ functions = [
   { name = "func_801480b0", address = 0x801480b0, size = 68 },
   { name = "func_801480f4", address = 0x801480f4, size = 32 },
   { name = "func_80148114", address = 0x80148114, size = 32 },
-  { name = "func_80148134", address = 0x80148134, size = 96 },
+  { name = "set_position_from_parent", address = 0x80148134, size = 96 },
   { name = "func_80148194", address = 0x80148194, size = 140 },
 ]
 
@@ -2008,7 +2008,7 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8014f59c", address = 0x8014f59c, size = 56 },
   { name = "set_cd_mix_mode", address = 0x8014f5d4, size = 48 },
-  { name = "func_8014f604", address = 0x8014f604, size = 140 },
+  { name = "set_cd_volume", address = 0x8014f604, size = 140 },
 ]
 
 [[unit]]
@@ -2042,8 +2042,8 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8015003c", address = 0x8015003c, size = 196 },
   { name = "func_80150100", address = 0x80150100, size = 128 },
-  { name = "func_80150180", address = 0x80150180, size = 32 },
-  { name = "func_801501a0", address = 0x801501a0, size = 164 },
+  { name = "check_stream_word", address = 0x80150180, size = 32 },
+  { name = "advance_stream_record", address = 0x801501a0, size = 164 },
   { name = "func_80150244", address = 0x80150244, size = 80 },
 ]
 
@@ -2052,9 +2052,9 @@ name = "s14f9f0_r4"
 source = "s14f9f0_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801503f8", address = 0x801503f8, size = 104 },
-  { name = "func_80150460", address = 0x80150460, size = 92 },
-  { name = "func_801504bc", address = 0x801504bc, size = 192 },
+  { name = "load_stream_image", address = 0x801503f8, size = 104 },
+  { name = "load_stream_palette_image", address = 0x80150460, size = 92 },
+  { name = "transfer_vab_body_chunk", address = 0x801504bc, size = 192 },
 ]
 
 [[unit]]
@@ -2665,7 +2665,7 @@ functions = [
   { name = "func_8011ffdc", address = 0x8011ffdc, size = 76 },
   { name = "func_80120028", address = 0x80120028, size = 56 },
   { name = "func_80120060", address = 0x80120060, size = 32 },
-  { name = "func_80120080", address = 0x80120080, size = 112 },
+  { name = "push_object_by_ot_depth", address = 0x80120080, size = 112 },
   { name = "push_object_stack_a", address = 0x801200f0, size = 60 },
   { name = "push_object_stack_b", address = 0x8012012c, size = 60 },
   { name = "init_sound_system", address = 0x80120168, size = 128 },
@@ -2734,7 +2734,7 @@ name = "s120f40_r1"
 source = "s120f40_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80120f40", address = 0x80120f40, size = 88 },
+  { name = "init_player_object", address = 0x80120f40, size = 88 },
   { name = "func_80120f98", address = 0x80120f98, size = 108 },
   { name = "func_80121004", address = 0x80121004, size = 84 },
 ]
@@ -2758,7 +2758,7 @@ name = "s120f40_r3"
 source = "s120f40_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80121680", address = 0x80121680, size = 176 },
+  { name = "link_players", address = 0x80121680, size = 176 },
   { name = "func_80121730", address = 0x80121730, size = 80 },
   { name = "func_80121780", address = 0x80121780, size = 84 },
   { name = "func_801217d4", address = 0x801217d4, size = 160 },
@@ -2953,7 +2953,7 @@ name = "s1257d0_r2"
 source = "s1257d0_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80125938", address = 0x80125938, size = 112 },
+  { name = "load_select_entries", address = 0x80125938, size = 112 },
 ]
 
 [[unit]]
@@ -3144,9 +3144,9 @@ functions = [
   { name = "func_8012783c", address = 0x8012783c, size = 72 },
   { name = "func_80127884", address = 0x80127884, size = 84 },
   { name = "func_801278d8", address = 0x801278d8, size = 72 },
-  { name = "func_80127920", address = 0x80127920, size = 84 },
+  { name = "fade_in_palette_bank_3", address = 0x80127920, size = 84 },
   { name = "func_80127974", address = 0x80127974, size = 72 },
-  { name = "func_801279bc", address = 0x801279bc, size = 84 },
+  { name = "fade_in_palette_bank_4", address = 0x801279bc, size = 84 },
   { name = "func_80127a10", address = 0x80127a10, size = 180 },
   { name = "func_80127ac4", address = 0x80127ac4, size = 180 },
   { name = "func_80127b78", address = 0x80127b78, size = 176 },
@@ -3478,7 +3478,7 @@ source = "m13eb28_r5.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8013f0c8", address = 0x8013f0c8, size = 244 },
-  { name = "func_8013f1bc", address = 0x8013f1bc, size = 236 },
+  { name = "set_slot_random_timer", address = 0x8013f1bc, size = 236 },
 ]
 
 [[unit]]
@@ -3503,6 +3503,14 @@ source = "u_8014e828.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_8014e828", address = 0x8014e828, size = 104 },
+]
+
+[[unit]]
+name = "s14e890x_r1"
+source = "s14e890x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8014e890", address = 0x8014e890, size = 780 },
 ]
 
 [[unit]]
@@ -3587,7 +3595,7 @@ name = "m1474b8_r2"
 source = "m1474b8_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80147968", address = 0x80147968, size = 228 },
+  { name = "advance_sequence_unless_paused", address = 0x80147968, size = 228 },
 ]
 
 [[unit]]
@@ -3730,7 +3738,7 @@ name = "m15393c_r3"
 source = "m15393c_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80153cac", address = 0x80153cac, size = 208 },
+  { name = "queue_two_digit_number_text", address = 0x80153cac, size = 208 },
 ]
 
 [[unit]]
@@ -3834,7 +3842,7 @@ name = "m1566e8_r1"
 source = "m1566e8_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801566e8", address = 0x801566e8, size = 252 },
+  { name = "store_name_in_score_tables", address = 0x801566e8, size = 252 },
 ]
 
 [[unit]]
@@ -3842,7 +3850,7 @@ name = "m1566e8_r2"
 source = "m1566e8_r2.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80157090", address = 0x80157090, size = 228 },
+  { name = "replace_blocked_name", address = 0x80157090, size = 228 },
 ]
 
 
@@ -3963,7 +3971,7 @@ name = "u_80123968"
 source = "u_80123968.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80123968", address = 0x80123968, size = 100 },
+  { name = "set_winner_by_health", address = 0x80123968, size = 100 },
 ]
 
 [[unit]]
@@ -4037,7 +4045,7 @@ name = "l12a3f4_r3"
 source = "l12a3f4_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8012a9a0", address = 0x8012a9a0, size = 444 },
+  { name = "update_airborne_object", address = 0x8012a9a0, size = 444 },
 ]
 
 [[unit]]
@@ -5448,7 +5456,7 @@ name = "z1550b0"
 source = "z1550b0.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801550b0", address = 0x801550b0, size = 2420 },
+  { name = "update_button_config_menu", address = 0x801550b0, size = 2420 },
 ]
 
 [[unit]]
@@ -5839,7 +5847,7 @@ name = "v4_r4"
 source = "v4_r4.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_8011948c", address = 0x8011948c, size = 104 },
+  { name = "update_voice_delay_timers", address = 0x8011948c, size = 104 },
 ]
 
 [[unit]]
@@ -8302,7 +8310,7 @@ name = "n14a648_r11"
 source = "n14a648_r11.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_801507dc", address = 0x801507dc, size = 12 },
+  { name = "clear_menu_fade_mode", address = 0x801507dc, size = 12 },
 ]
 
 [[unit]]
@@ -8983,6 +8991,14 @@ functions = [
 rodata = { address = 0x8016e250, size = 488 }
 
 [[unit]]
+name = "sdk_libsnd_dataentry"
+source = "sdk/libsnd/dataentry.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "_SsContDataEntry", address = 0x80167388, size = 1504 },
+]
+
+[[unit]]
 name = "sdk_libsnd_seqread_p2"
 source = "sdk/libsnd/seqread_p2.c"
 flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
@@ -9115,6 +9131,14 @@ functions = [
   { name = "SpuVmGetProgVol", address = 0x80163678, size = 84 },
   { name = "SpuVmSetProgPan", address = 0x801636cc, size = 116 },
   { name = "SpuVmGetProgPan", address = 0x80163740, size = 84 },
+]
+
+[[unit]]
+name = "sdk_libsnd_vm_vol"
+source = "sdk/libsnd/vm_vol.c"
+flags = ["-O2", "-G0", "-funsigned-char", "-fpcc-struct-return", "-msoft-float"]
+functions = [
+  { name = "SpuVmSetVol", address = 0x80163794, size = 964 },
 ]
 
 [[unit]]
@@ -9322,6 +9346,15 @@ source = "slot0b/slot0b_0a78x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_801e0a78_slot0b", address = 0x801e0a78, size = 624 },
+]
+
+[[unit]]
+name = "slot0b_0ce8x_r1"
+image = "slot0b"
+source = "slot0b/slot0b_0ce8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801e0ce8_slot0b", address = 0x801e0ce8, size = 448 },
 ]
 
 [[unit]]
@@ -10613,7 +10646,7 @@ name = "x23_r1"
 source = "x23_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
-  { name = "func_80151a04", address = 0x80151a04, size = 1376 },
+  { name = "draw_text_items", address = 0x80151a04, size = 1376 },
 ]
 rodata = { address = 0x8016da24, size = 20 }
 
@@ -12255,6 +12288,15 @@ source = "slot0f/slot0f_4800_r3.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_800e4988_slot0f", address = 0x800e4988, size = 296 },
+]
+
+[[unit]]
+name = "slot0f_4ab0x_r1"
+image = "slot0f"
+source = "slot0f/slot0f_4ab0x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800e4ab0_slot0f", address = 0x800e4ab0, size = 608 },
 ]
 
 [[unit]]
@@ -24976,6 +25018,15 @@ source = "slot01/slot01_2714x_r1.c"
 flags = ["-O2", "-G0"]
 functions = [
   { name = "func_80012714_slot01", address = 0x80012714, size = 636 },
+]
+
+[[unit]]
+name = "slot01_2990x_r1"
+image = "slot01"
+source = "slot01/slot01_2990x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80012990_slot01", address = 0x80012990, size = 448 },
 ]
 
 [[unit]]

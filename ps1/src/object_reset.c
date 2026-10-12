@@ -103,7 +103,7 @@ void reset_object(Object *object) {
             object->state_2 = 0;
             object->state_3 = 0;
         }
-        if (object->kind != 0x17) func_80130678(object, 0x22);
+        if (object->kind != 0x17) set_sequence_by_side(object, 0x22);
     }
     object->field_177 = 1;
     set_side_ring_flag(object);

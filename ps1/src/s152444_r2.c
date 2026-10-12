@@ -18,14 +18,14 @@ void func_801527b4(Object *object) {
         func_80130768(object, 0x33, (SequenceStep **)table_8017c7f8);
     }
     func_801528e0(object);
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_8015282c(Object *object) {
     if ((s16)object->step_flags < 0) {
         object->state_0++;
     } else {
-        func_80131094(object);
+        advance_sequence_checked(object);
     }
 }
 

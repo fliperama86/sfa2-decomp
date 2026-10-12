@@ -16,7 +16,7 @@ void func_80153a38(Actor *a) {
         func_80153d7c(a);
         a->number_value = a->target->field_6a;
         table_801803c4[a->side]->field_04 = table_80180340[a->side];
-        func_80153cac(a);
+        queue_two_digit_number_text(a);
     }
     func_80153f0c(a);
     if (a->owner->field_cd == 0) {

@@ -10,7 +10,7 @@ void select_box_tables(Object *object);
 void build_metrics(Object *object);
 void func_80131468(Object *object);
 void func_80131638(Object *object);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 unsigned short func_80130470(Object *object);
 
 void func_801b5874_slot04_11(Object *obj);
@@ -75,7 +75,7 @@ void func_801b5990_slot04_11(Object *obj) {
     func_801b5ab8_slot04_11(obj);
     select_box_tables(obj);
     build_metrics(obj);
-    func_80130678(obj, 0x30);
+    set_sequence_by_side(obj, 0x30);
 }
 
 void func_801b59f0_slot04_11(Object *obj) {

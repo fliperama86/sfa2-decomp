@@ -9,7 +9,7 @@ extern s8 data_801c5c0c_slot04_0f[];
 extern u8 data_801c5c1c_slot04_0f[];
 
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_80131468(Object *object);
 int func_80141618(Object *object);
 int func_801b4ad8_slot04_0f(Object *obj);
@@ -86,7 +86,7 @@ void func_801b474c_slot04_0f(Object *obj) {
 void func_801b478c_slot04_0f(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
-    func_80130678(obj, 0);
+    set_sequence_by_side(obj, 0);
 }
 
 void func_801b47c0_slot04_0f(Object *obj) {
@@ -109,7 +109,7 @@ void func_801b4818_slot04_0f(Object *obj) {
     }
     r = func_80125734(obj, data_801c5c0c_slot04_0f[get_random_byte() & 0xf]);
     obj->state_2 = data_801c5c1c_slot04_0f[(u8)r];
-    func_80130678(obj, (r & 0xff) + 0x23);
+    set_sequence_by_side(obj, (r & 0xff) + 0x23);
 }
 
 void func_801b48bc_slot04_0f(Object *obj) {

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80125938(Select *a, Object *b, Object *c) {
+void load_select_entries(Select *a, Object *b, Object *c) {
     int i;
     s16 base;
     if (b->field_f1 == 0 && c->field_f1 == 0) {

@@ -18,5 +18,5 @@ void func_801b01d8_slot04_08(Object *obj) {
         k = 4;
     }
     obj->field_48 = k;
-    func_80130678(obj, k + 0x23);
+    set_sequence_by_side(obj, k + 0x23);
 }

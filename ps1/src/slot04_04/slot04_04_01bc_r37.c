@@ -11,10 +11,10 @@ void func_801b3294_slot04_04(Object *obj) {
     func_801428a8(obj);
     func_80138b38(&game_state, obj);
     if (obj->field_45 != 0) {
-        func_80130678(obj, 0x2f);
+        set_sequence_by_side(obj, 0x2f);
     } else {
         play_side_sound_at(obj, obj->side, 8);
-        func_80130678(obj, 0x2b);
+        set_sequence_by_side(obj, 0x2b);
     }
 }
 

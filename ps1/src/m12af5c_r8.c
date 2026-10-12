@@ -16,7 +16,7 @@ void func_8012df44(Object *object) {
         if (func_8012f970(object) != 0) {
             func_8012fe60(object);
         } else {
-            func_80130678(object, 0x11);
+            set_sequence_by_side(object, 0x11);
         }
     } else {
         if ((s16)object->step_flags < 0) {

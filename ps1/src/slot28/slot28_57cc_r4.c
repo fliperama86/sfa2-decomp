@@ -7,7 +7,7 @@ extern ObjectFn data_8002c7a4_slot28[];
 
 void func_80015a70_slot28(Object *obj) {
     data_8002c7a4_slot28[obj->state_1](obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_80015ac4_slot28(Object *obj) {

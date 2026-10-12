@@ -22,10 +22,10 @@ void func_80119030(void);
 void func_80157784(unsigned counter);
 int func_80118fc8(u8 *pad, int number);
 void func_8011907c(void);
-void func_80151a04(void);
+void draw_text_items(void);
 int func_801576e8(unsigned counter);
 void func_801194f4(void);
-void func_8011948c(void);
+void update_voice_delay_timers(void);
 
 /*
  * What it does (inferred, not original names): the game's main. It never
@@ -101,7 +101,7 @@ display:
         if (data_801ac620 <= 0x4000) {
             func_8011907c();
             func_8014f59c();
-            func_80151a04();
+            draw_text_items();
             game_state.field_02 = 0;
             game_state.field_32++;
         }
@@ -132,7 +132,7 @@ display:
         }
         if (data_801ac620 <= 0x4000) {
             func_801194f4();
-            func_8011948c();
+            update_voice_delay_timers();
         }
         if ((data_801ac620 & 0x1f) != 0) {
             data_801ac620--;

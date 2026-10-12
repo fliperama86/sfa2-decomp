@@ -30,7 +30,7 @@ void func_801e9c50_slot06_10(Object *obj, Object *other) {
             return;
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e9d24_slot06_10(Object *obj, Object *other) {
@@ -42,5 +42,5 @@ void func_801e9d24_slot06_10(Object *obj, Object *other) {
             return;
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
