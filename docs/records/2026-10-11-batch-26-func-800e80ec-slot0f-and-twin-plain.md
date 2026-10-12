@@ -4,7 +4,9 @@
   `func_8001606c_slot12` (384 bytes, image `slot12`): one function in
   two modules with other tables (one distinct function for the map, two
   placements). Both from `modules_nonmatching`. The tree is made from
-  main at `cb47613`; batch 25 (pull request 304) is not in it.
+  main at `cb47613`; main with batch 25 (pull request 304, merged
+  first) is merged in, and the two image builds, the two unit compares,
+  the records test and the map below ran again on that head.
 - No stand-in and no label in either unit. The earlier candidates (2
   differing lines each since 2026-10-10) carried two do-while wrappers and a
   term that is always 0; none of that is left.
@@ -67,6 +69,6 @@
   The figures of the variants: the same command on the unit with that
   change, the unit put back. The byte-offset scan on the two units:
   none. The compiler's warnings on the two units: none. The records
-  test: 84 run, OK. The map's render, on this tree (without batch 25):
-  `overall: 5564/5600 distinct functions exact (99.4%); 13021/13072 placements (99.6%); 1778616/1809836 code bytes (98.3%)`.
+  test: 84 run, OK. The map's render, with batch 25:
+  `overall: 5565/5600 distinct functions exact (99.4%); 13023/13072 placements (99.6%); 1778976/1809836 code bytes (98.3%)`.
   No whole build, no PC build, no differential test.
