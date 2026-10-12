@@ -696,7 +696,7 @@ KERN_ROUTINES = {
     "OpenEvent": "unsigned port_h_OpenEvent(); ", "EnableEvent": "", "TestEvent": "", "VSync": "", "ResetCallback": "",
     "StartRCnt": "", "EnterCriticalSection": "", "ExitCriticalSection": "", "OpenTh": "", "ChangeTh": "", "CloseTh": "", "GetGp": "", "CloseEvent": "",
 }
-# the kernel's real routines under the names the made-up absents have; StartRCnt is func_80157720 in the real build
+# the kernel's real routines under the names the made-up absents have (StartRCnt is the real build's name too, since 2026-10-11)
 HOSTS = {"OpenEvent": "port_h_OpenEvent", "EnableEvent": "port_h_EnableEvent", "TestEvent": "port_h_TestEvent",
          "VSync": "port_h_VSync", "ResetCallback": "port_h_ResetCallback", "StartRCnt": "port_h_StartRCnt",
          "EnterCriticalSection": "port_h_EnterCriticalSection", "ExitCriticalSection": "port_h_ExitCriticalSection",
