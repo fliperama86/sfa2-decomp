@@ -85,6 +85,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "video.h"
+#include "ui_layout.h"
 
 #ifndef PORT_HAVE_PSYZ
 
@@ -93,6 +94,7 @@ void port_gpu_present(void) {}
 int  port_gpu_read_frame(unsigned short *pixels) { (void)pixels; return -1; }
 int  port_gpu_display_enabled(void) { return 0; }
 int port_gpu_set_video_options(int ui,int arcade) { return ui || arcade ? -1 : 0; }
+int port_gpu_set_ui_layout(int enabled) { return enabled ? -1 : 0; }
 
 #else
 
@@ -238,12 +240,17 @@ static void begin(void)
  * which write or read one register, are served without them (below). The game's start-up (its function at
  * 0x80118d10) calls SetDispMask(0) and then ResetGraph(0). */
 static int reset_done;
-static int pixel_perfect_ui, arcade_video;
+static int pixel_perfect_ui, arcade_video, center_ui, ui_canvas_active;
 int port_gpu_set_video_options(int ui,int arcade)
 {
     if((ui || arcade) && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
     Psyz_Sfa2SetPixelPerfectUi(ui);
     pixel_perfect_ui=!!ui;arcade_video=!!arcade;return 0;
+}
+int port_gpu_set_ui_layout(int enabled)
+{
+    if(enabled && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
+    center_ui=!!enabled;return 0;
 }
 static int display_on;   /* the display enable the layer last sent (GP1 command 03) */
 
@@ -397,7 +404,7 @@ static void chunk_flush(void)
     chunk_last = NULL;
 }
 
-static void chunk_add(const uint32_t *words, unsigned len, unsigned n)
+static void chunk_add(const uint32_t *words, unsigned len, unsigned n, int dx, int fix_life)
 {
     unsigned long *node;
     unsigned i, k = 0, pos = 0;
@@ -407,8 +414,16 @@ static void chunk_add(const uint32_t *words, unsigned len, unsigned n)
     node[1] = n;
     while (pos < len) {
         unsigned code = words[pos] >> 24, need = is_nop_kind(code) ? 1 : command_words(code);
-        if (!is_nop_kind(code))
-            for (i = 0; i < need; i++) node[2 + k++] = words[pos + i];
+        if (!is_nop_kind(code)) {
+            if (dx) {
+                uint32_t copy[12]; /* Largest accepted geometry command is GT4. */
+                if (need>12) stop("gpu: UI command exceeds its bounded copy");
+                for (i=0;i<need;i++) copy[i]=words[pos+i];
+                if (port_ui_translate(copy,need,dx,fix_life)<0)
+                    stop("gpu: UI layout coordinate/command is out of range");
+                for (i=0;i<need;i++) node[2+k++]=copy[i];
+            } else for (i = 0; i < need; i++) node[2 + k++] = words[pos + i];
+        }
         pos += need;
     }
     if (chunk_last) chunk_last[0] = (unsigned long)node;
@@ -431,7 +446,7 @@ static void send_single(const uint32_t *packet)
     chunk_last = NULL;
     if (len) {
         walk_payload((uint32_t)(uintptr_t)packet, packet + 1, len, &effective);
-        if (effective) chunk_add(packet + 1, len, effective);
+        if (effective) chunk_add(packet + 1, len, effective, 0, 0);
     }
     chunk_flush();
 }
@@ -441,6 +456,8 @@ static void send_list(uint32_t *first)
     uint32_t *node;
     uint32_t start = (uint32_t)(uintptr_t)first;
     unsigned count = 0;
+    int list_index=-1;
+    int dx=port_ui_center_offset(center_ui,ui_canvas_active,PORT_ARCADE_W);
     chunk_used = 0;
     chunk_last = NULL;
     if (!((start >= PORT_RAM_BASE && start < PORT_RAM_BASE + PORT_RAM_SIZE) || (start >= 0xa0000000u && start < 0xa0000000u + PORT_RAM_SIZE)))
@@ -454,10 +471,12 @@ static void send_list(uint32_t *first)
             stop("gpu: the list from 0x%08x has no end within %u packets (at 0x%08x); a cycle, or a list never terminated", start, PORT_GPU_MAX_PACKETS, here);
         if (here + 4u + 4u * len > PORT_RAM_BASE + PORT_RAM_SIZE)
             stop("gpu: the packet at 0x%08x is %u words long and runs past the end of RAM", here, len);
+        if (!len) list_index=port_video_ot_index(here)>=0?port_video_ot_index(here):list_index;
         if (len) {
             unsigned effective = 0;
+            int kind=dx?port_ui_packet_kind(here,node+1,len,list_index):0;
             walk_payload(here, node + 1, len, &effective);
-            if (effective) chunk_add(node + 1, len, effective);
+            if (effective) chunk_add(node + 1, len, effective, kind?dx:0, kind==2 && pixel_perfect_ui);
         }
         if ((head & LINK_END) == LINK_END) break;
         node = ram_at(head & LINK_END, here);
@@ -480,6 +499,7 @@ static int host_ResetGraph(int mode)
         int version;
         port_callbacks_reset();
         reset_done = 1;
+        ui_canvas_active = 0;
         version = ResetGraph(0);
         /* The library's reset for mode 0 (code at 0x8015a000, the branch for mode & 7 == 0) writes 0 to the GPU's
          * command register, which is the hardware reset, and the reset turns the display off; the branch for
@@ -603,7 +623,8 @@ static DISPENV *host_PutDispEnv(DISPENV *env)
     game_span("PutDispEnv", env, sizeof *env);
     {
         DISPENV *result=PutDispEnv(env);
-        Psyz_Sfa2SetArcadeCanvas(port_video_canvas_allowed(env->disp.w,env->disp.h,env->isrgb24,arcade_video));
+        ui_canvas_active=port_video_canvas_allowed(env->disp.w,env->disp.h,env->isrgb24,arcade_video);
+        Psyz_Sfa2SetArcadeCanvas(ui_canvas_active);
         return result;
     }
 }

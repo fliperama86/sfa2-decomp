@@ -1,0 +1,81 @@
+/* Generated RAM, real GPU packet-copy seam, mock SDK sink, no game/GPU. */
+#define _GNU_SOURCE
+#include "gpu.h"
+#include "ui_layout.h"
+#include <assert.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+static int pixel_perfect_ui,center_ui,ui_canvas_active;
+typedef unsigned long OT_TYPE;
+#define LINK_END 0x00ffffffu
+static void stop(const char *fmt,...)
+{
+    va_list args;va_start(args,fmt);vfprintf(stderr,fmt,args);va_end(args);abort();
+}
+static void DrawOTag(OT_TYPE *words);
+/* REAL_GPU_SEAM */
+static unsigned captured_count;
+static struct { unsigned len;uint32_t words[12]; } captured[16];
+static void DrawOTag(OT_TYPE *node)
+{
+    for(;;) {
+        unsigned i;assert(captured_count<16 && node[1]<=12);
+        captured[captured_count].len=(unsigned)node[1];
+        for(i=0;i<node[1];i++)captured[captured_count].words[i]=(uint32_t)node[2+i];
+        captured_count++;
+        if(node[0]==LINK_END)break;
+        node=(OT_TYPE *)(uintptr_t)node[0];
+    }
+}
+static uint32_t *at(uint32_t a) { return (uint32_t *)(uintptr_t)a; }
+static void append(uint32_t base,unsigned index,uint32_t address,const uint32_t *words,unsigned len)
+{
+    uint32_t *p=at(address),*ot=at(base+index*4);unsigned i;
+    p[0]=len<<24|(*ot&LINK_END);for(i=0;i<len;i++)p[1+i]=words[i];*ot=address&LINK_END;
+}
+int main(void)
+{
+    unsigned frame,flags,i,n;unsigned char *saved=malloc(PORT_RAM_SIZE);
+    void *ram=mmap((void *)(uintptr_t)PORT_RAM_BASE,PORT_RAM_SIZE,PROT_READ|PROT_WRITE,MAP_ANONYMOUS|MAP_PRIVATE,-1,0);
+    assert(ram==(void *)(uintptr_t)PORT_RAM_BASE && saved);
+    for(frame=0;frame<2;frame++)for(flags=0;flags<8;flags++) {
+        uint32_t base=frame?0x801fc0e8u:0x801fc000u;
+        int dx=(flags&2)&&(flags&4)?8:0;
+        uint32_t font[]={0x64808080,40u<<16|40,0x78070000,8u<<16|8};
+        uint32_t world[]={0x600000ff,100u<<16|300,8u<<16|8};
+        uint32_t life[]={0x61ffff00,18u<<16|8,5u<<16|144};
+        uint32_t hud[]={0x2c808080,60u<<16|20,0x78070000,60u<<16|36,0x000d000f,
+            76u<<16|20,0x00000f00,76u<<16|36,0x00000f0f};
+        uint32_t strip[]={0xe100001f,0xe2000000,0x03000000,0x7c808080,104u<<16|120,0x78070000};
+        memset(ram,0,PORT_RAM_SIZE);
+        for(i=0;i<30;i++)*at(base+i*4)=i?(base+(i-1)*4)&LINK_END:LINK_END;
+        append(base,14,0x80100200,world,3);
+        append(base,14,0x8018a4bc+frame*0x1400,font,4);
+        append(base,14,0x801ac6ac,life,3);
+        append(base,14,0x80188d6c+frame*0x38,strip,6);
+        append(base,17,0x80186004+frame*0x1680,hud,9);
+        memcpy(saved,ram,PORT_RAM_SIZE);
+        pixel_perfect_ui=!!(flags&1);ui_canvas_active=!!(flags&2);center_ui=!!(flags&4);
+        captured_count=0;send_list(at(base+29*4));assert(captured_count==5);
+        assert(!memcmp(saved,ram,PORT_RAM_SIZE));
+        assert(captured[0].len==9);assert(captured[0].words[1]==(60u<<16|(unsigned)(20+dx)));
+        for(i=0;i<9;i++)if(i!=1 && i!=3 && i!=5 && i!=7)assert(captured[0].words[i]==hud[i]);
+        assert(captured[1].len==5);assert(captured[1].words[0]==strip[0] && captured[1].words[1]==strip[1]);
+        assert(captured[1].words[2]==strip[3] && captured[1].words[3]==(104u<<16|(unsigned)(120+dx)));
+        n=dx&&pixel_perfect_ui?17:18;
+        assert(captured[2].words[0]==life[0] && captured[2].words[1]==(n<<16|(unsigned)(8+dx)));
+        assert(captured[2].words[2]==((dx&&pixel_perfect_ui?6u:5u)<<16|144));
+        assert(captured[3].words[1]==(40u<<16|(unsigned)(40+dx)));
+        assert(captured[3].words[0]==font[0] && captured[3].words[2]==font[2] && captured[3].words[3]==font[3]);
+        assert(captured[4].len==3 && !memcmp(captured[4].words,world,sizeof world));
+        captured_count=0;
+        { uint32_t single[]={0x03000000,0x600000ff,20u<<16|20,4u<<16|4};
+          send_single(single);assert(captured_count==1 && captured[0].words[1]==single[2]); }
+    }
+    free(saved);assert(!munmap(ram,PORT_RAM_SIZE));
+    puts("UI seam: real walker/copy, both frame tables, eight flag states, compound sprite, RAM/world/single-packet identity pass");
+    return 0;
+}
