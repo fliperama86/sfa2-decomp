@@ -43,7 +43,9 @@ void func_8013c6ac(void)
         }
         ref_second.p = &player_left;
         if (ref_third.p->field_65 == 0) {
-            ref_second.p = &player_left + 1;
+            /* Stand-in, not recovered source: the address of the right player formed from the left player's address below reproduces the original's choice of registers. Without it this function differs from the original in 21 instruction slots. */
+            /* The figure's control writes &player_right; the build is then 712 bytes. The original forms this address by adding the size of an Object to the left player's. The sum is taken on the address as a 64-bit integer, because C pointer arithmetic may not step from one object into another. It relies on two things that hold on the PS1 and must hold in the PC program: flat addresses, and player_right placed directly behind player_left. It is not portable C in general. */
+            ref_second.p = (Object *)((unsigned long long)&player_left + sizeof(Object));
         }
         if (ref_second.p->field_45 != 0) {
             continue;
