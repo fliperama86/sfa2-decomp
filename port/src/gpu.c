@@ -48,7 +48,11 @@
  * the words after it are copied behind a PsyZ tag in a buffer of the port's own,
  * a few hundred packets at a time, each buffer handed to PsyZ's DrawOTag at once
  * (PsyZ draws a list while it is enqueued, so the buffer is free again when
- * DrawOTag returns). A DRAWENV is not handed to PsyZ at all: its GP0 words are
+ * DrawOTag returns). The macOS build (PORT_GUEST_VM) has no chunk: there PsyZ's tag words
+ * are 8 bytes, and its 64-bit reader takes a primitive's payload as 4-byte words but other
+ * commands as 8-byte ones. Each word goes to PsyZ's GP0 queue (Psyz_GpuWriteGP0) instead,
+ * and a flush is Psyz_GpuExeque.
+ * A DRAWENV is not handed to PsyZ at all: its GP0 words are
  * made here on Sony's side (SetDrawEnv, after the library's code), in the game's own
  * DR_ENV, and that packet goes to PsyZ through the same walker. The GP0 words
  * themselves (codes 0x20..0x7f, 0xe1..0xe6, 0x02, 0x80) mean the same on both
@@ -57,7 +61,8 @@
  * What the host routines keep to their own: the game's copies of the library's
  * state (the data the library's C keeps at fixed addresses) are not read by
  * any host routine; PsyZ keeps its own. The pointer to a list is a PS1
- * address, which is a valid host pointer in this program.
+ * address, which is a valid host pointer in the Windows program; in the macOS
+ * build it is a guest address, and every access goes through port_gs (guest.h).
  *
  * Deviations from PSY-Q, each stated where it happens:
  *  - ClearOTag and ClearOTagR end the table with the link 0xffffff itself. PSY-Q
@@ -101,10 +106,14 @@ int port_gpu_set_ui_layout(int enabled) { return enabled ? -1 : 0; }
 #include <psyz.h>
 #include <libgpu.h>
 
+#ifndef PORT_GUEST_VM
 _Static_assert(sizeof(unsigned long) == 4, "gpu.c is written for a host whose unsigned long is 4 bytes (PsyZ's tag is then two words)");
+#endif
 _Static_assert(sizeof(RECT) == 8, "RECT");
 _Static_assert(sizeof(DISPENV) == 0x14, "DISPENV");
+#ifndef PORT_GUEST_VM
 _Static_assert(offsetof(DR_ENV, code) == 8 && sizeof(DR_ENV) == 0x44, "PsyZ's DR_ENV is Sony's plus the length word");
+#endif
 
 /* ---- Sony's layouts (the game's side) ---- */
 
@@ -135,7 +144,7 @@ static void stop(const char *fmt, ...)
 /* ---- what the game hands over is checked before it is used ----
  * The game's pointers are PS1 addresses. A pointer is accepted when its segment is one of the three that
  * reach RAM (the low mirror 0, cached 4, uncached 5) and the whole span lies in the 2 MB; the host pointer
- * returned is the one in the mapping at PORT_RAM_BASE. Anything else ends the program with a line. */
+ * returned is the one in the mapping at PORT_RAM_BASE (through port_gs on the Mac). Anything else ends the program with a line. */
 
 static void *ram_span(const char *what, const void *p, unsigned long long length)
 {
@@ -143,20 +152,32 @@ static void *ram_span(const char *what, const void *p, unsigned long long length
     uint32_t segment = a >> 29, physical = a & 0x1fffffffu;
     if ((segment != 0 && segment != 4 && segment != 5) || physical >= PORT_RAM_SIZE || length > PORT_RAM_SIZE - physical)
         stop("gpu: %s: %llu bytes at 0x%08x are not inside the PS1's RAM", what, length, a);
-    return (void *)(uintptr_t)(PORT_RAM_BASE + physical);
+    return port_gs((const void *)(uintptr_t)(PORT_RAM_BASE + physical), (size_t)length);
 }
 
 /* A pointer to a structure or a buffer of the game's (a rectangle, an environment, a packet to set up, pixels): the
  * whole span must be memory that is the game's on this machine, which port_game_span decides (the PS1's RAM, its
- * scratchpad, or the live part of the caller's stack, where the game's C keeps its locals). The pointer is used as it is.
+ * scratchpad, or the live part of the caller's stack, where the game's C keeps its locals). The pointer returned is the one to
+ * use for the access (the game's own pointer in the Windows program, port_gs of it on the Mac).
  * The nodes of a drawing list and the ordering tables are different: their links are 24-bit addresses of the RAM, so
  * they go through ram_span above. */
 static void *game_span(const char *what, const void *p, unsigned long long length)
 {
     if (!port_game_span(p, (size_t)length))
         stop("gpu: %s: %llu bytes at 0x%08x are not inside the PS1's RAM, its scratchpad or the caller's stack", what, length, (unsigned)(uintptr_t)p);
-    return (void *)p;
+    return port_gs(p, (size_t)length);
 }
+
+/* game_span where the Windows program needs no result: the game's pointer is the host pointer there, and the routine goes on with it as it
+ * is (so that its compiled code stays what it was). On the Mac the access goes through the host pointer that game_span returns:
+ * SPAN replaces `p` by it, SPAN_AS puts it in `host` and leaves `p` (the game's address, to be given back or passed on) alone. */
+#ifdef PORT_GUEST_VM
+#define SPAN(p, what, length) ((p) = game_span((what), (p), (length)))
+#define SPAN_AS(host, p, what, length) ((host) = game_span((what), (p), (length)))
+#else
+#define SPAN(p, what, length) ((void)game_span((what), (p), (length)))
+#define SPAN_AS(host, p, what, length) ((void)game_span((what), (p), (length)), (host) = (p))
+#endif
 
 /* A node of a drawing list handed to a routine that links it: the link is its address in the RAM. */
 static void list_node(const char *what, const void *p)
@@ -387,12 +408,31 @@ static void walk_payload(uint32_t here, const uint32_t *w, unsigned len, unsigne
 }
 
 #define CHUNK_WORDS 8192u
+#ifdef PORT_GUEST_VM
+/* On the Mac PsyZ's u_long is 8 bytes, so a list of its own tags cannot be built here. Each word that the walker would have stored
+ * behind a tag goes to PsyZ's GP0 queue instead, and a flush is Psyz_GpuExeque. The queue holds 0x4000 words and drops a word
+ * written to a full one, so a flush is made before CHUNK_WORDS would be passed (a packet is at most 255 words). chunk_used counts the
+ * words sent since the last flush; chunk_last is not null while some are queued and is never dereferenced. */
+static unsigned chunk_used;
+static const void *chunk_last;
+
+#define CHUNK_PUT(word) Psyz_GpuWriteGP0((unsigned)(word))
+
+static void chunk_flush(void)
+{
+    if (chunk_last) Psyz_GpuExeque();
+    chunk_used = 0;
+    chunk_last = NULL;
+}
+#else
 /* The conversion buffer. PsyZ gets, for each packet, a tag with the number of words of the packet (as walk_payload
  * counted them) and exactly those words; every command has been checked to lie inside them, so PsyZ reads
  * nothing of an earlier packet or list that is left in the buffer. */
 static unsigned long chunk[CHUNK_WORDS];
 static unsigned chunk_used;
 static unsigned long *chunk_last;
+
+#define CHUNK_PUT(word) (node[2 + k++] = (word))
 
 static void chunk_flush(void)
 {
@@ -403,15 +443,21 @@ static void chunk_flush(void)
     chunk_used = 0;
     chunk_last = NULL;
 }
+#endif
 
 static void chunk_add(const uint32_t *words, unsigned len, unsigned n, int dx, int fix_life)
 {
+#ifdef PORT_GUEST_VM
+    unsigned i, pos = 0;
+    if (chunk_used + n > CHUNK_WORDS) chunk_flush();
+#else
     unsigned long *node;
     unsigned i, k = 0, pos = 0;
     if (chunk_used + 2 + n > CHUNK_WORDS) chunk_flush();
     node = &chunk[chunk_used];
     node[0] = LINK_END;
     node[1] = n;
+#endif
     while (pos < len) {
         unsigned code = words[pos] >> 24, need = is_nop_kind(code) ? 1 : command_words(code);
         if (!is_nop_kind(code)) {
@@ -421,31 +467,38 @@ static void chunk_add(const uint32_t *words, unsigned len, unsigned n, int dx, i
                 for (i=0;i<need;i++) copy[i]=words[pos+i];
                 if (port_ui_translate(copy,need,dx,fix_life)<0)
                     stop("gpu: UI layout coordinate/command is out of range");
-                for (i=0;i<need;i++) node[2+k++]=copy[i];
-            } else for (i = 0; i < need; i++) node[2 + k++] = words[pos + i];
+                for (i=0;i<need;i++) CHUNK_PUT(copy[i]);
+            } else for (i = 0; i < need; i++) CHUNK_PUT(words[pos + i]);
         }
         pos += need;
     }
+#ifdef PORT_GUEST_VM
+    chunk_last = words;
+    chunk_used += n;
+#else
     if (chunk_last) chunk_last[0] = (unsigned long)node;
     chunk_last = node;
     chunk_used += 2 + n;
+#endif
 }
 
+/* The host pointer to the tag word of the node whose link is `physical`; the payload behind it is proved to lie in the RAM by
+ * send_list before it is read, and the RAM is one contiguous mapping. */
 static uint32_t *ram_at(uint32_t physical, uint32_t from)
 {
     if (physical >= 0x800000u) stop("gpu: ordering table link 0x%06x (from the packet at 0x%08x) is outside RAM", physical, from);
-    return (uint32_t *)(uintptr_t)(PORT_RAM_BASE + (physical & (PORT_RAM_SIZE - 1) & ~3u));
+    return (uint32_t *)port_gs((const void *)(uintptr_t)(PORT_RAM_BASE + (physical & (PORT_RAM_SIZE - 1) & ~3u)), 4);
 }
 
 /* One packet that is not in a list (the environment's own packet, which may be on the caller's stack): its tag word,
- * then the payload, checked and handed over like a packet of a list. */
+ * then the payload, checked and handed over like a packet of a list. `packet` is the host pointer (port_gs of the game's). */
 static void send_single(const uint32_t *packet)
 {
     unsigned len = packet[0] >> 24, effective = 0;
     chunk_used = 0;
     chunk_last = NULL;
     if (len) {
-        walk_payload((uint32_t)(uintptr_t)packet, packet + 1, len, &effective);
+        walk_payload(port_a(packet), packet + 1, len, &effective);
         if (effective) chunk_add(packet + 1, len, effective, 0, 0);
     }
     chunk_flush();
@@ -466,7 +519,7 @@ static void send_list(uint32_t *first)
     for (;;) {
         uint32_t head = node[0];
         unsigned len = head >> 24;
-        uint32_t here = (uint32_t)(uintptr_t)node;
+        uint32_t here = port_a(node);
         if (++count > PORT_GPU_MAX_PACKETS)
             stop("gpu: the list from 0x%08x has no end within %u packets (at 0x%08x); a cycle, or a list never terminated", start, PORT_GPU_MAX_PACKETS, here);
         if (here + 4u + 4u * len > PORT_RAM_BASE + PORT_RAM_SIZE)
@@ -562,7 +615,16 @@ static int host_ClearImage(RECT *rect, int r, int g, int b)
     given = *rect;
     clamp_size(rect);
     if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) rect_stop("ClearImage", given.x, given.y, given.w, given.h);
+#ifdef PORT_GUEST_VM
+    {
+        /* PsyZ's 64-bit build queues the fill until Psyz_GpuExeque; its 32-bit build draws it before it returns, as the game expects. */
+        int result = ClearImage(rect, (unsigned char)r, (unsigned char)g, (unsigned char)b);
+        Psyz_GpuExeque();
+        return result;
+    }
+#else
     return ClearImage(rect, (unsigned char)r, (unsigned char)g, (unsigned char)b);
+#endif
 }
 
 /* library code at 0x80157fc4 and 0x80158028: queue the transfer, return the queue
@@ -611,7 +673,15 @@ static int host_MoveImage(RECT *rect, int x, int y)
     if (rect->w == 0 || rect->h == 0) return -1;
     if (!rect_fits(rect->x, rect->y, rect->w, rect->h) || !rect_fits(x, y, rect->w, rect->h))
         stop("gpu: MoveImage: the rectangle (%d,%d %dx%d) moved to (%d,%d) is not inside the %dx%d frame buffer", rect->x, rect->y, rect->w, rect->h, x, y, FRAME_W, FRAME_H);
+#ifdef PORT_GUEST_VM
+    {
+        int result = MoveImage(rect, x, y);   /* queued by PsyZ's 64-bit build, as the fill above */
+        Psyz_GpuExeque();
+        return result;
+    }
+#else
     return MoveImage(rect, x, y);
+#endif
 }
 
 /* DISPENV is the same on both sides (see the top), so the game's own struct is
@@ -620,12 +690,12 @@ static DISPENV *host_PutDispEnv(DISPENV *env)
 {
     begin();
     need_reset("PutDispEnv");
-    game_span("PutDispEnv", env, sizeof *env);
+    SPAN(env, "PutDispEnv", sizeof *env);
     {
         DISPENV *result=PutDispEnv(env);
         ui_canvas_active=port_video_canvas_allowed(env->disp.w,env->disp.h,env->isrgb24,arcade_video);
         Psyz_Sfa2SetArcadeCanvas(ui_canvas_active);
-        return result;
+        return (DISPENV *)(uintptr_t)port_a(result);   /* PsyZ returns the host pointer it was given; the game gets its own address back */
     }
 }
 
@@ -640,11 +710,17 @@ static void host_DrawOTag(uint32_t *list)
 
 /* ---- routines the port writes on Sony's layouts ---- */
 
-static uint32_t phys(const void *p) { return (uint32_t)(uintptr_t)p & LINK_END; }
+static uint32_t phys(const void *p) { return (uint32_t)(uintptr_t)p & LINK_END; }   /* p is the game's pointer (a guest address on the Mac) */
+/* The same for a host pointer into the game's memory (an entry of a table that ram_span gave). */
+#ifdef PORT_GUEST_VM
+#define phys_host(p) (port_a(p) & LINK_END)
+#else
+#define phys_host(p) phys(p)
+#endif
 static void set_link(uint32_t *tag, uint32_t physical) { *tag = (*tag & 0xff000000u) | (physical & LINK_END); }
 static void set_len_code(const char *what, void *p, unsigned len, unsigned code)
 {
-    game_span(what, p, 8);
+    SPAN(p, what, 8);
     ((uint8_t *)p)[3] = (uint8_t)len;
     ((uint8_t *)p)[7] = (uint8_t)code;
 }
@@ -661,7 +737,7 @@ static uint32_t *host_ClearOTag(uint32_t *ot, int n)
     int i;
     if (n < 1) stop("gpu: ClearOTag(0x%08x, %d): the table has no entry", (unsigned)(uintptr_t)ot, n);
     table = ram_span("ClearOTag", ot, 4ull * (unsigned)n);
-    for (i = 0; i < n - 1; i++) table[i] = phys(&table[i + 1]);
+    for (i = 0; i < n - 1; i++) table[i] = phys_host(&table[i + 1]);
     table[n - 1] = LINK_END;
     return ot + (n - 1);
 }
@@ -675,7 +751,7 @@ static uint32_t *host_ClearOTagR(uint32_t *ot, int n)
     int i;
     if (n < 1) stop("gpu: ClearOTagR(0x%08x, %d): the table has no entry", (unsigned)(uintptr_t)ot, n);
     table = ram_span("ClearOTagR", ot, 4ull * (unsigned)n);
-    for (i = n - 1; i > 0; i--) table[i] = phys(&table[i - 1]);
+    for (i = n - 1; i > 0; i--) table[i] = phys_host(&table[i - 1]);
     table[0] = LINK_END;
     return ot;
 }
@@ -684,23 +760,31 @@ static uint32_t *host_ClearOTagR(uint32_t *ot, int n)
  * bytes stay. */
 static void host_AddPrim(uint32_t *ot, uint32_t *p)
 {
+    uint32_t *tag_ot, *tag_p;
+    unsigned char *bytes;
     list_node("AddPrim", ot);
     list_node("AddPrim", p);
+    tag_ot = port_gs(ot, 4);
+    tag_p = port_gs(p, 4);
+    bytes = port_gs(p, 40);   /* the policies read up to 38 bytes, and only inside their pools, far from the end of RAM (NULL there is never read) */
     /* Exact HUD pools/lists only. The policy checks addresses before reading. */
-    port_video_tag_tiles((uint32_t)(uintptr_t)ot,(uint32_t)(uintptr_t)p,(unsigned char *)p,pixel_perfect_ui);
-    port_video_tag_life_fill((uint32_t)(uintptr_t)ot,(uint32_t)(uintptr_t)p,(unsigned char *)p,pixel_perfect_ui);
-    set_link(p, *ot);
-    set_link(ot, phys(p));
+    port_video_tag_tiles((uint32_t)(uintptr_t)ot,(uint32_t)(uintptr_t)p,bytes,pixel_perfect_ui);
+    port_video_tag_life_fill((uint32_t)(uintptr_t)ot,(uint32_t)(uintptr_t)p,bytes,pixel_perfect_ui);
+    set_link(tag_p, *tag_ot);
+    set_link(tag_ot, phys(p));
 }
 
 /* library code at 0x8015bf70: p1 takes ot's link, ot takes p0's address. */
 static void host_AddPrims(uint32_t *ot, uint32_t *p0, uint32_t *p1)
 {
+    uint32_t *tag_ot, *tag_p1;
     list_node("AddPrims", ot);
     list_node("AddPrims", p0);
     list_node("AddPrims", p1);
-    set_link(p1, *ot);
-    set_link(ot, phys(p0));
+    tag_ot = port_gs(ot, 4);
+    tag_p1 = port_gs(p1, 4);
+    set_link(tag_p1, *tag_ot);
+    set_link(tag_ot, phys(p0));
 }
 
 /* library code at 0x8015c23c: the length byte of p0 becomes len0 + len1 + 1, unless
@@ -708,8 +792,8 @@ static void host_AddPrims(uint32_t *ot, uint32_t *p0, uint32_t *p1)
  * tag alone, as this does. */
 static int host_MargePrim(uint8_t *p0, uint8_t *p1)
 {
-    game_span("MargePrim", p0, 4);
-    game_span("MargePrim", p1, 4);
+    SPAN(p0, "MargePrim", 4);
+    SPAN(p1, "MargePrim", 4);
     unsigned len = (unsigned)p0[3] + p1[3] + 1;
     if (len >= 0x21) return -1;
     p0[3] = (uint8_t)len;
@@ -719,7 +803,7 @@ static int host_MargePrim(uint8_t *p0, uint8_t *p1)
 /* library code at 0x8015bfe8: bit 1 of the code byte (offset 7) set or cleared. */
 static void host_SetSemiTrans(uint8_t *p, int abe)
 {
-    game_span("SetSemiTrans", p, 8);
+    SPAN(p, "SetSemiTrans", 8);
     p[7] = abe ? (uint8_t)(p[7] | 0x02) : (uint8_t)(p[7] & 0xfd);
 }
 
@@ -764,8 +848,8 @@ static uint32_t texture_window(const RECT *r)
 
 static void host_SetDrawMode(uint32_t *p, int dfe, int dtd, int tpage, const RECT *tw)
 {
-    game_span("SetDrawMode", p, 12);
-    if (tw) game_span("SetDrawMode", tw, sizeof *tw);
+    SPAN(p, "SetDrawMode", 12);
+    if (tw) SPAN(tw, "SetDrawMode", sizeof *tw);
     ((uint8_t *)p)[3] = 2;
     p[1] = drawing_mode(dfe, dtd, (unsigned)tpage & 0xffffu);
     p[2] = texture_window(tw);
@@ -774,9 +858,10 @@ static void host_SetDrawMode(uint32_t *p, int dfe, int dtd, int tpage, const REC
 /* library code at 0x8015c5f0 (env, x, y, w, h): clip = (x, y, w, h), tw all 0,
  * r0 g0 b0 = 0, dtd = 1, dfe = 0, ofs = (x, y), tpage = 0x0a (the type 0 form
  * of page (0,0) at x = 640), isbg = 0. Returns env. */
-static struct sony_drawenv *host_SetDefDrawEnv(struct sony_drawenv *env, int x, int y, int w, int h)
+static struct sony_drawenv *host_SetDefDrawEnv(struct sony_drawenv *guest, int x, int y, int w, int h)
 {
-    game_span("SetDefDrawEnv", env, sizeof *env);
+    struct sony_drawenv *env;
+    SPAN_AS(env, guest, "SetDefDrawEnv", sizeof *env);
     env->clip.x = (int16_t)x;
     env->clip.y = (int16_t)y;
     env->clip.w = (int16_t)w;
@@ -789,21 +874,22 @@ static struct sony_drawenv *host_SetDefDrawEnv(struct sony_drawenv *env, int x, 
     env->ofs[1] = (int16_t)y;
     env->tpage = 0x0a;
     env->isbg = 0;
-    return env;
+    return guest;
 }
 
 /* library code at 0x8015c6b0 (env, x, y, w, h): disp = (x, y, w, h), screen all 0,
  * the four bytes at 0x10..0x13 0. Returns env. */
-static DISPENV *host_SetDefDispEnv(DISPENV *env, int x, int y, int w, int h)
+static DISPENV *host_SetDefDispEnv(DISPENV *guest, int x, int y, int w, int h)
 {
-    game_span("SetDefDispEnv", env, sizeof *env);
+    DISPENV *env;
+    SPAN_AS(env, guest, "SetDefDispEnv", sizeof *env);
     env->disp.x = (int16_t)x;
     env->disp.y = (int16_t)y;
     env->disp.w = (int16_t)w;
     env->disp.h = (int16_t)h;
     env->screen.x = env->screen.y = env->screen.w = env->screen.h = 0;
     env->isinter = env->isrgb24 = env->pad0 = env->pad1 = 0;
-    return env;
+    return guest;
 }
 
 /* library code at 0x80158d84, 0x80158e50, 0x80158f1c (type 0): the three drawing-area
@@ -832,8 +918,8 @@ static uint32_t pack(int a, int b) { return ((uint32_t)(uint16_t)b << 16) | (uin
 static void host_SetDrawEnv(struct sony_dr_env *dr_env, struct sony_drawenv *env)
 {
     unsigned n = 0;
-    game_span("SetDrawEnv", dr_env, sizeof *dr_env);
-    game_span("SetDrawEnv", env, sizeof *env);
+    SPAN(dr_env, "SetDrawEnv", sizeof *dr_env);
+    SPAN(env, "SetDrawEnv", sizeof *env);
     uint32_t *code = dr_env->code;
     code[n++] = area_word(0xe3000000u, env->clip.x, env->clip.y);
     code[n++] = area_word(0xe4000000u, (int16_t)(env->clip.w + env->clip.x - 1), (int16_t)(env->clip.h + env->clip.y - 1));
@@ -864,12 +950,13 @@ static void host_SetDrawEnv(struct sony_dr_env *dr_env, struct sony_drawenv *env
  * caller), return the environment. The packet goes to PsyZ through the walker. */
 static struct sony_drawenv *host_PutDrawEnv(struct sony_drawenv *env)
 {
+    struct sony_drawenv *host;
     begin();
     need_reset("PutDrawEnv");
-    game_span("PutDrawEnv", env, sizeof *env);
+    SPAN_AS(host, env, "PutDrawEnv", sizeof *env);
     host_SetDrawEnv(&env->dr_env, env);
-    env->dr_env.tag |= LINK_END;
-    send_single(&env->dr_env.tag);
+    host->dr_env.tag |= LINK_END;
+    send_single(&host->dr_env.tag);
     return env;
 }
 

@@ -5,7 +5,7 @@ anything under `ps1/`, and no game source changes for it. Read
 [`../README.md`](../README.md) first: this page only adds what is different
 on this machine.
 
-**State: the guest image builds and verifies, and the machine runs made-up guest code (packages 1 and 2 below). No game runs on it yet.**
+**State: the game's own code runs on this Mac. The program boots from the user's disc, runs the game's start-up, loads its modules and graphics, and draws through PsyZ on Metal; the disc's stand-alone programs (logo, opening) are not built into the guest yet, so with `--skip-programs` it loops through their calls. Nothing beyond that is shown.**
 
 ## Why the Windows design does not carry over
 
@@ -182,11 +182,25 @@ Each is a small pull request with isolated checks (see
 | --- | --- | --- |
 | 1 | This page and the guest image build (`hostbuild.py --guest`). **Done.** | `test_guestlink.py`; the link verification |
 | 2 | VM core in `port/mac/` (`vm.c`, `elf.c`): memory map, page tables, vectors, `hvc` dispatch, I/O exits, call into the guest, saved register sets, interrupt. **Done.** | `test_vm.py`: 21 cases, about a second |
-| 3 | `port_g` / `port_call` in the shared runtime files, no change to the Windows objects | the Windows objects before and after, compared |
-| 4 | Mac start: load the disc, write the stubs, call the game's `main`, kernel, C library, threads | stops by name at the first missing function |
-| 5 | Video through PsyZ, pads | |
+| 3 | `guest.h` in the shared runtime files (`port_g`, `port_a`, `port_fn`, `port_call`), no change to the Windows objects. **Done.** | `objcheck.py`: the 29 runtime files compile to the same bytes for Windows as before |
+| 4 | Mac start: load the disc, write the stubs, call the game's `main`, kernel, C library, threads. **Done** (`port/mac/platform.c`, the `PORT_GUEST_VM` branches of `jumps.c`, `library.c`, `modules.c`, `threads.c`, `main.c`). | `macbuild.py`; stops by name at the first missing function |
+| 5 | Video through PsyZ, pads. Under way: the window opens and the game uploads its textures. | |
 | 6 | The I/O page: SPU, DMA, sound out | |
 | 7 | CD, streams, MDEC, the movie programs, overlays | |
+
+## Building and running it
+
+```sh
+brew install aarch64-elf-gcc                                         # the guest's compiler (once)
+python3 port/tools/hostbuild.py --guest                             # the guest image: port/build/guest/guest.elf, about a minute
+python3 port/tools/psyzbuild.py --cc clang --build port/build/psyz-mac   # PsyZ and SDL for this Mac (once; needs the SDL submodule of PsyZ:
+                                                                   #   git -C port/external/psyz submodule update --init external/SDL)
+python3 port/tools/macbuild.py                                      # the program: port/build/mac/sfa2-mac, signed, with guest.elf beside it
+port/build/mac/sfa2-mac [--no-audio] [--skip-programs] DISC         # DISC is the user's .cue or .bin
+```
+
+The options are those of the Windows program (`port/src/main.c`), plus `--guest FILE` for another image. Sound is not served yet (the
+sound library is not built into the guest), and nothing here has been shown to play.
 
 ## What this does not show
 

@@ -72,7 +72,7 @@ int port_program_exec(const char *disc_name, unsigned sector, unsigned size, voi
     if (size < 0x20) port_halt(PORT_EXIT_PROGRAM, "program %s (%s): the file has %u bytes, it has no header", row->name, disc_name, size);
     if (h < PORT_RAM_BASE || h + 16 > RAM_END)
         port_halt(PORT_EXIT_PROGRAM, "program %s: the header at 0x%llx, 16 bytes, is not inside the game's RAM", row->name, h);
-    ram = (const unsigned char *)(size_t)h;
+    ram = port_gs((const void *)(size_t)h, 16);
     for (i = 0; i < 4; i++)
         if (memcmp(ram + 4 * i, file + 0x10 + 4 * i, 4) != 0)
             port_halt(PORT_EXIT_PROGRAM, "program %s: the header in RAM differs from the file's at %s: RAM 0x%08x, file 0x%08x", row->name, field[i],
@@ -85,7 +85,7 @@ int port_program_exec(const char *disc_name, unsigned sector, unsigned size, voi
         port_halt(PORT_EXIT_PROGRAM, "program %s: the header says t_size 0x%x, the file's %u bytes hold only %u after the first 0x800", row->name, t_size, size, size > 0x800 ? size - 0x800 : 0);
     if (t_addr < PORT_RAM_BASE || (unsigned long long)t_addr + t_size > RAM_END)
         port_halt(PORT_EXIT_PROGRAM, "program %s: the body at 0x%08x, 0x%x bytes, is not inside the game's RAM", row->name, t_addr, t_size);
-    ram = (const unsigned char *)(size_t)t_addr;
+    ram = port_gs((const void *)(size_t)t_addr, t_size);
     for (at = 0; at < t_size; at++)
         if (ram[at] != file[0x800 + at])
             port_halt(PORT_EXIT_PROGRAM, "program %s: the body in RAM differs from the file's at 0x%08x: RAM 0x%02x, file 0x%02x", row->name,

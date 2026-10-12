@@ -13,9 +13,11 @@ struct elf_symbol {
 
 struct elf_image {
     uint32_t entry;
+    uint32_t text_begin, text_end;   /* the executable segments' range ([begin, end), both 0 if there is none) */
     struct elf_symbol *symbols;      /* sorted by address, then name */
     size_t count;
     char *strings;
+    const struct elf_symbol **by_name;   /* the same symbols sorted by name, made at the first elf_find */
 };
 
 /* Copy every loaded segment to the guest's memory and give it its permissions (vm_protect). A segment outside the image's area

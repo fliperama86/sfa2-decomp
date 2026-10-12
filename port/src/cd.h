@@ -58,8 +58,9 @@ void port_cd_tick(void);
  * are the zeros of an empty data FIFO, or if the address is outside RAM. */
 int  port_cd_source_at(unsigned address);
 
-/* The host routines (the table points at these). Pointers are host
- * pointers (the PS1's addresses in the port). */
+/* The host routines (the table points at these). Pointers are the game's: host
+ * pointers (the PS1's addresses) in the Windows program, guest addresses in the
+ * macOS build (guest.h), reached there through port_gs. */
 int            port_CdInit(void);
 int            port_CdSync(int mode, unsigned char *result);
 int            port_CdReady(int mode, unsigned char *result);
@@ -92,9 +93,10 @@ int    port_iopage_chip_read(unsigned offset, unsigned *value);
 int    port_iopage_chip_write(unsigned offset, unsigned value);
 
 /* Test hooks; null in the port. port_cd_ram: where the 2 MB of the PS1's RAM
- * lives, when it is not at its own addresses (a 64-bit test). port_cd_call:
- * how to call the ready handler whose value is stored in RAM, when that value
- * cannot be a host function address. */
+ * lives, when it is not at its own addresses (a 64-bit test; the macOS build does not use it).
+ * port_cd_call: how to call the ready handler whose value is stored in RAM, when
+ * that value cannot be a host function address; `result` is the buffer the handler
+ * receives (a cell of the game's memory on the Mac). */
 extern unsigned char *port_cd_ram;
 /* The modules package (modules.c) sets this: called after every CdGetSector
  * that wrote `bytes` bytes at PS1 address `address` in RAM. Null otherwise. */

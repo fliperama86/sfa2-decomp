@@ -8,6 +8,8 @@
  *  - A pointer that the game gives to a host routine, or that a game structure holds, is a GUEST ADDRESS in a pointer's type. It is
  *    never dereferenced as it is. port_g (or port_gs for a span of known size) turns it into the host pointer to the same bytes; the
  *    result is used for the access and not kept. A routine that only passes the pointer on, or compares it, may use it as it is.
+ *    A host pointer (a buffer on the runtime's own stack, say) that one runtime routine passes to another goes through port_g unchanged: on the Mac
+ *    a guest address is below 4 GB and every host pointer above it.
  *  - A host pointer into the game's memory (one that port_g gave, or one into a buffer of the runtime that the game is to see) becomes a
  *    guest address again with port_a, before it is stored in the game's memory, shown in a line or given back to the game.
  *  - A function of the game is a port_fn: a pointer in the Windows program, a guest address on the Mac. It is called with port_call0 to

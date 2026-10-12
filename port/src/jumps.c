@@ -10,6 +10,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef PORT_GUEST_VM
+#include "../mac/platform.h"
+#define GAME_TEXT_BEGIN ((size_t)port_mac_text_begin)
+#define GAME_TEXT_END   ((size_t)port_mac_text_end)
+#define PORT_STOP_SITE(returned) (returned)   /* the stop stubs of the Mac build give the site itself */
+#else
+#define GAME_TEXT_BEGIN ((size_t)&port_game_text_begin)
+#define GAME_TEXT_END   ((size_t)&port_game_text_end)
+#define PORT_STOP_SITE(returned) ((returned) - 5)
+#endif
+
 static int by_address(const void *a, const void *b)
 {
     unsigned x = *(const unsigned *)a, y = *(const unsigned *)b;
@@ -21,6 +32,7 @@ static int in_ram(unsigned address)
     return address >= PORT_RAM_BASE && address <= PORT_RAM_BASE + PORT_RAM_SIZE - 5;
 }
 
+#ifndef PORT_GUEST_VM
 static void put(unsigned char *ram, unsigned address, unsigned char opcode, const void *target)
 {
     unsigned char *site = ram + (address - PORT_RAM_BASE);
@@ -28,6 +40,7 @@ static void put(unsigned char *ram, unsigned address, unsigned char opcode, cons
     site[0] = opcode;
     memcpy(site + 1, &rel, 4);
 }
+#endif
 
 static unsigned *jump_set;
 static unsigned jump_count;
@@ -85,7 +98,9 @@ int port_jump_known(unsigned address)
 }
 
 /* The build's two markers around the game's own compiled code (hostbuild.py places them). */
+#ifndef PORT_GUEST_VM
 extern char port_game_text_begin, port_game_text_end;
+#endif
 
 int (*port_module_known)(unsigned address);
 
@@ -93,6 +108,12 @@ int (*port_module_known)(unsigned address);
  * the opcode is a call or a jump and its target is outside the PS1's RAM (everything the runtime writes there goes to
  * host code). This sees bytes that were overwritten with anything else; it cannot see bytes overwritten with another
  * jump to host code. A write by the game's own code is seen only here, at the moment a target is checked. */
+#ifdef PORT_GUEST_VM
+static int jump_intact(unsigned address)
+{
+    return port_mac_stub_intact(address);
+}
+#else
 static int jump_intact(unsigned address)
 {
     const unsigned char *site = (const unsigned char *)(size_t)address;
@@ -103,6 +124,7 @@ static int jump_intact(unsigned address)
     to = (uint32_t)((uintptr_t)site + 5 + rel);
     return to < PORT_RAM_BASE || to - PORT_RAM_BASE >= PORT_RAM_SIZE;
 }
+#endif
 
 void port_target_check(const char *path, const void *target)
 {
@@ -114,7 +136,7 @@ void port_target_check(const char *path, const void *target)
         fflush(stdout);
         exit(PORT_EXIT_TARGET);
     }
-    if (address >= (size_t)&port_game_text_begin && address < (size_t)&port_game_text_end) return;
+    if (address >= GAME_TEXT_BEGIN && address < GAME_TEXT_END) return;
     if ((size_t)(unsigned)address == address && port_module_known) {
         int known = port_module_known((unsigned)address);
         if (known > 0) return;
@@ -133,20 +155,30 @@ int port_jumps_write(unsigned char *ram, unsigned *with_c, unsigned *without_c, 
 {
     unsigned i;
 
+#ifndef PORT_GUEST_VM
     if (sizeof(void *) != 4) {
         snprintf(err, errsize, "jumps: the port is a 32-bit program (a 5-byte jump reaches only 32-bit addresses)");
         return -1;
     }
+#endif
     *with_c = *without_c = 0;
     if (port_jump_set_build(err, errsize) != 0) return -1;
     for (i = 0; i < port_function_count; i++)
         if (port_functions[i].image == -1) {
+#ifdef PORT_GUEST_VM
+            port_mac_put_branch(ram, port_functions[i].address, (unsigned)(uintptr_t)port_functions[i].impl);
+#else
             put(ram, port_functions[i].address, 0xe9, port_functions[i].impl);
+#endif
             ++*with_c;
         }
     for (i = 0; i < port_absent_count; i++)
         if (port_absents[i].image == -1) {
+#ifdef PORT_GUEST_VM
+            port_mac_put_hvc(ram, port_absents[i].address, PORT_MAC_STOP_BASE + i);
+#else
             put(ram, port_absents[i].address, 0xe8, (const void *)port_stop_entry);
+#endif
             ++*without_c;
         }
     return 0;
@@ -162,7 +194,7 @@ static void finish(int status)
 void port_stop(unsigned returned);
 void port_stop(unsigned returned)
 {
-    unsigned address = returned - 5, i;
+    unsigned address = PORT_STOP_SITE(returned), i;
     for (i = 0; i < port_absent_count; i++)
         if (port_absents[i].image == -1 && port_absents[i].address == address) {
             if (port_absents[i].library) {

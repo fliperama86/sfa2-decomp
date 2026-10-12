@@ -5,8 +5,12 @@
 #include <stdarg.h>
 #include <string.h>
 
+/* A guest address is below 4 GB; every host pointer of this system is above it (a native arm64 process has 4 GB of unmapped address space at
+ * the bottom, which is why the game does not run in it). So a pointer that the runtime passes to its own routines (a buffer on its stack) goes
+ * through port_g unchanged. */
 void *port_gs(const void *guest, size_t size)
 {
+    if ((uintptr_t)guest >> 32) return (void *)guest;
     return vm_g((uint32_t)(uintptr_t)guest, size);
 }
 
