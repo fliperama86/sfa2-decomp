@@ -4,6 +4,7 @@
 #define PORT_VIDEO_H
 #include <stdint.h>
 #define PORT_VIDEO_PIXEL_GRID 0x2000
+#define PORT_VIDEO_LIFE_FILL 1
 #define PORT_ARCADE_W 384
 #define PORT_ARCADE_H 224
 #define PORT_ARCADE_TOP 8
@@ -44,14 +45,14 @@ static inline int port_video_arcade_fit(int w,int h,struct port_video_view *out)
     out->w=unit*4;out->h=unit*3;out->x=(w-out->w)/2;out->y=(h-out->h)/2;
     return 1;
 }
-/* Inferred from the selected game's HUD producer: list index8 and the 40-byte
+/* Inferred from the selected game's HUD producer: list indices8/14 and the 40-byte
  * tile record pool (frame selectors -1/0/1). Other UI/world packets are excluded.
- * Caller supplies a validated 40-byte RAM span; no source/game code is changed. */
-static inline int port_video_tag_super(uint32_t ot,uint32_t address,unsigned char *p,int enabled)
+ * Address/list checks identify fixed RAM records before any packet reads. */
+static inline int port_video_tag_tiles(uint32_t ot,uint32_t address,unsigned char *p,int enabled)
 {
-    uint32_t phys=address&0x1fffffffu;
+    uint32_t phys=address&0x1fffffffu, list=ot&0x1fffffffu;
     struct port_video_corner corners[4];int i;
-    if(!enabled || (ot&0x1fffffffu)!=0x1987e8u || phys<0x184984u ||
+    if(!enabled || (list!=0x1987e8u && list!=0x198800u) || phys<0x184984u ||
        phys>=0x188d04u || (phys-0x184984u)%40 || p[3]!=9 || (p[7]&0xfc)!=0x2c)return 0;
     for(i=0;i<4;i++) {
         unsigned x=p[8+i*8]|(unsigned)p[9+i*8]<<8;
@@ -61,6 +62,33 @@ static inline int port_video_tag_super(uint32_t ot,uint32_t address,unsigned cha
     }
     if(!port_video_pixel_grid(corners))return 0;
     p[23]|=PORT_VIDEO_PIXEL_GRID>>8;return 1;
+}
+/* The one-to-one frame has a six-row interior. Keep game RAM/health logic
+ * untouched: adjust only decoded render geometry, revalidated by the backend. */
+static inline int port_video_life_fill(int x,int *y,int w,int *h)
+{
+    if(*y!=18 || *h!=5 || w<0 || w>144 ||
+       !((x>=8 && x<=152-w) || (x>=216 && x<=360-w)))return 0;
+    *y=17;*h=6;return 1;
+}
+/* Eight fixed TILE records, two display buffers per yellow/damage side.
+ * Bit0 is ignored for untextured TILEs on the original rendering path.
+ * Address/list checks precede all reads, so the selected RAM span is bounded. */
+static inline int port_video_tag_life_fill(uint32_t ot,uint32_t address,unsigned char *p,int enabled)
+{
+    uint32_t list=ot&0x1fffffffu, phys=address&0x1fffffffu, offset;
+    int x,y,w,h;
+    if(!enabled || phys<0x1ac6acu || phys>=0x1ac72cu)return 0;
+    offset=phys-0x1ac6acu;
+    if(offset%16 || list!=(offset<64?0x198800u:0x198804u) ||
+       p[3]!=3 || (p[7]&0xfc)!=0x60)return 0;
+    x=(int)(((p[8]|(unsigned)p[9]<<8)&2047)^1024)-1024;
+    y=(int)(((p[10]|(unsigned)p[11]<<8)&2047)^1024)-1024;
+    w=(int16_t)(p[12]|(unsigned)p[13]<<8);
+    h=(int16_t)(p[14]|(unsigned)p[15]<<8);
+    if((offset&32)?(x<216 || x>360-w):(x<8 || x>152-w))return 0;
+    if(!port_video_life_fill(x,&y,w,&h))return 0;
+    p[7]|=PORT_VIDEO_LIFE_FILL;return 1;
 }
 /* Extension supplied by the existing pinned SDL_GPU dependency patch. */
 void Psyz_Sfa2SetArcadeCanvas(int enabled);

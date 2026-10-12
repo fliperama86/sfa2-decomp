@@ -10,15 +10,18 @@ pixel_perfect_ui = false
 arcade_video = false
 ```
 
-`pixel_perfect_ui` currently corrects **super-meter tile sampling only**. It maps
+`pixel_perfect_ui` corrects **super-meter and life-frame tile sampling**. It maps
 each 16x16 source tile one-to-one onto the native pixel grid, including mirrored
-tiles and the last tile of a texture page. It does not change the whole renderer,
-life bars, all UI assets or deliberately scaled/rotated graphics. The port marks
-the known super-meter tile pool/ordering-table combination; original game C and
-disc assets stay unchanged. The patched SDL_GPU backend leaves unmarked quads
-on its original conversion path.
-The backend also gates the correction on the setting, so a reserved marker
-bit alone cannot change sampling when the feature is disabled.
+tiles, mixed UV spans and the last tile of a texture page. The life-frame artwork
+has a six-row interior; selected yellow and delayed-damage fills render at that
+height, keeping their original X, widths, colors and health logic. Empty fills
+remain empty. Original game C, packet geometry and disc assets stay unchanged:
+the bridge adds markers only to known HUD records/lists, and the backend adjusts
+decoded render geometry. This is not a global correction for all UI or scaled/
+rotated graphics, and it does not import assets or recenter the HUD.
+Unmarked packets retain the original conversion path. The backend additionally
+gates both corrections on the setting, so stale markers alone cannot activate
+them when it is disabled.
 
 `arcade_video` independently exposes the **384x224 native canvas**, displayed at
 4:3, instead of the original 368x240 presentation. It applies only to the game's
@@ -57,7 +60,7 @@ same-directory temporary file, keeping the prior file on failure.
 ## Build and validation
 
 Rebuild PsyZ with the existing `psyzbuild.py` and updated `port/psyz.patch` before
-linking. Its metadata advertises `port_video_api = 1`; the host build refuses
+linking. Its metadata advertises `port_video_api = 2`; the host build refuses
 stale SDK caches before compiling any game units. The tool copies the
 project-owned `video.h` policy into the dependency
 build copy, never modifying the source submodule. Patch context and changes
@@ -76,11 +79,13 @@ python port/tools/test_psyzbuild.py
 
 `video_gpu_test.c` is a separate generated-pixel fixture for an already built
 SDK. It opens a short-lived window, never initializes audio or reads a disc,
-checks mirrors/transparent 4bpp/direct textures and unmarked negative controls,
+checks mirrors/transparent 4bpp/direct textures, mixed-span life tiles, full/
+partial/damage/empty fills and unmarked/flag-off negative controls,
 and checks original canvas sizes before/after opting in. Its expectations do
 not come from game screenshots. Tests do not prove full-game equivalence.
 
 ## Next reviewed increments
 
-After this PR merges: life bars first, then UI centering/anchoring for the
-wider canvas. Keep each small, reviewed and opt-in behind settings flags.
+Super/life sampling and the independent canvas are integrated. Next is UI
+centering/anchoring for the wider canvas, kept small, reviewed and opt-in behind
+a settings flag. True16:9 is not implemented.

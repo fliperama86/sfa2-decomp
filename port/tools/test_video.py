@@ -20,11 +20,13 @@ class Video(unittest.TestCase):
             root = Path(folder)
             self.assertEqual(psyzbuild.video_api_metadata(root), {})
             psyzbuild.install_video_header(root, PATCH.read_text())
-            self.assertEqual(psyzbuild.video_api_metadata(root), {'port_video_api': 1})
+            self.assertEqual(psyzbuild.video_api_metadata(root), {'port_video_api': 2})
             (root / 'gpu.c').write_text('void f(void) { Psyz_Sfa2SetArcadeCanvas(0); }\n')
             with self.assertRaisesRegex(hostbuild.Problem, 'rebuild'):
                 hostbuild.require_video_api({}, root)
-            hostbuild.require_video_api({'port_video_api': 1}, root)
+            with self.assertRaisesRegex(hostbuild.Problem, 'rebuild'):
+                hostbuild.require_video_api({'port_video_api': 1}, root)
+            hostbuild.require_video_api({'port_video_api': 2}, root)
             (root / 'gpu.c').write_text('/* A custom legacy runtime has no extension dependency. */\n')
             hostbuild.require_video_api({}, root)
 
@@ -60,6 +62,8 @@ class Video(unittest.TestCase):
             self.assertIn('if (!fixed_hud) FixupFlipUV', gpu)
             self.assertIn('Psyz_Sfa2ExperimentalVideoAvailable(void) { return 1; }', gpu)
             self.assertIn('port_video_arcade_fit', gpu)
+            self.assertIn('port_video_life_fill(x, &y, w, &h)', gpu)
+            self.assertIn('(code & PORT_VIDEO_LIFE_FILL)', gpu)
             gl = (root / 'psyz/src/platform/sdl3_gl.c').read_text()
             self.assertIn('Psyz_Sfa2ExperimentalVideoAvailable(void) { return 0; }', gl)
             # Reject applying twice, rather than guessing against stale input.
