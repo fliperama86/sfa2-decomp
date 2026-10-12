@@ -8,14 +8,14 @@ extern Poly28 data_801f2504_slot06_08[2][0x108];
 /*
  * What it does (inferred, not original names): draws a tile layer in
  * perspective, as quads. The layer block data_801aa5d4 holds a tile map
- * (field_50, field_58 wide, field_5c high, in pixels) and a scroll position.
- * The first pass draws a few rows (3 to 6, by the layer's field_16 plus
- * game_state.field_92), starting at the row of the layer's field_3e, with
- * x offsets of the quads interpolated between the layer's field_08 and
- * field_10 along a ramp of the row. The second pass draws the rows from the
+ * (tile_map_ptr, map_width wide, scale high, in pixels) and a scroll position.
+ * The first pass draws a few rows (3 to 6, by the layer's scroll_y plus
+ * game_state.scroll_y), starting at the row of the layer's signed_param, with
+ * x offsets of the quads interpolated between the layer's bound_x_a and
+ * bound_x_b along a ramp of the row. The second pass draws the rows from the
  * layer's field_4c down, with the offsets interpolated by the layer's
- * field_1c and field_4e. Each pass takes 33 columns, wrapping at the map's
- * width; a tile equal to the layer's field_1e is blank and skipped. Every
+ * field_1c and rect_right. Each pass takes 33 columns, wrapping at the map's
+ * width; a tile equal to the layer's packed_param is blank and skipped. Every
  * other tile becomes a record of the table: four corners, texture
  * coordinates, a texture page word and a clut word from the second half of
  * the tile cell, linked into the list head selected by the layer's field_8a.
