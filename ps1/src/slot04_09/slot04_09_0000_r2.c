@@ -21,7 +21,7 @@ void func_801b01f4_slot04_09(Object *obj) {
         obj->state_3 = 0;
         obj->field_45 = 0;
         obj->pos_y_frac = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_80130678(obj, 0);
     } else {
         update_sequence(obj);

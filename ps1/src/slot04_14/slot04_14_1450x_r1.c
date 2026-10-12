@@ -15,7 +15,7 @@ u8 func_801b1450_slot04_14(Object *obj) {
     if (obj->field_45 != 0) {
         r = func_801418bc(obj);
         if (!r) return;
-        t = (u16)obj->field_70;
+        t = (u16)obj->ground_y;
         t -= 0x30;
         if (obj->pos_y >= (s16)t) return 0;
         obj->field_15a = 4;

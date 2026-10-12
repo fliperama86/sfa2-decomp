@@ -113,8 +113,8 @@ void func_801e9398_slot06_10(Object *obj) {
     obj->state_0 = 1;
     obj->field_76 = 0x340;
     obj->field_78 = 0x100;
-    obj->field_7a = 0x70;
-    obj->field_7c = 0x1e0;
+    obj->spawn_x = 0x70;
+    obj->spawn_y = 0x1e0;
     obj->state_1 = 0;
     obj->field_46 = 0;
     obj->field_0d = 0;

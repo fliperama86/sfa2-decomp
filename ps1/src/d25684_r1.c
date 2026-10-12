@@ -16,14 +16,14 @@ void func_80125684(void) {
         w = data_801a6966;
     }
     if ((w >> 16) == 0) {
-        game_state.field_139--;
-        if (game_state.field_139 & 0x80) {
-            game_state.field_138++;
+        game_state.input_timer--;
+        if (game_state.input_timer & 0x80) {
+            game_state.input_step_index++;
             o->field_2ac = o2->kind;
         }
     } else {
-        game_state.field_138 = 0;
-        game_state.field_139 = 0x3c;
+        game_state.input_step_index = 0;
+        game_state.input_timer = 0x3c;
         game_state.field_13a = 0;
     }
 }

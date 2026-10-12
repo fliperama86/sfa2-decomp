@@ -23,7 +23,7 @@ void func_80012120_slot01(Object *obj) {
     int a;
     int b;
     obj->field_0e = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_24 = 0;
     obj->field_20 = 0xfff0;
     obj->field_22 = 0xfff0;

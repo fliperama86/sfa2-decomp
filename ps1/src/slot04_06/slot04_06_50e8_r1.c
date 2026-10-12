@@ -14,8 +14,8 @@ void func_801b50e8_slot04_06(Object *obj) {
             p->field_00 = 1;
             p->field_03 = 5;
             p->field_3c = obj;
-            p->field_7a = obj->field_7a;
-            p->field_7c = obj->field_7c;
+            p->spawn_x = obj->spawn_x;
+            p->spawn_y = obj->spawn_y;
             p->field_0d = obj->field_0d;
             p->field_02 = 0x11;
             p->field_08 = 0x20;
@@ -25,10 +25,10 @@ void func_801b50e8_slot04_06(Object *obj) {
             p->field_9c = obj->field_9c;
         }
     }
-    if (((Slot04aObj *)obj)->field_47 != 0) {
-        ((Slot04aObj *)obj)->field_47--;
-        if (((Slot04aObj *)obj)->field_47 == 0) {
-            g->field_4b |= 1 << ((Slot04aObj *)obj)->field_a6;
+    if (((Slot04aObj *)obj)->timer != 0) {
+        ((Slot04aObj *)obj)->timer--;
+        if (((Slot04aObj *)obj)->timer == 0) {
+            g->field_4b |= 1 << ((Slot04aObj *)obj)->side;
         }
     }
     update_sequence(obj);

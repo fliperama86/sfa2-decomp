@@ -15,7 +15,7 @@ void func_8012cf1c(Object *object) {
     } else {
         func_801376b8(object);
     }
-    if ((s16)object->field_5c < 0) {
+    if ((s16)object->health < 0) {
         if ((s16)object->field_46 >= 8) {
             object->state_3 = 3;
             func_801308c4(object, 0x1b);

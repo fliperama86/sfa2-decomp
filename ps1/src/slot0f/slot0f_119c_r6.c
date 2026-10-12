@@ -28,7 +28,7 @@ void func_800e16f4_slot0f(Object *o) {
     o->state_2 = 0;
     o->state_1 = 0;
     o->state_0 = 0;
-    o->field_09 = 0;
+    o->ot_depth = 0;
     o->field_0a = 0;
     o->field_00 = n + 1;
 }

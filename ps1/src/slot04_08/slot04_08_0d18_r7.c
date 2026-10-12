@@ -20,8 +20,8 @@ void func_801b151c_slot04_08(Object *obj) {
             p->field_3c = obj;
             p->pos_x = obj->pos_x;
             p->pos_y = obj->pos_y - 0x6c;
-            p->field_7a = obj->field_7a;
-            p->field_7c = obj->field_7c;
+            p->spawn_x = obj->spawn_x;
+            p->spawn_y = obj->spawn_y;
             p->field_0d = obj->field_0d;
             p->field_08 = 0x20;
             p->field_66 = obj->field_66;
@@ -36,9 +36,9 @@ void func_801b151c_slot04_08(Object *obj) {
                 p->field_3c = obj;
                 p->pos_x = obj->pos_x;
                 p->pos_y = obj->pos_y;
-                p->field_7a = obj->field_7a;
+                p->spawn_x = obj->spawn_x;
                 data_801c3e94_slot04_08 = p;
-                p->field_7c = obj->field_7c;
+                p->spawn_y = obj->spawn_y;
                 p->field_0d = obj->field_0d;
                 p->field_08 = 0x20;
                 p->field_66 = obj->field_66;

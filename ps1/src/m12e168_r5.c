@@ -17,9 +17,9 @@ int func_8012f408(Object *o) {
     o->field_0b = side;
     if (k == 2) o->field_0b = side ^ 1;
     ref_other.p = o->other;
-    if ((s16)o->field_5c == (s16)ref_other.p->field_5c) {
+    if ((s16)o->health == (s16)ref_other.p->health) {
         a = 0x29;
-    } else if ((s16)ref_other.p->field_5c < (s16)o->field_5c) {
+    } else if ((s16)ref_other.p->health < (s16)o->health) {
         a = 0x23;
         if (o->kind == 0xd) a = 0x27;
         o->field_0b = o->field_158;

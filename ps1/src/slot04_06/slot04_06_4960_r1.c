@@ -13,7 +13,7 @@ void func_801b4960_slot04_06(Object *obj) {
     u16 *p;
 
     obj->state_2 = obj->state_2 + 1;
-    ((Slot04aObj *)obj)->field_47 = 0x3c;
+    ((Slot04aObj *)obj)->timer = 0x3c;
     game_state.field_76 = 0x1e;
     obj->field_0b = obj->field_158;
     t = get_random_byte() & 0x3f;

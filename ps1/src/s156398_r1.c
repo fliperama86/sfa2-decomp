@@ -18,5 +18,5 @@ u32 convert_to_bcd(s16 value) {
 }
 
 void func_801564b0(void *a, Object *object) {
-    table_8018179c[object->field_aa](a, object);
+    table_8018179c[object->phase_index](a, object);
 }

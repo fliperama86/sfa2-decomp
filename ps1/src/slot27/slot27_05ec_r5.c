@@ -29,8 +29,8 @@ void func_80010b4c_slot27(void) {
         func_80011280_slot27();
         b = func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
-            b->field_02 = 0x10;
+            b->active_flag = 1;
+            b->handler_index = 0x10;
             b->field_03 = 5;
         }
         game_state.field_06 = 0xff;

@@ -20,13 +20,13 @@ void func_80123254(GameState *g)
       return;
     }
   }
-  if ((g->field_1d & 3) == 0)
+  if ((g->frame_counter & 3) == 0)
   {
-    if ((((--g->field_115) & 0x80) == 0) && (((s16) (new_var = (o = g->field_78)->field_5c)) != 0x90))
+    if ((((--g->field_115) & 0x80) == 0) && (((s16) (new_var = (o = g->field_78)->health)) != 0x90))
     {
-      new_var = o->field_5c + 1;
+      new_var = o->health + 1;
       n = new_var;
-      o->field_5c = n;
+      o->health = n;
       o->field_5e = n;
     }
     else
@@ -34,7 +34,7 @@ void func_80123254(GameState *g)
       data_8018f5a0->field_50++;
       g->field_ca = 0x5a;
       o = g->field_78;
-      o->field_fc = o->field_5c;
+      o->field_fc = o->health;
     }
   }
 }

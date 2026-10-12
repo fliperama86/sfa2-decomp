@@ -15,9 +15,9 @@ void func_80013ac0_slot01(Object *obj);
 void func_80013734_slot01(Object *obj) {
     obj->field_01 = 1;
     obj->field_0c = 1;
-    obj->field_09 = 0x10;
-    obj->field_7a = 0x10;
-    obj->field_7c = 0x1f0;
+    obj->ot_depth = 0x10;
+    obj->spawn_x = 0x10;
+    obj->spawn_y = 0x1f0;
     obj->field_98 = data_80019c68_slot01;
     obj->field_9c = data_80019dcc_slot01;
     obj->field_90 = (void *)0x8006d478;

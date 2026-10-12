@@ -18,7 +18,7 @@ void func_801528e0(Object *object)
   ref_other.p = object->field_3c;
   idx = object->field_03 >> 1;
   base = ((ref_other.p->frame->field_0a & 0x1f) << 3) + idx;
-  idx = (1 & game_state.field_1d) ? (base + 4) : (base);
+  idx = (1 & game_state.frame_counter) ? (base + 4) : (base);
   if (ref_other.p->side == 0)
   {
     ref_first.p = *((Object **) 0x1f800084);

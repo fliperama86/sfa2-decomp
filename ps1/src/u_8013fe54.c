@@ -16,7 +16,7 @@ int func_8013fe54(Object *object, s16 a, s16 b, s16 c, u16 d)
   u8 w;
   ref_other.p = object->other;
   frame = ref_other.p->frame;
-  new_var2 = frame->field_06;
+  new_var2 = frame->handler_index;
   y = ref_other.p->field_27b;
   new_var = (x = new_var2);
   w = ref_other.p->field_45;

@@ -8,7 +8,7 @@ void func_801b4788_slot04_03(Object *obj) {
 
     obj->state_3 = 3;
     obj->field_159 = 1;
-    if (obj->field_218 != 0 && obj->field_70 - obj->pos_y >= 0x30 && func_8013ffe4(obj, -0x30, 0x10, 0x20, 0x10) != 0) {
+    if (obj->field_218 != 0 && obj->ground_y - obj->pos_y >= 0x30 && func_8013ffe4(obj, -0x30, 0x10, 0x20, 0x10) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

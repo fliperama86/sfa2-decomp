@@ -18,7 +18,7 @@ void func_801b1068_slot04_07(Object *obj) {
             func_801307e0(obj, 0x1f);
             return;
         }
-        if (obj->field_12a != 0 && (obj->field_130 & 0xe000) && obj->pos_y < obj->field_70 - 0x30) {
+        if (obj->field_12a != 0 && (obj->field_130 & 0xe000) && obj->pos_y < obj->ground_y - 0x30) {
             if ((u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x20)) {
                 obj->state_0 = 1;
                 obj->state_1 = 2;

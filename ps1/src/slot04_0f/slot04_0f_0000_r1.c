@@ -78,10 +78,10 @@ void func_801b00fc_slot04_0f(Object *obj) {
         c->pos_x = obj->pos_x;
         c->pos_y = obj->pos_y;
         c->field_0b = obj->field_0b;
-        c->field_09 = 6;
+        c->ot_depth = 6;
         c->field_1c = obj->field_1c;
-        c->field_7a = 0x60;
-        c->field_7c = 0x1e0;
+        c->spawn_x = 0x60;
+        c->spawn_y = 0x1e0;
         c->field_0d = obj->field_0d;
         c->field_90 = obj->field_90;
         c->field_98 = obj->field_98;

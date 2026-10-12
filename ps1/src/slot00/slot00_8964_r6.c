@@ -31,8 +31,8 @@ void func_80078e44_slot00(Object *o) {
         p->field_90 = src->field_90;
         p->field_98 = src->field_98;
         p->field_9c = src->field_9c;
-        p->field_7a = src->field_7a;
-        p->field_7c = src->field_7c;
+        p->spawn_x = src->spawn_x;
+        p->spawn_y = src->spawn_y;
         p->field_66 = src->side;
     }
 }

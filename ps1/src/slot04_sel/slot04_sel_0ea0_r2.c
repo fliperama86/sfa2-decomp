@@ -47,7 +47,7 @@ void func_801b10d0_slot04_sel(Object *obj, Slot04SelRec *rec) {
                         obj->field_d4 = obj->field_d4 ^ data_8019045c[0];
                     }
                 }
-                rec->field_00 = rec->field_00 + 1;
+                rec->state = rec->state + 1;
             }
         } else if (((game_state.mode >> obj->side) & 1) == 0) {
             func_801519b4(data_801b6f64_slot04_sel[obj->side]);
@@ -56,6 +56,6 @@ void func_801b10d0_slot04_sel(Object *obj, Slot04SelRec *rec) {
             func_801519b4(data_801b7504_slot04_sel[obj->side]);
         }
     } else {
-        rec->field_00 = 2;
+        rec->state = 2;
     }
 }

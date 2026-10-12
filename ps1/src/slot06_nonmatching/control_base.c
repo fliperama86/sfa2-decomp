@@ -21,13 +21,13 @@
  * fields are inferred):
  *   Argument: a0 = pointer to an object. No return value.
  *   Returns at once, writing nothing, when game_state.field_64 is not 0.
- *   Reads: the object's field_09 (list index), field_0d, field_0e, field_0f,
+ *   Reads: the object's ot_depth (list index), field_0d, field_0e, field_0f,
  *     field_12, field_16 and sequence; for field_0e 8, 4 or 0xc the
  *     field_12 and field_16 of the matching layer block; game_state.field_92
  *     when field_0f is not 0; the record counter data_801adfe4 and the
  *     buffer selector data_801a27d0 (byte, 0 or 1); the list base pointer
  *     data_801987c8 and the list head word it points at.
- *   Header, at object->sequence->field_04: byte 0 columns, byte 2 rows,
+ *   Header, at object->sequence->data_ptr: byte 0 columns, byte 2 rows,
  *     byte 3 a texture page offset, u16 at 4 and 6 the x and y origin, then
  *     rows * columns u16 cells from offset 8. Cell value 0 (low 14 bits) is
  *     skipped.
@@ -80,27 +80,27 @@ void func_801e9080_slot06_00(Object *object) {
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
         layer = (Slot06Layer *)data_801aa5d4;
-        x = ((Slot06Obj *)object)->field_12 - layer->field_12;
-        y = ((Slot06Obj *)object)->field_16 + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
+        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
     } else if (object->field_0e == 4) {
         layer = (Slot06Layer *)data_801aa544;
-        x = ((Slot06Obj *)object)->field_12 - layer->field_12;
-        y = ((Slot06Obj *)object)->field_16 + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
+        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
     } else if (object->field_0e == 0xc) {
         layer = (Slot06Layer *)cam_obj;
-        x = ((Slot06Obj *)object)->field_12 - layer->field_12;
-        y = ((Slot06Obj *)object)->field_16 + layer->field_16 - 8;
+        x = ((Slot06Obj *)object)->pos_x - layer->field_12;
+        y = ((Slot06Obj *)object)->pos_y + layer->field_16 - 8;
     } else {
-        x = ((Slot06Obj *)object)->field_12;
-        y = ((Slot06Obj *)object)->field_16;
+        x = ((Slot06Obj *)object)->pos_x;
+        y = ((Slot06Obj *)object)->pos_y;
     }
     if (object->field_0f != 0) y = y + game_state.field_92;
     cnt = data_801adfe4;
-    hdr = (u8 *)object->sequence->field_04;
+    hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
     tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
-    ot = (u32 *)data_801987c8 + object->field_09;
+    ot = (u32 *)data_801987c8 + object->ot_depth;
     sel = *(u8 *)&data_801a27d0;
     for (row = 0; row < hdr[2]; row++) {
         for (col = 0; col < hdr[0]; col++) {

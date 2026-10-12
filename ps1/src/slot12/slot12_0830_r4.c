@@ -33,7 +33,7 @@ void func_80010b8c_slot12(void) {
     }
     data_80190568 = 1;
     data_8018f5a0->field_4c = data_8018f5a0->field_4c + 1;
-    o = game_state.field_154;
+    o = game_state.object;
     game_state.field_c6 = 0x1f;
     game_state.field_d2 = 0x40;
     game_state.field_ab = 0;
@@ -66,24 +66,24 @@ void func_80010b8c_slot12(void) {
     data_80028a98_slot12 = one;
     b = func_8011f1e0();
     if (b != 0) {
-        b->field_00 = 1;
-        b->field_02 = 0x26;
+        b->active_flag = 1;
+        b->handler_index = 0x26;
         b->field_03 = 0;
         if (game_state.field_44 & 0x80) {
             data_8002d578_slot12 = one;
             b = func_8011f1e0();
             if (b != 0) {
-                b->field_02 = 0x7b;
-                b->field_00 = 1;
+                b->handler_index = 0x7b;
+                b->active_flag = 1;
                 b->field_03 = 1;
                 b->field_7a = 0;
                 b->field_7c = 0x1e0;
             }
             b = func_8011f1e0();
             if (b != 0) {
-                b->field_02 = 0x7b;
+                b->handler_index = 0x7b;
                 b->field_03 = 2;
-                b->field_00 = 1;
+                b->active_flag = 1;
                 b->field_7a = 0;
                 b->field_7c = 0x1e0;
             }

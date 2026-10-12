@@ -17,9 +17,9 @@ void func_801b79b4_slot04_02(Object *obj) {
     obj->field_0c = p->field_0c;
     obj->field_0d = p->field_0d;
     obj->field_0e = p->field_0e;
-    obj->field_7a = 0x60;
+    obj->spawn_x = 0x60;
     obj->field_48 = 0;
-    obj->field_7c = 0x1e0;
+    obj->spawn_y = 0x1e0;
     obj->field_90 = p->field_90;
     obj->field_98 = p->field_98;
     obj->field_9c = p->field_9c;

@@ -26,7 +26,7 @@ void func_801e99ec_slot06_0e(Object *o) {
     obj->field_5c = 5;
     obj->field_78 = 6;
     obj->field_38 = 0x150;
-    obj->field_48 = 0x1a0;
+    obj->sequence_index = 0x1a0;
     obj->field_58 = 0x330;
     obj->field_74 = 0x370;
     obj->field_01 = 0;

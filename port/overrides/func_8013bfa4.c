@@ -23,17 +23,17 @@
  *   Reads: count_8018f59c (16 bits; the count less one is kept as a
  *     signed 16-bit bound), the table data_8018f5e0 (words at 0, -4, -8, ...
  *     from its start); the table object's field_00, field_02, field_49,
- *     field_5c, field_65, frame (active, field_04), box_tables (boxes_b),
+ *     health, field_65, frame (active, field_04), box_tables (boxes_b),
  *     and, through func_801397d0, its field_08, field_0b, pos_x, pos_y and
  *     wide_boxes; the player's field_163, field_263, field_27b, field_295,
- *     field_69, field_45, field_61, field_5c, boxes_a, boxes_b, boxes_c,
+ *     field_69, field_45, field_61, health, boxes_a, boxes_b, boxes_c,
  *     frame (box_a, box_b, box_c); data_80190468 (a pointer to an object
  *     whose bytes at 0x5c to 0x5e it writes).
  *   Writes: ref_other, ref_third, ref_second, ref_first, data_80190458,
  *     data_801904c0, the overlap record at 80188ed0 (its in_ and f_ words,
  *     and the out_ fields through func_801397d0), data_80188f30; the
  *     player's field_241 and field_61; the table object's field_00,
- *     state_0 to state_3, field_5c; three bytes at data_80190468 + 0x5c.
+ *     state_0 to state_3, health; three bytes at data_80190468 + 0x5c.
  *   Callees that run as the original code: func_80139a1c (clears the
  *     overlap record; inferred) and func_801397d0 (computes the overlap).
  *     Callees replaced by recorders, which return 0: func_80139a78 (a, b),
@@ -91,7 +91,7 @@ typedef struct {
    Each box set that overlaps adds its bit (1, 2, 4) to data_80188f30 and records the
    overlap's corners and size in the record at data_80188ed0. When any overlapped, the object hits the
    player: the callees apply the hit, the player and an effect object get state bytes, and
-   the table object counts the hit (field_00 + 1, a countdown in field_5c with two state
+   the table object counts the hit (field_00 + 1, a countdown in health with two state
    bytes sets). */
 void func_8013bfa4(void) {
     s16 i;
@@ -217,8 +217,8 @@ void func_8013bfa4(void) {
                 }
             }
             func_8013a3a8(ref_third.p, ref_second.p, box);
-            /* field_5c is u16; the signed test is the original's (a compare with 0x8000 differs in 17 instruction lines). */
-            if (ref_second.p->field_61 != 0xff && (s16)ref_second.p->field_5c >= 0) {
+            /* health is u16; the signed test is the original's (a compare with 0x8000 differs in 17 instruction lines). */
+            if (ref_second.p->field_61 != 0xff && (s16)ref_second.p->health >= 0) {
                 /* The override: the count is masked, as the console's shift does it. */
                 if (0x800000 >> (ref_third.p->field_02 & 31)) {
                     ((StateBytes *)data_80190468.p)->state = 0xf;
@@ -245,8 +245,8 @@ void func_8013bfa4(void) {
             ref_third.p->state_1 = 1;
             ref_third.p->state_2 = 0;
             ref_third.p->state_3 = 0;
-            ref_third.p->field_5c -= 1;
-            if ((s16)ref_third.p->field_5c < 0) {
+            ref_third.p->health -= 1;
+            if ((s16)ref_third.p->health < 0) {
                 ref_third.p->state_0 = 2;
                 ref_third.p->state_1 = 0;
                 ref_third.p->state_2 = 0;

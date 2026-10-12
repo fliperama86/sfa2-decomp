@@ -23,11 +23,11 @@ void func_801b38b0_slot04_16(Object *obj) {
         obj->field_45 = 1;
         obj->state_3++;
         obj->step_flags &= 0xff00;
-        game_state.field_358 = obj->other;
-        game_state.field_358->field_15b = 1;
+        game_state.other_object = obj->other;
+        game_state.other_object->field_15b = 1;
         func_80140770(obj, ((u8 *)b)[obj->field_12a & 0xfe], 0xf, -0x200, 0, 0, 1);
-        game_state.field_358 = obj->other;
-        if ((s16)game_state.field_358->field_5c < 0) {
+        game_state.other_object = obj->other;
+        if ((s16)game_state.other_object->health < 0) {
             obj->field_167 = 2;
             if (obj->field_49 != 0) {
                 obj->field_167 = 0x20;

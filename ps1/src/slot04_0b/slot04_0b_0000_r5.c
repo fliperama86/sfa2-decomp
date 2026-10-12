@@ -9,7 +9,7 @@ void func_801b0a38_slot04_0b(Object *obj) {
         o->state_3 = obj->state_3 + 1;
         func_80142a14(o);
     } else {
-        if (obj->field_134 & 0x20) {
+        if (obj->pressed_bits & 0x20) {
             obj->state_3 = obj->state_3 + 1;
             func_801307e0(obj, 0x49);
         }

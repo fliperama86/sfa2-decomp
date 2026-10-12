@@ -57,8 +57,8 @@ void func_801b0118_slot04_16(Object *obj) {
         obj->field_28 = (u32)ref_other.p;
         ref_other.p->field_66 = obj->field_66;
         ref_other.p->field_0d = obj->field_0d;
-        ref_other.p->field_7a = obj->field_7a;
-        ref_other.p->field_7c = obj->field_7c;
+        ref_other.p->spawn_x = obj->spawn_x;
+        ref_other.p->spawn_y = obj->spawn_y;
         ref_other.p->field_90 = obj->field_90;
         ref_other.p->field_98 = obj->field_98;
         ref_other.p->field_9c = obj->field_9c;
@@ -246,7 +246,7 @@ void func_801b090c_slot04_16(Object *obj) {
 
 void func_801b094c_slot04_16(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         *(s32 *)&obj->pos_y_frac &= 0xffff0000;
         obj->field_45 = 0;
         obj->field_159 = 0;
@@ -259,7 +259,7 @@ void func_801b094c_slot04_16(Object *obj) {
 
 void func_801b09c0_slot04_16(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         *(s32 *)&obj->pos_y_frac &= 0xffff0000;
         obj->field_45 = 0;
         obj->field_159 = 0;
@@ -275,7 +275,7 @@ void func_801b09c0_slot04_16(Object *obj) {
 
 void func_801b0a50_slot04_16(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         *(s32 *)&obj->pos_y_frac &= 0xffff0000;
         obj->field_45 = 0;
         obj->field_159 = 0;

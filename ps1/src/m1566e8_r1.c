@@ -8,26 +8,26 @@ void func_801566e8(void *a, Object *object) {
     FrameRecord *r;
     u8 i;
     object->field_b0 = 0x3c;
-    object->field_11f = 0x20;
-    object->field_aa++;
+    object->name_char_3 = 0x20;
+    object->phase_index++;
     func_80157090(a, object);
     func_80157174(a, object);
     r = table_8016e5c4;
-    i = object->field_120 - 1;
+    i = object->score_rank - 1;
     if (i < 5) {
         r = &r[i];
-        r->field_04 = object->field_11c;
-        r->field_05 = object->field_11d;
-        r->field_06 = object->field_11e;
-        r->field_07 = object->field_11f;
+        r->field_04 = object->name_char_0;
+        r->field_05 = object->name_char_1;
+        r->handler_index = object->name_char_2;
+        r->box_index = object->name_char_3;
     }
     r = table_8016e614;
     i = object->field_121 - 1;
     if (i < 5) {
         r = &r[i];
-        r->field_04 = object->field_11c;
-        r->field_05 = object->field_11d;
-        r->field_06 = object->field_11e;
-        r->field_07 = object->field_11f;
+        r->field_04 = object->name_char_0;
+        r->field_05 = object->name_char_1;
+        r->handler_index = object->name_char_2;
+        r->box_index = object->name_char_3;
     }
 }

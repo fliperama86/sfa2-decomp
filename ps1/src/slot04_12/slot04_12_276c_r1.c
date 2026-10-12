@@ -79,12 +79,12 @@ void func_801b2a08_slot04_12(Object *o) {
 void func_801b2a48_slot04_12(Object *o) {
     if (func_801b3a90_slot04_12(o) < 0 && ((s16)o->step_flags & 0x8000)) {
         o->accel_y = -0x6000;
-        if (o->pos_y > o->field_70) {
+        if (o->pos_y > o->ground_y) {
             o->pos_y_frac = 0;
             o->field_45 = 0;
             o->field_159 = 0;
             o->state_3++;
-            o->pos_y = o->field_70;
+            o->pos_y = o->ground_y;
             func_801209c4(o);
             func_801307e0(o, o->field_12a + 0x54);
             return;
@@ -171,10 +171,10 @@ void func_801b2d20_slot04_12(Object *obj) {
             p->field_0d = obj->field_0d;
             p->pos_x = obj->pos_x;
             p->pos_y = obj->pos_y;
-            p->field_70 = obj->field_70;
+            p->ground_y = obj->ground_y;
             p->field_3c = obj;
-            p->field_7a = obj->field_7a;
-            p->field_7c = obj->field_7c;
+            p->spawn_x = obj->spawn_x;
+            p->spawn_y = obj->spawn_y;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             p->field_9c = obj->field_9c;

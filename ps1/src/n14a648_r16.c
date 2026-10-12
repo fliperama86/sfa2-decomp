@@ -4,9 +4,9 @@
 #include "protos.h"
 
 void func_80152404(Object *object) {
-    object->field_09 = 4;
+    object->ot_depth = 4;
     object->field_0f = 1;
     object->state_0++;
-    game_state.field_358 = object->field_3c;
-    object->field_1c = game_state.field_358->field_1c;
+    game_state.other_object = object->field_3c;
+    object->field_1c = game_state.other_object->field_1c;
 }

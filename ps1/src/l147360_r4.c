@@ -7,7 +7,7 @@ void func_80148b60(Object *object) {
     int side;
     u16 i;
     Object *o;
-    if ((s16)object->field_5c >= 0) {
+    if ((s16)object->health >= 0) {
         if ((get_random_byte() & 0xff) == 0x25) side = 2;
         else side = get_random_byte() & 1;
         i = 0;
@@ -22,8 +22,8 @@ void func_80148b60(Object *object) {
                 o->field_3c = object;
                 o->field_48 = data_8017ceb4[i];
                 o->field_45 = data_8017ceb8[i];
-                o->field_7a = 0x60;
-                o->field_7c = 0x1e0;
+                o->spawn_x = 0x60;
+                o->spawn_y = 0x1e0;
                 o->field_98 = &data_80172a48;
                 o->field_90 = (void *)0x800fb100;
                 o->field_9c = &data_80173c9c;

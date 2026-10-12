@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801e0958_slot2a(Object *obj, SpritePrim *prim) {
-    SpriteSet *set = (SpriteSet *)obj->sequence->field_04;
+    SpriteSet *set = (SpriteSet *)obj->sequence->data_ptr;
     int count = set->count;
     u16 *offs = set->offsets;
     u8 *codes = set->codes;

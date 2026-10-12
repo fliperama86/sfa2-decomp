@@ -10,7 +10,7 @@ void func_801b02bc_slot04_01(Object *object) {
         t = t - 1;
         object->field_46 = t;
         if (t == 0) {
-            game_state.config->field_4b |= object->side + 1;
+            game_state.config->side_bits |= object->side + 1;
         }
     }
     update_sequence(object);

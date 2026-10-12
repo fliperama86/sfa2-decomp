@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_801485c8(Object *object) {
-  object->field_09 = 4;
+  object->ot_depth = 4;
   object->field_0f = 1;
   object->state_0++;
   ref_other.p = object->field_3c;

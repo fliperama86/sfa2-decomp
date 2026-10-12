@@ -12,9 +12,9 @@ void func_801b2e8c_slot04_0e(Object *o) {
     u8 a;
 
     func_801b4914_slot04_0e(o);
-    if (o->field_70 < o->pos_y) {
+    if (o->ground_y < o->pos_y) {
         func_801b2f58_slot04_0e(o);
-    } else if ((s16)(o->field_70 - 0x30) < o->pos_y) {
+    } else if ((s16)(o->ground_y - 0x30) < o->pos_y) {
         update_sequence(o);
     } else {
         a = o->field_0b;

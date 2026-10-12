@@ -7,8 +7,8 @@
 void func_8013d358(Object *object, u8 index, u8 arg) {
     u16 entry;
 
-    object->slots[index].field_04--;
-    if (object->slots[index].field_04 == 0) {
+    object->slots[index].timer--;
+    if (object->slots[index].timer == 0) {
         func_8013f2a8(object, index, arg);
     } else {
         entry = table_8017a8cc[arg * 7 + object->slots[index].field_01];
@@ -16,7 +16,7 @@ void func_8013d358(Object *object, u8 index, u8 arg) {
             func_8013f2c8(object);
         } else {
             if (entry & 1) {
-                object->slots[index].field_00++;
+                object->slots[index].stage++;
             }
             func_8013f0c8(object, index, arg);
         }
@@ -25,12 +25,12 @@ void func_8013d358(Object *object, u8 index, u8 arg) {
 
 void func_8013d418(Object *object, u8 index, u8 arg) {
     if (object->field_7e == 0) {
-        object->slots[index].field_04--;
-        if (object->slots[index].field_04 == 0) {
+        object->slots[index].timer--;
+        if (object->slots[index].timer == 0) {
             func_8013f2a8(object, index, arg);
         }
     }
-    if ((object->field_134 | object->field_136) & 0x100) {
+    if ((object->pressed_bits | object->released_bits) & 0x100) {
         func_8013f2d8(object, index, arg);
     } else {
         func_8013f2c8(object);
@@ -38,6 +38,6 @@ void func_8013d418(Object *object, u8 index, u8 arg) {
 }
 
 u8 func_8013d4cc(Object *object, u8 index, u8 arg) {
-    table_8017abc4[object->slots[index].field_00](object, index, arg);
+    table_8017abc4[object->slots[index].stage](object, index, arg);
     return data_80188f44;
 }

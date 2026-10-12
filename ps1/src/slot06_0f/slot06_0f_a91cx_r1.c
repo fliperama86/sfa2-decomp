@@ -9,7 +9,7 @@ extern SequenceStep **data_1f800164;
 void func_801ea91c_slot06_0f(Object *obj, int idx) {
     SequenceStep **tbl;
 
-    if (game_state.field_358->side == 0) {
+    if (game_state.other_object->side == 0) {
         tbl = data_1f8000b4;
     } else {
         tbl = data_1f800164;

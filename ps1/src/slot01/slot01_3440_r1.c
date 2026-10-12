@@ -12,33 +12,33 @@ void func_80013440_slot01(Object *obj) {
     int j;
 
     obj->field_01 = 0;
-    obj->field_5c = 0;
+    obj->health = 0;
     ((Slot01Obj *)obj)->field_5e = -0x1f;
     obj->state_0 = obj->state_0 + 1;
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 3; j++) {
             func_8015c100(a);
-            a->field_08 = j << 7;
-            a->field_0a = i << 5;
-            a->field_0c = 0;
-            a->field_0d = 0;
-            a->field_10 = 0x80;
-            a->field_04 = 0x80;
-            a->field_05 = 0x80;
-            a->field_06 = 0x80;
-            a->field_12 = 0x20;
+            a->pos_x = j << 7;
+            a->pos_y = i << 5;
+            a->tex_u = 0;
+            a->tex_v = 0;
+            a->width = 0x80;
+            a->color_r = 0x80;
+            a->color_g = 0x80;
+            a->color_b = 0x80;
+            a->height = 0x20;
             a->field_0e = func_8015bdd4(0x10, i + 0x1e0);
             a++;
             func_8015c100(b);
-            b->field_08 = j << 7;
-            b->field_0a = i << 5;
-            b->field_0c = 0;
-            b->field_0d = 0;
-            b->field_10 = 0x80;
-            b->field_04 = 0x80;
-            b->field_05 = 0x80;
-            b->field_06 = 0x80;
-            b->field_12 = 0x20;
+            b->pos_x = j << 7;
+            b->pos_y = i << 5;
+            b->tex_u = 0;
+            b->tex_v = 0;
+            b->width = 0x80;
+            b->color_r = 0x80;
+            b->color_g = 0x80;
+            b->color_b = 0x80;
+            b->height = 0x20;
             b->field_0e = func_8015bdd4(0x10, i + 0x1e0);
             b++;
         }

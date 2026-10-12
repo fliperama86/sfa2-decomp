@@ -22,8 +22,8 @@ void func_800117ec_slot12(Object *obj) {
         obj->pos_y = 0x60;
         obj->field_01 = 0;
         obj->field_0c = 0;
-        obj->field_7a = 0;
-        obj->field_7c = 0x1e2;
+        obj->spawn_x = 0;
+        obj->spawn_y = 0x1e2;
         func_80011a78_slot12(obj, &data_80022dc4_slot12);
         func_80011bd8_slot12(obj, &data_80022dc4_slot12);
     } else {
@@ -31,12 +31,12 @@ void func_800117ec_slot12(Object *obj) {
         obj->field_0c = 1;
         obj->pos_x = 0xc0;
         obj->pos_y = 0x98;
-        obj->field_7c = 0x1e3;
+        obj->spawn_y = 0x1e3;
         obj->field_90 = (void *)0x80040000;
         obj->field_98 = data_800175e0_slot12;
-        obj->field_09 = 0;
+        obj->ot_depth = 0;
         obj->field_20 = 0;
-        obj->field_7a = 0;
+        obj->spawn_x = 0;
         obj->field_9c = data_80017630_slot12;
         func_80130768(obj, 3, table_80017870_slot12);
     }

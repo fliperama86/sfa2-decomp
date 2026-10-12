@@ -22,7 +22,7 @@ void func_80130678(Object *object, int arg) {
     else object->sequence = seqs_110_right[index];
     object->step_timer = object->sequence->duration;
     object->step_flags = object->sequence->flags;
-    object->field_80 = 1;
+    object->sequence_changed_flag = 1;
     object->frame = object->frames + object->sequence->frame_index;
     object->field_4a = object->frame->field_0d;
 }
@@ -31,7 +31,7 @@ void func_80130700(Object *object, SequenceStep *entry) {
     object->sequence = entry;
     object->step_timer = entry->duration;
     object->step_flags = object->sequence->flags;
-    object->field_80 = 1;
+    object->sequence_changed_flag = 1;
     if (object->field_08 == 0 || object->field_08 == 8) {
         object->frame = object->frames + object->sequence->frame_index;
         object->field_4a = object->frame->field_0d;
@@ -45,7 +45,7 @@ void func_80130768(Object *object, int arg, SequenceStep **table) {
     object->sequence = table[index];
     object->step_timer = object->sequence->duration;
     object->step_flags = object->sequence->flags;
-    object->field_80 = 1;
+    object->sequence_changed_flag = 1;
     if (object->field_08 == 0 || object->field_08 == 8) {
         object->frame = object->frames + object->sequence->frame_index;
         object->field_4a = object->frame->field_0d;
@@ -65,7 +65,7 @@ void func_801307e0(Object *object, int arg) {
     }
     object->step_timer = object->sequence->duration;
     object->step_flags = object->sequence->flags;
-    object->field_80 = 1;
+    object->sequence_changed_flag = 1;
     object->frame = object->frames + object->sequence->frame_index;
     object->field_4a = object->frame->field_0d;
     func_80131020(object);
@@ -80,7 +80,7 @@ void func_801308c4(Object *object, u16 index) {
         if (object->side == 0) entry = seqs_68_left[index];
         else entry = seqs_118_right[index];
     }
-    if (object->sequence != entry) object->field_80 = 1;
+    if (object->sequence != entry) object->sequence_changed_flag = 1;
     object->sequence = entry;
     object->step_timer = entry->duration;
     object->step_flags = object->sequence->flags;

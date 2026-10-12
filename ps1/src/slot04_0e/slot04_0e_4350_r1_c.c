@@ -23,7 +23,7 @@ void func_801b4b40_slot04_0e(Object *obj) {
         c->field_00 = 1;
         c->field_02 = 0x14;
         c->field_03 = 0;
-        c->field_09 = 0;
+        c->ot_depth = 0;
         c->field_0b = obj->field_0b;
         if (obj->field_0b != 0) {
             x = obj->pos_x + 0x40;
@@ -44,8 +44,8 @@ void func_801b4b40_slot04_0e(Object *obj) {
         c->pos_x = x;
         c->field_3c = obj;
         r->field_14 = c;
-        c->field_7a = 0x60;
-        c->field_7c = 0x1e0;
+        c->spawn_x = 0x60;
+        c->spawn_y = 0x1e0;
         c->field_0d = obj->field_0d;
         c->field_08 = 0x20;
         c->field_90 = obj->field_90;

@@ -16,24 +16,24 @@ void func_801e8398_slot06_03(Slot06Layer *layer, s16 a, s16 b);
 void func_801e8438_slot06_03(Slot06Layer *layer, s16 a, s16 b);
 
 void func_801e8230_slot06_03(Slot06Layer *layer) {
-    layer->field_78 = 0x2000;
-    layer->field_7c = -0x100;
-    layer->field_80 = 0xfffe0000;
+    layer->vel_x = 0x2000;
+    layer->accel_x = -0x100;
+    layer->vel_y = 0xfffe0000;
     layer->field_8b = 0;
-    layer->field_84 = 0x100;
+    layer->accel_y = 0x100;
     layer->field_8c = 0;
     layer->field_05++;
 }
 
 void func_801e8268_slot06_03(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
-        *(s32 *)&layer->field_34 += layer->field_78;
-        layer->field_78 += layer->field_7c;
-        *(s32 *)&layer->field_38 += layer->field_80;
-        layer->field_80 += layer->field_84;
+        *(s32 *)&layer->field_34 += layer->vel_x;
+        layer->vel_x += layer->accel_x;
+        *(s32 *)&layer->field_38 += layer->vel_y;
+        layer->vel_y += layer->accel_y;
         func_801e8398_slot06_03(layer, 0, layer->field_36);
         if ((s16)layer->field_3a < -0x13f) {
-            layer->field_84 = 0xfffe0000;
+            layer->accel_y = 0xfffe0000;
             layer->field_05++;
         }
     }
@@ -41,10 +41,10 @@ void func_801e8268_slot06_03(Slot06Layer *layer) {
 
 void func_801e830c_slot06_03(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
-        *(s32 *)&layer->field_34 += layer->field_78;
-        layer->field_78 += layer->field_7c;
-        *(s32 *)&layer->field_38 += layer->field_80;
-        layer->field_80 += layer->field_84;
+        *(s32 *)&layer->field_34 += layer->vel_x;
+        layer->vel_x += layer->accel_x;
+        *(s32 *)&layer->field_38 += layer->vel_y;
+        layer->vel_y += layer->accel_y;
         func_801e8398_slot06_03(layer, 0, layer->field_36);
         func_801e8438_slot06_03(layer, -0x140, layer->field_3a);
     }
@@ -67,8 +67,8 @@ void func_801e8398_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
                 x = -x;
                 y = -y;
             }
-            layer->field_78 = x;
-            layer->field_7c = y;
+            layer->vel_x = x;
+            layer->accel_x = y;
         }
     }
 }
@@ -90,8 +90,8 @@ void func_801e8438_slot06_03(Slot06Layer *layer, s16 a, s16 b) {
                 x = -x;
                 y = -y;
             }
-            layer->field_80 = x;
-            layer->field_84 = y;
+            layer->vel_y = x;
+            layer->accel_y = y;
         }
     }
 }

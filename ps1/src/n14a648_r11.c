@@ -4,6 +4,6 @@
 #include "protos.h"
 
 void func_801507dc(Menu *menu) {
-    menu->field_03 = 0;
+    menu->fade_mode = 0;
     menu->field_01 = 0;
 }

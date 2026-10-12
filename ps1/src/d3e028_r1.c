@@ -5,7 +5,7 @@
 
 /*
  * What it does (inferred, not original names): steps one numbered slot of
- * an object. It decrements the slot's field_04; when that reaches 0 it
+ * an object. It decrements the slot's timer; when that reaches 0 it
  * calls func_8013f2a8 and returns. Otherwise it takes the table entry
  * table_8017a8cc[arg * 7 + slot.field_01], the object's two input halfwords
  * ORed together (pad) and the pad's low two bits (dir), and matches the
@@ -22,13 +22,13 @@ void func_8013e028(Object *object, u8 index, u8 arg) {
     u16 pad;
     u16 dir;
 
-    object->slots[index].field_04--;
-    if (object->slots[index].field_04 == 0) {
+    object->slots[index].timer--;
+    if (object->slots[index].timer == 0) {
         func_8013f2a8(object, index, arg);
         return;
     }
     mask = table_8017a8cc[arg * 7 + object->slots[index].field_01];
-    pad = object->field_134 | object->field_136;
+    pad = object->pressed_bits | object->released_bits;
     dir = pad & 3;
     /* mask holds the whole table entry first and its low byte from here on: with a local of its own for
        the entry this function differs from the original in 20 instruction lines. */

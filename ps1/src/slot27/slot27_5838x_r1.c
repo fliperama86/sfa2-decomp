@@ -13,12 +13,12 @@ void func_80015838_slot27(Object *obj) {
         b->field_00 = 1;
         b->field_02 = 0xaa;
         b->field_03 = game_state.field_40;
-        b->field_09 = 8;
+        b->ot_depth = 8;
         b->field_90 = (void *)0x80038000;
         b->field_98 = data_80017c28_slot27;
         b->field_9c = data_8001aa14_slot27;
-        b->field_7a = 0;
-        b->field_7c = 0x1e0;
+        b->spawn_x = 0;
+        b->spawn_y = 0x1e0;
         obj->field_3c = b;
     }
 }

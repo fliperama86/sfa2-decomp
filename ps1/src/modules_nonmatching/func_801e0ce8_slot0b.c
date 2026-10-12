@@ -52,7 +52,7 @@
 void func_801e0ce8_slot0b(Object *obj, unsigned char *buf_arg, int tag_arg, int base, int mirror) {
     Poly28 *buf = (Poly28 *)buf_arg;
     u16 tag = tag_arg;
-    Slot0bLayout *lay = (Slot0bLayout *)obj->sequence->field_04;
+    Slot0bLayout *lay = (Slot0bLayout *)obj->sequence->data_ptr;
     u8 *ids;
     u16 *coords;
     int pass;
@@ -68,10 +68,10 @@ void func_801e0ce8_slot0b(Object *obj, unsigned char *buf_arg, int tag_arg, int 
         coords = lay->coords;
         do {
             func_8015c09c(buf);
-            buf->field_04 = 0x80;
-            buf->field_05 = 0x80;
-            buf->field_06 = 0x80;
-            buf->field_16 = tag;
+            buf->r0 = 0x80;
+            buf->g0 = 0x80;
+            buf->b0 = 0x80;
+            buf->tpage = tag;
             x = *coords++ + 0x60;
             y = *coords++ + 0x50;
             if (mirror == 0) {
@@ -81,15 +81,15 @@ void func_801e0ce8_slot0b(Object *obj, unsigned char *buf_arg, int tag_arg, int 
                 near = x + 0xf;
                 far = x;
             }
-            buf->field_0c = near;
-            buf->field_1c = near;
-            buf->field_0d = y;
-            buf->field_14 = far;
-            buf->field_15 = y;
-            buf->field_1d = y + 0x10;
-            buf->field_24 = far;
-            buf->field_25 = y + 0x10;
-            buf->field_0e = base + (*ids++ << 6);
+            buf->u0 = near;
+            buf->u2 = near;
+            buf->v0 = y;
+            buf->u1 = far;
+            buf->v1 = y;
+            buf->v2 = y + 0x10;
+            buf->u3 = far;
+            buf->v3 = y + 0x10;
+            buf->clut = base + (*ids++ << 6);
             buf++;
             n--;
         } while (n > 0);

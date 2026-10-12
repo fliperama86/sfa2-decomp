@@ -115,14 +115,14 @@ void func_801b59b8_slot04_0e(Object *o) {
 
 void func_801b5a70_slot04_0e(Object *obj) {
     func_801b4914_slot04_0e(obj);
-    if (obj->field_70 >= obj->pos_y) {
+    if (obj->ground_y >= obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
         obj->pos_y_frac = 0;
         obj->field_17b = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x25);
     }
@@ -143,7 +143,7 @@ u8 func_801b5b44_slot04_0e(Object *obj) {
     if (obj->field_cd != 0) {
         r = func_801b6bd4_slot04_0e(obj);
     } else {
-        r = (obj->field_134 & 0x95) != 0;
+        r = (obj->pressed_bits & 0x95) != 0;
     }
     return r;
 }
@@ -195,14 +195,14 @@ void func_801b5ccc_slot04_0e(Object *o) {
         func_801b628c_slot04_0e(o);
     }
     func_801b4914_slot04_0e(o);
-    if (o->field_70 > o->pos_y) {
+    if (o->ground_y > o->pos_y) {
         update_sequence(o);
     } else {
         o->state_3++;
         o->field_45 = 0;
         o->pos_y_frac = 0;
         o->field_67 = 0;
-        o->pos_y = (u16)o->field_70;
+        o->pos_y = (u16)o->ground_y;
         func_801209c4(o);
         a = 0x6a;
         if (o->field_49 == 0) {

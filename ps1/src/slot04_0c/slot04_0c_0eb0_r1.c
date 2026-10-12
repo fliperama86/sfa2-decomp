@@ -202,7 +202,7 @@ void func_801b142c_slot04_0c(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     func_801b1510_slot04_0c(o);
-    if (o->pos_y < o->field_70) {
+    if (o->pos_y < o->ground_y) {
         if (obj->field_3a != 0) {
             return;
         }
@@ -211,7 +211,7 @@ void func_801b142c_slot04_0c(Object *o) {
         o->field_45 = 0;
         o->field_159 = 0;
         o->field_17b = 0;
-        o->pos_y = (u16)o->field_70;
+        o->pos_y = (u16)o->ground_y;
         func_801209c4(o);
     }
     update_sequence(o);

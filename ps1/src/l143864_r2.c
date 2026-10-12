@@ -15,7 +15,7 @@ void func_80143c1c(Object *object) {
             func_8011f240(object);
         } else {
             object->field_a0 = 7;
-            object->field_5c = 0x2a;
+            object->health = 0x2a;
             object->field_46 = 0x30;
             object->field_0c = 1;
             object->sequence = seq_table_8017b50c[object->field_a0];

@@ -7,7 +7,7 @@ void func_801b4ff0_slot04_0a(Object *obj);
 void func_801b4ff8_slot04_0a(Object *obj);
 
 void func_801b4d2c_slot04_0a(Object *obj) {
-    obj->field_09 = 4;
+    obj->ot_depth = 4;
     obj->field_81 = 5;
     obj->field_0c = 0xff;
     obj->state_0++;

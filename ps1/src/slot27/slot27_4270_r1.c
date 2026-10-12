@@ -31,6 +31,6 @@ void func_8001435c_slot27(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     int side = obj->other->side;
-    obj->pos_x = data_80026ef0_slot27[side].field_00;
-    obj->pos_y = data_80026ef0_slot27[side].field_02;
+    obj->pos_x = data_80026ef0_slot27[side].pos_x;
+    obj->pos_y = data_80026ef0_slot27[side].pos_y;
 }

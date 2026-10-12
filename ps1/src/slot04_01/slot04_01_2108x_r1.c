@@ -15,7 +15,7 @@ void func_801b2108_slot04_01(Object *o) {
     int v;
     int w;
 
-    y = (u16)o->field_70;
+    y = (u16)o->ground_y;
     o->pos_y = y;
     o->pos_y = y = y - *(u16 *)((u8 *)data_801beff4_slot04_01 + (o->step_flags & 0xe));
     t = (s16)o->step_flags;

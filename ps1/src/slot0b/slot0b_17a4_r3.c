@@ -11,7 +11,7 @@ void func_801e19ec_slot0b(Object *obj) {
         if ((s16)obj->field_46 >= 0) goto tail;
     }
     obj->state_1++;
-    obj->pos_x = obj->field_5c;
+    obj->pos_x = obj->health;
 tail:
     func_801e1b40_slot0b(obj);
 }

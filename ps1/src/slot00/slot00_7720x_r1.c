@@ -8,9 +8,9 @@ extern u8 data_8007a008_slot00[];
 
 void func_80077720_slot00(Object *obj) {
     Object *p;
-    obj->field_09 = 2;
+    obj->ot_depth = 2;
     obj->vel_y = 0;
-    obj->field_5c = 0xfff;
+    obj->health = 0xfff;
     obj->vel_y = 0x20;
     obj->accel_y = 0xff;
     obj->field_a0 = 0xff;

@@ -162,7 +162,7 @@ int func_801b25e8_slot04_0e(Object *obj) {
 
 void func_801b2658_slot04_0e(Object *object) {
     u8 side = object->field_158;
-    u16 bits = object->field_134 | object->field_136;
+    u16 bits = object->pressed_bits | object->released_bits;
     u8 value;
     object->field_12c = 0;
     object->field_12d = 0;

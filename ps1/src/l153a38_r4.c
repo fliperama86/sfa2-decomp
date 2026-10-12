@@ -18,15 +18,15 @@ void func_80156898(void *a, Object *object) {
     score = object->field_e4;
     i = 4;
     for (n = 0; n < 5; n++) {
-        if (score < p->field_00) {
+        if (score < p->score) {
             break;
         }
         if ((s16)i-- != 4) {
-            r->field_00 = p->field_00;
-            r->field_04 = p->field_04;
-            r->field_05 = p->field_05;
-            r->field_06 = p->field_06;
-            r->field_07 = p->field_07;
+            r->score = p->score;
+            r->name_char_0 = p->name_char_0;
+            r->name_char_1 = p->name_char_1;
+            r->name_char_2 = p->name_char_2;
+            r->name_char_3 = p->name_char_3;
             r->field_08 = p->field_08;
             r->field_09 = p->field_09;
             r->field_0a = p->field_0a;
@@ -37,13 +37,13 @@ void func_80156898(void *a, Object *object) {
         p = r - 1;
     }
     j = i + 2;
-    object->field_120 = j;
+    object->score_rank = j;
     if (j < 6) {
-        r->field_04 = object->field_11c;
-        r->field_05 = object->field_11d;
-        r->field_06 = object->field_11e;
-        r->field_07 = object->field_11f;
-        r->field_00 = score;
+        r->name_char_0 = object->name_char_0;
+        r->name_char_1 = object->name_char_1;
+        r->name_char_2 = object->name_char_2;
+        r->name_char_3 = object->name_char_3;
+        r->score = score;
         r->field_08 = object->field_118;
         r->field_09 = object->field_119;
         r->field_0a = object->field_11a;
@@ -53,8 +53,8 @@ void func_80156898(void *a, Object *object) {
     if (object->side == 0) {
         other++;
     }
-    if (other->field_120 != 0 && other->field_120 >= j && other->field_120 != 6) {
-        other->field_120++;
+    if (other->score_rank != 0 && other->score_rank >= j && other->score_rank != 6) {
+        other->score_rank++;
     }
 }
 
@@ -76,15 +76,15 @@ void func_80156a20(void *a, Object *object) {
         if (c < p->field_0c) {
             break;
         }
-        if (p->field_0c == c && score < p->field_00) {
+        if (p->field_0c == c && score < p->score) {
             break;
         }
         if ((s16)i-- != 4) {
-            r->field_00 = p->field_00;
-            r->field_04 = p->field_04;
-            r->field_05 = p->field_05;
-            r->field_06 = p->field_06;
-            r->field_07 = p->field_07;
+            r->score = p->score;
+            r->name_char_0 = p->name_char_0;
+            r->name_char_1 = p->name_char_1;
+            r->name_char_2 = p->name_char_2;
+            r->name_char_3 = p->name_char_3;
             r->field_08 = p->field_08;
             r->field_09 = p->field_09;
             r->field_0a = p->field_0a;
@@ -97,11 +97,11 @@ void func_80156a20(void *a, Object *object) {
     j = i + 2;
     object->field_121 = j;
     if (j < 6) {
-        r->field_04 = object->field_11c;
-        r->field_05 = object->field_11d;
-        r->field_06 = object->field_11e;
-        r->field_07 = object->field_11f;
-        r->field_00 = score;
+        r->name_char_0 = object->name_char_0;
+        r->name_char_1 = object->name_char_1;
+        r->name_char_2 = object->name_char_2;
+        r->name_char_3 = object->name_char_3;
+        r->score = score;
         r->field_08 = object->field_118;
         r->field_09 = object->field_119;
         r->field_0a = object->field_11a;
@@ -111,7 +111,7 @@ void func_80156a20(void *a, Object *object) {
     if (object->side == 0) {
         other++;
     }
-    if (other->field_120 != 0 && other->field_120 >= j && other->field_120 != 6) {
-        other->field_120++;
+    if (other->score_rank != 0 && other->score_rank >= j && other->score_rank != 6) {
+        other->score_rank++;
     }
 }

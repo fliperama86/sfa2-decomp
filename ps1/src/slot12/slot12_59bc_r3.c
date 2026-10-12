@@ -12,7 +12,7 @@ void func_80015dfc_slot12(Object *obj, int a) {
     u8 *fr;
 
     fr = (u8 *)ptr_8019040c;
-    fr += (s16)obj->field_5c << 4;
+    fr += (s16)obj->health << 4;
     e = &data_8002bca4_slot12[obj->field_03];
     e->field_08 = 0x10;
     e->field_09 = 0x10;
@@ -25,8 +25,8 @@ void func_80015dfc_slot12(Object *obj, int a) {
     fr += 4;
     func_80015f00_slot12(fr, data_8002bfb4_slot12[obj->field_03], 0);
     e->field_0c = data_8002bfb4_slot12[obj->field_03];
-    e->field_04 = obj->field_76 + 0x30;
-    e->field_06 = obj->field_78;
-    e->field_04 = e->field_04 - 8;
-    e->field_06 = e->field_06 - 8;
+    e->pos_x = obj->field_76 + 0x30;
+    e->pos_y = obj->field_78;
+    e->pos_x = e->pos_x - 8;
+    e->pos_y = e->pos_y - 8;
 }

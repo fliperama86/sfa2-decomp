@@ -19,7 +19,7 @@ void func_801b1f8c_slot04_08(Object *obj) {
         func_80140cd8(obj, *(s16 *)(data_801c3c60_slot04_08 + (obj->field_12a & 0xfe)), 0);
         p = obj->other;
         obj->field_46 = 0x18;
-        if ((s16)p->field_5c < 0) {
+        if ((s16)p->health < 0) {
             play_sound_at(obj, obj->side, 0x319);
             obj->field_167 = 2;
             if (obj->field_49 != 0) {

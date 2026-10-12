@@ -65,7 +65,7 @@ void func_801b3c14_slot04_0f(Object *obj) {
     obj->accel_x = -0x500;
     obj->field_45 = one;
     obj->accel_y = 0x3000;
-    if ((s16)o->field_5c < 0) {
+    if ((s16)o->health < 0) {
         play_sound_at(obj, obj->side, 0x319);
         obj->field_167 = (obj->field_12a >> 1) + 0xc;
         game_state.config->field_6b = 4;
@@ -77,10 +77,10 @@ void func_801b3c14_slot04_0f(Object *obj) {
 
 void func_801b3d08_slot04_0f(Object *obj) {
     func_801b394c_slot04_0f(obj);
-    if (obj->field_70 <= obj->pos_y) {
+    if (obj->ground_y <= obj->pos_y) {
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         obj->pos_y_frac = 0;
         func_801209c4(obj);
         func_80130678(obj, 0x11);
@@ -223,7 +223,7 @@ void func_801b41dc_slot04_0f(Object *obj) {
 
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    t = obj->field_70;
+    t = obj->ground_y;
     if (obj->pos_y >= t) {
         obj->pos_y = t;
         obj->pos_y_frac = 0;
@@ -250,7 +250,7 @@ void func_801b42f0_slot04_0f(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
-    obj->field_160 = 0xb4;
+    obj->gauge = 0xb4;
     obj->field_46 = 0;
     ((Slot04bObj *)obj)->field_336 = 0;
     func_801307e0(obj, 0x18);

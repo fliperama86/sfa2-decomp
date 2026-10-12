@@ -36,10 +36,10 @@ void func_8001613c_slot28(Object *obj) {
         data_800518f8_slot28.p = o;
         o->pos_y = -8;
         o->pos_x = 0;
-        o->field_7a = 0;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0;
+        o->spawn_y = 0x1e0;
         o->field_0d = 0;
-        o->field_09 = one;
+        o->ot_depth = one;
         func_80130768(o, 2, data_8002fc90_slot28);
         o->field_01 = one;
     }
@@ -49,10 +49,10 @@ void func_8001613c_slot28(Object *obj) {
         data_8005190c_slot28[0] = o;
         o->pos_y = -8;
         o->pos_x = 0;
-        o->field_7a = 0;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0;
+        o->spawn_y = 0x1e0;
         o->field_0d = 0;
-        o->field_09 = one;
+        o->ot_depth = one;
         func_80130768(o, 0, data_8002fc8c_slot28);
     }
     o = (Object *)func_8011f1e0();
@@ -61,23 +61,23 @@ void func_8001613c_slot28(Object *obj) {
         data_800518fc_slot28[0] = o;
         o->pos_x = 0x40;
         o->pos_y = 0x20;
-        o->field_7a = 0x10;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0x10;
+        o->spawn_y = 0x1e0;
         o->field_0d = 0;
-        o->field_09 = 5;
+        o->ot_depth = 5;
         func_80130768(o, 0, data_8002fca0_slot28);
     }
     o = (Object *)func_8011f1e0();
     if (o != 0) {
         func_80016540_slot28(o);
         data_80051908_slot28.p = o;
-        o->field_7c = 0x1e0;
+        o->spawn_y = 0x1e0;
         o->pos_x = 0x28;
-        o->field_7a = 0;
+        o->spawn_x = 0;
         o->field_0d = 0;
         o->field_03 = one;
         o->vel_y = 0xb8;
-        o->field_09 = 0;
+        o->ot_depth = 0;
         func_80130768(o, 0, data_8002fce8_slot28);
     }
     o = (Object *)func_8011f1e0();
@@ -85,9 +85,9 @@ void func_8001613c_slot28(Object *obj) {
         Slot28Obj *p = (Slot28Obj *)obj;
         o->field_02 = 0x72;
         o->field_03 = 4;
-        o->field_09 = 2;
-        o->field_7a = 0x60;
-        o->field_7c = 0x1e0;
+        o->ot_depth = 2;
+        o->spawn_x = 0x60;
+        o->spawn_y = 0x1e0;
         o->pos_x = 0xf8;
         o->pos_y = 0xa0;
         o->field_90 = (void *)0x80060000;
@@ -107,9 +107,9 @@ void func_8001613c_slot28(Object *obj) {
     if (o != 0) {
         o->field_00 = 1;
         o->field_02 = 0x72;
-        o->field_09 = 3;
-        o->field_7a = 0x60;
-        o->field_7c = 0x1e0;
+        o->ot_depth = 3;
+        o->spawn_x = 0x60;
+        o->spawn_y = 0x1e0;
         o->pos_x = 0x88;
         o->pos_y = 0x80;
         o->vel_y = 0x8000;
@@ -127,9 +127,9 @@ void func_8001613c_slot28(Object *obj) {
     if (o != 0) {
         o->field_00 = 1;
         o->field_02 = 0x72;
-        o->field_09 = 4;
-        o->field_7a = 0x60;
-        o->field_7c = 0x1e0;
+        o->ot_depth = 4;
+        o->spawn_x = 0x60;
+        o->spawn_y = 0x1e0;
         o->pos_x = 0x90;
         o->pos_y = 0x78;
         o->vel_y = 0xc000;

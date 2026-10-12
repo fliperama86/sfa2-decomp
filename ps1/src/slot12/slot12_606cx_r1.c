@@ -17,7 +17,7 @@ extern u8 *data_800284ec_slot12[];
    list at entry 0 of the table data_80028444_slot12 when field_2bd is 0,
    else the list at entry 8). When the second argument is 1 the length byte
    becomes 0x1d and the routine is called again with the list at entry 4.
-   The record also takes a pointer chosen by the object's field_5c, the
+   The record also takes a pointer chosen by the object's health, the
    object's field_76 and field_78 minus 8 as its x and y, and the object
    itself is moved to field_76 + 8 and field_78 - 8. A flag byte for the
    record is set. It is the twin of func_800e80ec_slot0f, with that
@@ -34,27 +34,27 @@ void func_8001606c_slot12(Object *obj, int mode) {
         SequenceStep **steps = &data_80028444_slot12[0];
 
         rec->field_0b = 0x14;
-        func_80130768(obj, data_80028500_slot12[(s16)obj->field_5c], steps);
+        func_80130768(obj, data_80028500_slot12[(s16)obj->health], steps);
         if (mode == 1) {
             rec->field_0b = 0x1d;
-            func_80130768(obj, data_80028500_slot12[(s16)obj->field_5c], &data_80028444_slot12[4]);
+            func_80130768(obj, data_80028500_slot12[(s16)obj->health], &data_80028444_slot12[4]);
         }
     } else {
         SequenceStep **steps = &data_80028444_slot12[8];
 
         rec->field_0b = 0x10;
-        func_80130768(obj, data_80028500_slot12[(s16)obj->field_5c], steps);
+        func_80130768(obj, data_80028500_slot12[(s16)obj->health], steps);
         if (mode == 1) {
             rec->field_0b = 0x1d;
-            func_80130768(obj, data_80028500_slot12[(s16)obj->field_5c], &data_80028444_slot12[4]);
+            func_80130768(obj, data_80028500_slot12[(s16)obj->health], &data_80028444_slot12[4]);
         }
     }
-    rec->field_0c = data_800284ec_slot12[(s16)obj->field_5c];
+    rec->field_0c = data_800284ec_slot12[(s16)obj->health];
     data_8002bc8c_slot12[obj->field_03] = 1;
-    rec->field_04 = obj->field_76;
-    rec->field_06 = obj->field_78;
-    rec->field_04 = rec->field_04 - 8;
-    rec->field_06 = rec->field_06 - 8;
+    rec->pos_x = obj->field_76;
+    rec->pos_y = obj->field_78;
+    rec->pos_x = rec->pos_x - 8;
+    rec->pos_y = rec->pos_y - 8;
     obj->pos_x = obj->field_76 + 8;
     /* The halfword is read signed here, as the original reads it (`lh`); without the cast this function differs from the original in 15 instruction slots. */
     obj->pos_y = (s16)obj->field_78 - 8;

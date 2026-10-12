@@ -40,7 +40,7 @@ void func_8012acf4(Object *object) {
             func_80132370(object);
         }
     } else {
-        object->pos_y = object->field_70;
+        object->pos_y = object->ground_y;
         object->field_45 = 0;
         object->field_159 = 0;
         func_801209c4(object);
@@ -65,7 +65,7 @@ void func_8012ae00(Object *object) {
             update_sequence(object);
         }
     } else {
-        object->pos_y = object->field_70;
+        object->pos_y = object->ground_y;
         object->field_45 = 0;
         object->field_159 = 0;
         func_801209c4(object);

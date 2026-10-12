@@ -15,11 +15,11 @@ extern u32 table_801e47a8_slot0b[];
    used). The four corners are the entry's coordinate pair plus the object's
    position, widened by width and height; the texture coordinates are formed
    the same way. The record is linked into the list head
-   data_801987c8[table_801e47a8_slot0b[object.field_09]]. */
+   data_801987c8[table_801e47a8_slot0b[object.ot_depth]]. */
 void func_801e0ea8_slot0b(Object *obj, u8 *p) {
     Poly28 *prim = (Poly28 *)p;
-    SpriteSet *shape = (SpriteSet *)obj->sequence->field_04;
-    u32 idx = table_801e47a8_slot0b[obj->field_09];
+    SpriteSet *shape = (SpriteSet *)obj->sequence->data_ptr;
+    u32 idx = table_801e47a8_slot0b[obj->ot_depth];
     int n = shape->count;
     u16 *xy = shape->offsets;
     u8 *d = shape->codes;
@@ -40,25 +40,25 @@ void func_801e0ea8_slot0b(Object *obj, u8 *p) {
         n--;
         b <<= 4;
         c <<= 4;
-        prim->field_08 = x + (u16)obj->pos_x;
-        prim->field_0a = y + (u16)obj->pos_y;
-        prim->field_10 = b + (x + (u16)obj->pos_x);
-        prim->field_12 = y + (u16)obj->pos_y;
-        prim->field_18 = x + (u16)obj->pos_x;
-        prim->field_1a = c + (y + (u16)obj->pos_y);
-        prim->field_20 = b + (x + (u16)obj->pos_x);
-        prim->field_22 = c + (y + (u16)obj->pos_y);
+        prim->x0 = x + (u16)obj->pos_x;
+        prim->y0 = y + (u16)obj->pos_y;
+        prim->x1 = b + (x + (u16)obj->pos_x);
+        prim->y1 = y + (u16)obj->pos_y;
+        prim->x2 = x + (u16)obj->pos_x;
+        prim->y2 = c + (y + (u16)obj->pos_y);
+        prim->x3 = b + (x + (u16)obj->pos_x);
+        prim->y3 = c + (y + (u16)obj->pos_y);
         lo = a & 0xf;
         lo <<= 4;
         hi = a & 0xf0;
-        prim->field_0c = lo;
-        prim->field_0d = hi;
-        prim->field_14 = lo + b;
-        prim->field_15 = hi;
-        prim->field_1c = lo;
-        prim->field_1d = hi + c;
-        prim->field_24 = lo + b;
-        prim->field_25 = hi + c;
+        prim->u0 = lo;
+        prim->v0 = hi;
+        prim->u1 = lo + b;
+        prim->v1 = hi;
+        prim->u2 = lo;
+        prim->v2 = hi + c;
+        prim->u3 = lo + b;
+        prim->v3 = hi + c;
         ((PrimTag *)prim)->addr = ((PrimTag *)((u32 *)data_801987c8 + idx))->addr;
         ((PrimTag *)((u32 *)data_801987c8 + idx))->addr = (u32)prim;
         prim++;

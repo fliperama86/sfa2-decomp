@@ -24,10 +24,10 @@ void func_801b2d20_slot04_04(Object *obj) {
             p->field_0d = obj->field_0d;
             p->pos_x = obj->pos_x;
             p->pos_y = obj->pos_y;
-            p->field_70 = obj->field_70;
+            p->ground_y = obj->ground_y;
             p->field_3c = obj;
-            p->field_7a = obj->field_7a;
-            p->field_7c = obj->field_7c;
+            p->spawn_x = obj->spawn_x;
+            p->spawn_y = obj->spawn_y;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             p->field_9c = obj->field_9c;

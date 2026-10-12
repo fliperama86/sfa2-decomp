@@ -16,8 +16,8 @@ void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f) {
     object->field_73 = 0;
     ref_other.p->field_261 = 0;
     ref_other.p->field_27a = 0;
-    ref_other.p->field_72 = object->field_0b;
-    ref_other.p->field_72 = e ^ ref_other.p->field_72;
+    ref_other.p->facing_flag = object->field_0b;
+    ref_other.p->facing_flag = e ^ ref_other.p->facing_flag;
     ref_other.p->field_243 = 1;
     ref_other.p->field_295 = 0;
     ref_other.p->field_260 = 0xff;

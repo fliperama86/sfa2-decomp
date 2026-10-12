@@ -32,10 +32,10 @@ void func_80121f74(GameState *g) {
             if (g->field_5d == 0) {
                 x = 0;
                 g->field_5c--;
-                g->field_5d = g->field_5e;
+                g->field_5d = g->reload_value;
             }
         }
-        g->field_1d++;
+        g->frame_counter++;
         g->field_a8 = x;
         if ((g->field_84 & 0x80) == 0) {
             func_801385a0(g);

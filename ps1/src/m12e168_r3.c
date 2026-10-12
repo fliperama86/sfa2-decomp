@@ -14,8 +14,8 @@ u8 func_8012eff8(Object *o) {
         o->field_46 = (s16)o->field_46 + 1;
         ret = 0;
         o->field_247 = 1;
-        if (o->field_72 == 0) d = -d;
-        if ((s16)o->field_5c < 0) d <<= 1;
+        if (o->facing_flag == 0) d = -d;
+        if ((s16)o->health < 0) d <<= 1;
         o->pos_x = o->pos_x + d;
     }
     return ret;
@@ -30,8 +30,8 @@ void func_8012f0e0(Object *o) {
     } else {
         d = 1;
         o->field_247 = 1;
-        if (o->field_72 == 0) d = -1;
-        if ((s16)o->field_5c < 0) d <<= 1;
+        if (o->facing_flag == 0) d = -1;
+        if ((s16)o->health < 0) d <<= 1;
         x = d + (u16)o->pos_x;
         o->pos_x = x;
         d = 3;

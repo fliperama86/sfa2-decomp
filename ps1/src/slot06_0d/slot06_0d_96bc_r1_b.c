@@ -20,8 +20,8 @@ void func_801e9a60_slot06_0d(Object *o) {
     c = func_8011f32c();
     if (c != 0) {
         c->field_02 = 0x19;
-        c->field_7a = 0x60;
-        c->field_7c = 0x1e0;
+        c->spawn_x = 0x60;
+        c->spawn_y = 0x1e0;
         c->field_00 = one;
         c->field_03 = 0;
         c->field_3c = o;
@@ -34,8 +34,8 @@ void func_801e9a60_slot06_0d(Object *o) {
         c->field_03 = 1;
         c->field_00 = 1;
         c->field_02 = 0x19;
-        c->field_7a = 0x60;
-        c->field_7c = 0x1e0;
+        c->spawn_x = 0x60;
+        c->spawn_y = 0x1e0;
         c->field_3c = o;
         c->field_81 = 4;
         c->field_0d = 0;
@@ -45,8 +45,8 @@ void func_801e9a60_slot06_0d(Object *o) {
     if (c != 0) {
         c->field_03 = 2;
         c->field_02 = 0x19;
-        c->field_7a = 0x60;
-        c->field_7c = 0x1e0;
+        c->spawn_x = 0x60;
+        c->spawn_y = 0x1e0;
         c->field_00 = one;
         c->field_3c = o;
         c->field_0d = 0;

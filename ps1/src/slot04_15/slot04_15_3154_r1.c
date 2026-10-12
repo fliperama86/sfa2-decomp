@@ -54,12 +54,12 @@ void func_801b31f0_slot04_15(Object *obj) {
 
 void func_801b328c_slot04_15(Object *obj) {
     func_801b36cc_slot04_15(obj);
-    if (obj->field_70 > obj->pos_y) {
+    if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x1b);
     }
@@ -78,7 +78,7 @@ void func_801b3350_slot04_15(Object *obj) {
     s16 y;
 
     func_801b36cc_slot04_15(obj);
-    if (((Slot04bObj *)obj)->field_52 <= 0 || obj->pos_y < (y = obj->field_70)) {
+    if (((Slot04bObj *)obj)->field_52 <= 0 || obj->pos_y < (y = obj->ground_y)) {
         update_sequence(obj);
         update_sequence(obj);
     } else {
@@ -125,7 +125,7 @@ void func_801b3484_slot04_15(Object *obj) {
         func_80140770(obj, 0x1d, 5, 0xf, 0, 0, 0);
         o = obj->other;
         ref_other.p = o;
-        if ((s16)obj->field_5c >= 0) {
+        if ((s16)obj->health >= 0) {
             play_sound_at(o, ref_other.p->side, 0x30f);
         } else {
             play_sound_at(o, ref_other.p->side, 0x346);
@@ -135,7 +135,7 @@ void func_801b3484_slot04_15(Object *obj) {
 
 void func_801b3598_slot04_15(Object *obj) {
     func_801b36cc_slot04_15(obj);
-    if (((Slot04bObj *)obj)->field_52 < 0 || (s16)(obj->field_70 - 0x50) >= obj->pos_y) {
+    if (((Slot04bObj *)obj)->field_52 < 0 || (s16)(obj->ground_y - 0x50) >= obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
@@ -145,12 +145,12 @@ void func_801b3598_slot04_15(Object *obj) {
 
 void func_801b3614_slot04_15(Object *obj) {
     func_801b36cc_slot04_15(obj);
-    if (obj->field_70 > obj->pos_y) {
+    if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x22);
     }
@@ -273,8 +273,8 @@ void func_801b3a1c_slot04_15(Object *object) {
             p->field_0b = object->field_0b;
             p->field_1c = object->field_1c;
             e = object->field_1e;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->field_1e = e;
             d = object->field_0d;
             p->field_02 = 0x17;

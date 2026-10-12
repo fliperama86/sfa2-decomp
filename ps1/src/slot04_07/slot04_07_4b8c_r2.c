@@ -8,7 +8,7 @@ int func_801b41c4_slot04_07(Object *obj);
 void func_801b4cec_slot04_07(Object *obj) {
     Slot04aObj *o = (Slot04aObj *)obj;
 
-    if (func_801b41c4_slot04_07(obj) >= 0 || obj->field_70 > obj->pos_y) {
+    if (func_801b41c4_slot04_07(obj) >= 0 || obj->ground_y > obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = 1;
@@ -25,7 +25,7 @@ void func_801b4d74_slot04_07(Object *obj) {
 
     obj->state_3 = 3;
     obj->field_159 = 1;
-    if (obj->field_218 != 0 && obj->field_70 - obj->pos_y >= 0x30 &&
+    if (obj->field_218 != 0 && obj->ground_y - obj->pos_y >= 0x30 &&
         (u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x20) != 0) {
         obj->state_1 = 2;
         obj->state_0 = 1;

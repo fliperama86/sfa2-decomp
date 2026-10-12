@@ -47,32 +47,32 @@ void func_801e0118_slot2a(void) {
     base = data_801e2318_slot2a;
     p = base;
     if (p) {
-        p->field_00 = 1;
-        data_801e2318_slot2a[0].field_02 = 0x7f;
+        p->active_flag = 1;
+        data_801e2318_slot2a[0].handler_index = 0x7f;
         data_801e2318_slot2a[0].field_03 = 0;
         data_801e2318_slot2a[0].field_45 = a1;
         data_801e25c8_slot2a[0] = p;
     }
     p = base + 1;
     if (p) {
-        p->field_00 = 1;
-        data_801e2318_slot2a[1].field_02 = 0x7f;
+        p->active_flag = 1;
+        data_801e2318_slot2a[1].handler_index = 0x7f;
         data_801e2318_slot2a[1].field_03 = 1;
         data_801e2318_slot2a[1].field_45 = a1;
         data_801e25c8_slot2a[1] = p;
     }
     p = base + 2;
     if (p) {
-        p->field_00 = 1;
-        data_801e2318_slot2a[2].field_02 = 3;
+        p->active_flag = 1;
+        data_801e2318_slot2a[2].handler_index = 3;
         data_801e2318_slot2a[2].field_03 = 0;
         data_801e2318_slot2a[2].field_45 = a1;
         data_801e25c8_slot2a[2] = p;
     }
     p = base + 3;
     if (p) {
-        p->field_00 = 1;
-        data_801e2318_slot2a[3].field_02 = 3;
+        p->active_flag = 1;
+        data_801e2318_slot2a[3].handler_index = 3;
         data_801e2318_slot2a[3].field_03 = 1;
         data_801e2318_slot2a[3].field_45 = a1;
         data_801e25c8_slot2a[3] = p;

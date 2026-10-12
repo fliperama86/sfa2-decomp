@@ -30,8 +30,8 @@ void func_80012f64_slot12(Object *obj) {
     int w;
     int m;
 
-    q = game_state.field_154;
-    obj->field_5c = 0;
+    q = game_state.object;
+    obj->health = 0;
     data_8002b620_slot12 = data_8002b6b0_slot12;
     data_8002b628_slot12 = data_800230a0_slot12;
     s = (s16)q->field_b2;
@@ -70,7 +70,7 @@ void func_80012f64_slot12(Object *obj) {
             m = 1 << col;
             if (s & m) {
                 func_80013224_slot12(obj, w, x, y);
-                obj->field_5c++;
+                obj->health++;
             }
             x += 0xc;
         }

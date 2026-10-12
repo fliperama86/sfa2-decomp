@@ -67,8 +67,8 @@ void func_80010104_slot01(void) {
             data_8002ceb0_slot01->field_03 = 0;
             data_8002ceb0_slot01->field_48 = s2->field_65;
             data_8002ceb0_slot01->field_3c = s2;
-            data_8002ceb0_slot01->field_7a = 0x70;
-            data_8002ceb0_slot01->field_7c = 0x1e0;
+            data_8002ceb0_slot01->spawn_x = 0x70;
+            data_8002ceb0_slot01->spawn_y = 0x1e0;
             data_80055f44_slot01.p = data_8002ceb0_slot01;
         }
         data_8018f5a0->field_4e++;

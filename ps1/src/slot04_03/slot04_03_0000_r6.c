@@ -7,12 +7,12 @@ void func_801b079c_slot04_03(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac += obj->vel_y;
     obj->vel_y += obj->accel_y;
-    if (obj->field_70 > obj->pos_y) {
+    if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->field_45 = 0;
         obj->state_3 = obj->state_3 + 1;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         update_sequence(obj);
         func_80130ec0(obj);

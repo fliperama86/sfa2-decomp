@@ -50,11 +50,11 @@ void func_80010100_slot27(void) {
         data_801a27e4_rows[7][0x160 + i] = ((u16 *)0x800ed400)[i];
     }
     func_80137220(2, 2);
-    data_801aa544[0].field_12 = 0x248;
+    data_801aa544[0].scroll_x = 0x248;
     ((u16 *)&data_801aa544[0].field_14)[1] = 0x100;
-    data_801aa544[1].field_12 = 0x148;
+    data_801aa544[1].scroll_x = 0x148;
     ((u16 *)&data_801aa544[1].field_14)[1] = 0;
-    data_801aa544[2].field_12 = 0x48;
+    data_801aa544[2].scroll_x = 0x48;
     ((u16 *)&data_801aa544[2].field_14)[1] = 0x700;
     game_state.field_ce = 0x248;
     game_state.field_d0 = 0x100;

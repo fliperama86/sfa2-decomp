@@ -22,7 +22,7 @@ void func_80135858(void) {
             data_80188d6c[0].field_36 = data_80188ebc;
         } else if (game_state.field_49 < 0x15) {
             u16 v;
-            if ((game_state.field_1d & 3) == 0) {
+            if ((game_state.frame_counter & 3) == 0) {
                 v = data_80188ec0;
             } else {
                 v = data_80188ebc;

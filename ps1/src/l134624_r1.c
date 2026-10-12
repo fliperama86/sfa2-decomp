@@ -33,5 +33,5 @@ void func_80134624(Object *object) {
         }
         func_8015bf34(data_801987c8 + 0x1c, &base[(index << 4) + 0x1a4]);
     }
-    func_801347b4(7, object->sequence->field_04, object->pos_x, object->pos_y, 7, 0x19);
+    func_801347b4(7, object->sequence->data_ptr, object->pos_x, object->pos_y, 7, 0x19);
 }

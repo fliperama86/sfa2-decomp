@@ -21,7 +21,7 @@ void func_801b2a38_slot04_0a(Object *obj) {
         obj->field_165 = 0;
         if (((s16)obj->step_flags & 0xff00) != 0x100) {
             func_801b3e00_slot04_0a(obj);
-            if (!(obj->pos_y < obj->field_70)) {
+            if (!(obj->pos_y < obj->ground_y)) {
                 k = 0xa0000;
                 b = -0x1000;
                 obj->vel_y = 0x28000;

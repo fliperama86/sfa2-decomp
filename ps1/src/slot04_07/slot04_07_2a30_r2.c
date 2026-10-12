@@ -34,7 +34,7 @@ void func_801b2bd8_slot04_07(Object *obj) {
 
     update_sequence(obj);
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
-    y = obj->field_70;
+    y = obj->ground_y;
     obj->vel_y += obj->accel_y;
     if (obj->pos_y < y) {
         update_sequence(obj);

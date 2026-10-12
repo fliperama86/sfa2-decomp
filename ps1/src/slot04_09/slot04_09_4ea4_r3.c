@@ -16,7 +16,7 @@ void func_801b51e0_slot04_09(Object *o) {
     c[5] = 0;
     c[6] = 0;
     c[7] = 0;
-    p->pos_y = p->field_70;
+    p->pos_y = p->ground_y;
     p->field_0c = obj->field_334;
     p->field_0d = obj->field_335;
     o->vel_x = 0x40000;
@@ -34,12 +34,12 @@ void func_801b51e0_slot04_09(Object *o) {
 
 void func_801b5288_slot04_09(Object *o, Object *unused) {
     func_801b2858_slot04_09(o);
-    if (o->pos_y < o->field_70) {
+    if (o->pos_y < o->ground_y) {
         update_sequence(o);
     } else {
         o->state_3++;
         o->pos_y_frac = 0;
-        o->pos_y = o->field_70;
+        o->pos_y = o->ground_y;
         func_801307e0(o, 0x1b);
     }
 }

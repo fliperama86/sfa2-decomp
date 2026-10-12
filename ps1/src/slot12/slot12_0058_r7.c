@@ -21,8 +21,8 @@ void func_8001065c_slot12(void) {
         o->field_00 = 1;
         o->field_02 = 0x7b;
         o->field_03 = 0;
-        o->field_7a = 0;
-        o->field_7c = 0x1e1;
+        o->spawn_x = 0;
+        o->spawn_y = 0x1e1;
     }
     data_8018f5a0->field_4e++;
 }

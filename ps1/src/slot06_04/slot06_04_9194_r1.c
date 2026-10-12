@@ -32,9 +32,9 @@ void func_801e91c0_slot06_04(void) {
         do {
             r = &data_801f4ae0_slot06_04[i][j];
             func_8015c09c(r);
-            r->field_04 = c;
-            r->field_05 = c;
-            r->field_06 = c;
+            r->r0 = c;
+            r->g0 = c;
+            r->b0 = c;
             j++;
         } while (j < 0x58);
         i++;
@@ -53,7 +53,7 @@ void func_801e92a8_slot06_04(Slot06Layer *layer) {
     init_cam_position((Cam *)layer, 0xc0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
-        layer->field_88 = 0;
+        layer->table_index = 0;
         layer->field_04++;
         func_801e93c8_slot06_04(layer);
     }

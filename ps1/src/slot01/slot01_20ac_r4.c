@@ -21,7 +21,7 @@ void func_800124f4_slot01(Object *o) {
         p->vel_y = 0;
         p->field_0b = 0;
         p->field_3c = o;
-        obj->field_30 = p;
+        obj->child = p;
     }
     func_8001257c_slot01();
 }

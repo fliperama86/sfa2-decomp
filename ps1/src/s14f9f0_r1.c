@@ -7,14 +7,14 @@
 void func_8014f9f0(Ctl *ctl) {
     Stream *stream = (Stream *)ctl;
     u32 *p = (u32 *)0x801e0000;
-    stream->field_30 = 0;
-    stream->field_24 = 1;
+    stream->bytes_remaining = 0;
+    stream->step_count = 1;
     func_80150100(stream);
     stream->field_3c = p;
-    stream->field_1e = *(u8 *)p;
+    stream->record_limit = *(u8 *)p;
     stream->field_40 = stream->field_3c;
-    stream->field_16++;
+    stream->write_index++;
     if (*p != stream->field_34) {
-        stream->field_14 = 1;
+        stream->error_code = 1;
     }
 }

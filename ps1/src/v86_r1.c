@@ -26,16 +26,16 @@ int func_801425d8(Object *object, s16 mask)
   {
     game_state.field_308 = (Row *) metrics_left;
   }
-  t = game_state.field_358->field_12a >> 2;
-  idx = (-(game_state.field_358->field_129 != 0)) & 0x30;
-  i = (-(game_state.field_358->field_128 != 0)) & 0x18;
+  t = game_state.other_object->field_12a >> 2;
+  idx = (-(game_state.other_object->field_129 != 0)) & 0x30;
+  i = (-(game_state.other_object->field_128 != 0)) & 0x18;
   idx = idx + i;
   d0 = game_state.field_308->values[t + idx];
-  if (!game_state.field_358->field_0b)
+  if (!game_state.other_object->field_0b)
   {
     d0 = -d0;
   }
-  pos = (s16) (d0 + game_state.field_358->pos_x);
+  pos = (s16) (d0 + game_state.other_object->pos_x);
   i = 0;
   while (i < 12)
   {

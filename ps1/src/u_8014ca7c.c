@@ -20,7 +20,7 @@ void func_8014ca7c(Object *object)
   {
     func_8014d9ac(object);
     data_80189460 = (u16 *) object->field_228;
-    object->field_238 = (s32) data_80189460;
+    object->script_ptr = (s32) data_80189460;
     t = *(data_80189460++);
     v = t;
     t = ((s16) v) >> 8;

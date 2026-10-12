@@ -13,9 +13,9 @@ void func_8007893c_slot2b(Object *o);
 
 void func_80078ddc_slot2b(Object *o) {
     func_800795b4_slot2b(o);
-    if (data_8007ef34_slot2b->field_70 < o->pos_y) {
+    if (data_8007ef34_slot2b->ground_y < o->pos_y) {
         o->state_0 = o->state_0 + 1;
-        o->pos_y = data_8007ef34_slot2b->field_70;
+        o->pos_y = data_8007ef34_slot2b->ground_y;
         o->pos_y_frac = 0;
         func_800795f8_slot2b(o);
         func_800796e4_slot2b(o);

@@ -6,7 +6,7 @@
 
 
 void func_8012d394(Object *object) {
-    if ((s16)object->field_5c < 0) {
+    if ((s16)object->health < 0) {
         func_8012f4dc(object);
     } else {
         object->state_0 = 1;

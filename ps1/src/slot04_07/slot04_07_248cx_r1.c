@@ -8,7 +8,7 @@ void func_801b2994_slot04_07(Object *obj);
 void func_801b248c_slot04_07(Object *obj) {
     int t;
 
-    t = (s16)obj->field_70;
+    t = (s16)obj->ground_y;
     if (t <= obj->pos_y) {
         obj->state_3 = 5;
         obj->pos_y = t;

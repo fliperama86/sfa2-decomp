@@ -15,5 +15,5 @@ void func_801b3f00_slot04_04(Object *obj) {
     obj->state_1 = 0;
     obj->state_2 = 0;
     obj->state_3 = 0;
-    obj->field_5c = 0xff;
+    obj->health = 0xff;
 }

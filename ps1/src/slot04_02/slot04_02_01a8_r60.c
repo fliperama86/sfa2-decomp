@@ -21,7 +21,7 @@ void func_801b6c40_slot04_02(Object *obj) {
 
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
-    t = obj->field_70;
+    t = obj->ground_y;
     if (t <= obj->pos_y) {
         obj->pos_y = t;
         func_801312b8(obj);

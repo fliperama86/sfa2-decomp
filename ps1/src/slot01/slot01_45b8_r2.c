@@ -19,14 +19,14 @@ void func_800147d4_slot01(Object *obj) {
     obj->state_1++;
     obj->field_0d = data_80033b98_slot01->field_0d;
     obj->field_0e = 0;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_0f = 0;
     obj->field_46 = 0x40;
     obj->field_26 = 0;
-    obj->field_5c = 0xff;
+    obj->health = 0xff;
     p = data_80033b98_slot01;
-    obj->field_7a = p->field_7a;
-    obj->field_7c = p->field_7c;
+    obj->spawn_x = p->spawn_x;
+    obj->spawn_y = p->spawn_y;
     if (p->side != 0) {
         obj->field_0b = 0;
     } else {

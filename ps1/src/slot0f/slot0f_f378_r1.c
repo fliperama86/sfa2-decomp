@@ -28,7 +28,7 @@ void func_800df378_slot0f(void) {
     game_state.field_17 = 0;
     game_state.field_07 = 0;
     game_state.field_19 = 0;
-    game_state.field_ee = 0;
+    game_state.fade_busy = 0;
     game_state.field_f0 = 0;
     game_state.field_f1 = 0;
     game_state.field_09 = 0;

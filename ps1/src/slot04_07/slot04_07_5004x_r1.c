@@ -16,28 +16,28 @@ void func_801b5004_slot04_07(Object *obj) {
         obj->field_45 = obj->field_45 | 1;
     }
     c = 0xd80000;
-    if (*(s32 *)&obj->field_70 >= c) {
-        *(s32 *)&obj->field_70 = c;
+    if (*(s32 *)&obj->ground_y >= c) {
+        *(s32 *)&obj->ground_y = c;
         obj->field_45 = obj->field_45 | 2;
     }
     if (obj->field_45 == 3) {
         obj->state_0 = obj->state_0 + 1;
     }
-    c = game_state.field_1d + game_state.field_24;
+    c = game_state.frame_counter + game_state.field_24;
     t = c;
     if ((t & 1) != 0) {
         if ((obj->field_45 & 1) == 0) {
-            obj->field_80 = 1;
+            obj->sequence_changed_flag = 1;
             *(s32 *)&obj->sequence = *(s32 *)&obj->field_20;
-            *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->field_5c;
+            *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->health;
             *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->field_60;
             func_8011ffdc(obj);
         }
     } else if ((obj->field_45 & 2) == 0) {
-        obj->field_80 = 1;
+        obj->sequence_changed_flag = 1;
         *(s32 *)&obj->sequence = *(s32 *)&obj->field_68;
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->box_tables;
-        *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->field_70;
+        *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->ground_y;
         func_8011ffdc(obj);
     }
 }

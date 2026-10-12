@@ -25,8 +25,8 @@ void func_80146478(Object *object, u8 a, int dx, int dy) {
         o->field_03 = a;
         o->field_01 = 0;
         o->field_76 = 0x240;
-        o->field_7a = 0x60;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0x60;
+        o->spawn_y = 0x1e0;
         o->field_90 = (void *)0x800fb100;
         o->field_78 = 0;
         o->pos_x = o->pos_x + x;
@@ -57,8 +57,8 @@ void func_801465b0(Object *object, int a, int dx, int dy) {
         o->field_03 = a;
         o->field_01 = 0;
         o->field_76 = 0x240;
-        o->field_7a = 0x60;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0x60;
+        o->spawn_y = 0x1e0;
         o->field_98 = &data_80172a48;
         o->field_9c = &data_80173c9c;
         o->field_90 = (void *)0x800fb100;

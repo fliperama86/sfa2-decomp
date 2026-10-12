@@ -7,7 +7,7 @@ extern s32 data_8007a0ac_slot00[];
 void func_80078458_slot00(Object *obj, int mode);
 
 void func_800781d8_slot00(Object *obj) {
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     if (obj->field_66 == 0) {
         obj->sequence = seqs_a4_left[4];
     } else {
@@ -15,7 +15,7 @@ void func_800781d8_slot00(Object *obj) {
     }
     obj->step_timer = obj->sequence->duration;
     obj->step_flags = obj->sequence->flags;
-    obj->field_80 = 1;
+    obj->sequence_changed_flag = 1;
 }
 
 void func_80078238_slot00(Object *obj) {

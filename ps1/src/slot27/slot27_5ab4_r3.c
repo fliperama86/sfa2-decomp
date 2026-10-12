@@ -6,7 +6,7 @@
 extern void (*data_80028b88_slot27)(Object *);
 
 void func_80015de0_slot27(Object *obj) {
-    obj->field_09 = 1;
+    obj->ot_depth = 1;
     obj->field_0c = 1;
     obj->field_0d = 0x16;
     obj->pos_x = 0x320;

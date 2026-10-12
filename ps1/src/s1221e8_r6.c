@@ -14,8 +14,8 @@ void func_8012318c(GameState *state) {
                 return;
             }
         }
-        ((HudBig *)data_8018f5a0)->field_50 = 5;
+        ((HudBig *)data_8018f5a0)->state_index = 5;
     } else {
-        ((HudBig *)data_8018f5a0)->field_50++;
+        ((HudBig *)data_8018f5a0)->state_index++;
     }
 }

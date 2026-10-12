@@ -68,7 +68,7 @@ void func_801e8170_slot06_09(Slot06Layer *layer) {
     func_801361fc((Sprite *)layer, 0xc0, 0);
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
-        layer->field_88 = 0;
+        layer->table_index = 0;
         layer->field_04++;
         func_801e831c_slot06_09(layer);
     }
@@ -104,7 +104,7 @@ int func_801e828c_slot06_09(Slot06Layer *layer) {
         *(s32 *)&layer->field_34 += 0x3000;
         layer->field_30 -= 1;
         if (layer->field_30 == 0) {
-            layer->field_88 = (layer->field_88 + 2) & 0x1e;
+            layer->table_index = (layer->table_index + 2) & 0x1e;
             func_801e831c_slot06_09(layer);
         }
         if ((s16)layer->field_36 >= 0x3a0) {
@@ -119,8 +119,8 @@ void func_801e831c_slot06_09(Slot06Layer *layer) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u16 unused[4];
 
-    layer->field_3a = data_801e9e78_slot06_09[layer->field_88];
-    layer->field_30 = data_801e9e7a_slot06_09[layer->field_88];
+    layer->field_3a = data_801e9e78_slot06_09[layer->table_index];
+    layer->field_30 = data_801e9e7a_slot06_09[layer->table_index];
 }
 
 void func_801e836c_slot06_09(Slot06Layer *layer) {

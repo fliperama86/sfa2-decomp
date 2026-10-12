@@ -5,14 +5,14 @@
 
 
 void func_80153ed8(Actor *a) {
-    Object *o = a->field_1c;
-    a->field_10 = a->field_14 = table_80181380[a->field_09];
-    a->field_10 = o->field_170;
+    Object *o = a->target;
+    a->score_value = a->field_14 = table_80181380[a->number_value];
+    a->score_value = o->field_170;
 }
 
 void func_80153f0c(Actor *a) {
-    table_80180384[a->field_01]->buf[6] = table_80180348[a->field_18->field_bc >> 1];
-    func_801519b4(table_80180384[a->field_01]);
+    table_80180384[a->side]->buf[6] = table_80180348[a->owner->field_bc >> 1];
+    func_801519b4(table_80180384[a->side]);
 }
 
 void func_80153f88(void) {

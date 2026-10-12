@@ -12,10 +12,10 @@ void func_80125b80(GameState *a) {
 
     if (a->field_47 == 0 && x != 0) {
         if ((x & 0x80) == 0) {
-            a->field_66 = 0xff;
+            a->palette_swap_flag = 0xff;
         }
-        if ((s16)a->field_66 == 0) {
-            a->field_66 = 0xff;
+        if ((s16)a->palette_swap_flag == 0) {
+            a->palette_swap_flag = 0xff;
             func_80125dc0(0, 4, 0, 0x15);
             func_80125dc0(0, 1, 0, 0x1a);
             func_80125dc0(0, 7, 8, 0);
@@ -39,8 +39,8 @@ void func_80125b80(GameState *a) {
             }
             func_80137b10();
         }
-    } else if ((s16)a->field_66 != 0) {
-        a->field_66 = 0;
+    } else if ((s16)a->palette_swap_flag != 0) {
+        a->palette_swap_flag = 0;
         func_801260ac(0, 0x20, 0);
         func_801260ac(1, 0x20, 0);
         func_801260ac(2, 0x20, 0);

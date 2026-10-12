@@ -42,15 +42,15 @@ void func_800124fc_slot12(Object *obj, FrameRecord *frames) {
         return;
     }
     tile = data_80018d80_slot12[t];
-    h = tile->field_02;
-    w = tile->field_00;
+    h = tile->height;
+    w = tile->width;
     if (w * h == 0) {
         return;
     }
     idx = 0;
     cx = obj->pos_x - box_margin[0];
-    xmin = cx - tile->field_04;
-    xmax = cx + tile->field_04;
+    xmin = cx - tile->half_width;
+    xmax = cx + tile->half_width;
     xb = xmax - 0x10;
     xa = xmin + 0x10;
     fp = data_80029350_slot12 + data_801a27d0 * 0x34 + obj->field_02 * 26;

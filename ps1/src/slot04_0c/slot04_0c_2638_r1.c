@@ -217,7 +217,7 @@ void func_801b2cac_slot04_0c(Object *obj) {
 void func_801b2d58_slot04_0c(Object *obj) {
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
     obj->vel_y += obj->accel_y;
-    if (obj->pos_y < obj->field_70) {
+    if (obj->pos_y < obj->ground_y) {
         if ((u8)obj->step_flags != 0) {
             return;
         }
@@ -225,7 +225,7 @@ void func_801b2d58_slot04_0c(Object *obj) {
         obj->field_45 = 0;
         obj->field_159 = 0;
         obj->state_3++;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
     }
     update_sequence(obj);

@@ -9,7 +9,7 @@
 /* Form found by automatic permutation search. */
 int func_801441c8(Object *unused)
 {
-  Object *p = ((ConfigHead *) game_state.config)->field_78;
+  Object *p = ((ConfigHead *) game_state.config)->object;
   int result = 0;
   long new_var;
   if (p != 0)
@@ -18,7 +18,7 @@ int func_801441c8(Object *unused)
     new_var = ref_first.p->field_cd;
     if (0 == new_var)
     {
-      result = (s16) (new_var = ref_first.p->field_5c);
+      result = (s16) (new_var = ref_first.p->health);
       result = result == 0x90;
     }
   }

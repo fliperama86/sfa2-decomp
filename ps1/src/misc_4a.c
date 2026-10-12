@@ -50,7 +50,7 @@ void func_8014a038(Object *object) {
 int func_8014a058(Object *object) {
     if ((object->field_217 & 1) == 0) return 0;
     if (object->kind != 4 && object->kind != 7) return 0;
-    if (!(object->pos_y < (s16)(object->field_70 - 0x20))) return 0;
+    if (!(object->pos_y < (s16)(object->ground_y - 0x20))) return 0;
     if (object->field_48 == 0) return 0;
     if (object->field_164 == 0) return 0;
     if (object->vel_x == 0) return 0;

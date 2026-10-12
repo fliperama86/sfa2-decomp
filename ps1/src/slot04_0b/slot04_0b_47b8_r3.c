@@ -23,17 +23,17 @@ void func_801b4b24_slot04_0b(Object *obj) {
         obj->pos_x_frac = 0;
         obj->pos_y_frac = 0;
         if (obj->field_0b != 0) {
-            obj->field_5c = 0x340;
+            obj->health = 0x340;
             obj->field_5e = 0x2c0;
             obj->vel_x = *(s32 *)&obj->pos_x_frac + 0x40000;
             obj->vel_y = *(s32 *)&obj->pos_x_frac + 0x110000;
         } else {
-            *(s16 *)&obj->field_5c = -0x340;
+            *(s16 *)&obj->health = -0x340;
             *(s16 *)&obj->field_5e = -0x2c0;
             obj->vel_x = *(s32 *)&obj->pos_x_frac - 0x40000;
             obj->vel_y = *(s32 *)&obj->pos_x_frac - 0x110000;
         }
-        obj->field_70 = 0x500;
+        obj->ground_y = 0x500;
         obj->field_76 = 0x400;
         *(s16 *)&obj->field_26 = -0xa0;
         *(s16 *)&obj->field_46 = -0xa0;

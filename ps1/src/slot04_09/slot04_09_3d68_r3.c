@@ -18,14 +18,14 @@ void func_801b3eec_slot04_09(Object *obj) {
             obj->field_27b = 10;
         }
         func_801b5478_slot04_09(obj);
-        play_side_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 4);
+        play_side_sound_at(obj, ((Slot04aObj *)obj)->side, 4);
     } else if ((u8)t != 2) {
         obj->step_flags = (t & 0xff00) | 2;
         obj->field_165 = 0xff;
         if (obj->field_4b != 0) {
             obj->field_165 = 1;
         }
-        play_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 0x31c);
+        play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x31c);
         func_801483a4(obj, 0, 0x54);
     }
 }

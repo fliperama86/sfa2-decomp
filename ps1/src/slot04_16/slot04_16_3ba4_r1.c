@@ -32,7 +32,7 @@ void func_801b3ba4_slot04_16(Object *obj) {
     } else {
         obj->field_45 = 0;
         obj->state_3++;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
         func_801307e0(obj, 0x1f);
@@ -45,8 +45,8 @@ void func_801b3c20_slot04_16(Object *obj) {
         update_sequence(obj);
     } else {
         obj->field_17b = 0;
-        game_state.field_358 = obj->other;
-        game_state.field_358->field_249 = 5;
+        game_state.other_object = obj->other;
+        game_state.other_object->field_249 = 5;
         func_801b10b0_slot04_16(obj);
     }
 }
@@ -57,8 +57,8 @@ void func_801b3c94_slot04_16(Object *obj) {
 
 void func_801b3cd4_slot04_16(Object *obj) {
     obj->field_17b = 1;
-    game_state.field_358 = obj->other;
-    game_state.field_358->field_249 = 0;
+    game_state.other_object = obj->other;
+    game_state.other_object->field_249 = 0;
     obj->state_3++;
     func_801307e0(obj, (obj->field_12a >> 1) + 0x39);
     func_80141f28(obj, 5);
@@ -157,7 +157,7 @@ void func_801b40ec_slot04_16(Object *obj) {
     }
     obj->state_3 = obj->state_3 + 1;
     obj->field_45 = 0;
-    obj->pos_y = (u16)obj->field_70;
+    obj->pos_y = (u16)obj->ground_y;
     *(u32 *)&obj->pos_y_frac &= 0xffff0000;
     game_state.config->field_63 = (obj->field_12a << 2) + 0x3c;
     func_80146960(obj);
@@ -192,7 +192,7 @@ void func_801b4208_slot04_16(Object *obj) {
             ref_other.p->field_15b = 1;
             func_80140770(obj, data_801ca270_slot04_16[obj->field_12a & 0xfe], 0xf, -0x200, 0, 0, 0);
             ref_other.p = obj->other;
-            if ((s16)ref_other.p->field_5c < 0) {
+            if ((s16)ref_other.p->health < 0) {
                 obj->field_167 = 2;
                 if (obj->field_49 != 0) {
                     obj->field_167 = 0x20;
@@ -216,7 +216,7 @@ void func_801b4380_slot04_16(Object *obj) {
     } else {
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
         func_801307e0(obj, 0x25);
@@ -316,7 +316,7 @@ void func_801b4760_slot04_16(Object *obj) {
     }
     obj->state_3 = obj->state_3 + 1;
     obj->field_45 = 0;
-    obj->pos_y = (u16)obj->field_70;
+    obj->pos_y = (u16)obj->ground_y;
     *(u32 *)&obj->pos_y_frac &= 0xffff0000;
     game_state.config->field_63 = (obj->field_12a << 2) + 0x3c;
     func_80146960(obj);

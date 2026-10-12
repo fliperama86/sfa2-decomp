@@ -9,7 +9,7 @@ void func_801541e0(Object *o) {
     int i;
     unsigned n;
     TextObj *t;
-    n = o->field_d7;
+    n = o->win_streak;
     if (n != 0) {
         t = table_80180f5c[o->side];
         if (n / 10 * 10 == n - 1) {

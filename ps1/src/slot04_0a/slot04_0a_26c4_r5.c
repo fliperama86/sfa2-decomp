@@ -9,7 +9,7 @@ void func_801b2b60_slot04_0a(Object *obj) {
     s16 y;
     int a;
     func_801b3e00_slot04_0a(obj);
-    y = obj->field_70;
+    y = obj->ground_y;
     if (obj->pos_y < y) {
         update_sequence(obj);
     } else {
@@ -62,7 +62,7 @@ void func_801b2c4c_slot04_0a(Object *obj) {
         fr = obj->frames + obj->sequence->frame_index;
         obj->frame = fr;
         obj->field_4a = fr->field_0d;
-        obj->field_80 = 1;
+        obj->sequence_changed_flag = 1;
     }
     update_sequence(obj);
 }

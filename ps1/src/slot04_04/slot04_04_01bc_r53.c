@@ -7,8 +7,8 @@ int func_801b4be8_slot04_04(Object *obj);
 
 void func_801b47f4_slot04_04(Object *obj) {
     obj->field_157 = 0;
-    if (func_801b4be8_slot04_04(obj) < 0 && obj->field_70 <= obj->pos_y) {
-        obj->pos_y = obj->field_70;
+    if (func_801b4be8_slot04_04(obj) < 0 && obj->ground_y <= obj->pos_y) {
+        obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->field_0b = obj->field_0b ^ 1;

@@ -108,7 +108,7 @@ void func_801b0cac_slot04_0f(Object *obj) {
     if (!(obj->field_130 & 0x1000)) {
         if (obj->field_130 & 0x4000) {
             if (obj->field_12a == 4) {
-                if (obj->pos_y < obj->field_70 - 0x38) {
+                if (obj->pos_y < obj->ground_y - 0x38) {
                     obj->state_0 = 1;
                     obj->state_1 = 0;
                     obj->state_2 = 5;
@@ -134,7 +134,7 @@ void func_801b0d90_slot04_0f(Object *obj) {
     }
     if (!(obj->field_130 & 0x1000)) {
         if (obj->field_130 & 0x4000) {
-            if (obj->field_70 - 0x38 >= obj->pos_y) {
+            if (obj->ground_y - 0x38 >= obj->pos_y) {
                 obj->state_0 = 1;
                 obj->state_1 = 0;
                 obj->state_2 = 5;

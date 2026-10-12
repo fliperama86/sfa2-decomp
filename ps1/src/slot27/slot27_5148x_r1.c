@@ -12,7 +12,7 @@ void func_80015148_slot27(Object *obj) {
     if (obj->field_45 != *p) {
         obj->field_45 = *p;
         *p = *p * 2;
-        obj->field_09 = *p + 3;
+        obj->ot_depth = *p + 3;
         *p = *p * 2;
         idx = obj->field_03 + *p;
         *p = idx;

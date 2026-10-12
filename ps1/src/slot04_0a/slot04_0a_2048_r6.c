@@ -22,7 +22,7 @@ void func_801b252c_slot04_0a(Object *obj) {
     }
     if ((s16)obj->step_flags & 0x8000) {
         obj->pos_y_frac = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801312b8(obj);
     }
 }

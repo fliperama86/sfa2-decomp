@@ -16,7 +16,7 @@ void func_8014c914(Object *object)
   v = w >> 8;
   object->field_20e = v;
   object->field_20f = w;
-  object->field_238 = (s32) data_80189460;
+  object->script_ptr = (s32) data_80189460;
   w = object->field_20e;
   if (w != 0xff)
   {

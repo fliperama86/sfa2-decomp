@@ -33,8 +33,8 @@ void func_801b0090_slot04_sel(Object *unused_obj, Slot04SelRec *unused_rec) {
 }
 
 void func_801b0184_slot04_sel(Object *obj, Slot04SelRec *rec) {
-    rec->field_00 = 0;
-    rec->field_03 = obj->kind;
+    rec->state = 0;
+    rec->kind = obj->kind;
     rec->field_04 = 0;
     rec->field_08 = data_8016e694[obj->side];
     rec->field_09 = 0;

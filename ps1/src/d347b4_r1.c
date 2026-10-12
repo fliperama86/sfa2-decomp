@@ -49,7 +49,7 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
             if (tile != 0) {
                 cu = tile % 16;
                 cv = tile / 16 % 16;
-                data_80186004[idx].polys[data_80188d04].field_16 = tile / 256 + 13;
+                data_80186004[idx].polys[data_80188d04].tpage = tile / 256 + 13;
                 data_80188d28 = 0;
                 /* The byte tests on kind in this function stay in these forms: kind == 2 || kind == 3 here
                    differs in 21 instruction lines, (u8)kind != 5 for the flag test below in 118, and
@@ -58,40 +58,40 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
                     func_80134e94(kind, col);
                 }
                 if ((u8)kind < 4) {
-                    data_80186004[idx].polys[data_80188d04].field_0e = (page + map->field_03 + data_80188d28) * 64 + 0x7807;
+                    data_80186004[idx].polys[data_80188d04].clut = (page + map->field_03 + data_80188d28) * 64 + 0x7807;
                 } else if ((u8)kind == 6) {
-                    data_80186004[idx].polys[data_80188d04].field_0e = 0x7f07;
+                    data_80186004[idx].polys[data_80188d04].clut = 0x7f07;
                 } else {
-                    data_80186004[idx].polys[data_80188d04].field_0e = (page + map->field_03) * 64 + 0x7806;
+                    data_80186004[idx].polys[data_80188d04].clut = (page + map->field_03) * 64 + 0x7806;
                 }
                 if ((flag == 0 && (kind & 0xff) != 5) || tile == 0x3b || tile == 0x3e) {
-                    /* The record is addressed as (&...)->field in these stores; the plain data_80186004[idx].polys[data_80188d04].field_08 form differs in 212 instruction lines for all 32 of them, and in 50 to 202 for any one group of eight. */
-                    (&data_80186004[idx].polys[data_80188d04])->field_08 = (x0 + col * 16) - map->field_04;
-                    (&data_80186004[idx].polys[data_80188d04])->field_0a = (y_base + row * 16) - map->field_06;
-                    (&data_80186004[idx].polys[data_80188d04])->field_10 = (x0 + col * 16) - map->field_04 + 0x10;
-                    (&data_80186004[idx].polys[data_80188d04])->field_12 = (y_base + row * 16) - map->field_06;
-                    (&data_80186004[idx].polys[data_80188d04])->field_18 = (x0 + col * 16) - map->field_04;
-                    (&data_80186004[idx].polys[data_80188d04])->field_1a = (y_base + row * 16) - map->field_06 + 0x10;
-                    (&data_80186004[idx].polys[data_80188d04])->field_20 = (x0 + col * 16) - map->field_04 + 0x10;
-                    (&data_80186004[idx].polys[data_80188d04])->field_22 = (y_base + row * 16) - map->field_06 + 0x10;
+                    /* The record is addressed as (&...)->field in these stores; the plain data_80186004[idx].polys[data_80188d04].x0 form differs in 212 instruction lines for all 32 of them, and in 50 to 202 for any one group of eight. */
+                    (&data_80186004[idx].polys[data_80188d04])->x0 = (x0 + col * 16) - map->field_04;
+                    (&data_80186004[idx].polys[data_80188d04])->y0 = (y_base + row * 16) - map->field_06;
+                    (&data_80186004[idx].polys[data_80188d04])->x1 = (x0 + col * 16) - map->field_04 + 0x10;
+                    (&data_80186004[idx].polys[data_80188d04])->y1 = (y_base + row * 16) - map->field_06;
+                    (&data_80186004[idx].polys[data_80188d04])->x2 = (x0 + col * 16) - map->field_04;
+                    (&data_80186004[idx].polys[data_80188d04])->y2 = (y_base + row * 16) - map->field_06 + 0x10;
+                    (&data_80186004[idx].polys[data_80188d04])->x3 = (x0 + col * 16) - map->field_04 + 0x10;
+                    (&data_80186004[idx].polys[data_80188d04])->y3 = (y_base + row * 16) - map->field_06 + 0x10;
                 } else if ((u8)kind != 5) {
-                    (&data_80186004[idx].polys[data_80188d04])->field_08 = (x0 + col * 16) - (s16)(map->field_04 - 0x10);
-                    (&data_80186004[idx].polys[data_80188d04])->field_0a = (y_base + row * 16) - map->field_06;
-                    (&data_80186004[idx].polys[data_80188d04])->field_10 = (x0 + col * 16) - map->field_04;
-                    (&data_80186004[idx].polys[data_80188d04])->field_12 = (y_base + row * 16) - map->field_06;
-                    (&data_80186004[idx].polys[data_80188d04])->field_18 = (x0 + col * 16) - (s16)(map->field_04 - 0x10);
-                    (&data_80186004[idx].polys[data_80188d04])->field_1a = (y_base + row * 16) - (s16)(map->field_06 - 0x10);
-                    (&data_80186004[idx].polys[data_80188d04])->field_20 = (x0 + col * 16) - map->field_04;
-                    (&data_80186004[idx].polys[data_80188d04])->field_22 = (y_base + row * 16) - (s16)(map->field_06 - 0x10);
+                    (&data_80186004[idx].polys[data_80188d04])->x0 = (x0 + col * 16) - (s16)(map->field_04 - 0x10);
+                    (&data_80186004[idx].polys[data_80188d04])->y0 = (y_base + row * 16) - map->field_06;
+                    (&data_80186004[idx].polys[data_80188d04])->x1 = (x0 + col * 16) - map->field_04;
+                    (&data_80186004[idx].polys[data_80188d04])->y1 = (y_base + row * 16) - map->field_06;
+                    (&data_80186004[idx].polys[data_80188d04])->x2 = (x0 + col * 16) - (s16)(map->field_04 - 0x10);
+                    (&data_80186004[idx].polys[data_80188d04])->y2 = (y_base + row * 16) - (s16)(map->field_06 - 0x10);
+                    (&data_80186004[idx].polys[data_80188d04])->x3 = (x0 + col * 16) - map->field_04;
+                    (&data_80186004[idx].polys[data_80188d04])->y3 = (y_base + row * 16) - (s16)(map->field_06 - 0x10);
                 } else {
-                    (&data_80186004[idx].polys[data_80188d04])->field_08 = map->field_04 + (x0 - col * 16) + 0xf;
-                    (&data_80186004[idx].polys[data_80188d04])->field_0a = (y_base + row * 16) - map->field_06;
-                    (&data_80186004[idx].polys[data_80188d04])->field_10 = (x0 - col * 16) + map->field_04 - 1;
-                    (&data_80186004[idx].polys[data_80188d04])->field_12 = (y_base + row * 16) - map->field_06;
-                    (&data_80186004[idx].polys[data_80188d04])->field_18 = map->field_04 + (x0 - col * 16) + 0xf;
-                    (&data_80186004[idx].polys[data_80188d04])->field_1a = (y_base + row * 16) - (s16)(map->field_06 - 0x10);
-                    (&data_80186004[idx].polys[data_80188d04])->field_20 = (x0 - col * 16) + map->field_04 - 1;
-                    (&data_80186004[idx].polys[data_80188d04])->field_22 = (y_base + row * 16) - (s16)(map->field_06 - 0x10);
+                    (&data_80186004[idx].polys[data_80188d04])->x0 = map->field_04 + (x0 - col * 16) + 0xf;
+                    (&data_80186004[idx].polys[data_80188d04])->y0 = (y_base + row * 16) - map->field_06;
+                    (&data_80186004[idx].polys[data_80188d04])->x1 = (x0 - col * 16) + map->field_04 - 1;
+                    (&data_80186004[idx].polys[data_80188d04])->y1 = (y_base + row * 16) - map->field_06;
+                    (&data_80186004[idx].polys[data_80188d04])->x2 = map->field_04 + (x0 - col * 16) + 0xf;
+                    (&data_80186004[idx].polys[data_80188d04])->y2 = (y_base + row * 16) - (s16)(map->field_06 - 0x10);
+                    (&data_80186004[idx].polys[data_80188d04])->x3 = (x0 - col * 16) + map->field_04 - 1;
+                    (&data_80186004[idx].polys[data_80188d04])->y3 = (y_base + row * 16) - (s16)(map->field_06 - 0x10);
                 }
                 if ((u8)kind == 4 || (u8)kind == 5) {
                     dx = 1;
@@ -103,14 +103,14 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
                 }
                 u1 = cu << 4;
                 v1 = cv << 4;
-                (&data_80186004[idx].polys[data_80188d04])->field_0c = u1;
-                (&data_80186004[idx].polys[data_80188d04])->field_0d = v1;
-                (&data_80186004[idx].polys[data_80188d04])->field_14 = u1 + 0x10 - dx;
-                (&data_80186004[idx].polys[data_80188d04])->field_15 = v1;
-                (&data_80186004[idx].polys[data_80188d04])->field_1c = u1;
-                (&data_80186004[idx].polys[data_80188d04])->field_1d = v1 + 0x10 - dy;
-                (&data_80186004[idx].polys[data_80188d04])->field_24 = u1 + 0x10 - dx;
-                (&data_80186004[idx].polys[data_80188d04])->field_25 = v1 + 0x10 - dy;
+                (&data_80186004[idx].polys[data_80188d04])->u0 = u1;
+                (&data_80186004[idx].polys[data_80188d04])->v0 = v1;
+                (&data_80186004[idx].polys[data_80188d04])->u1 = u1 + 0x10 - dx;
+                (&data_80186004[idx].polys[data_80188d04])->v1 = v1;
+                (&data_80186004[idx].polys[data_80188d04])->u2 = u1;
+                (&data_80186004[idx].polys[data_80188d04])->v2 = v1 + 0x10 - dy;
+                (&data_80186004[idx].polys[data_80188d04])->u3 = u1 + 0x10 - dx;
+                (&data_80186004[idx].polys[data_80188d04])->v3 = v1 + 0x10 - dy;
                 func_8015bf34((int)data_801987c8 + list * 4, (Cmd *)&data_80186004[idx].polys[data_80188d04]);
                 data_80188d04++;
             }

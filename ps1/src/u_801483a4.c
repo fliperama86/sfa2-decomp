@@ -26,10 +26,10 @@ void func_801483a4(Object *object, int a_arg, int b_arg)
       new_object->field_0e = object->field_0e;
       side = object->field_1c;
       new_object->field_3c = object;
-      new_object->field_7a = 0x60;
-      new_object->field_7c = 0x1e0;
+      new_object->spawn_x = 0x60;
+      new_object->spawn_y = 0x1e0;
       new_object->field_98 = data_80172a48;
-      new_object->field_5c = a;
+      new_object->health = a;
       new_object->field_5e = b;
       new_object->field_90 = (void *) 0x800fb100;
       new_object->field_9c = data_80173c9c;

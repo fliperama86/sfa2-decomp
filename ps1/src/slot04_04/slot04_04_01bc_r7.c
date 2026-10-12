@@ -9,8 +9,8 @@ void func_801b09ac_slot04_04(Object *obj);
 
 void func_801b0790_slot04_04(Object *obj) {
     obj->field_157 = 0;
-    if (func_801b3a40_slot04_04(obj) < 0 && obj->pos_y >= obj->field_70) {
-        obj->pos_y = obj->field_70;
+    if (func_801b3a40_slot04_04(obj) < 0 && obj->pos_y >= obj->ground_y) {
+        obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         if (obj->field_7e == 0) {
@@ -30,7 +30,7 @@ void func_801b0820_slot04_04(Object *obj) {
     func_80130504(obj);
     if (obj->field_129 != 0) {
         func_801b0904_slot04_04(obj);
-    } else if (obj->field_12a != 0 && (obj->field_130 & 0xe000) != 0 && obj->pos_y < obj->field_70 - 0x30 && (u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) != 0) {
+    } else if (obj->field_12a != 0 && (obj->field_130 & 0xe000) != 0 && obj->pos_y < obj->ground_y - 0x30 && (u8)func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

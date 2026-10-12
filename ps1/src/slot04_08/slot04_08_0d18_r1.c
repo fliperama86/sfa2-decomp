@@ -51,7 +51,7 @@ int func_801b0e10_slot04_08(Object *obj) {
         obj->state_2 = 7;
         obj->state_3 = 0;
         obj->field_0b = obj->field_158;
-        if (((obj->field_134 | obj->field_136) & 0x6a) != 0) {
+        if (((obj->pressed_bits | obj->released_bits) & 0x6a) != 0) {
             obj->field_15a = 9;
             func_80142ba0(obj);
         } else {
