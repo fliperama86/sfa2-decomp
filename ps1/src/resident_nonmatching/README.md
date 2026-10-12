@@ -54,7 +54,6 @@ Functions of this folder without a fixtures file, by reason:
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
-func_8013b0c4 replay: fixtures 10, passed 10, failed 0
 func_801452ec replay: fixtures 5, passed 5, failed 0
 ```
 
@@ -72,8 +71,6 @@ The test (`--cases 2000 FUNC`, seed 1):
 ```
 func_8011c724: built 1120 bytes, original 1172 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8011c724 coverage: 291 of 293 instruction slots of the original executed
-func_8013b0c4: built 884 bytes, original 1172 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_8013b0c4 coverage: 293 of 293 instruction slots of the original executed
 func_801452ec: built 860 bytes, original 1632 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801452ec coverage: 406 of 408 instruction slots of the original executed
 ```
@@ -83,8 +80,6 @@ The control (`--cases 2000 --control FUNC`):
 ```
 func_8011c724 control: different 1355 of 2000 (expected more than 0)
   altered: store of the callee's result into the quad moved by two bytes, instruction slot 185
-func_8013b0c4 control: different 1445 of 2000 (expected more than 0)
-  altered: store to field_17f moved by one byte, instruction slot 49
 func_801452ec control: different 1860 of 2000 (expected more than 0)
   altered: texture byte store moved by one byte, instruction slot 184
 ```
@@ -93,7 +88,6 @@ The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
 func_8011c724 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_8013b0c4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801452ec writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 

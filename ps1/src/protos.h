@@ -112,7 +112,7 @@ void func_8012028c(void);
 void func_80120374(int a);
 void close_vab_and_sep(int a);
 void func_80120408(void);
-void func_80120444(int a, unsigned char b);
+void func_80120444(int a, int b);
 void stop_sep_by_word(int a);
 void play_side_sound_at(Object *o, int b, int c);
 void play_sound_at(Object *o, int b, unsigned c);
