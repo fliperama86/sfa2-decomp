@@ -45,6 +45,6 @@ void func_801b4b68_slot04_0a(Object *obj) {
         f = obj->frames + obj->sequence->frame_index;
         obj->frame = f;
         obj->field_4a = f->field_0d;
-        obj->field_80 = 1;
+        obj->sequence_changed_flag = 1;
     }
 }

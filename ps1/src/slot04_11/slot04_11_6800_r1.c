@@ -83,8 +83,8 @@ void func_801b694c_slot04_11(Object *o) {
                 n->other = o->other;
                 o->field_34 = (u32)n;
                 n->field_76 = 0x240;
-                n->field_7a = 0x60;
-                n->field_7c = 0x1e2;
+                n->spawn_x = 0x60;
+                n->spawn_y = 0x1e2;
                 n->field_98 = data_80172a48;
                 n->field_78 = 0;
                 n->field_90 = (void *)0x800fb100;

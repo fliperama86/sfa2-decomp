@@ -52,8 +52,8 @@ void func_801b0118_slot04_10(Object *obj) {
         obj->field_28 = (u32)ref_other.p;
         ref_other.p->field_66 = obj->field_66;
         ref_other.p->field_0d = obj->field_0d;
-        ref_other.p->field_7a = obj->field_7a;
-        ref_other.p->field_7c = obj->field_7c;
+        ref_other.p->spawn_x = obj->spawn_x;
+        ref_other.p->spawn_y = obj->spawn_y;
         ref_other.p->field_90 = obj->field_90;
         ref_other.p->field_98 = obj->field_98;
         ref_other.p->field_9c = obj->field_9c;

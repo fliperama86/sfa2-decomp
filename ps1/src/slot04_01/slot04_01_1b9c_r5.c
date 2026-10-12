@@ -15,7 +15,7 @@ void func_801b21fc_slot04_01(Object *o) {
         func_801307e0(o, 0x2b);
     } else {
         if (o->field_cd == 0) {
-            t = o->field_134 & 0xfc;
+            t = o->pressed_bits & 0xfc;
         } else {
             t = func_8014a170(o, data_801bf000_slot04_01);
         }

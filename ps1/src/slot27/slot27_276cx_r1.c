@@ -50,7 +50,7 @@ void func_8001276c_slot27(Object *obj) {
         *p2 = 1;
         *p3 = 0;
     }
-    obj->field_5c = *p0;
+    obj->health = *p0;
     obj->field_5e = *p1;
     ref_first.p = (Object *)((ObjectWords *)obj)->word_54;
     ref_second.p = (Object *)((ObjectWords *)obj)->word_58;

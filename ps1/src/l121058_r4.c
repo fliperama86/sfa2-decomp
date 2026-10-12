@@ -19,8 +19,8 @@ void func_80122230(GameState *state) {
     a->field_64 = 0;
     a->field_75 = 0;
     a->field_a6 = 0;
-    a->field_78 = 0;
-    a->field_7c = 0;
+    a->winner = 0;
+    a->loser = 0;
     a->field_138 = 0;
     a->field_139 = 0;
     a->field_13a = 0;

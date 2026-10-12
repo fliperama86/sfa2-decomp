@@ -33,8 +33,8 @@ void func_801b1fd0_slot04_03(Object *obj) {
         func_801b223c_slot04_03(obj);
         *(s32 *)&obj->pos_y_frac += obj->vel_y;
         obj->vel_y += obj->accel_y;
-        if (obj->field_70 < obj->pos_y) {
-            obj->pos_y = obj->field_70;
+        if (obj->ground_y < obj->pos_y) {
+            obj->pos_y = obj->ground_y;
             obj->field_45 = 0;
             func_801209c4(obj);
             obj->state_3 = 6;

@@ -13,7 +13,7 @@ void func_801b43f0_slot04_09(Object *obj) {
     if (obj->step_flags & 0xf) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;
-        play_side_sound_at(obj, ((Slot04aObj *)obj)->field_a6, 4);
+        play_side_sound_at(obj, ((Slot04aObj *)obj)->side, 4);
     }
     update_sequence(obj);
 }

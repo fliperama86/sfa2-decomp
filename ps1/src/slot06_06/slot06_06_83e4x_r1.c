@@ -36,10 +36,10 @@ void func_801e83e4_slot06_06(void) {
     pos |= t << 16;
     rows = c->field_5c >> 4;
     mask = (c->field_58 >> 4) - 1;
-    sx = c->field_12 & 0xf;
+    sx = c->scroll_x & 0xf;
     y = pos >> 16;
     sy = y & 0xf;
-    col = ((s16)c->field_12 & (c->field_58 - 1)) >> 4;
+    col = ((s16)c->scroll_x & (c->field_58 - 1)) >> 4;
     blank = c->field_1e;
     if (y >= 0) {
         row = y >> 4;
@@ -47,13 +47,13 @@ void func_801e83e4_slot06_06(void) {
         row = (y - 15) / 16;
     }
     rec = data_801ee288_slot06_06[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->field_8a * 4);
+    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
     for (i = 0; i < 16; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {
             continue;
         }
-        line = c->field_50 + ((u16)row >> 4) * ((c->field_58 >> 9) << 10) + ((row & 0xf) << 6);
+        line = c->map_data + ((u16)row >> 4) * ((c->field_58 >> 9) << 10) + ((row & 0xf) << 6);
         for (k = 0; k < 25; k++) {
             e = line + ((cc >> 5) << 10) + ((cc & 0x1f) << 1);
             if (*e != blank) {

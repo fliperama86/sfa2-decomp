@@ -38,7 +38,7 @@ void func_8014d9ac(Object *object) {
     object->field_253 = 0;
     if (object->side == 0) table = scr_c4_left;
     else table = scr_174_right;
-    p = table[object->field_20b >> 1];
+    p = table[object->script_table_index >> 1];
     data_80189460 = p + 1;
     first = *p;
     object->field_228 = (s32)data_80189460;

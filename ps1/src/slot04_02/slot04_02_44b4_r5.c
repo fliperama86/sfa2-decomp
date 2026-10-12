@@ -37,7 +37,7 @@ void func_801b4f0c_slot04_02(Object *obj) {
         if (game_state.field_5c == 0) {
             game_state.field_5c = 0xa;
             game_state.field_5d = 2;
-            game_state.field_5e = 2;
+            game_state.reload_value = 2;
         }
         game_state.field_63 = data_801c6508_slot04_02[obj->field_12a >> 1];
     }

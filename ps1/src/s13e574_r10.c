@@ -12,8 +12,8 @@ void func_80140fe0(Object *object) {
     if (object->field_cd != 0) {
         func_80141058(object);
     } else {
-        if (object->field_134 & 0xff00) update_sequence(object);
-        if (*(u8 *)&object->field_134 != 0) update_sequence(object);
+        if (object->pressed_bits & 0xff00) update_sequence(object);
+        if (*(u8 *)&object->pressed_bits != 0) update_sequence(object);
     }
 }
 

@@ -29,9 +29,9 @@ void func_80019eb4_slot28(Object *obj) {
             p->field_9c = data_800357d8_slot28;
             p->pos_x = 0x68;
             p->pos_y = 0x58;
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
-            p->field_09 = 3;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
+            p->ot_depth = 3;
             p->field_03 = 1;
             p->field_01 = 0;
             p->field_0d = 0;

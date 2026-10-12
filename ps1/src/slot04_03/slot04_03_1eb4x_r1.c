@@ -23,11 +23,11 @@ void func_801b1eb4_slot04_03(Object *obj) {
         obj->state_3++;
         play_side_sound_at(obj, obj->side, 5);
         play_side_sound_at(obj, obj->side, 0xd);
-        obj->vel_x = data_801c0678_slot04_03[obj->field_12a >> 1].field_00;
+        obj->vel_x = data_801c0678_slot04_03[obj->field_12a >> 1].vel_x;
         o = obj;
-        o->accel_x = data_801c0678_slot04_03[obj->field_12a >> 1].field_04;
-        o->vel_y = data_801c0678_slot04_03[obj->field_12a >> 1].field_08;
-        o->accel_y = data_801c0678_slot04_03[o->field_12a >> 1].field_0c;
+        o->accel_x = data_801c0678_slot04_03[obj->field_12a >> 1].accel_x;
+        o->vel_y = data_801c0678_slot04_03[obj->field_12a >> 1].vel_y;
+        o->accel_y = data_801c0678_slot04_03[o->field_12a >> 1].accel_y;
         t = (o->field_12a >> 1) + 0x35;
         func_801307e0(o, t);
     }

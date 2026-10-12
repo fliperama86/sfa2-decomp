@@ -11,7 +11,7 @@ void func_80147a4c(Block172 *block) {
 }
 
 void func_80147a8c(Object *object) {
-    object->field_09 = 0;
+    object->ot_depth = 0;
     object->state_0++;
     object->field_a0 = bytes_cbe0[object->field_03 + object->field_48];
     func_80130768(object, 0x13, (SequenceStep **)seqs_c7f8);
@@ -201,9 +201,9 @@ void func_80148134(Object *object) {
     Object *parent = object->field_3c;
     object->field_0b = parent->field_0b;
     if (object->field_0b != 0) {
-        object->pos_x = parent->pos_x - object->field_5c;
+        object->pos_x = parent->pos_x - object->health;
     } else {
-        object->pos_x = parent->pos_x + object->field_5c;
+        object->pos_x = parent->pos_x + object->health;
     }
     object->pos_y = parent->pos_y - object->field_5e;
 }
@@ -215,9 +215,9 @@ void func_80148194(Object *object) {
     object->field_0b = parent->field_0b;
     b = object->vel_y;
     if (object->field_0b != 0) {
-        object->pos_x = parent->pos_x + (a >> 16) - object->field_5c;
+        object->pos_x = parent->pos_x + (a >> 16) - object->health;
     } else {
-        object->pos_x = parent->pos_x + (a >> 16) + object->field_5c;
+        object->pos_x = parent->pos_x + (a >> 16) + object->health;
     }
     object->pos_y = parent->pos_y - ((b >> 16) + object->field_5e);
     object->vel_x += object->accel_x;

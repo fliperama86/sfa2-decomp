@@ -116,7 +116,7 @@ void init_object_pools(void) {
             for (i = 0; i < 256; i++) {
                 data_8018e598[i].field_04 = base;
                 base += 0x80;
-                data_8018e598[i].field_00 = 0;
+                data_8018e598[i].active_flag = 0;
                 data_801abf10[i] = &data_8018e598[i];
             }
         }
@@ -136,7 +136,7 @@ void init_object_pools(void) {
             }
         }
         for (i = 0; i < 16; i++) {
-            data_8018f5e4[i].field_00 = 0;
+            data_8018f5e4[i].active_flag = 0;
             data_801ad358[i] = &data_8018f5e4[i];
         }
         q2 = &data_801ad358[15];

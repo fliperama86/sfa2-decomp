@@ -14,7 +14,7 @@ void func_801366d4(Cam *cam, short step)
   {
     step = 5;
   }
-  m = cam->field_44;
-  cam->field_22 -= step;
-  func_80136898(cam, (short) ((short) cam->field_22 > m ? cam->field_22 : m));
+  m = cam->min_x;
+  cam->pos_x -= step;
+  func_80136898(cam, (short) ((short) cam->pos_x > m ? cam->pos_x : m));
 }

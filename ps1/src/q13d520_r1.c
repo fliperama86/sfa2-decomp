@@ -41,7 +41,7 @@ void func_8013d520(Object *object, u8 index, u8 arg) {
             func_8013f2a8(object, (u8)index, (u8)arg);
             return;
         }
-        object->slots[(u8)index].field_00 = object->slots[(u8)index].field_00 + 1;
+        object->slots[(u8)index].stage = object->slots[(u8)index].stage + 1;
         entry = table_8017a8cc[(u8)arg * 7];
         object->slots[(u8)index].field_01 = t0;
         object->slots[(u8)index].field_02 = entry;

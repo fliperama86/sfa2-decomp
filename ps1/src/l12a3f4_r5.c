@@ -34,8 +34,8 @@ void func_8012b45c(Object *object) {
     }
     func_80129be0(object);
     if (object->field_cd == 0) {
-        if (object->field_296 != 0) {
-            object->field_296--;
+        if (object->kind_timer != 0) {
+            object->kind_timer--;
         }
         if (object->field_29b != 0) {
             object->field_29b--;

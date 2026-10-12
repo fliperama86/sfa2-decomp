@@ -113,8 +113,8 @@ void func_801b4770_slot04_12(Object *obj) {
 
 void func_801b47d8_slot04_12(Object *obj) {
     obj->field_157 = 0;
-    if (func_801b4bcc_slot04_12(obj) < 0 && obj->field_70 <= obj->pos_y) {
-        obj->pos_y = obj->field_70;
+    if (func_801b4bcc_slot04_12(obj) < 0 && obj->ground_y <= obj->pos_y) {
+        obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->field_0b = obj->field_0b ^ 1;
@@ -133,7 +133,7 @@ void func_801b485c_slot04_12(Object *obj) {
     obj->field_159 = 1;
     if (obj->field_129 == 0) {
         if (obj->field_12a != 0) {
-            if (obj->field_218 != 0 && obj->field_70 - 0x30 < obj->pos_y) {
+            if (obj->field_218 != 0 && obj->ground_y - 0x30 < obj->pos_y) {
                 if (func_8013ffe4(obj, -0x20, 0x20, 0, 0x10) & 0xff) {
                     obj->state_0 = 1;
                     obj->state_1 = 2;
@@ -177,7 +177,7 @@ void func_801b4a24_slot04_12(Object *obj) {
     if (obj->field_12f == 0) {
         if (obj->field_67 != 0) {
             func_801b4ac0_slot04_12(obj);
-        } else if (func_801b4bcc_slot04_12(obj) < 0 && obj->pos_y >= obj->field_70) {
+        } else if (func_801b4bcc_slot04_12(obj) < 0 && obj->pos_y >= obj->ground_y) {
             func_801209c4(obj);
             func_80131638(obj);
         } else {

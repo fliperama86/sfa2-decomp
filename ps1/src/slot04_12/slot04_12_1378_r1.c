@@ -190,13 +190,13 @@ void func_801b17c4_slot04_12(Object *obj) {
                 obj->field_254 = 0xff;
             }
         }
-        if ((obj->field_134 & 0x68) == 0) {
+        if ((obj->pressed_bits & 0x68) == 0) {
             func_801b19bc_slot04_12(obj);
             return;
         }
-        if (obj->field_134 & 0x40) {
+        if (obj->pressed_bits & 0x40) {
             a = 0;
-        } else if (obj->field_134 & 0x20) {
+        } else if (obj->pressed_bits & 0x20) {
             a = 2;
         } else {
             a = 4;
@@ -225,7 +225,7 @@ void func_801b17c4_slot04_12(Object *obj) {
         fr = obj->frames + obj->sequence->frame_index;
         obj->frame = fr;
         t = fr->field_0d;
-        obj->field_80 = 1;
+        obj->sequence_changed_flag = 1;
         obj->field_4a = t;
     }
 }

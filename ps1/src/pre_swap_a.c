@@ -97,13 +97,13 @@ void func_8013151c(Object *object) {
     object->field_16a = 0;
     object->field_288 = 0;
     object->field_289 = 0;
-    object->field_17c = 0xff;
-    object->field_17d = 0xff;
+    object->dir_second = 0xff;
+    object->dir_first = 0xff;
     object->field_17e = 0xff;
     object->field_28a = 0;
     object->flags_28b = 0;
     object->field_28f = 0;
-    object->pos_y = object->field_70;
+    object->pos_y = object->ground_y;
     *(unsigned int *)&object->pos_y_frac &= 0xffff0000;
     object->field_295 = 0;
     object->field_0b = object->field_158;
@@ -124,8 +124,8 @@ void func_8013151c(Object *object) {
     if (object->field_7e == 0) {
         object->field_159 = 0;
     }
-    game_state.field_358 = object->other;
-    if (game_state.field_358->field_7e == 0) {
+    game_state.other_object = object->other;
+    if (game_state.other_object->field_7e == 0) {
         object->field_225 = 0;
         object->field_216 = 0;
     }
@@ -137,7 +137,7 @@ void func_80131638(Object *object) {
     object->state_2 = 3;
     object->state_1 = 0;
     object->state_3 = 2;
-    object->pos_y = object->field_70;
+    object->pos_y = object->ground_y;
     func_8013151c(object);
     if (object->field_cd == 0) {
         if (func_80130470(object)) {

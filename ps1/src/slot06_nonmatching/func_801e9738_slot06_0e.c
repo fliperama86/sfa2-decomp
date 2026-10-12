@@ -9,25 +9,25 @@
  * What it does (inferred, not an original name): draws the third tile layer
  * of the stage, data_801aa544[2], as sprite records. The layer's field_14
  * (high half) minus game_state.field_92 gives a vertical position y; its
- * field_12 gives a horizontal position. The window is 13 columns by 9
+ * scroll_x gives a horizontal position. The window is 13 columns by 9
  * rows of 32-pixel cells, starting at the cell row (y & 0x1f0) / 32 and the
- * cell column (field_12 masked by field_58 - 1) / 32, offset by the
+ * cell column (scroll_x masked by field_58 - 1) / 32, offset by the
  * sub-cell remainders. The cells are 16-bit pairs (tile, palette) in the
- * layer's map (field_50); which half of the map a row lies in depends on
+ * layer's map (map_data); which half of the map a row lies in depends on
  * the layer's field_16 and on bit 3 of the row (a map of 8 rows per half).
  * Every cell whose tile equals the layer's blank value (field_1e) is
  * skipped; every other gets one record of the table (position, texture
  * coordinates, palette, command word), linked into the list head chosen by
- * the layer's field_8a. There is no test of the row against a row count.
+ * the layer's ot_index. There is no test of the row against a row count.
  *
  * Contract (what the code reads and writes; the roles named for the
  * fields are inferred):
  *   No argument, no return value.
- *   Reads: data_801aa544[2] field_12, field_14, field_16, field_1e,
- *     field_50, field_58, field_8a; game_state.field_92; the buffer selector
+ *   Reads: data_801aa544[2] scroll_x, field_14, field_16, field_1e,
+ *     map_data, field_58, ot_index; game_state.field_92; the buffer selector
  *     data_801a27d0 (0 or 1); the list base pointer data_801987c8 and the
  *     list head word it points at; the map cells it visits.
- *   Map, at field_50: the row half is 0 or 0x200 halfwords in (see below),
+ *   Map, at map_data: the row half is 0 or 0x200 halfwords in (see below),
  *     row r (r & 7) 32 halfwords on, the column c at (c >> 4) * 256 +
  *     (c & 0xf) * 2 halfwords, a (tile, palette) pair per cell. The half
  *     is 0x200 when field_16 is 0x100 to 0x5ff or when bit 3 of the row
@@ -80,20 +80,20 @@ void func_801e9738_slot06_0e(void) {
     row = (y & 0x1f0) / 32;
     w = c->field_58;
     mask = (w >> 5) - 1;
-    px = c->field_12;
+    px = c->scroll_x;
     sx = px & 0x1f;
     col = (px & (w - 1)) >> 5;
     blank = c->field_1e;
     rec = data_801f6734_slot06_0e[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->field_8a * 4);
+    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
     for (i = 0; i < 9; i++, row++) {
         cc = col;
         if (((Slot06Layer *)c)->field_16 < 0x100) {
-            line = c->field_50 + ((row & 8) ? 0x200 : 0);
+            line = c->map_data + ((row & 8) ? 0x200 : 0);
         } else if (((Slot06Layer *)c)->field_16 < 0x600) {
-            line = c->field_50 + 0x200;
+            line = c->map_data + 0x200;
         } else {
-            line = c->field_50 + ((row & 8) ? 0 : 0x200);
+            line = c->map_data + ((row & 8) ? 0 : 0x200);
         }
         line += (row & 7) << 5;
         for (k = 0; k < 13; k++) {

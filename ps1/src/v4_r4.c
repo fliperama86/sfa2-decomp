@@ -6,11 +6,11 @@
 void func_8011948c(void) {
     SndVoice *v = (SndVoice *)0x801fc200;
     for (; v <= (SndVoice *)0x801fc37f; v++) {
-        if (v->field_00 == 1) {
-            int n = v->field_02 - 1;
-            v->field_02 = n;
+        if (v->status == 1) {
+            int n = v->delay_timer - 1;
+            v->delay_timer = n;
             if ((n << 16) == 0) {
-                v->field_00 = 2;
+                v->status = 2;
             }
         }
     }

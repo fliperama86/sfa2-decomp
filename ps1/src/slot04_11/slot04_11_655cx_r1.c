@@ -22,7 +22,7 @@ void func_801b655c_slot04_11(Object *obj);
 
 void func_801b655c_slot04_11(Object *obj) {
     obj->field_129 = 2;
-    if (obj->kind != 0x13 || *(s16 *)&obj->field_c6 < 0x30 || obj->field_45 != 0 || obj->field_70 - 0x18 < obj->pos_y) {
+    if (obj->kind != 0x13 || *(s16 *)&obj->field_c6 < 0x30 || obj->field_45 != 0 || obj->ground_y - 0x18 < obj->pos_y) {
         func_801b6480_slot04_11(obj);
     } else {
         obj->state_0 = 1;

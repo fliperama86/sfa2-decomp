@@ -11,8 +11,8 @@ void func_8013e4a8(Object *object, u8 index, u8 arg)
   int new_var;
   int mask;
   int new_var2;
-  object->slots[index].field_04--;
-  if (object->slots[index].field_04 == 0)
+  object->slots[index].timer--;
+  if (object->slots[index].timer == 0)
   {
     func_8013f2a8(object, index, arg);
   }
@@ -22,7 +22,7 @@ void func_8013e4a8(Object *object, u8 index, u8 arg)
     entry = table_8017a8cc[(arg * 7) + object->slots[index].field_01];
     new_var2 = entry & 0xf0ff;
     mask = 0xf0ff;
-    mask = object->field_134 & mask;
+    mask = object->pressed_bits & mask;
     if ((mask == new_var) || ((mask & new_var2) == new_var))
     {
       func_8013f2c8(object);

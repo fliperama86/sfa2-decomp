@@ -6,10 +6,10 @@
 void func_801b4dd4_slot04_06(Object *obj) {
     Object *p;
 
-    if (((Slot04aObj *)obj)->field_47 != 0) {
-        ((Slot04aObj *)obj)->field_47--;
-        if (((Slot04aObj *)obj)->field_47 == 0) {
-            game_state_second.field_4b = game_state.field_4b | (1 << obj->side);
+    if (((Slot04aObj *)obj)->timer != 0) {
+        ((Slot04aObj *)obj)->timer--;
+        if (((Slot04aObj *)obj)->timer == 0) {
+            game_state_second.side_bits = game_state.field_4b | (1 << obj->side);
         }
     }
     if (((Slot04aObj *)obj)->field_3a != 0) {
@@ -20,8 +20,8 @@ void func_801b4dd4_slot04_06(Object *obj) {
             p->field_03 = 2;
             p->field_3c = obj;
             p->field_1c = obj->field_1c;
-            p->field_7a = obj->field_7a;
-            p->field_7c = obj->field_7c;
+            p->spawn_x = obj->spawn_x;
+            p->spawn_y = obj->spawn_y;
             p->field_0d = obj->field_0d;
             p->field_02 = 0x11;
             p->field_08 = 0x20;
@@ -36,8 +36,8 @@ void func_801b4dd4_slot04_06(Object *obj) {
             p->field_03 = 3;
             p->field_3c = obj;
             p->field_1c = obj->field_1c;
-            p->field_7a = obj->field_7a;
-            p->field_7c = obj->field_7c;
+            p->spawn_x = obj->spawn_x;
+            p->spawn_y = obj->spawn_y;
             p->field_0d = obj->field_0d;
             p->field_02 = 0x11;
             p->field_08 = 0x20;

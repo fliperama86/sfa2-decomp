@@ -21,7 +21,7 @@ void func_801cb8cc_slot05_06(Object *o) {
         } else {
             func_80140770(o, 0, 0xa, 3, 0, 0, 0);
         }
-        if ((s16)other->field_5c < 0) {
+        if ((s16)other->health < 0) {
             o->field_167 = 2;
             if (o->field_49 != 0) {
                 o->field_167 = 0x16;
@@ -43,11 +43,11 @@ void func_801cb8cc_slot05_06(Object *o) {
 
 void func_801cb9fc_slot05_06(Object *obj) {
     func_801cc84c_slot05_06(obj);
-    if (obj->pos_y <= obj->field_70) {
+    if (obj->pos_y <= obj->ground_y) {
         func_801cc814_slot05_06(obj);
     } else {
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         obj->field_17b = 0;
         func_801312b8(obj);

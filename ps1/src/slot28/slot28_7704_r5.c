@@ -8,8 +8,8 @@ void func_80017ed0_slot28(Object *obj, Object *src) {
     obj->field_02 = 0xa5;
     obj->field_03 = 0;
     obj->field_01 = 1;
-    obj->field_7a = 0x60;
-    obj->field_7c = 0x1e0;
+    obj->spawn_x = 0x60;
+    obj->spawn_y = 0x1e0;
     obj->field_0d = 0;
     obj->field_90 = src->field_90;
     obj->field_98 = src->field_98;

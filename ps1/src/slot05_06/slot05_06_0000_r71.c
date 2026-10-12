@@ -8,8 +8,8 @@ extern u8 data_801dd600_slot05_06[];
 extern s32 data_801dd620_slot05_06[];
 
 void func_801ce1dc_slot05_06(Object *obj) {
-    obj->field_09 = 1;
-    ((Slot04aObj *)obj)->field_47 = 0x18;
+    obj->ot_depth = 1;
+    ((Slot04aObj *)obj)->timer = 0x18;
     ((Slot04aObj *)obj)->field_70 -= 0x10;
     func_801ce2c0_slot05_06(obj);
 }

@@ -17,7 +17,7 @@ void func_801b3b40_slot04_04(Object *obj) {
     parent = obj->field_3c;
     i = obj->field_ac;
     i >>= 1;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->state_0 = obj->state_0 + 1;
     obj->field_49 = parent->field_49;
     obj->field_1c = parent->field_1c;

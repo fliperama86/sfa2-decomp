@@ -14,13 +14,13 @@ void func_801518a0(void) {
         a = &data_8018a4bc[0][i];
         b = &data_8018a4bc[1][i];
         func_8015c100(a);
-        a->field_04 = 0x80;
-        a->field_05 = 0x80;
-        a->field_06 = 0x80;
+        a->color_r = 0x80;
+        a->color_g = 0x80;
+        a->color_b = 0x80;
         func_8015c100(b);
-        b->field_04 = 0x80;
-        b->field_05 = 0x80;
-        b->field_06 = 0x80;
+        b->color_r = 0x80;
+        b->color_g = 0x80;
+        b->color_b = 0x80;
     }
     for (i = 0; i < 0x30; i++) {
         p = &data_8018ccbc[0][i];

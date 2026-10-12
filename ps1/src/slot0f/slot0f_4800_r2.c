@@ -17,7 +17,7 @@ void func_800e483c_slot0f(void) {
     c->field_1e = 0x1800;
     c->field_58 = 0x400;
     c->field_5c = 0x100;
-    c->field_8a = 0x1b;
+    c->ot_index = 0x1b;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 0x200; j++) {
             Strip1c *s = &data_800f0264_slot0f[i][j];

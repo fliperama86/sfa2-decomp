@@ -11,7 +11,7 @@ void func_801b3024_slot04_0b(Object *obj) {
     } else {
         obj->state_3++;
         obj->field_45 = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x2a);
     }

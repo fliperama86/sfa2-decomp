@@ -561,7 +561,7 @@ void func_8013f2c8(Object *unused);
 void func_8013f2d8(Object *object, int index, int unused);
 void set_side_ring_flag(Object *object);
 void func_8013f3e8(Object *object);
-int func_8013f474(Object *object, s16 a, s16 b);
+int func_8013f474(Object *object, int a, s16 b);
 int func_8013f8c4(Object *object, int a, int b);
 int func_8013fab4(Object *object);
 s16 func_8013fc18(Object *obj, int a, int b);

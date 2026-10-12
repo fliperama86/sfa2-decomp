@@ -10,7 +10,7 @@ void func_800766a0_slot00(Object *obj) {
     Slot00Obj *o = (Slot00Obj *)obj;
     int speeds[4] = { 0x38000, 0x40000, 0x50000, 0x48000 };
     int a, b;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->state_0 = obj->state_0 + 1;
     ref_other.p = obj->field_3c;
     obj->field_49 = ref_other.p->field_49;

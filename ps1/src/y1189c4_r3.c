@@ -20,7 +20,7 @@ void func_801194f4(void) {
     func_80158374((unsigned *)((char *)data_801987c8 + 0x8c));
     for (i = 0; i < 0x100; i++) {
         p = &data_8018e598[i];
-        if (p->field_00 != 0) {
+        if (p->active_flag != 0) {
             func_80157fc4((char *)p + 8, p->field_04);
             func_8011f504(p);
         }
@@ -30,7 +30,7 @@ void func_801194f4(void) {
     }
     for (i = 0; i < 0x10; i++) {
         p = &data_8018f5e4[i];
-        if (p->field_00 != 0) {
+        if (p->active_flag != 0) {
             func_80157fc4((char *)p + 8, p->field_04);
             func_8011f55c(p);
         }

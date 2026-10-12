@@ -10,7 +10,7 @@ void func_80132370(Object *object) {
         game_state.field_33 == 0 &&
         (object->field_67 != 0 || ((s16)object->step_flags & 0x8000)) &&
         object->field_14c == 0 &&
-        object->pos_y < (s16)(object->field_70 - 0x30)) {
+        object->pos_y < (s16)(object->ground_y - 0x30)) {
         object->state_0 = 1;
         object->state_2 = 7;
         object->state_1 = 0;

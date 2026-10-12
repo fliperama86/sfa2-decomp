@@ -49,7 +49,7 @@ void func_80012ad0_slot27(Object *obj) {
             }
         }
         data_8019045c[0] = ref_other.p->field_d8 << 4;
-        obj->field_5c = data_8019045c[0];
+        obj->health = data_8019045c[0];
         func_80012f64_slot27(obj);
         return;
     }

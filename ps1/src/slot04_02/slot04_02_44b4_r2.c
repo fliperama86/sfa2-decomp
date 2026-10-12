@@ -20,12 +20,12 @@ void func_801b46d4_slot04_02(Object *obj) {
     obj->vel_x = obj->vel_x + obj->accel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    if (obj->pos_y >= obj->field_70) {
+    if (obj->pos_y >= obj->ground_y) {
         obj->field_157 = 1;
         obj->field_159 = 1;
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         a = obj->field_12a >> 1;
         obj->accel_x = data_801c64e8_slot04_02[a];

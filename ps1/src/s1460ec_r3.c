@@ -10,8 +10,8 @@ void func_801466ec(Block172 *block) {
 }
 
 void func_8014672c(Object *object) {
-    object->field_7a = 0x60;
-    object->field_7c = 0x1e0;
+    object->spawn_x = 0x60;
+    object->spawn_y = 0x1e0;
     object->field_90 = (void *)0x800fb100;
     object->field_98 = data_80172a48;
     object->field_9c = data_80173c9c;

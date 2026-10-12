@@ -8,7 +8,7 @@ void func_80121d80(Object *unused) {
     h->field_60 = (s16)h->field_60 - 1;
     if ((s16)h->field_60 < 0) {
         h->field_52 = 0;
-        h->field_62 = 4;
+        h->sub_timer = 4;
         h->field_50++;
     }
 }

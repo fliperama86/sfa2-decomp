@@ -37,7 +37,7 @@ void func_801b3b50_slot04_07(Object *obj) {
             }
             break;
         case 3:
-            if ((obj->field_134 & 0x14) != 0) {
+            if ((obj->pressed_bits & 0x14) != 0) {
                 obj->state_3 = obj->state_3 + 1;
                 func_801307e0(obj, 0x18);
                 return;
@@ -66,7 +66,7 @@ void func_801b3b50_slot04_07(Object *obj) {
         }
         obj->field_46 = obj->field_46 + 0x100;
     }
-    k = obj->field_134;
+    k = obj->pressed_bits;
     if (k != 0) {
         if (*(s16 *)&obj->step_timer > 1) {
             obj->step_timer = *(s16 *)&obj->step_timer - 1;

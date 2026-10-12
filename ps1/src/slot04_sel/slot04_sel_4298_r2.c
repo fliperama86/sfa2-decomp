@@ -10,7 +10,7 @@ void func_801b44ec_slot04_sel(void) {
     int *sel = (int *)data_8019045c;
     int v;
 
-    v = game_state.field_358->side;
+    v = game_state.other_object->side;
     v ^= 1;
     *sel = v;
     if (((game_state.mode >> v) & 1) == 0) {
@@ -26,7 +26,7 @@ void func_801b44ec_slot04_sel(void) {
             ref->p = p + 1;
         }
     }
-    v = game_state.field_358->kind;
+    v = game_state.other_object->kind;
     *sel = v;
     if (v == 0x11 || v == 0x13) {
         goto both;
@@ -48,7 +48,7 @@ same:
     {
         int *t = (int *)data_8019045c;
 
-        v = game_state.field_358->field_d4;
+        v = game_state.other_object->field_d4;
         *t = v;
         if (data_80190458.p->field_d4 != v) {
             goto zero;

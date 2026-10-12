@@ -33,26 +33,26 @@ void func_80152f80(GameState *state) {
 void func_80153088(void) {
     data_8018d210[0].kind = 0;
     data_8018d210[0].side = 0;
-    data_8018d210[0].field_02 = 0;
+    data_8018d210[0].active_flag = 0;
     data_8018d210[0].field_03 = 0;
     data_8018d210[0].field_04 = 0;
     data_8018d210[0].field_05 = 0;
     data_8018d210[0].field_06 = 0;
-    data_8018d210[0].field_08 = 0;
+    data_8018d210[0].table_index = 0;
     data_8018d210[0].field_09 = 0;
     data_8018d210[0].field_0b = 0;
-    data_8018d210[0].field_0c = 0;
+    data_8018d210[0].countdown_timer = 0;
     data_8018d210[0].field_10 = 0;
     data_8018d210[1].kind = 0;
     data_8018d210[1].side = 1;
-    data_8018d210[1].field_02 = 0;
+    data_8018d210[1].active_flag = 0;
     data_8018d210[1].field_03 = 0;
     data_8018d210[1].field_04 = 0;
     data_8018d210[1].field_05 = 0;
     data_8018d210[1].field_06 = 0;
-    data_8018d210[1].field_08 = 0;
+    data_8018d210[1].table_index = 0;
     data_8018d210[1].field_09 = 0;
     data_8018d210[1].field_0b = 0;
-    data_8018d210[1].field_0c = 0;
+    data_8018d210[1].countdown_timer = 0;
     data_8018d210[1].field_10 = 0;
 }

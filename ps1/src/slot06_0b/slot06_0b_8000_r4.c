@@ -33,9 +33,9 @@ void func_801e9234_slot06_0b(void) {
         do {
             r = &data_801f04d0_slot06_0b[i][j];
             func_8015c09c(r);
-            r->field_04 = c;
-            r->field_05 = c;
-            r->field_06 = c;
+            r->r0 = c;
+            r->g0 = c;
+            r->b0 = c;
             j++;
         } while (j < 0xb0);
         i++;

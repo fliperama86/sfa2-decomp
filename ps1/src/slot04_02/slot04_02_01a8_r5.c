@@ -19,9 +19,9 @@ void func_801b0878_slot04_02(Object *obj) {
 void func_801b08c4_slot04_02(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
-    if (obj->field_70 <= (u16)obj->pos_y) {
+    if (obj->ground_y <= (u16)obj->pos_y) {
         func_801209c4(obj);
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801312b8(obj);
     } else {
         update_sequence(obj);

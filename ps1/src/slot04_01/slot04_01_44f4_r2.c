@@ -30,7 +30,7 @@ void func_801b46dc_slot04_01(Object *obj) {
         obj->pos_x = p->pos_x - a;
     }
     func_80131094(obj);
-    if ((obj->field_03 + (game_state.field_1d + p->side)) & 1) {
+    if ((obj->field_03 + (game_state.frame_counter + p->side)) & 1) {
         func_80120028(obj);
     } else {
         obj->field_01 = 0;

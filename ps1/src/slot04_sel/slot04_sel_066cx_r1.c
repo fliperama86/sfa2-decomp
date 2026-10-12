@@ -60,13 +60,13 @@ void func_801b066c_slot04_sel(void) {
     func_801519b4(data_801b7298_slot04_sel);
     w = &player_left;
     r = data_801b9cf0_slot04_sel;
-    data_801b6d88_slot04_sel[r->field_00](w, r);
+    data_801b6d88_slot04_sel[r->state](w, r);
     second = (Object *)w + 1;
     w = r + 1;
-    data_801b6d88_slot04_sel[r[1].field_00](second, w);
+    data_801b6d88_slot04_sel[r[1].state](second, w);
     if (game_state.field_07 == (data_801b9cf0_slot04_sel[0].field_04 | data_801b9cf0_slot04_sel[1].field_04)) {
-        r[0].field_00 = 1;
-        r[1].field_00 = 1;
+        r[0].state = 1;
+        r[1].state = 1;
         data_8018f5a0->field_50++;
     }
     data_801b9d28_slot04_sel = game_state.field_07;

@@ -25,10 +25,10 @@ void func_801b4744_slot04_0c(Object *obj) {
     SequenceStep **t;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
     p = obj->field_3c;
-    if (obj->pos_y >= obj->field_70) {
+    if (obj->pos_y >= obj->ground_y) {
         obj->field_46 = 8;
         obj->state_1++;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         if (p->side == 0) {
             t = data_1f8000b4;
         } else {

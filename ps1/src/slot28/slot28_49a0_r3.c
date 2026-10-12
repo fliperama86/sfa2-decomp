@@ -39,9 +39,9 @@ void func_80015028_slot28(Object *obj) {
         o = data_800518bc_slot28[0];
         o->pos_x = 0x50;
         o->pos_y = -0x5f;
-        o->field_7a = 0x10;
-        o->field_7c = 0x1e0;
-        o->field_09 = 2;
+        o->spawn_x = 0x10;
+        o->spawn_y = 0x1e0;
+        o->ot_depth = 2;
         o->field_0d = 0;
         o->field_01 = 1;
         func_80130768(o, 0, data_8002bddc_slot28);

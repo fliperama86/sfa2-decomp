@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_80011358_slot12(void) {
-    while (game_state.field_ee == 0) {
+    while (game_state.fade_busy == 0) {
         game_state.field_f0 = 0x1f;
         *(u16 *)data_80190464 = 0x2404;
         *(u16 *)data_8019046c = 0x1f00;

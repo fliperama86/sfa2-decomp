@@ -25,7 +25,7 @@ void func_801b3120_slot04_0f(Object *obj) {
         obj->state_3++;
         func_801b3280_slot04_0f(obj);
         play_side_sound_at(obj, obj->side, 0xf);
-    } else if (obj->field_70 < obj->pos_y) {
+    } else if (obj->ground_y < obj->pos_y) {
         func_80130184(obj);
     }
 }
@@ -40,7 +40,7 @@ void func_801b31b0_slot04_0f(Object *obj) {
         obj->field_6a = 0;
         obj->field_69 = 0;
         *(s32 *)&obj->pos_x_frac = *(s32 *)&((Slot04bObj *)obj)->field_330;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         obj->field_0b = obj->field_158;
     }
 }
@@ -65,7 +65,7 @@ void func_801b3280_slot04_0f(Object *obj) {
     s32 vy = obj->vel_y;
     s32 ax = obj->accel_x;
     s32 ay = obj->accel_y;
-    s16 h = obj->field_70;
+    s16 h = obj->ground_y;
 
     do {
         x += vx;
@@ -150,11 +150,11 @@ void func_801b3484_slot04_0f(Object *obj) {
             p->field_26 = obj->field_26;
             *(s32 *)&p->pos_x_frac = *(s32 *)&obj->pos_x_frac;
             w = *(s32 *)&obj->pos_y_frac;
-            p->field_5c = 0xff;
+            p->health = 0xff;
             p->field_48 = 0x16;
-            p->field_7a = 0x60;
+            p->spawn_x = 0x60;
             p->field_3c = obj;
-            p->field_7c = 0x1e0;
+            p->spawn_y = 0x1e0;
             *(s32 *)&p->pos_y_frac = w;
             p->field_0d = obj->field_0d;
             p->field_90 = obj->field_90;
@@ -278,11 +278,11 @@ void func_801b394c_slot04_0f(Object *obj) {
 void func_801b39a0_slot04_0f(Object *obj) {
     update_sequence(obj);
     func_801b394c_slot04_0f(obj);
-    if (obj->field_70 <= obj->pos_y) {
+    if (obj->ground_y <= obj->pos_y) {
         obj->state_3++;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         func_80130678(obj, 0x11);
     }
@@ -309,11 +309,11 @@ void func_801b3a54_slot04_0f(Object *obj) {
 
 void func_801b3aa4_slot04_0f(Object *obj) {
     func_801b394c_slot04_0f(obj);
-    if (obj->field_70 <= obj->pos_y) {
+    if (obj->ground_y <= obj->pos_y) {
         obj->state_3++;
         obj->field_45 = 0;
         obj->pos_y_frac = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         obj->field_46 = obj->field_12a >> 1;
         func_801307e0(obj, 0x52);

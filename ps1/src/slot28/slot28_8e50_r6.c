@@ -17,7 +17,7 @@ void func_80019554_slot28(Object *obj) {
     obj->field_46 = t;
     if ((s16)t == 0) {
         obj->field_46 = 4;
-        obj->field_7c = 0x1e2;
+        obj->spawn_y = 0x1e2;
         obj->state_1++;
     }
 }

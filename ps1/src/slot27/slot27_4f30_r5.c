@@ -11,15 +11,15 @@ void func_800153c0_slot27(Object *obj) {
     PrimTag *ot = (PrimTag *)data_801987c8 + 0x1d;
     int i;
     int j;
-    int t = obj->field_5c;
+    int t = obj->health;
 
-    obj->field_5c = t - 2;
-    if ((s16)obj->field_5c < ((Slot27Obj *)obj)->field_5e) {
-        obj->field_5c = t + 0x1e;
+    obj->health = t - 2;
+    if ((s16)obj->health < ((Slot27Obj *)obj)->field_5e) {
+        obj->health = t + 0x1e;
     }
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 3; j++) {
-            c->field_0a = obj->field_5c + (i << 5);
+            c->pos_y = obj->health + (i << 5);
             ((PrimTag *)c)->addr = ot->addr;
             ot->addr = (u32)c;
             c++;

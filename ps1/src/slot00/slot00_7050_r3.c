@@ -16,12 +16,12 @@ void func_800772c0_slot00(Object *obj) {
 void func_80077300_slot00(Object *obj) {
     Object *p = obj->field_3c;
     obj->state_0 = obj->state_0 + 1;
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_1c = p->field_1c;
     obj->field_1e = p->field_1e;
     obj->box_tables = &data_800798d0_slot00;
     obj->field_45 = 0;
-    obj->field_5c = 0;
+    obj->health = 0;
     obj->pos_x = p->pos_x;
     obj->pos_y = p->pos_y;
     obj->field_0b = p->field_0b;

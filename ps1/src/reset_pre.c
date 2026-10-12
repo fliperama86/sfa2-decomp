@@ -40,7 +40,7 @@ void func_80128d58(void) {
 
 void func_80128da4(Object *a, Object *b) {
     int x, y;
-    x = b->frame->field_07;
+    x = b->frame->box_index;
     y = 0;
     if (x != 0) {
         Box6 *box = &((Box6 *)b->unknown_148)[x];

@@ -17,10 +17,10 @@ void func_8012af5c(Object *object)
   else
   {
     object->state_3 = 1;
-    a = motion_recs[object->kind].field_00;
-    object->vel_y = motion_recs[object->kind].field_04;
-    b = motion_recs[object->kind].field_08;
-    object->accel_y = motion_recs[object->kind].field_0c;
+    a = motion_recs[object->kind].vel_x;
+    object->vel_y = motion_recs[object->kind].vel_y;
+    b = motion_recs[object->kind].accel_x;
+    object->accel_y = motion_recs[object->kind].accel_y;
     new_var = object->field_0b ^ 1;
     object->field_0b = new_var;
     if (object->field_0b != 0)

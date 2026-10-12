@@ -44,7 +44,7 @@ void func_801c9600_slot05_06(Object *o) {
     if (obj->field_1c3 != 0) {
         if (--obj->field_1c3 == 0) goto done;
     }
-    if (o->pos_y < o->field_70) return;
+    if (o->pos_y < o->ground_y) return;
 done:
     o->field_45 = 0;
     o->field_249 = 5;

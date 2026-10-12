@@ -5,8 +5,8 @@
 
 void func_800246e8_slot28(Object *o) {
     Slot28Obj *obj;
-    int t = *(u16 *)&((Slot28Obj *)o)->field_46 - 1;
-    *(u16 *)&((Slot28Obj *)o)->field_46 = t;
+    int t = *(u16 *)&((Slot28Obj *)o)->countdown_timer - 1;
+    *(u16 *)&((Slot28Obj *)o)->countdown_timer = t;
     obj = (Slot28Obj *)o;
     if ((s16)t == 0) {
         obj->field_05 += 1;

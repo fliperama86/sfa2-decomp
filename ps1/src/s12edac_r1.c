@@ -68,7 +68,7 @@ void func_8012ef24(Object *object) {
     entry = (Vec4 *)((index << 4) + (int)table);
     a = entry->a;
     b = entry->b;
-    if (object->field_72 == 0) {
+    if (object->facing_flag == 0) {
         a = -a;
         b = -b;
     }
@@ -83,7 +83,7 @@ void func_8012efa4(Object *object, Vec4 *entry) {
 
     a = entry->a;
     b = entry->b;
-    if (object->field_72 == 0) {
+    if (object->facing_flag == 0) {
         a = -a;
         b = -b;
     }

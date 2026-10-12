@@ -8,8 +8,8 @@ extern u16 data_801a6966;
 void func_8013d834(Object *object, u8 index, u8 arg) {
     u16 buttons;
 
-    object->slots[index].field_04--;
-    if (object->slots[index].field_04 == 0) {
+    object->slots[index].timer--;
+    if (object->slots[index].timer == 0) {
         func_8013f2a8(object, index, arg);
         return;
     }
@@ -35,7 +35,7 @@ void func_8013d834(Object *object, u8 index, u8 arg) {
 apply:
     object->slots[index].field_02--;
     if (object->slots[index].field_02 == 0) {
-        object->slots[index].field_00++;
+        object->slots[index].stage++;
     }
     object->slots[index].field_01 = game_state.field_35c;
     func_8013f1bc(object, index, arg);

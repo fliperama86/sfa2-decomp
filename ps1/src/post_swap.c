@@ -40,7 +40,7 @@ void func_80132140(Object *object) {
 
 void func_80132198(Object *object) {
     u8 side = object->field_158;
-    u16 bits = object->field_134 | object->field_136;
+    u16 bits = object->pressed_bits | object->released_bits;
     u8 value;
     object->field_12c = 0;
     object->field_12d = 0;

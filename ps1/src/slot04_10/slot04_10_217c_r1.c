@@ -128,7 +128,7 @@ void func_801b25d8_slot04_10(Object *o) {
         }
         func_80142c70(o);
     } else {
-        if (o->field_134 != 0) {
+        if (o->pressed_bits != 0) {
             if (obj->field_27d == 0) {
                 obj->field_27d = obj->field_27c;
             }
@@ -208,7 +208,7 @@ void func_801b28a8_slot04_10(Object *obj) {
         ref_other.p->field_260 = 1;
         func_80140770(obj, 0, 0x11, 0x11, 4, 0, u);
         ref_other.p = obj->other;
-        if ((s16)ref_other.p->field_5c < 0) {
+        if ((s16)ref_other.p->health < 0) {
             obj->field_167 = 5;
         }
     }

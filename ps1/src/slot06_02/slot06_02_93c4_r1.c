@@ -32,9 +32,9 @@ void func_801e93f0_slot06_02(void) {
         do {
             r = &data_801f5cf8_slot06_02[i][j];
             func_8015c09c(r);
-            r->field_04 = c;
-            r->field_05 = c;
-            r->field_06 = c;
+            r->r0 = c;
+            r->g0 = c;
+            r->b0 = c;
             j++;
         } while (j < 0x84);
         i++;
@@ -53,7 +53,7 @@ void func_801e94d8_slot06_02(Object *obj) {
     init_cam_position((Cam *)obj, 0x40, 0);
     if (obj->field_01 != 0) {
         obj->field_01 = 0;
-        ((Slot06Obj *)obj)->field_88 = 0;
+        ((Slot06Obj *)obj)->table_index = 0;
         obj->state_0++;
         func_801e9604_slot06_02(obj);
     }

@@ -61,8 +61,8 @@ void func_801b0000_slot04_15(Object *obj) {
         c->field_0e = obj->field_0e;
         s = obj->side;
         obj->field_28 = (u32)c;
-        c->field_7a = 0x60;
-        c->field_7c = 0x1e0;
+        c->spawn_x = 0x60;
+        c->spawn_y = 0x1e0;
         c->field_66 = s;
         c->field_90 = obj->field_90;
         c->field_98 = obj->field_98;
@@ -132,7 +132,7 @@ void func_801b0310_slot04_15(Object *obj) {
     s8 r;
 
     if ((u8)obj->step_flags == 0) {
-        i = game_state.field_1d;
+        i = game_state.frame_counter;
         if (((i + obj->side) & 3) == 0) {
             i = 0;
             do {

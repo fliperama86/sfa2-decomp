@@ -10,8 +10,8 @@ void func_801448c4(Object *object) {
         func_80144ee4(object, 0x10);
         func_80144938(object);
         object->field_01 = 1;
-        object->field_7a = 0x80;
-        object->field_09 = 1;
+        object->spawn_x = 0x80;
+        object->ot_depth = 1;
     } else {
         object->field_01 = 2;
     }

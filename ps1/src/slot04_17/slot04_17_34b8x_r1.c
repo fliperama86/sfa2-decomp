@@ -45,7 +45,7 @@ void func_801b34b8_slot04_17(Object *obj) {
                 func_80140770(obj, 0x10, 5, data_801ce44c_slot04_17[i], data_801ce44c_slot04_17[i + 1], 0, 0);
             } while (0);
             p = obj->other;
-            if ((s16)p->field_5c < 0) {
+            if ((s16)p->health < 0) {
                 play_sound_at(p, p->side, 0x339);
                 func_801b3784_slot04_17(obj);
             } else {

@@ -15,7 +15,7 @@ void func_801ea87c_slot06_0e(Object *obj) {
         c->field_03 = 0;
         c->field_81 = 4;
         c->field_3c = obj;
-        c->field_09 = obj->field_09;
+        c->ot_depth = obj->ot_depth;
         obj->field_34 = (u32)c;
         obj->field_46 = 0;
         obj->field_0d = 0;

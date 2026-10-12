@@ -7,7 +7,7 @@ void func_801b4db8_slot04_0b(Object *o, int index);
 
 void func_801b46b8_slot04_0b(Object *o) {
     o->state_1++;
-    o->field_09 = 0;
+    o->ot_depth = 0;
     o->pos_x = ref_other.p->pos_x;
     o->pos_y = ref_other.p->pos_y;
     func_801b4db8_slot04_0b(o, 0x19);

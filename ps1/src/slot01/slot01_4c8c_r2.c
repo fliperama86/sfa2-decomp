@@ -7,7 +7,7 @@ extern Slot01Rec33bb4 data_80033bb4_slot01[2][2500];
 
 void func_80014e24_slot01(Object *obj) {
     Object *o = obj;
-    s16 w = *(u32 *)&o->field_5c >> 3;
+    s16 w = *(u32 *)&o->health >> 3;
     s16 px = *(u16 *)&o->pos_x;
     int ox = px & 7;
     int t = -(((Slot01Obj *)o)->field_14 + -0x100000) >> 16;
@@ -27,7 +27,7 @@ void func_80014e24_slot01(Object *obj) {
 
     row = y >= 0 ? y >> 3 : (y - 7) / 8;
     p = data_80033bb4_slot01[data_801a27d0];
-    ot = (u32 *)data_801987c8 + ((Slot01Obj *)o)->field_8a;
+    ot = (u32 *)data_801987c8 + ((Slot01Obj *)o)->ot_index;
     for (i = 0; i < 10; i++) {
         x = x0;
         if (row >= 0 && row < w) {

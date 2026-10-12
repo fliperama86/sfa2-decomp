@@ -11,19 +11,19 @@ void func_8014ff20(Ctl *ctl)
   u32 n;
   u8 **t;
   u8 *p;
-  if (((Stream *)ctl)->field_24 == 0)
+  if (((Stream *)ctl)->step_count == 0)
   {
-    t = data_8017eb1c[((Stream *)ctl)->field_0b];
+    t = data_8017eb1c[((Stream *)ctl)->source_index];
     v = *(u32 *)((Stream *)ctl)->field_40;
     n = v & 0xff;
     n = n + ((v & 0xff00) >> 6);
     p = t[n];
-    ((Stream *)ctl)->field_38 = p;
+    ((Stream *)ctl)->source_ptr = p;
     ((Stream *)ctl)->field_44 = p;
   }
   func_8015003c((Stream *)ctl);
-  ((Stream *)ctl)->field_24++;
-  if (((Stream *)ctl)->field_30 == 0)
+  ((Stream *)ctl)->step_count++;
+  if (((Stream *)ctl)->bytes_remaining == 0)
   {
     u8 *r = ((Stream *)ctl)->field_40;
     u32 k = r[0];

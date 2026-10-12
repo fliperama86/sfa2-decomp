@@ -10,11 +10,11 @@ void func_80147968(Object *object) {
         if (--*(s16 *)&object->step_timer == 0) {
             if ((s16)object->step_flags < 0) {
                 next = object->sequence + object->sequence->loop_offset;
-                if (next != object->sequence) object->field_80 = 1;
+                if (next != object->sequence) object->sequence_changed_flag = 1;
                 object->sequence = object->sequence + object->sequence->loop_offset;
             } else {
                 next = object->sequence + 1;
-                if (next != object->sequence) object->field_80 = 1;
+                if (next != object->sequence) object->sequence_changed_flag = 1;
                 object->sequence = object->sequence + 1;
             }
             object->step_timer = object->sequence->duration;

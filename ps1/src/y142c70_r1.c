@@ -54,9 +54,9 @@ void func_80142c70(Object *object) {
         o->field_3c = object;
         o->field_0d = object->field_0d + 3;
         o->field_20 = 8;
-        o->field_7a = 0x60;
+        o->spawn_x = 0x60;
         o->field_44 = 1;
-        o->field_7c = 0x1e0;
+        o->spawn_y = 0x1e0;
         o->field_90 = object->field_90;
         o->field_98 = object->field_98;
         o->field_9c = object->field_9c;
@@ -73,8 +73,8 @@ void func_80142c70(Object *object) {
         else o->field_0d = object->field_0d + 4;
         o->field_44 = 1;
         o->field_20 = 0x10;
-        o->field_7a = 0x60;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0x60;
+        o->spawn_y = 0x1e0;
         o->field_90 = object->field_90;
         o->field_98 = object->field_98;
         o->field_9c = object->field_9c;
@@ -91,8 +91,8 @@ void func_80142c70(Object *object) {
         else o->field_0d = object->field_0d + 4;
         o->field_44 = 1;
         o->field_20 = 0x18;
-        o->field_7a = 0x60;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0x60;
+        o->spawn_y = 0x1e0;
         func_801379bc(object, 0);
         o->field_90 = object->field_90;
         o->field_98 = object->field_98;

@@ -9,12 +9,12 @@ void func_801565f4(void *a, Object *object) {
     u8 second;
 
     update_name_entry_input(a, object);
-    first = object->field_120;
+    first = object->score_rank;
     second = object->field_121;
     if (second < first) {
         first = second;
     }
-    object->field_122 = first;
+    object->min_rank = first;
     if (object->field_123 != 4) {
         int t;
         t = object->field_b4 - 1;

@@ -13,8 +13,8 @@ void func_80012d08_slot01(Object *obj);
 void func_80012b90_slot01(Object *obj) {
     Object *r;
 
-    obj->field_7a = 0x70;
-    obj->field_7c = 0x1ea;
+    obj->spawn_x = 0x70;
+    obj->spawn_y = 0x1ea;
     obj->field_98 = data_80019330_slot01;
     obj->field_9c = data_800195b8_slot01;
     obj->field_90 = (void *)0x80059000;
@@ -30,12 +30,12 @@ void func_80012b90_slot01(Object *obj) {
     if (obj->field_03 & 0x80) {
         obj->field_01 = 1;
         obj->field_0c = 1;
-        obj->field_09 = 0;
+        obj->ot_depth = 0;
         func_80130768(obj, obj->field_03 - 0x80, data_800212ac_slot01);
     } else {
         obj->field_01 = 0;
         obj->field_0c = 0;
-        obj->field_09 = 3;
+        obj->ot_depth = 3;
         func_80130768(obj, 0, (SequenceStep **)((ObjectWords *)obj)->word_58);
         func_80012f60_slot01(obj, (Poly28 *)data_800319b8_slot01, (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));
         func_80012f60_slot01(obj, (Poly28 *)(data_800319b8_slot01 + 0xf0), (u16)func_8015bd0c(0, 0, 0x300, 0), (u16)func_8015bdd4(0x70, 0x1eb));

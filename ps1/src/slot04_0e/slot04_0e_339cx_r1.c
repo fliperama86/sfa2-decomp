@@ -4,8 +4,8 @@
 #include "../externs.h"
 
 /* What it does (inferred, not an original name): one step of a jump or fall
-   toward a target height, field_70. func_80130184 moves the object by its
-   velocity words and reports whether pos_y has reached field_70. When it
+   toward a target height, ground_y. func_80130184 moves the object by its
+   velocity words and reports whether pos_y has reached ground_y. When it
    has, the object lands: pos_x_frac, field_45 and field_159 are cleared, the
    state byte state_3 advances, pos_y is set to the target, a sound is
    played and sequence 0x36 starts. Otherwise the remaining distance
@@ -28,12 +28,12 @@ void func_801b339c_slot04_0e(Object *o) {
         o->field_45 = 0;
         o->field_159 = 0;
         o->state_3++;
-        o->pos_y = obj->field_70;
+        o->pos_y = obj->ground_y;
         play_side_sound_at(o, o->side, 0x1b);
         p = o;
         seq = 0x36;
     } else {
-        d = obj->field_70 - (u16)o->pos_y;
+        d = obj->ground_y - (u16)o->pos_y;
         if (d < 0x11) {
             seq = 0x3b;
         } else if (d < 0x21) {

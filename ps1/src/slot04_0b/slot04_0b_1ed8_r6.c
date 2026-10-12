@@ -7,5 +7,5 @@ u8 func_801b2510_slot04_0b(Object *o) {
     *(s32 *)&o->pos_x_frac += o->vel_x;
     *(s32 *)&o->pos_y_frac -= o->vel_y;
     o->vel_y += o->accel_y;
-    return o->pos_y <= o->field_70;
+    return o->pos_y <= o->ground_y;
 }

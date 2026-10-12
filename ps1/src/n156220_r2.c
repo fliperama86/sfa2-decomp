@@ -9,6 +9,6 @@ void func_801565b8(void *a, Object *object) {
         object->field_b0 = t - 1;
     } else {
         object->field_b0 = 600;
-        object->field_aa = object->field_aa + 1;
+        object->phase_index = object->phase_index + 1;
     }
 }

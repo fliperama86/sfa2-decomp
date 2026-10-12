@@ -4,7 +4,7 @@
 #include "protos.h"
 
 u16 func_80130470(Object *object) {
-    return (u8)object->field_134;
+    return (u8)object->pressed_bits;
 }
 
 
@@ -30,7 +30,7 @@ void func_80130504(Object *object) {
 
 BytePair func_8013054c(Object *object) {
     BytePair d;
-    u16 pad = object->field_134;
+    u16 pad = object->pressed_bits;
     d.second = 0;
     d.first = 0;
     if (pad & 0x80) {

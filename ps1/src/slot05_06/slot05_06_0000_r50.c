@@ -24,7 +24,7 @@ void func_801cc50c_slot05_06(Object *obj) {
         p = obj->other;
         p->field_15b = 1;
         func_80140770(obj, 0x26, 5, *(s16 *)(data_801dd4e4_slot05_06 + (obj->field_12a & 0xfe)), 4, 0, 1);
-        if ((s16)p->field_5c < 0) {
+        if ((s16)p->health < 0) {
             obj->field_167 = 2;
             if (obj->field_49 != 0) {
                 obj->field_167 = 0x16;

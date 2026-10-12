@@ -17,11 +17,11 @@ void func_80155de0(Actor *a, Object *b)
   if ((b->field_61 < 0x80) && (o->field_cd == 0))
   {
     side = o->field_65;
-    new_var = a->field_08 & 0x1f;
+    new_var = a->text_index & 0x1f;
     o->field_bf = 0xff;
     idx = new_var;
     o->field_be = idx;
     func_80155d4c(table_80181510[idx], side);
-    func_80155eac(table_80181510[a->field_08 & 0x1f], side);
+    func_80155eac(table_80181510[a->text_index & 0x1f], side);
   }
 }

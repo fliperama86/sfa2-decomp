@@ -12,7 +12,7 @@ int func_80149d6c(Object *object)
   for (i = 0; i < 16; i++)
   {
     new_var = units_2c20[i].field_00;
-    if ((((new_var == 1) && ((units_2c20[i].field_74 & 0x80) == 0)) && (object->field_65 != units_2c20[i].field_65)) && ((new_var = (u16) (((new_var = units_2c20[i].field_12) - object->pos_x) + 0x50)) < 0xa0))
+    if ((((new_var == 1) && ((units_2c20[i].field_74 & 0x80) == 0)) && (object->field_65 != units_2c20[i].field_65)) && ((new_var = (u16) (((new_var = units_2c20[i].pos_x) - object->pos_x) + 0x50)) < 0xa0))
     {
       return 1;
     }

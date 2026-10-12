@@ -21,17 +21,17 @@ void func_80011d6c_slot12(Object *obj) {
     obj->field_22 = 0;
     obj->state_0++;
     if (obj->field_03 == 0) {
-        obj->field_09 = 9;
+        obj->ot_depth = 9;
         obj->pos_x = 0x90;
         obj->pos_y = 0x38;
         func_80130768(obj, 2, table_80017870_slot12);
     } else if (obj->field_03 == 1) {
-        obj->field_09 = 0xb;
+        obj->ot_depth = 0xb;
         obj->pos_x = 0;
         obj->pos_y = 0x28;
         func_80130768(obj, 0, table_80017870_slot12);
     } else if (obj->field_03 == 2) {
-        obj->field_09 = 0xb;
+        obj->ot_depth = 0xb;
         obj->pos_x = 0xc0;
         obj->pos_y = 0x28;
         func_80130768(obj, 1, table_80017870_slot12);

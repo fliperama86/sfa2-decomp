@@ -100,11 +100,11 @@ void func_801b4cf4_slot04_11(Object *obj) {
 }
 
 void func_801b4d84_slot04_11(Object *obj) {
-    if (*(u8 *)&obj->step_flags == 0 && func_801b57a8_slot04_11(obj) < 0 && obj->pos_y >= (s16)((Slot04bObj *)obj)->field_70) {
+    if (*(u8 *)&obj->step_flags == 0 && func_801b57a8_slot04_11(obj) < 0 && obj->pos_y >= (s16)((Slot04bObj *)obj)->ground_y) {
         obj->state_3++;
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
-        obj->pos_y = ((Slot04bObj *)obj)->field_70;
+        obj->pos_y = ((Slot04bObj *)obj)->ground_y;
         func_801209c4(obj);
         func_80130678(obj, 0x11);
     }

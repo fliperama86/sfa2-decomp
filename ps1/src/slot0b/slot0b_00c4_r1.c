@@ -26,7 +26,7 @@ void func_801e0114_slot0b(Object *obj) {
     if (obj->field_03 == 0) {
         obj->field_01 = 0;
         obj->field_0c = 0;
-        obj->field_09 = 3;
+        obj->ot_depth = 3;
         func_80130768(obj, 0, (SequenceStep **)((ObjectWords *)obj)->word_58);
         s = func_8015bd0c(0, 0, 0x280, 0) & 0xffff;
         r = func_8015bdd4(0x140, 0x1e6);

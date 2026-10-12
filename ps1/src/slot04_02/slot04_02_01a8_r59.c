@@ -34,7 +34,7 @@ void func_801b6a84_slot04_02(Object *obj) {
     }
     func_801307e0(obj, (s16)t);
     func_80120af8(obj);
-    if (obj->pos_y < (u16)(((Slot04bObj *)obj)->field_70 - 0x50) && obj->field_48 != 0 && (obj->field_48 & 0x80) == 0 && obj->field_129 != 0 && obj->field_12a == 2 && obj->field_219 != 0) {
+    if (obj->pos_y < (u16)(((Slot04bObj *)obj)->ground_y - 0x50) && obj->field_48 != 0 && (obj->field_48 & 0x80) == 0 && obj->field_129 != 0 && obj->field_12a == 2 && obj->field_219 != 0) {
         func_801b6cb0_slot04_02(obj, 1, 0, 5, 0);
         func_801307e0(obj, 0x29);
     }

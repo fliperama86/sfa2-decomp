@@ -5,7 +5,7 @@
 
 void func_8012df44(Object *object) {
     if ((u8)func_80130184(object) == 0) {
-        object->pos_y = (u16)object->field_70;
+        object->pos_y = (u16)object->ground_y;
         object->state_0 = 1;
         object->state_2 = 3;
         object->state_1 = 0;

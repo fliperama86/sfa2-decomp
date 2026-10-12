@@ -272,12 +272,12 @@ void func_801b15c4_slot04_17(Object *obj) {
                 obj->field_254 = 0xff;
             }
         }
-        if ((obj->field_134 & 0x94) == 0) {
+        if ((obj->pressed_bits & 0x94) == 0) {
             func_801b17b4_slot04_17(obj);
         } else {
-            if ((obj->field_134 & 0x80) != 0) {
+            if ((obj->pressed_bits & 0x80) != 0) {
                 x = 0;
-            } else if ((obj->field_134 & 0x10) != 0) {
+            } else if ((obj->pressed_bits & 0x10) != 0) {
                 x = 2;
             } else {
                 x = 4;
@@ -301,7 +301,7 @@ void func_801b15c4_slot04_17(Object *obj) {
                     obj->step_timer = obj->sequence->duration;
                     obj->frame = obj->frames + obj->sequence->frame_index;
                     obj->field_4a = obj->frame->field_0d;
-                    obj->field_80 = 1;
+                    obj->sequence_changed_flag = 1;
                 }
             }
         }

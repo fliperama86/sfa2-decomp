@@ -17,25 +17,25 @@ void func_801b038c_slot04_sel(void) {
     TextBuf *q;
 
     if (game_state.field_07 & 1) {
-        if (data_801b9cf0_slot04_sel[0].field_03 == 0x12) {
-            data_801b9cf0_slot04_sel[0].field_03 = 4;
+        if (data_801b9cf0_slot04_sel[0].kind == 0x12) {
+            data_801b9cf0_slot04_sel[0].kind = 4;
         }
-        if (data_801b9cf0_slot04_sel[0].field_03 == 0x13) {
-            data_801b9cf0_slot04_sel[0].field_03 = 0x11;
+        if (data_801b9cf0_slot04_sel[0].kind == 0x13) {
+            data_801b9cf0_slot04_sel[0].kind = 0x11;
         }
-        if (data_801b9cf0_slot04_sel[0].field_03 == 0x14) {
-            data_801b9cf0_slot04_sel[0].field_03 = 2;
+        if (data_801b9cf0_slot04_sel[0].kind == 0x14) {
+            data_801b9cf0_slot04_sel[0].kind = 2;
         }
     }
     if (game_state.field_07 & 2) {
-        if (b->field_03 == 0x12) {
-            b->field_03 = 4;
+        if (b->kind == 0x12) {
+            b->kind = 4;
         }
-        if (b->field_03 == 0x13) {
-            b->field_03 = 0x11;
+        if (b->kind == 0x13) {
+            b->kind = 0x11;
         }
-        if (b->field_03 == 0x14) {
-            b->field_03 = 2;
+        if (b->kind == 0x14) {
+            b->kind = 2;
         }
     }
     data_8018f5a0->field_50 += 1;

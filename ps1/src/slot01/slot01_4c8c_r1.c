@@ -16,10 +16,10 @@ void func_80014c8c_slot01(Object *o) {
     o->vel_y = 0x80093000;
     o->field_1e = 0x5800;
     o->accel_y = 0x400;
-    *(u32 *)&o->field_5c = 0x100;
+    *(u32 *)&o->health = 0x100;
     o->state_0++;
     obj->field_14 = 0;
-    obj->field_8a = 0x10;
+    obj->ot_index = 0x10;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 0x118; j++) {
             r = &data_80033bb4_slot01[i][j];

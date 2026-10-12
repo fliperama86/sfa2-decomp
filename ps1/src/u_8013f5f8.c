@@ -22,7 +22,7 @@ int func_8013f5f8(Object *object, int a, int b)
   bb = b;
   ref_other.p = object->other;
   rec = ref_other.p->frame;
-  if (rec->field_06 != 0)
+  if (rec->handler_index != 0)
   {
     return 0;
   }
@@ -47,7 +47,7 @@ int func_8013f5f8(Object *object, int a, int b)
     diff = -a;
   }
   diff = diff + ((u16) object->pos_x);
-  box = &((Box6 *) ref_other.p->unknown_148)[rec->field_07];
+  box = &((Box6 *) ref_other.p->unknown_148)[rec->box_index];
   delta = ((u16) box->origin) - box->extent;
   if ((*((u16 *) (&object->state_0))) == 1)
   {

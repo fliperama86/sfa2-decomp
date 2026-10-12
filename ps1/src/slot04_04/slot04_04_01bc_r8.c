@@ -24,7 +24,7 @@ void func_801b0a40_slot04_04(Object *obj) {
     if (obj->field_12f == 0) {
         if (obj->field_67 != 0) {
             func_801b0adc_slot04_04(obj);
-        } else if (func_801b3a40_slot04_04(obj) < 0 && !(obj->pos_y < obj->field_70)) {
+        } else if (func_801b3a40_slot04_04(obj) < 0 && !(obj->pos_y < obj->ground_y)) {
             func_801209c4(obj);
             func_80131638(obj);
         } else {

@@ -43,7 +43,7 @@ void func_801b1f54_slot04_05(Object *obj) {
     } else {
         obj->state_3++;
         func_801209c4(obj);
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         obj->field_45 = 0;
         obj->field_17b = 0;
     }

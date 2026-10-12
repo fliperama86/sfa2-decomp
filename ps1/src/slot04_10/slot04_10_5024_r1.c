@@ -25,7 +25,7 @@ void func_801b5024_slot04_10(Object *obj) {
         ref_other.p->field_260 = 1;
         func_80140770(obj, 0x1f, 5, 0x16, 0x1a, 1, 0);
         ref_other.p = obj->other;
-        if ((s16)ref_other.p->field_5c < 0) {
+        if ((s16)ref_other.p->health < 0) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
             data_80190468.p->field_6b = 0;
             func_80147000(obj);
@@ -49,7 +49,7 @@ void func_801b5174_slot04_10(Object *obj) {
         obj->state_3++;
         obj->field_45 = 0;
         obj->field_159 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
         func_801307e0(obj, 0x33);
@@ -89,7 +89,7 @@ void func_801b52e0_slot04_10(Object *obj) {
     } else {
         obj->state_3++;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
         func_801307e0(obj, 0x35);
@@ -122,7 +122,7 @@ void func_801b535c_slot04_10(Object *obj) {
         ref_other.p->field_260 = 1;
         func_80140770(obj, 0x23, 0xf, -0x200, 0, 0, 0);
         ref_other.p = obj->other;
-        if ((s16)ref_other.p->field_5c < 0) {
+        if ((s16)ref_other.p->health < 0) {
             obj->field_167 = (obj->field_12a >> 1) + 0xc;
         }
         obj->vel_x = 0x48000;
@@ -141,7 +141,7 @@ void func_801b5528_slot04_10(Object *obj) {
     } else {
         obj->state_3++;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         func_801209c4(obj);
         func_801307e0(obj, 0x36);
@@ -179,7 +179,7 @@ void func_801b5680_slot04_10(Object *obj) {
     } else {
         obj->state_3++;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
         data_80190468.p->field_63 = (obj->field_12a << 2) + 0x3c;
         func_80146960(obj);

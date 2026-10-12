@@ -26,12 +26,12 @@ void func_80011ea4_slot27(void) {
     if (rec->field_00 != 0) {
         v = *data_80026960_slot27[obj->side];
         if (v != 0) {
-            if (v == data_80026970_slot27[rec->field_02]) {
-                if (++rec->field_02 == 0xb) {
+            if (v == data_80026970_slot27[rec->step_count]) {
+                if (++rec->step_count == 0xb) {
                     rec->field_03 = 0xff;
                 }
             } else {
-                rec->field_02 = 0;
+                rec->step_count = 0;
                 rec->field_00 = 0;
             }
         }

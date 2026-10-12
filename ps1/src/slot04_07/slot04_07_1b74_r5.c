@@ -8,7 +8,7 @@ int func_801b41c4_slot04_07(Object *obj);
 void func_801b2074_slot04_07(Object *obj) {
     int y;
     func_801b41c4_slot04_07(obj);
-    y = obj->field_70;
+    y = obj->ground_y;
     if (y > obj->pos_y) {
         update_sequence(obj);
     } else {

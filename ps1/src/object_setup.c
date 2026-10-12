@@ -33,7 +33,7 @@ void init_table_fields(Object *object) {
 void set_start_position(Object *object) {
     object->pos_x = 0x280;
     object->pos_y = 0xd0;
-    object->field_70 = 0xd0;
+    object->ground_y = 0xd0;
 }
 
 void set_side_field_0d(Object *object) {

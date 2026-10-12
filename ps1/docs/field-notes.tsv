@@ -1,0 +1,1704 @@
+struct	offset	name	what the uses show
+SequenceStep	0x004	data_ptr	Read from the current sequence step and cast to different data structures (lists, sprite sets, tilemaps, header bytes) by many functions; also used as an address with an offset added.
+FrameRecord	0x004		Tested against zero together with field_05, compared between two objects' frames, compared with a limit, and set from object field_11c.
+FrameRecord	0x005		Tested against zero together with field_04, set from object field_11d, and read into a temporary.
+FrameRecord	0x006	handler_index	Tested for nonzero in many checks, and used as an index into the handlers_7018 table of functions.
+FrameRecord	0x007	box_index	Used as an index selecting a Box6 entry in the object's unknown_148 box table, and copied from object field_11f.
+FrameRecord	0x008		Compared with a level, copied to object fields and passed as an argument to func_80130768; also a field of other tables.
+FrameRecord	0x009		Compared with zero, masked with 0x7f, compared with object field_48 and read in many state functions.
+FrameRecord	0x00a		Masked with 0xf or 0x1f and used to index offset pair tables; also tested against 0 and 1.
+FrameRecord	0x00b		Used to index box tables relative to the other object and multiplied by 3; copied to object field_0b which negates x offsets.
+FrameRecord	0x00c		Bit 0x80 is tested, 0xff is compared, it is used as a table index and passed as an argument to other functions.
+FrameRecord	0x00d		Copied into object field_4a in many functions.
+FrameRecord	0x00f		Read into a local only.
+Box6	0x002	origin_y	Y offset of a box, added to or subtracted from the other's pos_y and compared in overlap tests.
+Box6	0x005		Byte added to a position or sum in overlap tests, read as a height-like extent.
+Box32	0x002		Read as the box's y value (oy/box_y) when placing boxes for the separation test.
+Box32	0x006		Read as the box's height (oh/box_h) when placing boxes for the separation test.
+Box32	0x008		Bit 0x80 is tested in the hit result decisions.
+Box32	0x009		Low nibble is copied into field_62 of the other object.
+Box32	0x00a		Copied to b->field_63 in one function; a different pointer's field is tested nonzero in another.
+Box32	0x00b		Bit 0x80 is tested and the value is xored into b->field_72; nonzero means x is mirrored.
+Box32	0x00d		Compared with many constants (2, 4, 6, 7, 0xd, 0x10, 0x1a, 0x1c, 0x1d) and copied into field_61 of the defender, with 0x1d turned into 0x12.
+Box32	0x011		Masked with 0x1f and copied into b->field_6b, and also used as an index.
+Box32	0x012		Bit 0x80 is tested, low 7 bits used as xi, and the value is copied to b->field_264 and field_265.
+Box32	0x018		Compared with yi in the hit check.
+Box32	0x019		Copied into b->field_63.
+Slot	0x000	stage	Cleared to 0 to end a slot, and incremented (by 1 or 2) or set to constants to advance the slot's step.
+Slot	0x001		Index added to arg*7 into tables, cleared, set to 1, masked with 3 and stepped by a direction.
+Slot	0x002		Counter set to 0 or 6, decremented by 1 or 2, tested for zero; also used as a 16-bit value with field_03.
+Slot	0x003	direction	Set to 1 or a direction, and bit 0x80 tested to choose step -1 or +1.
+Slot	0x004	timer	Counted down and tested for zero, at which the slot is cleared; set from a random-byte table or constants.
+Slot	0x005		Set to 1 or to a level argument.
+Slot	0x006		Only cleared to 0.
+Object	0x000		Set to 1 or incremented by one on newly allocated objects, and tested against 0 and 1; looks like an in-use or stage count.
+Object	0x001		Cleared to 0 and compared with 0 in many modules, no further role shown.
+Object	0x002		Assigned constants like 5, 0x6d, 0x27, 0xf on newly spawned objects and compared with 0, 1, 0x17; also used as a small index (shifted by 5, plus 1 compared with game mode).
+Object	0x003		Small value set to 0 or 1..3 on spawn and used as an index into position and velocity tables.
+Object	0x008		Assigned values like 0x20 and 0x10 and compared with 0, 3, 8, and tested with bit 1.
+Object	0x009	ot_depth	Assigned small constants on spawn and used as an offset into the ordering table (ot[field_09 + 8]) when linking primitives.
+Object	0x00a		Set to small values 0, 1, 2, incremented, or loaded from an index; no clear role.
+Object	0x00b		Tested against 0, set from random bit or sign of vel_x, used as an index into tables, and copied between objects.
+Object	0x00c		Set to 0, 1 or 0xff and copied between objects; no role shown.
+Object	0x00d		Used as a row offset added to 0x1e0 for image rects and shifted by 5 to index source data; set to constants like 0xd and 0.
+Object	0x00e		Copied between objects, set to constants and compared with 4, or assigned from a function result.
+Object	0x00f		Set to 0 or 1 and tested for nonzero, also copied between objects.
+Object	0x01c		u16 copied between objects and assigned from tables or 0; no role shown.
+Object	0x01e		u16 set to constants, cycled with &3, and copied between objects.
+Object	0x020		u16 set to small constants like 5, 10, 8, 0x10, cleared to 0 and tested for nonzero; also aliased with sequence copy.
+Object	0x022		u16 used as a signed scale factor in y computation ((y+8)*field_22 >> 4) and set to constants like 0x80 or 0xfff0.
+Object	0x024		u16 cleared, incremented by 8, tested for nonzero, and used as a byte index into tables.
+Object	0x026		u16 copied between objects, cleared, and multiplied with a layer width difference then divided to compute x offset.
+Object	0x028		u32 holding an object pointer, cleared to 0, compared with an object address and used to set state_0 of the pointed object.
+Object	0x02c		Accessed as a 32-bit object pointer, cleared, compared with obj, or set to 0xff/0 as a byte.
+Object	0x032		Read once into a local variable.
+Object	0x034		u32 holding an object pointer, cleared, compared with obj and tested for nonzero.
+Object	0x03c		Pointer to an Object (parent/owner) whose side, state, step_flags, pos and frame are read; cleared to 0 and compared with obj.
+Object	0x044		Set to 1 on spawned objects or cleared to 0; no further use shown.
+Object	0x045		Tested against 0 and 1 on fighters and the other object, in combination with vel_y checks.
+Object	0x046		A 16-bit value counted down by 1 (or 0x100 when step_flags is negative) and tested for zero/negative; also set to constants like 4, 8, 0x40 and random values on the other object.
+Object	0x048		A byte used as an index with kind into motion_speed_table, set to side, constants, or random values, and tested for nonzero; uses differ between functions.
+Object	0x049		A byte tested for nonzero alongside vel_y sign and copied from the other object.
+Object	0x04a		A byte loaded from frame->field_0d, cleared to 0, and read as an index in play_frame_sound.
+Object	0x04b		A byte tested for zero/nonzero in many functions, cleared, and copied from field_25c.
+Object	0x05c	health	A signed 16-bit value decremented, tested for negative, and reduced by a computed amount on the other object; negative marks defeat; also used as a horizontal offset in one function.
+Object	0x05e		A 16-bit value moved by 1 toward field_5c each few ticks in update_health_bars, but also used as a y offset and set to constants elsewhere.
+Object	0x060		A byte compared with 1, 3 and set to 2; loaded from pairs table second; used as an index into a table; also copied as part of a 32-bit block.
+Object	0x061		A byte compared with 0xff and values like 0x16, 0x17, 0x18, set to 0xff, 0 or a parameter; dispatches behaviour.
+Object	0x062		A byte set to small constants, values from tables and box nibble, compared with >= 2.
+Object	0x063		A byte set to constants and parameters, masked with 0x3f to index a vector table.
+Object	0x064		A byte set from table lookups, adjusted by adding or subtracting shifted copies of itself, and cleared.
+Object	0x065		A byte set from a per-side table, toggled with xor 1, set to 0 or 0xff, compared between objects and tested for zero.
+Object	0x066		A byte set from side or kind of another object and passed as the side to a sound call.
+Object	0x067		A byte flag set to 0 or 1 and tested for nonzero in many functions.
+Object	0x068		A byte set from pairs table first, constants, and passed to func_801308c4; also part of a 32-bit copy.
+Object	0x069		A byte cleared, incremented, compared with 2 and used as a limit or level.
+Object	0x06a		A byte cleared at reset, incremented, and compared with >= 2 and 0.
+Object	0x06b		A byte set to constants, tested for zero/nonzero, and incremented by 0xff with bit 0x80 tested, as a countdown in one function.
+Object	0x070	ground_y	A signed 16-bit value compared with pos_y minus offsets, as a y threshold.
+Object	0x072	facing_flag	A byte set from a comparison of positions or xor, tested for zero to negate a direction, and used to derive field_0b.
+Object	0x073		A byte set to 0, 1 or 0xff and tested for zero, nonzero, 0xff and bit 0x80.
+Object	0x074		A byte set to 0, 1 or 0xff and tested for zero.
+Object	0x075		A byte set from tables and tested for bits 1 and 2.
+Object	0x076		A 16-bit value set to constants like 0x340, 0x180, used as an x position offset and shifted by 8 into accel_y.
+Object	0x078		Set to 0, to table values, or 0x100; read as a value minus 8 for pos_y and plus 0x20 for another field's value.
+Object	0x07a	spawn_x	Set to constants like 0x60, 0x80, 0xb0, copied between objects, and read to set pos_x of newly made objects and a rect x.
+Object	0x07c	spawn_y	Set to constants like 0x1e0 or 0x1f0 plus a random 0-2, copied between objects, and read to set pos_y of newly made objects.
+Object	0x07e		Byte tested against zero in many conditions, on the object and on its other object, as a gate for actions.
+Object	0x080	sequence_changed_flag	Set to 1 when the sequence changes to a new entry, tested nonzero in one place, and incremented in another.
+Object	0x081		Set to small constants such as 4, 5 and 6 in different functions.
+Object	0x090		Pointer set to a fixed address 0x800fb100, to other pointers, or copied between objects.
+Object	0x098		Pointer loaded from per-kind tables, set to fixed data addresses and copied between objects.
+Object	0x09c		Pointer paired with the field before it, loaded from per-kind tables (second entry) and copied between objects.
+Object	0x0a0		Byte compared with small values 1, 2, 3, 7, used as an index into a sequence table and an offsets table, and tested with bit 0x80.
+Object	0x0a1		Set to constants like 0x10 and 0x17 and 0, tested against zero, and used as an index into a table for offsets.
+Object	0x0a2		Counted up to 2 and cleared in some functions, tested nonzero in others, and shifted into a drawing command word.
+Object	0x0a3		Set to 0 or 1 and tested against zero, and shifted into a drawing command word.
+Object	0x0a4		Set to 0, 1, 2, compared with 1, and decremented; also written as part of a packed word.
+Object	0x0a5		Set to 0 or 2, toggled with xor 1, and tested against zero before calling a function from a table indexed by field_a9.
+Object	0x0a9		Set to small constants and incremented, and used as an index into a table of functions.
+Object	0x0aa	phase_index	Incremented, cleared, compared with small values, and used as an index into tables of functions.
+Object	0x0ab		Set to 0, 1 or 2 and compared with 1 and 2 through a global object pointer.
+Object	0x0ac		Used, often shifted right by 1, as an index into tables giving vel_x and vel_y, and added to state_1.
+Object	0x0ad		Byte tested against zero in many functions, including comparing two objects.
+Object	0x0ae		Used as an index into a box_tables table, incremented, and set to 0 or from field_a0.
+Object	0x0af		Set from a table, set to constants, decremented to zero, toggled with xor 1, and tested against zero.
+Object	0x0b0		Set to constants such as 0x7f, 0x60, 0x5a, 0x1e and decremented, tested for reaching zero or going below zero.
+Object	0x0b2		Set to 9, 0 or -0x1000, read as a digit plus 0x30 and compared with 9 and zero.
+Object	0x0b4		Set to 0x960 or 0 and decremented by one, with a later check for going below zero.
+Object	0x0b8		A BCD-added value (add_bcd with amounts, capped at 0x9999999), cleared to 0, copied to field_e4 and field_e8 and back.
+Object	0x0bc		A byte cleared to 0, set from a value, tested against 0 and 8 and used (>>1) to index a table.
+Object	0x0bd		A byte set to small constants (2,4,6,8) by various functions, tested nonzero, shifted right by 1 and then cleared by the effect code.
+Object	0x0be		A byte cleared to 0, set to a slot or index (w & 0x1f) and used to index table_80181510.
+Object	0x0bf		A byte cleared to 0 or set to 0xff, set alongside field_be.
+Object	0x0c0		A byte cleared to 0 and incremented while below 0x63 in func_80123bd4; also read as a displayed number.
+Object	0x0c1		A byte cleared to 0, incremented in func_80126bcc, and used (below 0x10) to index a cost table.
+Object	0x0c2		A 16-bit mask tested with bit flags (0x100, 0x8000), set to 0 or 0x4000 and copied to field_c4 each frame, apparently the current input bits.
+Object	0x0c4		A 16-bit value copied from field_c2 and used inverted (~) as a mask against it, i.e. the previous frame's input bits.
+Object	0x0c6		A 16-bit value reduced by 0x30 and floored at 0, compared with 0x30 and 0x60 as signed.
+Object	0x0c8		Only cleared to 0 in one function.
+Object	0x0ca		Only cleared to 0 in the lines shown; another function sets it to 0x5a.
+Object	0x0cc		A byte cleared to 0, tested nonzero, and set from target->field_6a when larger.
+Object	0x0cd		A byte tested against 0 in very many functions to select behaviour, set to 1 at setup.
+Object	0x0ce		A byte cleared to 0, incremented as a per-player count that is compared with game_state.field_48, and also used as an index into the bytes after 0xcf.
+Object	0x0cf		A byte set to constants (0, 0x10, 0x1f), compared with 0x1d and with (v & 0x1f) and used to index a table.
+Object	0x0d4		A byte compared with 0, masked with 1 against side, and used to compute rectangle y and palette offsets.
+Object	0x0d5		A byte copied from field_c6 and used (>>4) as a table index.
+Object	0x0d7	win_streak	A byte cleared to 0 and 0xff set elsewhere, incremented as a streak counter capped at 99, displayed as a number.
+Object	0x0d8		A byte compared with 0 and with data_8019045c[0], cleared, and used as an offset base for coordinates.
+Object	0x0db		A byte cleared to 0, set to 1 or 0xff, and tested against 0.
+Object	0x0dc		A 16-bit value that has bits 0xe ORed in.
+Object	0x0e0		A 32-bit value cleared to 0, set to a tracked maximum of scores and read as a score.
+Object	0x0e4		A 32-bit BCD-added value capped at 0x9999999, cleared, copied from and to field_b8, and read as a score.
+Object	0x0e8		A 32-bit value set from func_80156018 with field_e4, copied from field_b8 and displayed.
+Object	0x0ec		Byte zeroed on reset, incremented in func_80147158, and compared with 5 (>= 5) in a bit-test condition in func_801262fc.
+Object	0x0ed		Byte zeroed on reset and incremented in func_80147158 (when field_255 is 6); no reads shown.
+Object	0x0ee		Byte zeroed on reset, incremented in two functions when field_5c is 0x90, and compared with 3 (>= 3) in func_801263d8.
+Object	0x0ef		Byte cleared on reset and set to 1 for both players in func_80010d7c; no reads shown.
+Object	0x0f0		Byte tested against zero in many functions, cleared for both players in a reset, and copied to a local in another; role not shown.
+Object	0x0f1		Byte cleared on reset, tested against zero in several places including a config-conditioned check and an OR of both players.
+Object	0x0f3		Byte set from a per-kind table indexed by kind.
+Object	0x0f4		32-bit value loaded from per-slot tables indexed by field_1a8, copied into accel_y in one function, and set to an index in another.
+Object	0x0fc		16-bit value set to 0x90 on reset, copied into field_5c and field_5e, and restored from field_5c elsewhere.
+Object	0x0fe		16-bit value zeroed on reset, copied to field_c6 in reset_object, and restored from field_c6 in func_801227d4.
+Object	0x103		Byte set to 0xff or 0 in slot functions and tested nonzero when kind is 10 before being cleared.
+Object	0x118		Byte stored from side, copied into kind in another function, compared with a value k, and copied into a record byte.
+Object	0x119		Byte set to 0 or 1 in selection functions, set from field_d4, and copied into a record byte.
+Object	0x11a		Byte cleared on reset, set from field_d8, and copied into a record byte.
+Object	0x11b		Byte set from field_40 of another record in two functions.
+Object	0x11c	name_char_0	First of three name characters (11c..11e) compared with table entries, set to 0x41 initially, and copied to a score record.
+Object	0x11d	name_char_1	Second of the name characters, set to 0x60 initially, compared with table entries, and copied to a record.
+Object	0x11e	name_char_2	Third of the name characters, set to 0x60 initially, compared with table entries, and copied to a record.
+Object	0x11f	name_char_3	Fourth name byte, set to 0x20 and copied to a record.
+Object	0x120	score_rank	Rank in a five-entry score table, set by the insertion function, bumped for the other player, zeroed, and used with field_121 in a sum below 12 and a min stored in field_122.
+Object	0x121		Rank in a second five-entry table ordered by field_124 and score, set by the insertion, zeroed, and summed with field_120.
+Object	0x122	min_rank	Stores the smaller of field_120 and field_121, and is later read as an index.
+Object	0x123		Counter of name characters entered, compared with 4, incremented while filling with spaces, and cleared at init.
+Object	0x124		Byte zeroed on reset, copied into a record, and used as the primary sort key in an insertion function.
+Object	0x128		Byte tested against zero, set from tables, 0 or 2, and masked values in many functions; uses differ.
+Object	0x129		Byte set from the second value returned by a helper (func_8013054c), tested nonzero or zero alongside vel_y and field_12a in air checks.
+Object	0x12a		Byte set from the first value of func_8013054c or to 0, 2 or 4 by input bits; used as field_12a>>1 to index tables of vel_x, vel_y and accel_y values, and compared with small constants.
+Object	0x12c		Byte cleared, incremented, and used as an index into per-slot tables of functions that are called with the object.
+Object	0x12d		Byte cleared to 0 or set to a constant such as 0xb4; few uses show no role.
+Object	0x12e		Byte cleared, incremented, loaded from a table indexed by field_12a, and compared with field_12f (less-than and equality).
+Object	0x12f		Byte set to small constants (0, 1, 2, 0xff), cleared, and compared with field_12e for equality and less-than.
+Object	0x130		Bit mask of current input (buttons) tested with masks like 0xe000 and 0x4000, set to 0 or 0x4000 and copied to field_150 and field_132.
+Object	0x132		Copy of field_130 made once per frame (previous input), compared with and masked against field_130.
+Object	0x134	pressed_bits	Bit mask of newly pressed input bits stored by func_8013172c, tested with various masks and its high or low byte decides sequence updates.
+Object	0x136	released_bits	Bit mask of released input bits stored by func_8013172c, or-ed with field_134 and masked.
+Object	0x14c		Pointer to another Object, compared with 0 and its state_0 read; set and cleared when objects are linked.
+Object	0x150		Input bit mask set to 0, 0x4000 or 0x1000, copied from field_130, masked by 0xf000 and stored into ring buffers.
+Object	0x152		Copy of field_150 made once per frame for both players.
+Object	0x154		Value loaded from a per-kind table at init and used as a horizontal half-span added to and subtracted from pos_x.
+Object	0x157		Byte tested nonzero in many functions, including on the other object, and cleared.
+Object	0x158		Byte set to 0 or 1 and tested; copied to field_0b and compared with it.
+Object	0x159		Byte set to 0 or 1 and tested for zero in many functions.
+Object	0x15a		Byte set to small constants (2, 4, 11) and compared with values like 1, 5, 6, 8.
+Object	0x15b		Byte set to 0 or 1, tested nonzero on the object or its other.
+Object	0x15c		Only cleared in reset_object.
+Object	0x15d		Byte counted down; when zero field_15e is cleared; set from a new value in func_80129678.
+Object	0x15e		Byte cleared in reset_object and when field_15d is zero, set from a value in func_80129678, masked with 0x3f.
+Object	0x160	gauge	Signed counter that is decremented (by 1 or 3), incremented, clamped at 0, and set to constants like 0x60, 0x64, 0xb4.
+Object	0x162		Byte loaded from a per-kind table at init and increased by 5 in func_8012da2c.
+Object	0x163		Byte tested for zero together with state values and on the other object.
+Object	0x164		Set to 0 or 1 (func_80130c80 sets the other's to 1 when shifting objects at bounds), compared with 0 and 1 in collision/push code, and used as a bit mask against a table entry.
+Object	0x165		Byte cleared in resets and tested for 0 or 1 in many functions, often combined with other conditions; the role is not shown.
+Object	0x166		Byte cleared in func_8013151c, set to 1 in func_8012e04c, and tested for 0 together with the other's field_45.
+Object	0x167		Byte assigned many different constants and computed values (including (field_12a>>1)+0xc), OR-ed with 0x80, and copied to a byte at object+field_ce+0xcf.
+Object	0x16a		Byte set to 1 in func_8011f70c when field_2a2 is nonzero and cleared in func_80130ec0.
+Object	0x16c		Written once with a local value v; no other use shown.
+Object	0x170		A 32-bit BCD number: a table value is added with add_bcd, capped at 0x9999999, cleared in func_801312b8, and copied into effect field_10.
+Object	0x177		Byte set to 1 in reset_object, tested for zero in many slot functions and decremented in one.
+Object	0x17a		Byte cleared to 0 and set to 0xff in different functions.
+Object	0x17b		Byte set to 0, 1 or a local value in many functions and tested for zero before actions.
+Object	0x17c	dir_second	Stores the second part of a direction pair (dir.second), set to 0xff when cleared and compared with dir.second in func_8014147c.
+Object	0x17d	dir_first	Stores the first part of a direction pair (dir.first), set to 0xff when cleared and compared with dir.first in func_8014147c.
+Object	0x17e		Copy of field_128 stored with the direction pair, set to 0xff when cleared and compared with field_128.
+Object	0x180		Counter incremented in func_8011f774 and capped at 0xad, cleared in several functions.
+Object	0x182		Counter incremented in func_8011f70c and capped at 0xad, cleared in several functions.
+Object	0x19c		Copied into field_19e in init_table_fields.
+Object	0x19e		Set to 6 unless mode is 3, otherwise copied from field_19c.
+Object	0x19f		Cleared in resets, tested for zero and loaded from field_6a in func_8012c100.
+Object	0x1a0		Byte cleared in resets, tested for nonzero and incremented in func_8012faf8; its address is stored in game_state.cursor.
+Object	0x1a1		Byte with bit 0x80 tested, decremented in func_801312b8 and func_8012e38c, and set to 0x13 in func_8012c100.
+Object	0x1a2		Byte cleared in resets, set to 1 in func_8012c100 and tested for nonzero in func_8012faf8.
+Object	0x206		Byte cleared in func_8014e080, tested for zero and incremented in func_8014a1ec.
+Object	0x207		Byte cleared in resets and compared with 0 and 1 in func_8014a364.
+Object	0x208		Byte set to small constants 0 to 6 in many functions and cleared in func_8012e4c4.
+Object	0x209		Byte set to a different constant in each of many functions and cleared in func_8012e4c4.
+Object	0x20a		Set to 0, 1, 2 or 3 by different functions and compared with 0, 1 and 3; selects among four init/step functions in func_8014a1ec and an index into saved script pointers.
+Object	0x20b	script_table_index	Set to a random value (0..3)<<1 for the players, used as an index (>>1 or +1) into tables of script lists.
+Object	0x20c		Compared with 0 and 2, saved to and restored from field_222, and set from the first word of a script.
+Object	0x20e		High byte of a u16 read from the script stream; 0xff is tested as a special marker, and value>>1 indexes a function table.
+Object	0x20f		Low byte of a u16 read from the script stream; tested against 0, 2, 4 and used >>1 as an index into function tables.
+Object	0x210		High byte of a 16-bit value combined with field_211 and compared with field_21e or other's position offset.
+Object	0x211		Low byte of a 16-bit value combined with field_210; also used as a flag byte with bits set (0x40) in other modules.
+Object	0x212		Byte stored from script data (high byte of a read word) and copied to field_21a.
+Object	0x213		Low byte of a script word; masked with 0xfe and compared with 4, compared to data_80189464, copied to field_217.
+Object	0x214		Compared against field_21e and built as the high byte of a 16-bit value with field_215.
+Object	0x215		Low byte paired with field_214; used as a margin added to a position difference.
+Object	0x216		Only cleared to 0 in one reset function.
+Object	0x217		Cleared on reset, copied from field_213, and tested for bit 0.
+Object	0x218		Cleared on reset, set to 1 in func_8014dd14, and tested nonzero in many state functions together with a position check relative to field_70.
+Object	0x219		Cleared on reset, set to 1 or from tables, and tested nonzero in many state functions.
+Object	0x21a		Set to 0 or 1, copied from field_212, tested for zero; xored with 1 and compared with field_0b.
+Object	0x21b		Set to 0 or 1 and tested for zero.
+Object	0x21c		Counted down to zero in many condition functions, set to 1 or from a random table, clamped to 0xff.
+Object	0x21e		Compared with the 16-bit value of field_210/211 and field_214, and with constants 0x30 and 0x40; set from other sources.
+Object	0x220	list_offset	Used as an offset into a list plus a random 5-bit value, tested nonzero, and set from a value in player setup.
+Object	0x221		Cleared on reset, set from field_20f, and tested nonzero.
+Object	0x222		Saves field_20c and restores it back to field_20c.
+Object	0x224		Incremented and decremented by script steps, cleared, and compared with data_8018946c.
+Object	0x225		Set to 0 or 1 across many functions and tested nonzero.
+Object	0x228		Holds the script read pointer (data_80189460) saved and restored, and copied to field_238.
+Object	0x22c	script_ptr_1	Holds a script pointer (data_80189460 position) stored by script setup functions and copied into field_238 and back to data_80189460.
+Object	0x230	script_ptr_2	Holds a script pointer stored from data_80189460 or next, and copied into field_238.
+Object	0x234	script_ptr_3	Holds a script pointer taken from the table entry (past its first word) and copied into field_238.
+Object	0x238	script_ptr	Holds the current script read pointer; loaded from field_228/22c/230/234 or data_80189460, read as u16 pointer, and stored back after reading.
+Object	0x23c		Stores data_80189460 script pointer once in a setup function; no other use shown.
+Object	0x240		Byte tested against zero and bits on this or the other object, often together with field_14c being nonzero before dereferencing it as an Object.
+Object	0x241		Byte flag set to 0 or 1 and tested for zero in conditions, cleared in reset.
+Object	0x242		Byte flag tested and set to 1 once by func_8014a0fc, cleared in reset.
+Object	0x243		Byte set to 1 or cleared to 0 and tested nonzero.
+Object	0x244		Holds an index (the bit index chosen from field_24a) later copied to field_24f and used to pick a table entry.
+Object	0x246		Byte tested against zero, set to a value and decremented, so it is a counter.
+Object	0x247		Byte set to 0 or 1 and cleared in reset; set when field_46 steps.
+Object	0x248		Byte loaded from per-kind tables and constants, tested for zero.
+Object	0x249		Byte set to small constants (5, 6, 8, 0) on this or the other object and tested nonzero.
+Object	0x24a		u16 bit mask; bits are ORed or cleared by script commands and tested bit by bit to choose an index.
+Object	0x24e		Byte set to 1 by func_8012f9b0, cleared in reset and tested together with field_d8.
+Object	0x24f		Byte set to 0 or to an index or value picked from tables in the script setup functions.
+Object	0x251		Byte set to 1 by func_8012f9b0, cleared in reset and tested together with field_d8.
+Object	0x252		Byte set to 0 or 0xff and cleared in reset.
+Object	0x253		Byte cleared by script setup, incremented by a script command and tested nonzero.
+Object	0x254		Byte set to 0, 1 or 0xff and tested against zero.
+Object	0x255		Small value set to even constants such as 0, 4, 6, used shifted right by 1 as a table index and compared.
+Object	0x256		Byte set to 1 by func_801303a0, cleared in reset and tested for zero.
+Object	0x257		Byte set to 1 or loaded from a table indexed by field_cf and tested nonzero.
+Object	0x258		Byte cleared, tested for zero and incremented once in func_8012cac8; also read as part of a 24-bit group.
+Object	0x259		Cleared to 0 in several functions; func_8012c990 tests it for 0 and increments it, running its one-time actions only the first time.
+Object	0x25a		Set to 1 in func_8012cc00 and cleared to 0 in reset and state functions; no test is shown.
+Object	0x25b		Cleared in reset, set to 1 in func_8012dde4 when a state change happens, and tested for nonzero in func_8012ec50.
+Object	0x25c		Cleared in func_8013060c, incremented in func_8013d0a0, tested for nonzero, and copied into field_4b in two functions.
+Object	0x25d		Only cleared in the lines shown.
+Object	0x25e		Set to 2, decremented toward zero when nonzero, and tested for nonzero.
+Object	0x25f		Cleared in reset, set to 0xff in some functions, and tested for zero together with input bits (field_130 & 0xa000) in many state functions.
+Object	0x260		Set to 1 or 0xff on the other object by attack functions, cleared in reset, and tested for zero or nonzero in checks.
+Object	0x261		Set to 0 or 1 on the other object by several state functions and tested for zero alongside field_73 bit 0x80 in func_80136744.
+Object	0x262		Set to 0x10 in func_8013060c, set from a value in reset_object, and tested for nonzero with input bits in several functions.
+Object	0x263		Decremented toward zero when nonzero, clamped to 9, assigned from a computed value, and tested for nonzero.
+Object	0x264		Assigned from a box's field_12 in func_80139a78 and masked with 0x7f as an index in func_80139304.
+Object	0x265		Assigned from a box's field_12 in func_80139a78 and masked with 0x7f as an index in func_80139304.
+Object	0x267		Set to 0 in func_80142c70, set to 1 in func_8011fe40, and tested for zero in func_8013060c.
+Object	0x278		Cleared in reset, set to 1 or a value in state functions, and when nonzero func_80128814 returns 0.
+Object	0x279		Cleared, set to 1 in func_8014147c when field_25f and direction bytes match, and when nonzero func_80128814 returns 0.
+Object	0x27a		Set to 0 or 1 in different functions and tested for zero in func_80077808.
+Object	0x27b		Tested for nonzero on the other object in many checks that bail out, and set to 0x18 in func_801b1378.
+Object	0x27c		Cleared, incremented, compared with 0x30, added into x, and copied into field_27d in several functions.
+Object	0x288		Cleared in several functions, incremented in func_80139a78, and read as an index in func_80139304; paired with field_289 by field_66.
+Object	0x289		Cleared in several functions, incremented in func_80139a78, and read as an index in func_80139304; paired with field_288 by field_66.
+Object	0x28a		Set to 1 in func_801b304c and cleared to 0 in reset and func_801b3160.
+Object	0x28c		Cleared, set from a value, decremented in func_801297b8, compared and copied; its top bit 0x80 is tested.
+Object	0x28d		Set to 0x3c, cleared, or copied from field_297, and compared with field_297 minus it against 0x18.
+Object	0x28e		Set from a table entry on the other object and copied into the other's field_167 in func_801297b8.
+Object	0x28f		Cleared in one function, decremented by one while nonzero in another, and tested for zero together with field_295 in a hit check.
+Object	0x290		Set to 0 or has its low byte replaced from a table; read and subtracted from field_5c in func_801297b8.
+Object	0x292		Set to constants such as 0x1e, 0x20 and 0x30 in many functions, decremented while nonzero, and tested for zero.
+Object	0x293		Set to 0 or 0xff and tested nonzero to choose which sound is played.
+Object	0x295		Cleared, tested for zero, set from a->field_49, and used to choose between sequence tables.
+Object	0x296	kind_timer	Set from a per-kind table, decremented while nonzero, and tested for zero.
+Object	0x297		Set to constants such as 0 and 0x3c, adjusted by 0xf6, compared against field_28d (difference at least 0x18), and copied to field_28d.
+Object	0x299		Cleared, set to 1, and tested for zero in conditions.
+Object	0x29a		Set to 0 or 1 in many functions; when zero, advance_sequence is called.
+Object	0x29b		Loaded from per-kind and other tables, decremented while nonzero, and tested nonzero.
+Object	0x29c		Set to small constants 0 to 3 in many functions.
+Object	0x29d		Set to 0 or 1 and tested for zero before extra hit calls.
+Object	0x29e		Set to 0 in one function and 1 in another.
+Object	0x29f		Set to 0 or 0x30, decremented while nonzero, and tested nonzero.
+Object	0x2a0		Only tested nonzero for an early return.
+Object	0x2a1		Set to values or 0 in many functions, decremented while nonzero, and tested nonzero.
+Object	0x2a2		Set to 0 or from field_7e, decremented while nonzero, and tested nonzero.
+Object	0x2a3		Set to 0 or 1 and tested for truth.
+Object	0x2ac		Set from kind or its bitwise complement, and tested for negative.
+Config	0x001		Compared with 0 in one function.
+Config	0x004		Tested for nonzero, alone or ORed with field_4d and field_4e, in many object-update functions; when nonzero those functions bail out or change state.
+Config	0x012		Used as the index into a table of functions (table_8017ac44) that is called.
+Config	0x032		Bit 0 is tested together with object field_60 being 3 or 1.
+Config	0x033		Added to the side of an object and masked with 3, compared with 0.
+Config	0x040		Compared with 0xf in one function.
+Config	0x042		Tested for nonzero in reset_object.
+Config	0x047		Returned as a nonzero test.
+Config	0x04b	side_bits	Bits are set with 1 << side or side + 1 by several functions, one per object side.
+Config	0x04c		Bits 1 and 2 are set per side when that side's object field_5c goes negative (defeat).
+Config	0x04d		Tested for nonzero, often ORed with field_4e and field_04, in many update functions; when set they bail out or change state.
+Config	0x04e		Tested for nonzero, often ORed with field_4d and field_04, in many update functions.
+Config	0x05c		Compared with 0, often together with field_64.
+Config	0x063		Assigned 0x3c or (field_12a << 2) + 0x3c in different functions.
+Config	0x064		Compared with 0, together with field_5c or field_6c.
+Config	0x065		Tested for zero, usually ORed with field_a8; when nonzero object updates are skipped.
+Config	0x06b		Assigned 0 or 4 in different functions.
+Config	0x06c		Set to 0, 4, compared with 5 and read as a mode.
+Config	0x075		Tested for zero and set to 0xff.
+Config	0x076		Tested for zero and then set to 0x1e, as a countdown reload.
+Config	0x078		Read as an Object pointer, tested for nonzero and compared with game_state.field_358.
+Config	0x08f		Assigned the object's kind when a defeat is marked.
+Config	0x0a6		Tested for zero and used times 4 or as an index into a table.
+Config	0x0a8		Tested for zero, usually ORed with field_65; when nonzero object updates are skipped.
+Config	0x0a9		Tested for nonzero with object field_f1 in reset_object.
+GameState	0x001		Set to 1 in one function.
+GameState	0x002		Cleared in the entry loop, set to 0xff in a loop, and tested against 0 together with field_58.
+GameState	0x004		Cleared and set to 0xff; tested nonzero in many per-object functions, which then take a different path (e.g. call func_801269e0).
+GameState	0x005		Cleared, set to 0xff, and tested nonzero in one function.
+GameState	0x006		Cleared, set to 0xff, and tested for zero/nonzero in many functions to gate their work (while loop, early return).
+GameState	0x007		A bit mask shifted right by an object's side and tested with &1; also OR-ed with mode and compared with 3, so one bit per side.
+GameState	0x008		Bit 0 or bit 1 set and cleared per side by functions, shifted by a side and tested, and compared to 0.
+GameState	0x009		Set to 1 or 0 and tested nonzero in many per-object functions, which then call a different path.
+GameState	0x00a		Compared with 0 and 6 and cleared in the entry loop.
+GameState	0x00c		Cleared at start and tested nonzero in two other functions.
+GameState	0x00e		Set to 1 and copied to field_5f.
+GameState	0x00f		Assigned a local value once.
+GameState	0x010		Loaded from a table byte or global and passed to func_80120374.
+GameState	0x011		Loaded from table/global bytes and copied to field_2d.
+GameState	0x012		Loaded from a table byte and used as an index into a function table table_8017ac34.
+GameState	0x013		Set to 0xff or loaded from table bytes, and copied to field_49.
+GameState	0x014		Loaded from a table byte, used as an index into table_8016e730, and compared with 3.
+GameState	0x015		Set to a table byte plus 1 and copied to field_48.
+GameState	0x017		Bit 0 / bit 1 set and cleared per side, compared with 0 and 3, and cleared.
+GameState	0x019		Cleared once.
+GameState	0x01a		Set to 1, cleared, and tested nonzero to choose a path.
+GameState	0x01c		Set to 0 or 1 and tested nonzero alongside a player comparison.
+GameState	0x01d	frame_counter	Cleared at init and masked by 1, 3 or 7 and added to object fields and side, so its low bits alternate; appears to be a running frame counter.
+GameState	0x01e		Set to 0x1c3 once.
+GameState	0x020		Cleared once.
+GameState	0x024		Loaded with 0x28 and counted down in a loop in one function, and masked with 1 and 3 or added to other values in others.
+GameState	0x027		Set to 0 and to 0xff, tested for nonzero and for bit 0x80.
+GameState	0x028		Assigned from mode in one function and tested against bit 1 in another.
+GameState	0x029		Only cleared to 0.
+GameState	0x02a		Only assigned from field_29 of a table record.
+GameState	0x02b		Only assigned from a local value.
+GameState	0x02c		Set to 0, 1 and 0xff and tested for zero or nonzero, often together with field_09.
+GameState	0x02d		Set to 7 or copied from field_11 and used as an index into several tables and compared with 4.
+GameState	0x02e		Copied to and from other bytes and tested for nonzero.
+GameState	0x02f		Tested for zero, mostly together with mode == 3 or field_30, and cleared.
+GameState	0x030		Tested for nonzero in many functions, often combined with a comparison of mode against object side + 1.
+GameState	0x032		Incremented in one function and masked with bits (1, 3, 4, 8) or taken modulo 20 elsewhere.
+GameState	0x033		Incremented in one function and masked with different bit masks elsewhere, also compared to zero.
+GameState	0x040		Compared with constants from 0 to 0x12, used to choose one of 19 functions, and compared with a player's kind.
+GameState	0x042		Cleared, tested for zero, masked with 6, compared with 4 and used as an index or count in various functions.
+GameState	0x044		Cleared, set to 1 and 0xff, tested for nonzero and for bit 0x80, and read as part of a 32-bit word.
+GameState	0x045		Tested for nonzero and bit 1, and cleared.
+GameState	0x046		Tested for zero or nonzero and cleared.
+GameState	0x047		Cleared and tested for zero or nonzero, often with field_4d.
+GameState	0x048		Copied from field_15 and compared with field_42 and an object's field_ce.
+GameState	0x049		Set to 0x63 or copied from field_13, compared with thresholds 0x3c and 0x50, indexes a table, has bit 0x80 tested and is converted to digits.
+GameState	0x04a		Set to 0x3c in a reset function.
+GameState	0x04b		Cleared, and has bits set with 1 << side of an object; tested for zero.
+GameState	0x04c		Set to 3, 1, 2 or a side from a comparison of the players' field_5c, tested by bits 1 and 2, and also read as part of a 32-bit word.
+GameState	0x04d		Cleared and tested for nonzero, often alongside field_47 or field_04.
+GameState	0x04e		Cleared to 0 in one function, set to 0xff in another, and tested for zero/nonzero as a gate in two others.
+GameState	0x04f		Set to 0 or 1 in several functions and tested nonzero in the per-frame update.
+GameState	0x050		Used as a bit mask: bits are tested by shifting it right by an index taken from another field array.
+GameState	0x054		Used as a small index (compared with 2, 5, 7), added to a table index, and subtracted from loop counters.
+GameState	0x056		Assigned from various tables or constants in different functions, and used as an index into table_8016e720.
+GameState	0x058		Tested for zero; cleared when nonzero and set to -1 by another function in the same loop.
+GameState	0x05c		Set to constants like 0xa, tested for zero across many functions, and decremented in the per-frame update.
+GameState	0x05d		Cleared, set to 2, tested for zero, and reloaded from field_5e in the per-frame update.
+GameState	0x05e	reload_value	Cleared or set to 2, and copied into field_5d in the per-frame update.
+GameState	0x05f		Set from field_0e in two functions and tested for zero/nonzero elsewhere.
+GameState	0x060		Cleared in one function and copied to a global in another.
+GameState	0x061		Assigned a random value in one function.
+GameState	0x063		Set to constants or table values indexed by an object field in many functions, and tested nonzero in the update.
+GameState	0x064		Set to constants (0, 0x90, 0xff), tested for zero/nonzero and bit 0x80 in many functions.
+GameState	0x065		Set to 0, 1 or 0xff and tested for zero together with field_74 to gate actions.
+GameState	0x066	palette_swap_flag	Set to 0xff when palette banks are rebuilt, cleared when restored, and tested for zero.
+GameState	0x06a		Set to 0 or 1 and tested for zero/nonzero in several functions.
+GameState	0x06b		Set to small constants (0 to 6) in many functions and copied into an object's field_03.
+GameState	0x06c		Only cleared in one function.
+GameState	0x06d		Cleared in several functions and tested nonzero in the field_58 logic.
+GameState	0x06e		Assigned a counter shifted right by 3 in one function and a value in another.
+GameState	0x070		Passed (masked with 0x7f in one case) as an argument to two functions.
+GameState	0x071		Assigned the side of an object or a value from field_354.
+GameState	0x074		Set to 0 or 0xff and tested for zero together with field_65 to gate actions.
+GameState	0x076		Tested for zero and then set to 0x1e.
+GameState	0x077		Cleared to 0 in one function and read into a local in another; no role shown.
+GameState	0x078		Pointer to an Object whose kind, side, field_cd and field_5c are read; also copied to other locals and to field_154; the object is the one in focus for the state.
+GameState	0x07c		Pointer to an Object whose kind is read (complemented and stored in field_78's field_2ac) and which is used as o2 in another function.
+GameState	0x080		s16 compared with 0 and with 6, and set to 0; tested in many functions.
+GameState	0x083		Only cleared to 0 in an init function.
+GameState	0x084		Cleared, set to 0xff, incremented, and tested on bit 0x80 and against 0x81.
+GameState	0x085		Set to 0 or 0xff in init and tested nonzero to pick between two values.
+GameState	0x087		Only cleared to 0 in an init function.
+GameState	0x089		Only set to 0 in one function.
+GameState	0x08a		Tested nonzero alongside field_0a == 6.
+GameState	0x08b		Cleared in init, compared with thresholds 0x15, 0x2a, 0xb, and used as an index into a table.
+GameState	0x08f		Stores the kind of the winning player (left, or right when greater) in one function.
+GameState	0x090		Tested nonzero in one function.
+GameState	0x092		u16 added to or subtracted from positions (y coordinates, shifted values) and subtracted from the high half of a camera value in many functions.
+GameState	0x09c	player_left_ptr	Set to the address of player_left in one function.
+GameState	0x0a0	player_right_ptr	Set to the address of the second player object (player_left + 1).
+GameState	0x0a4		Set to 7 in two init functions.
+GameState	0x0a6		Tested nonzero in functions.
+GameState	0x0a8		Tested for zero together with field_65 and assigned a value in the update function.
+GameState	0x0a9		Only cleared to 0 in init.
+GameState	0x0ab		Set to 0, 1 or 0xff and tested for nonzero and bit 0x80 across many functions.
+GameState	0x0ac		Tested nonzero in one function.
+GameState	0x0ae		Cleared in init; when 0 it is set to 0xff before an object is taken, so it marks that the object is in use.
+GameState	0x0af		Only cleared to 0 in init.
+GameState	0x0b0		Set to 0 or 1 and tested nonzero.
+GameState	0x0b1		Byte set to 0xff, loaded from data tables and globals, tested with 0x80 mask, and passed to func_80125afc.
+GameState	0x0b2		Byte cleared to 0 and compared with 0 and 10 in func_80010840_slot27.
+GameState	0x0b3		Byte tested nonzero together with data_801901ba and then cleared in func_8001205c_slot27.
+GameState	0x0b6		Byte tested for 0 before running a setup sequence and then set to 1; it is set once and checked so the setup runs once.
+GameState	0x0ba		Byte assigned a value z in one function.
+GameState	0x0bb		Byte compared with 0 in the condition of func_8012faf8.
+GameState	0x0c2		16-bit value set to 0, 0x1f, 300, decremented, and compared with 0x20 and 0; in the Hud routines it is passed as an argument and stepped up or down as an index.
+GameState	0x0c4		16-bit value set to small constants (0, 1, 2, 0x20) and decremented; when it reaches 0 it is reset to 1 and an action runs, so it is a delay countdown.
+GameState	0x0c6		16-bit value set to many constants in many functions, decremented in some and cleared at reset.
+GameState	0x0c8		16-bit value set to constants, decremented, OR-ed with bits 1 and 2, and compared by its low byte; used differently in different functions.
+GameState	0x0ca		16-bit value set to 0x5a and 0x1e, decremented each call, and checked for going negative, after which the next stage is entered.
+GameState	0x0cc		16-bit value cleared, set to 1, masked from p[1] with 0x7fff and tested for nonzero in different functions.
+GameState	0x0ce		s16 set to 0, 0x248 and a computed x value; it is one of a set of camera or sprite position fields.
+GameState	0x0d0		s16 set to 0, 0x100 and a computed y value, paired with field_ce.
+GameState	0x0d2		s16 copied into obj->pos_x, set to constants and to computed x values.
+GameState	0x0d4		s16 copied into obj->pos_y, set to constants and to computed y values, paired with field_d2.
+GameState	0x0d6		s16 set to 0, 0x48 and a parameter in the camera initializer.
+GameState	0x0d8		s16 set to 0, 0x700 and a parameter in the camera initializer.
+GameState	0x0da		u16 set to 0x100, 0 and a parameter value.
+GameState	0x0dc		u16 cleared, set to constants, saved to and restored from data_80189454, masked with 0xffc0 and accessed through a flags pointer.
+GameState	0x0de		s16 assigned a computed xd value in the sprite initializer.
+GameState	0x0e0		s16 assigned x in the sprite initializer.
+GameState	0x0e2		s16 assigned a computed xd value in the sprite initializer.
+GameState	0x0e4		s16 assigned a computed xd value in the sprite initializer.
+GameState	0x0e6		s16 assigned new_var2 in the camera initializer.
+GameState	0x0e8		Assigned once from a local value in init_cam_position.
+GameState	0x0ec	fade_done_mask	Cleared, then bits 1, 2, 4 are set by the bank fade step functions, and compared with the full mask (1, 2, 4, 0xc, 0xd, 0x1f) to decide when to clear field_ee.
+GameState	0x0ee	fade_busy	Set to 0x1f then looped until zero; cleared when field_ec reaches its full mask; other functions wait until it is zero or nonzero.
+GameState	0x0f0		Set to nonzero values (1, 0x1f, 0x80) and cleared to 0; many loops wait while it is nonzero, yielding via thread switch.
+GameState	0x0f1		Only cleared to 0 in one function.
+GameState	0x104		Amount copied from a global, added shifted left 8 in BCD to an object's field, compared with field_108, and stored out to a pointer.
+GameState	0x108		Amount shifted left 8 and added in BCD to an object field, subtracted from field_104, and compared against field_104.
+GameState	0x10c		Only cleared to 0.
+GameState	0x110		Only assigned a value called none in an init function.
+GameState	0x112		Set to a random byte masked with 3 and used as a second index into a table by the other object's kind; zeroed in init.
+GameState	0x113		Only set to 1 in init.
+GameState	0x115		Pre-decremented and tested for bit 0x80 (underflow) before checking an object's field.
+GameState	0x11b		Set from a table entry in init.
+GameState	0x11c		Set from a global byte in init.
+GameState	0x11e		Only cleared in init.
+GameState	0x11f		Start of a byte array indexed by i+1, whose values are copied to step_flags, rect.y offsets and another object field; cleared in init.
+GameState	0x138	input_step_index	Used as an index into a function table, incremented on success and reset to 0 on failure of a pad input sequence match.
+GameState	0x139	input_timer	Set to 0x3c on reset and decremented, tested for bit 0x80 as underflow.
+GameState	0x13a		Set to a sum of two globals on success, cleared on reset, and used as an offset in a table indexed by the other object's kind.
+GameState	0x13c		Only cleared to 0 in two functions.
+GameState	0x13d		Cleared in init; compared with 0 together with the other object's field to choose a branch.
+GameState	0x14e		Only set to 6 in init.
+GameState	0x150		Only set to 6 in init.
+GameState	0x154	object	Pointer to an Object, set from an object or field_78, and used for its side and as a local object in many functions.
+GameState	0x158		Only cleared to 0.
+GameState	0x15b		Read once and ANDed with field_224, result tested nonzero.
+GameState	0x224		Read once and ANDed with field_15b, result tested nonzero.
+GameState	0x225		Set to 1 or 2 around routines and cleared to 0 afterwards; tested for 0 and 2 and in loop conditions together with field_f0.
+GameState	0x226		Tested against zero in several functions and cleared in clear_game_state_fields; no other role shown.
+GameState	0x227		Passed XOR 1 as the side argument to a sound call, and passed as the second argument to func_8014eef8.
+GameState	0x2b8		Counter set to 6, decremented, clamped to a high value from the object, and used as an index into table_8016e5c4.
+GameState	0x2ba		Counter set to 6, decremented, clamped to a high value from the object, and used as an index into table_8016e614.
+GameState	0x2bc		Assigned small constants (0, 2, 5, 9, 10) and compared with constants in many functions, like a state value.
+GameState	0x2bd		Set to 0 or 1 and tested against 0 and 1; also copied to another record's field.
+GameState	0x2bf		Set from object->side, compared with 0, and cleared to 0.
+GameState	0x2c0		Set to 0x32 in one function and read and written back via a temporary in another.
+GameState	0x2c2		Decremented in one function and cleared to 0 in another.
+GameState	0x308		Pointer to a Row set to an address in a data block or to metrics_right, indexed as values[], and stored into an object word.
+GameState	0x30c		Pointer to a Pair set to metrics_right or to object addresses; read as first member and used as an Object for pos_x_frac.
+GameState	0x358	other_object	Pointer to an Object, set from object->other, and used to read and write its state, pos, and side fields and as sound source.
+GameState	0x35c		Set to a step value plus or minus one and masked with 3 as an index; also split into high and low bytes copied into voice fields.
+Sprite	0x000	active_flag	Tested nonzero, along with game_state.field_4b being 0, before the two update functions are called.
+Sprite	0x008		Zeroed in the init function.
+Sprite	0x00a		Set to x in the init function.
+Sprite	0x00c		Zeroed in the init function.
+Sprite	0x00e		Set to y in the init function.
+Sprite	0x010		Zeroed in the init function.
+Sprite	0x012		Set to x in the init function.
+Sprite	0x014		Zeroed in the init function.
+Sprite	0x016		Set to y in the init function.
+Sprite	0x020		Zeroed in the init function.
+Sprite	0x022		Set to x at init; in the horizontal update it is subtracted from a span-derived amount with offsets 0xc0 or 0x60, and it is moved toward the players' span.
+Sprite	0x024		Zeroed in the init function.
+Sprite	0x026		Set to y at init; in the vertical update it is moved by one step toward a target computed from the players' pos_y.
+Sprite	0x034		Zeroed in the init function.
+Sprite	0x038		Zeroed in the init function.
+Sprite	0x040		Set to 0x10 at init or -1 in the other init; read as a limit on the per-frame movement of field_26.
+Sprite	0x042		Zeroed at init or set to -1 in the other init; read as an alternative limit on the movement of field_26.
+Sprite	0x044		Set to 0x100 in one init and -1 in the other.
+Sprite	0x046		Set to 0x280 in one init and to a negated value in the other.
+Sprite	0x048		Zeroed in the init function.
+Sprite	0x04a		Zeroed in init and set to 0x200 when game_state.field_0a is 6.
+Cam	0x001		Set to 0xff at init, tested nonzero and cleared to 0 in func_801369d4, which then increments field_04.
+Cam	0x004		Incremented in func_801369d4 and in func_80136b34 when field_01 was set.
+Cam	0x008		Zeroed at init.
+Cam	0x00a		Set to x at init.
+Cam	0x00c		Zeroed at init.
+Cam	0x00e		Set to y at init.
+Cam	0x010		Zeroed at init.
+Cam	0x012		Set to x at init and copied from field_22 in func_801368c0.
+Cam	0x014		Zeroed at init.
+Cam	0x016		Set to y at init and copied from field_26 in func_801368c0.
+Cam	0x020		Zeroed at init.
+Cam	0x022	pos_x	Set to x at init, set to field_36 plus delta, moved by a step of at most 5 up or down, and copied to field_12.
+Cam	0x024		Zeroed at init.
+Cam	0x026	pos_y	Set to y at init, set to field_3a plus delta, and copied to field_16.
+Cam	0x034		Zeroed at init as part of a 32-bit write.
+Cam	0x036	base_x	Read as the base to which delta is added to give field_22.
+Cam	0x038		Zeroed at init as part of a 32-bit write.
+Cam	0x03a	base_y	Read as the base to which delta is added to give field_26.
+Cam	0x040		Zeroed at init.
+Cam	0x042		Zeroed at init.
+Cam	0x044	min_x	Zeroed at init and used as the lower bound when field_22 is moved down.
+Cam	0x046	max_x	Zeroed at init and used as the upper bound when field_22 is moved up.
+Cam	0x048		Zeroed at init; doubled and added to field_50.
+Cam	0x04a		Zeroed at init; doubled and added to field_50.
+Cam	0x050		Set to field_54 then increased by 2*field_48 and 2*field_4a.
+Cam	0x054		Pointer to s16 data, copied to field_50 as a start value.
+Cam	0x060		Set from cam_src_a.a.
+Cam	0x064		Set from cam_src_a.b; its high u16 is read to compute a value stored in game_state.
+Cam	0x070		Set to 0 in func_80136b34.
+Tx	0x00c		Its address is passed with tx to func_8015c23c and MargePrim.
+Tx	0x00f		Set to constants 3 or 4 before MargePrim.
+Tx	0x013		Set to constants (0x7c, 0x64, 0x74) in different functions and read as a value passed on in func_8013ae00.
+Job	0x001	index	Set to the index passed in when a job is filled with kind 1, source and rect.
+ConfigHead	0x078	object	Pointer to an object; checked non-null, then its field_cd is 0 and field_5c equals 0x90.
+Ctl	0x004		Set by set_cd_mix_mode and tested to choose the CdMix volume layout (a,0,a,0 versus a>>1 in all).
+Ctl	0x005	cd_volume	Stores the volume argument a, which is passed again to func_8014f604 to re-apply the CdMix volume.
+Ctl	0x009		Cleared to 0 in func_8014f918.
+Ctl	0x00a		Tested nonzero and compared with 3 to gate the update.
+Ctl	0x00b	state_index	Set to 6 on reset and used as an index into a table of functions called with ctl.
+Ctl	0x014		Tested for zero before calling the state function.
+Ctl	0x015		Cleared to 0 in reset.
+Ctl	0x016		Cleared to 0 in reset.
+Ctl	0x017		Cleared to 0 in reset.
+Ctl	0x018		Passed as argument to func_80150c6c in reset.
+Ctl	0x01c		Cleared to 0 in reset.
+Ctl	0x01f		Cleared in reset and incremented in func_8014f918.
+StreamRec	0x000	kind	A u16 read as a kind value and used to index a source table and compared with 4, 2 and 0xffff.
+StreamRec	0x002		A u16 read into t in func_801501a0.
+StreamRec	0x004	byte_count	Copied into stream field_30 as the byte count.
+StreamRec	0x008		Copied into stream field_34.
+StreamRec	0x00c	rect_x	Plus an offset, stored into an entry's field_0c, which is used as rect x.
+StreamRec	0x00e	rect_y	Plus an offset, stored into an entry's field_0e, which is used as rect y.
+StreamRec	0x010		Masked with 0x1f and tested nonzero.
+StreamEntry	0x004	byte_count	Set to 0x800 or the remaining byte count; passed as a size and subtracted from the stream's remaining count.
+StreamEntry	0x008	pending_flag	Set to 1 when filled, tested nonzero when processing, and cleared to 0 after handling.
+StreamEntry	0x00a	handler_index	Set to 1, 2 or 4 when filled and used as the index into the handler table data_8017ec60.
+StreamEntry	0x00c	rect_x	Used as rect.x; set to 0xffff as a marker, cleared, or set from a record plus offset.
+StreamEntry	0x00e		Used as rect.y, compared with a transfer result, and set to the VAB id in one function.
+StreamEntry	0x010	rect_w	Set to 0x20 or 0x10 and used as rect.w.
+StreamEntry	0x012	rect_h	Set to 0x20 and used as rect.h.
+Stream	0x009	timeout_count	Cleared once and counted up each call in func_80150294, compared with 0xb5 together with field_0a == 1 as a timeout.
+Stream	0x00a	state	Set to 0, 2, 3 in different functions and tested against 2 and 1; takes small step values.
+Stream	0x00b	source_index	Set from a record value and used as the first index into data_8017eb1c; compared with 5.
+Stream	0x014	error_code	Set to 1, 2 or 3 in different functions and tested nonzero in func_80150294, which then calls func_8014f76c.
+Stream	0x015	record_count	Incremented in func_801501a0 and compared with field_1e; also set to t - 2 in func_8014fd9c.
+Stream	0x016	write_index	Index into entries and into the sector buffer (shifted by 11); incremented and wrapped at 8 when filling entries.
+Stream	0x017	read_index	Index into entries and the sector buffer (shifted by 11); advanced and wrapped from 8 to 1 when processing entries.
+Stream	0x01a	vab_id	A signed 16-bit id set from a record value, used to index bytes_20 and passed as the VAB id to VAB transfer and open calls.
+Stream	0x01c	transfer_flag	Set to 1 in func_8014fd9c and cleared to 0 in func_801504bc.
+Stream	0x01e	record_limit	Loaded from the first byte of the buffer and compared with field_15.
+Stream	0x024	step_count	Set to 1 or 0, tested for 0 and incremented after each step in many functions.
+Stream	0x030	bytes_remaining	Remaining bytes, reduced by 0x800 per sector read and compared with 0 and 0x800; loaded from a record's field_04.
+Stream	0x034		Loaded from a record's field_08 and compared with the first word of a buffer.
+Stream	0x038	source_ptr	Source pointer advanced by 0x800 per sector read, set from tables, and copied to field_44.
+Stream	0x03c		Set to a buffer pointer and copied to field_40 in one function.
+Stream	0x040		Pointer to the current StreamRec, advanced by one record or stepped back by 0x40.
+Stream	0x044		Copy of field_38, passed to VAB and sequence open functions.
+Stream	0x048	transfer_remaining	Total byte count set from field_30 and reduced by entry sizes or 0x1000 until zero.
+Menu	0x000		Small state value set to 0, 1, 2, 3 or 5, compared with 2, decremented in one function, and used as an index into a table of functions in another.
+Menu	0x001		Set to 1 or 0 (and 2 in one function) and tested nonzero before CD commands are issued; copied to another struct's field in one function.
+Menu	0x002		Set to values 0 to 7 by the CD command functions after each succeeds, and used as an index into a function table (data_8017ec7c) in func_80150758.
+Menu	0x003	fade_mode	Set to 0, 1 or 2 and tested; 1 makes the volume fade add, otherwise subtract; cleared when the fade ends, and nonzero triggers func_80150afc.
+Menu	0x005	volume	Read as the current volume, adjusted by field_1d, clamped to 0x55 and passed to func_8014f604.
+Menu	0x006		Set to 0 or 1, tested to be 0 before a CD command, and ANDed with field_07.
+Menu	0x007		Set to 0 or 1 and ANDed with field_06 before a CD command is sent.
+Menu	0x008		Set to 1 when the CD status has bit 0x10, cleared at init, and tested to be 0 before dispatching the command function.
+Menu	0x009		Only cleared to 0 in the reset function.
+Menu	0x00a		Cleared to 0 in one function and set to 1 at the end of the reset function.
+Menu	0x00b		Set to 6 in one function and compared with 6 in the reset function.
+Menu	0x00c		Address passed as the result buffer of CD control calls, and its status bits (0x10, 0x40) are tested afterwards.
+Menu	0x011		Its address is passed to func_8015cfc8 and the result is compared with field_2c.
+Menu	0x014		Only cleared to 0 in the reset function.
+Menu	0x015		Only cleared to 0 in the reset function.
+Menu	0x016		Set to 0 and to 1 in the reset function.
+Menu	0x017		Set to 1 in one function and 0 in another.
+Menu	0x018		Stores a value from a parameter in one function and a table lookup data_8017e9d4[a][b] in another; read into h in a third.
+Menu	0x01c		Tested nonzero in the reset function, which calls func_8015057c and then clears it.
+Menu	0x01d		Read as the step by which the volume is added or subtracted in the fade; set from parameter b in func_8014f4d4.
+Menu	0x01f		Only cleared to 0 in the reset function.
+Menu	0x028		Set to 0x10 at init, increased by a table-derived amount, and passed to func_8015cec4 with field_f0 to convert to a CD position.
+Menu	0x02c		Computed from a table lookup shifted by 3 plus itself and lo plus field_28, and compared with a result of func_8015cfc8.
+Menu	0x034		Compared with the word at 0x801e0000 in the file loader.
+Menu	0x038		Pointer set from the word at 0x801e0018 and then advanced by 0x800 in the file loader.
+Menu	0x0ec		Set to 1 in func_80150b80 and its address is passed as the parameter of CD command 0xd.
+Menu	0x0ed		Stores the low byte of parameter a in func_80150b80.
+Menu	0x0f0		Address passed as a CD position parameter to CD commands and filled by the CdIntToPos conversion via func_8015cec4.
+Node	0x020		Cleared to 0 after the file load.
+Node	0x028		Copy of entry a of table_8017d9e4[index].
+Node	0x030		Copy of entry b of table_8017d9e4[index].
+Node	0x034		Copy of entry c of table_8017d9e4[index].
+Hud	0x048		Incremented in func_80150e4c and read in func_80120ca0 where the value 0 or 1 selects which function is called.
+Cmd	0x008	pos_x	Set from the x position parameter of the drawn primitive.
+Cmd	0x00a	pos_y	Set from the y position parameter of the drawn primitive.
+Cmd	0x00c	tex_u	Set from the low nibble-derived texture coordinate of the character code.
+Cmd	0x00d	tex_v	Set from the high nibble-derived texture coordinate of the character code.
+Cmd	0x00e		Set from a parameter or computed value alongside the texture coordinates; role not clear.
+Cmd	0x010	width	Set to the primitive width: 8 or 0x10 depending on the function.
+Cmd	0x012	height	Set to the primitive height: 8 or 0x10 depending on the function.
+Effect	0x002	active_flag	Set to 0 on init and 1 when active; cleared by clear routines; no comparison shown.
+Effect	0x003		Cleared on init, incremented in one function, and used as an index into table_80180304 of functions called with the effect.
+Effect	0x004		Cleared on init, set to 0xff in some functions; when 0, the table_8018030c function is called.
+Effect	0x005		Set to 0 or 1, incremented, and used as an index into table_8018030c of functions called with the effect.
+Effect	0x006		Cleared on init, loaded from field_0a, copied to field_09, compared with field_0a.
+Effect	0x008	table_index	Set from owner->field_bd>>1, to 6, to 0, or from field_09; used as an index into table_8018031c.
+Effect	0x009		Set from field_06 or to t-2, compared with 12, and used as an index into table_80181380; copied to field_08.
+Effect	0x00a		Copied from target->field_6a, compared with 2, tested nonzero and compared with field_06.
+Effect	0x00b		Set to 0xff in one function and cleared in the clear routine; no other use shown.
+Effect	0x00c	countdown_timer	Set to 0x20, decremented, and tested for underflow via bit 0x8000.
+Effect	0x010		Loaded from target->field_170 or from tables indexed by field_08 or field_09.
+Actor	0x000		Incremented in one function.
+Actor	0x001	side	Used as an index into several tables of TextObj pointers and data, selecting per-side entries.
+Actor	0x002		Set to 0 or 1 in different functions; no comparison shown.
+Actor	0x005		Cleared in one function.
+Actor	0x008	text_index	Set to small constants and used as a multiplier (times 0x30) into a table of text data and masked with 0x1f.
+Actor	0x009	number_value	Copied from field_1c->field_6a, clamped to 99, written as two digits and used as an index into table_80181380.
+Actor	0x00c	countdown_timer	Decremented and, in the effect cast, the underflow is tested.
+Actor	0x010	score_value	Set from table_80181380[field_09] or from the object's field_170, and written out as 7 BCD digits.
+Actor	0x014		Assigned from table_80181380[field_09] together with field_10.
+Actor	0x018	owner	Pointer to an Object whose field_bc and field_cd are tested.
+Actor	0x01c	target	Pointer to an Object whose field_6a is tested and copied.
+TextObj	0x004		Written from tables indexed by side in several functions; only stored.
+TextObj	0x006		Set to 0x50 or 0x60 on the TextObj from table_8018049c.
+HudBig	0x048		Cleared to 0 only.
+HudBig	0x04a		Set to 0, 1, 5 and incremented in different functions.
+HudBig	0x04c		Set to 0 or 3 and incremented in different functions.
+HudBig	0x04e		Cleared, incremented and compared with 1.
+HudBig	0x050	state_index	Set to 0 or 5, incremented, and used as an index into tables of functions called with state.
+HudBig	0x052	substate_index	Cleared, incremented, compared with 0, and used as an index into tables of functions.
+TextBuf	0x004		Assigned table values based on side and selection index, in four functions.
+TextBuf	0x006		Assigned 0x48, a table value, or a field_09 multiple of (selection+1) plus offset.
+TextBuf	0x008		Multiplied by the selection index and added to a side table value.
+TextBuf	0x009		Multiplied by (selection index + 1) and offset to compute field_06.
+Block172	0x000	active_flag	Set to 1 when a block is used and tested nonzero in the loops before the block's handler is called; cleared otherwise.
+Block172	0x001		Tested nonzero (with the pointer) before func_8011bc84 is called on the part blocks.
+Block172	0x002	handler_index	Assigned many constants (0x7c, 0x26, 0xa0 ...) and used as the index into handler tables, so it selects the handler.
+Block172	0x003		Assigned small constants and values from other fields, and passed as the second argument to func_8011d74c and func_8011db78.
+Block172	0x008		Set to 0xc at pool init and compared with 0x20 to choose the handler table.
+Block172	0x009		Set to another block's field_09 plus 4 and used times 4 as an offset into a table.
+Block172	0x00d		Compared with cached values, stored into a cache table, and added to field_7c in a computation.
+Block172	0x020		Passed as the third argument (size) to func_8011d74c and func_8011db78.
+Block172	0x03c		Read as a pointer and passed on in func_8011cd68.
+Block172	0x045		Assigned the same value a1 in both records of a data table.
+Block172	0x066		Tested for zero to choose between two handler tables.
+Block172	0x07a		Cleared to 0 and passed as the first argument to func_8015bdd4.
+Block172	0x07c		Set to 0x1e0 and added to field_0d and a table value, then passed to func_8015bdd4.
+Block172	0x09c		Read as a base value to which a rounded step field is added.
+Slot16	0x00c		Read per slot and tested for nonzero to pick a state.
+SndCtl	0x000		Set to 1, 0 or 3 in three different functions, each followed by a thread switch.
+SndCtl	0x002		Stores the argument a in one function.
+SndCtl	0x004	thread_handle	Passed to func_801577bc and used as the thread closed with CloseTh.
+SndCtl	0x00c		Set to argument a in one function, its address passed to func_8011e938 and its value passed to func_801193a4 in another.
+SndVoice	0x000	status	Holds status values 0 to 4 compared in switches, with bit 0x10 set and cleared separately.
+SndVoice	0x002	delay_timer	Decremented for voices with status 1, and status becomes 2 at zero.
+SndVoice	0x004	thread_handle	Stores the handle returned by the thread open call and is passed to the thread change call.
+SndVoice	0x008	stack_address	Set to 0x801fec00 + i*0x800 and passed as the second argument to the thread open call.
+SndVoice	0x00c		Passed as the first argument to the thread open call and its address is passed to a function.
+SndVoice	0x010		Passed as the third argument to the thread open call.
+SndVoice	0x068		Gets the high byte of game_state.field_35c.
+SndVoice	0x069		Gets the low byte of game_state.field_35c.
+SndVoice	0x06a		Gets the high byte of a 16-bit value at data_8019046c.
+SndVoice	0x06b		Gets a byte copied from data_8019047c.
+AnimObj	0x002		Index into data_80183dc8 and data_80183da0 tables in one function.
+AnimObj	0x038		Cleared to 0 if negative, then used plus 1 as divisor of a difference of table entries.
+AnimObj	0x090		Read as a pointer in func_80119e74 with no further role shown.
+AnimObj	0x094		Index into the stream tables (data_80183ffc, data_801841bc, data_80183ad0, data_80183bb0); cleared to 0 in one function.
+Pooled	0x000	active_flag	Cleared on init and release, and tested nonzero for active entries.
+Pooled	0x004		Set to a base value at init and passed with the entry's address+8 to func_80157fc4.
+Pooled	0x008		Zeroed when popped or pushed and written with x coordinates by func_8011db78.
+Pooled	0x00a		Zeroed when popped or pushed and written with y coordinates by func_8011db78.
+Pooled	0x00c		Zeroed when entries are popped or pushed.
+Pooled	0x00e		Zeroed when entries are popped or pushed.
+HudState	0x048		Incremented and cleared, and used as the index into function tables in loops; it steps through the stages of a top-level state.
+HudState	0x04a		Set to constants and incremented, and reset when the lower fields are cleared; it is the next level down from field_48.
+HudState	0x04c		Set to constants, incremented and compared with small values, and cleared when the upper field changes.
+HudState	0x04e		Set to constants, incremented and compared with 0 and 1, and cleared when the upper fields change.
+HudState	0x050		Set to constants, incremented and used to step through stages; cleared in many functions.
+HudState	0x052		Counted up and compared with small values to step through cases; cleared in many functions.
+HudState	0x054		Cleared and set to 0xff, tested against 0.
+HudState	0x056		Only cleared to 0.
+HudState	0x05e		Only set to 0xf0.
+HudState	0x060		Loaded with constants and counted down, with a branch when it goes negative.
+HudState	0x062	sub_timer	Set to 4 and counted down in the cases of func_80121dc4.
+Entity	0x007		Set to 3 in one function.
+Entity	0x009		Set to 1 in some functions and cleared to 0 in another; never read in these lines.
+Entity	0x013		Copied into field_49 in one function.
+Entity	0x017		Set to 3 in one function.
+Entity	0x01a		Set to 1 in one function.
+Entity	0x01b		Cleared, has bits 0 and 1 masked off, and is compared with 0 and 3 to select a score update branch.
+Entity	0x027		Set to 1 or 0 in several functions and tested for zero in one.
+Entity	0x02c		Cleared to 0 in one function and set to 0xff in another.
+Entity	0x02f		Tested for zero in several functions to choose between branches, together with field_30.
+Entity	0x030		Tested for zero in several functions to choose between branches, together with field_2f.
+Entity	0x040		Copied into field_11b and read into a local v; also used to index a table (game_state.field_40) elsewhere.
+Entity	0x042		Tested for zero, compared with s0*2 and incremented, so counted up.
+Entity	0x045		Tested for nonzero to choose a branch.
+Entity	0x048		Read and decremented by 1 into a local.
+Entity	0x049		Assigned from field_13.
+Entity	0x04a		Set to 0x3c in one function.
+Entity	0x04b		Cleared in one function and compared with a table entry indexed by field_80 in another.
+Entity	0x04d		Tested for zero together with field_a6 or field_116; cleared in one function.
+Entity	0x04e		Cleared to 0 in two functions.
+Entity	0x04f		Set to 1 in some functions and cleared to 0 in another.
+Entity	0x064		Tested for nonzero, decremented, and cleared to 0.
+Entity	0x065		Cleared to 0 in one function.
+Entity	0x06a		Set to 1 in one function.
+Entity	0x06c		Set to 1 and 5 in different functions, tested against 0 and 4.
+Entity	0x06d		Set to 1 in one function.
+Entity	0x076		Compared with 0x1e and decremented in one function; the branch is guarded by a nonzero test.
+Entity	0x077		Only cleared to 0.
+Entity	0x078		Pointer to an Object; tested for nonzero, its field_65 and field_cd are read, and it is loaded into a local in other functions.
+Entity	0x07c		Pointer to an Object passed to func_80123b20 and func_80155f30 and loaded into a local.
+Entity	0x080		Index into table_8016e7e0 compared against field_4b; also tested for nonzero and cleared elsewhere.
+Entity	0x083		Only cleared to 0.
+Entity	0x084		Tested for zero before clearing other fields.
+Entity	0x087		Tested for nonzero together with field_a9.
+Entity	0x088		Assigned the field_65 value of the object at field_78.
+Entity	0x090		Tested for nonzero in one function.
+Entity	0x0a6		Tested for zero or nonzero together with field_4d in several functions.
+Entity	0x0a9		Tested for zero or nonzero to choose between branches in two functions.
+Entity	0x0ab		Only cleared to 0.
+Entity	0x0ac		Set to 0xff in one function.
+Entity	0x0c6		Only cleared to 0.
+Entity	0x0c8		Only cleared to 0.
+Entity	0x0ca		Set to constants (0x1e, 0x5a, 0xa0, 0), decremented and checked for reaching 0 or going negative.
+Entity	0x0cc		Only cleared to 0.
+Entity	0x104		Compared with 0x500 to choose a value for field_108.
+Entity	0x108		Set to 4 or 0x100 depending on field_104 compared with 0x500.
+Entity	0x114	kind	Assigned the kind of the object in s1 (field_78).
+Entity	0x116		Cleared to 0 and tested for zero together with field_4d before the field_117 countdown.
+Entity	0x117		Set to 0x32 or 0x14, then decremented and tested for zero.
+Entity	0x11a		Set to 0xff and later tested for nonzero in the same function.
+ObjectView	0x009		Set to 1 in func_801239cc; no other use shown.
+ObjectView	0x01b		Cleared in func_801239cc and compared with 3 in func_80123b4c as one condition for clearing field_77.
+ObjectView	0x01d		Cleared to 0 in func_801246a4.
+ObjectView	0x01e		Set to the constant 0x1c3 in func_801246a4.
+ObjectView	0x020		Cleared to 0 in func_80123a64.
+ObjectView	0x027		Cleared to 0 in func_801239cc.
+ObjectView	0x032		Cleared to 0 in func_801246a4.
+ObjectView	0x033		Cleared to 0 in func_801246a4.
+ObjectView	0x040		Compared with 6 in func_80123b88 and multiplied by 3 to index a byte table copied into data_801aa544 entries in func_80135ef0.
+ObjectView	0x046		Set to 1 in func_801239cc.
+ObjectView	0x060		Tested for zero in func_80123b4c as a condition for clearing field_77.
+ObjectView	0x062		Receives other's field_d4 in func_801239cc.
+ObjectView	0x063		Read in func_80135ef0; if bit 0 is set, field_63>>2 capped at 0x10 is stored in field_92, else 0.
+ObjectView	0x070		Receives table_8016f4f0 indexed by other's kind in func_801239cc.
+ObjectView	0x077		Cleared to 0 in func_80123b4c under several conditions.
+ObjectView	0x08a		Set to 0, then to 1 when field_40 is 6 and the low six bits of a random-like call are 0.
+ObjectView	0x08e		Cleared to 0 in func_801239cc.
+ObjectView	0x092		Set in func_80135ef0 from field_63: field_63>>2 capped at 0x10 if bit 0 set, else 0.
+ObjectView	0x0c2		Cleared to 0 in func_80123a64.
+ObjectView	0x0c4		Cleared to 0 in func_80123a64.
+ObjectView	0x0c6		Cleared to 0 in the lines shown.
+ObjectView	0x0c8		Cleared to 0 in the lines shown.
+ObjectView	0x0ca		Cleared to 0 in the lines shown.
+ObjectView	0x0cc		Cleared to 0 in the lines shown.
+ObjectView	0x0ce		Stores the count argument in func_80123ac4, which is the number of field_d0 entries examined.
+ObjectView	0x0d0		Array of 8 bytes; entries below count that are 0 are set to 8.
+ObjectView	0x0ee		Cleared to 0 in func_80123a64.
+ObjectView	0x0f0		Cleared to 0 in func_80123a64.
+ObjectView	0x116		Set to 0xff on other in func_80123b20.
+ObjectView	0x227		Receives other's side in func_801239cc.
+ObjectView	0x33b		Tested as nonzero to choose a base of 0xc or 0 in func_80128814.
+Ref40	0x040		Copied to object->field_11b in func_80123d0c.
+Select	0x007		Compared with 3 and tested with bit 1 in one function.
+Select	0x01b		Compared with 3 to choose between cases, and tested with bit 1 in the non-3 case.
+Select	0x040		Assigned from a per-kind table lookup (data_8016f538[b->kind]) or from func_80125afc of a kind.
+Select	0x050	excluded_mask	Read into a local bits variable used as a mask of excluded entries and written back after bits are added.
+Select	0x054	selected_index	Set to the found index i (or -1), read back as a mask/index and compared with field_a4.
+Select	0x061		Added to kind<<7 to form the base offset into data_8016ea70 for filling field_120.
+Select	0x071		Compared with 0 in one function.
+Select	0x0a4		Compared with index i as an upper limit and with field_54 for equality.
+Select	0x120	entries	Array of eight entries filled from data_8016ea70 and read by index i as candidate entries.
+HudWide	0x048		Cleared to 0 each loop iteration.
+HudWide	0x068	state_index	Shifted right by 1 and used as index into a table of functions that are called.
+HudWide	0x069		Passed to func_801192bc, a thread switch call.
+HudWide	0x06a		Decremented, then tested for bit 0x80 to end the loop.
+Rec172	0x004		Assigned from field_08.
+Rec172	0x008		Copied into field_04.
+Rec172	0x02b		Zeroed in one function.
+Rec172	0x046		Set to a parameter c.
+Rec172	0x048		Cleared to 0.
+Rec172	0x074		Passed as an argument to SpuVmSetSeqVol.
+Rec172	0x076		Passed as the next argument after field_74 to SpuVmSetSeqVol.
+Rec172	0x090		Bit flags set and cleared (0x200, 4, 1, 0x100) in different functions.
+PadReq	0x000		Set to 0xc0 or 0xc00 depending on the 0 or 1 argument.
+PadReq	0x010		Value b clamped to 0x7f and scaled by 32767/127.
+PadReq	0x012		Value c clamped to 0x7f and scaled by 32767/127.
+PadReq	0x01c		Value b clamped to 0x7f and scaled by 32767/127.
+PadReq	0x01e		Value c clamped to 0x7f and scaled by 32767/127.
+Attacker	0x004		Tested for nonzero in the state-step routine; if nonzero it sets three fields and returns.
+Attacker	0x009		Cleared to 0 in one function and set to 1 in another.
+Attacker	0x01b		Compared with 3 (early return) and its low bit tested to pick player p by parity.
+Attacker	0x01c		Compared with 0 in conditions together with p->field_db.
+Attacker	0x02c		Set to 0 in two functions and to 0xff in another.
+Attacker	0x02f		Tested for nonzero in one function.
+Attacker	0x030		Compared with 0 in a condition alongside a u16 global.
+Attacker	0x042		Compared with field_48*2-1, with 0, and with another value.
+Attacker	0x045		Set to 0xff.
+Attacker	0x047		Set to 0 in one function and 1 in another.
+Attacker	0x048		Multiplied by 2 minus 1 and compared with field_42; also compared with the winner's field_ce counter, which is incremented up to it.
+Attacker	0x049		Bit 0x80 tested and compared with 0 in the state-step routine.
+Attacker	0x04a		Compared with 0 and set to 0x3c in the state-step routine.
+Attacker	0x04b		Cleared to 0.
+Attacker	0x04c		Cleared in one function; tested for zero and copied to a mode variable in another.
+Attacker	0x04d		Set to 0xff and tested against 0.
+Attacker	0x04e		Set to 1 in one function and 0xff in another.
+Attacker	0x04f		Cleared to 0 in two functions.
+Attacker	0x050		Used as a bit mask: bits tested by kind-table shift and 0x100000; set to 3 in one function.
+Attacker	0x054		Compared with field_a4 and with 7.
+Attacker	0x05c		Set to 0x3c.
+Attacker	0x05d		Set to 3.
+Attacker	0x05e		Set to 3.
+Attacker	0x060		Set to 0 and to 0xff.
+Attacker	0x063		Cleared to 0.
+Attacker	0x064		Cleared to 0 in func_80122230; read as a u16 compared with 0 together with field_4c in func_80122630.
+Attacker	0x066		Only cleared to 0 in func_80122230.
+Attacker	0x06a		Only cleared to 0 in func_80122230.
+Attacker	0x06c		Only cleared to 0 in func_80122230.
+Attacker	0x06d		Set to 0 in func_80122630.
+Attacker	0x075		Only cleared to 0 in func_80122230.
+Attacker	0x076		Only cleared to 0 in func_80122630.
+Attacker	0x077		Incremented in func_801227d4, which picks the winner and the other player.
+Attacker	0x078	winner	Pointer cleared in func_80122230 and set to the winner object p in func_801227d4.
+Attacker	0x07c	loser	Pointer cleared in func_80122230 and set to the other (loser) object q in func_801227d4.
+Attacker	0x083		Cleared to 0 in func_801263d8 and tested as 0 in a condition in func_80122230.
+Attacker	0x084		Set to 1 in two functions, tested nonzero and set to 0x80 in func_80122424, which steps on it.
+Attacker	0x087		Set to 0xff in func_80122230.
+Attacker	0x088		Only cleared to 0 in func_80122230.
+Attacker	0x08b		Assigned player kinds (left or right player's kind), p->kind+0x15, or constants 0x2a and 0x2b in different functions.
+Attacker	0x090		Set to 0xff in func_801227d4.
+Attacker	0x0a4		s16 compared for equality with field_54 in func_80122230 and func_801227d4.
+Attacker	0x0a6		Set to 0 in func_80122230 and to 1 in func_80122630.
+Attacker	0x0ac		Only cleared to 0 in func_80122230.
+Attacker	0x0ae		Only cleared to 0 in func_80122230.
+Attacker	0x0af		Set to 1 or 0xff in two functions and tested as 0 in conditions in two others.
+Attacker	0x0ca		Only cleared to 0 in func_80122630.
+Attacker	0x0cc		Only cleared to 0 in func_80122230.
+Attacker	0x0dc		Bits 0xe are ORed in func_80122230.
+Attacker	0x11a		Only cleared to 0 in func_80122230.
+Attacker	0x12c		Only cleared to 0 in func_80122230.
+Attacker	0x12e		Only cleared to 0 in func_80122230.
+Attacker	0x138		Only cleared to 0 in func_80122230.
+Attacker	0x139		Only cleared to 0 in func_80122230.
+Attacker	0x13a		Only cleared to 0 in func_80122230.
+Attacker	0x13b		Only cleared to 0 in func_80122230.
+MotionRec	0x000	vel_x	Read from the record indexed by kind into a local, which the function describes as vel_x.
+MotionRec	0x004	vel_y	Copied into the object's vel_y.
+MotionRec	0x008	accel_x	Read from the record indexed by kind into a local, which the function describes as accel_x.
+MotionRec	0x00c	accel_y	Copied into the object's accel_y.
+Chan	0x000		Set to 1 in the first entries of data_801aa544 by one function; no other role shown.
+Chan	0x010		Written as a 32-bit value 0x2500000 or 0 together with the next field in one function.
+Chan	0x012	scroll_x	Holds a 16-bit value (0x248, 0x148 initially) whose low bits are masked with field_58-1 to give a column and a sub-cell offset, as a horizontal scroll position into a tile map.
+Chan	0x014		32-bit value set to constants like 0x80000 or 0; its upper half is written separately as 0x100 or 0, and 0x100000 is subtracted from it to get x.
+Chan	0x01e		16-bit value set to 0x1800 and read into locals called blank in several functions.
+Chan	0x03c		Assigned a computed position value in one function.
+Chan	0x04c		Subtracted from a position's upper part aligned to 16 and shifted by 4, plus 1, to give a count.
+Chan	0x050	map_data	Pointer to u16 data, set from a data address and indexed by row and column with row strides derived from field_58, so a pointer to a tile map.
+Chan	0x058		Set to 0x400 and used as a size: masked as field_58-1, shifted right by 4 or 5 for a mask, and >>9 for a row stride, so the map width in pixels.
+Chan	0x05c		Set to 0x100 and shifted right by 4 or 5 to get a row count, so the map height in pixels.
+Chan	0x08a	ot_index	Byte set to 0x1b or copied from a table, and used times 4 (or minus 1) as an index into the table at data_801987c8.
+Unit	0x000		Nonzero marks an active unit in loops over the 16 units; also compared with 1.
+Unit	0x001		Tested nonzero together with field_00.
+Unit	0x002	handler_index	Index into handler tables handlers_6bf0 and handlers_6c70, and compared with 0x17.
+Unit	0x012	pos_x	Compared with the object's pos_x as a distance.
+Unit	0x065		Compared with the object's field_65 for inequality.
+Unit	0x066		Tested for zero to choose between handler tables.
+Unit	0x074		Bit 0x80 tested to skip the unit.
+Cell20	0x004	color_r	Byte set to 0x80 in every initialisation, like a colour component.
+Cell20	0x005	color_g	Byte set to 0x80 in every initialisation, like a colour component.
+Cell20	0x006	color_b	Byte set to 0x80 in every initialisation, like a colour component.
+Cell20	0x008	pos_x	16-bit value set from object pos_x plus an offset or from index shifted by 7, so an x position.
+Cell20	0x00a	pos_y	16-bit value set from object pos_y plus an offset or from index shifted by 5, so a y position.
+Cell20	0x00c	tex_u	Byte set to different values (table lookup, index shifts, 0) in different functions, like a texture u coordinate.
+Cell20	0x00d	tex_v	Byte set from tables, products or 0 in different functions, like a texture v coordinate.
+Cell20	0x00e		Set to the result of func_8015bdd4 called with two arguments, a pair of values.
+Cell20	0x010	width	16-bit value set to a table value or constants like 0x80, 0x10, a size-like value.
+Cell20	0x012	height	16-bit value set to a table value or constants like 0x30, 0x10, 0x20, a size-like value.
+Slab172	0x000	active_flag	Tested nonzero together with field_01 to select active entries in loops.
+Slab172	0x001		Tested nonzero with field_00 for active entries, and compared with 1 in one place.
+Slab172	0x002		Compared with constants such as 3, 0xb, 0x14, 4, 10 and used as index into per-index history tables.
+Slab172	0x008		Compared with 0x20 and set to 12 or 8 on initialisation in different functions.
+Slab172	0x009		Copied from another entry's field_09.
+Slab172	0x00b		Masked bitwise to build a base value, compared with cached table entry and stored into history table.
+Slab172	0x026		Cleared to 0 on initialisation.
+Slab172	0x028		Cleared on initialisation and read as a pointer cast to Slab172.
+Slab172	0x02c		Cleared on initialisation and read as a pointer cast to Slab172.
+Slab172	0x030		Cleared on initialisation and read as a pointer cast to Slab172.
+Slab172	0x034		Cleared on initialisation and read as a pointer cast to Slab172.
+Slab172	0x044		Cleared to 0 on initialisation.
+Slab172	0x048		Compared with 4 in one function.
+Slab172	0x067		Cleared to 0 on initialisation.
+Slab172	0x074		Cleared to 0 on initialisation.
+Slab172	0x080	reload_flag	Tested nonzero and cleared in func_8011bc84, and tested in func_8011cbb8 to trigger reloading of streams.
+Slab172	0x081		Compared with 4 in two functions.
+Slab172	0x090		Cleared to 0 on initialisation.
+Slab172	0x094		Index into stream tables data_80183ffc, data_801841bc and data_8018437c; set to 0 or to a new head entry.
+Slab172	0x09c		Added to the sequence step's field_04 (rounded even) to form a stream address.
+Strip1c	0x004		Set to constant 0xe100001f in both init functions.
+Strip1c	0x010		Set to 0x80 in all uses.
+Strip1c	0x011		Set to 0x80 in all uses.
+Strip1c	0x012		Set to 0x80 in all uses.
+Strip1c	0x014	pos_x	Set to per-entry position values (0xc+m*0x10, 0x154-j*0x10, 0x78, 0x88, computed value).
+Strip1c	0x016		Set to 0x1a, 0 or 0x6e in different functions.
+Strip1c	0x018		Set to 0x80, 0 or 0x10 in different functions.
+Strip1c	0x019		Set to 0 in one function and 0xe0 in another.
+Strip1c	0x01a		Set to constant 0x7f07.
+Bars	0x00c		Set to 0x98 minus ha.
+Bars	0x010		Set to ha.
+Bars	0x02c		Set to constant 0xd8.
+Bars	0x030		Set to hb.
+Bars	0x04c		Set to 0x98 minus a's field_5e.
+Bars	0x050		Set to a's field_5e minus ha.
+Bars	0x06c		Set to hb plus 0xd8.
+Bars	0x070		Set to b's field_5e minus hb.
+Cell56	0x018		Byte set to a digit shifted left by 4 or to 0x20.
+Cell56	0x019		Byte set to 0xe0 in one function.
+Cell56	0x01a		16-bit value set from data_80188ebc or a local v.
+Cell56	0x034		Byte set to a digit shifted left by 4.
+Cell56	0x036		16-bit value set from data_80188ebc or a local v, as field_1a is.
+Poly28	0x004	r0	Set to 0x80 constants or a colour value c; sits where a primitive's first colour byte is.
+Poly28	0x005	g0	Set to 0x80 or the same colour value c as its neighbour.
+Poly28	0x006	b0	Set to 0x80 or the same colour value c as its neighbours.
+Poly28	0x008	x0	Holds a screen x coordinate (object pos_x plus offset, or tile column minus map scroll) of the first corner.
+Poly28	0x00a	y0	Holds a screen y coordinate (object pos_y plus offset, or tile row minus scroll) of the first corner.
+Poly28	0x00c	u0	Byte texture u coordinate of the first corner, also copied to field_1c.
+Poly28	0x00d	v0	Byte texture v coordinate of the first corner, also copied to field_15.
+Poly28	0x00e	clut	Set from GetClut(0x60,0x1e0) or computed palette values.
+Poly28	0x010	x1	Screen x of the second corner, first x plus 16 or plus a width.
+Poly28	0x012	y1	Screen y of the second corner, equal to field_0a.
+Poly28	0x014	u1	Byte texture u of the second corner, first u plus 15 or a width.
+Poly28	0x015	v1	Byte texture v of the second corner, equal to field_0d.
+Poly28	0x016	tpage	Set from GetTPage(...) or a tile value shifted right by 10.
+Poly28	0x018	x2	Screen x of the third corner, same as field_08.
+Poly28	0x01a	y2	Screen y of the third corner, first y plus 16.
+Poly28	0x01c	u2	Byte texture u of the third corner, same as field_0c.
+Poly28	0x01d	v2	Byte texture v of the third corner, v plus 15 or a height.
+Poly28	0x020	x3	Screen x of the fourth corner, first x plus 16.
+Poly28	0x022	y3	Screen y of the fourth corner, same as field_1a.
+Poly28	0x024	u3	Byte texture u of the fourth corner, same as field_14.
+Poly28	0x025	v3	Byte texture v of the fourth corner, same as field_1d.
+ScoreRec	0x000	score	Score value stored on insertion and compared with a score to order entries.
+ScoreRec	0x004	name_char_0	Byte copied from the object's field_11c, one of the name bytes.
+ScoreRec	0x005	name_char_1	Byte copied from the object's field_11d, one of the name bytes.
+ScoreRec	0x006	name_char_2	Byte copied from the object's field_11e, one of the name bytes.
+ScoreRec	0x007	name_char_3	Byte copied from the object's field_11f, one of the name bytes.
+ScoreRec	0x008		Byte copied from the object's field_118, next to the name bytes.
+ScoreRec	0x009		Byte copied from the object's field_119, next to the name bytes.
+ScoreRec	0x00a		Byte copied from the object's field_11a, next to the name bytes.
+ScoreRec	0x00b		Byte copied between entries when shifting down; no other use shown.
+ScoreRec	0x00c		Byte copied from the object's field_124 and compared with c, which is the primary ordering key before score.
+Tbl664	0x025		Read plus 1 and stored into state field_15.
+Tbl664	0x026		Copied into state field_12.
+Tbl664	0x028		Copied into state field_14.
+InputBlock	0x000		Set to 0 or 1.
+InputBlock	0x001		Set to 0 or 1.
+InputBlock	0x005		Assigned from data_8016e803 or data_80185fc4 depending on mode.
+Tune2a	0x021		Copied into g->field_11 in func_8011983c.
+Tune2a	0x022		Copied into g->field_10 in func_8011983c.
+Tune2a	0x023		Copied into g->field_13, which becomes 0xff when field_24 is nonzero.
+Tune2a	0x024		Tested against zero; when nonzero, game field_13 is set to 0xff.
+Tune2a	0x025		Copied plus 1 into g->field_15.
+Tune2a	0x026		Copied into g->field_12.
+Tune2a	0x028		Copied into g->field_14.
+Tune2a	0x029		Copied into g->field_2a.
+Fighter	0x000		Tested non-zero together with field_01 for the left and right player before the block calls.
+Fighter	0x001		Tested non-zero together with field_00 for the left and right player before the block calls.
+Fighter	0x009		Set to 0 or other values for the left and right players from field_73, field_17a and frame comparisons, and passed as field_09+4 to a block function.
+Fighter	0x073		Tested non-zero for either player, and compared with 1 for the right player when field_17a values are equal.
+Fighter	0x17a		Compared between the left and right players for equality and for greater-or-equal.
+SeqHeader	0x000		Used as a count read from the header; in the record form it is subtracted from a table value plus one to give a distance.
+SeqHeader	0x008	pos_x	Written with an x position, from which 0x10 and a box margin are subtracted to give x0 and x1 coordinates.
+SeqHeader	0x00a	pos_y	Holds a y position, combined with an offset from a table minus 8 to give a y coordinate.
+NameEntry	0x0b0	repeat_delay	Reset to 0x258 whenever there is input.
+NameEntry	0x0b2	repeat_counter	Set to -0x1000 without input; with input it has 0x1000 added, and the edit repeats when it returns to zero.
+NameEntry	0x0b4		Only set to 0 in the function.
+Cell16	0x004		Set to 0x80 when initializing sprite cells, alongside two neighbouring bytes.
+Cell16	0x005		Set to 0x80 when initializing sprite cells, alongside two neighbouring bytes.
+Cell16	0x006		Set to 0x80 when initializing sprite cells, alongside two neighbouring bytes.
+Cell16	0x00b		Set to constants 0x10, 0x1a, 0x16 or 0x1b in table-filling loops in two functions.
+Cell16	0x00c		Set to a size value shifted left by 4.
+Cell16	0x00d		Set to a column value shifted left by 4.
+Cell16	0x00e	clut	Holds the result of func_8015bdd4 called with clut-style coordinates (0x60, 0x1e0 or position-based values), i.e. a clut value.
+HalfPair	0x000	pos_x	Assigned to obj->pos_x from tables indexed by side or obj->field_03.
+HalfPair	0x002	pos_y	Assigned to obj->pos_y from tables indexed by side or obj->field_03.
+Tilemap	0x003		Added to a page value and then scaled by 64 plus a constant to form a texture-page word for polygons.
+Tilemap	0x004		Subtracted from the x position of each tile column (col*16) in one function and read as w in another.
+Tilemap	0x006		Subtracted from the y position of each tile row (row*16) in one function and read as h in another.
+TextItem	0x000		Shifted left by 2 and added to data_801987c8 to get a base pointer in the draw function.
+TextItem	0x004		Set to constants or table values per side (e.g. 0x30, 0xa0) and read as x0 by the text draw function, paired with field_06 as y.
+TextItem	0x006		Set to constants or table values (0x50, 0x68, row multiples plus offset) and read as y by the text draw function.
+TextItem	0x008		Read as a 'step' value in the draw function; nothing else shown.
+TextItem	0x009		Read as 'line' in the draw function; also multiplied by a selection index plus one in the slot04 code to compute field_06.
+TextItem	0x00a		Read as a byte 'c' in the draw function; nothing else shown.
+TextItem	0x00b	palette	Copied between items in the slot04 code and read as 'pal' in the draw function.
+SlotInput	0x002		Its top bit (>>15) is compared with obj->field_03.
+SlotCell	0x004		Byte set to 0x80 in two functions and to a variable c in another, together with the next two bytes.
+SlotCell	0x005		Byte set to 0x80 or to the variable c, alongside the bytes before and after it.
+SlotCell	0x006		Byte set to 0x80 or to the variable c, alongside the two bytes before it.
+SlotCell	0x008		Halfword set to a minimum x plus col*16, or a maximum x minus col*16 (mirrored).
+SlotCell	0x00a		Halfword set to a top y plus row*16.
+SlotCell	0x00c		Byte set to tx<<4, or (tx<<4)+0xf when mirrored.
+SlotCell	0x00d		Byte set to ty<<4.
+SlotCell	0x00e		Halfword set from a helper call with constants, or from a base plus a shifted table value, in different functions.
+SlotCell	0x010		Halfword set to xa + col*16 or xb - col*16.
+SlotCell	0x012		Halfword set to top y plus row*16.
+SlotCell	0x014		Byte set to tx<<4 or (tx<<4)+0xf.
+SlotCell	0x015		Byte set to ty<<4.
+SlotCell	0x016		Halfword set from a helper call with constants, or from a function argument or value.
+SlotCell	0x018		Halfword set to xmin + col*16 or xmax - col*16.
+SlotCell	0x01a		Halfword set to bottom y plus row*16.
+SlotCell	0x01c		Byte set to tx<<4 or (tx<<4)+0xf.
+SlotCell	0x01d		Byte set to (ty<<4)+0xf.
+SlotCell	0x020		Halfword set to xa + col*16 or xb - col*16.
+SlotCell	0x022		Halfword set to bottom y plus row*16.
+SlotCell	0x024		Byte set to tx<<4 or (tx<<4)+0xf.
+SlotCell	0x025		Byte set to (ty<<4)+0xf.
+Slot2aSpawn	0x002		Added to a base and stored into field_08 of two cells.
+Slot2aSpawn	0x004		Added to 0x91 or 0x31 (depending on a byte of the object) and stored into field_0a of two cells.
+Slot2aSel	0x000		Tested against 0x8000 once.
+Slot2aSel	0x002		Read into a local t.
+Slot2aSel	0x004		Subtracted from 3, multiplied by 8, minus 16 to give a y.
+ModObj	0x000		Set to 1 once when a new child object is initialised.
+ModObj	0x002		Set to the constant 0x1c when a child is initialised.
+ModObj	0x003	state_index	Cleared to 0 on init, and used as an index into per-slot function tables that are called with the object.
+ModObj	0x004		Set to small constants (3 on the object, 2 on its child) in different functions; no comparison shown.
+ModObj	0x005	substate_index	Incremented by 1 in one function and used as an index into a table of functions called with the object.
+ModObj	0x00b		Cleared to 0 on init only.
+ModObj	0x020		Incremented and reset to 0 in one function, and decremented by 1 (adding 0xffff) in another.
+ModObj	0x022		Incremented and reset to 0 in one function, and decremented by 1 in another, like field_20.
+ModObj	0x024		Increased by 0x10 and reset to 0 in one function.
+ModObj	0x030	child	Pointer to another ModObj (a child) that is tested for null, assigned on creation, and has its field_04 set.
+ModObj	0x03c		Pointer to an Object, read as the owner/parent and set to the creating object in the child.
+ModObj	0x046		Set to 0xf, then decremented each update and tested for below zero, so it counts down.
+ModObj	0x048	side	Set from the side argument when a child is initialised.
+ModObj	0x04c		Cleared to 0 on init only.
+ModObj	0x050		Cleared to 0 on init only.
+ModObj	0x058		Set to the address of a data table on init.
+ModObj	0x066		Cleared to 0 on init only.
+ModPool	0x000		Set to 1 once in an init function.
+ModPool	0x002		Set to 2 once in an init function.
+ModPool	0x004		Set to the address of a data table in an init function.
+Slot0bObj	0x003		Tested against 0, and used to index a table of 0x50-byte cells and as an argument plus 2.
+Slot0bObj	0x004		Incremented in one function and used as an index into a table of functions in another.
+Slot0bObj	0x005		Only incremented.
+Slot0bObj	0x046	countdown_timer	Counted down each call, reset to 0xf, and tested for going negative.
+Slot0bObj	0x04c		Added to fx each step, set to a constant or negated, and itself increased by field_54.
+Slot0bObj	0x050		Added to fy each step, set to a constant or negated, and itself increased by field_58.
+Slot0bObj	0x054		Set to a constant or negated, and added to field_4c each step.
+Slot0bObj	0x058		Set to a constant or negated, and added to field_50 each step.
+Slot0bObj	0x05c		Copied into the object's pos_x once.
+Slot0bObj	0x05e		Copied into the object's pos_y once.
+HudSlot	0x000		Set to 0 or 0xe in different functions.
+HudSlot	0x004	pos_x	Set from an object's position plus an offset, looks like an x coordinate.
+HudSlot	0x006	pos_y	Set from an object's y-like value plus or minus a small offset.
+HudSlot	0x008		Set to constants 0x10 or 8.
+HudSlot	0x009		Set to constants 0x10 or 8, same as field_08.
+HudSlot	0x00a		Set to constants 2 or 0.
+HudSlot	0x00b		Set to constant 0x18.
+HudSlot	0x00c		Set from a table indexed by the other object's kind, or to a pointer.
+Slot12Tiles	0x000	width	Read into a local w.
+Slot12Tiles	0x002	height	Read into a local h.
+Slot12Tiles	0x004	half_width	Subtracted from and added to a center cx to get xmin and xmax.
+Slot12Tiles	0x006		Used with 0xc8 subtracted from it.
+Slot12Obj	0x001		Set to 0 in one init function.
+Slot12Obj	0x003		Tested for non-zero in one function.
+Slot12Obj	0x004		Incremented in one function.
+Slot12Obj	0x005		Incremented in functions.
+Slot12Obj	0x009		Used as an index into a table that gives the ordering-table slot where primitives are linked; set to 5 at init.
+Slot12Obj	0x012		Base x for primitives, set to 0xc0 at init, decremented in one function and offset by per-index table values.
+Slot12Obj	0x016		Base y for primitives, set to 0x80 at init and used as y (plus 8) of primitives.
+Slot12Obj	0x046		Decremented by 1 and stored back.
+Slot12Obj	0x04c		Added to the x fraction position, increased by field_54 each step, and decremented or tested for zero elsewhere.
+Slot12Obj	0x050		Added to the y fraction position and increased by field_58; elsewhere cast to a byte pointer.
+Slot12Obj	0x054		Added to field_4c each step.
+Slot12Obj	0x058		Added to field_50 each step.
+Slot12Obj	0x05c		Signed index or count used as a loop bound, shifted by 4 or multiplied by 16 for sizes, and used to index tables.
+Slot12Obj	0x078		Compared against y in one function.
+Slot12Obj	0x0ee		Tested for non-zero in one function and cleared in another.
+Slot12Obj	0x0f0		Cleared to 0 in one function.
+Slot12Obj	0x21e		Cleared to 0 and incremented in one function.
+Slot12Sprite	0x014		Set to a value plus obj->pos_x.
+Slot12Sprite	0x016		Set to a value plus obj->pos_y.
+Slot12Sprite	0x018		Byte set from a local a.
+Slot12Sprite	0x019		Byte set from a local b.
+Slot12Sprite	0x01a		Set to the result of func_8015bdd4(a, b).
+Slot12Cell	0x003		Set to 3 at init.
+Slot12Cell	0x004		Set to 1 at init.
+Slot12Cell	0x005		Set to 1 at init.
+Slot12Cell	0x006		Set to 1 at init.
+Slot12Cell	0x007		Set to 0x60 at init.
+Slot12Cell	0x008	pos_x	Set from the object's pos_x.
+Slot12Cell	0x00a	pos_y	Set from the object's pos_y.
+Slot12Cell	0x00c		Set to constants 0x58 or 0x80.
+Slot12Cell	0x00e		Set to 0x58.
+Slot12Rec	0x000		Cleared to 0 when records are set up.
+Slot12Rec	0x004	pos_x	Set from the object's field_76 plus offsets, or decremented by 8.
+Slot12Rec	0x006	pos_y	Set from the object's field_78 plus offsets, or decremented by 8.
+Slot12Rec	0x008		Set to small constants such as 8 or 0x10.
+Slot12Rec	0x009		Set to 0x10.
+Slot12Rec	0x00a		Set to small constants 1 or 2.
+Slot12Rec	0x00b		Set to various constants such as 0x12, 0x14, 0x18, 0x1d.
+Slot12Rec	0x00c		Pointer loaded from per-object-index tables in several functions.
+Rec14	0x00d		Assigned a byte read from a pointer multiplied by 0x30.
+Slot00Obj	0x004		Masked with 0xffffff and compared to 0x80001 on the object at field_3c.
+Slot00Obj	0x010		Has the other object's vel_x added to it and is copied between objects, so it is a position along x.
+Slot00Obj	0x014		Has vel_y subtracted from it and is copied between objects, so it is a position along y.
+Slot00Obj	0x030		Object pointer cleared to 0 and compared with an object o in one function.
+Slot00Obj	0x034		Object pointer cleared to 0 and compared with an object o in one function.
+Slot00Obj	0x03a		Byte compared with 0 in two functions.
+Slot00Obj	0x050		Byte read into v in one function.
+Slot00Obj	0x054		Byte copied into field_0d of the object.
+Slot00Obj	0x0a4		Compared with the other object's packed state bytes, incremented by a table value, and decremented, so uses differ across functions.
+Slot00Obj	0x0a8		Object pointer read into q and copied from in one function.
+Slot00Obj	0x0b0		Set to 5 and tested against bit 0x80.
+Slot00Obj	0x0b1		Cleared to 0, toggled with ^1 and tested for non-zero.
+Slot00Obj	0x0b2		Set to constants 0xb and 1 and tested against bit 0x80.
+Slot00Obj	0x0b3		Cleared to 0, incremented, and tested for bit 1.
+Slot00Rec7ef0	0x004	step_timer	Copied to and from obj step_timer.
+Slot00Rec7ef0	0x006	step_flags	Copied to and from obj step_flags.
+Slot00Rec7ef0	0x008		Added to field_0c each update, so it is a per-update x increment.
+Slot00Rec7ef0	0x00a		Subtracted from field_0e each update, so it is a per-update y step.
+Slot00Rec7ef0	0x00c	pos_x	Copied to and from obj pos_x and advanced by field_08.
+Slot00Rec7ef0	0x00e	pos_y	Copied to and from obj pos_y and decreased by field_0a.
+Slot2bObj	0x010		Differences between this field of two objects are shifted to make vel_x, and obj vel_x is added to it, so it is a position along x.
+Slot2bObj	0x014		Has vel_y or field_50 subtracted from it each update, so it is a position along y.
+Slot2bObj	0x02c		Cleared to 0 and compared with an object o in one function.
+Slot2bObj	0x03a		Byte compared with 0 in two functions.
+Slot2bObj	0x047		Set to constants (2, 0x28, 0x18), decremented, and tested for zero and for bit 0x80 (underflow), so it is counted down.
+Slot2bObj	0x048		Signed byte used as an index into table data_8007eb48 passed to func_80130700.
+Slot2bObj	0x04e		Added to x to compute t in one function.
+Slot2bObj	0x050		Subtracted from field_14 and increased by field_58 each update, so it is a vertical speed with field_58 as its acceleration.
+Slot2bObj	0x058		Added to field_50 each update.
+Slot2bObj	0x070		Copied into the global data_8007ef2c.
+Slot2bObj	0x0a0		Signed byte read into v in one function.
+Slot0fObj	0x000		Set to 0 and 1, compared with 2 and 3 in different functions, and used as an index into a table of functions called with the object.
+Slot0fObj	0x001		Cleared in one function (on a global struct at the same offset) and tested against 0 in another.
+Slot0fObj	0x002		Only cleared to 0 on a global struct.
+Slot0fObj	0x003		Only cleared to 0 on a global struct.
+Slot0fObj	0x004		Set to 0 and used as an index into several tables of functions called with the object.
+Slot0fObj	0x005		Only cleared to 0.
+Slot0fObj	0x006		Only cleared to 0.
+Slot0fObj	0x007		Only cleared to 0.
+Slot0fObj	0x008		Set to 0 in one function and tested against 0 as a loop condition in another.
+Slot0fObj	0x009		Cleared to 0 and used as an index into a table of functions called with the object.
+Slot0fObj	0x00a		Counted down by 1 and tested for below 0; also compared with a loop index in another function.
+Slot0fObj	0x00b		Set to 0 and 2, incremented, and compared with constants and loop indexes across many functions.
+Slot0fObj	0x00c		Set to 0 and 1, compared with 0, 2 and a loop index in several functions.
+Slot0fObj	0x00d		Only tested against 0.
+Slot0fObj	0x00e		Compared with 4 and used as a switch selector.
+Slot0fObj	0x00f		Set to 1 and 2, tested against 0 and counted down by 1.
+Slot0fObj	0x010		Assigned the OR of two global values.
+Slot0fObj	0x016		Set to 0x80 in one function and read plus 8 into another record's field in another.
+Slot0fObj	0x01b		Only cleared to 0.
+Slot0fObj	0x02c		Only set to 0xff.
+Slot0fObj	0x02d		Only set to 7.
+Slot0fObj	0x032		Only cleared to 0.
+Slot0fObj	0x033		Only cleared to 0.
+Slot0fObj	0x040		Assigned a halfword from a global.
+Slot0fObj	0x042		Only set to 1.
+Slot0fObj	0x049		Set to 0x13 and counted down by 1 in another function.
+Slot0fObj	0x04a		Set to 0x3b and decremented by 1 in another function.
+Slot0fObj	0x04e		Only set to 1.
+Slot0fObj	0x054		Only cleared to 0.
+Slot0fObj	0x05c		Read as an offset added to a record pointer and as an index.
+Slot0fObj	0x066		Only cleared to 0.
+Slot0fObj	0x084		Only cleared to 0.
+Slot0fObj	0x09c		Assigned a pointer named left.
+Slot0fObj	0x0a0		Assigned a pointer named right.
+Slot0fObj	0x0c6		Set to 0x1e0 in one function and read and written back in another.
+Slot0fObj	0x0ee		Tested against 0 and cleared to 0.
+Slot0fObj	0x0f0		Only cleared to 0.
+Slot0fObj	0x12c		Only cleared to 0.
+Slot0fObj	0x12e		Only cleared to 0.
+Slot0fObj	0x21e		Used as a byte offset from a base pointer to reach another object whose field is masked with 0x3f.
+Slot0fRec8490	0x00b		Set to 0x10 when selected index matches, else 0x1a, or to a value w.
+Slot0fRec8504	0x002		Set once to the constant 0x11 through the header pointer.
+Slot0fRec8504	0x003		Set once to 1 through the header pointer.
+Slot0fRec8504	0x044		Its address is taken and stored in a pointer z; no value is read or written directly.
+Slot0fRece5c4	0x000		Word copied from src to dst.
+Slot0fRece5c4	0x004		Four bytes copied element by element from src to dst.
+Slot0fRece5c4	0x008		Byte copied from src to dst.
+Slot0fRece5c4	0x009		Byte copied from src to dst.
+Slot0fRece5c4	0x00a		Byte copied from src to dst.
+Slot0fRece5c4	0x00b		Byte copied from src to dst.
+Slot0fRece5c4	0x00c		Byte copied from src to dst.
+Slot0fRece664	0x000		Copied byte by byte from src to dst as two rows of bytes in a copy function.
+Slot0fRece664	0x010		Eight bytes copied element by element from src to dst.
+Slot0fRece664	0x018		Eight bytes copied element by element from src to dst.
+Slot0fRece664	0x020		Byte copied from src to dst.
+Slot0fRece664	0x021		Byte copied from src to dst.
+Slot0fRece664	0x022		Byte copied from src to dst.
+Slot0fRece664	0x023		Byte copied from src to dst.
+Slot0fRece664	0x024		Byte copied from src to dst.
+Slot0fRece664	0x025		Byte copied from src to dst.
+Slot0fRece664	0x026		Byte copied from src to dst.
+Slot0fRece664	0x027		Byte copied from src to dst.
+Slot0fRece664	0x028		Byte copied from src to dst.
+Slot0fRece664	0x029		Byte copied from src to dst.
+Slot0fRece664	0x02a		Byte copied from src to dst.
+Slot0fRece664	0x02b		Byte copied from src to dst.
+Slot0fRece664	0x02c		Byte copied from src to dst.
+Slot0fRec8508	0x00b		Set to the constants 0x10 or 0x1a in one function.
+Slot0fRec85c8	0x00b		Set from a local value c.
+Slot0fRec8618	0x00b		Set to the constants 0x10 or 0x1a in one function.
+Slot0fRec9540	0x007		Set to 0x16 or 0x1b in loops over three different tables in three functions.
+Slot0fOpts	0x000		Copied into byte 0 of data_800f8554_slot0f from the saved options.
+Slot0fOpts	0x001		Copied into byte 8 of data_800f8554_slot0f and passed as s8 to func_80120374.
+Slot0fOpts	0x002		Compared with entries of a byte table in a loop over index i.
+Slot0fOpts	0x003		Tested against zero.
+Slot0fOpts	0x004		Copied into byte 2 of data_800f8554_slot0f.
+Slot0fOpts	0x005		Copied into byte 3 of data_800f8554_slot0f.
+Slot0fOpts	0x006		Copied into byte 5 of data_800f8554_slot0f.
+Slot0fOpts	0x007		Copied into byte 4 of data_800f8554_slot0f.
+Slot0fOpts	0x00a		Copied into byte 6 of data_800f8554_slot0f.
+Slot0fOpts	0x00b		Copied into byte 7 of data_800f8554_slot0f.
+Slot0fRec7d80	0x000		Set to 0 on initialization.
+Slot0fRec7d80	0x004		Set from obj field_76 plus an offset (0x28 or 0x40) depending on the case.
+Slot0fRec7d80	0x006		Set from obj field_78 and decremented by 8.
+Slot0fRec7d80	0x008		Set to constants 0x10 or 8.
+Slot0fRec7d80	0x009		Set to constant 0x10.
+Slot0fRec7d80	0x00a		Set to constants 1 or 2.
+Slot0fRec7d80	0x00b		Set to constants such as 0x18 or 0x1d.
+Slot0fRec7d80	0x00c		Byte pointer loaded from a table indexed by obj field_03.
+Slot0fRec7d50	0x000		Set to 0 on initialization.
+Slot0fRec7d50	0x004		Set from obj field_76 and decremented by 8.
+Slot0fRec7d50	0x006		Set from obj field_78 and decremented by 8.
+Slot0fRec7d50	0x008		Set to constant 0x10.
+Slot0fRec7d50	0x009		Set to constant 0x10.
+Slot0fRec7d50	0x00a		Set to constant 2.
+Slot0fRec7d50	0x00b		Set to constants 0x14 or 0x1d.
+Slot0fRec7d50	0x00c		Byte pointer loaded from a table indexed by obj field_5c.
+Slot06Layer	0x000		Byte compared with 0 and 2 and set to 1 or 2 in different functions; looks like a layer state value.
+Slot06Layer	0x001		Byte tested against 0 and cleared to 0; used in 10 functions with no clear role.
+Slot06Layer	0x003		Byte only cleared to 0 in one function.
+Slot06Layer	0x004		Byte compared with 0 and 1 to branch, and incremented with ++ in some functions.
+Slot06Layer	0x005		Byte compared with 0, 1, 2, incremented, and used as an index into a table of functions called with the layer.
+Slot06Layer	0x008		16-bit value read as a s32 and subtracted against field_20 and from other values; paired with field_10 in a comparison.
+Slot06Layer	0x00a		Value subtracted against field_12 and scaled by an object's field_26 to adjust x positions; also added to or subtracted from sums.
+Slot06Layer	0x00c		Read as a s32 and subtracted against field_14 and field_24 in three functions.
+Slot06Layer	0x00e		Value added to or subtracted from sums and copied between layer records.
+Slot06Layer	0x010		Read as a 32-bit value and compared with field_08 in one function.
+Slot06Layer	0x012		Value compared with and combined with object pos_x/vel_x, and subtracted against field_0a to adjust x positions.
+Slot06Layer	0x014		Read as a s32 and subtracted against field_0c in one function.
+Slot06Layer	0x016		Value added to object pos_y, used as a negative pos_y, and compared with constants like 0x500.
+Slot06Layer	0x01c		Assigned different constants (0x58, 0x48, 0x98, ...) in many functions.
+Slot06Layer	0x01e		Assigned a different constant (e.g. 0x5800, 0x5812) in each of 85 functions.
+Slot06Layer	0x020		Read as a s32 and subtracted against field_08 in several functions.
+Slot06Layer	0x022		Value copied between records, added to and subtracted from sums.
+Slot06Layer	0x024		Read as a s32 and subtracted from field_0c in two functions.
+Slot06Layer	0x026		Value copied between records, added to and subtracted from sums.
+Slot06Layer	0x030		Counter set from constants or tables and decremented, compared with 0 in one function.
+Slot06Layer	0x034		Low half of a 32-bit value that is changed by adding or subtracting constants and field_78, and set to 0 or large constants.
+Slot06Layer	0x036		High half of the 32-bit value at field_34; compared with 0x3a0, added to sums, and passed to a function.
+Slot06Layer	0x038		Low half of a 32-bit value changed by adding constants and field_80, or set to constants.
+Slot06Layer	0x03a		High half of the 32-bit value at field_38; compared with constants like 0x480, 0x700, -0x13f, added to sums, set from a table, and used to compute object pos_y.
+Slot06Layer	0x03e		Signed 16-bit value read into a local n in two functions.
+Slot06Layer	0x04a		u16 that is toggled with XOR of 0x800 or 0x200, stepped with a mask 0x600, and loaded from tables indexed by field_88 or a loop variable.
+Slot06Layer	0x04c		u16 set to many constants (0xb0 to 0xd0) in many functions and used in a tile lookup as a value split into row (/16) and remainder.
+Slot06Layer	0x04e		u16 set to constants (0xd8, 0xc5) and compared by subtracting field_1c.
+Slot06Layer	0x050		Pointer to a u16 data buffer assigned from per-slot data tables (sometimes plus 0x800) and indexed by row and column with a row stride from field_58 to read tile lines.
+Slot06Layer	0x054		Pointer assigned the same per-slot data tables as field_50 in each setup function.
+Slot06Layer	0x058		Set to 0x400 or 0x200 and used as a power-of-two size: masked with size-1 for column, shifted >>9 for row stride, and >>4 minus 1 for a mask.
+Slot06Layer	0x05c		Set to 0x100 in setup functions; no other use shown.
+Slot06Layer	0x060		Read as a delta value n or d that is then added to field_6c, subtracted from field_68 and stored in field_74.
+Slot06Layer	0x068		Cleared to 0 and decremented by the amount read from field_60.
+Slot06Layer	0x06c		Cleared to 0 and incremented by the amount read from field_60.
+Slot06Layer	0x070		Decremented by 0x4000 and masked with 0x3ffffff in one function.
+Slot06Layer	0x074		Stores a delta value (n, d or t<<16) copied from other computations.
+Slot06Layer	0x078	vel_x	Initialised to 0x2000 and added to the 32-bit field_34 each step, then itself incremented by field_7c.
+Slot06Layer	0x07c	accel_x	Initialised to -0x100 and added to field_78 each step.
+Slot06Layer	0x080	vel_y	Initialised to 0xfffe0000 and added to the 32-bit field_38 each step, then itself incremented by field_84.
+Slot06Layer	0x084	accel_y	Set to 0x100 or 0xfffe0000 and added to field_80 each step.
+Slot06Layer	0x088	table_index	Small index stepped with masks (&7, &0xe, &0x1e), used to index data tables and compared with 2.
+Slot06Layer	0x08b		Byte set to 3, 0 or 0xff, decremented, and tested against zero or a value to gate behaviour.
+Slot06Layer	0x08c		Byte cleared to 0 and compared with zero or a value in one function.
+Slot06Obj	0x001		Set to 0 in one function; used in 3 functions with no other role shown.
+Slot06Obj	0x004		Incremented by one in one function; other uses not shown.
+Slot06Obj	0x008		A s32 added into an accumulator d in one function, apparently a fixed-point velocity-like term.
+Slot06Obj	0x00e		A u16 added into an accumulator e, which is then stored into field_22 and field_26.
+Slot06Obj	0x012	pos_x	A u16 position set to constants such as 0x340 and 0x1c0, and used as x with a layer's field_12 subtracted.
+Slot06Obj	0x016	pos_y	A u16 position set to constants such as 0x80, and used as y with a layer's field_16 added.
+Slot06Obj	0x022		Assigned the accumulated value e in one function.
+Slot06Obj	0x026	parallax_factor	Multiplied by the layer's scroll difference (field_12 minus field_0a) and divided by a per-function constant to offset the screen position (parallax); also assigned e in one function.
+Slot06Obj	0x030		Counted down and tested for zero in one function, set from a table in another, set to 0 or compared with an object pointer elsewhere; different uses in different functions.
+Slot06Obj	0x036		A u16 added to the high half of d to form e in one function.
+Slot06Obj	0x038		Set to constants (0x110, 0x150, 0x2e0) in init functions.
+Slot06Obj	0x03a		Set to 0 or 0x50 in init functions and added into e in another.
+Slot06Obj	0x03c		Set to small constants (7, 3, 0x10) in init functions.
+Slot06Obj	0x046		Tested for nonzero and then its low byte cleared by masking the u16 with 0xff00.
+Slot06Obj	0x048	sequence_index	Set to constants in init functions, loaded from a table indexed by field_88, and used as an index into the sequence table s->field_6c.
+Slot06Obj	0x04a		Set to constants (0x60, 0, 0x50) in init functions.
+Slot06Obj	0x04c		Set to small constants in init functions and added to field_03*32 to form a table index in another.
+Slot06Obj	0x054		Added to a layer value to compute pos_y as 0xf0 minus the sum, and summed into d in another function.
+Slot06Obj	0x056		Tested for nonzero and then its low byte cleared by masking the u16 with 0xff00.
+Slot06Obj	0x058		Set to constants (0x290, 0x330, 0x180) in init functions and summed into d in another.
+Slot06Obj	0x05a		Set to constants (0x70, 0, 0x50) in init functions.
+Slot06Obj	0x05c		Set to small constants (9, 5, 0x12) in init functions.
+Slot06Obj	0x064		Set to 0x1f0 in one function.
+Slot06Obj	0x066		Set to 0x80 in one function.
+Slot06Obj	0x06c	sequence_table	A pointer to a table of sequence steps, loaded from a per-kind table by field_03 and indexed to pass an entry to func_80130700.
+Slot06Obj	0x074		Set to constants (0x300, 0x370) in init functions.
+Slot06Obj	0x076		Set to constants (0x60, 0x50) in init functions.
+Slot06Obj	0x078		Set to small constants (10, 6) in init functions.
+Slot06Obj	0x088	table_index	Reset to 0, advanced by 2 and masked with 0x1e, and used as an index into two tables.
+Slot06_00Rec3010	0x000		u32 copied into the object's pos_x_frac, set from a table with the low half cleared, and advanced by field_10 under a mask.
+Slot06_00Rec3010	0x004		u32 copied into the object's pos_y_frac and set to 0xf80000 minus a table value shifted by 16.
+Slot06_00Rec3010	0x008		u32 copied into the object's pos_x_frac, set from a table with low half cleared, and advanced by field_14 under a mask.
+Slot06_00Rec3010	0x00c		u32 copied into the object's pos_y_frac and set to 0xf80000 minus a table value shifted by 16.
+Slot06_00Rec3010	0x010		Loaded from a table and added to field_00 each update.
+Slot06_00Rec3010	0x014		Loaded from a table and added to field_08 each update.
+Slot06_00Rec3010	0x018	sequence_start	Pointer to a sequence step, assigned to obj->sequence and used as base for field_1c (+1).
+Slot06_00Rec3010	0x01c	sequence_next	Pointer to a sequence step set to field_18 + 1 and later assigned to obj->sequence.
+Slot27Obj	0x001		Set to 0 in one function; no other use shown.
+Slot27Obj	0x005		Incremented by 1 in one function; other uses not shown.
+Slot27Obj	0x012		A 16-bit value compared with 0x1a0, increased by field_4c each step, loaded from a table record, and copied plus 2 to another object.
+Slot27Obj	0x014		Assigned constants that are multiples of 0x400000 in many small functions, one per function.
+Slot27Obj	0x018		Assigned constants such as 0x800 steps and 0x1, 0x801 in many small functions, one per function.
+Slot27Obj	0x028		Holds a pointer to an Object assigned from a reference in one function.
+Slot27Obj	0x02c		Holds an Object pointer stored in one function and read back into a reference in another.
+Slot27Obj	0x046		Set to 0x18 in one function.
+Slot27Obj	0x04c		A 16-bit amount added to field_12 in two functions.
+Slot27Obj	0x050		A 16-bit amount added to the low half of another object's pos_y.
+Slot27Obj	0x05e		Set to -0x1f in one function and used as a lower bound that field_5c is compared against in another.
+Slot27Rec9338	0x000		Cleared to 0, tested for 0 and set to 0xff.
+Slot27Rec9338	0x001		Cleared to 0, tested for 0 and set to 0xff.
+Slot27Rec9338	0x002	step_count	Incremented and wrapped to 0 when it reaches 0xb.
+Slot27Rec9338	0x003		Cleared to 0, set to 0xff and tested for non-zero.
+Slot27Rec9338	0x004		Cleared to 0 and set to 0xff.
+Slot27Rec9338	0x005		Incremented by one and set to 0xb4.
+Slot27Rec9338	0x006		Incremented by one and set to 0xb4.
+Slot27Rec9328	0x006		Holds the word read from cur[0], and its low 5 bits are shifted left by 5 to make a base.
+Slot27Rec7d14	0x000		Copied into field_09 of an object indexed by its field_03.
+Slot27Rec7d14	0x002		Copied into field_12 of an object.
+Slot27Rec7d14	0x004		Copied into the low half of an object's pos_y.
+Slot27Rec851c	0x000		Subtracted from a running value t, indexed by n.
+Slot27Rec851c	0x002		Read into u, indexed by n.
+Slot27Recb388	0x010		Set to 0x80 in an init function.
+Slot27Recb388	0x011		Set to 0x80 in an init function.
+Slot27Recb388	0x012		Set to 0x80 in an init function.
+Slot27Recf0c8	0x010		Set to 0x2000000 in an init function.
+Slot27Recf0c8	0x01e		Set to 0x5800 in an init function.
+Slot27Recf0c8	0x028		Set to 0xffd00000 in an init function.
+Slot27Recf0c8	0x050		Set to 0x801b0000 in an init function.
+Slot27Recf0c8	0x058		Set to 0x200 in an init function.
+Slot27Recf0c8	0x05c		Set to 0x500 in an init function.
+Slot27Recf0c8	0x08a		Set to 0xf in an init function.
+Slot06Cursor	0x004		A u16 assigned a new value and decremented by one (v = field_04 - 1, stored back) in cursor functions.
+Slot06Cursor	0x006		A u16 assigned a value and tested as signed for less than 0.
+Slot06_06Rece1d8	0x000		A byte used as an index into a table passed to func_80130700.
+Slot06_06Rece1d8	0x001		A byte copied into the destination's field_00.
+Slot06_06Rece1d8	0x002		A u16 copied to the destination's field_02.
+Slot06_06Rece1d8	0x004		A u16 copied to the destination's field_04.
+Slot06_06Rece1d8	0x007		A byte copied into the destination's field_06.
+Slot06_06Rece1d8	0x008		A u16 copied to the destination's field_08.
+Slot06_06Rece1d8	0x00a		A u16 copied to the destination's field_0a.
+Slot06_06Rece1d8	0x010	vel_x	A s16 assigned to the object's vel_x.
+Slot06_06Rec83d8	0x000		Loaded into obj->field_09 by one function; the other copies it from src->field_01.
+Slot06_06Rec83d8	0x002	pos_x	Assigned to obj->pos_x in one function and copied from src field_02 in the other.
+Slot06_06Rec83d8	0x004	pos_y	Used as 0xf8 minus this value for obj->pos_y; copied from src field_04 in the other function.
+Slot06_06Rec83d8	0x006		Stored into obj->field_0e; copied from src->field_07 in the other function.
+Slot06_06Rec83d8	0x008		Stored into obj->field_1c; copied from src field_08 in the other function.
+Slot06_06Rec83d8	0x00a		Stored into obj->field_26; copied from src field_0a in the other function.
+Slot06_06Rec83d8	0x00c	sequence	Saved from obj->sequence and restored into obj->sequence, so it holds a sequence step pointer.
+Slot06Pal	0x004		Decremented by one and stored back.
+Slot06Pal	0x006		Tested as signed for negative in one function and assigned a computed value in another.
+Slot06Pal	0x008		Set to constants like 0x1a0 and 0x260 and masked with 0xe00 and 0x1f0 to build an offset, like a VRAM x coordinate.
+Slot06Pal	0x00a		Set to 0x60 and divided by 16 to build an offset together with field_08, like a VRAM y coordinate.
+Slot06Pal	0x00c		Set to small constants (0xe, 0xf) and used as an index into table_8017c910 whose entry is passed as a SeqRec.
+Slot06_07Rece218	0x000		Indexed by obj->field_03 and used to pick an entry of s->field_6c passed to func_80130700.
+Slot06_07Rece218	0x001		Indexed by obj->field_03 and stored into obj->field_48.
+Slot06_0fRecb4e4	0x000		Indexed by obj->field_03 and used to pick an entry of s->field_6c passed to func_80130700.
+Slot06_0fRecb4e4	0x001		Indexed by obj->field_03 and stored into obj->field_48.
+Slot06_11Rec0028	0x000		Holds a copy of the other object's pos_x_frac word and is compared with it.
+Slot06_11Rec0028	0x004		Holds a copy of the other object's field_45 byte.
+Slot06_11Rec0028	0x005		Cleared to 0 and decremented by one.
+Slot06_11Rec0028	0x006		Cleared to 0 and decremented by one.
+Slot06_11Rece188	0x000	x	Read from a table indexed by t & 0x1f into x.
+Slot06_11Rece188	0x004	y	Read from a table indexed by t & 0x1f into y.
+Slot04bObj	0x02c		Assigned a value cast to u32 from a local in one function; only three uses, no role visible.
+Slot04bObj	0x03a		Byte compared with small constants 0, 1, 2, 3 and set to 0 in many functions, like a mode or phase selector.
+Slot04bObj	0x03b		Byte masked with 0xf as an index into a table, tested nonzero, and tested with bit 1 together with field_1de.
+Slot04bObj	0x046		Byte set to small constants (5, 2, 0x3c, 0x10, 1), tested against zero and incremented in different functions.
+Slot04bObj	0x047		Byte set to constants (5, 0x14, 0x3c), tested against zero, copied from the other object's field_28c, and used as an index into per-slot tables for box_tables.
+Slot04bObj	0x052		Signed 16-bit value tested against zero together with pos_y and field_70 comparisons, and assigned from pos_x in one function.
+Slot04bObj	0x056		Signed 16-bit value read into a local k in one function only.
+Slot04bObj	0x05c		Signed 16-bit value compared with 0 and 0x80/0x90 thresholds, used to choose between tables, and used as an index into a table that gives field_6c.
+Slot04bObj	0x06c		Pointer set to a different data table address in each slot's function, or from a table indexed by field_5c.
+Slot04bObj	0x070	ground_y	Unsigned 16-bit value that pos_y is compared with and set to, or set to the value minus an offset, as a vertical reference level such as the ground.
+Slot04bObj	0x08c		32-bit value assigned from scratchpad addresses (0x1f8000a8, 0x1f800158) or from data table addresses.
+Slot04bObj	0x0a6		Byte passed as the side argument to play_side_sound_at and used as an index into a record table.
+Slot04bObj	0x0a7		Byte of the other object compared with 0xb in one function.
+Slot04bObj	0x0b0		Byte added to field_af to give field_0d, and assigned from field_0d in another function.
+Slot04bObj	0x0c6		Byte used in arithmetic (plus 0x1e) and copied to a local in different functions.
+Slot04bObj	0x0cd		Byte tested against zero in two functions.
+Slot04bObj	0x0cf		Byte masked with 0x1f as an index into a table.
+Slot04bObj	0x12a		Byte copied (or shifted right by 1) into field_1dc, and used elsewhere as a value compared with 2 and 4.
+Slot04bObj	0x134		Byte tested against zero and read into locals; masked with 0x68 in another function.
+Slot04bObj	0x1a4		Byte set to 1 or loaded from field_12a, tested against zero and decremented.
+Slot04bObj	0x1a8		Byte set to 0, 1 or 2, compared, and used as an index into tables giving vel_y and accel_y, and added to field_12a for another table.
+Slot04bObj	0x1a9		Byte set from a random-selected table value or 0, tested against zero and bit 0x80.
+Slot04bObj	0x1aa		Byte set from a random-selected table value or 0, tested against zero and decremented.
+Slot04bObj	0x1ab		Byte set from a random-selected table value or 0, tested against zero and decremented.
+Slot04bObj	0x1c0		Byte set to 0, tested against zero and incremented; also accessed as a u16 and set from field_134 masked with 0x68.
+Slot04bObj	0x1cd		Set to 0 and 0xff, and tested against 0.
+Slot04bObj	0x1ce		Set to 0 or 1 and tested for zero in the same function that increments field_1cf.
+Slot04bObj	0x1cf		Incremented, compared with 2, cleared to 0, and used as an index into several small tables in different functions.
+Slot04bObj	0x1da		Cleared to 0 and tested against 0 in checks.
+Slot04bObj	0x1dc		Loaded from tables or from field_12a, decremented with a sign-bit test, and read as the first of a pair.
+Slot04bObj	0x1dd		Cleared to 0 and read as the second of a pair beside field_1dc.
+Slot04bObj	0x1de		Set to 0, 1 or 0xff and tested against 0 in many functions.
+Slot04bObj	0x210		Masked with 0x1e and shifted right by 1 to index a table of functions that are called with the object.
+Slot04bObj	0x21e		Read into a local x in one function.
+Slot04bObj	0x278		Assigned a local value one.
+Slot04bObj	0x27b		Set to constants or loaded from tables indexed by a local or by field_12a >> 1.
+Slot04bObj	0x27c		Incremented, and copied into field_27d before the increment.
+Slot04bObj	0x27d		Cleared to 0, tested against 0, and assigned from field_27c.
+Slot04bObj	0x298		Set to small constants such as 0 and 4.
+Slot04bObj	0x330		Start of a 32-bit value copied to and from the position fraction words of objects, also compared with 3 as a byte and cleared in other functions.
+Slot04bObj	0x332		Added to the high half of a computed position in one function.
+Slot04bObj	0x334		Set to 0 or 1.
+Slot04bObj	0x335		Set to 0x21 and counted down, tested against 0.
+Slot04bObj	0x336		Cleared to 0, tested against 0, then set to 0xff.
+Slot04bObj	0x337		Set to 0 or 0xff.
+Slot04bObj	0x338		Cleared to 0 and read as an index in one function.
+Slot04bObj	0x339		Cleared, set to 0xff, added to an offset into a table pointer, and compared with field_3a.
+Slot04_0eRec62b4	0x000		Holds a difference of two position words shifted right by 4, cleared, and increased by field_08 and then added to a position word.
+Slot04_0eRec62b4	0x004		Cleared, set to 0xfff80000, increased by field_0c, and subtracted from a y position word.
+Slot04_0eRec62b4	0x008		Cleared and added to field_00.
+Slot04_0eRec62b4	0x00c		Set to 0x8000, 0 or -0x8000, and added to field_04.
+Slot04_0eRec62b4	0x010	offset_x	Offset in 16.16 form: increased by the object's vel_x, cleared, and its high half is added to the object's pos_x.
+Slot04_0eRec62b4	0x014		Pointer to an object, cleared and assigned from a local c, and read in another function.
+Slot04_0eRec62b4	0x018		Set from a table plus a random value or from t plus half of t, and read back and written in other functions.
+Slot28Obj	0x000		Set to 1 in one function for several records.
+Slot28Obj	0x001		Set to 0 or 1 in several functions.
+Slot28Obj	0x002		Set to constant 0x79 in one function.
+Slot28Obj	0x003		Set to 0 or 1 and used as an index into a table of target positions (data_8004ab50) and a table of velocity records.
+Slot28Obj	0x004		Incremented by 1 in one function.
+Slot28Obj	0x005		Incremented by 1 in several functions.
+Slot28Obj	0x009		Set to 2 in one function.
+Slot28Obj	0x00b		Cleared to 0 in one function.
+Slot28Obj	0x00d		Set to 0 in one function.
+Slot28Obj	0x00e		Cleared to 0 in one function.
+Slot28Obj	0x010		Position-like value: added to by other objects' vel_x, by constants, and by field_4c, and compared as a target in a 16.16 fixed-point way (0xb0<<16).
+Slot28Obj	0x014		Position-like value: vel_y is subtracted from it, constants added or subtracted, set to 0x60<<16, and compared with a target.
+Slot28Obj	0x019		Cleared to 0 in one function.
+Slot28Obj	0x01c		Compared with zero in one function.
+Slot28Obj	0x028		Pointer to another Object, read as p and assigned in another function.
+Slot28Obj	0x02c		Cleared to 0 in one function.
+Slot28Obj	0x03a		Tested for negative on global objects in many functions, and its low byte tested against zero in others.
+Slot28Obj	0x046	countdown_timer	Counted down and tested for zero; loaded from field_47 and set to 0x10 in other places.
+Slot28Obj	0x047		Set to different constants, tested for zero, and incremented wrapped with &3 in different functions.
+Slot28Obj	0x048		Cleared to 0 in one function.
+Slot28Obj	0x04c		Added to field_10 each step, itself increased by field_54, and set from a computed difference dx.
+Slot28Obj	0x050		Added to field_14, set to dy computed from a target, and set to 0x4000 and tested for sign elsewhere.
+Slot28Obj	0x054		Added to field_4c each step.
+Slot28Obj	0x058		Set to -0x200 or 0x200 in one function.
+Slot28Obj	0x06c		Pointer to sequence data, assigned from tables and passed to func_80130768.
+Slot28Obj	0x070		Masked with 0x7f and compared with 4 or used as an index into function tables; also used directly as an index/switch.
+Slot28Obj	0x07a		Set to 0x60 in one function.
+Slot28Obj	0x07c		Set to 0x1e0 in one function.
+Slot28Obj	0x086		Set to 0 or 1 in one function.
+Slot28Obj	0x090		Pointer copied from one record to others.
+Slot28Obj	0x098		Pointer copied from one record to others.
+Slot28Obj	0x09c		Pointer copied from one record to others.
+Slot28Obj	0x0f0		Compared with zero in one function.
+Slot28Obj	0x227		Passed as the side argument to sound-playing functions.
+Slot28Rec51844	0x000		Set to 0 in an init function.
+Slot28Rec51844	0x004		Set to constant 0x26.
+Slot28Rec51844	0x006		Set to 0xba or to i + 0xb2 in a loop.
+Slot28Rec51844	0x008		Set to 8.
+Slot28Rec51844	0x009		Set to 0x10.
+Slot28Rec51844	0x00a		Set to 1.
+Slot28Rec51844	0x00b		Set to 0x10.
+Slot28Rec51844	0x00c		Set from a word read through src.
+Slot28Rec42274	0x000	vel_x	Copied to obj vel_x, indexed by field_03.
+Slot28Rec42274	0x004	vel_y	Copied to obj vel_y.
+Slot28Rec42274	0x008	accel_x	Copied to obj accel_x.
+Slot28Rec42274	0x00c	accel_y	Copied to obj accel_y.
+Slot28Rec4aac4	0x000	vel_x	Copied into obj->vel_x from the table entry indexed by obj->field_03.
+Slot28Rec4aac4	0x004	accel_x	Copied into obj->accel_x from the table entry indexed by obj->field_03.
+Slot28Rec4aac4	0x008	vel_y	Copied into obj->vel_y from the table entry indexed by obj->field_03.
+Slot28Rec4aac4	0x00c	accel_y	Copied into obj->accel_y from the table entry indexed by obj->field_03.
+Slot28Rec4ab50	0x000	target_x	Table value minus obj->field_10, shifted right by 4, giving dx.
+Slot28Rec4ab50	0x004	target_y	Table value minus obj->field_14, shifted right by 4, giving dy.
+Slot28Rec50ca4	0x000	vel_y	Copied into obj->vel_y from the table entry at index i.
+Slot28Rec50ca4	0x004	accel_y	Copied into obj->accel_y from the table entry at index i.
+Slot28Rec51cf0	0x000		Set to 0 in an init function.
+Slot28Rec51cf0	0x008		Set to constant 8 in an init function.
+Slot28Rec51cf0	0x009		Set to constant 8 in an init function.
+Slot28Rec51cf0	0x00a		Set to 0 in an init function.
+Slot28Rec51e94	0x000		Set to 0 on init.
+Slot28Rec51e94	0x004		Set to 0x60 on init; elsewhere set from e->field_00.
+Slot28Rec51e94	0x006		Set to 0x20 on init; elsewhere set from computed x.
+Slot28Rec51e94	0x008		Set to 0x10 on init.
+Slot28Rec51e94	0x009		Set to 0x10 on init.
+Slot28Rec51e94	0x00a		Set to 2 on init.
+Slot28Rec51e94	0x00b		Set to 0x12 on init; elsewhere copied from e->field_02.
+Slot28Rec51e94	0x00c		Set from a table entry on init and from e->field_04 elsewhere.
+Slot28Rec50ce4	0x000		Compared with 0xff as an end marker, and copied to field_04 of the cell.
+Slot28Rec50ce4	0x002		Byte copied to the cell's field_0b.
+Slot28Rec50ce4	0x004		Word copied to the cell's field_0c.
+Slot28Rec50ce4Obj	0x006		Low nibble is used as 8 minus it for x; the whole value is used as h, whose bytes form a table index.
+Slot28Rec50ce4Obj	0x008	entry	Pointer to the current Slot28Rec50ce4 entry, tested for 0xff in its first byte and reassigned from a table indexed by field_06 bits.
+Slot01Obj	0x010		Has o->vel_x added to it, so it is a position that moves by velocity.
+Slot01Obj	0x014		Has o->vel_y added to it, is cleared in one function, and is offset by 0x100000 and shifted right by 16 in another.
+Slot01Obj	0x030	child	Pointer to an Object read as child and assigned from p.
+Slot01Obj	0x058		Used to compute a row stride (>>9) and as a power-of-two mask (minus 1) on px.
+Slot01Obj	0x05e		Set to -0x1f and compared with field_5c as a signed limit.
+Slot01Obj	0x08a	ot_index	Set to 0x10 and used as an offset into the ordering table data_801987c8.
+Slot01Rec2b484	0x000		Pointer copied into obj field_98 from a table indexed by kind.
+Slot01Rec2b484	0x004		Pointer copied into obj field_9c from a table indexed by kind.
+Slot01Rec33bb4	0x010		Set to 0x80 in one function; no other use.
+Slot01Rec33bb4	0x011		Set to 0x80 in one function; no other use.
+Slot01Rec33bb4	0x012		Set to 0x80 in one function; no other use.
+Slot06Draw	0x008		Added to a value then shifted right 16 to give x; also subtracted from field_10 in a difference.
+Slot06Draw	0x010		32-bit value whose upper half is read as a height; used in a difference with field_08.
+Slot06Draw	0x014		32-bit value used as x start, with 0x100000 subtracted in one function.
+Slot06Draw	0x01c		Signed 16-bit value subtracted from field_4c and field_4e in interpolation ratio.
+Slot06Draw	0x01e		Read into a local (blank/braw) in two functions.
+Slot06Draw	0x03c		Stores a computed position value pos.
+Slot06Draw	0x04c		Signed 16-bit limit compared against row positions, tested with &0xf, and used to compute a row count in 16-pixel units.
+Slot06Draw	0x04e		Signed 16-bit value subtracted by field_1c as a divisor.
+Slot06Draw	0x050	pixel_data	Pointer to u16 data indexed by row/16 times a stride from field_58 plus a row offset within 16.
+Slot06Draw	0x058	width	Used as a power-of-two width mask (minus 1), shifted for tiles and row stride.
+Slot06Draw	0x05c	height	Shifted right 4 to get a row count.
+Slot06Draw	0x08a	ot_index	Byte index times 4 into the ordering table at data_801987c8 when linking primitives.
+Slot04aObj	0x016		Incremented by 1 and decremented by 2 in one function.
+Slot04aObj	0x030		Assigned a value c cast to u32 in functions.
+Slot04aObj	0x034		Assigned a value c cast to u32 in one function.
+Slot04aObj	0x03a		Tested against 0, 1, 3 and cleared to 0 across many functions.
+Slot04aObj	0x03b		Tested for nonzero and for bit 0x80 in many functions.
+Slot04aObj	0x045		Tested for bits 1 and 2 in one function.
+Slot04aObj	0x046		Set to 1 or ORed with 0x400/0x600/0x800 on another object.
+Slot04aObj	0x047	timer	Set to constants like 0x1e, 0x14, 0x3c, tested against 0 and decremented by 1 when nonzero.
+Slot04aObj	0x048		Compared with -1 on a parent object.
+Slot04aObj	0x04c		Incremented each step by field_54.
+Slot04aObj	0x04e		Incremented each step by field_56.
+Slot04aObj	0x050		Incremented each step by field_58.
+Slot04aObj	0x052		Incremented each step by field_5a.
+Slot04aObj	0x054		Added to field_4c.
+Slot04aObj	0x056		Added to field_4e.
+Slot04aObj	0x058		Added to field_50.
+Slot04aObj	0x05a		Added to field_52.
+Slot04aObj	0x05c		Tested for negative; also added to as part of a 32-bit value.
+Slot04aObj	0x060		Decreased by a computed amount t in one function.
+Slot04aObj	0x06c		Pointer assigned to data tables in several functions; also adjusted by an offset t.
+Slot04aObj	0x070		Copied to and from pos_y, compared with pos_y, decreased by 0x10 and by an amount t.
+Slot04aObj	0x08c		Assigned values read from scratchpad addresses 0x1f8000a8 and 0x1f800158.
+Slot04aObj	0x0a0		Stored from a data value, then used as a delta against that value to adjust pos_x_frac.
+Slot04aObj	0x0a6	side	Passed as the side argument to play_sound_at and play_side_sound_at, sometimes xored with 1, and tested against 0.
+Slot04aObj	0x0a7		Copied from parent into field_03 of another object.
+Slot04aObj	0x0b0		Assigned once from object->field_0d.
+Slot04aObj	0x0c6		Read and added to 0x1e in three functions.
+Slot04aObj	0x0e6	sound_side	Passed as the side argument to play_sound_at with sound word 0x34e.
+Slot04aObj	0x102		Set to 0 or 4, increased by k<<1, assigned from b and read in different functions.
+Slot04aObj	0x104		Loaded from a table by index i, and read then stored back decremented by one.
+Slot04aObj	0x134		Tested for non-zero in a function; other uses are not shown.
+Slot04aObj	0x184		Its address is taken as a pointer into the struct.
+Slot04aObj	0x1a4		Set from field_12a-derived values or 1, decremented, and tested for zero and for bit 0x80 in different functions.
+Slot04aObj	0x1a5		Set to 1 or 0x18, cleared, counted down if non-zero, and tested non-zero.
+Slot04aObj	0x1a6		Set to 0, 1, 2 or copied from field_129 and compared with 0 and 2.
+Slot04aObj	0x1a7	handler_index	Assigned from r and used as an index into a table of functions called with o.
+Slot04aObj	0x1c0		Used as a 32-bit value copied to accel_x or set to -0x8000, and as a halved index into function tables.
+Slot04aObj	0x1c2		Set to constants, decremented, and tested with 0x80 across many functions.
+Slot04aObj	0x1c3		Set to constants such as 0x32 and 0x10, decremented to zero, and compared with 0x31 and 0x2f.
+Slot04aObj	0x1c4		Cleared, compared with 2 and 3, and added into an argument to func_801307e0.
+Slot04aObj	0x1c5		Loaded from a table indexed by field_12a>>1, compared with thresholds and 1, and used as a table index.
+Slot04aObj	0x1c6		Used as an index into tables, set to 0x1e, decremented, and tested with 0x80.
+Slot04aObj	0x1c7		Cleared, tested for zero, and set to 0xff.
+Slot04aObj	0x1c8		Set to 0 or 1, incremented, and tested for zero together with a vel_y check.
+Slot04aObj	0x1c9		Cleared, set to 4 and decremented.
+Slot04aObj	0x1ca		Compared with 7 together with field_12a being 4, cleared, and set to a value one.
+Slot04aObj	0x1cb		Cleared, tested for zero, and incremented.
+Slot04aObj	0x1cc		Cleared, and incremented when zero and field_67 is non-zero.
+Slot04aObj	0x1cd		Assigned from obj->field_4b.
+Slot04aObj	0x1ce		Cleared, tested for zero, and set to 1.
+Slot04aObj	0x1cf		Cleared, tested for zero, and set to 0xff.
+Slot04aObj	0x27d		Cleared and tested for zero, and copied from field_27c.
+Slot04aObj	0x2bd		Copied into field_12a in one function.
+Slot04aObj	0x2c5		Copied into field_12a in one function.
+Slot04aObj	0x2cd		Copied into field_12a in one function.
+Slot04aObj	0x2d5		Copied into field_12a in one function.
+Slot04aObj	0x2dd		Copied into field_12a in one function.
+Slot04aObj	0x2e5		Copied into field_12a in one function.
+Slot04aObj	0x2ed		Copied into field_12a in one function.
+Slot04aObj	0x2f5		Copied into field_12a in one function.
+Slot04aObj	0x330		Holds a pointer to an object or byte data, stored from p and read back as a pointer.
+Slot04aObj	0x334		Copied to and from field_0c of another record p or q.
+Slot04aObj	0x335		Copied to and from field_0d of another record p or q.
+Slot04_03Rec0678	0x000	vel_x	Copied into obj->vel_x from the table entry indexed by field_12a>>1.
+Slot04_03Rec0678	0x004	accel_x	Copied into accel_x from the table entry indexed by field_12a>>1.
+Slot04_03Rec0678	0x008	vel_y	Copied into vel_y from the table entry indexed by field_12a>>1.
+Slot04_03Rec0678	0x00c	accel_y	Copied into accel_y from the table entry indexed by field_12a>>1.
+Slot04SelRec	0x000	state	Set to 0, 1, 2 or incremented, and used as an index into a table of functions called per player.
+Slot04SelRec	0x003	kind	Set from obj->kind; compared with 0x12 and replaced by 4.
+Slot04SelRec	0x004		Cleared; tested nonzero; OR'd between two records and compared with game_state.field_07.
+Slot04SelRec	0x005		Compared with 0x10, 0x80, 0x20, 0x40 and assigned a value t.
+Slot04SelRec	0x008		Set from a table indexed by side and copied to and from a shared selection variable.
+Slot04SelRec	0x009		Cleared, tested for zero, and OR'd between records and compared with game_state.field_07.
+Slot04SelRec	0x00a		Initialised from data_8016e696 and copied to and from a shared selection variable.
+Slot04SelRec	0x00b		Cleared and tested for zero/nonzero.
+Slot04SelRec	0x012		Cleared, tested for zero, set to 0xff.
+Slot04SelRec	0x013		Cleared, tested for zero, set to 0xff.
+Slot04SelRec	0x014		Incremented, compared with 0xb, and used as an index into a table compared with v.
+Slot04SelRec	0x015		Cleared, set to 0xff, tested nonzero.
+Slot04SelRec	0x016		Cleared, set to 0xff, tested nonzero.
+Slot04SelRec	0x017		Counted up by 1, set to 0xb4 and compared with 0xb4.
+Slot04SelRec	0x018		Counted up by 1, set to 0xb4 and compared with 0xb4.
+Slot04SelRec6d8c	0x000		Table value plus side*0x18 stored into another record's field_04.
+Slot04SelRec6d8c	0x002		Copied into another record's field_06.
+Slot04SelRec7648	0x009		Multiplied by (selection index + 1) plus 0x90 to give field_06 of another record.
+Slot04SelRec7648	0x00c		Pointer to byte array indexed through a table by selection index and written with values.
+Slot04SelRec9d38	0x000		Cleared to 0 in several functions and incremented in one; no other role shown.
+Slot04SelRec9d38	0x003		Set from obj->kind, then used to index a table (kind*5 + selection) and replaced with the table result.
+Slot04SelRec9d38	0x004		Cleared at init, tested for zero, and OR-ed across both records then compared with game_state.field_07.
+Slot04SelRec9d38	0x005		Compared with bit values 0x10, 0x80, 0x20, 0x40 and assigned from a temporary in another function.
+Slot04SelRec9d38	0x006		Initialised from data_8016e698[side], copied to and from the shared global data_801b9d30.
+Slot04SelRec9d38	0x007		Cleared at init, tested for zero together with the side bit of game_state.field_07.
+Slot04SelRec9d38	0x008		Initialised from data_8016e698[side+2], copied to and from the shared global data_801b9d30.
+Slot04SelRec9d38	0x009		Cleared at init, tested for zero with the side bit of game_state.field_07 and with another field's nonzero state.
+Slot04SelRec9d38	0x00a		Initialised from data_8016e698[4], copied to and from the shared global data_801b9d30.
+Slot04SelRec9d38	0x00b		Cleared at init, tested for zero, and copied into global data_801b9d34.
+Slot04SelRec9d38	0x00c		Initialised from data_8016e698[5], used as table index (times 5 plus selection) and replaced by the table result, copied to global.
+Slot04SelRec9d38	0x00d		Cleared at init and tested for zero/nonzero in two functions.
+Slot04SelRec9d38	0x00e		Cleared at init, tested for zero, and set to 0xff.
+Slot04SelRec9d38	0x00f		Cleared at init, tested for zero, and set to 0xff.
+Slot04SelRec9d38	0x010		Cleared at init, incremented via a temporary, and reset to 0.
+Slot04SelRec9d38	0x011		Cleared at init, set to 0xff, and tested for nonzero.
+Slot04SelRec9d38	0x012		Cleared at init, set to 0xff or 0, and tested nonzero together with kind==2.
+Slot04SelRec9d38	0x013		Counted up by one with a cap at 0xb4 (180), and compared to 0xb4 with kind==4.
+Slot04SelRec9d38	0x014		Counted up by one with a cap at 0xb4 (180), and compared to 0xb4 with kind==2 and a global nonzero.
+Slot04SelRec9d78	0x000		Only cleared to 0 in init and reset functions.
+Slot04SelRec9d78	0x003		Cleared in init, compared with 0x12 and set to 4 in one function, and used as an index into a table (rec->field_03*5 + a global) then copied to a global.
+Slot04SelRec9d78	0x004		Cleared in several functions and tested against 0 in the select function, combined with kind==2 and field_13.
+Slot04SelRec9d78	0x005		Compared with button-like masks 0x10/0x80 and 0x20/0x40, and assigned a value t in another function.
+Slot04SelRec9d78	0x006		Set to 3 once in init.
+Slot04SelRec9d78	0x007		Only cleared to 0 in init.
+Slot04SelRec9d78	0x008		Only cleared to 0 in init.
+Slot04SelRec9d78	0x009		Only cleared to 0 in init.
+Slot04SelRec9d78	0x00a		Only cleared to 0 in init.
+Slot04SelRec9d78	0x00b		Only cleared to 0 in init.
+Slot04SelRec9d78	0x00c		Only cleared to 0 in init.
+Slot04SelRec9d78	0x00d		Only cleared to 0 in init.
+Slot04SelRec9d78	0x00e		Cleared in resets and tested against 0 in other functions, combined with a game_state bit by side.
+Slot04SelRec9d78	0x00f		Cleared in init, tested for 0 and set to 0xff in one function.
+Slot04SelRec9d78	0x010		Cleared in init, tested for 0 and set to 0xff in one function.
+Slot04SelRec9d78	0x011	sequence_index	Cleared in init, incremented and compared with 0xb, and used as an index into a table compared with a value v.
+Slot04SelRec9d78	0x012		Cleared in init, set to 0xff and tested for non-zero in one function.
+Slot04SelRec9d78	0x013		Cleared in init, set to 0xff in one function, and tested non-zero in the select function.
+Slot04SelRec9d78	0x014		Cleared in resets, incremented and capped at 0xb4, and compared with 0xb4 when kind is 4.
+Slot04SelRec9d78	0x015		Cleared in resets, incremented and capped at 0xb4, and compared with 0xb4 when kind is 2.
+Slot04SelRec7ff4	0x00b		Copied from the same field of another record.
+Slot04SelRec7ff4	0x010		Byte array copied element by element from another record.
+Slot04SelRec7fa4	0x00b		Copied from the same field of another record.
+Slot04SelRec7fa4	0x00c	text	Byte array filled element by element from a text array of another record.
+Slot04SelRec84a4	0x004		Assigned a table value plus side*0x18 (a position-like offset per side).
+Slot04SelRec84a4	0x006		Assigned a u16 value from a table indexed by the selection.
+Slot04SelRec7c70	0x000		u16 read from a table indexed by the selection, plus side*0x18, stored into another record's field_04.
+Slot04SelRec7c70	0x002		u16 read from a table indexed by the selection and stored into another record's field_06.
+Slot04SelRec8c00	0x004		Set to constant 0xc0.
+Slot04SelRec8c00	0x006		Set to constant 0x80.
+Slot04SelRec8fc8	0x00b		Copied from another record's field_0b.
+Slot04SelRec8fc8	0x010		Byte array copied element by element from another record.
+Slot04SelRec8f78	0x00b		Copied from another record's field_0b.
+Slot04SelRec8f78	0x00c	text	Byte array filled element by element from a text array.
+Slot04SelRec94c0	0x004		Assigned a table value plus side*0x18.
+Slot04SelRec94c0	0x006		Assigned a u16 from a table indexed by a global.
+Slot04SelRec8ccc	0x000		A u16 read from a table indexed by a global, plus side*0x18, and stored into another record's field_04.
+Slot04SelRec8ccc	0x002		A u16 read from a table indexed by a global and stored into another record's field_06.
+Slot04SelRec8eac	0x00c		Byte array indexed by table entries and set to 0x1a at those positions.

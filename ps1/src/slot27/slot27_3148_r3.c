@@ -24,8 +24,8 @@ void func_80013570_slot27(Object *obj) {
     s32 *u;
     s16 v;
     *t = (s16)obj->field_5e;
-    obj->field_5c = obj->field_5c + *(u16 *)t;
-    v = obj->field_5c;
+    obj->health = obj->health + *(u16 *)t;
+    v = obj->health;
     if (v == 0 || v == 0x10) {
         obj->state_2 = obj->state_2 + 2;
     }

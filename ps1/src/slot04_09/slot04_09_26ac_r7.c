@@ -8,7 +8,7 @@ void func_801b2d6c_slot04_09(Object *obj) {
 
     p->field_0c = ((Slot04aObj *)obj)->field_334;
     p->field_0d = ((Slot04aObj *)obj)->field_335;
-    if (game_state.field_1d & 2) {
+    if (game_state.frame_counter & 2) {
         p->field_0c = 0xff;
         p->field_0d = p->field_0d + 3;
     }

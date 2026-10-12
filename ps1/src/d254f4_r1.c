@@ -13,8 +13,8 @@ extern u16 data_801a6966;
  * data_80185fd0 (0x94 and 0x90: 0; 0x68 and 0x60: 4; 0xc0: 8; 0x30: 0xc;
  * 6: 0x10; 9: 0x14); the byte 0 or any other value fails. A known byte
  * indexes data_8016e9a8 with the nibble (masked to 4 bits); a negative entry
- * fails. Success increments field_138 and sets field_13a; failure clears
- * field_138 and field_13a and sets field_139 to 0x3c.
+ * fails. Success increments input_step_index and sets field_13a; failure clears
+ * input_step_index and field_13a and sets input_timer to 0x3c.
  */
 void func_801254f4(void) {
     u16 *code;
@@ -59,12 +59,12 @@ void func_801254f4(void) {
     data_80185fcc &= 0xf;
     data_80185fd4 = data_8016e9a8[data_80185fcc];
     if (data_80185fd4 >= 0) {
-        game_state.field_138++;
+        game_state.input_step_index++;
         game_state.field_13a = data_80185fd0 + data_80185fd4;
         return;
     }
 fail:
-    game_state.field_138 = 0;
-    game_state.field_139 = 0x3c;
+    game_state.input_step_index = 0;
+    game_state.input_timer = 0x3c;
     game_state.field_13a = 0;
 }

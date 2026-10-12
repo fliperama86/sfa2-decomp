@@ -11,9 +11,9 @@ void func_80142adc(Object *object) {
 
 void func_80142b3c(Object *object) {
     func_80142c04(object);
-    if (((object->field_134 | object->field_136) & 0x80) || ((object->field_134 | object->field_136) & 1)) {
+    if (((object->pressed_bits | object->released_bits) & 0x80) || ((object->pressed_bits | object->released_bits) & 1)) {
         object->field_12a = 0;
-    } else if ((object->field_134 | object->field_136) & 0x10) {
+    } else if ((object->pressed_bits | object->released_bits) & 0x10) {
         object->field_12a = 2;
     } else {
         object->field_12a = 4;
@@ -22,9 +22,9 @@ void func_80142b3c(Object *object) {
 
 void func_80142ba0(Object *object) {
     func_80142c04(object);
-    if (((object->field_134 | object->field_136) & 0x40) || ((object->field_134 | object->field_136) & 2)) {
+    if (((object->pressed_bits | object->released_bits) & 0x40) || ((object->pressed_bits | object->released_bits) & 2)) {
         object->field_12a = 0;
-    } else if ((object->field_134 | object->field_136) & 0x20) {
+    } else if ((object->pressed_bits | object->released_bits) & 0x20) {
         object->field_12a = 2;
     } else {
         object->field_12a = 4;

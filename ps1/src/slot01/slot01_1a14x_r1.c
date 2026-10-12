@@ -29,7 +29,7 @@ void func_80011a14_slot01(Object *obj) {
     int sel;
     int s;
     obj->field_01 = 1;
-    obj->field_09 = 1;
+    obj->ot_depth = 1;
     obj->field_98 = data_80019330_slot01;
     obj->field_9c = data_800195b8_slot01;
     obj->field_90 = (void *)0x80059000;
@@ -48,9 +48,9 @@ void func_80011a14_slot01(Object *obj) {
         } else {
             if (other->field_2ac < 0) {
                 s = 0;
-                /* field_5c is read as a signed halfword; the plain u16 spelling differs in 3 instruction lines. */
-                if ((s16)other->field_5c < 0x80) {
-                    if ((s16)other->field_5c < 0xf) {
+                /* health is read as a signed halfword; the plain u16 spelling differs in 3 instruction lines. */
+                if ((s16)other->health < 0x80) {
+                    if ((s16)other->health < 0xf) {
                         s = 0x20;
                     } else {
                         s = 0x10;
@@ -64,7 +64,7 @@ void func_80011a14_slot01(Object *obj) {
             }
             game_state.field_112 = data_8002ce3c_slot01[other->kind][sel][s];
         }
-        obj->field_09 = 0;
+        obj->ot_depth = 0;
         /* pos_x is set before pos_y; the other order differs in 3 instruction lines. */
         obj->pos_x = box_margin[0] + 0x18;
         obj->pos_y = 0xa0;

@@ -7,7 +7,7 @@
 void func_8014c178(Object *object) {
     u16 v = *data_80189460++;
     Object *other = object->other;
-    if ((u16)(other->field_70 - v) >= (u16)other->pos_y) {
+    if ((u16)(other->ground_y - v) >= (u16)other->pos_y) {
         func_8014c914(object);
     } else {
         func_8014c528(object);
@@ -37,7 +37,7 @@ void func_8014c278(Object *object) {
 
 void func_8014c304(Object *object) {
     s16 v = *(s16 *)data_80189460++;
-    if ((s16)object->field_5c < v) {
+    if ((s16)object->health < v) {
         func_8014c914(object);
     } else {
         func_8014c528(object);

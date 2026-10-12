@@ -11,7 +11,7 @@ int func_80146ba0(Object *object, u8 index) {
     ref_other.p->field_02 = 5;
     ref_other.p->field_03 = 0;
     ref_other.p->field_0e = object->field_0e;
-    ref_other.p->field_09 = 4;
+    ref_other.p->ot_depth = 4;
     ref_other.p->field_48 = tbl[index];
     ref_other.p->pos_x = object->pos_x;
     ref_other.p->pos_y = object->pos_y;
@@ -33,10 +33,10 @@ int func_80146cf8(Object *object, u8 index) {
     ref_other.p->field_02 = 5;
     ref_other.p->field_03 = tbl[index];
     ref_other.p->field_0e = other->field_0e;
-    ref_other.p->field_09 = 0;
+    ref_other.p->ot_depth = 0;
     ref_other.p->field_48 = 0x16;
     ref_other.p->pos_x = other->pos_x;
-    ref_other.p->pos_y = other->field_70;
+    ref_other.p->pos_y = other->ground_y;
     ref_other.p->field_0b = 0;
     ref_other.p->field_1c = object->field_1c;
     ref_other.p->field_0c = 0;
@@ -53,7 +53,7 @@ int func_80146e3c(Object *object, u8 index) {
     ref_other.p->field_02 = 5;
     ref_other.p->field_03 = 0;
     ref_other.p->field_0e = object->field_0e;
-    ref_other.p->field_09 = 0;
+    ref_other.p->ot_depth = 0;
     ref_other.p->field_48 = tbl[index];
     ref_other.p->field_0b = object->field_0b;
     ref_other.p->pos_x = object->pos_x;
@@ -95,12 +95,12 @@ int func_80147000(Object *object) {
         o->field_90 = (void *)0x800fb100;
         o->pos_x = 0;
         o->pos_y = 0;
-        o->field_09 = 7;
+        o->ot_depth = 7;
         o->field_45 = w;
         v = game_state.field_dc;
         game_state.field_64 = 0x90;
-        o->field_7a = 0x20;
-        o->field_7c = 0x1e0;
+        o->spawn_x = 0x20;
+        o->spawn_y = 0x1e0;
         data_80189454 = v;
         o->field_0d = 0;
         if (game_state.field_6b == 6) {

@@ -10,7 +10,7 @@ void func_8011b708(void) {
     *z = 0;
     i = (u8 *)data_8019045c;
     do {
-        if (data_801ac888[*i].field_00 != 0
+        if (data_801ac888[*i].active_flag != 0
             && data_801ac888[*i].field_01 != 0
             && data_801ac888[*i].field_81 == 4
             && data_80190568 != 0) {

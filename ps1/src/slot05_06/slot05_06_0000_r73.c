@@ -35,14 +35,14 @@ void func_801ce550_slot05_06(Object *obj) {
     if ((func_801ce6f8_slot05_06(obj) << 16) >= 0) {
         obj->state_0++;
     }
-    if ((((Slot04aObj *)obj)->field_47 & 0x80) == 0) {
-        ((Slot04aObj *)obj)->field_47 -= 1;
-        if ((((Slot04aObj *)obj)->field_47 & 0x80) == 0) {
+    if ((((Slot04aObj *)obj)->timer & 0x80) == 0) {
+        ((Slot04aObj *)obj)->timer -= 1;
+        if ((((Slot04aObj *)obj)->timer & 0x80) == 0) {
             func_8011ffdc(obj);
             return;
         }
     }
-    if (g->field_1d & 1) {
+    if (g->frame_counter & 1) {
         func_8011ffdc(obj);
     }
 }

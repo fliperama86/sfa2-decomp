@@ -83,7 +83,7 @@ int func_801b2008_slot04_0e(Object *obj) {
     if (!(u8)func_801418bc(obj)) return 0;
     if (obj->field_45 == 0) return 0;
     if (obj->vel_y >= 0) return 0;
-    if (obj->pos_y < obj->field_70 - 0x20) return 0;
+    if (obj->pos_y < obj->ground_y - 0x20) return 0;
     obj->field_48 = 1;
     if (!(obj->field_130 & 0x8000)) {
         obj->field_48 = 0xff;

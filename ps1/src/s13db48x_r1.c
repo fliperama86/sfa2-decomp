@@ -5,10 +5,10 @@
 
 /* What it does (inferred, not original names): a sibling of func_8013e028,
    with the table halfword fixed at step 1 and the pad compared as a whole.
-   It decrements the slot's field_04; when that reaches 0 it calls
+   It decrements the slot's timer; when that reaches 0 it calls
    func_8013f2a8 and returns. Otherwise it takes the table halfword
    table_8017a8cc[arg * 7 + 1], the object's two input halfwords ORed
-   together (bits, field_134 | field_136) and the entry's mask (its low
+   together (bits, pressed_bits | released_bits) and the entry's mask (its low
    byte, q):
      - entry bit 0x200 clear: a hit (func_8013f2d8) when the pad and mask
        share a bit among 0xfc, or the mask has a bit of 0x94 and the pad is
@@ -26,15 +26,15 @@ void func_8013db48(Object *object, u8 index, u8 arg) {
     u16 m;
     u16 bits;
 
-    object->slots[index].field_04--;
-    if (object->slots[index].field_04 == 0) {
+    object->slots[index].timer--;
+    if (object->slots[index].timer == 0) {
         func_8013f2a8(object, index, arg);
         return;
     }
     entry = table_8017a8cc[(arg * 7) + 1];
     /* Stand-in, not recovered source: the assignment below, which nothing reads (m is set again three statements down), reproduces the original's choice of registers. Without it this function differs from the original in 16 instruction slots. */
     m = entry;
-    bits = object->field_134 | object->field_136;
+    bits = object->pressed_bits | object->released_bits;
     q = entry & 0xff;
     /* Stand-in, not recovered source: the local m as a second name of q, read once in the third test below, reproduces the original's choice of registers. Without it this function differs from the original in 35 instruction slots. */
     m = q;

@@ -45,8 +45,8 @@ void func_801b0000_slot04_09(Object *o) {
         c->field_0d = o->field_0d;
         c->field_03 = o->kind;
         c->field_66 = o->side;
-        c->field_7a = o->field_7a;
-        c->field_7c = o->field_7c;
+        c->spawn_x = o->spawn_x;
+        c->spawn_y = o->spawn_y;
         c->field_90 = o->field_90;
         c->field_98 = o->field_98;
         c->field_9c = o->field_9c;

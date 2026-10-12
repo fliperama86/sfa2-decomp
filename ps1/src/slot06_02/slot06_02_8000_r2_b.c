@@ -10,7 +10,7 @@ extern u16 data_801eaf18_slot06_02[];
 void func_801e87dc_slot06_02(Slot06Layer *layer);
 
 void func_801e87dc_slot06_02(Slot06Layer *layer) {
-    layer->field_4a = data_801e9e74_slot06_02[layer->field_88];
+    layer->field_4a = data_801e9e74_slot06_02[layer->table_index];
 }
 
 void func_801e8800_slot06_02(Slot06Layer *layer) {

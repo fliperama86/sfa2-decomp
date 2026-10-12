@@ -23,9 +23,9 @@ void func_8012332c(GameState *state)
   }
   ((HudBig *)data_8018f5a0)->field_4e = 0;
   entity->field_c8 = 0;
-  ((HudBig *)data_8018f5a0)->field_50 = 0;
+  ((HudBig *)data_8018f5a0)->state_index = 0;
   entity->field_ca = 0;
-  ((HudBig *)data_8018f5a0)->field_52 = 0;
+  ((HudBig *)data_8018f5a0)->substate_index = 0;
   entity->field_cc = 0;
   entity->field_4d = 0;
   entity->field_4e = 0;

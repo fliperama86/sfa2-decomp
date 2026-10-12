@@ -11,7 +11,7 @@ void func_8011f504(Pooled *p) {
     data_801abefc--;
     data_801a4fe4 = sp + 1;
     *sp = p;
-    p->field_00 = 0;
+    p->active_flag = 0;
     p->field_08 = 0;
     p->field_0a = 0;
     p->field_0c = 0;

@@ -12,7 +12,7 @@ void func_801b0768_slot04_07(Object *obj) {
     } else {
         if ((t & 0x80) != 0 && func_80141618(obj) != 0) {
             goto reset;
-        } else if (((Slot04aObj *)obj)->field_1ca == 7 && obj->field_12a == 4 && (obj->field_130 & 0x4000) == 0 && (obj->field_134 & 8) != 0) {
+        } else if (((Slot04aObj *)obj)->field_1ca == 7 && obj->field_12a == 4 && (obj->field_130 & 0x4000) == 0 && (obj->pressed_bits & 8) != 0) {
             obj->state_3 = 2;
             obj->field_129 = 2;
             func_80142c04(obj);

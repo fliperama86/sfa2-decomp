@@ -9,6 +9,6 @@ void func_8001b1c4_slot28(Object *o) {
     o->vel_x += o->accel_x;
     obj->field_14 -= o->vel_y;
     o->vel_y += o->accel_y;
-    o->field_70 -= o->field_5c;
-    o->field_5c += o->field_5e;
+    o->ground_y -= o->health;
+    o->health += o->field_5e;
 }

@@ -36,14 +36,14 @@ void func_801b509c_slot04_14(Object *obj) {
     }
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    if (obj->pos_y >= obj->field_70) {
+    if (obj->pos_y >= obj->ground_y) {
         obj->state_3 = obj->state_3 + 1;
         if (obj->field_49 != 0) {
             obj->field_17b = 0;
             obj->field_45 = 0;
         }
         obj->vel_x = 0x20000;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         obj->accel_x = data_801c64c0_slot04_14[obj->field_12a >> 1];
         func_801307e0(obj, 0x55);
         play_sound_at(obj, obj->side, 0x324);
@@ -111,10 +111,10 @@ void func_801b5394_slot04_14(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    if (obj->vel_y < 0 && obj->pos_y >= obj->field_70) {
+    if (obj->vel_y < 0 && obj->pos_y >= obj->ground_y) {
         obj->field_45 = 0;
         obj->state_3 = obj->state_3 + 1;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         func_80146960(obj);
         game_state.field_63 = data_801c64cc_slot04_14[obj->field_12a & 0xfe];
@@ -137,7 +137,7 @@ void func_801b5478_slot04_14(Object *obj) {
         obj->vel_y = 0x70000;
         obj->accel_x = 0;
         obj->accel_y = -0x5400;
-        if ((s16)p->field_5c < 0) {
+        if ((s16)p->health < 0) {
             obj->field_167 = 2;
             if (obj->field_49 != 0) {
                 obj->field_167 = 0x22;
@@ -155,9 +155,9 @@ void func_801b5550_slot04_14(Object *obj) {
         }
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
         obj->vel_y = obj->vel_y + obj->accel_y;
-        if (obj->pos_y >= obj->field_70) {
+        if (obj->pos_y >= obj->ground_y) {
             obj->field_45 = 0;
-            obj->pos_y = obj->field_70;
+            obj->pos_y = obj->ground_y;
             func_801209c4(obj);
             func_801312b8(obj);
             return;
@@ -182,11 +182,11 @@ void func_801b5614_slot04_14(Object *obj) {
     obj->vel_x = obj->vel_x + obj->accel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    if (obj->pos_y >= obj->field_70) {
+    if (obj->pos_y >= obj->ground_y) {
         obj->field_45 = 0;
         obj->field_17b = 0;
         obj->state_3 = obj->state_3 + 1;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x5d);
     }
@@ -287,7 +287,7 @@ void func_801b5938_slot04_14(Object *obj) {
         }
         func_80142c70(obj);
     }
-    if ((obj->field_134 & 0xff00) != 0) {
+    if ((obj->pressed_bits & 0xff00) != 0) {
         if (((Slot04bObj *)obj)->field_27d == 0) {
             ((Slot04bObj *)obj)->field_27d = obj->field_27c;
         }

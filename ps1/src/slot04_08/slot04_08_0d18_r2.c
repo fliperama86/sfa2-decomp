@@ -15,7 +15,7 @@ int func_801b0ea0_slot04_08(Object *obj) {
         obj->field_12c = 0;
         obj->field_0b = obj->field_158;
         if (obj->field_25c != 0) {
-            if (((obj->field_134 | obj->field_136) & 0x30) != 0) {
+            if (((obj->pressed_bits | obj->released_bits) & 0x30) != 0) {
                 obj->field_129 = 0;
                 func_80142718(obj);
             } else {
@@ -23,7 +23,7 @@ int func_801b0ea0_slot04_08(Object *obj) {
                 func_80142778(obj);
             }
         } else {
-            if (((obj->field_134 | obj->field_136) & 0x6a) != 0) {
+            if (((obj->pressed_bits | obj->released_bits) & 0x6a) != 0) {
                 obj->field_129 = 2;
                 func_80142778(obj);
             } else {

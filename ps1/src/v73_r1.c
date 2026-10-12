@@ -20,7 +20,7 @@ void func_80148220(Object *object)
     object->field_a0--;
   }
   parent = object->field_3c;
-  x = (s16) object->field_5c;
+  x = (s16) object->health;
   object->field_0b = parent->field_0b;
   y = (s16) object->field_5e;
   if (object->field_0b != 0)

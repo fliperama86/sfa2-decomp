@@ -8,19 +8,19 @@ void func_80121dc4(Object *object) {
     int v;
     switch (data_8018f5a0->field_52) {
     case 0:
-        v = data_8018f5a0->field_62 - 1;
-        data_8018f5a0->field_62 = v;
+        v = data_8018f5a0->sub_timer - 1;
+        data_8018f5a0->sub_timer = v;
         if ((s16)v < 0) {
-            data_8018f5a0->field_62 = 4;
+            data_8018f5a0->sub_timer = 4;
             data_8018f5a0->field_52++;
             func_8011a744();
         }
         break;
     case 1:
-        v = data_8018f5a0->field_62 - 1;
-        data_8018f5a0->field_62 = v;
+        v = data_8018f5a0->sub_timer - 1;
+        data_8018f5a0->sub_timer = v;
         if ((s16)v < 0) {
-            data_8018f5a0->field_62 = 0;
+            data_8018f5a0->sub_timer = 0;
             data_8018f5a0->field_52++;
         }
         break;

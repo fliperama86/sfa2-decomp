@@ -31,7 +31,7 @@ void func_801b320c_slot04_07(Object *obj) {
     int t;
 
     func_801b3274_slot04_07(obj);
-    t = obj->field_70;
+    t = obj->ground_y;
     if (obj->pos_y < t) {
         update_sequence(obj);
     } else {

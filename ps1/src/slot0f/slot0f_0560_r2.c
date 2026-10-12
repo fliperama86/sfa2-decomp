@@ -6,7 +6,7 @@
 extern Object *data_800e84f0_slot0f[];
 
 void func_800e06b8_slot0f(GameState *g, int x) {
-    g->field_1d++;
+    g->frame_counter++;
     g->field_a8 = x;
     func_80128978();
     func_8012510c();

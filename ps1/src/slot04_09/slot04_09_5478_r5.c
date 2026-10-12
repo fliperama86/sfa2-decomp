@@ -23,8 +23,8 @@ void func_801b59c8_slot04_09(Object *obj) {
         n->field_90 = obj->field_90;
         n->field_98 = obj->field_98;
         n->field_9c = obj->field_9c;
-        n->field_7a = obj->field_7a;
-        n->field_7c = obj->field_7c;
+        n->spawn_x = obj->spawn_x;
+        n->spawn_y = obj->spawn_y;
         n->field_66 = obj->side;
     }
 }
