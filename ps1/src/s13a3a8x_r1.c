@@ -63,7 +63,7 @@ void func_8013a3a8(Object *a0, Object *a1, Box32 *a2) {
     u8 *bp;
     s16 s2h;
     s16 w;
-    func_8013ae00(a0, a1, a2);
+    func_8013ae00(a0, a1, (Tx *)a2);
     if (a0->field_65) {
         ref_first.p = &player_right;
     } else {
@@ -203,7 +203,7 @@ g:
     }
     e = 0x1f;
     {
-        /* bp keeps the table pointer in ref_first across the reassignment of ref_first below; with (u8 *)ref_first.p + ... written in pp's line this function differs from the original in 4 instruction slots. */
+        /* Stand-in, not recovered source: the local bp, which is only a copy of the table pointer in ref_first, reproduces the original's choice of registers. Without it this function differs from the original in 4 instruction slots. */
         bp = (u8 *)ref_first.p;
         /* pp holds the address of the defence byte that is read below; with *(bp + ...) at the read instead this function differs from the original in 64 instruction slots. */
         pp = bp + (a1->field_cf + ((a1->kind & 0x1f) << 5));
