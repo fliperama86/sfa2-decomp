@@ -19,15 +19,15 @@ void func_80011a18_slot27(Object *obj) {
     obj->field_61 = 0;
     obj->field_45 = 0;
     obj->field_66 = 0;
-    obj->field_5c = 0;
+    obj->health = 0;
     obj->field_5e = 0;
     obj->accel_x = 0;
     obj->accel_y = 0;
     obj->field_62 = 0;
     obj->field_63 = 0;
-    obj->field_70 = 0;
+    obj->ground_y = 0;
     obj->field_73 = 0;
-    obj->field_72 = 0;
+    obj->facing_flag = 0;
     obj->field_62 = 0;
     obj->field_6b = 0;
 }
@@ -37,7 +37,7 @@ void func_80011a64_slot27(void) {
 
     r->field_00 = 0;
     r->field_01 = 0;
-    r->field_02 = 0;
+    r->step_count = 0;
     r->field_03 = 0;
     r->field_04 = 0;
     r->field_05 = 0;

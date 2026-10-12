@@ -18,7 +18,7 @@ void func_80078f90_slot00(Object *obj) {
     }
     obj->step_timer = obj->sequence->duration;
     obj->step_flags = obj->sequence->flags;
-    obj->field_80 = 1;
+    obj->sequence_changed_flag = 1;
     obj->frame = obj->frames + obj->sequence->frame_index;
 }
 
@@ -32,7 +32,7 @@ void func_8007904c_slot00(Object *o) {
             o->accel_x = 0;
         }
         o->field_01 = 1;
-        if (((game_state.field_1d + o->field_03) & 1) == 0) {
+        if (((game_state.frame_counter + o->field_03) & 1) == 0) {
             o->field_01 = 0;
         }
         func_80131094(o);

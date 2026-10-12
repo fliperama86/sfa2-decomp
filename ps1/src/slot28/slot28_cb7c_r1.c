@@ -29,10 +29,10 @@ void func_8001cb7c_slot28(Object *obj) {
         data_80051a54_slot28.p = p;
         p->pos_x = -8;
         p->pos_y = -8;
-        p->field_7a = 0;
-        p->field_7c = 0x1e0;
+        p->spawn_x = 0;
+        p->spawn_y = 0x1e0;
         p->field_0d = 0;
-        p->field_09 = one;
+        p->ot_depth = one;
         func_80130768(p, 0, data_8003b500_slot28);
         p->field_01 = one;
     }
@@ -42,10 +42,10 @@ void func_8001cb7c_slot28(Object *obj) {
         data_80051a40_slot28.p = p;
         p->pos_x = -8;
         p->pos_y = -8;
-        p->field_7a = 0;
-        p->field_7c = 0x1e0;
+        p->spawn_x = 0;
+        p->spawn_y = 0x1e0;
         p->field_0d = 0;
-        p->field_09 = one;
+        p->ot_depth = one;
         func_80130768(p, 1, data_8003b504_slot28);
         p->field_01 = one;
     }
@@ -54,12 +54,12 @@ void func_8001cb7c_slot28(Object *obj) {
     if (b != 0) {
         func_8001d578_slot28(b);
         data_80051a50_slot28.p = b;
-        b->field_7c = 0x1e0;
+        b->spawn_y = 0x1e0;
         b->pos_x = 0x28;
-        b->field_7a = 0;
+        b->spawn_x = 0;
         b->field_0d = 0;
         b->field_03 = one;
-        b->field_09 = 0;
+        b->ot_depth = 0;
         b->vel_y = 0xb8;
         b->field_01 = one;
         func_80130768(b, 0, data_8003b530_slot28);

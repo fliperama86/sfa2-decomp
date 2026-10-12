@@ -29,8 +29,8 @@ void func_80014480_slot27(Object *obj) {
 }
 
 void func_800144c0_slot27(Object *obj) {
-    obj->field_7a = 0x20;
-    obj->field_7c = 0x1e0;
+    obj->spawn_x = 0x20;
+    obj->spawn_y = 0x1e0;
     obj->field_01 = 1;
     obj->state_1 = obj->state_1 + 1;
     if (obj->field_03 == 10) {

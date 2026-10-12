@@ -53,7 +53,7 @@ u16 func_801b1e04_slot04_0a(Object *obj) {
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->vel_y < 0) {
-        r = obj->pos_y > obj->field_70;
+        r = obj->pos_y > obj->ground_y;
     }
     return r;
 }

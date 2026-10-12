@@ -14,7 +14,7 @@ void func_801e08d8_slot0b(ModObj *obj) {
     if (c != 0) {
         c->field_00 = 1;
         c->field_02 = 0x1c;
-        c->field_03 = 0;
+        c->state_index = 0;
         side = p->side;
         c->field_66 = 0;
         c->field_58 = (s32)data_801e46b0_slot0b;
@@ -22,8 +22,8 @@ void func_801e08d8_slot0b(ModObj *obj) {
         c->field_50 = 0;
         c->field_0b = 0;
         c->field_3c = (Object *)obj;
-        c->field_48 = side;
-        obj->field_30 = c;
+        c->side = side;
+        obj->child = c;
     }
     if (p->side != 1) {
         func_801e0970_slot0b();

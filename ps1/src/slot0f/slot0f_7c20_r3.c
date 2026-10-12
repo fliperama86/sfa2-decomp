@@ -40,11 +40,11 @@ void func_800e8064_slot0f(Object *obj, int arg) {
             b->field_00 = 1;
             b->field_02 = 0x97;
             b->field_48 = 2;
-            b->field_09 = 0;
-            b->pos_x = obj->field_7a;
-            b->pos_y = obj->field_7c;
+            b->ot_depth = 0;
+            b->pos_x = obj->spawn_x;
+            b->pos_y = obj->spawn_y;
             b->field_03 = 0;
-            b->field_5c = obj->field_5c;
+            b->health = obj->health;
         }
     }
 }

@@ -20,17 +20,17 @@ void func_801b3edc_slot04_08(Object *obj, Object *unused) {
         }
         if ((u8)func_80140cd8(obj, a, 0) != 0) {
             func_80140770(obj, 0, 5, 0, 0, 0, 1);
-            play_sound_at(game_state.field_358, ref_other.p->side, 0x336);
+            play_sound_at(game_state.other_object, ref_other.p->side, 0x336);
             goto tail;
         }
         obj->field_46++;
         play_side_sound_at(obj, obj->side, 0xc);
-        q = &game_state.field_358;
+        q = &game_state.other_object;
         play_sound_at(*q, ref_other.p->side, 0x304);
         func_80140fe0(obj);
         if ((s16)obj->field_46 != 0) {
             *q = obj->other;
-            if (game_state.field_358->field_15b == 0 || (u8)func_801410c8(obj) != 0) {
+            if (game_state.other_object->field_15b == 0 || (u8)func_801410c8(obj) != 0) {
                 goto act;
             }
         }

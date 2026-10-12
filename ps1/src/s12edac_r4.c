@@ -13,16 +13,16 @@ void func_8012f4dc(Object *object) {
     object->field_258 = 0;
     object->field_25a = 0;
     set_side_flag(object);
-    game_state.field_358 = object->other;
-    if (game_state.field_358->field_167 < 0xb) {
+    game_state.other_object = object->other;
+    if (game_state.other_object->field_167 < 0xb) {
         func_80155f30(object);
     }
     func_801308c4(object, 0x1b);
 }
 
 unsigned char func_8012f56c(Object *object) {
-    game_state.field_358 = object->other;
-    return *(u16 *)&game_state.field_358->state_0 == 0x601;
+    game_state.other_object = object->other;
+    return *(u16 *)&game_state.other_object->state_0 == 0x601;
 }
 
 void func_8012f59c(Object *object) {
@@ -30,7 +30,7 @@ void func_8012f59c(Object *object) {
     object->state_1 = 4;
     object->state_2 = 0;
     object->state_3 = 0;
-    if ((s16)object->field_5c == 0x90) {
+    if ((s16)object->health == 0x90) {
         u8 count;
 
         count = object->field_ee + 1;
@@ -82,7 +82,7 @@ int func_8012f6d8(Object *object) {
         }
     }
     if (object->field_29f != 0) {
-        bits = object->field_134 & 0x4000;
+        bits = object->pressed_bits & 0x4000;
     } else {
         bits = object->field_130 & 0x4000;
     }

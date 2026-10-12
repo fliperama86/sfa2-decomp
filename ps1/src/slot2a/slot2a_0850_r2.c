@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801e0d94_slot2a(Object *obj, SlotCell *cell, s16 value) {
-    SlotList *list = (SlotList *)obj->sequence->field_04;
+    SlotList *list = (SlotList *)obj->sequence->data_ptr;
     int n = list->count;
     int c = 0x80;
     u8 *p = list->entries;

@@ -29,8 +29,8 @@ void func_80013da4_slot01(Object *obj) {
             p->field_0c = 0;
             p->field_0d = 0;
             p->field_60 = 1;
-            p->field_7a = 0x20;
-            p->field_7c = 0x1e8;
+            p->spawn_x = 0x20;
+            p->spawn_y = 0x1e8;
             p->field_98 = data_80019330_slot01;
             p->field_90 = (void *)0x80059000;
             p->field_9c = data_800195b8_slot01;

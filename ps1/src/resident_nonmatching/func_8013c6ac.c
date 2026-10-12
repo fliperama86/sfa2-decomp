@@ -10,8 +10,8 @@
  * kind 9 and type 1 it picks a player object (player_left, or player_right
  * when the object's field_65 is 0) and pushes the player out of the
  * object's box. It compares the player's box (taken from the player's
- * unknown_148 table at the frame's field_07) with the object's "c" box
- * (boxes_c of the object's box_tables at its frame's field_07): when the
+ * unknown_148 table at the frame's box_index) with the object's "c" box
+ * (boxes_c of the object's box_tables at its frame's box_index): when the
  * vertical gap is not smaller than the sum of the box extents (field_05) it
  * does nothing; otherwise it measures the horizontal overlap and, when
  * there is one, moves the player sideways by that overlap (field_164 of the
@@ -23,7 +23,7 @@
  *   Reads: count_8018f59c (16 bits, signed), the table data_8018f5e0 (words
  *     at 0, -4, -8, ... from its start), the table objects' field_00,
  *     field_02, field_65, frame, box_tables, pos_x, pos_y, field_0b; the
- *     players' field_45, frame (field_07), unknown_148, pos_x, pos_y,
+ *     players' field_45, frame (box_index), unknown_148, pos_x, pos_y,
  *     field_0b, field_164, other; the box records (6 bytes: origin at 0,
  *     field_02 at 2, extent at 4, field_05 at 5); the boxes_c word of the
  *     box_tables (offset 8).
@@ -80,13 +80,13 @@ void func_8013c6ac(void) {
         player = ref_second.p;
         if (player->field_45 != 0) continue;
         obj = ref_third.p;
-        if (obj->frame->field_07 == 0) continue;
+        if (obj->frame->box_index == 0) continue;
         data_80190414.p = (Object *)obj->box_tables;
-        obj_box = ((BoxTables *)data_80190414.p)->boxes_c + obj->frame->field_07;
-        if (player->frame->field_07 == 0) continue;
+        obj_box = ((BoxTables *)data_80190414.p)->boxes_c + obj->frame->box_index;
+        if (player->frame->box_index == 0) continue;
         data_80190458.p = (Object *)player->unknown_148;
-        player_box = (Box6 *)data_80190458.p + player->frame->field_07;
-        dy = (s16)player_box->field_02 - player->pos_y - (s16)(obj_box->field_02 - obj->pos_y);
+        player_box = (Box6 *)data_80190458.p + player->frame->box_index;
+        dy = (s16)player_box->origin_y - player->pos_y - (s16)(obj_box->origin_y - obj->pos_y);
         if (dy < 0) dy = -dy;
         if (dy - (player_box->field_05 + obj_box->field_05) >= 0) continue;
         off_m = (u16)obj_box->origin;

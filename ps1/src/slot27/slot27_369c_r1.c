@@ -30,7 +30,7 @@ void func_8001369c_slot27(Object *obj) {
             if (game_state.field_14 != 3) {
                 *s = v + 1;
             }
-            func_801205c4(game_state.field_358->side, 0);
+            func_801205c4(game_state.other_object->side, 0);
         }
     }
     if (game_state.field_06 != 0) {
@@ -41,8 +41,8 @@ void func_8001369c_slot27(Object *obj) {
     if (t46 != 0) {
         int *s = (int *)data_8019045c;
 
-        *s = ~game_state.field_358->field_c4;
-        *s = (game_state.field_358->field_c2 & *s) & 0xf0;
+        *s = ~game_state.other_object->field_c4;
+        *s = (game_state.other_object->field_c2 & *s) & 0xf0;
         if (*s == 0) {
             goto tail;
         }
@@ -58,7 +58,7 @@ void func_8001369c_slot27(Object *obj) {
         ref_first.p->field_6b = 0xff;
         t = (int *)data_8019045c;
         *t = game_state.field_2e;
-        func_801205c4(game_state.field_358->side, 1);
+        func_801205c4(game_state.other_object->side, 1);
         *t = 0xa;
         *t = obj->field_66 + 0xa;
         func_80013b74_slot27(obj);

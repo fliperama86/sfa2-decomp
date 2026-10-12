@@ -29,7 +29,7 @@ void func_800e73bc_slot0f(Object *obj) {
         }
         v = obj->field_03;
 store:
-        obj->field_5c = v;
+        obj->health = v;
     }
 }
 

@@ -17,7 +17,7 @@ void func_8013e710(Object *object, int index, int arg) {
     func_8013f2c8(object);
     return;
 other:
-    object->slots[(u8)index].field_00++;
+    object->slots[(u8)index].stage++;
     func_8013f0c8(object, (u8)index, (u8)arg);
     func_8013e84c(object, (u8)index, (u8)arg);
 }

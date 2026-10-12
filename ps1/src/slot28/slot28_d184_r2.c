@@ -19,7 +19,7 @@ void func_8001d758_slot28(Object *obj) {
             func_80130768(obj, kind, (SequenceStep **)obj->box_tables);
         }
     } else {
-        obj->field_09 = 1;
+        obj->ot_depth = 1;
         func_80130768(obj, 6, (SequenceStep **)obj->box_tables);
     }
 }

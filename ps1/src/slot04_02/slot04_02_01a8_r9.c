@@ -36,7 +36,7 @@ u8 func_801b0f68_slot04_02(Object *obj) {
 void func_801b0fd8_slot04_02(Object *obj) {
     u16 t;
 
-    t = obj->field_134 | obj->field_136;
+    t = obj->pressed_bits | obj->released_bits;
     obj->field_129 = 0;
     obj->field_12a = 0;
     if ((t & 0x68) == 0x68 || (t & 2) != 0) {

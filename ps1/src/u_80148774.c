@@ -23,8 +23,8 @@ void func_80148774(Object *object)
       new_object->pos_x = object->pos_x;
       new_object->pos_y = object->pos_y;
       offset = table_8017cd40[i];
-      new_object->field_7a = 0x60;
-      new_object->field_7c = 0x1e0;
+      new_object->spawn_x = 0x60;
+      new_object->spawn_y = 0x1e0;
       new_object->field_98 = data_80172a48;
       new_object->field_9c = data_80173c9c;
       new_object->field_90 = (void *) 0x800fb100;

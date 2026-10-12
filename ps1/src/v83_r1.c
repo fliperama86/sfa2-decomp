@@ -13,13 +13,13 @@ void update_health_bars(Bars *o, Object *a, Object *b)
   int i;
   int ta;
   int tb;
-  ta = (s16) a->field_5c;
+  ta = (s16) a->health;
   ha = ta;
   if (ta < 0)
   {
     ha = 0;
   }
-  tb = (s16) b->field_5c;
+  tb = (s16) b->health;
   hb = tb;
   if (tb < 0)
   {

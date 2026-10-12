@@ -12,7 +12,7 @@ void func_8012de9c(Object *object) {
     object->field_46 = 0;
     object->accel_x = 0;
     object->state_3 = object->state_3 + 1;
-    if (object->field_72 == 0) {
+    if (object->facing_flag == 0) {
         v = -0x60000;
     } else {
         v = 0x60000;

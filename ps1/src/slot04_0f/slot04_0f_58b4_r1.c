@@ -16,13 +16,13 @@ void func_801b5a28_slot04_0f(Object *obj);
 void func_801b5b4c_slot04_0f(Object *obj);
 
 void func_801b58b4_slot04_0f(Object *obj) {
-    obj->field_09 = 0;
+    obj->ot_depth = 0;
     obj->field_a0 = 0xff;
     obj->state_0 = obj->state_0 + 1;
     obj->field_49 = data_80190458.p->field_49;
     obj->field_1c = data_80190458.p->field_1c;
     obj->box_tables = data_801c618c_slot04_0f;
-    obj->field_5c = 0xff;
+    obj->health = 0xff;
     obj->field_45 = 0;
     obj->frames = data_801c6150_slot04_0f;
     func_80130768(obj, obj->field_ac >> 1, data_801c6144_slot04_0f);
@@ -56,7 +56,7 @@ void func_801b5a28_slot04_0f(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        obj->field_5c = 0xff;
+        obj->health = 0xff;
     }
     func_80131094(obj);
     func_801b5b4c_slot04_0f(obj);

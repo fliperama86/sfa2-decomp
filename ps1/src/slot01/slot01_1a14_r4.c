@@ -33,7 +33,7 @@ void func_80011fe8_slot01(Object *obj, Slot01Rec152ec *a1) {
     data_80055e94_slot01.count = c;
     v = a1->value;
     data_80055e94_slot01.value = v;
-    obj->field_7c = (v & 0x1f) + 0x1e0;
+    obj->spawn_y = (v & 0x1f) + 0x1e0;
 }
 
 void func_80012020_slot01(Object *obj) {
@@ -50,6 +50,6 @@ void func_80012020_slot01(Object *obj) {
         data_80055e94_slot01.count = c;
         v = data_80055e94_slot01.cursor->value;
         data_80055e94_slot01.value = v;
-        obj->field_7c = (v & 0x1f) + 0x1e0;
+        obj->spawn_y = (v & 0x1f) + 0x1e0;
     }
 }

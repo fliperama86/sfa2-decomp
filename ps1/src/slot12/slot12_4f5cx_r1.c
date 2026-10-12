@@ -9,8 +9,8 @@ extern Slot12Cell data_8002bc38_slot12[];
 void func_80014f5c_slot12(Object *obj) {
     u32 *ot = (u32 *)data_801987c8;
     u32 *cell = (u32 *)(data_8002bc38_slot12 + obj->field_03 * 2 + data_801a27d0);
-    ((PrimTag *)cell)->addr = ((PrimTag *)&ot[data_800282dc_slot12[obj->field_09]])->addr;
-    ((PrimTag *)&ot[data_800282dc_slot12[obj->field_09]])->addr = (u32)cell;
+    ((PrimTag *)cell)->addr = ((PrimTag *)&ot[data_800282dc_slot12[obj->ot_depth]])->addr;
+    ((PrimTag *)&ot[data_800282dc_slot12[obj->ot_depth]])->addr = (u32)cell;
     if (game_state.field_2bc == 10) {
         obj->state_0++;
     }

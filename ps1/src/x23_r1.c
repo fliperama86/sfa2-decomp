@@ -14,7 +14,7 @@ void func_80151a04(void)
   {
     TextItem *item = table_8018d144[i];
     u16 y = item->field_06;
-    int pal = item->field_0b;
+    int pal = item->palette;
     u16 x0 = item->field_04;
     u8 *base = (u8 *) (item->field_00 << 2) + (int) data_801987c8;
     u8 c = item->field_0a;

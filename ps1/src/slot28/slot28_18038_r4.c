@@ -14,8 +14,8 @@ void func_800283f4_slot28(Object *obj) {
     obj->field_0b = 0;
     obj->field_48 = 0;
     obj->state_0 = obj->state_0 + 1;
-    obj->pos_x = data_80051820_slot28[obj->field_03].field_00;
-    obj->pos_y = data_80051820_slot28[obj->field_03].field_02;
+    obj->pos_x = data_80051820_slot28[obj->field_03].pos_x;
+    obj->pos_y = data_80051820_slot28[obj->field_03].pos_y;
     if (obj->field_03 == 0) {
         func_80130768(obj, 1, (SequenceStep **)obj->box_tables);
     } else {

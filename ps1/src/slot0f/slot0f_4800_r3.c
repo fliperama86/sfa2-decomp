@@ -22,10 +22,10 @@ void func_800e4988_slot0f(void) {
     *(u32 *)&c->field_10 = 0x2500000;
     c->field_14 = 0x80000;
     data_800f7264_slot0f = 0;
-    c->field_50 = data_800e99b0_slot0f;
+    c->map_data = data_800e99b0_slot0f;
     func_800e4ab0_slot0f(c, data_800f0264_slot0f[data_801a27d0], 0x18);
     *(u32 *)&c->field_10 = 0;
     c->field_14 = 0;
-    c->field_50 = data_800e99b0_slot0f;
+    c->map_data = data_800e99b0_slot0f;
     func_800e4ab0_slot0f(c, &data_800f0264_slot0f[data_801a27d0][data_800f7264_slot0f], 0x18);
 }

@@ -5,7 +5,7 @@
 
 
 void func_8013f2a8(Object *object, int index, int unused) {
-    object->slots[(u8)index].field_00 = 0;
+    object->slots[(u8)index].stage = 0;
     data_80188f44 = 0;
 }
 
@@ -14,7 +14,7 @@ void func_8013f2c8(Object *unused) {
 }
 
 void func_8013f2d8(Object *object, int index, int unused) {
-    object->slots[(u8)index].field_00 = 0;
+    object->slots[(u8)index].stage = 0;
     data_80188f44 = 1;
 }
 
@@ -39,7 +39,7 @@ void func_8013f2fc(Object *object, int index) {
         else level = 8;
     }
     object->slots[(u8)index].field_05 = level;
-    object->slots[(u8)index].field_00 = 0;
+    object->slots[(u8)index].stage = 0;
     data_80188f44 = 1;
 }
 

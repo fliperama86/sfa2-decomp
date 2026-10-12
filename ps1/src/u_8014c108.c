@@ -12,7 +12,7 @@ void func_8014c108(Object *object)
   u16 new_var;
   Object *new_var2;
   new_var2 = other;
-  v = (u16) (other->field_70 - v);
+  v = (u16) (other->ground_y - v);
   new_var = v;
   if (new_var <= ((u16) new_var2->pos_y))
   {

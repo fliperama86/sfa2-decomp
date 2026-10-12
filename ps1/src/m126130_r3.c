@@ -6,7 +6,7 @@
 
 void func_80126a00(GameState *state, Object *object) {
     object->field_a9 = 3;
-    object->field_aa = 0;
+    object->phase_index = 0;
     object->field_ab = 0;
     object->field_ac = 0;
     *(u16 *)&object->field_ae = 0;
@@ -15,7 +15,7 @@ void func_80126a00(GameState *state, Object *object) {
     object->field_a5 = 2;
     object->field_cd = 0;
     object->field_ce = 0;
-    object->field_d7 = 0;
+    object->win_streak = 0;
     object->field_c0 = 0;
     object->field_124 = 0;
     object->field_bc = 0;

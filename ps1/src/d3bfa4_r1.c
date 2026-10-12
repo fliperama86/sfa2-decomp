@@ -37,7 +37,7 @@ typedef struct {
    Each box set that overlaps adds its bit (1, 2, 4) to data_80188f30 and records the
    overlap's corners and size in the record at data_80188ed0. When any overlapped, the object hits the
    player: the callees apply the hit, the player and an effect object get state bytes, and
-   the table object counts the hit (field_00 + 1, a countdown in field_5c with two state
+   the table object counts the hit (field_00 + 1, a countdown in health with two state
    bytes sets). */
 void func_8013bfa4(void) {
     s16 i;
@@ -163,8 +163,8 @@ void func_8013bfa4(void) {
                 }
             }
             func_8013a3a8(ref_third.p, ref_second.p, box);
-            /* field_5c is u16; the signed test is the original's (a compare with 0x8000 differs in 17 instruction lines). */
-            if (ref_second.p->field_61 != 0xff && (s16)ref_second.p->field_5c >= 0) {
+            /* health is u16; the signed test is the original's (a compare with 0x8000 differs in 17 instruction lines). */
+            if (ref_second.p->field_61 != 0xff && (s16)ref_second.p->health >= 0) {
                 /* Masking the shift count with 31 differs in 16 instruction lines. */
                 if (0x800000 >> ref_third.p->field_02) {
                     ((StateBytes *)data_80190468.p)->state = 0xf;
@@ -191,8 +191,8 @@ void func_8013bfa4(void) {
             ref_third.p->state_1 = 1;
             ref_third.p->state_2 = 0;
             ref_third.p->state_3 = 0;
-            ref_third.p->field_5c -= 1;
-            if ((s16)ref_third.p->field_5c < 0) {
+            ref_third.p->health -= 1;
+            if ((s16)ref_third.p->health < 0) {
                 ref_third.p->state_0 = 2;
                 ref_third.p->state_1 = 0;
                 ref_third.p->state_2 = 0;

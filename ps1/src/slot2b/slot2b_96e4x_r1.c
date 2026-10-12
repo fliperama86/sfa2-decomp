@@ -27,7 +27,7 @@ void func_800796e4_slot2b(Object *obj) {
         /* The original stores 0x3b to field_02 and then 0x14; without the first store the build differs in 3 instruction lines. */
         child->field_02 = 0x3b;
         child->field_03 = 1;
-        child->field_09 = 0;
+        child->ot_depth = 0;
         child->field_02 = 0x14;
         child->field_65 = obj->field_65;
         child->field_44 = 1;
@@ -37,9 +37,9 @@ void func_800796e4_slot2b(Object *obj) {
         px = obj->pos_x;
         py = obj->pos_y;
         child->field_48 = 0x52;
-        child->field_7a = 0x60;
+        child->spawn_x = 0x60;
         child->field_3c = parent;
-        child->field_7c = 0x1e0;
+        child->spawn_y = 0x1e0;
         x += px;
         /* Written as `py -= y;` with `child->pos_y = py;` the build differs in 8 instruction lines. */
         y = py - y;

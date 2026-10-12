@@ -15,12 +15,12 @@ void func_8001c760_slot28(Object *o) {
     func_80131094(o);
     if (o->field_48 != 0) {
         o->field_48 = 0;
-        o->field_09 = 4;
+        o->ot_depth = 4;
         o->state_1++;
         func_80130768(o, 5, ((Slot28Obj *)o)->field_6c);
     } else {
         int v = ((Slot28Obj *)o)->field_3a;
-        o->field_09 = (v == 1) ? 4 : 2;
+        o->ot_depth = (v == 1) ? 4 : 2;
     }
 }
 

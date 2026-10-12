@@ -18,7 +18,7 @@ void func_801311a8(Object *object) {
         object->sequence = s - 1;
         object->step_timer = s[-1].duration;
         object->step_flags = object->sequence->flags;
-        object->field_80 = 1;
+        object->sequence_changed_flag = 1;
     }
     if ((s16)object->step_timer == 0) {
         if ((s16)object->step_flags < 0) {
@@ -30,6 +30,6 @@ void func_801311a8(Object *object) {
         }
         object->step_timer = object->sequence->duration;
         object->step_flags = object->sequence->flags;
-        object->field_80 = 1;
+        object->sequence_changed_flag = 1;
     }
 }

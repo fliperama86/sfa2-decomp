@@ -20,14 +20,14 @@ void func_800e1c70_slot0f(Object *o) {
             } else {
                 o->field_00 = 1;
                 o->field_01 = 0;
-                o->field_09 = 0;
+                o->ot_depth = 0;
                 o->state_0 = 0;
             }
             play_sound_at(0, 0, 0x205);
         } else {
             o->field_00 = 1;
             o->field_01 = 0;
-            o->field_09 = 0;
+            o->ot_depth = 0;
             o->state_0 = 0;
             play_sound_at(0, 0, 0x202);
         }

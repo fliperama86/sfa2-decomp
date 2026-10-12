@@ -7,7 +7,7 @@ void func_801b01ac_slot04_0a(Object *obj) {
     Object *c;
 
     *(u32 *)&obj->pos_y_frac = *(u32 *)&obj->pos_y_frac + 0xc000;
-    if (obj->pos_y + 0x20 >= obj->field_70) {
+    if (obj->pos_y + 0x20 >= obj->ground_y) {
         obj->state_2 = obj->state_2 + 1;
         c = (Object *)func_8011f1e0();
         if (c != 0) {
@@ -15,8 +15,8 @@ void func_801b01ac_slot04_0a(Object *obj) {
             c->field_02 = 0xd;
             c->field_03 = 0;
             c->field_3c = obj;
-            c->field_7a = obj->field_7a;
-            c->field_7c = obj->field_7c;
+            c->spawn_x = obj->spawn_x;
+            c->spawn_y = obj->spawn_y;
             c->field_0d = obj->field_0d;
             c->field_08 = 0x20;
             c->field_66 = obj->field_66;
@@ -30,12 +30,12 @@ void func_801b01ac_slot04_0a(Object *obj) {
 
 void func_801b0290_slot04_0a(Object *obj) {
     *(u32 *)&obj->pos_y_frac = *(u32 *)&obj->pos_y_frac + 0xc000;
-    if (obj->pos_y + 0x10 >= obj->field_70) {
+    if (obj->pos_y + 0x10 >= obj->ground_y) {
         obj->state_2 = obj->state_2 + 1;
         func_801209c4(obj);
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_80130678(obj, 0x31);
     } else {
         update_sequence(obj);

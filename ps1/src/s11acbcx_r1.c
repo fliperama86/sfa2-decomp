@@ -8,7 +8,7 @@ void func_801452ec(Object *object);
 
 /* What it does (inferred, not an original name): updates the 40 records of the table data_801a89f4 (172 bytes each),
  * one by one, using the byte data_8019045c as the loop counter (it is 40 when the function ends). A record is skipped
- * unless its field_00 and field_01 are not 0. Then:
+ * unless its active_flag and field_01 are not 0. Then:
  *   - field_02 is 3, 0xb, 0x14, 0x27 or 0x6d and field_08 is not 0x20: type 3, 0xb or 0x14 calls func_8011cd68, 0x6d
  *     calls func_80134624, 0x27 with field_01 equal to 1 calls func_801452ec; 0x27 with another field_01 calls
  *     func_8011bc84. Each of these records is then done.
@@ -27,11 +27,11 @@ void func_8011acbc(void) {
     int t;
     *z = 0;
     do {
-        /* Stand-in, not recovered source: the term t that is ORed to field_00 below, which is 0 for every value of the counter byte, reproduces the original's order of instructions. Without it this function differs from the original in 4 instruction slots. */
+        /* Stand-in, not recovered source: the term t that is ORed to active_flag below, which is 0 for every value of the counter byte, reproduces the original's order of instructions. Without it this function differs from the original in 4 instruction slots. */
         t = ((u32)(unsigned long long)&data_801a89f4 & ((u32)*z >> 8));
         /* i is set here, at the top of the loop body; set before the loop it differs in 7 instruction slots. */
         i = (u8 *)data_8019045c;
-        if (((data_801a89f4[*z].field_00 | t) != 0) && (data_801a89f4[*z].field_01 != 0)) {
+        if (((data_801a89f4[*z].active_flag | t) != 0) && (data_801a89f4[*z].field_01 != 0)) {
             if (((((data_801a89f4[*z].field_02 == 3) || (data_801a89f4[*z].field_02 == 0xb)) ||
                   (data_801a89f4[*z].field_02 == 0x14)) ||
                  (data_801a89f4[*z].field_02 == 0x27)) ||

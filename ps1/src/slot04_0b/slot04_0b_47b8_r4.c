@@ -9,11 +9,11 @@ void func_801b4c28_slot04_0b(Object *obj) {
     u16 p;
     u16 q;
     func_80131094(obj);
-    lim = ref_other.p->field_70 << 16;
+    lim = ref_other.p->ground_y << 16;
     if (obj->state_2 == 0) {
-        obj->vel_x += (s16)obj->field_5c << 8;
-        obj->accel_x -= (s16)obj->field_70 << 8;
-        obj->field_70 += obj->field_26;
+        obj->vel_x += (s16)obj->health << 8;
+        obj->accel_x -= (s16)obj->ground_y << 8;
+        obj->ground_y += obj->field_26;
         if (!(obj->accel_x < lim)) {
             obj->state_2 = 8;
             obj->accel_x = lim;
@@ -28,7 +28,7 @@ void func_801b4c28_slot04_0b(Object *obj) {
             obj->accel_y = lim;
         }
     }
-    a = game_state.field_1d;
+    a = game_state.frame_counter;
     if (!(a & 1)) {
         p = ((u16 *)&obj->vel_x)[1];
         q = ((u16 *)&obj->accel_x)[1];

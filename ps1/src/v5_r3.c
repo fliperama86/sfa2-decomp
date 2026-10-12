@@ -11,7 +11,7 @@ void func_8012ea94(Object *object) {
         object->field_46 = t;
         if (t == 0) {
             Config *cfg = game_state.config;
-            cfg->field_4b |= 1 << object->side;
+            cfg->side_bits |= 1 << object->side;
             update_sequence(object);
         } else {
             update_sequence(object);

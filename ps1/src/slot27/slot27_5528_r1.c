@@ -12,11 +12,11 @@ void func_800158c0_slot27(Object *obj);
 void func_80015950_slot27(Object *obj);
 
 void func_80015528_slot27(Object *obj) {
-    obj->field_09 = 0x10;
+    obj->ot_depth = 0x10;
     obj->field_98 = data_80017c28_slot27;
     obj->field_9c = data_8001aa14_slot27;
-    obj->field_7a = 0x20;
-    obj->field_7c = 0x1e0;
+    obj->spawn_x = 0x20;
+    obj->spawn_y = 0x1e0;
     obj->field_0d = 0x18;
     obj->field_90 = (void *)0x80038000;
     obj->field_01 = 0;

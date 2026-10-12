@@ -14,7 +14,7 @@ void func_8012ec50(Object *object) {
         object->field_45 = 0;
         object->field_159 = 0;
         object->field_6a = 0;
-        object->pos_y = object->field_70;
+        object->pos_y = object->ground_y;
         *(u32 *)&object->pos_y_frac &= 0xffff0000;
         object->field_0b = object->field_158;
         if (game_state.field_30 != 0 && game_state.mode != object->side + 1) {

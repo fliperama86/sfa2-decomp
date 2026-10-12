@@ -15,9 +15,9 @@ void func_801239cc(ObjectView *entity, Object *other) {
     entity->field_c6 = 0;
     hud->field_4e = 0;
     entity->field_c8 = 0;
-    hud->field_50 = 0;
+    hud->state_index = 0;
     entity->field_ca = 0;
-    hud->field_52 = 0;
+    hud->substate_index = 0;
     entity->field_cc = 0;
     entity->field_46 = 1;
     entity->field_09 = 1;
@@ -40,9 +40,9 @@ void func_80123a64(GameState *state) {
     entity->field_c6 = 0;
     hud->field_4e = 0;
     entity->field_c8 = 0;
-    hud->field_50 = 0;
+    hud->state_index = 0;
     entity->field_ca = 0;
-    hud->field_52 = 0;
+    hud->substate_index = 0;
     entity->field_cc = 0;
     entity->field_ee = 0;
     entity->field_f0 = 0;

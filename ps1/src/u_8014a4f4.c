@@ -11,7 +11,7 @@
 /* Form found by automatic permutation search. */
 int func_8014a4f4(Object *object)
 {
-  u16 *p = (u16 *) object->field_238;
+  u16 *p = (u16 *) object->script_ptr;
   u16 t;
   s16 w;
   data_80189460 = p + 1;
@@ -26,7 +26,7 @@ int func_8014a4f4(Object *object)
     func_8014c994(object);
   }
   func_8014a5c0(object);
-  object->field_238 = (s32) data_80189460;
+  object->script_ptr = (s32) data_80189460;
   t = object->field_20a;
   if (t == 0)
   {
@@ -35,16 +35,16 @@ int func_8014a4f4(Object *object)
   }
   if (t == 1)
   {
-    object->field_22c = (s32) data_80189460;
+    object->script_ptr_1 = (s32) data_80189460;
     return;
   }
   if (t == 2)
   {
-    object->field_230 = (s32) data_80189460;
+    object->script_ptr_2 = (s32) data_80189460;
     return;
   }
   if (t == 3)
   {
-    object->field_234 = (s32) data_80189460;
+    object->script_ptr_3 = (s32) data_80189460;
   }
 }

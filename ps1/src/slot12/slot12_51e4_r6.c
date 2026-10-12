@@ -11,37 +11,37 @@ void func_8001569c_slot12(Object *obj) {
         a->field_00 = 1;
         a->field_02 = 0xa2;
         a->field_48 = 0;
-        a->field_09 = 1;
-        a->pos_x = obj->field_7a;
-        a->pos_y = obj->field_7c;
+        a->ot_depth = 1;
+        a->pos_x = obj->spawn_x;
+        a->pos_y = obj->spawn_y;
         a->field_78 = obj->field_78;
         a->field_03 = obj->field_03;
-        a->field_5c = obj->field_5c;
+        a->health = obj->health;
     }
     a = (Object *)func_8011f1e0();
     if (a != 0) {
         a->field_00 = 1;
         a->field_02 = 0xa2;
         a->field_48 = 1;
-        a->field_09 = 2;
-        a->pos_x = obj->field_7a;
-        a->pos_y = obj->field_7c;
+        a->ot_depth = 2;
+        a->pos_x = obj->spawn_x;
+        a->pos_y = obj->spawn_y;
         a->field_78 = obj->field_78;
         a->field_03 = obj->field_03;
-        a->field_5c = obj->field_5c;
+        a->health = obj->health;
     }
-    if (((FrameRecord *)ptr_8019040c)[(s16)obj->field_5c].field_0a == 1) {
+    if (((FrameRecord *)ptr_8019040c)[(s16)obj->health].field_0a == 1) {
         a = (Object *)func_8011f1e0();
         if (a != 0) {
             a->field_00 = 1;
             a->field_02 = 0xa2;
             a->field_48 = 2;
-            a->field_09 = 0;
-            a->pos_x = obj->field_7a;
-            a->pos_y = obj->field_7c;
+            a->ot_depth = 0;
+            a->pos_x = obj->spawn_x;
+            a->pos_y = obj->spawn_y;
             a->field_78 = obj->field_78;
             a->field_03 = obj->field_03;
-            a->field_5c = obj->field_5c;
+            a->health = obj->health;
         }
     }
 }

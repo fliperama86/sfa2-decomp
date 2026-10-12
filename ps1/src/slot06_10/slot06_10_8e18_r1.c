@@ -24,7 +24,7 @@ void func_801e8e58_slot06_10(Object *o) {
     obj->field_4c = 0x11;
     obj->field_5c = 0x12;
     obj->field_38 = 0x2e0;
-    obj->field_48 = 0x200;
+    obj->sequence_index = 0x200;
     obj->field_58 = 0x180;
     obj->field_01 = 0;
     obj->field_3a = 0x50;
@@ -56,14 +56,14 @@ void func_801e8f34_slot06_10(Object *obj) {
             func_801e9018_slot06_10((Slot06Pal *)((u8 *)obj + 0x30));
             func_801e9018_slot06_10((Slot06Pal *)((u8 *)obj + 0x40));
             if (((Slot06Obj *)obj)->field_46 != 0) {
-                ((Slot06Obj *)obj)->field_12 = 0x340;
-                ((Slot06Obj *)obj)->field_16 = 0x80;
+                ((Slot06Obj *)obj)->pos_x = 0x340;
+                ((Slot06Obj *)obj)->pos_y = 0x80;
                 *(u16 *)&((Slot06Obj *)obj)->field_46 = *(u16 *)&((Slot06Obj *)obj)->field_46 & 0xff00;
             }
             func_801e9018_slot06_10((Slot06Pal *)((u8 *)obj + 0x50));
             if (((Slot06Obj *)obj)->field_56 != 0) {
-                ((Slot06Obj *)obj)->field_12 = 0x1c0;
-                ((Slot06Obj *)obj)->field_16 = 0x80;
+                ((Slot06Obj *)obj)->pos_x = 0x1c0;
+                ((Slot06Obj *)obj)->pos_y = 0x80;
                 *(u16 *)&((Slot06Obj *)obj)->field_56 = *(u16 *)&((Slot06Obj *)obj)->field_56 & 0xff00;
             }
             func_801e913c_slot06_10((Slot06Cursor *)((u8 *)obj + 0x28));

@@ -6,7 +6,7 @@
 
 void func_80143d68(Object *object) {
     object->pos_x -= 9;
-    object->field_5c = 0;
+    object->health = 0;
     object->pos_y = 0x70;
     if (object->pos_x < 0xc1) {
         object->state_1 = object->state_1 + 1;

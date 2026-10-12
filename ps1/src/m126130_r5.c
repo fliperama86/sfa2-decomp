@@ -16,7 +16,7 @@ void func_8012867c(void) {
         o->field_00++;
         o->pos_x = *p++;
         o->pos_y = *p++;
-        o->field_09 = *p++;
+        o->ot_depth = *p++;
         o->field_02 = *p++;
         o->field_03 = *p++;
         o->field_0b = *p++;

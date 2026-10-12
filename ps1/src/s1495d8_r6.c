@@ -7,7 +7,7 @@
 void func_8014a364(Object *object) {
     if (object->field_207 == 0) {
         object->field_207++;
-        object->field_238 = object->field_228;
+        object->script_ptr = object->field_228;
         func_8014a4f4(object);
         func_8014ccb0(object);
     } else if (object->field_207 == 1) {
@@ -18,7 +18,7 @@ void func_8014a364(Object *object) {
 void func_8014a3c8(Object *object) {
     if (object->field_207 == 0) {
         object->field_207++;
-        object->field_238 = object->field_22c;
+        object->script_ptr = object->script_ptr_1;
         func_8014a4f4(object);
         func_8014ccb0(object);
     } else if (object->field_207 == 1) {
@@ -29,7 +29,7 @@ void func_8014a3c8(Object *object) {
 void func_8014a42c(Object *object) {
     if (object->field_207 == 0) {
         object->field_207++;
-        object->field_238 = object->field_230;
+        object->script_ptr = object->script_ptr_2;
         func_8014a4f4(object);
         func_8014ccb0(object);
     } else if (object->field_207 == 1) {
@@ -40,7 +40,7 @@ void func_8014a42c(Object *object) {
 void func_8014a490(Object *object) {
     if (object->field_207 == 0) {
         object->field_207++;
-        object->field_238 = object->field_234;
+        object->script_ptr = object->script_ptr_3;
         func_8014a4f4(object);
         func_8014ccb0(object);
     } else if (object->field_207 == 1) {

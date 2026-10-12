@@ -23,7 +23,7 @@ extern u16 data_801c547c_slot04_06[];
  */
 void func_801b3564_slot04_06(Object *obj) {
     GameState *state = &game_state;
-    /* Stand-in, not recovered source: a second name for the address of game_state (the original keeps it in two registers, s1 and a copy in s2, and reads the two tests of field_1d through the copy) reproduces the original's choice of registers. Without it this function differs from the original in 15 instruction slots. */
+    /* Stand-in, not recovered source: a second name for the address of game_state (the original keeps it in two registers, s1 and a copy in s2, and reads the two tests of frame_counter through the copy) reproduces the original's choice of registers. Without it this function differs from the original in 15 instruction slots. */
     GameState *state_late = state;
     u8 kind = obj->step_flags;
     u8 hit;
@@ -63,7 +63,7 @@ void func_801b3564_slot04_06(Object *obj) {
                 return;
             }
         }
-        if ((state_late->field_1d & 1) == 0) {
+        if ((state_late->frame_counter & 1) == 0) {
             /* The unsigned cast changes no value (a byte plus 3); without it this function differs from the original in 1 instruction line. */
             if (((Slot04aObj *)obj)->field_1c5 < (u32)(obj->field_12a >> 1) + 3 || (((Slot04aObj *)obj)->field_1c5 & 0x80) != 0) {
                 /* The result is masked to a byte; without the cast this function differs from the original in 23 instruction lines. */
@@ -77,7 +77,7 @@ void func_801b3564_slot04_06(Object *obj) {
                 }
             }
         }
-        if ((state_late->field_1d & 3) == 0) {
+        if ((state_late->frame_counter & 3) == 0) {
             /* The knock-back block (b2) and the final call are shared by three paths through gotos, as in the original; written with nested ifs and a flag this function differs from the original in 30 instruction lines. */
             if (((Slot04aObj *)obj)->field_1c5 == 1) {
                 /* The result is read as a signed byte; without the cast this function differs from the original in 20 instruction lines. */
@@ -115,7 +115,7 @@ call:
             func_80140cd8(obj, -0xfe, 0);
             play_side_sound_at(obj, obj->side, 8);
             /* Without the signed cast the compiler warns and this function differs from the original in 45 instruction lines. */
-            if ((s16)obj->other->field_5c >= 0) {
+            if ((s16)obj->other->health >= 0) {
                 play_sound_at(obj->other, obj->other->side, 0x34e);
             } else {
                 play_sound_at(obj->other, obj->other->side, 0x34f);

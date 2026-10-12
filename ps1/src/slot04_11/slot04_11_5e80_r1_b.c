@@ -119,7 +119,7 @@ void func_801b633c_slot04_11(Object *obj) {
             n = 0x19;
         }
         func_801307e0(obj, n);
-    } else if (func_801b6668_slot04_11(obj) < 0 && obj->pos_y >= obj->field_70) {
+    } else if (func_801b6668_slot04_11(obj) < 0 && obj->pos_y >= obj->ground_y) {
         func_801209c4(obj);
         func_801b66ec_slot04_11(obj);
     } else {

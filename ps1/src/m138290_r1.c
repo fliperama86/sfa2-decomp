@@ -11,9 +11,9 @@ void update_units(void) {
     for (i = 0; i < 16; unit++, i++) {
         if (unit->field_00 != 0) {
             if (unit->field_66 == 0) {
-                handlers_6bf0[unit->field_02](unit);
+                handlers_6bf0[unit->handler_index](unit);
             } else {
-                handlers_6c70[unit->field_02](unit);
+                handlers_6c70[unit->handler_index](unit);
             }
         }
     }

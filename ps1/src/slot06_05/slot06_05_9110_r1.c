@@ -31,7 +31,7 @@ void func_801e9150_slot06_05(Object *obj) {
         c->field_03 = 0;
         c->field_3c = obj;
         c->field_81 = 4;
-        c->field_09 = obj->field_09 + 0xff;
+        c->ot_depth = obj->ot_depth + 0xff;
         *(Object **)&obj->field_2c = c;
     }
     x = *(u32 *)&obj->pos_x_frac;

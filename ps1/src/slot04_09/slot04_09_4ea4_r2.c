@@ -47,7 +47,7 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
     e->field_0d = s[5];
     if ((u8)w->step_flags != 0) {
         e->field_0c = 0xff;
-        e->field_80 = 1;
+        e->sequence_changed_flag = 1;
         e->field_0d = e->field_0d + 3;
     }
     ((Slot04aObj *)e)->field_16 = ((Slot04aObj *)e)->field_16 + 1;

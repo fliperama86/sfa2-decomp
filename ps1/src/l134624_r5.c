@@ -15,7 +15,7 @@ void func_801376b8(Object *object) {
         if (object->field_61 == 0xd || object->field_61 == 0x15 || object->field_61 == 0x17) {
             int idx = 2;
 
-            if (game_state.field_1d & 1) {
+            if (game_state.frame_counter & 1) {
                 idx = 3;
             }
             src = data_801a27e4 + (object->field_0d << 5);
@@ -31,7 +31,7 @@ void func_801376b8(Object *object) {
 
         src = data_801a27e4 + (object->field_0d << 5);
         rect.x = (object->field_02 << 5) + 0x110;
-        rect.y = (game_state.field_1d & 1) + 0x1e0;
+        rect.y = (game_state.frame_counter & 1) + 0x1e0;
         rect.w = 0x10;
         rect.h = 1;
         func_80158028(&rect, src);

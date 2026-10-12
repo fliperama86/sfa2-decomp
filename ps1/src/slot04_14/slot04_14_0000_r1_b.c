@@ -50,7 +50,7 @@ void func_801b07e4_slot04_14(Object *obj) {
     }
     x += obj->field_12a >> 1;
     func_801307e0(obj, x);
-    if ((u16)obj->pos_y < (u16)(obj->field_70 - 0x50) && obj->field_48 != 0 && (obj->field_48 & 0x80) == 0 && obj->field_129 != 0 && obj->field_12a == 2 && (obj->field_130 & 0x4000) != 0) {
+    if ((u16)obj->pos_y < (u16)(obj->ground_y - 0x50) && obj->field_48 != 0 && (obj->field_48 & 0x80) == 0 && obj->field_129 != 0 && obj->field_12a == 2 && (obj->field_130 & 0x4000) != 0) {
         func_801b62a8_slot04_14(obj, 1, 0, 5, 0);
         func_801307e0(obj, 0x29);
     }

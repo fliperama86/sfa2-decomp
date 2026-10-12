@@ -111,7 +111,7 @@ void func_801b2a04_slot04_15(Object *obj) {
 
     *(s32 *)&obj->pos_y_frac += obj->vel_y;
     obj->vel_y += obj->accel_y;
-    y = obj->field_70;
+    y = obj->ground_y;
     if (obj->pos_y >= y) {
         obj->field_45 = 0;
         obj->pos_y = y;
@@ -249,7 +249,7 @@ void func_801b2ea4_slot04_15(Object *obj) {
 }
 
 void func_801b2ee4_slot04_15(Object *obj) {
-    obj->field_160 = 0xb4;
+    obj->gauge = 0xb4;
     obj->field_46 = 0;
     ((Slot04bObj *)obj)->field_1cd = 0;
     obj->state_3++;

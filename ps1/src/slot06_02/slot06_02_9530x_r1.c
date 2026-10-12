@@ -17,7 +17,7 @@ void func_801e9530_slot06_02(Object *o) {
     if (game_state.field_65 == 0) {
         obj->field_30 -= 1;
         if (obj->field_30 == 0) {
-            obj->field_88 = (obj->field_88 + 2) & 0x1e;
+            obj->table_index = (obj->table_index + 2) & 0x1e;
             func_801e9604_slot06_02(o);
         }
     }
@@ -32,5 +32,5 @@ void func_801e9530_slot06_02(Object *o) {
     e -= ((Slot06Layer *)data_801aa5d4)->field_0e;
     e += obj->field_0e;
     e += obj->field_3a;
-    obj->field_26 = e;
+    obj->parallax_factor = e;
 }

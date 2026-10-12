@@ -35,7 +35,7 @@ void func_80120cf0(GameState *state) {
     state->field_05 = 0;
     state->mode = 0;
     state->field_1c = 0;
-    state->field_1d = 0;
+    state->frame_counter = 0;
     state->field_20 = 0;
     state->field_6d = 0;
     state->field_27 = 0;

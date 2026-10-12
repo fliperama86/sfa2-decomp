@@ -39,11 +39,11 @@ void func_801b3e88_slot04_0c(Object *o) {
 
 void func_801b3ed0_slot04_0c(Object *obj) {
     if (obj->field_ac == 6) {
-        obj->box_tables = data_801be124_slot04_0c[(s16)obj->field_5c];
+        obj->box_tables = data_801be124_slot04_0c[(s16)obj->health];
     } else if (obj->field_ac == 8) {
-        obj->box_tables = data_801be150_slot04_0c[(s16)obj->field_5c];
+        obj->box_tables = data_801be150_slot04_0c[(s16)obj->health];
     } else {
-        obj->box_tables = data_801be188_slot04_0c[(s16)obj->field_5c];
+        obj->box_tables = data_801be188_slot04_0c[(s16)obj->health];
     }
 }
 

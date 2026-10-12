@@ -22,8 +22,8 @@ void func_80027600_slot28(Object *obj) {
     int unused[2];
     int i = get_random_byte() & 7;
     obj->field_03 = 0;
-    obj->vel_y = data_80050ca4_slot28[i].field_00;
-    obj->accel_y = data_80050ca4_slot28[i].field_04;
+    obj->vel_y = data_80050ca4_slot28[i].vel_y;
+    obj->accel_y = data_80050ca4_slot28[i].accel_y;
     obj->field_0b = get_random_byte() & 1;
 }
 

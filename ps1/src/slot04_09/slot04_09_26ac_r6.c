@@ -9,13 +9,13 @@ void func_801b2d6c_slot04_09(Object *o);
 void func_801b2bf0_slot04_09(Object *obj) {
     func_801b2d6c_slot04_09(obj);
     func_801b2858_slot04_09(obj);
-    if (obj->pos_y < obj->field_70) {
+    if (obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
         obj->state_3++;
         obj->field_45 = 0;
         obj->pos_y_frac = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         obj->other->field_45 = 0;
         if (get_random_byte() & 1) {
             func_801307e0(obj, 0x35);

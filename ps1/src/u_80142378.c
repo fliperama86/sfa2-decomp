@@ -12,15 +12,15 @@ u8 func_80142378(Object *object)
   FrameRecord *frame;
   Box32 *boxes;
   s16 elapsed;
-  game_state.field_358 = object->other;
-  if ((((u32 *) game_state.field_358)[1] & 0xffffff) != 0x50001)
+  game_state.other_object = object->other;
+  if ((((u32 *) game_state.other_object)[1] & 0xffffff) != 0x50001)
   {
     return 0;
   }
   elapsed = 0;
-  step = game_state.field_358->sequence;
-  frame = game_state.field_358->frame;
-  boxes = game_state.field_358->wide_boxes;
+  step = game_state.other_object->sequence;
+  frame = game_state.other_object->frame;
+  boxes = game_state.other_object->wide_boxes;
   for (;;)
   {
     if (frame->active)

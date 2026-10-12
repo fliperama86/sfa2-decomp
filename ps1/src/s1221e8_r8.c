@@ -20,9 +20,9 @@ void func_80123748(Entity *entity) {
     entity->field_c6 = 0;
     ((HudBig *)data_8018f5a0)->field_4e = 0;
     entity->field_c8 = 0;
-    ((HudBig *)data_8018f5a0)->field_50 = 0;
+    ((HudBig *)data_8018f5a0)->state_index = 0;
     entity->field_ca = 0;
-    ((HudBig *)data_8018f5a0)->field_52 = 0;
+    ((HudBig *)data_8018f5a0)->substate_index = 0;
     entity->field_cc = 0;
     entity->field_77 = 0;
     entity->field_80 = 0;

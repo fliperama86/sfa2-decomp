@@ -13,9 +13,9 @@ void func_80123968(GameState *state)
   int side;
   if (state->field_80 == 0)
   {
-    who = *((s16 *) (&player_right.field_5c));
+    who = *((s16 *) (&player_right.health));
     a = who;
-    b = *((s16 *) (&player_left.field_5c));
+    b = *((s16 *) (&player_left.health));
     who = player_left.kind;
     side = 1;
     if (a == b)

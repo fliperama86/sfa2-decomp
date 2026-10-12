@@ -22,7 +22,7 @@ void func_8014c644(Object *object)
     object->field_221 = object->field_20f;
     if (object->field_20f != 0)
     {
-      if ((object->field_220 != 0) && (object->field_257 != 0))
+      if ((object->list_offset != 0) && (object->field_257 != 0))
       {
         if ((player_left.kind == 0xd) && (player_right.kind == player_left.kind))
         {

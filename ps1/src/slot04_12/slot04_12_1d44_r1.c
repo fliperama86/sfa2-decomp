@@ -103,13 +103,13 @@ void func_801b1f78_slot04_12(Object *obj) {
             p->field_26 = obj->field_26;
             p->pos_x = obj->pos_x;
             y = obj->pos_y;
-            p->field_5c = 0;
+            p->health = 0;
             p->field_3c = obj;
             p->pos_y = y;
             obj->field_14c = (s32)p;
             obj->field_240++;
-            p->field_7a = obj->field_7a;
-            p->field_7c = obj->field_7c;
+            p->spawn_x = obj->spawn_x;
+            p->spawn_y = obj->spawn_y;
             p->field_90 = obj->field_90;
             p->field_98 = obj->field_98;
             p->field_9c = obj->field_9c;
@@ -183,7 +183,7 @@ void func_801b230c_slot04_12(Object *obj) {
         } else {
             obj->accel_y = -0x6000;
         }
-        if (obj->pos_y < obj->field_70) {
+        if (obj->pos_y < obj->ground_y) {
             update_sequence(obj);
         } else {
             obj->state_3++;
@@ -191,7 +191,7 @@ void func_801b230c_slot04_12(Object *obj) {
             obj->field_45 = 0;
             obj->field_159 = 0;
             obj->field_17b = 0;
-            obj->pos_y = (u16)obj->field_70;
+            obj->pos_y = (u16)obj->ground_y;
             func_801209c4(obj);
             func_801307e0(obj, obj->field_12a + 0x31);
         }

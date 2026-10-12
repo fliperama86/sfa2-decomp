@@ -11,7 +11,7 @@ int func_80142424(Object *object, Box32 *box, s16 elapsed) {
     mask = func_80142540(object, elapsed);
     mask = func_801425d8(object, mask);
     for (i = 11; i != -1; --i) {
-        if (game_state.field_358->field_128) shift = shift_b[i];
+        if (game_state.other_object->field_128) shift = shift_b[i];
         else shift = shift_a[i];
         mask = mask >> shift;
         if (mask) {

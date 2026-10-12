@@ -10,7 +10,7 @@ void func_80149920(Object *object) {
   object->field_46 = 0x1e;
   object->sequence = data_8017cf60;
   object->field_0c = 0;
-  object->field_09 = 0;
+  object->ot_depth = 0;
   object->field_20 = 0;
   object->field_24 = 0;
   object->state_0++;

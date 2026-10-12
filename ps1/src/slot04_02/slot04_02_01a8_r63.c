@@ -32,9 +32,9 @@ void func_801b71fc_slot04_02(Object *o) {
 }
 
 void func_801b7220_slot04_02(Object *obj) {
-    if (obj->pos_y >= (s16)(obj->field_70 - 0x10)) {
+    if (obj->pos_y >= (s16)(obj->ground_y - 0x10)) {
         func_801b7908_slot04_02(obj, 2, 0, 0, 0);
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801b7920_slot04_02(obj, 0x10);
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;

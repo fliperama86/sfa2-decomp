@@ -132,22 +132,22 @@ void func_80151324(Object *object, FrameRecord *table) {
                 xb = x0 - (col << 4);
             }
             q = &((Poly28 *) ((u8 *)data_8018947c + (base << 5) + n * 80))[data_801a27d0];
-            q->field_0c = near;
-            q->field_0d = hi;
-            q->field_14 = far;
-            q->field_15 = hi;
-            q->field_1c = near;
-            q->field_1d = hi + 15;
-            q->field_24 = far;
-            q->field_25 = hi + 15;
-            q->field_08 = xa;
-            q->field_0a = y0 + (row << 4);
-            q->field_10 = xb;
-            q->field_12 = y0 + (row << 4);
-            q->field_18 = xa;
-            q->field_1a = y1 + (row << 4);
-            q->field_20 = xb;
-            q->field_22 = y1 + (row << 4);
+            q->u0 = near;
+            q->v0 = hi;
+            q->u1 = far;
+            q->v1 = hi;
+            q->u2 = near;
+            q->v2 = hi + 15;
+            q->u3 = far;
+            q->v3 = hi + 15;
+            q->x0 = xa;
+            q->y0 = y0 + (row << 4);
+            q->x1 = xb;
+            q->y1 = y0 + (row << 4);
+            q->x2 = xa;
+            q->y2 = y1 + (row << 4);
+            q->x3 = xb;
+            q->y3 = y1 + (row << 4);
             n++;
             func_8015bf34((int) ((u8 *) data_801987c8 + 0x38), (Cmd *) q);
         }

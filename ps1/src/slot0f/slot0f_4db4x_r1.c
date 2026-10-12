@@ -51,8 +51,8 @@ void func_800e4db4_slot0f(Object *arg) {
     b = func_8011f1e0();
     if (b != 0) {
         b->field_03 = 3;
-        b->field_00 = one;
-        b->field_02 = 0x99;
+        b->active_flag = one;
+        b->handler_index = 0x99;
     }
     func_80151020(0x606);
 }

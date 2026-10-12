@@ -29,13 +29,13 @@ void func_800151b0_slot28(Object *obj) {
         p->pos_x = y;
         p->pos_y = 0x20;
         p->field_03 = 0;
-        p->field_09 = 4;
+        p->ot_depth = 4;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             func_80014d58_slot28(p);
-            p->field_7a = 0x60;
-            p->field_09 = one;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->ot_depth = one;
+            p->spawn_y = 0x1e0;
             p->field_0d = 0;
             p->pos_x = x;
             p->pos_y = y;
@@ -45,10 +45,10 @@ void func_800151b0_slot28(Object *obj) {
         p = (Object *)func_8011f1e0();
         if (p != 0) {
             func_80014d58_slot28(p);
-            p->field_7a = 0x60;
-            p->field_7c = 0x1e0;
+            p->spawn_x = 0x60;
+            p->spawn_y = 0x1e0;
             p->pos_x = 0x78;
-            p->field_09 = one;
+            p->ot_depth = one;
             p->field_0d = 0;
             p->pos_y = 0xa0;
             func_80130768(p, 0x10, data_8002bde4_slot28);

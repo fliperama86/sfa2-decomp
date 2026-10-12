@@ -16,20 +16,20 @@ void func_80149278(Object *object) {
 }
 
 void func_801492c0(Object *object) {
-    object->field_09 = 6;
+    object->ot_depth = 6;
     func_80149888(object);
     func_80130768(object, 0x25, seqs_8017c7f8);
 }
 
 void func_80149304(Object *object) {
-    object->field_09 = 8;
+    object->ot_depth = 8;
     func_80149888(object);
     func_80130768(object, 0x26, seqs_8017c7f8);
 }
 
 void func_80149348(Object *object) {
     Object *other = object->field_3c;
-    object->field_09 = 6;
+    object->ot_depth = 6;
     play_sound_at(other, other->side, 0x326);
     func_80130768(object, 0x27, seqs_8017c7f8);
 }
@@ -37,7 +37,7 @@ void func_80149348(Object *object) {
 void func_80149398(Object *object) {
     int dx;
     int dy;
-    object->field_09 = 6;
+    object->ot_depth = 6;
     dx = (get_random_byte() & 0x1f) - 0x10;
     object->pos_x = object->pos_x + dx;
     dy = (get_random_byte() & 0x1f) + 0x10;

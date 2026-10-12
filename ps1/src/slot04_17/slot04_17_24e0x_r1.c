@@ -39,7 +39,7 @@ act_a:
         obj->accel_y = 0;
         a >>= 4;
         obj->vel_x = a;
-        a = obj->field_70 - 0x8a;
+        a = obj->ground_y - 0x8a;
         a <<= 16;
         a -= *(s32 *)&obj->pos_y_frac;
         a >>= 4;

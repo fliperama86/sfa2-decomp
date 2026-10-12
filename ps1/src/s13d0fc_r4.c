@@ -20,7 +20,7 @@ void func_8013dd8c(Object *object, u8 index) {
     int step = object->slots[index].field_01;
 
     game_state.field_35c = step;
-    if (object->slots[index].field_03 & 0x80) {
+    if (object->slots[index].direction & 0x80) {
         game_state.field_35c = step - 1;
     } else {
         game_state.field_35c = step + 1;
@@ -30,7 +30,7 @@ void func_8013dd8c(Object *object, u8 index) {
 
 int func_8013de2c(Object *object, u8 index, u8 arg) {
     u8 r;
-    table_8017abd8[object->slots[index].field_00](object, index, arg);
+    table_8017abd8[object->slots[index].stage](object, index, arg);
     r = data_80188f44;
     return r;
 }

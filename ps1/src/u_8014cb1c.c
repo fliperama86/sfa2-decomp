@@ -16,7 +16,7 @@ void func_8014cb1c(Object *object)
   new_var2 = object;
   new_var2->field_20c = new_var2->field_222;
   data_80189460 = (u16 *) new_var2->field_228;
-  new_var2->field_238 = (s32) data_80189460;
+  new_var2->script_ptr = (s32) data_80189460;
   t = *(data_80189460++);
   v = t;
   t = ((s16) v) >> 8;

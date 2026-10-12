@@ -25,7 +25,7 @@ void func_80137cc0(Object *o);
 
 void func_801b6e50_slot04_14(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
-    s16 t = obj->field_70;
+    s16 t = obj->ground_y;
     t -= 0x10;
     if (o->pos_y >= t) {
         o->state_0 = 2;
@@ -162,10 +162,10 @@ void func_801b7350_slot04_14(Object *o) {
     o->field_0c = p->field_0c;
     o->field_0d = p->field_0d;
     o->field_0e = p->field_0e;
-    o->field_7a = 0x60;
+    o->spawn_x = 0x60;
     o->field_48 = 0;
-    o->field_7c = 0x1e0;
-    o->field_09 = 0;
+    o->spawn_y = 0x1e0;
+    o->ot_depth = 0;
 }
 
 void func_801b73b4_slot04_14(Object *o) {

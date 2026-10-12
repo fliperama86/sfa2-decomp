@@ -10,7 +10,7 @@ void func_80014c3c_slot01(void);
 Poly28 *func_80012f60_slot01(Object *obj, Poly28 *p, int a2, int a3) {
     int x = a2;
     int y = a3;
-    u32 *d = (u32 *)obj->sequence->field_04;
+    u32 *d = (u32 *)obj->sequence->data_ptr;
     int i;
     int n;
 
@@ -18,11 +18,11 @@ Poly28 *func_80012f60_slot01(Object *obj, Poly28 *p, int a2, int a3) {
         n = *(s16 *)d;
         do {
             func_8015c09c(p);
-            p->field_04 = 0x80;
-            p->field_05 = 0x80;
-            p->field_06 = 0x80;
-            p->field_16 = x;
-            p->field_0e = y;
+            p->r0 = 0x80;
+            p->g0 = 0x80;
+            p->b0 = 0x80;
+            p->tpage = x;
+            p->clut = y;
             p++;
         } while (--n > 0);
     }

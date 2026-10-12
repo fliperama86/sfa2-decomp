@@ -10,8 +10,8 @@ void func_801b249c_slot04_08(Object *obj) {
     obj->vel_x = obj->vel_x + obj->accel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac + obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    if (obj->field_70 < obj->pos_y) {
-        obj->pos_y = obj->field_70;
+    if (obj->ground_y < obj->pos_y) {
+        obj->pos_y = obj->ground_y;
         obj->field_45 = 0;
         func_801209c4(obj);
         if ((u8)func_8013f8c4(obj, -0x20, 0x30) != 0) {

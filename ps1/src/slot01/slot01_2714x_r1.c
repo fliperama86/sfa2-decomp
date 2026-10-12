@@ -21,7 +21,7 @@ extern s16 data_800212d8_slot01[];
 void func_80012714_slot01(Object *obj, u8 *prim_arg, int unused, int flag) {
     Poly28 *prim = (Poly28 *)prim_arg;
     s16 *t;
-    SpriteSet *set = (SpriteSet *)obj->sequence->field_04;
+    SpriteSet *set = (SpriteSet *)obj->sequence->data_ptr;
     int count = set->count;
     u16 *offs = set->offsets;
     Poly28 *p = prim;
@@ -82,16 +82,16 @@ void func_80012714_slot01(Object *obj, u8 *prim_arg, int unused, int flag) {
                         y |= (int)(((u32)y << 24) & 0x100);
                     } while (0);
                 } while (0);
-                p->field_08 = x + (u16)obj->pos_x;
-                p->field_0a = y + (u16)obj->pos_y;
-                p->field_10 = x + (u16)obj->pos_x + 0x10;
-                p->field_12 = y + (u16)obj->pos_y;
-                p->field_18 = x + (u16)obj->pos_x;
-                p->field_1a = y + (u16)obj->pos_y + 0x10;
-                p->field_20 = x + (u16)obj->pos_x + 0x10;
-                p->field_22 = y + (u16)obj->pos_y + 0x10;
-                ((PrimTag *)p)->addr = ((PrimTag *)(ot + (obj->field_09 + 8)))->addr;
-                ((PrimTag *)(ot + (obj->field_09 + 8)))->addr = (u32)p;
+                p->x0 = x + (u16)obj->pos_x;
+                p->y0 = y + (u16)obj->pos_y;
+                p->x1 = x + (u16)obj->pos_x + 0x10;
+                p->y1 = y + (u16)obj->pos_y;
+                p->x2 = x + (u16)obj->pos_x;
+                p->y2 = y + (u16)obj->pos_y + 0x10;
+                p->x3 = x + (u16)obj->pos_x + 0x10;
+                p->y3 = y + (u16)obj->pos_y + 0x10;
+                ((PrimTag *)p)->addr = ((PrimTag *)(ot + (obj->ot_depth + 8)))->addr;
+                ((PrimTag *)(ot + (obj->ot_depth + 8)))->addr = (u32)p;
                 /* One local for two values: p is moved on through t; with p++ the function differs from the original in 52 instruction slots. */
                 t = (s16 *)(p + 1);
                 p = (Poly28 *)t;

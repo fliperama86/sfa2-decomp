@@ -13,7 +13,7 @@ void func_801b32e4_slot04_06(Object *obj) {
             other = obj->other;
             obj->field_67 = 0;
             if (other->field_45 == 0 && other->field_61 != 0xff) {
-                if ((s16)other->field_5c >= 0) {
+                if ((s16)other->health >= 0) {
                     obj->state_3 += 4;
                 } else {
                     obj->accel_x = -0x6000;

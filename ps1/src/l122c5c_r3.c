@@ -16,7 +16,7 @@ void func_80123534(Entity *entity) {
         s2 = entity->field_7c;
         func_80123bd4(entity, s1, s2);
         func_80123b4c(entity, s1);
-        entity->field_114 = s1->kind;
+        entity->kind = s1->kind;
         func_801259a8(entity, s1, s2);
         if (entity->field_90 != 0) {
             func_801239cc(entity, s1);
@@ -37,7 +37,7 @@ void func_80123534(Entity *entity) {
         ((HudBig *)data_8018f5a0)->field_4a = 1;
         ((HudBig *)data_8018f5a0)->field_4c = 0;
         ((HudBig *)data_8018f5a0)->field_4e = 0;
-        ((HudBig *)data_8018f5a0)->field_50 = 0;
+        ((HudBig *)data_8018f5a0)->state_index = 0;
         entity->field_1a = 1;
         player_left.field_a5 = 0;
         player_right.field_a5 = 0;

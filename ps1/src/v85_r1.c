@@ -31,7 +31,7 @@ void func_8012cca8(Object *object) {
     }
     if (object->field_45 == 0) {
         v = bytes_801700b0[object->field_6b];
-        if (object->field_72 == 0) {
+        if (object->facing_flag == 0) {
             v = -v;
         }
         object->field_16c = v;
@@ -41,7 +41,7 @@ void func_8012cca8(Object *object) {
                                   : (object->field_60 == 1 && (game_state.config->field_32 & 1))) {
             object->field_0c = 0xff;
             object->field_0d += 4;
-            object->field_80++;
+            object->sequence_changed_flag++;
             return;
         }
     }

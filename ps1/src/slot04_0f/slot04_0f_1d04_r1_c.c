@@ -31,10 +31,10 @@ void func_801b2504_slot04_0f(Object *o) {
             p->field_26 = o->field_26;
             *(s32 *)&p->pos_x_frac = *(s32 *)&o->pos_x_frac;
             y = *(s32 *)&o->pos_y_frac;
-            p->field_7a = 0x60;
-            p->field_5c = 0;
+            p->spawn_x = 0x60;
+            p->health = 0;
             p->field_3c = o;
-            p->field_7c = 0x1e0;
+            p->spawn_y = 0x1e0;
             *(s32 *)&p->pos_y_frac = y;
             p->field_0d = o->field_0d;
             p->field_90 = o->field_90;

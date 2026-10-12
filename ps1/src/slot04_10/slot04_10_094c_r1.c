@@ -16,7 +16,7 @@ void func_801b10b8_slot04_10(Object *obj);
 
 void func_801b094c_slot04_10(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         *(s32 *)&obj->pos_y_frac &= 0xffff0000;
         obj->field_45 = 0;
         obj->field_159 = 0;
@@ -29,7 +29,7 @@ void func_801b094c_slot04_10(Object *obj) {
 
 void func_801b09c0_slot04_10(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         *(s32 *)&obj->pos_y_frac &= 0xffff0000;
         obj->field_45 = 0;
         obj->field_159 = 0;
@@ -45,7 +45,7 @@ void func_801b09c0_slot04_10(Object *obj) {
 
 void func_801b0a50_slot04_10(Object *obj) {
     if ((u8)func_80130184(obj) == 0) {
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         *(s32 *)&obj->pos_y_frac &= 0xffff0000;
         obj->field_45 = 0;
         obj->field_159 = 0;

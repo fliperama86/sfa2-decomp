@@ -6,14 +6,14 @@
 void func_80126620(GameState *state, Object *object) {
     if ((*(u32 *)&state->field_44 & 0xff00ff) != 0 || state->field_09 != 0)
         func_801269e0(object);
-    else if (object->field_aa == 0)
+    else if (object->phase_index == 0)
         func_80126698(state, object);
     else
         func_801266c8(state, object);
 }
 
 void func_80126698(GameState *state, Object *object) {
-    object->field_aa++;
+    object->phase_index++;
     func_80135c80(object, 0xc);
 }
 
@@ -21,7 +21,7 @@ void func_801266c8(GameState *state, Object *object) {
     func_80135c80(object, 0xc);
     if (func_80126e98(state, object)) {
         object->field_a9 = 2;
-        object->field_aa = 0;
+        object->phase_index = 0;
         object->field_b8 = 0;
         object->field_e4 = 0;
         object->field_db = 0;
@@ -42,7 +42,7 @@ void func_80126758(GameState *state, Object *object) {
 void func_80126778(GameState *state, Object *object) {
     if (state->field_46)
         func_80126d68(state, object);
-    else if (object->field_aa == 0)
+    else if (object->phase_index == 0)
         func_801267d8(state, object);
     else
         func_80126930(state, object);
@@ -56,10 +56,10 @@ void func_801267d8(GameState *state, Object *object) {
     else if (state->field_1a != 0)
         func_801268fc(state, object);
     else {
-        object->field_aa++;
+        object->phase_index++;
         state->field_04 = 0xff;
         state->field_05 = 0xff;
-        state->field_ee = 0;
+        state->fade_busy = 0;
         state->field_f0 = 0;
         state->field_4f = 1;
         state->field_6d = 0;

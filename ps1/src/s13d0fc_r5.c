@@ -7,8 +7,8 @@
 void func_8013df68(Object *object, u8 index, u8 arg) {
     u16 entry;
 
-    object->slots[index].field_04--;
-    if (object->slots[index].field_04 == 0) {
+    object->slots[index].timer--;
+    if (object->slots[index].timer == 0) {
         func_8013f2a8(object, index, arg);
     } else {
         entry = table_8017a8cc[arg * 7 + object->slots[index].field_01];
@@ -16,7 +16,7 @@ void func_8013df68(Object *object, u8 index, u8 arg) {
             func_8013f2c8(object);
         } else {
             if (entry & 1) {
-                object->slots[index].field_00++;
+                object->slots[index].stage++;
             }
             func_8013f0c8(object, index, arg);
         }

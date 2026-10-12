@@ -24,8 +24,8 @@ void func_801e97a0_slot06_04(Object *obj) {
     obj->field_0f = 1;
     obj->field_76 = 0x2c0;
     obj->field_78 = 0x100;
-    obj->field_7a = 0x70;
-    obj->field_7c = 0x1e0;
+    obj->spawn_x = 0x70;
+    obj->spawn_y = 0x1e0;
     obj->field_81 = 4;
     obj->field_0d = 0;
     obj->field_0c = 0;

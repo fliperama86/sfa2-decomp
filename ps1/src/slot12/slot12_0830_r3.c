@@ -10,8 +10,8 @@ void func_80010a94_slot12(void) {
     Block172 *b = func_8011f1e0();
     if (b != 0) {
         Object *p;
-        b->field_00 = 1;
-        b->field_02 = 0x7c;
+        b->active_flag = 1;
+        b->handler_index = 0x7c;
         p = &player_left;
         if ((game_state.field_28 & 1) == 0) {
             p = p + 1;

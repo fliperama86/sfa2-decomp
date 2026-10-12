@@ -18,7 +18,7 @@ void func_80011740_slot01(void) {
 }
 
 void func_800117b8_slot01(void) {
-    if (game_state.field_ee == 0) {
+    if (game_state.fade_busy == 0) {
         game_state.field_f0 = 0x1f;
         ((u16 *)data_80190464)[0] = 0x2201;
         ((u16 *)data_8019046c)[0] = 0x1e00;

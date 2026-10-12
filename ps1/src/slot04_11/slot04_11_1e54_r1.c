@@ -20,13 +20,13 @@ Object *func_801b5914_slot04_11(Object *obj);
 
 void func_801b1e54_slot04_11(Object *obj) {
     func_801b57a8_slot04_11(obj);
-    if (obj->pos_y >= obj->field_70) {
+    if (obj->pos_y >= obj->ground_y) {
         obj->state_3++;
         func_801209c4(obj);
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->field_17b = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801307e0(obj, (obj->field_12a >> 1) + 0x3d);
     } else {
         update_sequence(obj);
@@ -188,15 +188,15 @@ void func_801b22e4_slot04_11(Object *obj) {
 void func_801b23f8_slot04_11(Object *obj) {
     int r = func_801b5764_slot04_11(obj);
 
-    if (r < 0 && obj->pos_y >= obj->field_70) {
+    if (r < 0 && obj->pos_y >= obj->ground_y) {
         func_801209c4(obj);
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->state_3 = 8;
         obj->field_17b = 0;
-        obj->pos_y = (u16)obj->field_70;
+        obj->pos_y = (u16)obj->ground_y;
         func_801307e0(obj, 0x37);
-    } else if (obj->pos_y < obj->field_70 - 0x48 && (data_801c744c_slot04_11[obj->field_0b] & obj->field_164)) {
+    } else if (obj->pos_y < obj->ground_y - 0x48 && (data_801c744c_slot04_11[obj->field_0b] & obj->field_164)) {
         obj->state_3++;
         func_801209c4(obj);
         obj->vel_y = 0;

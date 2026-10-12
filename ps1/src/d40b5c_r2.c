@@ -8,7 +8,7 @@
    if so calls func_8013fab4. Returns 0 when the other object or its frame
    record rules it out, or when the distance of the two x positions (with
    a half-width of the other's box) exceeds reach; -1 when the frame's
-   field_06 is neither 0 nor 4 and field_d8 or field_157 of the other is
+   handler_index is neither 0 nor 4 and field_d8 or field_157 of the other is
    set; otherwise 1. */
 s16 func_8013fc18(Object *object, int arg_offset, int arg_reach) {
     s16 offset = arg_offset;
@@ -49,7 +49,7 @@ s16 func_8013fc18(Object *object, int arg_offset, int arg_reach) {
         offset = -offset;
     if (offset > reach)
         return 0;
-    if (frame->field_06 != 0 && frame->field_06 != 4) {
+    if (frame->handler_index != 0 && frame->handler_index != 4) {
         if (other_ref.p->field_d8 != 0)
             return -1;
         if (other_ref.p->field_157 != 0)

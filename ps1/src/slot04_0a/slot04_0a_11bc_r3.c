@@ -12,7 +12,7 @@ void func_801b148c_slot04_0a(Object *obj) {
     obj->state_2 = 7;
     obj->state_3 = 0;
     obj->field_12a = 0;
-    k = ((obj->field_134 | obj->field_136) & 0x6a) != 0;
+    k = ((obj->pressed_bits | obj->released_bits) & 0x6a) != 0;
     ((Slot04aObj *)obj)->field_102 += k << 1;
 }
 

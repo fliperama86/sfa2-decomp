@@ -13,12 +13,12 @@ void func_8013de80(Object *object, u8 index, u8 arg) {
     if ((entry & 0xf000) != (object->field_150 & 0xf000)) {
         func_8013f2a8(object, index, arg);
     } else {
-        step = object->slots[index].field_00;
-        object->slots[index].field_00 = step + 1;
+        step = object->slots[index].stage;
+        object->slots[index].stage = step + 1;
         if (!(entry & 1)) {
             func_8013f0c8(object, index, arg);
         } else {
-            object->slots[index].field_00 = step + 2;
+            object->slots[index].stage = step + 2;
             func_8013f0c8(object, index, arg);
             func_8013e028(object, index, arg);
         }

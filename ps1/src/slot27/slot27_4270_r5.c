@@ -26,8 +26,8 @@ void func_800147c4_slot27(Object *obj) {
 }
 
 void func_80014804_slot27(Object *obj) {
-    obj->field_7a = 0x20;
-    obj->field_7c = 0x1e0;
+    obj->spawn_x = 0x20;
+    obj->spawn_y = 0x1e0;
     obj->field_01 = 1;
     obj->vel_y = 8;
     obj->state_1 = obj->state_1 + 1;
@@ -38,8 +38,8 @@ void func_80014834_slot27(Object *obj) {
 }
 
 void func_80014874_slot27(Object *obj) {
-    obj->field_7a = 0x10;
-    obj->field_7c = 0x1e0;
+    obj->spawn_x = 0x10;
+    obj->spawn_y = 0x1e0;
     obj->field_01 = 1;
     obj->vel_x = -8;
     obj->state_1 = obj->state_1 + 1;

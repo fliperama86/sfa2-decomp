@@ -23,7 +23,7 @@ void func_801b44e0_slot04_0f(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         ref_other.p = obj->other;
-        if ((s16)ref_other.p->field_5c < 0) {
+        if ((s16)ref_other.p->health < 0) {
             if (obj->field_130 & 0x1000) {
                 func_80130280(obj);
             }
@@ -180,7 +180,7 @@ int func_801b4ad8_slot04_0f(Object *obj) {
     if ((game_state.config->field_4d | game_state.config->field_04) != 0) {
         return 0;
     }
-    if ((func_8012f56c(obj) & 0xff) != 0 || obj->field_67 == 0 || (obj->field_134 & 0xfc) == 0) {
+    if ((func_8012f56c(obj) & 0xff) != 0 || obj->field_67 == 0 || (obj->pressed_bits & 0xfc) == 0) {
         return 0;
     }
     a = func_801b4c64_slot04_0f(obj);
@@ -193,8 +193,8 @@ int func_801b4ad8_slot04_0f(Object *obj) {
     obj->field_128 = 0;
     if (obj->field_130 & 0x4000) obj->field_128 = 2;
     func_8014147c(obj, dir);
-    obj->field_17d = dir.first;
-    obj->field_17c = dir.second;
+    obj->dir_first = dir.first;
+    obj->dir_second = dir.second;
     obj->field_17e = obj->field_128;
     ((void (*)(Config *, Object *))func_80138c78)(game_state.config, obj);
     func_80142c04(obj);

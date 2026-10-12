@@ -47,7 +47,7 @@ void func_801b59ac_slot04_02(Object *obj) {
         }
         func_80142c70(obj);
     }
-    if ((obj->field_134 & 0xff00) != 0) {
+    if ((obj->pressed_bits & 0xff00) != 0) {
         if (((Slot04aObj *)obj)->field_27d == 0) {
             ((Slot04aObj *)obj)->field_27d = obj->field_27c;
         }

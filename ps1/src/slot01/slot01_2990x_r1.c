@@ -24,7 +24,7 @@ void func_80012990_slot01(Object *obj, u8 *a, int b, int c, int d) {
     /* bs is a copy of the argument c (u16 and int give the same code); using c directly differs from the original in 14 instruction slots. */
     u16 bs = c;
     int fl = d;
-    SpriteSet *set = (SpriteSet *)obj->sequence->field_04;
+    SpriteSet *set = (SpriteSet *)obj->sequence->data_ptr;
     int i;
     int n;
     u8 *codes;
@@ -46,28 +46,28 @@ void func_80012990_slot01(Object *obj, u8 *a, int b, int c, int d) {
                 func_8015c09c(prim);
                 prim++;
                 n--;
-                p->field_04 = 0x80;
-                p->field_05 = 0x80;
-                p->field_06 = 0x80;
-                p->field_16 = tpage;
+                p->r0 = 0x80;
+                p->g0 = 0x80;
+                p->b0 = 0x80;
+                p->tpage = tpage;
                 x = *offs++;
                 y = *offs++;
                 x += 0x60;
                 y += 0x50;
-                p->field_0c = x;
+                p->u0 = x;
                 /* Stand-in, not recovered source: the test below, which is never true (its value is 0 for every x), and its arm reproduce the original's order of instructions. Without it this function differs from the original in 2 instruction slots. */
                 if ((((u32)x << 24) & 0x100)) {
                     x = 0;
                 }
                 xr = x + 0x10;
-                p->field_1c = x;
-                p->field_0d = y;
-                p->field_14 = xr;
-                p->field_15 = y;
-                p->field_1d = y + 0x10;
-                p->field_24 = xr;
-                p->field_25 = y + 0x10;
-                p->field_0e = bs + (*codes++ << 6);
+                p->u2 = x;
+                p->v0 = y;
+                p->u1 = xr;
+                p->v1 = y;
+                p->v2 = y + 0x10;
+                p->u3 = xr;
+                p->v3 = y + 0x10;
+                p->clut = bs + (*codes++ << 6);
                 p++;
             } while (n > 0);
         } else {
@@ -76,23 +76,23 @@ void func_80012990_slot01(Object *obj, u8 *a, int b, int c, int d) {
             do {
                 func_8015c09c(prim);
                 prim++;
-                p->field_04 = 0x80;
-                p->field_05 = 0x80;
-                p->field_06 = 0x80;
-                p->field_16 = tpage;
+                p->r0 = 0x80;
+                p->g0 = 0x80;
+                p->b0 = 0x80;
+                p->tpage = tpage;
                 x = *offs++;
                 y = *offs++;
                 y += 0x50;
                 z = x + 0x60;
-                p->field_0c = z + 0xf;
-                p->field_1c = z + 0xf;
-                p->field_0d = y;
-                p->field_14 = z;
-                p->field_15 = y;
-                p->field_1d = y + 0x10;
-                p->field_24 = z;
-                p->field_25 = y + 0x10;
-                p->field_0e = bs + (*codes++ << 6);
+                p->u0 = z + 0xf;
+                p->u2 = z + 0xf;
+                p->v0 = y;
+                p->u1 = z;
+                p->v1 = y;
+                p->v2 = y + 0x10;
+                p->u3 = z;
+                p->v3 = y + 0x10;
+                p->clut = bs + (*codes++ << 6);
                 p++;
                 n--;
             } while (n > 0);

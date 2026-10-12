@@ -17,7 +17,7 @@ void func_801b33b8_slot04_06(Object *obj) {
         other = obj->other;
         v = other->field_6b != 0;
         if (v && other->field_61 == 1) {
-            if ((s16)other->field_5c < 0) {
+            if ((s16)other->health < 0) {
                 goto set;
             }
             obj->state_3 += 3;

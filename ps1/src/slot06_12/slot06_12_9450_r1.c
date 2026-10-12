@@ -37,7 +37,7 @@ void func_801e94e4_slot06_12(Object *obj) {
     game_state.field_30c = (Pair *)&player_left;
     obj->field_61 = 0;
     obj->field_62 = 0;
-    *(u32 *)&obj->field_5c = *(u32 *)&((Object *)game_state.field_30c)->pos_x_frac;
+    *(u32 *)&obj->health = *(u32 *)&((Object *)game_state.field_30c)->pos_x_frac;
     obj->field_60 = ((Object *)game_state.field_30c)->field_45;
     p = &player_left;
     p++;
@@ -52,7 +52,7 @@ void func_801e9574_slot06_12(Object *obj) {
     obj->field_0b = 0;
     obj->field_0a = 1;
     obj->field_0e = 8;
-    obj->field_09 = 0x1a;
+    obj->ot_depth = 0x1a;
     obj->field_0f = 1;
     func_80130768(obj, 0, data_801eee74_slot06_12);
 }
@@ -81,15 +81,15 @@ void func_801e9648_slot06_12(Object *a, u8 *b) {
 }
 
 void func_801e96b0_slot06_12(Object *obj) {
-    game_state.field_358 = (Object *)func_8011f1e0();
-    if (game_state.field_358 != 0) {
-        game_state.field_358->field_00 = 1;
-        game_state.field_358->field_02 = 0x35;
-        game_state.field_358->field_03 = 1;
-        game_state.field_358->pos_x = obj->pos_x;
-        game_state.field_358->pos_y = obj->field_70;
-        game_state.field_358->field_3c = obj;
-        game_state.field_358->field_81 = 4;
+    game_state.other_object = (Object *)func_8011f1e0();
+    if (game_state.other_object != 0) {
+        game_state.other_object->field_00 = 1;
+        game_state.other_object->field_02 = 0x35;
+        game_state.other_object->field_03 = 1;
+        game_state.other_object->pos_x = obj->pos_x;
+        game_state.other_object->pos_y = obj->ground_y;
+        game_state.other_object->field_3c = obj;
+        game_state.other_object->field_81 = 4;
     }
 }
 
@@ -130,7 +130,7 @@ void func_801e9864_slot06_12(Object *obj) {
         x &= -0x80;
         d = obj->vel_x + x;
         obj->pos_x = d;
-        d = *(u16 *)&l2->field_78;
+        d = *(u16 *)&l2->vel_x;
         d += 1;
         func_80130768(obj, d, data_801eee74_slot06_12);
     }

@@ -9,7 +9,7 @@ void func_8014f4d4(int a, int arg) {
     Menu *m = &data_80190948;
     switch (a) {
     case 1:
-        m->field_03 = 0;
+        m->fade_mode = 0;
         m->field_01 = 0;
         m->field_06 = 0;
         m->field_07 = 1;
@@ -25,14 +25,14 @@ void func_8014f4d4(int a, int arg) {
         break;
     case 4:
         m->field_02 = 4;
-        m->field_03 = 0;
+        m->fade_mode = 0;
         break;
     case 5:
-        m->field_03 = 1;
+        m->fade_mode = 1;
         m->field_1d = b;
         break;
     case 6:
-        m->field_03 = 2;
+        m->fade_mode = 2;
         m->field_1d = b;
         break;
     }

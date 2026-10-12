@@ -75,8 +75,8 @@ void func_801b00d0_slot04_17(Object *obj) {
         c->field_90 = obj->field_90;
         c->field_98 = obj->field_98;
         c->field_9c = obj->field_9c;
-        c->field_7a = 0x60;
-        c->field_7c = 0x1e0;
+        c->spawn_x = 0x60;
+        c->spawn_y = 0x1e0;
         c->field_0d = obj->field_0d;
     }
     obj->field_3c = 0;
@@ -122,7 +122,7 @@ void func_801b0350_slot04_17(Object *obj) {
     if (((Slot04bObj *)obj)->field_47 != 0) {
         ((Slot04bObj *)obj)->field_47--;
         if (((Slot04bObj *)obj)->field_47 == 0) {
-            game_state.config->field_4b |= obj->side + 1;
+            game_state.config->side_bits |= obj->side + 1;
         }
     }
     update_sequence(obj);
@@ -160,7 +160,7 @@ void func_801b04d0_slot04_17(Object *obj) {
     if (((Slot04bObj *)obj)->field_47 != 0) {
         ((Slot04bObj *)obj)->field_47--;
         if (((Slot04bObj *)obj)->field_47 == 0) {
-            game_state.config->field_4b |= obj->side + 1;
+            game_state.config->side_bits |= obj->side + 1;
         }
     }
     update_sequence(obj);
@@ -242,8 +242,8 @@ void func_801b07b8_slot04_17(Object *obj) {
     if (func_8013cac8(obj, 6, 5) && func_801b0a84_slot04_17(obj)) return;
     if (func_8013cfdc(obj, 7, 0) && func_801b0a04_slot04_17(obj)) return;
     if (func_801b5788_slot04_17(obj) && func_801b0e94_slot04_17(obj)) return;
-    if (obj->kind == 0x11 && (obj->field_134 & 2) && func_801b0e94_slot04_17(obj)) return;
-    if (obj->kind == 0x13 && (obj->field_134 & 1) && func_801b0e94_slot04_17(obj)) return;
+    if (obj->kind == 0x11 && (obj->pressed_bits & 2) && func_801b0e94_slot04_17(obj)) return;
+    if (obj->kind == 0x13 && (obj->pressed_bits & 1) && func_801b0e94_slot04_17(obj)) return;
     if (func_8013d210(obj) && func_801b0f28_slot04_17(obj)) return;
     if (func_8013cac8(obj, 8, 0xd) && func_801b0fb0_slot04_17(obj)) return;
     if (func_8013cac8(obj, 9, 0xe)) func_801b109c_slot04_17(obj);
@@ -375,7 +375,7 @@ int func_801b0dd4_slot04_17(Object *obj) {
     if (obj->kind != 0x13) return 0;
     if ((s16)obj->field_c6 < 0x30) return 0;
     if (obj->field_45 == 0) return 0;
-    if (!(obj->pos_y < obj->field_70 - 0x18)) return 0;
+    if (!(obj->pos_y < obj->ground_y - 0x18)) return 0;
     if ((u8)func_801418bc(obj)) {
         obj->state_0 = 1;
         obj->state_1 = 0;

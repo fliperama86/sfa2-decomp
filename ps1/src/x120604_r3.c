@@ -31,7 +31,7 @@ void func_801213c0(GameState *g) {
     g->field_64 = 0;
     g->field_5c = 0;
     g->field_5d = 0;
-    g->field_5e = 0;
+    g->reload_value = 0;
     g->field_87 = 0;
     g->field_83 = 0;
     g->field_ab = 0;

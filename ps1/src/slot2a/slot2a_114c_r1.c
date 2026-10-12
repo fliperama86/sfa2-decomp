@@ -15,10 +15,10 @@ void func_801e1244_slot2a(Object *obj) {
 }
 
 void func_801e1284_slot2a(Object *obj) {
-    obj->field_09 = 1;
+    obj->ot_depth = 1;
     obj->pos_x = 0x68;
     obj->field_01 = 0;
-    obj->field_5c = 0;
+    obj->health = 0;
     obj->field_20 = 0;
     obj->field_22 = 0;
     obj->field_24 = 0;

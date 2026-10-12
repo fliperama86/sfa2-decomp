@@ -14,7 +14,7 @@ void func_801b1460_slot04_15(Object *o) {
 
     update_sequence(o);
     if ((s16)o->step_flags >= 0) {
-        a = o->field_134;
+        a = o->pressed_bits;
         if ((a & *(u16 *)(data_801c2dec_slot04_15 + (o->field_12a & 0xfe))) != 0) {
             obj->field_1ce = 1;
         }

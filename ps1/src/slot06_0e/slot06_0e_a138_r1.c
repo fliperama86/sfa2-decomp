@@ -101,7 +101,7 @@ void func_801ea3a0_slot06_0e(Object *obj) {
         c->field_1c = obj->field_1c;
         c->field_3c = obj;
         c->field_81 = 4;
-        c->field_09 = obj->field_09;
+        c->ot_depth = obj->ot_depth;
         *(Object **)&obj->field_2c = c;
     }
     obj->field_0f = 1;

@@ -33,12 +33,12 @@ void func_801b4700_slot04_14(Object *obj) {
     obj->vel_x = obj->vel_x + obj->accel_x;
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    if (obj->pos_y >= obj->field_70) {
+    if (obj->pos_y >= obj->ground_y) {
         obj->field_157 = 1;
         obj->field_159 = 1;
         obj->state_3 = obj->state_3 + 1;
         obj->field_45 = 0;
-        obj->pos_y = obj->field_70;
+        obj->pos_y = obj->ground_y;
         func_801209c4(obj);
         a = obj->field_12a >> 1;
         obj->accel_x = data_801c649c_slot04_14[a];
@@ -58,7 +58,7 @@ void func_801b4700_slot04_14(Object *obj) {
 
 void func_801b4848_slot04_14(Object *obj) {
     if (obj->vel_y < 0) {
-        if ((obj->field_134 | obj->field_136) & 0x95) {
+        if ((obj->pressed_bits | obj->released_bits) & 0x95) {
             if (obj->other->field_164 == 0 && (u8)func_8014025c(obj, -8, 0x24, -0x54, 0x18)) {
                 func_801b4af4_slot04_14(obj);
                 return;
@@ -66,7 +66,7 @@ void func_801b4848_slot04_14(Object *obj) {
             func_801b4b88_slot04_14(obj);
         }
         if (obj->vel_y < 0) {
-            if ((obj->field_134 | obj->field_136) & 0x6a) {
+            if ((obj->pressed_bits | obj->released_bits) & 0x6a) {
                 if (obj->other->field_164 == 0 && (u8)func_8014025c(obj, -8, 0x24, -0x30, 0x18)) {
                     func_801b4bc0_slot04_14(obj);
                 } else {
@@ -217,10 +217,10 @@ void func_801b4e78_slot04_14(Object *obj) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
         obj->vel_y = obj->vel_y + obj->accel_y;
-        if (obj->pos_y >= obj->field_70) {
+        if (obj->pos_y >= obj->ground_y) {
             obj->state_3 = obj->state_3 + 1;
             obj->field_45 = 0;
-            obj->pos_y = obj->field_70;
+            obj->pos_y = obj->ground_y;
             func_801209c4(obj);
             func_801307e0(obj, 0x4b);
         }
@@ -258,7 +258,7 @@ void func_801b4f1c_slot04_14(Object *obj) {
         if (game_state.field_5c == 0) {
             game_state.field_5c = 0xa;
             game_state.field_5d = 2;
-            game_state.field_5e = 2;
+            game_state.reload_value = 2;
         }
         game_state.field_63 = data_801c64bc_slot04_14[obj->field_12a >> 1];
     }

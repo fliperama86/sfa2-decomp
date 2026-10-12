@@ -8,19 +8,19 @@ void func_801409d8(Object *object, s16 a, s16 b) {
     int d;
     u16 w;
     data_80189430 = a;
-    if ((s16)ref_other.p->field_5c >= 0) {
+    if ((s16)ref_other.p->health >= 0) {
         hi = a >> 8;
         if (hi == -2) return;
         d = func_80140b5c(object, a, b);
         if (*(u32 *)&game_state.config->field_4c & 0xffff00) goto tail;
-        ref_other.p->field_5c = ref_other.p->field_5c - d;
-        if ((s16)ref_other.p->field_5c >= 0) goto tail;
+        ref_other.p->health = ref_other.p->health - d;
+        if ((s16)ref_other.p->health >= 0) goto tail;
         if (hi < 0) {
-            ref_other.p->field_5c = 0;
+            ref_other.p->health = 0;
             goto tail;
         }
     }
-    *(s16 *)&ref_other.p->field_5c = -1;
+    *(s16 *)&ref_other.p->health = -1;
     object->field_167 = 3;
     game_state.config->field_8f = object->kind;
     ref_other.p->field_15b = 1;

@@ -39,7 +39,7 @@ void func_801b6818_slot04_0f(Object *obj) {
         t = 0x12;
     }
     if (obj->field_219 == 0) {
-        if (obj->field_218 != 0 && obj->pos_y < obj->field_70 - 0x20) {
+        if (obj->field_218 != 0 && obj->pos_y < obj->ground_y - 0x20) {
             obj->state_0 = 1;
             obj->state_1 = 0;
             obj->state_2 = 5;
@@ -67,7 +67,7 @@ void func_801b68d8_slot04_0f(Object *obj) {
     }
     if (obj->field_219 != 0) {
         t += 0x1a;
-    } else if (obj->field_218 != 0 && obj->pos_y < obj->field_70 - 0x20) {
+    } else if (obj->field_218 != 0 && obj->pos_y < obj->ground_y - 0x20) {
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 5;
