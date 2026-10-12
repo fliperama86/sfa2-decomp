@@ -40,7 +40,7 @@
 8011a784	252	func_8011a784	-	graphics	0	0	open
 8011a880	868	func_8011a880	-	graphics	0	0	closed
 8011abe4	216	func_8011abe4	-	graphics	0	0	closed
-8011acbc	2264	-	-	graphics	0	19	open
+8011acbc	2264	func_8011acbc	-	graphics	0	19	open
 8011b594	228	func_8011b594	-	graphics	0	0	closed
 8011b678	144	func_8011b678	-	graphics	0	0	closed
 8011b708	1404	func_8011b708	-	-	0	19	open
@@ -548,7 +548,7 @@
 80131638	244	func_80131638	-	-	0	0	open
 8013172c	296	func_8013172c	-	-	0	0	closed
 80131854	608	func_80131854	-	-	0	0	closed
-80131ab4	456	-	-	-	0	0	closed
+80131ab4	456	func_80131ab4	-	-	0	0	closed
 80131c7c	236	func_80131c7c	-	-	0	0	closed
 80131d68	144	func_80131d68	-	-	0	0	closed
 80131df8	144	func_80131df8	-	-	0	0	closed
@@ -692,7 +692,7 @@
 8013950c	236	func_8013950c	-	-	0	0	closed
 801395f8	236	func_801395f8	-	-	0	0	closed
 801396e4	236	func_801396e4	-	-	0	0	closed
-801397d0	344	-	-	-	0	0	closed
+801397d0	344	func_801397d0	-	-	0	0	closed
 80139928	244	is_box_separated	-	-	0	0	closed
 80139a1c	92	func_80139a1c	-	-	0	0	closed
 80139a78	652	func_80139a78	-	-	0	0	open
@@ -810,7 +810,7 @@
 8013f2fc	188	func_8013f2fc	-	-	0	0	closed
 8013f3b8	48	set_side_ring_flag	-	-	0	0	closed
 8013f3e8	140	func_8013f3e8	-	-	0	0	closed
-8013f474	388	-	-	-	0	0	closed
+8013f474	388	func_8013f474	-	-	0	0	closed
 8013f5f8	716	func_8013f5f8	-	-	0	0	closed
 8013f8c4	496	func_8013f8c4	-	-	0	0	closed
 8013fab4	356	func_8013fab4	-	-	0	0	closed
