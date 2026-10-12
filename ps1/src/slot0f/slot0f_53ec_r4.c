@@ -10,7 +10,7 @@ void func_800e585c_slot0f(Object *obj);
 void func_800e5714_slot0f(Object *obj) {
     func_800e58c8_slot0f(obj);
     if (obj->field_f0 == 0) {
-        data_8018f5a0->field_4c++;
+        data_8018f5a0->step_index++;
         data_801903c4[0] = 2;
         func_800e5608_slot0f(obj);
         data_801903ca = 0;
@@ -26,7 +26,7 @@ void func_800e5714_slot0f(Object *obj) {
 
 void func_800e57b4_slot0f(Object *obj) {
     if (data_801903c4[0] == 9) {
-        data_8018f5a0->field_4c++;
+        data_8018f5a0->step_index++;
         data_801903c8[0] = 0x32;
     }
 }
@@ -46,6 +46,6 @@ void func_800e57f8_slot0f(Object *obj) {
 }
 
 void func_800e585c_slot0f(Object *obj) {
-    data_8018f5a0->field_4a = 2;
-    data_8018f5a0->field_4c = 0;
+    data_8018f5a0->phase_index = 2;
+    data_8018f5a0->step_index = 0;
 }

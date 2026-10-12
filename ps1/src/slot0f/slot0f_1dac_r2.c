@@ -16,7 +16,7 @@ void func_800e1ed8_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
 
     func_801519b4(&data_800e8508_slot0f);
-    data_800e87dc_slot0f[(s8)obj->field_04](o);
+    data_800e87dc_slot0f[(s8)obj->handler_index](o);
 }
 
 void func_800e1f34_slot0f(Object *object) {

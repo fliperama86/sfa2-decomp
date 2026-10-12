@@ -6,8 +6,8 @@
 void func_801b3e00_slot04_0a(Object *o) {
     Slot2bObj *obj = (Slot2bObj *)o;
 
-    obj->field_10 += o->vel_x;
+    obj->pos_x_hi += o->vel_x;
     o->vel_x += o->accel_x;
-    obj->field_14 -= o->vel_y;
+    obj->pos_y_hi -= o->vel_y;
     o->vel_y += o->accel_y;
 }

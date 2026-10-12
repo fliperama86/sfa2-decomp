@@ -8,7 +8,7 @@ void func_801b08c4_slot04_02(Object *obj);
 void func_801b0878_slot04_02(Object *obj) {
     obj->vel_y = -0x4c000;
     obj->state_3 = obj->state_3 + 1;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         obj->vel_x = 0x40000;
     } else {
         obj->vel_x = -0x40000;

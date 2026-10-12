@@ -9,11 +9,11 @@ extern Slot06TileW data_801f30a4_slot06_05[2][0x68];
 void init_draw_mode_prim_4(Tx *tx);
 
 void func_801e8a80_slot06_05(Slot06Layer *layer) {
-    layer->field_50 = data_801eb938_slot06_05;
-    layer->field_54 = data_801eb938_slot06_05;
-    layer->field_1e = 0x6014;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801eb938_slot06_05;
+    layer->data_table = data_801eb938_slot06_05;
+    layer->packed_param = 0x6014;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e8aac_slot06_05(void) {

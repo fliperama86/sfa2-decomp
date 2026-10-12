@@ -6,10 +6,10 @@
 void func_80123534(Entity *entity) {
     Object *s1;
     Object *s2;
-    if (entity->field_2f == 0) {
+    if (entity->mode_flag_a == 0) {
         append_object_bytes_to_ring((GameState *)entity);
         ((HudBig *)data_8018f5a0)->field_4c++;
-        entity->field_4f = 1;
+        entity->active_flag_2 = 1;
         player_left.field_a5 = 0;
         player_right.field_a5 = 0;
         s1 = entity->field_78;
@@ -26,17 +26,17 @@ void func_80123534(Entity *entity) {
             } else if (s2->side == 1) {
                 entity->field_1b &= 0xfd;
             }
-            if (s1->field_cd != 0) {
+            if (s1->mode_flag_2 != 0) {
                 func_8012370c(s2, entity);
             } else {
                 s1->field_a5 = 2;
-                s2->field_cd = 1;
+                s2->mode_flag_2 = 1;
             }
         }
     } else {
         ((HudBig *)data_8018f5a0)->field_4a = 1;
         ((HudBig *)data_8018f5a0)->field_4c = 0;
-        ((HudBig *)data_8018f5a0)->field_4e = 0;
+        ((HudBig *)data_8018f5a0)->step_count = 0;
         ((HudBig *)data_8018f5a0)->state_index = 0;
         entity->field_1a = 1;
         player_left.field_a5 = 0;
@@ -50,9 +50,9 @@ void func_80123534(Entity *entity) {
         entity->field_1b = 0;
         entity->field_07 = 3;
         entity->field_17 = 3;
-        entity->field_64 = 0;
+        entity->countdown = 0;
         data_80190568 = 0;
         init_block172_pool();
-        entity->field_4f = 1;
+        entity->active_flag_2 = 1;
     }
 }

@@ -12,9 +12,9 @@ void func_80138f74(void) {
     func_80139a1c();
     func_80139304(pair + 1, pair);
     if ((short)player_left.health < 0) {
-        game_state.config->field_4c |= 2;
+        game_state.config->defeat_side_bits |= 2;
     }
     if ((short)player_right.health < 0) {
-        game_state.config->field_4c |= 1;
+        game_state.config->defeat_side_bits |= 1;
     }
 }

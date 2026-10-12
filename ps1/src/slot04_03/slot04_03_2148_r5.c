@@ -26,7 +26,7 @@ void func_801b26ac_slot04_03(Object *obj) {
         obj->state_3 = 0xb;
         func_801307e0(obj, 0x30);
     } else if (t == 0) {
-        if (obj->field_12a == 0) {
+        if (obj->direction_index == 0) {
             obj->state_3 = 0xb;
             func_801307e0(obj, 0x30);
         } else if ((obj->pressed_bits & 0x95) != 0) {

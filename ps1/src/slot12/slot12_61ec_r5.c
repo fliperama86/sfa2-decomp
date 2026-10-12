@@ -6,14 +6,14 @@
 void func_800165a8_slot12(Object *obj) {
     s16 y;
 
-    if (obj->field_48 == 2 && obj->field_03 == 0) {
+    if (obj->variant_index == 2 && obj->table_index == 0) {
         obj->state_1 = obj->state_1 + 1;
         return;
     }
     y = obj->pos_y;
-    if (!(((Slot12Obj *)obj)->field_78 < y)) {
+    if (!(((Slot12Obj *)obj)->limit_y < y)) {
         obj->state_1 = obj->state_1 + 1;
-        if (obj->field_03 == 4) {
+        if (obj->table_index == 4) {
             game_state.field_2bc = 8;
         }
     } else {

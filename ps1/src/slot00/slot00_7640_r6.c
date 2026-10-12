@@ -10,10 +10,10 @@ void func_80077cd8_slot00(Object *obj, s16 *out);
 void func_80077b90_slot00(Object *obj) {
     u8 *rec = (u8 *)obj + 0x40;
     obj->field_0c = 0xff;
-    obj->field_0d = 2;
+    obj->image_row = 2;
     obj->ot_depth = 4;
-    obj->field_44 = 1;
-    obj->field_1e = 3;
+    obj->spawn_flag = 1;
+    obj->cycle_value = 3;
     obj->state_0++;
     func_80077c5c_slot00(obj, rec);
     func_80077cd8_slot00(obj, (s16 *)rec);

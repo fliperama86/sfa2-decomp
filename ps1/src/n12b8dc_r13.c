@@ -7,7 +7,7 @@ void func_8013bdf4(void) {
     Object *o;
     u32 hi;
 
-    ref_second.p->field_00 += 1;
+    ref_second.p->active_count += 1;
     ref_second.p->state_0 = 1;
     ref_second.p->state_1 = 1;
     ref_second.p->state_2 = 0;
@@ -25,7 +25,7 @@ void func_8013bdf4(void) {
         }
     }
 
-    ref_third.p->field_00 += 1;
+    ref_third.p->active_count += 1;
     ref_third.p->state_0 = 1;
     ref_third.p->state_1 = 1;
     ref_third.p->state_2 = 0;

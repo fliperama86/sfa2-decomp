@@ -18,7 +18,7 @@ void func_801ca654_slot05_06(Object *obj) {
     } else {
         ((Slot04aObj *)obj)->field_1c2 = 10;
         obj->state_3 = obj->state_3 + 1;
-        if (obj->field_12a == 0) {
+        if (obj->direction_index == 0) {
             obj->state_3 = 0xf;
             obj->vel_x = 0;
             obj->accel_x = 0;
@@ -37,7 +37,7 @@ void func_801ca724_slot05_06(Object *obj) {
         ((Slot04aObj *)obj)->field_1c2 = 0x28;
     }
     a = 0x4000;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         a = -0x4000;
     }
     *(s32 *)&obj->pos_x_frac += a;

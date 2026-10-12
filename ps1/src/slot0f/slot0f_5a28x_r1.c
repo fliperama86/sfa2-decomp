@@ -16,8 +16,8 @@ void func_800e5a28_slot0f(Object *obj) {
     if (((Slot0fObj *)obj)->field_01 != 0) {
         func_800e5ae4_slot0f((Slot0fObj *)obj);
     } else {
-        data_8018f5a0->field_4a++;
-        if (game_state.field_2bd == 0) {
+        data_8018f5a0->phase_index++;
+        if (game_state.mode_flag_2 == 0) {
             func_800e5a9c_slot0f((Slot0fObj *)obj, 1);
         } else {
             func_800e5a9c_slot0f((Slot0fObj *)obj, 0);

@@ -35,25 +35,25 @@ void func_801e8a60_slot06_03(void) {
     u16 mask;
     u16 cc;
     int f12;
-    x = c->field_14 - 0x100000;
+    x = c->scroll_y - 0x100000;
     pos = -x;
-    t = (pos >> 16) - game_state.field_92;
+    t = (pos >> 16) - game_state.scroll_y;
     pos &= 0xffff;
     pos |= t << 16;
-    c->field_3c = pos;
+    c->saved_pos = pos;
     y = pos >> 16;
     sy = y & 0xf;
     f12 = (s16)c->scroll_x;
     sx = f12 & 0xf;
-    col = (f12 & (c->field_58 - 1)) >> 4;
+    col = (f12 & (c->map_width - 1)) >> 4;
     blank = c->field_1e;
     if (y >= 0) {
         row = y >> 4;
     } else {
         row = (y - 15) / 16;
     }
-    mask = (c->field_58 >> 4) - 1;
-    rows = c->field_5c >> 4;
+    mask = (c->map_width >> 4) - 1;
+    rows = c->map_height >> 4;
     rec = data_801f0d40_slot06_03[data_801a27d0];
     nr = ((u32)(c->field_4c - ((pos >> 16) & -16)) >> 4) + 1;
     ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
@@ -62,7 +62,7 @@ void func_801e8a60_slot06_03(void) {
         if (row < 0 || row >= rows) {
             continue;
         }
-        line = c->map_data + ((u16)row >> 4) * ((c->field_58 >> 9) << 10) + ((row & 0xf) << 6);
+        line = c->map_data + ((u16)row >> 4) * ((c->map_width >> 9) << 10) + ((row & 0xf) << 6);
         for (k = 0; k < 25; k++) {
             e = line + ((cc >> 5) << 10) + ((cc & 0x1f) << 1);
             tile = *e;

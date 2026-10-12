@@ -10,6 +10,6 @@ void func_8014e7ec(Object *object)
   s16 new_var;
   new_var = ((s16) v) >> 8;
   data_80189464 = v;
-  object->field_210 = new_var;
-  object->field_211 = v;
+  object->limit_hi = new_var;
+  object->limit_lo = v;
 }

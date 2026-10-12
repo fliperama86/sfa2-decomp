@@ -10,11 +10,11 @@ void func_8014f9f0(Ctl *ctl) {
     stream->bytes_remaining = 0;
     stream->step_count = 1;
     func_80150100(stream);
-    stream->field_3c = p;
+    stream->records_start = p;
     stream->record_limit = *(u8 *)p;
-    stream->field_40 = stream->field_3c;
+    stream->current_record = stream->records_start;
     stream->write_index++;
-    if (*p != stream->field_34) {
+    if (*p != stream->expected_word) {
         stream->error_code = 1;
     }
 }

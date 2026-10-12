@@ -6,8 +6,8 @@
 void func_801c9458_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
-    obj->field_1c3 = 0;
-    o->field_17b = 1;
+    obj->countdown_2 = 0;
+    o->active_flag_4 = 1;
     o->state_3++;
     if (o->field_49 != 0) {
         o->field_225 = 1;
@@ -20,12 +20,12 @@ void func_801c9458_slot05_06(Object *o) {
 void func_801c94c8_slot05_06(Object *obj) {
     obj->vel_x = 0x40000;
     obj->vel_y = 0x28000;
-    obj->field_12c = 0;
+    obj->substate_index = 0;
     obj->field_12d = 0;
-    obj->field_12e = 0;
-    obj->field_12f = 0;
+    obj->step_count_2 = 0;
+    obj->step_limit = 0;
     obj->accel_x = 0;
     obj->accel_y = -0xa000;
-    obj->field_45 = 1;
+    obj->active_state = 1;
     obj->state_3++;
 }

@@ -15,7 +15,7 @@ void func_8011ffdc(Object *o) {
 
 void func_80120028(Object *o) {
     o->field_01 = 1;
-    if (o->field_08 == 8) {
+    if (o->mode_id == 8) {
         func_80120060(o);
     }
 }

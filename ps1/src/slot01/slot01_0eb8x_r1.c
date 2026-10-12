@@ -7,10 +7,10 @@ void func_80010eb8_slot01(void) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     int unused[2];
     func_8011a744();
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
     data_801aa65e[0] = 1;
     data_80190562[0] = 1;
-    game_state.field_ab = 0;
+    game_state.status_flags = 0;
     data_801aa5ce[0] = 0;
     data_801aa6ee[0] = 2;
     player_left.field_01 = 0;

@@ -11,13 +11,13 @@ void func_801cbcf4_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
     int v;
 
-    obj->field_1c6 -= 1;
-    if (obj->field_1c6 & 0x80) {
+    obj->step_index -= 1;
+    if (obj->step_index & 0x80) {
         o->state_3++;
         func_801307e0(o, 0x33);
     } else {
         v = 0x80000;
-        if (o->field_0b == 0) {
+        if (o->facing_side == 0) {
             v = -0x80000;
         }
         *(s32 *)&o->pos_x_frac = v + *(s32 *)&o->pos_x_frac;
@@ -30,10 +30,10 @@ void func_801cbd6c_slot05_06(Object *obj) {
 }
 
 void func_801cbdac_slot05_06(Object *obj) {
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3++;
     if (obj->field_49 == 0) {
-        obj->field_177--;
+        obj->remaining_count--;
     }
     obj->field_157 = 0;
     func_801307e0(obj, 0x3c);
@@ -41,7 +41,7 @@ void func_801cbdac_slot05_06(Object *obj) {
 
 void func_801cbdfc_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
-    if (obj->field_3b & 0x80) {
+    if (obj->status_flags & 0x80) {
         func_801cc61c_slot05_06(o);
     } else {
         update_sequence(o);

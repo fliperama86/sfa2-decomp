@@ -11,24 +11,24 @@ void func_801b51e0_slot04_09(Object *o) {
     u8 *c;
 
     o->state_3++;
-    c = (u8 *)obj->field_330;
+    c = (u8 *)obj->linked_object;
     c[4] = 2;
     c[5] = 0;
     c[6] = 0;
     c[7] = 0;
     p->pos_y = p->ground_y;
     p->field_0c = obj->field_334;
-    p->field_0d = obj->field_335;
+    p->image_row = obj->field_335;
     o->vel_x = 0x40000;
     o->vel_y = 0;
     o->accel_x = 0;
     o->accel_y = -0x6000;
-    if (o->field_0b != 0) {
+    if (o->facing_side != 0) {
         o->vel_x = 0x40000;
     } else {
         o->vel_x = 0xfffc0000;
     }
-    p->field_0b = p->field_0b ^ 1;
+    p->facing_side = p->facing_side ^ 1;
     func_801307e0(o, 0x1a);
 }
 
@@ -46,8 +46,8 @@ void func_801b5288_slot04_09(Object *o, Object *unused) {
 
 void func_801b52f8_slot04_09(Object *obj, Object *unused) {
     if ((s16)obj->step_flags & 0x8000) {
-        obj->field_0b = obj->field_0b ^ 1;
-        obj->field_73 = 0;
+        obj->facing_side = obj->facing_side ^ 1;
+        obj->status_flag = 0;
         func_801312b8(obj);
     } else {
         update_sequence(obj);

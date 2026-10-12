@@ -5,7 +5,7 @@
 
 void func_801b0c04_slot04_09(Object *o) {
     Slot00Obj *obj = (Slot00Obj *)o;
-    obj->field_10 += o->vel_x;
+    obj->pos_x_hi += o->vel_x;
     o->vel_x += o->accel_x;
     if (o->vel_x == 0) {
         o->state_3++;
@@ -13,7 +13,7 @@ void func_801b0c04_slot04_09(Object *o) {
     }
     if ((game_state.frame_counter & 3) == 0) {
         if (func_80148e84(o) & 0xff) {
-            if (o->field_0b == 0) {
+            if (o->facing_side == 0) {
                 ref_other.p->pos_x -= 0x30;
             } else {
                 ref_other.p->pos_x += 0x30;

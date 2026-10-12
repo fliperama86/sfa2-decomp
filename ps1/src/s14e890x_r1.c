@@ -16,7 +16,7 @@ void func_801451ac(int a);
  * of a screen. It sets a flag byte, calls a fixed sequence of setup
  * routines, then uploads image data in 4 by 16 pixel strips to video memory:
  * first as many 128-byte strips as the current table entry says (the
- * entry is a byte count, selected by game_state.field_40), placed in a grid
+ * entry is a byte count, selected by game_state.kind_index), placed in a grid
  * of 16 rows by 16 columns of strips per page, starting at an x offset taken
  * from a second table; then three 16 by 32 clears, one 16 by 7 upload, and
  * a fixed 949 strips from another buffer in the same grid layout (16 by 16
@@ -53,8 +53,8 @@ void func_8014e890(int arg) {
     page = 0;
     data_80189470.w = 4;
     data_80189470.h = 0x10;
-    for (i = 0; i < (table_8017d96c[game_state.field_40] >> 7); i++) {
-        data_80189470.x = table_8017d9bc[game_state.field_40] + ((row & 0xff) << 2) + (page << 6);
+    for (i = 0; i < (table_8017d96c[game_state.kind_index] >> 7); i++) {
+        data_80189470.x = table_8017d9bc[game_state.kind_index] + ((row & 0xff) << 2) + (page << 6);
         data_80189470.y = ((col & 0xff) << 4) + 0x100;
         /* Stand-in, not recovered source: the term that is ORed to the constant 0x10 below, which is 0 for every value of g, reproduces the original's choice of registers. Without it this function differs from the original in 14 instruction slots. */
         k = 0x10 | (int)(((u32)(unsigned long long)g << 24) & 0x100);

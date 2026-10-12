@@ -15,9 +15,9 @@ void func_801528e0(Object *object)
 {
   int idx;
   int base;
-  ref_other.p = object->field_3c;
-  idx = object->field_03 >> 1;
-  base = ((ref_other.p->frame->field_0a & 0x1f) << 3) + idx;
+  ref_other.p = object->parent;
+  idx = object->table_index >> 1;
+  base = ((ref_other.p->frame->offset_index & 0x1f) << 3) + idx;
   idx = (1 & game_state.frame_counter) ? (base + 4) : (base);
   if (ref_other.p->side == 0)
   {
@@ -28,13 +28,13 @@ void func_801528e0(Object *object)
     ref_first.p = *((Object **) 0x1f800134);
   }
   base = ((u16 *) ref_first.p)[idx];
-  object->field_0b = ref_other.p->field_0b;
-  if (object->field_0b != 0)
+  object->facing_side = ref_other.p->facing_side;
+  if (object->facing_side != 0)
   {
     base = -base;
   }
   object->pos_x = base + ref_other.p->pos_x;
   base = ((u16 *) ref_first.p)[idx + 1];
   object->pos_y = ref_other.p->pos_y - base;
-  object->field_0b ^= 1;
+  object->facing_side ^= 1;
 }

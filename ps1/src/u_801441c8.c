@@ -15,7 +15,7 @@ int func_801441c8(Object *unused)
   if (p != 0)
   {
     ref_first.p = p;
-    new_var = ref_first.p->field_cd;
+    new_var = ref_first.p->mode_flag_2;
     if (0 == new_var)
     {
       result = (s16) (new_var = ref_first.p->health);

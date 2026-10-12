@@ -3,8 +3,8 @@
 #include "protos.h"
 #include "externs.h"
 
-/* The local w holds the halfword read from the list and later field_240 for
-   its test. With field_240 tested in place, this function differs from the
+/* The local w holds the halfword read from the list and later link_flags for
+   its test. With link_flags tested in place, this function differs from the
    original in 4 instruction slots. The halfword is put together again in two
    statements; in one statement: 13. Its high byte is stored through t; stored
    straight from w >> 8: 6, and 8 bytes shorter. It reaches w through t; read
@@ -19,20 +19,20 @@ void func_8014a94c(Object *object) {
     t = *p;
     w = t;
     t = w >> 8;
-    object->field_210 = t;
-    object->field_211 = w;
-    w = other->field_240;
-    if (w == 0 || other->field_14c == 0) {
+    object->limit_hi = t;
+    object->limit_lo = w;
+    w = other->link_flags;
+    if (w == 0 || other->linked_object_3 == 0) {
         goto none;
     }
-    ref_other.p = other->field_14c;
+    ref_other.p = other->linked_object_3;
     if (ref_other.p->state_0 != 1) {
         goto none;
     }
-    ref_second.p = other->field_14c;
+    ref_second.p = other->linked_object_3;
     func_8014c4a8(object);
-    t = object->field_211;
-    t = t | (object->field_210 << 8);
+    t = object->limit_lo;
+    t = t | (object->limit_hi << 8);
     if (t >= data_80189464) {
     none:
         func_8014c914(object);

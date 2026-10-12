@@ -12,7 +12,7 @@ void func_801b0e8c_slot04_07(Object *obj) {
         func_80131468(obj);
     } else {
         if ((t & 0xff) != 0) {
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 *(s32 *)&obj->pos_x_frac -= obj->vel_x;
             } else {
                 *(s32 *)&obj->pos_x_frac += obj->vel_x;
@@ -26,7 +26,7 @@ void func_801b0e8c_slot04_07(Object *obj) {
                 obj->step_flags = q[1];
                 fr = obj->frames + obj->sequence->frame_index;
                 obj->frame = fr;
-                obj->field_4a = fr->field_0d;
+                obj->frame_sound_index = fr->sequence_param;
                 obj->sequence_changed_flag = 1;
             }
         }
@@ -41,10 +41,10 @@ void func_801b0f74_slot04_07(Object *obj) {
         obj->vel_y = 0x58000;
         obj->accel_x = 0;
         obj->state_3++;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->vel_x = 0x28000;
         }
-        obj->field_45 = 1;
+        obj->active_state = 1;
     }
     update_sequence(obj);
 }

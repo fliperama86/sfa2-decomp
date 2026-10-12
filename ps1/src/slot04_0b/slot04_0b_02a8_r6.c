@@ -11,7 +11,7 @@ void func_801b08d4_slot04_0b(Object *obj) {
 }
 
 void func_801b08f4_slot04_0b(Object *obj) {
-    data_801c24d4_slot04_0b[obj->field_12a >> 1](obj);
+    data_801c24d4_slot04_0b[obj->direction_index >> 1](obj);
 }
 
 void func_801b0938_slot04_0b(Object *obj) {

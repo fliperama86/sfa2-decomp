@@ -19,8 +19,8 @@ void func_8001e098_slot28(Object *obj) {
     HudState *g;
     if (obj->field_f0 == 0) {
         g = data_8018f5a0;
-        g->field_60 = 0x258;
-        g->field_52 = g->field_52 + 1;
+        g->countdown_timer = 0x258;
+        g->pass_index = g->pass_index + 1;
         func_8001e2a0_slot28(obj);
         func_8001e37c_slot28();
         func_80130768(data_80051a80_slot28.p, 1, data_8003d2d0_slot28);
@@ -37,7 +37,7 @@ void func_8001e098_slot28(Object *obj) {
             p->pos_y = 0xa0;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
-            p->field_0d = 0;
+            p->image_row = 0;
             p->ot_depth = 2;
             func_80130768(p, 4, data_8003d2e0_slot28);
             data_80051a58_slot28[0] = p;

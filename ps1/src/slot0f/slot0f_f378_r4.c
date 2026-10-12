@@ -7,9 +7,9 @@ extern void (*data_800e83c8_slot0f[])(GameState *state);
 void func_800dfa04_slot0f(GameState *state);
 
 void func_800df7ec_slot0f(GameState *state) {
-    state->field_f0 = 0;
-    data_8018f5a0->field_4a = 0;
-    data_8018f5a0->field_48++;
+    state->wait_flag = 0;
+    data_8018f5a0->phase_index = 0;
+    data_8018f5a0->state_index++;
 }
 
 void func_800df810_slot0f(GameState *state) {
@@ -21,6 +21,6 @@ void func_800df810_slot0f(GameState *state) {
 }
 
 void func_800df858_slot0f(GameState *state) {
-    data_800e83c8_slot0f[data_8018f5a0->field_48](state);
+    data_800e83c8_slot0f[data_8018f5a0->state_index](state);
     func_800dfa04_slot0f(state);
 }

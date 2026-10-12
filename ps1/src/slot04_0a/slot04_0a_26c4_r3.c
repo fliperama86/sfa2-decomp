@@ -12,11 +12,11 @@ void func_801b2970_slot04_0a(Object *obj) {
     func_80138b38(&game_state, obj);
     a = 0x80000;
     b = -0x4000;
-    obj->field_45 = 1;
+    obj->active_state = 1;
     obj->field_165 = 0;
     obj->vel_y = 0x28000;
     obj->accel_y = b;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         a = 0xfff80000;
         b = 0x4000;
     }
@@ -25,5 +25,5 @@ void func_801b2970_slot04_0a(Object *obj) {
     play_sound_at(obj, obj->side, 0x31c);
     func_801483a4(obj, -0x19, 0x44);
     func_80145d20(obj);
-    func_801307e0(obj, (obj->field_12a >> 1) + 0x30);
+    func_801307e0(obj, (obj->direction_index >> 1) + 0x30);
 }

@@ -25,7 +25,7 @@ void func_80133848(u8 *base, Object *a, Object *b) {
         *(u16 *)(p + 0xcc) = 0x76;
         *(u16 *)(p + 0xec) = 0x46;
         *(u16 *)(p + 0x10c) = 0x16;
-        data_80188d44 = *(u8 *)&a->field_c6 + (a->field_255 >> 1) * 0x30 + 0x30;
+        data_80188d44 = *(u8 *)&a->meter + (a->field_255 >> 1) * 0x30 + 0x30;
         if (data_80188d44 >= 0x90) {
             u8 t = data_80188d54 + 1;
             *(u16 *)(p + 0x110) = 0x30;
@@ -56,7 +56,7 @@ void func_80133848(u8 *base, Object *a, Object *b) {
         }
         index = (s16)raw;
         func_80134154(base, index);
-        if (game_state.field_32 & 4) {
+        if (game_state.tick_count & 4) {
             if (data_80188d4c != 0) {
                 u8 *q = (u8 *)((index << 4) + (int)base);
                 q[0xc8] = 0x29;
@@ -98,7 +98,7 @@ void func_80133848(u8 *base, Object *a, Object *b) {
     }
 
     if (b->field_165 != 0 && b->field_299 == 0) {
-        data_80188d48 = *(u8 *)&b->field_c6 + (b->field_255 >> 1) * 0x30 + 0x30;
+        data_80188d48 = *(u8 *)&b->meter + (b->field_255 >> 1) * 0x30 + 0x30;
         if (data_80188d48 >= 0x90) {
             u8 *q = base + ((s16)raw << 4);
             u8 t = data_80188d60 + 1;
@@ -132,7 +132,7 @@ void func_80133848(u8 *base, Object *a, Object *b) {
         }
         index = (s16)raw;
         func_801341c4(base, index);
-        if (game_state.field_32 & 8) {
+        if (game_state.tick_count & 8) {
             if (data_80188d58 != 0) {
                 u8 *q = (u8 *)((index << 4) + (int)base);
                 q[0x128] = 0x29;

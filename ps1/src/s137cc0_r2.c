@@ -7,16 +7,16 @@
 
 
 void func_80138358(GameState *state) {
-    int value = table_6cf0[state->field_2d];
+    int value = table_6cf0[state->table_index_2];
 
     counter_a = 0x780;
     counter_b = 0;
-    state->field_6e = value;
+    state->counter_shifted = value;
     counter_c = value << 3;
 }
 
 void func_8013839c(GameState *state) {
-    if (state->mode == 3 && state->field_2f == 0) {
+    if (state->mode == 3 && state->mode3_active_flag == 0) {
         func_801384c4(state);
     } else {
         func_801386f0(state);
@@ -28,14 +28,14 @@ void func_8013839c(GameState *state) {
 
 void func_80138410(GameState *state) {
     counter_a = 0x780;
-    if (state->mode == 3 && state->field_2f == 0) {
+    if (state->mode == 3 && state->mode3_active_flag == 0) {
         func_801384c4(state);
     } else {
-        if (player_left.field_cd == 0 && game_state.field_2f == 0) {
-            player_left.field_cf = 0x10;
+        if (player_left.mode_flag_2 == 0 && game_state.mode3_active_flag == 0) {
+            player_left.table_column = 0x10;
         }
-        if (player_right.field_cd == 0 && game_state.field_2f == 0) {
-            player_right.field_cf = 0x10;
+        if (player_right.mode_flag_2 == 0 && game_state.mode3_active_flag == 0) {
+            player_right.table_column = 0x10;
         }
     }
 }

@@ -5,7 +5,7 @@
 
 void func_801b4298_slot04_08(Object *obj) {
     if ((u8)func_80146888(obj)) {
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             ref_other.p->pos_x -= 0x20;
         } else {
             ref_other.p->pos_x += 0x20;
@@ -32,7 +32,7 @@ void func_801b4310_slot04_08(Object *obj) {
 
 void func_801b4354_slot04_08(Object *obj) {
     s16 t = obj->step_flags;
-    if ((t & 0x8000) == 0 && (t & 0xff00) != 0 && (t & 0xff00) == 0x300 && game_state.field_48 == obj->field_ce) {
+    if ((t & 0x8000) == 0 && (t & 0xff00) != 0 && (t & 0xff00) == 0x300 && game_state.field_48 == obj->win_count) {
         obj->step_flags = t & 0xff;
         play_side_sound_at(obj, obj->side, 0x11);
     }

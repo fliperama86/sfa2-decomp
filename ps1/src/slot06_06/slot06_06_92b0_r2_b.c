@@ -10,32 +10,32 @@ extern Slot06_06Rec83d8 data_801f83d8_slot06_06[][2];
 void func_801e9c58_slot06_06(Object *obj, Slot06_06Rece1d8 *src, Slot06_06Rec83d8 *dst);
 
 void func_801e9c58_slot06_06(Object *obj, Slot06_06Rece1d8 *src, Slot06_06Rec83d8 *dst) {
-    dst->field_00 = src->field_01;
-    dst->pos_x = src->field_02;
-    dst->pos_y = src->field_04;
-    dst->field_06 = src->field_07;
-    dst->field_08 = src->field_08;
-    dst->field_0a = src->field_0a;
-    func_80130700(obj, data_801ee190_slot06_06[src->field_00]);
+    dst->ot_depth = src->field_01;
+    dst->pos_x = src->pos_x;
+    dst->pos_y = src->pos_y;
+    dst->param_byte = src->param_byte;
+    dst->param_word_a = src->param_word_a;
+    dst->param_word_b = src->param_word_b;
+    func_80130700(obj, data_801ee190_slot06_06[src->table_index]);
     dst->sequence = obj->sequence;
 }
 
 void func_801e9cf8_slot06_06(Object *obj) {
     Slot06_06Rec83d8 *r;
 
-    if ((s16)((Slot06Layer *)data_801aa5d4)->field_12 < obj->vel_x) {
-        r = &data_801f83d8_slot06_06[obj->field_03][0];
+    if ((s16)((Slot06Layer *)data_801aa5d4)->scroll_x < obj->vel_x) {
+        r = &data_801f83d8_slot06_06[obj->table_index][0];
     } else {
-        r = &data_801f83d8_slot06_06[obj->field_03][1];
+        r = &data_801f83d8_slot06_06[obj->table_index][1];
     }
     obj->sequence = r->sequence;
     obj->sequence_changed_flag = 1;
     obj->pos_x = r->pos_x;
     obj->pos_y = 0xf8 - r->pos_y;
-    obj->field_1c = r->field_08;
-    obj->field_26 = r->field_0a;
-    obj->ot_depth = r->field_00;
-    obj->field_0e = r->field_06;
+    obj->field_1c = r->param_word_a;
+    obj->scroll_factor = r->param_word_b;
+    obj->ot_depth = r->ot_depth;
+    obj->field_0e = r->param_byte;
     func_80120028(obj);
 }
 
@@ -54,11 +54,11 @@ void func_801e9e10_slot06_06(Object *obj) {
     obj->field_0f = 1;
     obj->state_0++;
     obj->field_0c = 0;
-    obj->field_81 = 4;
-    if (game_state.field_0a == 6 || game_state.field_8a != 0) {
+    obj->spawn_mode = 4;
+    if (game_state.field_0a == 6 || game_state.skip_flag != 0) {
         i = 10;
     }
-    func_80130700(obj, data_801ee190_slot06_06[i + obj->field_03]);
+    func_80130700(obj, data_801ee190_slot06_06[i + obj->table_index]);
 }
 
 void func_801e9ea0_slot06_06(Object *obj) {

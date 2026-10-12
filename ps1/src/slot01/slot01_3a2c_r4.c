@@ -23,18 +23,18 @@ void func_80013da4_slot01(Object *obj) {
         obj->state_1++;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0x30;
             p->field_01 = 1;
             p->field_0c = 0;
-            p->field_0d = 0;
+            p->image_row = 0;
             p->field_60 = 1;
             p->spawn_x = 0x20;
             p->spawn_y = 0x1e8;
-            p->field_98 = data_80019330_slot01;
+            p->data_ptr_a = data_80019330_slot01;
             p->field_90 = (void *)0x80059000;
-            p->field_9c = data_800195b8_slot01;
-            p->field_03 = *(u8 *)&data_80055f3c_slot01;
+            p->data_ptr_b = data_800195b8_slot01;
+            p->table_index = *(u8 *)&data_80055f3c_slot01;
         }
     } else {
         func_80012020_slot01(obj);

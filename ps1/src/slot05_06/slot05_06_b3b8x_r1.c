@@ -14,18 +14,18 @@ void func_801cb3b8_slot05_06(Object *obj) {
         func_801cc814_slot05_06(obj);
         other = obj->other;
         v = other->field_6b != 0;
-        if (v && other->field_61 == 1) {
+        if (v && other->hit_type == 1) {
             if ((s16)other->health < 0) {
                 goto set;
             }
             obj->state_3 += 3;
-            obj->field_159 = 1;
+            obj->active_flag_3 = 1;
         }
         update_sequence(obj);
     } else {
     set:
         obj->state_3++;
-        v = obj->field_12a >> 1;
+        v = obj->direction_index >> 1;
         func_801307e0(obj, v + 0x45);
     }
 }

@@ -12,35 +12,35 @@ void func_801b3764_slot04_02(Object *obj) {
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags == 1) {
         obj->state_3 = obj->state_3 + 1;
-        obj->field_46 = *(u8 *)&obj->field_46 | 0x800;
+        obj->countdown = *(u8 *)&obj->countdown | 0x800;
         p = ((Object *(*)(void))pop_object_from_pool)();
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 2;
-            p->field_03 = 8;
-            p->field_66 = obj->field_66;
-            p->field_65 = obj->field_65;
+            p->table_index = 8;
+            p->sound_side = obj->sound_side;
+            p->team_id = obj->team_id;
             p->field_4b = obj->field_4b;
-            p->field_ac = (obj->field_12a >> 1) + 0xc;
-            p->health = obj->field_12a + 3;
-            p->field_ad = 1;
-            p->field_0b = obj->field_0b;
+            p->vel_table_index = (obj->direction_index >> 1) + 0xc;
+            p->health = obj->direction_index + 3;
+            p->active_flag_2 = 1;
+            p->facing_side = obj->facing_side;
             p->field_0e = obj->field_0e;
             p->field_0c = obj->field_0c;
-            p->field_0d = obj->field_0d;
-            p->field_26 = obj->field_26;
+            p->image_row = obj->image_row;
+            p->scroll_factor = obj->scroll_factor;
             p->pos_x = obj->pos_x;
             p->pos_y = obj->pos_y;
             y = obj->ground_y;
             p->spawn_x = 0x60;
-            p->field_3c = obj;
+            p->parent = obj;
             p->spawn_y = 0x1e0;
             p->ground_y = y;
             p->field_90 = obj->field_90;
-            p->field_98 = obj->field_98;
-            p->field_9c = obj->field_9c;
-            obj->field_14c = (s32)p;
-            obj->field_240 = obj->field_240 + 1;
+            p->data_ptr_a = obj->data_ptr_a;
+            p->data_ptr_b = obj->data_ptr_b;
+            obj->linked_object_3 = (s32)p;
+            obj->link_flags = obj->link_flags + 1;
             play_side_sound_at(obj, obj->side, 0xb);
         }
     }

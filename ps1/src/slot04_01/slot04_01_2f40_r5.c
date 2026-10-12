@@ -17,11 +17,11 @@ void func_801b3280_slot04_01(Object *obj) {
             play_sound_at(p, ((Slot04aObj *)p)->side, 0x30d);
             goto done;
         }
-        obj->field_46++;
+        obj->countdown++;
         play_sound_at(p, ((Slot04aObj *)p)->side, 0x30b);
     }
     func_80140fe0(obj);
-    if ((s16)obj->field_46 == 0 || (p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
+    if ((s16)obj->countdown == 0 || (p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
         update_sequence(obj);
         return;
     }

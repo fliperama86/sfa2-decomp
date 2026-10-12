@@ -17,14 +17,14 @@ void func_801488ac(Object *object) {
 }
 
 void func_801488ec(Object *object) {
-    int base = object->field_03 * 2;
+    int base = object->table_index * 2;
     u8 index = base + 0x18;
     object->ot_depth = 4;
-    object->field_0b = 1;
-    if (object->field_48 >> 5 != 0) {
+    object->facing_side = 1;
+    if (object->variant_index >> 5 != 0) {
         index = base + 0x19;
         object->ot_depth = 8;
-        object->field_0b = 0;
+        object->facing_side = 0;
     }
     func_80130768(object, index, seqs_8017c7f8);
 }

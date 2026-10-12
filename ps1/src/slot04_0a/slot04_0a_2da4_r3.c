@@ -9,7 +9,7 @@ void func_801b30a0_slot04_0a(Object *obj) {
     obj->state_3 = 4;
     func_801209c4(obj);
     obj->pos_y_frac = 0;
-    obj->pos_y = ((Slot04aObj *)obj)->field_70;
+    obj->pos_y = ((Slot04aObj *)obj)->saved_pos_y;
     func_801307e0(obj, 0x48);
 }
 
@@ -19,8 +19,8 @@ void func_801b30e8_slot04_0a(Object *obj) {
     if (func_801b1e04_slot04_0a(obj)) {
         func_801b30a0_slot04_0a(obj);
     } else {
-        if (((Slot04aObj *)obj)->field_3a == 0 && obj->field_cd == 0) {
-            t = obj->field_130 & 0xa000;
+        if (((Slot04aObj *)obj)->mode == 0 && obj->mode_flag_2 == 0) {
+            t = obj->input_bits_2 & 0xa000;
             if (t != 0) {
                 u32 m = t & 0x8000;
 
@@ -28,7 +28,7 @@ void func_801b30e8_slot04_0a(Object *obj) {
                 if (m == 0) {
                     t = 0x40000;
                 }
-                if (obj->field_0b != 0) {
+                if (obj->facing_side != 0) {
                     t = -t;
                 }
                 *(s32 *)&obj->pos_x_frac = t + *(s32 *)&obj->pos_x_frac;

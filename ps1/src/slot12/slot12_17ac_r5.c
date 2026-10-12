@@ -26,8 +26,8 @@ void func_80011a78_slot12(Object *obj, Slot12List *list) {
         b->tex_u = (i - t) << 4;
         a->tex_v = t;
         b->tex_v = t;
-        a->field_0e = func_8015bdd4((s16)obj->spawn_x, (s16)obj->spawn_y);
-        b->field_0e = func_8015bdd4((s16)obj->spawn_x, (s16)obj->spawn_y);
+        a->clut_or_tpage = func_8015bdd4((s16)obj->spawn_x, (s16)obj->spawn_y);
+        b->clut_or_tpage = func_8015bdd4((s16)obj->spawn_x, (s16)obj->spawn_y);
         a->width = 0x10;
         b->width = 0x10;
         a->height = 0x10;

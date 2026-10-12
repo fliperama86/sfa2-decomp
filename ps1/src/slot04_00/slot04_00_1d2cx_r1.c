@@ -23,8 +23,8 @@ void func_801b1d2c_slot04_00(Object *obj) {
     func_80141f28(obj, 6);
     func_80138ae8(&game_state, obj);
     obj->accel_y = -0x3000;
-    a = data_801bfe60_slot04_00[obj->field_12a >> 1];
-    if (obj->field_0b == 0) {
+    a = data_801bfe60_slot04_00[obj->direction_index >> 1];
+    if (obj->facing_side == 0) {
         if (obj->vel_x <= 0) {
             a = -a;
         }
@@ -35,7 +35,7 @@ void func_801b1d2c_slot04_00(Object *obj) {
     }
     obj->vel_x = a + obj->vel_x;
     play_sound_at(obj, obj->side, 0x320);
-    a = obj->field_12a >> 1;
-    ((Slot04aObj *)obj)->field_1a4 = a;
+    a = obj->direction_index >> 1;
+    ((Slot04aObj *)obj)->step_count = a;
     func_801307e0(obj, a + 0x24);
 }

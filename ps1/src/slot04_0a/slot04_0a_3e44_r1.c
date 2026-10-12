@@ -18,7 +18,7 @@ void func_801b3e68_slot04_0a(Object *obj) {
     u8 *p;
     u8 *src;
 
-    src = table_801a27e4 + (obj->field_0d << 5);
+    src = table_801a27e4 + (obj->image_row << 5);
     p = table_801a27e4;
     r.x = (obj->side << 5) + 0x110;
     r.y = (obj->field_d4 << 2) + 0x1e8;
@@ -26,13 +26,13 @@ void func_801b3e68_slot04_0a(Object *obj) {
     r.h = 4;
     func_80158028(&r, src);
     p += 0x1400;
-    func_80158028(&r, p + (obj->field_0d << 5));
+    func_80158028(&r, p + (obj->image_row << 5));
     func_80137220(0, 6);
     func_801379bc(obj, 2);
 }
 
 void func_801b3f10_slot04_0a(Object *obj) {
-    obj->field_103 = 0;
+    obj->kind10_flag = 0;
     func_8013788c(obj);
 }
 

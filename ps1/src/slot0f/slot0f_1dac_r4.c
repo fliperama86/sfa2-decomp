@@ -34,7 +34,7 @@ void func_800e2130_slot0f(Object *o) {
     } else {
         func_801519b4(&data_800e8608_slot0f);
     }
-    switch (obj->field_0e) {
+    switch (obj->mode) {
     case 0:
         rec = &data_800e8648_slot0f;
         break;

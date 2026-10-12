@@ -8,24 +8,24 @@ extern SequenceStep *data_801ed480_slot06_08[];
 void func_801ea2f0_slot06_08(Object *obj) {
     int idx;
     int k;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0++;
     obj->field_0f = 1;
-    if (obj->field_03 != 0) {
+    if (obj->table_index != 0) {
         /* The 1 goes through a local: with the literal at the store two instruction slots differ. */
         k = 1;
         obj->vel_x = 0;
-        obj->field_0d = 0;
+        obj->image_row = 0;
         obj->field_0c = 0;
         obj->field_0a = 1;
-        if (game_state.field_42 & 6) {
+        if (game_state.count_index & 6) {
             obj->vel_x = k;
         }
     }
-    if (obj->field_03 != 0) {
-        obj->field_3c = &player_right;
+    if (obj->table_index != 0) {
+        obj->parent = &player_right;
     } else {
-        obj->field_3c = &player_left;
+        obj->parent = &player_left;
     }
     idx = 4;
     if (obj->vel_x != 0) {

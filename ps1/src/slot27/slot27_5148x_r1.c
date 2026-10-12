@@ -9,13 +9,13 @@ void func_80015148_slot27(Object *obj) {
     int *p = data_8019045c;
     int idx;
     *p = obj->field_62;
-    if (obj->field_45 != *p) {
-        obj->field_45 = *p;
+    if (obj->active_state != *p) {
+        obj->active_state = *p;
         *p = *p * 2;
         obj->ot_depth = *p + 3;
         *p = *p * 2;
-        idx = obj->field_03 + *p;
+        idx = obj->table_index + *p;
         *p = idx;
-        func_80130768(obj, idx, data_800282e8_slot27[(*(Config **)&data_80190458)->field_a6]);
+        func_80130768(obj, idx, data_800282e8_slot27[(*(Config **)&data_80190458)->table_index]);
     }
 }

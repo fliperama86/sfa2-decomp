@@ -35,8 +35,8 @@ void func_800e6c18_slot0f(Object *o) {
     int i;
 
     data_800f7b74_slot0f[0].value = 0;
-    p = &data_80190468.p->field_15e;
-    i = obj->field_5c;
+    p = &data_80190468.p->accum_count;
+    i = obj->record_offset;
     n = 0;
     if (*p != 0xff) {
         do {
@@ -57,8 +57,8 @@ void func_800e6c74_slot0f(Object *o) {
     int v;
 
     data_800f7b74_slot0f[1].value = 0;
-    p = &data_80190468.p->field_15e;
-    i = obj->field_5c;
+    p = &data_80190468.p->accum_count;
+    i = obj->record_offset;
     n = 0;
     if (*p != 0xff) {
         do {

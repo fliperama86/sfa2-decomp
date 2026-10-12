@@ -22,7 +22,7 @@ int func_8016a7e4(unsigned a) {
     if (i == -1) {
         return -1;
     }
-    c = data_80183138[i].field_0c;
+    c = data_80183138[i].state_select;
     if (data_801831e8 & (1 << i)) {
         if (c != 0) {
             return 1;

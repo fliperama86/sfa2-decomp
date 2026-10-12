@@ -15,11 +15,11 @@ void func_801369b0(Cam *cam);
 void init_draw_mode_prim_4(Tx *tx);
 
 void func_801e9424_slot06_08(Slot06Layer *layer) {
-    layer->field_50 = data_801eb6d8_slot06_08;
-    layer->field_54 = data_801eb6d8_slot06_08;
-    layer->field_1e = 0x5c10;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801eb6d8_slot06_08;
+    layer->data_table = data_801eb6d8_slot06_08;
+    layer->packed_param = 0x5c10;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e9450_slot06_08(void) {
@@ -49,30 +49,30 @@ void func_801e94f0_slot06_08(Slot06Layer *layer) {
     s16 d;
     s16 e;
 
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_801369b0((Cam *)layer);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;
-        d -= l2->field_0a;
+        d -= l2->ref_x;
         d += data_80190542;
-        d += layer->field_0a;
-        d += layer->field_36;
+        d += layer->ref_x;
+        d += layer->pos_x_int;
         layer->field_22 = d;
         e = l2->field_26;
         e -= l2->field_0e;
         e += layer->field_0e;
-        e += layer->field_3a;
+        e += layer->pos_y_int;
         layer->field_26 = e;
     }
 }
 
 void func_801e9590_slot06_08(Slot06Layer *layer) {
-    layer->field_50 = data_801ec6d8_slot06_08;
-    layer->field_54 = data_801ec6d8_slot06_08;
-    layer->field_1e = 0x6404;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ec6d8_slot06_08;
+    layer->data_table = data_801ec6d8_slot06_08;
+    layer->packed_param = 0x6404;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e95bc_slot06_08(void) {

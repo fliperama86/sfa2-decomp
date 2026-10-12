@@ -20,8 +20,8 @@ void func_801b30cc_slot04_02(Object *obj) {
             return;
         }
     } else {
-        obj->field_159 = 0;
-        obj->field_45 = 0;
+        obj->active_flag_3 = 0;
+        obj->active_state = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         func_801209c4(obj);

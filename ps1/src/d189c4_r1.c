@@ -37,10 +37,10 @@ void update_voice_delay_timers(void);
  * is built (func_80118d10 once per session, func_80118e58 / func_80119030 /
  * func_80119144 after each soft reset) and the frame loop runs. One frame:
  * reset root counter 1 (inferred ResetRCnt), read the pads unless
- * game_state.field_225 is set; if either pad check says reset, run the
+ * game_state.loop_mode is set; if either pad check says reset, run the
  * soft-reset path (stop sound and disc, end three threads) and rebuild the
  * display. Otherwise, unless data_801ac620 is above 0x4000, run the game's
- * frame functions and count the frame in game_state.field_32. If the
+ * frame functions and count the frame in game_state.tick_count. If the
  * interrupt-set scratchpad word 4 is not 0, end the threads and go back to
  * the session start with scratchpad words 0 and 8 set to -1. Otherwise read
  * root counter 1 into both halves of data_801903b0 (its second half again
@@ -84,7 +84,7 @@ display:
         data_801ac310 = 0;
         reset = 0;
         func_80157784(ROOT_COUNTER_1);
-        if (game_state.field_225 == 0) {
+        if (game_state.loop_mode == 0) {
             /* Each call passes a pad's buffer and its number; the callee uses neither. Written without the arguments, this function is 20 bytes shorter than the original. */
             reset = func_80118fc8(data_801a6964, 0);
             reset |= func_80118fc8(data_801a6970, 1);
@@ -102,8 +102,8 @@ display:
             func_8011907c();
             func_8014f59c();
             draw_text_items();
-            game_state.field_02 = 0;
-            game_state.field_32++;
+            game_state.pass_flag = 0;
+            game_state.tick_count++;
         }
         if (scratch_word_04 != 0) {
             func_80157d00(0);

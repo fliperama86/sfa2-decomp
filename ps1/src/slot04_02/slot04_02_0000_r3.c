@@ -10,7 +10,7 @@ void func_801b03ac_slot04_02(Object *obj) {
         func_801312b8(obj);
     } else {
         if ((t & 0xff) != 0) {
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + 0x20000;
             } else {
                 *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - 0x20000;

@@ -22,9 +22,9 @@ void func_801b42ac_slot04_0b(Object *obj) {
 }
 
 void func_801b42ec_slot04_0b(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_80130dc0(obj);
 }
 

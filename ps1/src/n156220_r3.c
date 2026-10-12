@@ -4,8 +4,8 @@
 #include "protos.h"
 
 void func_801567e4(void *a, Object *object) {
-    int t = object->field_b0 - 1;
-    object->field_b0 = t;
+    int t = object->countdown_timer - 1;
+    object->countdown_timer = t;
     if (t << 16 < 0) {
         object->phase_index = object->phase_index + 1;
     }

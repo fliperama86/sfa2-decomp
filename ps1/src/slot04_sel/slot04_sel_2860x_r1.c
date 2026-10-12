@@ -59,15 +59,15 @@ void func_801b2860_slot04_sel(void) {
     func_801519b4(&data_801b8270_slot04_sel);
     w = &player_left;
     r = data_801b9d38_slot04_sel;
-    data_801b7c6c_slot04_sel[r->field_00](w, r);
+    data_801b7c6c_slot04_sel[r->count](w, r);
     second = (Object *)w + 1;
     w = r + 1;
-    data_801b7c6c_slot04_sel[r[1].field_00](second, w);
-    if (game_state.field_07 == (data_801b9d38_slot04_sel[0].field_04 | data_801b9d38_slot04_sel[1].field_04)) {
-        r[0].field_00 = 0;
-        r[1].field_00 = 0;
-        data_8018f5a0->field_50++;
+    data_801b7c6c_slot04_sel[r[1].count](second, w);
+    if (game_state.side_mask == (data_801b9d38_slot04_sel[0].field_04 | data_801b9d38_slot04_sel[1].field_04)) {
+        r[0].count = 0;
+        r[1].count = 0;
+        data_8018f5a0->step_index_2++;
     }
-    data_801b9d68_slot04_sel = game_state.field_07;
+    data_801b9d68_slot04_sel = game_state.side_mask;
     data_801b9d6c_slot04_sel = game_state.mode;
 }

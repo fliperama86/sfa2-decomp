@@ -8,7 +8,7 @@ extern ObjectFn data_801dd5a0_slot05_06[];
 extern ObjectFn data_801dd5a8_slot05_06[];
 
 void func_801cd838_slot05_06(Object *obj) {
-    data_801dd594_slot05_06[obj->field_12a >> 1](obj);
+    data_801dd594_slot05_06[obj->direction_index >> 1](obj);
 }
 
 void func_801cd87c_slot05_06(Object *obj) {
@@ -16,9 +16,9 @@ void func_801cd87c_slot05_06(Object *obj) {
 }
 
 void func_801cd8bc_slot05_06(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_80130dc0(obj);
 }
 

@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 void func_801b4a60_slot04_07(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3 = obj->state_3 + 1;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a != 4) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index != 4) {
         func_80130dc0(obj);
-    } else if (obj->field_219 == 0) {
+    } else if (obj->attack_param_d == 0) {
         obj->state_3 = 2;
         play_sound_at(obj, obj->side, 0x324);
         obj->vel_x = 0x90000;

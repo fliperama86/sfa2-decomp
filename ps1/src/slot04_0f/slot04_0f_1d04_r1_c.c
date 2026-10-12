@@ -18,31 +18,31 @@ void func_801b2504_slot04_0f(Object *o) {
         o->state_3 = o->state_3 + 1;
         p = pop_object_from_pool(o);
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0xf;
-            p->field_03 = 0;
-            p->field_66 = o->field_66;
-            p->field_65 = o->field_65;
-            p->field_ac = o->field_12a;
-            p->field_ad = 0;
+            p->table_index = 0;
+            p->sound_side = o->sound_side;
+            p->team_id = o->team_id;
+            p->vel_table_index = o->direction_index;
+            p->active_flag_2 = 0;
             p->field_0e = o->field_0e;
-            p->field_0b = o->field_0b;
+            p->facing_side = o->facing_side;
             p->field_0c = o->field_0c;
-            p->field_26 = o->field_26;
+            p->scroll_factor = o->scroll_factor;
             *(s32 *)&p->pos_x_frac = *(s32 *)&o->pos_x_frac;
             y = *(s32 *)&o->pos_y_frac;
             p->spawn_x = 0x60;
             p->health = 0;
-            p->field_3c = o;
+            p->parent = o;
             p->spawn_y = 0x1e0;
             *(s32 *)&p->pos_y_frac = y;
-            p->field_0d = o->field_0d;
+            p->image_row = o->image_row;
             p->field_90 = o->field_90;
-            p->field_98 = o->field_98;
-            p->field_9c = o->field_9c;
-            o->field_14c = (s32)p;
+            p->data_ptr_a = o->data_ptr_a;
+            p->data_ptr_b = o->data_ptr_b;
+            o->linked_object_3 = (s32)p;
             obj->field_47 = 5;
-            o->field_240++;
+            o->link_flags++;
         }
         play_side_sound_at(o, o->side, 0x10);
     }
@@ -59,7 +59,7 @@ void func_801b2644_slot04_0f(Object *o) {
             if (obj->field_47 != 0) {
                 goto tail;
             }
-            o->field_17b = 0;
+            o->active_flag_4 = 0;
         }
         func_80142adc(o);
     tail:

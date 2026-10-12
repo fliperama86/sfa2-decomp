@@ -9,18 +9,18 @@ void func_801e8ba8_slot06_01(Slot06Layer *layer) {
 
     i = 0;
     d = layer->field_60;
-    d -= *(s32 *)&((Slot06Layer *)data_801aa5d4)->field_08;
-    layer->field_68 = 0;
-    layer->field_6c = 0;
+    d -= *(s32 *)&((Slot06Layer *)data_801aa5d4)->bound_x_a;
+    layer->neg_accum = 0;
+    layer->pos_accum = 0;
     d >>= 7;
-    layer->field_74 = d;
+    layer->computed_value = d;
     do {
-        layer->field_6c += d;
+        layer->pos_accum += d;
         i++;
     } while (i < 0x28);
     i = 0;
     do {
-        layer->field_68 -= d;
+        layer->neg_accum -= d;
         i++;
     } while (i < 0x10);
 }

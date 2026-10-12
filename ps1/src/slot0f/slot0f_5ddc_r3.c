@@ -18,27 +18,27 @@ void func_800e6078_slot0f(Object *obj) {
     obj->accel_y = -0x5000;
     obj->vel_x = 0xfffa8000;
     obj->state_0++;
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     rec = table_8016e614;
-    if (obj->field_03 == 0) {
+    if (obj->table_index == 0) {
         rec = table_8016e5c4;
     }
     obj->spawn_x = 0x60;
     obj->spawn_y = 0x1f0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_60 = 0;
-    obj->field_60 = rec->field_08;
-    obj->field_61 = rec->field_09;
+    obj->field_60 = rec->level;
+    obj->hit_type = rec->frame_param;
     obj->field_0c = 0xff;
-    obj->field_98 = data_800ef978_slot0f[obj->field_60 * 2];
-    obj->field_9c = data_800ef978_slot0f[obj->field_60 * 2 + 1];
+    obj->data_ptr_a = data_800ef978_slot0f[obj->field_60 * 2];
+    obj->data_ptr_b = data_800ef978_slot0f[obj->field_60 * 2 + 1];
     func_800e61c4_slot0f(obj);
     if (game_state.config->field_01 == 0) {
         obj->pos_x += 0x10e;
         obj->pos_y += 0x40;
     } else {
         obj->state_1 = 7;
-        obj->field_46 = 10;
+        obj->countdown = 10;
         func_800e6410_slot0f(obj, 0);
     }
 }

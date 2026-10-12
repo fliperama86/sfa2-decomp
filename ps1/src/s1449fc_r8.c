@@ -23,12 +23,12 @@ void func_80145c40(Object *object) {
 
 void func_80145c7c(Object *object) {
     int v;
-    int old = object->field_46;
-    object->field_46 = old - 1;
+    int old = object->countdown;
+    object->countdown = old - 1;
     if ((s16)old < 0) {
         v = -1;
-        object->field_46 = v;
-        if (object->vel_y != (object->field_3c->state_0 << 24) + (object->field_3c->state_1 << 16) + (object->field_3c->state_2 << 8)) {
+        object->countdown = v;
+        if (object->vel_y != (object->parent->state_0 << 24) + (object->parent->state_1 << 16) + (object->parent->state_2 << 8)) {
             object->state_0++;
         }
         func_8011ffdc(object);

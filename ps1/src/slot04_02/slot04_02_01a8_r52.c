@@ -13,5 +13,5 @@ void func_801b631c_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d) {
 }
 
 void func_801b6334_slot04_02(Object *obj) {
-    data_801c6594_slot04_02[obj->field_128 >> 1](obj);
+    data_801c6594_slot04_02[obj->input_dir_0 >> 1](obj);
 }

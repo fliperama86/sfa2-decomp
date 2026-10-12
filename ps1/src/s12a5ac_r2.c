@@ -17,10 +17,10 @@ void func_8012a91c(Object *object) {
     }
     object->state_3 = object->state_3 + 1;
     object->field_157 = 0;
-    object->field_45 = 1;
-    if (object->field_48 == 1) {
+    object->active_state = 1;
+    if (object->variant_index == 1) {
         index = 0x13;
-    } else if (object->field_48 & 0x80) {
+    } else if (object->variant_index & 0x80) {
         index = 0x14;
     } else {
         index = 0x12;

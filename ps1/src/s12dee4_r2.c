@@ -22,15 +22,15 @@ void func_8012e04c(Object *object) {
         value = -0x60000;
         object->field_60 = 2;
         object->state_3 = 7;
-        object->field_46 = 4;
-        object->field_45 = 0;
-        object->field_166 = 1;
+        object->countdown = 4;
+        object->active_state = 0;
+        object->flag_166_set = 1;
         object->pos_y = (u16)object->ground_y;
         if (object->vel_x >= 0) {
             a1 = 0;
             value = 0x60000;
         }
-        object->field_0b = a1;
+        object->facing_side = a1;
         object->vel_x = value;
         func_801308c4(object, 0x1f);
     }

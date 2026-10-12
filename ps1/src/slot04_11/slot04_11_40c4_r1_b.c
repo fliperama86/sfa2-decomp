@@ -12,7 +12,7 @@ void func_801b45a8_slot04_11(Object *obj) {
     if (obj->pos_y >= obj->ground_y) {
         obj->state_3 = 4;
         obj->pos_y_frac = 0;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x4c);

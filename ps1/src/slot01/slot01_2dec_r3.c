@@ -12,19 +12,19 @@ void func_800130a8_slot01(Object *obj) {
     obj->field_01 = 1;
     obj->field_0e = 1;
     obj->ot_depth = 0;
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     obj->field_0c = 0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->field_0f = 0;
-    obj->field_26 = 0;
+    obj->scroll_factor = 0;
     obj->field_0a = 1;
     obj->state_0++;
     obj->pos_x = box_margin[0];
     obj->pos_y = 0x2c;
     obj->field_90 = (void *)0x80059000;
-    obj->field_98 = data_80019330_slot01;
-    obj->field_9c = data_800195b8_slot01;
-    func_80130768(obj, obj->field_03, data_800242a8_slot01);
+    obj->data_ptr_a = data_80019330_slot01;
+    obj->data_ptr_b = data_800195b8_slot01;
+    func_80130768(obj, obj->table_index, data_800242a8_slot01);
     data_80055eb2_slot01[0] = 0x19d;
     data_80055eb2_slot01[2] = 0x20;
 }

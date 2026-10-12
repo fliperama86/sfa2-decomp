@@ -5,8 +5,8 @@
 
 
 void func_8011a55c(Object *o) {
-    int i = o->field_03;
-    int j = o->field_3c->side;
+    int i = o->table_index;
+    int j = o->parent->side;
     data_80185c84[j][i][0] = 0;
     data_80185cc4[j][i][0] = 0;
     data_80185ce4[j][i][0] = 0;

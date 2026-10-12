@@ -5,13 +5,13 @@
 
 void func_800244dc_slot28(Object *o) {
     Slot28Obj *obj;
-    ((Slot28Obj *)o)->field_47--;
+    ((Slot28Obj *)o)->timer_reload--;
     obj = (Slot28Obj *)o;
-    if (obj->field_47 == 0) {
-        obj->field_05 += 1;
+    if (obj->timer_reload == 0) {
+        obj->count += 1;
     }
-    obj->field_10 += obj->field_4c;
-    obj->field_4c += obj->field_54;
-    obj->field_14 -= obj->field_50;
-    obj->field_50 += obj->field_58;
+    obj->pos_x += obj->delta_x;
+    obj->delta_x += obj->delta_x_step;
+    obj->pos_y -= obj->delta_y;
+    obj->delta_y += obj->field_58;
 }

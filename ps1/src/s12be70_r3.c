@@ -8,8 +8,8 @@ void func_8012c6a4(Object *object) {
     u16 base;
     int step;
     object->field_60 = 0;
-    object->field_46 = 0;
-    object->field_0b = object->field_158;
+    object->countdown = 0;
+    object->facing_side = object->saved_facing;
     base = 7;
     if (object->field_157 == 0) base = 4;
     step = object->field_62;
@@ -24,11 +24,11 @@ void func_8012c72c(Object *object) {
     u16 base;
     int step;
     object->field_60 = 0;
-    object->field_46 = 0;
+    object->countdown = 0;
     object->field_157 = 0;
-    object->field_0b = object->field_158;
+    object->facing_side = object->saved_facing;
     base = 1;
-    if (object->field_61 == 0x18) base = 4;
+    if (object->hit_type == 0x18) base = 4;
     step = object->field_62;
     if (step >= 2) step = 2;
     base += step;

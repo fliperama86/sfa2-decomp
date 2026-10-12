@@ -14,10 +14,10 @@ void func_8001a9e8_slot28(void);
 
 void func_8001a4e0_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
-    int t = h->field_60 - 1;
-    h->field_60 = t;
+    int t = h->countdown_timer - 1;
+    h->countdown_timer = t;
     if ((s16)t == 0) {
-        h->field_52 = h->field_52 + 1;
+        h->pass_index = h->pass_index + 1;
         func_801282d4();
     }
 }
@@ -26,8 +26,8 @@ void func_8001a530_slot28(Object *obj) {
     Object *p;
     if (obj->field_f0 == 0) {
         HudState *h = data_8018f5a0;
-        h->field_60 = 0x1e0;
-        h->field_52 = h->field_52 + 1;
+        h->countdown_timer = 0x1e0;
+        h->pass_index = h->pass_index + 1;
         func_8001a9e8_slot28();
         func_80130768(data_800519c0_slot28.p, 0, data_80036694_slot28);
         p = data_800519c4_slot28[0];
@@ -37,10 +37,10 @@ void func_8001a530_slot28(Object *obj) {
             func_8001a988_slot28(p);
             p->pos_x = 0xd0;
             p->pos_y = 0x70;
-            p->field_46 = 0x40;
+            p->countdown = 0x40;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
-            p->field_0d = 0;
+            p->image_row = 0;
             p->ot_depth = 3;
             func_80130768(p, 4, data_800366a8_slot28);
             data_80051998_slot28[0] = p;

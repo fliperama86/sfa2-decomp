@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void func_80152700(Object *object) {
-    if (game_state.field_6a != 0) {
+    if (game_state.gate_flag != 0) {
         object->state_0++;
     } else {
         table_801802c0[object->state_1](object);

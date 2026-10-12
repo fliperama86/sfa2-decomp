@@ -22,8 +22,8 @@ void func_80128c80(Object *object) {
             magnitude = -delta;
         }
         if ((s16)(magnitude + 0x18) > 0x30) {
-            object->field_158 = 0;
-            if (negative) object->field_158 = 1;
+            object->saved_facing = 0;
+            if (negative) object->saved_facing = 1;
         }
     }
 }
@@ -47,14 +47,14 @@ void func_80128da4(Object *a, Object *b) {
         int extent = box->extent;
         x = box->origin;
         y = -extent;
-        if (a->field_158 != 1) {
+        if (a->saved_facing != 1) {
             x = -x;
             y = extent;
         }
     }
     y = a->pos_x - (b->pos_x + x + y);
     if (y < 0) y = -y;
-    a->field_21e = y;
+    a->compare_limit = y;
 }
 
 void func_80128e1c(void) {
@@ -76,17 +76,17 @@ void func_80128eb4(void) {
 }
 
 void func_80128edc(Object *object) {
-    if (object->field_249) object->field_249--;
-    if (object->field_cd == 0) {
-        if (game_state.field_30 != 0 && data_801a6984[0] != 0 &&
+    if (object->other_state_code) object->other_state_code--;
+    if (object->mode_flag_2 == 0) {
+        if (game_state.versus_flag != 0 && data_801a6984[0] != 0 &&
             game_state.mode == object->side + 1)
             func_80131c7c(object);
         func_80131854(object);
         func_8013172c(object);
     }
-    if (object->field_15d) {
-        object->field_15d--;
-        if (object->field_15d == 0) object->field_15e = 0;
+    if (object->countdown_timer_2) {
+        object->countdown_timer_2--;
+        if (object->countdown_timer_2 == 0) object->accum_count = 0;
     }
     func_80128fc4(object);
 }

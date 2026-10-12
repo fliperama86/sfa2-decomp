@@ -7,22 +7,22 @@
    is unsigned, so each read says so. */
 
 void func_80129468(Object *object) {
-    if (game_state.field_30 != 0 && game_state.mode == object->side + 1) {
-        if (*(s8 *)&data_801a6989 == 0 && object->field_165 == 0 && object->state_2 != 8 && object->field_7e == 0 && (s16)object->field_c6 < 0x30) {
-            object->field_c6 = (s16)object->field_c6 + 1;
+    if (game_state.versus_flag != 0 && game_state.mode == object->side + 1) {
+        if (*(s8 *)&data_801a6989 == 0 && object->field_165 == 0 && object->state_2 != 8 && object->field_7e == 0 && (s16)object->meter < 0x30) {
+            object->meter = (s16)object->meter + 1;
         }
-        if (*(s8 *)&data_801a6989 == 1 && object->field_165 == 0 && object->state_2 != 8 && object->field_7e == 0 && (s16)object->field_c6 < 0x60) {
-            object->field_c6 = (s16)object->field_c6 + 1;
+        if (*(s8 *)&data_801a6989 == 1 && object->field_165 == 0 && object->state_2 != 8 && object->field_7e == 0 && (s16)object->meter < 0x60) {
+            object->meter = (s16)object->meter + 1;
         }
-        if (*(s8 *)&data_801a6989 == 2 && object->field_165 == 0 && object->state_2 != 8 && object->field_7e == 0 && (s16)object->field_c6 < 0x90) {
-            object->field_c6 = (s16)object->field_c6 + 1;
+        if (*(s8 *)&data_801a6989 == 2 && object->field_165 == 0 && object->state_2 != 8 && object->field_7e == 0 && (s16)object->meter < 0x90) {
+            object->meter = (s16)object->meter + 1;
         }
     }
-    if (object->field_cd != 0) {
+    if (object->mode_flag_2 != 0) {
         if ((u8)func_8014e0b4(object)) {
             func_8014e3d0(object);
         }
-    } else if (game_state.field_30 == 0 || game_state.mode == object->side + 1) {
+    } else if (game_state.versus_flag == 0 || game_state.mode == object->side + 1) {
         func_8013060c(object);
         func_8012dd5c(object);
     }

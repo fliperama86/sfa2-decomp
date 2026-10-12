@@ -7,17 +7,17 @@ extern Slot04_08Rec3cb8 *data_801c3cb8_slot04_08[];
 extern u16 data_801c3cc4_slot04_08[];
 
 void func_801b25a8_slot04_08(Object *obj) {
-    Slot04_08Rec3cb8 *t = data_801c3cb8_slot04_08[obj->field_12a >> 1];
-    int a = t[((Slot04aObj *)obj)->field_1c6].a;
+    Slot04_08Rec3cb8 *t = data_801c3cb8_slot04_08[obj->direction_index >> 1];
+    int a = t[((Slot04aObj *)obj)->step_index].a;
 
     if (a < 0) {
         obj->state_3++;
     } else {
         obj->state_3 = 3;
-        if (t[((Slot04aObj *)obj)->field_1c6].b != 0) {
-            obj->field_0b ^= 1;
+        if (t[((Slot04aObj *)obj)->step_index].b != 0) {
+            obj->facing_side ^= 1;
         }
-        ((Slot04aObj *)obj)->field_1c6++;
+        ((Slot04aObj *)obj)->step_index++;
         func_801307e0(obj, a);
     }
 }
@@ -29,12 +29,12 @@ void func_801b2650_slot04_08(Object *obj) {
 
     if ((t & 0xff) != 0) {
         obj->step_flags = t & m;
-        game_state.field_63 = 0x18;
+        game_state.state_param = 0x18;
         func_80146960(obj);
         play_sound_at(obj, ((Slot04aObj *)obj)->side, 0x319);
-        func_80140cd8(obj, (s16)(data_801c3cc4_slot04_08[(s16)(obj->field_12a * 2 + (((Slot04aObj *)obj)->field_1c6 + 0xffff))] | m), 0);
+        func_80140cd8(obj, (s16)(data_801c3cc4_slot04_08[(s16)(obj->direction_index * 2 + (((Slot04aObj *)obj)->step_index + 0xffff))] | m), 0);
         obj->state_3++;
-        obj->field_46 = 0x10;
+        obj->countdown = 0x10;
     }
     update_sequence(obj);
 }

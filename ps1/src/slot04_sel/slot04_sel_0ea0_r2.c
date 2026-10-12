@@ -20,19 +20,19 @@ void func_801b10d0_slot04_sel(Object *obj, Slot04SelRec *rec) {
     TextBuf *s3 = data_801b7618_slot04_sel[obj->side];
     TextItem *s2 = data_801b749c_slot04_sel[obj->side];
 
-    if (rec->field_09 == 0) {
-        if ((game_state.field_07 >> obj->side) & 1) {
-            data_801b9ce8_slot04_sel = rec->field_08;
-            data_801b9cec_slot04_sel = rec->field_09;
+    if (rec->confirm_mask == 0) {
+        if ((game_state.side_mask >> obj->side) & 1) {
+            data_801b9ce8_slot04_sel = rec->cursor_index;
+            data_801b9cec_slot04_sel = rec->confirm_mask;
             func_801b1a8c_slot04_sel(obj, rec, 1);
-            rec->field_08 = data_801b9ce8_slot04_sel;
-            rec->field_09 = data_801b9cec_slot04_sel;
-            s2->field_04 = data_801b6e7c_slot04_sel[obj->side];
-            s2->field_06 = s3->field_09 * (data_801b9ce8_slot04_sel + 1) + 0x60;
+            rec->cursor_index = data_801b9ce8_slot04_sel;
+            rec->confirm_mask = data_801b9cec_slot04_sel;
+            s2->x = data_801b6e7c_slot04_sel[obj->side];
+            s2->y = s3->row_height * (data_801b9ce8_slot04_sel + 1) + 0x60;
             func_801519b4(s3);
             func_801519b4(s2);
             func_801519b4(data_801b7504_slot04_sel[obj->side]);
-            if (rec->field_09 != 0) {
+            if (rec->confirm_mask != 0) {
                 data_8016e694[obj->side] = data_801b9ce8_slot04_sel;
                 func_801205c4(obj->side, 1);
                 s3->buf[data_801b7348_slot04_sel[0]] = 0x1b;

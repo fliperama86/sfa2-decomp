@@ -12,5 +12,5 @@ void func_80013834_slot28(Object *obj) {
 }
 
 void func_80013854_slot28(Object *obj) {
-    data_800289d4_slot28[data_8018f5a0->field_4e](obj);
+    data_800289d4_slot28[data_8018f5a0->substep_index](obj);
 }

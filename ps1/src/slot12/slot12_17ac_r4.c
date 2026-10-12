@@ -7,9 +7,9 @@ extern u8 data_80022de8_slot12[];
 
 void func_800119f8_slot12(Object *obj) {
     int n;
-    obj->pos_y += (s8)data_80022de8_slot12[(s16)obj->field_46];
-    n = obj->field_46 - 1;
-    obj->field_46 = n;
+    obj->pos_y += (s8)data_80022de8_slot12[(s16)obj->countdown];
+    n = obj->countdown - 1;
+    obj->countdown = n;
     if ((s16)n < 0) {
         obj->state_1++;
     }

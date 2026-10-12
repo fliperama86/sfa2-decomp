@@ -18,40 +18,40 @@ void func_80077808_slot00(Object *obj) {
     u8 t;
     u32 n;
     int v;
-    obj->field_00 = 2;
-    obj->field_74 = 1;
+    obj->active_count = 2;
+    obj->mode_flag = 1;
     n = obj->frame->active;
-    p = obj->field_3c;
+    p = obj->parent;
     if (n == 0) {
-        obj->field_74 = 0xff;
+        obj->mode_flag = 0xff;
         obj->field_60 = 0;
     } else {
         n <<= 5;
-        t = ((Box32 *)((u8 *)obj->box_tables->boxes_b + n))->field_12;
+        t = ((Box32 *)((u8 *)obj->box_tables->boxes_b + n))->hit_flags;
         if (obj->field_60 != t) {
-            obj->field_00 = 1;
-            if (obj->field_67 != 0) {
-                obj->field_00 = 2;
-                obj->field_67 = 0;
+            obj->active_count = 1;
+            if (obj->active_flag != 0) {
+                obj->active_count = 2;
+                obj->active_flag = 0;
                 obj->field_60 = t;
             }
         }
     }
-    if (game_state.field_4d == 0 && game_state.field_47 == 0 && p->field_7e == 0 && --((Slot00Obj *)obj)->field_a4 >= 0 && p->field_27a == 0) {
-        obj->field_46 = (s16)obj->field_46 - 1;
-        if ((s16)obj->field_46 < 0) {
+    if (game_state.field_4d == 0 && game_state.pause_flag_2 == 0 && p->field_7e == 0 && --((Slot00Obj *)obj)->countdown >= 0 && p->field_27a == 0) {
+        obj->countdown = (s16)obj->countdown - 1;
+        if ((s16)obj->countdown < 0) {
             u32 i;
             u32 k;
             LogRec *rec;
             v = ((Slot00Obj *)obj)->field_50;
             k = (v + 1) & 7;
-            i = obj->field_66;
+            i = obj->sound_side;
             obj->vel_y = k;
-            obj->field_46 = 0;
-            obj->field_0d = p->field_0d + data_8007a010_slot00[k];
-            v = (table_801aa4d8[i] - obj->field_03 * 8) & 0x1f;
+            obj->countdown = 0;
+            obj->image_row = p->image_row + data_8007a010_slot00[k];
+            v = (table_801aa4d8[i] - obj->table_index * 8) & 0x1f;
             rec = &table_801ac318[i][v];
-            obj->field_0b = rec->b;
+            obj->facing_side = rec->b;
             obj->frame = obj->frames + *(u16 *)&rec->c;
             obj->pos_x = rec->d;
             obj->pos_y = rec->e;
@@ -62,12 +62,12 @@ void func_80077808_slot00(Object *obj) {
             }
         }
     } else {
-        obj->field_00 = 2;
+        obj->active_count = 2;
         obj->state_0 = 2;
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        obj->field_74 = 0;
-        obj->field_0d = ((Slot00Obj *)obj)->field_54;
+        obj->mode_flag = 0;
+        obj->image_row = ((Slot00Obj *)obj)->field_54;
     }
 }

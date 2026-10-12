@@ -11,7 +11,7 @@ extern ObjectFn data_801c5550_slot04_06[];
 extern ObjectFn data_801c555c_slot04_06[];
 
 void func_801b521c_slot04_06(Object *obj) {
-    if (obj->field_128 != 0) {
+    if (obj->input_dir_0 != 0) {
         func_801b56dc_slot04_06(obj);
     } else {
         func_801b525c_slot04_06(obj);
@@ -20,7 +20,7 @@ void func_801b521c_slot04_06(Object *obj) {
 
 void func_801b525c_slot04_06(Object *obj) {
     obj->field_157 = 0;
-    if (obj->field_129 != 0) {
+    if (obj->input_dir_second != 0) {
         func_801b5414_slot04_06(obj);
     } else {
         func_801b529c_slot04_06(obj);
@@ -28,7 +28,7 @@ void func_801b525c_slot04_06(Object *obj) {
 }
 
 void func_801b529c_slot04_06(Object *obj) {
-    data_801c5550_slot04_06[obj->field_12a >> 1](obj);
+    data_801c5550_slot04_06[obj->direction_index >> 1](obj);
 }
 
 void func_801b52e0_slot04_06(Object *obj) {

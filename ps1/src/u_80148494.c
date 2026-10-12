@@ -12,29 +12,29 @@ void func_80148494(Object *object, int a_arg, int b_arg)
   Object *new_object;
   u16 side;
   Object *new_var;
-  for (i = 0; i <= (object->field_12a >> 1); i++)
+  for (i = 0; i <= (object->direction_index >> 1); i++)
   {
     new_object = (Object *)func_8011f1e0();
     if (new_object != 0)
     {
-      new_object->field_00 = 1;
+      new_object->active_count = 1;
       new_object->field_02 = 7;
-      new_object->field_03 = object->field_12a >> 1;
+      new_object->table_index = object->direction_index >> 1;
       new_object->field_0c = 0;
-      new_object->field_0d = 0;
-      new_object->field_45 = 0xff;
-      new_object->field_48 = i;
+      new_object->image_row = 0;
+      new_object->active_state = 0xff;
+      new_object->variant_index = i;
       new_var = new_object;
       new_var->field_0e = object->field_0e;
       side = object->field_1c;
-      new_var->field_3c = object;
+      new_var->parent = object;
       new_var->spawn_x = 0x60;
       new_var->spawn_y = 0x1e0;
-      new_var->field_98 = data_80172a48;
+      new_var->data_ptr_a = data_80172a48;
       new_var->health = a;
-      new_var->field_5e = b;
+      new_var->y_offset = b;
       new_var->field_90 = (void *) 0x800fb100;
-      new_var->field_9c = data_80173c9c;
+      new_var->data_ptr_b = data_80173c9c;
       new_var->field_1c = side;
     }
   }

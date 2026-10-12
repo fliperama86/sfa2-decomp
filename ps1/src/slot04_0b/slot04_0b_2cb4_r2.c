@@ -20,7 +20,7 @@ void func_801b2ef0_slot04_0b(Object *obj) {
         play_side_sound_at(obj, obj->side, 4);
     }
     if (*(u8 *)&obj->step_flags == 0) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
     }
     update_sequence(obj);

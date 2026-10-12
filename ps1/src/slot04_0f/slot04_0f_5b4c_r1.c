@@ -17,41 +17,41 @@ void func_801b5b4c_slot04_0f(Object *obj) {
     int dx;
     int dy;
 
-    if (((game_state.config->field_33 + data_80190458.p->side) & 3) == 0) {
+    if (((game_state.config->side_offset + data_80190458.p->side) & 3) == 0) {
         t = obj->step_flags;
         a = -3;
         if ((t & 0xff) != 0) {
             if (t & 0x80) {
                 a = 3;
             }
-            obj->field_48 = (obj->field_48 + a) & 0x3f;
+            obj->variant_index = (obj->variant_index + a) & 0x3f;
             p = (Object *)func_8011f1e0();
             if (p != 0) {
-                p->field_00 = 1;
+                p->active_count = 1;
                 p->field_02 = 0x25;
-                p->field_3c = data_80190458.p;
+                p->parent = data_80190458.p;
                 p->field_0c = data_80190458.p->field_0c;
                 p->spawn_x = 0x60;
                 p->spawn_y = 0x1e0;
-                p->field_0d = obj->field_0d;
+                p->image_row = obj->image_row;
                 p->field_90 = data_80190458.p->field_90;
-                p->field_98 = data_80190458.p->field_98;
-                p->field_9c = data_80190458.p->field_9c;
-                p->field_08 = 0x20;
+                p->data_ptr_a = data_80190458.p->data_ptr_a;
+                p->data_ptr_b = data_80190458.p->data_ptr_b;
+                p->mode_id = 0x20;
                 p->field_02 = 4;
-                p->field_66 = obj->field_66;
+                p->sound_side = obj->sound_side;
                 p->field_0e = data_80190458.p->field_0e;
                 p->pos_x = data_80190458.p->pos_x;
                 p->pos_y = data_80190458.p->pos_y - 0x3a;
                 a = 0x28;
-                if (data_80190458.p->field_0b == 0) {
+                if (data_80190458.p->facing_side == 0) {
                     a = -0x28;
                 }
                 p->pos_x += a;
                 p->ot_depth = 6;
                 p->field_1c = data_80190458.p->field_1c;
-                p->field_0b = data_80190458.p->field_0b;
-                a = obj->field_48 & 0x1f;
+                p->facing_side = data_80190458.p->facing_side;
+                a = obj->variant_index & 0x1f;
                 y = data_801c6194_slot04_0f[a].b;
                 x = data_801c6194_slot04_0f[a].a;
                 y = -y;
@@ -59,7 +59,7 @@ void func_801b5b4c_slot04_0f(Object *obj) {
                 y <<= 8;
                 dx = x << 3;
                 dy = y << 4;
-                if (data_80190458.p->field_0b == 0) {
+                if (data_80190458.p->facing_side == 0) {
                     x = -x;
                     dx = -dx;
                 }

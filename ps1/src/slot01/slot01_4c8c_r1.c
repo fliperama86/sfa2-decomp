@@ -14,19 +14,19 @@ void func_80014c8c_slot01(Object *o) {
     Rect rect;
 
     o->vel_y = 0x80093000;
-    o->field_1e = 0x5800;
+    o->cycle_value = 0x5800;
     o->accel_y = 0x400;
     *(u32 *)&o->health = 0x100;
     o->state_0++;
-    obj->field_14 = 0;
+    obj->pos_y = 0;
     obj->ot_index = 0x10;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 0x118; j++) {
             r = &data_80033bb4_slot01[i][j];
             func_80014dd0_slot01((Tx *)r);
-            r->field_10 = 0x80;
-            r->field_11 = 0x80;
-            r->field_12 = 0x80;
+            r->color_r = 0x80;
+            r->color_g = 0x80;
+            r->color_b = 0x80;
         }
     }
     rect.x = 0;
@@ -44,7 +44,7 @@ void func_80014c8c_slot01(Object *o) {
 
 void func_80014dd0_slot01(Tx *tx) {
     func_80158a2c((Prim *)tx, 0, 0, 0, 0);
-    tx->field_0f = 3;
-    tx->field_13 = 0x74;
-    func_8015c23c(tx, &tx->field_0c);
+    tx->mode_id = 3;
+    tx->prim_code = 0x74;
+    func_8015c23c(tx, &tx->prim_data);
 }

@@ -10,9 +10,9 @@ void func_801b452c_slot04_02(Object *obj) {
 
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3++;
-        k = obj->field_12a << 1;
+        k = obj->direction_index << 1;
         obj->step_flags = obj->step_flags & 0xff00;
         obj->vel_x = data_801c64b8_slot04_02[(u8)k];
         obj->accel_x = data_801c64b8_slot04_02[(u8)(k | 1)];

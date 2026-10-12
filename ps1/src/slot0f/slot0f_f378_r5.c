@@ -23,26 +23,26 @@ void func_800df8f0_slot0f(GameState *state) {
 }
 
 void func_800df910_slot0f(GameState *state) {
-    data_800e83e0_slot0f[data_8018f5a0->field_4a](state);
+    data_800e83e0_slot0f[data_8018f5a0->phase_index](state);
 }
 
 void func_800df958_slot0f(GameState *state) {
-    data_8018f5a0->field_4a++;
-    state->field_c2 = 300;
+    data_8018f5a0->phase_index++;
+    state->step_counter = 300;
     func_800e483c_slot0f();
 }
 
 void func_800df994_slot0f(GameState *state) {
-    int t = state->field_c2 - 1;
-    state->field_c2 = t;
+    int t = state->step_counter - 1;
+    state->step_counter = t;
     if ((s16)t == 0) {
-        data_8018f5a0->field_4a = 0;
-        data_8018f5a0->field_48++;
+        data_8018f5a0->phase_index = 0;
+        data_8018f5a0->state_index++;
     }
     func_800e4988_slot0f();
 }
 
 void func_800df9ec_slot0f(GameState *state) {
     scratch_word_10 = 0;
-    data_8018f5a0->field_48 = 0;
+    data_8018f5a0->state_index = 0;
 }

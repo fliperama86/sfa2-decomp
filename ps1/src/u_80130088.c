@@ -11,10 +11,10 @@ void func_80130088(Object *object)
   u16 index;
   s32 a;
   s32 b;
-  b = object->field_cd == 0;
+  b = object->mode_flag_2 == 0;
   if (b)
   {
-    b = object->field_130 & 0xa000;
+    b = object->input_bits_2 & 0xa000;
     index = 0;
     if (b != 0)
     {
@@ -31,9 +31,9 @@ void func_80130088(Object *object)
   else
   {
     index = 0;
-    if (object->field_21a != 0)
+    if (object->direction_flag != 0)
     {
-      if (!(object->field_21a & 0x80))
+      if (!(object->direction_flag & 0x80))
       {
         index = 2;
       }
@@ -47,7 +47,7 @@ void func_80130088(Object *object)
   object->accel_y = motion_table[object->kind][index][3];
   b = motion_table[object->kind][index][2];
   a = motion_table[object->kind][index][0];
-  if (object->field_0b != 0)
+  if (object->facing_side != 0)
   {
     a = -a;
     b = -b;

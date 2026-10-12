@@ -8,19 +8,19 @@
  * this C with the original code on random inputs of the contract below.
  *
  * What it does (inferred, not an original name): a state entry of a
- * character. It sets field_17b and state_3 to 1, clears field_12c to
- * field_12f, spends 9 points (func_80141f28), calls func_80138ae8 with the
+ * character. It sets active_flag_4 and state_3 to 1, clears substate_index to
+ * step_limit, spends 9 points (func_80141f28), calls func_80138ae8 with the
  * game state, copies four consecutive words of a table, selected by
- * field_12a, into vel_x, vel_y, accel_x and accel_y, and starts
- * sequence 0x1b (0x61 when field_49 is not 0) plus field_12a / 2.
+ * direction_index, into vel_x, vel_y, accel_x and accel_y, and starts
+ * sequence 0x1b (0x61 when field_49 is not 0) plus direction_index / 2.
  *
  * Contract:
  *   Argument: a0 = pointer to an object. No return value.
- *   Reads: field_12a, field_49; the table data_801c6288_slot04_14 at word
- *     indexes 2 * field_12a + 0 to 3, each taken modulo 256 (the index is a
+ *   Reads: direction_index, field_49; the table data_801c6288_slot04_14 at word
+ *     indexes 2 * direction_index + 0 to 3, each taken modulo 256 (the index is a
  *     byte); game_state.mode and game_state.field_2f, object.field_cd and the
  *     counter data_80188ec4 through func_80138ae8.
- *   Writes: field_17b = 1, state_3 = 1, field_12c to field_12f = 0, vel_x,
+ *   Writes: active_flag_4 = 1, state_3 = 1, substate_index to step_limit = 0, vel_x,
  *     vel_y, accel_x, accel_y (the four table words), and what the
  *     callees write.
  *   Callees: func_80141f28 (2 arguments) and func_801307e0 (2 arguments) are
@@ -46,15 +46,15 @@ void func_801b1a00_slot04_14(Object *obj) {
     int idx;
     int a;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3 = 1;
-    obj->field_12f = 0;
-    obj->field_12e = 0;
+    obj->step_limit = 0;
+    obj->step_count_2 = 0;
     obj->field_12d = 0;
-    obj->field_12c = 0;
+    obj->substate_index = 0;
     func_80141f28(obj, 9);
     func_80138ae8(&game_state, obj);
-    idx = obj->field_12a * 2;
+    idx = obj->direction_index * 2;
     obj->vel_x = data_801c6288_slot04_14[(u8)idx];
     obj->vel_y = data_801c6288_slot04_14[(u8)(idx | 1)];
     obj->accel_x = data_801c6288_slot04_14[(u8)(idx + 2)];
@@ -63,6 +63,6 @@ void func_801b1a00_slot04_14(Object *obj) {
     if (obj->field_49 != 0) {
         a = 0x61;
     }
-    a += obj->field_12a >> 1;
+    a += obj->direction_index >> 1;
     func_801307e0(obj, a);
 }

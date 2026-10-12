@@ -11,7 +11,7 @@ void func_801b567c_slot04_02(Object *obj) {
         obj->step_flags = t & 0xff00;
         play_sound_at(obj, obj->side, 0x320);
     }
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
@@ -20,8 +20,8 @@ void func_801b567c_slot04_02(Object *obj) {
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->pos_y >= obj->ground_y) {
-        obj->field_45 = 0;
-        obj->field_17b = 0;
+        obj->active_state = 0;
+        obj->active_flag_4 = 0;
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         func_801209c4(obj);

@@ -6,10 +6,10 @@
 void func_80078458_slot00(Object *obj, int index);
 
 void func_80078340_slot00(Object *obj) {
-    obj->field_46 = 0x10;
+    obj->countdown = 0x10;
     obj->vel_y = 0x60;
     obj->accel_y = 0x60;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         obj->vel_x = 0xfff40000;
         obj->accel_x = 0xc000;
         obj->pos_x = obj->pos_x + 0x60;
@@ -22,7 +22,7 @@ void func_80078340_slot00(Object *obj) {
 }
 
 void func_800783c4_slot00(Object *obj) {
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         obj->vel_x = 0xffff0000;
         obj->pos_x = obj->pos_x + 0x38;
     } else {
@@ -42,7 +42,7 @@ void func_80078438_slot00(Object *obj) {
 
 void func_80078458_slot00(Object *obj, int index) {
     SequenceStep **table;
-    if (obj->field_66 == 0) {
+    if (obj->sound_side == 0) {
         table = data_1f8000ac;
     } else {
         table = data_1f80015c;

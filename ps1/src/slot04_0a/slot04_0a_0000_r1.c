@@ -13,8 +13,8 @@ void func_801b0000_slot04_0a(Object *obj) {
     Object *c;
 
     dst = (u32 *)0x1f800100;
-    obj->field_98 = data_801b5174_slot04_0a;
-    obj->field_9c = data_801b6e48_slot04_0a;
+    obj->data_ptr_a = data_801b5174_slot04_0a;
+    obj->data_ptr_b = data_801b6e48_slot04_0a;
     if (obj->side == 0) {
         dst = (u32 *)0x1f800050;
     }
@@ -24,28 +24,28 @@ void func_801b0000_slot04_0a(Object *obj) {
     }
     c = func_8011f32c();
     if (c != 0) {
-        c->field_00 = 1;
+        c->active_count = 1;
         c->field_02 = 0xa;
-        c->field_03 = obj->kind;
-        c->field_3c = obj;
-        obj->field_28 = (u32)c;
+        c->table_index = obj->kind;
+        c->parent = obj;
+        obj->linked_object = (u32)c;
         *(u32 *)&c->pos_x_frac = *(u32 *)&obj->pos_x_frac;
         *(u32 *)&c->pos_y_frac = *(u32 *)&obj->pos_y_frac;
-        c->field_48 = 0xff;
-        c->field_0b = obj->field_0b;
+        c->variant_index = 0xff;
+        c->facing_side = obj->facing_side;
         c->field_0e = obj->field_0e;
         c->field_0c = obj->field_0c;
-        c->field_0d = obj->field_0d;
-        c->field_66 = obj->side;
-        c->field_0d = obj->field_0d;
+        c->image_row = obj->image_row;
+        c->sound_side = obj->side;
+        c->image_row = obj->image_row;
         c->spawn_x = obj->spawn_x;
         c->spawn_y = obj->spawn_y;
         c->field_90 = obj->field_90;
-        c->field_98 = obj->field_98;
-        c->field_9c = obj->field_9c;
+        c->data_ptr_a = obj->data_ptr_a;
+        c->data_ptr_b = obj->data_ptr_b;
     }
-    if (game_state.field_42 == 0) {
-        obj->field_45 = 1;
+    if (game_state.count_index == 0) {
+        obj->active_state = 1;
         obj->pos_y = obj->pos_y - 0x30;
     }
 }

@@ -6,7 +6,7 @@
 void func_8013bd10(void) {
     Object *tmp;
 
-    if (ref_second.p->field_ad != 0 || ref_third.p->field_ad == 0) {
+    if (ref_second.p->active_flag_2 != 0 || ref_third.p->active_flag_2 == 0) {
         tmp = ref_second.p;
         ref_second.p = ref_third.p;
         ref_third.p = tmp;
@@ -15,7 +15,7 @@ void func_8013bd10(void) {
         ref_second.p = ref_third.p;
         ref_third.p = tmp;
     } else {
-        ref_second.p->field_00++;
+        ref_second.p->active_count++;
         ref_second.p->state_0 = 2;
         ref_second.p->state_1 = 0;
         ref_second.p->state_2 = 0;

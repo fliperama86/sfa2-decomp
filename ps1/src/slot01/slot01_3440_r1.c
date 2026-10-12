@@ -13,7 +13,7 @@ void func_80013440_slot01(Object *obj) {
 
     obj->field_01 = 0;
     obj->health = 0;
-    ((Slot01Obj *)obj)->field_5e = -0x1f;
+    ((Slot01Obj *)obj)->min_limit = -0x1f;
     obj->state_0 = obj->state_0 + 1;
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 3; j++) {
@@ -27,7 +27,7 @@ void func_80013440_slot01(Object *obj) {
             a->color_g = 0x80;
             a->color_b = 0x80;
             a->height = 0x20;
-            a->field_0e = func_8015bdd4(0x10, i + 0x1e0);
+            a->clut_or_tpage = func_8015bdd4(0x10, i + 0x1e0);
             a++;
             func_8015c100(b);
             b->pos_x = j << 7;
@@ -39,7 +39,7 @@ void func_80013440_slot01(Object *obj) {
             b->color_g = 0x80;
             b->color_b = 0x80;
             b->height = 0x20;
-            b->field_0e = func_8015bdd4(0x10, i + 0x1e0);
+            b->clut_or_tpage = func_8015bdd4(0x10, i + 0x1e0);
             b++;
         }
     }

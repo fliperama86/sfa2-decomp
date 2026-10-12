@@ -7,7 +7,7 @@ extern ObjectFn table_80022e08_slot12[];
 void func_80012e2c_slot12(Object *obj);
 
 void func_80011d08_slot12(Object *obj) {
-    if (obj->field_03 & 0x80) {
+    if (obj->table_index & 0x80) {
         func_80012e2c_slot12(obj);
     } else {
         table_80022e08_slot12[obj->state_0](obj);

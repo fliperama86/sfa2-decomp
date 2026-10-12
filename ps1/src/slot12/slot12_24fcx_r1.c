@@ -6,7 +6,7 @@
 extern Slot12Tiles *data_80018d80_slot12[];
 extern SlotCell data_80029350_slot12[];
 
-/* The read of field_05 into t stands before the test of field_64: written after that test, this function differs from the original in 13 instruction slots. */
+/* The read of value_b into t stands before the test of field_64: written after that test, this function differs from the original in 13 instruction slots. */
 void func_800124fc_slot12(Object *obj, FrameRecord *frames) {
     FrameRecord *f = &frames[obj->sequence->frame_index];
     int t;
@@ -33,7 +33,7 @@ void func_800124fc_slot12(Object *obj, FrameRecord *frames) {
     u16 h;
     u16 *list;
 
-    t = f->field_05;
+    t = f->value_b;
     if (game_state.field_64 != 0) {
         return;
     }
@@ -54,13 +54,13 @@ void func_800124fc_slot12(Object *obj, FrameRecord *frames) {
     xb = xmax - 0x10;
     xa = xmin + 0x10;
     fp = data_80029350_slot12 + data_801a27d0 * 0x34 + obj->field_02 * 26;
-    d = tile->field_06 - 0xc8;
+    d = tile->tile_value - 0xc8;
     y = data_801aa5ea[0] - d;
     list = (u16 *)(tile + 1);
     ytop0 = y - 0x20;
     ybot0 = y - 0x10;
     arg = (int)(data_801987c8 + 0x48);
-    flip = obj->field_0b;
+    flip = obj->facing_side;
     for (row = 0; row < h; row++) {
         for (col = 0; col < w; col++) {
             v = list[idx++];
@@ -68,42 +68,42 @@ void func_800124fc_slot12(Object *obj, FrameRecord *frames) {
                 tx = v & 0xf;
                 ty = (v & 0xf0) >> 4;
                 if (!(v & 0x8000)) {
-                    fp->field_0c = tx << 4;
-                    fp->field_0d = ty << 4;
-                    fp->field_15 = ty << 4;
-                    fp->field_14 = (tx << 4) + 0xf;
-                    fp->field_1c = tx << 4;
-                    fp->field_1d = (ty << 4) + 0xf;
-                    fp->field_24 = (tx << 4) + 0xf;
-                    fp->field_25 = (ty << 4) + 0xf;
+                    fp->tex0_u = tx << 4;
+                    fp->tex0_v = ty << 4;
+                    fp->tex1_v = ty << 4;
+                    fp->tex1_u = (tx << 4) + 0xf;
+                    fp->tex2_u = tx << 4;
+                    fp->tex2_v = (ty << 4) + 0xf;
+                    fp->tex3_u = (tx << 4) + 0xf;
+                    fp->tex3_v = (ty << 4) + 0xf;
                 } else {
-                    fp->field_0c = (tx << 4) + 0xf;
-                    fp->field_0d = ty << 4;
-                    fp->field_15 = ty << 4;
-                    fp->field_14 = tx << 4;
-                    fp->field_1c = (tx << 4) + 0xf;
-                    fp->field_1d = (ty << 4) + 0xf;
-                    fp->field_24 = tx << 4;
-                    fp->field_25 = (ty << 4) + 0xf;
+                    fp->tex0_u = (tx << 4) + 0xf;
+                    fp->tex0_v = ty << 4;
+                    fp->tex1_v = ty << 4;
+                    fp->tex1_u = tx << 4;
+                    fp->tex2_u = (tx << 4) + 0xf;
+                    fp->tex2_v = (ty << 4) + 0xf;
+                    fp->tex3_u = tx << 4;
+                    fp->tex3_v = (ty << 4) + 0xf;
                 }
                 if (!(flip & 1)) {
-                    fp->field_08 = xmin + col * 0x10;
-                    fp->field_0a = ytop0 + row * 0x10;
-                    fp->field_10 = xa + col * 0x10;
-                    fp->field_12 = ytop0 + row * 0x10;
-                    fp->field_18 = xmin + col * 0x10;
-                    fp->field_1a = ybot0 + row * 0x10;
-                    fp->field_20 = xa + col * 0x10;
-                    fp->field_22 = ybot0 + row * 0x10;
+                    fp->vertex0_x = xmin + col * 0x10;
+                    fp->vertex0_y = ytop0 + row * 0x10;
+                    fp->vertex1_x = xa + col * 0x10;
+                    fp->vertex1_y = ytop0 + row * 0x10;
+                    fp->vertex2_x = xmin + col * 0x10;
+                    fp->vertex2_y = ybot0 + row * 0x10;
+                    fp->vertex3_x = xa + col * 0x10;
+                    fp->vertex3_y = ybot0 + row * 0x10;
                 } else {
-                    fp->field_08 = xmax - col * 0x10;
-                    fp->field_0a = ytop0 + row * 0x10;
-                    fp->field_10 = xb - col * 0x10;
-                    fp->field_12 = ytop0 + row * 0x10;
-                    fp->field_18 = xmax - col * 0x10;
-                    fp->field_1a = ybot0 + row * 0x10;
-                    fp->field_20 = xb - col * 0x10;
-                    fp->field_22 = ybot0 + row * 0x10;
+                    fp->vertex0_x = xmax - col * 0x10;
+                    fp->vertex0_y = ytop0 + row * 0x10;
+                    fp->vertex1_x = xb - col * 0x10;
+                    fp->vertex1_y = ytop0 + row * 0x10;
+                    fp->vertex2_x = xmax - col * 0x10;
+                    fp->vertex2_y = ybot0 + row * 0x10;
+                    fp->vertex3_x = xb - col * 0x10;
+                    fp->vertex3_y = ybot0 + row * 0x10;
                 }
                 func_8015bf34(arg, (Cmd *)fp++);
             }

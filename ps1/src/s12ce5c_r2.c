@@ -14,7 +14,7 @@ void func_8012d030(Object *object) {
         object->state_2 = 2;
         object->state_3 = 0;
         object->field_15b = 0;
-        object->field_247 = 0;
+        object->step_applied_flag = 0;
     }
 }
 

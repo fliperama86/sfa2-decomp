@@ -8,7 +8,7 @@ void func_801b21d0_slot04_0b(Object *o) {
     o->accel_x = 0;
     o->accel_y = 0;
     o->vel_y = 0;
-    if (o->field_0b == 0) {
+    if (o->facing_side == 0) {
         o->vel_x = 0xfffe0000;
     } else {
         o->vel_x = 0x20000;
@@ -16,7 +16,7 @@ void func_801b21d0_slot04_0b(Object *o) {
     func_801428e4(o);
     func_80138ae8(&game_state, o);
     func_80145d20(o);
-    func_801307e0(o, (o->field_12a >> 1) + 0x2d);
+    func_801307e0(o, (o->direction_index >> 1) + 0x2d);
 }
 
 void func_801b2258_slot04_0b(Object *o) {

@@ -12,7 +12,7 @@ void func_801b22ec_slot04_0b(Object *o) {
         play_side_sound_at(o, o->side, 0xf);
         play_side_sound_at(o, o->side, 9);
         o->field_165 = 0;
-        o->field_27b = data_801c25dc_slot04_0b[o->field_12a >> 1];
+        o->other_lock = data_801c25dc_slot04_0b[o->direction_index >> 1];
         if (o->field_4b == 0) {
             o->other->field_6b = 0xa;
         }
@@ -23,10 +23,10 @@ void func_801b2384_slot04_0b(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     update_sequence(o);
-    if (obj->field_3a == 3) {
-        o->field_45 = 1;
+    if (obj->mode == 3) {
+        o->active_state = 1;
         o->state_3++;
-        if (o->field_0b == 0) {
+        if (o->facing_side == 0) {
             o->vel_x = 0xfff60000;
         } else {
             o->vel_x = 0xa0000;
@@ -43,7 +43,7 @@ void func_801b23f8_slot04_0b(Object *o) {
     if ((u8)t == 4) {
         o->step_flags = t & 0xff00;
     }
-    if (obj->field_3a == 0x16) {
+    if (obj->mode == 0x16) {
         o->state_3++;
     }
     update_sequence(o);

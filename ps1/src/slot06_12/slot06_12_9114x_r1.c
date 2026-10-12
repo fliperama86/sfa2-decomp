@@ -14,9 +14,9 @@ extern Slot06Tile data_801f6070_slot06_12[2][0x100];
    parallax term in the first layer case and, for objects whose field_02 is
    0x9f, a texture page that depends on the row. The object selects a layer by
    its field_0e (8, 4 or 0xc pick one of three layer blocks; any other value
-   uses no layer and keeps the object's position); the layer's field_12 and
-   field_16 offset the object's position, and for 8 the position also moves by
-   (layer field_12 - layer field_0a) times the object's field_26 divided by
+   uses no layer and keeps the object's position); the layer's scroll_x and
+   scroll_y offset the object's position, and for 8 the position also moves by
+   (layer scroll_x - layer ref_x) times the object's scroll_factor divided by
    128. When the object's field_02 is 0x9f the texture page is recomputed for
    each cell: the base page for row 0 and the page 0x40 higher for the other
    rows. A header reached through the object's sequence describes a grid of
@@ -49,27 +49,27 @@ void func_801e9114_slot06_12(Object *object) {
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
         layer = (Slot06Layer *)data_801aa5d4;
-        x = object->pos_x - layer->field_12 +
-            ((s16)layer->field_12 - (s16)layer->field_0a) * (s16)object->field_26 / 128;
-        y = object->pos_y + layer->field_16 - 8;
+        x = object->pos_x - layer->scroll_x +
+            ((s16)layer->scroll_x - (s16)layer->ref_x) * (s16)object->scroll_factor / 128;
+        y = object->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 4) {
         layer = (Slot06Layer *)data_801aa544;
-        x = object->pos_x - layer->field_12;
-        y = object->pos_y + layer->field_16 - 8;
+        x = object->pos_x - layer->scroll_x;
+        y = object->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 0xc) {
         layer = (Slot06Layer *)cam_obj;
-        x = object->pos_x - layer->field_12;
-        y = object->pos_y + layer->field_16 - 8;
+        x = object->pos_x - layer->scroll_x;
+        y = object->pos_y + layer->scroll_y - 8;
     } else {
         x = object->pos_x;
         y = object->pos_y;
     }
-    if (object->field_0f != 0) y = y + game_state.field_92;
+    if (object->field_0f != 0) y = y + game_state.scroll_y;
     cnt = data_801adfe4;
     hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
-    tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
+    tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
     ot = (u32 *)data_801987c8 + object->ot_depth;
     sel = *(u8 *)&data_801a27d0;
     for (row = 0; row < hdr[2]; row++) {
@@ -83,9 +83,9 @@ void func_801e9114_slot06_12(Object *object) {
                 prim = &data_801f6070_slot06_12[sel][(u16)cnt];
                 if (object->field_02 == 0x9f) {
                     if (row == 0) {
-                        tpage = ((object->field_0d + hdr[3]) << 6) + 0x7806;
+                        tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
                     } else {
-                        tpage = ((object->field_0d + hdr[3]) << 6) + 0x7846;
+                        tpage = ((object->image_row + hdr[3]) << 6) + 0x7846;
                     }
                 }
                 tu = (nib & 0xff) << 4;

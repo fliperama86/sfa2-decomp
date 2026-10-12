@@ -16,11 +16,11 @@ void func_801e0118_slot2a(void) {
     Block172 *base;
     int a1;
 
-    data_8018f5a0->field_52++;
-    game_state.field_2c = 1;
-    game_state.field_ab = 0;
+    data_8018f5a0->pass_index++;
+    game_state.state_2c_flag = 1;
+    game_state.status_flags = 0;
     game_state.field_4f = 0;
-    game_state.field_ab = 0xff;
+    game_state.status_flags = 0xff;
     game_state.field_84 = 0xff;
     game_state.field_89 = 0;
     rect.x = 0x2c0;
@@ -30,12 +30,12 @@ void func_801e0118_slot2a(void) {
     func_80157fc4(&rect, (u8 *)pal);
     func_80157d9c(0);
     a1 = 0x407;
-    if (game_state.field_8b == 0xb) {
+    if (game_state.stage_index == 0xb) {
         a1 = 0x503;
     }
-    game_state.field_225 = 0;
+    game_state.loop_mode = 0;
     func_8014f4d4(1, a1);
-    while (data_80190949 == 0 || game_state.field_f0 != 0) {
+    while (data_80190949 == 0 || game_state.wait_flag != 0) {
         func_8011a784();
         func_801192bc(1);
     }
@@ -49,33 +49,33 @@ void func_801e0118_slot2a(void) {
     if (p) {
         p->active_flag = 1;
         data_801e2318_slot2a[0].handler_index = 0x7f;
-        data_801e2318_slot2a[0].field_03 = 0;
-        data_801e2318_slot2a[0].field_45 = a1;
+        data_801e2318_slot2a[0].block_mode = 0;
+        data_801e2318_slot2a[0].shared_arg = a1;
         data_801e25c8_slot2a[0] = p;
     }
     p = base + 1;
     if (p) {
         p->active_flag = 1;
         data_801e2318_slot2a[1].handler_index = 0x7f;
-        data_801e2318_slot2a[1].field_03 = 1;
-        data_801e2318_slot2a[1].field_45 = a1;
+        data_801e2318_slot2a[1].block_mode = 1;
+        data_801e2318_slot2a[1].shared_arg = a1;
         data_801e25c8_slot2a[1] = p;
     }
     p = base + 2;
     if (p) {
         p->active_flag = 1;
         data_801e2318_slot2a[2].handler_index = 3;
-        data_801e2318_slot2a[2].field_03 = 0;
-        data_801e2318_slot2a[2].field_45 = a1;
+        data_801e2318_slot2a[2].block_mode = 0;
+        data_801e2318_slot2a[2].shared_arg = a1;
         data_801e25c8_slot2a[2] = p;
     }
     p = base + 3;
     if (p) {
         p->active_flag = 1;
         data_801e2318_slot2a[3].handler_index = 3;
-        data_801e2318_slot2a[3].field_03 = 1;
-        data_801e2318_slot2a[3].field_45 = a1;
+        data_801e2318_slot2a[3].block_mode = 1;
+        data_801e2318_slot2a[3].shared_arg = a1;
         data_801e25c8_slot2a[3] = p;
     }
-    data_801e52c8_slot2a = (u16 *)data_801e1bdc_slot2a[game_state.field_8b];
+    data_801e52c8_slot2a = (u16 *)data_801e1bdc_slot2a[game_state.stage_index];
 }

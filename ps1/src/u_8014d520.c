@@ -18,29 +18,29 @@ void func_8014d520(Object *object)
   else
   {
     lo = object->state_2 == 0;
-    if (lo || (object->field_164 != 0))
+    if (lo || (object->bound_push_flag != 0))
     {
       func_8014d99c(object);
     }
     else
     {
-      hi = object->field_210;
-      lo = object->field_211;
+      hi = object->limit_hi;
+      lo = object->limit_lo;
       sum = (hi << 8) + lo;
       new_var = 3;
       ;
-      if (((u16) (new_var + (sum - object->field_21e))) < 6)
+      if (((u16) (new_var + (sum - object->compare_limit))) < 6)
       {
         func_8014d99c(object);
       }
       else
       {
         new_var2 = object;
-        new_var2->field_21a = 0;
-        hi = ((u16) sum) < object->field_21e;
+        new_var2->direction_flag = 0;
+        hi = ((u16) sum) < object->compare_limit;
         if (!hi)
         {
-          new_var2->field_21a = 1;
+          new_var2->direction_flag = 1;
         }
       }
     }

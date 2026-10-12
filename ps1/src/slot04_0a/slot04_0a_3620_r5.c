@@ -7,13 +7,13 @@ void func_801b3ba0_slot04_0a(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags == 2) {
         obj->state_3++;
-        obj->field_0b ^= 1;
+        obj->facing_side ^= 1;
     }
 }
 
 void func_801b3bf0_slot04_0a(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
-        obj->field_73 = 0;
+        obj->status_flag = 0;
         func_801312b8(obj);
     } else {
         update_sequence(obj);

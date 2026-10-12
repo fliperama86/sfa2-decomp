@@ -15,7 +15,7 @@ void func_800e4f30_slot0f(Object *arg) {
     Rect r;
     Block172 *b;
     int one;
-    data_8018f5a0->field_4a++;
+    data_8018f5a0->phase_index++;
     game_state.field_2bc = 0;
     obj = arg;
     func_801280f0();
@@ -51,7 +51,7 @@ void func_800e4f30_slot0f(Object *arg) {
     func_800e50a8_slot0f(obj);
     b = func_8011f1e0();
     if (b != 0) {
-        b->field_03 = 3;
+        b->block_mode = 3;
         b->active_flag = one;
         b->handler_index = 0x99;
     }

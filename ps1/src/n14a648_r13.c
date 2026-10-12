@@ -4,8 +4,8 @@
 #include "protos.h"
 
 void func_80150f40(GameState *state) {
-    if (state->field_225 == 0) {
-        data_8018f5a0->field_48++;
-        state->field_c2 = 0x1f;
+    if (state->loop_mode == 0) {
+        data_8018f5a0->state_index++;
+        state->step_counter = 0x1f;
     }
 }

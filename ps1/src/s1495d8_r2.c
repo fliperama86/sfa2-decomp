@@ -6,9 +6,9 @@
 
 void func_80149888(Object *object) {
     int delta;
-    ref_other.p = object->field_3c;
+    ref_other.p = object->parent;
     delta = data_8017cf30[ref_other.p->kind];
-    if (ref_other.p->field_0b != 0) {
+    if (ref_other.p->facing_side != 0) {
         delta = -delta;
     }
     object->pos_x = delta + object->pos_x;

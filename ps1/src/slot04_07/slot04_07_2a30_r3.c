@@ -5,8 +5,8 @@
 
 void func_801b2df8_slot04_07(Object *obj) {
     obj->state_3++;
-    ((Slot04aObj *)obj)->field_1cb = 0;
-    ((Slot04aObj *)obj)->field_1cc = 0;
+    ((Slot04aObj *)obj)->once_flag = 0;
+    ((Slot04aObj *)obj)->seen_flag = 0;
     func_80145d20(obj);
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
@@ -23,7 +23,7 @@ void func_801b2e68_slot04_07(Object *obj) {
             obj->field_165 = 0xff;
         }
         play_side_sound_at(obj, obj->side, 4);
-        obj->field_46 |= 0x3800;
+        obj->countdown |= 0x3800;
         func_801483a4(obj, 0, 0x5c);
     }
     update_sequence(obj);

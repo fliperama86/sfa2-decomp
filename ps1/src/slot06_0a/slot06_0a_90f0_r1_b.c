@@ -47,10 +47,10 @@ void func_801e934c_slot06_0a(Object *obj) {
 
     obj->field_0a = 1;
     obj->field_0f = 1;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0++;
     obj->field_0c = 0;
-    if (obj->field_03 != 0) {
+    if (obj->table_index != 0) {
         i = 0xd;
         a = b;
         b = a - 1;
@@ -67,7 +67,7 @@ void func_801e934c_slot06_0a(Object *obj) {
 
 void func_801e93fc_slot06_0a(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        if (obj->field_03 != 0) {
+        if (obj->table_index != 0) {
             func_801e95a8_slot06_0a(obj);
             return;
         }

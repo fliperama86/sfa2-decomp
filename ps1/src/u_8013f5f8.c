@@ -26,15 +26,15 @@ int func_8013f5f8(Object *object, int a, int b)
   {
     return 0;
   }
-  if (ref_other.p->field_27b != 0)
+  if (ref_other.p->other_lock != 0)
   {
     return 0;
   }
-  if (game_state.config->field_4e != 0)
+  if (game_state.config->mode_flag_c != 0)
   {
     return 0;
   }
-  if (ref_other.p->field_45 != 0)
+  if (ref_other.p->active_state != 0)
   {
     return 0;
   }
@@ -42,7 +42,7 @@ int func_8013f5f8(Object *object, int a, int b)
   {
     return 0;
   }
-  if (object->field_0b != 0)
+  if (object->facing_side != 0)
   {
     diff = -a;
   }
@@ -60,13 +60,13 @@ int func_8013f5f8(Object *object, int a, int b)
       goto skip;
     }
   }
-  if (object->field_25e != 0)
+  if (object->hold_timer != 0)
   {
     bb = 4;
     bb = b + bb;
   }
   skip:
-  if (ref_other.p->field_0b != 0)
+  if (ref_other.p->facing_side != 0)
   {
     delta = -delta;
   }
@@ -82,31 +82,31 @@ int func_8013f5f8(Object *object, int a, int b)
   }
   if (ref_other.p->field_7e != 0)
   {
-    ref_other.p->field_c6 = ref_other.p->field_c6 - 0x30;
-    if (((s16) ref_other.p->field_c6) < 0)
+    ref_other.p->meter = ref_other.p->meter - 0x30;
+    if (((s16) ref_other.p->meter) < 0)
     {
-      ref_other.p->field_c6 = 0;
+      ref_other.p->meter = 0;
     }
   }
   ref_other.p->state_0 = 1;
   ref_other.p->state_1 = 3;
   ref_other.p->state_2 = 0;
   ref_other.p->state_3 = 0;
-  ref_other.p->field_73 = 0xff;
-  object->field_73 = 1;
+  ref_other.p->status_flag = 0xff;
+  object->status_flag = 1;
   ref_other.p->field_15b = 1;
-  ref_other.p->field_46 = 4;
+  ref_other.p->countdown = 4;
   object->field_28c = 0;
-  object->field_28d = 0;
-  object->field_297 = 0;
+  object->damage_countdown = 0;
+  object->reference_count = 0;
   ref_other.p->other = object;
   func_80138ac8((GameState *)game_state.config, object);
-  object->field_159 = 0;
-  ref_other.p->field_159 = 0;
+  object->active_flag_3 = 0;
+  ref_other.p->active_flag_3 = 0;
   object->field_225 = 0;
   ref_other.p->field_225 = 0;
   ref_other.p->field_180 = 0;
-  ref_other.p->field_2a1 = 0;
-  ref_other.p->field_2a2 = 0;
+  ref_other.p->cursor_timer_a = 0;
+  ref_other.p->cursor_timer_b = 0;
   return 1;
 }

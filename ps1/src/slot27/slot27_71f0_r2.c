@@ -7,8 +7,8 @@ void func_80017348_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Rect r;
 
-    obj->field_14 = 0x1000000;
-    obj->field_18 = 0x2000;
+    obj->preset_value = 0x1000000;
+    obj->preset_param = 0x2000;
     r.x = 0x240;
     r.y = 0x180;
     r.w = 0x10;
@@ -20,8 +20,8 @@ void func_800173a0_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Rect r;
 
-    obj->field_14 = 0x1400000;
-    obj->field_18 = 0x2800;
+    obj->preset_value = 0x1400000;
+    obj->preset_param = 0x2800;
     r.x = 0x240;
     r.y = 0x1a0;
     r.w = 0x10;
@@ -33,8 +33,8 @@ void func_800173f8_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Rect r;
 
-    obj->field_14 = 0x1800000;
-    obj->field_18 = 0x3000;
+    obj->preset_value = 0x1800000;
+    obj->preset_param = 0x3000;
     r.x = 0x240;
     r.y = 0x1c0;
     r.w = 0x10;
@@ -46,8 +46,8 @@ void func_80017450_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Rect r;
 
-    obj->field_14 = 0x1c00000;
-    obj->field_18 = 0x3800;
+    obj->preset_value = 0x1c00000;
+    obj->preset_param = 0x3800;
     r.x = 0x240;
     r.y = 0x1e0;
     r.w = 0x10;

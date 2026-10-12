@@ -31,11 +31,11 @@ void func_801cb044_slot05_06(Object *obj) {
 void func_801cb084_slot05_06(Object *obj) {
     int v;
 
-    obj->field_12c = 0;
+    obj->substate_index = 0;
     obj->field_12d = 0;
-    obj->field_12e = 0;
-    obj->field_12f = 0;
-    obj->field_17b = 1;
+    obj->step_count_2 = 0;
+    obj->step_limit = 0;
+    obj->active_flag_4 = 1;
     obj->state_3++;
     func_80141f28(obj, 8);
     func_80138ae8(&game_state, obj);
@@ -43,8 +43,8 @@ void func_801cb084_slot05_06(Object *obj) {
     obj->vel_y = 0x28000;
     obj->accel_x = 0;
     obj->accel_y = 0xffff6000;
-    obj->field_45 = 1;
-    obj->field_159 = 1;
+    obj->active_state = 1;
+    obj->active_flag_3 = 1;
     v = 0x48;
     if (obj->field_49 == 0) {
         v = 0x2a;

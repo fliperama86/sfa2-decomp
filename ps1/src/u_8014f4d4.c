@@ -10,30 +10,30 @@ void func_8014f4d4(int a, int arg) {
     switch (a) {
     case 1:
         m->fade_mode = 0;
-        m->field_01 = 0;
-        m->field_06 = 0;
-        m->field_07 = 1;
+        m->active_flag = 0;
+        m->flag_a = 0;
+        m->flag_b = 1;
         func_80150b80(m, b);
         break;
     case 2:
-        m->field_06 = 1;
+        m->flag_a = 1;
         set_cd_volume(0);
         break;
     case 3:
-        m->field_06 = 0;
+        m->flag_a = 0;
         set_cd_volume(0x55);
         break;
     case 4:
-        m->field_02 = 4;
+        m->command_state = 4;
         m->fade_mode = 0;
         break;
     case 5:
         m->fade_mode = 1;
-        m->field_1d = b;
+        m->fade_step = b;
         break;
     case 6:
         m->fade_mode = 2;
-        m->field_1d = b;
+        m->fade_step = b;
         break;
     }
 }

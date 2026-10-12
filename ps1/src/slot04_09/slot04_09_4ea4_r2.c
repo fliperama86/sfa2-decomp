@@ -13,13 +13,13 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
     int t;
     u16 f;
 
-    w = (Object *)obj->field_330;
+    w = (Object *)obj->linked_object;
     f = w->step_flags;
     e = o->other;
-    s = (u8 *)&obj->field_330;
+    s = (u8 *)&obj->linked_object;
     if (f & 2) {
         w->step_flags = f & 0xfffd;
-        o->field_46 = o->field_46 + 0x100;
+        o->countdown = o->countdown + 0x100;
         if (func_80140cd8(o, 0, 0) != 0) {
             func_80140770(o, 0, 0xd, 0, 0, 1, 1);
             play_side_sound_at(o, o->side, 0xb);
@@ -28,7 +28,7 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
         }
     }
     func_80140fe0(o);
-    if (((s16)o->field_46 & 0xff00) != 0) {
+    if (((s16)o->countdown & 0xff00) != 0) {
         if (e->field_15b == 0) {
             func_80140770(o, 0, 5, -1, 0, 1, 1);
             func_801b51e0_slot04_09(o);
@@ -44,16 +44,16 @@ void func_801b5014_slot04_09(Object *o, Object *unused) {
     e = o->other;
     w = *(Object **)s;
     e->field_0c = s[4];
-    e->field_0d = s[5];
+    e->image_row = s[5];
     if ((u8)w->step_flags != 0) {
         e->field_0c = 0xff;
         e->sequence_changed_flag = 1;
-        e->field_0d = e->field_0d + 3;
+        e->image_row = e->image_row + 3;
     }
     ((Slot04aObj *)e)->field_16 = ((Slot04aObj *)e)->field_16 + 1;
-    t = o->field_46 + 1;
-    o->field_46 = (o->field_46 & 0xff00) + (t & 0xff);
-    if (o->field_46 & 1) {
+    t = o->countdown + 1;
+    o->countdown = (o->countdown & 0xff00) + (t & 0xff);
+    if (o->countdown & 1) {
         ((Slot04aObj *)e)->field_16 = ((Slot04aObj *)e)->field_16 - 2;
     }
     update_sequence(o);

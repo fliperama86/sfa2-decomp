@@ -5,10 +5,10 @@
 
 void func_801b3a90_slot04_0a(Object *obj) {
     obj->state_3++;
-    if (obj->field_cd != 0 ? (u16)(box_margin[0] + 0xc0) < obj->pos_x : (obj->field_c2 & 0x8000) == 0) {
-        obj->field_0b = 0;
+    if (obj->mode_flag_2 != 0 ? (u16)(box_margin[0] + 0xc0) < obj->pos_x : (obj->input_bits & 0x8000) == 0) {
+        obj->facing_side = 0;
     } else {
-        obj->field_0b = 1;
+        obj->facing_side = 1;
     }
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_80141f28(obj, 3);

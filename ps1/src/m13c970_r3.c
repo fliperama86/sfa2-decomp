@@ -8,9 +8,9 @@ void func_8013de80(Object *object, u8 index, u8 arg) {
     u16 entry;
     u8 step;
 
-    object->slots[index].field_01 = 0;
+    object->slots[index].entry_index = 0;
     entry = table_8017a8cc[arg * 7];
-    if ((entry & 0xf000) != (object->field_150 & 0xf000)) {
+    if ((entry & 0xf000) != (object->input_word & 0xf000)) {
         func_8013f2a8(object, index, arg);
     } else {
         step = object->slots[index].stage;

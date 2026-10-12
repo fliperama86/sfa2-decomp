@@ -4,5 +4,5 @@
 #include "protos.h"
 
 void func_801257d0(Attacker *unused) {
-    game_state.field_78->field_2ac = ~game_state.field_7c->kind;
+    game_state.focus_object->kind_copy = ~game_state.object_b->kind;
 }

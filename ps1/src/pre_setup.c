@@ -13,19 +13,19 @@ void func_8013047c(Object *object) {
     object->state_1 = 0;
     object->state_2 = 5;
     object->state_3 = 0;
-    if (object->field_7e == 0) object->field_0b = object->field_158;
+    if (object->field_7e == 0) object->facing_side = object->saved_facing;
     func_80142c04(object);
-    object->field_67 = 0;
+    object->active_flag = 0;
     func_80130504(object);
     object->field_157 = ((u8)func_8012f618(object) != 0) << 1;
-    object->field_128 = object->field_157;
+    object->input_dir_0 = object->field_157;
     func_8012b45c(object);
 }
 
 void func_80130504(Object *object) {
     BytePair d = func_8013054c(object);
-    object->field_12a = d.first;
-    object->field_129 = d.second;
+    object->direction_index = d.first;
+    object->input_dir_second = d.second;
 }
 
 BytePair func_8013054c(Object *object) {

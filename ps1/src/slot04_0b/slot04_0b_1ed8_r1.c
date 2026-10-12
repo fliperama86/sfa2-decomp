@@ -7,10 +7,10 @@ void func_801b1fc0_slot04_0b(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     update_sequence(o);
-    if (obj->field_3a != 0) {
-        o->field_45 = 1;
+    if (obj->mode != 0) {
+        o->active_state = 1;
         o->state_3++;
-        if (o->field_0b == 0) {
+        if (o->facing_side == 0) {
             o->pos_x -= 0x28;
         } else {
             o->pos_x += 0x28;

@@ -6,26 +6,26 @@
 void func_801cca78_slot05_06(Object *obj) {
     Object *p;
 
-    if (((Slot04aObj *)obj)->field_3b & 0x80) {
-        game_state_second.side_bits = game_state.field_4b | (1 << obj->side);
+    if (((Slot04aObj *)obj)->status_flags & 0x80) {
+        game_state_second.side_bits = game_state.side_bits_2 | (1 << obj->side);
     }
-    if (((Slot04aObj *)obj)->field_3a != 0) {
-        ((Slot04aObj *)obj)->field_3a = 0;
+    if (((Slot04aObj *)obj)->mode != 0) {
+        ((Slot04aObj *)obj)->mode = 0;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
-            p->field_00 = 1;
-            p->field_03 = 6;
-            p->field_3c = obj;
+            p->active_count = 1;
+            p->table_index = 6;
+            p->parent = obj;
             p->field_1c = obj->field_1c;
             p->spawn_x = obj->spawn_x;
             p->spawn_y = obj->spawn_y;
-            p->field_0d = obj->field_0d;
+            p->image_row = obj->image_row;
             p->field_02 = 0x11;
-            p->field_08 = 0x20;
+            p->mode_id = 0x20;
             p->field_90 = obj->field_90;
-            p->field_66 = obj->field_66;
-            p->field_98 = obj->field_98;
-            p->field_9c = obj->field_9c;
+            p->sound_side = obj->sound_side;
+            p->data_ptr_a = obj->data_ptr_a;
+            p->data_ptr_b = obj->data_ptr_b;
         }
     }
     update_sequence(obj);

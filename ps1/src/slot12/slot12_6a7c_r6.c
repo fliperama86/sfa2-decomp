@@ -16,7 +16,7 @@ void func_80016ee0_slot12(Object *o) {
 
     data_8002c3a8_slot12[2].value = 0;
     p = (u8 *)obj->field_50;
-    i = obj->field_5c;
+    i = obj->entry_count;
     n = 0;
     if (*p != 0xff) {
         do {
@@ -39,7 +39,7 @@ void func_80016f38_slot12(Object *o) {
 
     data_8002c3a8_slot12[3].value = 0;
     p = (u8 *)obj->field_50;
-    i = obj->field_5c;
+    i = obj->entry_count;
     n = 0;
     if (*p != 0xff) {
         do {

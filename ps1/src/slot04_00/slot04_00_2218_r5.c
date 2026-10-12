@@ -6,14 +6,14 @@
 void func_801b2754_slot04_00(Object *obj) {
     int n = 0x38;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3++;
     if (obj->field_49 == 0) {
-        obj->field_177--;
+        obj->remaining_count--;
     }
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     obj->field_157 = 0;
-    if (obj->field_130 & 0x8000) {
+    if (obj->input_bits_2 & 0x8000) {
         n = 0x39;
     }
     func_801307e0(obj, n);

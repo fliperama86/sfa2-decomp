@@ -16,9 +16,9 @@ void func_80016828_slot28(Object *obj) {
     n = obj->field_f0;
     if (n == 0) {
         h = data_8018f5a0;
-        h->field_60 = c;
-        n = h->field_52 + 1;
-        h->field_52 = n;
+        h->countdown_timer = c;
+        n = h->pass_index + 1;
+        h->pass_index = n;
         func_80016e7c_slot28();
         data_800518fc_slot28[0]->field_01 = 0;
         data_80051900_slot28.p->field_01 = 0;

@@ -12,11 +12,11 @@ void func_801e9530_slot06_02(Object *obj);
 void func_801e9604_slot06_02(Object *obj);
 
 void func_801e93c4_slot06_02(Slot06Layer *layer) {
-    layer->field_50 = data_801eaf18_slot06_02;
-    layer->field_54 = data_801eaf18_slot06_02;
-    layer->field_1e = 0x5816;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801eaf18_slot06_02;
+    layer->data_table = data_801eaf18_slot06_02;
+    layer->packed_param = 0x5816;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
 }
 
 void func_801e93f0_slot06_02(void) {

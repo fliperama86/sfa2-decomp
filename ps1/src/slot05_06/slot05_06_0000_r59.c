@@ -10,28 +10,28 @@ void func_801cd0e4_slot05_06(Object *obj) {
     GameState *g = &game_state;
     Object *p;
 
-    if (((Slot04aObj *)obj)->field_3a != 0) {
-        ((Slot04aObj *)obj)->field_3a = 0;
+    if (((Slot04aObj *)obj)->mode != 0) {
+        ((Slot04aObj *)obj)->mode = 0;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
-            p->field_00 = 1;
-            p->field_03 = 5;
-            p->field_3c = obj;
+            p->active_count = 1;
+            p->table_index = 5;
+            p->parent = obj;
             p->spawn_x = obj->spawn_x;
             p->spawn_y = obj->spawn_y;
-            p->field_0d = obj->field_0d;
+            p->image_row = obj->image_row;
             p->field_02 = 0x11;
-            p->field_08 = 0x20;
+            p->mode_id = 0x20;
             p->field_90 = obj->field_90;
-            p->field_66 = obj->field_66;
-            p->field_98 = obj->field_98;
-            p->field_9c = obj->field_9c;
+            p->sound_side = obj->sound_side;
+            p->data_ptr_a = obj->data_ptr_a;
+            p->data_ptr_b = obj->data_ptr_b;
         }
     }
     if (((Slot04aObj *)obj)->timer != 0) {
         ((Slot04aObj *)obj)->timer--;
         if (((Slot04aObj *)obj)->timer == 0) {
-            g->field_4b |= 1 << ((Slot04aObj *)obj)->side;
+            g->side_bits_2 |= 1 << ((Slot04aObj *)obj)->side;
         }
     }
     update_sequence(obj);
@@ -48,7 +48,7 @@ void func_801cd1f4_slot05_06(Object *obj) {
 }
 
 void func_801cd218_slot05_06(Object *obj) {
-    if (obj->field_128 != 0) {
+    if (obj->input_dir_0 != 0) {
         func_801cd6d8_slot05_06(obj);
     } else {
         func_801cd258_slot05_06(obj);

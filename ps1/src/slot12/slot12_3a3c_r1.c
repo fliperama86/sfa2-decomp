@@ -11,12 +11,12 @@ void func_80013a3c_slot12(Object *obj) {
     int i;
     u16 *src;
     u16 *dst;
-    if (game_state.field_2bd == 0) {
-        b = table_8016e5c4[game_state.field_2b8].field_09;
-        a = table_8016e5c4[game_state.field_2b8].field_08;
+    if (game_state.mode_flag_2 == 0) {
+        b = table_8016e5c4[game_state.left_rank_index].frame_param;
+        a = table_8016e5c4[game_state.left_rank_index].level;
     } else {
-        b = table_8016e614[game_state.field_2ba].field_09;
-        a = table_8016e614[game_state.field_2ba].field_08;
+        b = table_8016e614[game_state.right_rank_index].frame_param;
+        a = table_8016e614[game_state.right_rank_index].level;
     }
     src = &data_8002317c_slot12[a * 96 + b * 16];
     dst = data_801a3de4;

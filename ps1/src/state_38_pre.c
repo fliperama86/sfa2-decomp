@@ -25,7 +25,7 @@ void func_801388a8(GameState *state, Object *object) {
         data_80188ecc = 1;
     }
     cost = 0x48;
-    if (object->field_c1 < 0x10) cost = table_80176d70[object->field_c1];
+    if (object->cost_index < 0x10) cost = table_80176d70[object->cost_index];
     data_80188ec4 = data_80188ec4 - cost;
     func_80138838(state, table_80176d80[get_random_byte() & 0x1f] - 0x18);
     func_8013886c(state);
@@ -35,21 +35,21 @@ void func_80138964(GameState *state) {
     short a;
     Object *other;
 
-    if (state->mode == 3 && state->field_2f == 0) return;
-    if (state->field_49 >= 0x50) {
+    if (state->mode == 3 && state->mode3_active_flag == 0) return;
+    if (state->round_time >= 0x50) {
         a = 0x10;
-    } else if (state->field_49 >= 0x3c) {
+    } else if (state->round_time >= 0x3c) {
         a = 6;
-    } else if (state->field_49 >= 0x28) {
+    } else if (state->round_time >= 0x28) {
         a = 4;
-    } else if (state->field_49 >= 0x14) {
+    } else if (state->round_time >= 0x14) {
         a = 6;
     } else {
         a = 0xa;
     }
     func_80138838(state, a);
-    other = state->field_78;
-    if (other != 0 && other->field_cd == 0) {
+    other = state->focus_object;
+    if (other != 0 && other->mode_flag_2 == 0) {
         if ((s16)other->health >= 0x70) {
             a = 0x10;
         } else if ((s16)other->health >= 0x50) {
@@ -63,8 +63,8 @@ void func_80138964(GameState *state) {
     }
     if (state->field_4d != 0) {
         a = 2;
-        other = state->field_78;
-        if (other != 0 && other->field_cd != 0) a = -8;
+        other = state->focus_object;
+        if (other != 0 && other->mode_flag_2 != 0) a = -8;
         func_80138838(state, a);
     }
     func_80138628(state);
@@ -77,24 +77,24 @@ void func_80138ac8(GameState *state, Object *object) {
 }
 
 void func_80138ae8(GameState *state, Object *object) {
-    if ((state->mode != 3 || state->field_2f != 0) && object->field_cd == 0)
+    if ((state->mode != 3 || state->mode3_active_flag != 0) && object->mode_flag_2 == 0)
         func_80138838(state, 1);
 }
 
 void func_80138b38(GameState *state, Object *object) {
     object->field_225 = 1;
-    if ((state->mode != 3 || state->field_2f != 0) && object->field_cd == 0)
-        func_80138838(state, object->field_12a + 2);
+    if ((state->mode != 3 || state->mode3_active_flag != 0) && object->mode_flag_2 == 0)
+        func_80138838(state, object->direction_index + 2);
 }
 
 void func_80138b94(GameState *state, Object *object) {
-    if ((state->mode != 3 || state->field_2f != 0) && object->field_cd == 0)
+    if ((state->mode != 3 || state->mode3_active_flag != 0) && object->mode_flag_2 == 0)
         func_80138838(state, 3);
 }
 
 void func_80138be4(GameState *state, Object *object) {
-    if ((state->mode != 3 || state->field_2f != 0) && object->field_cd == 0 &&
-        object->field_6a >= 2) {
+    if ((state->mode != 3 || state->mode3_active_flag != 0) && object->mode_flag_2 == 0 &&
+        object->round_count >= 2) {
         Object *other = object->other;
         if (*(u16 *)&other->state_0 == 2 && (u8)(other->state_2 - 5) < 2)
             func_80138838(state, 1);

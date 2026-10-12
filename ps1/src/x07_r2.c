@@ -14,27 +14,27 @@ void func_8014ff20(Ctl *ctl)
   if (((Stream *)ctl)->step_count == 0)
   {
     t = data_8017eb1c[((Stream *)ctl)->source_index];
-    v = *(u32 *)((Stream *)ctl)->field_40;
+    v = *(u32 *)((Stream *)ctl)->current_record;
     n = v & 0xff;
     n = n + ((v & 0xff00) >> 6);
     p = t[n];
     ((Stream *)ctl)->source_ptr = p;
-    ((Stream *)ctl)->field_44 = p;
+    ((Stream *)ctl)->open_source_ptr = p;
   }
   func_8015003c((Stream *)ctl);
   ((Stream *)ctl)->step_count++;
   if (((Stream *)ctl)->bytes_remaining == 0)
   {
-    u8 *r = ((Stream *)ctl)->field_40;
+    u8 *r = ((Stream *)ctl)->current_record;
     u32 k = r[0];
     n = r[1];
     if (n == 0)
     {
-      data_80190a44[k + 4] = func_80168d4c(((Stream *)ctl)->field_44, data_80190a44[k]);
+      data_80190a44[k + 4] = func_80168d4c(((Stream *)ctl)->open_source_ptr, data_80190a44[k]);
     }
     else
     {
-      data_80190a44[k + 8] = func_80166144(((Stream *)ctl)->field_44, data_80190a44[k], ((s16 *)r)[6]);
+      data_80190a44[k + 8] = func_80166144(((Stream *)ctl)->open_source_ptr, data_80190a44[k], ((s16 *)r)[6]);
     }
   }
 }

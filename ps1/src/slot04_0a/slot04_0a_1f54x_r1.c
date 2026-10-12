@@ -17,7 +17,7 @@ void func_801b1f54_slot04_0a(Object *obj) {
         play_sound_at(obj, obj->side, 0x314);
         obj->pos_y = (u16)obj->ground_y;
         obj->pos_y_frac = 0;
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
         func_801209c4(obj);
         func_801307e0(obj, 0x48);
         return;

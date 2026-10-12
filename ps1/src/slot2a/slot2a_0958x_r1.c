@@ -19,31 +19,31 @@ void func_801e0958_slot2a(Object *obj, SpritePrim *prim) {
         c = *codes++;
         q = c / 6;
         r = c % 6;
-        s4 = (r << 4) + obj->field_03 * 96;
+        s4 = (r << 4) + obj->table_index * 96;
         s3 = q << 4;
-        if (player_left.field_cd == 0) {
-            if (obj->field_0b == 0) {
-                idx1 = obj->field_3c->field_d4 * 3 + *codes++;
+        if (player_left.mode_flag_2 == 0) {
+            if (obj->facing_side == 0) {
+                idx1 = obj->parent->field_d4 * 3 + *codes++;
                 y1 = idx1 / 4;
                 x1 = (idx1 - y1 * 4) * 16 + 0x2c0;
                 y1 += 0x60;
                 prim->clut = (u16)func_8015bdd4(x1, y1);
             } else {
-                idx2 = obj->field_3c->field_d4 * 3 + *codes++ + 2;
+                idx2 = obj->parent->field_d4 * 3 + *codes++ + 2;
                 y2 = idx2 / 4;
                 x2 = (idx2 - y2 * 4) * 16 + 0x2c0;
                 y2 += 0x64;
                 prim->clut = (u16)func_8015bdd4(x2, y2);
             }
         } else {
-            if (obj->field_0b == 0) {
-                idx3 = obj->field_3c->field_d4 * 3 + *codes++ + 2;
+            if (obj->facing_side == 0) {
+                idx3 = obj->parent->field_d4 * 3 + *codes++ + 2;
                 y3 = idx3 / 4;
                 x3 = (idx3 - y3 * 4) * 16 + 0x2c0;
                 y3 += 0x64;
                 prim->clut = (u16)func_8015bdd4(x3, y3);
             } else {
-                idx1 = obj->field_3c->field_d4 * 3 + *codes++;
+                idx1 = obj->parent->field_d4 * 3 + *codes++;
                 prim->clut = (u16)func_8015bdd4((idx1 % 4) * 16 + 0x2c0, idx1 / 4 + 0x60);
             }
         }
@@ -53,7 +53,7 @@ void func_801e0958_slot2a(Object *obj, SpritePrim *prim) {
         b <<= 4;
         dx = *offs++;
         dy = *offs++;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             prim->x0 = (u16)obj->pos_x - dx;
             prim->y0 = dy + (u16)obj->pos_y;
             prim->x1 = (u16)obj->pos_x - dx - a;
@@ -89,8 +89,8 @@ void func_801e0958_slot2a(Object *obj, SpritePrim *prim) {
             prim->v3 = s3 + b;
         }
         ot = (u32 *)data_801987c8;
-        ((PrimTag *)prim)->addr = ((PrimTag *)&ot[obj->field_03])->addr;
-        ((PrimTag *)&ot[obj->field_03])->addr = (u32)prim;
+        ((PrimTag *)prim)->addr = ((PrimTag *)&ot[obj->table_index])->addr;
+        ((PrimTag *)&ot[obj->table_index])->addr = (u32)prim;
         prim++;
     } while (--count != 0);
 }

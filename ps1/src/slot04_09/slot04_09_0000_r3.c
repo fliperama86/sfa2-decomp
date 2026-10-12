@@ -6,14 +6,14 @@
 extern ObjectFn data_801c7b9c_slot04_09[];
 
 void func_801b03b4_slot04_09(Object *obj) {
-    s16 t = obj->field_46;
+    s16 t = obj->countdown;
 
     if (t != 0) {
         t = t - 1;
-        obj->field_46 = t;
+        obj->countdown = t;
         if (t == 0) {
-            game_state.field_4b |= 1 << obj->side;
+            game_state.side_bits_2 |= 1 << obj->side;
         }
     }
-    data_801c7b9c_slot04_09[obj->field_48](obj);
+    data_801c7b9c_slot04_09[obj->variant_index](obj);
 }

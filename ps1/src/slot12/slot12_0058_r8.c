@@ -9,10 +9,10 @@ void func_80010978_slot12(void);
 void func_800109dc_slot12(void);
 
 void func_800107d4_slot12(void) {
-    if (game_state.field_27 & 0x80) {
-        data_8002d574_slot12->field_00 = 0;
+    if (game_state.active_flag & 0x80) {
+        data_8002d574_slot12->active_count = 0;
         func_80010978_slot12();
-    } else if (game_state.field_08 == 0) {
+    } else if (game_state.side_bits_b == 0) {
         func_800109dc_slot12();
     }
 }

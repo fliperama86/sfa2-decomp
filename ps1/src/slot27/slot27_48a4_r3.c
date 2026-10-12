@@ -8,12 +8,12 @@ extern SequenceStep *data_800280bc_slot27[];
 void func_80014b1c_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Object *other = o->other;
-    if (other->kind != o->field_66) {
-        o->field_66 = other->kind;
+    if (other->kind != o->sound_side) {
+        o->sound_side = other->kind;
         func_80130768(o, other->kind, data_800280bc_slot27);
     }
     func_8011ffdc(o);
-    if (data_8018f5a0->field_4e >= 3 && game_state.mode != 3) {
+    if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
         *(u16 *)&o->pos_y += 8;
         if (*(u16 *)&o->pos_y >= 0x2c1) {
             o->field_01 = 0;

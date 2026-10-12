@@ -14,19 +14,19 @@ void func_800119c8_slot27(Object *obj) {
 void func_80011a18_slot27(Object *obj) {
     obj->box_tables = 0;
     obj->field_20 = 0;
-    obj->field_22 = 0;
+    obj->y_scale = 0;
     obj->field_60 = 0;
-    obj->field_61 = 0;
-    obj->field_45 = 0;
-    obj->field_66 = 0;
+    obj->hit_type = 0;
+    obj->active_state = 0;
+    obj->sound_side = 0;
     obj->health = 0;
-    obj->field_5e = 0;
+    obj->y_offset = 0;
     obj->accel_x = 0;
     obj->accel_y = 0;
     obj->field_62 = 0;
-    obj->field_63 = 0;
+    obj->vec_table_index = 0;
     obj->ground_y = 0;
-    obj->field_73 = 0;
+    obj->status_flag = 0;
     obj->facing_flag = 0;
     obj->field_62 = 0;
     obj->field_6b = 0;
@@ -35,11 +35,11 @@ void func_80011a18_slot27(Object *obj) {
 void func_80011a64_slot27(void) {
     Slot27Rec9338 *r = &data_80029338_slot27[ref_other.p->side];
 
-    r->field_00 = 0;
-    r->field_01 = 0;
+    r->slot_a = 0;
+    r->slot_b = 0;
     r->step_count = 0;
-    r->field_03 = 0;
-    r->field_04 = 0;
-    r->field_05 = 0;
-    r->field_06 = 0;
+    r->slot_c = 0;
+    r->slot_d = 0;
+    r->count_a = 0;
+    r->count_b = 0;
 }

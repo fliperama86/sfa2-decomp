@@ -12,8 +12,8 @@ void func_80152774(Object *object) {
 }
 
 void func_801527b4(Object *object) {
-    ref_other.p = object->field_3c;
-    if (ref_other.p->field_45 == 0) {
+    ref_other.p = object->parent;
+    if (ref_other.p->active_state == 0) {
         object->state_1++;
         func_80130768(object, 0x33, (SequenceStep **)table_8017c7f8);
     }
@@ -40,6 +40,6 @@ void func_80152890(Object *p) {
 }
 
 u8 func_801528b0(Object *object) {
-    ref_other.p = object->field_3c;
-    return (*(u32 *)&ref_other.p->field_258 & 0xffffff) == 0;
+    ref_other.p = object->parent;
+    return (*(u32 *)&ref_other.p->once_flag_2 & 0xffffff) == 0;
 }

@@ -12,40 +12,40 @@
 
 void func_8014ee5c(int a) {
     GameState *g = &game_state;
-    g->field_225 = 1;
+    g->loop_mode = 1;
     func_80119144(2, 7);
     func_801192bc(1);
     func_8014f3b8(5, a);
-    func_8014f3b8(5, game_state.field_40 + 0x15);
-    g->field_225 = 0;
-    while (g->field_f0) {
+    func_8014f3b8(5, game_state.kind_index + 0x15);
+    g->loop_mode = 0;
+    while (g->wait_flag) {
         func_801192bc(1);
     }
 }
 
 void func_8014eef8(int a, int b) {
     GameState *g = &game_state;
-    g->field_225 = 1;
+    g->loop_mode = 1;
     func_80119144(2, 7);
     func_801192bc(1);
     b ^= 1;
     close_vab_and_sep(b);
     func_8014f3b8(6, b * 21 + a);
-    g->field_225 = 0;
-    while (g->field_f0) {
+    g->loop_mode = 0;
+    while (g->wait_flag) {
         func_801192bc(1);
     }
 }
 
 void func_8014efa8(int a) {
     GameState *g = &game_state;
-    g->field_225 = 1;
+    g->loop_mode = 1;
     func_80119144(2, 7);
     func_801192bc(1);
     close_vab_and_sep(3);
     func_8014f3b8(7, a);
-    g->field_225 = 0;
-    while (g->field_f0) {
+    g->loop_mode = 0;
+    while (g->wait_flag) {
         func_801192bc(1);
     }
 }

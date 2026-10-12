@@ -19,12 +19,12 @@ void func_801cba68_slot05_06(Object *obj) {
             if (obj->field_49 != 0) {
                 obj->field_167 = 0x16;
                 obj->field_255 = 6;
-                game_state.field_6b = 0;
+                game_state.spawn_kind = 0;
                 func_80147000(obj);
             }
         }
-        other->field_247 = 0;
-        obj->field_17b = 0;
+        other->step_applied_flag = 0;
+        obj->active_flag_4 = 0;
         func_801312b8(obj);
     }
 }

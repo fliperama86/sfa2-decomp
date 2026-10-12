@@ -11,13 +11,13 @@ void func_80012e84_slot27(void) {
     Object *p = ref_other.p;
     int *x = (int *)data_8019045c;
     *x = p->field_d8;
-    if (game_state.field_06 == 0) {
+    if (game_state.busy_flag == 0) {
         int *y = data_80190464;
-        int m = ~p->field_c4;
+        int m = ~p->prev_input_bits;
         int t;
         int u;
         *y = m;
-        t = p->field_c2 & m;
+        t = p->input_bits & m;
         u = t & 0x5000;
         *y = u;
         if (u != 0) {
@@ -32,7 +32,7 @@ void func_80012e84_slot27(void) {
 }
 
 void func_80012ef8_slot27(Object *obj) {
-    *(int *)data_8019045c = (s16)obj->field_5e;
+    *(int *)data_8019045c = (s16)obj->y_offset;
     obj->health += *(int *)data_8019045c;
     if (obj->health & 0x8000) {
         obj->health = 0;
@@ -45,10 +45,10 @@ void func_80012ef8_slot27(Object *obj) {
 
 void func_80012f64_slot27(Object *obj) {
     *(int *)data_8019045c = obj->field_62;
-    if (obj->field_63 == *(int *)data_8019045c) {
+    if (obj->vec_table_index == *(int *)data_8019045c) {
         func_80012fd4_slot27(obj);
     } else {
-        obj->field_63 = *(int *)data_8019045c;
+        obj->vec_table_index = *(int *)data_8019045c;
         *(int *)data_8019045c = *(int *)data_8019045c + 2;
         func_80013b74_slot27(obj);
         func_80012fd4_slot27(obj);

@@ -6,11 +6,11 @@
 void func_8014b0e4(Object *object) {
     u16 value = *data_80189460++;
     data_80189464 = value;
-    object->field_21c = value;
+    object->countdown_3 = value;
     object->field_209 = 4;
     object->state_0 = object->field_208 = 1;
     object->state_1 = 0;
     object->state_2 = 2;
     object->state_3 = 0;
-    object->field_21a = object->field_48 = 1;
+    object->direction_flag = object->variant_index = 1;
 }

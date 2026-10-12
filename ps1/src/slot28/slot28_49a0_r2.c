@@ -12,8 +12,8 @@ void func_8001581c_slot28(Object *obj, int arg);
 
 void func_80014e20_slot28(Object *obj) {
     if (((Slot28Obj *)data_800518c8_slot28.p)->field_3a < 0) {
-        data_8018f5a0->field_60 = 0x78;
-        data_8018f5a0->field_52 = data_8018f5a0->field_52 + 1;
+        data_8018f5a0->countdown_timer = 0x78;
+        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
     }
 }
 
@@ -23,19 +23,19 @@ void func_80014e60_slot28(Object *obj) {
     int n;
     func_80014ec8_slot28();
     h = data_8018f5a0;
-    t = h->field_60 - 1;
-    h->field_60 = t;
+    t = h->countdown_timer - 1;
+    h->countdown_timer = t;
     if ((s16)t == 0) {
-        n = h->field_52;
-        h->field_60 = 8;
-        h->field_52 = n + 1;
+        n = h->pass_index;
+        h->countdown_timer = 8;
+        h->pass_index = n + 1;
         data_800518bc_slot28[0]->field_01 = 0;
     }
 }
 
 void func_80014ec8_slot28(void) {
     HudState *h = data_8018f5a0;
-    s16 x = h->field_60;
+    s16 x = h->countdown_timer;
     Object *o = data_800518bc_slot28[0];
     int m = (x < 100) ? 3 : 0;
     if (x < 60) {
@@ -51,12 +51,12 @@ void func_80014ec8_slot28(void) {
 
 void func_80014f1c_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
-    int t = h->field_60 - 1;
-    h->field_60 = t;
+    int t = h->countdown_timer - 1;
+    h->countdown_timer = t;
     if ((s16)t == 0) {
-        h->field_60 = 0xf0;
-        h->field_52 = h->field_52 + 1;
-        data_80051890_slot28.p->field_48 = 0xff;
+        h->countdown_timer = 0xf0;
+        h->pass_index = h->pass_index + 1;
+        data_80051890_slot28.p->variant_index = 0xff;
         func_8001581c_slot28(obj, 1);
     }
 }

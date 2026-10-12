@@ -29,16 +29,16 @@ void func_801b44d0_slot04_03(Object *obj) {
         func_801312b8(obj);
     } else {
         a = t & 0xff;
-        if (a == (s16)obj->field_46) {
+        if (a == (s16)obj->countdown) {
             if ((t & 0xff00) == 0) {
                 update_sequence(obj);
                 return;
             }
         } else {
-            obj->field_46 = a;
+            obj->countdown = a;
         }
         v = *(s32 *)((u8 *)data_801c0a08_slot04_03 + (a & 0xfc));
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             v = -v;
         }
         *(s32 *)&obj->pos_x_frac += v;

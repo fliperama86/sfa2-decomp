@@ -16,20 +16,20 @@ void func_800e2880_slot0f(void) {
     if (data_800f8578_slot0f != 0) {
         func_800e3b18_slot0f();
     } else {
-        data_800e9724_slot0f[data_8018f5a0->field_4e]();
+        data_800e9724_slot0f[data_8018f5a0->substep_index]();
         func_800e38b4_slot0f();
         func_800e37a4_slot0f();
         if ((data_801a696a | data_801a6976) & 0x800) {
             func_800e32dc_slot0f();
             h = data_8018f5a0;
-            data_800f8574_slot0f.field_00 = 3;
-            h->field_4a = 1;
-            h->field_4c = 0;
-            game_state.field_c6 = 0;
-            h->field_4e = 0;
-            game_state.field_c8 = 0;
-            h->field_50 = 0;
-            game_state.field_ca = 0;
+            data_800f8574_slot0f.mode_index = 3;
+            h->phase_index = 1;
+            h->step_index = 0;
+            game_state.countdown_2 = 0;
+            h->substep_index = 0;
+            game_state.timer_or_bits = 0;
+            h->step_index_2 = 0;
+            game_state.countdown_timer_2 = 0;
         }
     }
 }

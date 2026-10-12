@@ -8,7 +8,7 @@ void func_801b3d2c_slot04_08(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
         func_801312b8(obj);
     } else {
         if (t & 0xff) {

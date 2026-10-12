@@ -8,9 +8,9 @@
 void play_frame_sound(Object *object) {
     s16 index;
     s16 *table;
-    index = object->field_4a;
+    index = object->frame_sound_index;
     if (index == 0) return;
-    object->field_4a = 0;
+    object->frame_sound_index = 0;
     if (data_801a8067 == 0xd && data_801a83fb == data_801a8067) {
         table = data_80171bf0;
     } else if (data_801a8067 == 0x10 && data_801a83fb == data_801a8067) {

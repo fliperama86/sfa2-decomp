@@ -8,17 +8,17 @@ extern SequenceStep *data_801ed480_slot06_08[];
 void func_801e9e7c_slot06_08(Object *obj) {
     u8 t;
     u8 g;
-    obj->field_81 = 4;
-    g = obj->field_03;
+    obj->spawn_mode = 4;
+    g = obj->table_index;
     t = 1;
     obj->field_0c = 0;
     obj->field_0a = t;
     obj->field_0f = t;
     obj->state_0 = t;
-    t = *(u8 *)&game_state.field_42;
+    t = *(u8 *)&game_state.count_index;
     if (g != 0) t = ~t;
     if (t & 1) obj->state_0 = 2;
     t = 6;
-    if (obj->field_03 != 0) t = 7;
+    if (obj->table_index != 0) t = 7;
     func_80130700(obj, data_801ed480_slot06_08[t]);
 }

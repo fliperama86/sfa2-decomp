@@ -9,9 +9,9 @@ void func_80155f30(Object *o)
 {
   struct Object *new_var;
   new_var = o;
-  if (new_var->field_cd == 0)
+  if (new_var->mode_flag_2 == 0)
   {
-    u32 i = new_var->field_6a;
+    u32 i = new_var->round_count;
     if (i >= 100)
     {
       i = 99;

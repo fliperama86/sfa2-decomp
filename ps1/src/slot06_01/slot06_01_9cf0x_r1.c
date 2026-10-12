@@ -9,14 +9,14 @@ void func_801e9cf0_slot06_01(Object *obj) {
     int idx = 0x14;
     s16 d;
     s16 e;
-    obj->field_0b = 1;
+    obj->facing_side = 1;
     obj->state_1++;
-    e = obj->field_3c->pos_x;
+    e = obj->parent->pos_x;
     d = e - obj->pos_x;
     e = d;
     if (d < 0) {
         e = -d;
-        obj->field_0b = 0;
+        obj->facing_side = 0;
     }
     if (e < 0x61) {
         idx = 0x12;

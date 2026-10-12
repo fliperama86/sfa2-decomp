@@ -14,14 +14,14 @@ void func_801b7d64_slot04_02(Object *obj) {
 
     if (game_state.field_64 != 0) {
         obj->accel_x = obj->accel_x - 1;
-        if (obj->accel_x == 0 && (s16)obj->field_46 != 0) {
+        if (obj->accel_x == 0 && (s16)obj->countdown != 0) {
             func_801b7ebc_slot04_02(obj);
-            t = obj->field_46 - 1;
-            obj->field_46 = t;
+            t = obj->countdown - 1;
+            obj->countdown = t;
             if ((s16)t != 0) {
                 obj->accel_x = 6;
             } else {
-                obj->field_46 = 0xfff;
+                obj->countdown = 0xfff;
             }
         }
         advance_sequence_checked(obj);

@@ -21,16 +21,16 @@ void func_801e9530_slot06_02(Object *o) {
             func_801e9604_slot06_02(o);
         }
     }
-    d = *(s32 *)&((Slot06Layer *)data_801aa5d4)->field_20;
-    d -= *(s32 *)&((Slot06Layer *)data_801aa5d4)->field_08;
+    d = *(s32 *)&((Slot06Layer *)data_801aa5d4)->bound_x_c;
+    d -= *(s32 *)&((Slot06Layer *)data_801aa5d4)->bound_x_a;
     d += data_80190544;
     d += d / 16;
-    d += obj->field_08;
-    e = obj->field_36 + (d >> 16);
-    obj->field_22 = e;
+    d += obj->fixed_offset;
+    e = obj->base_value + (d >> 16);
+    obj->computed_value = e;
     e = ((Slot06Layer *)data_801aa5d4)->field_26;
     e -= ((Slot06Layer *)data_801aa5d4)->field_0e;
-    e += obj->field_0e;
-    e += obj->field_3a;
+    e += obj->offset_a;
+    e += obj->offset_b;
     obj->parallax_factor = e;
 }

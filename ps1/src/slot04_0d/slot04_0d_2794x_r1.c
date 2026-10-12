@@ -13,10 +13,10 @@ void func_801b2794_slot04_0d(Object *obj) {
     s32 *tbl = data_801c2808_slot04_0d;
 
     t = obj->step_flags;
-    obj->field_249 = 2;
+    obj->other_state_code = 2;
     update_sequence(obj);
     if ((t & 0x80) != 0) {
-        i = obj->field_12a;
+        i = obj->direction_index;
         obj->accel_x = -0x8000;
         obj->accel_y = 0x6000;
         obj->state_3++;
@@ -36,13 +36,13 @@ void func_801b2794_slot04_0d(Object *obj) {
                 obj->field_165 = 0;
                 if (obj->field_4b == 0) {
                     obj->other->field_6b = 0xa;
-                    i = obj->field_12a >> 1;
+                    i = obj->direction_index >> 1;
                     i += 1;
                 }
-                ((Slot04bObj *)obj)->field_27b = data_801c2820_slot04_0d[i];
+                ((Slot04bObj *)obj)->table_value = data_801c2820_slot04_0d[i];
             }
             i = obj->vel_x;
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 i = -i;
             }
             *(s32 *)&obj->pos_x_frac = i + *(s32 *)&obj->pos_x_frac;

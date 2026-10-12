@@ -19,7 +19,7 @@ void func_80011aac_slot27(Object *obj) {
     int side;
 
     *state = t;
-    u = game_state.field_07 | t;
+    u = game_state.side_mask | t;
     *state = u;
     side = ref_other.p->side;
     *mask = side;
@@ -29,17 +29,17 @@ void func_80011aac_slot27(Object *obj) {
         func_80011a64_slot27();
         obj->ot_depth = 4;
         obj->field_90 = (void *)0x80038000;
-        obj->field_98 = data_80017c28_slot27;
-        obj->field_9c = data_8001aa14_slot27;
+        obj->data_ptr_a = data_80017c28_slot27;
+        obj->data_ptr_b = data_8001aa14_slot27;
         obj->spawn_x = 0;
         obj->spawn_y = 0x1e0;
-        obj->field_0d = 0;
+        obj->image_row = 0;
         obj->field_01 = 0;
-        obj->field_0b = 0;
+        obj->facing_side = 0;
         obj->ground_y = 0;
-        obj->field_73 = 0;
+        obj->status_flag = 0;
         obj->state_0++;
-        if ((game_state.field_07 & *mask) != 0) {
+        if ((game_state.side_mask & *mask) != 0) {
             *state = ref_other.p->kind;
             if (*state == 0x12) {
                 *state = 4;
@@ -53,17 +53,17 @@ void func_80011aac_slot27(Object *obj) {
                 *state = 2;
                 ref_other.p->kind = *state;
             }
-            obj->field_03 = *state;
-            obj->field_46 = 0x4b0;
+            obj->table_index = *state;
+            obj->countdown = 0x4b0;
             func_800139a8_slot27(obj);
             ref_first.p = ref_other.p;
             ref_other.p = func_8011f32c();
             if (ref_other.p != 0) {
-                ref_other.p->field_00 = 1;
+                ref_other.p->active_count = 1;
                 ref_other.p->field_02 = 0x24;
                 ref_other.p->other = ref_first.p;
-                ref_other.p->field_3c = obj;
-                obj->field_3c = ref_other.p;
+                ref_other.p->parent = obj;
+                obj->parent = ref_other.p;
             }
             ref_other.p = obj->other;
             *state = 0;

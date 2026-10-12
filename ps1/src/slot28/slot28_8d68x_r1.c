@@ -14,10 +14,10 @@ void func_80018d68_slot28(Object *obj) {
     p = data_8005198c_slot28.p;
     if ((s16)p->step_flags < 0) {
         HudState *h = data_8018f5a0;
-        h->field_60 = 0xb4;
-        h->field_52 += 1;
+        h->countdown_timer = 0xb4;
+        h->pass_index += 1;
         p = data_80051954_slot28[0];
-        p->field_48 = 0xff;
+        p->variant_index = 0xff;
         func_8014f4d4(6, 1);
         func_80019100_slot28(obj, 6);
     }

@@ -12,7 +12,7 @@ void func_8015bfe8(void *prim, int flag);
 /*
  * What it does (inferred, not an original name): sets up 14 pairs of
  * 16-byte rectangle records, 0x20 records apart, in one of two record
- * tables (the second when the object's field_03 is not 0, else the first).
+ * tables (the second when the object's table_index is not 0, else the first).
  * For each pair it calls the library on both records (one routine to
  * initialize, one to set a flag, called with 0), clears the colour bytes
  * and sets the position (the object's position plus an offset pair from a
@@ -27,7 +27,7 @@ void func_80012a0c_slot12(Object *obj) {
 
     /* The second pointer is set in both arms; with b = a + 0x20 once after
        the if, this differs from the original in 19 instruction lines. */
-    if (obj->field_03 == 0) {
+    if (obj->table_index == 0) {
         a = data_8002a394_slot12;
         b = a + 0x20;
     } else {

@@ -16,18 +16,18 @@ void func_80015374_slot28(Object *obj) {
     s16 t;
     if (obj->field_f0 == 0) {
         t = 0x3c0;
-        data_8018f5a0->field_60 = t;
-        data_8018f5a0->field_52 = data_8018f5a0->field_52 + 1;
+        data_8018f5a0->countdown_timer = t;
+        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
         func_80015678_slot28(obj);
         p = (Object *)func_8011f1e0();
         b = p;
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x76;
             b->pos_x = 0xf0;
             b->pos_y = 0x70;
             b->ot_depth = 2;
-            b->field_03 = 1;
+            b->table_index = 1;
             b->field_0c = 0;
             b->box_tables = (BoxTables *)data_8002bde4_slot28;
             func_80015640_slot28(b);
@@ -35,9 +35,9 @@ void func_80015374_slot28(Object *obj) {
         p = (Object *)func_8011f1e0();
         b = p;
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x76;
-            b->field_03 = 2;
+            b->table_index = 2;
             b->pos_x = 0x90;
             b->pos_y = 0x68;
             b->field_0c = 0;
@@ -48,9 +48,9 @@ void func_80015374_slot28(Object *obj) {
         p = (Object *)func_8011f1e0();
         b = p;
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x76;
-            b->field_03 = 2;
+            b->table_index = 2;
             b->pos_x = 0xa0;
             b->pos_y = 0x50;
             b->field_0c = 0;
@@ -61,9 +61,9 @@ void func_80015374_slot28(Object *obj) {
         p = (Object *)func_8011f1e0();
         b = p;
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x76;
-            b->field_03 = 2;
+            b->table_index = 2;
             b->pos_x = 0x58;
             b->pos_y = 0x58;
             b->field_0c = 0;
@@ -74,9 +74,9 @@ void func_80015374_slot28(Object *obj) {
         p = (Object *)func_8011f1e0();
         b = p;
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x76;
-            b->field_03 = 2;
+            b->table_index = 2;
             b->pos_x = 0x70;
             b->pos_y = 0x60;
             b->field_0c = 0;
@@ -87,9 +87,9 @@ void func_80015374_slot28(Object *obj) {
         p = (Object *)func_8011f1e0();
         b = p;
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x76;
-            b->field_03 = 3;
+            b->table_index = 3;
             b->pos_x = 0x89;
             b->pos_y = 0xa0;
             b->field_0c = 0;
@@ -101,11 +101,11 @@ void func_80015374_slot28(Object *obj) {
         p = (Object *)func_8011f1e0();
         b = p;
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0xa5;
             b->pos_x = 0xf0;
             b->pos_y = 0x70;
-            b->field_03 = 0;
+            b->table_index = 0;
             b->field_0c = 0;
             b->ot_depth = 3;
             b->field_01 = 1;

@@ -8,7 +8,7 @@ extern s32 data_801c532c_slot04_06[];
 
 void func_801b169c_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
-    int i = o->field_12a >> 1;
+    int i = o->direction_index >> 1;
     s16 x;
 
     if (o->field_49 != 0) {
@@ -19,9 +19,9 @@ void func_801b169c_slot04_06(Object *o) {
         x = 0x60;
     }
     if ((u8)func_8013f8c4(o, -0x20, x)) {
-        o->field_159 = 1;
+        o->active_flag_3 = 1;
         o->state_3 += 2;
-        o->pos_y = obj->field_70;
+        o->pos_y = obj->saved_pos_y;
         play_side_sound_at(o, o->side, 9);
         play_sound_at(o->other, o->other->side, 0x31a);
         if (o->state_2 == 8) {
@@ -38,13 +38,13 @@ void func_801b169c_slot04_06(Object *o) {
 void func_801b17ac_slot04_06(Object *o) {
     s32 *p;
 
-    o->field_12c = 0;
+    o->substate_index = 0;
     o->field_12d = 0;
-    o->field_12e = 0;
-    o->field_12f = 0;
+    o->step_count_2 = 0;
+    o->step_limit = 0;
     o->state_3++;
     func_80141f28(o, 5);
-    p = &data_801c532c_slot04_06[o->field_12a * 2];
+    p = &data_801c532c_slot04_06[o->direction_index * 2];
     o->vel_x = *p++;
     o->vel_y = *p++;
     o->accel_x = *p++;

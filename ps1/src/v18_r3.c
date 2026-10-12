@@ -10,13 +10,13 @@ void func_8011f14c(Slab172 *o) {
     o->field_74 = 0;
     o->field_67 = 0;
     o->field_44 = 0;
-    o->field_08 = 8;
+    o->type_code = 8;
     data_801a6960 = data_801a6960 + 1;
     o->field_26 = 0;
-    o->field_28 = 0;
-    o->field_2c = 0;
-    o->field_30 = 0;
-    o->field_34 = 0;
+    o->linked_entry_0 = 0;
+    o->linked_entry_1 = 0;
+    o->linked_entry_2 = 0;
+    o->linked_entry_3 = 0;
     o->field_90 = 0;
     data_801a89b0[data_801a6960] = o;
 }

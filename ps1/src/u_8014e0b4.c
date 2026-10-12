@@ -15,12 +15,12 @@ int func_8014e0b4(Object *object)
   int b;
   char new_var;
   int c;
-  if (((s16) object->field_24a) == 0)
+  if (((s16) object->script_bits) == 0)
   {
     return 0;
   }
-  flags = (s16) object->field_24a;
-  if (object->field_20a == 3)
+  flags = (s16) object->script_bits;
+  if (object->script_mode == 3)
   {
     return 0;
   }
@@ -35,7 +35,7 @@ int func_8014e0b4(Object *object)
   data_8018946c = 1;
   if (flags & 2)
   {
-    if (((*((u32 *) (&object->state_0))) == 0x20101) && (object->field_21e < 0x40))
+    if (((*((u32 *) (&object->state_0))) == 0x20101) && (object->compare_limit < 0x40))
     {
       other = object->other;
       frame = other->frame;
@@ -45,11 +45,11 @@ int func_8014e0b4(Object *object)
       c = frame->box_c;
       if (((a != 0) || (new_var != 0)) || (c != 0))
       {
-        object->field_0b = object->field_158;
+        object->facing_side = object->saved_facing;
         object->field_69 = 0;
-        object->field_6a = 0;
+        object->round_count = 0;
         b = 5;
-        object->field_249 = b;
+        object->other_state_code = b;
         object->field_170 = 0;
         goto done;
       }
@@ -58,7 +58,7 @@ int func_8014e0b4(Object *object)
   data_8018946c = 2;
   if (flags & 4)
   {
-    if (object->field_21e < 0x60)
+    if (object->compare_limit < 0x60)
     {
       if (func_8014e368(object) != 0)
       {
@@ -79,7 +79,7 @@ int func_8014e0b4(Object *object)
       if (((*((u32 *) (&other->state_0))) & 0xffffff) == 0x90001)
       {
         done:
-        object->field_244 = data_8018946c;
+        object->script_index = data_8018946c;
 
         return 1;
       }

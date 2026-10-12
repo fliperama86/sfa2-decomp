@@ -7,9 +7,9 @@ void func_8012f384(Object *object) {
     u8 flag;
 
     object->state_3 = 5;
-    flag = object->field_164 != 1;
+    flag = object->bound_push_flag != 1;
     play_sound_at(object, object->side, 0x314);
-    object->field_0b = flag;
+    object->facing_side = flag;
     set_sequence_by_side(object, 0x30);
 }
 

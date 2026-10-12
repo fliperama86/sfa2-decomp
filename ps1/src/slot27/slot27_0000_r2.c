@@ -51,32 +51,32 @@ void func_80010100_slot27(void) {
     }
     func_80137220(2, 2);
     data_801aa544[0].scroll_x = 0x248;
-    ((u16 *)&data_801aa544[0].field_14)[1] = 0x100;
+    ((u16 *)&data_801aa544[0].scroll_y)[1] = 0x100;
     data_801aa544[1].scroll_x = 0x148;
-    ((u16 *)&data_801aa544[1].field_14)[1] = 0;
+    ((u16 *)&data_801aa544[1].scroll_y)[1] = 0;
     data_801aa544[2].scroll_x = 0x48;
-    ((u16 *)&data_801aa544[2].field_14)[1] = 0x700;
-    game_state.field_ce = 0x248;
-    game_state.field_d0 = 0x100;
+    ((u16 *)&data_801aa544[2].scroll_y)[1] = 0x700;
+    game_state.cam_x = 0x248;
+    game_state.cam_y = 0x100;
     game_state.field_d2 = 0x148;
     game_state.field_d4 = 0;
-    game_state.field_d6 = 0x48;
-    game_state.field_d8 = 0x700;
+    game_state.cam_param_a = 0x48;
+    game_state.cam_param_b = 0x700;
     game_state.field_da = 0;
     func_80157d9c(0);
-    if (game_state.field_05 != 0) {
-        data_8018f5a0->field_4e++;
-        game_state.field_05 = 0;
+    if (game_state.pause_flag != 0) {
+        data_8018f5a0->substep_index++;
+        game_state.pause_flag = 0;
         func_800105ec_slot27();
     } else {
         HudState *h = data_8018f5a0;
-        h->field_50++;
-        h->field_52 = 0;
+        h->step_index_2++;
+        h->pass_index = 0;
         h->field_54 = 0;
-        game_state.field_c6 = 0;
-        game_state.field_c8 = 0;
-        game_state.field_b0 = 0;
-        game_state.field_b1 = 0xff;
-        game_state.field_b2 = 0;
+        game_state.countdown_2 = 0;
+        game_state.timer_or_bits = 0;
+        game_state.b0_flag = 0;
+        game_state.selection_value = 0xff;
+        game_state.b2_count = 0;
     }
 }

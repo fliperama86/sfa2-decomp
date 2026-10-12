@@ -14,8 +14,8 @@ void func_801b4960_slot04_06(Object *obj) {
 
     obj->state_2 = obj->state_2 + 1;
     ((Slot04aObj *)obj)->timer = 0x3c;
-    game_state.field_76 = 0x1e;
-    obj->field_0b = obj->field_158;
+    game_state.countdown = 0x1e;
+    obj->facing_side = obj->saved_facing;
     t = get_random_byte() & 0x3f;
     p = &((Slot04aObj *)obj)->field_1c0;
     if (t == 0) {

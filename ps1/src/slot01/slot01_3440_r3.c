@@ -18,15 +18,15 @@ void func_80013734_slot01(Object *obj) {
     obj->ot_depth = 0x10;
     obj->spawn_x = 0x10;
     obj->spawn_y = 0x1f0;
-    obj->field_98 = data_80019c68_slot01;
-    obj->field_9c = data_80019dcc_slot01;
+    obj->data_ptr_a = data_80019c68_slot01;
+    obj->data_ptr_b = data_80019dcc_slot01;
     obj->field_90 = (void *)0x8006d478;
     obj->state_0++;
-    if (obj->field_03 == 0) {
+    if (obj->table_index == 0) {
         func_80013a2c_slot01(obj);
         func_80013ac0_slot01(obj);
         func_80130768(obj, 0, data_80024330_slot01);
-    } else if (obj->field_03 == 1) {
+    } else if (obj->table_index == 1) {
         func_80013a2c_slot01(obj);
         obj->state_0 = 2;
         obj->pos_x = data_80015a4c_slot01->field_d2;
@@ -34,9 +34,9 @@ void func_80013734_slot01(Object *obj) {
         func_80013a24_slot01(obj);
         func_80013ac0_slot01(obj);
         func_80130768(obj, 1, data_80024330_slot01);
-    } else if (obj->field_03 >= 2) {
+    } else if (obj->table_index >= 2) {
         obj->state_0 = 4;
-        func_80130768(obj, obj->field_03, data_80024330_slot01);
+        func_80130768(obj, obj->table_index, data_80024330_slot01);
     }
 }
 

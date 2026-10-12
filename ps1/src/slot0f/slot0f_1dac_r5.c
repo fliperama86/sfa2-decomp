@@ -15,7 +15,7 @@ void func_800e21f8_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
 
     func_801519b4(&data_800e8508_slot0f);
-    data_800e87fc_slot0f[(s8)obj->field_04](o);
+    data_800e87fc_slot0f[(s8)obj->handler_index](o);
 }
 
 void func_800e2254_slot0f(Object *o) {
@@ -39,7 +39,7 @@ void func_800e22a0_slot0f(Object *o) {
     } else {
         func_801519b4(&data_800e8608_slot0f);
     }
-    switch (obj->field_0e) {
+    switch (obj->mode) {
     case 0:
         rec = &data_800e86b8_slot0f;
         break;
@@ -55,10 +55,10 @@ void func_800e22a0_slot0f(Object *o) {
 void func_800e2328_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
 
-    obj->field_00 = 1;
+    obj->state_index = 1;
     obj->field_07 = 0;
     obj->field_06 = 0;
     obj->field_05 = 0;
-    obj->field_04 = 0;
-    obj->field_09 = 0;
+    obj->handler_index = 0;
+    obj->handler_index_b = 0;
 }

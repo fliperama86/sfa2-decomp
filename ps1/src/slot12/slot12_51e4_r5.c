@@ -10,13 +10,13 @@ void func_8001562c_slot12(Object *obj) {
     u8 *p = &game_state.field_2bc;
     u8 a = *p;
     if (a == 4) {
-        v = obj->field_76;
+        v = obj->base_x;
         if (v != 0x20) {
-            obj->field_76 = v - 8;
+            obj->base_x = v - 8;
             func_80015850_slot12(obj);
         } else {
             obj->state_1 = obj->state_1 + 1;
-            if (obj->field_03 == a) {
+            if (obj->table_index == a) {
                 *p = 6;
             }
         }

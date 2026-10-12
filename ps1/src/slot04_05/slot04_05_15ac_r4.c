@@ -6,7 +6,7 @@
 void func_801b19c4_slot04_05(Object *obj) {
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac - obj->vel_y;
     obj->vel_y = obj->vel_y + obj->accel_y;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     } else {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
@@ -29,8 +29,8 @@ void func_801b1a60_slot04_05(Object *obj) {
     } else {
         obj->state_3++;
         func_801209c4(obj);
-        obj->field_45 = 0;
-        obj->field_17b = 0;
+        obj->active_state = 0;
+        obj->active_flag_4 = 0;
         obj->pos_y = (u16)obj->ground_y;
         update_sequence(obj);
     }

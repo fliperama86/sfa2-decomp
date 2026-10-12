@@ -10,7 +10,7 @@ void func_801b26ac_slot04_09(Object *obj) {
     if (obj->vel_y < 0) {
         obj->state_3++;
         obj->accel_y = obj->accel_y * 3;
-        obj->field_0b = obj->field_0b ^ 1;
+        obj->facing_side = obj->facing_side ^ 1;
         func_801307e0(obj, 0x4a);
     }
 }
@@ -21,9 +21,9 @@ void func_801b2714_slot04_09(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3++;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->pos_y_frac = 0;
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
         obj->pos_y = obj->ground_y;
         func_80142adc(obj);
         func_801209c4(obj);
@@ -35,7 +35,7 @@ void func_801b279c_slot04_09(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         func_80131468(obj);
     } else {
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
         func_80142adc(obj);
         update_sequence(obj);
     }

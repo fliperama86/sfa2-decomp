@@ -9,11 +9,11 @@ void func_801b1c28_slot04_08(Object *obj) {
     int below;
     ((Slot04aObj *)obj)->field_1c8--;
     if (((Slot04aObj *)obj)->field_1c8 == 0) {
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
     }
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     obj->vel_x += obj->accel_x;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         below = -obj->vel_x < 0;
         if (below) {
             obj->state_3++;

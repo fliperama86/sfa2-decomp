@@ -4,20 +4,20 @@
 #include "../externs.h"
 
 void func_801b4280_slot04_05(Object *obj) {
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     obj->state_3++;
-    if (obj->field_12a == 2) {
-        if (obj->field_219 != 0) {
-            obj->field_159 = 1;
+    if (obj->direction_index == 2) {
+        if (obj->attack_param_d != 0) {
+            obj->active_flag_3 = 1;
             obj->state_3 = 2;
             func_80141f28(obj, 1);
             func_801307e0(obj, 0x28);
         } else {
-            obj->field_159 = 1;
+            obj->active_flag_3 = 1;
             func_80130dc0(obj);
         }
     } else {
-        obj->field_159 = 1;
+        obj->active_flag_3 = 1;
         func_80130dc0(obj);
     }
 }

@@ -8,7 +8,7 @@ extern s16 data_8007ef2c_slot2b;
 void func_80078554_slot2b(Object *o);
 
 void func_800782c0_slot2b(Object *o) {
-    if ((game_state_second.field_65 | game_state_second.field_a8) != 0) {
+    if ((game_state_second.pause_flag_a | game_state_second.pause_flag_b) != 0) {
         func_8011ffdc(o);
         return;
     }

@@ -8,7 +8,7 @@ void func_801b2b74_slot04_01(Object *obj) {
 
     if (t & 0x8000) {
         obj->state_3++;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->pos_x -= 0x18;
         } else {
             obj->pos_x += 0x18;

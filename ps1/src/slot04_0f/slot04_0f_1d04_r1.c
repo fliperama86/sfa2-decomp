@@ -26,9 +26,9 @@ void func_801b1d64_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     o->state_3 = o->state_3 + 1;
-    obj->field_334 = 1;
+    obj->set_flag = 1;
     func_80141f28(o, 2);
-    *(s32 *)&obj->field_330 = *(s32 *)&o->other->pos_x_frac;
+    *(s32 *)&obj->saved_pos_x_frac = *(s32 *)&o->other->pos_x_frac;
     obj->field_339 = 0xff;
     func_801307e0(o, 0x39);
     play_side_sound_at(o, o->side, 0xe);
@@ -42,7 +42,7 @@ void func_801b1ddc_slot04_0f(Object *o) {
     if ((s16)o->step_flags < 0) {
         o->state_3 = o->state_3 + 1;
         o->field_01 = 0;
-        ((Slot04bObj *)o)->field_46 = 0x10;
+        ((Slot04bObj *)o)->countdown = 0x10;
         ((void (*)(Object *))func_801b21f8_slot04_0f)(o);
     }
 }
@@ -50,11 +50,11 @@ void func_801b1ddc_slot04_0f(Object *o) {
 void func_801b1e38_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    obj->field_46--;
-    if (obj->field_46 == 0) {
+    obj->countdown--;
+    if (obj->countdown == 0) {
         o->field_01 = 1;
         o->state_3 = o->state_3 + 1;
-        o->field_0b = o->field_158;
+        o->facing_side = o->saved_facing;
         func_801307e0(o, 0x3a);
         play_side_sound_at(o, o->side, 0xf);
     } else {
@@ -66,10 +66,10 @@ void func_801b1ec8_slot04_0f(Object *o) {
     update_sequence(o);
     func_801b2270_slot04_0f(o);
     if ((s16)o->step_flags < 0) {
-        ((Slot04bObj *)o)->field_46 = 1;
+        ((Slot04bObj *)o)->countdown = 1;
         o->state_3 = o->state_3 + 1;
-        if (o->field_45 == 0) {
-            o->field_46 = (o->field_46 & 0xff00) | 6;
+        if (o->active_state == 0) {
+            o->countdown = (o->countdown & 0xff00) | 6;
             set_sequence_by_side(o, 0);
         }
     }
@@ -79,9 +79,9 @@ void func_801b1f3c_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     update_sequence(o);
-    obj->field_46--;
-    if (obj->field_46 == 0) {
-        if (o->field_45 != 0) {
+    obj->countdown--;
+    if (obj->countdown == 0) {
+        if (o->active_state != 0) {
             o->state_0 = 1;
             o->state_1 = 0;
             o->state_2 = 3;
@@ -106,10 +106,10 @@ void func_801b2018_slot04_0f(Object *o) {
     u8 one = 1;
 
     o->state_3 = o->state_3 + 1;
-    obj->field_334 = one;
+    obj->set_flag = one;
     func_80141f28(o, 2);
-    o->field_17b = one;
-    *(s32 *)&obj->field_330 = *(s32 *)&o->other->pos_x_frac;
+    o->active_flag_4 = one;
+    *(s32 *)&obj->saved_pos_x_frac = *(s32 *)&o->other->pos_x_frac;
     func_801307e0(o, 0x55);
     play_side_sound_at(o, o->side, 0xe);
     func_801b2094_slot04_0f(o);
@@ -119,7 +119,7 @@ void func_801b2018_slot04_0f(Object *o) {
 void func_801b2094_slot04_0f(Object *o) {
     update_sequence(o);
     if ((s16)o->step_flags < 0) {
-        ((Slot04bObj *)o)->field_46 = 0x10;
+        ((Slot04bObj *)o)->countdown = 0x10;
         o->state_3 = o->state_3 + 1;
         ((void (*)(Object *))func_801b21f8_slot04_0f)(o);
     }
@@ -128,8 +128,8 @@ void func_801b2094_slot04_0f(Object *o) {
 void func_801b20e4_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    obj->field_46--;
-    if (obj->field_46 == 0) {
+    obj->countdown--;
+    if (obj->countdown == 0) {
         o->state_3 = o->state_3 + 1;
         func_801307e0(o, 0x56);
         play_side_sound_at(o, o->side, 0xf);
@@ -141,8 +141,8 @@ void func_801b20e4_slot04_0f(Object *o) {
 void func_801b2168_slot04_0f(Object *o) {
     update_sequence(o);
     if ((s16)o->step_flags < 0) {
-        o->field_17b = 0;
-        if (o->field_45 == 0) {
+        o->active_flag_4 = 0;
+        if (o->active_state == 0) {
             func_801312b8(o);
         } else {
             o->state_0 = 1;

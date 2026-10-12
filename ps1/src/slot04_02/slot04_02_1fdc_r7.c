@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b2a20_slot04_02(Object *obj) {
-    obj->field_46 -= 0x100;
+    obj->countdown -= 0x100;
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
         if (obj->field_4b != 0) {

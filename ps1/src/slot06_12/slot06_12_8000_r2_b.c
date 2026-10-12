@@ -16,18 +16,18 @@ void func_801e872c_slot06_12(Slot06Layer *layer) {
     u16 unused[4];
 
     k = layer->table_index * 2;
-    layer->field_30 = data_801e9ea8_slot06_12[k];
-    layer->field_4a = data_801e9eaa_slot06_12[k];
+    layer->countdown_timer = data_801e9ea8_slot06_12[k];
+    layer->flags_bits = data_801e9eaa_slot06_12[k];
 }
 
 void func_801e8778_slot06_12(Slot06Layer *layer) {
-    layer->field_50 = data_801eb52c_slot06_12;
-    layer->field_54 = data_801eb52c_slot06_12;
-    layer->field_1e = 0x580e;
-    layer->field_58 = 0x200;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801eb52c_slot06_12;
+    layer->data_table = data_801eb52c_slot06_12;
+    layer->packed_param = 0x580e;
+    layer->map_width = 0x200;
+    layer->scale = 0x100;
     layer->field_4c = 0xc8;
-    layer->field_4e = 0xd8;
+    layer->rect_right = 0xd8;
     layer->field_1c = 0x58;
 }
 

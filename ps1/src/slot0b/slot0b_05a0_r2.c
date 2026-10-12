@@ -8,32 +8,32 @@ void func_801e0578_slot0b(Object *obj, u8 a);
 
 void func_801e06d0_slot0b(ModObj *obj) {
     int t;
-    obj->field_24 += 0x10;
-    obj->field_20 += 1;
-    obj->field_22 += 1;
-    if (data_80190468.p->field_ab != 1) {
-        t = obj->field_46;
+    obj->step_accum += 0x10;
+    obj->counter_a += 1;
+    obj->counter_b += 1;
+    if (data_80190468.p->phase_state != 1) {
+        t = obj->countdown_timer;
         t--;
-        obj->field_46 = t;
+        obj->countdown_timer = t;
         if ((s16)t >= 0) {
             return;
         }
     }
-    obj->field_24 = 0;
-    obj->field_20 = 0;
-    obj->field_22 = 0;
+    obj->step_accum = 0;
+    obj->counter_a = 0;
+    obj->counter_b = 0;
     obj->substate_index += 1;
     func_801e08d8_slot0b(obj);
 }
 
 void func_801e0760_slot0b(ModObj *obj) {
-    if (data_80190468.p->field_ab == 2) {
-        obj->field_46 = 0xf;
+    if (data_80190468.p->phase_state == 2) {
+        obj->countdown_timer = 0xf;
         obj->substate_index += 1;
-        ref_other.p = obj->field_3c;
+        ref_other.p = obj->owner_object;
         func_801e0578_slot0b((Object *)obj, func_80125b18(ref_other.p->kind));
         if (obj->child != 0) {
-            obj->child->field_04 = 2;
+            obj->child->mode = 2;
         }
     }
 }

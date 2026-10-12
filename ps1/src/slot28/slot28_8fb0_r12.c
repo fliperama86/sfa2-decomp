@@ -6,7 +6,7 @@
 extern void (*data_80035414_slot28[])(Object *);
 
 void func_800198f8_slot28(Object *obj) {
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         obj->state_0++;
     }
 }

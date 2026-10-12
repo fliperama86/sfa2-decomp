@@ -6,19 +6,19 @@
 void func_8001f258_slot28(Object *obj) {
     int d = -0x8000;
     int t;
-    if (obj->field_48 != 0) {
+    if (obj->variant_index != 0) {
         obj->state_1++;
     }
-    t = obj->field_46 + 1;
-    obj->field_46 = t & 7;
+    t = obj->countdown + 1;
+    obj->countdown = t & 7;
     if (t & 4) {
         d = 0x10000;
     }
-    ((Slot28Obj *)obj)->field_14 = ((Slot28Obj *)obj)->field_14 - d;
+    ((Slot28Obj *)obj)->pos_y = ((Slot28Obj *)obj)->pos_y - d;
 }
 
 void func_8001f2ac_slot28(Object *obj) {
-    ((Slot28Obj *)obj)->field_14 += 0x4000;
+    ((Slot28Obj *)obj)->pos_y += 0x4000;
     if (obj->pos_y >= 0xc0) {
         obj->pos_y = 0xc0;
         obj->state_1++;

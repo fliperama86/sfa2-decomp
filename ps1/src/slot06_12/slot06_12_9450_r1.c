@@ -24,32 +24,32 @@ void func_801e9450_slot06_12(Object *obj) {
 }
 
 void func_801e9490_slot06_12(Object *obj) {
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->field_0c = 0;
     obj->state_0++;
-    data_801eeed0_slot06_12[obj->field_03](obj);
+    data_801eeed0_slot06_12[obj->table_index](obj);
 }
 
 void func_801e94e4_slot06_12(Object *obj) {
     Object *p;
 
     obj->field_0f = 1;
-    game_state.field_30c = (Pair *)&player_left;
-    obj->field_61 = 0;
+    game_state.pair_ptr = (Pair *)&player_left;
+    obj->hit_type = 0;
     obj->field_62 = 0;
-    *(u32 *)&obj->health = *(u32 *)&((Object *)game_state.field_30c)->pos_x_frac;
-    obj->field_60 = ((Object *)game_state.field_30c)->field_45;
+    *(u32 *)&obj->health = *(u32 *)&((Object *)game_state.pair_ptr)->pos_x_frac;
+    obj->field_60 = ((Object *)game_state.pair_ptr)->active_state;
     p = &player_left;
     p++;
-    game_state.field_30c = (Pair *)p;
-    obj->field_65 = 0;
-    obj->field_66 = 0;
-    *(u32 *)&obj->field_60 = *(u32 *)&((Object *)game_state.field_30c)->pos_x_frac;
-    obj->field_64 = ((Object *)game_state.field_30c)->field_45;
+    game_state.pair_ptr = (Pair *)p;
+    obj->team_id = 0;
+    obj->sound_side = 0;
+    *(u32 *)&obj->field_60 = *(u32 *)&((Object *)game_state.pair_ptr)->pos_x_frac;
+    obj->damage = ((Object *)game_state.pair_ptr)->active_state;
 }
 
 void func_801e9574_slot06_12(Object *obj) {
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     obj->field_0a = 1;
     obj->field_0e = 8;
     obj->ot_depth = 0x1a;
@@ -58,7 +58,7 @@ void func_801e9574_slot06_12(Object *obj) {
 }
 
 void func_801e95bc_slot06_12(Object *obj) {
-    data_801eeed8_slot06_12[obj->field_03](obj);
+    data_801eeed8_slot06_12[obj->table_index](obj);
 }
 
 void func_801e95fc_slot06_12(Object *obj) {
@@ -69,7 +69,7 @@ void func_801e95fc_slot06_12(Object *obj) {
 }
 
 void func_801e9648_slot06_12(Object *a, u8 *b) {
-    u8 x = a->field_45;
+    u8 x = a->active_state;
     u8 y = b[4];
 
     if ((x & y) == 0 && (x | y) != 0) {
@@ -77,19 +77,19 @@ void func_801e9648_slot06_12(Object *a, u8 *b) {
         b[6] = 0;
         func_801e96b0_slot06_12(a);
     }
-    b[4] = a->field_45;
+    b[4] = a->active_state;
 }
 
 void func_801e96b0_slot06_12(Object *obj) {
     game_state.other_object = (Object *)func_8011f1e0();
     if (game_state.other_object != 0) {
-        game_state.other_object->field_00 = 1;
+        game_state.other_object->active_count = 1;
         game_state.other_object->field_02 = 0x35;
-        game_state.other_object->field_03 = 1;
+        game_state.other_object->table_index = 1;
         game_state.other_object->pos_x = obj->pos_x;
         game_state.other_object->pos_y = obj->ground_y;
-        game_state.other_object->field_3c = obj;
-        game_state.other_object->field_81 = 4;
+        game_state.other_object->parent = obj;
+        game_state.other_object->spawn_mode = 4;
     }
 }
 
@@ -112,7 +112,7 @@ void func_801e97d4_slot06_12(Object *obj) {
 void func_801e9814_slot06_12(Object *obj) {
     obj->field_0f = 1;
     obj->field_0a = 1;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0++;
     obj->vel_x = obj->pos_x;
     func_80130768(obj, 1, data_801eee74_slot06_12);
@@ -125,8 +125,8 @@ void func_801e9864_slot06_12(Object *obj) {
 
     if (game_state.field_65 == 0) {
         l2 = (Slot06Layer *)data_801aa5d4;
-        x = l2->field_12;
-        x -= l2->field_0a;
+        x = l2->scroll_x;
+        x -= l2->ref_x;
         x &= -0x80;
         d = obj->vel_x + x;
         obj->pos_x = d;
@@ -148,7 +148,7 @@ void func_801e9908_slot06_12(Object *obj) {
 void func_801e9948_slot06_12(Object *obj) {
     obj->field_0f = 1;
     obj->field_0a = 1;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0++;
     obj->vel_x = obj->pos_x;
     obj->vel_y = obj->pos_y;
@@ -158,7 +158,7 @@ void func_801e9948_slot06_12(Object *obj) {
 void func_801e9994_slot06_12(Object *obj) {
     Slot06Layer *l2 = (Slot06Layer *)data_801aa5d4;
 
-    obj->pos_x = l2->field_0a - l2->field_12 + (u16)obj->pos_x;
+    obj->pos_x = l2->ref_x - l2->scroll_x + (u16)obj->pos_x;
     func_80130768(obj, 1, data_801eee74_slot06_12);
 }
 
@@ -169,10 +169,10 @@ void func_801e99dc_slot06_12(Object *obj) {
     if (game_state.field_65 == 0) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_0e;
-        d -= l2->field_16;
+        d -= l2->scroll_y;
         d += d >> 2;
         obj->pos_y = (u16)obj->vel_y - d;
-        obj->pos_x = l2->field_0a - l2->field_12 + (u16)obj->vel_x;
+        obj->pos_x = l2->ref_x - l2->scroll_x + (u16)obj->vel_x;
         advance_sequence_checked(obj);
     }
     func_80120028(obj);
@@ -190,7 +190,7 @@ void func_801e9ac4_slot06_12(Object *obj) {
     obj->field_01 = 0;
     obj->field_0c = 0;
     obj->accel_y = 0;
-    obj->field_81 = 4;
+    obj->spawn_mode = 4;
     obj->state_0++;
     func_801e9e0c_slot06_12(obj);
     func_801e9be8_slot06_12(obj);

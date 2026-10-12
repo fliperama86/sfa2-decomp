@@ -10,9 +10,9 @@ void func_801b51dc_slot04_07(Object *obj) {
     u16 v;
     s16 k;
     u8 r = get_random_byte() & 7;
-    obj->field_48 = r;
+    obj->variant_index = r;
     p = &data_801c2134_slot04_07[r * 4];
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         v = *p++;
         k = -8;
         *(s16 *)&obj->accel_x = k;

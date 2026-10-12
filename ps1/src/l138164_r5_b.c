@@ -20,9 +20,9 @@ void func_8013d9d0(Object *object, u8 index, u8 arg) {
             buttons = data_801a6972 & 0xf000;
         }
     }
-    if (game_state.field_30 != 0 && data_801a6984[0] != 0 &&
+    if (game_state.versus_flag != 0 && data_801a6984[0] != 0 &&
         game_state.mode == object->field_02 + 1) {
-        buttons = object->field_c2 & 0xf000;
+        buttons = object->input_bits & 0xf000;
     }
     if (buttons == 0) {
         func_8013f2c8(object);

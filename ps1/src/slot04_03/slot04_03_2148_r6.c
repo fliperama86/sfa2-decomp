@@ -10,7 +10,7 @@ void func_801b2774_slot04_03(Object *obj) {
         obj->state_3 = 0xb;
         func_801307e0(obj, 0x31);
     } else if (t == 0) {
-        if (obj->field_12a < 4) {
+        if (obj->direction_index < 4) {
             obj->state_3 = 0xb;
             func_801307e0(obj, 0x31);
         } else if ((obj->pressed_bits & 0x95) != 0) {

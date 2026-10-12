@@ -8,20 +8,20 @@ void func_801b42ec_slot04_04(Object *obj);
 void func_801b4a40_slot04_04(Object *obj);
 
 void func_801b4258_slot04_04(Object *obj) {
-    Object *p = obj->field_3c;
+    Object *p = obj->parent;
 
-    if (obj->field_03 == 0) {
-        *(s32 *)&p->field_2c = 0;
+    if (obj->table_index == 0) {
+        *(s32 *)&p->linked_object_2 = 0;
     } else {
-        p->field_28 = 0;
+        p->linked_object = 0;
     }
     func_8011f38c(obj);
 }
 
 void func_801b4294_slot04_04(Object *obj) {
-    if (obj->field_128 == 4) {
+    if (obj->input_dir_0 == 4) {
         func_801b4a40_slot04_04(obj);
-    } else if (obj->field_128 != 0) {
+    } else if (obj->input_dir_0 != 0) {
         func_801b4560_slot04_04(obj);
     } else {
         func_801b42ec_slot04_04(obj);

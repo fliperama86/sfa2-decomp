@@ -40,10 +40,10 @@ void func_800e3da0_slot0f(void) {
     func_801519b4(&data_800e9988_slot0f);
     pad = &data_801a696a;
     if (*pad & 0x800) {
-        data_8018f5a0->field_52 = 3;
+        data_8018f5a0->pass_index = 3;
     }
     if (data_801a6976 & 0x800) {
-        data_8018f5a0->field_52 = 3;
+        data_8018f5a0->pass_index = 3;
     }
     if (*pad & 0x4000) {
         data_800e98e3_slot0f[data_800f024c_slot0f * 5] = data_8016e674[data_800f024c_slot0f];

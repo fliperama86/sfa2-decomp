@@ -15,14 +15,14 @@ void func_80012c34_slot12(Object *obj) {
     u16 margin;
     obj->field_01 = 1;
     obj->ot_depth = 0;
-    obj->field_0b = 0;
+    obj->facing_side = 0;
     obj->field_0c = 0;
-    obj->field_0d = 0;
+    obj->image_row = 0;
     obj->state_0++;
     margin = box_margin[0];
     obj->pos_y = 0x78;
-    obj->field_98 = data_80019054_slot12;
-    obj->field_9c = data_80019548_slot12;
+    obj->data_ptr_a = data_80019054_slot12;
+    obj->data_ptr_b = data_80019548_slot12;
     obj->field_90 = (void *)0x80055598;
     obj->spawn_x = 0;
     obj->spawn_y = 0x1f1;

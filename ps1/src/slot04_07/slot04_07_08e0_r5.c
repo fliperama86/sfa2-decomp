@@ -6,7 +6,7 @@
 void func_801b0c18_slot04_07(Object *obj) {
     obj->state_3++;
     ((Slot04aObj *)obj)->field_1ca = 0;
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     func_80130dc0(obj);
 }
 

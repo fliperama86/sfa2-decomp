@@ -5,35 +5,35 @@
 
 void func_801b4498_slot04_07(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0) {
-        if (obj->field_218 != 0 && (func_8013f8c4(obj, -0x12, 0x14) & 0xff) != 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index != 0) {
+        if (obj->hit_flag_a != 0 && (func_8013f8c4(obj, -0x12, 0x14) & 0xff) != 0) {
             obj->state_0 = 1;
             obj->state_1 = 2;
             obj->state_2 = 0;
             obj->state_3 = 0;
-        } else if (obj->field_12a == 2) {
-            if (obj->field_219 != 0) {
-                obj->field_159 = 1;
+        } else if (obj->direction_index == 2) {
+            if (obj->attack_param_d != 0) {
+                obj->active_flag_3 = 1;
                 obj->state_3 = 2;
                 func_80141f28(obj, 1);
                 func_801307e0(obj, 0x1e);
             } else {
-                obj->field_159 = 1;
+                obj->active_flag_3 = 1;
                 func_80130dc0(obj);
             }
         } else {
-            if (obj->field_219 != 0) {
-                obj->field_159 = 1;
+            if (obj->attack_param_d != 0) {
+                obj->active_flag_3 = 1;
                 func_80141f28(obj, 2);
                 func_801307e0(obj, 0x3c);
             } else {
-                obj->field_159 = 1;
+                obj->active_flag_3 = 1;
                 func_80130dc0(obj);
             }
         }
     } else {
-        obj->field_159 = 1;
+        obj->active_flag_3 = 1;
         func_80130dc0(obj);
     }
 }

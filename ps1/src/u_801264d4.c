@@ -10,7 +10,7 @@ void func_801264d4(void) {
     ((HudBig *)data_8018f5a0)->field_48 = 0;
     ((HudBig *)data_8018f5a0)->field_4a = 0;
     ((HudBig *)data_8018f5a0)->field_4c = 0;
-    ((HudBig *)data_8018f5a0)->field_4e = 0;
+    ((HudBig *)data_8018f5a0)->step_count = 0;
 loop:
     if (data_8019032d == 0) {
         left = &player_left;

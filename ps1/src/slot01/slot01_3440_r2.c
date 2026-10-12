@@ -13,7 +13,7 @@ void func_800135cc_slot01(Object *obj) {
     int t = obj->health;
 
     obj->health = t - 2;
-    if ((s16)obj->health < ((Slot01Obj *)obj)->field_5e) {
+    if ((s16)obj->health < ((Slot01Obj *)obj)->min_limit) {
         obj->health = t + 0x1e;
     }
     for (i = 0; i < 9; i++) {

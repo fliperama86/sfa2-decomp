@@ -11,10 +11,10 @@ void func_801b0224_slot04_05(Object *o) {
     u8 r;
 
     o->state_3 = 0;
-    o->field_46 = 0x3c;
+    o->countdown = 0x3c;
     o->state_2 = o->state_2 + 1;
-    game_state.field_76 = 0x1e;
-    o->field_0b = o->field_158;
+    game_state.countdown = 0x1e;
+    o->facing_side = o->saved_facing;
     r = func_80125734(o, data_801c1340_slot04_05[get_random_byte() & 0xf]);
     obj->handler_index = r;
     set_sequence_by_side(o, r + 0x23);

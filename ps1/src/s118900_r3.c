@@ -6,8 +6,8 @@
 #define VOICES ((SndVoice *)0x801fc200)
 
 void func_80119144(int a, int b) {
-    func_8011e938(&VOICES[a].field_0c, b);
-    func_801191dc(a, VOICES[a].field_0c);
+    func_8011e938(&VOICES[a].thread_entry, b);
+    func_801191dc(a, VOICES[a].thread_entry);
 }
 
 void func_80119198(int a) {

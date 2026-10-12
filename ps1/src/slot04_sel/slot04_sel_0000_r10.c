@@ -6,5 +6,5 @@
 extern void (*data_801b7c5c_slot04_sel[])(void);
 
 void func_801b2538_slot04_sel(Object *unused) {
-    data_801b7c5c_slot04_sel[data_8018f5a0->field_50]();
+    data_801b7c5c_slot04_sel[data_8018f5a0->step_index_2]();
 }

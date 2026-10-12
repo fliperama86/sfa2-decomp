@@ -9,34 +9,34 @@ void func_801b1ce8_slot04_0b(Object *obj) {
 
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags == 2) {
-        obj->field_46 = 5;
+        obj->countdown = 5;
         obj->state_3++;
         p = pop_object_from_pool(obj);
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0xb;
-            p->field_66 = obj->field_66;
-            p->field_65 = obj->field_65;
-            p->field_ac = obj->field_12a + 6;
-            p->field_ad = 0;
+            p->sound_side = obj->sound_side;
+            p->team_id = obj->team_id;
+            p->vel_table_index = obj->direction_index + 6;
+            p->active_flag_2 = 0;
             p->field_0e = obj->field_0e;
-            p->field_0b = obj->field_0b;
+            p->facing_side = obj->facing_side;
             p->field_0c = obj->field_0c;
-            p->field_0d = obj->field_0d;
-            p->field_26 = obj->field_26;
+            p->image_row = obj->image_row;
+            p->scroll_factor = obj->scroll_factor;
             p->pos_x = obj->pos_x;
             y = obj->pos_y;
-            p->field_af = 4;
+            p->countdown_2 = 4;
             p->spawn_x = 0x60;
             p->health = 0;
-            p->field_3c = obj;
+            p->parent = obj;
             p->spawn_y = 0x1e0;
             p->pos_y = y;
             p->field_90 = obj->field_90;
-            p->field_98 = obj->field_98;
-            p->field_9c = obj->field_9c;
-            obj->field_14c = (s32)p;
-            obj->field_240++;
+            p->data_ptr_a = obj->data_ptr_a;
+            p->data_ptr_b = obj->data_ptr_b;
+            obj->linked_object_3 = (s32)p;
+            obj->link_flags++;
             update_sequence(obj);
         }
     }

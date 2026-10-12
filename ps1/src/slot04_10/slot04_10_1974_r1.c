@@ -38,8 +38,8 @@ void func_801b1974_slot04_10(Object *obj) {
     Slot04bObj *o = (Slot04bObj *)obj;
 
     update_sequence(obj);
-    if (o->field_3a == 1) {
-        if (o->field_1c0 != 0) {
+    if (o->mode == 1) {
+        if (o->input_bits != 0) {
             func_80140770(obj, 0, 5, 0, 0, 0, 0);
         } else {
             func_80140770(obj, 0, 5, 0xb, 0, 0, 0);
@@ -74,8 +74,8 @@ u8 func_801b1c18_slot04_10(Object *obj) {
     u8 r = 0;
 
     if (obj->field_292 == 0) {
-        if ((s16)obj->field_c6 >= 0x30) {
-            if (obj->field_45 == 0) {
+        if ((s16)obj->meter >= 0x30) {
+            if (obj->active_state == 0) {
                 if (func_80141e34(obj)) {
                     if (func_80141788(obj)) {
                         r = 1;
@@ -84,7 +84,7 @@ u8 func_801b1c18_slot04_10(Object *obj) {
                         obj->state_2 = 8;
                         obj->state_3 = 0;
                         obj->field_15a = 0;
-                        obj->field_0b = obj->field_158;
+                        obj->facing_side = obj->saved_facing;
                     }
                 }
             } else if (obj->field_7e == 0) {
@@ -106,15 +106,15 @@ u8 func_801b1c18_slot04_10(Object *obj) {
 u8 func_801b1d00_slot04_10(Object *obj) {
     u8 r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj)) {
+    if ((s16)obj->meter >= 0x30 && func_80141788(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 8;
         obj->state_3 = 0;
         obj->field_15a = 0xb;
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
         func_80142718(obj);
         return 1;
     }
@@ -124,15 +124,15 @@ u8 func_801b1d00_slot04_10(Object *obj) {
 u8 func_801b1d8c_slot04_10(Object *obj) {
     u8 r = 0;
 
-    if ((s16)obj->field_c6 >= 0x30 && func_80141788(obj) && func_801417cc(obj)) {
+    if ((s16)obj->meter >= 0x30 && func_80141788(obj) && func_801417cc(obj)) {
         r = 1;
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 8;
         obj->state_3 = 0;
         obj->field_15a = 0xa;
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
         func_80142778(obj);
         return 1;
     }
@@ -148,8 +148,8 @@ u8 func_801b1e2c_slot04_10(Object *obj) {
     obj->state_2 = 7;
     obj->state_3 = 0;
     obj->field_15a = 7;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
     func_80142b3c(obj);
     return 1;
 }
@@ -158,7 +158,7 @@ u8 func_801b1e98_slot04_10(Object *obj) {
     u8 r = 0;
 
     if (*(u16 *)&obj->state_0 == 1 && obj->state_2 == 5) {
-        if (obj->field_67 == 0) {
+        if (obj->active_flag == 0) {
             if (func_801417cc(obj)) {
                 r = 1;
                 obj->field_15a = 8;
@@ -166,8 +166,8 @@ u8 func_801b1e98_slot04_10(Object *obj) {
                 obj->state_1 = 0;
                 obj->state_2 = 7;
                 obj->state_3 = 0;
-                obj->field_159 = 1;
-                obj->field_0b = obj->field_158;
+                obj->active_flag_3 = 1;
+                obj->facing_side = obj->saved_facing;
                 func_80142ba0(obj);
                 return 1;
             }
@@ -179,8 +179,8 @@ u8 func_801b1e98_slot04_10(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 7;
         obj->state_3 = 0;
-        obj->field_159 = 1;
-        obj->field_0b = obj->field_158;
+        obj->active_flag_3 = 1;
+        obj->facing_side = obj->saved_facing;
         func_80142ba0(obj);
     }
     return r;
@@ -195,8 +195,8 @@ u8 func_801b1f8c_slot04_10(Object *obj) {
     obj->state_2 = 7;
     obj->state_3 = 0;
     obj->field_15a = 6;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
     func_80142b3c(obj);
     return 1;
 }
@@ -210,8 +210,8 @@ u8 func_801b1ffc_slot04_10(Object *obj) {
     obj->state_2 = 7;
     obj->state_3 = 0;
     obj->field_15a = 4;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
     func_80142b3c(obj);
     return 1;
 }
@@ -225,7 +225,7 @@ u8 func_801b206c_slot04_10(Object *obj) {
     obj->state_2 = 7;
     obj->state_3 = 0;
     obj->field_15a = 5;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
     return 1;
 }

@@ -5,5 +5,5 @@
 
 
 void func_80140ec0(void) {
-    table_8017ac34[game_state.field_12]();
+    table_8017ac34[game_state.handler_index]();
 }

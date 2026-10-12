@@ -9,8 +9,8 @@ void update_units(void) {
     Unit *unit = units_2c20;
 
     for (i = 0; i < 16; unit++, i++) {
-        if (unit->field_00 != 0) {
-            if (unit->field_66 == 0) {
+        if (unit->active != 0) {
+            if (unit->handler_table_select == 0) {
                 handlers_6bf0[unit->handler_index](unit);
             } else {
                 handlers_6c70[unit->handler_index](unit);

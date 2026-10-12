@@ -12,7 +12,7 @@ void func_800e5be4_slot0f(Object *obj, Slot12Sprite *cell);
 void func_800e6620_slot0f(Object *obj) {
     Slot12Prim *t;
 
-    switch (obj->field_48) {
+    switch (obj->variant_index) {
     case 0:
         t = data_800f77b4_slot0f;
         break;
@@ -25,7 +25,7 @@ void func_800e6620_slot0f(Object *obj) {
     default:
         goto skip;
     }
-    func_800e5be4_slot0f(obj, (Slot12Sprite *)((Slot12Prim *)(obj->field_03 * 64 + (data_801a27d0 * 32 + (u32)t))));
+    func_800e5be4_slot0f(obj, (Slot12Sprite *)((Slot12Prim *)(obj->table_index * 64 + (data_801a27d0 * 32 + (u32)t))));
 skip:
     if (game_state.field_2bc == 10) {
         obj->state_0++;

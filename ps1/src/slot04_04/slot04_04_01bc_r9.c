@@ -13,12 +13,12 @@ void func_801b0adc_slot04_04(Object *obj) {
     obj->state_1 = 0;
     obj->state_2 = 3;
     obj->state_3 = 1;
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     play_side_sound_at(obj, obj->side, 0xb);
     vel = 0x40000;
     obj->vel_y = 0x60000;
     obj->accel_y = -0x4800;
-    lx = ((Slot06Layer *)data_801aa5d4)->field_12;
+    lx = ((Slot06Layer *)data_801aa5d4)->scroll_x;
     x = obj->pos_x;
     acc = -0x500;
     if (x >= (s16)(lx + 0x60)) {
@@ -30,24 +30,24 @@ void func_801b0adc_slot04_04(Object *obj) {
                 vel = -0x40000;
                 acc = 0x500;
             }
-        } else if (obj->field_0b == 0) {
+        } else if (obj->facing_side == 0) {
             vel = -0x40000;
             acc = 0x500;
         }
     }
     obj->vel_x = vel;
     obj->accel_x = acc;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         if (obj->vel_x < 0) {
             goto set_ff;
         }
-        obj->field_48 = 0xff;
+        obj->variant_index = 0xff;
     } else {
         if (obj->vel_x < 0) {
 set_ff:
-            obj->field_48 = 0xff;
+            obj->variant_index = 0xff;
         } else {
-            obj->field_48 = 1;
+            obj->variant_index = 1;
         }
     }
 }

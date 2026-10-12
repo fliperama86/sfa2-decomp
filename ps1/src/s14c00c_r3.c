@@ -7,11 +7,11 @@
 #include "protos.h"
 
 void func_8014c994(Object *object) {
-    if (object->field_20f == 0) {
+    if (object->script_arg == 0) {
         func_8014c9f4(object);
-    } else if (object->field_20f == 2) {
+    } else if (object->script_arg == 2) {
         func_8014ca7c(object);
-    } else if (object->field_20f == 4) {
+    } else if (object->script_arg == 4) {
         func_8014cba4(object);
     }
 }

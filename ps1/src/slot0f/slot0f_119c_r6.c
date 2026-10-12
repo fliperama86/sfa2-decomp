@@ -12,23 +12,23 @@ void func_800e1640_slot0f(void) {
     data_800f857c_slot0f.field_03 = 0;
     data_800f857c_slot0f.field_02 = 0;
     data_800f857c_slot0f.field_01 = 0;
-    o->field_00 = 0;
-    data_800f857c_slot0f.field_08 = 1;
+    o->state_index = 0;
+    data_800f857c_slot0f.loop_flag = 1;
     do {
-        o->field_10 = data_801a696a | data_801a6976;
-        data_800e8778_slot0f[(s8)o->field_00]((Object *)o);
+        o->input_bits = data_801a696a | data_801a6976;
+        data_800e8778_slot0f[(s8)o->state_index]((Object *)o);
         func_800e1e00_slot0f((Object *)o);
         func_801192bc(1);
-    } while (o->field_08 != 0);
+    } while (o->loop_flag != 0);
 }
 
 void func_800e16f4_slot0f(Object *o) {
-    u8 n = o->field_00;
+    u8 n = o->active_count;
     o->state_3 = 0;
     o->state_2 = 0;
     o->state_1 = 0;
     o->state_0 = 0;
     o->ot_depth = 0;
     o->field_0a = 0;
-    o->field_00 = n + 1;
+    o->active_count = n + 1;
 }

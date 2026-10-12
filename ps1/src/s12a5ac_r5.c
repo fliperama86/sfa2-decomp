@@ -11,9 +11,9 @@ void func_8012b0e4(Object *object) {
     object->state_1 = 0;
     object->state_2 = 3;
     object->state_3 = 0;
-    object->field_242 = 0;
-    object->field_0b = object->field_158;
-    object->field_48 = object->field_21a;
+    object->once_flag = 0;
+    object->facing_side = object->saved_facing;
+    object->variant_index = object->direction_flag;
     func_80130088(object);
     set_sequence_by_side(object, 0x10);
 }

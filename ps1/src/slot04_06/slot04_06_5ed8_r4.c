@@ -6,10 +6,10 @@
 extern ObjectFn data_801c56a4_slot04_06[];
 
 void func_801b6334_slot04_06(Object *obj) {
-    if (game_state.field_6a != 0) {
+    if (game_state.gate_flag != 0) {
         obj->state_0 = 2;
     } else {
-        data_801c56a4_slot04_06[obj->field_03](obj);
+        data_801c56a4_slot04_06[obj->table_index](obj);
     }
 }
 
@@ -17,8 +17,8 @@ void func_801b638c_slot04_06(Object *obj) {
     int t;
     int a;
 
-    t = obj->field_48 + 1;
-    obj->field_48 = t & 0x1f;
+    t = obj->variant_index + 1;
+    obj->variant_index = t & 0x1f;
     a = 1;
     if (t & 0x10) {
         a = -1;

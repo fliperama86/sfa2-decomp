@@ -19,6 +19,6 @@ void func_80148ccc(Object *object) {
     object->pos_y = object->pos_y - 8;
     object->accel_y = get_random_byte() & 0x30;
     object->accel_x = 0;
-    object->field_46 = 0;
-    func_80130768(object, object->field_48, seqs_8017c7f8);
+    object->countdown = 0;
+    func_80130768(object, object->variant_index, seqs_8017c7f8);
 }

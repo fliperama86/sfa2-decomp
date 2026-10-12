@@ -12,7 +12,7 @@ void func_80014e24_slot01(Object *o);
 void func_80014bd8_slot01(Object *obj) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
-    Object *p = obj->field_3c;
+    Object *p = obj->parent;
     obj->pos_x = data_80015ddc_slot01[p->field_02].first + box_margin[0];
     *(u16 *)&obj->pos_y = data_80015ddc_slot01[p->field_02].second;
 }

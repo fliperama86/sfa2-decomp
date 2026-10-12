@@ -9,7 +9,7 @@ void func_801b2958_slot04_08(Object *obj) {
     obj->vel_y = obj->vel_y + obj->accel_y;
     if (obj->ground_y < obj->pos_y) {
         obj->pos_y = obj->ground_y;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
         func_801209c4(obj);
         obj->state_3 = obj->state_3 + 1;

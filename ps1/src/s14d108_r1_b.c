@@ -6,8 +6,8 @@
 void func_8014d5e0(Object *object) {
     if ((u8)func_8014de94(object)) {
         func_8014e080(object);
-    } else if (object->state_2 == 0 || object->field_21c == 0
-        || (object->field_21c--, object->field_48 != 0 && object->field_164 != 0)) {
+    } else if (object->state_2 == 0 || object->countdown_3 == 0
+        || (object->countdown_3--, object->variant_index != 0 && object->bound_push_flag != 0)) {
         func_8014d99c(object);
     }
 }
@@ -15,9 +15,9 @@ void func_8014d5e0(Object *object) {
 void func_8014d66c(Object *object) {
     if ((u8)func_8014de94(object)) {
         func_8014e080(object);
-    } else if (object->state_2 == 0 || object->field_21c == 0
-        || (object->field_21c--, (u16)(object->field_211 | (object->field_210 << 8)) >= object->field_21e)
-        || (object->field_48 != 0 && object->field_164 != 0)) {
+    } else if (object->state_2 == 0 || object->countdown_3 == 0
+        || (object->countdown_3--, (u16)(object->limit_lo | (object->limit_hi << 8)) >= object->compare_limit)
+        || (object->variant_index != 0 && object->bound_push_flag != 0)) {
         func_8014d99c(object);
     }
 }
@@ -25,9 +25,9 @@ void func_8014d66c(Object *object) {
 void func_8014d720(Object *object) {
     if ((u8)func_8014de94(object)) {
         func_8014e080(object);
-    } else if (object->state_2 == 0 || object->field_21c == 0
-        || (object->field_21c--, (u16)(object->field_211 | (object->field_210 << 8)) < object->field_21e)
-        || (object->field_48 != 0 && object->field_164 != 0)) {
+    } else if (object->state_2 == 0 || object->countdown_3 == 0
+        || (object->countdown_3--, (u16)(object->limit_lo | (object->limit_hi << 8)) < object->compare_limit)
+        || (object->variant_index != 0 && object->bound_push_flag != 0)) {
         func_8014d99c(object);
     }
 }

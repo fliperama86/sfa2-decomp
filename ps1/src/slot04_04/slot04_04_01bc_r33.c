@@ -39,9 +39,9 @@ void func_801b2c74_slot04_04(Object *o) {
         } else {
             ref_other.p = o->other;
             ref_other.p->field_6b = 10;
-            t = o->field_12a >> 1;
+            t = o->direction_index >> 1;
         }
-        ((Slot04bObj *)o)->field_27b = data_801c43dc_slot04_04[t];
+        ((Slot04bObj *)o)->table_value = data_801c43dc_slot04_04[t];
         o->field_165 = 0;
         play_side_sound_at(o, o->side, 9);
     }

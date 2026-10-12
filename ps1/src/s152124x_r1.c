@@ -29,7 +29,7 @@ void func_80152124(u8 *a, int b, int arg_c, s16 d, s16 e) {
         /* The figure above is with `b = c & 0xf0;` in place of the statement below. With a local in place of the parameter and no term it is the same, 7 slots; with a local and the term, 14 slots and 136 bytes. */
         b = (c & 0xf0) | (((u32)b << 24) & 0x100);
         cmd->tex_v = b;
-        cmd->field_0e = dv;
+        cmd->clut_word = dv;
         cmd->pos_x = d;
         cmd->pos_y = e;
         cmd->width = 0x10;

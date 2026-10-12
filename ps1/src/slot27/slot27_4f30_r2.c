@@ -8,8 +8,8 @@ extern s16 data_80028128_slot27[];
 void func_80015070_slot27(Object *obj) {
     int *x = data_8019045c;
     int *y = data_80190464;
-    *y = (*(Config **)&data_80190458)->field_a6 * 4;
-    *y = (obj->field_03 + *y) * 2;
+    *y = (*(Config **)&data_80190458)->table_index * 4;
+    *y = (obj->table_index + *y) * 2;
     *x = data_80028128_slot27[data_80190464[0]];
     *y = data_80028128_slot27[data_80190464[0] + 1];
     *x = ref_other.p->pos_x + *x;

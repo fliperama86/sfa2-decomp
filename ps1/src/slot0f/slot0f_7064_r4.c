@@ -10,13 +10,13 @@ void func_800e73bc_slot0f(Object *obj) {
     u16 v;
     s16 c;
     int k;
-    obj->field_5e = data_801903c0;
-    if (game_state.field_2bd != 0) {
-        obj->field_5e = data_801903c2;
+    obj->y_offset = data_801903c0;
+    if (game_state.mode_flag_2 != 0) {
+        obj->y_offset = data_801903c2;
     }
-    k = obj->field_03;
+    k = obj->table_index;
     if (k != 5) {
-        c = obj->field_5e;
+        c = obj->y_offset;
         v = c;
         if (c != 0) {
             if (k == 0) {
@@ -27,7 +27,7 @@ void func_800e73bc_slot0f(Object *obj) {
                 goto store;
             }
         }
-        v = obj->field_03;
+        v = obj->table_index;
 store:
         obj->health = v;
     }
@@ -35,10 +35,10 @@ store:
 
 void func_800e743c_slot0f(Object *obj) {
     ref_first.p = (Object *)table_8016e5c4;
-    if (game_state.field_2bd != 0) {
+    if (game_state.mode_flag_2 != 0) {
         ref_first.p = (Object *)table_8016e614;
     }
-    data_800f018c_slot0f[obj->field_03](obj);
+    data_800f018c_slot0f[obj->table_index](obj);
 }
 
 void func_800e74a8_slot0f(Object *obj) {

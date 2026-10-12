@@ -14,11 +14,11 @@ void set_position_from_other_box(Object *object) {
     } else {
         box = boxes_124_right[ref_other.p->kind];
     }
-    i = object->frame->field_0b;
+    i = object->frame->box_table_index;
     x = ref_other.p->pos_x;
     box += i;
     ox = box->origin;
-    if (object->field_0b != 0) ox = -ox;
+    if (object->facing_side != 0) ox = -ox;
     object->pos_x = x - ox;
     x = ref_other.p->pos_y;
     object->pos_y = x + box->origin_y;

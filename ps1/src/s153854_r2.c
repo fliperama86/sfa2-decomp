@@ -5,5 +5,5 @@
 
 void func_80153c7c(Actor *a) {
     a->field_02 = 0;
-    a->field_00++;
+    a->step_count++;
 }

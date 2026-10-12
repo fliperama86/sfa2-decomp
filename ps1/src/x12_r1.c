@@ -16,35 +16,35 @@ void init_strips2(void) {
 
             func_80136d1c((Tx *)a);
             func_80136d1c((Tx *)b);
-            a->field_10 = 0x80;
-            a->field_11 = 0x80;
-            a->field_12 = 0x80;
-            b->field_10 = 0x80;
-            b->field_11 = 0x80;
-            b->field_12 = 0x80;
-            a->field_16 = 0;
-            b->field_16 = 0;
-            a->field_19 = 0xe0;
-            b->field_19 = 0xe0;
-            a->field_1a = 0x7f07;
-            b->field_1a = 0x7f07;
-            a->field_04 = 0xe100001f;
-            b->field_04 = 0xe100001f;
+            a->color_r = 0x80;
+            a->color_g = 0x80;
+            a->color_b = 0x80;
+            b->color_r = 0x80;
+            b->color_g = 0x80;
+            b->color_b = 0x80;
+            a->pos_y = 0;
+            b->pos_y = 0;
+            a->tex_v = 0xe0;
+            b->tex_v = 0xe0;
+            a->tex_param = 0x7f07;
+            b->tex_param = 0x7f07;
+            a->draw_mode_word = 0xe100001f;
+            b->draw_mode_word = 0xe100001f;
         }
     }
     for (i = 0; i < 2; i++) {
         p = &strips2[i][0];
         q = &strips2[i][1];
-        p->field_18 = 0;
-        q->field_18 = 0x10;
+        p->tex_u = 0;
+        q->tex_u = 0x10;
         p->pos_x = 0x78;
         q->pos_x = 0x88;
     }
     for (i = 0; i < 2; i++) {
         p = &data_80188e4c[i][0];
         q = &data_80188e4c[i][1];
-        p->field_18 = 0;
-        q->field_18 = 0x10;
+        p->tex_u = 0;
+        q->tex_u = 0x10;
         p->pos_x = 0xd8;
         q->pos_x = 0xe8;
     }

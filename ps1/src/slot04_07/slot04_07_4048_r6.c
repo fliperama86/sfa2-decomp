@@ -10,7 +10,7 @@ void func_801b4868_slot04_07(Object *obj) {
     t = obj->step_flags;
     if ((t & 0xff) != 0) {
         obj->step_flags = t & 0xff00;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             obj->pos_x = obj->pos_x - 0x38;
         } else {
             obj->pos_x = obj->pos_x + 0x38;

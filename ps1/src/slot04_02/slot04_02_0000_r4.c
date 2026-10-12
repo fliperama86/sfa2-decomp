@@ -9,17 +9,17 @@ void func_801b0464_slot04_02(Object *obj) {
     int one = 1;
 
     obj->state_3 = obj->state_3 + 1;
-    if (obj->field_12a != 0 && obj->field_25f == 0 && (obj->field_130 & 0xa000) != 0) {
+    if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
         if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
             func_801b631c_slot04_02(obj, 1, 2, 0, 0);
             return;
         }
-        if (obj->field_12a == 2 && (obj->field_130 & 0x8000) != 0) {
-            obj->field_159 = one;
+        if (obj->direction_index == 2 && (obj->input_bits_2 & 0x8000) != 0) {
+            obj->active_flag_3 = one;
             obj->state_3 = 2;
             obj->field_157 = 0;
             func_80141f28(obj, 1);
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 obj->vel_x = 0x36000;
             } else {
                 obj->vel_x = -0x36000;
@@ -27,12 +27,12 @@ void func_801b0464_slot04_02(Object *obj) {
             obj->vel_y = 0x40000;
             obj->accel_y = -0x6000;
             func_80130ec0(obj);
-            obj->field_29a = one;
+            obj->sequence_hold_flag = one;
             obj->field_278 = one;
             func_801307e0(obj, 0x40);
             return;
         }
     }
-    obj->field_159 = one;
+    obj->active_flag_3 = one;
     func_80130dc0(obj);
 }

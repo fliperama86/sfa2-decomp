@@ -15,7 +15,7 @@ void func_80010550_slot12(void) {
         func_801192bc(1);
     }
     func_801373e8();
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
 }
 
 void func_800105cc_slot12(void) {
@@ -31,7 +31,7 @@ void func_800105cc_slot12(void) {
             t = n;
             n = n - 1;
         } while (t != 0);
-        data_8018f5a0->field_4e++;
-        game_state.field_06 = 0xff;
+        data_8018f5a0->substep_index++;
+        game_state.busy_flag = 0xff;
     }
 }

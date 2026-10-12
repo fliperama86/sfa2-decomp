@@ -5,7 +5,7 @@
 
 void update_airborne_object(Object *object) {
     if ((u8)func_80130184(object)) {
-        if (object->field_cd != 0) {
+        if (object->mode_flag_2 != 0) {
             func_8012ab5c(object);
         } else if (func_80130470(object)) {
             func_80130304(object);
@@ -18,11 +18,11 @@ void update_airborne_object(Object *object) {
         }
     } else {
         object->pos_y = object->ground_y;
-        object->field_45 = 0;
-        object->field_159 = 0;
+        object->active_state = 0;
+        object->active_flag_3 = 0;
         *(u32 *)&object->pos_y_frac &= 0xffff0000;
         func_801209c4(object);
-        if (object->field_cd == 0) {
+        if (object->mode_flag_2 == 0) {
             if (object->kind == 0xe && (u8)func_801320e8(object)) {
                 func_80132140(object);
             } else if (func_80130470(object)) {

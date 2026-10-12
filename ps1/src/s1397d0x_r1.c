@@ -7,12 +7,12 @@
  * What it does (inferred, not an original name): tests whether the box c,
  * placed at object b's position, is separated from a second box placed at
  * object a's position, and publishes the placement it used. The second box
- * comes from one of three places: when a->field_08 is 0, the entry of a's
+ * comes from one of three places: when a->mode_id is 0, the entry of a's
  * table a->wide_boxes selected by a->frame->active (halfword fields, 0x20
- * bytes each); otherwise, when b->field_08 is 0, the box that the pointer
+ * bytes each); otherwise, when b->mode_id is 0, the box that the pointer
  * ref_first.p addresses, with halfword fields; otherwise the same pointer,
  * read as a box whose width and height are bytes. Box c has a halfword x
- * and y and byte width and height. When a's field_0b is not 0 the second
+ * and y and byte width and height. When a's facing_side is not 0 the second
  * box x is negated; when b's is not 0, c's x is negated. The x test runs
  * first: the boxes are apart in x when the 16-bit distance of the two
  * placed x values exceeds the sum of the widths (compared as signed 16-bit
@@ -27,33 +27,33 @@ u8 func_801397d0(s32 arg_a, Object *b, Box6 *c) {
     int dx, dy;
     s16 adx;
 
-    if (a->field_08 == 0) {
+    if (a->mode_id == 0) {
         Box32 *w = a->wide_boxes + a->frame->active;
         ox = w->origin & 0xffff;
         ow = w->endpoint & 0xffff;
-        oy = w->field_02;
-        oh = w->field_06;
-    } else if (b->field_08 == 0) {
+        oy = w->box_y;
+        oh = w->box_h;
+    } else if (b->mode_id == 0) {
         Box32 *w = (Box32 *)ref_first.p;
         ox = w->origin & 0xffff;
         ow = w->endpoint & 0xffff;
-        oy = w->field_02;
-        oh = w->field_06;
+        oy = w->box_y;
+        oh = w->box_h;
     } else {
         Box6 *r = (Box6 *)ref_first.p;
         ox = r->origin & 0xffff;
         ow = r->extent;
         oy = r->origin_y;
-        oh = r->field_05;
+        oh = r->extent_y;
     }
     px = c->origin & 0xffff;
     py = c->origin_y;
     pw = c->extent;
-    ph = c->field_05;
-    if (a->field_0b != 0) {
+    ph = c->extent_y;
+    if (a->facing_side != 0) {
         ox = -ox;
     }
-    if (b->field_0b != 0) {
+    if (b->facing_side != 0) {
         px = -px;
     }
     /* Stand-in, not recovered source: one stand-in at 2 places, the two terms that are added to the placed x of a below, each of which is 0 for every value of ox, reproduce the original's choice of registers. Without them this function differs from the original in 7 instruction slots. */

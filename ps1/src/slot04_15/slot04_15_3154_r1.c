@@ -58,7 +58,7 @@ void func_801b328c_slot04_15(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x1b);
@@ -69,7 +69,7 @@ void func_801b3304_slot04_15(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
-        obj->field_0b = obj->field_0b ^ 1;
+        obj->facing_side = obj->facing_side ^ 1;
         func_801312b8(obj);
     }
 }
@@ -78,12 +78,12 @@ void func_801b3350_slot04_15(Object *obj) {
     s16 y;
 
     func_801b36cc_slot04_15(obj);
-    if (((Slot04bObj *)obj)->field_52 <= 0 || obj->pos_y < (y = obj->ground_y)) {
+    if (((Slot04bObj *)obj)->saved_pos_x <= 0 || obj->pos_y < (y = obj->ground_y)) {
         update_sequence(obj);
         update_sequence(obj);
     } else {
         obj->pos_y = y;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         func_801312b8(obj);
     }
 }
@@ -96,9 +96,9 @@ void func_801b3408_slot04_15(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
-    obj->field_0b = 0;
-    if ((obj->field_c2 & 0x8000) == 0) {
-        obj->field_0b = 1;
+    obj->facing_side = 0;
+    if ((obj->input_bits & 0x8000) == 0) {
+        obj->facing_side = 1;
     }
     func_801307e0(obj, 0x20);
     set_position_from_other_box(obj);
@@ -111,12 +111,12 @@ void func_801b3484_slot04_15(Object *obj) {
     update_sequence(obj);
     set_position_from_other_box(obj);
     if (*(u8 *)&obj->step_flags != 0) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         obj->state_3 = obj->state_3 + 1;
         obj->step_flags = obj->step_flags & 0xff00;
         func_80146478(obj, 2, -0x49, 0x30);
         x = 0x36000;
-        if (obj->field_0b != 0) {
+        if (obj->facing_side != 0) {
             x = -0x36000;
         }
         obj->vel_y = -0x40000;
@@ -135,7 +135,7 @@ void func_801b3484_slot04_15(Object *obj) {
 
 void func_801b3598_slot04_15(Object *obj) {
     func_801b36cc_slot04_15(obj);
-    if (((Slot04bObj *)obj)->field_52 < 0 || (s16)(obj->ground_y - 0x50) >= obj->pos_y) {
+    if (((Slot04bObj *)obj)->saved_pos_x < 0 || (s16)(obj->ground_y - 0x50) >= obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
@@ -149,7 +149,7 @@ void func_801b3614_slot04_15(Object *obj) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
-        obj->field_45 = 0;
+        obj->active_state = 0;
         obj->pos_y = (u16)obj->ground_y;
         func_801209c4(obj);
         func_801307e0(obj, 0x22);
@@ -184,12 +184,12 @@ void func_801b3740_slot04_15(Object *obj) {
 
 void func_801b3780_slot04_15(Object *object) {
     object->state_2 = object->state_2 + 1;
-    object->field_0b = object->field_158;
+    object->facing_side = object->saved_facing;
     set_sequence_by_side(object, 0);
 }
 
 void func_801b37b4_slot04_15(Object *object) {
-    if (game_state.field_5c == 0) {
+    if (game_state.countdown_timer == 0) {
         object->state_2 = object->state_2 + 1;
     }
     update_sequence(object);
@@ -197,12 +197,12 @@ void func_801b37b4_slot04_15(Object *object) {
 
 void func_801b37f0_slot04_15(Object *object) {
     u16 a;
-    ((Slot04bObj *)object)->field_46 = 0x3c;
+    ((Slot04bObj *)object)->countdown = 0x3c;
     object->state_2 = object->state_2 + 1;
-    if (game_state.field_76 == 0) {
-        game_state.field_76 = 0x1e;
+    if (game_state.countdown == 0) {
+        game_state.countdown = 0x1e;
     }
-    a = object->field_c2 & 0xf000;
+    a = object->input_bits & 0xf000;
     if (((Slot04bObj *)object)->field_5c >= 0x90 && a == 0x1000) {
         a = 1;
     } else {
@@ -214,11 +214,11 @@ void func_801b37f0_slot04_15(Object *object) {
             a = data_801c2ecc_slot04_15[a];
         }
     }
-    a = (s8)func_80125734(object, (s8)a); object->field_12c = a; a += 0x23; set_sequence_by_side(object, (s16)a);
+    a = (s8)func_80125734(object, (s8)a); object->substate_index = a; a += 0x23; set_sequence_by_side(object, (s16)a);
 }
 
 void func_801b38e8_slot04_15(Object *object) {
-    data_801c3170_slot04_15[object->field_12c](object);
+    data_801c3170_slot04_15[object->substate_index](object);
 }
 
 void func_801b3928_slot04_15(Object *object) {
@@ -245,10 +245,10 @@ void func_801b3998_slot04_15(Object *object) {
 }
 
 void func_801b39d0_slot04_15(Object *object, GameState *g) {
-    if (((Slot04bObj *)object)->field_46 != 0) {
-        ((Slot04bObj *)object)->field_46--;
-        if (((Slot04bObj *)object)->field_46 == 0) {
-            g->field_4b |= 1 << object->side;
+    if (((Slot04bObj *)object)->countdown != 0) {
+        ((Slot04bObj *)object)->countdown--;
+        if (((Slot04bObj *)object)->countdown == 0) {
+            g->side_bits_2 |= 1 << object->side;
         }
     }
 }
@@ -264,31 +264,31 @@ void func_801b3a1c_slot04_15(Object *object) {
         object->step_flags = object->step_flags & 0xff00;
         p = (Object *)func_8011f1e0();
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0x77;
-            p->field_3c = object;
+            p->parent = object;
             p->field_0c = object->field_0c;
-            p->field_0d = object->field_0d;
+            p->image_row = object->image_row;
             p->field_0e = object->field_0e;
-            p->field_0b = object->field_0b;
+            p->facing_side = object->facing_side;
             p->field_1c = object->field_1c;
-            e = object->field_1e;
+            e = object->cycle_value;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
-            p->field_1e = e;
-            d = object->field_0d;
+            p->cycle_value = e;
+            d = object->image_row;
             p->field_02 = 0x17;
-            p->field_08 = 0x20;
-            p->field_0d = d;
+            p->mode_id = 0x20;
+            p->image_row = d;
             p->field_90 = object->field_90;
-            p->field_98 = object->field_98;
-            p->field_9c = object->field_9c;
-            p->field_66 = object->field_66;
+            p->data_ptr_a = object->data_ptr_a;
+            p->data_ptr_b = object->data_ptr_b;
+            p->sound_side = object->sound_side;
             *(s32 *)&p->pos_x_frac = *(s32 *)&object->pos_x_frac;
             *(s32 *)&p->pos_y_frac = *(s32 *)&object->pos_y_frac;
             p->pos_y = p->pos_y - 0x63;
             dx = -0x3b;
-            if (object->field_0b != 0) {
+            if (object->facing_side != 0) {
                 dx = 0x3b;
             }
             p->pos_x = dx + p->pos_x;

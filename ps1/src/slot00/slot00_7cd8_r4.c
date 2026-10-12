@@ -13,12 +13,12 @@ void func_8007803c_slot00(Object *obj) {
 
 void func_8007807c_slot00(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
-    obj->field_67 = 0;
+    obj->active_flag = 0;
     obj->ot_depth = 0;
-    data_8007a07c_slot00[obj->field_03 >> 1](obj);
+    data_8007a07c_slot00[obj->table_index >> 1](obj);
 }
 
 void func_800780d0_slot00(Object *obj) {
-    obj->field_44 = 1;
+    obj->spawn_flag = 1;
     func_800780f4_slot00(obj);
 }

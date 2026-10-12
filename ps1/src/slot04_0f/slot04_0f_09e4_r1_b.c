@@ -28,8 +28,8 @@ int func_801b12bc_slot04_0f(Object *obj);
 void func_801b0fb8_slot04_0f(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    obj->field_46--;
-    if (obj->field_46 != 0) {
+    obj->countdown--;
+    if (obj->countdown != 0) {
         func_801312b8(o);
     } else {
         update_sequence(o);
@@ -37,8 +37,8 @@ void func_801b0fb8_slot04_0f(Object *o) {
 }
 
 void func_801b1008_slot04_0f(Object *obj) {
-    if (obj->field_45 == 0) {
-        ((Slot04bObj *)obj)->field_334 = 0;
+    if (obj->active_state == 0) {
+        ((Slot04bObj *)obj)->set_flag = 0;
     }
     if (func_8013d210(obj) && func_801b11e4_slot04_0f(obj)) return;
     if (func_8013d1a8(obj) && func_801b132c_slot04_0f(obj)) return;
@@ -55,17 +55,17 @@ void func_801b1008_slot04_0f(Object *obj) {
 }
 
 int func_801b11e4_slot04_0f(Object *obj) {
-    if (obj->field_7e == 0 && obj->field_177 == 0) {
+    if (obj->field_7e == 0 && obj->remaining_count == 0) {
         return 0;
     }
-    if (obj->field_45 == 0) {
+    if (obj->active_state == 0) {
         if (func_801417cc(obj)) {
             obj->state_0 = 1;
             obj->state_2 = 7;
             obj->state_1 = 0;
             obj->state_3 = 0;
             obj->field_15a = 0xa;
-            obj->field_0b = obj->field_158;
+            obj->facing_side = obj->saved_facing;
             return 1;
         }
         return 0;
@@ -79,7 +79,7 @@ int func_801b11e4_slot04_0f(Object *obj) {
         obj->state_1 = 0;
         obj->state_3 = 0;
         obj->field_15a = 0xb;
-        obj->field_0b = obj->field_158;
+        obj->facing_side = obj->saved_facing;
         return 1;
     }
     return 0;
@@ -87,7 +87,7 @@ int func_801b11e4_slot04_0f(Object *obj) {
 
 /* The call of func_80141c4c passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 4 instruction slots. */
 int func_801b12bc_slot04_0f(Object *obj) {
-    if (obj->field_260 != 0) {
+    if (obj->hit_flag != 0) {
         return 0;
     }
     if (((int (*)(void))func_80141c4c)()) {
@@ -96,7 +96,7 @@ int func_801b12bc_slot04_0f(Object *obj) {
         obj->state_1 = 0;
         obj->state_3 = 0;
         obj->field_15a = 6;
-        obj->field_159 = 0;
+        obj->active_flag_3 = 0;
         return 1;
     }
     return 0;

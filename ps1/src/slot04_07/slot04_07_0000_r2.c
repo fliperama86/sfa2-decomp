@@ -5,7 +5,7 @@
 
 void func_801b0190_slot04_07(Object *obj) {
     obj->state_2 += 1;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         obj->vel_x = -0x40000;
     } else {
         obj->vel_x = 0x40000;

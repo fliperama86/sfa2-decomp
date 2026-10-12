@@ -17,8 +17,8 @@ void func_80017248_slot28(Object *obj) {
     Object *o;
     int one;
     HudState *h = data_8018f5a0;
-    h->field_60 = 0x258;
-    h->field_50 += 1;
+    h->countdown_timer = 0x258;
+    h->step_index_2 += 1;
     func_800179b0_slot28();
     func_801280f0();
     one = 1;
@@ -31,7 +31,7 @@ void func_80017248_slot28(Object *obj) {
         o->pos_x = 0;
         o->spawn_x = 0;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = one;
         func_80130768(o, 0, data_80031c90_slot28);
         o->field_01 = one;
@@ -44,7 +44,7 @@ void func_80017248_slot28(Object *obj) {
         o->pos_x = 0;
         o->spawn_x = 0;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = one;
         func_80130768(o, 0, data_80031c8c_slot28);
     }
@@ -56,7 +56,7 @@ void func_80017248_slot28(Object *obj) {
         o->pos_y = -0x60;
         o->spawn_x = 0x20;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = 4;
         func_80130768(o, 0, data_80031c9c_slot28);
     }
@@ -67,7 +67,7 @@ void func_80017248_slot28(Object *obj) {
         o->pos_y = 0x90;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
-        o->field_0d = 0;
+        o->image_row = 0;
         o->ot_depth = one;
         func_80130768(o, 0, data_80031ca0_slot28);
         data_80051910_slot28[0] = o;
@@ -79,8 +79,8 @@ void func_80017248_slot28(Object *obj) {
         o->spawn_y = 0x1e0;
         o->pos_x = 0x28;
         o->spawn_x = 0;
-        o->field_0d = 0;
-        o->field_03 = one;
+        o->image_row = 0;
+        o->table_index = one;
         o->ot_depth = 0;
         o->vel_y = 0xb8;
         func_80130768(o, 0, data_80031cc0_slot28);

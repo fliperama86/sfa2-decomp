@@ -38,15 +38,15 @@ void func_80135c88(void) {
             }
         } else if (data_80190138 != 0) {
             if (data_801a6984[1] != 0) {
-                if (g->field_33 & 0x20) {
+                if (g->loop_counter & 0x20) {
                     if (g->mode & 1) {
                         func_801519b4(&data_80172380[0]);
                     } else if (g->mode & 2) {
                         func_801519b4(&data_80172380[1]);
                     }
                 }
-            } else if (g->field_30 != 0 && data_801a6984[0] != 0) {
-                if (g->field_33 & 0x20) {
+            } else if (g->versus_flag != 0 && data_801a6984[0] != 0) {
+                if (g->loop_counter & 0x20) {
                     if (g->mode & 1) {
                         func_801519b4(&data_80172380[2]);
                     } else if (g->mode & 2) {

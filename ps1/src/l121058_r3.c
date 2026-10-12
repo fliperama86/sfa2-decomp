@@ -6,13 +6,13 @@
 void func_80121dc4(Object *object) {
     Entity *entity = (Entity *)object;
     int v;
-    switch (data_8018f5a0->field_52) {
+    switch (data_8018f5a0->pass_index) {
     case 0:
         v = data_8018f5a0->sub_timer - 1;
         data_8018f5a0->sub_timer = v;
         if ((s16)v < 0) {
             data_8018f5a0->sub_timer = 4;
-            data_8018f5a0->field_52++;
+            data_8018f5a0->pass_index++;
             func_8011a744();
         }
         break;
@@ -21,21 +21,21 @@ void func_80121dc4(Object *object) {
         data_8018f5a0->sub_timer = v;
         if ((s16)v < 0) {
             data_8018f5a0->sub_timer = 0;
-            data_8018f5a0->field_52++;
+            data_8018f5a0->pass_index++;
         }
         break;
     case 2:
-        data_8018f5a0->field_4c++;
-        data_8018f5a0->field_4e = 0;
-        data_8018f5a0->field_50 = 0;
-        data_8018f5a0->field_52 = 0;
+        data_8018f5a0->step_index++;
+        data_8018f5a0->substep_index = 0;
+        data_8018f5a0->step_index_2 = 0;
+        data_8018f5a0->pass_index = 0;
         entity->field_ab = 0;
-        if (entity->field_80 != 0) {
-            data_8018f5a0->field_4c = 5;
+        if (entity->table_index != 0) {
+            data_8018f5a0->step_index = 5;
         }
-        entity->field_09 = 1;
+        entity->active_flag = 1;
         func_8013245c();
-        if (entity->field_30 != 0) {
+        if (entity->mode_flag_b != 0) {
             data_80197f1c = 0xff;
         }
         break;

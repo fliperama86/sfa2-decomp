@@ -4,6 +4,6 @@
 #include "../externs.h"
 
 int func_801b1328_slot04_06(Object *obj) {
-    obj->field_12a = 2;
+    obj->direction_index = 2;
     return 1;
 }

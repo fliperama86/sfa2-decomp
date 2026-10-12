@@ -7,7 +7,7 @@
 void func_8013e710(Object *object, int index, int arg) {
     u16 entry = table_8017aaf8[(u8)arg * 7 + 1];
     int mine = entry & -0x1000;
-    int theirs = object->field_150 & -0x1000;
+    int theirs = object->input_word & -0x1000;
 
     if (!(entry & 0x400)) {
         if ((s16)theirs != (s16)mine) goto other;

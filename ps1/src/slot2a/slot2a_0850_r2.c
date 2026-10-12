@@ -12,11 +12,11 @@ void func_801e0d94_slot2a(Object *obj, SlotCell *cell, s16 value) {
     do {
         func_8015c09c(cell);
         p++;
-        cell->field_04 = c;
-        cell->field_05 = c;
-        cell->field_06 = c;
-        cell->field_16 = value;
-        cell->field_0e = (s16)func_8015bdd4((*p++ << 4) + 0x2c0, 0x60);
+        cell->color_r = c;
+        cell->color_g = c;
+        cell->color_b = c;
+        cell->tpage = value;
+        cell->clut = (s16)func_8015bdd4((*p++ << 4) + 0x2c0, 0x60);
         p += 2;
         cell++;
         n--;

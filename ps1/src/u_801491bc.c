@@ -8,7 +8,7 @@
 /* Form found by automatic permutation search. */
 void func_801491bc(Object *object)
 {
-  Object *other = object->field_3c;
+  Object *other = object->parent;
   int index;
   int w;
   int d;

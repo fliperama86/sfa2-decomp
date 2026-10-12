@@ -5,13 +5,13 @@
 
 void func_801b02fc_slot04_06(Object *obj) {
     obj->state_3++;
-    if (obj->field_12a != 0 && (obj->field_130 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x18, 0x16) != 0) {
+    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x18, 0x16) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;
         obj->state_3 = 0;
     } else {
-        obj->field_159 = 1;
+        obj->active_flag_3 = 1;
         func_80130dc0(obj);
     }
 }

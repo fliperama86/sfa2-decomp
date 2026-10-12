@@ -12,6 +12,6 @@ u32 func_8011bdc0(Block172 *block) {
     } else {
         v = seq[1].data_ptr;
     }
-    base = block->field_9c;
+    base = block->base_offset;
     return ((v >> 1) << 1) + base;
 }

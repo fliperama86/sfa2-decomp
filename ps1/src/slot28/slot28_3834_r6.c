@@ -6,5 +6,5 @@
 extern void (*data_8002ac7c_slot28[])(Object *);
 
 void func_80013e58_slot28(Object *obj) {
-    data_8002ac7c_slot28[data_8018f5a0->field_50](obj);
+    data_8002ac7c_slot28[data_8018f5a0->step_index_2](obj);
 }

@@ -4,8 +4,8 @@
 #include "protos.h"
 
 u8 func_801416ec(Object *object) {
-    if (object->field_7e != 0 && object->field_163 == 0 && *(s16 *)&object->health >= 0 && object->field_45 == 0 &&
-        (game_state.config->field_4d | game_state.config->field_4e | game_state.config->field_04) == 0 &&
+    if (object->field_7e != 0 && object->field_163 == 0 && *(s16 *)&object->health >= 0 && object->active_state == 0 &&
+        (game_state.config->mode_flag_b | game_state.config->mode_flag_c | game_state.config->mode_flag_a) == 0 &&
         func_8012f56c(object) == 0) {
         return 1;
     }
@@ -24,7 +24,7 @@ u8 func_801417cc(Object *object) {
     *flag = 0;
     if (*(u32 *)&object->state_0 == 0x20101) return func_80141a00(object);
     *flag = 1;
-    if (object->field_45 != 0) return 0;
+    if (object->active_state != 0) return 0;
     return func_80141908(object);
 }
 
@@ -33,12 +33,12 @@ u8 func_80141848(Object *object) {
     *flag = 0;
     if (*(u32 *)&object->state_0 == 0x20101) return func_80141a00(object);
     *flag = 1;
-    if (object->field_45 != 0) return 0;
+    if (object->active_state != 0) return 0;
     return func_80141908(object);
 }
 
 int func_801418bc(Object *object) {
-    game_state.field_35c = 1;
+    game_state.step_value = 1;
     if (*(u32 *)&object->state_0 == 0x3030001) {
         return 0;
     }

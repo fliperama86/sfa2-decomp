@@ -20,7 +20,7 @@ void func_800148c4_slot28(Object *obj) {
 }
 
 void func_800148d8_slot28(Object *obj) {
-    if (obj->field_03 == 0) {
+    if (obj->table_index == 0) {
         advance_sequence_checked(obj);
     } else {
         advance_sequence_checked(obj);

@@ -14,10 +14,10 @@ void func_80124ecc(void)
   func_80125dc0(2, 0x20, 0xd, 0);
   func_80125dc0(3, 0x20, 0xd, 0);
   func_80137b10();
-  game_state.field_225 = 0;
+  game_state.loop_mode = 0;
   v = 0x700;
   func_8014f4d4(1, v);
-  while ((data_80190949 == 0) || (game_state.field_f0 != 0))
+  while ((data_80190949 == 0) || (game_state.wait_flag != 0))
   {
     func_8011a784();
     func_801192bc(1);

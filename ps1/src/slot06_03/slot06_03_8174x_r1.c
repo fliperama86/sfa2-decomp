@@ -12,22 +12,22 @@ void func_801e8174_slot06_03(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 
-    if (layer->field_05 == 0) {
+    if (layer->state_index == 0) {
         func_801e8230_slot06_03(layer);
-    } else if (layer->field_05 == 1) {
+    } else if (layer->state_index == 1) {
         func_801e8268_slot06_03(layer);
-    } else if (layer->field_05 == 2) {
+    } else if (layer->state_index == 2) {
         func_801e830c_slot06_03(layer);
     }
     l2 = (Slot06Layer *)data_801aa5d4;
     d = l2->field_22;
-    d -= l2->field_0a;
-    d += layer->field_0a;
-    d += layer->field_36;
+    d -= l2->ref_x;
+    d += layer->ref_x;
+    d += layer->pos_x_int;
     layer->field_22 = d;
     d = l2->field_26;
     d -= l2->field_0e;
     d += layer->field_0e;
-    d += layer->field_3a;
+    d += layer->pos_y_int;
     layer->field_26 = d;
 }

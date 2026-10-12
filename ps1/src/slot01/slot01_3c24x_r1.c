@@ -20,23 +20,23 @@ void func_80013c24_slot01(Object *obj) {
     u8 unused[16];
     obj->field_01 = 1;
     obj->ot_depth = 9;
-    obj->field_98 = data_80019330_slot01;
-    obj->field_9c = data_800195b8_slot01;
+    obj->data_ptr_a = data_80019330_slot01;
+    obj->data_ptr_b = data_800195b8_slot01;
     obj->field_0c = 1;
-    obj->field_0b = 0;
-    obj->field_0d = 0;
+    obj->facing_side = 0;
+    obj->image_row = 0;
     obj->field_0f = 0;
     obj->field_90 = (void *)0x80059000;
     obj->state_0++;
     if (obj->field_60 != 0) {
         Object *p = obj;
-        p->pos_x = data_80015c8c_slot01[p->field_03].first + data_80055f30_slot01;
-        p->pos_y = -data_80015c8c_slot01[p->field_03].second + data_80055f34_slot01 + 0x200;
+        p->pos_x = data_80015c8c_slot01[p->table_index].first + data_80055f30_slot01;
+        p->pos_y = -data_80015c8c_slot01[p->table_index].second + data_80055f34_slot01 + 0x200;
         func_80130768(p, 0, data_80023ee0_slot01);
     } else {
-        obj->pos_x = data_80015c10_slot01[obj->field_03].first + data_80055f30_slot01;
-        obj->pos_y = -data_80015c10_slot01[obj->field_03].second + data_80055f34_slot01 + 0x230;
-        func_80130768(obj, data_80015c60_slot01[obj->field_03], data_80023e48_slot01);
+        obj->pos_x = data_80015c10_slot01[obj->table_index].first + data_80055f30_slot01;
+        obj->pos_y = -data_80015c10_slot01[obj->table_index].second + data_80055f34_slot01 + 0x230;
+        func_80130768(obj, data_80015c60_slot01[obj->table_index], data_80023e48_slot01);
         func_80011fe8_slot01(obj, data_80015bc8_slot01);
     }
 }

@@ -11,8 +11,8 @@ void func_801369b0(Cam *cam) {
 
 void func_801369d4(Cam *cam, short x, short y) {
     init_cam_position(cam, x, y);
-    if (cam->field_01 != 0) {
-        cam->field_01 = 0;
+    if (cam->pending_flag != 0) {
+        cam->pending_flag = 0;
         cam->field_04++;
     }
 }

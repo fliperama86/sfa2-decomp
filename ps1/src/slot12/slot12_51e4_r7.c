@@ -19,7 +19,7 @@ void func_80015850_slot12(Object *obj) {
     func_8001606c_slot12(obj, 0);
     func_80015dfc_slot12(obj, 0);
     func_80015b90_slot12(obj, 0);
-    if (game_state.field_2bd != 0) {
+    if (game_state.mode_flag_2 != 0) {
         func_800159bc_slot12(obj, 0);
     }
 }
@@ -28,7 +28,7 @@ void func_800158b0_slot12(Object *obj) {
     func_8001606c_slot12(obj, 1);
     func_80015dfc_slot12(obj, 1);
     func_80015b90_slot12(obj, 1);
-    if (game_state.field_2bd != 0) {
+    if (game_state.mode_flag_2 != 0) {
         func_800159bc_slot12(obj, 1);
     }
 }

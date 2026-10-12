@@ -7,7 +7,7 @@ extern ObjectFn data_801c058c_slot04_03[];
 extern ObjectFn data_801c05b0_slot04_03[];
 
 int func_801b1238_slot04_03(Object *obj) {
-    return obj->field_177 != 0;
+    return obj->remaining_count != 0;
 }
 
 void func_801b1244_slot04_03(Object *obj) {

@@ -8,7 +8,7 @@ extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
 
 void func_801b460c_slot04_0c(Object *obj) {
-    Object *p = obj->field_3c;
+    Object *p = obj->parent;
 
     obj->state_0++;
     obj->field_0c = p->field_0c;
@@ -17,9 +17,9 @@ void func_801b460c_slot04_0c(Object *obj) {
     obj->ground_y = p->ground_y + 0x50;
     obj->pos_x = p->pos_x;
     obj->pos_y = p->pos_y + 0x2e;
-    obj->field_0b = p->field_0b;
+    obj->facing_side = p->facing_side;
     /* The listing has one store of pos_x to itself here. Two arms that each add zero, as the sibling functions offset pos_x by the facing, are an inference that reproduces it. */
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         obj->pos_x -= 0;
     } else {
         obj->pos_x += 0;

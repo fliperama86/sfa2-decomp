@@ -6,16 +6,16 @@
 void func_801b038c_slot04_03(Object *obj) {
     int one = 1;
 
-    obj->field_159 = one;
+    obj->active_flag_3 = one;
     obj->state_3 = obj->state_3 + 1;
-    if (obj->field_12a != 0 && obj->field_25f == 0 && (obj->field_130 & 0xa000) != 0) {
+    if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
         if ((u8)func_8013f8c4(obj, -0x18, 0x10) != 0) {
             obj->state_0 = one;
             obj->state_1 = 2;
             obj->state_2 = 0;
             obj->state_3 = 0;
-            obj->field_128 = 0;
-        } else if (obj->field_12a == 4 && (obj->field_130 & 0x8000) != 0) {
+            obj->input_dir_0 = 0;
+        } else if (obj->direction_index == 4 && (obj->input_bits_2 & 0x8000) != 0) {
             func_80141f28(obj, 2);
             func_80130ec0(obj);
             func_801307e0(obj, 0x1b);

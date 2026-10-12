@@ -14,7 +14,7 @@ void func_801b21fc_slot04_01(Object *o) {
         o->state_3++;
         func_801307e0(o, 0x2b);
     } else {
-        if (o->field_cd == 0) {
+        if (o->mode_flag_2 == 0) {
             t = o->pressed_bits & 0xfc;
         } else {
             t = func_8014a170(o, data_801bf000_slot04_01);

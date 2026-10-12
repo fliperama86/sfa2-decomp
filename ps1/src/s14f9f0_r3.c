@@ -38,7 +38,7 @@ void func_80150100(Stream *stream) {
 }
 
 void check_stream_word(Stream *stream, u8 *p) {
-    if (stream->field_34 != *(u32 *)p) {
+    if (stream->expected_word != *(u32 *)p) {
         stream->error_code = 3;
     }
 }
@@ -49,13 +49,13 @@ int advance_stream_record(Stream *stream) {
     if (stream->record_limit < (s8)stream->record_count) {
         return 0;
     }
-    stream->field_40 += 1;
-    stream->bytes_remaining = stream->field_40->byte_count;
-    t = stream->field_40->field_02;
+    stream->current_record += 1;
+    stream->bytes_remaining = stream->current_record->byte_count;
+    t = stream->current_record->field_02;
     stream->source_index = t;
-    stream->field_34 = stream->field_40->field_08;
+    stream->expected_word = stream->current_record->record_param;
     if (stream->source_index != 5) {
-        stream->source_ptr = data_8017eb1c[stream->source_index][(u16)stream->field_40->kind];
+        stream->source_ptr = data_8017eb1c[stream->source_index][(u16)stream->current_record->kind];
     }
     stream->step_count = 0;
     return 1;

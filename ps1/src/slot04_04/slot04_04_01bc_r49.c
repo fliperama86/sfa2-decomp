@@ -17,8 +17,8 @@ void func_801b432c_slot04_04(Object *obj) {
 
 void func_801b436c_slot04_04(Object *obj) {
     obj->state_3++;
-    obj->field_0b = obj->field_158;
-    if (obj->field_12a != 0 && obj->field_218 != 0 && (u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
+    obj->facing_side = obj->saved_facing;
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

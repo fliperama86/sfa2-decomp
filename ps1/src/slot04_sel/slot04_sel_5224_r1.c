@@ -31,10 +31,10 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
     TextItem *b1;
     int i;
 
-    if (data_8018f5a0->field_50 == 1) {
+    if (data_8018f5a0->step_index_2 == 1) {
         side = obj->side;
         p = obj;
-    } else if (data_8018f5a0->field_50 == 2) {
+    } else if (data_8018f5a0->step_index_2 == 2) {
         p = other;
         side = obj->side ^ 1;
     }
@@ -42,42 +42,42 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
     s2 = data_801b8f78_slot04_sel[side];
     s5 = data_801b94c0_slot04_sel[side];
     if (rec->field_04 == 0) {
-        if (((game_state.field_07 >> obj->side) & 1) == 0) {
+        if (((game_state.side_mask >> obj->side) & 1) == 0) {
             return;
         }
         data_801b9d74_slot04_sel = rec->field_04;
         func_801b64c0_slot04_sel(obj, rec, 0x11);
-        rec->field_03 = data_801b8d20_slot04_sel[rec->field_03 * 5 + data_801b9d70_slot04_sel];
-        data_801b9d70_slot04_sel = rec->field_03;
+        rec->selection_index = data_801b8d20_slot04_sel[rec->selection_index * 5 + data_801b9d70_slot04_sel];
+        data_801b9d70_slot04_sel = rec->selection_index;
         rec->field_04 = data_801b9d74_slot04_sel;
         p->kind = data_801b9d70_slot04_sel;
-        game_state.field_b1 = data_801b9d70_slot04_sel;
+        game_state.selection_value = data_801b9d70_slot04_sel;
         func_801b56e0_slot04_sel(p, obj, rec);
         if (rec->field_14 == 0xb4 && p->kind == 4) {
             p->kind = 0x12;
         }
         if (data_8016e68e != 0) {
-            if (rec->field_15 == 0xb4 && p->kind == 2) {
+            if (rec->hold_count_b == 0xb4 && p->kind == 2) {
                 p->kind = 0x14;
             }
         }
         func_801b57c8_slot04_sel(p, obj, rec);
-        if (rec->field_04 != 0 && p->kind == 2 && rec->field_13 != 0) {
+        if (rec->field_04 != 0 && p->kind == 2 && rec->set_flag_d != 0) {
             p->kind = 0x14;
             data_8016e68e = -1;
         }
-        s5->field_04 = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].field_00 + side * 0x18;
-        s5->field_06 = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].field_02;
+        s5->table_value_plus_side = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].base_value + side * 0x18;
+        s5->table_value = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].copied_value;
         func_801519b4(s5);
 
         i = 0;
         s0 = data_801b8fc8_slot04_sel[side];
         a1 = data_801b92a0_slot04_sel[p->kind];
         do {
-            s0->field_10[i] = a1->field_10[i];
+            s0->data_ptr[i] = a1->data_ptr[i];
             i++;
         } while (i < 0x10);
-        s0->field_0b = a1->field_0b;
+        s0->copied_byte = a1->copied_byte;
         func_801519b4(s0);
 
         i = 0;
@@ -87,38 +87,38 @@ void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec)
             s2->text[i] = b1->text[i];
             i++;
         } while (i < 10);
-        s2->field_0b = b1->palette;
+        s2->palette = b1->palette;
         func_801519b4(s2);
 
         if (rec->field_04 == 0) {
             return;
         }
         func_801205c4(side, data_801b8d8c_slot04_sel[data_801b9d70_slot04_sel]);
-        game_state.field_71 = p->side;
+        game_state.side = p->side;
         game_state.mode |= 1 << obj->side;
-        if (rec->field_05 == 0x10 || rec->field_05 == 0x80) {
+        if (rec->input_bits == 0x10 || rec->input_bits == 0x80) {
             p->field_d4 = 0;
-            p->field_119 = 0;
+            p->select_value_1 = 0;
         }
-        if (rec->field_05 == 0x20 || rec->field_05 == 0x40) {
+        if (rec->input_bits == 0x20 || rec->input_bits == 0x40) {
             p->field_d4 = 1;
-            p->field_119 = 1;
+            p->select_value_1 = 1;
         }
-        if (rec->field_05 == 0x90) {
+        if (rec->input_bits == 0x90) {
             p->field_d4 = 2;
-            p->field_119 = 2;
+            p->select_value_1 = 2;
         }
-        if (rec->field_05 == 0x60) {
+        if (rec->input_bits == 0x60) {
             p->field_d4 = 3;
-            p->field_119 = 3;
+            p->select_value_1 = 3;
         }
-        if (rec->field_05 == 0xc0) {
+        if (rec->input_bits == 0xc0) {
             p->field_d4 = 4;
-            p->field_119 = 4;
+            p->select_value_1 = 4;
         }
-        if (rec->field_05 == 0x30) {
+        if (rec->input_bits == 0x30) {
             p->field_d4 = 5;
-            p->field_119 = 5;
+            p->select_value_1 = 5;
         }
         ref_other.p = p;
         func_801b60b8_slot04_sel();

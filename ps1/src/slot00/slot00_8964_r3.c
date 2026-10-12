@@ -10,14 +10,14 @@ void func_80078bf4_slot00(Object *obj) {
         obj->accel_x = -obj->accel_x;
         obj->ot_depth ^= 6;
     }
-    obj->field_61 -= 1;
-    if (obj->field_61 & 0x80) {
-        obj->field_61 = 0x1f;
+    obj->hit_type -= 1;
+    if (obj->hit_type & 0x80) {
+        obj->hit_type = 0x1f;
         obj->accel_y = -obj->accel_y;
     }
-    obj->field_45 -= 1;
-    if (obj->field_45 & 0x80) {
-        obj->field_45 = 0x27;
+    obj->active_state -= 1;
+    if (obj->active_state & 0x80) {
+        obj->active_state = 0x27;
         obj->ot_depth ^= 6;
     }
 }

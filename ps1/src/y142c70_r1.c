@@ -17,86 +17,86 @@ void func_80142c70(Object *object) {
     hit = (u8) func_801433ac(object) != 0;
     x = 0;
     y = 0xf;
-    if ((ref_other.p->field_45 | object->field_45) == 0) {
+    if ((ref_other.p->active_state | object->active_state) == 0) {
         x = 10;
         y = 0x14;
     }
     if (hit) {
-        if (object->field_27c > 0x30) {
-            x = x + object->field_27c;
+        if (object->hit_count_3 > 0x30) {
+            x = x + object->hit_count_3;
             if (x >= y) x = y;
         }
     }
     ref_other.p->field_6b = x;
-    t = *(u8 *)&object->field_c6;
+    t = *(u8 *)&object->meter;
     object->field_7e = t;
     x = t >> 4;
-    if ((object->field_45 | ref_other.p->field_45) != 0) x = 0xc;
-    object->field_263 = x;
+    if ((object->active_state | ref_other.p->active_state) != 0) x = 0xc;
+    object->countdown_4 = x;
     object->field_7e = object->field_7e + 0x1e;
-    if (object->field_263 >= 0xa) object->field_263 = 9;
-    object->field_128 = 0;
-    object->field_129 = 0;
-    object->field_12a = 0;
+    if (object->countdown_4 >= 0xa) object->countdown_4 = 9;
+    object->input_dir_0 = 0;
+    object->input_dir_second = 0;
+    object->direction_index = 0;
     object->field_267 = 0;
-    object->field_2a2 = object->field_7e;
-    object->field_182 = 0;
+    object->cursor_timer_b = object->field_7e;
+    object->frame_count = 0;
     if (data_80197f10 >= 3) {
         func_801460ec(p);
         o = p[0];
-        o->field_00 = 1;
+        o->active_count = 1;
         o->field_02 = 0x14;
-        o->field_03 = 1;
+        o->table_index = 1;
         o->field_0e = object->field_0e;
-        o->field_48 = s2;
+        o->variant_index = s2;
         o->vel_x = s3;
-        o->field_46 = 8;
-        o->field_3c = object;
-        o->field_0d = object->field_0d + 3;
+        o->countdown = 8;
+        o->parent = object;
+        o->image_row = object->image_row + 3;
         o->field_20 = 8;
         o->spawn_x = 0x60;
-        o->field_44 = 1;
+        o->spawn_flag = 1;
         o->spawn_y = 0x1e0;
         o->field_90 = object->field_90;
-        o->field_98 = object->field_98;
-        o->field_9c = object->field_9c;
+        o->data_ptr_a = object->data_ptr_a;
+        o->data_ptr_b = object->data_ptr_b;
         o = p[1];
-        o->field_00 = 1;
+        o->active_count = 1;
         o->field_02 = 0x14;
-        o->field_03 = 2;
+        o->table_index = 2;
         o->field_0e = object->field_0e;
-        o->field_48 = s2;
+        o->variant_index = s2;
         o->vel_x = s3;
-        o->field_46 = 0x10;
-        o->field_3c = object;
-        if (object->kind == 0xe) o->field_0d = object->field_0d + 3;
-        else o->field_0d = object->field_0d + 4;
-        o->field_44 = 1;
+        o->countdown = 0x10;
+        o->parent = object;
+        if (object->kind == 0xe) o->image_row = object->image_row + 3;
+        else o->image_row = object->image_row + 4;
+        o->spawn_flag = 1;
         o->field_20 = 0x10;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
         o->field_90 = object->field_90;
-        o->field_98 = object->field_98;
-        o->field_9c = object->field_9c;
+        o->data_ptr_a = object->data_ptr_a;
+        o->data_ptr_b = object->data_ptr_b;
         o = p[2];
         o->field_02 = 0x14;
-        o->field_00 = 1;
-        o->field_03 = 3;
+        o->active_count = 1;
+        o->table_index = 3;
         o->field_0e = object->field_0e;
-        o->field_48 = s2;
+        o->variant_index = s2;
         o->vel_x = s3;
-        o->field_46 = 0x18;
-        o->field_3c = object;
-        if (object->kind == 0xe) o->field_0d = object->field_0d + 3;
-        else o->field_0d = object->field_0d + 4;
-        o->field_44 = 1;
+        o->countdown = 0x18;
+        o->parent = object;
+        if (object->kind == 0xe) o->image_row = object->image_row + 3;
+        else o->image_row = object->image_row + 4;
+        o->spawn_flag = 1;
         o->field_20 = 0x18;
         o->spawn_x = 0x60;
         o->spawn_y = 0x1e0;
         func_801379bc(object, 0);
         o->field_90 = object->field_90;
-        o->field_98 = object->field_98;
-        o->field_9c = object->field_9c;
+        o->data_ptr_a = object->data_ptr_a;
+        o->data_ptr_b = object->data_ptr_b;
     }
-    if (object->field_45 == 0) func_801312b8(object);
+    if (object->active_state == 0) func_801312b8(object);
 }

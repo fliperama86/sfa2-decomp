@@ -7,13 +7,13 @@ extern u16 data_801ec8ec_slot06_0e[];
 extern Slot06Tile data_801f22d4_slot06_0e[2][0x7c];
 
 void func_801e8748_slot06_0e(Slot06Layer *layer) {
-    layer->field_50 = data_801ec8ec_slot06_0e;
-    layer->field_54 = data_801ec8ec_slot06_0e;
-    layer->field_1e = 0x5810;
-    layer->field_58 = 0x400;
-    layer->field_5c = 0x100;
+    layer->tile_map_ptr = data_801ec8ec_slot06_0e;
+    layer->data_table = data_801ec8ec_slot06_0e;
+    layer->packed_param = 0x5810;
+    layer->map_width = 0x400;
+    layer->scale = 0x100;
     layer->field_4c = 0xc0;
-    layer->field_4e = 0xd8;
+    layer->rect_right = 0xd8;
     layer->field_1c = 0x89;
 }
 

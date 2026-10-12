@@ -9,15 +9,15 @@
 void func_8012bc24(Object *object) {
     ObjectFn fn;
     func_80129be0(object);
-    object->field_254 = 0;
+    object->input_matched_flag = 0;
     if (object->field_02 == 0) {
-        if (object->field_cd == 0) {
+        if (object->mode_flag_2 == 0) {
             fn = scratch_fn_e_left;
         } else {
             fn = scratch_call_left;
         }
     } else {
-        if (object->field_cd == 0) {
+        if (object->mode_flag_2 == 0) {
             fn = scratch_fn_e_right;
         } else {
             fn = scratch_call_right;

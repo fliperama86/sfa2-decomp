@@ -5,5 +5,5 @@
 
 void func_80144e90(Object *object) {
     object->state_0++;
-    game_state.config->field_6c = 0;
+    game_state.config->mode = 0;
 }

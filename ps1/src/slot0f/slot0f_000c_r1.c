@@ -13,7 +13,7 @@ void func_800e000c_slot0f(GameState *state, Menu *menu) {
 void func_800e004c_slot0f(Object *obj) {
     u8 t = obj->field_02;
     obj->field_02 = 0;
-    obj->field_03 = t;
+    obj->table_index = t;
     if (data_801a89a8[0] == 0) {
         obj->field_02 = 1;
     }
@@ -24,18 +24,18 @@ void func_800e004c_slot0f(Object *obj) {
 
 void func_800e009c_slot0f(Object *obj, int arg) {
     HudState *h = data_8018f5a0;
-    h->field_48 = 0;
-    h->field_4a = 0;
-    h->field_4c = 0;
-    h->field_4e = 0;
-    h->field_50 = 0;
-    h->field_52 = 0;
-    obj->field_c2 = 0;
-    obj->field_c4 = 0;
-    obj->field_c6 = 0;
+    h->state_index = 0;
+    h->phase_index = 0;
+    h->step_index = 0;
+    h->substep_index = 0;
+    h->step_index_2 = 0;
+    h->pass_index = 0;
+    obj->input_bits = 0;
+    obj->prev_input_bits = 0;
+    obj->meter = 0;
     obj->field_c8 = 0;
     obj->field_ca = 0;
-    *(u16 *)&obj->field_cc = 0;
+    *(u16 *)&obj->max_value_cc = 0;
     obj->field_01 = 0;
     *(u8 *)&obj->pos_y = 1;
     player_left.side = 0;

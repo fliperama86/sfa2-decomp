@@ -14,11 +14,11 @@ int func_801b0d18_slot04_08(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 7;
         obj->state_3 = 0;
-        obj->field_129 = 2;
-        obj->field_159 = one;
+        obj->input_dir_second = 2;
+        obj->active_flag_3 = one;
         obj->field_15a = one;
-        obj->field_12a = ((Slot04aObj *)obj)->field_2e5;
-        obj->field_0b = obj->field_158;
+        obj->direction_index = ((Slot04aObj *)obj)->field_2e5;
+        obj->facing_side = obj->saved_facing;
     }
     return r;
 }
@@ -34,11 +34,11 @@ int func_801b0d94_slot04_08(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 7;
         obj->state_3 = 0;
-        obj->field_129 = 4;
-        obj->field_159 = one;
+        obj->input_dir_second = 4;
+        obj->active_flag_3 = one;
         obj->field_15a = one;
-        obj->field_12a = ((Slot04aObj *)obj)->field_2ed;
-        obj->field_0b = obj->field_158;
+        obj->direction_index = ((Slot04aObj *)obj)->field_2ed;
+        obj->facing_side = obj->saved_facing;
     }
     return r;
 }
@@ -50,7 +50,7 @@ int func_801b0e10_slot04_08(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 7;
         obj->state_3 = 0;
-        obj->field_0b = obj->field_158;
+        obj->facing_side = obj->saved_facing;
         if (((obj->pressed_bits | obj->released_bits) & 0x6a) != 0) {
             obj->field_15a = 9;
             func_80142ba0(obj);

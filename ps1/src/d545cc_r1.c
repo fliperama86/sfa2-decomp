@@ -6,9 +6,9 @@
 /*
  * What it does (inferred, not original names): prepares the tables of a
  * two-column selection screen. It advances a counter of the HUD state
- * (field_52 of data_8018f5a0) when game_state.field_30 is not 0, or calls
+ * (pass_index of data_8018f5a0) when game_state.versus_flag is not 0, or calls
  * func_801519b4 with one of two blocks (chosen by game_state.field_31) and,
- * if the player selected by field_31 has bit 0x100 in field_c2, advances the
+ * if the player selected by field_31 has bit 0x100 in input_bits, advances the
  * counter and calls play_sound_at. Then it clears the cursor bytes, sets
  * data_8018d264 to 1, copies two rows of 8 ids into the 5-byte entries of two
  * tables and gives each entry a kind byte (0x1a for the ids 0x94 to 0x97,
@@ -22,18 +22,18 @@ void func_801545cc(void) {
 
     /* field_31 is read again after func_801519b4, which may change it
        (inferred; the differential test of the readable version covers it). */
-    if (g->field_30 == 0) {
+    if (g->versus_flag == 0) {
         if (g->field_31 == 1) {
             func_801519b4(data_80181044);
         } else {
             func_801519b4(data_80181060);
         }
-        if ((g->field_31 == 1 && (player_left.field_c2 & 0x100)) || (g->field_31 == 2 && (player_right.field_c2 & 0x100))) {
-            data_8018f5a0->field_52++;
+        if ((g->field_31 == 1 && (player_left.input_bits & 0x100)) || (g->field_31 == 2 && (player_right.input_bits & 0x100))) {
+            data_8018f5a0->pass_index++;
             play_sound_at(0, 0, 0x34c);
         }
     } else {
-        data_8018f5a0->field_52++;
+        data_8018f5a0->pass_index++;
     }
     i = 0;
     data_8018d250 = 0;

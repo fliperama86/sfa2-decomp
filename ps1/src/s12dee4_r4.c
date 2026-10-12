@@ -23,19 +23,19 @@ void func_8012e4c4(Object *object) {
 
 void func_8012e550(Object *object) {
     if (object->side == 0) {
-        if (object->field_cd == 0) {
+        if (object->mode_flag_2 == 0) {
             scratch_call_8c(object);
         } else {
             scratch_call_e4(object);
         }
     } else {
-        if (object->field_cd == 0) {
+        if (object->mode_flag_2 == 0) {
             scratch_call_13c(object);
         } else {
             scratch_call_194(object);
         }
     }
-    if (object->field_73 == 0) {
+    if (object->status_flag == 0) {
         func_80130b10(object);
     }
 }

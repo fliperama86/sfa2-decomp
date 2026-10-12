@@ -20,14 +20,14 @@ void func_801b1158_slot04_10(Object *obj) {
 
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
-    obj->field_0b = 0;
-    if (obj->field_cd != 0) {
+    obj->facing_side = 0;
+    if (obj->mode_flag_2 != 0) {
         t = (s16)(box_margin[0] + 0xc0) < obj->pos_x;
     } else {
-        t = obj->field_c2 & 0x2000;
+        t = obj->input_bits & 0x2000;
     }
     if (t) {
-        obj->field_0b = 1;
+        obj->facing_side = 1;
     }
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_801307e0(obj, 0x1c);
@@ -46,7 +46,7 @@ void func_801b11f8_slot04_10(Object *obj) {
         }
     } else {
         obj->step_flags = a & 0xff00;
-        data_80190468.p->field_63 = 0x3c;
+        data_80190468.p->vec_table_index = 0x3c;
         func_80146960(obj);
         update_sequence(obj);
         func_80140cd8(obj, 0x12, 0);
@@ -70,8 +70,8 @@ void func_801b1348_slot04_10(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     obj->gauge = 0x64;
-    obj->field_46 = 0;
-    ((Slot04bObj *)obj)->field_1c0 = 0;
+    obj->countdown = 0;
+    ((Slot04bObj *)obj)->input_bits = 0;
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_801307e0(obj, 0x18);
 }
@@ -86,16 +86,16 @@ void func_801b13b0_slot04_10(Object *obj) {
         obj->step_flags = a & 0xff00;
         if (func_80146840(obj) != 0) {
             i = -0x4f;
-            if (obj->field_0b != 0) {
+            if (obj->facing_side != 0) {
                 i = 0x4f;
             }
             *(u16 *)&ref_other.p->pos_x += i;
             *(u16 *)&ref_other.p->pos_y -= 0x59;
         }
         i = 0;
-        if (((Slot04bObj *)obj)->field_1c0 == 0) {
+        if (((Slot04bObj *)obj)->input_bits == 0) {
             i = 0xa;
-            ((Slot04bObj *)obj)->field_1c0 = ((Slot04bObj *)obj)->field_1c0 + 1;
+            ((Slot04bObj *)obj)->input_bits = ((Slot04bObj *)obj)->input_bits + 1;
         }
         if ((u8)func_80140cd8(obj, (s16)i, 0) != 0) {
             play_side_sound_at(obj, obj->side, 0x15);
@@ -103,9 +103,9 @@ void func_801b13b0_slot04_10(Object *obj) {
             func_801307e0(obj, 0x19);
         } else {
             play_side_sound_at(obj, obj->side, 0x13);
-            obj->field_46 = obj->field_46 + 1;
+            obj->countdown = obj->countdown + 1;
             func_80140fe0(obj);
-        if ((s16)obj->field_46 == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
+        if ((s16)obj->countdown == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
             update_sequence(obj);
         } else {
             obj->state_3 = 2;
@@ -114,7 +114,7 @@ void func_801b13b0_slot04_10(Object *obj) {
         }
     } else {
         func_80140fe0(obj);
-        if ((s16)obj->field_46 == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
+        if ((s16)obj->countdown == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
             update_sequence(obj);
         } else {
             obj->state_3 = 2;
@@ -129,7 +129,7 @@ void func_801b1590_slot04_10(Object *obj) {
     update_sequence(obj);
     t = obj->step_flags;
     if (t == 1) {
-        if (((Slot04bObj *)obj)->field_1c0 != 0) {
+        if (((Slot04bObj *)obj)->input_bits != 0) {
             func_80140770(obj, 0, 5, 0, 0, 0, t);
         } else {
             func_80140770(obj, 0, 5, 0xa, 0, 0, t);
@@ -141,7 +141,7 @@ void func_801b1590_slot04_10(Object *obj) {
 void func_801b160c_slot04_10(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags == 1) {
-        if (((Slot04bObj *)obj)->field_1c0 != 0) {
+        if (((Slot04bObj *)obj)->input_bits != 0) {
             func_80140770(obj, 0, 5, 0, 0, 0, 0);
         } else {
             func_80140770(obj, 0, 5, 0xa, 0, 0, 0);
@@ -166,8 +166,8 @@ void func_801b1708_slot04_10(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     func_80141f28(obj, 3);
     obj->gauge = 0x64;
-    obj->field_46 = 0;
-    ((Slot04bObj *)obj)->field_1c0 = 0;
+    obj->countdown = 0;
+    ((Slot04bObj *)obj)->input_bits = 0;
     play_sound_at(obj, obj->side ^ 1, 0x31a);
     func_801307e0(obj, 0x1a);
 }
@@ -182,9 +182,9 @@ void func_801b1770_slot04_10(Object *obj) {
         obj->step_flags = a & 0xff00;
         func_80146478(obj, 1, -0x69, 0x49);
         i = 0;
-        if (((Slot04bObj *)obj)->field_1c0 == 0) {
+        if (((Slot04bObj *)obj)->input_bits == 0) {
             i = 0xb;
-            ((Slot04bObj *)obj)->field_1c0 = ((Slot04bObj *)obj)->field_1c0 + 1;
+            ((Slot04bObj *)obj)->input_bits = ((Slot04bObj *)obj)->input_bits + 1;
         }
         if ((u8)func_80140cd8(obj, (s16)i, 0) != 0) {
             play_side_sound_at(obj, obj->side, 0x16);
@@ -192,9 +192,9 @@ void func_801b1770_slot04_10(Object *obj) {
             func_801307e0(obj, 0x1b);
         } else {
             play_side_sound_at(obj, obj->side, 0x14);
-            obj->field_46 = obj->field_46 + 1;
+            obj->countdown = obj->countdown + 1;
             func_80140fe0(obj);
-        if ((s16)obj->field_46 == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
+        if ((s16)obj->countdown == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
             update_sequence(obj);
         } else {
             obj->state_3 = 2;
@@ -203,7 +203,7 @@ void func_801b1770_slot04_10(Object *obj) {
         }
     } else {
         func_80140fe0(obj);
-        if ((s16)obj->field_46 == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
+        if ((s16)obj->countdown == 0 || (ref_other.p->field_15b != 0 && (u8)func_801410c8(obj) == 0)) {
             update_sequence(obj);
         } else {
             obj->state_3 = 2;
@@ -218,7 +218,7 @@ void func_801b18f8_slot04_10(Object *obj) {
     update_sequence(obj);
     t = obj->step_flags;
     if (t == 1) {
-        if (((Slot04bObj *)obj)->field_1c0 != 0) {
+        if (((Slot04bObj *)obj)->input_bits != 0) {
             func_80140770(obj, 0, 5, 0, 0, 0, t);
         } else {
             func_80140770(obj, 0, 5, 0xb, 0, 0, t);

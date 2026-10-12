@@ -14,21 +14,21 @@ void func_800185d0_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     Object *b = data_8005198c_slot28.p;
     if ((s16)b->step_flags < 0) {
-        data_8018f5a0->field_52++;
+        data_8018f5a0->pass_index++;
         b = (Object *)func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x20;
-            b->field_03 = 2;
+            b->table_index = 2;
             b->field_90 = (void *)0x80060000;
-            b->field_98 = data_80032a64_slot28;
-            b->field_9c = data_80032ec8_slot28;
+            b->data_ptr_a = data_80032a64_slot28;
+            b->data_ptr_b = data_80032ec8_slot28;
             b->pos_x = 0xc0;
             b->spawn_x = 0x60;
             b->field_01 = 1;
             b->pos_y = 0;
             b->spawn_y = 0x1e0;
-            b->field_0d = 0;
+            b->image_row = 0;
             b->ot_depth = 2;
             b->field_6b = 0;
             func_80130768(b, 0xa, data_80034530_slot28);
@@ -36,22 +36,22 @@ void func_800185d0_slot28(Object *o) {
         }
         b = (Object *)func_8011f1e0();
         if (b != 0) {
-            b->field_00 = 1;
+            b->active_count = 1;
             b->field_02 = 0x20;
-            b->field_03 = 3;
+            b->table_index = 3;
             b->field_90 = (void *)0x80060000;
-            b->field_98 = data_80032a64_slot28;
-            b->field_9c = data_80032ec8_slot28;
+            b->data_ptr_a = data_80032a64_slot28;
+            b->data_ptr_b = data_80032ec8_slot28;
             b->pos_x = 0xc0;
             b->pos_y = 0x100;
             b->spawn_x = 0x60;
             b->spawn_y = 0x1e0;
             b->field_01 = 1;
-            b->field_0d = 0;
+            b->image_row = 0;
             b->ot_depth = 2;
             func_80130768(b, 0xa, data_80034530_slot28);
             data_80051968_slot28.p = b;
         }
-        play_sound_at(0, obj->field_227, 0x300);
+        play_sound_at(0, obj->side, 0x300);
     }
 }

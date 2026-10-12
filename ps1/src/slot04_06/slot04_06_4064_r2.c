@@ -8,7 +8,7 @@ void func_801b422c_slot04_06(Object *o) {
 
     if (obj->field_134 != 0) {
         if (obj->field_27d == 0) {
-            obj->field_27d = ((Object *)obj)->field_27c;
+            obj->field_27d = ((Object *)obj)->hit_count_3;
         }
     } else if (obj->timer != 0) {
         obj->timer -= 1;

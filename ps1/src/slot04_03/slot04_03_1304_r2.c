@@ -5,7 +5,7 @@
 
 void func_801b13e0_slot04_03(Object *obj) {
     if ((u8)obj->step_flags == 0) {
-        obj->field_45 = 1;
+        obj->active_state = 1;
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
         if (obj->field_49 != 0 && obj->vel_y > 0) {
             obj->accel_y = 0x10000;
@@ -14,8 +14,8 @@ void func_801b13e0_slot04_03(Object *obj) {
         obj->vel_y = obj->vel_y + obj->accel_y;
         if (obj->pos_y >= obj->ground_y) {
             obj->state_3++;
-            obj->field_45 = 0;
-            obj->field_17b = 0;
+            obj->active_state = 0;
+            obj->active_flag_4 = 0;
             obj->pos_y = (u16)obj->ground_y;
             func_801209c4(obj);
             func_801307e0(obj, 0x28);
@@ -30,7 +30,7 @@ void func_801b14b4_slot04_03(Object *obj) {
     if (!((s16)obj->step_flags & 0x8000)) {
         update_sequence(obj);
     } else {
-        obj->other->field_249 = 5;
+        obj->other->other_state_code = 5;
         func_801312b8(obj);
     }
 }

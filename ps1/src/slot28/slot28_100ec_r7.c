@@ -5,10 +5,10 @@
 
 void func_80020dcc_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
-    int t = h->field_60 - 1;
-    h->field_60 = t;
+    int t = h->countdown_timer - 1;
+    h->countdown_timer = t;
     if ((s16)t == 0) {
-        h->field_52 = h->field_52 + 1;
+        h->pass_index = h->pass_index + 1;
         func_801282d4();
     }
 }

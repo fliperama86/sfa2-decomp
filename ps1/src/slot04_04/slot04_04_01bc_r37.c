@@ -10,7 +10,7 @@ void func_801b3294_slot04_04(Object *obj) {
     func_80142fbc(obj);
     func_801428a8(obj);
     func_80138b38(&game_state, obj);
-    if (obj->field_45 != 0) {
+    if (obj->active_state != 0) {
         set_sequence_by_side(obj, 0x2f);
     } else {
         play_side_sound_at(obj, obj->side, 8);
@@ -23,9 +23,9 @@ void func_801b3318_slot04_04(Object *obj) {
     int b = 0x3b;
     if ((s16)obj->step_flags & 0xff00) {
         obj->field_165 = 0xff;
-        obj->field_46 = 0x1e01;
+        obj->countdown = 0x1e01;
         obj->state_3 = obj->state_3 + 1;
-        if (obj->field_45 != 0) {
+        if (obj->active_state != 0) {
             a = -3;
             b = 0x50;
         } else {

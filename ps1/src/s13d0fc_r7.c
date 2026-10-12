@@ -13,7 +13,7 @@ void func_8013e408(Object *object, u8 index, u8 arg) {
     u16 entry;
     int mask;
 
-    object->slots[index].field_01 = 0;
+    object->slots[index].entry_index = 0;
     entry = table_8017a8cc[arg * 7];
     mask = entry & 0xf0ff;
     if ((mask & object->pressed_bits) == 0) {

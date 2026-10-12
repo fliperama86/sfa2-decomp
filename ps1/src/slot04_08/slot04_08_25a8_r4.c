@@ -5,10 +5,10 @@
 
 void func_801b2a8c_slot04_08(Object *obj) {
 
-    obj->field_12c++;
+    obj->substate_index++;
     func_80145d20(obj);
-    ((Slot04aObj *)obj)->field_1c4 = 0;
+    ((Slot04aObj *)obj)->sub_index = 0;
     func_801428e4(obj);
     func_80138b38(&game_state, obj);
-    func_801307e0(obj, (obj->field_12a >> 1) + 0x40);
+    func_801307e0(obj, (obj->direction_index >> 1) + 0x40);
 }

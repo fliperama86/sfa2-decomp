@@ -18,7 +18,7 @@ void func_801b0fec_slot04_07(Object *obj) {
             obj->state_3 = 1;
             obj->pos_y = limit;
             obj->pos_y_frac = 0;
-            obj->field_45 = 0;
+            obj->active_state = 0;
             func_801209c4(obj);
             func_801307e0(obj, 0x2e);
         }

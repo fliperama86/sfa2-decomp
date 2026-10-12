@@ -8,7 +8,7 @@ void func_801b5644_slot04_06(Object *obj) {
 
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             d = -0x18;
         }
         obj->pos_x = d + obj->pos_x;

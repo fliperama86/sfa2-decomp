@@ -15,18 +15,18 @@ void func_801b4ecc_slot04_07(Object *obj) {
     obj->ot_depth = 2;
     obj->state_0 = obj->state_0 + 1;
     o = obj->other;
-    obj->field_45 = 0;
-    obj->field_0b = o->side;
+    obj->active_state = 0;
+    obj->facing_side = o->side;
     obj->field_0e = o->field_0e;
-    obj->field_26 = o->field_26;
+    obj->scroll_factor = o->scroll_factor;
     obj->field_1c = o->field_1c;
     obj->field_0c = o->field_0c;
-    obj->field_0d = o->field_0d;
-    obj->field_3c = o;
+    obj->image_row = o->image_row;
+    obj->parent = o;
     v = get_random_byte() & 0x1f;
     v -= 0x10;
     a = -0x30;
-    if (obj->field_0b != 0) {
+    if (obj->facing_side != 0) {
         a = 0x1b0;
     }
     a += *(s16 *)box_margin;
@@ -47,5 +47,5 @@ void func_801b4ecc_slot04_07(Object *obj) {
     }
     v = p[5];
     *(s32 *)&obj->field_20 = v;
-    *(s32 *)&obj->field_68 = p[6];
+    *(s32 *)&obj->pair_value = p[6];
 }

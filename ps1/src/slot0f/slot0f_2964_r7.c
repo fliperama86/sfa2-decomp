@@ -14,10 +14,10 @@ void func_800e2f34_slot0f(void) {
         p = &data_800f855c_slot0f;
         *p ^= 1;
         v = *p;
-        game_state.field_10 = v;
+        game_state.setup_param = v;
         data_800e96d8_slot0f = &data_800e952c_slot0f[(s8)*p];
         data_8016e686 = v;
-        func_80120374(game_state.field_10);
+        func_80120374(game_state.setup_param);
         play_sound_at(0, 0, 0x203);
     }
 }

@@ -24,7 +24,7 @@ void func_801b26a8_slot04_0e(Object *obj) {
 }
 
 int func_801b26f0_slot04_0e(Object *obj) {
-    return obj->field_240 == 0;
+    return obj->link_flags == 0;
 }
 
 int func_801b26fc_slot04_0e(Object *obj) {
@@ -36,12 +36,12 @@ int func_801b2704_slot04_0e(Object *obj) {
 }
 
 int func_801b270c_slot04_0e(Object *obj) {
-    return (s16)obj->field_c6 >= 0x30;
+    return (s16)obj->meter >= 0x30;
 }
 
 int func_801b2720_slot04_0e(Object *obj) {
     if (obj->field_7e == 0) {
-        return obj->field_177 != 0;
+        return obj->remaining_count != 0;
     }
     return 1;
 }
@@ -62,8 +62,8 @@ void func_801b27cc_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u16 a;
 
-    o->field_17b = 1;
-    obj->field_1de = 0;
+    o->active_flag_4 = 1;
+    obj->state_flag = 0;
     o->vel_y = 0;
     o->accel_y = 0;
     o->state_3++;
@@ -75,7 +75,7 @@ void func_801b27cc_slot04_0e(Object *o) {
     } else {
         a = 0x58;
     }
-    a += o->field_12a >> 1;
+    a += o->direction_index >> 1;
     func_801307e0(o, a);
 }
 
@@ -84,17 +84,17 @@ void func_801b285c_slot04_0e(Object *o) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
 
-    if (obj->field_1de == 0) {
+    if (obj->state_flag == 0) {
         func_801b2ca4_slot04_0e(o);
     }
-    if (obj->field_3a == 0) {
-        o->field_45 = 1;
+    if (obj->mode == 0) {
+        o->active_state = 1;
         o->state_3++;
-        obj->field_3a = 0;
+        obj->mode = 0;
         o->vel_x = 0;
         o->accel_x = 0;
-        o->vel_y = data_801c601c_slot04_0e[o->field_12a >> 1];
-        o->accel_y = data_801c6028_slot04_0e[o->field_12a >> 1];
+        o->vel_y = data_801c601c_slot04_0e[o->direction_index >> 1];
+        o->accel_y = data_801c6028_slot04_0e[o->direction_index >> 1];
     }
     update_sequence(o);
 }
@@ -103,13 +103,13 @@ void func_801b2910_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u16 a;
 
-    if (obj->field_1de == 0) {
+    if (obj->state_flag == 0) {
         func_801b2ca4_slot04_0e(o);
     }
     func_801b4914_slot04_0e(o);
     if (o->ground_y < o->pos_y) {
         func_801b2c00_slot04_0e(o);
-    } else if (o->pos_y >= (s16)(o->ground_y - 0x18) || obj->field_1de == 0) {
+    } else if (o->pos_y >= (s16)(o->ground_y - 0x18) || obj->state_flag == 0) {
         update_sequence(o);
     } else {
         a = 0x5b;
@@ -117,7 +117,7 @@ void func_801b2910_slot04_0e(Object *o) {
         if (o->field_49 == 0) {
             a = 0x52;
         }
-        a += o->field_12a >> 1;
+        a += o->direction_index >> 1;
         func_801307e0(o, a);
     }
 }
@@ -127,36 +127,36 @@ void func_801b29e0_slot04_0e(Object *o) {
     Object *p;
     s16 y;
 
-    if (obj->field_3a == 1) {
+    if (obj->mode == 1) {
         p = pop_object_from_pool(o);
         if (p != 0) {
-            p->field_00 = 1;
+            p->active_count = 1;
             p->field_02 = 0xe;
-            p->field_03 = 0;
-            p->field_66 = o->field_66;
-            p->field_65 = o->field_65;
+            p->table_index = 0;
+            p->sound_side = o->sound_side;
+            p->team_id = o->team_id;
             p->field_49 = o->field_49;
-            p->field_ac = o->field_48;
-            p->field_ad = 0;
+            p->vel_table_index = o->variant_index;
+            p->active_flag_2 = 0;
             p->field_0e = o->field_0e;
-            p->field_0b = o->field_0b;
+            p->facing_side = o->facing_side;
             p->field_0c = o->field_0c;
-            p->field_0d = o->field_0d;
-            p->field_26 = o->field_26;
+            p->image_row = o->image_row;
+            p->scroll_factor = o->scroll_factor;
             p->pos_x = o->pos_x;
             y = o->pos_y;
             p->health = 0;
-            p->field_3c = o;
+            p->parent = o;
             p->pos_y = y;
-            o->field_240++;
-            o->field_14c = (s32)p;
+            o->link_flags++;
+            o->linked_object_3 = (s32)p;
             p->field_90 = o->field_90;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
-            p->field_98 = o->field_98;
-            p->field_9c = o->field_9c;
+            p->data_ptr_a = o->data_ptr_a;
+            p->data_ptr_b = o->data_ptr_b;
         }
-        obj->field_3a = 0;
+        obj->mode = 0;
         obj->field_47 = 2;
         o->state_3++;
         play_side_sound_at(o, o->field_02, 0x16);
@@ -192,9 +192,9 @@ void func_801b2ba8_slot04_0e(Object *obj) {
 
 void func_801b2c00_slot04_0e(Object *obj) {
     obj->state_3 = 6;
-    obj->field_45 = 0;
+    obj->active_state = 0;
     obj->pos_y_frac = 0;
-    obj->field_17b = 0;
+    obj->active_flag_4 = 0;
     obj->pos_y = (u16)obj->ground_y;
     func_801209c4(obj);
     func_801307e0(obj, 0x20);
@@ -214,14 +214,14 @@ void func_801b2ca4_slot04_0e(Object *o) {
     BytePair buf;
     int t;
 
-    if (o->field_cd != 0) {
+    if (o->mode_flag_2 != 0) {
         t = func_801b6bd4_slot04_0e(o);
     } else {
         t = obj->field_134;
     }
     if (t != 0) {
         buf = func_801b6b64_slot04_0e((Slot04bObj *)o);
-        o->field_48 = buf.first;
+        o->variant_index = buf.first;
     }
 }
 
@@ -233,8 +233,8 @@ void func_801b2d4c_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u16 a;
 
-    obj->field_1de = 0;
-    o->field_17b = 1;
+    obj->state_flag = 0;
+    o->active_flag_4 = 1;
     o->state_3++;
     func_80141f28(o, 2);
     func_80138ae8(&game_state, o);
@@ -255,7 +255,7 @@ void func_801b2dd4_slot04_0e(Object *o) {
     if ((s16)o->step_flags >= 0) {
         update_sequence(o);
     } else {
-        o->field_45 = 1;
+        o->active_state = 1;
         o->accel_y = -0x4800;
         o->state_3++;
         o->vel_y = 0x68000;
@@ -265,7 +265,7 @@ void func_801b2dd4_slot04_0e(Object *o) {
             d = -d;
         }
         d += 0x1800000;
-        if (o->field_0b != 0) {
+        if (o->facing_side != 0) {
             d = -d;
         }
         a = 0x5f;

@@ -13,8 +13,8 @@ void func_801b1d58_slot04_01(Object *o) {
         func_801b1eb8_slot04_01(o);
     } else if ((s16)o->step_flags & 0x8000) {
         play_sound_at(o, o->side, 0x320);
-        obj->field_1a4 = obj->field_1a4 - 1;
-        if (obj->field_1a4 & 0x80) {
+        obj->step_count = obj->step_count - 1;
+        if (obj->step_count & 0x80) {
             o->state_3++;
             func_801307e0(o, 0x21);
         } else {

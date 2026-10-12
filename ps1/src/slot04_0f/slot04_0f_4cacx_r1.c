@@ -9,11 +9,11 @@ int func_801b4cac_slot04_0f(Object *obj, u16 *mask, BytePair dir) {
     u8 a;
     u16 m;
 
-    if ((obj->field_130 & 0x2000) == 0) {
+    if ((obj->input_bits_2 & 0x2000) == 0) {
         return 0;
     }
     m = *mask;
-    a = (obj->field_130 & 0x4000) ? 0 : 6;
+    a = (obj->input_bits_2 & 0x4000) ? 0 : 6;
     if (dir.second != 0) {
         a += 3;
     }

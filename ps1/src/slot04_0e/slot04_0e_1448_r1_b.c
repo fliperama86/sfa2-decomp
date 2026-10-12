@@ -11,9 +11,9 @@ void func_801b1bfc_slot04_0e(Object *obj) {
     obj->field_15a = 8;
     obj->field_6b = 0;
     obj->other->field_6b = 0x15;
-    obj->field_12a = 0;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
+    obj->direction_index = 0;
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
 }
 
 void func_801b1c40_slot04_0e(Object *obj) {
@@ -24,7 +24,7 @@ void func_801b1c40_slot04_0e(Object *obj) {
     obj->field_15a = 9;
     obj->field_6b = 0;
     obj->other->field_6b = 0x15;
-    obj->field_12a = 0;
-    obj->field_159 = 1;
-    obj->field_0b = obj->field_158;
+    obj->direction_index = 0;
+    obj->active_flag_3 = 1;
+    obj->facing_side = obj->saved_facing;
 }

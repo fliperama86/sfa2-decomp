@@ -49,9 +49,9 @@ void func_801e80f0_slot06_03(void) {
 }
 
 void func_801e8128_slot06_03(Slot06Layer *layer) {
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_801361a4((Sprite *)layer, 0x190, 0x100);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         func_801e8174_slot06_03(layer);
     }
 }

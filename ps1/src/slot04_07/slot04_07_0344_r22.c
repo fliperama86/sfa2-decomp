@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 void func_801b496c_slot04_07(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     obj->state_3++;
-    obj->field_0b = obj->field_158;
+    obj->facing_side = obj->saved_facing;
     func_80130dc0(obj);
 }
 

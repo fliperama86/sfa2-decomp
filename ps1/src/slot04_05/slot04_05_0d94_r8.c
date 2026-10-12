@@ -14,8 +14,8 @@ void func_801b2758_slot04_05(Object *obj) {
     } else {
         obj->state_3++;
         obj->pos_y = obj->ground_y;
-        obj->field_45 = 0;
-        if (obj->field_0b != 0) {
+        obj->active_state = 0;
+        if (obj->facing_side != 0) {
             obj->vel_x = 0x70000;
         } else {
             obj->vel_x = -0x70000;

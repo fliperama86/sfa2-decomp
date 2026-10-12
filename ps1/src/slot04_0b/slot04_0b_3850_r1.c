@@ -19,37 +19,37 @@ void func_801b3850_slot04_0b(Object *o, Object *second) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
 
-    o->field_a0 = 0xff;
+    o->variant_index_2 = 0xff;
     o->state_0++;
     o->ot_depth = 0;
-    ref_other.p = o->field_3c;
+    ref_other.p = o->parent;
     o->field_49 = ref_other.p->field_49;
     o->field_1c = ref_other.p->field_1c;
-    ((Slot04aObj *)o)->field_6c = data_801c284c_slot04_0b;
-    if (o->field_ac >= 0xc) {
-        o->health = data_801c2eb8_slot04_0b[ref_other.p->field_12a >> 1];
+    ((Slot04aObj *)o)->data_pointer = data_801c284c_slot04_0b;
+    if (o->vel_table_index >= 0xc) {
+        o->health = data_801c2eb8_slot04_0b[ref_other.p->direction_index >> 1];
         func_801b3e88_slot04_0b(o);
     }
-    o->field_45 = 0;
+    o->active_state = 0;
     o->vel_y = 0;
-    if (o->field_ac == 4) {
-        o->field_0d++;
+    if (o->vel_table_index == 4) {
+        o->image_row++;
     }
-    vx = data_801c2ebc_slot04_0b[o->field_ac >> 1];
-    hi = o->field_af & 0xfe;
+    vx = data_801c2ebc_slot04_0b[o->vel_table_index >> 1];
+    hi = o->countdown_2 & 0xfe;
     dx = *(s16 *)(data_801c2ee0_slot04_0b + hi);
     o->pos_y = o->pos_y - *(u16 *)(data_801c2ee0_slot04_0b + hi + 2);
-    if (o->field_0b == 0) {
+    if (o->facing_side == 0) {
         vx = -vx;
         dx = -dx;
     }
     o->vel_x = vx;
     o->pos_x = o->pos_x + dx;
     if (ref_other.p->side == 0) {
-        ((Slot04aObj *)o)->field_8c = *(int *)0x1f8000a8;
+        ((Slot04aObj *)o)->scratchpad_value = *(int *)0x1f8000a8;
     } else {
-        ((Slot04aObj *)o)->field_8c = *(int *)0x1f800158;
+        ((Slot04aObj *)o)->scratchpad_value = *(int *)0x1f800158;
     }
-    func_80138070(o, o->field_ac >> 1);
+    func_80138070(o, o->vel_table_index >> 1);
     ((void (*)(Object *))func_801b39f0_slot04_0b)(o);
 }

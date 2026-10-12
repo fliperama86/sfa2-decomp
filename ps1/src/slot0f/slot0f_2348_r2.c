@@ -12,7 +12,7 @@ void func_800e2498_slot0f(Object *o) {
     int i;
     int c;
     Slot0fRec85c8 *r;
-    if ((s8)obj->field_00 == 2) {
+    if ((s8)obj->state_index == 2) {
         func_801519b4(data_800e8548_slot0f);
     } else {
         func_801519b4(data_800e8578_slot0f);
@@ -21,7 +21,7 @@ void func_800e2498_slot0f(Object *o) {
         r = &data_800e85c8_slot0f[i];
         c = 0x1a;
         if (i != 2) {
-            if (!(obj->field_0d & (i + 1))) {
+            if (!(obj->enabled_flag & (i + 1))) {
                 c = 0x1b;
             }
         }

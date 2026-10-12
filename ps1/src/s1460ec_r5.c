@@ -10,17 +10,17 @@ void func_801476d8(Object *p) {
 }
 
 void func_801476f8(Object *object) {
-    if (((0x1e >> object->field_03) & 1) == 0) {
-        object->field_46 = 0;
+    if (((0x1e >> object->table_index) & 1) == 0) {
+        object->countdown = 0;
     }
-    if (object->field_45 == 0) {
-        object->field_46 = 0;
-    } else if (object->field_45 == 2) {
-        object->field_46 = (get_random_byte() & 7) | 8;
-    } else if (object->field_45 == 4) {
-        object->field_46 = (get_random_byte() & 7) + 4;
-    } else if (object->field_45 == 6) {
-        object->field_46 = (get_random_byte() & 7) + 2;
+    if (object->active_state == 0) {
+        object->countdown = 0;
+    } else if (object->active_state == 2) {
+        object->countdown = (get_random_byte() & 7) | 8;
+    } else if (object->active_state == 4) {
+        object->countdown = (get_random_byte() & 7) + 4;
+    } else if (object->active_state == 6) {
+        object->countdown = (get_random_byte() & 7) + 2;
     }
 }
 

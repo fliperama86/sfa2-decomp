@@ -44,27 +44,27 @@ void func_8013245c(void) {
     blk->head[1] = 1;
     pa = data_801a8067;
     pb = data_801a83fb;
-    blk->field_1d4 = table_80172144[pa + 13];
-    blk->field_1d8 = table_80172144[pb + 13];
-    blk->field_1dc = table_80172144[32];
+    blk->table_entry_a = table_80172144[pa + 13];
+    blk->table_entry_b = table_80172144[pb + 13];
+    blk->table_entry_c = table_80172144[32];
     data_801a6938 = 0;
     if (pa == 0x12) {
-        blk->field_1d4 = table_80172144[31];
+        blk->table_entry_a = table_80172144[31];
     }
     if (pa == 0x13) {
-        blk->field_1d4 = table_80172144[30];
+        blk->table_entry_a = table_80172144[30];
     }
     if (pa == 0x14) {
-        blk->field_1d4 = table_80172144[15];
+        blk->table_entry_a = table_80172144[15];
     }
     if (pb == 0x12) {
-        blk->field_1d8 = table_80172144[31];
+        blk->table_entry_b = table_80172144[31];
     }
     if (pb == 0x13) {
-        blk->field_1d8 = table_80172144[30];
+        blk->table_entry_b = table_80172144[30];
     }
     if (pb == 0x14) {
-        blk->field_1d8 = table_80172144[15];
+        blk->table_entry_b = table_80172144[15];
     }
     if (data_80198098) {
         data_80188d64 = 0;
@@ -245,13 +245,13 @@ void func_8013245c(void) {
             s = (Strip1c *)((u8 *)data_80188d6c + i * 0x38) + j;
             func_80136d1c((Tx *)s);
             s->pos_x = 0xa8 + j * 0x10;
-            s->field_16 = 2;
-            s->field_19 = 0xf0;
-            s->field_10 = 0x80;
-            s->field_11 = 0x80;
-            s->field_12 = 0x80;
-            s->field_1a = 0x7e07;
-            s->field_04 = 0xe100001f;
+            s->pos_y = 2;
+            s->tex_v = 0xf0;
+            s->color_r = 0x80;
+            s->color_g = 0x80;
+            s->color_b = 0x80;
+            s->tex_param = 0x7e07;
+            s->draw_mode_word = 0xe100001f;
         }
     }
     data_80188ebc = 0x7e07;

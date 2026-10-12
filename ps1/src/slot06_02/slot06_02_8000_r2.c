@@ -10,9 +10,9 @@ void func_801368c0(Cam *cam);
 void func_80136abc(void);
 
 void func_801e8694_slot06_02(Slot06Layer *layer) {
-    if (layer->field_04 == 0) {
+    if (layer->mode == 0) {
         func_801e86f8_slot06_02(layer);
-    } else if (layer->field_04 == 1) {
+    } else if (layer->mode == 1) {
         func_801e8750_slot06_02(layer);
     }
     func_801368c0((Cam *)layer);
@@ -24,7 +24,7 @@ void func_801e86f8_slot06_02(Slot06Layer *layer) {
     if (layer->field_01 != 0) {
         layer->field_01 = 0;
         layer->table_index = 0;
-        layer->field_04++;
+        layer->mode++;
         func_801e87dc_slot06_02(layer);
     }
 }

@@ -13,21 +13,21 @@ void func_80011660_slot27(Object *object) {
 
 void func_800116a0_slot27(Object *obj) {
     Object *p = obj->other;
-    int k = obj->field_48;
+    int k = obj->variant_index;
 
-    if (k != obj->field_03) {
-        obj->field_03 = k;
+    if (k != obj->table_index) {
+        obj->table_index = k;
     }
     k = p->kind;
-    if (k != obj->field_48) {
-        obj->field_48 = k;
+    if (k != obj->variant_index) {
+        obj->variant_index = k;
         func_8001188c_slot27(obj);
-        func_80130768(obj, obj->field_48, data_800268b0_slot27);
+        func_80130768(obj, obj->variant_index, data_800268b0_slot27);
     }
     k = p->side;
     if ((game_state.mode >> k) & 1) {
         obj->state_1 = obj->state_1 + 1;
-        obj->field_45 = p->field_d4;
+        obj->active_state = p->field_d4;
         func_8001188c_slot27(obj);
     }
     advance_sequence_checked(obj);

@@ -24,14 +24,14 @@ void func_801b29ac_slot04_10(Object *obj) {
         if ((u8)t == 3) {
             a = 0x30;
             obj->step_flags = t & 0xff00;
-            if (obj->field_0b == 0) {
+            if (obj->facing_side == 0) {
                 a = -0x30;
             }
             obj->pos_x = a + obj->pos_x;
         }
     } else {
         ref_other.p = obj->other;
-        ref_other.p->field_249 = 5;
+        ref_other.p->other_state_code = 5;
         func_801b1078_slot04_10(obj);
     }
 }
@@ -54,7 +54,7 @@ void func_801b2ad8_slot04_10(Object *obj) {
         update_sequence(obj);
     } else {
         ref_other.p = obj->other;
-        ref_other.p->field_249 = 5;
+        ref_other.p->other_state_code = 5;
         func_801b1078_slot04_10(obj);
     }
 }
@@ -66,7 +66,7 @@ void func_801b2b34_slot04_10(Object *obj) {
 void func_801b2b74_slot04_10(Object *obj) {
     int a;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     ((Slot04bObj *)obj)->field_298 = 4;
     obj->state_3++;
     func_80141f28(obj, 6);
@@ -77,7 +77,7 @@ void func_801b2b74_slot04_10(Object *obj) {
         a = 0x51;
     }
     func_801307e0(obj, a);
-    if (obj->field_cd != 0) {
+    if (obj->mode_flag_2 != 0) {
         func_801b2cd8_slot04_10(obj, 0x68);
     }
 }
@@ -89,7 +89,7 @@ void func_801b2c08_slot04_10(Object *obj) {
 void func_801b2c48_slot04_10(Object *obj) {
     int a;
 
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     ((Slot04bObj *)obj)->field_298 = 4;
     obj->state_3++;
     func_80141f28(obj, 6);
@@ -100,7 +100,7 @@ void func_801b2c48_slot04_10(Object *obj) {
         a = 0x52;
     }
     func_801307e0(obj, a);
-    if (obj->field_cd != 0) {
+    if (obj->mode_flag_2 != 0) {
         func_801b2cd8_slot04_10(obj, 0x98);
     }
 }
@@ -110,22 +110,22 @@ void func_801b2cd8_slot04_10(Object *obj, int arg) {
     u8 b[4] = { 0, 4, 8, 0x10 };
     u8 c[4] = { 8, 0xc, 0x10, 0x20 };
 
-    ((Slot04bObj *)obj)->field_1a9 = 0;
+    ((Slot04bObj *)obj)->random_value_a = 0;
     ((Slot04bObj *)obj)->field_1aa = 0;
-    ((Slot04bObj *)obj)->field_1ab = 0;
+    ((Slot04bObj *)obj)->random_countdown = 0;
     if (get_random_byte() & 3) {
-        if (obj->other->field_240 != 0) {
-            ((Slot04bObj *)obj)->field_1a9 = 1;
+        if (obj->other->link_flags != 0) {
+            ((Slot04bObj *)obj)->random_value_a = 1;
             ((Slot04bObj *)obj)->field_1aa = 0;
-            ((Slot04bObj *)obj)->field_1ab = 0x46;
-        } else if ((s16)obj->field_21e <= (s16)arg) {
-            ((Slot04bObj *)obj)->field_1a9 = 1;
+            ((Slot04bObj *)obj)->random_countdown = 0x46;
+        } else if ((s16)obj->compare_limit <= (s16)arg) {
+            ((Slot04bObj *)obj)->random_value_a = 1;
             ((Slot04bObj *)obj)->field_1aa = 0;
-            ((Slot04bObj *)obj)->field_1ab = 0x46;
+            ((Slot04bObj *)obj)->random_countdown = 0x46;
         } else {
-            ((Slot04bObj *)obj)->field_1a9 = a[get_random_byte() & 3];
+            ((Slot04bObj *)obj)->random_value_a = a[get_random_byte() & 3];
             ((Slot04bObj *)obj)->field_1aa = b[get_random_byte() & 3];
-            ((Slot04bObj *)obj)->field_1ab = c[get_random_byte() & 3];
+            ((Slot04bObj *)obj)->random_countdown = c[get_random_byte() & 3];
         }
     }
 }

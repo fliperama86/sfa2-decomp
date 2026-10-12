@@ -8,18 +8,18 @@ extern SequenceStep **data_801c4670_slot04_04[];
 void func_801b40ec_slot04_04(Object *obj, Object *p) {
     u8 a;
 
-    a = p->frame->field_09;
+    a = p->frame->frame_param;
     if (a == 0) {
-        obj->field_48 = 0;
+        obj->variant_index = 0;
     } else {
         obj->pos_x = p->pos_x;
         obj->pos_y = p->pos_y;
-        obj->field_0b = p->field_0b;
+        obj->facing_side = p->facing_side;
         obj->field_01 = 1;
-        if (obj->field_48 == a) {
+        if (obj->variant_index == a) {
             advance_sequence_checked(obj);
         } else {
-            obj->field_48 = a;
+            obj->variant_index = a;
             func_80130700(obj, data_801c4670_slot04_04[p->side][a]);
         }
     }
@@ -30,16 +30,16 @@ void func_801b4198_slot04_04(Object *obj, Object *p) {
 
     a = p->frame->field_0f;
     if (a == 0) {
-        obj->field_48 = 0;
+        obj->variant_index = 0;
     } else {
         obj->pos_x = p->pos_x;
         obj->pos_y = p->pos_y;
-        obj->field_0b = p->field_0b;
+        obj->facing_side = p->facing_side;
         obj->field_01 = 1;
-        if (obj->field_48 == a) {
+        if (obj->variant_index == a) {
             advance_sequence_checked(obj);
         } else {
-            obj->field_48 = a;
+            obj->variant_index = a;
             func_80130700(obj, data_801c4670_slot04_04[2 + p->side][a]);
         }
     }

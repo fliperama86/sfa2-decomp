@@ -14,8 +14,8 @@ void func_801b2074_slot04_07(Object *obj) {
     } else {
         obj->pos_y = y;
         obj->state_3 = 5;
-        obj->field_45 = 0;
-        obj->field_17b = 0;
+        obj->active_state = 0;
+        obj->active_flag_4 = 0;
         func_801209c4(obj);
         func_801307e0(obj, 0x3b);
     }

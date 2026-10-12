@@ -13,7 +13,7 @@ void func_801b252c_slot04_0a(Object *obj) {
     t = obj->step_flags;
     if ((t & 0xff00) == 0x100) {
         obj->step_flags = t & 0xff;
-        obj->field_0b = obj->field_158;
+        obj->facing_side = obj->saved_facing;
     }
     u = obj->step_flags;
     if ((u & 0xff) != 0) {

@@ -9,7 +9,7 @@ void func_801b04c8_slot04_05(Object *obj) {
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_2 = obj->state_2 + 1;
-        if (obj->field_0b == 0) {
+        if (obj->facing_side == 0) {
             d = -0x2a;
         }
         obj->pos_x = d + obj->pos_x;

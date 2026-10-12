@@ -8,27 +8,27 @@ extern u8 data_801dd4d0_slot05_06[];
 extern ObjectFn data_801dd4d8_slot05_06[];
 
 void func_801cc2d4_slot05_06(Object *obj) {
-    obj->field_17b = 1;
+    obj->active_flag_4 = 1;
     obj->state_3++;
-    obj->field_159 = 0;
+    obj->active_flag_3 = 0;
     obj->field_157 = 0;
     obj->field_29c = 3;
     func_80141f28(obj, 4);
     func_801307e0(obj, 0x2d);
-    obj->step_timer = *(u16 *)(data_801dd4c8_slot05_06 + (obj->field_12a & 0xfe));
+    obj->step_timer = *(u16 *)(data_801dd4c8_slot05_06 + (obj->direction_index & 0xfe));
 }
 
 void func_801cc354_slot05_06(Object *obj) {
-    if (((Slot04aObj *)obj)->field_3a != 0) {
-        ((Slot04aObj *)obj)->field_3a = 0;
-        obj->step_timer = *(u16 *)(data_801dd4d0_slot05_06 + (obj->field_12a & 0xfe));
+    if (((Slot04aObj *)obj)->mode != 0) {
+        ((Slot04aObj *)obj)->mode = 0;
+        obj->step_timer = *(u16 *)(data_801dd4d0_slot05_06 + (obj->direction_index & 0xfe));
     }
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
         obj->state_3++;
         play_side_sound_at(obj, obj->side, 1);
-        func_801307e0(obj, (obj->field_12a >> 1) + 0x49);
+        func_801307e0(obj, (obj->direction_index >> 1) + 0x49);
     }
 }
 
@@ -36,7 +36,7 @@ void func_801cc3f8_slot05_06(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
-        obj->field_17b = 0;
+        obj->active_flag_4 = 0;
         func_801312b8(obj);
     }
 }

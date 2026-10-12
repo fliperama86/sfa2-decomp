@@ -4,17 +4,17 @@
 #include "../externs.h"
 
 void func_80010fc8_slot01(void) {
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
 }
 
 void func_80010fe8_slot01(void) {
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
 }
 
 void func_80011008_slot01(void) {
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
 }
 
 void func_80011028_slot01(void) {
-    data_8018f5a0->field_4e++;
+    data_8018f5a0->substep_index++;
 }

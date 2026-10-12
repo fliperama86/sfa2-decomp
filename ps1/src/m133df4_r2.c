@@ -6,7 +6,7 @@
 
 void func_80135ef0(ObjectView *object) {
     u32 v;
-    u8 f = object->field_63;
+    u8 f = object->packed_value;
     if (f & 1) {
         v = f >> 2;
         if (v > 0x10) {
@@ -15,10 +15,10 @@ void func_80135ef0(ObjectView *object) {
     } else {
         v = 0;
     }
-    object->field_92 = v;
-    data_8017262c[game_state.field_40]();
-    data_801aa544[0].ot_index = data_801725f0[object->field_40 * 3 + 0];
-    data_801aa544[1].ot_index = data_801725f0[object->field_40 * 3 + 1];
-    data_801aa544[2].ot_index = data_801725f0[object->field_40 * 3 + 2];
-    data_80190562[0] = data_801725f0[object->field_40 * 3 + 1];
+    object->capped_value = v;
+    data_8017262c[game_state.kind_index]();
+    data_801aa544[0].ot_index = data_801725f0[object->table_index * 3 + 0];
+    data_801aa544[1].ot_index = data_801725f0[object->table_index * 3 + 1];
+    data_801aa544[2].ot_index = data_801725f0[object->table_index * 3 + 2];
+    data_80190562[0] = data_801725f0[object->table_index * 3 + 1];
 }

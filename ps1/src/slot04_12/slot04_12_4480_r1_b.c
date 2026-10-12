@@ -13,7 +13,7 @@ void func_801b4ba8_slot04_12(Object *obj);
 int func_801b4bcc_slot04_12(Object *obj);
 
 void func_801b4ba8_slot04_12(Object *obj) {
-    obj->field_159 = 1;
+    obj->active_flag_3 = 1;
     func_80130dc0(obj);
 }
 
@@ -33,17 +33,17 @@ void func_801b4c50_slot04_12(Object *obj) {
     Object *p;
     SequenceStep *s;
 
-    obj->field_44 = 1;
-    p = obj->field_3c;
+    obj->spawn_flag = 1;
+    p = obj->parent;
     obj->state_0++;
-    obj->field_45 = 0;
-    if (obj->field_0b != 0) {
+    obj->active_state = 0;
+    if (obj->facing_side != 0) {
         obj->vel_x = 0x10000;
     } else {
         obj->vel_x = 0xffff0000;
     }
-    if (obj->field_03 == 0) {
-        if (obj->field_0b != 0) {
+    if (obj->table_index == 0) {
+        if (obj->facing_side != 0) {
             obj->pos_x = obj->pos_x + 0x80;
         } else {
             obj->pos_x = obj->pos_x - 0x80;

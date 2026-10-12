@@ -5,8 +5,8 @@
 
 void func_80076e00_slot00(Object *o) {
     o->state_2++;
-    o->field_0b ^= 1;
+    o->facing_side ^= 1;
     func_801380f0(o);
-    o->field_46 = 2;
-    func_80138070(o, o->field_a0);
+    o->countdown = 2;
+    func_80138070(o, o->variant_index_2);
 }

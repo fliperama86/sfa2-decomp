@@ -12,9 +12,9 @@ void func_801e14cc_slot2a(Object *obj) {
     Cell20 *b;
     int y;
 
-    a = data_801e5164_slot2a[obj->field_03][0].cells;
-    b = data_801e5164_slot2a[obj->field_03][1].cells;
-    y = (3 - ((Slot2aSel *)data_801e52c8_slot2a)->field_04) * 8 - 16;
+    a = data_801e5164_slot2a[obj->table_index][0].cells;
+    b = data_801e5164_slot2a[obj->table_index][1].cells;
+    y = (3 - ((Slot2aSel *)data_801e52c8_slot2a)->row_index) * 8 - 16;
     for (i = 0; i < 2; i++) {
         func_8015c100(a);
         a->pos_x = obj->pos_x + (i << 7);
@@ -26,7 +26,7 @@ void func_801e14cc_slot2a(Object *obj) {
         a->color_r = 0x80;
         a->color_g = 0x80;
         a->color_b = 0x80;
-        a->field_0e = (u16)func_8015bdd4(0x2c0, 0x80);
+        a->clut_or_tpage = (u16)func_8015bdd4(0x2c0, 0x80);
         a++;
         func_8015c100(b);
         b->pos_x = obj->pos_x + (i << 7);
@@ -38,7 +38,7 @@ void func_801e14cc_slot2a(Object *obj) {
         b->color_r = 0x80;
         b->color_g = 0x80;
         b->color_b = 0x80;
-        b->field_0e = (u16)func_8015bdd4(0x2c0, 0x80);
+        b->clut_or_tpage = (u16)func_8015bdd4(0x2c0, 0x80);
         b++;
     }
     func_80158a2c((Prim *)a, 0, 0, 0xc, 0);

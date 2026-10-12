@@ -10,18 +10,18 @@ void func_801b4054_slot04_0a(Object *obj) {
     int a;
     int y;
 
-    obj->field_a0 = 0xff;
-    ((Slot04aObj *)obj)->field_6c = data_801c0828_slot04_0a;
+    obj->variant_index_2 = 0xff;
+    ((Slot04aObj *)obj)->data_pointer = data_801c0828_slot04_0a;
     obj->ot_depth = 0;
-    obj->field_45 = 0;
+    obj->active_state = 0;
     obj->vel_x = 0;
     obj->vel_y = 0;
     obj->state_0++;
-    ref_other.p = obj->field_3c;
+    ref_other.p = obj->parent;
     obj->field_49 = ref_other.p->field_49;
     obj->field_1c = ref_other.p->field_1c;
     a = 0x30;
-    if (obj->field_0b == 0) {
+    if (obj->facing_side == 0) {
         a = -0x30;
     }
     a += ref_other.p->pos_x;
@@ -30,10 +30,10 @@ void func_801b4054_slot04_0a(Object *obj) {
     obj->pos_y = y - 0x46;
     func_801b4334_slot04_0a(obj);
     if (ref_other.p->side == 0) {
-        ((Slot04aObj *)obj)->field_8c = *(int *)0x1f8000a8;
+        ((Slot04aObj *)obj)->scratchpad_value = *(int *)0x1f8000a8;
     } else {
-        ((Slot04aObj *)obj)->field_8c = *(int *)0x1f800158;
+        ((Slot04aObj *)obj)->scratchpad_value = *(int *)0x1f800158;
     }
-    func_80138070(obj, obj->field_ac >> 1);
+    func_80138070(obj, obj->vel_table_index >> 1);
 }
 
