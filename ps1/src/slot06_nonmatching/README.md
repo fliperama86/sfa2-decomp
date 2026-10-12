@@ -212,14 +212,6 @@ was changed for them. A function's lines are replaced when the mode is run
 for that function again.
 
 ```
-func_801e84cc_slot06_0e edges: constants 13, altered runs 24, unnoticed 6, all discarded 2
-  slot 74: addiu a1,a3,0x4, immediate 0x4 -> 0x5: different 0 of 2000, discarded 1968
-  slot 74: addiu a1,a3,0x4, immediate 0x4 -> 0x3: different 0 of 2000, discarded 1968
-  slot 103: addiu a1,a1,0x1c, immediate 0x1c -> 0x1d: different 0 of 2000, discarded 1963
-  slot 103: addiu a1,a1,0x1c, immediate 0x1c -> 0x1b: different 0 of 2000, discarded 1963
-  slot 112: addiu a3,a3,0x1c, immediate 0x1c -> 0x1d: different 0 of 2000, discarded 1965
-  slot 112: addiu a3,a3,0x1c, immediate 0x1c -> 0x1b: different 0 of 2000, discarded 1965
-  slot 36: not executed by any case
 ```
 
 ## Fixtures
@@ -415,10 +407,6 @@ before it makes the altered runs, and it counts memory that a setup marked
 with `State.owns` (made, with the image's content) among the bytes that a
 file would publish.
 
-Functions of this folder without a fixtures file, by reason:
-
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801e84cc_slot06_0e`.
-
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
@@ -580,7 +568,10 @@ the setup made.
 
 ## Functions
 
-The functions of this folder.
+The functions of this folder. At present there is none: the last three became
+exact on 2026-10-12 and stand in `../slot06_08/slot06_08_8bd8x_r1.c`,
+`../slot06_0e/slot06_0e_9738x_r1.c` and `../slot06_0e/slot06_0e_84ccx_r1.c`; the
+page and the tool stay for the next one.
 The three blocks are a record, not an instruction: what the commands of
 "Running" printed for each function when it was last run. As it stands that
 is one run of the whole folder on 2026-10-09, with `--all` in place of the
@@ -590,21 +581,16 @@ function is run again.
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
-func_801e84cc_slot06_0e: built 504 bytes, original 536 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e84cc_slot06_0e coverage: 133 of 134 instruction slots of the original executed
 ```
 
 The control (`--cases 2000 --control FUNC`):
 
 ```
-func_801e84cc_slot06_0e control: different 1968 of 2000 (expected more than 0)
-  altered: v coordinate store moved by one byte, instruction slot 89
 ```
 
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
-func_801e84cc_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 A function with fewer slots executed than it has names the others in its
