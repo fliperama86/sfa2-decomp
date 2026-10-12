@@ -220,14 +220,6 @@ func_801e84cc_slot06_0e edges: constants 13, altered runs 24, unnoticed 6, all d
   slot 112: addiu a3,a3,0x1c, immediate 0x1c -> 0x1d: different 0 of 2000, discarded 1965
   slot 112: addiu a3,a3,0x1c, immediate 0x1c -> 0x1b: different 0 of 2000, discarded 1965
   slot 36: not executed by any case
-func_801e9738_slot06_0e edges: constants 17, altered runs 32, unnoticed 6, all discarded 4
-  slot 96: addiu a1,t2,0x4, immediate 0x4 -> 0x5: different 0 of 2000, discarded 1883
-  slot 96: addiu a1,t2,0x4, immediate 0x4 -> 0x3: different 0 of 2000, discarded 1883
-  slot 125: addiu a1,a1,0x20, immediate 0x20 -> 0x21: different 0 of 2000, discarded 1820
-  slot 125: addiu a1,a1,0x20, immediate 0x20 -> 0x1f: different 0 of 2000, discarded 1820
-  slot 134: addiu t2,t2,0x20, immediate 0x20 -> 0x21: different 0 of 2000, discarded 1878
-  slot 134: addiu t2,t2,0x20, immediate 0x20 -> 0x1f: different 0 of 2000, discarded 1878
-  slot 37: not executed by any case
 ```
 
 ## Fixtures
@@ -425,7 +417,7 @@ file would publish.
 
 Functions of this folder without a fixtures file, by reason:
 
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801e84cc_slot06_0e`, `func_801e9738_slot06_0e`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_801e84cc_slot06_0e`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
@@ -600,8 +592,6 @@ The test (`--cases 2000 FUNC`, seed 1):
 ```
 func_801e84cc_slot06_0e: built 504 bytes, original 536 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e84cc_slot06_0e coverage: 133 of 134 instruction slots of the original executed
-func_801e9738_slot06_0e: built 588 bytes, original 628 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e9738_slot06_0e coverage: 156 of 157 instruction slots of the original executed
 ```
 
 The control (`--cases 2000 --control FUNC`):
@@ -609,15 +599,12 @@ The control (`--cases 2000 --control FUNC`):
 ```
 func_801e84cc_slot06_0e control: different 1968 of 2000 (expected more than 0)
   altered: v coordinate store moved by one byte, instruction slot 89
-func_801e9738_slot06_0e control: different 1883 of 2000 (expected more than 0)
-  altered: v coordinate store moved by one byte, instruction slot 107
 ```
 
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
 func_801e84cc_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e9738_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 A function with fewer slots executed than it has names the others in its
