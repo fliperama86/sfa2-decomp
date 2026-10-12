@@ -155,7 +155,8 @@ void port_halt(int status, const char *fmt, ...);
 #define PORT_LIBRARY_DECLARED
 struct port_library  { const char *name; void *host; const char *note; };
 /* A host routine that replaces the C of a game function (by its name). */
-struct port_override { const char *name; void *host; const char *note; };
+/* `enabled`, if not null, points to a setting: the override is installed only while it is not 0 (an experimental setting). */
+struct port_override { const char *name; void *host; const char *note; const int *enabled; };
 struct port_domain   { const char *name; const struct port_library *table; };  /* table ends with a null name */
 
 /* domains.c: the registry. The runtime's real one lists the six domains and the
@@ -167,6 +168,7 @@ extern const struct port_override *const port_override_sets[]; extern const unsi
 extern const struct port_library port_kernel_library[], port_cd_library[], port_gpu_library[], port_sound_library[], port_card_library[],
                                  port_c_library[], port_thread_library[], port_system_library[];
 extern const struct port_override port_game_overrides[];  /* overrides.c; ends with a null name */
+extern const struct port_override port_loadwait_overrides[];  /* loadwait.c; ends with a null name; installed only with the setting fast_loads */
 
 struct port_install { unsigned host, noop, stops, overrides; };
 
