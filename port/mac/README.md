@@ -5,7 +5,7 @@ anything under `ps1/`, and no game source changes for it. Read
 [`../README.md`](../README.md) first: this page only adds what is different
 on this machine.
 
-**State: design and measurements. No Mac program exists yet.**
+**State: the guest image builds and verifies (package 1 below). No Mac program exists yet.**
 
 ## Why the Windows design does not carry over
 
@@ -94,13 +94,31 @@ One vCPU, one VM per process. The guest runs at EL1 with the MMU on
 
 ## The guest image
 
-`hostbuild.py` already compiles every unit, renames each definition to
-`impl_NAME` and each reference to `ps1_NAME`, and writes `names.ld`, which
-places the `ps1_` names at the PS1 addresses. For this machine it runs with
-the `aarch64-elf` ILP32 compiler and links the objects with a script
-that puts code at `0x80200000` into `guest.elf`; a verification step
-checks every name as it does for the Windows program. The runtime loads
-the ELF into the guest and finds `impl_` addresses in its symbol table.
+```sh
+brew install aarch64-elf-gcc        # GCC 16.2.0 and binutils for aarch64-elf
+python3 port/tools/hostbuild.py --guest [--build DIR] [--jobs N] [--list]
+```
+
+`hostbuild.py --guest` compiles every unit with `aarch64-elf-gcc -mabi=ilp32`
+(the flags of the Windows build, plus the target's), renames each definition
+to `impl_NAME` and each reference to `ps1_NAME`, and links the objects with
+`aarch64-elf-ld -m aarch64elf32` and `names.ld` into `port/build/guest/guest.elf`:
+code at `0x80200000`, read-only data and data on 16 KB boundaries, three
+segments. Then it checks the file as it checks the Windows program (every
+`ps1_` name at its PS1 address, every implementation outside the PS1's
+ranges and present, no plain game name at a PS1 address) and the ELF header
+and segments (`guestlink.py`: 32-bit, AArch64, inside the guest's area,
+none writable and executable). It writes `gen/guest_tables.c`, the same
+tables as the Windows build with each routine's guest address in place of a
+symbol. The stand-alone programs of the disc, the sound library with PsyZ
+and the runtime are not part of it yet; it takes about a minute on this
+machine (4,000 compiles at ten at a time).
+
+On 2026-10-12: 3,909 units, 12,688 functions with C, 17 of them overrides in
+C, 383 without C (382 library, 1 game), 45,912 names, linked and verified.
+The image holds 1.4 MB of code, 1 KB of read-only data and no data or bss.
+`python3 port/tools/test_guestlink.py` (under a second, no compiler) checks
+the new pieces on made-up input.
 
 ## How the runtime reaches the game's memory
 
@@ -127,7 +145,7 @@ Each is a small pull request with isolated checks (see
 
 | # | Package | Check that needs no disc and no running game |
 | --- | --- | --- |
-| 1 | This page and the guest image build (`hostbuild.py` for `aarch64-elf`) | the tool's own tests; the link verification |
+| 1 | This page and the guest image build (`hostbuild.py --guest`). **Done.** | `test_guestlink.py`; the link verification |
 | 2 | VM core in `port/mac/`: memory map, page tables, vectors, `hvc` dispatch, MMIO exits, call into the guest, saved register sets, cancel | a test program that runs made-up guest code |
 | 3 | `port_g` / `port_call` in the shared runtime files, no change to the Windows objects | the Windows objects before and after, compared |
 | 4 | Mac start: load the disc, write the stubs, call the game's `main`, kernel, C library, threads | stops by name at the first missing function |

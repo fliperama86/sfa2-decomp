@@ -12,6 +12,16 @@ configuration, the units, the shared-struct header and the compiler runs),
 `ps1/tools/structgen.py` and `ps1/src/programs/programs.py` (the reading of the declaration of the disc's stand-alone
 programs), used as modules and not changed.
 
+The guest image
+---------------
+
+With `--guest` the tool builds the macOS port's guest instead of the Windows
+program: the same units, names and checks, compiled with `aarch64-elf-gcc
+-mabi=ilp32` and linked with `aarch64-elf-ld -m aarch64elf32` into one ELF
+image of 32-bit-pointer AArch64 code at `0x80200000`, plus `gen/guest_tables.c`.
+The runtime of `port/src` and the programs are not part of it. See
+`port/mac/README.md` and `guestlink.py`.
+
 The mechanism
 -------------
 
@@ -474,6 +484,7 @@ sys.path.insert(0, str(REPO / "ps1" / "src" / "programs"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import coveragemap  # noqa: E402
+import guestlink  # noqa: E402
 import hostcheck  # noqa: E402
 import programs as program_reader  # noqa: E402
 import structgen  # noqa: E402
@@ -495,6 +506,7 @@ IMAGE_FLAGS = [
 ]
 LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase", *IMAGE_FLAGS]
 PS1_RANGES = ((0x80000000, 0x801FFFFF), (0x1F800000, 0x1F8003FF))
+TARGET_FLAGS: list[str] = []  # flags that every compiler and assembler run takes besides its own; `--guest` sets them (guestlink.TARGET_FLAGS)
 
 NONMATCHING = re.compile(r"^func_([0-9a-fA-F]{8})(?:_(.+))?$")
 LIBRARY_NONMATCHING = "library_nonmatching"  # C of Sony's library: left out unless the sound library is compiled, like the units under sdk/
@@ -1386,15 +1398,19 @@ def render_calls(rows: list[ProgramRow]) -> list[str]:
 
 
 def render_tables(images: list[dict], functions: list[tuple], absents: list[tuple], sha256: str, archives: dict[str, list[str]] | None = None,
-                  overridden: frozenset[str] | set[str] = frozenset(), programs: list[ProgramRow] | None = None) -> str:
+                  overridden: frozenset[str] | set[str] = frozenset(), programs: list[ProgramRow] | None = None,
+                  impl_at: dict[str, int] | None = None) -> str:
     """`archives` (image name to archive names) adds the archive list of each image that has one. `overridden` holds
     the names of the functions whose row is flagged: the C behind the row is an override of the port's own. `programs`
     gives `port_programs`, the table of the programs that are built in; it is always written, empty for no list or an empty one
-    (the runtime's Exec reads it)."""
+    (the runtime's Exec reads it). `impl_at` (the guest image: the address of each `impl_NAME` symbol) writes each row's routine as
+    that address, cast to a pointer, and declares none; a program row is refused there, for the programs are not built into the guest yet."""
     archives = archives or {}
     programs_rows = programs or []
+    if impl_at is not None and programs_rows:
+        raise Problem("the programs are not built into the guest image yet")
     out = ['/* Written by hostbuild.py; not to be edited. */\n', '#include "port_tables.h"\n\n']
-    for impl in dict.fromkeys(f[2] for f in functions):
+    for impl in dict.fromkeys(f[2] for f in functions) if impl_at is None else ():
         out.append(f"extern void {impl}(void);\n")
     out.append("\n")
     for impl in dict.fromkeys(f"impl_{r.main}" for r in programs_rows):
@@ -1429,7 +1445,8 @@ def render_tables(images: list[dict], functions: list[tuple], absents: list[tupl
         for n, i in enumerate(images)
     ], "{ 0, 0, 0, 0, 0, 0 }")
     table("port_function", "port_functions", [
-        "{ 0x%08xu, (void *)%s, %s, %d, %d }" % (f[1], f[2], c_string(f[3]), f[0], int(f[3] in overridden)) for f in functions
+        "{ 0x%08xu, (void *)%s, %s, %d, %d }" % (f[1], f[2] if impl_at is None else "0x%08xu" % impl_at[f[2]], c_string(f[3]), f[0], int(f[3] in overridden))
+        for f in functions
     ], "{ 0, 0, 0, 0, 0 }")
     table("port_absent", "port_absents", [
         "{ 0x%08xu, %s, %d, %d }" % (a[1], c_string(a[2]), a[0], a[3]) for a in absents
@@ -1671,7 +1688,7 @@ def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, p
     inc = list(library_inc) if job.library else []
     if job.name in prefix:
         inc += ["-include", str(prefix[job.name])]
-    proc = hostcheck.compile_run([cc, *COMPILE_FLAGS, "-S", "-I", str(build / "gen"), *inc, "-o", str(asm), str(job.source)], timeout)
+    proc = hostcheck.compile_run([cc, *TARGET_FLAGS, *COMPILE_FLAGS, "-S", "-I", str(build / "gen"), *inc, "-o", str(asm), str(job.source)], timeout)
     if proc is None:
         out.reason = f"no end after {timeout} seconds"
         return out
@@ -1689,7 +1706,7 @@ def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, p
             handle.write(new)
     except OSError as err:
         raise Problem(f"cannot rewrite {asm}: {err.strerror}")
-    proc = hostcheck.compile_run([cc, "-c", "-o", str(obj), str(asm)], timeout)
+    proc = hostcheck.compile_run([cc, *TARGET_FLAGS, "-c", "-o", str(obj), str(asm)], timeout)
     if proc is None or proc.returncode != 0:
         out.reason = "assembler: " + (first_error(proc.stderr) if proc else f"no end after {timeout} seconds")
         return out
@@ -1711,7 +1728,7 @@ def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, p
                 handle.write(second)
         except OSError as err:
             raise Problem(f"cannot write {asm2}: {err.strerror}")
-        proc = hostcheck.compile_run([cc, "-c", "-o", str(obj2), str(asm2)], timeout)
+        proc = hostcheck.compile_run([cc, *TARGET_FLAGS, "-c", "-o", str(obj2), str(asm2)], timeout)
         if proc is None or proc.returncode != 0:
             out.ok = False
             out.reason = f"assembler for {place.image}: " + (first_error(proc.stderr) if proc else f"no end after {timeout} seconds")
@@ -1723,7 +1740,7 @@ def build_unit(job: Job, cc: str, build: Path, underscore: bool, timeout: int, p
 def detect_underscore(cc: str, probe: Path, timeout: int) -> bool:
     source, asm = probe / "underscore.c", probe / "underscore.s"
     source.write_text("int port_probe_symbol = 1;\n")
-    proc = hostcheck.compile_run([cc, "-S", "-o", str(asm), str(source)], timeout)
+    proc = hostcheck.compile_run([cc, *TARGET_FLAGS, "-S", "-o", str(asm), str(source)], timeout)
     if proc is None or proc.returncode != 0:
         raise Problem(f"cannot compile a probe with compiler {cc}")
     text = asm.read_text()
@@ -1750,6 +1767,55 @@ def default_nm(cc: str) -> str:
 
 def default_objcopy(cc: str) -> str:
     return cc[:-3] + "objcopy" if cc.endswith("gcc") else "objcopy"
+
+
+def default_ld(cc: str) -> str:
+    return cc[:-3] + "ld" if cc.endswith("gcc") else "ld"
+
+
+def finish_guest(args: argparse.Namespace, build: Path, objects: list[str], names_path: Path, link_names: dict[str, int], aliases: list[str],
+                 bound: dict[str, str], replaced_names: list[str], functions: list[tuple], absents: list[tuple], images: list[dict], sha256: str,
+                 archives: dict[str, list[str]], overridden: set[str], out: list[str], failed: bool) -> int:
+    """The end of a `--guest` build: link the objects (and the stubs of the routines the host serves) into the image at the PS1's
+    addresses, verify it as the Windows program is verified, and write the table of the runtime with the address of each routine.
+    The image is ELF, 32-bit, AArch64; see guestlink.py."""
+    nm_tool = args.nm or default_nm(args.cc)
+    ld_tool = args.ld or default_ld(args.cc)
+    objs = [build / "obj" / f"{n}.o" for n in objects]
+    stubs = guestlink.render_host_stubs(sorted(set(bound.values())))
+    if stubs:
+        asm, obj = build / "gen" / "hoststubs.s", build / "rt" / "hoststubs.o"
+        write_text(asm, stubs)
+        obj.unlink(missing_ok=True)
+        proc = hostcheck.compile_run([args.cc, *TARGET_FLAGS, "-c", "-o", str(obj), str(asm)], args.timeout)
+        if proc is None or proc.returncode != 0:
+            raise Failure(f"{asm}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
+        objs.append(obj)
+    script, response, exe = build / "gen" / "guest.ld", build / "link.rsp", build / args.out
+    write_text(script, guestlink.render_script())
+    write_text(response, "".join(quote(p) + "\n" for p in objs))
+    exe.unlink(missing_ok=True)
+    proc = hostcheck.compile_run([ld_tool, "-m", guestlink.EMULATION, "-T", str(script), str(names_path), f"@{response}", "-o", str(exe)], args.timeout)
+    if proc is None or proc.returncode != 0 or not exe.is_file():
+        raise Failure("link: " + (link_errors(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
+    nm = hostcheck.compile_run([nm_tool, str(exe)], args.timeout)
+    if nm is None or nm.returncode != 0:
+        raise Failure("nm did not run on the linked file")
+    misses = guestlink.elf_misses(exe.read_bytes())
+    misses += verify_rows(functions)
+    misses += verify_link(nm.stdout, link_names, aliases, [f[3] for f in functions], False, replaced_names, bound)
+    if misses:
+        raise Failure("the linked file does not verify:\n" + "\n".join(misses))
+    try:
+        impl_at = guestlink.symbol_addresses(nm.stdout, "")
+        impl_at = {name: impl_at[name] for name in {f[2] for f in functions}}
+    except (KeyError, ValueError) as err:
+        raise Failure(f"the linked file lacks a routine of the table: {err}")
+    tables_path = build / "gen" / "guest_tables.c"
+    write_text(tables_path, render_tables(images, functions, absents, sha256, archives, overridden, [], impl_at))
+    out.append(f"linked: {shown(exe)}, verified")
+    out.append(f"tables: {shown(tables_path)}")
+    return 1 if failed else 0
 
 
 def redefine(job: str, objcopy: str, build: Path, timeout: int, table: str = "redefine.txt") -> str:
@@ -1816,6 +1882,13 @@ def read_psyz(folder: Path) -> tuple[dict, str]:
 
 
 def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
+    args.cc = args.cc or (guestlink.DEFAULT_CC if args.guest else "i686-w64-mingw32-gcc")
+    args.build = args.build or REPO / ("port/build/guest" if args.guest else "port/build/host")
+    args.out = args.out or ("guest.elf" if args.guest else "sfa2.exe")
+    if args.guest:
+        if args.psyz:
+            raise Problem("--guest does not take --psyz yet (the sound library is not built into the guest)")
+        TARGET_FLAGS[:] = guestlink.TARGET_FLAGS
     config_path: Path = args.config
     config = hostcheck.read_config(config_path)
     fields_path, header = hostcheck.read_types(config, config_path)
@@ -1855,7 +1928,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
 
     # The programs that the port's list builds in.
     programs_root = config_path.parent / "programs"
-    listed = read_programs_list(args.programs, programs_root / "programs.toml")
+    listed = [] if args.guest else read_programs_list(args.programs, programs_root / "programs.toml")
     program_names = plan_program_names(listed, names)
     program_jobs_all: list[Job] = []
     for item in listed:
@@ -2041,6 +2114,10 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
                   for n in weak_names(nm_run.stdout, underscore)]
     if stray:
         raise Failure("\n".join(stray[:20]) + (f"\n... and {len(stray) - 20} more" if len(stray) > 20 else ""))
+    if args.guest:
+        objects = sorted([o.job.name for o in built] + [f"{o.job.name}{pl.suffix}" for o in built for pl in o.seconds])
+        return finish_guest(args, build, objects, names_path, link_names, all_aliases, program_names.bound, replaced_names, functions, absents,
+                            selection.images, baseline_hash, image_archives, overridden, out, bool(failed))
     tables_path = build / "gen" / "port_tables.c"
     write_text(tables_path, render_tables(selection.images, functions, absents, baseline_hash, image_archives, overridden, [program_row(x) for x in listed]))
 
@@ -2122,11 +2199,13 @@ DEFAULT_PROGRAMS = REPO / "port/programs.toml"
 def make_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Build the game's C as one program with every name at its PS1 address.")
     parser.add_argument("--config", type=Path, default=REPO / "ps1/src/build.toml")
-    parser.add_argument("--cc", default="i686-w64-mingw32-gcc")
+    parser.add_argument("--cc", default=None, help="the C compiler; by default i686-w64-mingw32-gcc, with --guest aarch64-elf-gcc")
     parser.add_argument("--nm", default=None)
     parser.add_argument("--objcopy", default=None)
-    parser.add_argument("--build", type=Path, default=REPO / "port/build/host")
-    parser.add_argument("--out", default="sfa2.exe")
+    parser.add_argument("--ld", default=None, help="with --guest: the linker, by default the compiler's name with ld in place of gcc")
+    parser.add_argument("--guest", action="store_true", help="build the macOS guest image (32-bit pointers, AArch64) instead of the Windows program; see port/mac/README.md")
+    parser.add_argument("--build", type=Path, default=None, help="by default port/build/host, with --guest port/build/guest")
+    parser.add_argument("--out", default=None, help="by default sfa2.exe, with --guest guest.elf")
     parser.add_argument("--runtime", type=Path, default=REPO / "port/src")
     parser.add_argument("--sweep-rows", type=Path, default=REPO / "port/sweep_rows.toml")
     parser.add_argument("--overrides", type=Path, default=None)
