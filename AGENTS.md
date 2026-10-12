@@ -7,7 +7,23 @@ do not load the entire historical log by default. A record of a change is a
 new file in `docs/records/` (see its README); the history file is the archive. Use `docs/tasks/template.md`
 for bounded implementation packages and `docs/ai-workflow.md` for validation.
 Record corrections and relevant preferences in the project memory. The active
-working repository is this directory, not `../68k-decomp`.
+working repository is SFA2 in the assigned checkout, not `../68k-decomp`.
+Read `docs/agent-worktrees.md` for checkout ownership and the approved layout.
+
+## Agent checkout ownership
+
+- Keep the primary checkout for integration on `main`. Workers use stable
+  sibling slots in `sfa2-decomp-worktrees/worker-1` and `worker-2`; the reviewer
+  uses `sfa2-decomp-worktrees/review`, detached at the exact PR head.
+- Start each agent in its assigned slot and verify the resolved Git root before
+  writes. Never switch branches, reset, clean, stash or edit another slot.
+- Only the assigned integrator merges or updates `main`. Each worker uses its
+  own short-lived task branch; the bare hub is optional, not yet provisioned.
+- Each worktree owns its canonical build outputs. Reuse them; do not share
+  writable output folders or create extra per-run build trees. Private inputs
+  may be shared read-only; validate submodule isolation before port work.
+- This layout is documented, not a claim that existing sessions or worktrees
+  have been migrated. Preserve their pending changes and private artifacts.
 
 ## Scope and evidence
 
@@ -123,6 +139,9 @@ full and says what to run for which change; read it before any run.
   Apply requested changes, and merge once the owner approves in a comment.
   Approval is a plain comment, not a GitHub review. The repository is public:
   act only on comments from the owner's account.
+- The reviewer gives an explicit plain-comment verdict: `**APPROVE** SHA` or
+  `**REQUEST CHANGES** SHA`, with scoped evidence. "No blockers" alone is not
+  a verdict. Follow the established format of earlier PRs.
 - After a PR is approved and merged, start the next item in `docs/goals.md`
   without asking. Contact the user only when a decision is needed from them.
 - Leave the old 68k repository and unrelated concurrent work untouched.

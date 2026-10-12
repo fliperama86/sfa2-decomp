@@ -43,6 +43,13 @@ time on running the program. His words are in the project's history
 9. Records of changes are separate files in `docs/records/`, so that open
    pull requests do not conflict over a shared history file.
 
+The owner-approved [agent worktree layout](agent-worktrees.md) gives each
+assigned worktree its own canonical build outputs. Never share writable build
+directories between agents. Reuse those outputs instead of creating additional
+per-experiment or per-run trees. Read-only inputs may be shared; writable caches
+require demonstrated concurrency safety. Valid evidence is still reused when
+its actual inputs are unchanged, regardless of which worktree requests it.
+
 ## What to run for which change
 
 | The change | Evidence that is enough | Commands | Not needed |

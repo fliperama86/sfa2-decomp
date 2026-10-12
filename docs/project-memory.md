@@ -60,6 +60,8 @@ Old figures describe their own date, not today's completion.
   original behavior. Use small reviewed PRs and short-lived branches.
   Poll owner comments every 60 seconds while active. Merge frequently after
   scoped checks and owner approval; no private source silos or review bypass.
+- [Agent worktrees](agent-worktrees.md): integration-only main, separate workers
+  and pinned review, canonical outputs per worktree; provisioning remains undone.
 - After an approved merge, proceed to the next goal without asking. Decisions
   belong to the owner; no implied approval from passing automated checks.
 - Checks are isolated and fast, by the owner's rule of 2026-10-10. An exact
@@ -68,7 +70,6 @@ Old figures describe their own date, not today's completion.
   Read [efficiency.md](efficiency.md) before any run.
 
 ## Working style
-
 Answer first, briefly, one subject at a time. No em dash, unnecessary lists of
 identifiers, recaps or suggestions about stopping. Distinguish what ran from
 what is planned. Preserve failed experiments and their original evidence.
@@ -79,7 +80,7 @@ Permanent source tracked by domain; private outputs reuse fixed locations. Exper
 toggles in settings [experimental], not special builds/launchers; defaults off (same date).
 
 ## Lessons to apply before a run
-
+- PR reviews use plain PR comments: `**APPROVE** SHA` or `**REQUEST CHANGES** SHA`, as prior PRs (owner correction, 2026-10-12).
 - Validate pointer declarations and initialization before encoding selectors.
   A backend pixel proof alone does not prove runtime packet selection (PR342).
 - Stage private inputs from the actual build configuration, not a guessed
@@ -112,7 +113,6 @@ Current state belongs in [current-state.md](current-state.md), next packages in
 [goals.md](goals.md), and acceptance specifications in `docs/tasks/`.
 
 ## Workflow implementation lessons
-
 A Git submodule entry is not a missing regular file. Record its pinned commit
 and available content separately. Optional Python modules can have absent system
 libraries even while required checks run; track that availability rather than

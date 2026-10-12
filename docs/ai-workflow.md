@@ -5,6 +5,12 @@ context, one-command reviews, a linked function ledger, dependency-aware
 validation reuse, and small work packages with explicit acceptance criteria.
 This workflow changes no game source and adds no gameplay gate.
 
+Agent sessions use the [isolated worktree setup](agent-worktrees.md): workers
+own separate task checkouts, the reviewer pins a PR commit in its own checkout,
+and only the integrator updates the main checkout. The layout is documented;
+provisioning and launch-guard implementation remain separate work. Reviews give
+an explicit plain-comment `**APPROVE** SHA` or `**REQUEST CHANGES** SHA` verdict.
+
 ## Interfaces
 
 `python tools/ai_workflow/workflow.py` provides `doctor`, `context`, `ledger`,
