@@ -19,10 +19,6 @@ What these commands printed on 2026-10-10, run from the tool's folder:
 ```
 func_801b1a00_slot04_14: built 260 bytes, original 264 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801b1a00_slot04_14 coverage: 66 of 66 instruction slots of the original executed
-func_801b4374_slot04_17: built 444 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b4374_slot04_17 coverage: 112 of 112 instruction slots of the original executed
-func_801b43e8_slot04_11: built 444 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b43e8_slot04_11 coverage: 112 of 112 instruction slots of the original executed
 ```
 
     python difftest.py --config ../build.toml --folder ../slot04b_nonmatching --cases 2000 --control --all
@@ -30,18 +26,12 @@ func_801b43e8_slot04_11 coverage: 112 of 112 instruction slots of the original e
 ```
 func_801b1a00_slot04_14 control: different 2000 of 2000 (expected more than 0)
   altered: store of the second table word moved from field_50 to field_5c, instruction slot 39
-func_801b4374_slot04_17 control: different 56 of 2000 (expected more than 0)
-  altered: distance cutoff 0x100 changed to 0x101, instruction slot 44
-func_801b43e8_slot04_11 control: different 70 of 2000 (expected more than 0)
-  altered: distance cutoff 0x100 changed to 0x101, instruction slot 44
 ```
 
     python difftest.py --config ../build.toml --folder ../slot04b_nonmatching --cases 2000 --writes --all
 
 ```
 func_801b1a00_slot04_14 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801b4374_slot04_17 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801b43e8_slot04_11 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 A function with fewer slots executed than it has names the others in its
@@ -75,6 +65,4 @@ Functions of this folder without a fixtures file, by reason:
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
-func_801b4374_slot04_17 replay: fixtures 9, passed 9, failed 0
-func_801b43e8_slot04_11 replay: fixtures 8, passed 8, failed 0
 ```
