@@ -2,7 +2,9 @@
 
 C for functions of the PS1 game's sound library (the Sony library part of the
 resident executable, `SLPS_004.15`) that have no exact C: the functions listed
-below. The PS1 build does not use any file of this folder; the raw bytes stay
+below. At present there is none: the last two became exact on 2026-10-12
+and stand in `../sdk/libsnd/vm_vol.c` and `../sdk/libsnd/dataentry.c`; the
+page stays for the next one. The PS1 build does not use any file of this folder; the raw bytes stay
 what the matching build owns. What nonmatching means here, how the test
 works and what a pass does not show are on the page of the tool's folder,
 [`../slot06_nonmatching/`](../slot06_nonmatching/README.md): a pass is
@@ -27,6 +29,7 @@ the tool reads (it looks a resident function up in `game.tsv` and in
 
 ## The functions and where they come from
 
+None at present.
 
 No file here is adapted from the reference now: the one that was (the
 volume function of the sequencer) is exact and stands in `../sdk/libsnd/vm_vol.c`.

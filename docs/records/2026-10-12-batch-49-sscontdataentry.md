@@ -16,3 +16,4 @@
   - `fndiff --rebuild sdk_libsnd_dataentry`: `baseline 1504 bytes at 0x80167388, built 1504 bytes at 0x80167388, 0 differing instruction slots: IDENTICAL`
   - `matchbuild --image resident`: `RESULT: PASS`
 - The page of `library_nonmatching` said "the four functions below"; the folder held two before this batch. The sentence now gives no count.
+- With main merged in after batch 48, the folder `library_nonmatching` holds no function any more. Its page says so in two places ("At present there is none", "None at present.") and is kept for the next function.
