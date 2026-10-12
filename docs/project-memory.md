@@ -56,10 +56,10 @@ Old figures describe their own date, not today's completion.
   these two units (of the library it compiles the sound part's C, in its
   normal build with PsyZ, and nothing else). This is for the library's
   code, not a way around a game function that does not match.
-- Use a branch and PR for changes. Poll owner comments every 60 seconds while
-  active. Only the owner's account can approve; a plain comment is approval.
-  A reviewer posts comments, not formal reviews. Check actual child exits.
-  Never put agent attribution in branch names or PR titles.
+- CI/CD: integrate tracked WIP behind default-off settings flags, preserving
+  original behavior. Use small reviewed PRs and short-lived branches.
+  Poll owner comments every 60 seconds while active. Merge frequently after
+  scoped checks and owner approval; no private source silos or review bypass.
 - After an approved merge, proceed to the next goal without asking. Decisions
   belong to the owner; no implied approval from passing automated checks.
 - Checks are isolated and fast, by the owner's rule of 2026-10-10. An exact
@@ -74,6 +74,11 @@ identifiers, recaps or suggestions about stopping. Distinguish what ran from
 what is planned. Preserve failed experiments and their original evidence.
 For mechanically specified grind tasks, use small bounded packages with actual
 acceptance commands. Stop and report options on a decision-bearing fork.
+Reuse one stable folder per purpose, by the owner's instruction of 2026-10-12.
+Do not proliferate per-experiment or per-iteration directory trees. Permanent
+source belongs in the tracked domain; private outputs reuse fixed locations.
+Experimental feature toggles belong in the settings file ([experimental]),
+not experiment-specific builds or launchers; defaults stay off (2026-10-12).
 
 ## Lessons to apply before a run
 
