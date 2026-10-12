@@ -10626,6 +10626,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s151324x_r1"
+source = "s151324x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_80151324", address = 0x80151324, size = 1404 },
+]
+
+[[unit]]
 name = "x12_r1"
 source = "x12_r1.c"
 flags = ["-O2", "-G0"]
