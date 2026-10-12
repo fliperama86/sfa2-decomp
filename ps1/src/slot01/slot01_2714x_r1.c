@@ -46,7 +46,7 @@ void func_80012714_slot01(Object *obj, u8 *prim_arg, int unused, int flag) {
         } else {
             n = -x - 0x10;
             /* Stand-in, not recovered source: the term that is ORed to x below, which is 0 for every value of n, reproduces the original's choice of registers. Without it this function differs from the original in 26 instruction slots. */
-            x = n | (((u32)n << 24) & 0x100);
+            x = n | (int)(((u32)n << 24) & 0x100);
             if (obj->field_20 != 0) {
                 x = n + (((s16)n + 8) * (s16)obj->field_20 >> 4);
             }
@@ -75,11 +75,11 @@ void func_80012714_slot01(Object *obj, u8 *prim_arg, int unused, int flag) {
                 do {
                     do {
                         /* Stand-in, not recovered source: one stand-in at 5 places, the five statements below, each of which ORs to x or to y a term that is 0 for every value of it, reproduces the original's choice of registers. Without it this function differs from the original in 19 instruction slots. */
-                        x |= (((u32)x << 24) & 0x100);
-                        x |= (((u32)x << 24) & 0x100);
-                        y |= (((u32)y << 24) & 0x100);
-                        y |= (((u32)y << 24) & 0x100);
-                        y |= (((u32)y << 24) & 0x100);
+                        x |= (int)(((u32)x << 24) & 0x100);
+                        x |= (int)(((u32)x << 24) & 0x100);
+                        y |= (int)(((u32)y << 24) & 0x100);
+                        y |= (int)(((u32)y << 24) & 0x100);
+                        y |= (int)(((u32)y << 24) & 0x100);
                     } while (0);
                 } while (0);
                 p->field_08 = x + (u16)obj->pos_x;
