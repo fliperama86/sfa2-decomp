@@ -19,6 +19,9 @@ table holds, a folder inside a folder.
 The refusal of a function that has two overrides (library.c, on made-up tables): a host routine of the
 overrides table and an override in C of the build (the `overridden` field of its row), by name, also from the
 listing of the library; a host routine beside a flagged row of another function, and a flagged row alone, are fine.
+An override tied to a setting (the `enabled` field of a row of the overrides table): with the setting off its jump is not written
+(the original stub stays) and it is not counted; with the setting on it is written and counted; a row is still checked with the
+setting off.
 
 What is NOT tested here: the Windows mapping (memory.c), the jumps (jumps.c),
 the stop routine and main.c. Those need the linked Windows program and are
@@ -801,7 +804,11 @@ const unsigned char port_program_sha256[32] = {0};
 static const struct port_library none[] = {{ 0, 0, 0 }};
 const struct port_domain port_domains[] = {{ "test", none }};
 const unsigned port_domain_count = 1;
-static const struct port_override listed[] = { LISTED { 0, 0, 0 } };
+#ifndef GATE
+#define GATE 1
+#endif
+static int gate = GATE;   /* the setting that a gated override row points to */
+static const struct port_override listed[] = { LISTED { 0, 0, 0, 0 } };
 const struct port_override *const port_override_sets[] = { listed };
 const unsigned port_override_set_count = 1;
 int main(int argc, char **argv)
@@ -825,13 +832,14 @@ def override_flag_cases(root: Path, cc: str):
     src = d / "over.c"
     src.write_text(OVER_MAIN)
 
-    def build(tag: str, flag_fb: int, listed: str):
+    def build(tag: str, flag_fb: int, listed: str, gate: int = 1):
         out = d / tag
-        proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", f"-DFLAG_FB={flag_fb}", f"-DLISTED={listed}", "-I", str(SRC), "-o", str(out), str(src), str(SRC / "library.c")],
+        proc = subprocess.run([cc, "-O1", "-Wall", "-Wextra", f"-DFLAG_FB={flag_fb}", f"-DLISTED={listed}", f"-DGATE={gate}", "-I", str(SRC), "-o", str(out), str(src), str(SRC / "library.c")],
                               capture_output=True, text=True, timeout=120)
         return out, proc
 
-    item = lambda name: '{ "%s", (void *)host, "the test replaces it" },' % name   # noqa: E731
+    item = lambda name: '{ "%s", (void *)host, "the test replaces it", 0 },' % name   # noqa: E731
+    gated = lambda name: '{ "%s", (void *)host, "the test replaces it", &gate },' % name   # noqa: E731
     out, proc = build("twice", 1, item("fb"))
     if proc.returncode != 0:
         yield "override-flag-builds", proc.stderr
@@ -850,6 +858,20 @@ def override_flag_cases(root: Path, cc: str):
     out, proc = build("other", 1, item("fa"))
     status, lines = run(out)
     yield "a-host-override-of-another-function-is-fine-beside-a-flagged-row", None if (status, lines) == (0, ["installed: 1 overrides, jump at fa e9, at fb 00"]) else f"status {status}, lines {lines!r}"
+    # an override tied to a setting (the `enabled` field): installed, and counted, only while the setting is not 0
+    both = item("fa") + gated("fb")
+    out, proc = build("gate-off", 0, both, gate=0)
+    status, lines = run(out)
+    yield "a-gated-override-with-its-setting-off-keeps-the-original-stub-and-is-not-counted", None if (status, lines) == (0, ["installed: 1 overrides, jump at fa e9, at fb 00"]) else f"status {status}, lines {lines!r}"
+    out, proc = build("gate-on", 0, both, gate=1)
+    status, lines = run(out)
+    yield "a-gated-override-with-its-setting-on-replaces-the-stub-and-is-counted", None if (status, lines) == (0, ["installed: 2 overrides, jump at fa e9, at fb e9"]) else f"status {status}, lines {lines!r}"
+    out, proc = build("gate-off-only", 0, gated("fb"), gate=0)
+    status, lines = run(out)
+    yield "a-gated-override-alone-with-its-setting-off-installs-nothing", None if (status, lines) == (0, ["installed: 0 overrides, jump at fa 00, at fb 00"]) else f"status {status}, lines {lines!r}"
+    out, proc = build("gate-off-checks", 1, gated("fb"), gate=0)
+    status, lines = run(out)
+    yield "a-gated-row-is-still-checked-with-its-setting-off-(two-overrides-of-one-function)", None if (status, lines) == (2, ["refused: overrides: fb has two overrides: a host routine of the overrides table and an override in C of the build"]) else f"status {status}, lines {lines!r}"
     out, proc = build("module", 0, item("m"))
     status, lines = run(out)
     yield "a-flagged-module-row-does-not-touch-the-resident-table", None if status == 2 and "m is listed but this build has no function of that name with C" in lines[-1] else f"status {status}, lines {lines!r}"

@@ -14,5 +14,5 @@ const struct port_domain port_domains[] = {
 };
 const unsigned port_domain_count = sizeof port_domains / sizeof port_domains[0];
 
-const struct port_override *const port_override_sets[] = { port_game_overrides };
-const unsigned port_override_set_count = 1;
+const struct port_override *const port_override_sets[] = { port_game_overrides, port_loadwait_overrides };
+const unsigned port_override_set_count = 2;

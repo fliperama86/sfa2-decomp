@@ -33,7 +33,9 @@ not applied, a handler that pauses or starts a read, the depth counter, CdInit);
 the buffer CdGetSector is given: its
 start or its end outside the PS1's RAM, a count that overflows 32 bits, a
 negative count, the last bytes of RAM (accepted), each ending the program
-with a line and status 6 before a byte is copied; the guard by which the drive
+with a line and status 6 before a byte is copied; the setting fast_loads (a blocking wait of the game steps the host's clock at every 256th poll
+only, with the same sectors and responses; a poll in mode 1 and the setting off keep the step at every poll; the setting kept by CdInit and
+by a new read); the guard by which the drive
 waits for the game's ring (the fill for all 49 pairs of places, places outside 1
 to 7, held vblanks and the carry, a fill that reaches 4 within a row, the 30
 held vblanks and the forced row, and the loads and calls that are not guarded).
@@ -205,6 +207,7 @@ int main(int argc, char **argv)
         rest += n;
         if (!strcmp(cmd, "cdinit")) printf("R %d\n", port_CdInit());
         else if (!strcmp(cmd, "autotick")) autotick = atoi(rest);
+        else if (!strcmp(cmd, "fastwaits")) port_cd_set_fast_waits(atoi(rest));   /* the experimental setting fast_loads */
         else if (!strcmp(cmd, "ticks")) printf("T %d\n", ticks);
         else if (!strcmp(cmd, "tick")) { int k = atoi(rest); while (k-- > 0) { frames++; port_cd_tick(); } }
         else if (!strcmp(cmd, "tickc")) { int k = atoi(rest); while (k-- > 0) { int before = h_count; frames++; port_cd_tick(); printf("V %d\n", h_count - before); } }   /* ticks one at a time, each with the sectors it gave the handler */
@@ -1220,6 +1223,51 @@ FILL = (
 FORCED_LINE = "cd: the game's ring looked full for 30 vblanks; delivering"
 
 
+def fast_wait_cases(root: Path, exe: Path):
+    """The setting fast_loads: a blocking wait of the game steps the host's clock only at every 256th poll."""
+    img = root / "fastwait.bin"
+    make_image(img, 400)
+    dbl = "ctl N e 80\n"
+
+    def ticks(script):
+        rc, lines = run(exe, img, script)
+        t = [int(l.split()[1]) for l in lines if l.startswith("T ")]
+        return rc, lines, (t[1] - t[0] if len(t) == 2 else None)
+
+    ready0 = "ready 0\n" * 300
+    rc, lines, d = ticks("cdinit\n" + dbl + "readn 0\nticks\n" + ready0 + "ticks\n")
+    ys = [l for l in lines if l.startswith("Y ")]
+    yield check("default: a blocking CdReady steps the host's clock at every poll (300 polls, 300 steps)", rc == 0 and d == 300 and len(ys) == 300 and all(y.startswith("Y ret=1") for y in ys), f"{rc} {d} {len(ys)}")
+    rc, lines, d = ticks("fastwaits 1\ncdinit\n" + dbl + "readn 0\nticks\n" + ready0 + "ticks\n")
+    ys = [l for l in lines if l.startswith("Y ")]
+    yield check("fast: 300 blocking CdReady polls step the host's clock once, and each still brings its sector", rc == 0 and d == 1 and len(ys) == 300 and all(y.startswith("Y ret=1") for y in ys), f"{rc} {d} {len(ys)}")
+    # the sectors the reader sees are the same, in order, with the setting on and off
+    take = "ready 0\ngs 80100000 4\n" * 40
+    outs = []
+    for pre in ("", "fastwaits 1\n"):
+        rc, lines = run(exe, img, pre + "cdinit\n" + dbl + "readn 100\n" + take)
+        outs.append((rc, [l for l in lines if l.startswith("G ")]))
+    yield check("fast: the polled sectors are the same, in order (100 to 139)", outs[0][0] == 0 and outs[0] == outs[1] and [l.split()[2] for l in outs[1][1]] == [f"first={100 + k}" for k in range(40)], f"{outs[0][1][:2]} {outs[1][1][:2]}")
+    rc, lines, d = ticks("fastwaits 1\ncdinit\n" + dbl + "readn 0\nticks\n" + "ready 1\n" * 300 + "ticks\n")
+    yield check("fast: a poll in mode 1 keeps its step at every poll (300 polls, 300 steps)", rc == 0 and d == 300, f"{rc} {d}")
+    rc, lines, d = ticks("cdinit\n" + dbl + "readn 0\nticks\n" + "sync 0\n" * 300 + "ticks\n")
+    yield check("default: a blocking CdSync steps the host's clock at every poll", rc == 0 and d == 300, f"{rc} {d}")
+    rc, lines, d = ticks("fastwaits 1\ncdinit\n" + dbl + "readn 0\nticks\n" + "sync 0\n" * 300 + "ticks\n")
+    s = [l for l in lines if l.startswith("S ")]
+    yield check("fast: 300 blocking CdSync polls step the host's clock once, and all complete", rc == 0 and d == 1 and len(s) == 300 and all(x.startswith("S ret=2") for x in s), f"{rc} {d} {len(s)}")
+    # a blocking command wait: Pause has a second response; the next command waits for it. Same responses either way.
+    outs = []
+    for pre in ("", "fastwaits 1\n"):
+        rc, lines = run(exe, img, pre + "cdinit\n" + dbl + "readn 0\ntick 2\nctl N 9\nctl B 1\nctl N 9\nctl B 1\nsync 0\n")
+        outs.append((rc, [l for l in lines if l.startswith(("C ", "S "))]))
+    yield check("fast: a command that waits for the previous command's second response gets the same responses", outs[0][0] == 0 and outs[0] == outs[1] and len(outs[1][1]) >= 4, f"{outs}")
+    # the setting stays on through CdInit and through a new read
+    rc, lines, d = ticks("fastwaits 1\ncdinit\ncdinit\n" + dbl + "readn 0\nreadn 50\nticks\n" + ready0 + "ticks\n")
+    yield check("fast: kept by CdInit and by a new read", rc == 0 and d == 1, f"{rc} {d}")
+    rc, lines, d = ticks("fastwaits 1\ncdinit\n" + dbl + "readn 0\nfastwaits 0\nticks\n" + ready0 + "ticks\n")
+    yield check("switched off again: a step at every poll", rc == 0 and d == 300, f"{rc} {d}")
+
+
 def guard_cases(root: Path, exe: Path):
     img = root / "guard.bin"
     make_image(img, 400)
@@ -1579,6 +1627,7 @@ def seam_cases(root: Path, exe: Path):
 def groups(root: Path, exe: Path):
     yield read_cases(root, exe)
     yield rate_cases(root, exe)
+    yield fast_wait_cases(root, exe)
     yield guard_cases(root, exe)
     yield pieces_cases(root, exe)
     yield pause_cases(root, exe)

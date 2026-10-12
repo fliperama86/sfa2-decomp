@@ -263,6 +263,7 @@ int port_library_install(unsigned char *ram, struct port_install *out, char *err
 #endif
     }
     for (k = 0; k < override_total(); k++) {
+        if (override_at(k)->enabled && !*override_at(k)->enabled) continue;   /* an experimental override whose setting is off: the game's own C stays */
 #ifdef PORT_GUEST_VM
         port_mac_put_host(ram, find_function(override_at(k)->name)->address, override_at(k)->host, override_at(k)->name);
 #else

@@ -512,6 +512,18 @@ static void report(void)
     counts_line(0);
 }
 
+#ifdef PORT_HAVE_PSYZ
+void Psyz_Sfa2SetVolume(float gain);   /* port/psyz.patch: PsyZ keeps the gain, so a call before the device opens counts too */
+#endif
+void port_iopage_set_volume(int percent)
+{
+#ifdef PORT_HAVE_PSYZ
+    Psyz_Sfa2SetVolume((float)percent / 100.0f);
+#else
+    (void)percent;
+#endif
+}
+
 int port_iopage_init(const char *audio_dump, int audio_device, int trace, char *err, size_t errsize)
 {
 #ifndef PORT_HAVE_PSYZ

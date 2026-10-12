@@ -38,7 +38,7 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             exe = path / 'startup'
             subprocess.run(['gcc', '-std=c11', '-O1', '-I', str(ROOT / 'port/src'),
                 str(path / 'test.c'), str(ROOT / 'port/src/settings.c'), '-o', str(exe)], check=True, timeout=15)
-            def run(args, expected, ui=None, canvas=None, center=False):
+            def run(args, expected, ui=None, canvas=None, center=False, fast=False):
                 result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
                     cwd=path, capture_output=True, text=True, timeout=3)
                 self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
@@ -46,7 +46,20 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
                     self.assertIn('pixel_perfect_ui = ' + ('true' if ui else 'false'), result.stdout)
                     self.assertIn('arcade_video = ' + ('true' if canvas else 'false'), result.stdout)
                     self.assertIn('center_ui = ' + ('true' if center else 'false'), result.stdout)
+                    self.assertIn('fast_loads = ' + ('true' if fast else 'false'), result.stdout)
             run([], 0, False, False)
+            def volume(args, expected, line=None):
+                result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
+                    cwd=path, capture_output=True, text=True, timeout=3)
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                if line: self.assertIn(line, result.stdout.splitlines())
+            volume([], 0, 'volume = 100')
+            volume(['--volume', '20'], 0, 'volume = 20')
+            volume(['--volume', '0'], 0, 'volume = 0')
+            volume(['--volume', '100'], 0, 'volume = 100')
+            volume(['--volume', '20', '--volume', '55'], 0, 'volume = 55')
+            for bad in (['--volume'], ['--volume', '101'], ['--volume', '-1'], ['--volume', 'x'], ['--volume', ''], ['--volume', '20x'], ['--volume', '1.5']):
+                volume(bad, 2)
             config = path / 'settings.ini'
             config.write_text('[experimental]\npixel_perfect_ui = true\narcade_video = false\n')
             run([], 0, True, False)
@@ -58,6 +71,11 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             run(['--settings', str(config), '--arcade-video'], 0, True, True)
             run(['--center-ui'], 0, True, False, True)
             run(['--center-ui', '--ps1-ui-layout'], 0, True, False, False)
+            run(['--fast-loads'], 0, True, False, False, True)
+            run(['--fast-loads', '--ps1-loading'], 0, True, False, False, False)
+            config.write_text('[experimental]\nfast_loads = true\n')
+            run([], 0, False, False, False, True)
+            run(['--ps1-loading'], 0, False, False, False, False)
             config.write_text('[experimental]\npixel_perfect_ui = true\ncenter_ui = true\n')
             run(['--ps1-ui-layout', '--settings', str(config)], 0, True, False, False)
             run(['--settings', str(config), '--arcade-video'], 0, True, True, True)

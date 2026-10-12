@@ -60,8 +60,8 @@ void port_h_FlushCache(void)
 }
 
 const struct port_override port_game_overrides[] = {
-    { "init_snd_voices", (void *)port_o_func_80119030, "same initialisation of the three task slots as its C, without the stores into the BIOS's thread table (address 0x110 is not mapped)" },
-    { NULL, NULL, NULL }
+    { "init_snd_voices", (void *)port_o_func_80119030, "same initialisation of the three task slots as its C, without the stores into the BIOS's thread table (address 0x110 is not mapped)", NULL },
+    { NULL, NULL, NULL, NULL }
 };
 
 const struct port_library port_system_library[] = {

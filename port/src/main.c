@@ -113,7 +113,8 @@ int main(int argc, char **argv)
     int audio_device = PORT_AUDIO_DEFAULT;
     const char *input_path = NULL;
     const char *settings_path = "settings.ini";
-    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1;
+    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1;
+    int volume = 100;   /* --volume PERCENT: the gain of the audio device's output */
     int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
     struct port_install installed;
     unsigned gp;
@@ -136,6 +137,14 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--ps1-rendering") == 0) ui_override=0;
         else if (strcmp(argv[i], "--center-ui") == 0) center_override=1;
         else if (strcmp(argv[i], "--ps1-ui-layout") == 0) center_override=0;
+        else if (strcmp(argv[i], "--volume") == 0 && i + 1 < argc) {
+            char *end;
+            long v = strtol(argv[++i], &end, 10);
+            if (end == argv[i] || *end || v < 0 || v > 100) bad = 1;
+            else volume = (int)v;
+        }
+        else if (strcmp(argv[i], "--fast-loads") == 0) loads_override=1;
+        else if (strcmp(argv[i], "--ps1-loading") == 0) loads_override=0;
         else if (strcmp(argv[i], "--arcade-video") == 0) canvas_override=1;
         else if (strcmp(argv[i], "--ps1-video") == 0) canvas_override=0;
         else if (strcmp(argv[i], "--trace") == 0) trace = 1;
@@ -161,10 +170,13 @@ int main(int argc, char **argv)
         if(ui_override>=0)port_settings.pixel_perfect_ui=ui_override;
         if(canvas_override>=0)port_settings.arcade_video=canvas_override;
         if(center_override>=0)port_settings.center_ui=center_override;
+        if(loads_override>=0)port_settings.fast_loads=loads_override;
         if(show_settings) {
             if(disc_path || list)return refuse("--show-settings takes no disc or --list-library");
-            printf("[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\n",
-                port_settings.pixel_perfect_ui?"true":"false",port_settings.arcade_video?"true":"false",port_settings.center_ui?"true":"false");
+            printf("[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = %s\n",
+                port_settings.pixel_perfect_ui?"true":"false",port_settings.arcade_video?"true":"false",port_settings.center_ui?"true":"false",
+                port_settings.fast_loads?"true":"false");
+            printf("volume = %d\n", volume);
             return 0;
         }
     }
@@ -173,7 +185,7 @@ int main(int argc, char **argv)
         return 0;
     }
     if (bad || list || !disc_path) {
-        printf("usage: %s [--settings FILE] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
+        printf("usage: %s [--settings FILE] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
         fflush(stdout);
         return 2;
     }
@@ -199,6 +211,7 @@ int main(int argc, char **argv)
 #endif
     if (port_mirror_init(trace, err, sizeof err) != 0) return refuse(err);
     if (port_iopage_init(audio_dump, audio_device, trace, err, sizeof err) != 0) return refuse(err);
+    port_iopage_set_volume(volume);
     printf("memory: RAM at 0x%08x (2 MB), scratchpad at 0x%08x\n", PORT_RAM_BASE, PORT_SCRATCH);
     fflush(stdout);
 
@@ -213,6 +226,7 @@ int main(int argc, char **argv)
 
     port_disc_handle = &disc;
     if (port_cd_init(&disc) != 0) return refuse("the disc layer cannot start");
+    port_cd_set_fast_waits(port_settings.fast_loads);
     if (port_jumps_write(ram, &with_c, &without_c, err, sizeof err) != 0) return refuse(err);
     printf("jumps: %u written for functions with C, %u for functions without\n", with_c, without_c);
     fflush(stdout);

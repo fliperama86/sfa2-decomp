@@ -27,6 +27,10 @@ which covers the drop at the next DrawSync, LoadImage or StoreImage. On
 it does not show the patch to be needed there; the patch is kept.
 
 
+Output volume: Psyz_Sfa2SetVolume(gain) sets the gain of the one SDL audio stream that PsyZ opens (SDL_SetAudioStreamGain), and
+Psyz_AudioInit applies the stored gain before it starts the stream, so a call before the device opens also counts. The port's
+--volume PERCENT calls it. Nothing else of the audio path changes.
+
 Optional graphics: the SDL_GPU backend consumes an explicit port marker for
 super/life pixel-grid tiles and selected six-row health fills. It also exposes
 an opt-in 384x224/4:3 canvas. With
@@ -184,3 +188,18 @@ or global UV correction is changed. The port selects only its known HUD tiles.
  #include "rgb24.h"
  static bool display_rgb24;
  static GLuint rgb24_texture, rgb24_fbo;
+--- a/psyz/src/platform/sdl3_audio.c
++++ b/psyz/src/platform/sdl3_audio.c
+@@ -10,2 +10,9 @@
+ static SDL_AudioStream* sdl_stream;
+ static SDL_Mutex* mutex;
++/* Output volume of the SFA2 port (--volume): the gain of PsyZ's one output stream, 1.0 for no change. */
++static float sfa2_volume = 1.0f;
++void Psyz_Sfa2SetVolume(float gain) {
++    sfa2_volume = gain;
++    if (sdl_stream)
++        SDL_SetAudioStreamGain(sdl_stream, gain);
++}
+@@ -66,1 +73,2 @@
++    SDL_SetAudioStreamGain(sdl_stream, sfa2_volume);
+     if (!SDL_ResumeAudioStreamDevice(sdl_stream)) {

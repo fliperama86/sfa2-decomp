@@ -368,7 +368,7 @@ DOMAINS = r"""
 #include "port.h"
 const struct port_domain port_domains[] = { { "cd", port_cd_library } };
 const unsigned port_domain_count = 1;
-static const struct port_override o[] = { { 0, 0, 0 } };
+static const struct port_override o[] = { { 0, 0, 0, 0 } };
 const struct port_override *const port_override_sets[] = { o };
 const unsigned port_override_set_count = 1;
 """

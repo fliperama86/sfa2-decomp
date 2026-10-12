@@ -158,6 +158,13 @@
  * Not covered, and no code of the game does it: a reader that polls with the XA bit set loses the sectors of a vblank's row that
  * comes before its first poll.
  *
+ * FAST WAITS (the experimental setting fast_loads, off by default; port_cd_set_fast_waits). A blocking wait of the game (CdReady or
+ * CdSync with mode 0) steps the host's clock once at every poll, and that step sleeps until the next vblank is due whenever the
+ * game is ahead of the host's clock, so a read that the game polls sector by sector (the game's loaders of its files into RAM) runs at
+ * the pace of those sleeps, not of the disc. With the setting on, a blocking wait steps the clock only at every FAST_WAIT_REAL-th poll
+ * (the host's events, audio and a due vblank go on); the other polls bring their sectors with the disc's own step (port_cd_tick)
+ * and the commands' second responses (settle_pending), as they did, and the sequence of sectors and responses the game sees is
+ * the same. A poll that does not block (mode 1, the game's per-frame polling) keeps its step.
  * THE DRIVE WAITS FOR THE GAME'S RING (a game-specific exception: this layer reads the game's memory).
  * The rate above is the console's and nothing more. The game reads a streamed load into a ring of seven places that its main loop
  * empties once per pass. On the console a pass fits in a frame or two. Here a pass can take several frames of the wall clock (a
@@ -209,6 +216,7 @@ void (*port_cd_call)(unsigned handler, int intr, unsigned char *result);
 #define GUARD_HANDLER 0x8014f918u   /* update_stream_control_by_mode: the ready handler of a streamed load */
 #define GUARD_FILL    4u            /* the fill at which the drive waits */
 #define GUARD_HOLD    30u           /* vblanks held in a row before the next row is delivered regardless */
+#define FAST_WAIT_REAL 256u         /* the polls of a fast blocking wait (see "FAST WAITS") between two steps of the host's clock */
 
 static struct {
     struct port_disc *disc;
@@ -242,6 +250,16 @@ static struct {
     int *word_source;               /* for each word of RAM: the sector of the image its bytes came from, -1 if none */
     unsigned char filter_file, filter_channel;   /* the last Setfilter */
 } cd;
+static int fast_waits;              /* the setting; outside `cd` so that port_cd_init's reset keeps it */
+static unsigned wait_polls;         /* the polls of blocking waits since the last step of the host's clock, with the setting on */
+
+/* The clock's step inside a wait of the game. A blocking wait (mode 0) of a fast run steps it at every FAST_WAIT_REAL-th poll only. */
+static void wait_tick(int mode)
+{
+    if (cd.in_delivery) return;
+    if (fast_waits && !mode && ++wait_polls % FAST_WAIT_REAL != 0) return;
+    port_tick();
+}
 
 /* ---- the streamed audio ------------------------------------------------------------------------------------------------
  * A sector of compressed audio that the game plays (the mode's XA bit 0x40 and the sector's audio bit; with the mode's filter
@@ -594,7 +612,7 @@ static void settle_pending(void)
  * did not bring it. */
 static void wait_step(void)
 {
-    if (!cd.in_delivery) port_tick();
+    wait_tick(0);
     settle_pending();
 }
 
@@ -790,7 +808,7 @@ int port_CdSync(int mode, unsigned char *result)
     int n;
     need_disc();
     for (n = 0; n < WAIT_LIMIT; n++) {
-        if (!cd.in_delivery) port_tick();
+        wait_tick(mode);
         if (cd.sync == 2 || cd.sync == 5) {
             int r = cd.sync;
             cd.sync = 2;
@@ -810,7 +828,7 @@ int port_CdReady(int mode, unsigned char *result)
     need_disc();
     cd.polled = 1;
     for (n = 0; n < WAIT_LIMIT; n++) {
-        if (!cd.in_delivery) port_tick();
+        wait_tick(mode);
         if (cd.ready == 0 && !mode && cd.reading && !cd.in_delivery) {
             cd.unguarded = 1;   /* the game asks for a sector: the ring guard does not apply */
             port_cd_tick();
@@ -1089,6 +1107,11 @@ void port_cd_tick(void)
         }
     }
     cd.in_delivery = 0;
+}
+
+void port_cd_set_fast_waits(int on)
+{
+    fast_waits = !!on;
 }
 
 int port_cd_init(struct port_disc *disc)
