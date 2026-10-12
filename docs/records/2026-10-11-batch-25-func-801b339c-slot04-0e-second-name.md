@@ -3,8 +3,9 @@
 - `func_801b339c_slot04_0e` (180 bytes, image `slot04_0e`, and its
   placement in the image `slot05_0e`, which is built from the same
   units), from `slot04b_nonmatching`. One function for the map, two
-  placements. The tree is made from main at `b28daa6`; batch 24 (pull
-  request 303) is not in it.
+  placements. The tree is made from main at `b28daa6`; main with batch
+  24 (pull request 303, merged first) is merged in, and the builds, the
+  records test and the map below ran again on that head.
 - The residue: the original copies the object into the first argument
   register twice (in the delay slot of the first test, and behind the
   sound call) and its shared call of `func_801307e0` at the end has an
@@ -66,6 +67,6 @@
   The figures of the variants: the same command on the unit with that
   change, the unit put back. The byte-offset scan: none. The compiler's
   warnings on the unit: none. The records test: 84 run, OK. The map's
-  render, on this tree (without batch 24):
-  `overall: 5563/5600 distinct functions exact (99.3%); 13020/13072 placements (99.6%); 1777948/1809836 code bytes (98.2%)`.
+  render, with batch 24:
+  `overall: 5564/5600 distinct functions exact (99.4%); 13021/13072 placements (99.6%); 1778208/1809836 code bytes (98.3%)`.
   No whole build, no PC build, no differential test.
