@@ -227,6 +227,7 @@ int main(int argc, char **argv)
     port_disc_handle = &disc;
     if (port_cd_init(&disc) != 0) return refuse("the disc layer cannot start");
     port_cd_set_fast_waits(port_settings.fast_loads);
+    port_gpu_set_batched_uploads(port_settings.fast_loads);
     if (port_jumps_write(ram, &with_c, &without_c, err, sizeof err) != 0) return refuse(err);
     printf("jumps: %u written for functions with C, %u for functions without\n", with_c, without_c);
     fflush(stdout);

@@ -27,6 +27,10 @@ which covers the drop at the next DrawSync, LoadImage or StoreImage. On
 it does not show the patch to be needed there; the patch is kept.
 
 
+Batched uploads: with Psyz_Sfa2SetBatchedUploads(1) (the port's setting fast_loads) the LoadImage calls that go into one command buffer share the
+upload transfer buffer, one after the other, instead of cycling it for every call. A screen change makes the game call LoadImage over a thousand
+times; each cycle made the driver allocate a new buffer of the whole size, and those calls took 160 to 600 ms. With it off nothing changes.
+
 Output volume: Psyz_Sfa2SetVolume(gain) sets the gain of the one SDL audio stream that PsyZ opens (SDL_SetAudioStreamGain), and
 Psyz_AudioInit applies the stored gain before it starts the stream, so a call before the device opens also counts. The port's
 --volume PERCENT calls it. Nothing else of the audio path changes.
@@ -175,6 +179,58 @@ or global UV correction is changed. The port selects only its known HUD tiles.
          vertex_cur[0].x = (short)(x);
          vertex_cur[0].y = (short)(y);
          vertex_cur[1].x = (short)(x + w);
+@@ -1,1 +1,6 @@
+ static SDL_GPUCommandBuffer* pending_cmd = NULL;
++/* SFA2 port (setting fast_loads): the LoadImage calls of one command buffer share the upload transfer buffer. sfa2_upload_used is how much of it the
++   pending command buffer's uploads use. Off, LoadImage is as it was. */
++static int sfa2_batch_uploads = 0;
++static Uint32 sfa2_upload_used = 0;
++void Psyz_Sfa2SetBatchedUploads(int on) { sfa2_batch_uploads = !!on; }
+@@ -1,2 +1,3 @@
+     if (!pending_cmd) {
+         pending_cmd = SDL_AcquireGPUCommandBuffer(device);
++        sfa2_upload_used = 0;
+@@ -1,3 +1,4 @@
+     SDL_GPUCommandBuffer* cmd = AcquireCmd();
+     if (!cmd)
+         return NULL;
++    sfa2_upload_used = VRAM_BYTES; /* this frame's data sits at the start of the buffer: the next LoadImage starts a new command buffer */
+@@ -1,15 +1,28 @@
+     SDL_GPUCommandBuffer* cmd = AcquireCmd();
+     if (!cmd) {
+         return;
+     }
+-    u8* map = SDL_MapGPUTransferBuffer(device, tex_upload_transfer, true);
++    /* SFA2 port (setting fast_loads): with batching on, the uploads of one command buffer go one after the other into the one transfer
++       buffer, and only the first of them cycles it. Cycling for every call made the driver allocate a new buffer of the whole size for each
++       (over a tenth of a millisecond a call, and a screen change makes the game call this a thousand times or more). */
++    const Uint32 sfa2_bytes = ((Uint32)rect->w * (Uint32)rect->h * 4u + 255u) & ~255u;
++    if (sfa2_batch_uploads && sfa2_upload_used + sfa2_bytes > VRAM_BYTES) {
++        SubmitCmd();
++        cmd = AcquireCmd();
++        if (!cmd) {
++            return;
++        }
++    }
++    const Uint32 sfa2_offset = sfa2_batch_uploads ? sfa2_upload_used : 0;
++    u8* map = SDL_MapGPUTransferBuffer(device, tex_upload_transfer, sfa2_offset == 0);
+     if (!map) {
+         ERRORF("SDL_MapGPUTransferBuffer: %s", SDL_GetError());
+         return;
+     }
+-    ConvertRgb5551ToRgba8888((const u16*)p, map, (size_t)rect->w * rect->h);
++    ConvertRgb5551ToRgba8888((const u16*)p, map + sfa2_offset, (size_t)rect->w * rect->h);
+     SDL_UnmapGPUTransferBuffer(device, tex_upload_transfer);
+ 
+     SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(cmd);
+     const SDL_GPUTextureTransferInfo src = {
+         .transfer_buffer = tex_upload_transfer,
++        .offset = sfa2_offset,
+@@ -1,3 +1,4 @@
+     SDL_UploadToGPUTexture(copy, &src, &dst, false);
+     SDL_EndGPUCopyPass(copy);
+     MarkVramDirty((SDL_Rect){rect->x, rect->y, rect->w, rect->h});
++    if (sfa2_batch_uploads) sfa2_upload_used += sfa2_bytes;
 --- a/psyz/src/platform/sdl3_gl.c
 +++ b/psyz/src/platform/sdl3_gl.c
 @@ -27,6 +27,10 @@

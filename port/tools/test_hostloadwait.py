@@ -39,6 +39,8 @@ struct port_settings port_settings;
 const struct port_function port_functions[] = { { 0, 0, "none", 0, 0 } };
 const unsigned port_function_count = 0;
 void port_halt(int status, const char *fmt, ...) { (void)status; (void)fmt; exit(70); }
+void port_clock_hurry(int on) { (void)on; }
+void port_clock_blank_start(unsigned max_frames) { (void)max_frames; }
 void port_cd_tick(void) {}
 void port_tick(void) {}
 extern const struct port_override port_loadwait_overrides[];
@@ -54,11 +56,12 @@ static int  h_done(void) { return passes >= passes_needed; }
 static void h_step(void) { note('u'); }
 static void h_drive(void) { note('d'); passes++; }
 static void h_tick(void) { ticks_seen++; note('T'); }
+static void h_hurry(int on) { note(on ? 'H' : 'h'); }
 static void h_finish(void) { finished++; note('F'); }
 
 int main(int argc, char **argv)
 {
-    struct port_loadwait_hooks h = { h_start, h_done, h_step, h_drive, h_tick, h_finish };
+    struct port_loadwait_hooks h = { h_start, h_done, h_step, h_drive, h_tick, h_hurry, h_finish };
     int use_finish;
     if (argc != 3) return 64;
     passes_needed = atoi(argv[1]);
@@ -82,19 +85,22 @@ struct port_settings port_settings;
 const struct port_function port_functions[] = { { 0, 0, "none", 0, 0 } };
 const unsigned port_function_count = 0;
 void port_halt(int status, const char *fmt, ...) { (void)status; (void)fmt; exit(70); }
+void port_clock_hurry(int on) { (void)on; }
+void port_clock_blank_start(unsigned max_frames) { (void)max_frames; }
 void port_cd_tick(void) {}
 void port_tick(void) {}
-static int palette_calls;
+static int palette_calls, blank_calls;
 static void pal(void) { palette_calls++; }
+static void blank(void) { blank_calls++; }
 int main(int argc, char **argv)
 {
     unsigned short state = (unsigned short)atoi(argv[2]), counter = 0x1234, delay = 77;
     unsigned char wait = 0x55;
     unsigned text = 0x8016da10u;
     if (argc != 3) return 64;
-    struct port_loadscreen_fields f = { &state, &counter, &delay, &wait, &text, 0x8016da1eu, pal };
+    struct port_loadscreen_fields f = { &state, &counter, &delay, &wait, &text, 0x8016da1eu, pal, blank };
     if (argv[1][0] == 's') port_loadscreen_start(&f); else port_loadscreen_fadeout(&f);
-    printf("S state=%u counter=%u delay=%u wait=%u text=%x palette=%d\n", state, counter, delay, wait, text, palette_calls);
+    printf("S state=%u counter=%u delay=%u wait=%u text=%x palette=%d blank=%d\n", state, counter, delay, wait, text, palette_calls, blank_calls);
     return 0;
 }
 '''
@@ -110,6 +116,8 @@ struct port_settings port_settings;
 const struct port_function port_functions[] = { { 0, 0, "none", 0, 0 } };
 const unsigned port_function_count = 0;
 void port_halt(int status, const char *fmt, ...) { (void)status; (void)fmt; exit(70); }
+void port_clock_hurry(int on) { (void)on; }
+void port_clock_blank_start(unsigned max_frames) { (void)max_frames; }
 void port_cd_tick(void) {}
 void port_tick(void) {}
 static unsigned calls, done_at, last_bank, last_mode;
@@ -143,6 +151,8 @@ struct port_settings port_settings;
 const struct port_function port_functions[] = { { 0, 0, "none", 0, 0 } };
 const unsigned port_function_count = 0;
 void port_halt(int status, const char *fmt, ...) { (void)status; (void)fmt; exit(70); }
+void port_clock_hurry(int on) { (void)on; }
+void port_clock_blank_start(unsigned max_frames) { (void)max_frames; }
 void port_cd_tick(void) {}
 void port_tick(void) {}
 extern const struct port_override port_loadwait_overrides[];
@@ -184,9 +194,9 @@ def cases(root: Path, cc: str):
     r = run(loop, "3", "1")[0]
     yield check("a load of 3 passes: started once with its two arguments, 3 passes, finish once", "started=1 a=7 b=9 passes=3 ticks=0 finished=1" in r, r)
     r = run(loop, "3", "1")[0]
-    yield check("(order) start, then step and drive for each pass, finish last, no real step for 3 passes", "order=SudududF" in r, r)
+    yield check("(order) hurry on, start, then step and drive for each pass, hurry off, finish last, no real step for 3 passes", "order=HSudududhF" in r, r)
     r = run(loop, "0", "1")[0]
-    yield check("a load that is done at once runs no pass, and still finishes", "started=1 a=7 b=9 passes=0 ticks=0 finished=1 order=SF" in r, r)
+    yield check("a load that is done at once runs no pass, and still finishes", "started=1 a=7 b=9 passes=0 ticks=0 finished=1 order=HShF" in r, r)
     r = run(loop, "3", "0")[0]
     yield check("without a finish hook none is called", "passes=3 ticks=0 finished=0" in r, r)
     for n, want in ((255, 0), (256, 1), (257, 1), (511, 1), (512, 2), (3000, 11)):
@@ -195,12 +205,12 @@ def cases(root: Path, cc: str):
     screen = build(root, cc, SCREEN, "screen")
     for st in (0, 1, 5):
         r = run(screen, "s", str(st))[0]
-        yield check(f"state 0 collapsed, state index {st}: index {st + 2}, delay 1, counter 32, wait flag 0x80, one palette call, text on the empty string",
-                    r == f"S state={st + 2} counter=32 delay=1 wait=128 text=8016da1e palette=1", r)
+        yield check(f"state 0 collapsed, state index {st}: index {st + 2}, delay 1, counter 32, wait flag 0x80, one palette call, text on the empty string, the clock not started",
+                    r == f"S state={st + 2} counter=32 delay=1 wait=128 text=8016da1e palette=1 blank=0", r)
     for st in (3, 4):
         r = run(screen, "f", str(st))[0]
-        yield check(f"state 3 collapsed, state index {st}: index {st + 1}, delay 1, counter 0xffff, wait flag and text untouched, no palette call",
-                    r == f"S state={st + 1} counter=65535 delay=1 wait=85 text=8016da10 palette=0", r)
+        yield check(f"state 3 collapsed, state index {st}: index {st + 1}, delay 1, counter 0xffff, wait flag and text untouched, no palette call, the blank fast-forward started once",
+                    r == f"S state={st + 1} counter=65535 delay=1 wait=85 text=8016da10 palette=0 blank=1", r)
     fade = build(root, cc, FADE, "fade")
     for mode, done_at, want_calls, want_result in (("0", "32", 32, 1), ("1", "32", 32, 1), ("0", "1", 1, 1), ("0", "0", 256, 0), ("2", "0", 1, 0), ("3", "5", 1, 0), ("2", "1", 1, 1)):
         r = run(fade, mode, "x", done_at)[0]

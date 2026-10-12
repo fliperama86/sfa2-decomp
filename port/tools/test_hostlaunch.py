@@ -806,6 +806,7 @@ int test_presents;
 void port_gpu_present(void) { test_presents++; }
 int port_gpu_set_video_options(int ui,int arcade) { (void)ui;(void)arcade;return 0; }
 int port_gpu_set_ui_layout(int enabled) { (void)enabled;return 0; }
+void port_gpu_set_batched_uploads(int on) { (void)on; }
 int port_gpu_read_frame(unsigned short *pixels)
 {
     int i;

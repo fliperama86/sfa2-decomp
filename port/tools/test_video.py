@@ -42,7 +42,7 @@ class Video(unittest.TestCase):
         text = PATCH.read_text()
         patches = psyzbuild.parse_patch(text)
         self.assertEqual({p.path for p in patches}, {'psyz/src/psyz/libgpu.c',
-            'psyz/src/platform/sdl3_gpu.c', 'psyz/src/platform/sdl3_gl.c'})
+            'psyz/src/platform/sdl3_gpu.c', 'psyz/src/platform/sdl3_gl.c', 'psyz/src/platform/sdl3_audio.c'})
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             for patch in patches:
