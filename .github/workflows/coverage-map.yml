@@ -2,6 +2,9 @@
 # configuration, checks it on every pull request, and publishes it to
 # GitHub Pages on every push to main. No game file is involved:
 # docs/completion-map.md, "Keeping the map current".
+# The same run counts how many functions, fields and data symbols have a
+# name instead of a placeholder and publishes the README's line beside
+# the map: ps1/docs/names.md, "How many have a name".
 name: Coverage map
 
 on:
@@ -24,6 +27,10 @@ jobs:
         run: python3 ps1/tools/test_coveragemap.py
       - name: Draw the map
         run: python3 ps1/tools/coveragemap.py render --svg out/completion-map.svg --json out/completion-map.json --html out/index.html
+      - name: Control cases of the name counts
+        run: python3 ps1/tools/test_namestats.py
+      - name: Count the names
+        run: python3 ps1/tools/namestats.py --svg out/names.svg --json out/names.json
       - uses: actions/upload-artifact@v7
         with:
           name: coverage-map
