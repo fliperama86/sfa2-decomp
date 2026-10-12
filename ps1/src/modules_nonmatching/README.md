@@ -62,11 +62,8 @@ What the replay command of the folder printed on 2026-10-10, one line per functi
 
 ```
 func_80012990_slot01 replay: fixtures 2, passed 2, failed 0
-func_8001389c_slot28 replay: fixtures 1, passed 1, failed 0
-func_80079144_slot2b replay: fixtures 3, passed 3, failed 0
 func_800e0850_slot0f replay: fixtures 9, passed 9, failed 0
 func_800e4ab0_slot0f replay: fixtures 3, passed 3, failed 0
-func_801b2f1c_slot04_0a replay: fixtures 5, passed 5, failed 0
 func_801e0ce8_slot0b replay: fixtures 2, passed 2, failed 0
 ```
 
@@ -88,18 +85,12 @@ func_80012714_slot01: built 568 bytes, original 636 bytes; cases 2000, discarded
 func_80012714_slot01 coverage: 159 of 159 instruction slots of the original executed
 func_80012990_slot01: built 312 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_80012990_slot01 coverage: 112 of 112 instruction slots of the original executed
-func_8001389c_slot28: built 140 bytes, original 144 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_8001389c_slot28 coverage: 36 of 36 instruction slots of the original executed
-func_80079144_slot2b: built 172 bytes, original 196 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80079144_slot2b coverage: 49 of 49 instruction slots of the original executed
 func_800e0850_slot0f: built 412 bytes, original 460 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800e0850_slot0f coverage: 115 of 115 instruction slots of the original executed
 func_800e0a1c_slot0f: built 276 bytes, original 300 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800e0a1c_slot0f coverage: 75 of 75 instruction slots of the original executed
 func_800e4ab0_slot0f: built 540 bytes, original 608 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_800e4ab0_slot0f coverage: 152 of 152 instruction slots of the original executed
-func_801b2f1c_slot04_0a: built 304 bytes, original 312 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801b2f1c_slot04_0a coverage: 78 of 78 instruction slots of the original executed
 func_801e0ce8_slot0b: built 304 bytes, original 448 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e0ce8_slot0b coverage: 112 of 112 instruction slots of the original executed
 ```
@@ -111,18 +102,12 @@ func_80012714_slot01 control: different 1323 of 2000 (expected more than 0)
   altered: a shift right by 4 changed to 3, instruction slot 40
 func_80012990_slot01 control: different 2000 of 2000 (expected more than 0)
   altered: a byte store of the primitive moved by one byte, instruction slot 24
-func_8001389c_slot28 control: different 2000 of 2000 (expected more than 0)
-  altered: store of field_ad moved by one byte, instruction slot 29
-func_80079144_slot2b control: different 1020 of 2000 (expected more than 0)
-  altered: negation turned into a doubling, instruction slot 31
 func_800e0850_slot0f control: different 585 of 2000 (expected more than 0)
   altered: write length changed to 0x2001, instruction slot 84
 func_800e0a1c_slot0f control: different 314 of 2000 (expected more than 0)
   altered: a returned 2 becomes 3, instruction slot 61
 func_800e4ab0_slot0f control: different 649 of 2000 (expected more than 0)
   altered: y store moved to the x offset, instruction slot 83
-func_801b2f1c_slot04_0a control: different 1003 of 2000 (expected more than 0)
-  altered: field_50 constant 0x38000 changed to 0x48000, instruction slot 51
 func_801e0ce8_slot0b control: different 1997 of 2000 (expected more than 0)
   altered: id shift changed from 6 to 5, instruction slot 54
 ```
@@ -132,12 +117,9 @@ The write audit (`--cases 2000 --writes FUNC`, seed 1):
 ```
 func_80012714_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80012990_slot01 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_8001389c_slot28 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_80079144_slot2b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e0850_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e0a1c_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_800e4ab0_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801b2f1c_slot04_0a writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e0ce8_slot0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 

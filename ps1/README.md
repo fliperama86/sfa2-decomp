@@ -25,7 +25,7 @@ Public tools, free of game data:
   functions` write. The repository's workflow runs it on every push.
 - `tools/namestats.py`: how many functions, fields and data symbols have a
   name instead of a placeholder, as three printed lines, JSON and the
-  README's line. The repository's workflow runs it on every push.
+  README's bars. The repository's workflow runs it on every push.
 - `tools/librefs.py`: the names by which the reference-derived library
   units of a finished build refer to library functions.
 - `tools/funcscan.py`: function boundaries in MIPS code by a linear sweep,

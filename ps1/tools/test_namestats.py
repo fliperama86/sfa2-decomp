@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -134,8 +135,37 @@ def case_files(tmp: Path) -> str | None:
         return f"the JSON holds {counts}"
     picture = (tmp / "out" / "names.svg").read_text()
     label = "Names given: functions 28.6%, fields 40.0%, data symbols 42.9%"
-    if not picture.startswith("<svg ") or picture.count(label) != 3:
+    if not picture.startswith("<svg ") or picture.count(label) != 2:
         return f"the picture is {picture!r}"
+    # a full bar is 300 wide: 28.6%, 40.0% and 42.9% of it
+    if bars(picture) != {"functions": 85.8, "fields": 120.0, "data_symbols": 128.7}:
+        return f"the bars are {bars(picture)}"
+    for text in ('28.6% <tspan fill="#8b949e">(2 of 7)</tspan>', '40.0% <tspan fill="#8b949e">(2 of 5)</tspan>',
+                 '42.9% <tspan fill="#8b949e">(3 of 7)</tspan>'):
+        if picture.count(text) != 1:
+            return f"the picture lacks {text!r}"
+    return None
+
+
+def bars(picture: str) -> dict[str, float]:
+    return {key: float(width) for key, width in re.findall(r'<rect id="bar-(\w+)" x="120" y="\d+" width="([0-9.]+)"', picture)}
+
+
+def case_small_and_empty_bars(tmp: Path) -> str | None:
+    # 1 function of 400 has a name: 0.2%, which would be 0.6 of 300 and is drawn 2 wide; a count of 1,000 and
+    # more is written with a comma; no field has a name, so that bar is empty
+    functions = "\n".join(f'  {{ name = "func_{0x80010000 + 8 * i:08x}", address = {0x80010000 + 8 * i:#x}, size = 8 }},' for i in range(399))
+    config = f'[[unit]]\nname = "a"\nsource = "a.c"\nfunctions = [\n  {{ name = "advance_timer", address = 0x8000fff8, size = 8 }},\n{functions}\n]\n'
+    symbols = "".join(f"data_{0x80040000 + 4 * i:08x} = {0x80040000 + 4 * i:#x};\n" for i in range(1000)) + "score_left = 0x80050000;\n"
+    result = run(write(tmp, config=config, fields="struct Thing size=0x4\n0x000 u32 field_00\n", symbols=symbols) + ["--svg", str(tmp / "names.svg")])
+    if result.returncode != 0:
+        return f"status {result.returncode}: {result.stderr}"
+    picture = (tmp / "names.svg").read_text()
+    if bars(picture) != {"functions": 2.0, "fields": 0.0, "data_symbols": 2.0}:
+        return f"the bars are {bars(picture)}"
+    for text in ("(1 of 400)", "(0 of 1)", "(1 of 1,001)"):
+        if picture.count(text) != 1:
+            return f"the picture lacks {text!r}"
     return None
 
 
@@ -193,6 +223,7 @@ class Case:
 CASES = [
     Case("counts-of-the-three-kinds", case_counts),
     Case("json-and-picture-hold-the-same-counts", case_files),
+    Case("small-count-is-visible-and-none-is-empty", case_small_and_empty_bars),
     Case("a-new-name-is-one-more-of-its-kind", case_a_new_name_is_one_more),
     Case("empty-tables-count-nothing", case_empty_tables),
     Case("missing-file-is-reported", case_missing_file),
