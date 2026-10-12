@@ -1,4 +1,3 @@
-
 ## Batch 6: two more functions of the character modules exact (2026-10-11)
 
 - `func_801b248c_slot04_0f` (120 bytes, also placed in `slot05_0f`) and

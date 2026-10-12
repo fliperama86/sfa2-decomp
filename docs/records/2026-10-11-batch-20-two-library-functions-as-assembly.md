@@ -1,4 +1,3 @@
-
 ## Batch 20: two functions of the library as assembly units written by hand (2026-10-11)
 
 - `StopRCnt` (`0x80157750`, 52 bytes, `libapi/counter.c`) and

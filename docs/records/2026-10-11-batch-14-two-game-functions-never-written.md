@@ -1,4 +1,3 @@
-
 ## Batch 14: two game functions that nobody had written (2026-10-11)
 
 - `func_80157270` (240 bytes) and `func_80157380` (588 bytes), the last

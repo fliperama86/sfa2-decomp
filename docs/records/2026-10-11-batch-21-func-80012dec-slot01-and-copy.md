@@ -1,4 +1,3 @@
-
 ## Batch 21: `func_80012dec_slot01` and its copy `func_801e0ea8_slot0b` exact (2026-10-11)
 
 - `func_80012dec_slot01` (372 bytes, image `slot01`) and

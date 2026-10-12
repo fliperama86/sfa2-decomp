@@ -1,4 +1,3 @@
-
 ## Batch 11: five functions of the graphics library exact (2026-10-11)
 
 - `get_mode` (`0x80158d28`, 92 bytes), `get_cs` (`0x80158d84`, 204),

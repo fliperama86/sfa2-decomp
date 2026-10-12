@@ -1,4 +1,3 @@
-
 ## `ResetRCnt` exact: a unit may name the assembler version of its object (2026-10-11)
 
 - `func_80157784` (52 bytes, the library's `ResetRCnt`, inferred from the

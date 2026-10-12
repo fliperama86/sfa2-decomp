@@ -1,4 +1,3 @@
-
 ## Batch 5: six functions of the character modules exact, the first of the folder `slot04b_nonmatching` (2026-10-11)
 
 - By the owner's word of today ("yes") the 50 functions of

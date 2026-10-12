@@ -1,4 +1,3 @@
-
 ## Batch 17: `func_80124304` exact, a stepped pointer kept apart from its copy (2026-10-11)
 
 - `func_80124304` (928 bytes, resident), from `resident_nonmatching`.

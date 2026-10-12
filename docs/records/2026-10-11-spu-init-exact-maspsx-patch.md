@@ -1,4 +1,3 @@
-
 ## `_spu_init` exact: the build can patch its export of maspsx, and one patch does (2026-10-11)
 
 - `_spu_init` (1464 bytes at 0x8016b788, the sound library part of the
