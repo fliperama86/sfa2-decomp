@@ -338,6 +338,37 @@ as a byte or less). A cast of another callee's result type is not
 covered: it needs the owner's word again.
 `grep -rn "goes through a type that returns" src` lists the uses.
 
+One declaration is accepted with parameter widths other than the
+definition's, by the owner's decision of 2026-10-12 on pull request 329.
+It is an exception for one function of Sony's sound library in one file,
+not a pattern. `SpuVmSetVol` is defined in `sdk/libsnd/vm_vol.c` as
+`s32 SpuVmSetVol(s16 seq_sep_no, s16 vabId, s16 prog, u16 arg3, u16 arg4)`.
+The part `sdk/libsnd/seqread_p1.c`, which calls it three times, declares
+it with a full word for the first and the fourth parameter, and carries
+these two comments directly above the declaration; the first sentence of
+the first is fixed and its second gives what was measured:
+
+```c
+/* The declaration of SpuVmSetVol has a full word for its first and fourth parameter although the definition takes 16 bits there: the original's calls in this file do not narrow these two arguments. With the definition's widths in this declaration, this unit differs from the original in 126 instruction slots. */
+/* Not portable C: the calls below go through a declaration that is not compatible with the definition. They rely on the PS1's calling convention, under which each of these arguments is passed in a whole register and the callee narrows it itself. */
+s32 SpuVmSetVol(s32, s16, s16, s32, u16);
+```
+
+What it relies on: the C standard does not define a call through a
+declaration that is not compatible with the function's definition. On the
+PS1 each of the two arguments travels in a whole register and the callee
+sign-extends or masks it at its entry, so the callee sees the same value
+whether the caller narrowed it or not. Another calling convention need
+not give that. Rules for its use: only this function and only this file;
+the declaration differs from the definition in exactly the two widths
+named, and every other declaration of the function agrees with the
+definition (`seqread_p2.c`, which has no call of it, and the two parts of
+`vmanager.c`); the record says for the PC program that the calls depend on
+the calling convention. Another library declaration that differs from
+its definition is not covered: it needs the owner's word again.
+`grep -rn "has a full word for its first and fourth parameter" src` lists
+the uses.
+
 ### Other stand-ins
 
 By the owner's instruction of 2026-10-11: "loosen it up a bit for what
