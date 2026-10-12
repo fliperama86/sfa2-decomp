@@ -1551,8 +1551,10 @@ number per frame at each of the two speeds (2, 3, 2, 3 and 1, 1, 1, 2),
 the carry cleared by a new read and by a change of speed, the remainder after a blocked reader, a sector handed
 out in pieces, pause and a new
 position in the middle of a read, the end of the image, the position
-conversions at their borders, the poll without a handler, audio
-sectors consumed in silence with no sink, the streamed audio with a sink
+conversions at their borders, the poll without a handler, a stream of
+audio that no one polls (the drive goes on over the sectors that are no
+audio; after a `CdReady`, or with the XA bit clear, one sector waits),
+audio sectors consumed in silence with no sink, the streamed audio with a sink
 (the filter, the queue, the hold, the volumes, the lock; see "The disc's
 streamed audio"), the stops for a command that is not served, and each
 way of giving `CdGetSector` a buffer that is not inside the RAM.
@@ -2109,6 +2111,40 @@ in silence and counted. A played sector is never handed to the game's
 handler. The game's streams, as the trial and the one-off start below
 saw them, are 4-bit, stereo, 37,800 Hz.
 
+The sectors between the audio, and how a track ends. The game's music is
+a read that no one polls: `ReadS` with the mode `0xc8`, driven by
+functions that call `CdSync` and never `CdReady`
+(`ps1/src/s14f9f0_r6.c`). The game learns that a track has ended from the
+drive's position alone: `check_cd_position_and_set_command_state`
+(`ps1/src/m14ff20_r2.c`) asks `GetlocP` at every pass and, once the
+position is above the track's end, stops the track or starts it again
+(the track's length and whether it repeats are in the table at
+`0x8017eb44`, read from that function and from
+`start_cd_track_from_code`, `ps1/src/m14ff20_r3.c`). An audio file of the
+disc holds eight channels in turn, and where a channel's track is shorter
+than its file the channel's places hold sectors with the submode 0, which
+are no audio. Such a sector is a data sector: it goes into the FIFO and
+sets the ready flag. For a reader that polls, one sector waits until the
+poll has taken it. For this read that rule does not apply (since
+2026-10-12): in a read with the mode's XA bit set during which `CdReady`
+has not been called, the next sector replaces the one in the FIFO and the
+drive goes on, as on the console, where the drive waits for no one. A
+call of `CdReady` during the read shows a reader that polls, and from
+then on one sector waits again; a new read begins the question again.
+With the XA bit clear the rule holds from the read's start: the game's
+two readers that poll set the mode `0x80` first (`ps1/src/y14e890_r2.c`,
+`ps1/src/v6_r1.c`). Not covered, and no code of the game does it: a
+reader that polls with the XA bit set loses the sectors of a vblank's row
+that comes before its first poll.
+
+Before that change the drive stood at the first such sector for ever. The
+position never passed the track's end, so a track that repeats fell
+silent where another channel of its file ended (issue 279) and a track
+that plays once never ended for the game (issue 258, the screen of the
+score ranking). The record
+[`2026-10-12-music-stream-data-sectors.md`](../docs/records/2026-10-12-music-stream-data-sectors.md)
+has the two tracks of the user's disc on which this was measured.
+
 The decoder. `port/src/xa.c` is pure C (`stdint.h` and `string.h`, no
 global). It takes a raw sector of 2,352 bytes, refuses it if the
 subheader at byte 16 differs from its copy at byte 20, and decodes the
@@ -2280,7 +2316,12 @@ The controls.
   start, the hold when the queue is full and its release with no burst).
   The native rig has two seams of its own for the queue: the pull is
   called by the test, and the audio lock is a counting stub. The case
-  count went from 88 to 123.
+  count went from 88 to 123. Since 2026-10-12 it has eight cases for the
+  read that no one polls, on a made-up audio file with a short channel
+  and sectors of submode 0 (the position after 4 and after 16 vblanks,
+  the counts, the ready flag and the FIFO, the same with a sink, a
+  `CdReady` during the read, a new read after it, and the XA bit clear);
+  the case count went from 236 to 244.
 - `python3 port/tools/test_hostaudio.py --cc CC --psyz-build DIR`, group
   `stream`: a made-up game sets the chip and `CdMix` and plays 8 sectors
   of a made-up image (with 4 of another channel between them) with

@@ -16,7 +16,10 @@ middle of a read, and ReadN continuing after a Pause; reading past the end of
 the image (a disc error to the handler, the read stopped); the position
 conversions at their borders; the word record; the polling reader (no
 handler: one sector waits for CdReady); the implied Setloc of SeekL and
-ReadS and its second response; GetlocP; XA audio sectors: consumed in silence with no sink, and with a sink decoded and queued
+ReadS and its second response; GetlocP; a stream of audio that no one polls (the game's music: with the XA bit set and no CdReady
+since the read began the drive goes on over the sectors that are no audio, each replacing the last in the FIFO; after a CdReady, or
+with the bit clear, one sector waits; a new read begins the question again);
+XA audio sectors: consumed in silence with no sink, and with a sink decoded and queued
 (the filter on and off, the file and channel, the volumes of CdMix, the hold when the queue is full and its release, the reset at a
 read's start, refused sectors, the lock calls); what CdInit does to the sound chip and to the drive's mix (the library's CD_initvol: the
 rig's seam is a made-up file of the chip's registers and a record of the calls, with and without a model of the chip); the
@@ -657,6 +660,64 @@ def audio_cases(root: Path, exe: Path):
     rc, lines = run(exe, img, script)
     sec = [int(l.split()[1]) for l in lines if l.startswith("  sector")]
     yield check("with XA off, the same sectors are data", sec == list(span), f"{sec}")
+
+
+def unpolled_cases(root: Path, exe: Path):
+    """A stream of audio that no one polls: the game's music. No ready handler, no CdReady; the game asks only GetlocP."""
+    img = root / "u.bin"
+    # A made-up audio file as the disc has them: channel 3's track in the sectors 8, 12 and 16 (the last with the end-of-file bit),
+    # channel 4's shorter track in 9 and 13, and every other place from 8 on a sector with the submode 0 (no audio bit).
+    pad = (1, 0, 0x00)
+    audio = {n: pad for n in range(8, 40)}
+    audio.update({8: (1, 3, 0x64), 12: (1, 3, 0x64), 16: (1, 3, 0xe4), 9: (1, 4, 0x64), 13: (1, 4, 0xe4)})
+    make_image(img, 40, audio=audio)
+    p8 = hexs(*pos_of(8), 0)
+    # the game's sequence: Setfilter, Setmode, SeekL with the position, ReadS with the position; then only GetlocP and CdSync
+    head = f"cdinit\nctl N d 01 03\nctl N e MODE\nctl N 15 {p8}\ntick 1\nsync 1\nctl N 1b {p8}\n"
+    tail = "ctl F 11\nsync 1\nxac\nready 1\nready 1\ngs 80100000 512\n"
+    # double speed: 4 vblanks bring 2 + 3 + 2 + 3 = 10 sectors, 8 to 17; the position is then 18
+    rc, lines = run(exe, img, head.replace("MODE", "c8") + "tick 4\n" + tail)
+    s = [l for l in lines if l.startswith("S ")]
+    c = counts_of(lines)
+    y = [l for l in lines if l.startswith("Y ")]
+    g = [l for l in lines if l.startswith("G ")]
+    rel = (bcd(18 // 75 // 60), bcd(18 // 75 % 60), bcd(18 % 75))
+    yield check("an audio stream that no one polls: the drive goes on over the sectors that are no audio (GetlocP after 4 vblanks is 10 sectors on)",
+                rc == 0 and len(s) == 2 and s[1] == "S ret=2 res=" + hexs(1, 1, *rel, *pos_of(18)), f"{rc} {s}")
+    yield check("the channel's three audio sectors and the other channel's two are consumed on the way",
+                rc == 0 and c and c[0]["silent"] == 3 and c[0]["skipped"] == 2, f"{rc} {c}")
+    yield check("each such sector is a data sector: the ready flag is set (taken once), and the FIFO holds the last one, which replaced the ones before",
+                rc == 0 and len(y) == 2 and y[0] == "Y ret=1 res=22 00 00 00 00 00 00 00" and y[1].startswith("Y ret=0") and g and g[0].split()[2] == "first=17", f"{rc} {y} {g}")
+    # 12 more vblanks bring 30 more sectors: the read runs off the end of the image of 40, so the position passed every sector
+    rc, lines = run(exe, img, head.replace("MODE", "c8") + "tick 16\nctl F 11\nsync 1\n")
+    s = [l for l in lines if l.startswith("S ")]
+    yield check("it goes on to the end of the file's sectors (the position after 16 vblanks is the image's end)",
+                rc == 0 and len(s) == 2 and s[1].endswith(hexs(*pos_of(40))), f"{rc} {s}")
+    # with a sink the same: the channel's sectors are played, the position is the same
+    rc, lines = run(exe, img, "sink 1\n" + head.replace("MODE", "c8") + "tick 4\nctl F 11\nsync 1\nxac\n")
+    s = [l for l in lines if l.startswith("S ")]
+    c = counts_of(lines)
+    yield check("with a sink the same position, the channel's three sectors played and none held",
+                rc == 0 and len(s) == 2 and s[1].endswith(hexs(*pos_of(18))) and c and c[0]["played"] == 3 and c[0]["skipped"] == 2 and c[0]["held"] == 0, f"{rc} {s} {c}")
+    # a poll during the read shows a reader that polls: from then on one sector waits, with the XA bit set too.
+    # The poll comes before any vblank; then 2 sectors (8, 9: audio), then 10 is a data sector and waits: the position is 11.
+    rc, lines = run(exe, img, head.replace("MODE", "c8") + "ready 1\ntick 4\n" + tail)
+    s = [l for l in lines if l.startswith("S ")]
+    y = [l for l in lines if l.startswith("Y ")]
+    g = [l for l in lines if l.startswith("G ")]
+    yield check("a CdReady during the read makes it a polled one: one sector waits for the poll again (the position after 4 vblanks is 3 sectors on, the FIFO holds the first data sector)",
+                rc == 0 and len(s) == 2 and s[1].endswith(hexs(*pos_of(11))) and len(y) == 3 and y[0].startswith("Y ret=0") and y[1].startswith("Y ret=1") and g and g[0].split()[2] == "first=10", f"{rc} {s} {y} {g}")
+    # and a new read begins the question again: ReadS once more, no poll, and the drive goes on
+    rc, lines = run(exe, img, head.replace("MODE", "c8") + f"ready 1\ntick 4\nctl N 1b {p8}\ntick 4\nctl F 11\nsync 1\n")
+    s = [l for l in lines if l.startswith("S ")]
+    yield check("a new read begins the question again: after ReadS with no poll the drive goes on (10 sectors in 4 vblanks)",
+                rc == 0 and len(s) == 2 and s[1].endswith(hexs(*pos_of(18))), f"{rc} {s}")
+    # the control: the same sequence with the XA bit clear is a polling reader from its start, and one sector waits for the poll
+    rc, lines = run(exe, img, head.replace("MODE", "80") + "tick 4\n" + tail)
+    s = [l for l in lines if l.startswith("S ")]
+    g = [l for l in lines if l.startswith("G ")]
+    yield check("control: with the XA bit clear the polling rule holds (after 4 vblanks the position is 1 sector on, and the FIFO holds that sector)",
+                rc == 0 and len(s) == 2 and s[1].endswith(hexs(*pos_of(9))) and g and g[0].split()[2] == "first=8", f"{rc} {s} {g}")
 
 
 # ---- the streamed audio with a sink ------------------------------------------------------
@@ -1527,6 +1588,7 @@ def groups(root: Path, exe: Path):
     yield poll_cases(root, exe)
     yield command_cases(root, exe)
     yield audio_cases(root, exe)
+    yield unpolled_cases(root, exe)
     yield stream_cases(root, exe)
     yield initvol_cases(root, exe)
     yield stop_cases(root, exe)
