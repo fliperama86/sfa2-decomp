@@ -45,15 +45,26 @@ static inline int port_video_arcade_fit(int w,int h,struct port_video_view *out)
     out->w=unit*4;out->h=unit*3;out->x=(w-out->w)/2;out->y=(h-out->h)/2;
     return 1;
 }
+/* data_801987c8 stores a pointer, not an inline table. Initialization/frame
+ * swap select these two 30-entry tables. Return -1 for unrelated addresses. */
+static inline int port_video_ot_index(uint32_t ot)
+{
+    uint32_t physical=ot&0x1fffffffu,offset;
+    if(physical>=0x1fc000u && physical<0x1fc078u)offset=physical-0x1fc000u;
+    else if(physical>=0x1fc0e8u && physical<0x1fc160u)offset=physical-0x1fc0e8u;
+    else return -1;
+    return offset%4?-1:(int)(offset/4);
+}
 /* Inferred from the selected game's HUD producer: list indices8/14 and the 40-byte
- * tile record pool (frame selectors -1/0/1). Other UI/world packets are excluded.
+ * tile record pool (the two initialized frame blocks). Other packets are excluded.
  * Address/list checks identify fixed RAM records before any packet reads. */
 static inline int port_video_tag_tiles(uint32_t ot,uint32_t address,unsigned char *p,int enabled)
 {
-    uint32_t phys=address&0x1fffffffu, list=ot&0x1fffffffu;
+    uint32_t phys=address&0x1fffffffu;
+    int list=port_video_ot_index(ot);
     struct port_video_corner corners[4];int i;
-    if(!enabled || (list!=0x1987e8u && list!=0x198800u) || phys<0x184984u ||
-       phys>=0x188d04u || (phys-0x184984u)%40 || p[3]!=9 || (p[7]&0xfc)!=0x2c)return 0;
+    if(!enabled || (list!=8 && list!=14) || phys<0x186004u ||
+       phys>=0x188d04u || (phys-0x186004u)%40 || p[3]!=9 || (p[7]&0xfc)!=0x2c)return 0;
     for(i=0;i<4;i++) {
         unsigned x=p[8+i*8]|(unsigned)p[9+i*8]<<8;
         unsigned y=p[10+i*8]|(unsigned)p[11+i*8]<<8;
@@ -76,11 +87,12 @@ static inline int port_video_life_fill(int x,int *y,int w,int *h)
  * Address/list checks precede all reads, so the selected RAM span is bounded. */
 static inline int port_video_tag_life_fill(uint32_t ot,uint32_t address,unsigned char *p,int enabled)
 {
-    uint32_t list=ot&0x1fffffffu, phys=address&0x1fffffffu, offset;
+    uint32_t phys=address&0x1fffffffu, offset;
+    int list=port_video_ot_index(ot);
     int x,y,w,h;
     if(!enabled || phys<0x1ac6acu || phys>=0x1ac72cu)return 0;
     offset=phys-0x1ac6acu;
-    if(offset%16 || list!=(offset<64?0x198800u:0x198804u) ||
+    if(offset%16 || list!=(offset<64?14:15) ||
        p[3]!=3 || (p[7]&0xfc)!=0x60)return 0;
     x=(int)(((p[8]|(unsigned)p[9]<<8)&2047)^1024)-1024;
     y=(int)(((p[10]|(unsigned)p[11]<<8)&2047)^1024)-1024;

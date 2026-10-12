@@ -64,7 +64,7 @@ test_libgap = ["port/tools/libgap.py"]
 test_psyzbuild = ["port/psyz.patch"]
 test_sdkshim = ["port/sdkshim/", "port/psyz.patch"]
 test_settings = ["port/src/settings.c", "port/src/settings.h", "port/src/main.c", "port/settings.ini", "port/tools/settings_test.c"]
-test_video = ["port/src/video.h", "port/src/gpu.c", "port/psyz.patch", "port/tools/video_test.c", "port/tools/video_gpu_test.c"]
+test_video = ["port/src/video.h", "port/src/gpu.c", "port/psyz.patch", "port/tools/video_test.c", "port/tools/video_gpu_test.c", "port/tools/video_bridge_test.c"]
 
 # Files of the port whose check is the build of the PC program alone (`native-build`, which every change of the port that
 # is not a control file gets): no control file reads the tree's own copy of them. The overrides have their own checks
