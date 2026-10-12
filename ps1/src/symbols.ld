@@ -2840,7 +2840,6 @@ data_801ea558_slot06_0d = 0x801ea558;
 data_801eb1b0_slot06_0d = 0x801eb1b0;
 
 /* Added by src.u_slot06_0e_8000. */
-func_801e9738_slot06_0e = 0x801e9738;
 data_801eb8ec_slot06_0e = 0x801eb8ec;
 data_801ef554_slot06_0e = 0x801ef554;
 data_801f8478_slot06_0e = 0x801f8478;
