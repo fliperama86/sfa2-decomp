@@ -45,6 +45,8 @@ static struct {
     vm_mmio_write_fn mmio_write;
     vm_fault_fn fault_fn;
     vm_interrupt_fn interrupt_fn;
+    vm_exec_fault_fn exec_fault_fn;
+    unsigned current_call;
     int redirected;                          /* a routine of the host set the guest's pc or loaded a context */
     struct vm_fault fault;
 } V;
@@ -113,7 +115,8 @@ static int map(uint32_t va, uint32_t ipa, size_t size, int perms, int attr)
 int vm_protect(uint32_t va, size_t size, int perms)
 {
     size_t i;
-    if (va < VM_IMAGE_BASE || va % 0x1000 || size % 0x1000 || va + size > VM_PRIVATE_LIMIT || va + size < va) return -1;
+    int ram = va >= VM_RAM_BASE && (uint64_t)va + size <= (uint64_t)VM_RAM_BASE + VM_RAM_SIZE, priv = va >= VM_IMAGE_BASE && (uint64_t)va + size <= VM_PRIVATE_LIMIT;
+    if ((!ram && !priv) || va % 0x1000 || size % 0x1000) return -1;
     for (i = 0; i < size; i += 0x1000) {
         uint64_t *e = leaf(va + (uint32_t)i, 0);
         if (!e || !(*e & 1)) return -1;
@@ -226,6 +229,8 @@ const char *vm_hostcall_name(unsigned number)
 void vm_mmio_set(vm_mmio_read_fn read, vm_mmio_write_fn write) { V.mmio_read = read; V.mmio_write = write; }
 void vm_fault_set(vm_fault_fn fn) { V.fault_fn = fn; }
 void vm_interrupt_set(vm_interrupt_fn fn) { V.interrupt_fn = fn; }
+void vm_exec_fault_set(vm_exec_fault_fn fn) { V.exec_fault_fn = fn; }
+unsigned vm_hostcall_number(void) { return V.current_call; }
 
 void vm_interrupt(void)
 {
@@ -285,8 +290,18 @@ static int serve(void)
     if (ec == 0x16) {                                    /* hvc */
         if (imm == 0) return 0;
         if (imm >= VM_HOSTCALL_MAX) {
-            uint64_t esr = 0;
+            uint64_t esr = 0, far = 0, elr = 0, spsr = 0;
             hv_vcpu_get_sys_reg(V.cpu, HV_SYS_REG_ESR_EL1, &esr);
+            if (imm == 0xff04 && (esr >> 26) == 0x21 && V.exec_fault_fn) {      /* the guest ran a page that the host made not executable */
+                hv_vcpu_get_sys_reg(V.cpu, HV_SYS_REG_FAR_EL1, &far);
+                hv_vcpu_get_sys_reg(V.cpu, HV_SYS_REG_ELR_EL1, &elr);
+                hv_vcpu_get_sys_reg(V.cpu, HV_SYS_REG_SPSR_EL1, &spsr);
+                if (V.exec_fault_fn((uint32_t)far)) {                         /* what `eret` would do: back to the instruction */
+                    hv_vcpu_set_reg(V.cpu, HV_REG_PC, elr);
+                    hv_vcpu_set_reg(V.cpu, HV_REG_CPSR, spsr);
+                    return 1;
+                }
+            }
             fault(0, "guest exception, %s: %s (class 0x%02x)", VECTOR_NAME[imm & 15], class_name((unsigned)(esr >> 26)), (unsigned)(esr >> 26));
             return -1;
         }
@@ -299,6 +314,7 @@ static int serve(void)
             unsigned i;
             for (i = 0; i < 8; i++) a[i] = vm_x(i) & 0xffffffffull;
             V.redirected = 0;
+            V.current_call = imm;
             r = V.calls[imm].fn(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
             if (!V.redirected) {
                 vm_set_x(0, r);
@@ -455,6 +471,7 @@ int vm_create(char *err, size_t errsize)
     /* vectors: every entry is `hvc #(0xff00 + index)`; the routines that the host calls */
     for (i = 0; i < 16; i++) put32(VECTORS + 0x80 * i, 0xd4000002u | ((0xff00u + i) << 5));
     put32(TRAMP_RET, 0xd4000002u);
+    put32(VM_TRAMP_EXIT, 0xd4000002u | (VM_HOSTCALL_EXIT << 5));
     put32(TRAMP_SYNC + 0, 0xd508751fu);   /* ic iallu */
     put32(TRAMP_SYNC + 4, 0xd5033b9fu);   /* dsb ish */
     put32(TRAMP_SYNC + 8, 0xd508871fu);   /* tlbi vmalle1 */

@@ -64,7 +64,17 @@ static unsigned turn;
 static uint64_t test_ctx(uint64_t which, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint64_t f, uint64_t g, uint64_t h)
 {
     (void)b; (void)c; (void)d; (void)e; (void)f; (void)g; (void)h;
-    if (which == 1) {                                   /* from task A: leave it, go to B */
+    if (which == 3) {                                   /* start a task whose function returns, to the exit trampoline */
+        vm_context_save(&ctx_a);
+        ctx_a.pc = ctx_a.x[30];
+        ctx_a.x[0] = 77;
+        memset(&ctx_b, 0, sizeof ctx_b);
+        ctx_b.pc = sym("g_returns");
+        ctx_b.x[30] = VM_TRAMP_EXIT;
+        ctx_b.sp = b_stack_top;
+        ctx_b.cpsr = ctx_a.cpsr;
+        vm_context_load(&ctx_b);
+    } else if (which == 1) {                            /* from task A: leave it, go to B */
         vm_context_save(&ctx_a);
         ctx_a.pc = ctx_a.x[30];
         if (!b_started) {
@@ -82,6 +92,26 @@ static uint64_t test_ctx(uint64_t which, uint64_t b, uint64_t c, uint64_t d, uin
         vm_context_load(&ctx_a);
     }
     return 0;
+}
+
+static unsigned exit_calls;
+
+static uint64_t task_exit(uint64_t a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint64_t f, uint64_t g, uint64_t h)
+{
+    (void)a; (void)b; (void)c; (void)d; (void)e; (void)f; (void)g; (void)h;
+    exit_calls++;
+    vm_context_load(&ctx_a);
+    return 0;
+}
+
+static unsigned exec_faults;
+
+static int on_exec_fault(uint32_t address)
+{
+    exec_faults++;
+    if (address != 0x80101000) return 0;
+    *(uint32_t *)vm_g(0x80101000, 4) = 0xd65f03c0u;     /* ret */
+    return vm_protect(0x80101000, 0x1000, VM_R | VM_W | VM_X) == 0;
 }
 
 static struct { uint32_t address; unsigned size; uint64_t value; } writes[8];
@@ -168,6 +198,8 @@ int main(int argc, char **argv)
     vm_mmio_set(mmio_read, mmio_write);
     vm_fault_set(on_fault);
     vm_interrupt_set(on_interrupt);
+    vm_exec_fault_set(on_exec_fault);
+    vm_hostcall_set(VM_HOSTCALL_EXIT, "exit", task_exit);
     vm_set_x(31, vm_alloc(0x10000, 16) + 0x10000);
     b_stack_top = vm_alloc(0x10000, 16) + 0x10000;
     flag_address = sym("g_flag");
@@ -206,6 +238,13 @@ int main(int argc, char **argv)
     EXPECT("the-host-calls-the-guest-and-the-guest-the-host-again", call("g_nested", &r, 0, 0) == 0 && r == 1006, "result %lld", (long long)r);
 
     EXPECT("task-switch-through-saved-contexts", call("g_task_a", &r, 0, 0) == 0 && r == 6, "result %lld", (long long)r);
+
+    EXPECT("a-task-that-returns-reaches-the-exit-hostcall", call("g_exit_demo", &r, 0, 0) == 0 && r == 77 && exit_calls == 1, "result %lld, exits %u", (long long)r, exit_calls);
+
+    EXPECT("a-hostcall-knows-its-number", vm_hostcall_number() != 0, "number %u", vm_hostcall_number());
+    EXPECT("a-page-made-not-executable-is-run-through-the-hook", vm_protect(0x80101000, 0x1000, VM_R | VM_W) == 0 && call("g_run_ram", &r, 0, 0) == 0 && r == 5 && exec_faults == 1,
+           "result %lld, exec faults %u", (long long)r, exec_faults);
+    EXPECT("the-page-then-runs-without-the-hook", call("g_run_ram", &r, 0, 0) == 0 && r == 5 && exec_faults == 1, "exec faults %u", exec_faults);
 
     fault_count = 0;
     EXPECT("an-unmapped-read-is-a-fault-with-its-address", call("g_read_unmapped", &r, 0, 0) == -1 && fault_count == 1 && last_fault.far == 0x40000000 &&

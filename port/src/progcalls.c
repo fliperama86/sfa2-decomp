@@ -47,7 +47,7 @@ int port_CdRead(int sectors, void *buf, int mode)
     port_cd_host_ready(0);
     state = IDLE;
     memset(last_result, 0, sizeof last_result);
-    if (*(volatile unsigned char *)(size_t)PORT_CD_VAR_STATUS & 0xe0u) {   /* the drive is reading */
+    if (*(volatile unsigned char *)port_g((const void *)(size_t)PORT_CD_VAR_STATUS) & 0xe0u) {   /* the drive is reading */
         if (!port_CdControlB(9, 0, 0)) return 0;
     }
     param[0] = (unsigned char)mode;
@@ -85,7 +85,7 @@ int port_CdReadSync(int mode, unsigned char *result)
     } else {
         rc = state == FAILED ? -1 : state == READING ? remaining : 0;
     }
-    if (result) memcpy(result, last_result, 8);
+    if (result) memcpy(port_gs(result, 8), last_result, 8);
     return rc;
 }
 

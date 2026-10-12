@@ -121,3 +121,20 @@ unsigned g_mmio_forms(void)
     __asm__ volatile("ldrsb %w0, [%1], #1" : "=r"(sb), "+r"(p) : : "memory");
     return ((unsigned)(p - 0x1f801090ul) << 24) | ((unsigned)(q - 0x1f801100ul) << 16) | ((unsigned)sb & 0xffffu);
 }
+
+/* A page of the RAM that the host made not executable until it is called. */
+unsigned g_run_ram(void)
+{
+    ((void (*)(void))0x80101000u)();
+    return 5;
+}
+
+void g_returns(void)
+{
+}
+
+/* The host starts a task whose function returns (to the exit trampoline) and goes back here when it has. */
+unsigned g_exit_demo(void)
+{
+    return port_test_ctx(3);
+}
