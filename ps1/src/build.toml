@@ -3774,6 +3774,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s11acbcx_r1"
+source = "s11acbcx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8011acbc", address = 0x8011acbc, size = 2264 },
+]
+
+[[unit]]
 name = "m11907c_r7"
 source = "m11907c_r7.c"
 flags = ["-O2", "-G0"]

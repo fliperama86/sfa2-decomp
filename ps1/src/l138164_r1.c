@@ -5,7 +5,7 @@
 
 
 void func_80138164(void) {
-    Block172 *b = data_801a89f4;
+    Block172 *b = (Block172 *)data_801a89f4;
 
     game_state.field_24 = 0x28;
     do {
