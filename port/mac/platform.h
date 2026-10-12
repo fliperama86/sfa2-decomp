@@ -30,7 +30,7 @@ int  port_mac_stub_intact(unsigned address);
 /* --trace: log each hostcall (called by port_trace_set). */
 void port_mac_trace_calls(int on);
 
-/* The path of the guest image (--guest FILE; by default guest.elf beside the program), read by port_map. */
+/* The path of the guest image (--guest FILE; null: guest.elf in the folder of the program), read by port_map. */
 extern const char *port_mac_image_path;
 
 #endif

@@ -6,13 +6,15 @@
 #include "../src/port_tables.h"
 #include "elf.h"
 
+#include <mach-o/dyld.h>
 #include <pthread.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-const char *port_mac_image_path = "guest.elf";
+const char *port_mac_image_path;   /* --guest FILE; by default guest.elf in the folder of the program */
+static char default_image_path[4096];
 unsigned port_mac_text_begin, port_mac_text_end;
 
 static struct elf_image image;
@@ -209,6 +211,16 @@ int port_map(char *err, size_t errsize)
     uint32_t stack;
     unsigned i;
 
+    if (!port_mac_image_path) {
+        uint32_t size = sizeof default_image_path - 16;
+        char *slash;
+        if (_NSGetExecutablePath(default_image_path, &size) != 0 || !(slash = strrchr(default_image_path, '/'))) {
+            snprintf(err, errsize, "memory: cannot find the folder of the program; give the guest image with --guest FILE");
+            return -1;
+        }
+        strcpy(slash + 1, "guest.elf");
+        port_mac_image_path = default_image_path;
+    }
     if (vm_create(err, errsize) != 0) return -1;
     if (elf_load(port_mac_image_path, &image, err, errsize) != 0) return -1;
     port_mac_text_begin = image.text_begin;

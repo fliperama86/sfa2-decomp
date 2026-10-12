@@ -196,10 +196,10 @@ brew install aarch64-elf-gcc                                         # the guest
 python3 port/tools/psyzbuild.py --cc clang --build port/build/psyz-mac   # PsyZ and SDL for this Mac (needs the SDL submodule of PsyZ: git -C port/external/psyz submodule update --init external/SDL)
 python3 port/tools/hostbuild.py --guest --psyz port/build/psyz-mac  # the guest image with the game's sound library: port/build/guest/guest.elf, about a minute
 python3 port/tools/macbuild.py                                      # the program: port/build/mac/sfa2-mac, signed, with guest.elf beside it
-port/build/mac/sfa2-mac [--no-audio] [--skip-programs] DISC         # DISC is the user's .cue or .bin
+port/build/mac/sfa2-mac [--no-audio] [--skip-programs] DISC         # DISC is the user's .cue or .bin; run it from any folder
 ```
 
-The options are those of the Windows program (`port/src/main.c`), plus `--guest FILE` for another image.
+The options are those of the Windows program (`port/src/main.c`), plus `--guest FILE` for another image (by default `guest.elf` in the folder of the program).
 
 ## What this does not show
 
