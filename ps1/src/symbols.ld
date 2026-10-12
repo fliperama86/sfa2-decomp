@@ -1842,7 +1842,6 @@ data_801e7668_slot0b = 0x801e7668;
 data_8019d7cc = 0x8019d7cc;
 
 /* Added by src.u_slot12_0058. */
-func_8001606c_slot12 = 0x8001606c;
 data_80017560_slot12 = 0x80017560;
 data_80017568_slot12 = 0x80017568;
 data_80017574_slot12 = 0x80017574;
@@ -2156,7 +2155,6 @@ data_801e2318_slot2a = 0x801e2318;
 func_800e0850_slot0f = 0x800e0850;
 func_800e0a1c_slot0f = 0x800e0a1c;
 func_800e4ab0_slot0f = 0x800e4ab0;
-func_800e80ec_slot0f = 0x800e80ec;
 data_800e83a8_slot0f = 0x800e83a8;
 data_800e83b4_slot0f = 0x800e83b4;
 data_800e83c8_slot0f = 0x800e83c8;
@@ -3698,7 +3696,6 @@ data_801cec5c_slot04_17 = 0x801cec5c;
 data_801cea2c_slot04_17 = 0x801cea2c;
 data_801cea34_slot04_17 = 0x801cea34;
 func_801b1b40_slot04_0e = 0x801b1b40;
-func_801b339c_slot04_0e = 0x801b339c;
 func_801b5e34_slot04_0e = 0x801b5e34;
 data_801b6f60_slot04_0e = 0x801b6f60;
 data_80079a38_slot2b = 0x80079a38;

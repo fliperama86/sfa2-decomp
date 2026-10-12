@@ -10154,6 +10154,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot12_606cx_r1"
+image = "slot12"
+source = "slot12/slot12_606cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001606c_slot12", address = 0x8001606c, size = 384 },
+]
+
+[[unit]]
 name = "slot12_61ec_r1"
 image = "slot12"
 source = "slot12/slot12_61ec_r1.c"
@@ -12588,6 +12597,15 @@ flags = ["-O2", "-G0"]
 functions = [
   { name = "func_800e7f90_slot0f", address = 0x800e7f90, size = 212 },
   { name = "func_800e8064_slot0f", address = 0x800e8064, size = 136 },
+]
+
+[[unit]]
+name = "slot0f_80ecx_r1"
+image = "slot0f"
+source = "slot0f/slot0f_80ecx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_800e80ec_slot0f", address = 0x800e80ec, size = 384 },
 ]
 
 [[unit]]
@@ -19295,6 +19313,15 @@ functions = [
   { name = "func_801b3284_slot04_0e", address = 0x801b3284, size = 116 },
   { name = "func_801b32f8_slot04_0e", address = 0x801b32f8, size = 64 },
   { name = "func_801b3338_slot04_0e", address = 0x801b3338, size = 100 },
+]
+
+[[unit]]
+name = "slot04_0e_339cx_r1"
+image = "slot04_0e"
+source = "slot04_0e/slot04_0e_339cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b339c_slot04_0e", address = 0x801b339c, size = 180 },
 ]
 
 [[unit]]
