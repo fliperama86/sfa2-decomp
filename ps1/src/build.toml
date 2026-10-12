@@ -20390,6 +20390,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot28_389cx_r1"
+image = "slot28"
+source = "slot28/slot28_389cx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8001389c_slot28", address = 0x8001389c, size = 144 },
+]
+
+[[unit]]
 name = "slot28_3834_r1_b"
 image = "slot28"
 source = "slot28/slot28_3834_r1_b.c"
