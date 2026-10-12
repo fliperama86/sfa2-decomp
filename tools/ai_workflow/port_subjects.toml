@@ -29,7 +29,7 @@ test_hostgpu = ["port/src/gpu.c", "port/src/gpu.h", "port/psyz.patch"]
 test_hostiopage = ["port/src/iopage.c", "port/src/mirror.c", "port/psyz.patch"]
 test_hostkernel_start = ["port/src/kernel.c"]
 test_hostlaunch = [
-    "port/src/port.h", "port/src/port_tables.h",
+    "port/src/port.h", "port/src/port_tables.h", "port/src/guest.h",
     "port/src/main.c", "port/src/memory.c", "port/src/disc.c", "port/src/jumps.c", "port/src/sha256.c", "port/src/library.c",
     "port/src/settings.c", "port/src/settings.h",
     "port/src/kernel.c", "port/src/threads.c", "port/src/overrides.c", "port/src/clib.c", "port/src/sound.c", "port/src/card.c",
@@ -58,6 +58,10 @@ test_hoststream = [
     "port/src/sha256.c", "port/src/xa.c", "port/src/xa.h",
 ]
 test_hostxa = ["port/src/xa.c", "port/src/xa.h"]
+# The macOS program's build: macbuild.py (read from the text) and the files of the platform layer that its syntax check compiles on a Mac.
+test_macbuild = ["port/mac/platform.c", "port/mac/platform.h", "port/mac/guest.c", "port/mac/vm.entitlements"]
+# The comparison of the Windows objects before and after a change: objcheck.py, read from the text.
+test_objcheck = []
 # The macOS guest image: the control file is about its own tool (guestlink.py) and what it imports (hostbuild.py), read from its text.
 test_guestlink = []
 # The machine of the macOS build (it runs on Apple Silicon only: MAC_ONLY in review.py). The tools it imports are read from its text.

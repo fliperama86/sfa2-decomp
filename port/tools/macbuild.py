@@ -45,7 +45,24 @@ def compile_args(source: Path, obj: Path, psyz: dict | None, sound: bool = False
     return ["clang", *CFLAGS, *extra, "-c", "-o", str(obj), str(source)]
 
 
-def run(args: argparse.Namespace) -> int:
+def build_objects(jobs: list[tuple[Path, Path]], psyz: dict | None, sound: bool, pool_size: int, runner=subprocess.run) -> tuple[list[tuple[str, int, str]], list[tuple[str, str]]]:
+    """Compile every job, each object made new: an object left by an earlier run is deleted first, so that none can stand in for one that did not
+    build. Returns (failures, warnings): a failure is a job whose compiler did not end with status 0 (whatever it printed, or nothing: a compiler
+    killed by a signal prints nothing), as (name, status, diagnostics); a warning is a job that ended with 0 and printed something."""
+    def compile_one(job: tuple[Path, Path]) -> tuple[int, str]:
+        s, obj = job
+        obj.unlink(missing_ok=True)
+        proc = runner(compile_args(s, obj, psyz, sound), capture_output=True, text=True)
+        return proc.returncode, proc.stderr or ""
+
+    with ThreadPoolExecutor(max_workers=pool_size) as pool:
+        results = list(pool.map(compile_one, jobs))
+    failures = [(j[0].name, rc, text) for j, (rc, text) in zip(jobs, results) if rc != 0]
+    warnings = [(j[0].name, text) for j, (rc, text) in zip(jobs, results) if rc == 0 and text.strip()]
+    return failures, warnings
+
+
+def run(args: argparse.Namespace, runner=subprocess.run) -> int:
     guest: Path = args.guest
     tables, elf = guest / "gen" / "guest_tables.c", guest / "guest.elf"
     for need in (tables, elf):
@@ -60,38 +77,32 @@ def run(args: argparse.Namespace) -> int:
     out: Path = args.out
     sound = (guest / "gen" / "sound_library").is_file()   # hostbuild.py --guest --psyz made the guest with the game's sound library
     (out / "obj").mkdir(parents=True, exist_ok=True)
-    sources = runtime_sources() + [tables]
-    jobs = []
-    for s in sources:
-        obj = out / "obj" / (("tables_" if s == tables else "") + s.stem + ".o")
-        jobs.append((s, obj))
-
-    def compile_one(job: tuple[Path, Path]) -> str:
-        s, obj = job
-        proc = subprocess.run(compile_args(s, obj, psyz, sound), capture_output=True, text=True)
-        return proc.stderr if proc.returncode != 0 or proc.stderr.strip() else ""
-
-    with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        results = list(pool.map(compile_one, jobs))
-    bad = [(j[0].name, r) for j, r in zip(jobs, results) if r]
-    for name, text in bad:
-        print(f"== {name}\n{text.strip()[:1500]}", file=sys.stderr)
-    if any(subprocess.run(["test", "-f", str(j[1])]).returncode for j in jobs):
-        print("macbuild.py: not every file compiled", file=sys.stderr)
-        return 1
     exe = out / "sfa2-mac"
-    link = ["clang", "-o", str(exe), *(str(j[1]) for j in jobs), *psyz["link"], "-framework", "Hypervisor", "-lpthread"]
-    proc = subprocess.run(link, capture_output=True, text=True)
-    if proc.returncode != 0:
-        print(proc.stderr.strip()[:3000], file=sys.stderr)
+    exe.unlink(missing_ok=True)   # nothing of an earlier run stays to look like this one's result
+    (out / "guest.elf").unlink(missing_ok=True)
+    jobs = [(s, out / "obj" / (("tables_" if s == tables else "") + s.stem + ".o")) for s in runtime_sources() + [tables]]
+    failures, warnings = build_objects(jobs, psyz, sound, args.jobs, runner)
+    for name, text in warnings:
+        print(f"== {name}\n{text.strip()[:1500]}", file=sys.stderr)
+    if failures:
+        for name, status, text in failures:
+            print(f"== {name}: the compiler ended with status {status}\n{text.strip()[:1500]}", file=sys.stderr)
+        print(f"macbuild.py: {len(failures)} of {len(jobs)} files did not compile; nothing was linked", file=sys.stderr)
         return 1
-    sign = subprocess.run(["codesign", "-s", "-", "--entitlements", str(MAC / "vm.entitlements"), "--force", str(exe)], capture_output=True, text=True)
+    link = ["clang", "-o", str(exe), *(str(j[1]) for j in jobs), *psyz["link"], "-framework", "Hypervisor", "-lpthread"]
+    proc = runner(link, capture_output=True, text=True)
+    if proc.returncode != 0:
+        print(proc.stderr.strip()[:3000] or f"macbuild.py: the link ended with status {proc.returncode}", file=sys.stderr)
+        exe.unlink(missing_ok=True)
+        return 1
+    sign = runner(["codesign", "-s", "-", "--entitlements", str(MAC / "vm.entitlements"), "--force", str(exe)], capture_output=True, text=True)
     if sign.returncode != 0:
-        print(sign.stderr.strip(), file=sys.stderr)
+        print(sign.stderr.strip() or f"macbuild.py: codesign ended with status {sign.returncode}", file=sys.stderr)
+        exe.unlink(missing_ok=True)
         return 1
     shutil.copyfile(elf, out / "guest.elf")
     print(f"built: {exe} ({len(jobs)} files{', with the game\'s sound library' if sound else ''}), guest image {out / 'guest.elf'}")
-    return 1 if bad else 0
+    return 0
 
 
 def main() -> int:
