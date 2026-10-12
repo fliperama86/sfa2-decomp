@@ -1206,6 +1206,24 @@ GCC 2.6.3, `-O2 -G0`, assembler behaviour of ASPSX 2.21 or older.
   0xff00 and 0x8000 on the same field build the same bytes; without the
   test the unit has 2 instructions fewer. "What is allowed" says when such
   a test may be written.
+- A copy of constant size that the compiler expands in line is one
+  instruction to its passes, a block move, although the listing shows only
+  loads and stores: `strcpy` with a string literal, `memcpy` with a constant
+  length, a struct assignment. Three things follow, measured in two
+  functions of the module of slot `0x0f` (`func_800e0850_slot0f`,
+  `func_800e0a1c_slot0f`), which copy a six-byte string into a path buffer:
+  the instruction reserves four scratch registers, so a value that lives
+  across it gets none of `v0`, `v1`, `a0`, `a1` (the buffer's address is in
+  `a2` in the original, and in `a0` with the copy written as a word store
+  and a halfword store); its stores are not removed when a later store
+  overwrites one of them; and no instruction changes places with it. The
+  signs in a listing: a word and a halfword, or a halfword and a byte,
+  loaded from a constant address and stored at once; a stored byte that the
+  next statement overwrites; an address in a register that skips free
+  argument registers. The two units write it as `__builtin_memcpy(dest,
+  src, 6)` from the module's data, declared as words so that the compiler
+  knows the alignment, because a string literal would put data into the
+  unit. That the original called `strcpy` with a literal is inferred.
 - Branch order in the listing follows source order of `if / else if` chains.
 - The value in a delay slot belongs to the instruction before it in program
   order, not after.
