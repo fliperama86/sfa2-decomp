@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80151020(s16 value) {
+void set_menu_command_one_and_wait_pending(s16 value) {
     Sprite *s = &data_80190948;
     GameState *g = &game_state;
     g->loop_mode = 0;

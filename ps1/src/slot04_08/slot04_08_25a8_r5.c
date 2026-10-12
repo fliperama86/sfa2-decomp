@@ -7,7 +7,7 @@ extern u8 data_801c3d48_slot04_08[];
 extern u16 data_801c3e98_slot04_08;
 
 void push_other_x_if_hit_check_slot04_08(Object *obj);
-void func_801b2cec_slot04_08(Object *obj);
+void start_slide_with_target_x_and_push_other_slot04_08(Object *obj);
 
 void update_sequence_then_start_next_sequence_slot04_08(Object *obj) {
     u16 t;
@@ -35,11 +35,11 @@ void update_sequence_then_start_next_sequence_slot04_08(Object *obj) {
         }
         obj->other_lock = data_801c3d48_slot04_08[i];
         set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x55);
-        func_801b2cec_slot04_08(obj);
+        start_slide_with_target_x_and_push_other_slot04_08(obj);
     }
 }
 
-void func_801b2cec_slot04_08(Object *obj) {
+void start_slide_with_target_x_and_push_other_slot04_08(Object *obj) {
     int a;
 
     if ((u8)obj->step_flags != 0) {

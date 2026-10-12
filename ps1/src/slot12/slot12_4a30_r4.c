@@ -25,7 +25,7 @@ void advance_state_0_on_2bc_10_and_sequence_slot12(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_80014db0_slot12(Object *obj) {
+void release_object_to_pool_table_7_slot12(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 

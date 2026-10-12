@@ -12,7 +12,7 @@ void update_slide_push_other_object_slot04_09(Object *o) {
         o->pos_x_frac = 0;
     }
     if ((game_state.frame_counter & 3) == 0) {
-        if (func_80148e84(o) & 0xff) {
+        if (spawn_random_offset_object_variant_zero(o) & 0xff) {
             if (o->facing_side == 0) {
                 ref_other.p->pos_x -= 0x30;
             } else {

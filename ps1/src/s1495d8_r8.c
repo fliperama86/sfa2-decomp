@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014a688(Object *object) {
+void read_script_word_if_flag_set_else_set_states(Object *object) {
     if (object->field_157 != 0) {
         read_script_word_and_dispatch(object);
     } else {
@@ -17,7 +17,7 @@ void func_8014a688(Object *object) {
     }
 }
 
-void func_8014a6d8(Object *object) {
+void read_script_word_if_flag_clear_else_set_states(Object *object) {
     if (object->field_157 == 0) {
         read_script_word_and_dispatch(object);
     } else {
@@ -63,7 +63,7 @@ void branch_script_by_other_height_and_vel(Object *object) {
     }
 }
 
-void func_8014a840(Object *object) {
+void set_states_if_wide_box_check_else_read_script(Object *object) {
     if (find_active_wide_box_and_check_other(object)) {
         object->field_208 = 3;
         object->field_209 = 0;

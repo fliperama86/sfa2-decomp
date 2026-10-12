@@ -13,7 +13,7 @@ void update_sequence_or_next_state_with_sound_slot04_0a(Object *obj) {
     }
 }
 
-void func_801b32b4_slot04_0a(Object *obj) {
+void finish_sequence_clear_active_flag_3_and_reset_slot04_0a(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {

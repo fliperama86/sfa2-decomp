@@ -12,10 +12,10 @@ extern SequenceStep *data_800414a4_slot28[];
 extern SequenceStep *data_800414d4_slot28[];
 extern u8 data_8003f9fc_slot28[];
 extern u8 data_8003feb8_slot28[];
-void func_800200ec_slot28(void);
-void func_8002005c_slot28(Object *obj, int arg);
+void release_active_objects_in_table_9_slot28(void);
+void set_sequence_of_fourth_hud_object_11_slot28(Object *obj, int arg);
 
-void func_8001f698_slot28(Object *obj) {
+void advance_scene_pass_spawn_object_and_sound_slot28(Object *obj) {
     HudState *h;
     Object *p;
     int x;
@@ -23,7 +23,7 @@ void func_8001f698_slot28(Object *obj) {
         h = data_8018f5a0;
         h->countdown_timer = 0x258;
         h->pass_index++;
-        func_800200ec_slot28();
+        release_active_objects_in_table_9_slot28();
         set_sequence_from_table_5(data_80051b00_slot28[0], 2, data_80041498_slot28);
         x = 0x38;
         p = data_80051b04_slot28[0];
@@ -53,6 +53,6 @@ void func_8001f698_slot28(Object *obj) {
         }
         play_sound_at(0, 0, 0x304);
         start_fade_mode_1a01_and_wait();
-        func_8002005c_slot28(obj, 1);
+        set_sequence_of_fourth_hud_object_11_slot28(obj, 1);
     }
 }

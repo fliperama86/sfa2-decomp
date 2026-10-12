@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3590_slot04_09(Object *obj);
+void update_sequence_spawn_children_or_advance_state_slot04_09(Object *obj);
 
-void func_801b352c_slot04_09(Object *obj) {
+void start_horizontal_motion_by_facing_slot04_09(Object *obj) {
     obj->state_3++;
     *(s32 *)&obj->vel_y = 0;
     *(s32 *)&obj->accel_y = 0;
@@ -16,10 +16,10 @@ void func_801b352c_slot04_09(Object *obj) {
         obj->vel_x = -0x40000;
         obj->accel_x = 0xffff6000;
     }
-    func_801b3590_slot04_09(obj);
+    update_sequence_spawn_children_or_advance_state_slot04_09(obj);
 }
 
-void func_801b3590_slot04_09(Object *obj) {
+void update_sequence_spawn_children_or_advance_state_slot04_09(Object *obj) {
     u16 t;
     u8 b;
     update_sequence(obj);

@@ -5,12 +5,12 @@
 
 extern ObjectFn data_8002c7a4_slot28[];
 
-void func_80015a70_slot28(Object *obj) {
+void call_state_1_handler_then_advance_sequence_slot28(Object *obj) {
     data_8002c7a4_slot28[obj->state_1](obj);
     advance_sequence_checked(obj);
 }
 
-void func_80015ac4_slot28(Object *obj) {
+void blink_object_and_advance_state_1_on_timeout_slot28(Object *obj) {
     if (--obj->vel_x == 0) {
         obj->vel_x = 0x60;
         obj->state_1++;

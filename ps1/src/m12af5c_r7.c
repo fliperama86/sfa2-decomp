@@ -4,12 +4,12 @@
 #include "protos.h"
 
 
-void func_8012d170(Object *object) {
+void update_table_step_then_choose_sequence_c_or_e(Object *object) {
     int index;
     if (apply_table_step_to_pos_x(object) != 0) {
         object->state_3 = object->state_3 + 1;
         object->facing_side = (object->facing_flag ^ 1) & 1;
-        func_8012d394(object);
+        set_state_1_1_2_0_or_enter_state_1_6_2(object);
     } else if ((s16)object->health < 0) {
         set_sequence_c_or_e_by_pressed_bits(object);
     } else if (object->mode_flag_2 != 0) {

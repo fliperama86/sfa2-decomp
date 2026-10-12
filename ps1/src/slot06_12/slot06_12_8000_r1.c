@@ -8,9 +8,9 @@ extern Slot06Tile data_801ef340_slot06_12[2][0x8c];
 extern Slot06Tile data_801f6070_slot06_12[2][0x100];
 
 void init_first_layer_tile_map_slot06_12(Slot06Layer *layer);
-void func_801e8778_slot06_12(Slot06Layer *layer);
-void func_801e8dcc_slot06_12(Slot06Layer *layer);
-void func_801e8cc4_slot06_12(Slot06Layer *layer);
+void set_layer_tile_map_and_rect_params_slot06_12(Slot06Layer *layer);
+void set_layer_tile_map_params_b_slot06_12(Slot06Layer *layer);
+void noop_layer_function_slot06_12(Slot06Layer *layer);
 void scroll_layer_parallax_half_x_slot06_12(Slot06Layer *layer);
 void init_tile_prims_gray_two_banks_slot06_12(void);
 void init_tile_prims_gray_bank_slot06_12(void);
@@ -40,9 +40,9 @@ void draw_background_layers_by_flags_slot06_12(void) {
 
 void init_four_layers_tile_maps_slot06_12(void) {
     init_first_layer_tile_map_slot06_12((Slot06Layer *)data_801aa544);
-    func_801e8778_slot06_12((Slot06Layer *)data_801aa5d4);
-    func_801e8dcc_slot06_12((Slot06Layer *)cam_obj);
-    func_801e8cc4_slot06_12((Slot06Layer *)data_801904d8);
+    set_layer_tile_map_and_rect_params_slot06_12((Slot06Layer *)data_801aa5d4);
+    set_layer_tile_map_params_b_slot06_12((Slot06Layer *)cam_obj);
+    noop_layer_function_slot06_12((Slot06Layer *)data_801904d8);
 }
 
 void func_801e80f0_slot06_12(void) {

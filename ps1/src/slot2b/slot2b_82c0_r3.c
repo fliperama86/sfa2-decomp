@@ -6,7 +6,7 @@
 extern ObjectFn data_8007ed88_slot2b[];
 extern Object *data_8007ef28_slot2b;
 extern Object *data_8007ef30_slot2b;
-void func_80078654_slot2b(Object *o);
+void copy_parent_pose_and_follow_frame_param_variant_slot2b(Object *o);
 
 void unlink_and_release_object_slot2b(Object *o) {
     Object *p = data_8007ef28_slot2b;
@@ -26,7 +26,7 @@ void apply_velocity_and_acceleration_slot2b(Object *o) {
     o->vel_y += o->accel_y;
 }
 
-void func_80078598_slot2b(Object *o) {
+void call_handler_by_state_0_with_parent_saved_slot2b(Object *o) {
     data_8007ef30_slot2b = o->parent;
     data_8007ed88_slot2b[o->state_0](o);
 }
@@ -41,5 +41,5 @@ void init_object_from_linked_data_object_slot2b(Object *o) {
     o->field_0e = data_8007ef30_slot2b->field_0e;
     o->variant_index = 0;
     o->countdown = 0;
-    func_80078654_slot2b(o);
+    copy_parent_pose_and_follow_frame_param_variant_slot2b(o);
 }

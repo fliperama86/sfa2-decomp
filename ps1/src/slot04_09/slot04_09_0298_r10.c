@@ -36,7 +36,7 @@ void update_countdown_state_with_counter_slot04_09(Object *o) {
             o->state_2 = 3;
             o->state_3 = 1;
         }
-        func_80142c70(o);
+        init_object_after_hit_and_spawn_three_effects(o);
     } else {
         if (obj->field_134 != 0) {
             if (obj->saved_count == 0) {

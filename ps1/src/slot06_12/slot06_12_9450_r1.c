@@ -14,7 +14,7 @@ extern SequenceStep *data_801eee74_slot06_12[];
 Block172 *pop_block_from_pool(void);
 void spawn_on_active_state_change_slot06_12(Object *a, u8 *b);
 void spawn_object_35_at_ground_slot06_12(Object *obj);
-void func_801e9994_slot06_12(Object *obj);
+void offset_pos_x_by_layer_scroll_start_sequence_slot06_12(Object *obj);
 void advance_accel_y_index_and_load_record_slot06_12(Object *obj);
 void set_table_index_from_accel_x_high_bits_slot06_12(Object *obj);
 void set_object_spawn_position_and_sequence_slot06_12(Object *obj);
@@ -23,7 +23,7 @@ void call_handler_by_state_0_slot06_12(Object *obj) {
     data_801eeec0_slot06_12[obj->state_0](obj);
 }
 
-void func_801e9490_slot06_12(Object *obj) {
+void init_spawn_and_call_handler_by_table_index_b_slot06_12(Object *obj) {
     obj->spawn_mode = 4;
     obj->field_0c = 0;
     obj->state_0++;
@@ -48,7 +48,7 @@ void init_object_store_player_positions_slot06_12(Object *obj) {
     obj->damage = ((Object *)game_state.pair_ptr)->active_state;
 }
 
-void func_801e9574_slot06_12(Object *obj) {
+void init_object_fields_and_set_sequence_zero_slot06_12(Object *obj) {
     obj->facing_side = 0;
     obj->field_0a = 1;
     obj->field_0e = 8;
@@ -61,7 +61,7 @@ void call_handler_by_table_index_a_slot06_12(Object *obj) {
     data_801eeed8_slot06_12[obj->table_index](obj);
 }
 
-void func_801e95fc_slot06_12(Object *obj) {
+void check_both_players_active_state_change_slot06_12(Object *obj) {
     Object *pair = &player_left;
 
     spawn_on_active_state_change_slot06_12(pair, (u8 *)obj + 0x5c);
@@ -93,12 +93,12 @@ void spawn_object_35_at_ground_slot06_12(Object *obj) {
     }
 }
 
-void func_801e9760_slot06_12(Object *obj) {
+void advance_sequence_next_state_on_negative_flags_slot06_12(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0++;
     }
     advance_sequence_checked(obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void release_object_record_slot06_12(Object *obj) {
@@ -152,10 +152,10 @@ void init_object_saving_position_in_velocity_slot06_12(Object *obj) {
     obj->state_0++;
     obj->vel_x = obj->pos_x;
     obj->vel_y = obj->pos_y;
-    func_801e9994_slot06_12(obj);
+    offset_pos_x_by_layer_scroll_start_sequence_slot06_12(obj);
 }
 
-void func_801e9994_slot06_12(Object *obj) {
+void offset_pos_x_by_layer_scroll_start_sequence_slot06_12(Object *obj) {
     Slot06Layer *l2 = (Slot06Layer *)data_801aa5d4;
 
     obj->pos_x = l2->ref_x - l2->scroll_x + (u16)obj->pos_x;

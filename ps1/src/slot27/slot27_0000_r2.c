@@ -9,9 +9,9 @@ void call_handler_by_hud_step_index_2_2_slot27(void);
 void load_slot27_screen_graphics_and_camera_slot27(void) {
     Rect r;
     s16 i;
-    func_80151020(0x307);
+    set_menu_command_one_and_wait_pending(0x307);
     game_state.field_6d = 0;
-    func_8011eae4();
+    clear_arrays_and_init_pools_and_sprite_tables();
     r.x = 0x380;
     data_80029324_slot27 = 0;
     data_8018db10 = 0;

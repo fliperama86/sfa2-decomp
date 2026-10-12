@@ -13,7 +13,7 @@ void increment_hud_substep_if_byte_set_slot01(void) {
 
 void fade_out_and_reset_hud_when_not_busy_slot01(void) {
     if (game_state.busy_flag == 0) {
-        func_8011eae4();
+        clear_arrays_and_init_pools_and_sprite_tables();
         while (game_state.wait_flag != 0) {
             request_sound_command_and_switch_thread(1);
         }

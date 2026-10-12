@@ -7,14 +7,14 @@ extern u16 data_801eadc0_slot06_11[];
 extern Slot06Tile data_801efe80_slot06_11[2][0x190];
 extern Slot06Tile data_801f620c_slot06_11[2][0x100];
 
-void func_801362f4(Sprite *sprite);
+void init_sprite_wide_and_consume_pending(Sprite *sprite);
 void update_camera_if_active(Sprite *sprite);
 void save_cam_prev_pos_and_set_table_ptr(Cam *cam);
 void update_cam_and_store_scroll_y_diff(void);
 
 void update_layer_by_mode_then_cam_and_scroll_slot06_11(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801362f4((Sprite *)layer);
+        init_sprite_wide_and_consume_pending((Sprite *)layer);
     } else if (layer->mode == 1) {
         update_camera_if_active((Sprite *)layer);
     }
@@ -22,7 +22,7 @@ void update_layer_by_mode_then_cam_and_scroll_slot06_11(Slot06Layer *layer) {
     update_cam_and_store_scroll_y_diff();
 }
 
-void func_801e8568_slot06_11(Slot06Layer *layer) {
+void set_layer_tile_map_param_580e_width_scale_slot06_11(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eadc0_slot06_11;
     layer->data_table = data_801eadc0_slot06_11;
     layer->packed_param = 0x580e;

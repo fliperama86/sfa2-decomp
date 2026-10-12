@@ -5,7 +5,7 @@
 
 void func_800e6410_slot0f(Object *obj, int a);
 
-void func_800e62dc_slot0f(Object *obj) {
+void update_object_countdown_or_advance_sequence_slot0f(Object *obj) {
     if (game_state.field_2bc == 11) {
         int t = obj->countdown - 1;
         obj->countdown = t;

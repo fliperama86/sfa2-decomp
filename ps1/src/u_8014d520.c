@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Form found by automatic permutation search. */
-void func_8014d520(Object *object)
+void check_script_wait_approach_limit_set_direction(Object *object)
 {
   unsigned int new_var;
   Object *new_var2;

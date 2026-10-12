@@ -3,12 +3,12 @@
 #include "../protos.h"
 #include "../externs.h"
 
-u8 func_800e58c8_slot0f(Object *obj);
+u8 fade_palette_rows_in_with_jobs_slot0f(Object *obj);
 void call_image_job_with_index_0_slot0f(Object *obj);
 void set_phase_two_clear_step_slot0f(Object *obj);
 
-void func_800e5714_slot0f(Object *obj) {
-    func_800e58c8_slot0f(obj);
+void finish_fade_step_and_set_wait_timer_slot0f(Object *obj) {
+    fade_palette_rows_in_with_jobs_slot0f(obj);
     if (obj->field_f0 == 0) {
         data_8018f5a0->step_index++;
         data_801903c4[0] = 2;
@@ -31,7 +31,7 @@ void advance_step_when_value_is_nine_slot0f(Object *obj) {
     }
 }
 
-void func_800e57f8_slot0f(Object *obj) {
+void count_down_then_set_phase_two_slot0f(Object *obj) {
     u16 *p = data_801903c8;
     s16 t = *p;
     s16 n = t - 1;

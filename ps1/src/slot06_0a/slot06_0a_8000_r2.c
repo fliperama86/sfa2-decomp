@@ -10,7 +10,7 @@ void init_sprite_3ff_and_count_pending(Sprite *sprite);
 void save_cam_prev_pos_and_set_table_ptr(Cam *cam);
 void toggle_layer_flag_and_update_camera_slot06_0a(Slot06Layer *layer);
 
-void func_801e85b4_slot06_0a(Slot06Layer *layer) {
+void dispatch_layer_mode_then_save_cam_prev_pos_slot06_0a(Slot06Layer *layer) {
     if (layer->mode == 0) {
         init_sprite_3ff_and_count_pending((Sprite *)layer);
     } else if (layer->mode == 1) {

@@ -29,7 +29,7 @@ void start_backward_move_sequence_slow_slot04_16(Object *obj) {
     }
 }
 
-void func_801b2c40_slot04_16(Object *obj) {
+void call_table_function_by_state_3_12_slot04_16(Object *obj) {
     data_801ca1d8_slot04_16[obj->state_3](obj);
 }
 

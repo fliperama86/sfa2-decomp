@@ -16,7 +16,7 @@ void update_object_by_table_index_handler_slot06_0f(Object *obj) {
         data_801eb4b0_slot06_0f[obj->table_index](obj);
         advance_sequence_checked(obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void call_handler_by_state_1_slot06_0f(Object *obj) {

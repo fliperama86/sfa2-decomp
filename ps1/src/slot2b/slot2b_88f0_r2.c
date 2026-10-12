@@ -12,7 +12,7 @@ void start_hop_toward_other_shift_7_slot2b(Object *o) {
     o->accel_x = 0;
     o->vel_y = 0x30000;
     o->accel_y = 0xffff6000;
-    func_80138070(o, 4);
+    set_sequence_by_sound_side(o, 4);
 }
 
 void start_vertical_hop_slot2b(Object *o) {
@@ -21,7 +21,7 @@ void start_vertical_hop_slot2b(Object *o) {
     o->accel_x = 0;
     o->vel_y = 0x60000;
     o->accel_y = 0xffff6000;
-    func_80138070(o, 4);
+    set_sequence_by_sound_side(o, 4);
 }
 
 void call_handler_by_table_index_unless_gated_slot2b(Object *o) {

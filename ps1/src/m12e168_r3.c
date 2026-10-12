@@ -8,7 +8,7 @@ u8 apply_table_step_to_pos_x(Object *o) {
     u8 ret = 1;
     int d;
     o->step_applied_flag = 0;
-    if ((o->countdown & 1) && o->bound_push_flag == 0 && o->active_state == 0) func_80148e84(o);
+    if ((o->countdown & 1) && o->bound_push_flag == 0 && o->active_state == 0) spawn_random_offset_object_variant_zero(o);
     d = table_80170244[o->field_62][(s16)o->countdown];
     if ((d & 0x80) == 0) {
         o->countdown = (s16)o->countdown + 1;
@@ -21,12 +21,12 @@ u8 apply_table_step_to_pos_x(Object *o) {
     return ret;
 }
 
-void func_8012f0e0(Object *o) {
+void move_pos_x_by_countdown_parity(Object *o) {
     int d, x;
     call_handler_by_mode_flag_2(o);
     o->step_applied_flag = 0;
     if (o->countdown & 1) {
-        if (o->bound_push_flag == 0 && o->active_state == 0) func_80148e84(o);
+        if (o->bound_push_flag == 0 && o->active_state == 0) spawn_random_offset_object_variant_zero(o);
     } else {
         d = 1;
         o->step_applied_flag = 1;

@@ -12,7 +12,7 @@ int try_start_meter_action_state_8_variant_a_slot04_04(Object *obj) {
         if ((s16)obj->meter >= 0x30) {
             if (obj->active_state != 0) {
                 if (obj->field_7e == 0) {
-                    if ((u8)func_801418bc(obj)) {
+                    if ((u8)try_action_unless_state_bytes_match(obj)) {
                         r = 1;
                         obj->state_0 = 1;
                         obj->state_1 = 0;

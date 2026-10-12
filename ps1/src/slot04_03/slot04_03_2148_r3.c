@@ -5,16 +5,16 @@
 
 extern u8 data_801c0708_slot04_03[];
 
-void func_801b232c_slot04_03(Object *obj) {
+void set_countdown_and_start_direction_sequence_slot04_03(Object *obj) {
     obj->countdown = 0x300;
     obj->state_3++;
-    func_80145d20(obj);
-    func_801428e4(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x29);
 }
 
-void func_801b2394_slot04_03(Object *obj) {
+void update_sequence_then_spawn_children_on_step_flag_slot04_03(Object *obj) {
     update_sequence(obj);
     if (obj->step_flags != 0) {
         obj->state_3++;

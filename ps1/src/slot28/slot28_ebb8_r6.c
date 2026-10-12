@@ -13,8 +13,8 @@ extern SequenceStep *data_80041494_slot28[];
 extern SequenceStep *data_800414a4_slot28[];
 extern SequenceStep *data_800414b0_slot28[];
 extern SequenceStep *data_800414c0_slot28[];
-void func_800200c8_slot28(void);
-void func_8002008c_slot28(Object *obj);
+void clear_ten_entry_table_9_slot28(void);
+void init_object_data_pointers_a_11_slot28(Object *obj);
 
 void init_slot28_scene_a_objects_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
@@ -22,14 +22,14 @@ void init_slot28_scene_a_objects_slot28(Object *obj) {
     int one;
     h->countdown_timer = 0x258;
     h->step_index_2++;
-    func_80151020(0x500);
+    set_menu_command_one_and_wait_pending(0x500);
     one = 1;
-    func_800200c8_slot28();
+    clear_ten_entry_table_9_slot28();
     start_fade_mode_1_and_wait();
     data_80190568 = one;
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8002008c_slot28(p);
+        init_object_data_pointers_a_11_slot28(p);
         data_80051b00_slot28[0] = p;
         p->pos_x = -8;
         p->pos_y = -8;
@@ -42,7 +42,7 @@ void init_slot28_scene_a_objects_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8002008c_slot28(p);
+        init_object_data_pointers_a_11_slot28(p);
         data_80051b14_slot28.p = p;
         p->pos_x = -8;
         p->pos_y = -8;
@@ -54,7 +54,7 @@ void init_slot28_scene_a_objects_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8002008c_slot28(p);
+        init_object_data_pointers_a_11_slot28(p);
         data_80051b04_slot28[0] = p;
         p->pos_x = 0x60;
         p->pos_y = 0x30;
@@ -66,7 +66,7 @@ void init_slot28_scene_a_objects_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8002008c_slot28(p);
+        init_object_data_pointers_a_11_slot28(p);
         data_80051b08_slot28.p = p;
         p->pos_x = 0x58;
         p->pos_y = 0x20;
@@ -78,7 +78,7 @@ void init_slot28_scene_a_objects_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8002008c_slot28(p);
+        init_object_data_pointers_a_11_slot28(p);
         data_80051b10_slot28.p = p;
         p->spawn_y = 0x1e0;
         p->pos_x = 0x28;

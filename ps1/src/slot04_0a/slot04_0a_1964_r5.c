@@ -7,7 +7,7 @@ u16 apply_velocity_and_check_ground_slot04_0a(Object *obj);
 void land_on_ground_set_state_3_seven_slot04_0a(Object *obj);
 void nudge_pos_x_from_input_bits_slot04_0a(Object *obj);
 
-void func_801b1e6c_slot04_0a(Object *obj) {
+void move_airborne_or_randomly_start_air_sequence_slot04_0a(Object *obj) {
     int k;
 
     if (obj->vel_y < 0) {

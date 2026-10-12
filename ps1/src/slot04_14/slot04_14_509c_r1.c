@@ -8,7 +8,7 @@ extern u8 data_801c64cc_slot04_14[];
 extern u8 data_801c64d4_slot04_14[];
 extern ObjectFn data_801c64dc_slot04_14[];
 
-void func_80146960(Object *object);
+void spawn_two_effects_at_other_ground(Object *object);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void save_facing_and_set_x_motion(Object *object);
 void set_direction_index_from_meter_and_save(Object *object);
@@ -20,12 +20,12 @@ void reset_side_table_and_fields(Object *object);
 void spawn_object_type_6d_for_side(Object *object);
 void set_other_sequence_3_when_close(Object *object);
 void push_other_by_vel_x(Object *object);
-void func_80142c70(Object *object);
+void init_object_after_hit_and_spawn_three_effects(Object *object);
 void nudge_other_x_by_table_every_fourth_tick_slot04_14(Object *object);
 void clear_object_byte_block_slot04_14(Object *object);
 void set_object_states_0_to_3_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
-void func_801b5a90_slot04_14(Object *object);
-void func_801b5c34_slot04_14(Object *object);
+void call_table_function_by_state_3_20_slot04_14(Object *object);
+void call_table_function_by_state_3_21_slot04_14(Object *object);
 
 void func_801b509c_slot04_14(Object *obj) {
     update_sequence(obj);
@@ -76,7 +76,7 @@ void update_sequence_or_clear_flags_and_reset_slot04_14(Object *obj) {
     }
 }
 
-void func_801b5278_slot04_14(Object *obj) {
+void flip_facing_and_shift_position_on_step_flag_slot04_14(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
@@ -116,7 +116,7 @@ void update_jump_until_landing_slot04_14(Object *obj) {
         obj->state_3 = obj->state_3 + 1;
         obj->pos_y = obj->ground_y;
         play_object_sound_by_kind(obj);
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
         game_state.state_param = data_801c64cc_slot04_14[obj->direction_index & 0xfe];
         play_sound_at(obj, obj->side, 0x319);
         set_sequence_by_side_and_mode(obj, 0x59);
@@ -192,11 +192,11 @@ void update_knockback_arc_land_with_sound_slot04_14(Object *obj) {
     }
 }
 
-void func_801b5708_slot04_14(Object *obj) {
+void call_table_function_by_state_3_19_slot04_14(Object *obj) {
     data_801c64dc_slot04_14[obj->state_3](obj);
 }
 
-void func_801b5748_slot04_14(Object *obj) {
+void start_sequence_with_optional_child_object_slot04_14(Object *obj) {
     Object *p;
     int a;
     obj->state_3 = obj->state_3 + 1;
@@ -285,7 +285,7 @@ void update_hold_with_input_count_slot04_14(Object *obj) {
                 p->state_1 = 0;
             }
         }
-        func_80142c70(obj);
+        init_object_after_hit_and_spawn_three_effects(obj);
     }
     if ((obj->pressed_bits & 0xff00) != 0) {
         if (((Slot04bObj *)obj)->saved_count == 0) {
@@ -302,8 +302,8 @@ void update_hold_with_input_count_slot04_14(Object *obj) {
 
 void call_handler_by_direction_input_slot04_14(Object *obj) {
     if (obj->input_dir_second == 0 || obj->direction_index != 4) {
-        func_801b5a90_slot04_14(obj);
+        call_table_function_by_state_3_20_slot04_14(obj);
     } else {
-        func_801b5c34_slot04_14(obj);
+        call_table_function_by_state_3_21_slot04_14(obj);
     }
 }

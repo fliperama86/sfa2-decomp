@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4280_slot04_05(Object *obj) {
+void restore_facing_and_start_sequence_by_direction_slot04_05(Object *obj) {
     obj->facing_side = obj->saved_facing;
     obj->state_3++;
     if (obj->direction_index == 2) {

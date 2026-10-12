@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3a30_slot04_0b(Object *o) {
+void move_object_unless_paused_check_x_margin_slot04_0b(Object *o) {
     Config *config = game_state.config;
 
     if ((config->pause_flag_b | config->pause_flag_a) == 0) {
@@ -16,5 +16,5 @@ void func_801b3a30_slot04_0b(Object *o) {
             set_state_0_if_x_outside_margin_narrow(o);
         }
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }

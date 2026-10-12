@@ -13,7 +13,7 @@ void tick_slot_timer_and_check_input_2(Object *object, u8 index, u8 arg) {
     } else {
         entry = table_8017a8cc[arg * 7 + object->slots[index].entry_index];
         if ((entry & 0xf000) != (object->input_word & 0xf000)) {
-            func_8013f2c8(object);
+            clear_global_flag_ignoring_object(object);
         } else {
             if (entry & 1) {
                 object->slots[index].stage++;

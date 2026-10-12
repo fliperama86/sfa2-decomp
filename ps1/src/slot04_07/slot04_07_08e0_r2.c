@@ -8,7 +8,7 @@ void start_move_or_enter_state_1_2_slot04_07(Object *obj) {
 
     obj->state_3++;
     ((Slot04aObj *)obj)->field_1ca = 0;
-    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x12, 0x10) != 0) {
+    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x12, 0x10) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

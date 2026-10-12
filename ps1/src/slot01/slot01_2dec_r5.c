@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_8001336c_slot01(u8 arg) {
+int try_spawn_pooled_object_once_with_arg_slot01(u8 arg) {
     int ret = 0;
     Object *p;
     u8 *flag = &data_801ae02c;

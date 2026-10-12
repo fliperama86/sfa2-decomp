@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b046c_slot04_04(Object *obj);
+void update_state3_first_frame_range_check_narrow_slot04_04(Object *obj);
 void update_state_3_start_move_with_sound_slot04_04(Object *obj);
 
 void call_handler_by_input_dir_second_slot04_04(Object *obj) {
@@ -11,6 +11,6 @@ void call_handler_by_input_dir_second_slot04_04(Object *obj) {
     if (obj->input_dir_second != 0) {
         update_state_3_start_move_with_sound_slot04_04(obj);
     } else {
-        func_801b046c_slot04_04(obj);
+        update_state3_first_frame_range_check_narrow_slot04_04(obj);
     }
 }

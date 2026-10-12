@@ -22,7 +22,7 @@ void update_text_until_timer_or_round_count(Effect *effect) {
     }
 }
 
-void func_801538f0(Actor *a) {
+void show_round_text_by_owner_effect_code(Actor *a) {
     a->field_02 = 1;
     if (a->owner->effect_code_bc != 0) {
         show_round_count_text(a);

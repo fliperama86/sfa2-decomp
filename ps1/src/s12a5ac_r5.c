@@ -6,7 +6,7 @@
 
 
 
-void func_8012b0e4(Object *object) {
+void set_state_1_0_3_0_and_start_motion_sequence(Object *object) {
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 3;
@@ -18,7 +18,7 @@ void func_8012b0e4(Object *object) {
     set_sequence_by_side(object, 0x10);
 }
 
-void func_8012b144(Object *object) {
+void clear_flag_call_state_3_handler_table_c(Object *object) {
     object->field_16a = 0;
     handler_table_19d0[object->state_3](object);
 }

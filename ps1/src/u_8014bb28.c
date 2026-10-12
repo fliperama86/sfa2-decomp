@@ -7,7 +7,7 @@
 
 
 /* Form found by automatic permutation search. */
-void func_8014bb28(Object *object)
+void script_branch_if_linked_distance_le_value(Object *object)
 {
   s16 new_var;
   int value = *(data_80189460++);

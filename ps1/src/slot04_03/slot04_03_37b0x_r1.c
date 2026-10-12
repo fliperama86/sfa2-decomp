@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 /* What it does (inferred, not an original name): a state of a character that is struck or held by the other object. It stores the other object (field_40) in ref_other. When the low byte of step_flags is not 0 it clears that byte, makes a sound, calls spawn_effect_at_object_offset and apply_damage_to_other_return_defeated (with 8 the first time field_1cf is 0, which then becomes 0xff, otherwise 0). If apply_damage_to_other_return_defeated returns a nonzero byte it calls set_other_hit_reaction_state_0, sounds 0x340 for the other object and goes to the advance. Otherwise it adds 1 to countdown and sounds 0x30b. Then (and when the low byte of step_flags was 0) it calls update_sequence_by_pressed_bytes; if countdown is 0 it hands over to update_sequence; otherwise it reloads ref_other from field_40 and advances when the other object's field_15b is 0 or drain_gauge_by_other_input returns a nonzero byte, else hands over to update_sequence. The advance adds 1 to state_3, sounds 0x30d for the other object and starts sequence 0x41. */
-void func_801b37b0_slot04_03(Object *obj) {
+void update_repeated_hit_until_gauge_drained_slot04_03(Object *obj) {
     /* Stand-in, not recovered source: the local r, which holds the address of ref_other and is set again in three places (the original keeps it in a register of its own), reproduces the original's choice of registers. Without it this function differs from the original in 53 instruction slots. */
     ObjectRef *r;
     /* k is a short: as an int this function differs from the original in 6 instruction slots (the original widens the argument of apply_damage_to_other_return_defeated with sll/srl 16). */

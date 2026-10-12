@@ -7,6 +7,6 @@ void call_advance_sequence_checked_2_slot28(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_8002144c_slot28(Object *obj) {
+void release_object_to_pool_table_16_slot28(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

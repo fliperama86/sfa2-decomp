@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801340e4(u8 *base, s16 index) {
+void set_three_byte_triples_in_first_group_row(u8 *base, s16 index) {
     u8 *p = (u8 *)((index << 4) + (int)base);
     p[0xc8] = 0xf0;
     p[0xc9] = 0xf0;
@@ -17,7 +17,7 @@ void func_801340e4(u8 *base, s16 index) {
     p[0x10a] = 0;
 }
 
-void func_8013411c(u8 *base, s16 index) {
+void set_three_byte_triples_in_second_group_row(u8 *base, s16 index) {
     u8 *p = (u8 *)((index << 4) + (int)base);
     p[0x128] = 0xf0;
     p[0x129] = 0xf0;

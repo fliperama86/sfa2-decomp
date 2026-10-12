@@ -5,7 +5,7 @@
 
 extern u8 data_801c15b0_slot04_05[];
 
-void func_801b2b1c_slot04_05(Object *obj) {
+void update_sequence_set_other_lock_from_table_2_slot04_05(Object *obj) {
     u16 i = 0;
 
     update_sequence(obj);

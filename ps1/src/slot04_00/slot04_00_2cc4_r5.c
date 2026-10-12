@@ -14,16 +14,16 @@ void update_countdown_2_then_set_sequence_slot04_00(Object *obj) {
             update_object_motion_unless_paused(obj);
         } else {
             obj->image_row--;
-            func_80138070(obj, 7);
+            set_sequence_by_sound_side(obj, 7);
         }
     }
 }
 
 void call_handler_by_state_2_unless_paused_slot04_00(Object *obj) {
     if ((game_state.config->pause_flag_b | game_state.config->pause_flag_a) != 0) {
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else {
         data_801c0564_slot04_00[obj->state_2](obj);
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     }
 }

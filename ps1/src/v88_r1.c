@@ -8,7 +8,7 @@
    the call instruction, which is what the original shows: the argument
    register is reloaded on the paths that come after the first call and left
    alone on the path that comes straight from the entry. */
-void func_8012dee4(Object *object) {
+void apply_push_step_then_update_air_move(Object *object) {
     u8 v = object->bound_push_flag;
     object->step_applied_flag = 0;
     if (v == 0) {

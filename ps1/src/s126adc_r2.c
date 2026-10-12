@@ -165,7 +165,7 @@ void update_fade_banks_0_2_3(void) {
         game_state.fade_busy = 0;
 }
 
-void func_801272d0(void) {
+void fade_in_banks_0_2_3_until_done(void) {
     game_state.fade_done_mask = 0;
     fade_in_palette_bank_0();
     fade_in_palette_bank_2();
@@ -250,7 +250,7 @@ void fade_out_palette_bank_4(void) {
     queue_image_upload_job(4, 7);
 }
 
-void func_8012769c(void) {
+void fade_in_palette_banks_0_to_4(void) {
     game_state.fade_done_mask = 0;
     fade_in_palette_bank_0();
     fade_in_palette_bank_1();
@@ -300,7 +300,7 @@ void fade_in_palette_bank_2(void) {
     queue_image_upload_job(2, 1);
 }
 
-void func_801278d8(void) {
+void fade_in_bank_3_until_done(void) {
     game_state.fade_done_mask = 0;
     fade_in_palette_bank_3();
     if (game_state.fade_done_mask == 8)
@@ -313,7 +313,7 @@ void fade_in_palette_bank_3(void) {
     queue_image_upload_job(3, 2);
 }
 
-void func_80127974(void) {
+void fade_in_bank_4_until_done(void) {
     game_state.fade_done_mask = 0;
     fade_in_palette_bank_4();
     if (game_state.fade_done_mask == 0x10)
@@ -354,7 +354,7 @@ void update_fade_darken_all_banks(void) {
     }
 }
 
-void func_80127b78(void) {
+void brighten_banks_0_2_3_with_countdown(void) {
     ((HudWide *)data_8018f5a0)->countdown--;
     if (((HudWide *)data_8018f5a0)->countdown & 0x80) {
         game_state.fade_busy = 0;
@@ -368,7 +368,7 @@ void func_80127b78(void) {
     }
 }
 
-void func_80127c28(void) {
+void darken_banks_0_2_3_with_countdown(void) {
     ((HudWide *)data_8018f5a0)->countdown--;
     if (((HudWide *)data_8018f5a0)->countdown & 0x80) {
         game_state.fade_busy = 0;

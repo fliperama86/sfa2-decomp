@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80152358(Object *object) {
+void advance_sequence_unless_paused_2(Object *object) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         advance_sequence_checked(object);
     }

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4e3c_slot04_09(Object *obj, Object *unused) {
+void start_sequence_at_other_box_add_meter_slot04_09(Object *obj, Object *unused) {
     obj->state_3++;
     if (obj->counter == 0) {
         add_to_meter_clamped(obj, 3);

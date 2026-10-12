@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80144734(Object *object) {
+void move_x_until_countdown_then_clear_config_mode_2(Object *object) {
     update_position_x_with_accel(object);
     object->countdown = (s16)object->countdown - 1;
     if (object->countdown & 0x80) {

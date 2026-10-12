@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4864_slot04_08(Object *obj) {
+void update_sequence_or_reset_with_state_3_clear_slot04_08(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {

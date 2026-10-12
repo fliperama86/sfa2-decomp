@@ -6,7 +6,7 @@
 extern int data_8002c77c_slot28[];
 extern ObjectFn data_8002c78c_slot28[];
 extern ObjectFn data_8002c79c_slot28[];
-void func_80015d3c_slot28(Object *obj);
+void cycle_row_upload_index_every_two_ticks_slot28(Object *obj);
 
 void init_object_sequence_from_table_index_slot28(Object *obj) {
     obj->vel_x = 0x10;
@@ -33,5 +33,5 @@ void start_sequence_four_on_variant_index_slot28(Object *obj) {
         obj->field_0c = 0;
         set_sequence_from_table_5(obj, 4, (SequenceStep **)obj->box_tables);
     }
-    func_80015d3c_slot28(obj);
+    cycle_row_upload_index_every_two_ticks_slot28(obj);
 }

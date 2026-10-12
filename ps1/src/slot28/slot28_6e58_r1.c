@@ -5,14 +5,14 @@
 
 extern Object *data_800518d0_slot28[];
 
-void func_80016e58_slot28(void) {
+void clear_ten_entry_table_slot28(void) {
     int i;
     for (i = 9; i >= 0; i--) {
         data_800518d0_slot28[i] = 0;
     }
 }
 
-void func_80016e7c_slot28(void) {
+void release_active_objects_in_table_slot28(void) {
     int i;
     for (i = 0; i < 10; i++) {
         Object *p = data_800518d0_slot28[i];

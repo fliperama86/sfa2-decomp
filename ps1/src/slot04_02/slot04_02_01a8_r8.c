@@ -5,7 +5,7 @@
 
 void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-u8 func_801b0d74_slot04_02(Object *obj) {
+u8 try_enter_state_7_with_action_code_d_slot04_02(Object *obj) {
     u8 r = try_action_clearing_both_flags(obj);
 
     if (r) {
@@ -17,7 +17,7 @@ u8 func_801b0d74_slot04_02(Object *obj) {
     return r;
 }
 
-u8 func_801b0de0_slot04_02(Object *obj) {
+u8 try_enter_state_7_with_action_code_c_if_counted_slot04_02(Object *obj) {
     u8 r;
 
     if (obj->field_7e == 0 && obj->remaining_count == 0) return;

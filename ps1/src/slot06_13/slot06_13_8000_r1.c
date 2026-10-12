@@ -43,7 +43,7 @@ void init_background_layers_slot06_13(void) {
     noop_byte_pointer_slot06_13(data_801904d8);
 }
 
-void func_801e80f0_slot06_13(void) {
+void init_slot_tile_and_sprite_buffers_gray_n_slot06_13(void) {
     func_801e8224_slot06_13();
     func_801e85c8_slot06_13();
     init_sprite_prims_32x32_slot06_13();

@@ -16,7 +16,7 @@ void advance_state_3_on_mode_and_update_slot05_06(Object *o) {
     update_sequence(o);
 }
 
-void func_801ca1a8_slot05_06(Object *o) {
+void update_slide_or_reset_on_status_flag_slot05_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     if (obj->status_flags & 0x80) {
@@ -35,7 +35,7 @@ void func_801ca1a8_slot05_06(Object *o) {
     }
 }
 
-void func_801ca234_slot05_06(Object *obj) {
+void call_table_function_by_state_3_10_slot05_06(Object *obj) {
     data_801dd3ac_slot05_06[obj->state_3](obj);
 }
 
@@ -44,8 +44,8 @@ void start_state_with_countdown_2_and_sound_slot05_06(Object *o) {
 
     o->state_3++;
     obj->countdown_2 = 0x32;
-    func_80145d20(o);
-    func_801428e4(o);
+    spawn_three_child_objects_at_object_spawn(o);
+    update_meter_by_mode_or_table(o);
     set_flag_225_add_direction_to_counter(&game_state, o);
     play_side_sound_at(o, o->side, 7);
     set_sequence_by_side_and_mode(o, 0x22);

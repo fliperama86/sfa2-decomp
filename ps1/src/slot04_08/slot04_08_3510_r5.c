@@ -5,7 +5,7 @@
 
 extern u16 data_801c3da8_slot04_08[];
 
-void func_801b3bb8_slot04_08(Object *obj) {
+void repeat_hit_damage_until_countdown_ends_slot04_08(Object *obj) {
     s16 t = obj->step_flags;
     s16 a;
     s16 n;
@@ -46,7 +46,7 @@ void func_801b3bb8_slot04_08(Object *obj) {
             } else {
                 play_sound_at(obj, obj->side, 0x319);
             }
-            func_80146960(obj);
+            spawn_two_effects_at_other_ground(obj);
         }
         update_sequence(obj);
     }

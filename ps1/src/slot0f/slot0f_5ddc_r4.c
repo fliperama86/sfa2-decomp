@@ -25,7 +25,7 @@ void call_handler_by_state_1_slot0f(Object *object) {
     data_800efad8_slot0f[object->state_1](object);
 }
 
-void func_800e6280_slot0f(Object *obj) {
+void increment_state_1_if_game_field_equals_two_slot0f(Object *obj) {
     if (game_state.field_2bc == 2) {
         obj->state_1++;
     }

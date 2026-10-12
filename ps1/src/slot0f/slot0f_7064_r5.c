@@ -5,7 +5,7 @@
 
 extern void (*data_800f01ac_slot0f[])(Object *);
 void init_record_fields_by_mode_flag_2_slot0f(Object *obj);
-void func_800e78e0_slot0f(Object *obj);
+void build_cell_name_hex_win_records_index_0_slot0f(Object *obj);
 void spawn_object_at_spawn_position_slot0f(Object *obj, int arg);
 
 void advance_state_1_and_init_vars_slot0f(Object *obj) {
@@ -23,7 +23,7 @@ void start_countdown_and_advance_state_1_slot0f(Object *obj) {
     if (data_80190468.p->field_01 != 0) {
         obj->state_1 = 3;
     }
-    func_800e78e0_slot0f(obj);
+    build_cell_name_hex_win_records_index_0_slot0f(obj);
     spawn_object_at_spawn_position_slot0f(obj, 0);
     data_801903c4[0] = 1;
 }

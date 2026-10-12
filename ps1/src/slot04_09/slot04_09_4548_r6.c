@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b5c6c_slot04_09(Object *obj);
+void spawn_fourth_frame_child_index_four_slot04_09(Object *obj);
 void apply_velocity_and_acceleration_slot04_09(Object *obj);
 
 void update_sequence_with_flag_step_move_x_slot04_09(Object *obj) {
@@ -11,7 +11,7 @@ void update_sequence_with_flag_step_move_x_slot04_09(Object *obj) {
     s16 a;
     obj->countdown--;
     update_sequence(obj);
-    func_801b5c6c_slot04_09(obj);
+    spawn_fourth_frame_child_index_four_slot04_09(obj);
     if (obj->step_flags & 0x80) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;
@@ -28,7 +28,7 @@ void update_sequence_with_flag_step_move_x_slot04_09(Object *obj) {
     }
 }
 
-void func_801b4cc0_slot04_09(Object *obj) {
+void update_moving_countdown_then_set_sequence_slot04_09(Object *obj) {
     int a = 0x3c;
     int t = obj->countdown - 1;
     obj->countdown = t;
@@ -47,7 +47,7 @@ void func_801b4cc0_slot04_09(Object *obj) {
             obj->active_flag_4 = 0;
             start_action_if_buttons_pressed(obj);
         } else {
-            func_801b5c6c_slot04_09(obj);
+            spawn_fourth_frame_child_index_four_slot04_09(obj);
         }
         update_sequence(obj);
     }

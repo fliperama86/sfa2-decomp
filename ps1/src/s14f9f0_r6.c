@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801507e8(Menu *menu) {
+void update_menu_cd_state_after_sync(Menu *menu) {
     int v = func_8015c938(1, &menu->cd_result);
     if (v != 0) {
         if (v == 2) {
@@ -45,7 +45,7 @@ void send_cd_command_1b_set_state_two(Menu *menu) {
     }
 }
 
-void func_80150984(Menu *menu) {
+void pause_cd_and_clear_menu_command(Menu *menu) {
     if (func_8015c938(1, 0)) {
         if (func_8015c9c0(9, 0, 0)) {
             func_8016a730(0, 0, 0);

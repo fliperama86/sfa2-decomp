@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80077ef0_slot00(Object *obj) {
+void update_cycled_sequence_record_and_position_slot00(Object *obj) {
     Slot00Rec7ef0 *rec;
     s16 v;
     if (game_state.gate_flag != 0) goto fail;

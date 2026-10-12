@@ -15,7 +15,7 @@ void advance_state_0_on_negative_step_flags_slot28(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_8001da08_slot28(Object *obj) {
+void move_by_vel_x_and_respawn_past_edge_slot28(Object *obj) {
     *(int *)&obj->pos_x_frac = *(int *)&obj->pos_x_frac + obj->vel_x;
     if (obj->pos_x >= 0x138) {
         randomize_position_velocity_and_sequence_slot28(obj);

@@ -5,7 +5,7 @@
 
 void store_image_rows_for_object_slot04_0a(Object *obj);
 
-void func_801b3528_slot04_0a(Object *obj) {
+void finish_sequence_branch_on_distance_to_other_slot04_0a(Object *obj) {
     Object *o;
     int dx;
     int dy;

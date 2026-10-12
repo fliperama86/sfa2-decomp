@@ -17,5 +17,5 @@ void update_angle_and_advance_sequence_slot27(Object *o) {
         o->state_0 = o->state_0 + 1;
     }
     advance_sequence_checked(o);
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }

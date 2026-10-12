@@ -5,7 +5,7 @@
 
 extern void (*data_80032a5c_slot28[])(Object *);
 
-void func_80017f34_slot28(Object *object) {
+void call_handler_by_state_1_slot28(Object *object) {
     data_80032a5c_slot28[object->state_1](object);
 }
 

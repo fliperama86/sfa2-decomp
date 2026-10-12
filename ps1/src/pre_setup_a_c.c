@@ -5,7 +5,7 @@
 
 
 
-void func_80130280(Object *object) {
+void enter_state_1_3_with_input_variant_and_sequence(Object *object) {
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 3;

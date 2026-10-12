@@ -12,8 +12,8 @@ void start_phase_with_random_player_scripts_slot0f(Object *o) {
     h->phase_index += 1;
     h->step_index = 0;
     obj->field_c6 = 0x1e0;
-    func_80138358((GameState *)obj);
-    func_8013839c((GameState *)obj);
+    init_counters_from_index_table((GameState *)obj);
+    update_table_columns_unless_mode3_inactive((GameState *)obj);
     obj->field_2d = 7;
     player_left.table_column = 0x1f;
     player_right.table_column = 0x1f;

@@ -20,7 +20,7 @@ void queue_player_status_text_items(void) {
                     }
                 }
             } else {
-                func_80156c80(g, o);
+                add_rank_item_for_phase_2_or_3(g, o);
                 queue_name_text(g, o);
             }
             o = &player_right;
@@ -33,7 +33,7 @@ void queue_player_status_text_items(void) {
                     }
                 }
             } else {
-                func_80156c80(g, o);
+                add_rank_item_for_phase_2_or_3(g, o);
                 queue_name_text(g, o);
             }
         } else if (data_80190138 != 0) {

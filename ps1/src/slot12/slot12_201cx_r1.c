@@ -10,7 +10,7 @@ extern ObjectFn data_80022e20_slot12[];
 void set_sequence_and_copy_to_shared_object_slot12(Object *obj, int a);
 void add_tile_map_quads_for_frame_slot12(Object *obj, FrameRecord *f);
 
-void func_8001201c_slot12(Object *obj) {
+void update_object_and_add_shared_tile_quads_slot12(Object *obj) {
     Object *p;
     FrameRecord *f;
 

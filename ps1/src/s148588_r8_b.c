@@ -15,19 +15,19 @@ void advance_state_0_call_table_handler(Object *object) {
     table_8017cf10[object->table_index](object);
 }
 
-void func_801492c0(Object *object) {
+void init_depth_six_shift_x_and_set_sequence(Object *object) {
     object->ot_depth = 6;
     shift_pos_x_by_parent_kind_table(object);
     set_sequence_from_table_5(object, 0x25, seqs_8017c7f8);
 }
 
-void func_80149304(Object *object) {
+void init_depth_eight_shift_x_and_set_sequence(Object *object) {
     object->ot_depth = 8;
     shift_pos_x_by_parent_kind_table(object);
     set_sequence_from_table_5(object, 0x26, seqs_8017c7f8);
 }
 
-void func_80149348(Object *object) {
+void init_depth_six_play_parent_sound_set_sequence(Object *object) {
     Object *other = object->parent;
     object->ot_depth = 6;
     play_sound_at(other, other->side, 0x326);
@@ -58,7 +58,7 @@ void advance_state_0_if_parent_flag_clear(Object *object) {
     advance_sequence_checked(object);
 }
 
-void func_801494c0(Object *object) {
+void call_advance_state_0_if_parent_flag_clear(Object *object) {
     advance_state_0_if_parent_flag_clear(object);
 }
 

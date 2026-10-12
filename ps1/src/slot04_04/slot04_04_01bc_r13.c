@@ -26,7 +26,7 @@ u8 enter_state_1_0_7_0_type_7_if_remaining_slot04_04(Object *obj) {
     return r;
 }
 
-int func_801b123c_slot04_04(Object *obj) {
+int spend_meter_and_start_variant_eight_lock_slot04_04(Object *obj) {
     int r = 0;
 
     if ((u8)try_spend_meter_for_action(obj)) {

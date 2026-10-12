@@ -19,11 +19,11 @@ void apply_gravity_vertical_motion_slot04_0d(Object *obj) {
     obj->vel_y = obj->vel_y + obj->accel_y;
 }
 
-void func_801b2070_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_10_slot04_0d(Object *obj) {
     data_801c2a50_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b20b0_slot04_0d(Object *obj) {
+void start_sequence_from_direction_index_add_meter_slot04_0d(Object *obj) {
     u16 a;
 
     obj->active_flag_4 = 1;

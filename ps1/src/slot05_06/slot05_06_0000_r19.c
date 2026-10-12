@@ -15,7 +15,7 @@ void advance_state_3_on_step_flag_byte_slot05_06(Object *o) {
     update_sequence(o);
 }
 
-void func_801c9880_slot05_06(Object *o) {
+void update_rise_then_start_fall_sequence_a_slot05_06(Object *o) {
     apply_vertical_velocity_slot05_06(o);
     if (o->vel_y <= 0x1ffff && ((Slot04aObj *)o)->field_1c8 == 0) {
         ((Slot04aObj *)o)->field_1c8 = 1;

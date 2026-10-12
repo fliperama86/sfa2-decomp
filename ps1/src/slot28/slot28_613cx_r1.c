@@ -18,21 +18,21 @@ extern Object *data_800518d0_slot28[];
 extern Object *data_800518d4_slot28[];
 extern Object *data_800518d8_slot28[];
 extern Object *data_800518dc_slot28[];
-void func_80016540_slot28(Object *obj);
-void func_80016e58_slot28(void);
+void init_object_data_pointers_a_3_slot28(Object *obj);
+void clear_ten_entry_table_slot28(void);
 
 void func_8001613c_slot28(Object *obj) {
     Object *o;
     int one;
     data_8018f5a0->countdown_timer = 0x258;
     data_8018f5a0->step_index_2 = data_8018f5a0->step_index_2 + 1;
-    func_80016e58_slot28();
+    clear_ten_entry_table_slot28();
     start_fade_mode_1_and_wait();
     one = 1;
     data_80190568 = one;
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80016540_slot28(o);
+        init_object_data_pointers_a_3_slot28(o);
         data_800518f8_slot28.p = o;
         o->pos_y = -8;
         o->pos_x = 0;
@@ -45,7 +45,7 @@ void func_8001613c_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80016540_slot28(o);
+        init_object_data_pointers_a_3_slot28(o);
         data_8005190c_slot28[0] = o;
         o->pos_y = -8;
         o->pos_x = 0;
@@ -57,7 +57,7 @@ void func_8001613c_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80016540_slot28(o);
+        init_object_data_pointers_a_3_slot28(o);
         data_800518fc_slot28[0] = o;
         o->pos_x = 0x40;
         o->pos_y = 0x20;
@@ -69,7 +69,7 @@ void func_8001613c_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_80016540_slot28(o);
+        init_object_data_pointers_a_3_slot28(o);
         data_80051908_slot28.p = o;
         o->spawn_y = 0x1e0;
         o->pos_x = 0x28;
@@ -150,6 +150,6 @@ void func_8001613c_slot28(Object *obj) {
         o->table_index = 1;
         data_800518dc_slot28[0] = o;
     }
-    func_80151020(0x304);
+    set_menu_command_one_and_wait_pending(0x304);
     start_fade_mode_c01_and_wait();
 }

@@ -6,11 +6,11 @@
 extern u8 data_801c0688_slot04_0a[];
 extern u8 data_801c068b_slot04_0a[];
 
-void func_801b25fc_slot04_0a(Object *obj) {
+void start_sequence_39_with_sound_and_countdown_slot04_0a(Object *obj) {
     int i;
 
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     obj->field_29c = 2;
     obj->kind10_flag = 0xff;
@@ -20,6 +20,6 @@ void func_801b25fc_slot04_0a(Object *obj) {
     obj->field_225 = 1;
     obj->field_165 = 0;
     play_sound_at(obj, obj->side, 0x31c);
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x39);
 }

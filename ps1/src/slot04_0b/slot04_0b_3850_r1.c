@@ -12,7 +12,7 @@ void call_handler_by_state_1_slot04_0b(Object *o, Object *unused);
 void select_box_data_pointer_by_health_slot04_0b(Object *o);
 
 /* The call of call_handler_by_state_1_slot04_0b passes one argument although the function takes two: the original does not set the second argument register before it. Written with a second parameter passed on, this function is 12 bytes longer than the original. */
-void func_801b3850_slot04_0b(Object *o, Object *second) {
+void init_child_object_from_parent_and_tables_slot04_0b(Object *o, Object *second) {
     s32 vx;
     s32 dx;
     int hi;
@@ -50,6 +50,6 @@ void func_801b3850_slot04_0b(Object *o, Object *second) {
     } else {
         ((Slot04aObj *)o)->scratchpad_value = *(int *)0x1f800158;
     }
-    func_80138070(o, o->vel_table_index >> 1);
+    set_sequence_by_sound_side(o, o->vel_table_index >> 1);
     ((void (*)(Object *))call_handler_by_state_1_slot04_0b)(o);
 }

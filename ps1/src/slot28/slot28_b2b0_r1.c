@@ -15,21 +15,21 @@ extern SequenceStep *data_80039298_slot28[];
 extern SequenceStep *data_800392d0_slot28[];
 extern SequenceStep *data_8003929c_slot28[];
 
-void func_8001c460_slot28(Object *obj);
-void func_8001c49c_slot28(void);
+void init_object_data_pointers_a_7_slot28(Object *obj);
+void clear_ten_entry_table_5_slot28(void);
 
-void func_8001b2b0_slot28(Object *obj) {
+void init_second_scene_objects_and_start_fade_in_slot28(Object *obj) {
     Object *p;
     int one;
     int two;
     data_8018f5a0->step_index_2 = data_8018f5a0->step_index_2 + 1;
-    func_8001c49c_slot28();
+    clear_ten_entry_table_5_slot28();
     start_fade_mode_1_and_wait();
     one = 1;
     data_80190568 = one;
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8001c460_slot28(p);
+        init_object_data_pointers_a_7_slot28(p);
         data_80051a00_slot28.p = p;
         p->pos_y = -8;
         p->pos_x = 0;
@@ -42,7 +42,7 @@ void func_8001b2b0_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8001c460_slot28(p);
+        init_object_data_pointers_a_7_slot28(p);
         data_80051a14_slot28.p = p;
         p->pos_y = -8;
         p->pos_x = 0;
@@ -54,7 +54,7 @@ void func_8001b2b0_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8001c460_slot28(p);
+        init_object_data_pointers_a_7_slot28(p);
         data_80051a04_slot28[0] = p;
         p->pos_x = 0x50;
         p->pos_y = 0x20;
@@ -65,7 +65,7 @@ void func_8001b2b0_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8001c460_slot28(p);
+        init_object_data_pointers_a_7_slot28(p);
         data_80051a08_slot28.p = p;
         p->pos_x = 0x50;
         p->pos_y = 0x20;
@@ -77,7 +77,7 @@ void func_8001b2b0_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8001c460_slot28(p);
+        init_object_data_pointers_a_7_slot28(p);
         data_80051a10_slot28.p = p;
         p->spawn_y = 0x1e0;
         p->pos_x = 0x28;
@@ -97,7 +97,7 @@ void func_8001b2b0_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8001c460_slot28(p);
+        init_object_data_pointers_a_7_slot28(p);
         p->pos_x = 0xe0;
         p->pos_y = 0x80;
         p->spawn_x = 0x60;
@@ -111,7 +111,7 @@ void func_8001b2b0_slot28(Object *obj) {
     }
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
-        func_8001c460_slot28(p);
+        init_object_data_pointers_a_7_slot28(p);
         p->pos_x = 0xc0;
         p->pos_y = 0x90;
         p->spawn_x = 0x60;
@@ -122,6 +122,6 @@ void func_8001b2b0_slot28(Object *obj) {
         data_800519d8_slot28[1] = p;
         p->ot_depth = 3;
     }
-    func_80151020(0x403);
+    set_menu_command_one_and_wait_pending(0x403);
     start_fade_mode_c01_and_wait();
 }

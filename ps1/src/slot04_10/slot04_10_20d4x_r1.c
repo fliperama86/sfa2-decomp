@@ -5,9 +5,9 @@
 void set_sequence_by_side_and_mode(Object *object, int arg);
 int try_spend_meter_for_action(Object *object);
 /* functions of other units of this module */
-u8 func_801b20d4_slot04_10(Object *obj);
+u8 try_spend_meter_enter_state_7_action_2_slot04_10(Object *obj);
 
-u8 func_801b20d4_slot04_10(Object *obj) {
+u8 try_spend_meter_enter_state_7_action_2_slot04_10(Object *obj) {
     if (try_spend_meter_for_action(obj)) {
         obj->state_0 = 1;
         obj->state_1 = 0;

@@ -13,7 +13,7 @@ void load_images_to_vram(void)
   int lim;
   u8 x;
   u8 y;
-  func_8014f3b8(0, 0);
+  start_cd_track_wait_with_thread_switch(0, 0);
   x = 0;
   y = 0;
   i = 0;

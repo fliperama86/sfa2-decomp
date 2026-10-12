@@ -20,13 +20,13 @@ void spawn_block_with_saved_side_slot12(void) {
     }
 }
 
-void func_80010af8_slot12(void) {
+void reset_hud_to_phase_4_and_init_pools_slot12(void) {
     reset_hud_and_game_state_to_phase_4_slot12();
     game_state.field_44 = 0xff;
-    func_8011eae4();
+    clear_arrays_and_init_pools_and_sprite_tables();
 }
 
-void func_80010b2c_slot12(void) {
+void call_step_table_then_update_blocks_and_text_slot12(void) {
     data_800175b4_slot12[data_8018f5a0->step_index]();
     update_blocks();
     update_active_slab172_entries();

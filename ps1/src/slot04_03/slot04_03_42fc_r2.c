@@ -5,7 +5,7 @@
 
 extern s32 data_801c0a08_slot04_03[];
 
-void func_801b445c_slot04_03(Object *obj) {
+void update_sequence_or_reset_with_state_3_clear_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {

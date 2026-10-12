@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80145a20(Object *object) {
+void advance_sequence_rec_by_group_unless_paused(Object *object) {
     if (game_state.field_65 == 0 && game_state.field_74 == 0) {
         if (object->field_0e == 4) {
             advance_sequence_rec(object);

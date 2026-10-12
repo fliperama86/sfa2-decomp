@@ -8,7 +8,7 @@ extern u16 data_801eb410_slot06_03[];
 extern s16 data_801e9fa4_slot06_03[];
 
 void init_first_layer_tile_map_slot06_03(Slot06Layer *layer);
-void func_801e8504_slot06_03(void);
+void init_two_banks_170_tile_prims_gray_slot06_03(void);
 void init_layer_motion_and_advance_state_slot06_03(Slot06Layer *layer);
 void move_layer_until_above_screen_slot06_03(Slot06Layer *layer);
 void move_layer_with_x_y_velocity_updates_slot06_03(Slot06Layer *layer);
@@ -104,7 +104,7 @@ void init_first_layer_tile_map_slot06_03(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e8504_slot06_03(void) {
+void init_two_banks_170_tile_prims_gray_slot06_03(void) {
     int i;
     int j;
     Slot06Tile *r;

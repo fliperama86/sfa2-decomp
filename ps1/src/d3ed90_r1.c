@@ -12,10 +12,10 @@ void set_slot_level_from_repeat_count(Object *object, int index);
  * byte is the required-bit mask; entry bit 0x200 clear: the mask alone
  * decides; 0x200 and 0x100 set: flag bit 0 also passes; 0x200 set, 0x100
  * clear, 0x800 set: flag bit 1 also passes; none of these: nothing is
- * done. A pass increments the slot's repeat_count and calls func_8013f2c8; a
+ * done. A pass increments the slot's repeat_count and calls clear_global_flag_ignoring_object; a
  * failure calls set_slot_level_from_repeat_count with the object and the slot index.
  */
-/* The call of func_8013f2c8 passes a second and a third argument although the callee takes one: the original has index and arg in the second and third argument registers at the call. Written with one argument, this function differs from the original in 22 instruction slots. */
+/* The call of clear_global_flag_ignoring_object passes a second and a third argument although the callee takes one: the original has index and arg in the second and third argument registers at the call. Written with one argument, this function differs from the original in 22 instruction slots. */
 void check_slot_held_input_count(Object *object, int index, int arg) {
     u16 entry;
     u16 flags;
@@ -47,7 +47,7 @@ void check_slot_held_input_count(Object *object, int index, int arg) {
             return;
         }
         (*cnt)++;
-        ((void (*)(Object *, int, int))func_8013f2c8)(object, index, arg);
+        ((void (*)(Object *, int, int))clear_global_flag_ignoring_object)(object, index, arg);
         return;
     }
     if (entry & 0x100) {
@@ -55,7 +55,7 @@ void check_slot_held_input_count(Object *object, int index, int arg) {
             set_slot_level_from_repeat_count(object, index);
         } else {
             (*cnt)++;
-            ((void (*)(Object *, int, int))func_8013f2c8)(object, index, arg);
+            ((void (*)(Object *, int, int))clear_global_flag_ignoring_object)(object, index, arg);
         }
         return;
     }
@@ -64,7 +64,7 @@ void check_slot_held_input_count(Object *object, int index, int arg) {
             set_slot_level_from_repeat_count(object, index);
         } else {
             (*cnt)++;
-            ((void (*)(Object *, int, int))func_8013f2c8)(object, index, arg);
+            ((void (*)(Object *, int, int))clear_global_flag_ignoring_object)(object, index, arg);
         }
     }
 }

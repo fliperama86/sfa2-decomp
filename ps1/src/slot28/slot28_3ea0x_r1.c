@@ -12,7 +12,7 @@ extern SequenceStep *data_80029ed8_slot28[];
 extern SequenceStep *data_80029ee0_slot28[];
 extern SequenceStep *data_80029ee4_slot28[];
 extern SequenceStep *data_80029ef4_slot28[];
-void func_8001420c_slot28(Object *obj);
+void init_object_data_pointers_a_slot28(Object *obj);
 
 void func_80013ea0_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
@@ -25,7 +25,7 @@ void func_80013ea0_slot28(Object *obj) {
     data_80190568 = one;
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001420c_slot28(o);
+        init_object_data_pointers_a_slot28(o);
         data_80051878_slot28.p = o;
         o->pos_y = -8;
         o->pos_x = 0;
@@ -37,7 +37,7 @@ void func_80013ea0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001420c_slot28(o);
+        init_object_data_pointers_a_slot28(o);
         data_8005188c_slot28.p = o;
         o->pos_y = -8;
         o->pos_x = 0;
@@ -49,7 +49,7 @@ void func_80013ea0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001420c_slot28(o);
+        init_object_data_pointers_a_slot28(o);
         data_8005187c_slot28[0] = o;
         o->pos_x = 0x60;
         o->pos_y = 0x20;
@@ -61,7 +61,7 @@ void func_80013ea0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001420c_slot28(o);
+        init_object_data_pointers_a_slot28(o);
         data_8005187c_slot28[1] = o;
         o->pos_x = 0x60;
         o->pos_y = 0x20;
@@ -73,7 +73,7 @@ void func_80013ea0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001420c_slot28(o);
+        init_object_data_pointers_a_slot28(o);
         data_8005187c_slot28[2] = o;
         o->pos_x = 0xc0;
         o->pos_y = 0xa0;
@@ -85,7 +85,7 @@ void func_80013ea0_slot28(Object *obj) {
     }
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
-        func_8001420c_slot28(o);
+        init_object_data_pointers_a_slot28(o);
         data_8005187c_slot28[3] = o;
         o->spawn_y = 0x1e0;
         o->pos_x = 0x28;
@@ -96,6 +96,6 @@ void func_80013ea0_slot28(Object *obj) {
         o->vel_y = 0xb8;
         set_sequence_from_table_5(o, 0, data_80029ef4_slot28);
     }
-    func_80151020(0x300);
+    set_menu_command_one_and_wait_pending(0x300);
     start_fade_mode_c01_and_wait();
 }

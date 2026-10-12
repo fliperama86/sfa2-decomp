@@ -41,6 +41,6 @@ void update_sequence_with_step_sound_and_move_slot05_06(Object *obj) {
     }
 }
 
-void func_801cbfb4_slot05_06(Object *obj) {
+void call_table_function_by_state_3_16_slot05_06(Object *obj) {
     data_801dd4ac_slot05_06[obj->state_3](obj);
 }

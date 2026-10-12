@@ -37,6 +37,6 @@ void init_child_object_from_parent_slot04_0f(Object *obj) {
     } else {
         ((Slot04bObj *)obj)->data_pointer = *(int *)0x1f800158;
     }
-    func_80138070(obj, (obj->vel_table_index >> 1) + 8);
+    set_sequence_by_sound_side(obj, (obj->vel_table_index >> 1) + 8);
     call_handler_by_state_1_slot04_0f(obj);
 }

@@ -7,7 +7,7 @@ extern void (*data_801dd5d0_slot05_06[])(Object *);
 extern Object *data_801dd758_slot05_06;
 extern ObjectFn data_801dd5e0_slot05_06[];
 void add_table_offset_to_position_slot05_06(Object *obj);
-void func_801ce214_slot05_06(Object *obj);
+void set_sequence_from_table_index_by_sound_side_slot05_06(Object *obj);
 void load_velocities_from_table_by_index_slot05_06(Object *obj);
 
 void call_handler_by_state_0_with_parent_2_slot05_06(Object *obj) {
@@ -15,7 +15,7 @@ void call_handler_by_state_0_with_parent_2_slot05_06(Object *obj) {
     data_801dd5d0_slot05_06[obj->state_0](obj);
 }
 
-void func_801ce0a0_slot05_06(Object *obj) {
+void init_object_from_linked_and_call_table_handler_slot05_06(Object *obj) {
     Object *p;
 
     obj->state_0++;
@@ -30,7 +30,7 @@ void func_801ce0a0_slot05_06(Object *obj) {
     ((Slot04aObj *)obj)->saved_pos_y = ((Slot04aObj *)data_801dd758_slot05_06)->saved_pos_y;
     add_table_offset_to_position_slot05_06(obj);
     data_801dd5e0_slot05_06[obj->table_index](obj);
-    func_801ce214_slot05_06(obj);
+    set_sequence_from_table_index_by_sound_side_slot05_06(obj);
 }
 
 void set_ot_depth_1_variant_index_0_slot05_06(Object *obj) {
@@ -38,7 +38,7 @@ void set_ot_depth_1_variant_index_0_slot05_06(Object *obj) {
     obj->variant_index = 0;
 }
 
-void func_801ce1a8_slot05_06(Object *obj) {
+void set_ot_depth_and_variant_index_slot05_06(Object *obj) {
     obj->ot_depth = 1;
     obj->variant_index = 0x10;
 }

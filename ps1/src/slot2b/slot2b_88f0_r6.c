@@ -5,7 +5,7 @@
 
 extern ObjectFn data_8007ee08_slot2b[];
 
-void func_80078f2c_slot2b(Object *o) {
+void advance_sequence_checked_wrapper_3_slot2b(Object *o) {
     advance_sequence_checked(o);
 }
 

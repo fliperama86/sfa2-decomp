@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1b04_slot04_09(Object *obj) {
+void start_move_state_sounds_6_16_set_sequence_slot04_09(Object *obj) {
     int n = 0x1c;
 
     obj->active_flag_4 = 1;

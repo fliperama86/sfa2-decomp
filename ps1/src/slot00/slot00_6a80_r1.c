@@ -22,13 +22,13 @@ void call_handler_by_state_2_unless_paused_b_slot00(Object *o) {
     if ((config->pause_flag_b | config->pause_flag_a) == 0) {
         data_800797e4_slot00[o->state_2](o);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void advance_state_2_set_countdown_2_slot00(Object *o) {
     o->countdown = 2;
     o->state_2++;
-    func_80138070(o, o->active_flag_2);
+    set_sequence_by_sound_side(o, o->active_flag_2);
 }
 
 void count_down_then_reset_states_1_0_1_0_slot00(Object *o) {

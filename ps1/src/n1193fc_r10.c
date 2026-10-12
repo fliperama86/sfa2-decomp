@@ -3,6 +3,6 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801209bc(void) {
+void noop_empty_function_6(void) {
 }
 

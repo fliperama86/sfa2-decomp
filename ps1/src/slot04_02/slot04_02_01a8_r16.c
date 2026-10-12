@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1cc0_slot04_02(Object *obj);
+void apply_vel_y_with_accel_y_override_slot04_02(Object *obj);
 
 void update_sequence_set_active_on_flag_slot04_02(Object *o) {
     if (*(u8 *)&o->step_flags == 0) {
@@ -13,8 +13,8 @@ void update_sequence_set_active_on_flag_slot04_02(Object *o) {
     update_sequence(o);
 }
 
-void func_801b1a7c_slot04_02(Object *obj) {
-    func_801b1cc0_slot04_02(obj);
+void update_airborne_motion_land_with_sound_slot04_02(Object *obj) {
+    apply_vel_y_with_accel_y_override_slot04_02(obj);
     if (obj->pos_y < obj->ground_y) {
         if (obj->facing_side != 0) {
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
@@ -39,7 +39,7 @@ void update_fall_until_landing_or_mode_set_slot04_02(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     s16 y;
 
-    func_801b1cc0_slot04_02(o);
+    apply_vel_y_with_accel_y_override_slot04_02(o);
     y = o->ground_y;
     if (o->pos_y < y) {
         if (obj->mode != 0) {

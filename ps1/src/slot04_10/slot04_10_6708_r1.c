@@ -6,10 +6,10 @@
 extern SequenceStep *data_801c6e70_slot04_10[];
 
 void call_handler_by_step_limit_slot04_10(Object *obj);
-void func_801b0c38_slot04_10(Object *obj);
-void func_801b0c8c_slot04_10(Object *obj);
-void func_801b0ce8_slot04_10(Object *obj);
-void func_8011f38c(Object *o);
+void set_states_step_limit_zero_add_meter_sequence_slot04_10(Object *obj);
+void set_states_step_limit_one_add_meter_sequence_slot04_10(Object *obj);
+void set_states_step_limit_two_add_meter_sequence_slot04_10(Object *obj);
+void clear_object_and_push_on_free_stack(Object *o);
 void set_sequence_and_tables_from_direction(Object *obj);
 void reset_object_to_state_1_0_0_2_sequence_1(Object *obj);
 void increment_state_0_2_slot04_10(Object *obj);
@@ -23,8 +23,8 @@ void update_sequence_nudge_x_or_reset_slot04_10(Object *obj);
 void call_handler_by_state_3_0_1_2_slot04_10(Object *obj);
 void func_801b6ae8_slot04_10(Object *obj);
 void update_sequence_reset_state_3_on_check_slot04_10(Object *obj);
-void func_801b6bd4_slot04_10(Object *obj);
-void func_801b6c20_slot04_10(Object *obj);
+void set_flag_and_call_function_by_state_3_slot04_10(Object *obj);
+void update_state_restore_facing_no_second_dir_slot04_10(Object *obj);
 void update_sequence_reset_state_3_on_check_2_slot04_10(Object *obj);
 
 void follow_other_frame_param_sequence_slot04_10(Object *obj) {
@@ -54,7 +54,7 @@ void release_object_or_clear_link_slot04_10(Object *o) {
     Object *p = ref_other.p;
 
     if (p->linked_object != (s32)o) {
-        func_8011f38c(o);
+        clear_object_and_push_on_free_stack(o);
     } else {
         p->linked_object = 0;
     }
@@ -73,7 +73,7 @@ void dispatch_by_input_dir_0_2_slot04_10(Object *obj) {
     if (obj->input_dir_0 == 4) {
         call_handler_by_step_limit_slot04_10(obj);
     } else if (obj->input_dir_0 != 0) {
-        func_801b6bd4_slot04_10(obj);
+        set_flag_and_call_function_by_state_3_slot04_10(obj);
     } else {
         call_handler_by_input_dir_second_2_slot04_10(obj);
     }
@@ -99,7 +99,7 @@ void call_handler_by_state_3_0_1_slot04_10(Object *obj) {
 void func_801b6968_slot04_10(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x26, 0x14) != 0) {
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x26, 0x14) != 0) {
         set_states_1_2_0_0_2_slot04_10(obj);
     } else {
         obj->active_flag_3 = 1;
@@ -146,7 +146,7 @@ void call_handler_by_state_3_0_1_2_slot04_10(Object *obj) {
 void func_801b6ae8_slot04_10(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x24, 0x14) != 0) {
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x24, 0x14) != 0) {
         set_states_1_2_0_0_2_slot04_10(obj);
     } else {
         obj->active_flag_3 = 1;
@@ -165,19 +165,19 @@ void update_sequence_reset_state_3_on_check_slot04_10(Object *obj) {
     }
 }
 
-void func_801b6bd4_slot04_10(Object *obj) {
+void set_flag_and_call_function_by_state_3_slot04_10(Object *obj) {
     obj->field_157 = 1;
     if (obj->state_3 == 0) {
-        func_801b6c20_slot04_10(obj);
+        update_state_restore_facing_no_second_dir_slot04_10(obj);
     } else if (obj->state_3 == 1) {
         update_sequence_reset_state_3_on_check_2_slot04_10(obj);
     }
 }
 
-void func_801b6c20_slot04_10(Object *obj) {
+void update_state_restore_facing_no_second_dir_slot04_10(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    if (obj->input_dir_second == 0 && obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x26, 0x14) != 0) {
+    if (obj->input_dir_second == 0 && obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x26, 0x14) != 0) {
         set_states_1_2_0_0_2_slot04_10(obj);
     } else {
         obj->active_flag_3 = 1;
@@ -205,11 +205,11 @@ void start_attack_sequence_by_inputs_slot04_10(Object *obj) {
     add_to_meter_clamped(obj, obj->direction_index >> 1);
     if (obj->attack_param_d != 0) {
         if (obj->input_dir_second != 0) {
-            func_801b0c8c_slot04_10(obj);
+            set_states_step_limit_one_add_meter_sequence_slot04_10(obj);
         } else if (obj->variant_index == 0) {
-            func_801b0ce8_slot04_10(obj);
+            set_states_step_limit_two_add_meter_sequence_slot04_10(obj);
         } else {
-            func_801b0c38_slot04_10(obj);
+            set_states_step_limit_zero_add_meter_sequence_slot04_10(obj);
         }
     } else {
         n = 0xc;

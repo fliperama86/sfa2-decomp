@@ -9,7 +9,7 @@ void start_state_choose_hit_or_jump_sequence_slot04_02(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
-        if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x14, 0x14) != 0) {
             set_object_states_0_to_3_2_slot04_02(obj, 1, 2, 0, 0);
             return;
         }

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012e38c(Object *object) {
+void reset_round_counters_and_choose_next_state(Object *object) {
     add_round_score_to_other_side(object);
     object->field_69 = 0;
     object->round_count = 0;
@@ -21,16 +21,16 @@ void func_8012e38c(Object *object) {
     object->field_28a = 0;
     object->hit_count_a = 0;
     object->hit_count_b = 0;
-    func_8012f5ec(object);
+    clear_flag_if_second_flag_set(object);
     object->other_state_code = 5;
     object->facing_side = object->saved_facing;
     if (object->mode_flag_2 != 0) {
-        func_8012e4c4(object);
+        clear_script_bytes_and_select_reset_transition(object);
     } else {
         object->hold_timer = 2;
         if (get_pressed_low_byte(object) != 0) {
             set_state_1_0_5_and_read_input_direction(object);
-        } else if (func_8012f970(object) != 0) {
+        } else if (find_nearby_enemy_and_get_flag(object) != 0) {
             enter_state_2_6_by_button_input(object);
         } else if (object->input_bits_2 & 0x4000) {
             reset_object_to_state_1_0_0_2_sequence_1(object);

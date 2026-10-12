@@ -5,14 +5,14 @@
 
 
 
-void func_8012e4c4(Object *object) {
+void clear_script_bytes_and_select_reset_transition(Object *object) {
     object->field_207 = 0;
     object->field_208 = 0;
     object->field_209 = 0;
     if (object->field_20c != 0) {
-        func_8014cbf8(object);
+        clear_or_restore_script_by_mode_word(object);
     }
-    if (func_80149d48(object)) {
+    if (check_enemy_unit_or_other_in_range(object)) {
         set_state_and_sequence_by_other_state(object);
     } else if (object->field_157 == 0) {
         reset_object_to_state_1_0_sequence_0(object);

@@ -15,7 +15,7 @@ extern SequenceStep *data_8003669c_slot28[];
 extern SequenceStep *data_800366a8_slot28[];
 extern u8 data_80035430_slot28[];
 extern u8 data_800357d8_slot28[];
-void func_8001a9e8_slot28(void);
+void release_active_objects_in_table_4_slot28(void);
 
 void advance_pass_and_spawn_six_table_objects_slot28(Object *obj) {
     Object *p;
@@ -25,7 +25,7 @@ void advance_pass_and_spawn_six_table_objects_slot28(Object *obj) {
         HudState *h = data_8018f5a0;
         h->countdown_timer = 0xf0;
         h->pass_index = h->pass_index + 1;
-        func_8001a9e8_slot28();
+        release_active_objects_in_table_4_slot28();
         five = 5;
         p = data_800519c4_slot28[0];
         p->pos_y = 0x20;

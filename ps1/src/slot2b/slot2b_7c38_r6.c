@@ -33,7 +33,7 @@ void func_80078168_slot2b(Object *o) {
     } else {
         o->frames = data_1f800158;
     }
-    func_80138070(o, 4);
+    set_sequence_by_sound_side(o, 4);
     call_handler_by_state_1_2_slot2b(o);
 }
 

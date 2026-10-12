@@ -11,7 +11,7 @@ int check_hit_other_active_state_nonzero(Object *object, s16 a, s16 b, s16 c, u1
     if (object->field_49 != 0) {
         if (*(u16 *)&object->state_0 != 1) return 0;
         if (object->state_2 != 7) return 0;
-        return func_8013f474(object, a, b) & 0xff;
+        return apply_forced_state_if_other_in_limit(object, a, b) & 0xff;
     }
     if (ref_other.p->other_lock != 0) return 0;
     if (*(u16 *)&ref_other.p->state_0 != 1) return 0;

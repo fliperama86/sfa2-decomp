@@ -21,7 +21,7 @@ void init_players_and_hud_for_slot0f_scene_slot0f(Object *o) {
     obj->field_84 = 0;
     obj->field_12c = 0;
     obj->field_12e = 0;
-    func_8011eb14();
+    clear_players_arrays_state_and_init_pools();
     obj->field_42 = 1;
     obj->countdown_2 = 0x13;
     obj->countdown_b = 0x3b;
@@ -66,7 +66,7 @@ void init_players_and_hud_for_slot0f_scene_slot0f(Object *o) {
     queue_image_upload_job(4, 7);
     request_sound_command_and_switch_thread(1);
     func_80136dc4();
-    func_801285e0();
+    spawn_position_table_objects_and_list_objects();
     clear_four_arrays_and_call_kind_handlers();
     set_capped_value_and_ot_indices((ObjectView *)obj);
     obj->field_2c = 0xff;

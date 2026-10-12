@@ -5,7 +5,7 @@
 
 extern s32 data_801c1454_slot04_05[];
 
-void func_801b1718_slot04_05(Object *obj) {
+void update_airborne_with_table_gravity_and_landing_slot04_05(Object *obj) {
     if (obj->vel_y < 0) {
         obj->accel_y = obj->accel_y - data_801c1454_slot04_05[obj->direction_index >> 1];
     }

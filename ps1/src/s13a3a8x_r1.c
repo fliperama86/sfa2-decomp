@@ -17,7 +17,7 @@ extern u8 table_801787b4[];
 extern Object *alloc_cursor_80190478;
 
 /* Not in protos.h (inferred from the listing and the callers' use). */
-void func_8013ae00(Object *a, Object *b, Tx *c);
+void add_hit_meter_to_both_players(Object *a, Object *b, Tx *c);
 void remap_hit_type_from_table(Object *object);
 void call_handler_by_hit_type(Object *object);
 
@@ -63,7 +63,7 @@ void apply_hit_damage_to_object(Object *a0, Object *a1, Box32 *a2) {
     u8 *bp;
     s16 s2h;
     s16 w;
-    func_8013ae00(a0, a1, (Tx *)a2);
+    add_hit_meter_to_both_players(a0, a1, (Tx *)a2);
     if (a0->team_id) {
         ref_first.p = &player_right;
     } else {

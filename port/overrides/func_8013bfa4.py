@@ -153,7 +153,7 @@ def setup(state, rng, sym) -> Setup:
     log.replace(sym["apply_hit_box_to_target"], 2, 0)
     log.replace(sym["apply_hit_damage_to_object"], 3, 0)
     log.replace(sym["select_min_placement_and_test"], 3, 0)
-    log.replace(sym["func_80155de0"], 2, 0)
+    log.replace(sym["add_table_score_to_player_on_hit"], 2, 0)
     return Setup(args=(), returns_value=False)
 
 

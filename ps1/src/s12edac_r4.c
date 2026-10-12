@@ -20,7 +20,7 @@ void enter_state_1_6_and_set_sequence(Object *object) {
     set_sequence_by_side_and_mode_2(object, 0x1b);
 }
 
-unsigned char func_8012f56c(Object *object) {
+unsigned char is_other_object_state_0_and_1_six_one(Object *object) {
     game_state.other_object = object->other;
     return *(u16 *)&game_state.other_object->state_0 == 0x601;
 }
@@ -40,7 +40,7 @@ void set_win_state_and_store_result_byte(Object *object) {
     ((u8 *)object + object->win_count)[0xcf] = object->field_167;
 }
 
-void func_8012f5ec(Object *object) {
+void clear_flag_if_second_flag_set(Object *object) {
     if (object->field_251 != 0 && object->field_d8 != 0) {
         object->field_251 = 0;
     }
@@ -126,7 +126,7 @@ int is_only_horizontal_input_held(Object *object) {
     return result;
 }
 
-void func_8012f838(Object *object) {
+void start_move_state_1_0_2_1_with_sequence_by_input(Object *object) {
     int arg;
 
     object->state_0 = 1;

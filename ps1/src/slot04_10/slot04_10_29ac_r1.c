@@ -36,7 +36,7 @@ void update_shift_x_or_finish_to_other_state_slot04_10(Object *obj) {
     }
 }
 
-void func_801b2a40_slot04_10(Object *obj) {
+void call_table_function_by_state_3_10_slot04_10(Object *obj) {
     data_801c6a2c_slot04_10[obj->state_3](obj);
 }
 
@@ -59,7 +59,7 @@ void update_sequence_or_set_other_code_5_slot04_10(Object *obj) {
     }
 }
 
-void func_801b2b34_slot04_10(Object *obj) {
+void call_table_function_by_state_3_11_slot04_10(Object *obj) {
     data_801c6a34_slot04_10[obj->state_3](obj);
 }
 
@@ -82,7 +82,7 @@ void start_backward_move_sequence_slow_slot04_10(Object *obj) {
     }
 }
 
-void func_801b2c08_slot04_10(Object *obj) {
+void call_table_function_by_state_3_12_slot04_10(Object *obj) {
     data_801c6a44_slot04_10[obj->state_3](obj);
 }
 

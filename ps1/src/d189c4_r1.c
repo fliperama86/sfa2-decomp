@@ -14,13 +14,13 @@ extern u16 data_801903b0[];
 extern u8 data_801a6964[]; /* the first pad's buffer (inferred) */
 extern u8 data_801a6970[]; /* the second pad's buffer (inferred) */
 
-void func_80118900(void);
+void noop_empty_function(void);
 void init_compare_limit_and_copy_bytes(Object *o);
 void init_system_and_pads(short a, short b);
 void init_display_buffers(int a, int b, int c, int d);
 void init_snd_voices(void);
 void func_80157784(unsigned counter);
-int func_80118fc8(u8 *pad, int number);
+int count_pad_records_with_all_buttons_and_flag(u8 *pad, int number);
 void start_pending_snd_voice_threads(void);
 void draw_text_items(void);
 int func_801576e8(unsigned counter);
@@ -30,7 +30,7 @@ void update_voice_delay_timers(void);
 /*
  * What it does (inferred, not original names): the game's main. It never
  * returns: its epilogue, after the endless loop, is never reached. Start-up:
- * an empty function (func_80118900; inferred), two library calls (inferred
+ * an empty function (noop_empty_function; inferred), two library calls (inferred
  * ResetCallback and StopCallback), a wait until the disc start-up function
  * reports done, the call that loads and runs the stand-alone program, a
  * clear of seven scratchpad words, the game_state set-up. Then the display
@@ -53,10 +53,10 @@ void update_voice_delay_timers(void);
  * data_801ac620 is above 0x4000. data_801ac620 then counts down, or gets
  * bit 4 set when its low five bits are 0.
  */
-void func_801189c4(void) {
+void init_system_and_loop_frames_forever(void) {
     int reset;
 
-    func_80118900();
+    noop_empty_function();
     func_8015efc0();
     func_8015f0b4();
     while (init_cd_menu() == 0) {
@@ -86,8 +86,8 @@ display:
         func_80157784(ROOT_COUNTER_1);
         if (game_state.loop_mode == 0) {
             /* Each call passes a pad's buffer and its number; the callee uses neither. Written without the arguments, this function is 20 bytes shorter than the original. */
-            reset = func_80118fc8(data_801a6964, 0);
-            reset |= func_80118fc8(data_801a6970, 1);
+            reset = count_pad_records_with_all_buttons_and_flag(data_801a6964, 0);
+            reset |= count_pad_records_with_all_buttons_and_flag(data_801a6970, 1);
         }
         if (reset != 0) {
             stop_all_keys_clear_table();

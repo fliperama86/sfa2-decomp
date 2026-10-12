@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80144dcc(Object *object) {
+void move_x_until_countdown_then_advance_state_0_2(Object *object) {
     int v;
     update_position_x_with_accel(object);
     v = object->countdown - 1;

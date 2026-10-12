@@ -8,7 +8,7 @@ void init_object_position_from_health_offset_slot01(Object *obj);
 void spawn_child_object_and_load_image_slot01(Object *obj);
 void build_scaled_sprite_quads_into_ot_slot01(Object *obj, u8 *a, int b, int c);
 
-void func_80012344_slot01(Object *o) {
+void update_moving_scaled_sprite_and_build_quads_slot01(Object *o) {
     Slot01Obj *obj = (Slot01Obj *)o;
     Object *s = o->parent;
     if (game_state.status_flags & 0x80) {

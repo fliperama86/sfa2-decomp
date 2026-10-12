@@ -5,7 +5,7 @@
 
 void func_801b51e0_slot04_09(Object *o);
 
-void func_801b5014_slot04_09(Object *o, Object *unused) {
+void update_hold_check_damage_and_gauge_slot04_09(Object *o, Object *unused) {
     Slot04aObj *obj = (Slot04aObj *)o;
     Object *w;
     Object *e;

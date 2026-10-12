@@ -16,7 +16,7 @@ void spawn_effect_at_object_offset(Object *object, u8 a, int dx, int dy);
 void choose_air_attack_branch_by_button_bits_slot04_14(Object *obj);
 void choose_air_attack_branch_by_distance_slot04_14(Object *obj);
 void enter_state_6_launch_from_other_box_slot04_14(Object *obj);
-void func_801b4b88_slot04_14(Object *obj);
+void set_state_3_and_directional_sequence_slot04_14(Object *obj);
 void enter_state_12_launch_from_other_box_slot04_14(Object *obj);
 void set_state_3_9_direction_sequence_slot04_14(Object *obj);
 void nudge_other_x_by_table_every_fourth_tick_slot04_14(Object *obj);
@@ -63,7 +63,7 @@ void choose_air_attack_branch_by_button_bits_slot04_14(Object *obj) {
                 enter_state_6_launch_from_other_box_slot04_14(obj);
                 return;
             }
-            func_801b4b88_slot04_14(obj);
+            set_state_3_and_directional_sequence_slot04_14(obj);
         }
         if (obj->vel_y < 0) {
             if ((obj->pressed_bits | obj->released_bits) & 0x6a) {
@@ -91,7 +91,7 @@ void choose_air_attack_branch_by_distance_slot04_14(Object *obj) {
                 return;
             }
             obj->countdown = obj->countdown - 0x100;
-            func_801b4b88_slot04_14(obj);
+            set_state_3_and_directional_sequence_slot04_14(obj);
         }
         if (obj->vel_y < 0 && obj->input_dir_second == 0 && obj->other->bound_push_flag == 0) {
             d = obj->pos_x - obj->other->pos_x;
@@ -126,7 +126,7 @@ void enter_state_6_launch_from_other_box_slot04_14(Object *obj) {
     set_position_from_other_box(obj);
 }
 
-void func_801b4b88_slot04_14(Object *obj) {
+void set_state_3_and_directional_sequence_slot04_14(Object *obj) {
     obj->state_3 = 0x11;
     obj->active_flag_3 = 1;
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x5a);
@@ -187,7 +187,7 @@ void nudge_other_x_by_table_every_fourth_tick_slot04_14(Object *obj) {
         for (; i >= 0; i--) {
             u16 a;
 
-            if (!func_80148e84(obj)) {
+            if (!spawn_random_offset_object_variant_zero(obj)) {
                 break;
             }
             if ((u8)obj->step_flags != 0) {
@@ -211,7 +211,7 @@ void update_sequence_or_call_finish_on_flag_2_slot04_14(Object *obj) {
     }
 }
 
-void func_801b4e78_slot04_14(Object *obj) {
+void update_arc_until_landing_then_set_sequence_slot04_14(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags == 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;

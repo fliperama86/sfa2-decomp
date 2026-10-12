@@ -9,10 +9,10 @@ void apply_velocity_and_acceleration_slot2b(Object *o);
 
 void call_handler_by_state_2_unless_paused_slot2b(Object *o) {
     if ((game_state_second.pause_flag_a | game_state_second.pause_flag_b) != 0) {
-        func_8011ffdc(o);
+        clear_or_set_flag_by_pos_x_limit(o);
         return;
     }
     data_80079a2c_slot2b[o->state_2](o);
     set_state_0_if_x_outside_margin_narrow(o);
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }

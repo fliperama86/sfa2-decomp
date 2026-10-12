@@ -8,12 +8,12 @@ int is_pressed_bits_in_table(Object *object);
 int func_8013cb70(Object *object, u8 index, u8 arg);
 int func_8013cbdc(Object *object, u8 index, u8 arg);
 int func_8013cc48(Object *object, u8 index, u8 arg);
-int func_8013cac8(Object *object, u8 index, u8 arg);
+int call_slot_stage_handler_a(Object *object, u8 index, u8 arg);
 u8 try_action_clearing_both_flags(Object *object);
 int is_not_state_2_five(Object *object);
 int try_spend_meter_for_action(Object *object);
-void func_80142718(Object *object);
-void func_80142778(Object *object);
+void set_direction_index_from_buttons_mask_a(Object *object);
+void set_direction_index_from_buttons_mask_b(Object *object);
 void set_direction_index_from_buttons_group_b(Object *object);
 
 extern ObjectFnInt data_801c3004_slot04_15[];
@@ -31,10 +31,10 @@ int try_start_meter_move_eight_slot04_15(Object *obj);
 int try_start_state_seven_move_four_slot04_15(Object *obj);
 int try_start_move_state_7_type_0_slot04_15(Object *obj);
 int try_start_state_seven_move_five_slot04_15(Object *obj);
-int func_801b0d10_slot04_15(Object *obj);
-int func_801b0db8_slot04_15(Object *obj);
-void func_801b0d50_slot04_15(Object *obj);
-void func_801b0df8_slot04_15(Object *obj);
+int try_spend_meter_and_start_action_slot04_15(Object *obj);
+int try_spend_meter_and_start_action_2_slot04_15(Object *obj);
+void enter_state_2_seven_variant_two_sequence_slot04_15(Object *obj);
+void enter_state_2_seven_variant_three_sequence_slot04_15(Object *obj);
 void advance_state_3_start_table_sequence_slot04_15(Object *obj);
 
 void select_slot04_0d_action_from_inputs_slot04_15(Object *obj) {
@@ -43,11 +43,11 @@ void select_slot04_0d_action_from_inputs_slot04_15(Object *obj) {
     if ((u8)func_8013cb70(obj, 0, 0x18) && (u8)try_start_meter_move_six_slot04_15(obj)) return;
     if ((u8)func_8013cbdc(obj, 1, 0x15) && (u8)try_start_meter_move_seven_slot04_15(obj)) return;
     if ((u8)func_8013cc48(obj, 2, 0x17) && (u8)try_start_meter_move_eight_slot04_15(obj)) return;
-    if ((u8)func_8013cac8(obj, 3, 4) && (u8)try_start_state_seven_move_four_slot04_15(obj)) return;
-    if ((u8)func_8013cac8(obj, 4, 0) && (u8)try_start_move_state_7_type_0_slot04_15(obj)) return;
-    if ((u8)func_8013cac8(obj, 5, 3) && (u8)try_start_state_seven_move_five_slot04_15(obj)) return;
-    if ((u8)func_8013cac8(obj, 6, 0xd) && (u8)func_801b0d10_slot04_15(obj)) return;
-    if ((u8)func_8013cac8(obj, 7, 0xe)) func_801b0db8_slot04_15(obj);
+    if ((u8)call_slot_stage_handler_a(obj, 3, 4) && (u8)try_start_state_seven_move_four_slot04_15(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 4, 0) && (u8)try_start_move_state_7_type_0_slot04_15(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 5, 3) && (u8)try_start_state_seven_move_five_slot04_15(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 6, 0xd) && (u8)try_spend_meter_and_start_action_slot04_15(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 7, 0xe)) try_spend_meter_and_start_action_2_slot04_15(obj);
 }
 
 int try_start_move_state_7_type_0_slot04_15(Object *obj) {
@@ -69,7 +69,7 @@ int try_start_meter_move_type_1_slot04_15(Object *obj) {
     if ((s16)obj->meter < 0x30) return 0;
     if (obj->active_state != 0) {
         if (obj->field_7e != 0) return 0;
-        if (!(u8)func_801418bc(obj)) return 0;
+        if (!(u8)try_action_unless_state_bytes_match(obj)) return 0;
         obj->state_0 = 1;
         obj->state_1 = 0;
         obj->state_2 = 8;
@@ -88,15 +88,15 @@ int try_start_meter_move_type_1_slot04_15(Object *obj) {
     return 1;
 }
 
-int func_801b0d10_slot04_15(Object *obj) {
+int try_spend_meter_and_start_action_slot04_15(Object *obj) {
     if ((u8)try_spend_meter_for_action(obj)) {
-        func_801b0d50_slot04_15(obj);
+        enter_state_2_seven_variant_two_sequence_slot04_15(obj);
         return 1;
     }
     return 0;
 }
 
-void func_801b0d50_slot04_15(Object *obj) {
+void enter_state_2_seven_variant_two_sequence_slot04_15(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
@@ -114,15 +114,15 @@ void func_801b0d50_slot04_15(Object *obj) {
     set_sequence_by_side_and_mode(obj, 0x2e);
 }
 
-int func_801b0db8_slot04_15(Object *obj) {
+int try_spend_meter_and_start_action_2_slot04_15(Object *obj) {
     if ((u8)try_spend_meter_for_action(obj)) {
-        func_801b0df8_slot04_15(obj);
+        enter_state_2_seven_variant_three_sequence_slot04_15(obj);
         return 1;
     }
     return 0;
 }
 
-void func_801b0df8_slot04_15(Object *obj) {
+void enter_state_2_seven_variant_three_sequence_slot04_15(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;
@@ -195,7 +195,7 @@ b:
         obj->field_15a = 6;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142718(obj);
+        set_direction_index_from_buttons_mask_a(obj);
     return 1;
 }
 
@@ -212,7 +212,7 @@ b:
     obj->field_15a = 7;
     obj->active_flag_3 = 1;
     obj->facing_side = obj->saved_facing;
-    func_80142778(obj);
+    set_direction_index_from_buttons_mask_b(obj);
     return 1;
 }
 
@@ -229,7 +229,7 @@ b:
     obj->field_15a = 8;
     obj->active_flag_3 = 1;
     obj->facing_side = obj->saved_facing;
-    func_80142778(obj);
+    set_direction_index_from_buttons_mask_b(obj);
     return 1;
 }
 
@@ -257,7 +257,7 @@ int is_linked_object_3_null_slot04_15(Object *obj) {
     return obj->linked_object_3 == 0;
 }
 
-int func_801b11b4_slot04_15(Object *obj) {
+int is_meter_at_least_threshold_slot04_15(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -277,11 +277,11 @@ void func_801b121c_slot04_15(Object *obj) {
     data_801c3054_slot04_15[obj->field_15a](obj);
 }
 
-void func_801b125c_slot04_15(Object *obj) {
+void call_table_function_by_state_3_4_slot04_15(Object *obj) {
     data_801c307c_slot04_15[obj->state_3](obj);
 }
 
-void func_801b129c_slot04_15(Object *o) {
+void update_sequence_chain_next_table_sequence_slot04_15(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     update_sequence(o);
@@ -312,6 +312,6 @@ void advance_state_3_start_table_sequence_slot04_15(Object *o) {
     set_sequence_by_side_and_mode(o, (u8)(t + 0x2b));
 }
 
-void func_801b13bc_slot04_15(Object *obj) {
+void call_table_function_by_state_3_5_slot04_15(Object *obj) {
     data_801c308c_slot04_15[obj->state_3](obj);
 }

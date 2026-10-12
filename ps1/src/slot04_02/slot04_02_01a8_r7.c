@@ -5,7 +5,7 @@
 
 void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-u8 func_801b0c0c_slot04_02(Object *obj) {
+u8 try_enter_meter_action_state_8_slot04_02(Object *obj) {
     u8 r = 0;
 
     if (obj->field_292 == 0) {
@@ -20,7 +20,7 @@ u8 func_801b0c0c_slot04_02(Object *obj) {
                     }
                 }
             } else if (obj->field_7e == 0) {
-                r = func_801418bc(obj);
+                r = try_action_unless_state_bytes_match(obj);
                 if (r) {
                     set_object_states_0_to_3_slot04_02(obj, 1, 0, 8, 0);
                     obj->field_15a = 0xf;
@@ -31,7 +31,7 @@ u8 func_801b0c0c_slot04_02(Object *obj) {
     return r;
 }
 
-u8 func_801b0d08_slot04_02(Object *obj) {
+u8 try_enter_state_7_with_action_code_e_slot04_02(Object *obj) {
     u8 r = try_action_clearing_both_flags(obj);
 
     if (r) {

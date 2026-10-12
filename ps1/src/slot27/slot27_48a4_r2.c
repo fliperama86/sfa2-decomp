@@ -34,6 +34,6 @@ void place_by_other_side_and_start_sequence_slot27(Object *obj) {
         }
         set_sequence_from_table_5(obj, other->kind, data_800280bc_slot27);
         obj->sound_side = other->kind;
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     }
 }

@@ -29,13 +29,13 @@ void init_draw_mode_prim_4(Tx *tx) {
 }
 
 void func_80136dc4(void) {
-    func_80136dfc();
+    store_image_rects_and_queue_upload_jobs();
     store_image_rect_d0_1e0_slot_1();
     store_image_rect_e0_1e0_slot_2();
     store_image_rect_f0_1e0_slot_3();
 }
 
-void func_80136dfc(void) {
+void store_image_rects_and_queue_upload_jobs(void) {
     store_image_rect_b0_1f0_to_table();
     store_image_rect_c0_1e0_slot_0();
     store_image_rect_160_1f0_slot_4();

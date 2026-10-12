@@ -8,7 +8,7 @@ extern Block172 *data_801e25c8_slot2a[4];
 void call_handler_by_state_0_slot2a(Object *obj);
 void call_handler_by_state_0_2_slot2a(Object *obj);
 
-void func_801e0020_slot2a(void) {
+void call_pass_function_and_update_four_objects_slot2a(void) {
     data_801e1c8c_slot2a[data_8018f5a0->pass_index]();
     if (data_8018f5a0->pass_index >= 3) {
         if (*(u8 *)*data_801e25c8_slot2a != 0) {

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012de9c(Object *object) {
+void start_jump_with_horizontal_velocity_by_facing(Object *object) {
     int v;
     object->variant_index = 0xff;
     object->active_state = 0xff;

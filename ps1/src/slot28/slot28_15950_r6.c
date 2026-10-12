@@ -7,7 +7,7 @@ extern u8 data_8004ea70_slot28[];
 extern int data_8004ea74_slot28[];
 void randomize_position_velocity_and_sequence_2_slot28(Object *obj);
 
-void func_80026320_slot28(Object *obj) {
+void move_by_vel_x_and_rerandomize_past_x_limit_slot28(Object *obj) {
     *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac + obj->vel_x;
     if (obj->pos_x >= 0x140) {
         randomize_position_velocity_and_sequence_2_slot28(obj);

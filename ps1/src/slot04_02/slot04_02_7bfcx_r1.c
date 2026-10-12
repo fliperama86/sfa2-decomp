@@ -53,7 +53,7 @@ void func_801b7bfc_slot04_02(Object *obj) {
         } else {
             set_sequence_from_table_5(obj, 8, data_1f800164);
         }
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else {
         set_state_0_to_2_slot04_02(obj);
     }

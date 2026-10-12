@@ -32,5 +32,5 @@ void advance_step_index_and_clear_timers_slot12(void) {
     h->step_index_2 = 0;
     game_state.countdown_timer_2 = 0;
     game_state.field_65 = 0;
-    func_8011eae4();
+    clear_arrays_and_init_pools_and_sprite_tables();
 }

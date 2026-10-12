@@ -12,13 +12,13 @@ extern s32 data_801c6630_slot04_14[];
 extern ObjectFn data_801c663c_slot04_14[];
 
 void set_sequence_and_tables_from_direction(Object *obj);
-void func_801b6840_slot04_14(Object *obj);
+void select_air_action_or_start_air_state_slot04_14(Object *obj);
 void start_air_state_pick_sequence_slot04_14(Object *obj);
 void move_until_ground_then_reset_state_slot04_14(Object *obj);
 void set_object_states_0_to_3_2_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
 void call_handler_by_state_1_slot04_14(Object *obj);
 void move_until_near_ground_then_switch_state_slot04_14(Object *o);
-void func_801b72b8_slot04_14(Object *obj, u8 a);
+void set_sequence_entry_by_sound_side_table_slot04_14(Object *obj, u8 a);
 
 void update_sequence_or_reset_by_input_dir_slot04_14(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
@@ -57,7 +57,7 @@ void update_sequence_with_fixed_x_step_slot04_14(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b657c_slot04_14(Object *obj) {
+void call_table_function_by_state_3_23_slot04_14(Object *obj) {
     data_801c6560_slot04_14[obj->state_3](obj);
 }
 
@@ -65,7 +65,7 @@ void start_state_hit_or_diagonal_jump_slot04_14(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
-        if (func_8013f8c4(obj, -0x14, 0x14) & 0xff) {
+        if (try_force_other_state_if_box_in_range(obj, -0x14, 0x14) & 0xff) {
             set_object_states_0_to_3_2_slot04_14(obj, 1, 2, 0, 0);
             return;
         }
@@ -116,7 +116,7 @@ void update_sequence_or_call_finish_on_flag_3_slot04_14(Object *obj) {
     }
 }
 
-void func_801b67d0_slot04_14(Object *obj) {
+void call_table_function_by_state_3_24_slot04_14(Object *obj) {
     data_801c6570_slot04_14[obj->state_3](obj);
 }
 
@@ -127,7 +127,7 @@ void set_state_3_one_restore_facing_slot04_14(Object *obj) {
     set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b6840_slot04_14(Object *obj) {
+void select_air_action_or_start_air_state_slot04_14(Object *obj) {
     int d;
 
     if (obj->active_state != 0) {
@@ -171,7 +171,7 @@ void func_801b6840_slot04_14(Object *obj) {
 
 void call_handler_by_limit_lo_bit_slot04_14(Object *obj) {
     if (obj->limit_lo & 1) {
-        func_801b6840_slot04_14(obj);
+        select_air_action_or_start_air_state_slot04_14(obj);
     } else {
         start_air_state_pick_sequence_slot04_14(obj);
     }
@@ -183,7 +183,7 @@ void start_air_state_pick_sequence_slot04_14(Object *obj) {
     obj->state_3 = 3;
     obj->input_dir_0 = 4;
     obj->active_flag_3 = 1;
-    func_80120af8(obj);
+    play_sound_from_table_by_direction_index(obj);
     t = obj->direction_index >> 1;
     add_to_meter_clamped(obj, t);
     if (obj->variant_index != 0) {
@@ -195,14 +195,14 @@ void start_air_state_pick_sequence_slot04_14(Object *obj) {
         t += 3;
     }
     set_sequence_by_side_and_mode(obj, (s16)t);
-    func_80120af8(obj);
+    play_sound_from_table_by_direction_index(obj);
     if (obj->pos_y < (u16)(((Slot04bObj *)obj)->ground_y - 0x50) && obj->variant_index != 0 && (obj->variant_index & 0x80) == 0 && obj->input_dir_second != 0 && obj->direction_index == 2 && obj->attack_param_d != 0) {
         set_object_states_0_to_3_2_slot04_14(obj, 1, 0, 5, 0);
         set_sequence_by_side_and_mode(obj, 0x29);
     }
 }
 
-void func_801b6b40_slot04_14(Object *obj) {
+void call_table_function_by_state_3_25_slot04_14(Object *obj) {
     data_801c6578_slot04_14[obj->state_3](obj);
 }
 
@@ -242,7 +242,7 @@ void call_handler_by_state_0_slot04_14(Object *obj) {
     data_801c6614_slot04_14[obj->state_0](obj);
 }
 
-void func_801b6c94_slot04_14(Object *obj) {
+void init_child_from_parent_with_table_velocity_slot04_14(Object *obj) {
     Object *p;
 
     ((Slot04bObj *)obj)->data_table_ptr = data_801c660c_slot04_14;
@@ -264,7 +264,7 @@ void func_801b6c94_slot04_14(Object *obj) {
     } else {
         ((Slot04bObj *)obj)->data_pointer = *(s32 *)0x1f800158;
     }
-    func_801b72b8_slot04_14(obj, obj->vel_table_index);
+    set_sequence_entry_by_sound_side_table_slot04_14(obj, obj->vel_table_index);
     call_handler_by_state_1_slot04_14(obj);
 }
 
@@ -272,11 +272,11 @@ void call_handler_by_state_1_slot04_14(Object *obj) {
     data_801c663c_slot04_14[obj->state_1](obj);
 }
 
-void func_801b6df4_slot04_14(Object *obj) {
+void move_and_advance_sequence_unless_paused_slot04_14(Object *obj) {
     if ((game_state.field_65 | game_state.field_a8) == 0) {
         move_until_near_ground_then_switch_state_slot04_14(obj);
         advance_sequence_checked(obj);
         set_state_0_if_x_outside_margin_narrow(obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }

@@ -7,7 +7,7 @@ int try_enter_state_07_move_2_or_3_slot04_01(Object *obj) {
     int r = 0;
 
     if (obj->active_state != 0) {
-        if (!(u8)func_801418bc(obj)) return 0;
+        if (!(u8)try_action_unless_state_bytes_match(obj)) return 0;
         r = 1;
         obj->field_15a = 3;
     } else {

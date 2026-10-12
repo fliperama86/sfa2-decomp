@@ -4,7 +4,7 @@
 #include "protos.h"
 
 void load_and_exec_program_by_index(int index) {
-    Node *sprite = func_8014f194(table_8017ec9c[index]);
+    Node *sprite = read_cd_file_by_index_into_memory(table_8017ec9c[index]);
     sprite->field_20 = 0;
     func_801575cc(data_801900fc);
     func_801575dc();

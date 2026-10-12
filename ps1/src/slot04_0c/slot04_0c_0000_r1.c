@@ -20,7 +20,7 @@ void update_sequence_with_input_check(Object *object);
 
 void move_x_to_side_target_then_set_sequence_slot04_0c(Object *obj);
 void call_handler_by_input_dir_0_2_slot04_0c(Object *obj);
-void func_801b0340_slot04_0c(Object *obj);
+void call_table_function_by_state_3_slot04_0c(Object *obj);
 void call_handler_by_state_3_play_flag_sound_slot04_0c(Object *obj);
 void call_handler_by_state_3_set_flag_slot04_0c(Object *obj);
 
@@ -117,18 +117,18 @@ void call_handler_by_input_dir_0_slot04_0c(Object *obj) {
 void call_handler_by_input_dir_0_2_slot04_0c(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second == 0) {
-        func_801b0340_slot04_0c(obj);
+        call_table_function_by_state_3_slot04_0c(obj);
     } else {
         call_handler_by_state_3_play_flag_sound_slot04_0c(obj);
     }
 }
 
-void func_801b0340_slot04_0c(Object *obj) {
+void call_table_function_by_state_3_slot04_0c(Object *obj) {
     data_801bd8dc_slot04_0c[obj->state_3](obj);
 }
 
-void func_801b0380_slot04_0c(Object *obj) {
-    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
+void check_input_range_switch_state_or_advance_slot04_0c(Object *obj) {
+    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x14, 0x14) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

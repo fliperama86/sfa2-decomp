@@ -17,7 +17,7 @@ void nudge_other_x_by_table_every_fourth_tick_slot04_02(Object *obj) {
         for (; i >= 0; i--) {
             u16 a;
 
-            if (!func_80148e84(obj)) {
+            if (!spawn_random_offset_object_variant_zero(obj)) {
                 break;
             }
             if ((u8)obj->step_flags != 0) {

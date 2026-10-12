@@ -7,7 +7,7 @@ extern ObjectFn data_80028b8c_slot27[];
 
 void call_handler_by_state_1_slot01_2_slot27(Object *object) {
     data_80028b8c_slot27[object->state_1](object);
-    func_8011ffdc(object);
+    clear_or_set_flag_by_pos_x_limit(object);
 }
 
 void slide_pos_x_left_with_countdown_slot27(Object *obj) {

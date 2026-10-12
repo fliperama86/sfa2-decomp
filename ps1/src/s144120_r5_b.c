@@ -3,11 +3,11 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801448c4(Object *object) {
+void advance_state_2_on_sequence_end_set_depth(Object *object) {
     if ((s16)object->step_flags < 0) {
         object->pos_x = 0xc0;
         object->state_2 = object->state_2 + 1;
-        func_80144ee4(object, 0x10);
+        set_sequence_from_effect_table(object, 0x10);
         func_80144938(object);
         object->field_01 = 1;
         object->spawn_x = 0x80;

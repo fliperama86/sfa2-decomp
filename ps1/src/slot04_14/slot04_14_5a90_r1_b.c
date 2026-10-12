@@ -6,8 +6,8 @@
 extern ObjectFn data_801c6548_slot04_14[];
 extern ObjectFn data_801c6554_slot04_14[];
 
-void func_801b6344_slot04_14(Object *obj);
-void func_801b657c_slot04_14(Object *obj);
+void call_table_function_by_state_3_22_slot04_14(Object *obj);
+void call_table_function_by_state_3_23_slot04_14(Object *obj);
 void set_object_states_0_to_3_2_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
 void set_sequence_and_tables_from_direction(Object *object);
 
@@ -25,13 +25,13 @@ void call_handler_by_input_dir_0_2_slot04_14(Object *obj) {
 void call_handler_by_input_dir_second_2_slot04_14(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second != 0) {
-        func_801b657c_slot04_14(obj);
+        call_table_function_by_state_3_23_slot04_14(obj);
     } else {
-        func_801b6344_slot04_14(obj);
+        call_table_function_by_state_3_22_slot04_14(obj);
     }
 }
 
-void func_801b6344_slot04_14(Object *obj) {
+void call_table_function_by_state_3_22_slot04_14(Object *obj) {
     data_801c6554_slot04_14[obj->state_3](obj);
 }
 
@@ -39,7 +39,7 @@ void start_state_choose_hit_or_jump_sequence_slot04_14(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
-        if ((u8)func_8013f8c4(obj, -0x14, 0x14) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x14, 0x14) != 0) {
             set_object_states_0_to_3_2_slot04_14(obj, 1, 2, 0, 0);
             return;
         }

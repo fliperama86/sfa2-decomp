@@ -17,7 +17,7 @@ void count_down_low_byte_then_reset_states_slot04_08(Object *o) {
         o->state_2 = 3;
         o->state_1 = 0;
         o->state_3 = 1;
-        func_80142c70(o);
+        init_object_after_hit_and_spawn_three_effects(o);
     } else {
         if (obj->field_134 != 0) {
             if (obj->field_27d == 0) {

@@ -25,7 +25,7 @@ void update_sequence_check_other_health_input_slot04_0f(Object *obj) {
         ref_other.p = obj->other;
         if ((s16)ref_other.p->health < 0) {
             if (obj->input_bits_2 & 0x1000) {
-                func_80130280(obj);
+                enter_state_1_3_with_input_variant_and_sequence(obj);
             }
         }
     }
@@ -39,11 +39,11 @@ void update_sequence_or_finish_7_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b45a8_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_18_slot04_0f(Object *obj) {
     data_801c5be4_slot04_0f[obj->state_3](obj);
 }
 
-void func_801b45e8_slot04_0f(Object *obj) {
+void advance_state_add_meter_set_facing_from_input_slot04_0f(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     add_to_meter_clamped(obj, 3);
     play_sound_at(obj, obj->other->side, 0x31a);
@@ -71,11 +71,11 @@ void flip_facing_on_sequence_end_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b470c_slot04_0f(Object *obj) {
+void call_reset_object_to_state_1_0_sequence_0_slot04_0f(Object *obj) {
     reset_object_to_state_1_0_sequence_0(obj);
 }
 
-void func_801b472c_slot04_0f(Object *obj) {
+void call_reset_object_to_state_1_0_0_2_sequence_1_slot04_0f(Object *obj) {
     reset_object_to_state_1_0_0_2_sequence_1(obj);
 }
 
@@ -112,7 +112,7 @@ void pick_random_action_set_sequence_slot04_0f(Object *obj) {
     set_sequence_by_side(obj, (r & 0xff) + 0x23);
 }
 
-void func_801b48bc_slot04_0f(Object *obj) {
+void set_rise_velocity_on_step_flag_then_count_down_slot04_0f(Object *obj) {
     if (*(u8 *)&obj->step_flags == 1) {
         obj->vel_y = 0x18000;
         obj->accel_y = -0x2000;
@@ -180,7 +180,7 @@ int try_match_input_direction_slot04_0f(Object *obj) {
     if ((game_state.config->mode_flag_b | game_state.config->mode_flag_a) != 0) {
         return 0;
     }
-    if ((func_8012f56c(obj) & 0xff) != 0 || obj->active_flag == 0 || (obj->pressed_bits & 0xfc) == 0) {
+    if ((is_other_object_state_0_and_1_six_one(obj) & 0xff) != 0 || obj->active_flag == 0 || (obj->pressed_bits & 0xfc) == 0) {
         return 0;
     }
     a = get_input_direction_table_entry_slot04_0f(obj);

@@ -5,7 +5,7 @@
 
 extern u8 data_801c43c0_slot04_04[];
 
-void func_801b28b8_slot04_04(Object *o) {
+void spawn_children_when_countdown_high_byte_set_slot04_04(Object *o) {
     o->countdown = (s16)o->countdown - 0x100;
     if (o->countdown & 0xff00) {
         o->state_3++;

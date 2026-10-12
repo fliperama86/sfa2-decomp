@@ -12,14 +12,14 @@ extern ObjectFn data_801eeff4_slot06_0f[];
 
 Block172 *pop_block_from_pool(void);
 void update_child_object_by_state_1_handler_slot06_0f(Object *obj);
-void func_801ea704_slot06_0f(Object *obj);
+void set_states_to_1_0_0_0_random_countdown_slot06_0f(Object *obj);
 void update_variant_by_relative_x_slot06_0f(Object *obj);
 int func_801ea77c_slot06_0f(Object *obj);
-void func_801ea7b4_slot06_0f(Object *obj);
+void set_states_one_one_and_random_countdown_slot06_0f(Object *obj);
 int is_other_object_state_attacking_with_hit_slot06_0f(Object *obj);
-void func_801ea828_slot06_0f(Object *obj);
+void set_states_one_two_and_random_countdown_slot06_0f(Object *obj);
 int is_both_state_checks_true_slot06_0f(Object *obj);
-void func_801ea898_slot06_0f(Object *obj);
+void set_states_one_one_and_random_countdown_2_slot06_0f(Object *obj);
 int is_config_enabled_flag_set_slot06_0f(Object *obj);
 void set_states_1_3_0_0_slot06_0f(Object *obj);
 void set_sequence_from_other_side_table_slot06_0f(Object *obj, int idx);
@@ -103,7 +103,7 @@ void update_child_object_by_state_1_handler_slot06_0f(Object *obj) {
                 data_801eefd4_slot06_0f[obj->state_1](obj);
             }
             if (game_state.field_226 == 0) {
-                func_8011ffdc(obj);
+                clear_or_set_flag_by_pos_x_limit(obj);
             } else {
                 obj->field_01 = 0;
             }
@@ -117,20 +117,20 @@ void call_handler_by_state_2_slot06_0f(Object *obj) {
     data_801eefe4_slot06_0f[obj->state_2](obj);
 }
 
-void func_801ea2b8_slot06_0f(Object *obj) {
+void increment_state_2_and_update_variant_by_x_slot06_0f(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     update_variant_by_relative_x_slot06_0f(obj);
 }
 
-void func_801ea2e4_slot06_0f(Object *obj) {
+void select_state_from_other_object_state_checks_slot06_0f(Object *obj) {
     if (is_config_enabled_flag_set_slot06_0f(obj)) {
         set_states_1_3_0_0_slot06_0f(obj);
     } else if (is_both_state_checks_true_slot06_0f(obj)) {
-        func_801ea898_slot06_0f(obj);
+        set_states_one_one_and_random_countdown_2_slot06_0f(obj);
     } else if (func_801ea77c_slot06_0f(obj)) {
-        func_801ea7b4_slot06_0f(obj);
+        set_states_one_one_and_random_countdown_slot06_0f(obj);
     } else if (is_other_object_state_attacking_with_hit_slot06_0f(obj)) {
-        func_801ea828_slot06_0f(obj);
+        set_states_one_two_and_random_countdown_slot06_0f(obj);
     } else {
         update_variant_by_relative_x_slot06_0f(obj);
         advance_sequence_checked(obj);
@@ -155,13 +155,13 @@ void count_down_then_set_sequence_2_slot06_0f(Object *obj) {
 
 void update_state_by_other_object_state_a_slot06_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_801ea704_slot06_0f(obj);
+        set_states_to_1_0_0_0_random_countdown_slot06_0f(obj);
     } else {
         if (is_config_enabled_flag_set_slot06_0f(obj)) {
             set_states_1_3_0_0_slot06_0f(obj);
         }
         if (func_801ea77c_slot06_0f(obj) == 0 && is_both_state_checks_true_slot06_0f(obj) == 0 && is_other_object_state_attacking_with_hit_slot06_0f(obj) != 0) {
-            func_801ea828_slot06_0f(obj);
+            set_states_one_two_and_random_countdown_slot06_0f(obj);
         } else {
             advance_sequence_checked(obj);
         }
@@ -184,11 +184,11 @@ void count_down_then_set_sequence_3_slot06_0f(Object *obj) {
 
 void update_state_by_other_object_state_b_slot06_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_801ea704_slot06_0f(obj);
+        set_states_to_1_0_0_0_random_countdown_slot06_0f(obj);
     } else if (is_config_enabled_flag_set_slot06_0f(obj)) {
         set_states_1_3_0_0_slot06_0f(obj);
     } else if (is_other_object_state_attacking_with_hit_slot06_0f(obj) == 0 && is_both_state_checks_true_slot06_0f(obj) == 0 && func_801ea77c_slot06_0f(obj) != 0) {
-        func_801ea7b4_slot06_0f(obj);
+        set_states_one_one_and_random_countdown_slot06_0f(obj);
     } else {
         advance_sequence_checked(obj);
     }

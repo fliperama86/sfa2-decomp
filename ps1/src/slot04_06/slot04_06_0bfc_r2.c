@@ -12,7 +12,7 @@ int try_start_meter_move_3_slot04_06(Object *obj) {
     obj->state_3 = 0;
     obj->field_15a = 3;
     obj->facing_side = obj->saved_facing;
-    func_80142718(obj);
+    set_direction_index_from_buttons_mask_a(obj);
     return 1;
 }
 

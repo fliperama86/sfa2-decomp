@@ -12,10 +12,10 @@ void init_substep_screen_and_spawn_objects_slot12(void) {
     Object *o;
     func_80157d00(0);
     init_sprite_tables();
-    func_8011eae4();
-    func_801260ac(1, 0x20, 0);
-    func_801260ac(2, 0x20, 0);
-    func_801260ac(3, 0x20, 0);
+    clear_arrays_and_init_pools_and_sprite_tables();
+    copy_palette_rows_from_backup_bank(1, 0x20, 0);
+    copy_palette_rows_from_backup_bank(2, 0x20, 0);
+    copy_palette_rows_from_backup_bank(3, 0x20, 0);
     queue_image_upload_job(1, 0);
     queue_image_upload_job(2, 1);
     queue_image_upload_job(3, 2);

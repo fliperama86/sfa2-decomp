@@ -25,13 +25,13 @@ void update_slot_dpad_match_advance_stage(Object *object, u8 index, u8 arg) {
         buttons = object->input_bits & 0xf000;
     }
     if (buttons == 0) {
-        func_8013f2c8(object);
+        clear_global_flag_ignoring_object(object);
     }
     set_next_order_value_by_direction(object, index, arg);
     if (buttons == data_80188f4c) {
         goto apply;
     }
-    func_8013f2c8(object);
+    clear_global_flag_ignoring_object(object);
     return;
 apply:
     object->slots[index].stage++;

@@ -17,7 +17,7 @@ void check_slot_high_input_bits_and_advance(Object *object, int index, int arg) 
     } else if ((theirs & mine) != 0) {
         goto ok;
     }
-    func_8013f2c8(object);
+    clear_global_flag_ignoring_object(object);
     return;
 ok:
     if (!(entry & 1)) {

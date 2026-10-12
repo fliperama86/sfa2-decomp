@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-/* The form of func_801b5c6c_slot04_09 of a character file, with two other
+/* The form of spawn_fourth_frame_child_index_four_slot04_09 of a character file, with two other
    constants, another source field for the last byte, and without the byte
    that one clears. */
 void spawn_child_object_every_8_frames_slot00(Object *o) {

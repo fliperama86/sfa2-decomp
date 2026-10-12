@@ -11,7 +11,7 @@ void func_800e37a4_slot0f(void);
 void update_eleven_entry_menu_cursor_slot0f(void);
 void call_handler_by_substate_index_slot0f(void);
 
-void func_800e2880_slot0f(void) {
+void update_options_menu_or_apply_on_button_slot0f(void) {
     HudState *h;
     if (data_800f8578_slot0f != 0) {
         call_handler_by_substate_index_slot0f();

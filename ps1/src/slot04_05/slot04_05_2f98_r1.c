@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2f98_slot04_05(Object *obj) {
+void start_sequence_25_or_27_by_stored_choice_slot04_05(Object *obj) {
     if (((Slot04aObj *)obj)->field_1a6 != 2) {
         set_sequence_by_side_and_mode(obj, 0x25);
         obj->state_0 = 1;

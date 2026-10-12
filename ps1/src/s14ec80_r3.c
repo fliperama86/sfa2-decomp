@@ -5,7 +5,7 @@
 
 
 void update_cd_control(void) {
-    func_80150294(&ctl_80190948);
+    dispatch_pending_stream_entries(&ctl_80190948);
     call_cd_command_handler_by_state(&ctl_80190948);
 }
 

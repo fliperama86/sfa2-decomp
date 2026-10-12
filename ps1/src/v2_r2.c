@@ -24,6 +24,6 @@ void load_command_8_for_player_kind_and_stage(void) {
     } else if (game_state.stage_index >= 0x15) {
         kind += 0x15;
     }
-    func_8014f408(8, kind);
+    start_cd_track_and_wait_updating_control(8, kind);
     g->loop_mode = 0;
 }

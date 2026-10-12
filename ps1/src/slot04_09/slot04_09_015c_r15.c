@@ -13,6 +13,6 @@ void apply_velocity_and_acceleration_slot04_09(Object *o) {
     o->vel_x += o->accel_x;
 }
 
-void func_801b289c_slot04_09(Object *obj) {
+void call_table_function_by_state_3_8_slot04_09(Object *obj) {
     data_801c7cc0_slot04_09[obj->state_3](obj);
 }

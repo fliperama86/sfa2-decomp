@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801285e0(void) {
+void spawn_position_table_objects_and_list_objects(void) {
     s16 v;
     int t;
     if (data_80197f10 >= 6) {

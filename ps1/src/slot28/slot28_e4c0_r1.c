@@ -16,8 +16,8 @@ extern SequenceStep *data_8003f0b8_slot28[];
 extern SequenceStep *data_8003f09c_slot28[];
 extern u8 data_8003dea0_slot28[];
 extern u8 data_8003e230_slot28[];
-void func_8001eee0_slot28(void);
-void func_8001eea4_slot28(Object *obj);
+void clear_ten_entry_table_8_slot28(void);
+void init_object_data_pointers_a_10_slot28(Object *obj);
 
 void init_slot28_scene_objects_step_2_c_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
@@ -25,13 +25,13 @@ void init_slot28_scene_objects_step_2_c_slot28(Object *obj) {
     int one = 1;
     h->countdown_timer = 0x12c;
     h->step_index_2++;
-    func_80151020(0x506);
-    func_8001eee0_slot28();
+    set_menu_command_one_and_wait_pending(0x506);
+    clear_ten_entry_table_8_slot28();
     start_fade_mode_1_and_wait();
     data_80190568 = one;
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_8001eea4_slot28(b);
+        init_object_data_pointers_a_10_slot28(b);
         data_80051ac0_slot28.p = b;
         b->pos_x = -8;
         b->pos_y = -8;
@@ -44,7 +44,7 @@ void init_slot28_scene_objects_step_2_c_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_8001eea4_slot28(b);
+        init_object_data_pointers_a_10_slot28(b);
         data_80051ad4_slot28.p = b;
         b->pos_x = -8;
         b->pos_y = -8;
@@ -56,7 +56,7 @@ void init_slot28_scene_objects_step_2_c_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_8001eea4_slot28(b);
+        init_object_data_pointers_a_10_slot28(b);
         data_80051ac4_slot28[0] = b;
         b->pos_x = 0x38;
         b->pos_y = -0x60;
@@ -68,12 +68,12 @@ void init_slot28_scene_objects_step_2_c_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_8001eea4_slot28(b);
+        init_object_data_pointers_a_10_slot28(b);
         data_80051ac8_slot28.p = b;
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_8001eea4_slot28(b);
+        init_object_data_pointers_a_10_slot28(b);
         data_80051ad0_slot28.p = b;
         b->spawn_y = 0x1e0;
         b->pos_x = 0x28;

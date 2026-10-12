@@ -7,7 +7,7 @@ extern Slot06Tile data_801eeb48_slot06_04[2][0x70];
 extern u16 data_801eb348_slot06_04[];
 
 void init_first_layer_tile_map_slot06_04(Slot06Layer *layer);
-void func_801e81f4_slot06_04(void);
+void init_two_banks_112_tile_prims_gray_slot06_04(void);
 
 void init_first_layer_tile_map_slot06_04(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eb348_slot06_04;
@@ -17,7 +17,7 @@ void init_first_layer_tile_map_slot06_04(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e81f4_slot06_04(void) {
+void init_two_banks_112_tile_prims_gray_slot06_04(void) {
     int i;
     int j;
     Slot06Tile *r;

@@ -26,7 +26,7 @@ int try_start_meter_move_15a_1_direction_4_slot05_06(Object *obj) {
     obj->field_15a = 1;
     obj->active_flag_3 = 1;
     obj->direction_index = 4;
-    func_80142718(obj);
+    set_direction_index_from_buttons_mask_a(obj);
     return 1;
 }
 

@@ -15,5 +15,5 @@ void skip_one_script_word(void) {
     data_80189460 += 1;
 }
 
-void func_8014e710(void) {
+void noop_empty_function_12(void) {
 }

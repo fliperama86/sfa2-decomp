@@ -53,7 +53,7 @@ void call_handler_by_state_0_3_slot06_08(Object *obj) {
     data_801ed4d4_slot06_08[obj->state_0](obj);
 }
 
-void func_801ea0cc_slot06_08(Object *obj) {
+void start_sequence_by_table_index_and_count_parity_slot06_08(Object *obj) {
     s16 idx;
     obj->spawn_mode = 4;
     obj->state_0++;

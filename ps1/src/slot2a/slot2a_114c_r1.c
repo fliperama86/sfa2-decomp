@@ -7,14 +7,14 @@ extern Slot2aBank data_801e2fdc_slot2a[];
 extern u32 data_801e515c_slot2a;
 extern void (*data_801e2300_slot2a[])(Object *);
 extern void (*data_801e230c_slot2a[])(Object *);
-void func_801e12fc_slot2a(Object *obj);
-void func_801e16a8_slot2a(Object *obj);
+void call_state_1_table_then_link_if_health_nonzero_slot2a(Object *obj);
+void link_selector_records_into_ordering_table_slot2a(Object *obj);
 
 void call_handler_by_state_0_2_slot2a(Object *obj) {
     data_801e2300_slot2a[obj->state_0](obj);
 }
 
-void func_801e1284_slot2a(Object *obj) {
+void init_object_fields_and_advance_states_slot2a(Object *obj) {
     obj->ot_depth = 1;
     obj->pos_x = 0x68;
     obj->field_01 = 0;
@@ -28,5 +28,5 @@ void func_801e1284_slot2a(Object *obj) {
     if (obj->active_state != obj->table_index) {
         obj->pos_x = 0x10;
     }
-    func_801e12fc_slot2a(obj);
+    call_state_1_table_then_link_if_health_nonzero_slot2a(obj);
 }

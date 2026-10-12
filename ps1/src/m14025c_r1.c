@@ -9,7 +9,7 @@ int func_8014025c(Object *object, s16 a, s16 b, s16 c, u16 d) {
     ref_other.p = object->other;
     if (ref_other.p->field_157 != 0) return 0;
     if (object->field_49 != 0) {
-        if (*(u16 *)&object->state_0 == 1 && object->state_2 == 7) return func_8013f474(object, a, b) & 0xff;
+        if (*(u16 *)&object->state_0 == 1 && object->state_2 == 7) return apply_forced_state_if_other_in_limit(object, a, b) & 0xff;
         return 0;
     }
     if (ref_other.p->other_lock != 0) return 0;
@@ -24,7 +24,7 @@ int check_hit_other_active_state_zero(Object *object, s16 a, s16 b, s16 c, u16 d
     ref_other.p = object->other;
     if (ref_other.p->active_state != 0) return 0;
     if (object->field_49 != 0) {
-        if (*(u16 *)&object->state_0 == 1 && object->state_2 == 7) return func_8013f474(object, a, b) & 0xff;
+        if (*(u16 *)&object->state_0 == 1 && object->state_2 == 7) return apply_forced_state_if_other_in_limit(object, a, b) & 0xff;
         return 0;
     }
     if (ref_other.p->other_lock != 0) return 0;
@@ -38,7 +38,7 @@ int check_hit_other_without_state_precheck(Object *object, s16 a, s16 b, s16 c, 
     FrameRecord *frame;
     ref_other.p = object->other;
     if (object->field_49 != 0) {
-        if (*(u16 *)&object->state_0 == 1 && object->state_2 == 7) return func_8013f474(object, a, b) & 0xff;
+        if (*(u16 *)&object->state_0 == 1 && object->state_2 == 7) return apply_forced_state_if_other_in_limit(object, a, b) & 0xff;
         return 0;
     }
     if (ref_other.p->other_lock != 0) return 0;

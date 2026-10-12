@@ -10,7 +10,7 @@ void call_handler_by_state_2_2_slot2b(Object *o) {
     if ((game_state.field_65 | game_state.field_a8) == 0) {
         data_80079954_slot2b[o->state_2](o);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void func_80077dd4_slot2b(Object *o) {
@@ -25,11 +25,11 @@ void func_80077dd4_slot2b(Object *o) {
     if (v & 0x80) {
         advance_sequence_checked(o);
     } else {
-        func_80138070(o, v);
+        set_sequence_by_sound_side(o, v);
     }
 }
 
-void func_80077e50_slot2b(Object *o) {
+void countdown_reset_states_flip_vel_x_table_vel_y_slot2b(Object *o) {
     Slot2bObj *s = (Slot2bObj *)o;
     s->countdown_timer += 0xff;
     if (s->countdown_timer & 0x80) {

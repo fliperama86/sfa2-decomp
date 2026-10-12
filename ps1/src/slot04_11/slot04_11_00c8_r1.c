@@ -17,30 +17,30 @@ Object *pop_object_from_second_pool(void);
 void set_sequence_by_side(Object *object, int index);
 u8 get_random_byte(void);
 int func_8013cb70(Object *object, u8 a, u8 b);
-int func_8013cac8(Object *object, u8 a, u8 b);
-int func_8013cdc8(Object *object, u8 a, u8 b);
+int call_slot_stage_handler_a(Object *object, u8 a, u8 b);
+int call_slot_stage_handler_a_2(Object *object, u8 a, u8 b);
 int is_pressed_bits_in_table(Object *object);
 u8 get_pressed_bit_8(Object *object);
 void update_sequence_with_input_check(Object *object);
 
 /* functions of other units of this module */
 void copy_kind_table_to_scratch_by_side_slot04_11(Object *obj);
-void func_801b5740_slot04_11(Object *obj);
+void enable_active_flag_3_and_select_sequence_slot04_11(Object *obj);
 int check_buttons_by_kind_and_flag_slot04_11(Object *obj);
 int start_move_12_if_meter_ok_slot04_11(Object *obj);
-int func_801b0a84_slot04_11(Object *obj);
-int func_801b0b04_slot04_11(Object *obj);
-int func_801b0b88_slot04_11(Object *obj);
+int try_start_move_one_kind_seventeen_slot04_11(Object *obj);
+int try_start_move_two_kind_nineteen_slot04_11(Object *obj);
+int try_start_move_three_kind_nineteen_slot04_11(Object *obj);
 int start_move_4_if_kind_11_meter_ok_slot04_11(Object *obj);
 int start_move_5_if_kind_11_meter_ok_slot04_11(Object *obj);
 int start_move_6_if_kind_13_meter_ok_slot04_11(Object *obj);
-int func_801b0dd4_slot04_11(Object *obj);
+int start_move_7_if_kind_13_airborne_meter_ok_slot04_11(Object *obj);
 int start_move_8_or_count_failure_slot04_11(Object *obj);
 int start_move_9_if_allowed_slot04_11(Object *obj);
-int func_801b0fb0_slot04_11(Object *obj);
-int func_801b109c_slot04_11(Object *obj);
+int try_start_move_ten_spending_meter_slot04_11(Object *obj);
+int try_start_move_eleven_spending_meter_slot04_11(Object *obj);
 
-int func_801b0a04_slot04_11(Object *obj);
+int try_start_move_zero_kind_seventeen_slot04_11(Object *obj);
 void call_handler_by_state_3_set_flag_slot04_11(Object *obj);
 void call_handler_by_state_3_clear_field_slot04_11(Object *obj);
 
@@ -177,10 +177,10 @@ void call_handler_by_state_3_clear_field_slot04_11(Object *obj) {
 void advance_state_3_or_switch_to_state_1_2_slot04_11(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     if (obj->direction_index == 0) {
-        func_801b5740_slot04_11(obj);
+        enable_active_flag_3_and_select_sequence_slot04_11(obj);
     } else if (obj->field_25f != 0 || (obj->input_bits_2 & 0xa000) == 0 ||
-               (u8)func_8013f8c4(obj, -0x14, 0xe) == 0) {
-        func_801b5740_slot04_11(obj);
+               (u8)try_force_other_state_if_box_in_range(obj, -0x14, 0xe) == 0) {
+        enable_active_flag_3_and_select_sequence_slot04_11(obj);
     } else {
         obj->state_0 = 1;
         obj->state_1 = 2;
@@ -189,7 +189,7 @@ void advance_state_3_or_switch_to_state_1_2_slot04_11(Object *obj) {
     }
 }
 
-void func_801b0668_slot04_11(Object *obj) {
+void call_update_sequence_with_input_check_slot04_11(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
@@ -198,12 +198,12 @@ void call_handler_by_state_3_set_flag_slot04_11(Object *obj) {
     data_801c731c_slot04_11[obj->state_3](obj);
 }
 
-void func_801b06cc_slot04_11(Object *obj) {
+void advance_state_3_and_set_direction_sequence_slot04_11(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    func_801b5740_slot04_11(obj);
+    enable_active_flag_3_and_select_sequence_slot04_11(obj);
 }
 
-void func_801b06f8_slot04_11(Object *obj) {
+void call_update_sequence_with_input_check_2_slot04_11(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
@@ -228,18 +228,18 @@ void set_state_3_start_direction_sequence_slot04_11(Object *obj) {
 
 void select_slot04_11_action_from_inputs_slot04_11(Object *obj) {
     if (is_pressed_bits_in_table(obj) && start_move_12_if_meter_ok_slot04_11(obj)) return;
-    if (func_8013caf0(obj, 0, 0x17) && func_801b0dd4_slot04_11(obj)) return;
+    if (call_slot_stage_if_both_dir_pairs_ok(obj, 0, 0x17) && start_move_7_if_kind_13_airborne_meter_ok_slot04_11(obj)) return;
     if (func_8013cb70(obj, 1, 0x15) && start_move_6_if_kind_13_meter_ok_slot04_11(obj)) return;
     if (func_8013cb70(obj, 2, 0x14) && start_move_5_if_kind_11_meter_ok_slot04_11(obj)) return;
-    if (func_8013caf0(obj, 3, 0x16) && start_move_4_if_kind_11_meter_ok_slot04_11(obj)) return;
-    if (func_8013cdc8(obj, 4, 1) && func_801b0b88_slot04_11(obj)) return;
-    if (func_8013cdc8(obj, 5, 2) && func_801b0b04_slot04_11(obj)) return;
-    if (func_8013cac8(obj, 6, 5) && func_801b0a84_slot04_11(obj)) return;
-    if (func_8013cfdc(obj, 7, 0) && func_801b0a04_slot04_11(obj)) return;
+    if (call_slot_stage_if_both_dir_pairs_ok(obj, 3, 0x16) && start_move_4_if_kind_11_meter_ok_slot04_11(obj)) return;
+    if (call_slot_stage_handler_a_2(obj, 4, 1) && try_start_move_three_kind_nineteen_slot04_11(obj)) return;
+    if (call_slot_stage_handler_a_2(obj, 5, 2) && try_start_move_two_kind_nineteen_slot04_11(obj)) return;
+    if (call_slot_stage_handler_a(obj, 6, 5) && try_start_move_one_kind_seventeen_slot04_11(obj)) return;
+    if (call_slot_stage_handler_a_3(obj, 7, 0) && try_start_move_zero_kind_seventeen_slot04_11(obj)) return;
     if (check_buttons_by_kind_and_flag_slot04_11(obj) && start_move_8_or_count_failure_slot04_11(obj)) return;
     if (obj->kind == 0x11 && (obj->pressed_bits & 2) && start_move_8_or_count_failure_slot04_11(obj)) return;
     if (obj->kind == 0x13 && (obj->pressed_bits & 1) && start_move_8_or_count_failure_slot04_11(obj)) return;
     if (get_pressed_bit_8(obj) && start_move_9_if_allowed_slot04_11(obj)) return;
-    if (func_8013cac8(obj, 8, 0xd) && func_801b0fb0_slot04_11(obj)) return;
-    if (func_8013cac8(obj, 9, 0xe)) func_801b109c_slot04_11(obj);
+    if (call_slot_stage_handler_a(obj, 8, 0xd) && try_start_move_ten_spending_meter_slot04_11(obj)) return;
+    if (call_slot_stage_handler_a(obj, 9, 0xe)) try_start_move_eleven_spending_meter_slot04_11(obj);
 }

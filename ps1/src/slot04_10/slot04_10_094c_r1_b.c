@@ -8,11 +8,11 @@ extern ObjectFn data_801c69a0_slot04_10[];
 
 void set_sequence_by_side(Object *object, int arg);
 void reset_object_to_state_1_0_0_2_sequence_1(Object *object);
-void func_80131638(Object *object);
+void land_reset_fields_and_choose_next_state(Object *object);
 
 void load_velocities_from_table_3_slot04_10(Object *obj);
-void func_801b1308_slot04_10(Object *obj);
-void func_801b16c8_slot04_10(Object *obj);
+void call_table_function_by_state_3_5_slot04_10(Object *obj);
+void call_table_function_by_state_3_6_slot04_10(Object *obj);
 
 void call_handler_by_state_2_2_slot04_10(Object *obj) {
     data_801c6998_slot04_10[obj->state_2](obj);
@@ -24,7 +24,7 @@ void start_sequence_22_with_sound_slot04_10(Object *obj) {
     play_side_sound_at(obj, obj->side, 0xb);
 }
 
-void func_801b1038_slot04_10(Object *obj) {
+void update_sequence_reset_states_if_flags_negative_slot04_10(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -43,14 +43,14 @@ void load_velocities_from_table_2_slot04_10(Object *obj) {
 }
 
 void load_velocities_from_table_3_slot04_10(Object *obj) {
-    func_80131638(obj);
+    land_reset_fields_and_choose_next_state(obj);
 }
 
 void call_handler_by_input_dir_or_state_3_slot04_10(Object *obj) {
     if (obj->input_dir_0 != 0) {
-        func_801b16c8_slot04_10(obj);
+        call_table_function_by_state_3_6_slot04_10(obj);
     } else if (obj->input_dir_second != 0) {
-        func_801b1308_slot04_10(obj);
+        call_table_function_by_state_3_5_slot04_10(obj);
     } else {
         data_801c69a0_slot04_10[obj->state_3](obj);
     }

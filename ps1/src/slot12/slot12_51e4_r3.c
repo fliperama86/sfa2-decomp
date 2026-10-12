@@ -16,7 +16,7 @@ void call_handler_by_table_index_slot12(Object *obj) {
     data_800284ac_slot12[obj->table_index](obj);
 }
 
-void func_8001542c_slot12(Object *obj) {
+void release_object_to_pool_table_9_slot12(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 

@@ -10,6 +10,6 @@ void call_handler_by_direction_index_slot04_09(Object *obj) {
     data_801c7ce4_slot04_09[obj->direction_index >> 1](obj);
 }
 
-void func_801b2eb8_slot04_09(Object *obj) {
+void call_table_function_by_state_3_9_slot04_09(Object *obj) {
     data_801c7cf0_slot04_09[obj->state_3](obj);
 }

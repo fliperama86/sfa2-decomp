@@ -5,7 +5,7 @@
 
 extern s32 data_801bfe40_slot04_00[];
 
-void func_801b1998_slot04_00(Object *o) {
+void start_rise_with_table_vel_x_and_meter_gain_slot04_00(Object *o) {
     u8 t = 1;
     s32 v;
 

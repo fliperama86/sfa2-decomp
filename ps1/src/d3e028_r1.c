@@ -14,7 +14,7 @@
  * a bit of 0x68 and dir is 2. Entry bit 0x200 set: with m = pad & mask, a
  * hit when entry bit 0x100 is set and (m is 0x94 or dir is 1), or else when
  * entry bit 0x800 is set and (m is 0x68 or dir is 2). A hit calls
- * reset_slot_stage_set_result, anything else func_8013f2c8.
+ * reset_slot_stage_set_result, anything else clear_global_flag_ignoring_object.
  */
 void check_slot_input_by_entry_index(Object *object, u8 index, u8 arg) {
     u16 mask;
@@ -46,7 +46,7 @@ void check_slot_input_by_entry_index(Object *object, u8 index, u8 arg) {
         else if ((mask & 0x868) && dir == 2)
             reset_slot_stage_set_result(object, index, arg);
         else
-            func_8013f2c8(object);
+            clear_global_flag_ignoring_object(object);
         return;
     }
     /* The & 0xff does not change the value (mask is at most 0xff); without it this function differs
@@ -57,11 +57,11 @@ void check_slot_input_by_entry_index(Object *object, u8 index, u8 arg) {
     else if ((entry & 0x100) && dir == 1)
         reset_slot_stage_set_result(object, index, arg);
     else if (!(entry & 0x800))
-        func_8013f2c8(object);
+        clear_global_flag_ignoring_object(object);
     else if (mask == 0x68)
         reset_slot_stage_set_result(object, index, arg);
     else if (dir == 2)
         reset_slot_stage_set_result(object, index, arg);
     else
-        func_8013f2c8(object);
+        clear_global_flag_ignoring_object(object);
 }

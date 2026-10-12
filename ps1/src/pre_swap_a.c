@@ -131,7 +131,7 @@ void reset_object_fields_2(Object *object) {
     }
 }
 
-void func_80131638(Object *object) {
+void land_reset_fields_and_choose_next_state(Object *object) {
     func_80131f7c(object);
     object->state_0 = 1;
     object->state_2 = 3;
@@ -142,16 +142,16 @@ void func_80131638(Object *object) {
     if (object->mode_flag_2 == 0) {
         if (get_pressed_low_byte(object)) {
             set_state_1_0_5_and_read_input_direction(object);
-        } else if (func_8012f970(object)) {
+        } else if (find_nearby_enemy_and_get_flag(object)) {
             enter_state_2_6_by_button_input(object);
         } else if ((u8)is_facing_differs_from_saved(object)) {
-            func_8012f8c4(object);
+            set_win_state_or_state_4_sequence(object);
         } else {
             set_sequence_by_side(object, 0x11);
         }
     } else {
         if ((u8)is_facing_differs_from_saved(object)) {
-            func_8012f8c4(object);
+            set_win_state_or_state_4_sequence(object);
         } else {
             set_sequence_by_side(object, 0x11);
         }

@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1600_slot04_07(Object *obj) {
+void enter_state_7_set_other_lock_sequence_by_mode_b_slot04_07(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;
@@ -30,7 +30,7 @@ int try_start_meter_move_a_slot04_07(Object *obj) {
         obj->field_15a = 2;
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
-        func_80142778(obj);
+        set_direction_index_from_buttons_mask_b(obj);
     }
     return r;
 }
@@ -48,7 +48,7 @@ int try_start_meter_move_b_slot04_07(Object *obj) {
         obj->active_flag_3 = 1;
         obj->facing_side = obj->saved_facing;
         ((Slot04aObj *)obj)->field_1cd = obj->field_4b;
-        func_80142718(obj);
+        set_direction_index_from_buttons_mask_a(obj);
     }
     return r;
 }

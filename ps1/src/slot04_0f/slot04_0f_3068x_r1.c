@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3068_slot04_0f(Object *obj) {
+void move_arc_until_ground_then_start_sequence_slot04_0f(Object *obj) {
     if (obj->vel_y >= 0) {
         *(s32 *)&obj->pos_y_frac -= obj->vel_y;
         obj->vel_y += obj->accel_y;

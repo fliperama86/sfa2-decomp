@@ -11,7 +11,7 @@ void advance_state_3_and_start_sequence_slot04_02(Object *obj) {
     set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b0714_slot04_02(Object *obj) {
+void start_directional_sequence_with_special_state_slot04_02(Object *obj) {
     u16 x;
 
     obj->input_dir_0 = 4;

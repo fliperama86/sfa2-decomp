@@ -10,7 +10,7 @@ void raise_focus_health_to_max_step(GameState *g)
   Object *o;
   s16 v;
   u16 n;
-  if ((u8)func_80125394() == 0)
+  if ((u8)is_pad_pressed_for_leader_bits_or_mode() == 0)
   {
     v = g->countdown_timer_2;
     v--;

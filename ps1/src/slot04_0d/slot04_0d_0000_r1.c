@@ -134,7 +134,7 @@ void call_helper_up_to_twice_on_frame_phase_slot04_0d(Object *obj) {
         if (((i + obj->side) & 3) == 0) {
             i = 0;
             do {
-                r = func_80148e84(obj);
+                r = spawn_random_offset_object_variant_zero(obj);
                 if (r == 0) {
                     break;
                 }
@@ -165,17 +165,17 @@ void call_handler_by_direction_index_slot04_0d(Object *obj) {
     data_801c2940_slot04_0d[obj->direction_index >> 1](obj);
 }
 
-void func_801b044c_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_slot04_0d(Object *obj) {
     data_801c294c_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b048c_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_2_slot04_0d(Object *obj) {
     data_801c2954_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b04cc_slot04_0d(Object *obj) {
+void check_range_or_start_directional_sequence_a_slot04_0d(Object *obj) {
     obj->state_3++;
-    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x11, 0x11) != 0) {
+    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x11, 0x11) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;
@@ -190,11 +190,11 @@ void load_velocities_from_table_slot04_0d(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
-void func_801b0574_slot04_0d(Object *obj) {
+void check_range_or_start_directional_sequence_b_slot04_0d(Object *obj) {
     int one;
 
     obj->state_3 = obj->state_3 + 1;
-    if ((obj->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x11, 0x11) != 0) {
+    if ((obj->input_bits_2 & 0xa000) != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x11, 0x11) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;
@@ -232,14 +232,14 @@ void call_handler_by_direction_index_2_slot04_0d(Object *obj) {
     data_801c2960_slot04_0d[obj->direction_index >> 1](obj);
 }
 
-void func_801b06d8_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_3_slot04_0d(Object *obj) {
     data_801c296c_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b0718_slot04_0d(Object *obj) {
+void choose_attack_transition_by_input_and_range_slot04_0d(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
-        if ((u8)func_8013f8c4(obj, -0x11, 0x11) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x11, 0x11) != 0) {
             obj->state_0 = 1;
             obj->state_1 = 2;
             obj->state_2 = 0;

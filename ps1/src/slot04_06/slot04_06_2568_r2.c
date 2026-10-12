@@ -6,7 +6,7 @@
 void move_x_by_vel_x_facing_then_accelerate_slot04_06(Object *obj);
 void apply_vertical_velocity_slot04_06(Object *obj);
 
-void func_801b2654_slot04_06(Object *obj) {
+void update_rise_then_start_fall_sequence_b_slot04_06(Object *obj) {
 
     apply_vertical_velocity_slot04_06(obj);
     if (obj->vel_y <= 0x1ffff && ((Slot04aObj *)obj)->field_1c8 == 0) {

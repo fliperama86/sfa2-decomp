@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b41c4_slot04_07(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_07(Object *obj);
 
 void update_fall_and_land_with_damage_slot04_07(Object *obj) {
     int k;
 
     if (((Slot04aObj *)obj)->mode != 0) {
         update_sequence(obj);
-    } else if (func_801b41c4_slot04_07(obj) >= 0 || (k = obj->ground_y) > obj->pos_y) {
+    } else if (move_by_velocity_return_new_vel_y_slot04_07(obj) >= 0 || (k = obj->ground_y) > obj->pos_y) {
         update_sequence(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;

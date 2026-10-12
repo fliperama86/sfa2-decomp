@@ -19,7 +19,7 @@ void update_kind_2_4_hold_counters_c_slot04_sel(Object *obj, Object *other, Slot
 void update_button_sequence_matcher_3_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);
 void check_opposite_player_same_selection_3_slot04_sel(void);
 
-void func_801b5224_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec) {
+void select_kind_for_side_chosen_by_step_index_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
     Object *p;

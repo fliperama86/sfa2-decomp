@@ -11,7 +11,7 @@ void reduce_other_damage_by_eighth(void) {
     ref_other.p->damage = ref_other.p->damage - (ref_other.p->damage >> 3);
 }
 
-void func_80140f48(void) {
+void noop_empty_function_11(void) {
 }
 
 void increase_other_damage_by_quarter(void) {

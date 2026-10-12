@@ -8,7 +8,7 @@
 
 void call_handler_by_side_and_mode(Object *object) {
     ObjectFn fn;
-    func_80129be0(object);
+    count_down_countdown_4_2(object);
     object->input_matched_flag = 0;
     if (object->field_02 == 0) {
         if (object->mode_flag_2 == 0) {
@@ -26,6 +26,6 @@ void call_handler_by_side_and_mode(Object *object) {
     fn(object);
 }
 
-void func_8012bcc0(Object *object) {
+void call_state_3_handler_set_e(Object *object) {
     handler_table_19ec[object->state_3](object);
 }

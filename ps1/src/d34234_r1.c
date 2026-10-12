@@ -12,7 +12,7 @@ extern u32 data_801ac874;
 extern u32 data_801ac87c;
 extern u32 data_801ac880;
 extern u32 data_801ac884;
-void func_80153154(void);
+void call_kind_table_for_two_effects(void);
 void call_function_at_data_pointer(void);
 
 /*
@@ -25,7 +25,7 @@ void call_function_at_data_pointer(void);
  * into the block at data_801987c8, calls func_801347b4 seven times with
  * the words data_801ac86c to data_801ac884, and ends with queue_player_status_text_items.
  */
-void func_80134234(void) {
+void add_selector_hud_prims_and_strips(void) {
     /* Only the low 16 bits of the selector count, as a signed number. */
     s16 sel = data_801a27d0;
     /* data_801987c8 is only added to here, never read through. */
@@ -67,7 +67,7 @@ void func_80134234(void) {
     func_8015bf34(part3c, (Cmd *)&base[sel * 16 + 0x44]);
     func_8015bf34(part3c, (Cmd *)&base[sel * 16 + 0x64]);
 
-    func_80153154();
+    call_kind_table_for_two_effects();
     call_function_at_data_pointer();
     func_8015bf34(part38, (Cmd *)&data_80188d6c[sel]);
     func_8015bf34(part38, (Cmd *)data_80188d6c[sel].unknown_1c);

@@ -33,7 +33,7 @@ void copy_vel_y_to_vel_x_on_step_end_slot04_04(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b1e50_slot04_04(Object *obj) {
+void update_sequence_or_finish_and_reset_other_code_slot04_04(Object *obj) {
     if (!((s16)obj->step_flags & 0x8000)) {
         update_sequence(obj);
     } else {

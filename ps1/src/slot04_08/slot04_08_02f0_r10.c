@@ -12,14 +12,14 @@ void call_handler_by_direction_index_slot04_08(Object *obj) {
     data_801c3cdc_slot04_08[obj->direction_index >> 1](obj);
 }
 
-void func_801b2b38_slot04_08(Object *obj) {
+void call_table_function_by_state_3_7_slot04_08(Object *obj) {
     data_801c3ce8_slot04_08[obj->state_3](obj);
 }
 
-void func_801b2b78_slot04_08(Object *obj) {
+void call_table_function_by_state_3_8_slot04_08(Object *obj) {
     data_801c3d04_slot04_08[obj->state_3](obj);
 }
 
-void func_801b2bb8_slot04_08(Object *obj) {
+void call_table_function_by_state_3_9_slot04_08(Object *obj) {
     data_801c3d20_slot04_08[obj->state_3](obj);
 }

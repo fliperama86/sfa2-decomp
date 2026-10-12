@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b03ac_slot04_02(Object *obj) {
+void update_sequence_with_step_x_shift_or_finish_slot04_02(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t < 0) {

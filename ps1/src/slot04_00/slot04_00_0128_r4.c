@@ -6,7 +6,7 @@
 void play_side_sound_from_step_flags_slot04_00(Object *obj);
 extern ObjectFn data_801bfd54_slot04_00[];
 
-void func_801b03bc_slot04_00(Object *obj) {
+void call_state_3_table_then_play_step_flags_sound_slot04_00(Object *obj) {
     data_801bfd54_slot04_00[obj->state_3](obj);
     play_side_sound_from_step_flags_slot04_00(obj);
 }

@@ -3,9 +3,9 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801cab84_slot05_06(Object *obj);
+void set_state_3_dash_velocity_sound_sequence_slot05_06(Object *obj);
 
-void func_801caa3c_slot05_06(Object *o) {
+void count_down_byte_advance_state_3_update_sequence_2_slot05_06(Object *o) {
     ((Slot04aObj *)o)->field_1c2 += 0xff;
     if (((Slot04aObj *)o)->field_1c2 & 0x80) {
         o->state_3++;
@@ -13,14 +13,14 @@ void func_801caa3c_slot05_06(Object *o) {
     update_sequence(o);
 }
 
-void func_801caa88_slot05_06(Object *obj) {
+void update_sequence_then_hit_other_at_end_slot05_06(Object *obj) {
     Slot04aObj *s = (Slot04aObj *)obj;
     Object *other;
 
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else if (obj->direction_index == 4) {
-        func_801cab84_slot05_06(obj);
+        set_state_3_dash_velocity_sound_sequence_slot05_06(obj);
     } else {
         other = obj->other;
         other->field_15b = 1;
@@ -39,7 +39,7 @@ void func_801caa88_slot05_06(Object *obj) {
     }
 }
 
-void func_801cab84_slot05_06(Object *obj) {
+void set_state_3_dash_velocity_sound_sequence_slot05_06(Object *obj) {
     Slot04aObj *s = (Slot04aObj *)obj;
 
     obj->state_3 = 0x13;

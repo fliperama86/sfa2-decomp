@@ -6,7 +6,7 @@
 
 
 
-void func_80144544(Object *object) {
+void move_x_until_countdown_then_clear_config_mode(Object *object) {
     update_position_x_with_accel(object);
     object->countdown = (s16)object->countdown - 1;
     if (object->countdown & 0x80) {
@@ -27,7 +27,7 @@ void init_move_left_from_right_sequence_a(Object *object) {
     object->vel_x = -0x20000;
     object->accel_x = -0x8000;
     object->state_2 = object->state_2 + 1;
-    func_80144ee4(object, 0xa);
+    set_sequence_from_effect_table(object, 0xa);
 }
 
 void accelerate_until_countdown_set_accel_x(Object *object) {

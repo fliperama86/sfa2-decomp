@@ -24,7 +24,7 @@ void update_sequence_or_finish_sequence_2_slot05_06(Object *obj) {
     }
 }
 
-void func_801cb044_slot05_06(Object *obj) {
+void call_table_function_by_state_3_12_slot05_06(Object *obj) {
     data_801dd428_slot05_06[obj->state_3](obj);
 }
 

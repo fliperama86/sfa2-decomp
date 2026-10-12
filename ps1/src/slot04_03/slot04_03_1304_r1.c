@@ -4,9 +4,9 @@
 #include "../externs.h"
 
 extern s32 data_801c05e0_slot04_03[];
-void func_801b1304_slot04_03(Object *obj);
+void start_arc_motion_from_direction_table_slot04_03(Object *obj);
 
-void func_801b1304_slot04_03(Object *obj) {
+void start_arc_motion_from_direction_table_slot04_03(Object *obj) {
     int a;
     int v;
 

@@ -5,7 +5,7 @@
 
 extern u16 data_801a6966;
 
-void func_8013d65c(Object *object, u8 index, u8 arg) {
+void update_slot_stage_rotate_direction_either_way(Object *object, u8 index, u8 arg) {
     u16 buttons;
     s16 dir;
 
@@ -36,7 +36,7 @@ void func_8013d65c(Object *object, u8 index, u8 arg) {
             goto apply;
         }
     }
-    func_8013f2c8(object);
+    clear_global_flag_ignoring_object(object);
     return;
 apply:
     object->slots[index].stage++;

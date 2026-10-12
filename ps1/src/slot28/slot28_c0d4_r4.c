@@ -11,7 +11,7 @@ void start_sequence_9_when_variant_set_slot28(Object *o) {
     }
 }
 
-void func_8001c760_slot28(Object *o) {
+void advance_sequence_start_sequence_5_on_variant_slot28(Object *o) {
     advance_sequence_checked(o);
     if (o->variant_index != 0) {
         o->variant_index = 0;

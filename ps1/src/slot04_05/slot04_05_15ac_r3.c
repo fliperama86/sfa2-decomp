@@ -22,7 +22,7 @@ void start_state_3_motion_from_velocity_table_slot04_05(Object *obj) {
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + a);
 }
 
-void func_801b196c_slot04_05(Object *obj) {
+void update_sequence_play_sound_when_flag_zero_slot04_05(Object *obj) {
     update_sequence(obj);
     if (*(u8 *)&obj->step_flags == 0) {
         obj->active_state = 1;

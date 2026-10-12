@@ -15,13 +15,13 @@ void func_801b2594_slot04_0b(Object *obj) {
     } else {
         obj->vel_x = 0x80000;
     }
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x3f);
 }
 
-void func_801b2624_slot04_0b(Object *obj) {
+void spawn_direction_children_on_high_flag_byte_a_slot04_0b(Object *obj) {
     if ((s16)obj->step_flags & 0xff00) {
         obj->state_3++;
         if (obj->field_4b != 0) {

@@ -6,7 +6,7 @@
 extern u16 data_801ec11c_slot06_0a[];
 extern Slot06TileW data_801f3eb0_slot06_0a[2][0x3d];
 
-void func_801369b0(Cam *cam);
+void init_cam_position_with_fixed_origin(Cam *cam);
 void init_draw_mode_prim_4(Tx *tx);
 void toggle_flag_and_set_layer_scroll_half_slot06_0a(Slot06Layer *layer);
 
@@ -24,7 +24,7 @@ void noop_empty_function_3_slot06_0a(void) {
 
 void call_handler_by_layer_mode_cam_or_follow_slot06_0a(Slot06Layer *layer) {
     if (layer->mode == 0) {
-        func_801369b0((Cam *)layer);
+        init_cam_position_with_fixed_origin((Cam *)layer);
     } else if (layer->mode == 1) {
         toggle_flag_and_set_layer_scroll_half_slot06_0a(layer);
     }

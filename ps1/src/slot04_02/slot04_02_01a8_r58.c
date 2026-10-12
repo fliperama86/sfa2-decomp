@@ -6,7 +6,7 @@
 void start_air_state_pick_sequence_slot04_02(Object *obj);
 void set_object_states_0_to_3_2_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-void func_801b68b4_slot04_02(Object *obj) {
+void select_air_action_or_start_air_state_slot04_02(Object *obj) {
     int d;
 
     if (obj->active_state != 0) {

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801474b8(Object *object) {
+void init_image_row_copy_with_sound_and_cd_volume(Object *object) {
     object->state_0 = object->state_0 + 1;
     data_80189458 = 0;
     data_8018945c = 0;

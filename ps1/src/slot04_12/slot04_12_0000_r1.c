@@ -17,15 +17,15 @@ void set_sequence_by_side(Object *object, int index);
 void set_sequence_and_tables_from_direction(Object *object);
 
 void call_handler_by_input_dir_second_slot04_12(Object *obj);
-void func_801b05a8_slot04_12(Object *obj);
+void set_flag_157_then_call_by_input_dir_second_slot04_12(Object *obj);
 void update_state_3_start_move_with_sound_slot04_12(Object *obj);
-void func_801b046c_slot04_12(Object *obj);
-void func_801b0634_slot04_12(Object *obj);
+void update_state3_first_frame_range_check_narrow_slot04_12(Object *obj);
+void call_table_function_by_state_3_slot04_12(Object *obj);
 void update_state_3_start_move_slot04_12(Object *obj);
-void func_801b0a40_slot04_12(Object *obj);
-void func_801b0904_slot04_12(Object *obj);
+void update_jump_flag_start_or_land_on_ground_slot04_12(Object *obj);
+void start_sequence_1c_1d_or_default_dir_sequence_slot04_12(Object *obj);
 void set_sequence_by_direction_and_variant_slot04_12(Object *obj);
-int func_801b3a4c_slot04_12(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_12(Object *obj);
 
 void init_object_with_two_linked_children_slot04_12(Object *obj) {
     u32 *dst;
@@ -139,9 +139,9 @@ void count_down_and_set_side_bit_slot04_12(Object *obj) {
 
 void dispatch_by_input_dir_0_slot04_12(Object *obj) {
     if (obj->input_dir_0 == 4) {
-        func_801b0a40_slot04_12(obj);
+        update_jump_flag_start_or_land_on_ground_slot04_12(obj);
     } else if (obj->input_dir_0 != 0) {
-        func_801b05a8_slot04_12(obj);
+        set_flag_157_then_call_by_input_dir_second_slot04_12(obj);
     } else {
         call_handler_by_input_dir_second_slot04_12(obj);
     }
@@ -152,17 +152,17 @@ void call_handler_by_input_dir_second_slot04_12(Object *obj) {
     if (obj->input_dir_second != 0) {
         update_state_3_start_move_with_sound_slot04_12(obj);
     } else {
-        func_801b046c_slot04_12(obj);
+        update_state3_first_frame_range_check_narrow_slot04_12(obj);
     }
 }
 
-void func_801b046c_slot04_12(Object *obj) {
+void update_state3_first_frame_range_check_narrow_slot04_12(Object *obj) {
     if (obj->state_3 != 0) {
         update_sequence_with_input_check(obj);
     } else {
         obj->state_3 = obj->state_3 + 1;
         if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
-            if ((u8)func_8013f8c4(obj, -0x14, 0xe) != 0) {
+            if ((u8)try_force_other_state_if_box_in_range(obj, -0x14, 0xe) != 0) {
                 obj->state_0 = 1;
                 obj->state_1 = 2;
                 obj->state_2 = 0;
@@ -191,10 +191,10 @@ void update_state_3_start_move_with_sound_slot04_12(Object *obj) {
     }
 }
 
-void func_801b05a8_slot04_12(Object *obj) {
+void set_flag_157_then_call_by_input_dir_second_slot04_12(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second != 0) {
-        func_801b0634_slot04_12(obj);
+        call_table_function_by_state_3_slot04_12(obj);
     } else {
         update_state_3_start_move_slot04_12(obj);
     }
@@ -210,7 +210,7 @@ void update_state_3_start_move_slot04_12(Object *obj) {
     }
 }
 
-void func_801b0634_slot04_12(Object *obj) {
+void call_table_function_by_state_3_slot04_12(Object *obj) {
     data_801c4a0c_slot04_12[obj->state_3](obj);
 }
 
@@ -245,9 +245,9 @@ void load_velocities_from_table_slot04_12(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
-void func_801b0790_slot04_12(Object *obj) {
+void update_airborne_motion_until_landing_flip_side_slot04_12(Object *obj) {
     obj->field_157 = 0;
-    if (func_801b3a4c_slot04_12(obj) < 0 && obj->pos_y >= obj->ground_y) {
+    if (move_by_velocity_return_new_vel_y_slot04_12(obj) < 0 && obj->pos_y >= obj->ground_y) {
         obj->pos_y = obj->ground_y;
         obj->pos_y_frac = 0;
         obj->active_state = 0;
@@ -267,7 +267,7 @@ void set_air_direction_or_range_check_switch_slot04_12(Object *obj) {
     obj->active_flag_3 = 1;
     set_direction_from_pressed_bits(obj);
     if (obj->input_dir_second != 0) {
-        func_801b0904_slot04_12(obj);
+        start_sequence_1c_1d_or_default_dir_sequence_slot04_12(obj);
     } else if (obj->direction_index != 0 && (obj->input_bits_2 & 0xe000) != 0 && obj->pos_y < obj->ground_y - 0x30 && (u8)check_hit_other_active_state_nonzero(obj, -0x20, 0x20, 0, 0x10) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;

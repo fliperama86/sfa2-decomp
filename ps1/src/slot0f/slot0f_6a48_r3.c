@@ -29,7 +29,7 @@ void count_records_with_type_16_or_more_slot0f(Object *o) {
     data_800f7b74_slot0f[2].value = n;
 }
 
-void func_800e6d44_slot0f(Object *o) {
+void count_record_bytes_of_two_types_into_value_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     u8 *p;
     int n;

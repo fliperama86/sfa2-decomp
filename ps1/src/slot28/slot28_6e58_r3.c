@@ -5,7 +5,7 @@
 
 extern void (*data_800306c4_slot28[])(Object *);
 
-void func_80017018_slot28(Object *o) {
+void update_vertical_bobbing_position_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     obj->pos_y -= obj->delta_y;
     obj->delta_y += obj->field_58;

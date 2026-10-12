@@ -24,7 +24,7 @@ void get_three_pool_objects_sorted(u32 *p) {
     }
 }
 
-void func_80146184(Block172 *block) {
+void call_state_0_handler_from_c9e0_table(Block172 *block) {
     Object *object = (Object *)block;
     fn_table_8017c9e0[object->state_0](object);
 }

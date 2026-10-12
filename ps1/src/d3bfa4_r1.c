@@ -33,7 +33,7 @@ typedef struct {
    the player's field_295 is 0) and the object's frame value_a is below the player's
    field_69, or when the object's frame active is 0, and tests the player's three box sets
    (boxes_a, boxes_b, boxes_c, each indexed by the player's frame and tested only when that
-   index is not 0) against the box of the table object's current frame (func_801397d0).
+   index is not 0) against the box of the table object's current frame (is_box_separated_2).
    Each box set that overlaps adds its bit (1, 2, 4) to data_80188f30 and records the
    overlap's corners and size in the record at data_80188ed0. When any overlapped, the object hits the
    player: the callees apply the hit, the player and an effect object get state bytes, and
@@ -93,7 +93,7 @@ void func_8013bfa4(void) {
             ref_first.p = (Object *)box;
             reset_hit_results();
             if (ref_second.p->frame->box_a != 0) {
-                if (func_801397d0((s32)ref_third.p, ref_second.p, ref_second.p->boxes_a + ref_second.p->frame->box_a) == 0) {
+                if (is_box_separated_2((s32)ref_third.p, ref_second.p, ref_second.p->boxes_a + ref_second.p->frame->box_a) == 0) {
                     data_80188f30++;
                     size = data_80188f0c - data_80188f10;
                     data_80188edc = data_80188f0c;
@@ -112,7 +112,7 @@ void func_8013bfa4(void) {
                 }
             }
             if (ref_second.p->frame->box_b != 0) {
-                if (func_801397d0((s32)ref_third.p, ref_second.p, ref_second.p->boxes_b + ref_second.p->frame->box_b) == 0) {
+                if (is_box_separated_2((s32)ref_third.p, ref_second.p, ref_second.p->boxes_b + ref_second.p->frame->box_b) == 0) {
                     data_80188f30 += 2;
                     size = data_80188f0c - data_80188f10;
                     data_80188ee4 = data_80188f0c;
@@ -131,7 +131,7 @@ void func_8013bfa4(void) {
                 }
             }
             if (ref_second.p->frame->box_c != 0) {
-                if (func_801397d0((s32)ref_third.p, ref_second.p, ref_second.p->boxes_c + ref_second.p->frame->box_c) == 0) {
+                if (is_box_separated_2((s32)ref_third.p, ref_second.p, ref_second.p->boxes_c + ref_second.p->frame->box_c) == 0) {
                     data_80188f30 += 4;
                     size = data_80188f0c - data_80188f10;
                     data_80188eec = data_80188f0c;
@@ -178,7 +178,7 @@ void func_8013bfa4(void) {
                 }
             }
             select_min_placement_and_test(ref_third.p, ref_second.p, box);
-            func_80155de0((Actor *)box, ref_second.p);
+            add_table_score_to_player_on_hit((Actor *)box, ref_second.p);
             /* The original's instructions here: move v0,zero; a load; bnez v0. The mask lies outside
                the width of the byte field. Without the test the unit has 448 instructions instead of
                450 and differs in 12 instruction lines. */

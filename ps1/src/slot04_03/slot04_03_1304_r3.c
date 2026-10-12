@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1550_slot04_03(Object *obj) {
+void start_direction_sequence_with_meter_and_sounds_slot04_03(Object *obj) {
     int a = 0x22;
 
     obj->active_flag_4 = 1;

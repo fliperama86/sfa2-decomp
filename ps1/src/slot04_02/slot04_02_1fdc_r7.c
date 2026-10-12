@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2a20_slot04_02(Object *obj) {
+void update_sequence_countdown_spawn_two_on_flag_slot04_02(Object *obj) {
     obj->countdown -= 0x100;
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;

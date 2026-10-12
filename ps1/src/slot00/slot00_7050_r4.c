@@ -20,7 +20,7 @@ void update_follower_copy_parent_position_slot00(Object *o) {
         o->facing_side = other->facing_side;
         data_80079948_slot00[o->state_1](o);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
 void next_state_if_parent_step_flag_clear_slot00(Object *obj) {
@@ -29,7 +29,7 @@ void next_state_if_parent_step_flag_clear_slot00(Object *obj) {
     }
 }
 
-void func_800774c4_slot00(Object *obj) {
+void advance_state_0_add_parent_delta_5_slot00(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
     add_delta_to_parent_if_counter_zero_slot00(obj, 5);
 }

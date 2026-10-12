@@ -5,7 +5,7 @@
 
 
 
-void func_80148a04(Object *object) {
+void call_release_object_and_play_parent_sound(Object *object) {
     release_object_and_play_parent_sound(object);
 }
 

@@ -35,7 +35,7 @@ void update_cells_from_entry_table_slot28(Object *o) {
     } while (i < 0x10);
 }
 
-void func_80027adc_slot28(Object *o) {
+void call_menu_code_from_table_by_state_index_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
-    func_80151020(data_8005175c_slot28[obj->state_index]);
+    set_menu_command_one_and_wait_pending(data_8005175c_slot28[obj->state_index]);
 }

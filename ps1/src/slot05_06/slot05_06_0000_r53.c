@@ -20,7 +20,7 @@ void advance_state_2_when_timers_clear_slot05_06(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801cc95c_slot05_06(Object *obj) {
+void pick_random_move_store_doubled_index_slot05_06(Object *obj) {
     int t;
     u16 v;
     u16 *p;

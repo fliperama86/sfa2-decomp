@@ -3,23 +3,23 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b0978_slot04_05(Object *obj);
-void func_801b0a08_slot04_05(Object *obj);
+void call_table_function_by_state_3_4_slot04_05(Object *obj);
+void call_table_function_by_state_3_5_slot04_05(Object *obj);
 extern ObjectFn data_801c1388_slot04_05[];
 
 void load_velocities_from_table_2_slot04_05(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
-void func_801b0938_slot04_05(Object *obj) {
+void call_state_3_dispatch_by_input_dir_second_a_slot04_05(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second != 0) {
-        func_801b0a08_slot04_05(obj);
+        call_table_function_by_state_3_5_slot04_05(obj);
     } else {
-        func_801b0978_slot04_05(obj);
+        call_table_function_by_state_3_4_slot04_05(obj);
     }
 }
 
-void func_801b0978_slot04_05(Object *obj) {
+void call_table_function_by_state_3_4_slot04_05(Object *obj) {
     data_801c1388_slot04_05[obj->state_3](obj);
 }

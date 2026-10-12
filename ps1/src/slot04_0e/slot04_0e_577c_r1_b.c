@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void reset_object_to_state_1_0_0_2_sequence_1(Object *object);
-int func_80146888(Object *object);
+int spawn_random_offset_effect_index_two(Object *object);
 
 void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 void clear_active_flag_and_finish_state_slot04_0e(Object *obj);
@@ -57,7 +57,7 @@ void update_move_with_bound_push_check_slot04_0e(Object *o) {
             } else {
                 obj->countdown = (obj->countdown + 1) & 7;
                 if (obj->countdown == 0) {
-                    func_80146888(o);
+                    spawn_random_offset_effect_index_two(o);
                 }
                 update_sequence(o);
             }

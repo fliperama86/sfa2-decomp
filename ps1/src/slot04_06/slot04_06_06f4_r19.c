@@ -5,5 +5,5 @@
 
 void func_801b66cc_slot04_06(Object *obj) {
     advance_sequence_checked(obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }

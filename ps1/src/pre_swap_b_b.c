@@ -40,7 +40,7 @@ void push_other_object_x_by_table(Object *object) {
     int i;
     for (i = 0; i < 4; i++) {
         int d;
-        if (!func_80148e84(object)) break;
+        if (!spawn_random_offset_object_variant_zero(object)) break;
         d = table_80171b38[i];
         if (object->facing_side != 0) d = -d;
         game_state.other_object->pos_x = game_state.other_object->pos_x + d;
@@ -51,7 +51,7 @@ void push_other_object_x_by_table_2(Object *object) {
     int i;
     for (i = 0; i < 4; i++) {
         int d;
-        if (!func_80148ea8(object)) break;
+        if (!spawn_random_offset_object_variant_one(object)) break;
         d = table_80171b40[i];
         if (object->facing_side != 0) d = -d;
         game_state.other_object->pos_x = game_state.other_object->pos_x + d;

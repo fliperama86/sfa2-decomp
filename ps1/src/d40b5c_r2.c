@@ -10,7 +10,7 @@
    a half-width of the other's box) exceeds reach; -1 when the frame's
    handler_index is neither 0 nor 4 and field_d8 or field_157 of the other is
    set; otherwise 1. */
-s16 func_8013fc18(Object *object, int arg_offset, int arg_reach) {
+s16 apply_forced_state_if_other_in_reach_or_block(Object *object, int arg_offset, int arg_reach) {
     s16 offset = arg_offset;
     s16 reach = arg_reach;
     Box6 *box;

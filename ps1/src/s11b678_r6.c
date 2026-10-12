@@ -4,13 +4,13 @@
 #include "protos.h"
 
 
-void func_8011eae4(void) {
+void clear_arrays_and_init_pools_and_sprite_tables(void) {
     clear_four_144_byte_arrays();
     init_object_pools();
     init_sprite_tables();
 }
 
-void func_8011eb14(void) {
+void clear_players_arrays_state_and_init_pools(void) {
     clear_players();
     clear_four_144_byte_arrays();
     clear_game_state_fields();

@@ -5,7 +5,7 @@
 
 void set_object_states_0_to_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-u8 func_801b11e0_slot04_02(Object *obj) {
+u8 try_start_meter_spend_action_state_5_slot04_02(Object *obj) {
     int r = 1;
 
     if (obj->mode_flag_2 == 0) {

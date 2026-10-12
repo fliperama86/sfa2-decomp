@@ -10,7 +10,7 @@ void func_800e5258_slot0f(void);
 void call_image_job_with_index_0_slot0f(Object *obj);
 void copy_rank_palette_to_two_buffers_slot0f(Object *obj);
 
-void func_800e4f30_slot0f(Object *arg) {
+void setup_rank_screen_images_and_blocks_slot0f(Object *arg) {
     Object *obj;
     Rect r;
     Block172 *b;
@@ -28,9 +28,9 @@ void func_800e4f30_slot0f(Object *arg) {
     } else {
         data_801903c2 = 0;
     }
-    func_8011eb14();
+    clear_players_arrays_state_and_init_pools();
     one = 1;
-    func_8011eae4();
+    clear_arrays_and_init_pools_and_sprite_tables();
     data_80190568 = one;
     r.x = 0x280;
     r.y = 0;
@@ -55,5 +55,5 @@ void func_800e4f30_slot0f(Object *arg) {
         b->active_flag = one;
         b->handler_index = 0x99;
     }
-    func_80151020(0x606);
+    set_menu_command_one_and_wait_pending(0x606);
 }

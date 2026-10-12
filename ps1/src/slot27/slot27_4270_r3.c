@@ -22,7 +22,7 @@ void count_down_then_clear_flag_next_state_1_slot27(Object *obj) {
     }
 }
 
-void func_80014574_slot27(Object *obj) {
+void release_object_to_pool_table_3_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 

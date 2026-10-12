@@ -8,5 +8,5 @@ void set_position_from_linked_object_offset_slot01(Object *obj) {
     int k = obj->table_index - 1;
     obj->pos_x = src->pos_x + (k << 8);
     obj->pos_y = src->pos_y;
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }

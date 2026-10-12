@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3edc_slot04_08(Object *obj, Object *unused) {
+void repeat_hit_other_until_gauge_drained_slot04_08(Object *obj, Object *unused) {
     int a;
     Object **q;
     Object **r = &ref_other.p;

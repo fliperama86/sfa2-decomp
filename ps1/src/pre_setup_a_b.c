@@ -15,9 +15,9 @@ int apply_velocity_and_check_ground(Object *object) {
 
 void apply_vel_x_and_check_input_bit(Object *object) {
     if (object->variant_index != 0) {
-        if (object->input_bits_2 & 0x8000) func_8012f838(object);
+        if (object->input_bits_2 & 0x8000) start_move_state_1_0_2_1_with_sequence_by_input(object);
     } else {
-        if (object->input_bits_2 & 0x2000) func_8012f838(object);
+        if (object->input_bits_2 & 0x2000) start_move_state_1_0_2_1_with_sequence_by_input(object);
     }
     *(s32 *)&object->pos_x_frac += object->vel_x;
 }

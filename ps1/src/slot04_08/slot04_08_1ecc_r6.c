@@ -14,7 +14,7 @@ void fall_to_ground_then_check_range_hit_slot04_08(Object *obj) {
         obj->pos_y = obj->ground_y;
         obj->active_state = 0;
         play_object_sound_by_kind(obj);
-        if ((u8)func_8013f8c4(obj, -0x20, 0x30) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x20, 0x30) != 0) {
             obj->state_3++;
             obj->countdown = 0;
             play_sound_at(obj, obj->side ^ 1, 0x31a);

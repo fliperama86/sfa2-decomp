@@ -41,7 +41,7 @@ void init_object_vel_x_accel_x_from_position_slot06_09(Object *obj) {
     set_sequence_entry(obj, data_801ec940_slot06_09[0]);
 }
 
-void func_801e9dd4_slot06_09(Object *o) {
+void update_object_pos_y_from_layer_and_advance_slot06_09(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
 
     if (game_state.field_65 == 0) {

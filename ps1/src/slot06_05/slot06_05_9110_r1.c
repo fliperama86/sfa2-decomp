@@ -14,7 +14,7 @@ extern SequenceStep *data_801ec344_slot06_05[];
 Object *pop_object_from_second_pool(void);
 int rand(void);
 void set_sequence_entry(Object *object, SequenceStep *entry);
-void func_8011f38c(Object *o);
+void clear_object_and_push_on_free_stack(Object *o);
 
 void call_handler_by_state_0_slot06_05(Object *obj) {
     data_801ec378_slot06_05[obj->state_0](obj);
@@ -103,7 +103,7 @@ void update_object_x_from_masked_accumulator_slot06_05(Object *obj) {
         obj->vel_y += obj->vel_x;
         *(u32 *)&obj->pos_x_frac = (obj->vel_y & 0x3ff0000) + obj->accel_y;
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void release_object_record_2_slot06_05(Object *obj) {
@@ -210,5 +210,5 @@ void unlink_from_parent_and_release_object_slot06_05(Object *obj) {
     } else if (p->linked_object_b == (u32)obj) {
         p->linked_object_b = 0;
     }
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }

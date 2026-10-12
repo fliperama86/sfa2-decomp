@@ -5,7 +5,7 @@
 
 void apply_velocity_and_acceleration_slot04_09(Object *o);
 
-void func_801b29f8_slot04_09(Object *obj) {
+void count_down_then_hit_check_or_end_slot04_09(Object *obj) {
     Object *p;
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown < 0) {

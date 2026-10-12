@@ -9,36 +9,36 @@ extern ObjectFn data_801c7a48_slot04_11[];
 extern u8 data_801c7a50_slot04_11[];
 
 void reset_object_to_state_1_0_0_2_sequence_1(Object *obj);
-void func_80131638(Object *obj);
+void land_reset_fields_and_choose_next_state(Object *obj);
 void func_8007bc00(Object *obj);
 void func_8007be8c(Object *obj);
 void copy_kind_table_to_scratch_by_side_slot04_11(Object *obj);
-void func_801b6604_slot04_11(Object *obj);
+void enable_active_flag_3_and_select_sequence_3_slot04_11(Object *obj);
 void shift_pos_x_by_step_flags_low_bits_slot04_11(Object *obj);
 int apply_velocity_and_acceleration_3_slot04_11(Object *obj);
-void func_801b66ac_slot04_11(Object *obj);
-void func_801b66cc_slot04_11(Object *obj);
-void func_801b66ec_slot04_11(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_3_slot04_11(Object *obj);
+void call_reset_object_to_state_1_0_0_2_sequence_1_3_slot04_11(Object *obj);
+void call_state_3_handler_wrapper_3_slot04_11(Object *obj);
 void start_direction_sequence_slot04_11(Object *obj);
-void func_801b6604_slot04_11(Object *obj);
+void enable_active_flag_3_and_select_sequence_3_slot04_11(Object *obj);
 void shift_pos_x_by_step_flags_low_bits_slot04_11(Object *obj);
 int apply_velocity_and_acceleration_3_slot04_11(Object *obj);
-void func_801b66ac_slot04_11(Object *obj);
-void func_801b66cc_slot04_11(Object *obj);
-void func_801b66ec_slot04_11(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_3_slot04_11(Object *obj);
+void call_reset_object_to_state_1_0_0_2_sequence_1_3_slot04_11(Object *obj);
+void call_state_3_handler_wrapper_3_slot04_11(Object *obj);
 void start_direction_sequence_slot04_11(Object *obj);
 void start_special_or_direction_sequence_slot04_11(Object *obj);
 
-void func_801b600c_slot04_11(Object *obj) {
+void call_reset_object_to_state_1_0_sequence_0_2_slot04_11(Object *obj) {
     reset_object_to_state_1_0_sequence_0(obj);
 }
 
-void func_801b602c_slot04_11(Object *obj) {
+void call_reset_object_to_state_1_0_0_2_sequence_1_2_slot04_11(Object *obj) {
     reset_object_to_state_1_0_0_2_sequence_1(obj);
 }
 
-void func_801b604c_slot04_11(Object *obj) {
-    func_80131638(obj);
+void call_state_3_handler_wrapper_2_slot04_11(Object *obj) {
+    land_reset_fields_and_choose_next_state(obj);
 }
 
 void set_kind_11_or_call_by_input_dir_slot04_11(Object *obj) {
@@ -61,20 +61,20 @@ void call_handler_by_state_3_clear_field_3_slot04_11(Object *obj) {
 void update_state_or_switch_to_state_1_2_slot04_11(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
-    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x17, 0x14) != 0) {
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x17, 0x14) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;
         obj->state_3 = 0;
     } else {
-        func_801b6604_slot04_11(obj);
+        enable_active_flag_3_and_select_sequence_3_slot04_11(obj);
         shift_pos_x_by_step_flags_low_bits_slot04_11(obj);
     }
 }
 
-void func_801b61c4_slot04_11(Object *obj) {
+void update_sequence_shift_x_or_reset_on_end_slot04_11(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_801b66ac_slot04_11(obj);
+        call_reset_object_to_state_1_0_sequence_0_3_slot04_11(obj);
     } else {
         if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
@@ -95,13 +95,13 @@ void advance_state_3_and_restore_facing_slot04_11(Object *obj) {
     if (obj->input_dir_second != 0 && obj->direction_index == 4) {
         obj->field_29c = 1;
     }
-    func_801b6604_slot04_11(obj);
+    enable_active_flag_3_and_select_sequence_3_slot04_11(obj);
     shift_pos_x_by_step_flags_low_bits_slot04_11(obj);
 }
 
-void func_801b62d8_slot04_11(Object *obj) {
+void reset_on_negative_flags_then_update_and_shift_slot04_11(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_801b66cc_slot04_11(obj);
+        call_reset_object_to_state_1_0_0_2_sequence_1_3_slot04_11(obj);
     }
     if (consume_active_frame_flag(obj) & 0xff) {
         obj->state_3 = 0;
@@ -121,7 +121,7 @@ void update_airborne_motion_or_land_slot04_11(Object *obj) {
         set_sequence_by_side_and_mode(obj, n);
     } else if (apply_velocity_and_acceleration_3_slot04_11(obj) < 0 && obj->pos_y >= obj->ground_y) {
         play_object_sound_by_kind(obj);
-        func_801b66ec_slot04_11(obj);
+        call_state_3_handler_wrapper_3_slot04_11(obj);
     } else {
         update_sequence(obj);
     }

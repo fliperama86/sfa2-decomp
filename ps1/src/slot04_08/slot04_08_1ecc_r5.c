@@ -5,11 +5,11 @@
 
 extern u8 data_801c3c90_slot04_08[];
 
-void func_801b22fc_slot04_08(Object *obj) {
+void start_sequence_and_clear_step_index_slot04_08(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     ((Slot04aObj *)obj)->step_index = 0;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     set_sequence_by_side_and_mode(obj, 0x2f);
 }

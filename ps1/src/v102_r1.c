@@ -24,11 +24,11 @@ void update_slot_timer_match_input_top_bits(Object *object, int index, int arg) 
         u8 *p = (u8 *)object + ((u8)index << 3);
         p[0x2b4]--;
         if (p[0x2b4] != 0) {
-            func_8013f2c8(object);
+            clear_global_flag_ignoring_object(object);
             return;
         }
         p[0x2b0]++;
         p[0x2b1]++;
-        func_8013f2c8(object);
+        clear_global_flag_ignoring_object(object);
     }
 }

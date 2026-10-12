@@ -8,11 +8,11 @@ extern ObjectFn data_80079810_slot2b[];
 void call_handler_by_input_dir_second_slot2b(Object *obj);
 void call_handler_by_direction_index_slot2b(Object *obj);
 void call_handler_by_direction_index_2_slot2b(Object *obj);
-void func_80077444_slot2b(Object *obj);
+void call_direction_handler_by_input_dir_second_slot2b(Object *obj);
 
 void call_handler_by_input_dir_0_nonzero_slot2b(Object *obj) {
     if (obj->input_dir_0 != 0) {
-        func_80077444_slot2b(obj);
+        call_direction_handler_by_input_dir_second_slot2b(obj);
     } else {
         call_handler_by_input_dir_second_slot2b(obj);
     }

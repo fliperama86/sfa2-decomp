@@ -12,6 +12,6 @@ void call_script_switch_by_arg(Object *object) {
     } else if (object->script_arg == 2) {
         read_script_word_or_restore_script(object);
     } else if (object->script_arg == 4) {
-        func_8014cba4(object);
+        read_or_enter_script_by_random_bit(object);
     }
 }

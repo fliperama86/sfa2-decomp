@@ -16,13 +16,13 @@ int update_entity_countdowns_and_sounds(Entity *entity)
     {
       if (entity->nonzero_flag == 0)
       {
-        func_80123b20(entity->field_7c, entity);
+        set_other_marker_and_play_side_sound_3(entity->field_7c, entity);
       }
       else
       {
-        func_80123b20(s0 = &player_left, entity);
+        set_other_marker_and_play_side_sound_3(s0 = &player_left, entity);
         s0 = (&player_left) + 1;
-        func_80123b20(s0, entity);
+        set_other_marker_and_play_side_sound_3(s0, entity);
       }
     }
   }

@@ -6,7 +6,7 @@
 extern ObjectRef data_8005198c_slot28;
 extern Object *data_80051954_slot28[];
 void scroll_two_objects_x_with_wrap_slot28(Object *obj);
-void func_80019100_slot28(Object *obj, int arg);
+void set_sequence_of_fourth_hud_object_5_slot28(Object *obj, int arg);
 
 void scroll_then_advance_pass_with_fade_slot28(Object *obj) {
     Object *p;
@@ -19,6 +19,6 @@ void scroll_then_advance_pass_with_fade_slot28(Object *obj) {
         p = data_80051954_slot28[0];
         p->variant_index = 0xff;
         set_menu_command_by_code(6, 1);
-        func_80019100_slot28(obj, 6);
+        set_sequence_of_fourth_hud_object_5_slot28(obj, 6);
     }
 }

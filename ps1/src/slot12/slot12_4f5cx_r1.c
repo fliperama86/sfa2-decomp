@@ -6,7 +6,7 @@
 extern u32 data_800282dc_slot12[];
 extern Slot12Cell data_8002bc38_slot12[];
 
-void func_80014f5c_slot12(Object *obj) {
+void link_cell_into_ot_and_advance_if_field_ten_slot12(Object *obj) {
     u32 *ot = (u32 *)data_801987c8;
     u32 *cell = (u32 *)(data_8002bc38_slot12 + obj->table_index * 2 + data_801a27d0);
     ((PrimTag *)cell)->addr = ((PrimTag *)&ot[data_800282dc_slot12[obj->ot_depth]])->addr;

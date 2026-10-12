@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_8014e25c(Object *object) {
+int is_other_state_one_with_boxes_in_limit(Object *object) {
     Object *other;
     FrameRecord *frame;
     u8 a, b, c;

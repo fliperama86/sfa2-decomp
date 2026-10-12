@@ -25,7 +25,7 @@ void fall_until_ground_then_random_sequence_slot04_09(Object *obj) {
     }
 }
 
-void func_801b2c90_slot04_09(Object *obj) {
+void update_sequence_restore_other_image_on_end_slot04_09(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         Object *p = obj->other;
         p->field_0c = ((Slot04aObj *)obj)->field_334;

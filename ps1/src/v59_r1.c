@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_8013fef8(Object *object, s16 a, s16 b, s16 c, u16 d) {
+int check_range_set_other_state_boxed_fallback(Object *object, s16 a, s16 b, s16 c, u16 d) {
     FrameRecord *frame;
     ref_other.p = object->other;
     frame = ref_other.p->frame;

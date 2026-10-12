@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b58dc_slot04_09(Object *obj) {
+void spawn_child_table_index_sixteen_slot04_09(Object *obj) {
     Object *n;
 
     n = (Object *)pop_block_from_pool();

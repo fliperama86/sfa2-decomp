@@ -9,16 +9,16 @@ extern ObjectFn data_801c5b60_slot04_0f[];
 extern u8 data_801c5b94_slot04_0f[];
 void set_sequence_by_side(Object *object, int index);
 int apply_velocity_and_check_ground(Object *object);
-void func_801428e4(Object *object);
+void update_meter_by_mode_or_table(Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
-void func_80145d20(Object *object);
+void spawn_three_child_objects_at_object_spawn(Object *object);
 void spawn_children_per_direction_index(Object *object, int a, int b);
 int check_hit_other_active_state_nonzero(Object *object, s16 a, s16 b, s16 c, u16 d);
 void update_mode_change_select_row_slot04_0f(Object *object);
 void simulate_landing_x_to_saved_pos_x_slot04_0f(Object *object);
 void move_with_facing_flipped_x_slot04_0f(Object *object);
 
-void func_801b3120_slot04_0f(Object *obj) {
+void update_sequence_predict_landing_x_on_flag_slot04_0f(Object *obj) {
     update_sequence(obj);
     update_mode_change_select_row_slot04_0f(obj);
     if ((s16)obj->step_flags & 0xff00) {
@@ -30,7 +30,7 @@ void func_801b3120_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b31b0_slot04_0f(Object *obj) {
+void restore_saved_position_when_sequence_ends_slot04_0f(Object *obj) {
     update_sequence(obj);
     update_mode_change_select_row_slot04_0f(obj);
     if (((s16)obj->step_flags & 0xff00) == 0) {
@@ -76,20 +76,20 @@ void simulate_landing_x_to_saved_pos_x_slot04_0f(Object *obj) {
     *dst = x;
 }
 
-void func_801b32c0_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_13_slot04_0f(Object *obj) {
     data_801c5b44_slot04_0f[obj->state_3](obj);
 }
 
-void func_801b3300_slot04_0f(Object *obj) {
+void advance_state_3_set_countdown_start_sequence_a_slot04_0f(Object *obj) {
     obj->state_3++;
     obj->countdown = 0x32;
-    func_80145d20(obj);
-    func_801428e4(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter((GameState *)game_state.config, obj);
     set_sequence_by_side_and_mode(obj, 0x4a);
 }
 
-void func_801b3360_slot04_0f(Object *obj) {
+void count_down_spawn_children_offset_on_step_flag_slot04_0f(Object *obj) {
     int a;
 
     obj->countdown -= 1;
@@ -106,7 +106,7 @@ void func_801b3360_slot04_0f(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b33e0_slot04_0f(Object *obj) {
+void count_down_then_set_other_lock_and_sequence_slot04_0f(Object *obj) {
     int a = 0;
 
     obj->countdown = (s16)obj->countdown - 1;
@@ -180,20 +180,20 @@ void update_sequence_or_finish_2_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b3640_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_14_slot04_0f(Object *obj) {
     data_801c5b60_slot04_0f[obj->state_3](obj);
 }
 
-void func_801b3680_slot04_0f(Object *obj) {
+void advance_state_3_set_countdown_start_sequence_b_slot04_0f(Object *obj) {
     obj->state_3++;
     obj->countdown = 0x32;
-    func_80145d20(obj);
-    func_801428e4(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     set_sequence_by_side_and_mode(obj, 0x4f);
 }
 
-void func_801b36e0_slot04_0f(Object *obj) {
+void count_down_spawn_children_no_offset_on_step_flag_slot04_0f(Object *obj) {
     int a;
 
     obj->countdown -= 1;
@@ -275,7 +275,7 @@ void move_with_facing_flipped_x_slot04_0f(Object *obj) {
     obj->vel_x = obj->vel_x + obj->accel_x;
 }
 
-void func_801b39a0_slot04_0f(Object *obj) {
+void update_fall_land_on_ground_set_side_sequence_slot04_0f(Object *obj) {
     update_sequence(obj);
     move_with_facing_flipped_x_slot04_0f(obj);
     if (obj->ground_y <= obj->pos_y) {
@@ -307,7 +307,7 @@ void start_fall_when_step_flags_negative_slot04_0f(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b3aa4_slot04_0f(Object *obj) {
+void move_fall_land_set_countdown_and_sequence_slot04_0f(Object *obj) {
     move_with_facing_flipped_x_slot04_0f(obj);
     if (obj->ground_y <= obj->pos_y) {
         obj->state_3++;

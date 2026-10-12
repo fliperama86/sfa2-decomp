@@ -26,7 +26,7 @@ u8 find_active_wide_box_and_check_other(Object *object)
     if (frame->active)
     {
       boxes = boxes + frame->active;
-      return func_80142424(object, boxes, elapsed);
+      return select_inputs_from_threshold_mask(object, boxes, elapsed);
     }
     elapsed += step->duration;
     if (step->flags < 0)

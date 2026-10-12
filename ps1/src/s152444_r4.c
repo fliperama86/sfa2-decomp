@@ -20,5 +20,5 @@ void switch_to_next_table_entry_and_wait(void) {
             request_sound_command_and_switch_thread(1);
         } while (state->wait_flag != 0);
     }
-    func_80119198(3);
+    set_snd_ctl_thread_entry_and_close(3);
 }

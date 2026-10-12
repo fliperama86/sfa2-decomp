@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80123534(Entity *entity) {
+void update_pair_selection_or_reset_by_mode_flag_a(Entity *entity) {
     Object *s1;
     Object *s2;
     if (entity->mode_flag_a == 0) {
@@ -15,7 +15,7 @@ void func_80123534(Entity *entity) {
         s1 = entity->field_78;
         s2 = entity->field_7c;
         update_best_scores_for_pair(entity, s1, s2);
-        func_80123b4c(entity, s1);
+        clear_flag_if_mode_3_or_other_flag_or_zero(entity, s1);
         entity->kind = s1->kind;
         select_next_kind_for_object(entity, s1, s2);
         if (entity->field_90 != 0) {

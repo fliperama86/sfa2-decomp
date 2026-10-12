@@ -10,7 +10,7 @@ void spawn_child_object_above_self_slot2b(Object *obj);
 void spawn_child_object_at_random_offset_slot2b(Object *obj);
 void release_object_to_pool_slot2b(Object *obj);
 
-void func_800794e0_slot2b(Object *o) {
+void move_until_below_ground_then_spawn_children_copy_slot2b(Object *o) {
     apply_velocity_and_acceleration_2_slot2b(o);
     if (data_8007ef34_slot2b->ground_y < o->pos_y) {
         o->state_0++;
@@ -24,7 +24,7 @@ void func_800794e0_slot2b(Object *o) {
     }
 }
 
-void func_80079574_slot2b(Object *o) {
+void release_object_to_pool_2_slot2b(Object *o) {
     release_object_to_pool_slot2b(o);
 }
 

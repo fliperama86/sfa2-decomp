@@ -16,7 +16,7 @@ Choices of the setup:
     80013a24 is reached);
   - entry 2: the pointer at 0x3c leads to a separate 8-byte block of random
     bytes, whose halfword at 4 is 0x101 in half of the cases;
-  - func_8011ffdc (1 argument) is a recorder that returns 0; the log watches
+  - clear_or_set_flag_by_pos_x_limit (1 argument) is a recorder that returns 0; the log watches
     the object whole and the 8-byte block at every call.
 """
 from contracts import CallLog, Contract, Setup, fill
@@ -39,12 +39,12 @@ def setup(state, rng, sym) -> Setup:
     state.w16(obj + 0x16, (limit0 - delta) & 0xFFFF)
     state.w16(obj + 0x12, (limit1 + rng.randrange(-10, 11)) & 0xFFFF)
     log = CallLog(state, 256, watch=((obj, 0x394 // 4), (aux, 2)))
-    log.replace(sym["func_8011ffdc"], 1, 0)
+    log.replace(sym["clear_or_set_flag_by_pos_x_limit"], 1, 0)
     return Setup(args=(obj,), returns_value=False)
 
 
 def control(words):
-    """Alter the argument register at the call: `move a0,s0` in the delay slot of `jal func_8011ffdc` becomes `addiu a0,s0,4`.
+    """Alter the argument register at the call: `move a0,s0` in the delay slot of `jal clear_or_set_flag_by_pos_x_limit` becomes `addiu a0,s0,4`.
 
     The build of this override has no empty delay slot there (the compiler puts the move of the argument into it),
     so the control alters that word instead of an empty one. It alters the build of this C (the tool hands it the
@@ -55,7 +55,7 @@ def control(words):
     jal = 0x0C000000 | ((0x8011FFDC >> 2) & 0x03FFFFFF)
     found = [i for i, w in enumerate(words) if w == jal]
     if len(found) != 1 or words[found[0] + 1] != 0x02002021:
-        raise ValueError("expected one call of func_8011ffdc with `move a0,s0` in its delay slot")
+        raise ValueError("expected one call of clear_or_set_flag_by_pos_x_limit with `move a0,s0` in its delay slot")
     return found[0] + 1, 0x26040004, "the callee gets its argument + 4"
 
 

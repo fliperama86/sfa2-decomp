@@ -8,10 +8,10 @@ void unlink_from_parent_and_release_object_slot04_02(Object *o) {
     if (p->linked_object == (u32)o) {
         p->linked_object = 0;
     }
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }
 
-void func_801b6e68_slot04_02(Object *o) {
+void set_sequence_from_variant_index_by_parent_side_slot04_02(Object *o) {
     if (o->parent->side == 0) {
         set_sequence_from_table_5(o, o->variant_index, data_1f8000b4);
     } else {

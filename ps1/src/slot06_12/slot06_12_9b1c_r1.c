@@ -51,7 +51,7 @@ void call_handler_by_table_index_slot06_12(Object *obj) {
     }
 }
 
-void func_801e9c80_slot06_12(Object *obj) {
+void update_table_index_and_respawn_if_nonzero_slot06_12(Object *obj) {
     set_table_index_from_accel_x_high_bits_slot06_12(obj);
     if (data_801904cc != 0) {
         set_object_spawn_position_and_sequence_slot06_12(obj);

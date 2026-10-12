@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b22d8_slot04_16(Object *obj) {
+void enter_state_7_action_3_set_other_field_slot04_16(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 7;

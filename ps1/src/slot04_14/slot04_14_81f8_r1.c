@@ -10,7 +10,7 @@ extern u16 data_801c7c74_slot04_14[];
 void set_state_0_to_2_slot04_14(Object *obj);
 void func_801b8430_slot04_14(Object *obj, u8 arg);
 void func_801b84b8_slot04_14(Object *obj);
-void func_8011ffdc(Object *o);
+void clear_or_set_flag_by_pos_x_limit(Object *o);
 
 void set_state_0_to_2_slot04_14(Object *obj) {
     obj->state_0 = 2;
@@ -32,7 +32,7 @@ void func_801b8360_slot04_14(Object *obj) {
             }
         }
         advance_sequence_checked(obj);
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else {
         obj->state_0++;
     }

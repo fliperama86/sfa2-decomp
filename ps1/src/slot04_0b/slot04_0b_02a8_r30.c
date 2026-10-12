@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b43d0_slot04_0b(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_2_slot04_0b(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;

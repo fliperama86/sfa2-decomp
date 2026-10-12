@@ -6,7 +6,7 @@
 int try_set_direction_from_pressed_bits(Object *object) {
     BytePair dir;
     int a;
-    if ((game_state.config->mode_flag_b | game_state.config->mode_flag_a) != 0 || (func_8012f56c(object) & 0xff) != 0 ||
+    if ((game_state.config->mode_flag_b | game_state.config->mode_flag_a) != 0 || (is_other_object_state_0_and_1_six_one(object) & 0xff) != 0 ||
         object->active_flag == 0 || (object->pressed_bits & 0xfc) == 0) {
         return 0;
     }

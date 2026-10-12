@@ -5,8 +5,8 @@
 
 void call_handler_by_input_dir_0_4_slot04_08(Object *obj);
 void call_handler_by_state_3_with_flag_slot04_08(Object *obj);
-void func_801b4658_slot04_08(Object *obj);
-void func_801b4790_slot04_08(Object *obj);
+void call_table_function_by_state_3_16_slot04_08(Object *obj);
+void call_table_function_by_state_3_17_slot04_08(Object *obj);
 extern ObjectFn data_801c3de4_slot04_08[];
 
 void call_handler_by_input_dir_0_3_slot04_08(Object *obj) {
@@ -20,12 +20,12 @@ void call_handler_by_input_dir_0_3_slot04_08(Object *obj) {
 void call_handler_by_input_dir_0_4_slot04_08(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second == 0) {
-        func_801b4658_slot04_08(obj);
+        call_table_function_by_state_3_16_slot04_08(obj);
     } else {
-        func_801b4790_slot04_08(obj);
+        call_table_function_by_state_3_17_slot04_08(obj);
     }
 }
 
-void func_801b4658_slot04_08(Object *obj) {
+void call_table_function_by_state_3_16_slot04_08(Object *obj) {
     data_801c3de4_slot04_08[obj->state_3](obj);
 }

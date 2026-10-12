@@ -5,7 +5,7 @@
 
 void load_palette_anim_from_table_index_slot27(Object *obj);
 
-void func_80012cd0_slot27(Object *obj) {
+void set_velocity_by_other_side_and_load_palette_anim_slot27(Object *obj) {
     int *x = (int *)data_8019045c;
     int *y = data_80190464;
     obj->state_3 = 0;

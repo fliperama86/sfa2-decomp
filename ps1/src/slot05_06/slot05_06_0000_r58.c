@@ -32,7 +32,7 @@ void advance_state_2_when_timer_zero_slot05_06(Object *object) {
     update_sequence(object);
 }
 
-void func_801cd098_slot05_06(Object *o) {
+void advance_state_2_set_sequence_by_table_index_slot05_06(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int arg = 0x29;
 

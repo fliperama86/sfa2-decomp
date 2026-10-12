@@ -29,7 +29,7 @@ void init_slot01_screen_and_spawn_objects_slot01(void) {
     data_80190568 = 1;
     init_object_pools();
     if (data_801abf08 != 0x12) {
-        func_801285e0();
+        spawn_position_table_objects_and_list_objects();
     }
     init_sprite_tables();
     s2->kind_copy = s1;
@@ -80,11 +80,11 @@ void init_slot01_screen_and_spawn_objects_slot01(void) {
         game_state.field_09 = 1;
         game_state.state_2c_flag = 0xff;
         game_state.field_65 = 1;
-        func_80151020(0x605);
-        func_80125dc0(0, 0x20, 0xd, 0);
-        func_80125dc0(1, 0x20, 0xd, 0);
-        func_80125dc0(2, 0x20, 0xd, 0);
-        func_80125dc0(3, 0x20, 0xd, 0);
+        set_menu_command_one_and_wait_pending(0x605);
+        scale_palette_rows_from_backup_bank(0, 0x20, 0xd, 0);
+        scale_palette_rows_from_backup_bank(1, 0x20, 0xd, 0);
+        scale_palette_rows_from_backup_bank(2, 0x20, 0xd, 0);
+        scale_palette_rows_from_backup_bank(3, 0x20, 0xd, 0);
         queue_image_upload_job(0, 6);
         queue_image_upload_job(1, 0);
         queue_image_upload_job(2, 1);

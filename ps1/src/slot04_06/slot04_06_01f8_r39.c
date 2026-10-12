@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801c56d0_slot04_06[];
 
-void func_801b65e8_slot04_06(Object *o) {
+void call_state_1_table_handler_then_cull_check_2_slot04_06(Object *o) {
     data_801c56d0_slot04_06[o->state_1](o);
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }

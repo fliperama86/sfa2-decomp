@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4c28_slot04_0b(Object *obj) {
+void update_two_track_position_toward_ground_slot04_0b(Object *obj) {
     int lim;
     u8 a;
     u16 p;
@@ -44,6 +44,6 @@ void func_801b4c28_slot04_0b(Object *obj) {
         obj->state_0++;
     }
     if (a == 0) {
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     }
 }

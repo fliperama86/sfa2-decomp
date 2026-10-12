@@ -18,7 +18,7 @@ void resolve_hit_range_sounds_and_sequence_slot05_06(Object *o) {
     if (o->state_2 == 8) {
         x = 0x60;
     }
-    if ((u8)func_8013f8c4(o, -0x20, x)) {
+    if ((u8)try_force_other_state_if_box_in_range(o, -0x20, x)) {
         o->active_flag_3 = 1;
         o->state_3 += 2;
         o->pos_y = obj->saved_pos_y;

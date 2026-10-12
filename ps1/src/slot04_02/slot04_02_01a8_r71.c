@@ -25,7 +25,7 @@ void func_801b7d64_slot04_02(Object *obj) {
             }
         }
         advance_sequence_checked(obj);
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else {
         obj->state_0++;
     }

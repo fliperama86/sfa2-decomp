@@ -21,7 +21,7 @@ int try_start_meter_move_6_if_counter_zero_slot04_09(Object *obj) {
                 obj->step_count_2 = 0;
                 obj->step_limit = 0;
                 obj->facing_side = obj->saved_facing;
-                func_80142778(obj);
+                set_direction_index_from_buttons_mask_b(obj);
             }
         }
     }

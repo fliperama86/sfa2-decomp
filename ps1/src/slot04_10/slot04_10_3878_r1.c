@@ -5,11 +5,11 @@
 
 int apply_velocity_and_check_ground(Object *object);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-void func_80146960(Object *object);
+void spawn_two_effects_at_other_ground(Object *object);
 void start_action_if_buttons_pressed(Object *object);
 void load_velocities_from_table_slot04_10(Object *obj);
-void func_801b4444_slot04_10(Object *obj);
-void func_801b3d40_slot04_10(Object *obj);
+void call_table_function_by_state_3_16_slot04_10(Object *obj);
+void check_range_then_enter_hit_or_fallback_slot04_10(Object *obj);
 extern ObjectFn data_801c6a84_slot04_10[];
 extern u16 data_801c6aa8_slot04_10[];
 
@@ -52,7 +52,7 @@ void update_launch_attack_by_step_flag_table_slot04_10(Object *obj) {
     } else {
         obj->step_flags = t & 0xff00;
         game_state.config->setup_value = (obj->direction_index << 2) + 0x3c;
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
         update_sequence(obj);
         k = obj->field_49 != 0 ? 6 : 0; p = (s16 *)((obj->direction_index + k) * 2 + (u32)a);
         if ((u8)apply_damage_to_other_return_defeated(obj, p[0], p[1]) != 0) {
@@ -68,7 +68,7 @@ void update_launch_attack_by_step_flag_table_slot04_10(Object *obj) {
     }
 }
 
-void func_801b3b6c_slot04_10(Object *obj) {
+void update_fall_land_with_sound_variant_a_slot04_10(Object *obj) {
     if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         update_sequence(obj);
     } else {
@@ -93,7 +93,7 @@ void update_or_end_with_other_state_code_5_slot04_10(Object *obj) {
     }
 }
 
-void func_801b3c5c_slot04_10(Object *obj) {
+void call_table_function_by_state_3_15_slot04_10(Object *obj) {
     data_801c6a84_slot04_10[obj->state_3](obj);
 }
 
@@ -108,15 +108,15 @@ void func_801b3c9c_slot04_10(Object *obj) {
     if (obj->field_49 != 0) {
         obj->field_225 = 1;
     }
-    func_801b3d40_slot04_10(obj);
+    check_range_then_enter_hit_or_fallback_slot04_10(obj);
 }
 
-void func_801b3d40_slot04_10(Object *obj) {
+void check_range_then_enter_hit_or_fallback_slot04_10(Object *obj) {
     s16 t = *(u16 *)((u8 *)data_801c6aa8_slot04_10 + (obj->direction_index & 0xfe));
     t -= 0x26;
-    if ((u8)func_8013f8c4(obj, -0x26, t) == 0) {
+    if ((u8)try_force_other_state_if_box_in_range(obj, -0x26, t) == 0) {
         obj->field_15a = 9;
-        func_801b4444_slot04_10(obj);
+        call_table_function_by_state_3_16_slot04_10(obj);
     } else {
         obj->state_3++;
         add_to_meter_clamped(obj, 0x14);
@@ -148,7 +148,7 @@ void update_hit_and_shift_by_step_flag_table_slot04_10(Object *obj) {
             obj->step_flags &= m;
             game_state.config->setup_value = 0x3c;
             play_sound_at(obj, obj->side, 0x319);
-            func_80146960(obj);
+            spawn_two_effects_at_other_ground(obj);
         } else if (st == 2) {
             obj->state_3++;
             obj->step_flags &= 0xff00;

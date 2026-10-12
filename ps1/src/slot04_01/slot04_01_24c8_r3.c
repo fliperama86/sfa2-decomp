@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2898_slot04_01(Object *obj) {
+void init_forward_move_with_direction_sequence_slot04_01(Object *obj) {
     u8 t = obj->state_3;
 
     obj->active_flag_4 = 1;

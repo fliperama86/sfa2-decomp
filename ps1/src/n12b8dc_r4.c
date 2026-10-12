@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801311a8(Object *object) {
+void advance_sequence_with_key_rewind_and_hold(Object *object) {
     u16 keys;
     if (object->field_02 == 0) {
         keys = data_801a696a;

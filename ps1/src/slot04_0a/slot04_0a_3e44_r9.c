@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4988_slot04_0a(Object *obj);
-void func_801b4a68_slot04_0a(Object *obj);
+void call_init_or_update_finish_flag_four_slot04_0a(Object *obj);
+void call_table_function_by_state_3_22_slot04_0a(Object *obj);
 
 void call_handler_by_direction_index_4_slot04_0a(Object *obj) {
     if (obj->direction_index != 4) {
-        func_801b4988_slot04_0a(obj);
+        call_init_or_update_finish_flag_four_slot04_0a(obj);
     } else {
-        func_801b4a68_slot04_0a(obj);
+        call_table_function_by_state_3_22_slot04_0a(obj);
     }
 }
 

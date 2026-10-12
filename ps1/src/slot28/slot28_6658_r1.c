@@ -10,8 +10,8 @@ extern SequenceStep *data_8002fc90_slot28[];
 extern SequenceStep *data_8002fca8_slot28[];
 extern u8 data_8002e1d4_slot28[];
 extern u8 data_8002e758_slot28[];
-void func_80016e7c_slot28(void);
-void func_80016e28_slot28(Object *obj, int arg);
+void release_active_objects_in_table_slot28(void);
+void set_sequence_of_fourth_hud_object_3_slot28(Object *obj, int arg);
 
 void advance_hud_pass_to_stage_1_slot28(Object *obj) {
     Slot28Obj *so = (Slot28Obj *)obj;
@@ -21,7 +21,7 @@ void advance_hud_pass_to_stage_1_slot28(Object *obj) {
         int one;
         h->countdown_timer = 0x258;
         h->pass_index++;
-        func_80016e7c_slot28();
+        release_active_objects_in_table_slot28();
         p = data_800518fc_slot28[0];
         p->pos_x = 0x80;
         p->pos_y = -0x60;
@@ -56,7 +56,7 @@ void advance_hud_pass_to_stage_1_slot28(Object *obj) {
             p->table_index = 2;
             data_800518d0_slot28[1] = p;
         }
-        func_80016e28_slot28(obj, 1);
+        set_sequence_of_fourth_hud_object_3_slot28(obj, 1);
         start_fade_mode_c01_and_wait();
     }
 }

@@ -8,22 +8,22 @@ extern u8 data_801cea34_slot04_17[];
 
 void set_sequence_and_tables_from_direction(Object *obj);
 void reset_object_to_state_1_0_0_2_sequence_1(Object *obj);
-void func_80131638(Object *obj);
+void land_reset_fields_and_choose_next_state(Object *obj);
 void func_801b1448_slot04_17(Object *obj);
 void copy_kind_table_to_scratch_by_side_slot04_17(Object *obj);
-void func_801b6fa0_slot04_17(Object *obj);
+void switch_to_kind_or_start_meter_sequence_slot04_17(Object *obj);
 void start_direction_sequence_slot04_17(Object *obj);
-void func_801b75dc_slot04_17(Object *obj);
-void func_801b7684_slot04_17(Object *obj);
+void start_direction_sequence_or_meter_special_b_slot04_17(Object *obj);
+void enable_active_flag_3_and_select_sequence_3_slot04_17(Object *obj);
 void shift_pos_x_by_step_flags_low_bits_slot04_17(Object *obj);
 int apply_velocity_and_acceleration_3_slot04_17(Object *obj);
-void func_801b772c_slot04_17(Object *obj);
-void func_801b774c_slot04_17(Object *obj);
-void func_801b776c_slot04_17(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_4_slot04_17(Object *obj);
+void call_reset_object_to_state_1_0_0_2_sequence_1_4_slot04_17(Object *obj);
+void call_state_3_handler_wrapper_3_slot04_17(Object *obj);
 
-void func_801b7244_slot04_17(Object *obj) {
+void update_sequence_shift_x_or_reset_on_end_slot04_17(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_801b772c_slot04_17(obj);
+        call_reset_object_to_state_1_0_sequence_0_4_slot04_17(obj);
     } else {
         if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
@@ -44,13 +44,13 @@ void advance_state_3_and_restore_facing_slot04_17(Object *obj) {
     if (obj->input_dir_second != 0 && obj->direction_index == 4) {
         obj->field_29c = 1;
     }
-    func_801b7684_slot04_17(obj);
+    enable_active_flag_3_and_select_sequence_3_slot04_17(obj);
     shift_pos_x_by_step_flags_low_bits_slot04_17(obj);
 }
 
-void func_801b7358_slot04_17(Object *obj) {
+void reset_on_negative_flags_then_update_and_shift_slot04_17(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_801b774c_slot04_17(obj);
+        call_reset_object_to_state_1_0_0_2_sequence_1_4_slot04_17(obj);
     }
     if (consume_active_frame_flag(obj) & 0xff) {
         obj->state_3 = 0;
@@ -70,7 +70,7 @@ void update_airborne_motion_or_land_slot04_17(Object *obj) {
         set_sequence_by_side_and_mode(obj, n);
     } else if (apply_velocity_and_acceleration_3_slot04_17(obj) < 0 && obj->pos_y >= obj->ground_y) {
         play_object_sound_by_kind(obj);
-        func_801b776c_slot04_17(obj);
+        call_state_3_handler_wrapper_3_slot04_17(obj);
     } else {
         update_sequence(obj);
     }
@@ -82,9 +82,9 @@ void init_kind_11_or_start_direction_sequence_slot04_17(Object *obj) {
         copy_kind_table_to_scratch_by_side_slot04_17(obj);
         select_box_tables(obj);
         build_metrics(obj);
-        func_801b6fa0_slot04_17(obj);
+        switch_to_kind_or_start_meter_sequence_slot04_17(obj);
     } else if (obj->limit_lo != 0) {
-        func_801b75dc_slot04_17(obj);
+        start_direction_sequence_or_meter_special_b_slot04_17(obj);
     } else {
         start_direction_sequence_slot04_17(obj);
     }
@@ -117,7 +117,7 @@ void start_direction_sequence_slot04_17(Object *obj) {
     }
 }
 
-void func_801b75dc_slot04_17(Object *obj) {
+void start_direction_sequence_or_meter_special_b_slot04_17(Object *obj) {
     obj->input_dir_second = 2;
     if (obj->kind != 0x13 || (s16)obj->meter < 0x30 || obj->active_state != 0 || obj->ground_y - 0x18 < obj->pos_y) {
         start_direction_sequence_slot04_17(obj);
@@ -133,7 +133,7 @@ void func_801b75dc_slot04_17(Object *obj) {
     }
 }
 
-void func_801b7684_slot04_17(Object *obj) {
+void enable_active_flag_3_and_select_sequence_3_slot04_17(Object *obj) {
     obj->active_flag_3 = 1;
     set_sequence_and_tables_from_direction(obj);
 }
@@ -158,14 +158,14 @@ int apply_velocity_and_acceleration_3_slot04_17(Object *obj) {
     return obj->vel_y += obj->accel_y;
 }
 
-void func_801b772c_slot04_17(Object *obj) {
+void call_reset_object_to_state_1_0_sequence_0_4_slot04_17(Object *obj) {
     reset_object_to_state_1_0_sequence_0(obj);
 }
 
-void func_801b774c_slot04_17(Object *obj) {
+void call_reset_object_to_state_1_0_0_2_sequence_1_4_slot04_17(Object *obj) {
     reset_object_to_state_1_0_0_2_sequence_1(obj);
 }
 
-void func_801b776c_slot04_17(Object *obj) {
-    func_80131638(obj);
+void call_state_3_handler_wrapper_3_slot04_17(Object *obj) {
+    land_reset_fields_and_choose_next_state(obj);
 }

@@ -9,5 +9,5 @@ void flip_facing_and_set_sequence_active_flag_slot00(Object *o) {
     call_kind_9_handler_for_player(o);
     o->countdown = 2;
     ((Slot00Obj *)o)->step_count++;
-    func_80138070(o, o->active_flag_2);
+    set_sequence_by_sound_side(o, o->active_flag_2);
 }

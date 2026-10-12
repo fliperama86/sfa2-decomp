@@ -12,5 +12,5 @@ void advance_slot_stage_with_timer(Object *object, int index, int arg) {
     object->slots[(u8)index].timer = arg;
     slot = &object->slots[(u8)index];
     *(u16 *)&slot->repeat_count = 0;
-    func_8013f2c8(object);
+    clear_global_flag_ignoring_object(object);
 }

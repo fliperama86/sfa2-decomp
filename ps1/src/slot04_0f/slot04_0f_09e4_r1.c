@@ -38,7 +38,7 @@ void start_input_dependent_dash_state_slot04_0f(Object *o) {
     }
 }
 
-void func_801b0aa8_slot04_0f(Object *obj) {
+void call_update_sequence_check_input_or_reset_5_slot04_0f(Object *obj) {
     update_sequence_check_input_or_reset_slot04_0f(obj);
 }
 
@@ -59,7 +59,7 @@ void start_horizontal_slide_from_table_slot04_0f(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b0b30_slot04_0f(Object *obj) {
+void advance_state_3_on_negative_flags_with_sound_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_3++;
         play_sound_at(obj, obj->side, 0x324);
@@ -151,7 +151,7 @@ void select_sequence_by_input_and_direction_b_slot04_0f(Object *obj) {
     add_to_meter_clamped(obj, obj->direction_index >> 1);
 }
 
-void func_801b0e68_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_5_slot04_0f(Object *obj) {
     data_801c5a0c_slot04_0f[obj->state_3](obj);
 }
 

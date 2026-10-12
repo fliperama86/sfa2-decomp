@@ -22,9 +22,9 @@ void advance_right_rank_and_reload_screen_slot12(Object *obj) {
         advance_hud_phase_index_and_reset_slot12(obj);
     } else {
         start_fade_mode_1_and_wait();
-        func_80151020(0x606);
-        func_8011eb14();
-        func_8011eae4();
+        set_menu_command_one_and_wait_pending(0x606);
+        clear_players_arrays_state_and_init_pools();
+        clear_arrays_and_init_pools_and_sprite_tables();
         init_block172_pool();
         data_80190568 = 1;
         rect.x = 0x280;

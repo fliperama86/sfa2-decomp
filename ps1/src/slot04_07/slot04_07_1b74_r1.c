@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b41c4_slot04_07(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_07(Object *obj);
 void update_countdown_hit_check_or_end_slot04_07(Object *obj);
 void func_801b1d5c_slot04_07(Object *obj);
 void start_fall_straight_down_slot04_07(Object *obj);
 
-void func_801b1b74_slot04_07(Object *obj) {
-    if (func_801b41c4_slot04_07(obj) < 0 && obj->pos_y >= obj->ground_y) {
+void update_airborne_motion_land_or_branch_slot04_07(Object *obj) {
+    if (move_by_velocity_return_new_vel_y_slot04_07(obj) < 0 && obj->pos_y >= obj->ground_y) {
         obj->pos_y = obj->ground_y;
         obj->state_3 = 5;
         obj->active_state = 0;

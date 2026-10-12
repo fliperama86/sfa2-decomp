@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b41c4_slot04_07(Object *obj);
+int move_by_velocity_return_new_vel_y_slot04_07(Object *obj);
 void move_x_by_facing_with_decel_stop_slot04_07(Object *obj);
 
-void func_801b279c_slot04_07(Object *obj) {
+void update_sequence_with_flag_driven_launch_phases_slot04_07(Object *obj) {
     s16 t;
 
     update_sequence(obj);
@@ -36,7 +36,7 @@ void func_801b279c_slot04_07(Object *obj) {
 }
 
 void update_fall_until_ground_start_landing_slot04_07(Object *obj) {
-    if (func_801b41c4_slot04_07(obj) >= 0 || obj->pos_y < obj->ground_y) {
+    if (move_by_velocity_return_new_vel_y_slot04_07(obj) >= 0 || obj->pos_y < obj->ground_y) {
         update_sequence(obj);
     } else {
         obj->pos_y = obj->ground_y;
@@ -47,7 +47,7 @@ void update_fall_until_ground_start_landing_slot04_07(Object *obj) {
     }
 }
 
-void func_801b28f4_slot04_07(Object *obj) {
+void update_sequence_set_x_velocity_on_flag_byte_slot04_07(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->vel_x = 0xe0000;
         obj->accel_x = -0x6000;

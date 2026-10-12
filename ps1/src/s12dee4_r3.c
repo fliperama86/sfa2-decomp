@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8012e334(Object *object) {
+void set_state_1_1_2_0_clear_action_timer(Object *object) {
     if ((short)object->health < 0) {
         enter_state_1_6_and_set_sequence(object);
     } else {

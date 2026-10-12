@@ -30,12 +30,12 @@ void next_state_if_step_flags_negative(Object *object) {
 }
 
 /* The parameter is passed on to reset_and_push_object_to_pool_table, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_80180274 holds this function and is declared with this parameter. */
-void func_80152870(Object *p) {
+void push_object_to_pool_table_wrapper_11(Object *p) {
     reset_and_push_object_to_pool_table((Slab172 *)p);
 }
 
 /* The parameter is passed on to reset_and_push_object_to_pool_table, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table table_80180274 holds this function and is declared with this parameter. */
-void func_80152890(Object *p) {
+void push_object_to_pool_table_wrapper_12(Object *p) {
     reset_and_push_object_to_pool_table((Slab172 *)p);
 }
 

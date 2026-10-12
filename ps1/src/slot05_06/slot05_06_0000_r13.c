@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801c904c_slot05_06(Object *obj) {
+int try_enter_state_7_when_ready_direction_2_slot05_06(Object *obj) {
     if (!(u8)is_state_01010101_and_ready(obj)) return 0;
     obj->state_0 = 1;
     obj->state_1 = 0;

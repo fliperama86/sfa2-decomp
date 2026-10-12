@@ -13,7 +13,7 @@ void advance_state_index_and_reinit_slot0f(Object *obj) {
     h->phase_index = 0;
     h->step_index = 0;
     stop_all_keys_clear_table();
-    func_8011eb14();
+    clear_players_arrays_state_and_init_pools();
 }
 
 void update_blink_counter_and_queue_entries_slot0f(int a, int b) {

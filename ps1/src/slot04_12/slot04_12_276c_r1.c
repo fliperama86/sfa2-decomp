@@ -8,22 +8,22 @@ extern s32 data_801c4c28_slot04_12[];
 extern u8 data_801c4c58_slot04_12[];
 extern ObjectFn data_801c4c5c_slot04_12[];
 extern u8 data_801c4c74_slot04_12[];
-void func_801428e4(Object *object);
+void update_meter_by_mode_or_table(Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
-void func_80145d20(Object *object);
+void spawn_three_child_objects_at_object_spawn(Object *object);
 void spawn_children_per_direction_index(Object *object, int a, int b);
 int apply_facing_velocity_with_x_stop_slot04_12(Object *object);
 
-void func_801b276c_slot04_12(Object *obj) {
+void call_table_function_by_state_3_7_slot04_12(Object *obj) {
     data_801c4c10_slot04_12[obj->state_3](obj);
 }
 
-void func_801b27ac_slot04_12(Object *o) {
+void start_shifted_motion_from_direction_table_slot04_12(Object *o) {
     o->state_3++;
     o->countdown = ((Slot04bObj *)o)->countdown + 0x400;
-    func_801428e4(o);
+    update_meter_by_mode_or_table(o);
     set_flag_225_add_direction_to_counter(&game_state, o);
-    func_80145d20(o);
+    spawn_three_child_objects_at_object_spawn(o);
     if (o->facing_side != 0) {
         o->pos_x = o->pos_x + 0x18;
     } else {
@@ -36,7 +36,7 @@ void func_801b27ac_slot04_12(Object *o) {
     set_sequence_by_side_and_mode(o, o->direction_index + 0x53);
 }
 
-void func_801b28b8_slot04_12(Object *o) {
+void spawn_children_when_countdown_high_byte_set_slot04_12(Object *o) {
     o->countdown = (s16)o->countdown - 0x100;
     if (o->countdown & 0xff00) {
         o->state_3++;
@@ -103,19 +103,19 @@ void update_sequence_or_finish_set_other_code_slot04_12(Object *o) {
     }
 }
 
-void func_801b2b4c_slot04_12(Object *obj) {
+void call_table_function_by_state_3_8_slot04_12(Object *obj) {
     data_801c4c5c_slot04_12[obj->state_3](obj);
 }
 
 void func_801b2b8c_slot04_12(Object *o) {
     o->state_3++;
-    func_801428e4(o);
+    update_meter_by_mode_or_table(o);
     set_flag_225_add_direction_to_counter(&game_state, o);
-    func_80145d20(o);
+    spawn_three_child_objects_at_object_spawn(o);
     set_sequence_by_side_and_mode(o, 0x59);
 }
 
-void func_801b2be8_slot04_12(Object *o) {
+void update_sequence_then_spawn_children_on_flag_byte_slot04_12(Object *o) {
     update_sequence(o);
     if (*(u8 *)&o->step_flags != 0) {
         o->state_3++;

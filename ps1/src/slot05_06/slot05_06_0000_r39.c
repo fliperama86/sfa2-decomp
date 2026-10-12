@@ -15,7 +15,7 @@ void start_move_from_table_with_hit_check_slot05_06(Object *obj) {
     obj->field_12d = 0;
     obj->step_count_2 = 0;
     obj->step_limit = 0;
-    if ((s8)func_80146888(obj)) {
+    if ((s8)spawn_random_offset_effect_index_two(obj)) {
         d = -0x1b;
         negate_value_if_facing_side_zero_slot05_06(obj, (u16 *)&d);
         ref_other.p->pos_x += d;

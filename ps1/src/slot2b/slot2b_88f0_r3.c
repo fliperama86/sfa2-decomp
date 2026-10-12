@@ -12,7 +12,7 @@ void call_handler_by_state_1_3_slot2b(Object *o) {
     data_8007ede8_slot2b[o->state_1](o);
 }
 
-void func_80078b90_slot2b(Object *o) {
+void advance_sequence_checked_wrapper_slot2b(Object *o) {
     advance_sequence_checked(o);
 }
 

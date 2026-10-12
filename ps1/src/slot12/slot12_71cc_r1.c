@@ -6,13 +6,13 @@
 void set_slot12_row_prim_positions_slot12(Object *o);
 void set_slot12_end_prim_and_hud_positions_slot12(Object *o);
 
-void func_800171cc_slot12(Object *obj) {
+void increment_state_1_if_game_field_equals_five_slot12(Object *obj) {
     if (game_state.field_2bc == 5) {
         obj->state_1++;
     }
 }
 
-void func_800171f8_slot12(Object *o) {
+void move_base_x_left_and_update_prim_positions_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     obj->base_x--;
     obj->field_4c--;

@@ -80,5 +80,5 @@ void check_slot_input_with_level_limit(Object *object, int index, int arg)
     }
     object->slots[(u8) index].timer = 2;
   }
-  func_8013f2c8(object);
+  clear_global_flag_ignoring_object(object);
 }

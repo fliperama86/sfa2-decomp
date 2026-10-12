@@ -25,11 +25,11 @@ void move_x_until_step_index_expires_slot05_06(Object *o) {
     }
 }
 
-void func_801cbd6c_slot05_06(Object *obj) {
+void call_table_function_by_state_3_14_slot05_06(Object *obj) {
     data_801dd498_slot05_06[obj->state_3](obj);
 }
 
-void func_801cbdac_slot05_06(Object *obj) {
+void start_sequence_3c_and_decrement_remaining_slot05_06(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3++;
     if (obj->field_49 == 0) {
@@ -48,6 +48,6 @@ void update_sequence_or_finish_on_status_bit_slot05_06(Object *o) {
     }
 }
 
-void func_801cbe40_slot05_06(Object *obj) {
+void call_table_function_by_state_3_15_slot05_06(Object *obj) {
     data_801dd4a0_slot05_06[obj->state_3](obj);
 }

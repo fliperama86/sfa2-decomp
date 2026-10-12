@@ -10,7 +10,7 @@ void func_8012e168(Object *o) {
     if (apply_table_step_to_pos_x(o)) {
         o->state_3++;
         o->facing_side = (o->facing_flag ^ 1) & 1;
-        func_8012e334(o);
+        set_state_1_1_2_0_clear_action_timer(o);
         return;
     }
     if ((s16)o->health >= 0) {

@@ -24,11 +24,11 @@ void advance_hud_state_index_and_reset_slot0f(Slot0fObj *obj) {
     h->substep_index = 0;
     obj->field_ee = 0;
     obj->field_f0 = 0;
-    func_8011eb14();
-    func_8011eae4();
+    clear_players_arrays_state_and_init_pools();
+    clear_arrays_and_init_pools_and_sprite_tables();
 }
 
-void func_800e5b30_slot0f(int idx) {
+void queue_image_job_from_slot0f_table_entry_slot0f(int idx) {
     Rect rect;
     Slot12Img *img = &data_800ebc94_slot0f[idx];
     Job *job = (Job *)alloc_pooled_b();

@@ -10,7 +10,7 @@ void skip_script_block_then_read_opcode(Object *object) {
     read_script_word_and_dispatch(object);
 }
 
-void func_8014c578(Object *object) {
+void enter_script_mode_by_arg_or_random_bit(Object *object) {
     if (object->script_arg == 0) {
         enter_script_mode_save_state(object);
     } else if (object->script_arg == 2) {

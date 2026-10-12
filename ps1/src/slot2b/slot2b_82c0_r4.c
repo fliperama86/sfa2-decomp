@@ -7,7 +7,7 @@ extern Object *data_8007ef30_slot2b;
 void increment_state_0_slot2b(Object *o);
 void set_variant_and_sequence_from_table_slot2b(Object *o, u8 a);
 
-void func_80078654_slot2b(Object *o) {
+void copy_parent_pose_and_follow_frame_param_variant_slot2b(Object *o) {
     Object *p;
     u8 t;
 
@@ -45,7 +45,7 @@ void unlink_object_and_call_release_slot2b(Object *o) {
     if ((u32)o == p->linked_object) {
         p->linked_object = 0;
     }
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }
 
 void clear_variant_index_slot2b(Object *o) {

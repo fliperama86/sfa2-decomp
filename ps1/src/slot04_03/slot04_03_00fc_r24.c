@@ -5,12 +5,12 @@
 
 void call_handler_by_input_dir_0_5_slot04_03(Object *obj);
 void call_handler_by_state_3_set_flag_2_slot04_03(Object *obj);
-void func_801b4130_slot04_03(Object *obj);
-void func_801b42bc_slot04_03(Object *obj);
+void call_table_function_by_state_3_17_slot04_03(Object *obj);
+void call_table_function_by_state_3_18_slot04_03(Object *obj);
 extern ObjectFn data_801c09e8_slot04_03[];
 
 void release_object_wrapper_slot04_03(Object *obj, Object *unused) {
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }
 
 void call_handler_by_input_dir_0_4_slot04_03(Object *obj) {
@@ -24,12 +24,12 @@ void call_handler_by_input_dir_0_4_slot04_03(Object *obj) {
 void call_handler_by_input_dir_0_5_slot04_03(Object *obj) {
     obj->field_157 = 0;
     if (obj->input_dir_second == 0) {
-        func_801b4130_slot04_03(obj);
+        call_table_function_by_state_3_17_slot04_03(obj);
     } else {
-        func_801b42bc_slot04_03(obj);
+        call_table_function_by_state_3_18_slot04_03(obj);
     }
 }
 
-void func_801b4130_slot04_03(Object *obj) {
+void call_table_function_by_state_3_17_slot04_03(Object *obj) {
     data_801c09e8_slot04_03[obj->state_3](obj);
 }

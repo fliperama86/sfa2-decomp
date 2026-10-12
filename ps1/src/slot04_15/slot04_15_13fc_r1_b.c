@@ -10,12 +10,12 @@ void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void set_sequence_by_side(Object *object, int index);
 void spawn_offset_effect_and_play_sounds(Object *object);
 void push_other_by_vel_x(Object *object);
-void func_80142c70(Object *object);
+void init_object_after_hit_and_spawn_three_effects(Object *object);
 void spawn_effect_objects_at_offset(Object *object, int x, int y);
 void reset_side_table_and_fields(Object *object);
 void spawn_object_type_6d_for_side(Object *object);
 void set_other_sequence_3_when_close(Object *object);
-void func_801b3b74_slot04_15(Object *object);
+void clear_object_tail_byte_block_slot04_15(Object *object);
 void advance_state_3_start_table_sequence_alt_slot04_15(Object *obj);
 void tick_countdown_or_save_counter_slot04_15(Object *object);
 void apply_gravity_vertical_motion_slot04_15(Object *object);
@@ -42,7 +42,7 @@ void advance_state_3_start_table_sequence_alt_slot04_15(Object *o) {
     set_sequence_by_side_and_mode(o, (u8)a);
 }
 
-void func_801b15ac_slot04_15(Object *obj) {
+void update_sequence_spawn_linked_child_with_sound_slot04_15(Object *obj) {
     Object *p;
     s16 y;
 
@@ -104,7 +104,7 @@ void update_sequence_with_countdown_or_finish_slot04_15(Object *o) {
     }
 }
 
-void func_801b1788_slot04_15(Object *obj) {
+void call_table_function_by_state_3_6_slot04_15(Object *obj) {
     data_801c309c_slot04_15[obj->state_3](obj);
 }
 
@@ -140,7 +140,7 @@ void update_sequence_spawn_effects_on_flag_slot04_15(Object *obj) {
         reset_side_table_and_fields(obj);
         spawn_object_type_6d_for_side(obj);
         set_other_sequence_3_when_close(obj);
-        func_801b3b74_slot04_15(obj);
+        clear_object_tail_byte_block_slot04_15(obj);
     }
     update_sequence(obj);
 }
@@ -180,7 +180,7 @@ void update_counter_and_countdown_low_byte_slot04_15(Object *o) {
             o->state_2 = 3;
             o->state_3 = 1;
         }
-        func_80142c70(o);
+        init_object_after_hit_and_spawn_three_effects(o);
     }
 }
 
@@ -197,11 +197,11 @@ void tick_countdown_or_save_counter_slot04_15(Object *o) {
     push_other_by_vel_x(o);
 }
 
-void func_801b1a6c_slot04_15(Object *obj) {
+void call_table_function_by_state_3_7_slot04_15(Object *obj) {
     data_801c30ac_slot04_15[obj->state_3](obj);
 }
 
-void func_801b1aac_slot04_15(Object *obj) {
+void update_sequence_effect_on_flag_then_start_next_slot04_15(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t >= 0) {
@@ -259,11 +259,11 @@ void update_sequence_or_finish_notify_other_slot04_15(Object *obj) {
     }
 }
 
-void func_801b1c64_slot04_15(Object *obj) {
+void call_table_function_by_state_3_8_slot04_15(Object *obj) {
     data_801c30bc_slot04_15[obj->state_3](obj);
 }
 
-void func_801b1ca4_slot04_15(Object *obj) {
+void update_sequence_effect_on_flag_then_start_alt_slot04_15(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t >= 0) {
@@ -286,6 +286,6 @@ void update_sequence_or_finish_sequence_2_slot04_15(Object *obj) {
     }
 }
 
-void func_801b1d54_slot04_15(Object *obj) {
+void call_table_function_by_state_3_9_slot04_15(Object *obj) {
     data_801c30c4_slot04_15[obj->state_3](obj);
 }

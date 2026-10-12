@@ -12,9 +12,9 @@ void update_players_right_first(void) {
     } else {
         update_object_input_and_timers(right - 1);
         if (player_left.status_flag != 0) {
-            func_80128e7c();
+            update_input_and_timers_for_both_players();
         } else {
-            func_80128d58();
+            set_box_distance_x_for_both_players();
             clear_flags_when_player_frames_inactive();
         }
     }

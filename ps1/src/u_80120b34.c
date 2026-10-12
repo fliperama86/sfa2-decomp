@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80120b34(void) {
+void init_hud_indices_and_loop_game_state_updates(void) {
     GameState *g = &game_state;
     data_801ac61c = 0;
     data_801a89f0 = 0;
@@ -21,7 +21,7 @@ void func_80120b34(void) {
     for (;;) {
         g->loop_counter++;
         g->pass_flag = 0xff;
-        func_80120c14(g);
+        update_pending_flag_from_table_bit(g);
         update_player_inputs_and_handlers();
         g->field_04 = 0;
         call_handler_by_stage_0_1(g);

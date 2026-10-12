@@ -54,5 +54,5 @@ void start_phase_screen_variant_a_slot0f(Object *arg) {
         b->active_flag = one;
         b->handler_index = 0x99;
     }
-    func_80151020(0x606);
+    set_menu_command_one_and_wait_pending(0x606);
 }

@@ -10,11 +10,11 @@ extern u16 data_80190542;
 
 void init_first_layer_tile_map_slot06_09(Slot06Layer *layer);
 void init_layer_map_fields_main_slot06_09(Slot06Layer *layer);
-void func_801e94e8_slot06_09(Slot06Layer *layer);
+void set_layer_tile_map_and_scale_f_slot06_09(Slot06Layer *layer);
 void init_layer_map_fields_basic_slot06_09(Slot06Layer *layer);
 void init_slot06_09_two_tile_groups_gray_slot06_09(void);
 void init_slot06_09_tiles_gray_slot06_09(void);
-void func_801e9514_slot06_09(void);
+void init_two_banks_of_91_gray_32x32_sprite_prims_slot06_09(void);
 void init_two_banks_of_poly_ft4_slot06_09(void);
 void draw_tile_map_layer_16px_slot06_09(void);
 void draw_tile_layer_sprites_with_partial_row_slot06_09(void);
@@ -45,14 +45,14 @@ void draw_background_layers_by_flags_slot06_09(void) {
 void init_four_layers_tile_maps_slot06_09(void) {
     init_first_layer_tile_map_slot06_09((Slot06Layer *)data_801aa544);
     init_layer_map_fields_main_slot06_09((Slot06Layer *)data_801aa5d4);
-    func_801e94e8_slot06_09((Slot06Layer *)cam_obj);
+    set_layer_tile_map_and_scale_f_slot06_09((Slot06Layer *)cam_obj);
     init_layer_map_fields_basic_slot06_09((Slot06Layer *)data_801904d8);
 }
 
-void func_801e80f0_slot06_09(void) {
+void init_slot_tile_groups_and_poly_buffers_gray_g_slot06_09(void) {
     init_slot06_09_two_tile_groups_gray_slot06_09();
     init_slot06_09_tiles_gray_slot06_09();
-    func_801e9514_slot06_09();
+    init_two_banks_of_91_gray_32x32_sprite_prims_slot06_09();
     init_two_banks_of_poly_ft4_slot06_09();
 }
 

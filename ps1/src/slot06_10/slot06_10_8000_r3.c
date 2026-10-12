@@ -65,7 +65,7 @@ void update_layer_flags_and_parallax_position_slot06_10(Slot06Layer *layer) {
     layer->field_26 = e;
 }
 
-void func_801e8ad0_slot06_10(Slot06Layer *layer) {
+void set_layer_tile_map_params_a_slot06_10(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801edc10_slot06_10;
     layer->data_table = data_801edc10_slot06_10;
     layer->packed_param = 0x6408;

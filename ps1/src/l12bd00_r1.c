@@ -3,14 +3,14 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012bd00(Object *object) {
+void count_down_updating_sequence_then_next_state_3(Object *object) {
     int v;
     object->field_15b = 0;
     if (object->kind == 0x14) {
         play_sound_and_reset_round_state(object);
         return;
     }
-    if (game_state.config->mode_flag_b == 0 && !func_8012f56c(object)) {
+    if (game_state.config->mode_flag_b == 0 && !is_other_object_state_0_and_1_six_one(object)) {
         v = object->countdown - 1;
         object->countdown = v;
         if ((s16)v != -1) {
@@ -26,7 +26,7 @@ void func_8012bd00(Object *object) {
                     if ((s16)v == -1) goto tail;
                 }
             }
-            if ((u8)func_8012bf00(object)) {
+            if ((u8)has_pressed_high_bits_or_call_random_test(object)) {
                 update_sequence(object);
                 v = object->countdown - 1;
                 object->countdown = v;

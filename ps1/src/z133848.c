@@ -17,8 +17,8 @@ void update_meter_hud_primitives(u8 *base, Object *a, Object *b) {
         write_player_color_bytes_to_table(base, (s16)raw);
     }
     index = (s16)raw;
-    func_80133ed0(base, index);
-    func_80133fd8(base, index);
+    write_right_color_triplets_by_value(base, index);
+    write_left_color_triplets_by_value(base, index);
 
     if (a->field_165 != 0 && a->field_299 == 0) {
         p = base + (index << 4);

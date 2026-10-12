@@ -34,7 +34,7 @@ void call_advance_sequence_checked_slot06_0f(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_801ea704_slot06_0f(Object *obj) {
+void set_states_to_1_0_0_0_random_countdown_slot06_0f(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 0;
@@ -60,7 +60,7 @@ int func_801ea77c_slot06_0f(Object *obj) {
     return 1;
 }
 
-void func_801ea7b4_slot06_0f(Object *obj) {
+void set_states_one_one_and_random_countdown_slot06_0f(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 1;
     obj->state_2 = 0;
@@ -81,7 +81,7 @@ int is_other_object_state_attacking_with_hit_slot06_0f(Object *obj) {
     return 0;
 }
 
-void func_801ea828_slot06_0f(Object *obj) {
+void set_states_one_two_and_random_countdown_slot06_0f(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 2;
     obj->state_2 = 0;
@@ -96,7 +96,7 @@ int is_both_state_checks_true_slot06_0f(Object *obj) {
     return 0;
 }
 
-void func_801ea898_slot06_0f(Object *obj) {
+void set_states_one_one_and_random_countdown_2_slot06_0f(Object *obj) {
     obj->state_0 = 1;
     obj->state_1 = 1;
     obj->state_2 = 0;

@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b16a0_slot04_00(Object *obj);
+void apply_vel_y_with_accel_y_override_slot04_00(Object *obj);
 void land_on_ground_and_update_sequence_slot04_00(Object *obj);
 
-void func_801b1438_slot04_00(Object *obj) {
-    func_801b16a0_slot04_00(obj);
+void update_airborne_motion_or_land_slot04_00(Object *obj) {
+    apply_vel_y_with_accel_y_override_slot04_00(obj);
     if (obj->pos_y >= obj->ground_y) {
         land_on_ground_and_update_sequence_slot04_00(obj);
     } else {
@@ -25,7 +25,7 @@ void func_801b1438_slot04_00(Object *obj) {
 }
 
 void update_vertical_fall_until_ground_slot04_00(Object *obj) {
-    func_801b16a0_slot04_00(obj);
+    apply_vel_y_with_accel_y_override_slot04_00(obj);
     if (obj->pos_y >= obj->ground_y) {
         land_on_ground_and_update_sequence_slot04_00(obj);
     } else if (*(u8 *)&obj->step_flags == 0) {

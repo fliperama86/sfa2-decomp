@@ -4,10 +4,10 @@
 #include "../externs.h"
 
 void call_image_job_with_index_0_slot12(Object *obj);
-u8 func_80014754_slot12(Object *obj);
+u8 fade_palette_rows_in_with_jobs_slot12(Object *obj);
 
-void func_80014134_slot12(Object *obj) {
-    func_80014754_slot12(obj);
+void advance_substep_when_fade_done_slot12(Object *obj) {
+    fade_palette_rows_in_with_jobs_slot12(obj);
     if (obj->field_f0 == 0) {
         data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
         game_state.field_2bc = 2;

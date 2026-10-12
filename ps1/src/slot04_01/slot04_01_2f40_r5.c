@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3280_slot04_01(Object *obj) {
+void update_repeated_hit_with_gauge_drain_slot04_01(Object *obj) {
     u16 t = obj->step_flags;
     Object *p = obj->other;
 

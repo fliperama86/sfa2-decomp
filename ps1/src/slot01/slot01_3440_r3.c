@@ -40,8 +40,8 @@ void init_object_by_table_index_slot01(Object *obj) {
     }
 }
 
-/* The call of func_8011ffdc passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 7 instruction slots. */
+/* The call of clear_or_set_flag_by_pos_x_limit passes no argument although the callee takes one: the original does not set the first argument register before it. Written with the argument, this function differs from the original in 7 instruction slots. */
 void func_8001385c_slot01(Object *obj) {
     data_80015a64_slot01[obj->state_1](obj);
-    ((void (*)(void))func_8011ffdc)();
+    ((void (*)(void))clear_or_set_flag_by_pos_x_limit)();
 }

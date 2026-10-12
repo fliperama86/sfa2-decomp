@@ -43,10 +43,10 @@ void reset_hud_state_and_sound_by_arg_slot0f(Object *obj, int arg) {
     close_voice_thread(1);
     if (arg == 0) {
         set_voice_thread_entry_and_open(1, 5);
-        func_80119198(1);
+        set_snd_ctl_thread_entry_and_close(1);
     } else if (arg == 1) {
-        func_80119198(3);
+        set_snd_ctl_thread_entry_and_close(3);
     } else {
-        func_80119198(1);
+        set_snd_ctl_thread_entry_and_close(1);
     }
 }

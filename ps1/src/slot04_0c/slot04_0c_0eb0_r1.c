@@ -8,7 +8,7 @@ void start_action_if_buttons_pressed(Object *object);
 void set_direction_index_from_buttons_group_b(Object *object);
 Pooled *alloc_pooled_b(void);
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
-void func_801b1510_slot04_0c(Object *obj);
+void apply_vel_y_with_accel_y_override_slot04_0c(Object *obj);
 
 extern ObjectFnInt data_801bd8f8_slot04_0c[];
 extern ObjectFn data_801bd92c_slot04_0c[];
@@ -114,7 +114,7 @@ int has_meter_and_no_link_slot04_0c(Object *obj) {
     return r;
 }
 
-int func_801b110c_slot04_0c(Object *obj) {
+int is_meter_at_least_threshold_slot04_0c(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -122,11 +122,11 @@ void func_801b1120_slot04_0c(Object *obj) {
     data_801bd92c_slot04_0c[obj->field_15a](obj);
 }
 
-void func_801b1160_slot04_0c(Object *obj) {
+void call_table_function_by_state_3_2_slot04_0c(Object *obj) {
     data_801bd960_slot04_0c[obj->state_3](obj);
 }
 
-void func_801b11a0_slot04_0c(Object *o) {
+void start_direction_launch_with_random_palette_job_slot04_0c(Object *o) {
     int a = 0x1c;
     Job *job;
     u16 *dst;
@@ -185,7 +185,7 @@ void set_side_flag_when_mode_zero_and_update_slot04_0c(Object *o) {
 }
 
 void move_x_by_facing_until_vel_x_negative_slot04_0c(Object *obj) {
-    func_801b1510_slot04_0c(obj);
+    apply_vel_y_with_accel_y_override_slot04_0c(obj);
     if (obj->facing_side == 0) {
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->pos_x_frac - obj->vel_x;
     } else {
@@ -201,7 +201,7 @@ void move_x_by_facing_until_vel_x_negative_slot04_0c(Object *obj) {
 void update_vertical_motion_until_landing_slot04_0c(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
-    func_801b1510_slot04_0c(o);
+    apply_vel_y_with_accel_y_override_slot04_0c(o);
     if (o->pos_y < o->ground_y) {
         if (obj->mode != 0) {
             return;
@@ -227,7 +227,7 @@ void update_sequence_set_other_state_code_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b1510_slot04_0c(Object *obj) {
+void apply_vel_y_with_accel_y_override_slot04_0c(Object *obj) {
     if (obj->field_49 != 0 && obj->vel_y < 0) {
         obj->accel_y = 0xffff0000;
     }
@@ -235,11 +235,11 @@ void func_801b1510_slot04_0c(Object *obj) {
     obj->vel_y = obj->vel_y + obj->accel_y;
 }
 
-void func_801b155c_slot04_0c(Object *obj) {
+void call_table_function_by_state_3_3_slot04_0c(Object *obj) {
     data_801bd9c4_slot04_0c[obj->state_3](obj);
 }
 
-void func_801b159c_slot04_0c(Object *obj) {
+void start_direction_sequence_gain_meter_five_slot04_0c(Object *obj) {
     int a = 0x1f;
 
     obj->active_flag_4 = 1;

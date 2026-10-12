@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void apply_velocity_and_acceleration_slot04_09(Object *o);
-void func_801b4098_slot04_09(Object *obj);
+void update_hit_sequence_with_flag_byte_events_b_slot04_09(Object *obj);
 
 void start_horizontal_slide_by_facing_slot04_09(Object *obj) {
     obj->state_3++;
@@ -13,15 +13,15 @@ void start_horizontal_slide_by_facing_slot04_09(Object *obj) {
     if (obj->facing_side != 0) {
         obj->vel_x = 0x30000;
         obj->accel_x = 0x2000;
-        func_801b4098_slot04_09(obj);
+        update_hit_sequence_with_flag_byte_events_b_slot04_09(obj);
     } else {
         obj->vel_x = -0x30000;
         obj->accel_x = -0x2000;
-        func_801b4098_slot04_09(obj);
+        update_hit_sequence_with_flag_byte_events_b_slot04_09(obj);
     }
 }
 
-void func_801b4098_slot04_09(Object *obj) {
+void update_hit_sequence_with_flag_byte_events_b_slot04_09(Object *obj) {
     u16 t;
     update_sequence(obj);
     t = obj->step_flags;

@@ -4,14 +4,14 @@
 #include "../externs.h"
 
 void reset_hud_and_game_state_fields_slot28(void);
-void func_80013b68_slot28(void);
-void func_80027d54_slot28(Object *obj);
-void func_80027e50_slot28(Object *obj);
+void reset_hud_state_and_init_pools_slot28(void);
+void call_handler_by_hud_step_index_2_19_slot28(Object *obj);
+void call_handler_by_hud_step_index_2_20_slot28(Object *obj);
 
-void func_80013a20_slot28(Object *o) {
+void call_hud_step_or_advance_substep_by_field_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     if (obj->field_1c == 0) {
-        func_80027d54_slot28((Object *)&game_state);
+        call_handler_by_hud_step_index_2_19_slot28((Object *)&game_state);
     } else {
         HudState *h = data_8018f5a0;
         h->substep_index = h->substep_index + 1;
@@ -20,7 +20,7 @@ void func_80013a20_slot28(Object *o) {
 
 void call_hud_step_or_advance_substep_by_byte_slot28(Object *obj) {
     if ((s8)data_8016e685 >= 2) {
-        func_80027e50_slot28((Object *)&game_state);
+        call_handler_by_hud_step_index_2_20_slot28((Object *)&game_state);
     } else {
         HudState *h = data_8018f5a0;
         h->substep_index = h->substep_index + 1;
@@ -46,12 +46,12 @@ void reset_players_and_hud_indices_when_idle_slot28(Object *o) {
             ((Slot28Obj *)o)->state_flag = 0;
         }
         ((Slot28Obj *)o)->state_flag = ((Slot28Obj *)o)->state_flag + 0x80;
-        func_80013b68_slot28();
+        reset_hud_state_and_init_pools_slot28();
     }
 }
 
-void func_80013b68_slot28(void) {
+void reset_hud_state_and_init_pools_slot28(void) {
     reset_hud_and_game_state_fields_slot28();
     game_state.field_44 = 0xff;
-    func_8011eae4();
+    clear_arrays_and_init_pools_and_sprite_tables();
 }

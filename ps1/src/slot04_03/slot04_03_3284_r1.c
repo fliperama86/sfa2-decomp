@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3284_slot04_03(Object *obj) {
+void start_sequence_facing_from_input_with_meter_gain_slot04_03(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = 0;
     if ((obj->input_bits & 0x8000) == 0) {
@@ -14,7 +14,7 @@ void func_801b3284_slot04_03(Object *obj) {
     set_sequence_by_side_and_mode(obj, 0x18);
 }
 
-void func_801b32f8_slot04_03(Object *obj) {
+void apply_damage_and_sound_on_step_flag_then_update_slot04_03(Object *obj) {
     if ((u8)obj->step_flags != 0) {
         obj->state_3 = obj->state_3 + 1;
         game_state.state_param = 0x30;
@@ -23,12 +23,12 @@ void func_801b32f8_slot04_03(Object *obj) {
         } else {
             play_sound_at(obj, obj->side, 0x319);
         }
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
     }
     update_sequence(obj);
 }
 
-void func_801b338c_slot04_03(Object *obj) {
+void hit_other_on_step_flag_bit_then_update_slot04_03(Object *obj) {
     if (obj->step_flags & 0x80) {
         obj->state_3 = obj->state_3 + 1;
         set_other_hit_reaction_state_0(obj, 0, 0xf, -0x200, 0, 0, 1);

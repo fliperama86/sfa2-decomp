@@ -10,7 +10,7 @@ void func_80148c8c(Block172 *block) {
     table_8017cebc[object->state_0](object);
 }
 
-void func_80148ccc(Object *object) {
+void init_object_motion_random_accel_y_and_sequence(Object *object) {
     object->state_0 = object->state_0 + 1;
     object->field_0c = 0;
     object->vel_x = *(s32 *)&object->pos_x_frac;

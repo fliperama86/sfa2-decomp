@@ -9,7 +9,7 @@ void call_handler_by_variant_index(Object *object) {
     table_80180284[object->variant_index >> 1](object);
 }
 
-void func_80152488(Object *object) {
+void call_state_1_table_then_push_if_mode_8(Object *object) {
     table_80180294[object->state_1](object);
     set_flag_and_push_if_mode_8(object);
 }
@@ -37,8 +37,8 @@ void advance_sequence_or_next_state(Object *object) {
     }
 }
 
-void func_801525d0(Object *object) {
-    func_80152488(object);
+void call_state_1_table_handler_wrapper(Object *object) {
+    call_state_1_table_then_push_if_mode_8(object);
 }
 
 void call_state_1_handler_unless_released(Object *object) {
@@ -56,7 +56,7 @@ void start_sequence_from_countdown_table(Object *object) {
     set_position_from_parent_offset_table(object);
 }
 
-void func_801526d0(Object *object) {
+void advance_sequence_and_follow_parent_offset(Object *object) {
     advance_sequence_checked(object);
     set_position_from_parent_offset_table(object);
 }

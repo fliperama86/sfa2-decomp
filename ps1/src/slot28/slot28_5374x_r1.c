@@ -7,7 +7,7 @@ extern ObjectRef data_80051890_slot28;
 extern SequenceStep *data_8002bde4_slot28[];
 void init_object_data_pointers_and_spawn_b_slot28(Object *obj);
 void release_two_stored_objects_slot28(Object *obj);
-void func_8001581c_slot28(Object *obj, int arg);
+void set_sequence_of_fourth_hud_object_2_slot28(Object *obj, int arg);
 
 void advance_hud_pass_spawn_seven_objects_slot28(Object *obj) {
     HudState *h;
@@ -113,7 +113,7 @@ void advance_hud_pass_spawn_seven_objects_slot28(Object *obj) {
             set_sequence_from_table_5(b, 6, data_8002bde4_slot28);
         }
         t = 2;
-        func_8001581c_slot28(obj, t);
+        set_sequence_of_fourth_hud_object_2_slot28(obj, t);
         start_fade_mode_1a01_and_wait();
     }
 }

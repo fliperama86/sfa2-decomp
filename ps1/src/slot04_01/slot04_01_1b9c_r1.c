@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801befb0_slot04_01[];
 
-void func_801b1b9c_slot04_01(Object *o) {
+void call_handler_by_state_3_clear_flag_near_ground_slot04_01(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     data_801befb0_slot04_01[o->state_3](o);

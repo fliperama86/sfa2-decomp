@@ -4,8 +4,8 @@
 #include "../externs.h"
 
 int is_not_state_2_five(Object *object);
-void func_80142718(Object *object);
-void func_80142778(Object *object);
+void set_direction_index_from_buttons_mask_a(Object *object);
+void set_direction_index_from_buttons_mask_b(Object *object);
 
 int try_start_meter_special_state_8_type_4_slot04_0f(Object *obj) {
     if (obj->field_292 != 0) return 0;
@@ -21,7 +21,7 @@ int try_start_meter_special_state_8_type_4_slot04_0f(Object *obj) {
         obj->facing_side = obj->saved_facing;
     }
     if (obj->field_7e != 0) return 0;
-    if (!(u8)func_801418bc(obj)) return 0;
+    if (!(u8)try_action_unless_state_bytes_match(obj)) return 0;
     obj->state_0 = 1;
     obj->state_1 = 0;
     obj->state_2 = 8;
@@ -41,7 +41,7 @@ int try_start_meter_special_state_8_type_7_slot04_0f(Object *obj) {
     obj->field_15a = 7;
     obj->active_flag_3 = 1;
     obj->facing_side = obj->saved_facing;
-    func_80142718(obj);
+    set_direction_index_from_buttons_mask_a(obj);
     return 1;
 }
 
@@ -54,6 +54,6 @@ int try_start_meter_special_state_8_type_8_slot04_0f(Object *obj) {
     obj->state_3 = 0;
     obj->field_15a = 8;
     obj->facing_side = obj->saved_facing;
-    func_80142778(obj);
+    set_direction_index_from_buttons_mask_b(obj);
     return 1;
 }

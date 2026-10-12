@@ -13,7 +13,7 @@ int consume_active_frame_flag(Object *object) {
   if (game_state.field_4e != 0) {
     return 0;
   }
-  if (func_8012f56c(object) != 0) {
+  if (is_other_object_state_0_and_1_six_one(object) != 0) {
     return 0;
   }
   if (object->active_flag_5 == 0) {

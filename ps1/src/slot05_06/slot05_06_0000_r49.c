@@ -18,7 +18,7 @@ void start_sequence_2d_with_table_step_timer_slot05_06(Object *obj) {
     obj->step_timer = *(u16 *)(data_801dd4c8_slot05_06 + (obj->direction_index & 0xfe));
 }
 
-void func_801cc354_slot05_06(Object *obj) {
+void update_sequence_or_start_direction_sequence_slot05_06(Object *obj) {
     if (((Slot04aObj *)obj)->mode != 0) {
         ((Slot04aObj *)obj)->mode = 0;
         obj->step_timer = *(u16 *)(data_801dd4d0_slot05_06 + (obj->direction_index & 0xfe));
@@ -41,6 +41,6 @@ void update_sequence_or_end_clear_flag_4_slot05_06(Object *obj) {
     }
 }
 
-void func_801cc438_slot05_06(Object *obj) {
+void call_table_function_by_state_3_18_slot05_06(Object *obj) {
     data_801dd4d8_slot05_06[obj->state_3](obj);
 }

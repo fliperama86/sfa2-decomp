@@ -31,13 +31,13 @@ void update_two_part_effect_motion_and_draw_slot04_07(Object *obj) {
             *(s32 *)&obj->sequence = *(s32 *)&obj->field_20;
             *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->health;
             *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->field_60;
-            func_8011ffdc(obj);
+            clear_or_set_flag_by_pos_x_limit(obj);
         }
     } else if ((obj->active_state & 2) == 0) {
         obj->sequence_changed_flag = 1;
         *(s32 *)&obj->sequence = *(s32 *)&obj->pair_value;
         *(s32 *)&obj->pos_x_frac = *(s32 *)&obj->box_tables;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->ground_y;
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     }
 }

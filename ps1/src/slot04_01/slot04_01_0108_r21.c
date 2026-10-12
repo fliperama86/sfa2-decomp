@@ -16,7 +16,7 @@ void reset_states_on_negative_step_flags_slot04_01(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_801b3e08_slot04_01(Object *o) {
+void unlink_from_parent_count_and_release_object_slot04_01(Object *o) {
     Object *p = o->parent;
     u8 n = p->link_flags - 1;
     p->link_flags = n;

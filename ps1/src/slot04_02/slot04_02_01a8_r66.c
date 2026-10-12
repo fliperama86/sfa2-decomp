@@ -8,7 +8,7 @@ void set_sequence_a_by_sound_side_slot04_02(Object *obj, u8 a);
 extern s32 data_801c7830_slot04_02[];
 void set_object_states_0_to_3_3_slot04_02(Object *obj, u8 a, u8 b, u8 c, u8 d);
 
-void func_801b74dc_slot04_02(Object *obj) {
+void advance_state_2_flip_facing_table_image_row_slot04_02(Object *obj) {
     u8 a;
 
     obj->countdown = 2;

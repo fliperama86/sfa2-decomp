@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b248c_slot04_0f(Object *o) {
+void start_direction_sequence_adding_meter_four_slot04_0f(Object *o) {
     int a;
     int t;
 

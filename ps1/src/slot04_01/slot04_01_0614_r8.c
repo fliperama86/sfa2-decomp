@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3ad8_slot04_01(Object *obj) {
+void update_sequence_or_flip_facing_and_reset_b_2_slot04_01(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {

@@ -3,23 +3,23 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b449c_slot04_04(Object *obj);
+void advance_state_3_play_sound_on_direction_4_slot04_04(Object *obj);
 void update_sequence_or_finish_on_flag_2_slot04_04(Object *obj);
-void func_801b4bc4_slot04_04(Object *obj);
+void set_active_flag_3_and_call_direction_sequence_slot04_04(Object *obj);
 
-void func_801b445c_slot04_04(Object *obj) {
+void call_handler_by_state_3_slot04_04(Object *obj) {
     if (obj->state_3 == 0) {
-        func_801b449c_slot04_04(obj);
+        advance_state_3_play_sound_on_direction_4_slot04_04(obj);
     } else {
         update_sequence_or_finish_on_flag_2_slot04_04(obj);
     }
 }
 
-void func_801b449c_slot04_04(Object *obj) {
+void advance_state_3_play_sound_on_direction_4_slot04_04(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index == 4) {
         play_side_sound_at(obj, obj->side, 0xb);
     }
-    func_801b4bc4_slot04_04(obj);
+    set_active_flag_3_and_call_direction_sequence_slot04_04(obj);
 }

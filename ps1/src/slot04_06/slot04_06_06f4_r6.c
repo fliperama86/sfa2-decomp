@@ -9,7 +9,7 @@ int has_remaining_count_slot04_06(Object *obj) {
     return obj->remaining_count != 0;
 }
 
-int func_801b13c4_slot04_06(Object *obj) {
+int is_meter_at_least_threshold_3_slot04_06(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 

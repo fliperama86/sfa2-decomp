@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b110c_slot04_09(Object *obj) {
+int try_start_meter_move_with_buttons_group_a_slot04_09(Object *obj) {
     int r = 0;
 
     if ((u8)try_spend_meter_for_action(obj)) {
@@ -26,7 +26,7 @@ int func_801b110c_slot04_09(Object *obj) {
     return r;
 }
 
-int func_801b11a4_slot04_09(Object *obj) {
+int try_start_meter_move_with_buttons_group_b_slot04_09(Object *obj) {
     int r = 0;
 
     if ((u8)try_spend_meter_for_action(obj)) {

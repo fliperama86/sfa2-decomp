@@ -14,5 +14,5 @@ void update_follow_parent_sequence_check(Object *object) {
       return;
     }
   }
-  func_8011ffdc(object);
+  clear_or_set_flag_by_pos_x_limit(object);
 }

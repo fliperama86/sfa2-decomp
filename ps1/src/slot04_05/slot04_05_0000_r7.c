@@ -5,7 +5,7 @@
 
 void check_range_hit_or_continue_sequence_b_slot04_05(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
-    if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x17, 0x11) != 0) {
+    if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x17, 0x11) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

@@ -7,7 +7,7 @@ extern ObjectFn data_80027ccc_slot27[];
 extern ObjectFn data_80027cdc_slot27[];
 extern ObjectFn data_80027cec_slot27[];
 
-void func_80014744_slot27(Object *obj) {
+void release_object_to_pool_table_4_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 

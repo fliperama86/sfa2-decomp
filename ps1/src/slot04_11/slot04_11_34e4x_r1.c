@@ -7,7 +7,7 @@ extern u8 data_801c7518_slot04_11[];
 extern s16 data_801c7520_slot04_11[];
 
 int apply_damage_to_other_return_defeated(Object *object, int a, int b);
-void func_801b37f8_slot04_11(Object *obj);
+void spawn_game_state_object_when_step_limit_clear_slot04_11(Object *obj);
 
 void update_slide_and_apply_hit_steps_slot04_11(Object *obj) {
     int a;
@@ -45,7 +45,7 @@ void update_slide_and_apply_hit_steps_slot04_11(Object *obj) {
             ref_other.p = obj->other;
             if ((s16)ref_other.p->health < 0) {
                 play_sound_at(ref_other.p, ref_other.p->side, 0x339);
-                func_801b37f8_slot04_11(obj);
+                spawn_game_state_object_when_step_limit_clear_slot04_11(obj);
             } else {
                 play_sound_at(ref_other.p, ref_other.p->side, 0x306);
             }
@@ -63,7 +63,7 @@ void update_slide_and_apply_hit_steps_slot04_11(Object *obj) {
         ref_other.p = obj->other;
         if (apply_damage_to_other_return_defeated(obj, i, y) != 0) {
             play_sound_at(ref_other.p, ref_other.p->side, 0x339);
-            func_801b37f8_slot04_11(obj);
+            spawn_game_state_object_when_step_limit_clear_slot04_11(obj);
         } else {
             play_sound_at(ref_other.p, ref_other.p->side, 0x306);
         }

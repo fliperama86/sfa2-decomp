@@ -5,6 +5,6 @@
 
 extern void (*data_8003f984_slot28[])(Object *);
 
-void func_8001e478_slot28(Object *obj) {
+void call_handler_by_hud_step_index_2_10_slot28(Object *obj) {
     data_8003f984_slot28[data_8018f5a0->step_index_2](obj);
 }

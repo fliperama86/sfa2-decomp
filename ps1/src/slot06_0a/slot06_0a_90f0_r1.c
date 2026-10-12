@@ -11,7 +11,7 @@ void call_handler_by_state_0_slot06_0a(Object *obj) {
     data_801ed444_slot06_0a[obj->state_0](obj);
 }
 
-void func_801e9130_slot06_0a(Object *obj) {
+void init_object_velocity_from_position_set_sequence_slot06_0a(Object *obj) {
     obj->variant_index = 1;
     obj->field_0f = 1;
     obj->field_0a = 1;
@@ -32,7 +32,7 @@ void call_table_handler_with_bound_deltas_slot06_0a(Object *obj) {
     data_801ed454_slot06_0a[obj->table_index](obj, x, y);
     obj->variant_index = obj->variant_index ^ 1;
     if (obj->variant_index != 0) {
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else {
         obj->field_01 = 0;
     }

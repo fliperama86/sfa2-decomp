@@ -62,7 +62,7 @@ void check_hit_of_a_wide_box_against_b_boxes(Object *a, Object *b) {
         if (a->hit_skip_flag == 0) {
             apply_hit_damage_to_object(a, b, box);
             select_min_placement_and_test(a, b, box);
-            func_80155de0(box, b);
+            add_table_score_to_player_on_hit(box, b);
         }
     }
 }

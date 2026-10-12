@@ -8,7 +8,7 @@ extern Slot04_0fRec6194 data_801c6194_slot04_0f[];
 
 Block172 *pop_block_from_pool(void);
 
-void func_801b5b4c_slot04_0f(Object *obj) {
+void spawn_pooled_block_with_table_velocity_slot04_0f(Object *obj) {
     Object *p;
     u16 t;
     int a;

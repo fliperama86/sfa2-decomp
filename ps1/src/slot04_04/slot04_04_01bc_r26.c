@@ -5,7 +5,7 @@
 
 extern s32 data_801c4304_slot04_04[];
 
-void func_801b2188_slot04_04(Object *obj) {
+void start_table_motion_shifted_by_facing_slot04_04(Object *obj) {
     u16 a;
 
     obj->active_flag_4 = 1;

@@ -35,7 +35,7 @@ void launch_from_table_velocity_on_step_flag_slot04_05(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b1f54_slot04_05(Object *obj) {
+void update_airborne_or_land_with_kind_sound_slot04_05(Object *obj) {
     if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         if (*(u8 *)&obj->step_flags != 2) {
             update_sequence(obj);

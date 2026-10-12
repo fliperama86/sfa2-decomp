@@ -39,7 +39,7 @@ void set_countdown_2_on_step_flag_else_update_slot04_06(Object *obj) {
     }
 }
 
-void func_801b3178_slot04_06(Object *obj) {
+void update_air_motion_land_at_ground_with_countdown_slot04_06(Object *obj) {
     move_x_by_vel_x_facing_then_accelerate_slot04_06(obj);
     apply_vertical_velocity_slot04_06(obj);
     if (((Slot04aObj *)obj)->countdown_2 != 0) {

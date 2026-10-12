@@ -21,14 +21,14 @@ void raise_pos_y_to_limit_then_next_state_1_slot12(Object *obj) {
     }
 }
 
-void func_80016634_slot12(Object *obj) {
+void advance_state_0_clear_state_1_if_field_ten_slot12(Object *obj) {
     if (game_state.field_2bc == 10) {
         obj->state_0 = obj->state_0 + 1;
         obj->state_1 = 0;
     }
 }
 
-void func_80016660_slot12(Object *obj) {
+void release_object_to_pool_table_10_slot12(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 

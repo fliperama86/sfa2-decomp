@@ -10,18 +10,18 @@ extern ObjectFn data_801c36ec_slot04_0d[];
 extern SequenceStep *data_801c0a60_slot04_0d[];
 
 void reset_object_to_state_1_0_0_2_sequence_1(Object *object);
-void func_8011ffdc(Object *o);
+void clear_or_set_flag_by_pos_x_limit(Object *o);
 void reset_and_push_object_to_pool_table(Slab172 *s);
 void call_handler_by_state_1_unless_gate_slot04_0d(Object *obj);
 void set_sequence_and_tables_from_direction(Object *obj);
 
-void func_801b4758_slot04_0d(Object *obj) {
+void restore_facing_check_range_or_start_sequence_slot04_0d(Object *obj) {
     u8 one;
 
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
-        if (func_8013f8c4(obj, -0x11, 0x14) & 0xff) {
+        if (try_force_other_state_if_box_in_range(obj, -0x11, 0x14) & 0xff) {
             obj->state_0 = 1;
             obj->state_1 = 2;
             obj->state_2 = 0;
@@ -53,7 +53,7 @@ void update_sequence_reset_state_3_on_check_2_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b4898_slot04_0d(Object *obj) {
+void update_sequence_with_flagged_x_frac_nudge_slot04_0d(Object *obj) {
     s16 t = obj->step_flags;
     s16 d;
 
@@ -76,18 +76,18 @@ void call_handler_by_half_direction_index_slot04_0d(Object *obj) {
     data_801c3648_slot04_0d[obj->direction_index >> 1](obj);
 }
 
-void func_801b4954_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_17_slot04_0d(Object *obj) {
     data_801c3654_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b4994_slot04_0d(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_slot04_0d(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b49cc_slot04_0d(Object *obj) {
+void update_sequence_or_reset_on_negative_flags_2_slot04_0d(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
@@ -112,14 +112,14 @@ void func_801b4a30_slot04_0d(Object *obj) {
     }
     t = (obj->direction_index >> 1) + t;
     set_sequence_by_side_and_mode(obj, t);
-    func_80120af8(obj);
+    play_sound_from_table_by_direction_index(obj);
 }
 
 void call_handler_by_state_0_2_slot04_0d(Object *obj) {
     data_801c36dc_slot04_0d[obj->state_0](obj);
 }
 
-void func_801b4af8_slot04_0d(Object *obj) {
+void init_rise_toward_parent_then_call_handler_slot04_0d(Object *obj) {
     obj->vel_y = 0xfffe0000;
     obj->accel_y = 0x1000;
     obj->state_0 = obj->state_0 + 1;
@@ -136,7 +136,7 @@ void call_handler_by_state_1_unless_gate_slot04_0d(Object *obj) {
         obj->state_3 = 0;
     } else {
         data_801c36ec_slot04_0d[obj->state_1](obj);
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     }
 }
 

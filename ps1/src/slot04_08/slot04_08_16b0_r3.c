@@ -8,7 +8,7 @@ extern u8 data_801c3c24_slot04_08[];
 
 void push_other_x_if_hit_check_slot04_08(Object *obj);
 
-void func_801b19d0_slot04_08(Object *obj) {
+void start_move_with_fixed_velocity_and_target_x_slot04_08(Object *obj) {
     u16 a;
     int n;
 

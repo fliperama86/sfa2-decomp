@@ -15,7 +15,7 @@ void count_down_then_set_image_row(Object *object) {
     }
 }
 
-void func_80143b90(Object *object) {
+void move_object_out_to_edge_and_advance_state_1(Object *object) {
     object->pos_y = object->pos_y - 5;
     object->health = object->health + 3;
     if (object->table_index == 0) {

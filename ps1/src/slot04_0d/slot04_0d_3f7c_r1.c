@@ -17,8 +17,8 @@ extern BoxTables *data_801c318c_slot04_0d[];
 extern SequenceStep *data_801c2624_slot04_0d[];
 
 void reset_and_push_block_object_type_8(Slab172 *o);
-void func_8011f38c(Object *o);
-void func_8011ffdc(Object *o);
+void clear_object_and_push_on_free_stack(Object *o);
+void clear_or_set_flag_by_pos_x_limit(Object *o);
 void set_sequence_and_tables_from_direction(Object *obj);
 void increment_state_0_slot04_0d(Object *obj);
 void follow_reference_object_by_frame_param_slot04_0d(Object *obj);
@@ -30,10 +30,10 @@ void call_handler_by_half_direction_index_slot04_0d(Object *obj);
 
 void call_handler_by_state_1_then_offset_slot04_0d(Object *obj) {
     data_801c35f8_slot04_0d[obj->state_1](obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_801b3fd0_slot04_0d(Object *obj) {
+void clear_parent_link_and_set_sequence_offset_6_slot04_0d(Object *obj) {
     u8 t;
 
     obj->state_1++;
@@ -43,7 +43,7 @@ void func_801b3fd0_slot04_0d(Object *obj) {
     } else {
         t = (obj->vel_table_index >> 1) + 6;
     }
-    func_80138070(obj, t);
+    set_sequence_by_sound_side(obj, t);
 }
 
 void set_state_0_to_3_on_sequence_end_slot04_0d(Object *obj) {
@@ -65,7 +65,7 @@ void release_object_and_unlink_from_parent_slot04_0d(Object *o) {
     reset_and_push_block_object_type_8((Slab172 *)o);
 }
 
-void func_801b40bc_slot04_0d(Object *obj) {
+void select_box_tables_by_vel_index_and_health_slot04_0d(Object *obj) {
     BoxTables **t;
 
     if (obj->vel_table_index == 6) {
@@ -135,7 +135,7 @@ void release_object_unlink_global_link_slot04_0d(Object *o) {
     if ((s32)o == p->linked_object) {
         p->linked_object = 0;
     }
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }
 
 void clear_variant_index_slot04_0d(Object *obj) {
@@ -168,15 +168,15 @@ void call_handler_by_direction_index_3_slot04_0d(Object *obj) {
     data_801c3610_slot04_0d[obj->direction_index >> 1](obj);
 }
 
-void func_801b43f8_slot04_0d(Object *object) {
+void call_handler_by_state_3_slot04_0d(Object *object) {
     data_801c361c_slot04_0d[object->state_3](object);
 }
 
-void func_801b4438_slot04_0d(Object *obj) {
+void advance_state_3_check_range_or_start_sequence_slot04_0d(Object *obj) {
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
     if (obj->direction_index != 0 && obj->hit_flag_a != 0) {
-        if ((u8)func_8013f8c4(obj, -0x11, 0x14) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x11, 0x14) != 0) {
             obj->state_0 = 1;
             obj->state_1 = 2;
             obj->state_2 = 0;
@@ -199,16 +199,16 @@ void update_sequence_reset_state_3_on_check_slot04_0d(Object *obj) {
     }
 }
 
-void func_801b452c_slot04_0d(Object *object) {
+void call_handler_by_state_3_2_slot04_0d(Object *object) {
     data_801c3624_slot04_0d[object->state_3](object);
 }
 
-void func_801b456c_slot04_0d(Object *obj) {
+void check_range_hit_or_start_directional_sequence_slot04_0d(Object *obj) {
     u8 one;
 
     obj->state_3++;
     if (obj->hit_flag_a != 0) {
-        if ((u8)func_8013f8c4(obj, -0x11, 0x14) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x11, 0x14) != 0) {
             obj->state_0 = 1;
             obj->state_1 = 2;
             obj->state_2 = 0;
@@ -239,7 +239,7 @@ void update_sequence_with_facing_x_nudge_slot04_0d(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b4670_slot04_0d(Object *obj) {
+void update_sequence_or_reset_on_negative_flags_slot04_0d(Object *obj) {
     if ((s16)obj->step_flags >= 0) {
         if (consume_active_frame_flag(obj) & 0xff) {
             obj->state_3 = 0;
@@ -254,6 +254,6 @@ void call_handler_by_direction_index_4_slot04_0d(Object *obj) {
     data_801c3630_slot04_0d[obj->direction_index >> 1](obj);
 }
 
-void func_801b4718_slot04_0d(Object *object) {
+void call_handler_by_state_3_3_slot04_0d(Object *object) {
     data_801c363c_slot04_0d[object->state_3](object);
 }

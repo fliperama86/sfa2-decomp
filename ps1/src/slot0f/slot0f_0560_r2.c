@@ -21,7 +21,7 @@ void update_frame_objects_and_effects_slot0f(GameState *g, int x) {
     if (g->state_param != 0) {
         g->state_param--;
     }
-    func_80138ec4();
+    check_collisions_unless_paused();
     update_hud_bars_and_meters();
     select_buffers_and_run_first_setup();
 }

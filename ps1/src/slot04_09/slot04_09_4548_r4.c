@@ -18,7 +18,7 @@ void start_state_with_sound_7_and_sequence_slot04_09(Object *obj) {
     set_sequence_by_side(obj, a);
 }
 
-void func_801b48d4_slot04_09(Object *obj) {
+void update_sequence_spawn_effects_on_high_flag_slot04_09(Object *obj) {
     int a;
     if ((s16)obj->step_flags & 0xff00) {
         a = 0xa;

@@ -8,7 +8,7 @@ extern ObjectFn data_801c5b34_slot04_0f[];
 
 void spawn_offset_effect_and_play_sounds(Object *object);
 
-void func_801b2f08_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_11_slot04_0f(Object *obj) {
     data_801c5b28_slot04_0f[obj->state_3](obj);
 }
 
@@ -38,6 +38,6 @@ void update_sequence_or_finish_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b3028_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_12_slot04_0f(Object *obj) {
     data_801c5b34_slot04_0f[obj->state_3](obj);
 }

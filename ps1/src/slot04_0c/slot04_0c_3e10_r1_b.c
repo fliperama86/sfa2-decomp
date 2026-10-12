@@ -9,18 +9,18 @@ extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
 
 void reset_and_push_object_to_pool_table(Slab172 *o);
-void func_8011ffdc(Object *o);
+void clear_or_set_flag_by_pos_x_limit(Object *o);
 
 void call_state_1_handler_unless_gated_slot04_0c(Object *obj) {
     if (game_state.gate_flag != 0) {
         obj->state_0++;
     } else {
         data_801be218_slot04_0c[obj->state_1](obj);
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     }
 }
 
-void func_801b4744_slot04_0c(Object *obj) {
+void move_y_up_until_ground_then_set_sequence_slot04_0c(Object *obj) {
     Object *p;
     SequenceStep **t;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;

@@ -19,7 +19,7 @@ extern u8 data_801b9ce8_slot04_sel;
 
 void check_opposite_player_same_selection_slot04_sel(void);
 void read_menu_direction_to_selection_slot04_sel(Object *obj, Slot04SelRec *p, int n);
-void func_801b1f20_slot04_sel(Object *obj, Slot04SelRec *p);
+void count_hold_frames_for_kind_two_and_four_slot04_sel(Object *obj, Slot04SelRec *p);
 void update_button_sequence_matcher_slot04_sel(Object *obj, Slot04SelRec *p);
 
 void update_side_kind_selection_slot04_sel(Object *obj, Slot04SelRec *p) {
@@ -57,7 +57,7 @@ void update_side_kind_selection_slot04_sel(Object *obj, Slot04SelRec *p) {
             p->field_04 = data_801b9cec_slot04_sel;
             obj->kind = data_801b9ce8_slot04_sel;
             game_state.selection_value = data_801b9ce8_slot04_sel;
-            func_801b1f20_slot04_sel(obj, p);
+            count_hold_frames_for_kind_two_and_four_slot04_sel(obj, p);
             if (p->field_17 == 0xb4 && obj->kind == 4) {
                 obj->kind = 0x12;
             }

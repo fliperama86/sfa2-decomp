@@ -19,7 +19,7 @@ void play_sound_and_reset_round_state(Object *object) {
     object->field_170 = 0;
     object->field_292 = 0x20;
     if (object->mode_flag_2 == 0) {
-        if (func_8012f970(object) != 0) {
+        if (find_nearby_enemy_and_get_flag(object) != 0) {
             enter_state_2_6_by_button_input(object);
         } else if ((object->input_bits_2 & 0x4000) != 0) {
             reset_object_to_state_1_0_0_2_sequence_1(object);

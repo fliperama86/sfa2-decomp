@@ -4,16 +4,16 @@
 #include "../externs.h"
 
 void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
-void func_801b5ba0_slot04_09(Object *obj);
+void spawn_fourth_frame_child_index_zero_slot04_09(Object *obj);
 
 void func_801b3040_slot04_09(Object *obj) {
     Object *p;
 
     stop_x_motion_against_facing_then_move_slot04_09(obj);
-    func_801b5ba0_slot04_09(obj);
+    spawn_fourth_frame_child_index_zero_slot04_09(obj);
     p = obj->other;
     if (obj->vel_y > 0) {
-        if (p->field_163 == 0 && p->active_state != 0 && (u8)func_8013fd98(obj, -0x20, 0x20, 0, 0x30) != 0) {
+        if (p->field_163 == 0 && p->active_state != 0 && (u8)check_range_set_other_state_if_boxed(obj, -0x20, 0x20, 0, 0x30) != 0) {
             obj->step_count = 0xff;
             obj->countdown = 4;
             obj->state_3++;

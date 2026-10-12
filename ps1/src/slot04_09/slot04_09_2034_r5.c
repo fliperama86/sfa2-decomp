@@ -5,11 +5,11 @@
 
 extern s16 data_801c7cb8_slot04_09[];
 void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
-void func_801b5ba0_slot04_09(Object *obj);
+void spawn_fourth_frame_child_index_zero_slot04_09(Object *obj);
 
 void update_airborne_until_fall_flip_facing_slot04_09(Object *obj) {
     stop_x_motion_against_facing_then_move_slot04_09(obj);
-    func_801b5ba0_slot04_09(obj);
+    spawn_fourth_frame_child_index_zero_slot04_09(obj);
     if (obj->vel_y >= 0 && (s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {
@@ -19,11 +19,11 @@ void update_airborne_until_fall_flip_facing_slot04_09(Object *obj) {
     }
 }
 
-void func_801b25cc_slot04_09(Object *obj) {
+void hit_other_and_spawn_on_defeat_at_sequence_end_slot04_09(Object *obj) {
     Object *o;
 
     stop_x_motion_against_facing_then_move_slot04_09(obj);
-    func_801b5ba0_slot04_09(obj);
+    spawn_fourth_frame_child_index_zero_slot04_09(obj);
     if ((s16)obj->step_flags >= 0) {
         update_sequence(obj);
     } else {

@@ -3,7 +3,7 @@
 #include "protos.h"
 #include "externs.h"
 
-void func_8011cbb8(Slab172 *p);
+void reload_cell_history_then_build_cell_prims(Slab172 *p);
 void draw_object_tile_grid_prims(Object *object, FrameRecord *frames);
 
 /* What it does (inferred, not an original name): sets field_09 of the two
@@ -13,9 +13,9 @@ void draw_object_tile_grid_prims(Object *object, FrameRecord *frames);
    Otherwise the one with the smaller frame value_a gets 1 and the other 0,
    and with equal values nothing is stored. Then, for each fighter, the four
    part blocks that are present and active get field_09 + 4 and go to
-   func_8011bc84, and func_8011cbb8 and draw_object_tile_grid_prims run when field_00 and
+   reload_stream_cells_then_build_sprite_quads, and reload_cell_history_then_build_cell_prims and draw_object_tile_grid_prims run when field_00 and
    field_01 are set. */
-void func_8011a880(void) {
+void set_part_modes_and_update_both_player_parts(void) {
     Fighter *left = (Fighter *)&player_left;
     /* The second player is reached from the first: with &player_right 36 instruction lines differ. */
     Fighter *right = left + 1;
@@ -48,25 +48,25 @@ void func_8011a880(void) {
     p = left->part_28;
     if (p != 0 && p->enabled_flag != 0) {
         p->field_09 = left->part_mode + 4;
-        func_8011bc84((Slab172 *)p);
+        reload_stream_cells_then_build_sprite_quads((Slab172 *)p);
     }
     p = left->part_2c;
     if (p != 0 && p->enabled_flag != 0) {
         p->field_09 = left->part_mode + 4;
-        func_8011bc84((Slab172 *)p);
+        reload_stream_cells_then_build_sprite_quads((Slab172 *)p);
     }
     if (left->field_00 != 0 && left->parts_active_flag != 0) {
-        func_8011cbb8((Slab172 *)left);
+        reload_cell_history_then_build_cell_prims((Slab172 *)left);
     }
     p = left->part_30;
     if (p != 0 && p->enabled_flag != 0) {
         p->field_09 = left->part_mode + 4;
-        func_8011bc84((Slab172 *)p);
+        reload_stream_cells_then_build_sprite_quads((Slab172 *)p);
     }
     p = left->part_34;
     if (p != 0 && p->enabled_flag != 0) {
         p->field_09 = left->part_mode + 4;
-        func_8011bc84((Slab172 *)p);
+        reload_stream_cells_then_build_sprite_quads((Slab172 *)p);
     }
     if (left->field_00 != 0 && left->parts_active_flag != 0) {
         draw_object_tile_grid_prims((Object *)left, frames_left);
@@ -74,25 +74,25 @@ void func_8011a880(void) {
     p = right->part_28;
     if (p != 0 && p->enabled_flag != 0) {
         p->field_09 = right->part_mode + 4;
-        func_8011bc84((Slab172 *)p);
+        reload_stream_cells_then_build_sprite_quads((Slab172 *)p);
     }
     p = right->part_2c;
     if (p != 0 && p->enabled_flag != 0) {
         p->field_09 = right->part_mode + 4;
-        func_8011bc84((Slab172 *)p);
+        reload_stream_cells_then_build_sprite_quads((Slab172 *)p);
     }
     if (right->field_00 != 0 && right->parts_active_flag != 0) {
-        func_8011cbb8((Slab172 *)right);
+        reload_cell_history_then_build_cell_prims((Slab172 *)right);
     }
     p = right->part_30;
     if (p != 0 && p->enabled_flag != 0) {
         p->field_09 = right->part_mode + 4;
-        func_8011bc84((Slab172 *)p);
+        reload_stream_cells_then_build_sprite_quads((Slab172 *)p);
     }
     p = right->part_34;
     if (p != 0 && p->enabled_flag != 0) {
         p->field_09 = right->part_mode + 4;
-        func_8011bc84((Slab172 *)p);
+        reload_stream_cells_then_build_sprite_quads((Slab172 *)p);
     }
     if (right->field_00 != 0 && right->parts_active_flag != 0) {
         draw_object_tile_grid_prims((Object *)right, frames_right);

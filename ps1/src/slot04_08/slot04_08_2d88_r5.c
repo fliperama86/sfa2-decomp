@@ -6,7 +6,7 @@
 void push_other_x_if_hit_check_slot04_08(Object *obj);
 extern u16 data_801c3e98_slot04_08;
 
-void func_801b3260_slot04_08(Object *obj) {
+void start_slide_target_x_and_push_other_on_end_slot04_08(Object *obj) {
     int x;
 
     if ((s16)obj->step_flags & 0x8000) {
@@ -27,7 +27,7 @@ void func_801b3260_slot04_08(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b3304_slot04_08(Object *obj) {
+void slide_to_target_x_then_start_fixed_sequence_slot04_08(Object *obj) {
     s16 d;
     u16 lim = 0xa0;
     Object *other;

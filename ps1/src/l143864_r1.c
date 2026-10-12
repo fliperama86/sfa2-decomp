@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80143864(Object *object) {
+void move_object_to_center_then_advance_state_1(Object *object) {
     object->pos_y = object->pos_y + 5;
     object->health = object->health - 3;
     if (object->table_index == 0) {

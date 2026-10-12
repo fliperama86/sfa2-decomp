@@ -43,8 +43,8 @@ void load_kind_images_to_vram(int arg) {
     request_sound_command_and_switch_thread(1);
     close_vab_and_sep(2);
     close_vab_and_sep(3);
-    func_8014f3b8(3, 1);
-    func_8014f3b8(2, arg);
+    start_cd_track_wait_with_thread_switch(3, 1);
+    start_cd_track_wait_with_thread_switch(2, arg);
     /* The local g only feeds the stand-in term below. */
     g = &game_state;
     clear_four_arrays_and_call_kind_handlers();

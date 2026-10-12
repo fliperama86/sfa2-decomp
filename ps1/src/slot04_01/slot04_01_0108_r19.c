@@ -13,7 +13,7 @@ int move_by_velocity_return_falling_slot04_01(Object *obj) {
     return obj->vel_y < 0;
 }
 
-void func_801b38c4_slot04_01(Object *obj) {
+void call_state_3_table_then_play_step_flags_sound_5_slot04_01(Object *obj) {
     data_801bf128_slot04_01[obj->state_3](obj);
     play_side_sound_from_step_flags_slot04_01(obj);
 }

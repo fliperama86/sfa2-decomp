@@ -29,14 +29,14 @@ void call_handler_by_direction_index_2_slot04_0e(Object *obj) {
     data_801c5f40_slot04_0e[obj->direction_index >> 1](obj);
 }
 
-void func_801b14cc_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_2_slot04_0e(Object *obj) {
     data_801c5f4c_slot04_0e[obj->state_3](obj);
 }
 
 void choose_direction_state_or_sequence_slot04_0e(Object *obj) {
     obj->state_3++;
     if (obj->direction_index != 0 && obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
-        if ((u8)func_8013f8c4(obj, -0x21, 7) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x21, 7) != 0) {
             obj->state_0 = 1;
             obj->state_1 = 2;
             obj->state_2 = 0;
@@ -69,7 +69,7 @@ void update_sequence_reset_state_3_on_input_b_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b1690_slot04_0e(Object *obj) {
+void update_sequence_or_clear_active_state_finish_slot04_0e(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->active_state = 0;
         reset_object_to_state_1_0_sequence_0(obj);
@@ -78,7 +78,7 @@ void func_801b1690_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b16d0_slot04_0e(Object *obj) {
+void call_direction_handler_by_input_dir_second_slot04_0e(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second != 0) {
         call_handler_by_direction_index_4_slot04_0e(obj);
@@ -91,7 +91,7 @@ void call_handler_by_direction_index_3_slot04_0e(Object *obj) {
     data_801c5f58_slot04_0e[obj->direction_index >> 1](obj);
 }
 
-void func_801b1754_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_3_slot04_0e(Object *obj) {
     data_801c5f64_slot04_0e[obj->state_3](obj);
 }
 
@@ -116,7 +116,7 @@ void call_handler_by_direction_index_4_slot04_0e(Object *obj) {
     data_801c5f6c_slot04_0e[obj->direction_index >> 1](obj);
 }
 
-void func_801b1894_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_4_slot04_0e(Object *obj) {
     data_801c5f78_slot04_0e[obj->state_3](obj);
 }
 
@@ -137,7 +137,7 @@ void update_sequence_reset_state_3_on_input_b_3_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b1990_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_5_slot04_0e(Object *obj) {
     data_801c5f80_slot04_0e[obj->state_3](obj);
 }
 

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011cbb8(Slab172 *p) {
+void reload_cell_history_then_build_cell_prims(Slab172 *p) {
     u16 *cur = (u16 *)(((p->sequence->data_ptr >> 1) << 1) + p->stream_base);
     u16 *q;
     if (p->reload_flag != 0 || data_80183d74[p->field_02][0] != p->stream_key) {
@@ -16,7 +16,7 @@ void func_8011cbb8(Slab172 *p) {
             } else {
                 push_front_of_cell_history(p, cur);
             }
-            func_80119d88(p);
+            queue_block_jobs_for_stream_difference(p);
             q = get_sequence_data_address(p);
             if (*q != 0 && q != cur) {
                 unpack_cell_list_with_history(p, q);
@@ -24,7 +24,7 @@ void func_8011cbb8(Slab172 *p) {
                 push_front_of_cell_history(p, q);
             }
         } else {
-            func_80119d88(p);
+            queue_block_jobs_for_stream_difference(p);
             q = get_sequence_data_address(p);
             if (*q != 0 && q != cur) {
                 unpack_cell_list_with_history(p, q);

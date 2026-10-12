@@ -4,7 +4,7 @@
 #include "../protos.h"
 
 extern Slot04_0eRec62b4 data_801c62b4_slot04_0e[];
-extern void func_801b420c_slot04_0e(Object *obj);
+extern void spawn_ground_child_and_set_sequence_slot04_0e(Object *obj);
 
 /* What it does (inferred, not an original name): a character action handler
    that asks for a free object slot and, if it gets one, fills it as an
@@ -13,7 +13,7 @@ extern void func_801b420c_slot04_0e(Object *obj);
    its pos_y, its pos_x is the object's plus the high half of offset_x of
    the record that the object's side selects, and parent points at the
    partner; it then calls play_sound_at for the partner. In every case it
-   ends by calling func_801b420c_slot04_0e on the object. */
+   ends by calling spawn_ground_child_and_set_sequence_slot04_0e on the object. */
 void spawn_effect_at_other_then_next_spawn_slot04_0e(Object *obj) {
     Slot04_0eRec62b4 *rec = &data_801c62b4_slot04_0e[obj->side];
     Object *s = (Object *)pop_block_from_pool();
@@ -43,5 +43,5 @@ void spawn_effect_at_other_then_next_spawn_slot04_0e(Object *obj) {
         s->data_ptr_b = obj->data_ptr_b;
         play_sound_at(o, o->side, 0x312);
     }
-    func_801b420c_slot04_0e(obj);
+    spawn_ground_child_and_set_sequence_slot04_0e(obj);
 }

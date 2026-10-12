@@ -7,7 +7,7 @@
 void latch_pressed_bits_into_input_bits_slot04_11(Object *obj);
 u8 mirror_value_by_facing_side_slot04_11(Object *obj, int a);
 u8 get_random_table_byte_slot04_11(Object *obj);
-Object *func_801b5914_slot04_11(Object *obj);
+Object *get_table_object_by_field_slot04_11(Object *obj);
 
 extern u32 data_801c719c_slot04_11[];
 extern s32 data_801c7648_slot04_11[];
@@ -47,7 +47,7 @@ void start_jump_from_input_table_slot04_11(Object *obj) {
         obj->state_3 += 3;
         if (obj->mode_flag_2 != 0) {
             if (test_random_bit_in_table(obj, data_801c719c_slot04_11) == 0) {
-                func_801b5914_slot04_11(obj);
+                get_table_object_by_field_slot04_11(obj);
                 ref_other.p = obj->other;
                 d = ref_other.p->pos_x - obj->pos_x;
                 c = 8;

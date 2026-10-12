@@ -5,7 +5,7 @@
 
 int apply_velocity_and_acceleration_slot04_11(Object *obj);
 
-void func_801b2740_slot04_11(Object *obj) {
+void update_rise_until_height_then_sound_and_sequence_slot04_11(Object *obj) {
     apply_velocity_and_acceleration_slot04_11(obj);
     if (obj->pos_y <= obj->ground_y - 0x8a) {
         obj->state_3++;

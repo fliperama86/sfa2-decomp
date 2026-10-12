@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-Node *func_8014f194(int index) {
+Node *read_cd_file_by_index_into_memory(int index) {
     s16 arg = index;
     Menu *m = &data_80190948;
     u8 buf[4];

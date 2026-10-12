@@ -24,7 +24,7 @@ u16 get_table_value_and_count_hit(Object *object) {
     return result;
 }
 
-void func_801471f8(Block172 *block) {
+void call_state_0_handler_from_cb00_table(Block172 *block) {
     Object *object = (Object *)block;
     fn_table_8017cb00[object->state_0](object);
 }

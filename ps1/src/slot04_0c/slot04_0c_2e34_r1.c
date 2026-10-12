@@ -17,11 +17,11 @@ void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u3
 void set_sequence_by_side(Object *object, int arg);
 void add_vel_x_on_step_flag_then_update_slot04_0c(Object *obj);
 
-void func_801b2e34_slot04_0c(Object *obj) {
+void call_table_function_by_state_3_13_slot04_0c(Object *obj) {
     data_801bdab4_slot04_0c[obj->state_3](obj);
 }
 
-void func_801b2e74_slot04_0c(Object *obj) {
+void start_meter_cost_sequence_clear_direction_slot04_0c(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3 = obj->state_3 + 1;
     add_to_meter_clamped(obj, -0x30);
@@ -33,7 +33,7 @@ void func_801b2e74_slot04_0c(Object *obj) {
     set_sequence_by_side_and_mode(obj, 0x1b);
 }
 
-void func_801b2ee8_slot04_0c(Object *obj) {
+void spawn_children_and_set_countdown_on_step_flag_slot04_0c(Object *obj) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->field_165 = 0xff;
         obj->countdown = 0x32;
@@ -54,7 +54,7 @@ void count_down_then_advance_state_3_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b2fb0_slot04_0c(Object *obj) {
+void count_down_then_set_vel_x_by_facing_slot04_0c(Object *obj) {
     int v = obj->countdown;
     int w = (v & 0xff00) | ((v & 0xff) - 1);
     obj->countdown = w;
@@ -157,7 +157,7 @@ void update_airborne_until_landing_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b3330_slot04_0c(Object *obj) {
+void count_down_then_reset_object_else_update_3_slot04_0c(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown == 0) {
         reset_object_to_state_1_0_sequence_0(obj);
@@ -173,7 +173,7 @@ void add_vel_x_on_step_flag_then_update_slot04_0c(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b33c0_slot04_0c(Object *obj) {
+void call_table_function_by_state_3_14_slot04_0c(Object *obj) {
     data_801bdb0c_slot04_0c[obj->state_3](obj);
 }
 

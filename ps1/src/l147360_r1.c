@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80147360(Object *object) {
+void update_image_row_copy_every_other_call(Object *object) {
     u8 a;
     u8 b;
     advance_sequence_unless_paused(object);

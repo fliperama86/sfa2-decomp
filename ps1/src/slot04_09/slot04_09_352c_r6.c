@@ -5,13 +5,13 @@
 
 extern s16 data_801c7d64_slot04_09[];
 void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
-void func_801b5ba0_slot04_09(Object *obj);
+void spawn_fourth_frame_child_index_zero_slot04_09(Object *obj);
 
-void func_801b3ad8_slot04_09(Object *obj) {
+void hit_other_and_launch_self_with_variant_slot04_09(Object *obj) {
     Object *other;
     u8 one = 1;
     stop_x_motion_against_facing_then_move_slot04_09(obj);
-    func_801b5ba0_slot04_09(obj);
+    spawn_fourth_frame_child_index_zero_slot04_09(obj);
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
         return;

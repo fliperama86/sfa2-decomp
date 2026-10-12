@@ -29,7 +29,7 @@ void update_fall_landing_set_side_flag_slot04_06(Object *o) {
     }
 }
 
-void func_801b3c34_slot04_06(Object *obj) {
+void start_sequence_adding_meter_7_restore_facing_slot04_06(Object *obj) {
     obj->substate_index = 0;
     obj->field_12d = 0;
     obj->step_count_2 = 0;

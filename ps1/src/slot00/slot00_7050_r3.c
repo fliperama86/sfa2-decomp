@@ -13,7 +13,7 @@ void call_handler_by_state_0_2_slot00(Object *obj) {
     data_80079938_slot00[obj->state_0](obj);
 }
 
-void func_80077300_slot00(Object *obj) {
+void init_follower_from_parent_and_set_sequence_slot00(Object *obj) {
     Object *p = obj->parent;
     obj->state_0 = obj->state_0 + 1;
     obj->ot_depth = 0;

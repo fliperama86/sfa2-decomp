@@ -11,8 +11,8 @@ extern SequenceStep *data_800502d4_slot28[];
 extern SequenceStep *data_800502e8_slot28[];
 extern u8 data_8004ead4_slot28[];
 extern u8 data_8004ef00_slot28[];
-void func_800272ec_slot28(void);
-void func_8002725c_slot28(Object *o, int arg);
+void release_active_objects_in_table_16_slot28(void);
+void set_sequence_of_fourth_hud_object_18_slot28(Object *o, int arg);
 
 void advance_pass_if_flag_spawn_two_objects_slot28(Object *obj) {
     HudState *h;
@@ -22,7 +22,7 @@ void advance_pass_if_flag_spawn_two_objects_slot28(Object *obj) {
             h = data_8018f5a0;
             h->countdown_timer = 0x258;
             h->pass_index++;
-            func_800272ec_slot28();
+            release_active_objects_in_table_16_slot28();
             set_sequence_from_table_5(data_80051ccc_slot28[0], 2, data_800502c8_slot28);
             p = data_80051cd0_slot28[0];
             p->pos_x = 0x68;
@@ -63,7 +63,7 @@ void advance_pass_if_flag_spawn_two_objects_slot28(Object *obj) {
                 p->ot_depth = 2;
                 data_80051ca4_slot28[1] = p;
             }
-            func_8002725c_slot28(obj, 4);
+            set_sequence_of_fourth_hud_object_18_slot28(obj, 4);
             start_fade_mode_1a01_and_wait();
         }
     }

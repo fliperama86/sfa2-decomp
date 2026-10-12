@@ -21,7 +21,7 @@ void update_button_sequence_matcher_2_slot04_sel(Object *obj, Slot04SelRec9d38 *
 void set_selection_from_direction_buttons_slot04_sel(Object *obj, Slot04SelRec9d38 *rec, int a);
 void check_opposite_player_same_selection_2_slot04_sel(void);
 
-void func_801b2b24_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
+void update_fighter_select_panel_with_counts_slot04_sel(Object *obj, Slot04SelRec9d38 *rec) {
     TextBuf *s2 = data_801b7f64_slot04_sel[obj->side];
     Slot04SelRec7ff4 *s3 = data_801b7ff4_slot04_sel[obj->side];
     Slot04SelRec7fa4 *s4 = data_801b7fa4_slot04_sel[obj->side];

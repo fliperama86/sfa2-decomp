@@ -6,12 +6,12 @@
 extern s8 data_801c60e0_slot04_0e[];
 extern Slot04_0eRec62b4 data_801c62b4_slot04_0e[];
 
-void func_80146960(Object *object);
+void spawn_two_effects_at_other_ground(Object *object);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 void apply_facing_velocity_with_x_clamp_slot04_0e(Object *obj);
 void move_other_by_side_record_velocity_slot04_0e(Object *obj);
 
-void func_801b4410_slot04_0e(Object *o) {
+void count_down_byte_then_advance_substate_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     obj->field_47 += 0xff;
     if ((obj->field_47 & 0x80) != 0) {
@@ -81,7 +81,7 @@ void update_landing_with_two_side_sounds_slot04_0e(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b4678_slot04_0e(Object *obj) {
+void move_other_damage_on_sequence_end_slot04_0e(Object *obj) {
     Object *p = obj->other;
     Slot04_0eRec62b4 *r = &data_801c62b4_slot04_0e[obj->side];
 
@@ -106,7 +106,7 @@ void func_801b4678_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b4784_slot04_0e(Object *obj) {
+void carry_other_until_landing_then_react_slot04_0e(Object *obj) {
     Object *p = obj->other;
     Slot04_0eRec62b4 *r = &data_801c62b4_slot04_0e[obj->side];
     Object *q;
@@ -121,7 +121,7 @@ void func_801b4784_slot04_0e(Object *obj) {
         if (p->ground_y < p->pos_y) {
             obj->state_3 = obj->state_3 + 1;
             game_state.state_param = 0x18;
-            func_80146960(obj);
+            spawn_two_effects_at_other_ground(obj);
             obj->substate_index = 0;
             p->field_261 = 0;
             p->pos_y_frac = 0;

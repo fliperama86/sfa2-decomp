@@ -5,7 +5,7 @@
 
 void store_image_rows_for_object_slot04_0a(Object *obj);
 
-void func_801b235c_slot04_0a(Object *obj) {
+void advance_state_3_gain_meter_play_side_sound_slot04_0a(Object *obj) {
     int a;
 
     obj->state_3++;

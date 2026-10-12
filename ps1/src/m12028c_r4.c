@@ -32,10 +32,10 @@ void reset_game_state_for_new_match(GameState *g) {
     data_80190568 = 0;
     g->init_timer_value = 0x3c;
     g->round_time = g->table_value_b;
-    func_8011eae4();
+    clear_arrays_and_init_pools_and_sprite_tables();
     call_handler_by_kind_index_a();
     init_hud_primitives();
-    func_801285e0();
+    spawn_position_table_objects_and_list_objects();
     stop_all_keys_clear_table();
     if (*(u16 *)data_801a6984 != 0) {
         data_80197f1c = 0xff;

@@ -6,7 +6,7 @@
 extern ObjectFn data_80079848_slot2b[];
 extern ObjectFn data_80079854_slot2b[];
 
-void func_80077508_slot2b(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_slot2b(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;
@@ -32,7 +32,7 @@ void call_handler_by_state_3_4_slot2b(Object *obj) {
     data_80079854_slot2b[obj->state_3](obj);
 }
 
-void func_80077628_slot2b(Object *obj) {
+void advance_state_3_restore_facing_set_sequence_2_slot2b(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3++;
     obj->facing_side = obj->saved_facing;

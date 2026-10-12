@@ -9,7 +9,7 @@ extern u16 data_801aa618[];
 
 Block172 *pop_block_from_pool(void);
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
-void func_801b5088_slot04_0e(Object *obj);
+void clear_two_object_words_slot04_0e(Object *obj);
 void call_handler_by_handler_index_if_active_slot04_0e(Slot04bObj *obj);
 
 void spawn_object_in_front_store_in_record_slot04_0e(Object *obj) {
@@ -55,7 +55,7 @@ void spawn_object_in_front_store_in_record_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b4cb0_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_13_slot04_0e(Object *obj) {
     data_801c60e8_slot04_0e[obj->state_3](obj);
 }
 
@@ -67,7 +67,7 @@ void start_timed_sequence_state_slot04_0e(Object *o) {
     o->active_flag_4 = 1;
     obj->state_flag = 0;
     o->state_3 = o->state_3 + 1;
-    func_801b5088_slot04_0e(o);
+    clear_two_object_words_slot04_0e(o);
     add_to_meter_clamped(o, 4);
     add_one_to_ec4_if_object_unflagged(&game_state, o);
     call_handler_by_handler_index_if_active_slot04_0e((Slot04bObj *)o);

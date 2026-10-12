@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801369b0(Cam *cam);
+void init_cam_position_with_fixed_origin(Cam *cam);
 
 void update_layer_follow_main_layer_quarter_slot06_05(Slot06Layer *o) {
     Slot06Layer *l2;
     s16 d;
 
     if (o->mode == 0) {
-        func_801369b0((Cam *)o);
+        init_cam_position_with_fixed_origin((Cam *)o);
     } else if (o->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;

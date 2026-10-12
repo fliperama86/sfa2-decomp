@@ -6,7 +6,7 @@
 extern u8 data_8002c7b8_slot28[];
 void queue_row_upload_job_from_table_index_slot28(Object *obj, int idx);
 
-void func_80015d3c_slot28(Object *obj) {
+void cycle_row_upload_index_every_two_ticks_slot28(Object *obj) {
     ((u8 *)&obj->countdown)[1]--;
     if (((u8 *)&obj->countdown)[1] == 0) {
         ((u8 *)&obj->countdown)[0] = (((u8 *)&obj->countdown)[0] + 1) & 3;

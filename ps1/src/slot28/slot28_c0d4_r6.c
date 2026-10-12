@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001c998_slot28(Object *o) {
+void advance_state_and_sequence_flicker_visibility_slot28(Object *o) {
     if (((Slot28Obj *)o)->field_3a < 0) {
         o->state_0++;
     }

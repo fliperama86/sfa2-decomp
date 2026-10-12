@@ -27,7 +27,7 @@ void update_option_menu_selection(Object *a, Triple *b) {
             data_80185fb4 = data_8016e802;
             update_menu_cursor(a, b, 2);
             data_8016e802 = data_80185fb4;
-            func_80124ae8(data_8016e802);
+            set_table_index_3_from_table(data_8016e802);
         }
         if (data_8016e800 == 6) {
             data_80185fb4 = data_8016e803;

@@ -20,7 +20,7 @@ void func_8011f70c(Object *object) {
     }
 }
 
-void func_8011f774(Object *object) {
+void count_down_cursor_timer_a_and_set_cursor(Object *object) {
     if (object->cursor_timer_a != 0) {
         object->cursor_timer_a--;
         if (object->side != 0) {

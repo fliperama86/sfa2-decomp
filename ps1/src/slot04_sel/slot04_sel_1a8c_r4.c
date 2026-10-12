@@ -5,7 +5,7 @@
 
 extern u16 *data_801b6e94_slot04_sel[];
 
-void func_801b1f20_slot04_sel(Object *obj, Slot04SelRec *r) {
+void count_hold_frames_for_kind_two_and_four_slot04_sel(Object *obj, Slot04SelRec *r) {
     if (obj->kind == 2 && (*data_801b6e94_slot04_sel[obj->side + 6] & 0x100) != 0) {
         u8 t = r->field_18 + 1;
         r->field_18 = t;

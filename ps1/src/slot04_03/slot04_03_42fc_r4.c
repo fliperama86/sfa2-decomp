@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4788_slot04_03(Object *obj) {
+void set_direction_sequence_or_hit_air_range_check_slot04_03(Object *obj) {
     int k = 0xc;
 
     obj->state_3 = 3;

@@ -5,7 +5,7 @@
 
 extern s32 data_801befa4_slot04_01[];
 
-void func_801b1870_slot04_01(Object *obj) {
+void start_rise_with_facing_table_vel_x_and_sound_slot04_01(Object *obj) {
     s32 v;
 
     obj->active_flag_4 = 1;

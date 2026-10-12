@@ -16,7 +16,7 @@ void init_poly_cells_from_sequence_list_slot2a(Object *obj, SlotCell *cell, s16 
 void build_sprite_arrays_from_spawn_table_slot2a(Object *obj);
 void link_sprite_array_into_ordering_table_slot2a(Object *obj);
 
-void func_801e05f4_slot2a(Object *obj) {
+void init_sprite_object_position_and_build_sprites_slot2a(Object *obj) {
     u8 t;
     obj->state_1 = 2;
     obj->field_01 = 0;

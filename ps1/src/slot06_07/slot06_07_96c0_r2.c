@@ -11,7 +11,7 @@ void call_handler_by_state_0_2_slot06_07(Object *obj) {
     data_801ee1ac_slot06_07[obj->state_0](obj);
 }
 
-void func_801e9cb0_slot06_07(Object *obj) {
+void advance_state_0_and_start_random_sequence_slot06_07(Object *obj) {
     obj->field_0a = 1;
     obj->field_0f = 1;
     obj->image_row = 0;

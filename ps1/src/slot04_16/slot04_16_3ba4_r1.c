@@ -5,11 +5,11 @@
 
 int apply_velocity_and_check_ground(Object *object);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
-void func_80146960(Object *object);
+void spawn_two_effects_at_other_ground(Object *object);
 void start_action_if_buttons_pressed(Object *object);
 void load_velocities_from_table_slot04_16(Object *obj);
-void func_801b447c_slot04_16(Object *obj);
-void func_801b3d78_slot04_16(Object *obj);
+void call_table_function_by_state_3_16_slot04_16(Object *obj);
+void check_range_then_enter_hit_or_fallback_slot04_16(Object *obj);
 extern ObjectFn data_801ca218_slot04_16[];
 extern u16 data_801ca23c_slot04_16[];
 extern s32 data_801ca244_slot04_16[];
@@ -26,7 +26,7 @@ void move_x_decelerate_to_zero_slot04_16(Object *obj);
 extern u8 data_801ca34c_slot04_16[];
 extern s32 data_801ca354_slot04_16[];
 
-void func_801b3ba4_slot04_16(Object *obj) {
+void update_fall_land_with_sound_variant_a_slot04_16(Object *obj) {
     if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         update_sequence(obj);
     } else {
@@ -51,7 +51,7 @@ void update_or_end_with_other_state_code_5_slot04_16(Object *obj) {
     }
 }
 
-void func_801b3c94_slot04_16(Object *obj) {
+void call_table_function_by_state_3_15_slot04_16(Object *obj) {
     data_801ca218_slot04_16[obj->state_3](obj);
 }
 
@@ -66,15 +66,15 @@ void func_801b3cd4_slot04_16(Object *obj) {
     if (obj->field_49 != 0) {
         obj->field_225 = 1;
     }
-    func_801b3d78_slot04_16(obj);
+    check_range_then_enter_hit_or_fallback_slot04_16(obj);
 }
 
-void func_801b3d78_slot04_16(Object *obj) {
+void check_range_then_enter_hit_or_fallback_slot04_16(Object *obj) {
     s16 t = *(u16 *)((u8 *)data_801ca23c_slot04_16 + (obj->direction_index & 0xfe));
     t -= 0x26;
-    if ((u8)func_8013f8c4(obj, -0x26, t) == 0) {
+    if ((u8)try_force_other_state_if_box_in_range(obj, -0x26, t) == 0) {
         obj->field_15a = 9;
-        func_801b447c_slot04_16(obj);
+        call_table_function_by_state_3_16_slot04_16(obj);
     } else {
         obj->state_3++;
         add_to_meter_clamped(obj, 0x14);
@@ -106,7 +106,7 @@ void update_hit_and_shift_by_step_flag_table_slot04_16(Object *obj) {
             obj->step_flags &= m;
             game_state.config->setup_value = 0x3c;
             play_sound_at(obj, obj->side, 0x319);
-            func_80146960(obj);
+            spawn_two_effects_at_other_ground(obj);
         } else if (st == 2) {
             obj->state_3++;
             obj->step_flags &= 0xff00;
@@ -147,7 +147,7 @@ void start_fall_sequence_when_vel_y_negative_slot04_16(Object *obj) {
     }
 }
 
-void func_801b40ec_slot04_16(Object *obj) {
+void update_airborne_until_landing_with_damage_a_slot04_16(Object *obj) {
     int k;
     u32 i;
 
@@ -160,7 +160,7 @@ void func_801b40ec_slot04_16(Object *obj) {
     obj->pos_y = (u16)obj->ground_y;
     *(u32 *)&obj->pos_y_frac &= 0xffff0000;
     game_state.config->setup_value = (obj->direction_index << 2) + 0x3c;
-    func_80146960(obj);
+    spawn_two_effects_at_other_ground(obj);
     set_sequence_by_side_and_mode(obj, 0x24);
     i = obj->direction_index >> 1;
     k = obj->field_49 != 0;
@@ -210,7 +210,7 @@ void start_table_hit_launch_on_step_flag_1_slot04_16(Object *obj) {
     }
 }
 
-void func_801b4380_slot04_16(Object *obj) {
+void update_fall_land_with_sound_variant_b_slot04_16(Object *obj) {
     if ((u8)apply_velocity_and_check_ground(obj) != 0) {
         update_sequence(obj);
     } else {
@@ -236,7 +236,7 @@ void update_or_end_flipping_facing_side_slot04_16(Object *obj) {
     }
 }
 
-void func_801b447c_slot04_16(Object *obj) {
+void call_table_function_by_state_3_16_slot04_16(Object *obj) {
     data_801ca2a8_slot04_16[obj->state_3](obj);
 }
 
@@ -257,7 +257,7 @@ void set_vel_x_accel_x_and_countdown_on_flag_slot04_16(Object *obj) {
 
 void slide_and_check_range_or_countdown_slot04_16(Object *obj) {
     move_x_decelerate_to_zero_slot04_16(obj);
-    if ((u8)func_8013f8c4(obj, -0x26, 0x1a) == 0) {
+    if ((u8)try_force_other_state_if_box_in_range(obj, -0x26, 0x1a) == 0) {
         obj->countdown = (s16)obj->countdown - 1;
         if ((s16)obj->countdown == 0) {
             obj->state_3 = 9;
@@ -306,7 +306,7 @@ void move_set_accel_y_when_vel_y_negative_slot04_16(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b4760_slot04_16(Object *obj) {
+void update_airborne_until_landing_with_damage_b_slot04_16(Object *obj) {
     int k;
     u32 i;
 
@@ -319,7 +319,7 @@ void func_801b4760_slot04_16(Object *obj) {
     obj->pos_y = (u16)obj->ground_y;
     *(u32 *)&obj->pos_y_frac &= 0xffff0000;
     game_state.config->setup_value = (obj->direction_index << 2) + 0x3c;
-    func_80146960(obj);
+    spawn_two_effects_at_other_ground(obj);
     set_sequence_by_side_and_mode(obj, 0x27);
     i = obj->direction_index >> 1;
     k = obj->field_49 != 0;

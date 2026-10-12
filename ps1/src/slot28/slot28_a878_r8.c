@@ -16,7 +16,7 @@ void wait_timer_reload_then_advance_state_1_2_slot28(Object *o) {
     }
 }
 
-void func_8001b130_slot28(Object *obj) {
+void call_state_1_handler_d_and_show_5_slot28(Object *obj) {
     data_800374a4_slot28[obj->state_1](obj);
     obj->field_01 = 1;
 }

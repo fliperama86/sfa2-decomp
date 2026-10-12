@@ -11,7 +11,7 @@ void start_move_from_direction_input_slot04_07(Object *obj) {
     if (obj->direction_index == 0) {
         ((Slot04aObj *)obj)->field_1ca = one;
     } else if (obj->field_25f == 0 && (obj->input_bits_2 & 0xa000) != 0) {
-        if ((u8)func_8013f8c4(obj, -0x12, 0x10) != 0) {
+        if ((u8)try_force_other_state_if_box_in_range(obj, -0x12, 0x10) != 0) {
             obj->state_0 = one;
             obj->state_1 = 2;
             obj->state_2 = 0;

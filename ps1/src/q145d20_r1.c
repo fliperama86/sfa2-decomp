@@ -6,7 +6,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80145d20(Object *object) {
+void spawn_three_child_objects_at_object_spawn(Object *object) {
   Object *p[3];
   Object *o;
   int e, e2, e3;

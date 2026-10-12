@@ -8,14 +8,14 @@ void build_name_text_record_slot0f(Object *obj, int a);
 void build_hex_value_text_record_slot0f(Object *obj, int a);
 void build_win_count_text_record_slot0f(Object *obj, int a);
 
-void func_800e78b4_slot0f(Object *obj) {
+void advance_state_0_if_game_field_equals_ten_slot0f(Object *obj) {
     if (game_state.field_2bc == 10) {
         obj->state_1 = 0;
         obj->state_0 += 1;
     }
 }
 
-void func_800e78e0_slot0f(Object *obj) {
+void build_cell_name_hex_win_records_index_0_slot0f(Object *obj) {
     init_slot0f_cell_record_with_sequence_slot0f(obj, 0);
     build_name_text_record_slot0f(obj, 0);
     build_hex_value_text_record_slot0f(obj, 0);
@@ -24,7 +24,7 @@ void func_800e78e0_slot0f(Object *obj) {
     }
 }
 
-void func_800e7940_slot0f(Object *obj) {
+void build_cell_name_hex_win_records_index_1_slot0f(Object *obj) {
     init_slot0f_cell_record_with_sequence_slot0f(obj, 1);
     build_name_text_record_slot0f(obj, 1);
     build_hex_value_text_record_slot0f(obj, 1);

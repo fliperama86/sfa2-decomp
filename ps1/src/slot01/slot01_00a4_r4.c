@@ -17,7 +17,7 @@ void finish_slot01_step_or_reset_hud_slot01(void) {
     if (game_state.field_04 != 0) {
         return;
     }
-    if (func_801252f0() == 0) {
+    if (is_pad_pressed_for_side_bits_or_mode() == 0) {
         t = game_state.timer_or_bits - 1;
         game_state.timer_or_bits = t;
         if ((s16)t >= 0) {

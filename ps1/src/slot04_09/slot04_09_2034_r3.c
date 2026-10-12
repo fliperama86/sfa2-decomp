@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b231c_slot04_09(Object *obj) {
+void launch_arc_and_start_sequence_at_sequence_end_slot04_09(Object *obj) {
     if (!((s16)obj->step_flags & 0x8000)) {
         update_sequence(obj);
     } else {

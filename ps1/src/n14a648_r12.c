@@ -3,5 +3,5 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80150cc8(void) {
+void noop_empty_function_13(void) {
 }

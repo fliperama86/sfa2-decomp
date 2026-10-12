@@ -4,16 +4,16 @@
 #include "../externs.h"
 
 extern void (*data_80046990_slot28[])(Object *);
-void func_80021d64_slot28(Object *obj, int arg);
+void set_sequence_of_fourth_hud_object_13_slot28(Object *obj, int arg);
 
-void func_80021774_slot28(Object *obj) {
+void call_pass_handler_and_update_blocks_a_12_slot28(Object *obj) {
     data_80046990_slot28[data_8018f5a0->pass_index](obj);
     update_blocks();
     update_active_slab172_entries();
 }
 
-void func_800217cc_slot28(Object *obj) {
+void advance_pass_index_and_set_sequence_0_12_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
     h->pass_index = h->pass_index + 1;
-    func_80021d64_slot28(obj, 0);
+    set_sequence_of_fourth_hud_object_13_slot28(obj, 0);
 }

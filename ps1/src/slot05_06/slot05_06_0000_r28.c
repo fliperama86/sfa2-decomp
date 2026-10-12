@@ -32,7 +32,7 @@ void update_fall_to_saved_y_and_land_slot05_06(Object *o) {
         move_x_by_vel_x_facing_then_accelerate_slot05_06(o);
     } else {
         o->state_3++;
-        func_80146960(o);
+        spawn_two_effects_at_other_ground(o);
         o->active_state = 0;
         play_sound_at(o, o->side, 0x319);
         obj->field_1c2 = 0xa;

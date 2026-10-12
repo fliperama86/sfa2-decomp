@@ -10,11 +10,11 @@ void update_state_with_input_branches_a(Object *object) {
     } else if (get_pressed_low_byte(object)) {
         set_state_1_0_5_and_read_input_direction(object);
     } else if ((u8)is_input_bit_1000_held(object)) {
-        func_80130280(object);
-    } else if (func_8012f970(object)) {
+        enter_state_1_3_with_input_variant_and_sequence(object);
+    } else if (find_nearby_enemy_and_get_flag(object)) {
         enter_state_2_6_by_button_input(object);
     } else if ((u8)is_only_horizontal_input_held(object)) {
-        func_8012f838(object);
+        start_move_state_1_0_2_1_with_sequence_by_input(object);
     } else if (!(u8)is_button_4000_held_or_other_flag(object)) {
         saved = object->step_timer;
         object->state_3 = 0;
@@ -32,7 +32,7 @@ void tick_timers_and_call_scratch_by_side(Object *object) {
     if (object->field_7e != 0) {
         move_object_x_by_table_value(object);
     }
-    func_80129be0(object);
+    count_down_countdown_4_2(object);
     if (object->mode_flag_2 == 0) {
         if (object->kind_timer != 0) {
             object->kind_timer--;

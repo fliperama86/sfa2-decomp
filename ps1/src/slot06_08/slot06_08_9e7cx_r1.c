@@ -5,7 +5,7 @@
 
 extern SequenceStep *data_801ed480_slot06_08[];
 
-void func_801e9e7c_slot06_08(Object *obj) {
+void init_object_state_and_start_sequence_6_or_7_slot06_08(Object *obj) {
     u8 t;
     u8 g;
     obj->spawn_mode = 4;

@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4170_slot04_03(Object *obj) {
+void choose_next_action_from_direction_and_attack_slot04_03(Object *obj) {
     obj->active_flag_3 = 1;
     obj->state_3 = obj->state_3 + 1;
     obj->facing_side = obj->saved_facing;
-    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)func_8013f8c4(obj, -0x18, 0x14) != 0) {
+    if (obj->direction_index != 0 && obj->hit_flag_a != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x18, 0x14) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

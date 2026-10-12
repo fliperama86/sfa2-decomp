@@ -5,11 +5,11 @@
 
 extern u32 data_801c4224_slot04_04[];
 
-void func_801b1a54_slot04_04(Object *obj) {
+void update_sequence_until_exit_then_next_state_slot04_04(Object *obj) {
     u32 *w = (u32 *)&game_state.leader_bits;
     u16 t;
 
-    if ((*w & 0xffff00) != 0 || game_state.field_04 != 0 || (u8)func_8012f56c(obj)) {
+    if ((*w & 0xffff00) != 0 || game_state.field_04 != 0 || (u8)is_other_object_state_0_and_1_six_one(obj)) {
         goto tail;
     }
     t = obj->step_flags;

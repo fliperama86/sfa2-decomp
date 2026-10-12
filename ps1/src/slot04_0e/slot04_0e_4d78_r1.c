@@ -4,12 +4,12 @@
 #include "../externs.h"
 
 void start_action_if_buttons_pressed(Object *object);
-int func_8013cac8(Object *object, u8 a, u8 b);
+int call_slot_stage_handler_a(Object *object, u8 a, u8 b);
 
 void set_end_state_with_sequence_offset_slot04_0e(Object *obj, int a);
 void check_input_set_state_flag_slot04_0e(Object *obj);
 void apply_step_flags_byte_to_pos_x_slot04_0e(Object *obj);
-void func_801b5088_slot04_0e(Object *obj);
+void clear_two_object_words_slot04_0e(Object *obj);
 u8 call_handler_by_limit_hi_returning_slot04_0e(Object *obj);
 
 void update_timer_state_a_slot04_0e(Object *obj) {
@@ -23,7 +23,7 @@ void update_timer_state_a_slot04_0e(Object *obj) {
         ((Slot04bObj *)obj)->field_47 = 0x3c;
         ((Slot04bObj *)obj)->state_flag = 0;
         obj->state_3++;
-        func_801b5088_slot04_0e(obj);
+        clear_two_object_words_slot04_0e(obj);
         set_sequence_by_side_and_mode(obj, 0x4d);
     } else {
         check_input_set_state_flag_slot04_0e(obj);
@@ -88,10 +88,10 @@ void check_input_set_state_flag_slot04_0e(Object *obj) {
     if (obj->mode_flag_2 != 0) {
         r = call_handler_by_limit_hi_returning_slot04_0e(obj);
     } else {
-        r = func_8013cac8(obj, 0, 0);
+        r = call_slot_stage_handler_a(obj, 0, 0);
     }
     if (r != 0) {
         ((Slot04bObj *)obj)->state_flag = 0xff;
-        func_801b5088_slot04_0e(obj);
+        clear_two_object_words_slot04_0e(obj);
     }
 }

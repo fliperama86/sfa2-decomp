@@ -11,7 +11,7 @@ void call_table_handler_by_table_index_3_slot28(Object *obj) {
     obj->field_01 = 1;
 }
 
-void func_80021304_slot28(Object *obj) {
+void call_state_1_handler_then_advance_sequence_2_slot28(Object *obj) {
     data_80044610_slot28[obj->state_1](obj);
     advance_sequence_checked(obj);
 }

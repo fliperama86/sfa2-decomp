@@ -65,7 +65,7 @@ void advance_sequence_unless_paused_then_show_slot06_06(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         advance_sequence_checked(obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void release_object_record_2_slot06_06(Object *obj) {

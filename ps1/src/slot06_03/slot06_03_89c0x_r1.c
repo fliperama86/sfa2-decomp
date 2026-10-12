@@ -5,7 +5,7 @@
 
 extern Slot06Tile data_801f0d40_slot06_03[2][0x120];
 
-void func_801e89c0_slot06_03(void) {
+void init_two_banks_288_tile_prims_gray_slot06_03(void) {
     int i;
     int j;
     Slot06Tile *r;

@@ -38,7 +38,7 @@ void update_game_frame(GameState *g) {
         g->frame_counter++;
         g->field_a8 = x;
         if ((g->field_84 & 0x80) == 0) {
-            func_801385a0(g);
+            update_script_indices_and_counters_unless_mode3(g);
             update_player_inputs_and_pick_handler();
             g->field_65 = player_left.field_165 | player_right.field_165;
             update_units();
@@ -53,7 +53,7 @@ void update_game_frame(GameState *g) {
             if (g->state_param != 0) {
                 g->state_param--;
             }
-            func_80138ec4();
+            check_collisions_unless_paused();
             update_hud_bars_and_meters();
         } else if (g->field_84 == 0x81) {
             g->field_84 = 0;

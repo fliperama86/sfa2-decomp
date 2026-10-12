@@ -5,7 +5,7 @@
 
 
 
-void func_8012d030(Object *object) {
+void set_state_1_1_2_0_or_enter_state_1_6(Object *object) {
     if ((s16)object->health < 0) {
         enter_state_1_6_and_set_sequence(object);
     } else {
@@ -38,5 +38,5 @@ void call_state_3_table_function_3(Object *object) {
 
 void advance_state_3_and_call_step(Object *object) {
     object->state_3 = object->state_3 + 1;
-    func_8012d170(object);
+    update_table_step_then_choose_sequence_c_or_e(object);
 }

@@ -8,7 +8,7 @@ void call_step_handler_by_step_index(GameState *state, Object *object) {
     if (object->field_a5 == 0) data_8016f5a4[object->step_index](state, object);
 }
 
-void func_801265ac(GameState *state, Object *object) {
+void clear_wait_flag_if_input_else_increment_field(GameState *state, Object *object) {
     if (*(u32 *)&state->field_44 & 0xff00ff)
         clear_wait_flag(object);
     else if (object->phase_index == 0)

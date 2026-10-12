@@ -15,7 +15,7 @@ void store_image_row_and_queue_job_slot04_0e(Object *obj);
 void call_handler_by_input_dir_second_slot04_0e(Object *obj);
 void call_handler_by_direction_index_slot04_0e(Object *obj);
 void call_handler_by_direction_index_2_slot04_0e(Object *obj);
-void func_801b16d0_slot04_0e(Object *obj);
+void call_direction_handler_by_input_dir_second_slot04_0e(Object *obj);
 void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 void copy_sixteen_table_entries_by_image_row_slot04_0e(Object *obj);
 void load_velocities_from_table_slot04_0e(Object *obj);
@@ -79,7 +79,7 @@ void advance_sequence_with_changed_flag_slot04_0e(Object *object) {
     }
 }
 
-void func_801b0bb8_slot04_0e(Object *object) {
+void call_copy_image_rows_and_load_image_slot04_0e(Object *object) {
     copy_image_rows_and_load_image(object);
 }
 
@@ -110,7 +110,7 @@ void store_image_row_and_queue_job_slot04_0e(Object *obj) {
 void noop_empty_function_slot04_0e(void) {
 }
 
-void func_801b0cd0_slot04_0e(Object *obj) {
+void copy_sixteen_entries_to_image_row_queue_job_slot04_0e(Object *obj) {
     u16 i;
 
     for (i = 0; i < 0x10; i++) {
@@ -136,7 +136,7 @@ void advance_state_2_when_timer_zero_slot04_0e(Object *object) {
     update_sequence(object);
 }
 
-void func_801b0df4_slot04_0e(Object *o) {
+void advance_state_2_set_sequence_by_table_index_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     int arg = 0x29;
 
@@ -148,7 +148,7 @@ void func_801b0df4_slot04_0e(Object *o) {
     set_sequence_by_side(o, arg);
 }
 
-void func_801b0e40_slot04_0e(Object *o) {
+void update_with_countdown_and_state_3_handler_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u8 t;
 
@@ -277,7 +277,7 @@ void noop_slot00_slot04_0e(Object *obj) {
 
 void call_handler_by_input_dir_0_nonzero_slot04_0e(Object *obj) {
     if (obj->input_dir_0 != 0) {
-        func_801b16d0_slot04_0e(obj);
+        call_direction_handler_by_input_dir_second_slot04_0e(obj);
     } else {
         call_handler_by_input_dir_second_slot04_0e(obj);
     }
@@ -296,13 +296,13 @@ void call_handler_by_direction_index_slot04_0e(Object *obj) {
     data_801c5f28_slot04_0e[obj->direction_index >> 1](obj);
 }
 
-void func_801b12f4_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_slot04_0e(Object *obj) {
     data_801c5f34_slot04_0e[obj->state_3](obj);
 }
 
 void check_range_or_start_direction_sequence_slot04_0e(Object *obj) {
     obj->state_3++;
-    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)func_8013f8c4(obj, -0x21, 7) != 0) {
+    if (obj->direction_index != 0 && (obj->input_bits_2 & 0xa000) != 0 && (u8)try_force_other_state_if_box_in_range(obj, -0x21, 7) != 0) {
         obj->state_0 = 1;
         obj->state_1 = 2;
         obj->state_2 = 0;

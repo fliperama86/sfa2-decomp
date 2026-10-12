@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2f58_slot04_0e(Object *obj);
+void land_on_ground_start_sequence_forty_eight_slot04_0e(Object *obj);
 void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 
 void update_arc_land_on_wall_push_check_slot04_0e(Object *o) {
@@ -13,7 +13,7 @@ void update_arc_land_on_wall_push_check_slot04_0e(Object *o) {
 
     apply_velocity_and_accel_to_position_slot04_0e(o);
     if (o->ground_y < o->pos_y) {
-        func_801b2f58_slot04_0e(o);
+        land_on_ground_start_sequence_forty_eight_slot04_0e(o);
     } else if ((s16)(o->ground_y - 0x30) < o->pos_y) {
         update_sequence(o);
     } else {

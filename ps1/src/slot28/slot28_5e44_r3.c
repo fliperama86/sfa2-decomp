@@ -3,6 +3,6 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_800171e0_slot28(Object *obj) {
+void release_object_to_pool_table_3_slot28(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801439e8(Object *object) {
+void advance_state_1_with_white_fill_on_variant_7(Object *object) {
     if (object->variant_index_2 == 7) {
         if (object->step_count++ == 2) {
             object->step_count = 0;
@@ -18,7 +18,7 @@ void func_801439e8(Object *object) {
     }
 }
 
-void func_80143a84(Object *object) {
+void advance_state_1_with_row_restore_on_variant_7(Object *object) {
     object->field_0c = 0;
     if (object->variant_index_2 == 7) {
         if (object->step_count++ == 2) {

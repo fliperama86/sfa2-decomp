@@ -28,20 +28,20 @@ void call_handler_by_substep_index(GameState *state) {
     if (data_8018f5a0->substep_index == 0) {
         advance_substep_and_reset_object_ids((Object *)state);
     } else if (data_8018f5a0->substep_index == 1) {
-        func_801217d4((Object *)state);
+        call_step_handler_then_update_blocks_and_buffers((Object *)state);
     }
 }
 
 void advance_substep_and_reset_object_ids(Object *object) {
     data_8018f5a0->substep_index++;
     object->phase_state = 0;
-    func_801285e0();
+    spawn_position_table_objects_and_list_objects();
     func_801e1d0c(0);
     object->state_2 = 0xff;
     object->team_id = 0xff;
 }
 
-void func_801217d4(Object *object) {
+void call_step_handler_then_update_blocks_and_buffers(Object *object) {
     u8 *flag = &data_801ae02c;
     table_8016e774[data_8018f5a0->step_index_2](object);
     if (*flag != 0) {

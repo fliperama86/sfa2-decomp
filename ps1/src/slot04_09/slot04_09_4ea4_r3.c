@@ -32,7 +32,7 @@ void func_801b51e0_slot04_09(Object *o) {
     set_sequence_by_side_and_mode(o, 0x1a);
 }
 
-void func_801b5288_slot04_09(Object *o, Object *unused) {
+void update_fall_until_ground_then_sequence_slot04_09(Object *o, Object *unused) {
     apply_velocity_and_acceleration_slot04_09(o);
     if (o->pos_y < o->ground_y) {
         update_sequence(o);

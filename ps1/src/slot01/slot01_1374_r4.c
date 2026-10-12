@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80011740_slot01(void) {
+void spawn_pooled_object_with_index_by_player_flags_slot01(void) {
     Object *p = (Object *)pop_block_from_pool();
     if (p != 0) {
         p->active_count = 1;

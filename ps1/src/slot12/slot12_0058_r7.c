@@ -6,7 +6,7 @@
 void play_sounds_at_countdown_timer_values_slot12(void);
 void spawn_block_with_saved_side_slot12(void);
 
-void func_8001065c_slot12(void) {
+void wait_then_start_fade_spawn_blocks_advance_slot12(void) {
     Object *o;
     while (game_state.wait_flag) {
         update_blocks();

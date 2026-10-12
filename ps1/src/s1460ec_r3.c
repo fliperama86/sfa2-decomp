@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801466ec(Block172 *block) {
+void call_state_0_handler_from_ca28_table(Block172 *block) {
     Object *object = (Object *)block;
     fn_table_8017ca28[object->state_0](object);
 }
@@ -36,37 +36,37 @@ void func_80146794(Object *object) {
 }
 
 /* The parameter is passed on to reset_and_push_object_to_pool_table, which takes it as a Slab172: the original sets no argument register before that call, so the callee receives what this function's caller passed. The table fn_table_8017ca28 holds this function and is declared with this parameter. */
-void func_80146820(Object *p) {
+void push_object_to_pool_table_wrapper_6(Object *p) {
     reset_and_push_object_to_pool_table((Slab172 *)p);
 }
 
-u8 func_80146840(Object *object) {
+u8 spawn_random_offset_effect_index_zero(Object *object) {
     return spawn_effect_record_with_random_offset(object, 0);
 }
 
-u8 func_80146864(Object *object) {
+u8 spawn_random_offset_effect_index_one(Object *object) {
     return spawn_effect_record_with_random_offset(object, 1);
 }
 
-int func_80146888(Object *object) {
+int spawn_random_offset_effect_index_two(Object *object) {
     u8 r = spawn_effect_record_with_random_offset(object, 2);
     return r;
 }
 
-u8 func_801468ac(Object *object) {
+u8 spawn_random_offset_effect_index_four(Object *object) {
     return spawn_effect_record_with_random_offset(object, 4);
 }
 
-u8 func_801468d0(Object *object) {
+u8 spawn_random_offset_effect_index_five(Object *object) {
     return spawn_effect_record_with_random_offset(object, 5);
 }
 
-int func_801468f4(Object *object) {
+int spawn_table_effect_at_object_index_two(Object *object) {
     u8 r = spawn_effect_from_table_at_object(object, 2);
     return r;
 }
 
-u8 func_80146918(Object *object) {
+u8 spawn_table_effect_at_object_index_four(Object *object) {
     return spawn_effect_from_table_at_object(object, 4);
 }
 
@@ -75,7 +75,7 @@ int spawn_object_variant_5_from_object(Object *object) {
     return r;
 }
 
-void func_80146960(Object *object) {
+void spawn_two_effects_at_other_ground(Object *object) {
     spawn_effect_at_other_ground(object, 0);
     spawn_effect_at_other_ground(object, 1);
 }

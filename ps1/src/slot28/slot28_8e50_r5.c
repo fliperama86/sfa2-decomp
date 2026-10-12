@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001948c_slot28(Object *obj) {
+void move_left_to_x_limit_then_advance_state_1_slot28(Object *obj) {
     int t = *(u16 *)&obj->pos_x - 4;
     obj->pos_x = t;
     if ((s16)t < 0xf8) {

@@ -36,17 +36,17 @@ void start_hit_sequence_from_pairs_table(Object *object)
     {
       if (new_var == 0xc)
       {
-        func_8012c990(object);
+        start_sequence_with_variant_zero_spawns_once(object);
         return;
       }
       if (new_var == 0xd)
       {
-        func_8012cac8(object);
+        start_sequence_with_variant_two_spawns_once(object);
         return;
       }
       if (new_var == 0x11)
       {
-        func_8012cc6c(object);
+        spawn_three_objects_and_set_sequence_x21(object);
         return;
       }
     }

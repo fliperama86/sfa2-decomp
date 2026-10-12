@@ -13,6 +13,6 @@ void update_sequence_or_call_finish_on_flag_2_slot04_02(Object *obj) {
     }
 }
 
-void func_801b297c_slot04_02(Object *obj) {
+void call_table_function_by_state_3_9_slot04_02(Object *obj) {
     data_801c6354_slot04_02[obj->state_3](obj);
 }

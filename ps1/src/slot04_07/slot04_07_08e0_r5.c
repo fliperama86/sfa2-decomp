@@ -10,7 +10,7 @@ void func_801b0c18_slot04_07(Object *obj) {
     set_sequence_and_tables_from_direction(obj);
 }
 
-void func_801b0c4c_slot04_07(Object *obj) {
+void update_sequence_reset_state_3_on_input_match_slot04_07(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {

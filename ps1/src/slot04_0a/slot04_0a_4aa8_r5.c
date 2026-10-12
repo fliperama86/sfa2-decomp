@@ -5,7 +5,7 @@
 
 void release_object_record_2_slot04_0a(Object *obj);
 
-void func_801b5048_slot04_0a(Object *obj) {
+void copy_parent_position_start_side_table_sequence_slot04_0a(Object *obj) {
     Object *p;
     SequenceStep **t;
     obj->state_0++;
@@ -30,6 +30,6 @@ void release_or_advance_by_parent_state_2_slot04_0a(Object *obj) {
         release_object_record_2_slot04_0a(obj);
     } else {
         advance_sequence_checked(obj);
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     }
 }

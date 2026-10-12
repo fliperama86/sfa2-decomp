@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b0e04_slot04_01(Object *obj) {
+int try_action_and_enter_state_7_move_a_slot04_01(Object *obj) {
     int r = 0;
 
     if (try_action_clearing_both_flags(obj) != 0) {

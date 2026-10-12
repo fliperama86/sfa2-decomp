@@ -34,7 +34,7 @@ void follow_other_box_then_spawn_hit_effect_slot04_15(Object *obj) {
     }
 }
 
-void func_801b31f0_slot04_15(Object *obj) {
+void update_sequence_stop_and_hit_other_on_flag_slot04_15(Object *obj) {
     Object *o;
 
     update_sequence(obj);
@@ -52,7 +52,7 @@ void func_801b31f0_slot04_15(Object *obj) {
     }
 }
 
-void func_801b328c_slot04_15(Object *obj) {
+void fall_until_ground_then_land_sequence_a_slot04_15(Object *obj) {
     apply_velocity_with_gravity_slot04_15(obj);
     if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);
@@ -88,11 +88,11 @@ void update_airborne_sequence_land_on_ground_slot04_15(Object *obj) {
     }
 }
 
-void func_801b33c8_slot04_15(Object *obj) {
+void call_table_function_by_state_3_16_slot04_15(Object *obj) {
     data_801c314c_slot04_15[obj->state_3](obj);
 }
 
-void func_801b3408_slot04_15(Object *obj) {
+void start_state_sound_input_facing_snap_to_other_box_slot04_15(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     add_to_meter_clamped(obj, 3);
     play_sound_at(obj, obj->side ^ 1, 0x31a);
@@ -143,7 +143,7 @@ void move_and_switch_sequence_near_ground_slot04_15(Object *obj) {
     }
 }
 
-void func_801b3614_slot04_15(Object *obj) {
+void fall_until_ground_then_land_sequence_b_slot04_15(Object *obj) {
     apply_velocity_with_gravity_slot04_15(obj);
     if (obj->ground_y > obj->pos_y) {
         update_sequence(obj);
@@ -221,7 +221,7 @@ void call_handler_by_substate_index_slot04_15(Object *object) {
     data_801c3170_slot04_15[object->substate_index](object);
 }
 
-void func_801b3928_slot04_15(Object *object) {
+void update_sequence_with_random_loop_and_countdown_slot04_15(Object *object) {
     int a;
     s8 r;
 

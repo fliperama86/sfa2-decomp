@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2ab4_slot04_02(Object *obj) {
+void update_countdown_then_start_next_sequence_slot04_02(Object *obj) {
     int a;
 
     obj->countdown = (s16)obj->countdown - 0x100;

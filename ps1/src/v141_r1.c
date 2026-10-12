@@ -5,7 +5,7 @@
 
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_8013ae00(Object *a, Object *b, Tx *c)
+void add_hit_meter_to_both_players(Object *a, Object *b, Tx *c)
 {
   u8 value = c->prim_code;
   s32 mask;

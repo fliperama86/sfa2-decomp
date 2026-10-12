@@ -9,7 +9,7 @@ void wait_countdown_then_advance_step_index_slot12(void) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     u8 unused[8];
 
-    if (func_80125268() == 0) {
+    if (is_any_enabled_pad_button_pressed() == 0) {
         u16 *t = &game_state.countdown_2;
         int v = *t - 1;
 

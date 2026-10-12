@@ -51,7 +51,7 @@ void follow_parent_step_flags_for_sequence_slot04_02(Object *obj) {
                 set_sequence_from_variant_index_slot04_02(obj);
             } else {
                 advance_sequence_checked(obj);
-                func_8011ffdc(obj);
+                clear_or_set_flag_by_pos_x_limit(obj);
             }
         }
     }

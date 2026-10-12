@@ -66,7 +66,7 @@ void init_sequence_cursor_from_record_2_slot06_10(SeqRec *rec, Slot06Cursor *cur
     cur->step_word = w;
 }
 
-void func_801e9268_slot06_10(Object *obj) {
+void advance_object_record_cursor_unless_paused_slot06_10(Object *obj) {
     if (game_state.field_65 == 0) {
         if (game_state.field_74 == 0) {
             advance_record_cursor_2_slot06_10((Slot06Cursor *)((u8 *)obj + 0x28));
@@ -132,10 +132,10 @@ void call_state_1_handler_with_player_a_slot06_10(Object *obj) {
         }
         data_801ea988_slot06_10[obj->state_1](obj, other);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_801e9490_slot06_10(Object *obj, Object *other) {
+void update_sequence_or_check_other_crossing_x_slot06_10(Object *obj, Object *other) {
     if ((s16)obj->step_flags & 0x8000) {
         set_state_1_3_if_pause_flag_2_slot06_10(obj, (int)other, 0);
         start_sequence_1_when_other_crosses_x_slot06_10(obj, other);
@@ -144,7 +144,7 @@ void func_801e9490_slot06_10(Object *obj, Object *other) {
     }
 }
 
-void func_801e94f4_slot06_10(Object *obj, Object *other) {
+void update_sequence_or_check_countdown_and_crossing_slot06_10(Object *obj, Object *other) {
     if ((s16)obj->step_flags & 0x8000) {
         set_state_1_3_if_pause_flag_2_slot06_10(obj, (int)other, 3);
         count_up_then_start_sequence_3_slot06_10(obj, other);

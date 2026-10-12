@@ -20,7 +20,7 @@ void set_sequence_index_from_table_slot06_02(Object *o) {
     obj->field_30 = data_801e9e7e_slot06_02[obj->table_index];
 }
 
-void func_801e9654_slot06_02(Slot06Layer *layer) {
+void set_layer_tile_map_and_scale_d_slot06_02(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801edf18_slot06_02;
     layer->data_table = data_801edf18_slot06_02;
     layer->packed_param = 0x6410;

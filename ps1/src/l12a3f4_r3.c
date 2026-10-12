@@ -11,7 +11,7 @@ void update_airborne_object(Object *object) {
             call_scratch_fn_by_side_and_mode(object);
         } else if ((u8)is_pushing_toward_bound_in_air(object)) {
             start_wall_bounce_sequence(object);
-        } else if (func_8012f970(object)) {
+        } else if (find_nearby_enemy_and_get_flag(object)) {
             set_state_3_4_and_sequence(object);
         } else {
             update_sequence(object);
@@ -27,10 +27,10 @@ void update_airborne_object(Object *object) {
                 set_state_7_variant_from_input(object);
             } else if (get_pressed_low_byte(object)) {
                 set_state_1_0_5_and_read_input_direction(object);
-            } else if (func_8012f970(object)) {
+            } else if (find_nearby_enemy_and_get_flag(object)) {
                 enter_state_2_6_by_button_input(object);
             } else if ((u8)is_facing_differs_from_saved(object)) {
-                func_8012f8c4(object);
+                set_win_state_or_state_4_sequence(object);
             } else {
                 object->state_3 = object->state_3 + 1;
                 set_sequence_by_side(object, 0x11);

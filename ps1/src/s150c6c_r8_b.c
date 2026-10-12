@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_801521a0(int a, u8 b, s16 c, s16 d) {
+void add_16x16_sprite_prim_from_byte(int a, u8 b, s16 c, s16 d) {
     if (b != 0) {
         Cmd *cmd = data_8018d13c;
         u8 lo = (b & 0xf) << 4;

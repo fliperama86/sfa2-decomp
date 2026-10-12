@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_801252f0(void) {
+int is_pad_pressed_for_side_bits_or_mode(void) {
     u8 r = 0;
     if (game_state.mode != 0) {
-        return func_80125268();
+        return is_any_enabled_pad_button_pressed();
     }
     if (game_state.side_bits & 1) {
         if (is_pad_button_pressed()) {

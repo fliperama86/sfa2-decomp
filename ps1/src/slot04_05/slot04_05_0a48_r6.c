@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b12c0_slot04_05(Object *obj) {
+void set_state_and_other_lock_then_sequence_b_slot04_05(Object *obj) {
     u8 t = 1;
 
     obj->state_0 = t;

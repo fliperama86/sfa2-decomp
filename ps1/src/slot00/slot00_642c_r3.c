@@ -6,7 +6,7 @@
 void select_box_tables_slot00_slot00(Object *obj);
 void set_position_from_parent_offset_slot00(Object *obj);
 
-void func_800766a0_slot00(Object *obj) {
+void init_object_motion_from_parent_speed_table_slot00(Object *obj) {
     Slot00Obj *o = (Slot00Obj *)obj;
     int speeds[4] = { 0x38000, 0x40000, 0x50000, 0x48000 };
     int a, b;
@@ -39,7 +39,7 @@ void func_800766a0_slot00(Object *obj) {
     } else {
         obj->frames = data_1f800158;
     }
-    func_80138070(obj, 2);
+    set_sequence_by_sound_side(obj, 2);
     select_box_tables_slot00_slot00(obj);
     set_position_from_parent_offset_slot00(obj);
 }

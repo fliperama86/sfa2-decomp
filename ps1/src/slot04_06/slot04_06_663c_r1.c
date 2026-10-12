@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b66fc_slot04_06(Object *obj);
+int move_by_velocity_return_y_minus_ground_slot04_06(Object *obj);
 
 void land_on_ground_and_advance_state_1_slot04_06(Object *obj) {
-    if ((func_801b66fc_slot04_06(obj) << 16) > 0) {
+    if ((move_by_velocity_return_y_minus_ground_slot04_06(obj) << 16) > 0) {
         ((Slot04aObj *)obj)->timer = 8;
         obj->step_timer = 1;
         obj->state_1++;

@@ -21,7 +21,7 @@ void count_down_then_set_side_bit_slot04_0d(Object *object, GameState *g);
 void set_countdown_low_from_table_slot04_0d(Object *object);
 void call_handler_by_state_1_slot04_0d(Object *object);
 void call_handler_by_state_1_then_offset_slot04_0d(Object *object);
-void func_801b40bc_slot04_0d(Object *object);
+void select_box_tables_by_vel_index_and_health_slot04_0d(Object *object);
 
 void tick_countdown_and_update_sequence_slot04_0d(Object *object) {
     count_down_then_set_side_bit_slot04_0d(object, &game_state);
@@ -37,7 +37,7 @@ void count_down_then_set_side_bit_slot04_0d(Object *object, GameState *g) {
     }
 }
 
-void func_801b3a14_slot04_0d(Object *object) {
+void update_sequence_spawn_offset_child_on_flag_slot04_0d(Object *object) {
     Object *p;
     int dx;
     u16 e;
@@ -81,7 +81,7 @@ void func_801b3a14_slot04_0d(Object *object) {
     count_down_then_set_side_bit_slot04_0d(object, &game_state);
 }
 
-void func_801b3b6c_slot04_0d(Object *object) {
+void clear_object_tail_byte_block_slot04_0d(Object *object) {
     u8 *p = (u8 *)object + 0x2b0;
     int i;
     u8 z = 0;
@@ -108,7 +108,7 @@ void init_child_object_from_parent_slot04_0d(Object *object) {
     object->cycle_value = parent->cycle_value;
     ((Slot04bObj *)object)->data_table_ptr = data_801c2c00_slot04_0d;
     if (object->table_index != 0) {
-        func_801b40bc_slot04_0d(object);
+        select_box_tables_by_vel_index_and_health_slot04_0d(object);
     }
     object->active_state = 0;
     object->vel_y = 0;
@@ -129,7 +129,7 @@ void init_child_object_from_parent_slot04_0d(Object *object) {
     } else {
         ((Slot04bObj *)object)->data_pointer = *(int *)0x1f800158;
     }
-    func_80138070(object, i);
+    set_sequence_by_sound_side(object, i);
     set_countdown_low_from_table_slot04_0d(object);
     call_handler_by_state_1_slot04_0d(object);
 }
@@ -178,9 +178,9 @@ void call_handler_by_state_2_unless_paused_slot04_0d(Object *object) {
     }
 }
 
-void func_801b3e78_slot04_0d(Object *object) {
+void advance_state_2_set_box_tables_and_countdown_slot04_0d(Object *object) {
     object->state_2 = object->state_2 + 1;
-    func_801b40bc_slot04_0d(object);
+    select_box_tables_by_vel_index_and_health_slot04_0d(object);
     ((Slot04bObj *)object)->countdown = 2;
     advance_sequence_checked(object);
 }
@@ -196,7 +196,7 @@ void count_down_then_reset_states_slot04_0d(Object *object) {
     }
 }
 
-void func_801b3efc_slot04_0d(Object *object) {
+void call_state_2_handler_2684_wrapper_slot04_0d(Object *object) {
     call_state_2_handler_2684_unless_paused(object);
 }
 

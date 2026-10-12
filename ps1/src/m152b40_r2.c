@@ -27,7 +27,7 @@ void load_table_entry_or_wait_then_close_vab(GameState *state) {
         } while (!(state->wait_flag & 0x80));
     }
     close_vab_and_sep(2);
-    func_8014f3b8(4, 0);
+    start_cd_track_wait_with_thread_switch(4, 0);
 }
 
 void reset_side_entries(void) {

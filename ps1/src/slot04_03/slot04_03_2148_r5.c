@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2600_slot04_03(Object *obj) {
+void branch_on_end_or_button_press_variant_a_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
@@ -19,7 +19,7 @@ void func_801b2600_slot04_03(Object *obj) {
     }
 }
 
-void func_801b26ac_slot04_03(Object *obj) {
+void branch_on_end_or_button_press_variant_b_slot04_03(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {

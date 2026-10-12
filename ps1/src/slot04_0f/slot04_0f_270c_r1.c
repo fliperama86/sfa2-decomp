@@ -12,16 +12,16 @@ void start_action_if_buttons_pressed(Object *object);
 void push_other_by_vel_x(Object *object);
 void save_facing_and_set_x_motion(Object *object);
 void set_direction_index_from_meter_and_save(Object *object);
-void func_80142c70(Object *object);
+void init_object_after_hit_and_spawn_three_effects(Object *object);
 void set_sequence_by_side(Object *object, int arg);
 void spawn_effect_objects_at_offset(Object *object, int x, int y);
 void reset_side_table_and_fields(Object *object);
 void spawn_object_type_6d_for_side(Object *object);
 void set_other_sequence_3_when_close(Object *object);
 void clear_two_byte_blocks_of_object_slot04_0f(Object *obj);
-void func_801b470c_slot04_0f(Object *obj);
+void call_reset_object_to_state_1_0_sequence_0_slot04_0f(Object *obj);
 
-void func_801b270c_slot04_0f(Object *obj) {
+void start_direction_sequence_adding_meter_six_a_slot04_0f(Object *obj) {
     int a;
 
     obj->active_flag_4 = 1;
@@ -73,7 +73,7 @@ void spawn_linked_object_type_19_on_step_flag_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b28b8_slot04_0f(Object *obj) {
+void wait_link_cleared_then_start_next_sequence_slot04_0f(Object *obj) {
     if (obj->linked_object_3 == 0) {
         obj->active_flag_4 = 0;
         obj->state_3++;
@@ -85,18 +85,18 @@ void func_801b28b8_slot04_0f(Object *obj) {
 
 void update_sequence_or_call_end_handler_slot04_0f(Object *obj) {
     if ((s16)obj->step_flags < 0) {
-        func_801b470c_slot04_0f(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_0f(obj);
     } else {
         start_action_if_buttons_pressed(obj);
         update_sequence(obj);
     }
 }
 
-void func_801b2958_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_9_slot04_0f(Object *obj) {
     data_801c5b08_slot04_0f[obj->state_3](obj);
 }
 
-void func_801b2998_slot04_0f(Object *obj) {
+void start_direction_sequence_adding_meter_six_b_slot04_0f(Object *obj) {
     int a;
 
     obj->active_flag_4 = 1;
@@ -150,7 +150,7 @@ void spawn_linked_object_table2_on_step_flag_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b2b5c_slot04_0f(Object *obj) {
+void wait_link_cleared_then_advance_state_sequence_slot04_0f(Object *obj) {
     if (obj->linked_object_3 == 0) {
         obj->state_3++;
         set_sequence_by_side_and_mode(obj, 0x45);
@@ -163,7 +163,7 @@ void update_with_countdown_or_finish_slot04_0f(Object *obj) {
     s16 t;
 
     if ((s16)obj->step_flags < 0) {
-        func_801b470c_slot04_0f(obj);
+        call_reset_object_to_state_1_0_sequence_0_slot04_0f(obj);
     } else {
         t = obj->countdown;
         if (t != 0) {
@@ -180,11 +180,11 @@ void update_with_countdown_or_finish_slot04_0f(Object *obj) {
     }
 }
 
-void func_801b2c24_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_10_slot04_0f(Object *obj) {
     data_801c5b18_slot04_0f[obj->state_3](obj);
 }
 
-void func_801b2c64_slot04_0f(Object *obj) {
+void advance_state_3_set_sequence_by_active_state_slot04_0f(Object *obj) {
     int a;
     obj->state_3 = obj->state_3 + 1;
     save_facing_and_set_x_motion(obj);
@@ -217,7 +217,7 @@ void start_effects_on_step_flag_high_byte_slot04_0f(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b2d5c_slot04_0f(Object *obj) {
+void count_down_then_set_cursor_timer_and_push_other_slot04_0f(Object *obj) {
     int a;
     ((Slot04bObj *)obj)->field_47--;
     if (((Slot04bObj *)obj)->field_47 == 0) {
@@ -248,7 +248,7 @@ void update_countdown_with_press_count_slot04_0f(Object *obj) {
             obj->state_2 = 3;
             obj->state_3 = 1;
         }
-        func_80142c70(obj);
+        init_object_after_hit_and_spawn_three_effects(obj);
     } else {
         if (obj->pressed_bits != 0) {
             if (((Slot04bObj *)obj)->saved_count == 0) {

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014a1ec(Object *object) {
+void dispatch_script_mode_with_one_time_init(Object *object) {
     if (game_state.field_4e == 0) {
         if (object->countdown_3 >= 0x100) object->countdown_3 = 0xff;
         if (object->script_mode == 0) {

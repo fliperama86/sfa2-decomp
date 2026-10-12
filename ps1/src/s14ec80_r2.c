@@ -4,14 +4,14 @@
 #include "protos.h"
 
 
-void func_8014f3b8(int a, int b) {
+void start_cd_track_wait_with_thread_switch(int a, int b) {
     start_cd_track_from_table(&ctl_80190948, a, b);
     while (!is_cd_ctl_mode_3()) {
         request_sound_command_and_switch_thread(1);
     }
 }
 
-void func_8014f408(int a, int b) {
+void start_cd_track_and_wait_updating_control(int a, int b) {
     GameState *g = &game_state;
     start_cd_track_from_table(&ctl_80190948, a, b);
     while (!is_cd_ctl_mode_3()) {

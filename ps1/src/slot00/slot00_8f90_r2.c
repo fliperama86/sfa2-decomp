@@ -14,5 +14,5 @@ void unlink_from_parent_slot_and_release_slot00(Object *o) {
             t->linked_object_b = 0;
         }
     }
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }

@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_801416ec(Object *object) {
+u8 is_object_free_for_action(Object *object) {
     if (object->field_7e != 0 && object->field_163 == 0 && *(s16 *)&object->health >= 0 && object->active_state == 0 &&
         (game_state.config->mode_flag_b | game_state.config->mode_flag_c | game_state.config->mode_flag_a) == 0 &&
-        func_8012f56c(object) == 0) {
+        is_other_object_state_0_and_1_six_one(object) == 0) {
         return 1;
     }
     return 0;
@@ -37,7 +37,7 @@ u8 try_action_clearing_one_flag(Object *object) {
     return try_action_if_state_allows(object);
 }
 
-int func_801418bc(Object *object) {
+int try_action_unless_state_bytes_match(Object *object) {
     game_state.step_value = 1;
     if (*(u32 *)&object->state_0 == 0x3030001) {
         return 0;

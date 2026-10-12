@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1bc0_slot04_02(Object *obj) {
+void update_sequence_or_finish_clearing_pos_y_frac_slot04_02(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->other->other_state_code = 5;
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
@@ -14,7 +14,7 @@ void func_801b1bc0_slot04_02(Object *obj) {
     }
 }
 
-void func_801b1c30_slot04_02(Object *obj) {
+void update_sequence_with_effect_then_set_jump_motion_slot04_02(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
@@ -33,7 +33,7 @@ void func_801b1c30_slot04_02(Object *obj) {
     }
 }
 
-void func_801b1cc0_slot04_02(Object *obj) {
+void apply_vel_y_with_accel_y_override_slot04_02(Object *obj) {
     if (obj->field_49 != 0 && obj->vel_y < 0) {
         obj->accel_y = 0xffff0000;
     }

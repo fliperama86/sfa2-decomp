@@ -11,8 +11,8 @@ extern SequenceStep *data_80039280_slot28[];
 extern SequenceStep *data_8003929c_slot28[];
 extern u8 data_800374ac_slot28[];
 extern u8 data_80037a00_slot28[];
-void func_8001c430_slot28(Object *obj, int arg);
-void func_8001c4c0_slot28(void);
+void set_sequence_of_fourth_hud_object_7_slot28(Object *obj, int arg);
+void release_active_objects_in_table_5_slot28(void);
 
 void advance_slot28_scene_spawn_five_objects_slot28(Object *obj) {
     Object *p;
@@ -20,7 +20,7 @@ void advance_slot28_scene_spawn_five_objects_slot28(Object *obj) {
     if (obj->field_f0 == 0) {
         data_8018f5a0->pass_index++;
         data_8018f5a0->countdown_timer = 0x12c;
-        func_8001c4c0_slot28();
+        release_active_objects_in_table_5_slot28();
         p = data_80051a04_slot28[0];
         p->field_01 = 0;
         p = data_80051a08_slot28.p;
@@ -126,7 +126,7 @@ void advance_slot28_scene_spawn_five_objects_slot28(Object *obj) {
             p->box_tables = (BoxTables *)data_8003929c_slot28;
             data_800519d8_slot28[4] = p;
         }
-        func_8001c430_slot28(obj, 4);
+        set_sequence_of_fourth_hud_object_7_slot28(obj, 4);
         start_fade_mode_1a01_and_wait();
     }
 }

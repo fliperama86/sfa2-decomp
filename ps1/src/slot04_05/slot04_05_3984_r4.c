@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3f44_slot04_05(Object *obj) {
+void update_decelerating_slide_until_sequence_end_slot04_05(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {

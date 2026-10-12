@@ -3,9 +3,9 @@
 #include "externs.h"
 #include "protos.h"
 
-/* Written by hand in the form of func_8014d520, whose form the automatic permutation search had found. */
-/* Form of the exact twin func_8014d520. */
-void func_8014d7d4(Object *object)
+/* Written by hand in the form of check_script_wait_approach_limit_set_direction, whose form the automatic permutation search had found. */
+/* Form of the exact twin check_script_wait_approach_limit_set_direction. */
+void check_script_wait_countdown_approach_limit(Object *object)
 {
   unsigned int new_var;
   Object *new_var2;

@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011ffdc(Object *o) {
+void clear_or_set_flag_by_pos_x_limit(Object *o) {
     int m = (s16)box_margin[0];
     if (o->pos_x - m + 64 > 512) {
         o->field_01 = 0;
@@ -50,7 +50,7 @@ void init_sound_system(void) {
     p = data_801953d0;
     func_801650bc(p, 4, 16);
     func_8016529c(1);
-    func_8014f408(3, 0);
+    start_cd_track_and_wait_updating_control(3, 0);
     ptr_80197ee8[0] = p - 0x3f80;
     ptr_80197ee8[1] = p - 0x3160;
     ptr_80197ee8[2] = p - 0x2340;

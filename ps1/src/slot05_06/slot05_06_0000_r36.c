@@ -6,7 +6,7 @@
 extern ObjectFn data_801dd414_slot05_06[];
 void move_x_by_vel_x_facing_then_accelerate_slot05_06(Object *obj);
 
-void func_801cae28_slot05_06(Object *obj) {
+void call_table_function_by_state_3_11_slot05_06(Object *obj) {
     data_801dd414_slot05_06[obj->state_3](obj);
 }
 

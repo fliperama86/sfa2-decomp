@@ -20,7 +20,7 @@
  * on y, with the heights, decides the result. All sums and differences are
  * taken modulo 2^16.
  */
-u8 func_801397d0(s32 arg_a, Object *b, Box6 *c) {
+u8 is_box_separated_2(s32 arg_a, Object *b, Box6 *c) {
     Object *a = (Object *)arg_a;
     int pw, ph, ow, oh, px, py, ox, oy;
     int ax, bx, ay, by;

@@ -17,7 +17,7 @@ void set_selected_flag_by_index(u8 index) {
     }
 }
 
-void func_80124ae8(u8 index) {
+void set_table_index_3_from_table(u8 index) {
     game_state.table_index_3 = table_8016e81c[index];
 }
 
@@ -25,14 +25,14 @@ void reinit_round_and_copy_five_rows(void) {
     data_80197f1c = 0;
     ((HudBig *)data_8018f5a0)->substate_index = 0;
     game_state.field_65 = 0;
-    func_8011eae4();
+    clear_arrays_and_init_pools_and_sprite_tables();
     call_handler_by_kind_index_a();
     init_hud_primitives();
-    func_801285e0();
-    func_801260ac(0, 0x20, 0);
-    func_801260ac(1, 0x20, 0);
-    func_801260ac(2, 0x20, 0);
-    func_801260ac(3, 0x20, 0);
-    func_801260ac(4, 0x20, 0);
+    spawn_position_table_objects_and_list_objects();
+    copy_palette_rows_from_backup_bank(0, 0x20, 0);
+    copy_palette_rows_from_backup_bank(1, 0x20, 0);
+    copy_palette_rows_from_backup_bank(2, 0x20, 0);
+    copy_palette_rows_from_backup_bank(3, 0x20, 0);
+    copy_palette_rows_from_backup_bank(4, 0x20, 0);
     queue_five_jobs();
 }

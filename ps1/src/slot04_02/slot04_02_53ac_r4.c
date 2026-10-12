@@ -45,7 +45,7 @@ void update_countdown_hold_sequence_slot04_02(Object *obj) {
                 p->state_3 = 0;
             }
         }
-        func_80142c70(obj);
+        init_object_after_hit_and_spawn_three_effects(obj);
     }
     if ((obj->pressed_bits & 0xff00) != 0) {
         if (((Slot04aObj *)obj)->field_27d == 0) {

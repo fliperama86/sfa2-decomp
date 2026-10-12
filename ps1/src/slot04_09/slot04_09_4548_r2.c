@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4688_slot04_09(Object *obj) {
+void start_sequence_with_remaining_count_decrement_slot04_09(Object *obj) {
     obj->active_flag_4 = 1;
     obj->state_3++;
     obj->field_157 = 0;

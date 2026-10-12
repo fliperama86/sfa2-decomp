@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void func_801b4ad8_slot04_02(Object *obj);
-void func_801b4b68_slot04_02(Object *obj);
+void set_state_3_and_directional_sequence_slot04_02(Object *obj);
 void func_801b4ba0_slot04_02(Object *obj);
 void set_state_3_9_direction_sequence_slot04_02(Object *obj);
 
@@ -22,7 +22,7 @@ void choose_air_attack_branch_by_distance_slot04_02(Object *obj) {
                 return;
             }
             obj->countdown = obj->countdown - 0x100;
-            func_801b4b68_slot04_02(obj);
+            set_state_3_and_directional_sequence_slot04_02(obj);
         }
         if (obj->vel_y < 0 && obj->input_dir_second == 0 && obj->other->bound_push_flag == 0) {
             d = obj->pos_x - obj->other->pos_x;

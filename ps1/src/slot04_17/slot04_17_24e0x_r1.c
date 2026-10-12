@@ -7,7 +7,7 @@ extern u32 data_801ce050_slot04_17[];
 extern s32 data_801ce384_slot04_17[];
 
 int apply_velocity_and_acceleration_slot04_17(Object *obj);
-Object *func_801b5890_slot04_17(Object *obj);
+Object *get_table_object_by_field_slot04_17(Object *obj);
 
 void choose_air_action_at_sequence_end_slot04_17(Object *obj) {
     int t;
@@ -67,7 +67,7 @@ act_c:
         obj->state_3 = 6;
         obj->variant_index = 0;
         if (obj->mode_flag_2 != 0) {
-            func_801b5890_slot04_17(obj);
+            get_table_object_by_field_slot04_17(obj);
             s = 0x8000;
             if (obj->facing_side != 0) {
                 s = 0;

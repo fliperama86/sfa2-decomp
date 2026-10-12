@@ -5,7 +5,7 @@
 
 int move_x_by_vel_x_facing_and_accelerate_slot04_05(Object *object);
 
-void func_801b2e04_slot04_05(Object *obj) {
+void update_sequence_then_set_vel_x_on_flag_2_slot04_05(Object *obj) {
     u8 t;
     update_sequence(obj);
     t = obj->step_flags;

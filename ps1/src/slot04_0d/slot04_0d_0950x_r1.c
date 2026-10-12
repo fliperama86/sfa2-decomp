@@ -5,7 +5,7 @@
 
 /* functions of other units of this module */
 
-void func_801b0950_slot04_0d(Object *obj) {
+void set_sequence_from_direction_and_variant_b_slot04_0d(Object *obj) {
     u16 x;
 
     obj->state_3 = 3;

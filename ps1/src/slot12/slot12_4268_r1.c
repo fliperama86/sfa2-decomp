@@ -23,6 +23,6 @@ void advance_hud_phase_index_and_reset_slot12(Object *o) {
     data_8018f5a0->pass_index = 0;
     obj->field_ee = 0;
     obj->field_f0 = 0;
-    func_8011eb14();
-    func_8011eae4();
+    clear_players_arrays_state_and_init_pools();
+    clear_arrays_and_init_pools_and_sprite_tables();
 }

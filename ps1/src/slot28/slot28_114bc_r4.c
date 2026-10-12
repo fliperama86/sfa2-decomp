@@ -12,15 +12,15 @@ extern SequenceStep *data_80045c4c_slot28[];
 extern u8 data_80044620_slot28[];
 extern u8 data_800449d0_slot28[];
 extern SequenceStep *data_80045c58_slot28[];
-void func_80021d64_slot28(Object *obj, int arg);
-void func_80021df4_slot28(void);
+void set_sequence_of_fourth_hud_object_13_slot28(Object *obj, int arg);
+void release_active_objects_in_table_11_slot28(void);
 
 void advance_slot28_pass_to_step_three_c_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
         data_8018f5a0->countdown_timer = 0x258;
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
-        func_80021df4_slot28();
+        release_active_objects_in_table_11_slot28();
         set_sequence_from_table_5(data_80051b8c_slot28.p, 0, data_80045c40_slot28);
         b = data_80051b90_slot28[0];
         b->pos_y = -0x50;
@@ -43,17 +43,17 @@ void advance_slot28_pass_to_step_three_c_slot28(Object *obj) {
             b->box_tables = (BoxTables *)data_80045c58_slot28;
             data_80051b64_slot28[0] = b;
         }
-        func_80021d64_slot28(obj, 3);
+        set_sequence_of_fourth_hud_object_13_slot28(obj, 3);
         start_fade_mode_1a01_and_wait();
     }
 }
 
-void func_80021c24_slot28(Object *obj) {
+void advance_pass_when_sequence_ends_set_variant_slot28(Object *obj) {
     Object *p = data_80051b9c_slot28.p;
     if ((s16)p->step_flags < 0) {
         data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
         p = data_80051b64_slot28[0];
         p->variant_index = 0xff;
-        func_80021d64_slot28(obj, 4);
+        set_sequence_of_fourth_hud_object_13_slot28(obj, 4);
     }
 }

@@ -40,8 +40,8 @@ void func_80123f78(int a) {
         scale_palette_rows_and_refresh();
         for (; i < 2; i++) {
             write_player_color_bytes_to_table(p, i);
-            func_80133ed0(p, i);
-            func_80133fd8(p, i);
+            write_right_color_triplets_by_value(p, i);
+            write_left_color_triplets_by_value(p, i);
             p[(i << 4) + 0x188] = 0;
             p[(i << 4) + 0x189] = 0x49;
             p[(i << 4) + 0x18a] = 0x73;
@@ -52,11 +52,11 @@ void func_80123f78(int a) {
     } else {
         game_state.field_09 = 0;
         set_menu_command_by_code(3, 0);
-        func_801260ac(0, 0x20, 0);
-        func_801260ac(1, 0x20, 0);
-        func_801260ac(2, 0x20, 0);
-        func_801260ac(3, 0x20, 0);
-        func_801260ac(4, 0x20, 0);
+        copy_palette_rows_from_backup_bank(0, 0x20, 0);
+        copy_palette_rows_from_backup_bank(1, 0x20, 0);
+        copy_palette_rows_from_backup_bank(2, 0x20, 0);
+        copy_palette_rows_from_backup_bank(3, 0x20, 0);
+        copy_palette_rows_from_backup_bank(4, 0x20, 0);
         queue_five_jobs();
         ((HudBig *)data_8018f5a0)->substate_index = 0;
         for (i = 0; i < 2; i++) {

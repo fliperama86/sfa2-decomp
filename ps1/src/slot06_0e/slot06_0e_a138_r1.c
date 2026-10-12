@@ -18,7 +18,7 @@ extern ObjectFn data_801ef474_slot06_0e[];
 extern ObjectFn data_801ef484_slot06_0e[];
 
 Object *pop_object_from_second_pool(void);
-void func_8011f38c(Object *o);
+void clear_object_and_push_on_free_stack(Object *o);
 
 void call_handler_by_state_0_2_slot06_0e(Object *obj) {
     data_801ef434_slot06_0e[obj->state_0](obj);
@@ -173,7 +173,7 @@ void place_object_side_by_bounds_at_parent_y_slot06_0e(Object *obj) {
 }
 
 void load_velocities_from_table_slot06_0e(Object *obj) {
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }
 
 void call_handler_by_state_0_5_slot06_0e(Object *obj) {
@@ -195,7 +195,7 @@ void init_object_from_parent_position_slot06_0e(Object *obj) {
     set_sequence_entry(obj, data_801ef424_slot06_0e);
 }
 
-void func_801ea778_slot06_0e(Object *obj) {
+void copy_parent_position_and_advance_sequence_slot06_0e(Object *obj) {
     Object *p = obj->parent;
     if (obj->field_01 != 0) {
         *(u16 *)&obj->pos_x = *(u16 *)&p->pos_x;
@@ -215,7 +215,7 @@ void unlink_from_parent_and_release_object_slot06_0e(Object *obj) {
     } else if (p->linked_object_b == (u32)obj) {
         p->linked_object_b = 0;
     }
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }
 
 void call_handler_by_state_0_6_slot06_0e(Object *obj) {

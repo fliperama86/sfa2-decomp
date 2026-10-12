@@ -13,7 +13,7 @@ int dispatch_table_pick_by_table_index_slot04_02(Object *object, Object *parent)
 void set_sequence_a_by_sound_side_slot04_02(Object *object, u8 a_arg);
 
 /* The local t holds the 0x7754 table value for the y offset; d holds the later x offsets. Written with one local for both, this function differs from the original in 16 instruction slots. */
-void func_801b6f48_slot04_02(Object *object) {
+void init_child_motion_from_parent_and_tables_slot04_02(Object *object) {
     Object *parent;
     u16 d;
     int t;

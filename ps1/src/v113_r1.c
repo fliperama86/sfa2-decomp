@@ -10,7 +10,7 @@ void record_box_a_overlap(s32 a, Object *object)
   u16 x;
   long new_var;
   u16 y;
-  if (func_801397d0(a, object, object->boxes_a + object->frame->box_a) == 0)
+  if (is_box_separated_2(a, object, object->boxes_a + object->frame->box_a) == 0)
   {
     x = data_80188ed0.out_3c;
     data_80188ed0.f_0c = x;

@@ -14,14 +14,14 @@ void update_state_with_input_branches_c(Object *object) {
     } else if (get_pressed_low_byte(object)) {
         set_state_1_0_5_and_read_input_direction(object);
     } else if ((u8)is_input_bit_1000_held(object)) {
-        func_80130280(object);
-    } else if (func_8012f970(object)) {
+        enter_state_1_3_with_input_variant_and_sequence(object);
+    } else if (find_nearby_enemy_and_get_flag(object)) {
         object->state_3 = 2;
         object->field_157 = 1;
         object->facing_side = object->saved_facing;
         set_sequence_by_side(object, 0x19);
     } else if ((u8)is_only_horizontal_input_held(object)) {
-        func_8012f838(object);
+        start_move_state_1_0_2_1_with_sequence_by_input(object);
     } else if ((s16)object->step_flags < 0) {
         reset_object_to_state_1_0_0_2_sequence_1(object);
     } else {

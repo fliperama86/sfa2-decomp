@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-u8 func_80149f14(Object *object) {
+u8 is_input_matched_flag_clear(Object *object) {
     return object->input_matched_flag == 0;
 }
 
@@ -16,7 +16,7 @@ int is_other_active_frame_in_x_range(Object *object, Object *unused) {
         if (other->frames[((u16 *)flags)[4]].active != 0) {
             x = x + (u16)other->pos_x - (u16)object->pos_x + 0x60;
             if ((u16)x <= 0xc0) {
-                return func_80149f14(other) != 0;
+                return is_input_matched_flag_clear(other) != 0;
             }
             break;
         }
@@ -63,7 +63,7 @@ int is_pushed_against_bound_while_moving(Object *object) {
 int is_once_random_bit_and_script_ready(Object *object) {
     if (object->once_flag != 0) return 0;
     if (test_random_bit_in_table(object, data_8017d698) == 0) return 0;
-    if (func_80149d48(object) == 0) return 0;
+    if (check_enemy_unit_or_other_in_range(object) == 0) return 0;
     object->once_flag = 1;
     return 1;
 }

@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b492c_slot04_07(Object *obj);
-void func_801b4a0c_slot04_07(Object *obj);
+void call_handler_by_state_3_slot04_07(Object *obj);
+void call_state_3_handler_then_play_step_sound_7_slot04_07(Object *obj);
 
 void call_handler_by_input_dir_1_slot04_07(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second == 0) {
-        func_801b492c_slot04_07(obj);
+        call_handler_by_state_3_slot04_07(obj);
     } else {
-        func_801b4a0c_slot04_07(obj);
+        call_state_3_handler_then_play_step_sound_7_slot04_07(obj);
     }
 }

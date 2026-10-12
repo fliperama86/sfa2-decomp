@@ -10,7 +10,7 @@ Block172 *pop_block_from_pool(void) {
     if (data_80197f10 != 0) {
         b = table_80197f20[data_80197f10];
         data_80197f10--;
-        func_80119b34(b);
+        clear_anim_obj_stream_index(b);
         result = b;
     } else {
         result = 0;

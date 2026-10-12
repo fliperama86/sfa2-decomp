@@ -24,7 +24,7 @@ Object *pop_object_from_pool(Object *unused) {
         o = data_801a89b0[n];
         data_801a6960 = n - 1;
         o->offset_index = 0;
-        func_80119b34((AnimObj *)o);
+        clear_anim_obj_stream_index((AnimObj *)o);
         result = o;
     } else {
         result = 0;

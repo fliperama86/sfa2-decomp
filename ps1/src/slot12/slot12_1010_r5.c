@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80011358_slot12(void) {
+void start_fade_2404_until_fade_busy_slot12(void) {
     while (game_state.fade_busy == 0) {
         game_state.wait_flag = 0x1f;
         *(u16 *)data_80190464 = 0x2404;

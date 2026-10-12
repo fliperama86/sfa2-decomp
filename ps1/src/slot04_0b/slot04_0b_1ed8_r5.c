@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2460_slot04_0b(Object *o) {
+void advance_at_sequence_end_play_kind_sound_slot04_0b(Object *o) {
     if ((s16)o->step_flags & 0x8000) {
         o->state_3++;
         o->active_state = 0;

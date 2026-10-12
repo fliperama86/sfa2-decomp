@@ -9,7 +9,7 @@ void set_sequence_from_table_index_entry_slot2b(Object *obj);
 void set_velocity_accel_from_table_slot2b(Object *obj);
 void place_object_at_target_box_offset_slot2b(Object *obj);
 
-void func_80078f8c_slot2b(Object *o) {
+void count_down_then_jitter_or_launch_slot2b(Object *o) {
     Slot2bObj *obj = (Slot2bObj *)o;
     int d;
     obj->countdown_timer--;

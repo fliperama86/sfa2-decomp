@@ -3,13 +3,13 @@
 #include "../protos.h"
 #include "../externs.h"
 
-int func_801b66fc_slot04_06(Object *obj);
+int move_by_velocity_return_y_minus_ground_slot04_06(Object *obj);
 
 void set_landing_sequence_when_below_ground_slot04_06(Object *obj) {
     int a;
     int t;
 
-    if ((func_801b66fc_slot04_06(obj) << 16) > 0) {
+    if ((move_by_velocity_return_y_minus_ground_slot04_06(obj) << 16) > 0) {
         t = obj->state_1;
         a = obj->table_index;
         obj->pos_y = ((Slot04aObj *)obj)->saved_pos_y;

@@ -12,9 +12,9 @@ void set_sequence_by_side_and_mode(Object *object, int arg);
 void update_sequence(Object *object);
 void reset_object_to_state_1_0_sequence_0(Object *object);
 void add_to_meter_clamped(Object *object, short delta);
-u8 func_80146840(Object *object);
+u8 spawn_random_offset_effect_index_zero(Object *object);
 u8 get_random_byte(void);
-int func_801418bc(Object *object);
+int try_action_unless_state_bytes_match(Object *object);
 extern u16 box_margin[];
 extern ObjectRef data_80190468;
 
@@ -23,37 +23,37 @@ int apply_damage_to_other_return_defeated(Object *object, int a, int b);
 void update_sequence_by_pressed_bytes(Object *object);
 int drain_gauge_by_other_input(Object *object);
 void spawn_effect_at_object_offset(Object *object, u8 a, int dx, int dy);
-void func_80146960(Object *object);
+void spawn_two_effects_at_other_ground(Object *object);
 void set_sequence_by_side(Object *object, int index);
 void reset_object_to_state_1_0_0_2_sequence_1(Object *object);
-void func_80131638(Object *object);
+void land_reset_fields_and_choose_next_state(Object *object);
 
 u8 get_pressed_bit_8(Object *object);
 int is_pressed_bits_in_table(Object *object);
-int func_8013cac8(Object *object, u8 a, u8 b);
-int func_8013caf0(Object *object, u8 a, u8 b);
-u8 func_8013ccb4(Object *object, u8 a, u8 b);
+int call_slot_stage_handler_a(Object *object, u8 a, u8 b);
+int call_slot_stage_if_both_dir_pairs_ok(Object *object, u8 a, u8 b);
+u8 call_slot_stage_handler_b(Object *object, u8 a, u8 b);
 u8 func_8013cd5c(Object *object, u8 a, u8 b);
-int func_8013d0c8(Object *object);
-int func_8013d0fc(Object *object);
+int is_input_masked_equal_to_one_of_two_patterns_a(Object *object);
+int is_input_masked_equal_to_one_of_two_patterns_b(Object *object);
 int func_80141788(Object *object);
 int is_not_state_2_five(Object *object);
 
 /* functions of other units of this module */
-int func_801b235c_slot04_16(Object *obj);
-int func_801b2238_slot04_16(Object *obj);
-u8 func_801b1d38_slot04_16(Object *obj);
-u8 func_801b1dc4_slot04_16(Object *obj);
+int try_enter_state_7_action_1_with_count_slot04_16(Object *obj);
+int try_spend_meter_enter_state_7_action_3_slot04_16(Object *obj);
+u8 try_enter_state_8_action_b_with_meter_slot04_16(Object *obj);
+u8 try_start_meter_action_type_a_both_flags_slot04_16(Object *obj);
 u8 try_start_move_7_with_dir_slot04_16(Object *obj);
 u8 try_start_move_8_with_dir_slot04_16(Object *obj);
 u8 try_start_move_6_with_dir_slot04_16(Object *obj);
 u8 try_start_move_4_with_dir_slot04_16(Object *obj);
 u8 try_start_move_5_slot04_16(Object *obj);
-u8 func_801b210c_slot04_16(Object *obj);
+u8 try_spend_meter_enter_state_7_action_2_slot04_16(Object *obj);
 
 void load_velocities_from_table_slot04_16(Object *obj);
-void func_801b1340_slot04_16(Object *obj);
-void func_801b1700_slot04_16(Object *obj);
+void call_table_function_by_state_3_5_slot04_16(Object *obj);
+void call_table_function_by_state_3_6_slot04_16(Object *obj);
 u8 try_start_move_0_meter_cost_slot04_16(Object *obj);
 
 void call_handler_by_state_2_2_slot04_16(Object *obj) {
@@ -70,7 +70,7 @@ void pick_random_sequence_advance_state_2_slot04_16(Object *obj) {
     }
 }
 
-void func_801b1070_slot04_16(Object *obj) {
+void update_sequence_reset_states_if_flags_negative_slot04_16(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 = 1;
         obj->state_1 = 0;
@@ -89,14 +89,14 @@ void load_velocities_from_table_2_slot04_16(Object *obj) {
 }
 
 void load_velocities_from_table_3_slot04_16(Object *obj) {
-    func_80131638(obj);
+    land_reset_fields_and_choose_next_state(obj);
 }
 
 void call_handler_by_input_dir_or_state_3_slot04_16(Object *obj) {
     if (obj->input_dir_0 != 0) {
-        func_801b1700_slot04_16(obj);
+        call_table_function_by_state_3_6_slot04_16(obj);
     } else if (obj->input_dir_second != 0) {
-        func_801b1340_slot04_16(obj);
+        call_table_function_by_state_3_5_slot04_16(obj);
     } else {
         data_801ca134_slot04_16[obj->state_3](obj);
     }
@@ -134,7 +134,7 @@ void update_sequence_with_hit_on_step_flag_slot04_16(Object *obj) {
     } else {
         obj->step_flags = a & 0xff00;
         data_80190468.p->vec_table_index = 0x3c;
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
         update_sequence(obj);
         apply_damage_to_other_return_defeated(obj, 0x12, 0);
         play_sound_at(obj, obj->side, 0x319);
@@ -149,7 +149,7 @@ void update_sequence_or_finish_sequence_slot04_16(Object *obj) {
     }
 }
 
-void func_801b1340_slot04_16(Object *obj) {
+void call_table_function_by_state_3_5_slot04_16(Object *obj) {
     data_801ca140_slot04_16[obj->state_3](obj);
 }
 
@@ -163,7 +163,7 @@ void start_grab_sequence_18_reset_gauge_slot04_16(Object *obj) {
     set_sequence_by_side_and_mode(obj, 0x18);
 }
 
-void func_801b13e8_slot04_16(Object *obj) {
+void update_repeated_damage_to_other_with_gauge_slot04_16(Object *obj) {
     u16 a;
     s16 i;
 
@@ -171,7 +171,7 @@ void func_801b13e8_slot04_16(Object *obj) {
     a = obj->step_flags;
     if ((a & 0xff) == 1) {
         obj->step_flags = a & 0xff00;
-        if (func_80146840(obj) != 0) {
+        if (spawn_random_offset_effect_index_zero(obj) != 0) {
             i = -0x4f;
             if (obj->facing_side != 0) {
                 i = 0x4f;
@@ -210,7 +210,7 @@ void func_801b13e8_slot04_16(Object *obj) {
     }
 }
 
-void func_801b15c8_slot04_16(Object *obj) {
+void update_sequence_hit_other_reaction_a_slot04_16(Object *obj) {
     u8 t;
 
     update_sequence(obj);
@@ -245,7 +245,7 @@ void update_sequence_or_finish_sequence_2_slot04_16(Object *obj) {
     }
 }
 
-void func_801b1700_slot04_16(Object *obj) {
+void call_table_function_by_state_3_6_slot04_16(Object *obj) {
     data_801ca154_slot04_16[obj->state_3](obj);
 }
 
@@ -299,7 +299,7 @@ void update_hit_sequence_with_damage_step_slot04_16(Object *obj) {
     }
 }
 
-void func_801b1930_slot04_16(Object *obj) {
+void update_sequence_hit_other_reaction_b_slot04_16(Object *obj) {
     u8 t;
 
     update_sequence(obj);
@@ -337,17 +337,17 @@ void update_sequence_or_finish_sequence_3_slot04_16(Object *obj) {
 }
 
 void select_slot04_10_action_from_inputs_slot04_16(Object *obj) {
-    if (get_pressed_bit_8(obj) && (u8)func_801b235c_slot04_16(obj)) return;
+    if (get_pressed_bit_8(obj) && (u8)try_enter_state_7_action_1_with_count_slot04_16(obj)) return;
     if ((u8)is_pressed_bits_in_table(obj) && try_start_move_0_meter_cost_slot04_16(obj)) return;
-    if (func_8013cd5c(obj, 0, 0x22) && func_801b1d38_slot04_16(obj)) return;
-    if ((u8)func_8013caf0(obj, 1, 0x15) && func_801b1dc4_slot04_16(obj)) return;
-    if (func_8013ccb4(obj, 2, 0x21) && try_start_move_7_with_dir_slot04_16(obj)) return;
-    if (func_8013ccb4(obj, 3, 0x23) && try_start_move_8_with_dir_slot04_16(obj)) return;
-    if ((u8)func_8013cac8(obj, 4, 4) && try_start_move_6_with_dir_slot04_16(obj)) return;
-    if ((u8)func_8013cac8(obj, 5, 0xd) && func_801b210c_slot04_16(obj)) return;
-    if ((u8)func_8013cac8(obj, 6, 0xe) && (u8)func_801b2238_slot04_16(obj)) return;
-    if ((u8)func_8013d0c8(obj) && try_start_move_4_with_dir_slot04_16(obj)) return;
-    if ((u8)func_8013d0fc(obj)) try_start_move_5_slot04_16(obj);
+    if (func_8013cd5c(obj, 0, 0x22) && try_enter_state_8_action_b_with_meter_slot04_16(obj)) return;
+    if ((u8)call_slot_stage_if_both_dir_pairs_ok(obj, 1, 0x15) && try_start_meter_action_type_a_both_flags_slot04_16(obj)) return;
+    if (call_slot_stage_handler_b(obj, 2, 0x21) && try_start_move_7_with_dir_slot04_16(obj)) return;
+    if (call_slot_stage_handler_b(obj, 3, 0x23) && try_start_move_8_with_dir_slot04_16(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 4, 4) && try_start_move_6_with_dir_slot04_16(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 5, 0xd) && try_spend_meter_enter_state_7_action_2_slot04_16(obj)) return;
+    if ((u8)call_slot_stage_handler_a(obj, 6, 0xe) && (u8)try_spend_meter_enter_state_7_action_3_slot04_16(obj)) return;
+    if ((u8)is_input_masked_equal_to_one_of_two_patterns_a(obj) && try_start_move_4_with_dir_slot04_16(obj)) return;
+    if ((u8)is_input_masked_equal_to_one_of_two_patterns_b(obj)) try_start_move_5_slot04_16(obj);
 }
 
 u8 try_start_move_0_meter_cost_slot04_16(Object *obj) {
@@ -368,7 +368,7 @@ u8 try_start_move_0_meter_cost_slot04_16(Object *obj) {
                     }
                 }
             } else if (obj->field_7e == 0) {
-                if (func_801418bc(obj)) {
+                if (try_action_unless_state_bytes_match(obj)) {
                     r = 1;
                     obj->state_0 = 1;
                     obj->state_1 = 0;

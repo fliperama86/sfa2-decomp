@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int func_8014e718(Object *object)
+int is_other_state_one_with_boxes_and_code_zero(Object *object)
 {
   object = object->other;
   if (object->other_state_code == 0) {

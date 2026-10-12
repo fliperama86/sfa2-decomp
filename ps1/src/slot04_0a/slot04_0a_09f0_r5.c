@@ -23,7 +23,7 @@ int try_start_meter_move_type_a_slot04_0a(Object *obj) {
                     }
                 }
             } else if (obj->field_7e == 0) {
-                if ((u8)func_801418bc(obj)) {
+                if ((u8)try_action_unless_state_bytes_match(obj)) {
                     r = 1;
                     obj->state_0 = 1;
                     obj->state_1 = 0;

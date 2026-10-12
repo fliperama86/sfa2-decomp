@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1aa4_slot04_0a(Object *obj) {
+void update_sequence_or_start_next_at_end_slot04_0a(Object *obj) {
     if (((s16)obj->step_flags & 0x8000) == 0) {
         update_sequence(obj);
     } else {

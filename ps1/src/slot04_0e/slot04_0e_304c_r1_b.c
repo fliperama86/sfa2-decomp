@@ -8,8 +8,8 @@ extern ObjectFn data_801c606c_slot04_0e[];
 extern ObjectFn data_801c6074_slot04_0e[];
 
 int apply_velocity_and_check_ground(Object *object);
-void func_801428e4(Object *object);
-void func_80145d20(Object *object);
+void update_meter_by_mode_or_table(Object *object);
+void spawn_three_child_objects_at_object_spawn(Object *object);
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void spawn_children_per_direction_index(Object *object, int a, int b);
@@ -46,7 +46,7 @@ void start_hop_by_variant_at_sequence_end_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b3514_slot04_0e(Object *o) {
+void update_airborne_until_ground_then_land_sequence_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     if ((u8)apply_velocity_and_check_ground(o) == 0) {
@@ -71,11 +71,11 @@ void update_sequence_or_finish_sequence_2_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b35cc_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_9_slot04_0e(Object *obj) {
     data_801c6064_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b360c_slot04_0e(Object *obj) {
+void enter_next_state_add_meter_set_sequence_by_field_slot04_0e(Object *obj) {
     int a;
 
     obj->active_flag_4 = 1;
@@ -126,13 +126,13 @@ void update_or_launch_by_variant_bit_slot04_0e(Object *obj) {
     }
 }
 
-void func_801b377c_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_10_slot04_0e(Object *obj) {
     data_801c606c_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b37bc_slot04_0e(Object *obj) {
+void advance_state_apply_meter_seq_fifty_slot04_0e(Object *obj) {
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     set_sequence_by_side_and_mode(obj, 0x32);
 }
@@ -156,16 +156,16 @@ void update_sequence_check_mode_spawn_effect_slot04_0e(Object *o) {
     }
 }
 
-void func_801b38a4_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_11_slot04_0e(Object *obj) {
     data_801c6074_slot04_0e[obj->state_3](obj);
 }
 
-void func_801b38e4_slot04_0e(Object *obj) {
+void advance_state_spawn_seq_fifty_one_slot04_0e(Object *obj) {
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     if (((Slot04bObj *)obj)->field_1da == 0) {
-        func_80145d20(obj);
+        spawn_three_child_objects_at_object_spawn(obj);
     }
     set_sequence_by_side_and_mode(obj, 0x33);
 }

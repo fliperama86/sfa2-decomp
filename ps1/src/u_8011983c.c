@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8011983c(void) {
+void loop_init_state_and_load_game_state_from_table(void) {
     int z = 0;
     GameState *g = &game_state;
     Tune2a *t = &table_8016e664;
@@ -17,7 +17,7 @@ void func_8011983c(void) {
         case 0:
             data_8019093c = z;
             data_80190940 = z;
-            func_8011eb14();
+            clear_players_arrays_state_and_init_pools();
             init_sprite_tables();
             load_images_to_vram();
             if (*(int *)0x1f800000 == 0) {

@@ -25,7 +25,7 @@ void update_slot_stage_pressed_bits_any_match(Object *object, u8 index, u8 arg)
     mask = object->pressed_bits & mask;
     if ((mask == new_var) || ((mask & new_var2) == new_var))
     {
-      func_8013f2c8(object);
+      clear_global_flag_ignoring_object(object);
     }
     else
       if (entry & 1)

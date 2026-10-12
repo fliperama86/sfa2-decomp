@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b1458_slot04_06(Object *o) {
+void start_sequence_adding_meter_5_slot04_06(Object *o) {
     Slot04aObj *obj = (Slot04aObj *)o;
 
     obj->countdown_2 = 0;

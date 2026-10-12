@@ -5,7 +5,7 @@
 
 extern ObjectRef data_80051890_slot28;
 extern ObjectRef data_800518c8_slot28;
-void func_8001581c_slot28(Object *obj, int arg);
+void set_sequence_of_fourth_hud_object_2_slot28(Object *obj, int arg);
 
 void advance_pass_when_object_field_negative_slot28(Object *obj) {
     Object *p;
@@ -16,7 +16,7 @@ void advance_pass_when_object_field_negative_slot28(Object *obj) {
             h->pass_index = h->pass_index + 1;
             p = data_80051890_slot28.p;
             p->variant_index = 0xff;
-            func_8001581c_slot28(obj, 3);
+            set_sequence_of_fourth_hud_object_2_slot28(obj, 3);
         }
     }
 }

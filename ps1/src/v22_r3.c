@@ -17,11 +17,11 @@ void update_player_inputs_and_pick_handler(void) {
         player_right.input_bits_2 = data_801a6972;
         player_left.input_word = data_801a6966;
         player_right.input_word = data_801a6972;
-        func_80128c48();
+        update_saved_facing_for_both_players();
         if (player_left.status_flag == 0xff) {
             update_both_players();
         } else if (player_right.status_flag == 0xff) {
-            func_80128e7c();
+            update_input_and_timers_for_both_players();
         } else if ((player_left.field_165 & player_right.field_165) == 0) {
             if (player_left.field_165 != 0) {
                 update_player_left_object();

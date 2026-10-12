@@ -6,7 +6,7 @@
 void call_handler_by_input_dir_0_2_slot04_01(Object *obj);
 void start_or_continue_move_by_state_3_slot04_01(Object *obj);
 void update_state_3_check_range_or_continue_slot04_01(Object *obj);
-void func_801b0458_slot04_01(Object *obj);
+void call_state_3_table_then_play_step_flags_sound_slot04_01(Object *obj);
 
 void call_handler_by_input_dir_0_slot04_01(Object *obj) {
     if (obj->input_dir_0 == 0) {
@@ -21,6 +21,6 @@ void call_handler_by_input_dir_0_2_slot04_01(Object *obj) {
     if (obj->input_dir_second == 0) {
         update_state_3_check_range_or_continue_slot04_01(obj);
     } else {
-        func_801b0458_slot04_01(obj);
+        call_state_3_table_then_play_step_flags_sound_slot04_01(obj);
     }
 }

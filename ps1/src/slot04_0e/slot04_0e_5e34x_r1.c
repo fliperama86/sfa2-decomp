@@ -17,7 +17,7 @@ extern s32 data_801c6198_slot04_0e[];
    table (index variant_index / 2) gives field_47, two word tables (index
    variant_index) give the velocity words vel_x and accel_x, both negated
    when facing_side is not 0. It then selects the sequence 0x27 + variant_index / 2. */
-void func_801b5e34_slot04_0e(Object *o) {
+void set_variant_velocity_start_sequence_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     u8 i;
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */

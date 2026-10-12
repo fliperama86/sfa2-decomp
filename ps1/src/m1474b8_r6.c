@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80148d48(Object *object) {
+void update_object_with_x_wobble_until_sequence_ends(Object *object) {
     if ((s16)object->step_flags < 0) {
         object->state_0 = object->state_0 + 1;
     } else {

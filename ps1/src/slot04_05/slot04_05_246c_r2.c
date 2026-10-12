@@ -3,11 +3,11 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b26c8_slot04_05(Object *obj) {
+void start_backward_hop_by_facing_slot04_05(Object *obj) {
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
-    func_80145d20(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
     if (obj->facing_side == 0) {
         obj->vel_x = 0xfffb0000;
     } else {

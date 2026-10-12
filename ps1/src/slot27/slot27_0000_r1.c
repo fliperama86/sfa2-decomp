@@ -7,7 +7,7 @@ extern void (*data_80017bc4_slot27[])(void);
 extern void (*data_80017bdc_slot27[])(void);
 extern u8 data_80029324_slot27;
 
-void func_80010000_slot27(void) {
+void call_substep_handler_and_update_blocks_once_slot27(void) {
     int one;
     data_80017bc4_slot27[data_8018f5a0->substep_index]();
     one = 1;
@@ -16,7 +16,7 @@ void func_80010000_slot27(void) {
     call_active_block_handlers();
     if (data_80029324_slot27 != 0 && game_state.setup_done_flag == 0) {
         update_active_slab172_entries();
-        func_8011b678();
+        call_block_update_for_enabled_entries();
         game_state.setup_done_flag = one;
     }
     queue_player_status_text_items();

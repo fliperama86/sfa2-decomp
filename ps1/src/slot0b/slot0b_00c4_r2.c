@@ -25,7 +25,7 @@ void unlink_from_parent_list_and_release_slot0b(Object *obj) {
         }
         p++;
     }
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }
 
 void load_velocities_from_table_slot0b(Object *obj) {

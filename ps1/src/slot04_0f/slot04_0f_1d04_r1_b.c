@@ -59,6 +59,6 @@ void queue_16_word_row_upload_job_slot04_0f(Object *o, u16 *src) {
     }
 }
 
-void func_801b244c_slot04_0f(Object *obj) {
+void call_table_function_by_state_3_7_slot04_0f(Object *obj) {
     data_801c5aec_slot04_0f[obj->state_3](obj);
 }

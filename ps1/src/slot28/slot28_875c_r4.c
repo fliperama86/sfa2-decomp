@@ -6,7 +6,7 @@
 extern ObjectRef data_8005198c_slot28;
 void scroll_two_objects_x_with_wrap_slot28(Object *obj);
 
-void func_80018dec_slot28(Object *obj) {
+void scroll_then_fade_and_advance_pass_on_flag_slot28(Object *obj) {
     scroll_two_objects_x_with_wrap_slot28(obj);
     if ((s16)data_8005198c_slot28.p->step_flags < 0) {
         data_8018f5a0->pass_index += 1;

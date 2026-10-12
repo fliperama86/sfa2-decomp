@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2f40_slot04_01(Object *obj) {
+void init_horizontal_move_with_fixed_sequence_slot04_01(Object *obj) {
     obj->state_3++;
     obj->pos_y_frac = 0;
     obj->active_flag_4 = 1;
@@ -32,7 +32,7 @@ void update_sequence_step_shift_x_and_move_slot04_01(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
 }
 
-void func_801b3030_slot04_01(Object *obj) {
+void update_sequence_then_launch_on_step_flag_slot04_01(Object *obj) {
     update_sequence(obj);
     if ((u8)obj->step_flags != 0) {
         obj->vel_y = 0x30000;

@@ -40,6 +40,6 @@ void init_projectile_from_parent_slot04_01(Object *obj) {
     } else {
         ((Slot04aObj *)obj)->scratchpad_value = *(int *)0x1f800158;
     }
-    func_80138070(obj, obj->vel_table_index >> 1);
+    set_sequence_by_sound_side(obj, obj->vel_table_index >> 1);
     call_handler_by_state_1_slot04_01(obj);
 }

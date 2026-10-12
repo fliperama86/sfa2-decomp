@@ -16,8 +16,8 @@ void call_handler_by_substate_index_slot04_03(Object *obj) {
 
 void func_801b17d0_slot04_03(Object *obj) {
     obj->substate_index++;
-    func_80145d20(obj);
-    func_801428e4(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x3b);
 }

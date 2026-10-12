@@ -14,7 +14,7 @@ void check_input_match_or_advance_slot_stage(Object *object, int index, int arg)
     } else {
         if ((theirs & mine) == 0) goto other;
     }
-    func_8013f2c8(object);
+    clear_global_flag_ignoring_object(object);
     return;
 other:
     object->slots[(u8)index].stage++;

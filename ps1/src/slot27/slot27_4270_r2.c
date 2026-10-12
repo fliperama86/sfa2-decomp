@@ -13,7 +13,7 @@ void call_handler_by_state_0_3_slot27(Object *obj) {
     data_80027c6c_slot27[obj->state_0](obj);
 }
 
-void func_800143ec_slot27(Object *obj) {
+void advance_state_0_and_init_table_entry_sequence_slot27(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
     init_object_from_table_index_entry_slot27(obj);
     set_sequence_from_table_index_slot27(obj);

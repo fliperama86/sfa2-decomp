@@ -14,7 +14,7 @@ void set_variant_and_sequence_from_table_slot2b(Object *o, u8 a) {
     set_sequence_entry(o, data_8007eb48_slot2b[a]);
 }
 
-void func_800787c8_slot2b(Object *o) {
+void call_handler_by_state_0_with_parent_saved_2_slot2b(Object *o) {
     data_8007ef34_slot2b = o->parent;
     data_8007ed98_slot2b[o->state_0](o);
 }

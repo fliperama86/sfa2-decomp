@@ -25,9 +25,9 @@ void call_state_2_handler_2684_unless_paused(Object *obj);
 void call_state_2_handler_268c_unless_paused(Object *obj);
 void call_handler_2694_by_state_2(Object *obj);
 void reset_and_push_block_object_type_8(Slab172 *o);
-void func_8011ffdc(Object *o);
+void clear_or_set_flag_by_pos_x_limit(Object *o);
 
-void func_801b4efc_slot04_0f(Object *obj) {
+void update_moving_object_halving_velocity_on_flag_slot04_0f(Object *obj) {
     Config *config = game_state.config;
     u16 t;
 
@@ -51,14 +51,14 @@ void func_801b4efc_slot04_0f(Object *obj) {
         *(s32 *)&obj->pos_y_frac -= obj->vel_y;
         set_state_0_if_x_outside_margin_narrow(obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_801b4fd0_slot04_0f(Object *obj) {
+void call_state_2_handler_267c_wrapper_slot04_0f(Object *obj) {
     call_state_2_handler_267c_unless_paused(obj);
 }
 
-void func_801b4ff0_slot04_0f(Object *obj) {
+void call_state_2_handler_2684_wrapper_slot04_0f(Object *obj) {
     call_state_2_handler_2684_unless_paused(obj);
 }
 
@@ -68,7 +68,7 @@ void call_handler_by_state_2_unless_paused_slot04_0f(Object *obj) {
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
         data_801c5e6c_slot04_0f[obj->state_2](obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void flip_facing_and_advance_state_2_slot04_0f(Object *o) {
@@ -90,7 +90,7 @@ void count_down_then_reverse_velocity_x_slot04_0f(Object *obj) {
         obj->vel_y = 0;
         obj->vel_x = -obj->vel_x;
         obj->accel_x = -obj->accel_x;
-        func_80138070(obj, obj->variant_index_2);
+        set_sequence_by_sound_side(obj, obj->variant_index_2);
     }
     advance_sequence_checked(obj);
 }
@@ -101,7 +101,7 @@ void call_handler_by_state_2_unless_paused_2_slot04_0f(Object *obj) {
     if ((config->pause_flag_a | config->pause_flag_b) == 0) {
         data_801c5e74_slot04_0f[obj->state_2](obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void flip_facing_and_advance_state_2_2_slot04_0f(Object *o) {
@@ -132,7 +132,7 @@ void count_down_then_set_velocity_from_tables_slot04_0f(Object *obj) {
             x = -x;
         }
         obj->vel_x = x;
-        func_80138070(obj, obj->variant_index_2);
+        set_sequence_by_sound_side(obj, obj->variant_index_2);
     } else {
         advance_sequence_checked(obj);
     }
@@ -140,13 +140,13 @@ void count_down_then_set_velocity_from_tables_slot04_0f(Object *obj) {
 
 void call_handler_by_state_1_then_offset_slot04_0f(Object *obj) {
     data_801c5e94_slot04_0f[obj->state_1](obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_801b5308_slot04_0f(Object *obj) {
+void advance_state_1_clear_parent_link_set_sequence_slot04_0f(Object *obj) {
     obj->state_1++;
     obj->parent->linked_object_3 = 0;
-    func_80138070(obj, 0xb);
+    set_sequence_by_sound_side(obj, 0xb);
 }
 
 void set_state_0_to_3_on_sequence_end_slot04_0f(Object *obj) {
@@ -216,28 +216,28 @@ void update_attached_object_follow_parent_slot04_0f(Object *obj) {
 go:
         set_state_0_if_x_outside_margin_narrow(obj);
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_801b55f8_slot04_0f(Object *obj) {
+void call_state_2_handler_267c_wrapper_2_slot04_0f(Object *obj) {
     call_state_2_handler_267c_unless_paused(obj);
 }
 
-void func_801b5618_slot04_0f(Object *obj) {
+void call_state_2_handler_2684_wrapper_2_slot04_0f(Object *obj) {
     call_state_2_handler_2684_unless_paused(obj);
 }
 
-void func_801b5638_slot04_0f(Object *obj) {
+void call_state_2_handler_268c_wrapper_slot04_0f(Object *obj) {
     call_state_2_handler_268c_unless_paused(obj);
 }
 
-void func_801b5658_slot04_0f(Object *obj) {
+void call_handler_2694_wrapper_slot04_0f(Object *obj) {
     call_handler_2694_by_state_2(obj);
 }
 
 void call_handler_by_state_1_then_offset_2_slot04_0f(Object *obj) {
     data_801c6088_slot04_0f[obj->state_1](obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void advance_state_1_call_6_or_7_slot04_0f(Object *obj) {
@@ -293,7 +293,7 @@ void func_801b5830_slot04_0f(Object *obj, int a) {
     if (obj->field_49 != 0) {
         a += 0x12;
     }
-    func_80138070(obj, a);
+    set_sequence_by_sound_side(obj, a);
 }
 
 void call_handler_by_state_0_with_parent_2_slot04_0f(Object *obj) {

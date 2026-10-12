@@ -44,7 +44,7 @@ void release_object_unlink_global_link_slot05_06(Object *o) {
     if ((s32)o == p->linked_object) {
         p->linked_object = 0;
     }
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }
 
 void clear_variant_index_slot05_06(Object *o) {

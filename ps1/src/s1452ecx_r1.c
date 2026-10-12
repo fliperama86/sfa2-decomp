@@ -18,7 +18,7 @@ void func_8015bfe8(Poly28 *quad, int flag);
  * coordinates from the low bits of the cell, and links the quad into a
  * list.
  */
-void func_801452ec(Object *object) {
+void draw_tilemap_as_textured_quads(Object *object) {
     Tilemap *m;
     int col;
     u8 lo;

@@ -36,7 +36,7 @@ void advance_sequence_next_state_on_loop_slot06_11(Object *obj) {
         obj->state_0 += 1;
     }
     advance_sequence_checked(obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void advance_sequence_flip_side_copy_parent_x_slot06_11(Object *obj) {
@@ -47,7 +47,7 @@ void advance_sequence_flip_side_copy_parent_x_slot06_11(Object *obj) {
     ref_other.p = obj->parent;
     obj->pos_x = (u16)ref_other.p->pos_x;
     advance_sequence_checked(obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void advance_sequence_and_flip_facing_side_slot06_11(Object *obj) {
@@ -56,7 +56,7 @@ void advance_sequence_and_flip_facing_side_slot06_11(Object *obj) {
     }
     obj->facing_side = obj->facing_side ^ 1;
     advance_sequence_checked(obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void advance_sequence_blink_by_frame_parity_slot06_11(Object *obj) {
@@ -65,7 +65,7 @@ void advance_sequence_blink_by_frame_parity_slot06_11(Object *obj) {
     }
     advance_sequence_checked(obj);
     if (((game_state.frame_counter + obj->facing_side) & 1) != 0) {
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else {
         obj->field_01 = 0;
     }

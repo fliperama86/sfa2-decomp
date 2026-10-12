@@ -16,10 +16,10 @@ void call_handler_by_state_1_table_a_slot06_01(Object *o) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         data_801ea940_slot06_01[o->state_1](o);
     }
-    func_8011ffdc(o);
+    clear_or_set_flag_by_pos_x_limit(o);
 }
 
-void func_801e97c4_slot06_01(Object *obj) {
+void count_down_then_call_handler_both_players_slot06_01(Object *obj) {
     count_down_random_start_sequence_slot06_01(obj);
     call_handler_for_both_players_slot06_01(obj);
 }

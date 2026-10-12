@@ -10,7 +10,7 @@ void func_8014886c(Block172 *block) {
     table_8017cd44[object->state_0](object);
 }
 
-void func_801488ac(Object *object) {
+void advance_state_0_place_at_parent_and_set_sequence(Object *object) {
     object->state_0 = object->state_0 + 1;
     place_object_at_parent_with_two_tables(object);
     set_sequence_by_variant_index_half(object);

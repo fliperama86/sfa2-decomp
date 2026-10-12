@@ -4,20 +4,20 @@
 #include "externs.h"
 
 void update_bar_entry_and_add_prim(Object *object);
-void func_801452ec(Object *object);
+void draw_tilemap_as_textured_quads(Object *object);
 
 /* What it does (inferred, not an original name): updates the 40 records of the table data_801a89f4 (172 bytes each),
  * one by one, using the byte data_8019045c as the loop counter (it is 40 when the function ends). A record is skipped
  * unless its active_flag and enabled_flag are not 0. Then:
  *   - field_02 is 3, 0xb, 0x14, 0x27 or 0x6d and type_code is not 0x20: type 3, 0xb or 0x14 calls build_block_primitives, 0x6d
- *     calls update_bar_entry_and_add_prim, 0x27 with enabled_flag equal to 1 calls func_801452ec; 0x27 with another enabled_flag calls
- *     func_8011bc84. Each of these records is then done.
+ *     calls update_bar_entry_and_add_prim, 0x27 with enabled_flag equal to 1 calls draw_tilemap_as_textured_quads; 0x27 with another enabled_flag calls
+ *     reload_stream_cells_then_build_sprite_quads. Each of these records is then done.
  *   - otherwise, handler_gate equal to 4: when data_80190568 is not 0, the stage handler selected by game_state.kind_index
  *     (0 to 18) is called with the record (a value outside 0 to 18 calls none);
  *   - otherwise, field_02 equal to 0x16 or 0x18 with type_code equal to 0x20: the parts at offsets 0x28 and 0x2c, the
- *     record itself, and the parts at 0x30 and 0x34 are passed to func_8011bc84 in that order; a part is passed only
+ *     record itself, and the parts at 0x30 and 0x34 are passed to reload_stream_cells_then_build_sprite_quads in that order; a part is passed only
  *     when its pointer is not null and its enabled_flag is not 0, and gets the record's copied_byte first;
- *   - otherwise func_8011bc84 is called with the record.
+ *   - otherwise reload_stream_cells_then_build_sprite_quads is called with the record.
  */
 void draw_all_block172_entries(void) {
     u8 *z = (u8 *)data_8019045c;
@@ -48,9 +48,9 @@ void draw_all_block172_entries(void) {
                     } else if (data_801a89f4[idx].field_02 == 0x6d) {
                         update_bar_entry_and_add_prim((Object *)(((u8 *)data_801a89f4) + off));
                     } else if ((data_801a89f4[idx].field_02 == 0x27) && (data_801a89f4[idx].enabled_flag == 1)) {
-                        func_801452ec((Object *)(((u8 *)data_801a89f4) + off));
+                        draw_tilemap_as_textured_quads((Object *)(((u8 *)data_801a89f4) + off));
                     } else {
-                        func_8011bc84(&data_801a89f4[*(u8 *)data_8019045c]);
+                        reload_stream_cells_then_build_sprite_quads(&data_801a89f4[*(u8 *)data_8019045c]);
                     }
                     goto next;
                 }
@@ -121,26 +121,26 @@ void draw_all_block172_entries(void) {
                 q = (Slab172 *)data_801a89f4[*i].linked_entry_0;
                 if ((q != 0) && (q->enabled_flag != 0)) {
                     q->copied_byte = data_801a89f4[*i].copied_byte;
-                    func_8011bc84(q);
+                    reload_stream_cells_then_build_sprite_quads(q);
                 }
                 q = (Slab172 *)data_801a89f4[*(u8 *)data_8019045c].linked_entry_1;
                 if ((q != 0) && (q->enabled_flag != 0)) {
                     q->copied_byte = data_801a89f4[*(u8 *)data_8019045c].copied_byte;
-                    func_8011bc84(q);
+                    reload_stream_cells_then_build_sprite_quads(q);
                 }
-                func_8011bc84(&data_801a89f4[*i]);
+                reload_stream_cells_then_build_sprite_quads(&data_801a89f4[*i]);
                 q = (Slab172 *)data_801a89f4[*i].linked_entry_2;
                 if ((q != 0) && (q->enabled_flag != 0)) {
                     q->copied_byte = data_801a89f4[*i].copied_byte;
-                    func_8011bc84(q);
+                    reload_stream_cells_then_build_sprite_quads(q);
                 }
                 q = (Slab172 *)data_801a89f4[*(u8 *)data_8019045c].linked_entry_3;
                 if ((q != 0) && (q->enabled_flag != 0)) {
                     q->copied_byte = data_801a89f4[*(u8 *)data_8019045c].copied_byte;
-                    func_8011bc84(q);
+                    reload_stream_cells_then_build_sprite_quads(q);
                 }
             } else {
-                func_8011bc84(&data_801a89f4[*(u8 *)data_8019045c]);
+                reload_stream_cells_then_build_sprite_quads(&data_801a89f4[*(u8 *)data_8019045c]);
             }
         }
     next:

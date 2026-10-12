@@ -15,7 +15,7 @@ void set_layer_flags_and_timer_from_table_slot06_04(Slot06Layer *layer) {
     layer->countdown_timer = (s16)data_801e9ce0_slot06_04[layer->table_index + 1];
 }
 
-void func_801e9418_slot06_04(Slot06Layer *layer) {
+void set_layer_tile_map_param_640c_width_scale_slot06_04(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ed348_slot06_04;
     layer->data_table = data_801ed348_slot06_04;
     layer->packed_param = 0x640c;

@@ -20,91 +20,91 @@ void set_pair_hit_states_and_play_sound(Object *a, Object *b) {
     spawn_effect_at_other_offset(a, 2, -0x40, 0x51);
 }
 
-int func_8013cac8(Object *object, u8 a, u8 b) {
-    u8 r = func_8013de2c(object, a, b);
+int call_slot_stage_handler_a(Object *object, u8 a, u8 b) {
+    u8 r = call_slot_stage_handler_in_second_table(object, a, b);
     return r;
 }
 
-int func_8013caf0(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d06c(object) && func_8013d038(object)) ? func_8013de2c(object, a, b) : reset_slot_stage_and_count(object, a);
+int call_slot_stage_if_both_dir_pairs_ok(Object *object, u8 a, u8 b) {
+    u8 r = (is_not_both_0c_bits_in_input(object) && is_not_both_30_bits_in_input(object)) ? call_slot_stage_handler_in_second_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013cb70(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d004(object)) ? func_8013de2c(object, a, b) : reset_slot_stage_and_count(object, a);
+    u8 r = (is_not_both_c0_bits_in_input(object)) ? call_slot_stage_handler_in_second_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013cbdc(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d038(object)) ? func_8013de2c(object, a, b) : reset_slot_stage_and_count(object, a);
+    u8 r = (is_not_both_30_bits_in_input(object)) ? call_slot_stage_handler_in_second_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013cc48(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d06c(object)) ? func_8013de2c(object, a, b) : reset_slot_stage_and_count(object, a);
+    u8 r = (is_not_both_0c_bits_in_input(object)) ? call_slot_stage_handler_in_second_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
-u8 func_8013ccb4(Object *object, u8 a, u8 b) {
-    return func_8013d4cc(object, a, b);
+u8 call_slot_stage_handler_b(Object *object, u8 a, u8 b) {
+    return call_slot_stage_handler_in_first_table_2(object, a, b);
 }
 
-u8 func_8013ccdc(Object *object, u8 a, u8 b) {
-    return (func_8013d06c(object) && func_8013d038(object)) ? func_8013d4cc(object, a, b) : reset_slot_stage_and_count(object, a);
+u8 call_slot_stage_d4cc_if_both_dir_pairs_ok(Object *object, u8 a, u8 b) {
+    return (is_not_both_0c_bits_in_input(object) && is_not_both_30_bits_in_input(object)) ? call_slot_stage_handler_in_first_table_2(object, a, b) : reset_slot_stage_and_count(object, a);
 }
 
 u8 func_8013cd5c(Object *object, u8 a, u8 b) {
-    return (func_8013d004(object)) ? func_8013d4cc(object, a, b) : reset_slot_stage_and_count(object, a);
+    return (is_not_both_c0_bits_in_input(object)) ? call_slot_stage_handler_in_first_table_2(object, a, b) : reset_slot_stage_and_count(object, a);
 }
 
-int func_8013cdc8(Object *object, u8 a, u8 b) {
-    u8 r = func_8013e574(object, a, b);
+int call_slot_stage_handler_a_2(Object *object, u8 a, u8 b) {
+    u8 r = call_slot_stage_handler_in_third_table(object, a, b);
     return r;
 }
 
 int func_8013cdf0(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d004(object)) ? func_8013e574(object, a, b) : reset_slot_stage_and_count(object, a);
+    u8 r = (is_not_both_c0_bits_in_input(object)) ? call_slot_stage_handler_in_third_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013ce5c(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d038(object)) ? func_8013e574(object, a, b) : reset_slot_stage_and_count(object, a);
+    u8 r = (is_not_both_30_bits_in_input(object)) ? call_slot_stage_handler_in_third_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
 int func_8013cec8(Object *object, u8 a, u8 b) {
-    u8 r = (func_8013d06c(object)) ? func_8013e574(object, a, b) : reset_slot_stage_and_count(object, a);
+    u8 r = (is_not_both_0c_bits_in_input(object)) ? call_slot_stage_handler_in_third_table(object, a, b) : reset_slot_stage_and_count(object, a);
     return r;
 }
 
-u8 func_8013cf34(Object *object, u8 a, u8 b) {
-    return (func_8013d038(object) && func_8013d06c(object)) ? func_8013e574(object, a, b) : reset_slot_stage_and_count(object, a);
+u8 call_slot_stage_d4cc_if_both_dir_pairs_ok_2(Object *object, u8 a, u8 b) {
+    return (is_not_both_30_bits_in_input(object) && is_not_both_0c_bits_in_input(object)) ? call_slot_stage_handler_in_third_table(object, a, b) : reset_slot_stage_and_count(object, a);
 }
 
-u8 func_8013cfb4(Object *object, u8 a, u8 b) {
-    return func_8013ead4(object, a, b);
+u8 call_slot_stage_handler_b_2(Object *object, u8 a, u8 b) {
+    return call_slot_stage_handler_in_fourth_table(object, a, b);
 }
 
-int func_8013cfdc(Object *object, u8 a, u8 b) {
-    u8 r = func_8013ee80(object, a, b);
+int call_slot_stage_handler_a_3(Object *object, u8 a, u8 b) {
+    u8 r = call_slot_stage_handler_in_fourth_table_2(object, a, b);
     return r;
 }
 
-u8 func_8013d004(Object *object) {
+u8 is_not_both_c0_bits_in_input(Object *object) {
     if (object->field_d8 != 0) {
         return ((object->pressed_bits | object->released_bits) & 0xc0) != 0xc0;
     }
     return 1;
 }
 
-u8 func_8013d038(Object *object) {
+u8 is_not_both_30_bits_in_input(Object *object) {
     if (object->field_d8 != 0) {
         return ((object->pressed_bits | object->released_bits) & 0x30) != 0x30;
     }
     return 1;
 }
 
-u8 func_8013d06c(Object *object) {
+u8 is_not_both_0c_bits_in_input(Object *object) {
     if (object->field_d8 != 0) {
         return ((object->pressed_bits | object->released_bits) & 0xc) != 0xc;
     }

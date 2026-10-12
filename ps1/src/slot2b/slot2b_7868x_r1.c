@@ -3,10 +3,10 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80077908_slot2b(Object *obj);
+void halve_vel_x_add_meter_set_sequence_slot2b(Object *obj);
 
 /* What it does (inferred, not an original name): sets state_3 to 3 and
-   active_flag_3 to 1. When attack_param_d is not 0 it calls func_80077908_slot2b
+   active_flag_3 to 1. When attack_param_d is not 0 it calls halve_vel_x_add_meter_set_sequence_slot2b
    and ends. Otherwise it takes half of direction_index, passes it to
    add_to_meter_clamped, and then calls set_sequence_by_side_and_mode with that half plus a base,
    0xc when variant_index is 0 and 0x12 otherwise, plus 3 when input_dir_second is not
@@ -20,7 +20,7 @@ void set_state_3_and_start_direction_sequence_slot2b(Object *obj) {
     obj->state_3 = 3;
     obj->active_flag_3 = 1;
     if (obj->attack_param_d != 0) {
-        func_80077908_slot2b(obj);
+        halve_vel_x_add_meter_set_sequence_slot2b(obj);
     } else {
         t = obj->direction_index >> 1;
         half = t;

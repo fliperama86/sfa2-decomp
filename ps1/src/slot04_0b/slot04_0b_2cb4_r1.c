@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2cb4_slot04_0b(Object *obj) {
+void spawn_linked_pooled_object_on_step_flag_2_slot04_0b(Object *obj) {
     Object *p;
     u16 t;
     s16 y;
@@ -43,7 +43,7 @@ void func_801b2cb4_slot04_0b(Object *obj) {
     }
 }
 
-void func_801b2df0_slot04_0b(Object *obj) {
+void reset_object_on_high_flag_byte_else_update_slot04_0b(Object *obj) {
     if ((s16)obj->step_flags & 0xff00) {
         reset_object_to_state_1_0_sequence_0(obj);
     } else {

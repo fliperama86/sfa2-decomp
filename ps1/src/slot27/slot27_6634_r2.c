@@ -8,10 +8,10 @@ extern ObjectFn data_80028e68_slot27[];
 extern Slot27Recb380 data_8002b380_slot27;
 
 void load_velocities_from_table_slot27(Object *obj) {
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
-void func_800167b0_slot27(Object *obj) {
+void release_object_to_pool_table_10_slot27(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }
 

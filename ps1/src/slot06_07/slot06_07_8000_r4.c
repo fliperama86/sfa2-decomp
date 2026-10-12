@@ -12,7 +12,7 @@ extern u16 data_80190542;
 void func_8015c09c(void *prim);
 void init_draw_mode_prim_4(Tx *tx);
 
-void func_801e91dc_slot06_07(Slot06Layer *layer) {
+void set_layer_tile_map_param_580e_width_scale_slot06_07(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ebed0_slot06_07;
     layer->data_table = data_801ebed0_slot06_07;
     layer->packed_param = 0x580e;
@@ -67,7 +67,7 @@ void update_layer_follow_main_layer_half_slot06_07(Slot06Layer *layer) {
     }
 }
 
-void func_801e9378_slot06_07(Slot06Layer *layer) {
+void set_layer_tile_map_param_6808_width_scale_slot06_07(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eced0_slot06_07;
     layer->data_table = data_801eced0_slot06_07;
     layer->packed_param = 0x6808;
@@ -75,7 +75,7 @@ void func_801e9378_slot06_07(Slot06Layer *layer) {
     layer->scale = 0x100;
 }
 
-void func_801e93a4_slot06_07(void) {
+void init_two_banks_of_81_gray_32x32_sprite_prims_slot06_07(void) {
     Slot06TileW *p;
     int i;
     int k;

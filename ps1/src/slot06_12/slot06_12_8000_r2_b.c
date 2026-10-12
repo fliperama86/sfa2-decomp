@@ -20,7 +20,7 @@ void load_layer_timer_and_flags_from_tables_slot06_12(Slot06Layer *layer) {
     layer->flags_bits = data_801e9eaa_slot06_12[k];
 }
 
-void func_801e8778_slot06_12(Slot06Layer *layer) {
+void set_layer_tile_map_and_rect_params_slot06_12(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801eb52c_slot06_12;
     layer->data_table = data_801eb52c_slot06_12;
     layer->packed_param = 0x580e;

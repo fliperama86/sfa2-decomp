@@ -5,7 +5,7 @@
 
 void set_accel_and_countdown_from_tables_slot06_09(Object *obj);
 
-void func_801e9bd0_slot06_09(Object *o) {
+void update_object_countdown_and_layer_position_slot06_09(Object *o) {
     Slot06Layer *l2 = (Slot06Layer *)data_801aa5d4;
     Slot06Obj *p;
     s16 d;

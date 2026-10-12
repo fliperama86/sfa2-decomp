@@ -27,5 +27,5 @@ void queue_bcd_value_texts(void) {
     add_item_to_table(&data_8018178c);
 }
 
-void func_80156390(void) {
+void noop_empty_function_17(void) {
 }

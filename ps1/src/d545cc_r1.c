@@ -15,7 +15,7 @@
  * else 0x1d), and marks the cursor entries of the other tables (0x14 current,
  * 0x1a and 0x1b others).
  */
-void func_801545cc(void) {
+void init_selection_tables_and_advance_pass(void) {
     GameState *g = &game_state;
     u8 i;
     u8 id;

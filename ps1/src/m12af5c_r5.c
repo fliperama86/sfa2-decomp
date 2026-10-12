@@ -4,10 +4,10 @@
 #include "protos.h"
 
 
-void func_8012c7b4(Object *object) {
+void select_sequence_by_action_timer_and_active_state(Object *object) {
     int index;
     if (object->action_timer != 0) {
-        func_8012c92c(object);
+        init_fixed_sequence_c_and_clear_counters(object);
         return;
     }
     object->facing_side = object->saved_facing;
@@ -23,7 +23,7 @@ void func_8012c7b4(Object *object) {
     object->field_60 = 1;
     object->countdown = 0;
     if (object->mode_flag_2 != 0) {
-        func_8012c89c(object);
+        set_sequence_c_or_e_by_other_field_flag(object);
         return;
     }
     index = 0xe;

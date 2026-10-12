@@ -6,10 +6,10 @@
 
 void set_state_2_7_and_sequence_d(Object *object) {
     object->state_2 = 7;
-    func_80144ee4(object, 0xd);
+    set_sequence_from_effect_table(object, 0xd);
 }
 
-void func_801444b4(Object *object) {
+void advance_state_2_on_step_flag_with_sound_c(Object *object) {
     if (*(u8 *)&object->step_flags != 0) {
         object->state_2 = object->state_2 + 1;
         object->step_flags = object->step_flags & 0xff00;

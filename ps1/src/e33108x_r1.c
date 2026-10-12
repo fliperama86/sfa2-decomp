@@ -115,7 +115,7 @@ void fill_meter_segments_for_both_objects(u8 *base, Object *left, Object *right)
   }
   if (data_80171c5e != 0)
   {
-    func_801340e4(base, j);
+    set_three_byte_triples_in_first_group_row(base, j);
   }
   if (left->field_d8 != 0)
   {
@@ -186,7 +186,7 @@ void fill_meter_segments_for_both_objects(u8 *base, Object *left, Object *right)
   }
   if (data_80171c5f != 0)
   {
-    func_8013411c(base, j);
+    set_three_byte_triples_in_second_group_row(base, j);
   }
   if (right->field_d8 != 0)
   {

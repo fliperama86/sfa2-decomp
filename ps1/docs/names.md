@@ -142,8 +142,10 @@ are asked for a plain name that says what the code does where the code does not 
 readings give different names, a third call that sees both names and the sentence picks one or neither. Such
 a name says what the code does and claims nothing about what the game uses the function for. A name still has
 to pass fixed rules: no empty verb such as `handle_`, no placeholder with its offset or address in it, and no
-word that the tree already uses. Functions of one image that got the same name are numbered in address order
-(`_2` to `_9`; where more than nine got it, none takes it). A function of a module keeps the suffix of its
+word that the tree already uses. A function whose names were refused is read once more, and is told which
+names were refused and why. Functions of one image that got the same name are numbered in address order
+(`_2` to `_9`; where more than nine different functions got it, none takes it; copies of one function, the
+same text but for placeholders, are numbered up to `_99`). A function of a module keeps the suffix of its
 image, look-alike functions share one name, and a function inside Sony's library gets none: there the real
 name is to be found. A function without a name there keeps `func_` and its address.
 

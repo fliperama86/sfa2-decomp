@@ -38,7 +38,7 @@ int is_linked_object_3_null_slot04_0d(Object *obj) {
     return obj->linked_object_3 == 0;
 }
 
-int func_801b11ac_slot04_0d(Object *obj) {
+int is_meter_at_least_threshold_slot04_0d(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
@@ -58,11 +58,11 @@ void func_801b1214_slot04_0d(Object *obj) {
     data_801c29d0_slot04_0d[obj->field_15a](obj);
 }
 
-void func_801b1254_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_4_slot04_0d(Object *obj) {
     data_801c29f8_slot04_0d[obj->state_3](obj);
 }
 
-void func_801b1294_slot04_0d(Object *o) {
+void update_sequence_chain_next_table_sequence_slot04_0d(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
 
     update_sequence(o);
@@ -93,7 +93,7 @@ void advance_state_3_start_table_sequence_slot04_0d(Object *o) {
     set_sequence_by_side_and_mode(o, (u8)(t + 0x2b));
 }
 
-void func_801b13b4_slot04_0d(Object *obj) {
+void call_table_function_by_state_3_5_slot04_0d(Object *obj) {
     data_801c2a08_slot04_0d[obj->state_3](obj);
 }
 

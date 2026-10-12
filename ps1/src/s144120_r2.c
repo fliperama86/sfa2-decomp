@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80144364(Object *object) {
+void advance_state_2_on_step_flag_with_sound_b(Object *object) {
     if (*(u8 *)&object->step_flags != 0) {
         object->state_2 = object->state_2 + 1;
         object->step_flags = object->step_flags & 0xff00;

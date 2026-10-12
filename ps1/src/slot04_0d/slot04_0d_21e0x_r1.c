@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b21e0_slot04_0d(Object *obj) {
+void update_airborne_arc_until_landing_sequence_slot04_0d(Object *obj) {
     s32 a;
 
     *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac + obj->vel_y;

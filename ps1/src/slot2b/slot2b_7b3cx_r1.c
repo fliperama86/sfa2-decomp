@@ -6,9 +6,9 @@
 extern ObjectFn data_80079938_slot2b[];
 extern s16 data_8007ef24_slot2b;
 
-void func_80077b3c_slot2b(Object *obj) {
+void move_object_with_ground_limit_and_overlap_check_slot2b(Object *obj) {
     if ((game_state.field_65 | game_state.field_a8) != 0) {
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
         return;
     }
     if ((is_box_overlapping_other_player(obj) & 0xff) == 0) {
@@ -30,5 +30,5 @@ move:
     }
     advance_sequence_checked(obj);
     set_state_0_if_x_outside_margin_narrow(obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }

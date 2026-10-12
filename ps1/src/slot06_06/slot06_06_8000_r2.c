@@ -32,7 +32,7 @@ void init_layer_tile_map_6000_with_rect_slot06_06(Slot06Layer *layer) {
     layer->field_1c = 0x80;
 }
 
-void func_801e8710_slot06_06(void) {
+void init_two_banks_75_tile_prims_gray_slot06_06(void) {
     int i;
     int j;
     Slot06Tile *r;

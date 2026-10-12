@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801369b0(Cam *cam);
+void init_cam_position_with_fixed_origin(Cam *cam);
 
 void update_layer_half_parallax_by_mode_slot06_03(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 
     if (layer->mode == 0) {
-        func_801369b0((Cam *)layer);
+        init_cam_position_with_fixed_origin((Cam *)layer);
     } else if (layer->mode == 1) {
         l2 = (Slot06Layer *)data_801aa5d4;
         d = l2->field_22;

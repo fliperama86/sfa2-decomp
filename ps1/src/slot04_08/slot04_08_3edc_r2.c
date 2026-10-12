@@ -3,14 +3,14 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b4180_slot04_08(Object *obj, Object *unused) {
+void enter_state_add_meter_start_sequence_19_sound_slot04_08(Object *obj, Object *unused) {
     obj->state_3++;
     add_to_meter_clamped(obj, 3);
     play_sound_at(obj, obj->side, 0x31a);
     set_sequence_by_side_and_mode(obj, 0x19);
 }
 
-void func_801b41d4_slot04_08(Object *obj, Object *unused) {
+void hit_other_when_step_flag_byte_set_slot04_08(Object *obj, Object *unused) {
     if (*(u8 *)&obj->step_flags != 0) {
         obj->state_3++;
         obj->step_flags = obj->step_flags & 0xff00;

@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_8012256c(GameState *state) {
+void advance_state_index_and_set_menu_command_by_kind(GameState *state) {
     Entity *entity = (Entity *)state;
     ((HudBig *)data_8018f5a0)->state_index++;
     entity->field_6c = 1;

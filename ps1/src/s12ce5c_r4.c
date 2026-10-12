@@ -21,7 +21,7 @@ void update_fall_and_land_second_variant(Object *object) {
     }
 }
 
-void func_8012d9b4(Object *object) {
+void count_down_then_advance_or_enter_state_1_6(Object *object) {
     object->countdown = (s16)object->countdown - 1;
     if ((s16)object->countdown != 0) {
         update_sequence(object);

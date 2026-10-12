@@ -3,18 +3,18 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80129b68(Object *object) {
+void count_down_object_byte_counter(Object *object) {
     if (object->field_292 != 0) object->field_292--;
 }
 
-void func_80129b90(Object *object) {
+void count_down_countdown_4(Object *object) {
     if (object->countdown_4 != 0) object->countdown_4--;
 }
 
-void func_80129bb8(Object *object) {
+void count_down_other_lock(Object *object) {
     if (object->other_lock != 0) object->other_lock--;
 }
 
-void func_80129be0(Object *object) {
+void count_down_countdown_4_2(Object *object) {
     if (object->countdown_4 != 0) object->countdown_4--;
 }

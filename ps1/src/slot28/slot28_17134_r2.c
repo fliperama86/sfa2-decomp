@@ -8,7 +8,7 @@ void set_random_sequence_from_table_slot28(Object *obj);
 void set_random_x_top_position_slot28(Object *obj);
 void init_random_vertical_motion_and_facing_slot28(Object *obj);
 
-void func_8002746c_slot28(Object *obj) {
+void init_random_motion_position_and_sequence_slot28(Object *obj) {
     obj->field_0f = 1;
     obj->state_0 = obj->state_0 + 1;
     init_random_vertical_motion_and_facing_slot28(obj);

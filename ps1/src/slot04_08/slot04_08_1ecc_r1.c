@@ -5,7 +5,7 @@
 
 extern u16 data_801c3c54_slot04_08[];
 
-void func_801b1ecc_slot04_08(Object *obj) {
+void deal_table_damage_on_step_flag_byte_slot04_08(Object *obj) {
     u16 t;
     int i;
     int m = -0x100;
@@ -14,7 +14,7 @@ void func_801b1ecc_slot04_08(Object *obj) {
         if ((t & 0x80) == 0) {
             obj->step_flags = t & 0xff00;
             game_state.state_param = 0x18;
-            func_80146960(obj);
+            spawn_two_effects_at_other_ground(obj);
             play_sound_at(obj, obj->side, 0x319);
         }
         obj->state_3++;

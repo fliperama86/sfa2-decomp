@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_8001f258_slot28(Object *obj) {
+void shift_pos_y_by_countdown_phase_and_step_state_slot28(Object *obj) {
     int d = -0x8000;
     int t;
     if (obj->variant_index != 0) {

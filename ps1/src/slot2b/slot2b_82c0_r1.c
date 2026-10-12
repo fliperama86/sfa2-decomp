@@ -17,6 +17,6 @@ void move_until_landing_then_start_sequence_5_slot2b(Object *o) {
         o->vel_y = 0;
         o->accel_y = 0;
         o->pos_y = data_8007ef2c_slot2b;
-        func_80138070(o, 5);
+        set_sequence_by_sound_side(o, 5);
     }
 }

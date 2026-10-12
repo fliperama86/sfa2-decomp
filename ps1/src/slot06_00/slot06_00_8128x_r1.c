@@ -5,7 +5,7 @@
 
 void init_sprite_at_1c0_zero(Sprite *sprite);
 
-void func_801e8128_slot06_00(Slot06Layer *layer) {
+void update_layer_follow_camera_scaled_three_quarter_slot06_00(Slot06Layer *layer) {
     Slot06Layer *l2;
     s16 d;
 

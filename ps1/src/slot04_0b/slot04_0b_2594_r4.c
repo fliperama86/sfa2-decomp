@@ -5,7 +5,7 @@
 
 u8 move_ballistic_and_check_ground_slot04_0b(Object *object);
 
-void func_801b2a1c_slot04_0b(Object *obj) {
+void move_until_ground_then_branch_landing_sequence_slot04_0b(Object *obj) {
     if (move_ballistic_and_check_ground_slot04_0b(obj)) {
         update_sequence(obj);
     } else {

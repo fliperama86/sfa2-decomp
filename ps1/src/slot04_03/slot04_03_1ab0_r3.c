@@ -5,15 +5,15 @@
 
 void func_801b1cfc_slot04_03(Object *obj) {
     obj->state_3++;
-    func_80145d20(obj);
-    func_801428e4(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     obj->vel_x = 0x60000;
     obj->accel_x = -0x8000;
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x32);
 }
 
-void func_801b1d70_slot04_03(Object *obj) {
+void spawn_children_on_step_flag_then_update_sequence_slot04_03(Object *obj) {
     if (obj->step_flags != 0) {
         obj->state_3++;
         if (obj->field_4b == 0) {

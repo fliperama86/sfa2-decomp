@@ -9,16 +9,16 @@ extern int data_80055f3c_slot01;
 extern s16 data_80055e9a_slot01;
 void advance_record_list_and_set_spawn_y_slot01(Object *obj);
 
-void func_80013da4_slot01(Object *obj) {
+void update_record_object_or_spawn_child_slot01(Object *obj) {
     Object *p;
     if (obj->field_60 != 0) {
         advance_sequence_checked(obj);
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else if (obj->state_1 != 0) {
         if (game_state.field_04 != 0) {
             obj->state_0++;
         }
-        func_8011ffdc(obj);
+        clear_or_set_flag_by_pos_x_limit(obj);
     } else if (data_80055e9a_slot01 < 0) {
         obj->state_1++;
         p = (Object *)pop_block_from_pool();

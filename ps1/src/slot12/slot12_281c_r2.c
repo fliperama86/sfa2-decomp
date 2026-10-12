@@ -29,6 +29,6 @@ void update_y_motion_with_countdown_slot12(Object *o) {
 void noop_slot00_3_slot12(Object *obj) {
 }
 
-void func_800129ec_slot12(Object *obj) {
+void release_object_to_pool_table_4_slot12(Object *obj) {
     reset_and_push_object_to_pool_table((Slab172 *)obj);
 }

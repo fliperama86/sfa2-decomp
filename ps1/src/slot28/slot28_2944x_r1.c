@@ -10,8 +10,8 @@ extern u8 data_80046d34_slot28[];
 extern SequenceStep *data_80047bdc_slot28[];
 extern SequenceStep *data_80047be4_slot28[];
 void copy_words_to_two_buffer_copies_slot28(Object *obj);
-void func_80022c3c_slot28(Object *obj, int arg);
-void func_80022c6c_slot28(Object *obj);
+void set_sequence_of_fourth_hud_object_14_slot28(Object *obj, int arg);
+void init_object_data_pointers_a_14_slot28(Object *obj);
 
 /* Sets up a scene of eleven objects (inferred). When the given object's
    field_f0 is 0 it sets the HUD state's countdown_timer to 600 and adds 1 to its
@@ -19,9 +19,9 @@ void func_80022c6c_slot28(Object *obj);
    data_80051bd0_slot28 (position y -0x60, field_01 1, sequence set with
    set_sequence_from_table_5). Then it asks pop_block_from_pool for nine objects; each one it
    gets is filled in and entered in the table data_80051ba4_slot28 at index 1
-   to 9. It asks for one more, sets it up with func_80022c6c_slot28 and
+   to 9. It asks for one more, sets it up with init_object_data_pointers_a_14_slot28 and
    set_sequence_from_table_5 and enters it at index 0. It calls start_fade_mode_1a01_and_wait,
-   set_menu_command_by_code (1, 0x504) and func_80022c3c_slot28 (the given object, 4). */
+   set_menu_command_by_code (1, 0x504) and set_sequence_of_fourth_hud_object_14_slot28 (the given object, 4). */
 void spawn_ten_objects_and_advance_pass_slot28(Object *obj)
 {
     Object *o;
@@ -69,7 +69,7 @@ void spawn_ten_objects_and_advance_pass_slot28(Object *obj)
         }
         o = (Object *)pop_block_from_pool();
         if (o != 0) {
-            func_80022c6c_slot28(o);
+            init_object_data_pointers_a_14_slot28(o);
             o->pos_x = 0xc8;
             o->pos_y = 0xa0;
             o->spawn_x = 0x60;
@@ -82,6 +82,6 @@ void spawn_ten_objects_and_advance_pass_slot28(Object *obj)
         }
         start_fade_mode_1a01_and_wait();
         set_menu_command_by_code(1, 0x504);
-        func_80022c3c_slot28(obj, 4);
+        set_sequence_of_fourth_hud_object_14_slot28(obj, 4);
     }
 }

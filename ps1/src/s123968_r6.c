@@ -5,7 +5,7 @@
 
 /* Aliases of player_left.field_b2 (read as u8) and player_right.field_b2 (read as s16); the member width differs. */
 
-Object *func_80125060(Object *object) {
+Object *get_player_by_mode_id(Object *object) {
     Object *result = &player_left;
     if (object->mode_id != 3) {
         if ((object->mode_id & 1) == 0) {

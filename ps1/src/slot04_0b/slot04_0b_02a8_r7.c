@@ -9,6 +9,6 @@ void load_velocities_from_table_2_slot04_0b(Object *obj) {
     update_sequence_with_input_check(obj);
 }
 
-void func_801b09c8_slot04_0b(Object *obj) {
+void call_table_function_by_state_3_5_slot04_0b(Object *obj) {
     data_801c24e8_slot04_0b[obj->state_3](obj);
 }

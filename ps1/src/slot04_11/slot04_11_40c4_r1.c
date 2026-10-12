@@ -20,7 +20,7 @@ void update_airborne_land_choose_sequence_slot04_11(Object *obj) {
         obj->active_state = 0;
         play_object_sound_by_kind(obj);
         c = game_state.config;
-        if ((c->mode_flag_b | c->mode_flag_c | c->mode_flag_a) == 0 && (u8)func_8012f56c(obj) == 0) {
+        if ((c->mode_flag_b | c->mode_flag_c | c->mode_flag_a) == 0 && (u8)is_other_object_state_0_and_1_six_one(obj) == 0) {
             obj->state_3++;
             set_sequence_by_side_and_mode(obj, 0x4c);
         } else {

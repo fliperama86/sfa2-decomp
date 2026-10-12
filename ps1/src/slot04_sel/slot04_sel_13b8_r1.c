@@ -15,7 +15,7 @@ extern u8 data_801b9ce8_slot04_sel;
 extern u8 data_801b9cec_slot04_sel;
 void func_801b1a8c_slot04_sel(Object *obj, Slot04SelRec *r, int c);
 
-void func_801b13b8_slot04_sel(Object *obj, Slot04SelRec *r) {
+void update_side_second_menu_cursor_and_confirm_slot04_sel(Object *obj, Slot04SelRec *r) {
     TextBuf *s3 = data_801b7618_slot04_sel[obj->side];
     TextItem *s2 = data_801b749c_slot04_sel[obj->side];
 

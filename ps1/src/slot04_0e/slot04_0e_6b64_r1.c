@@ -52,7 +52,7 @@ int is_vel_y_negative_slot04_0e(Object *obj) {
     return obj->vel_y < 0;
 }
 
-int func_801b6c74_slot04_0e(Object *o) {
+int tick_record_timer_set_countdown_by_range_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     Slot04_0eRec62b4 *rec = &data_801c62b4_slot04_0e[obj->field_a6];
     s16 x;
@@ -121,7 +121,7 @@ void set_countdown_c_from_param_value_slot04_0e(Object *o) {
     obj->field_1dd = 0;
 }
 
-void func_801b6e18_slot04_0e(Object *o) {
+void call_set_record_timer_from_table_random_slot04_0e(Object *o) {
     Slot04bObj *obj = (Slot04bObj *)o;
     set_record_timer_from_table_plus_random_slot04_0e(obj);
 }

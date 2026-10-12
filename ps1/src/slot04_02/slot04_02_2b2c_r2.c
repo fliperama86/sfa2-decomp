@@ -8,8 +8,8 @@ void init_state_3_set_code_2_and_velocity_slot04_02(Object *obj) {
     *(s32 *)&obj->vel_x = 0x80000;
     obj->accel_x = -0x8000;
     obj->state_3++;
-    func_80145d20(obj);
-    func_801428e4(obj);
+    spawn_three_child_objects_at_object_spawn(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x2a);
 }

@@ -3,8 +3,8 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b45a0_slot04_04(Object *obj);
-void func_801b4678_slot04_04(Object *obj);
+void call_by_state_3_zero_restore_facing_or_update_slot04_04(Object *obj);
+void call_table_function_by_state_3_13_slot04_04(Object *obj);
 
 void update_sequence_or_finish_on_flag_2_slot04_04(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
@@ -17,11 +17,11 @@ void update_sequence_or_finish_on_flag_2_slot04_04(Object *obj) {
     }
 }
 
-void func_801b4560_slot04_04(Object *obj) {
+void call_state_3_dispatch_by_input_dir_second_a_slot04_04(Object *obj) {
     obj->field_157 = 1;
     if (obj->input_dir_second != 0) {
-        func_801b4678_slot04_04(obj);
+        call_table_function_by_state_3_13_slot04_04(obj);
     } else {
-        func_801b45a0_slot04_04(obj);
+        call_by_state_3_zero_restore_facing_or_update_slot04_04(obj);
     }
 }

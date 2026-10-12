@@ -5,14 +5,14 @@
 
 extern SequenceStep **data_1f8000b4;
 extern SequenceStep **data_1f800164;
-void func_8011ffdc(Object *o);
+void clear_or_set_flag_by_pos_x_limit(Object *o);
 extern ObjectFn data_801c4ef8_slot04_12[];
 
 void set_sequence_and_tables_from_direction(Object *object);
-void func_801b4ba8_slot04_12(Object *obj);
+void enable_active_flag_3_and_select_sequence_slot04_12(Object *obj);
 int apply_velocity_and_accel_return_vel_y_slot04_12(Object *obj);
 
-void func_801b4ba8_slot04_12(Object *obj) {
+void enable_active_flag_3_and_select_sequence_slot04_12(Object *obj) {
     obj->active_flag_3 = 1;
     set_sequence_and_tables_from_direction(obj);
 }
@@ -70,7 +70,7 @@ void move_by_vel_x_until_offset_then_advance_slot04_12(Object *obj) {
     }
     advance_sequence_checked(obj);
     set_state_0_if_x_outside_margin_narrow(obj);
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }
 
 void release_object_record_2_slot04_12(Object *obj) {

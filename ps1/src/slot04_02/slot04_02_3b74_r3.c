@@ -11,7 +11,7 @@ void update_moving_countdown_hit_check_or_end_slot04_02(Object *o) {
     if ((o->countdown & 0xff) != 0) {
         *(s32 *)&o->pos_x_frac += o->vel_x;
         if (((o->bound_push_flag >> o->variant_index) & 1) == 0) {
-            if ((u8)func_8013f8c4(o, -0x10, 0x10) == 0) {
+            if ((u8)try_force_other_state_if_box_in_range(o, -0x10, 0x10) == 0) {
                 update_sequence(o);
             } else {
                 o->state_3++;

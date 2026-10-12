@@ -10,9 +10,9 @@ extern ObjectFn data_801c63a8_slot04_14[];
 
 void set_sequence_by_side(Object *object, int arg);
 void call_side_func_then_queue_job(Object *object);
-void func_80145d20(Object *object);
+void spawn_three_child_objects_at_object_spawn(Object *object);
 void spawn_three_child_objects(Object *object);
-void func_801428e4(Object *object);
+void update_meter_by_mode_or_table(Object *object);
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void spawn_child_object_with_offsets(Object *parent, int x, int y);
@@ -20,7 +20,7 @@ int apply_velocity_and_check_ground(Object *object);
 void move_x_until_slow_then_reset_slot04_14(Object *obj);
 void func_801b3654_slot04_14(Object *obj);
 
-void func_801b340c_slot04_14(Object *obj) {
+void start_slide_with_velocity_and_spawn_children_slot04_14(Object *obj) {
     int n;
 
     obj->active_flag_4 = 1;
@@ -95,17 +95,17 @@ void func_801b3654_slot04_14(Object *obj) {
     }
 }
 
-void func_801b3684_slot04_14(Object *obj) {
+void call_table_function_by_state_3_12_slot04_14(Object *obj) {
     data_801c6378_slot04_14[obj->state_3](obj);
 }
 
-void func_801b36c4_slot04_14(Object *obj) {
+void init_state_3_set_sequence_3c_by_direction_slot04_14(Object *obj) {
     obj->field_225 = 1;
     obj->state_3 = 1;
     if (obj->field_7e == 0) {
-        func_80145d20(obj);
+        spawn_three_child_objects_at_object_spawn(obj);
     }
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     set_sequence_by_side_and_mode(obj, (obj->direction_index >> 1) + 0x3c);
 }
@@ -183,7 +183,7 @@ void spawn_pooled_child_at_step_flag_one_slot04_14(Object *obj) {
     }
 }
 
-void func_801b3998_slot04_14(Object *obj) {
+void update_delayed_hop_arc_and_landing_slot04_14(Object *obj) {
     s16 t = obj->countdown;
     int n;
 
@@ -241,7 +241,7 @@ void update_airborne_until_landing_slot04_14(Object *obj) {
     }
 }
 
-void func_801b3b2c_slot04_14(Object *obj) {
+void call_table_function_by_state_3_13_slot04_14(Object *obj) {
     data_801c6398_slot04_14[obj->state_3](obj);
 }
 
@@ -309,6 +309,6 @@ void spawn_child_object_table_4_on_step_flag_slot04_14(Object *obj) {
     }
 }
 
-void func_801b3d78_slot04_14(Object *obj) {
+void call_table_function_by_state_3_14_slot04_14(Object *obj) {
     data_801c63a8_slot04_14[obj->state_3](obj);
 }

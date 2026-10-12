@@ -10,9 +10,9 @@
 #include "protos.h"
 
 
-void func_8014ec80(int a, int b) {
-    func_8014f3b8(1, a * 2);
-    func_8014f3b8(1, b * 2 | 1);
+void start_cd_track_pair_set_load_addresses(int a, int b) {
+    start_cd_track_wait_with_thread_switch(1, a * 2);
+    start_cd_track_wait_with_thread_switch(1, b * 2 | 1);
     data_801a27d8 = 0x80010000;
     if (a == b) {
         data_801a27dc = 0x80010000;
@@ -21,17 +21,17 @@ void func_8014ec80(int a, int b) {
     }
 }
 
-void func_8014ed04(void) {
-    func_8014f3b8(1, 0x2a);
+void load_cd_entry_and_reset_address_words_a(void) {
+    start_cd_track_wait_with_thread_switch(1, 0x2a);
     data_801a27d8 = data_801a27dc = 0x80010000;
 }
 
-void func_8014ed3c(void) {
-    func_8014f3b8(1, 0x2b);
+void load_cd_entry_and_reset_address_words_b(void) {
+    start_cd_track_wait_with_thread_switch(1, 0x2b);
     data_801a27d8 = data_801a27dc = 0x80010000;
 }
 
-void func_8014ed74(void) {
-    func_8014f3b8(1, 0x2c);
+void load_cd_entry_and_reset_address_words_c(void) {
+    start_cd_track_wait_with_thread_switch(1, 0x2c);
     data_801a27d8 = data_801a27dc = 0x80010000;
 }

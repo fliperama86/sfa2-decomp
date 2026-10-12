@@ -5,7 +5,7 @@
 
 extern Object *data_80051b04_slot28[];
 extern ObjectRef data_80051b08_slot28;
-void func_8002005c_slot28(Object *obj, int arg);
+void set_sequence_of_fourth_hud_object_11_slot28(Object *obj, int arg);
 
 void advance_pass_hide_object_spawn_marker_slot28(Object *obj) {
     HudState *h;
@@ -27,7 +27,7 @@ void advance_pass_hide_object_spawn_marker_slot28(Object *obj) {
             b->table_index = 9;
             b->field_01 = 0;
         }
-        func_8002005c_slot28(obj, 4);
+        set_sequence_of_fourth_hud_object_11_slot28(obj, 4);
         start_fade_mode_1a01_and_wait();
     }
 }

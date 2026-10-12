@@ -18,10 +18,10 @@ void move_with_velocity_until_vel_x_negative_slot04_05(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b1be0_slot04_05(Object *obj);
+void apply_vertical_velocity_with_accel_override_slot04_05(Object *obj);
 
 void update_airborne_until_landing_slot04_05(Object *obj) {
-    func_801b1be0_slot04_05(obj);
+    apply_vertical_velocity_with_accel_override_slot04_05(obj);
     if (obj->ground_y >= obj->pos_y) {
         if (*(u8 *)&obj->step_flags != 3) {
             update_sequence(obj);

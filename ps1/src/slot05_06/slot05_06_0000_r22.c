@@ -8,9 +8,9 @@ void set_vel_x_from_direction_table_slot05_06(Object *obj);
 void start_grab_attack_with_countdown_2_slot05_06(Object *o) {
     ((Slot04aObj *)o)->countdown_2 = 0x32;
     o->state_3++;
-    func_801428e4(o);
+    update_meter_by_mode_or_table(o);
     set_flag_225_add_direction_to_counter(&game_state, o);
-    func_80145d20(o);
+    spawn_three_child_objects_at_object_spawn(o);
     play_side_sound_at(o, o->side, 7);
     o->substate_index = 0;
     o->field_12d = 0;

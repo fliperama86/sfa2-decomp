@@ -9,7 +9,7 @@ extern ObjectFn data_801bda20_slot04_0c[];
 extern s32 data_801bd9e0_slot04_0c[];
 void start_action_if_buttons_pressed(Object *object);
 void spawn_offset_effect_and_play_sounds(Object *object);
-void func_801428e4(Object *object);
+void update_meter_by_mode_or_table(Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 void spawn_children_per_direction_index(Object *object, int a, int b);
@@ -74,7 +74,7 @@ void update_sequence_with_countdown_or_finish_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b17d4_slot04_0c(Object *obj) {
+void spawn_offset_effect_on_low_flag_or_reset_slot04_0c(Object *obj) {
     s16 t = obj->step_flags;
 
     if (t & 0x8000) {
@@ -88,11 +88,11 @@ void func_801b17d4_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b183c_slot04_0c(Object *obj) {
+void call_table_function_by_state_3_4_slot04_0c(Object *obj) {
     data_801bd9d0_slot04_0c[obj->state_3](obj);
 }
 
-void func_801b187c_slot04_0c(Object *obj) {
+void start_direction_sequence_gain_meter_six_slot04_0c(Object *obj) {
     int n = 0x22;
 
     obj->active_flag_4 = 1;
@@ -130,7 +130,7 @@ void set_velocities_from_table_on_step_flag_slot04_0c(Object *obj) {
     update_sequence(obj);
 }
 
-void func_801b19b8_slot04_0c(Object *obj) {
+void move_until_ground_then_land_start_sequence_slot04_0c(Object *obj) {
     *(s32 *)&obj->pos_x_frac += obj->vel_x;
     obj->vel_x += obj->accel_x;
     *(s32 *)&obj->pos_y_frac -= obj->vel_y;
@@ -157,18 +157,18 @@ void update_sequence_or_reset_state_variant_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b1acc_slot04_0c(Object *obj) {
+void call_table_function_by_state_3_5_slot04_0c(Object *obj) {
     data_801bda10_slot04_0c[obj->state_3](obj);
 }
 
-void func_801b1b0c_slot04_0c(Object *obj) {
+void advance_state_3_meter_counter_sequence_slot04_0c(Object *obj) {
     obj->state_3++;
-    func_801428e4(obj);
+    update_meter_by_mode_or_table(obj);
     set_flag_225_add_direction_to_counter(&game_state, obj);
     set_sequence_by_side_and_mode(obj, 0x29);
 }
 
-void func_801b1b60_slot04_0c(Object *obj) {
+void spawn_direction_children_on_high_flag_byte_b_slot04_0c(Object *obj) {
     if ((s16)obj->step_flags & 0xff00) {
         obj->state_3++;
         if (obj->field_4b == 0) {
@@ -242,6 +242,6 @@ void spawn_linked_pooled_object_on_step_flag_slot04_0c(Object *obj) {
     }
 }
 
-void func_801b1dd0_slot04_0c(Object *obj) {
+void call_table_function_by_state_3_6_slot04_0c(Object *obj) {
     data_801bda20_slot04_0c[obj->state_3](obj);
 }

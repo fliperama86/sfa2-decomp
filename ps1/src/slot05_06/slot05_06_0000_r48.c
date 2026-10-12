@@ -6,7 +6,7 @@
 void update_timer_or_record_hit_count_slot05_06(Object *obj);
 extern ObjectFn data_801dd4bc_slot05_06[];
 
-void func_801cc194_slot05_06(Object *obj) {
+void update_countdown_then_finish_or_continue_b_slot05_06(Object *obj) {
     obj->hit_count_3++;
     update_sequence(obj);
     ((Slot04bObj *)obj)->countdown--;
@@ -19,7 +19,7 @@ void func_801cc194_slot05_06(Object *obj) {
             obj->state_2 = 3;
             obj->state_3 = 1;
         }
-        func_80142c70(obj);
+        init_object_after_hit_and_spawn_three_effects(obj);
     }
 }
 
@@ -36,6 +36,6 @@ void update_timer_or_record_hit_count_slot05_06(Object *o) {
     push_other_by_vel_x(o);
 }
 
-void func_801cc294_slot05_06(Object *obj) {
+void call_table_function_by_state_3_17_slot05_06(Object *obj) {
     data_801dd4bc_slot05_06[obj->state_3](obj);
 }

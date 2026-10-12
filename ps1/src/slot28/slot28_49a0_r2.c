@@ -8,7 +8,7 @@ extern Object *data_800518bc_slot28[];
 extern ObjectRef data_80051890_slot28;
 
 void blink_object_by_countdown_timer_slot28(void);
-void func_8001581c_slot28(Object *obj, int arg);
+void set_sequence_of_fourth_hud_object_2_slot28(Object *obj, int arg);
 
 void start_countdown_120_when_field_negative_slot28(Object *obj) {
     if (((Slot28Obj *)data_800518c8_slot28.p)->field_3a < 0) {
@@ -57,6 +57,6 @@ void advance_pass_index_on_countdown_timeout_slot28(Object *obj) {
         h->countdown_timer = 0xf0;
         h->pass_index = h->pass_index + 1;
         data_80051890_slot28.p->variant_index = 0xff;
-        func_8001581c_slot28(obj, 1);
+        set_sequence_of_fourth_hud_object_2_slot28(obj, 1);
     }
 }

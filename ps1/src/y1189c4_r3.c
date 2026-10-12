@@ -26,7 +26,7 @@ void swap_buffers_and_submit_draw_list(void) {
         }
     }
     if (game_state.field_31 == 0) {
-        func_80125b80(&game_state);
+        update_palette_scale_by_player_flags(&game_state);
     }
     for (i = 0; i < 0x10; i++) {
         p = &data_8018f5e4[i];

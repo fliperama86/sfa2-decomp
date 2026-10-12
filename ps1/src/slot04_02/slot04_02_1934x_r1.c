@@ -6,7 +6,7 @@
 extern s32 data_801c62b0_slot04_02[];
 
 /* What it does (inferred): a state entry of a character. It sets active_flag_4 and state_3 to 1, clears substate_index to step_limit, spends 9 points, calls add_one_to_ec4_if_object_unflagged with the game state and the object, copies four consecutive words of a table, selected by direction_index, into vel_x, vel_y, accel_x and accel_y, and starts sequence 0x1b (0x61 when field_49 is not 0) plus direction_index / 2. */
-void func_801b1934_slot04_02(Object *obj) {
+void start_launch_with_four_velocity_table_values_slot04_02(Object *obj) {
     u16 n;
     int idx;
 

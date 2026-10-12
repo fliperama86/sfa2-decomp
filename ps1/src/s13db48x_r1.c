@@ -14,12 +14,12 @@
        share a bit among 0xfc, or the mask has a bit of 0x94 and the pad is
        exactly 1, or it has a bit of 0x68 and the pad is exactly 2 (the
        original tests the mask against 0x868; the mask has 8 bits);
-       otherwise func_8013f2c8;
+       otherwise clear_global_flag_ignoring_object;
      - entry bit 0x200 set, with m = pad & mask: when entry bit 0x100 is set
        and m is 0x94, reset_slot_stage_set_result and return; when bit 0x100 is set and
        the pad is exactly 1, reset_slot_stage_set_result is called and the function goes
        on; then, when entry bit 0x800 is set and (m is 0x68 or the pad is
-       exactly 2), reset_slot_stage_set_result, else func_8013f2c8. */
+       exactly 2), reset_slot_stage_set_result, else clear_global_flag_ignoring_object. */
 void check_slot_input_against_table_entry(Object *object, u8 index, u8 arg) {
     u16 entry;
     u16 q;
@@ -46,7 +46,7 @@ void check_slot_input_against_table_entry(Object *object, u8 index, u8 arg) {
         } else if ((m & 0x868) && (bits == 2)) {
             reset_slot_stage_set_result(object, index, arg);
         } else {
-            func_8013f2c8(object);
+            clear_global_flag_ignoring_object(object);
         }
     } else {
         m = bits & q;
@@ -62,7 +62,7 @@ void check_slot_input_against_table_entry(Object *object, u8 index, u8 arg) {
         if ((entry & 0x800) && ((m == 0x68) || (bits == 2))) {
             reset_slot_stage_set_result(object, index, arg);
         } else {
-            func_8013f2c8(object);
+            clear_global_flag_ignoring_object(object);
         }
     }
 }

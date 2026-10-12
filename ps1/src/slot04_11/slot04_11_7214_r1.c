@@ -7,7 +7,7 @@ extern ObjectFn data_801c7ce0_slot04_11[];
 extern ObjectRef data_80190458;
 extern ObjectRef data_80190414;
 
-void func_8011f38c(Object *o);
+void clear_object_and_push_on_free_stack(Object *o);
 void set_position_from_ref_other_with_offset_slot04_11(Object *obj);
 void follow_ref_other_and_advance_sequence_slot04_11(Object *obj);
 
@@ -52,7 +52,7 @@ void unlink_from_four_slots_and_release_slot04_11(Object *o) {
         }
         p++;
     } while (--i != 0);
-    func_8011f38c(o);
+    clear_object_and_push_on_free_stack(o);
 }
 
 void set_position_from_ref_other_with_offset_slot04_11(Object *obj) {

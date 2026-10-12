@@ -15,8 +15,8 @@ extern SequenceStep *data_8004dce0_slot28[];
 extern SequenceStep *data_8004dce8_slot28[];
 extern SequenceStep *data_8004dd0c_slot28[];
 extern SequenceStep *data_8004dd1c_slot28[];
-void func_80025e5c_slot28(Object *obj);
-void func_80025e98_slot28(void);
+void init_object_data_pointers_a_17_slot28(Object *obj);
+void clear_ten_entry_table_15_slot28(void);
 
 void init_slot28_screen_objects_e_slot28(Object *obj) {
     HudState *h = data_8018f5a0;
@@ -24,13 +24,13 @@ void init_slot28_screen_objects_e_slot28(Object *obj) {
     int one = 1;
     h->countdown_timer = 0x258;
     h->step_index_2++;
-    func_80151020(0x207);
-    func_80025e98_slot28();
+    set_menu_command_one_and_wait_pending(0x207);
+    clear_ten_entry_table_15_slot28();
     start_fade_mode_1_and_wait();
     data_80190568 = one;
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80025e5c_slot28(b);
+        init_object_data_pointers_a_17_slot28(b);
         data_80051c8c_slot28.p = b;
         b->pos_x = -8;
         b->pos_y = -8;
@@ -43,7 +43,7 @@ void init_slot28_screen_objects_e_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80025e5c_slot28(b);
+        init_object_data_pointers_a_17_slot28(b);
         data_80051ca0_slot28.p = b;
         b->pos_x = -8;
         b->pos_y = -8;
@@ -55,7 +55,7 @@ void init_slot28_screen_objects_e_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80025e5c_slot28(b);
+        init_object_data_pointers_a_17_slot28(b);
         data_80051c90_slot28[0] = b;
         b->pos_x = 0x58;
         b->pos_y = 0x20;
@@ -67,12 +67,12 @@ void init_slot28_screen_objects_e_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80025e5c_slot28(b);
+        init_object_data_pointers_a_17_slot28(b);
         data_80051c94_slot28.p = b;
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80025e5c_slot28(b);
+        init_object_data_pointers_a_17_slot28(b);
         data_80051c9c_slot28.p = b;
         b->spawn_y = 0x1e0;
         b->pos_x = 0x28;
@@ -85,7 +85,7 @@ void init_slot28_screen_objects_e_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80025e5c_slot28(b);
+        init_object_data_pointers_a_17_slot28(b);
         b->pos_x = 0xe0;
         b->pos_y = 0x60;
         b->spawn_x = 0x60;
@@ -97,7 +97,7 @@ void init_slot28_screen_objects_e_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80025e5c_slot28(b);
+        init_object_data_pointers_a_17_slot28(b);
         b->pos_x = 0xdb;
         b->pos_y = 0x65;
         b->spawn_x = 0x60;
@@ -109,7 +109,7 @@ void init_slot28_screen_objects_e_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80025e5c_slot28(b);
+        init_object_data_pointers_a_17_slot28(b);
         b->pos_x = 0xd0;
         b->pos_y = 0x80;
         b->spawn_x = 0x60;
@@ -121,7 +121,7 @@ void init_slot28_screen_objects_e_slot28(Object *obj) {
     }
     b = (Object *)pop_block_from_pool();
     if (b != 0) {
-        func_80025e5c_slot28(b);
+        init_object_data_pointers_a_17_slot28(b);
         b->pos_x = 0xb8;
         b->pos_y = 0x90;
         b->spawn_x = 0x60;

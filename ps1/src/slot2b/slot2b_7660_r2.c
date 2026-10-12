@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80077908_slot2b(Object *obj);
+void halve_vel_x_add_meter_set_sequence_slot2b(Object *obj);
 
 void move_x_with_accel_until_flag_clear_slot2b(Object *obj) {
     Slot2bObj *o = (Slot2bObj *)obj;

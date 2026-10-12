@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_80147584(Object *object) {
+void update_image_row_copy_with_row_counter(Object *object) {
     advance_sequence_checked(object);
     if (game_state.field_64 != 0) {
         if (*(u8 *)&object->step_flags != 0) return;

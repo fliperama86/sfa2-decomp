@@ -41,5 +41,5 @@ void slide_object_right_to_margin_limit_slot01(Object *obj) {
     } else {
         obj->pos_x = m + 0x153;
     }
-    func_8011ffdc(obj);
+    clear_or_set_flag_by_pos_x_limit(obj);
 }

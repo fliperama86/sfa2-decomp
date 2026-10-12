@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-void func_8014f76c(Ctl *p) {
+void close_slots_and_seek_cd_position(Ctl *p) {
     int i;
     for (i = 0; i < 4; i++) {
         if (p->slots[i]) {

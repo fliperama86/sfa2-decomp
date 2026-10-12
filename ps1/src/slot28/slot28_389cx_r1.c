@@ -12,10 +12,10 @@ void copy_table_twice_call_state_handler_slot28(Object *obj);
    of a scene part. It clears three halfwords of the HUD state, adds 1 to a
    fourth, clears a byte of the object (offset 0x4f) and damage, clears a
    16-byte table of the module, sets the HUD state's field_5e to 0xf0, calls
-   func_8011eae4 and copy_table_twice_call_state_handler_slot28, and sets the object's active_flag_2
+   clear_arrays_and_init_pools_and_sprite_tables and copy_table_twice_call_state_handler_slot28, and sets the object's active_flag_2
    to 0xff. */
-/* The call of func_8011eae4 passes one argument although the callee takes none: the original sets the first argument register before it. Written without the argument, this function differs from the original in 1 instruction slots. */
-void func_8001389c_slot28(Object *obj) {
+/* The call of clear_arrays_and_init_pools_and_sprite_tables passes one argument although the callee takes none: the original sets the first argument register before it. Written without the argument, this function differs from the original in 1 instruction slots. */
+void next_hud_substep_and_clear_sixteen_bytes_slot28(Object *obj) {
     int i = 0xf;
     u8 *p;
 
@@ -42,7 +42,7 @@ void func_8001389c_slot28(Object *obj) {
         i |= ((u32)i << 24) & 0x100;
     } while (--i >= 0);
     data_8018f5a0->field_5e = 0xf0;
-    ((void (*)(Object *))func_8011eae4)(obj);
+    ((void (*)(Object *))clear_arrays_and_init_pools_and_sprite_tables)(obj);
     copy_table_twice_call_state_handler_slot28(obj);
     /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
     /* Without it this function differs from the original in 4 instruction slots. */

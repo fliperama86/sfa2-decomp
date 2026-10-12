@@ -14,7 +14,7 @@ void count_down_then_call_next_table_step_slot04_08(Object *obj) {
     }
 }
 
-void func_801b275c_slot04_08(Object *obj) {
+void flip_facing_and_start_sequence_by_direction_slot04_08(Object *obj) {
     int a = 0x64;
 
     obj->state_3++;
@@ -25,14 +25,14 @@ void func_801b275c_slot04_08(Object *obj) {
     set_sequence_by_side_and_mode(obj, a);
 }
 
-void func_801b27a4_slot04_08(Object *obj) {
+void deal_step_indexed_damage_spawn_on_defeat_slot04_08(Object *obj) {
 
     u16 t = obj->step_flags;
 
     if ((t & 0xff) != 0) {
         obj->step_flags = t & 0xff00;
         game_state.state_param = 0x18;
-        func_80146960(obj);
+        spawn_two_effects_at_other_ground(obj);
         if ((u8)apply_damage_to_other_return_defeated(obj, (s16)data_801c3cc4_slot04_08[((Slot04aObj *)obj)->step_index + (obj->direction_index << 1)], 0) != 0) {
             game_state.spawn_kind = 4;
             spawn_game_state_kind_object(obj);

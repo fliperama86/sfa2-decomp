@@ -16,7 +16,7 @@ extern u16 data_801a29e4[];
 
 Pooled *alloc_pooled_b(void);
 void reset_and_push_object_to_pool_table(Slab172 *s);
-void func_8011f38c(Object *o);
+void clear_object_and_push_on_free_stack(Object *o);
 
 void noop_slot00_slot04_17(Object *obj);
 void release_object_record_slot04_17(Object *obj);
@@ -26,7 +26,7 @@ void queue_palette_upload_and_copy_for_side_slot04_17(Object *obj);
 void call_side_routine_and_set_side_flag_slot04_17(Object *obj);
 void follow_other_by_frame_param_slot04_17(Object *obj);
 void increment_state_0_slot04_17(Object *obj);
-void func_801b6ad0_slot04_17(Object *obj);
+void clear_variant_index_and_first_byte_slot04_17(Object *obj);
 void set_variant_sequence_from_side_table_slot04_17(Object *obj, int index);
 
 void noop_slot00_slot04_17(Object *obj) {
@@ -149,7 +149,7 @@ void queue_palette_upload_and_copy_for_side_slot04_17(Object *obj) {
     }
 }
 
-void func_801b67f0_slot04_17(Object *obj) {
+void store_side_vram_row_to_buffer_slot04_17(Object *obj) {
     Object *p = ref_other.p;
     Rect rect;
 
@@ -174,7 +174,7 @@ void call_side_routine_and_set_side_flag_slot04_17(Object *obj) {
 void noop_slot00_2_slot04_17(Object *obj) {
 }
 
-Object *func_801b68c4_slot04_17(Object *obj) {
+Object *get_table_object_by_field_2_slot04_17(Object *obj) {
     return data_801ce9d0_slot04_17[obj->field_0e];
 }
 
@@ -214,7 +214,7 @@ void follow_other_by_frame_param_slot04_17(Object *obj) {
             set_variant_sequence_from_side_table_slot04_17(obj, f);
         }
     } else {
-        func_801b6ad0_slot04_17(obj);
+        clear_variant_index_and_first_byte_slot04_17(obj);
     }
 }
 
@@ -224,10 +224,10 @@ void increment_state_0_slot04_17(Object *obj) {
 
 void clear_other_link_and_release_object_slot04_17(Object *obj) {
     ref_other.p->linked_object = 0;
-    func_8011f38c(obj);
+    clear_object_and_push_on_free_stack(obj);
 }
 
-void func_801b6ad0_slot04_17(Object *obj) {
+void clear_variant_index_and_first_byte_slot04_17(Object *obj) {
     obj->variant_index = 0;
     obj->field_01 = 0;
 }

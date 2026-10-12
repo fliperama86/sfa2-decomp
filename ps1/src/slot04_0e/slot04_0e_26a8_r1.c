@@ -12,7 +12,7 @@ extern ObjectFn data_801c6034_slot04_0e[];
 
 void start_action_if_buttons_pressed(Object *object);
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
-void func_801b2c00_slot04_0e(Object *obj);
+void land_on_ground_start_sequence_thirty_two_slot04_0e(Object *obj);
 void set_variant_index_from_byte_pair_slot04_0e(Object *obj);
 void apply_velocity_and_accel_to_position_slot04_0e(Object *obj);
 BytePair get_input_byte_pair_or_stored_pair_slot04_0e(Slot04bObj *obj);
@@ -35,11 +35,11 @@ int return_zero_slot04_0e(Object *obj) {
     return 0;
 }
 
-int func_801b270c_slot04_0e(Object *obj) {
+int is_meter_at_least_threshold_slot04_0e(Object *obj) {
     return (s16)obj->meter >= 0x30;
 }
 
-int func_801b2720_slot04_0e(Object *obj) {
+int is_flag_set_or_remaining_count_nonzero_slot04_0e(Object *obj) {
     if (obj->field_7e == 0) {
         return obj->remaining_count != 0;
     }
@@ -54,7 +54,7 @@ void func_801b274c_slot04_0e(Object *obj) {
     data_801c5fc8_slot04_0e[obj->field_15a](obj);
 }
 
-void func_801b278c_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_6_slot04_0e(Object *obj) {
     data_801c6000_slot04_0e[obj->state_3](obj);
 }
 
@@ -108,7 +108,7 @@ void airborne_motion_land_or_switch_sequence_slot04_0e(Object *o) {
     }
     apply_velocity_and_accel_to_position_slot04_0e(o);
     if (o->ground_y < o->pos_y) {
-        func_801b2c00_slot04_0e(o);
+        land_on_ground_start_sequence_thirty_two_slot04_0e(o);
     } else if (o->pos_y >= (s16)(o->ground_y - 0x18) || obj->state_flag == 0) {
         update_sequence(o);
     } else {
@@ -186,11 +186,11 @@ void move_by_velocity_update_or_land_slot04_0e(Object *obj) {
     if (obj->ground_y >= obj->pos_y) {
         update_sequence(obj);
     } else {
-        func_801b2c00_slot04_0e(obj);
+        land_on_ground_start_sequence_thirty_two_slot04_0e(obj);
     }
 }
 
-void func_801b2c00_slot04_0e(Object *obj) {
+void land_on_ground_start_sequence_thirty_two_slot04_0e(Object *obj) {
     obj->state_3 = 6;
     obj->active_state = 0;
     obj->pos_y_frac = 0;
@@ -225,7 +225,7 @@ void set_variant_index_from_byte_pair_slot04_0e(Object *o) {
     }
 }
 
-void func_801b2d0c_slot04_0e(Object *obj) {
+void call_table_function_by_state_3_7_slot04_0e(Object *obj) {
     data_801c6034_slot04_0e[obj->state_3](obj);
 }
 

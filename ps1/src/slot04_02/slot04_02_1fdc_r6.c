@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b2810_slot04_02(Object *obj) {
+void update_airborne_or_land_with_variant_sequence_slot04_02(Object *obj) {
     int n;
 
     if ((u8)apply_velocity_and_check_ground(obj) != 0) {
@@ -28,7 +28,7 @@ void func_801b2810_slot04_02(Object *obj) {
     }
 }
 
-void func_801b28bc_slot04_02(Object *obj) {
+void update_airborne_or_land_set_variant_sequence_slot04_02(Object *obj) {
     int n;
 
     if ((u8)apply_velocity_and_check_ground(obj) == 0) {

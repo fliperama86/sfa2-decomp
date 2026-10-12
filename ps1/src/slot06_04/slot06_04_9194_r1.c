@@ -11,7 +11,7 @@ void init_layer_cam_then_advance_mode_slot06_04(Slot06Layer *layer);
 void scroll_layer_left_and_update_offsets_slot06_04(Slot06Layer *layer);
 void set_layer_flags_and_timer_from_table_slot06_04(Slot06Layer *layer);
 
-void func_801e9194_slot06_04(Slot06Layer *layer) {
+void set_layer_tile_map_param_580e_width_scale_slot06_04(Slot06Layer *layer) {
     layer->tile_map_ptr = data_801ec348_slot06_04;
     layer->data_table = data_801ec348_slot06_04;
     layer->packed_param = 0x580e;

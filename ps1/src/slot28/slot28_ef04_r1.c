@@ -9,7 +9,7 @@ extern u16 data_8003f584_slot28[];
 extern void (*data_8003f9c0_slot28[])(Object *);
 extern u8 data_8003f9d0_slot28[];
 
-void func_8001ef04_slot28(void) {
+void release_active_objects_in_table_8_slot28(void) {
     int i;
     for (i = 0; i < 10; i++) {
         Object *p = data_80051a98_slot28[i];
@@ -32,7 +32,7 @@ void copy_two_tables_to_row_pairs_4_slot28(Object *obj) {
     }
 }
 
-void func_8001f000_slot28(Object *object) {
+void call_handler_by_state_0_10_slot28(Object *object) {
     data_8003f9c0_slot28[object->state_0](object);
 }
 

@@ -7,9 +7,9 @@ extern u8 data_801c4508_slot04_04[];
 extern s32 data_801c4520_slot04_04[];
 extern u8 data_801c452c_slot04_04[];
 
-void func_801b3c5c_slot04_04(Object *obj);
+void call_state_1_table_handler_then_cull_check_slot04_04(Object *obj);
 
-void func_801b3b40_slot04_04(Object *obj) {
+void init_child_object_from_parent_with_tables_slot04_04(Object *obj) {
     Object *parent;
     u8 i;
     int k;
@@ -40,6 +40,6 @@ void func_801b3b40_slot04_04(Object *obj) {
     } else {
         ((Slot04aObj *)obj)->scratchpad_value = *(int *)0x1f800158;
     }
-    func_80138070(obj, obj->vel_table_index >> 1);
-    func_801b3c5c_slot04_04(obj);
+    set_sequence_by_sound_side(obj, obj->vel_table_index >> 1);
+    call_state_1_table_handler_then_cull_check_slot04_04(obj);
 }

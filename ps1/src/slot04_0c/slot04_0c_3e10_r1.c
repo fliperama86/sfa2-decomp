@@ -14,7 +14,7 @@ void reset_and_push_block_object_type_8(Slab172 *o);
 void clear_parent_link_and_set_sequence_6_slot04_0c(Object *obj) {
     obj->state_1++;
     obj->parent->linked_object_3 = 0;
-    func_80138070(obj, 6);
+    set_sequence_by_sound_side(obj, 6);
 }
 
 void reset_states_on_negative_step_flags_slot04_0c(Object *obj) {
@@ -27,7 +27,7 @@ void reset_states_on_negative_step_flags_slot04_0c(Object *obj) {
     advance_sequence_checked(obj);
 }
 
-void func_801b3e88_slot04_0c(Object *o) {
+void unlink_from_parent_count_and_release_object_slot04_0c(Object *o) {
     Object *p = o->parent;
     u8 n = p->link_flags - 1;
     p->link_flags = n;

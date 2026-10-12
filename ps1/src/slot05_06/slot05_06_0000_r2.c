@@ -4,7 +4,7 @@
 #include "../externs.h"
 
 void call_handler_by_input_dir_second_slot05_06(Object *obj);
-void func_801c8630_slot05_06(Object *obj);
+void call_direction_handler_by_input_dir_second_slot05_06(Object *obj);
 void call_handler_by_direction_index_slot05_06(Object *obj);
 void call_handler_by_direction_index_2_slot05_06(Object *obj);
 
@@ -45,7 +45,7 @@ void update_sequence_spawn_child_on_flag_slot05_06(Object *obj) {
 
 void call_handler_by_input_dir_0_nonzero_slot05_06(Object *obj) {
     if (obj->input_dir_0 != 0) {
-        func_801c8630_slot05_06(obj);
+        call_direction_handler_by_input_dir_second_slot05_06(obj);
     } else {
         call_handler_by_input_dir_second_slot05_06(obj);
     }

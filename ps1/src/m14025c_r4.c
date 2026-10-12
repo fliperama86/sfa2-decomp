@@ -37,7 +37,7 @@ int try_start_effect_request(Object *object) {
         *(u8 *)&game_state.field_354 |= game_state.config->mode_flag_c;
         *(u8 *)&game_state.field_354 |= game_state.config->mode_flag_a;
         if (*(u8 *)&game_state.field_354 != 0) return 0;
-        if ((func_8012f56c(object) & 0xff) != 0) return 0;
+        if ((is_other_object_state_0_and_1_six_one(object) & 0xff) != 0) return 0;
     }
     if (*(u8 *)data_80190464 == 0) {
         object->effect_request = 2;
@@ -55,14 +55,14 @@ int try_spend_meter_for_action(Object *object) {
     if (object->hit_type != 0xff) return 0;
     if (object->active_state != 0) return 0;
     if ((game_state.config->mode_flag_b | game_state.config->mode_flag_c | game_state.config->mode_flag_a) != 0) return 0;
-    if ((func_8012f56c(object) & 0xff) != 0) return 0;
+    if ((is_other_object_state_0_and_1_six_one(object) & 0xff) != 0) return 0;
     if ((s16)object->countdown >= 8) return 0;
     add_to_meter_clamped(object, -0x30);
     object->effect_request = 4;
     add_three_to_ec4_if_object_unflagged(&game_state, object);
     set_side_field_0d(object);
     if (object->mode_flag_2 == 0) add_table_bcd_score_to_player(0xd, (s8)object->side);
-    func_8012f5ec(object);
+    clear_flag_if_second_flag_set(object);
     object->field_157 = 0;
     object->field_4b = object->field_4b;
     reset_hold_flags_and_other_hit_count(object);

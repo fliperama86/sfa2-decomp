@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b3d2c_slot04_08(Object *obj) {
+void hit_other_on_flag_or_reset_at_sequence_end_slot04_08(Object *obj) {
     Object *o;
     s16 t = obj->step_flags;
 

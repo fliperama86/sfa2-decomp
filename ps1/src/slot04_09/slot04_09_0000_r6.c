@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_801b59c8_slot04_09(Object *obj);
+void spawn_child_table_index_eighteen_slot04_09(Object *obj);
 
 void update_sequence_spawn_child_on_flag_2_slot04_09(Object *obj) {
     u16 t = obj->step_flags;
@@ -14,7 +14,7 @@ void update_sequence_spawn_child_on_flag_2_slot04_09(Object *obj) {
     t = obj->step_flags;
     if ((t & 0xff) == 2) {
         obj->step_flags = t & 0xff00;
-        func_801b59c8_slot04_09(obj);
+        spawn_child_table_index_eighteen_slot04_09(obj);
     }
     update_sequence(obj);
 }

@@ -42,7 +42,7 @@ void init_state_and_run_main_loop_slot0f_slot0f(void) {
     game_state.cam_param_a = 0;
     game_state.cam_param_b = 0;
     game_state.table_index_2 = 7;
-    func_80138358(s);
+    init_counters_from_index_table(s);
     request_sound_command_and_switch_thread(1);
     data_801a89f0 = 0;
     data_801ac61c = 0;
