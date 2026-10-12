@@ -197,7 +197,8 @@ void func_8013245c(void) {
     for (i = 0; i < 2; i++) {
         /* One j for this loop and one for the last loop: with a single j for the function this differs from the original in 16 instruction slots. */
         int j;
-        /* b2 holds the loaded address of data_80186004 for the loop: with the symbol written at each use the built size is 1768 bytes and 56 instruction slots differ. */
+        /* Stand-in, not recovered source: the local b2, which is only a second name of the address of data_80186004, reproduces the original's order of instructions. Without it this function differs from the original in 56 instruction slots. */
+        /* The figure's control writes the symbol at each use of b2; the build is then 1768 bytes. */
         b2 = data_80186004;
         for (j = 0; j < 0x90; j++) {
             /* Stand-in, not recovered source: the conversion of the pointer sum to a 64-bit integer in the argument below, which changes no value, reproduces the original's choice of registers. Without it this function differs from the original in 1 instruction slots. */
