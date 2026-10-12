@@ -30,7 +30,7 @@ void func_801b57b0_slot04_02(Object *obj) {
             p->field_66 = obj->field_66;
         }
     }
-    func_80130678(obj, a);
+    set_sequence_by_side(obj, a);
 }
 
 void func_801b5884_slot04_02(Object *obj) {

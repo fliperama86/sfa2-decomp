@@ -38,7 +38,7 @@ void func_801b63c4_slot04_09(Object *obj, Object *parent) {
                 obj->field_0d++;
             }
         }
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         if (((Slot04aObj *)obj)->field_3a == 1) {
             obj->field_0b = 0;
             obj->sequence_changed_flag = 1;

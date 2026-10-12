@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80153cac(Actor *a) {
+void queue_two_digit_number_text(Actor *a) {
     u8 d[2];
     int i;
     u8 c;

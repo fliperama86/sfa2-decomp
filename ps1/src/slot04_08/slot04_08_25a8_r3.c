@@ -25,6 +25,6 @@ void func_801b286c_slot04_08(Object *obj) {
         obj->vel_y = -0x50000;
         obj->accel_y = 0x5000;
         obj->field_45 = 1;
-        func_80130678(obj, 0x30);
+        set_sequence_by_side(obj, 0x30);
     }
 }

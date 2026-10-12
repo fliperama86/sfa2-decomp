@@ -17,7 +17,7 @@ void func_801b0224_slot04_05(Object *o) {
     o->field_0b = o->field_158;
     r = func_80125734(o, data_801c1340_slot04_05[get_random_byte() & 0xf]);
     obj->handler_index = r;
-    func_80130678(o, r + 0x23);
+    set_sequence_by_side(o, r + 0x23);
 }
 
 void func_801b02a8_slot04_05(Object *o) {

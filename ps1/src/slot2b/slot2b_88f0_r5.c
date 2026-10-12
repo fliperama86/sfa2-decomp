@@ -21,7 +21,7 @@ void func_80078ddc_slot2b(Object *o) {
         func_800796e4_slot2b(o);
         func_800796e4_slot2b(o);
     } else {
-        func_80131094(o);
+        advance_sequence_checked(o);
     }
 }
 
@@ -31,7 +31,7 @@ void func_80078e70_slot2b(Object *o) {
 
 void func_80078eb0_slot2b(Object *o) {
     if ((s16)data_8007ef34_slot2b->step_flags >= 0) {
-        func_80131094(o);
+        advance_sequence_checked(o);
     } else {
         o->state_1 = o->state_1 + 1;
         o->field_48 = o->field_48 + 2;
@@ -40,5 +40,5 @@ void func_80078eb0_slot2b(Object *o) {
 }
 
 void func_80078f0c_slot2b(Object *o) {
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

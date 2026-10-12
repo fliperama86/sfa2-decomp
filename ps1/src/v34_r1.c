@@ -30,7 +30,7 @@ void func_801259a8(Select *sel, Object *a, Object *b)
       sel->excluded_mask = flags;
     }
     sel->selected_index = -1;
-    func_80125938(sel, a, b);
+    load_select_entries(sel, a, b);
     i = (mask = sel->selected_index);
     again:
     i++;

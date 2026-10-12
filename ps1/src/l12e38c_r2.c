@@ -44,7 +44,7 @@ void func_8012ec50(Object *object) {
             arg = 0x1f;
         }
         object->vel_x = speed;
-        func_80130678(object, arg);
+        set_sequence_by_side(object, arg);
     } else {
         update_sequence(object);
         func_801376b8(object);

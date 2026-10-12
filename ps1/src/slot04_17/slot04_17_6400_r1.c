@@ -209,7 +209,7 @@ void func_801b69b0_slot04_17(Object *obj) {
         obj->field_0b = ref_other.p->field_0b;
         obj->field_01 = 1;
         if (obj->field_48 == f) {
-            func_80131094(obj);
+            advance_sequence_checked(obj);
         } else {
             func_801b6adc_slot04_17(obj, f);
         }

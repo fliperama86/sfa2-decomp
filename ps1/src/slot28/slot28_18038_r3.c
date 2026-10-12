@@ -28,5 +28,5 @@ void func_80028348_slot28(Object *o) {
     if (sum > 0xffffff) {
         obj->field_14 = 0xff800000;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

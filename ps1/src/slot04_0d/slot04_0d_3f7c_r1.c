@@ -53,7 +53,7 @@ void func_801b4030_slot04_0d(Object *obj) {
         obj->state_2 = 0;
         obj->state_3 = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b4070_slot04_0d(Object *o) {
@@ -117,7 +117,7 @@ void func_801b41ec_slot04_0d(Object *obj) {
             if (obj->field_48 != a) {
                 func_801b42f8_slot04_0d(obj, a);
             } else {
-                func_80131094(obj);
+                advance_sequence_checked(obj);
             }
         }
     } else {

@@ -11,7 +11,7 @@
  * halved and in opposite directions, of both. Which one moves depends on
  * field_164 and field_45 of each player.
  */
-void func_8013902c(void) {
+void separate_overlapping_players(void) {
     Object *o1;
     Object *o2;
     Box6 *b1;

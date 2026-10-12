@@ -14,7 +14,7 @@ extern ObjectFn data_801bd8e4_slot04_0c[];
 extern ObjectFn data_801bd8f0_slot04_0c[];
 
 Object *func_8011f32c(void);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_80130dc0(Object *object);
 void func_80142a14(Object *object);
 
@@ -86,7 +86,7 @@ void func_801b01ac_slot04_0c(Object *obj) {
         if (obj->other->kind == 0xb) {
             a = 0x33;
         }
-        func_80130678(obj, a);
+        set_sequence_by_side(obj, a);
     }
 }
 
@@ -102,7 +102,7 @@ void func_801b0260_slot04_0c(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        func_80130678(obj, 0);
+        set_sequence_by_side(obj, 0);
     }
 }
 

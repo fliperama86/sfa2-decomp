@@ -275,7 +275,7 @@ void func_801b6db4_slot04_14(Object *obj) {
 void func_801b6df4_slot04_14(Object *obj) {
     if ((game_state.field_65 | game_state.field_a8) == 0) {
         func_801b6e50_slot04_14(obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         func_8011ff74(obj);
     }
     func_8011ffdc(obj);

@@ -3,10 +3,10 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80136898(Cam *cam, int delta) {
+void set_cam_pos_x(Cam *cam, int delta) {
     cam->pos_x = cam->base_x + delta;
 }
 
-void func_801368ac(Cam *cam, int delta) {
+void set_cam_pos_y(Cam *cam, int delta) {
     cam->pos_y = cam->base_y + delta;
 }

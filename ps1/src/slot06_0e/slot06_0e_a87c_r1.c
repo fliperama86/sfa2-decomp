@@ -65,7 +65,7 @@ void func_801eab3c_slot06_0e(Object *obj) {
 
 void func_801eabd4_slot06_0e(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     if (((Slot06Layer *)cam_obj)->field_16 >= 0x500) {
         if (((Slot06Layer *)data_801aa544)->field_05 == 2) {

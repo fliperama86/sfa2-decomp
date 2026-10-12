@@ -26,7 +26,7 @@ extern u8 data_801c59dc_slot04_0f[];
 extern ObjectFn data_801c59e0_slot04_0f[];
 
 Block172 *func_8011f1e0(void);
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 void func_80130dc0(Object *object);
 void func_80142a14(Object *object);
 void func_801e9ed0_slot06_0f(void);
@@ -98,7 +98,7 @@ void func_801b01f4_slot04_0f(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        func_80130678(obj, 0);
+        set_sequence_by_side(obj, 0);
     } else {
         update_sequence(obj);
     }

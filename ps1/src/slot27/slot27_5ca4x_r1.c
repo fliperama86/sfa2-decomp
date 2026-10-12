@@ -11,7 +11,7 @@ void func_80016810_slot27(Object *obj);
 void func_80015ca4_slot27(Object *obj) {
     Object *b;
     if (obj->field_60 != 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         func_8011ffdc(obj);
     } else if (obj->state_1 != 0) {
         if (game_state.field_04 != 0) {

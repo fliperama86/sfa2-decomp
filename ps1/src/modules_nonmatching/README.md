@@ -61,7 +61,6 @@ None at present: every function of this folder has a fixtures file.
 What the replay command of the folder printed on 2026-10-10, one line per function:
 
 ```
-func_800e4ab0_slot0f replay: fixtures 3, passed 3, failed 0
 ```
 
 ## The recorded lines
@@ -74,21 +73,16 @@ change only when that function is run again.
 The test (`--cases 2000 FUNC`, seed 1):
 
 ```
-func_800e4ab0_slot0f: built 540 bytes, original 608 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_800e4ab0_slot0f coverage: 152 of 152 instruction slots of the original executed
 ```
 
 The control (`--cases 2000 --control FUNC`):
 
 ```
-func_800e4ab0_slot0f control: different 649 of 2000 (expected more than 0)
-  altered: y store moved to the x offset, instruction slot 83
 ```
 
 The write audit (`--cases 2000 --writes FUNC`, seed 1):
 
 ```
-func_800e4ab0_slot0f writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 
 A function with fewer slots executed than it has names the others in its

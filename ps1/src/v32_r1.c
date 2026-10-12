@@ -13,15 +13,15 @@ void func_8012bbac(Object *object)
   if (ref_other.p->field_157 == 0)
   {
     object->state_3 = 0;
-    func_80130678(object, 0x15);
+    set_sequence_by_side(object, 0x15);
     return;
   }
   if (ref_other.p->field_45 != 0)
   {
     object->state_3 = 0;
-    func_80130678(object, 0x15);
+    set_sequence_by_side(object, 0x15);
     return;
   }
   object->state_3 = 2;
-  func_80130678(object, 0x18);
+  set_sequence_by_side(object, 0x18);
 }

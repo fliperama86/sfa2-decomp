@@ -12,7 +12,7 @@ extern Slot06_0fRecb4e4 data_801eb4e4_slot06_0f[];
 void func_801e9a24_slot06_0f(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
         data_801eb4d8_slot06_0f[obj->state_1](obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_80120028(obj);
 }

@@ -8,7 +8,7 @@ extern s16 data_800f7264_slot0f;
 extern int data_800f7268_slot0f;
 extern u16 data_800e99b0_slot0f[];
 void func_800e05a0_slot0f(int a, int b);
-void func_800e4ab0_slot0f(Chan *c, Strip1c *buf, s16 count);
+void func_800e4ab0_slot0f(Chan *c, Strip1c *buf, int count);
 
 void func_800e4988_slot0f(void) {
     Chan *c;

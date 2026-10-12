@@ -12,7 +12,7 @@ extern u16 box_margin[];
 void func_80142fbc(Object *object);
 void func_801428a8(Object *object);
 void func_80138b38(GameState *state, Object *object);
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 void func_801495f8(Object *object, int x, int y);
 void func_8011fe40(Object *object);
 void func_80149af8(Object *object);
@@ -79,10 +79,10 @@ void func_801b32a0_slot04_12(Object *obj) {
     func_801428a8(obj);
     func_80138b38(&game_state, obj);
     if (obj->field_45 != 0) {
-        func_80130678(obj, 0x2f);
+        set_sequence_by_side(obj, 0x2f);
     } else {
         play_side_sound_at(obj, obj->side, 8);
-        func_80130678(obj, 0x2b);
+        set_sequence_by_side(obj, 0x2b);
     }
 }
 

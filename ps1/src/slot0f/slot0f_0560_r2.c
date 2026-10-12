@@ -12,7 +12,7 @@ void func_800e06b8_slot0f(GameState *g, int x) {
     func_8012510c();
     g->field_65 = player_left.field_165 | player_right.field_165;
     update_units();
-    func_8013902c();
+    separate_overlapping_players();
     func_80138164();
     func_801510bc();
     if (data_80190568 != 0) {

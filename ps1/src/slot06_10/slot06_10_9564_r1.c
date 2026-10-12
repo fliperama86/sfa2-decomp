@@ -17,12 +17,12 @@ void func_801e9564_slot06_10(Object *obj, Object *other) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_1 = 1;
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
 void func_801e95a0_slot06_10(Object *obj, Object *other) {
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e95c0_slot06_10(Object *obj, int unused, u8 index) {
@@ -129,7 +129,7 @@ void func_801e9890_slot06_10(Object *obj, Object *p) {
         obj->state_1 = 1;
         func_80130700(obj, data_801ebbc4_slot06_10[6]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -156,7 +156,7 @@ void func_801e9918_slot06_10(Object *obj, Object *p) {
             }
         }
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -177,7 +177,7 @@ void func_801e99e0_slot06_10(Object *obj, Object *p) {
         obj->state_1 = 1;
         func_80130700(obj, data_801ebbc4_slot06_10[8]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -227,5 +227,5 @@ void func_801e9bc0_slot06_10(Object *obj, Object *other) {
             return;
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

@@ -38,5 +38,5 @@ void func_80015c1c_slot28(Object *obj) {
     } else {
         obj->field_01 = 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

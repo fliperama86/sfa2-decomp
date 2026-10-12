@@ -16,7 +16,7 @@ void func_80144bdc(Object *object) {
 
 void func_80144c28(Object *object) {
     table_8017b668[object->state_2](object);
-    func_80131094(object);
+    advance_sequence_checked(object);
     func_80120028(object);
 }
 

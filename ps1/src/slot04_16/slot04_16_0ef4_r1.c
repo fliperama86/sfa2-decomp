@@ -24,7 +24,7 @@ void func_80140fe0(Object *object);
 int func_801410c8(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 void func_80146960(Object *object);
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 void func_80131468(Object *object);
 void func_80131638(Object *object);
 
@@ -66,7 +66,7 @@ void func_801b0ff0_slot04_16(Object *obj) {
         play_side_sound_at(obj, obj->side, 0xb);
         func_801307e0(obj, 0x45);
     } else {
-        func_80130678(obj, 0x22);
+        set_sequence_by_side(obj, 0x22);
     }
 }
 

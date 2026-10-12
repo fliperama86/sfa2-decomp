@@ -27,7 +27,7 @@ void func_801b38d0_slot04_02(Object *obj) {
         if ((s16)obj->step_flags < 0) {
             obj->field_159 = 0;
             obj->state_3 = obj->state_3 + 1;
-            func_80130678(obj, 0x21);
+            set_sequence_by_side(obj, 0x21);
         } else {
             update_sequence(obj);
         }

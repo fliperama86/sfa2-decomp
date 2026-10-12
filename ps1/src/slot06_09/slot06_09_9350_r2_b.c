@@ -46,7 +46,7 @@ void func_801e9dd4_slot06_09(Object *o) {
 
     if (game_state.field_65 == 0) {
         o->pos_y = 0xf0 - (obj->field_54 + ((Slot06Layer *)data_801aa544)->field_3a);
-        func_80131094(o);
+        advance_sequence_checked(o);
     }
     if (((Slot06Layer *)data_801aa544)->field_36 >= 0x3a0) {
         o->state_0++;

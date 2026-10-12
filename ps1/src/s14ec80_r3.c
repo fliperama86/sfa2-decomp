@@ -11,10 +11,10 @@ void func_8014f59c(void) {
 
 void set_cd_mix_mode(u8 a) {
     ctl_80190948.field_04 = a;
-    func_8014f604(ctl_80190948.cd_volume);
+    set_cd_volume(ctl_80190948.cd_volume);
 }
 
-void func_8014f604(u8 a) {
+void set_cd_volume(u8 a) {
     ctl_80190948.cd_volume = a;
     if (ctl_80190948.field_04) {
         data_80189478[0] = a;

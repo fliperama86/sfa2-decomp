@@ -24,7 +24,7 @@ void func_801b7d64_slot04_02(Object *obj) {
                 obj->field_46 = 0xfff;
             }
         }
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         func_8011ffdc(obj);
     } else {
         obj->state_0++;

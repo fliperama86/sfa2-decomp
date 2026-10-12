@@ -16,7 +16,7 @@ void func_801b2660_slot04_02(Object *obj) {
         obj->pos_y = obj->ground_y;
         func_801b631c_slot04_02(obj, 1, 0, 3, 2);
         func_801209c4(obj);
-        func_80130678(obj, 0x11);
+        set_sequence_by_side(obj, 0x11);
     } else {
         update_sequence(obj);
         if ((u8)obj->step_flags == 1) {

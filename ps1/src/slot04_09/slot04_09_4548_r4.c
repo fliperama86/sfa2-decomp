@@ -15,7 +15,7 @@ void func_801b484c_slot04_09(Object *obj) {
     if (obj->field_45 != 0) {
         a = 0x2f;
     }
-    func_80130678(obj, a);
+    set_sequence_by_side(obj, a);
 }
 
 void func_801b48d4_slot04_09(Object *obj) {

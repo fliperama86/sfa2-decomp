@@ -7,7 +7,7 @@
 extern u8 table_801a8067[];
 /* Declared as an array here, not as the scalar u16 that 15 other units declare: read through the scalar this function differs from the original in 5 instruction lines. */
 extern u16 data_801a6966[];
-void func_80120f40(Object *object, u8 a1, u16 a2);
+void init_player_object(Object *object, u8 a1, u16 a2);
 extern u8 table_8016e730[];
 
 /* Inferred, not original names: starts a round. It counts a step in the status
@@ -17,7 +17,7 @@ extern u8 table_8016e730[];
    data_801a83fb, calls func_80120374 with field_10, sets field_110, head_a and
    head_b to -1 and the mode fields to fixed values, takes a random byte
    (get_random_byte masked with 0x78) into field_61, prepares both players with
-   func_80120f40 and, for each bit of field_17 (1 left, 2 right), sets a few more
+   init_player_object and, for each bit of field_17 (1 left, 2 right), sets a few more
    fields of that player, then calls func_80138358 and clears three bytes. */
 void func_80120cf0(GameState *state) {
     Object *l;
@@ -83,8 +83,8 @@ void func_80120cf0(GameState *state) {
     rnd = get_random_byte() & 0x78;
     state->field_61 = rnd;
     state->field_a4 = 7;
-    func_80120f40(l, 0, data_801a6966[0]);
-    func_80120f40(r, 1, data_801a6972);
+    init_player_object(l, 0, data_801a6966[0]);
+    init_player_object(r, 1, data_801a6972);
     if (state->field_17 & 1) {
         l->field_a5 = 2;
         l->kind = zero;

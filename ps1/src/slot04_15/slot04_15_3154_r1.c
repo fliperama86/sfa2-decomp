@@ -10,7 +10,7 @@ extern ObjectFn data_801c3160_slot04_15[];
 extern ObjectFn data_801c3170_slot04_15[];
 
 Block172 *func_8011f1e0(void);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void set_position_from_other_box(Object *object);
 void func_80146478(Object *object, u8 a, int dx, int dy);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
@@ -185,7 +185,7 @@ void func_801b3740_slot04_15(Object *obj) {
 void func_801b3780_slot04_15(Object *object) {
     object->state_2 = object->state_2 + 1;
     object->field_0b = object->field_158;
-    func_80130678(object, 0);
+    set_sequence_by_side(object, 0);
 }
 
 void func_801b37b4_slot04_15(Object *object) {
@@ -214,7 +214,7 @@ void func_801b37f0_slot04_15(Object *object) {
             a = data_801c2ecc_slot04_15[a];
         }
     }
-    a = (s8)func_80125734(object, (s8)a); object->field_12c = a; a += 0x23; func_80130678(object, (s16)a);
+    a = (s8)func_80125734(object, (s8)a); object->field_12c = a; a += 0x23; set_sequence_by_side(object, (s16)a);
 }
 
 void func_801b38e8_slot04_15(Object *object) {
@@ -233,7 +233,7 @@ void func_801b3928_slot04_15(Object *object) {
         } else {
             a = 0x33;
         }
-        func_80130678(object, (u8)a);
+        set_sequence_by_side(object, (u8)a);
     }
     func_801b39d0_slot04_15(object, &game_state);
     update_sequence(object);

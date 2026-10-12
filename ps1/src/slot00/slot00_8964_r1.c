@@ -18,7 +18,7 @@ void func_800789a4_slot00(Object *obj) {
         obj->state_2++;
     }
     func_80078b50_slot00(obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_80078a04_slot00(Object *obj) {
@@ -29,7 +29,7 @@ void func_80078a04_slot00(Object *obj) {
     if (obj->field_46 & 1) {
         obj->field_67 ^= 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_80078a74_slot00(Object *obj) {

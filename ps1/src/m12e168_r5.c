@@ -26,6 +26,6 @@ int func_8012f408(Object *o) {
     } else {
         a = 0x28;
     }
-    func_80130678(o, a);
+    set_sequence_by_side(o, a);
     return 1;
 }

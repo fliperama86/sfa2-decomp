@@ -72,7 +72,7 @@ void func_801e920c_slot06_05(Object *obj) {
         if (*(s32 *)(data_801aa5d4 + 0x10) < 0x170) {
             return;
         }
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_80120028(obj);
 }
@@ -171,7 +171,7 @@ void func_801e9618_slot06_05(Object *obj, int arg) {
         func_80130700(obj, *(SequenceStep **)((u8 *)data_801ec344_slot06_05 + i));
     } else {
 skip:
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -183,7 +183,7 @@ void func_801e96c0_slot06_05(Object *obj, int arg) {
         obj->state_1 = 0;
         func_80130700(obj, data_801ec344_slot06_05[8]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -195,7 +195,7 @@ void func_801e972c_slot06_05(Object *obj, int arg) {
         obj->state_1 = 0;
         func_80130700(obj, data_801ec344_slot06_05[10]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 

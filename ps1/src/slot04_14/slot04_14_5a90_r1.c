@@ -14,7 +14,7 @@ extern u16 box_margin[];
 void func_801b5b80_slot04_14(Object *obj);
 u8 func_801b5e44_slot04_14(Object *obj);
 u8 func_801b5e7c_slot04_14(Object *obj);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_80140770(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 
 void func_801b5a90_slot04_14(Object *obj) {
@@ -126,7 +126,7 @@ void func_801b5e9c_slot04_14(Object *obj) {
 void func_801b5edc_slot04_14(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
-    func_80130678(obj, 0);
+    set_sequence_by_side(obj, 0);
 }
 
 void func_801b5f10_slot04_14(Object *obj) {
@@ -140,7 +140,7 @@ void func_801b5f60_slot04_14(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_46 = 0x3c;
     game_state.field_76 = 0x1e;
-    func_80130678(obj, data_801c652c_slot04_14[(u8)func_80125734(obj, data_801c651c_slot04_14[get_random_byte() & 0xf])]);
+    set_sequence_by_side(obj, data_801c652c_slot04_14[(u8)func_80125734(obj, data_801c651c_slot04_14[get_random_byte() & 0xf])]);
 }
 
 void func_801b5fe8_slot04_14(Object *obj) {
@@ -181,7 +181,7 @@ void func_801b6108_slot04_14(Object *obj) {
     if (game_state.field_a6 != 0) {
         idx = 0x29;
     }
-    func_80130678(obj, idx);
+    set_sequence_by_side(obj, idx);
 }
 
 void func_801b6160_slot04_14(Object *obj) {

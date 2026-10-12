@@ -3,14 +3,14 @@
 #include "protos.h"
 #include "externs.h"
 
-void func_801368ac(Cam *cam, int delta);
+void set_cam_pos_y(Cam *cam, int delta);
 
 /* What it does (inferred, not an original name): one step of a vertical
    scroll follower. It picks a target height from the two players' pos_y: the
    other player's 0xd0 - pos_y when one has bit 7 of field_73 set and field_261
    equal to 0, else the larger (as signed 16-bit) of the two. The sprite's
    field_26 moves one unit toward target - 0x39 (16-bit arithmetic). The value
-   given to func_801368ac is the new field_26 clamped by field_40 after a move
+   given to set_cam_pos_y is the new field_26 clamped by field_40 after a move
    up, by field_42 after a move down, and the unchanged field_26 when equal.
    field_26 is stored uncapped. */
 void func_80136744(Sprite *sprite) {
@@ -45,7 +45,7 @@ void func_80136744(Sprite *sprite) {
             value = next;
         }
         /* One call after the three arms (value = field in the last) differs in 8 instruction lines. */
-        func_801368ac((Cam *)sprite, value);
+        set_cam_pos_y((Cam *)sprite, value);
     } else if (delta < 0) {
         next = field - 1;
         sprite->field_26 = next;
@@ -53,8 +53,8 @@ void func_80136744(Sprite *sprite) {
         if (value < next) {
             value = next;
         }
-        func_801368ac((Cam *)sprite, value);
+        set_cam_pos_y((Cam *)sprite, value);
     } else {
-        func_801368ac((Cam *)sprite, field);
+        set_cam_pos_y((Cam *)sprite, field);
     }
 }

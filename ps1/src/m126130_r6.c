@@ -20,7 +20,7 @@ void func_8012a804(Object *object) {
     if (object->field_48 != 0) {
         index = 3;
     }
-    func_80130678(object, index);
+    set_sequence_by_side(object, index);
     speed = motion_speed_table[object->kind * 2 + (object->field_48 & 1)];
     if (object->field_0b != 0) {
         speed = -speed;

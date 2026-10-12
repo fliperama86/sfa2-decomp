@@ -35,7 +35,7 @@ void func_8007904c_slot00(Object *o) {
         if (((game_state.frame_counter + o->field_03) & 1) == 0) {
             o->field_01 = 0;
         }
-        func_80131094(o);
+        advance_sequence_checked(o);
     } else {
         o->state_0 = 2;
     }

@@ -31,7 +31,7 @@ void func_80078f8c_slot2b(Object *o) {
         }
     } else {
         func_80079144_slot2b(o);
-        func_80131094(o);
+        advance_sequence_checked(o);
     }
 }
 
@@ -39,6 +39,6 @@ void func_8007909c_slot2b(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0++;
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }

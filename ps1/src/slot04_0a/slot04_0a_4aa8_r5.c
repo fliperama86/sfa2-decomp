@@ -29,7 +29,7 @@ void func_801b50f4_slot04_0a(Object *obj) {
     if (obj->field_3c->state_2 >= 2) {
         func_801b5154_slot04_0a(obj);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         func_8011ffdc(obj);
     }
 }

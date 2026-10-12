@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_80121680(GameState *state, Object *a1, Object *a2) {
+void link_players(GameState *state, Object *a1, Object *a2) {
     a1->other = &player_left + 1;
     a2->other = &player_left;
     a1->field_0d = 0x10;

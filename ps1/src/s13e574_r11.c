@@ -4,7 +4,7 @@
 #include "protos.h"
 
 
-int func_801411c4(Object *object) {
+int drain_gauge(Object *object) {
     int v;
     if (func_8014a170(object, table_8017d598)) {
         v = object->gauge - 1;

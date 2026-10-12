@@ -8,8 +8,8 @@ void func_8001ca7c_slot28(Object *o) {
     if (((Slot28Obj *)o)->field_3a < 0) {
         o->state_0++;
     }
-    func_80131094(o);
-    func_80131094(o);
+    advance_sequence_checked(o);
+    advance_sequence_checked(o);
     o->field_48 = o->field_48 ^ 1;
     if (o->field_48 != 0) {
         o->field_01 = 1;

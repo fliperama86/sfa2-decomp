@@ -9,7 +9,7 @@ void func_801b3a30_slot04_0b(Object *o) {
     if ((config->field_a8 | config->field_65) == 0) {
         *(s32 *)&o->pos_x_frac += o->vel_x;
         *(s32 *)&o->pos_y_frac += o->vel_y;
-        func_80131094(o);
+        advance_sequence_checked(o);
         if (o->field_ac >= 0xc) {
             func_8011ffa8(o);
         } else {

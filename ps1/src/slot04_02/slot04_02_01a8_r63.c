@@ -20,7 +20,7 @@ void func_801b7110_slot04_02(Object *o) {
 void func_801b717c_slot04_02(Object *o) {
     if ((game_state.field_65 | game_state.field_a8) == 0) {
         data_801c77ec_slot04_02[o->field_03 >> 1](o);
-        func_80131094(o);
+        advance_sequence_checked(o);
         func_8011ff74(o);
     }
     func_8011ffdc(o);

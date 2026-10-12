@@ -84,10 +84,10 @@ void func_801b0000_slot04_0b(Object *obj) {
                     }
                     c->spawn_y = 0x1e0;
                 }
-                func_80130678(obj, 0x30);
+                set_sequence_by_side(obj, 0x30);
             } else {
                 obj->state_2 = 2;
-                func_80130678(obj, 0x32);
+                set_sequence_by_side(obj, 0x32);
             }
         } else {
             obj->state_2 = 0;

@@ -8,7 +8,7 @@ extern s16 data_801c6390_slot04_14[];
 extern ObjectFn data_801c6398_slot04_14[];
 extern ObjectFn data_801c63a8_slot04_14[];
 
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_8013788c(Object *object);
 void func_80145d20(Object *object);
 void func_80157380(Object *object);
@@ -206,7 +206,7 @@ void func_801b3998_slot04_14(Object *obj) {
         if ((s16)obj->step_flags < 0) {
             obj->field_159 = 0;
             obj->state_3 = obj->state_3 + 1;
-            func_80130678(obj, 0x21);
+            set_sequence_by_side(obj, 0x21);
         } else {
             update_sequence(obj);
         }

@@ -48,5 +48,5 @@ apply:
         object->slots[index].field_01++;
     }
     object->slots[index].field_01 &= 3;
-    func_8013f1bc(object, index, arg);
+    set_slot_random_timer(object, index, arg);
 }

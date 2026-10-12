@@ -13,7 +13,7 @@ extern ObjectFn data_801c4a0c_slot04_12[];
 Object *func_8011f32c(void);
 int func_8013ffe4(Object *object, s16 a, s16 b, s16 c, u16 d);
 void func_80142a14(Object *object);
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 void func_80130dc0(Object *object);
 
 void func_801b042c_slot04_12(Object *obj);
@@ -87,7 +87,7 @@ void func_801b01bc_slot04_12(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        func_80130678(obj, 0);
+        set_sequence_by_side(obj, 0);
     } else {
         update_sequence(obj);
     }
@@ -100,7 +100,7 @@ void func_801b0210_slot04_12(Object *obj) {
 void func_801b0250_slot04_12(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
-    func_80130678(obj, 0);
+    set_sequence_by_side(obj, 0);
 }
 
 void func_801b0284_slot04_12(Object *obj) {
@@ -122,7 +122,7 @@ void func_801b02d4_slot04_12(Object *obj) {
     }
     k = (s8)func_80125734(obj, (s8)k);
     k += 0x23;
-    func_80130678(obj, k);
+    set_sequence_by_side(obj, k);
 }
 
 void func_801b0370_slot04_12(Object *obj) {

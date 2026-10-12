@@ -15,7 +15,7 @@ void func_8012b0e4(Object *object) {
     object->field_0b = object->field_158;
     object->field_48 = object->field_21a;
     func_80130088(object);
-    func_80130678(object, 0x10);
+    set_sequence_by_side(object, 0x10);
 }
 
 void func_8012b144(Object *object) {

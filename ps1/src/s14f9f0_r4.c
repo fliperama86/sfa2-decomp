@@ -3,7 +3,7 @@
 #include "externs.h"
 #include "protos.h"
 
-void func_801503f8(Stream *stream, StreamEntry *entry) {
+void load_stream_image(Stream *stream, StreamEntry *entry) {
     Rect rect;
     rect.x = entry->rect_x;
     rect.y = entry->field_0e;
@@ -13,7 +13,7 @@ void func_801503f8(Stream *stream, StreamEntry *entry) {
     func_80157d9c(0);
 }
 
-void func_80150460(Stream *stream, StreamEntry *entry) {
+void load_stream_palette_image(Stream *stream, StreamEntry *entry) {
     Rect rect;
     rect.x = entry->rect_x;
     rect.y = entry->field_0e;
@@ -23,7 +23,7 @@ void func_80150460(Stream *stream, StreamEntry *entry) {
     func_80157d9c(0);
 }
 
-void func_801504bc(Stream *stream, StreamEntry *entry) {
+void transfer_vab_body_chunk(Stream *stream, StreamEntry *entry) {
     int r;
     if (entry->rect_x == 0xffff) {
         entry->rect_x = 0;

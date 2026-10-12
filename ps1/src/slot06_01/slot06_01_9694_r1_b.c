@@ -28,7 +28,7 @@ void func_801e97f4_slot06_01(Object *obj) {
     if ((s16)obj->step_flags & 0x8000) {
         obj->state_1 = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e982c_slot06_01(Object *obj) {

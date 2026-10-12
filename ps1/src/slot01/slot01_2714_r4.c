@@ -8,7 +8,7 @@ void func_80012dec_slot01(Object *obj, u8 *a);
 
 void func_80012d08_slot01(Object *obj) {
     if (obj->field_03 != 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         func_80120028(obj);
     } else {
         func_80012dec_slot01(obj, data_800319b8_slot01 + data_801a27d0 * 0xf0);

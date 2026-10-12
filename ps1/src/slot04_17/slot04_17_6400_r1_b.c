@@ -57,7 +57,7 @@ void func_801b6c24_slot04_17(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 += 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b6c74_slot04_17(Object *o) {

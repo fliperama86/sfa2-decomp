@@ -52,5 +52,5 @@ void func_8012eb18(Object *o)
   o->state_1 = 0;
   o->state_2 = 0;
   o->state_3 = 0;
-  func_80130678(o, 0);
+  set_sequence_by_side(o, 0);
 }

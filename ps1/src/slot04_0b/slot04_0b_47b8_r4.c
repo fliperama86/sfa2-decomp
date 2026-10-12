@@ -8,7 +8,7 @@ void func_801b4c28_slot04_0b(Object *obj) {
     u8 a;
     u16 p;
     u16 q;
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     lim = ref_other.p->ground_y << 16;
     if (obj->state_2 == 0) {
         obj->vel_x += (s16)obj->health << 8;

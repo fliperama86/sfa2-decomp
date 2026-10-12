@@ -43,7 +43,7 @@ void func_801e9a58_slot06_0c(Object *obj, int arg) {
         obj->state_1 = obj->field_0b + 1;
         func_80130700(obj, data_801ebc1c_slot06_0c[11]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         if ((u8)obj->step_flags != 0) {
             obj->field_0b = obj->field_0b ^ 1;
             obj->step_timer = (get_random_byte() & 0x1f) + 8;
@@ -62,7 +62,7 @@ void func_801e9b58_slot06_0c(Object *obj, u16 arg) {
     if (a == 3) {
         func_801ea18c_slot06_0c(obj);
         func_801ea1e0_slot06_0c(obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     } else {
         if (a == 4) {
             obj->state_2++;
@@ -91,7 +91,7 @@ void func_801e9bf0_slot06_0c(Object *obj, u16 unused) {
         obj->state_2 = j;
         func_80130700(obj, data_801ebc1c_slot06_0c[i]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -99,7 +99,7 @@ void func_801e9c6c_slot06_0c(Object *obj, u16 arg) {
     u16 a = arg;
     int i;
     if (a == 4) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     } else {
         if (a == 3) {
             i = 0xc;
@@ -122,6 +122,6 @@ void func_801e9ce8_slot06_0c(Object *obj, u16 arg) {
         obj->vel_x = t[(u16)arg];
         func_80130700(obj, data_801ebc1c_slot06_0c[t[(u16)arg]]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }

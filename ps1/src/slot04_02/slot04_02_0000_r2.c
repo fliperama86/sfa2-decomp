@@ -10,7 +10,7 @@ void func_801b0118_slot04_02(Object *obj) {
 
     if (t < 0) {
         func_801b631c_slot04_02(obj, 1, 0, 0, 0);
-        func_80130678(obj, 0);
+        set_sequence_by_side(obj, 0);
     } else {
         if ((t & 0xff) != 0) {
             obj->step_flags = t & 0xff;

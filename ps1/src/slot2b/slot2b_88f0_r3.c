@@ -13,7 +13,7 @@ void func_80078b50_slot2b(Object *o) {
 }
 
 void func_80078b90_slot2b(Object *o) {
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_80078bb0_slot2b(Object *o) {
@@ -25,14 +25,14 @@ void func_80078bdc_slot2b(Object *o) {
     if ((s16)o->step_flags < 0) {
         o->state_0 = o->state_0 + 1;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_80078c1c_slot2b(Object *o) {
     if ((s16)o->step_flags < 0) {
         o->state_0 = o->state_0 + 1;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_80078c5c_slot2b(Object *o) {

@@ -5,7 +5,7 @@
 
 /* Historical note, from before this unit was exact or about a function that is no longer in this unit: Residual: same code, but the original keeps the second 16-bit read in $a1 and the kind in $v1 (registers swapped). */
 /* Form found by automatic permutation search. */
-void func_80123968(GameState *state)
+void set_winner_by_health(GameState *state)
 {
   int a;
   int b;

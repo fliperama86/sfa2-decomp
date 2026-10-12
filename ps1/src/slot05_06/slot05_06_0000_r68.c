@@ -19,7 +19,7 @@ void func_801cde38_slot05_06(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0++;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_8011ffdc(obj);
 }
 

@@ -24,6 +24,6 @@ void func_801b638c_slot04_06(Object *obj) {
         a = -1;
     }
     obj->pos_y -= a;
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_8011ffdc(obj);
 }

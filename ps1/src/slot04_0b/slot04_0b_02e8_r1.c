@@ -9,7 +9,7 @@ void func_801b02e8_slot04_0b(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        func_80130678(obj, 0);
+        set_sequence_by_side(obj, 0);
     } else {
         update_sequence(obj);
     }
