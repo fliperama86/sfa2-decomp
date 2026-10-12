@@ -2428,7 +2428,6 @@ data_800f01e8_slot0f = 0x800f01e8;
 /* Added by src.u_slot0f_fc28x. */
 
 /* Added by src.u_slot06_00_8000. */
-func_801e8dc4_slot06_00 = 0x801e8dc4;
 data_801ec390_slot06_00 = 0x801ec390;
 data_801e9f90_slot06_00 = 0x801e9f90;
 data_801edc80_slot06_00 = 0x801edc80;
