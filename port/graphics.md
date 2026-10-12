@@ -21,7 +21,9 @@ decoded render geometry. This is not a global correction for all UI or scaled/
 rotated graphics, and it does not import assets or recenter the HUD.
 Unmarked packets retain the original conversion path. The backend additionally
 gates both corrections on the setting, so stale markers alone cannot activate
-them when it is disabled.
+them when it is disabled. Frame-list selection uses the two initialized tables,
+not the address storing their pointer. The earlier selector mistake and its
+correction are preserved in the [selection correction record](../docs/records/2026-10-12-hud-selection-correction.md).
 
 `arcade_video` independently exposes the **384x224 native canvas**, displayed at
 4:3, instead of the original 368x240 presentation. It applies only to the game's
@@ -82,7 +84,10 @@ SDK. It opens a short-lived window, never initializes audio or reads a disc,
 checks mirrors/transparent 4bpp/direct textures, mixed-span life tiles, full/
 partial/damage/empty fills and unmarked/flag-off negative controls,
 and checks original canvas sizes before/after opting in. Its expectations do
-not come from game screenshots. Tests do not prove full-game equivalence.
+not come from game screenshots. `video_bridge_test.c` links the real GPU bridge
+and an already built SDK to check selection against generated mapped RAM. It
+exits without video/audio initialization and needs no game or disc. Tests do not
+prove full-game equivalence.
 
 ## Next reviewed increments
 
