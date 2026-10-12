@@ -25,7 +25,7 @@ void func_801b4960_slot04_06(Object *obj) {
     }
     v = (s8)func_80125734(obj, (s8)v);
     *p = v + v;
-    func_80130678(obj, data_801c5520_slot04_06[v]);
+    set_sequence_by_side(obj, data_801c5520_slot04_06[v]);
 }
 
 void func_801b4a24_slot04_06(Object *obj) {

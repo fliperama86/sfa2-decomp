@@ -52,7 +52,7 @@ void func_801e9d70_slot06_0d(Object *obj) {
         v |= 0x40;
         obj->field_46 = v << (get_random_byte() & 3);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e9de4_slot06_0d(Object *obj) {
@@ -61,7 +61,7 @@ void func_801e9de4_slot06_0d(Object *obj) {
         obj->state_1 = 0;
         func_801e9e30_slot06_0d(obj);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 

@@ -17,7 +17,7 @@ void func_801c80f8_slot05_06(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        func_80130678(obj, 0);
+        set_sequence_by_side(obj, 0);
     } else {
         if (*(u8 *)&obj->step_flags != 0) {
             *(u8 *)&obj->step_flags = 0;

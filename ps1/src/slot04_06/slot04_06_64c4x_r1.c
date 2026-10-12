@@ -22,5 +22,5 @@ void func_801b64c4_slot04_06(Object *obj) {
             func_80130768(obj, a, data_1f800164);
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

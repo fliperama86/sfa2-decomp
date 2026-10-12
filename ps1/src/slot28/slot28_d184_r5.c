@@ -12,7 +12,7 @@ void func_8001d9c8_slot28(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->state_0 = obj->state_0 + 1;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_8001da08_slot28(Object *obj) {

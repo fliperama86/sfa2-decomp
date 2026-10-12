@@ -13,7 +13,7 @@ void func_801b2958_slot04_08(Object *obj) {
         *(s32 *)&obj->pos_y_frac = *(s32 *)&obj->pos_y_frac & 0xffff0000;
         func_801209c4(obj);
         obj->state_3 = obj->state_3 + 1;
-        func_80130678(obj, 0x11);
+        set_sequence_by_side(obj, 0x11);
     } else {
         update_sequence(obj);
     }

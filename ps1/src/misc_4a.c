@@ -40,7 +40,7 @@ void func_80149fc4(Object *object) {
         object->field_157 = 0;
         object->state_3 = 0;
     }
-    func_80130678(object, arg);
+    set_sequence_by_side(object, arg);
 }
 
 void func_8014a038(Object *object) {

@@ -18,7 +18,7 @@ void func_80137b64(Object *object) {
     } else {
         *(s32 *)&object->pos_x_frac += object->vel_x;
         *(u32 *)&object->pos_y_frac -= object->vel_y;
-        func_80131094(object);
+        advance_sequence_checked(object);
         func_8011ff74(object);
         func_8011ffdc(object);
     }
@@ -36,5 +36,5 @@ void func_80137be0(Object *object) {
 void func_80137c54(Object *object) {
     object->state_2++;
     object->field_46 = (object->field_46 & 0xff) | 0x200;
-    func_80131094(object);
+    advance_sequence_checked(object);
 }

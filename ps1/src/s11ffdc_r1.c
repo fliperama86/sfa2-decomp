@@ -21,10 +21,10 @@ void func_80120028(Object *o) {
 }
 
 void func_80120060(Object *o) {
-    func_80120080(o);
+    push_object_by_ot_depth(o);
 }
 
-void func_80120080(Object *o) {
+void push_object_by_ot_depth(Object *o) {
     *stack_801ad354-- = o;
     count_8018f59c++;
     if (o->ot_depth == 0) {

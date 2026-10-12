@@ -4,7 +4,7 @@
 #include "protos.h"
 
 /* Finished by hand from a candidate that the automatic permutation search had reshaped. */
-void func_80151a04(void)
+void draw_text_items(void)
 {
   u16 line;
   int i;

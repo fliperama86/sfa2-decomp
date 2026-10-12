@@ -7,7 +7,7 @@
 void func_80147360(Object *object) {
     u8 a;
     u8 b;
-    func_80147968(object);
+    advance_sequence_unless_paused(object);
     if (game_state.field_64 != 0) {
         if (*(u8 *)&object->step_flags != 0) return;
         game_state.field_dc = 0;

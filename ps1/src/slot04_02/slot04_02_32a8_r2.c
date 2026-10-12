@@ -31,7 +31,7 @@ void func_801b33fc_slot04_02(Object *obj) {
     obj->state_3 = obj->state_3 + 1;
     obj->field_17b = 0;
     obj->field_46 = *(u8 *)&obj->field_46 | 0xa00;
-    func_80130678(obj, 0);
+    set_sequence_by_side(obj, 0);
 }
 
 void func_801b34fc_slot04_02(Object *obj) {

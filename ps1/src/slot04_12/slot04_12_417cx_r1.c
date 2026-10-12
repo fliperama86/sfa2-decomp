@@ -19,7 +19,7 @@ void func_801b417c_slot04_12(Object *obj, Object *p) {
         obj->field_0b = p->field_0b;
         obj->field_01 = 1;
         if (obj->field_48 == a) {
-            func_80131094(obj);
+            advance_sequence_checked(obj);
         } else {
             obj->field_48 = a;
             func_80130700(obj, data_801c4f08_slot04_12[2 + p->side][a]);

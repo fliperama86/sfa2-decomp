@@ -16,7 +16,7 @@ void func_80077fcc_slot2b(Object *o) {
         o->accel_y = -0x4000;
         o->pos_y = data_8007ef24_slot2b;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_80078050_slot2b(Object *o) {
@@ -30,7 +30,7 @@ void func_80078050_slot2b(Object *o) {
         o->state_3 = 0;
         o->pos_y_frac = 0;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_800780c0_slot2b(Object *o) {

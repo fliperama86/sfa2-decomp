@@ -63,7 +63,7 @@ void func_801b6f78_slot04_14(Object *o) {
     if (t != 0) {
         func_801b72b8_slot04_14(o, t);
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_801b6fec_slot04_14(Object *o) {
@@ -77,7 +77,7 @@ void func_801b6fec_slot04_14(Object *o) {
         o->vel_y = 0;
         o->vel_x = -o->vel_x;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_801b704c_slot04_14(Object *o) {
@@ -96,7 +96,7 @@ void func_801b70b8_slot04_14(Object *o) {
     if (t != 0) {
         func_801b72b8_slot04_14(o, t);
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_801b712c_slot04_14(Object *o) {
@@ -110,7 +110,7 @@ void func_801b712c_slot04_14(Object *o) {
         o->state_1 = 0;
         o->vel_y = data_801c6668_slot04_14[o->field_ac];
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_801b71a8_slot04_14(Object *o) {
@@ -130,7 +130,7 @@ void func_801b7228_slot04_14(Object *o) {
         o->state_2 = 0;
         o->state_1 = 0;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_801b726c_slot04_14(Object *o) {
@@ -185,7 +185,7 @@ void func_801b73b4_slot04_14(Object *o) {
                 o->field_48 = s;
                 func_801b74b0_slot04_14(o);
             } else {
-                func_80131094(o);
+                advance_sequence_checked(o);
             }
         }
     }

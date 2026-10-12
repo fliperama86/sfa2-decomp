@@ -3,10 +3,10 @@
  * of the C of the unit slot28_714cx_r1.c; the PS1 build does not use this
  * file, and the unit keeps the exact C.
  *
- * What is different from the unit's C: the call of func_80131094 is written
+ * What is different from the unit's C: the call of advance_sequence_checked is written
  * with the argument `obj`. The unit calls it with none.
  *
- * Why: func_80131094 reads a0 (its first instruction, `move a1,a0` at
+ * Why: advance_sequence_checked reads a0 (its first instruction, `move a1,a0` at
  * 80131094). On the console a0 holds at that call (jal at 80017184) what the
  * earlier call left in it, and that is this function's own first parameter.
  * The earlier call is through the table data_800306cc_slot28 of the module
@@ -23,7 +23,7 @@
  * read something else.
  *
  * What the function does (inferred): it calls the entry of the table that
- * state_1 selects with the object, then func_80131094 with the object, then
+ * state_1 selects with the object, then advance_sequence_checked with the object, then
  * sets the u8 field_01 to 1.
  *
  * Contract:
@@ -33,7 +33,7 @@
  *     state_1.
  *   Callees: the table and its two entries are the image's own and run as
  *     the original code in the test, so that what they leave in a0 is what
- *     the console's code leaves. func_80131094 (1 argument) is replaced in
+ *     the console's code leaves. advance_sequence_checked (1 argument) is replaced in
  *     the test by a recorder that logs its argument and returns 0. What it
  *     does is outside the test. The test watches the whole object at the
  *     recorder's call.
@@ -49,6 +49,6 @@ extern void (*data_800306cc_slot28[])(Object *);
 
 void func_8001714c_slot28(Object *obj) {
     data_800306cc_slot28[obj->state_1](obj);
-    ((void (*)(Object *))func_80131094)(obj);
+    ((void (*)(Object *))advance_sequence_checked)(obj);
     obj->field_01 = 1;
 }

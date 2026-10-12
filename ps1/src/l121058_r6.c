@@ -20,7 +20,7 @@ void func_80122630(GameState *state) {
             if (a->field_49 == 0) {
                 a->field_49 = 0;
                 a->field_4d = 0xff;
-                func_80123968(a);
+                set_winner_by_health(a);
             } else {
                 a->field_49--;
             }

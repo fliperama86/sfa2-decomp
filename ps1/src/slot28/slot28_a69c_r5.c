@@ -18,6 +18,6 @@ void func_8001add0_slot28(Object *o) {
         o->accel_y = 0x400;
         obj->field_47 = 0xff;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
     o->field_01 = 1;
 }

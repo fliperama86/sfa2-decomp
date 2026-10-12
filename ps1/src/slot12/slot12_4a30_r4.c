@@ -15,14 +15,14 @@ void func_80014d08_slot12(Object *obj) {
             game_state.field_2bc = 9;
         }
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_80014d70_slot12(Object *obj) {
     if (game_state.field_2bc == 10) {
         obj->state_0++;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_80014db0_slot12(Object *obj) {

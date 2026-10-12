@@ -3,7 +3,7 @@
 #include "../protos.h"
 #include "../externs.h"
 
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_80152df4(Object *object);
 void func_80130dc0(Object *object);
 Block172 *func_8011f1e0(void);
@@ -126,7 +126,7 @@ void func_801b0d44_slot04_0e(Object *object) {
 void func_801b0d84_slot04_0e(Object *object) {
     object->state_2 = object->state_2 + 1;
     object->field_0b = object->field_158;
-    func_80130678(object, 0);
+    set_sequence_by_side(object, 0);
 }
 
 void func_801b0db8_slot04_0e(Object *object) {
@@ -145,7 +145,7 @@ void func_801b0df4_slot04_0e(Object *o) {
     if (game_state_second.field_a6 == 0) {
         arg = 0x28;
     }
-    func_80130678(o, arg);
+    set_sequence_by_side(o, arg);
 }
 
 void func_801b0e40_slot04_0e(Object *o) {

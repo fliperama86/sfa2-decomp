@@ -62,5 +62,5 @@ void func_80153514(Effect *effect) {
     func_80153d7c(effect);
     effect->field_09 = effect->field_06;
     table_801803c4[effect->side]->field_04 = table_80180334[effect->side];
-    func_80153cac(effect);
+    queue_two_digit_number_text(effect);
 }

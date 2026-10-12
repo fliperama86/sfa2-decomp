@@ -3,10 +3,10 @@
  * of the C of the unit slot28_05b4x_r1.c; the PS1 build does not use this
  * file, and the unit keeps the exact C.
  *
- * What is different from the unit's C: the call of func_80131094 is written
+ * What is different from the unit's C: the call of advance_sequence_checked is written
  * with the argument `obj`. The unit calls it with none.
  *
- * Why: func_80131094 reads a0 (its first instruction, `move a1,a0` at
+ * Why: advance_sequence_checked reads a0 (its first instruction, `move a1,a0` at
  * 80131094, and everything after it goes through a1). On the console a0
  * holds at that call what the earlier call left in it, and that is this
  * function's own first parameter. The earlier call is
@@ -21,7 +21,7 @@
  *
  * What the function does (inferred): it runs func_80020608_slot28 on the
  * object, raises the u8 state_0 by one when the halfword pos_y (offset 0x16)
- * is at least 0xd0, then calls func_80131094 with the object.
+ * is at least 0xd0, then calls advance_sequence_checked with the object.
  *
  * Contract:
  *   Argument: obj (a0), a pointer to an object; no result.
@@ -31,7 +31,7 @@
  *   Callees: func_80020608_slot28 runs as the original code of the module
  *     image slot28 in the test (a leaf; the test keeps no copy of it). That is
  *     so that what it leaves in a0 is what the console's code leaves.
- *     func_80131094 (1 argument) is replaced in the test by a recorder that
+ *     advance_sequence_checked (1 argument) is replaced in the test by a recorder that
  *     logs its argument and returns 0. What it does is outside the test. The
  *     test watches the whole object at the recorder's call.
  *   Excluded inputs: a null obj (the callees read and write through it).
@@ -48,5 +48,5 @@ void func_800205b4_slot28(Object *obj) {
     if (obj->pos_y >= 0xd0) {
         obj->state_0++;
     }
-    ((void (*)(Object *))func_80131094)(obj);
+    ((void (*)(Object *))advance_sequence_checked)(obj);
 }

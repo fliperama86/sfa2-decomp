@@ -33,5 +33,5 @@ void func_80079294_slot2b(Object *o) {
         o->vel_y = 0x40000;
         o->accel_y = -0x8000;
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }

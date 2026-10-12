@@ -8,7 +8,7 @@ extern u8 data_801c4164_slot04_04[];
 void func_801b0250_slot04_04(Object *obj) {
     obj->state_2 = obj->state_2 + 1;
     obj->field_0b = obj->field_158;
-    func_80130678(obj, 0);
+    set_sequence_by_side(obj, 0);
 }
 
 void func_801b0284_slot04_04(Object *obj) {
@@ -30,7 +30,7 @@ void func_801b02d4_slot04_04(Object *obj) {
     }
     k = (s8)func_80125734(obj, (s8)k);
     k += 0x23;
-    func_80130678(obj, k);
+    set_sequence_by_side(obj, k);
 }
 
 void func_801b0370_slot04_04(Object *obj) {

@@ -29,6 +29,6 @@ void func_800148a4_slot01(Object *obj) {
 extern ObjectFn data_80015dd4_slot01[];
 void func_8001496c_slot01(Object *obj) {
     data_80015dd4_slot01[obj->state_1](obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_80120028(obj);
 }

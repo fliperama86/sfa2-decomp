@@ -17,7 +17,7 @@ void func_801b40ec_slot04_04(Object *obj, Object *p) {
         obj->field_0b = p->field_0b;
         obj->field_01 = 1;
         if (obj->field_48 == a) {
-            func_80131094(obj);
+            advance_sequence_checked(obj);
         } else {
             obj->field_48 = a;
             func_80130700(obj, data_801c4670_slot04_04[p->side][a]);
@@ -37,7 +37,7 @@ void func_801b4198_slot04_04(Object *obj, Object *p) {
         obj->field_0b = p->field_0b;
         obj->field_01 = 1;
         if (obj->field_48 == a) {
-            func_80131094(obj);
+            advance_sequence_checked(obj);
         } else {
             obj->field_48 = a;
             func_80130700(obj, data_801c4670_slot04_04[2 + p->side][a]);

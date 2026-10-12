@@ -4,5 +4,5 @@
 #include "../externs.h"
 
 void func_8001adb0_slot28(Object *obj) {
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }

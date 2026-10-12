@@ -30,7 +30,7 @@ void func_801b4544_slot04_15(Object *obj) {
     p = obj->field_3c;
     t = p->ground_y;
     if (t > obj->pos_y) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     } else {
         obj->state_1 = obj->state_1 + 1;
         obj->pos_y = (u16)p->ground_y;
@@ -39,7 +39,7 @@ void func_801b4544_slot04_15(Object *obj) {
 }
 
 void func_801b45e4_slot04_15(Object *obj) {
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b4604_slot04_15(Object *obj) {

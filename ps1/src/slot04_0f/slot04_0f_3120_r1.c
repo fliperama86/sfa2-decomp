@@ -7,7 +7,7 @@ extern ObjectFn data_801c5b44_slot04_0f[];
 extern u8 data_801c5b5c_slot04_0f[];
 extern ObjectFn data_801c5b60_slot04_0f[];
 extern u8 data_801c5b94_slot04_0f[];
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 int func_80130184(Object *object);
 void func_801428e4(Object *object);
 void func_80138b38(GameState *state, Object *object);
@@ -284,7 +284,7 @@ void func_801b39a0_slot04_0f(Object *obj) {
         obj->field_45 = 0;
         obj->pos_y = obj->ground_y;
         func_801209c4(obj);
-        func_80130678(obj, 0x11);
+        set_sequence_by_side(obj, 0x11);
     }
 }
 

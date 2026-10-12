@@ -18,6 +18,6 @@ void func_80129d14(Object *object) {
             arg = 2;
         }
     }
-    func_80130678(object, arg);
+    set_sequence_by_side(object, arg);
     func_80129da8(object);
 }

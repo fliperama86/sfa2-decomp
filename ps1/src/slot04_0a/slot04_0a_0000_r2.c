@@ -36,7 +36,7 @@ void func_801b0290_slot04_0a(Object *obj) {
         obj->pos_y_frac = 0;
         obj->field_45 = 0;
         obj->pos_y = obj->ground_y;
-        func_80130678(obj, 0x31);
+        set_sequence_by_side(obj, 0x31);
     } else {
         update_sequence(obj);
     }

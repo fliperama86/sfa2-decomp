@@ -133,7 +133,7 @@ void func_801ea2e4_slot06_0f(Object *obj) {
         func_801ea828_slot06_0f(obj);
     } else {
         func_801ea734_slot06_0f(obj);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -149,7 +149,7 @@ void func_801ea3d4_slot06_0f(Object *obj) {
         obj->state_2++;
         func_801ea91c_slot06_0f(obj, 2);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -163,7 +163,7 @@ void func_801ea42c_slot06_0f(Object *obj) {
         if (func_801ea77c_slot06_0f(obj) == 0 && func_801ea85c_slot06_0f(obj) == 0 && func_801ea7e4_slot06_0f(obj) != 0) {
             func_801ea828_slot06_0f(obj);
         } else {
-            func_80131094(obj);
+            advance_sequence_checked(obj);
         }
     }
 }
@@ -179,7 +179,7 @@ void func_801ea510_slot06_0f(Object *obj) {
         obj->state_2++;
         func_801ea91c_slot06_0f(obj, 3);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801ea56c_slot06_0f(Object *obj) {
@@ -190,6 +190,6 @@ void func_801ea56c_slot06_0f(Object *obj) {
     } else if (func_801ea7e4_slot06_0f(obj) == 0 && func_801ea85c_slot06_0f(obj) == 0 && func_801ea77c_slot06_0f(obj) != 0) {
         func_801ea7b4_slot06_0f(obj);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }

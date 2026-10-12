@@ -68,7 +68,7 @@ void func_801b6740_slot04_16(Object *obj) {
         if (ref_other.p->frame->field_09 != obj->field_48) {
             func_801b6890_slot04_16(obj, ref_other.p->frame->field_09);
         } else {
-            func_80131094(obj);
+            advance_sequence_checked(obj);
         }
     }
 }

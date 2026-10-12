@@ -29,6 +29,6 @@ void func_80027500_slot28(Object *obj) {
         func_800275c4_slot28(obj);
         func_800274b8_slot28(obj);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     obj->field_01 = 1;
 }

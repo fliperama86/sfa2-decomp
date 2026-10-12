@@ -22,12 +22,12 @@ void func_801b3ef8_slot04_02(Object *o) {
         } else {
             o->state_3 = 8;
             o->field_46 = obj->field_46 | 0x800;
-            func_80130678(o, 0);
+            set_sequence_by_side(o, 0);
         }
     } else {
         o->state_3 = 8;
         o->field_46 = obj->field_46 | 0x800;
-        func_80130678(o, 0);
+        set_sequence_by_side(o, 0);
     }
 }
 

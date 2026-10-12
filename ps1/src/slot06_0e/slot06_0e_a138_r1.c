@@ -74,7 +74,7 @@ void func_801ea29c_slot06_0e(Object *obj) {
         if ((u16)u < 0x79) {
             u = d + 0xf;
             obj->pos_y = 0xf8 - u;
-            func_80131094(obj);
+            advance_sequence_checked(obj);
         }
     }
 }
@@ -200,7 +200,7 @@ void func_801ea778_slot06_0e(Object *obj) {
     if (obj->field_01 != 0) {
         *(u16 *)&obj->pos_x = *(u16 *)&p->pos_x;
         *(u16 *)&obj->pos_y = *(u16 *)&p->pos_y;
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 

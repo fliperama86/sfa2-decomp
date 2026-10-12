@@ -16,7 +16,7 @@ void func_8012b184(Object *object) {
     } else if ((u8)func_8012f618(object)) {
         object->state_3 = object->state_3 + 1;
         saved = object->step_timer;
-        func_80130678(object, (u8)object->step_flags + 0xd);
+        set_sequence_by_side(object, (u8)object->step_flags + 0xd);
         object->step_timer = saved;
     } else if (func_8012f970(object)) {
         func_8012fe60(object);

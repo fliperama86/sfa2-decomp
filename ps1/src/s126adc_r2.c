@@ -169,7 +169,7 @@ void func_801272d0(void) {
     game_state.fade_done_mask = 0;
     func_8012774c();
     func_80127884();
-    func_80127920();
+    fade_in_palette_bank_3();
     if (game_state.fade_done_mask == 0xd)
         game_state.fade_busy = 0;
 }
@@ -255,8 +255,8 @@ void func_8012769c(void) {
     func_8012774c();
     func_801277e8();
     func_80127884();
-    func_80127920();
-    func_801279bc();
+    fade_in_palette_bank_3();
+    fade_in_palette_bank_4();
     if (game_state.fade_done_mask == 0x1f)
         game_state.fade_busy = 0;
 }
@@ -302,12 +302,12 @@ void func_80127884(void) {
 
 void func_801278d8(void) {
     game_state.fade_done_mask = 0;
-    func_80127920();
+    fade_in_palette_bank_3();
     if (game_state.fade_done_mask == 8)
         game_state.fade_busy = 0;
 }
 
-void func_80127920(void) {
+void fade_in_palette_bank_3(void) {
     if ((u8)fade_palette_bank(3, 1, 1))
         game_state.fade_done_mask |= 8;
     func_80137220(3, 2);
@@ -315,12 +315,12 @@ void func_80127920(void) {
 
 void func_80127974(void) {
     game_state.fade_done_mask = 0;
-    func_801279bc();
+    fade_in_palette_bank_4();
     if (game_state.fade_done_mask == 0x10)
         game_state.fade_busy = 0;
 }
 
-void func_801279bc(void) {
+void fade_in_palette_bank_4(void) {
     if ((u8)fade_palette_bank(4, 1, 1))
         game_state.fade_done_mask |= 0x10;
     func_80137220(4, 7);

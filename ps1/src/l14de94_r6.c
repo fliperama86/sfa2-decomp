@@ -11,7 +11,7 @@ void func_801536b8(Effect *effect) {
         return;
     }
     func_80153d7c(effect);
-    func_80153cac(effect);
+    queue_two_digit_number_text(effect);
     if (effect->owner->field_cd == 0) {
         func_80153dfc(effect);
     }

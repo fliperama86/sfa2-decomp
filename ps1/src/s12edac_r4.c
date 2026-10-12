@@ -68,7 +68,7 @@ void func_8012f6a0(Object *object) {
     object->state_2 = 1;
     object->state_3 = 0;
     object->field_157 = 0;
-    func_80130678(object, 7);
+    set_sequence_by_side(object, 7);
 }
 
 int func_8012f6d8(Object *object) {
@@ -95,7 +95,7 @@ void func_8012f784(Object *object) {
     object->state_1 = 0;
     object->state_3 = 2;
     object->field_157 = 0;
-    func_80130678(object, 4);
+    set_sequence_by_side(object, 4);
 }
 
 int func_8012f7c0(Object *object) {
@@ -139,5 +139,5 @@ void func_8012f838(Object *object) {
     } else {
         arg = 3;
     }
-    func_80130678(object, arg);
+    set_sequence_by_side(object, arg);
 }

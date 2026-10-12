@@ -28,7 +28,7 @@ move:
         o->field_10 += obj->vel_x;
         o->field_14 -= obj->vel_y;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
     func_8011ff74(obj);
     func_8011ffdc(obj);
 }

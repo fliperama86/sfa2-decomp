@@ -56,12 +56,12 @@ void func_801e9828_slot06_0d(Object *obj) {
         i = game_state.field_78->kind != 0xd ? 0xb : 0xc;
         func_80130700(obj, data_801eb1b0_slot06_0d[i]);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
 void func_801e98bc_slot06_0d(Object *obj) {
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801e98dc_slot06_0d(Object *obj) {

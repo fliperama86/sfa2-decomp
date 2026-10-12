@@ -34,7 +34,7 @@ void func_8012e984(Object *object) {
 void func_8012e9c4(Object *object) {
     object->state_2 = object->state_2 + 1;
     object->field_0b = object->field_158;
-    func_80130678(object, 0);
+    set_sequence_by_side(object, 0);
 }
 
 void func_8012e9f8(Object *object) {
@@ -52,5 +52,5 @@ void func_8012ea40(Object *object) {
     if (game_state.config->field_a6 != 0) {
         arg = 0x29;
     }
-    func_80130678(object, arg);
+    set_sequence_by_side(object, arg);
 }

@@ -358,7 +358,7 @@ def order_cases(root: Path):
         "old_game": X("C under another name", "80118a00", "-", "real_game"),
         "func_80131000_slot04": X("C under another name", "80131000", "slot04", "real_mod"),
         "func_80132000": X("C under another name", "80132000", "-", "real_res"),
-        "func_80157090": X("library by address", "80157090"),
+        "replace_blocked_name": X("library by address", "80157090"),
         "func_1f800010_slot04": X("module function", "1f800010", "slot04"),
         "func_1f800020": X("function elsewhere", "1f800020"),
         "pad_game": X("game function", "1f800030"),

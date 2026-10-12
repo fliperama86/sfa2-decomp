@@ -37,6 +37,6 @@ void func_80076948_slot00(Object *o) {
             ((Slot00Obj *)o)->field_b2 = 1;
             func_80077150_slot00(o);
         }
-        func_80131094(o);
+        advance_sequence_checked(o);
     }
 }

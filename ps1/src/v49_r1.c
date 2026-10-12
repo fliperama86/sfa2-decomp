@@ -38,5 +38,5 @@ apply:
         object->slots[index].stage++;
     }
     object->slots[index].field_01 = game_state.field_35c;
-    func_8013f1bc(object, index, arg);
+    set_slot_random_timer(object, index, arg);
 }

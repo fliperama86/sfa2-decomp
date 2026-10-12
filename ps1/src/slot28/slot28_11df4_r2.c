@@ -23,7 +23,7 @@ void func_80021fc8_slot28(Object *obj) {
 
 void func_8002201c_slot28(Object *obj) {
     data_800469d8_slot28[obj->state_1](obj);
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_80022070_slot28(Object *obj) {

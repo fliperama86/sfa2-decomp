@@ -10,7 +10,7 @@ void func_80078554_slot2b(Object *o);
 void func_80078338_slot2b(Object *o) {
     func_80078554_slot2b(o);
     if (data_8007ef2c_slot2b >= o->pos_y) {
-        func_80131094(o);
+        advance_sequence_checked(o);
     } else {
         o->state_2++;
         o->pos_y_frac = 0;

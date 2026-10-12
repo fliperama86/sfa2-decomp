@@ -48,7 +48,7 @@ void func_801e9858_slot06_04(Object *obj) {
         a &= m;
         obj->accel_x = a;
         func_801e9918_slot06_04(obj, (a + 0x800000) >> 16);
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
     func_80120028(obj);
 }

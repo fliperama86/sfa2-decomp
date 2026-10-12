@@ -9,7 +9,7 @@ void func_8015393c(Actor *a) {
         func_80153d7c(a);
         a->number_value = a->target->field_6a;
         table_801803c4[a->side]->field_04 = table_8018033c[a->side];
-        func_80153cac(a);
+        queue_two_digit_number_text(a);
         if (a->owner->field_cd == 0) {
             func_80153ed8(a);
             if (a->owner->field_cd == 0) {

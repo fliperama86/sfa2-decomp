@@ -16,7 +16,7 @@ void func_80078ab4_slot00(Object *obj) {
         obj->pos_y = t->ground_y;
         func_80078458_slot00(obj, 10);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_80078b20_slot00(Object *obj) {

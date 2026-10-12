@@ -17,11 +17,11 @@ void func_8014f4d4(int a, int arg) {
         break;
     case 2:
         m->field_06 = 1;
-        func_8014f604(0);
+        set_cd_volume(0);
         break;
     case 3:
         m->field_06 = 0;
-        func_8014f604(0x55);
+        set_cd_volume(0x55);
         break;
     case 4:
         m->field_02 = 4;

@@ -7,7 +7,7 @@ void func_801486a4(Object *object) {
   if (game_state.field_65 == 0) {
     ref_other.p = object->field_3c;
     if ((((u32 *) ref_other.p)[1] & 0xffffff) == 0x80001) {
-      func_80131094(object);
+      advance_sequence_checked(object);
     } else {
       object->state_1 = 0;
       object->state_0++;

@@ -25,5 +25,5 @@ void func_8012a91c(Object *object) {
     } else {
         index = 0x12;
     }
-    func_80130678(object, index);
+    set_sequence_by_side(object, index);
 }

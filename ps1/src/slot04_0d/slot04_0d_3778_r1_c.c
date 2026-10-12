@@ -182,7 +182,7 @@ void func_801b3e78_slot04_0d(Object *object) {
     object->state_2 = object->state_2 + 1;
     func_801b40bc_slot04_0d(object);
     ((Slot04bObj *)object)->field_46 = 2;
-    func_80131094(object);
+    advance_sequence_checked(object);
 }
 
 void func_801b3ec0_slot04_0d(Object *object) {

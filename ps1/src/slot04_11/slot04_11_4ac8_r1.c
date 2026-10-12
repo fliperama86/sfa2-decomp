@@ -12,7 +12,7 @@ void func_80143184(Object *object);
 void func_80142fe8(Object *object);
 void func_80142c70(Object *object);
 void func_801495f8(Object *object, int x, int y);
-void func_80130678(Object *object, int index);
+void set_sequence_by_side(Object *object, int index);
 void func_801b4b8c_slot04_11(Object *obj);
 void func_801b511c_slot04_11(Object *obj);
 void func_801b5174_slot04_11(Object *obj);
@@ -106,7 +106,7 @@ void func_801b4d84_slot04_11(Object *obj) {
         obj->field_45 = 0;
         obj->pos_y = ((Slot04bObj *)obj)->ground_y;
         func_801209c4(obj);
-        func_80130678(obj, 0x11);
+        set_sequence_by_side(obj, 0x11);
     }
     update_sequence(obj);
 }
@@ -136,7 +136,7 @@ void func_801b4eb4_slot04_11(Object *obj) {
     if (obj->field_45 == 0) {
         a = 0x2b;
     }
-    func_80130678(obj, a);
+    set_sequence_by_side(obj, a);
 }
 
 void func_801b4f20_slot04_11(Object *obj) {

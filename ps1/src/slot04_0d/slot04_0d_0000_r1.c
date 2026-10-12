@@ -14,7 +14,7 @@ extern ObjectFn data_801c2960_slot04_0d[];
 extern ObjectFn data_801c296c_slot04_0d[];
 
 Object *func_8011f32c(void);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_80130dc0(Object *object);
 void func_80142a14(Object *object);
 
@@ -82,7 +82,7 @@ void func_801b0180_slot04_0d(Object *obj) {
     if (obj->pos_x == 0x280) {
         obj->state_2 = obj->state_2 + 1;
         play_sound_at(obj, obj->side, 0x324);
-        func_80130678(obj, 0x30);
+        set_sequence_by_side(obj, 0x30);
     } else {
         update_sequence(obj);
     }
@@ -106,7 +106,7 @@ void func_801b020c_slot04_0d(Object *obj) {
         } else {
             obj->pos_x = 0x2e0;
         }
-        func_80130678(obj, 0x31);
+        set_sequence_by_side(obj, 0x31);
     } else {
         update_sequence(obj);
         func_801b0308_slot04_0d(obj);
@@ -119,7 +119,7 @@ void func_801b02b8_slot04_0d(Object *obj) {
         obj->state_1 = 0;
         obj->state_2 = 0;
         obj->state_3 = 0;
-        func_80130678(obj, 0);
+        set_sequence_by_side(obj, 0);
     } else {
         update_sequence(obj);
     }

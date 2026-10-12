@@ -42,7 +42,7 @@ void func_801b5c5c_slot04_06(Object *obj) {
             if (obj->field_48 != a) {
                 func_801b5d68_slot04_06(obj, a);
             } else {
-                func_80131094(obj);
+                advance_sequence_checked(obj);
             }
         }
     } else {

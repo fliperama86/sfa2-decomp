@@ -21,7 +21,7 @@ void func_80076e54_slot00(Object *o) {
             o->vel_y = data_800797fc_slot00[o->field_ac >> 1];
         }
     }
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_80076ef0_slot00(Object *o) {

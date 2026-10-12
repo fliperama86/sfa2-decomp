@@ -12,7 +12,7 @@ extern ObjectFn data_801c6310_slot04_14[];
 
 void func_80138ae8(GameState *state, Object *object);
 int func_80130184(Object *object);
-void func_80130678(Object *object, int arg);
+void set_sequence_by_side(Object *object, int arg);
 void func_801b2b4c_slot04_14(Object *obj);
 void func_801b62a8_slot04_14(Object *obj, u8 a, u8 b, u8 c, u8 d);
 u8 func_801b26bc_slot04_14(Object *obj);
@@ -150,7 +150,7 @@ void func_801b2550_slot04_14(Object *obj) {
     if (func_801b26bc_slot04_14(obj) != 0) {
         if ((s16)obj->step_flags & 0x8000) {
             obj->state_3++;
-            func_80130678(obj, 0x21);
+            set_sequence_by_side(obj, 0x21);
         } else {
             update_sequence(obj);
         }
@@ -169,7 +169,7 @@ void func_801b25cc_slot04_14(Object *obj) {
         obj->pos_y = ((Slot04bObj *)obj)->ground_y;
         func_801209c4(obj);
         s1->field_249 = 5;
-        func_80130678(obj, 0x11);
+        set_sequence_by_side(obj, 0x11);
     } else {
         update_sequence(obj);
     }
@@ -182,7 +182,7 @@ void func_801b2664_slot04_14(Object *obj) {
     obj->field_45 = 0;
     obj->pos_y_frac = 0;
     obj->pos_y = ((Slot04bObj *)obj)->ground_y;
-    func_80130678(obj, 0x11);
+    set_sequence_by_side(obj, 0x11);
 }
 
 u8 func_801b26bc_slot04_14(Object *obj) {

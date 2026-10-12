@@ -32,7 +32,7 @@ void func_801b4efc_slot04_0f(Object *obj) {
     u16 t;
 
     if ((config->field_65 | config->field_a8) == 0) {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
         t = obj->step_flags;
         if (t & 0xff) {
             obj->step_flags = t & 0xff00;
@@ -76,7 +76,7 @@ void func_801b5080_slot04_0f(Object *o) {
     o->field_0b ^= 1;
     func_801380f0(o);
     o->field_46 = 2;
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_801b50d0_slot04_0f(Object *obj) {
@@ -92,7 +92,7 @@ void func_801b50d0_slot04_0f(Object *obj) {
         obj->accel_x = -obj->accel_x;
         func_80138070(obj, obj->field_a0);
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b5150_slot04_0f(Object *obj) {
@@ -109,7 +109,7 @@ void func_801b51c0_slot04_0f(Object *o) {
     o->field_0b ^= 1;
     func_801380f0(o);
     o->field_46 = 2;
-    func_80131094(o);
+    advance_sequence_checked(o);
 }
 
 void func_801b5210_slot04_0f(Object *obj) {
@@ -134,7 +134,7 @@ void func_801b5210_slot04_0f(Object *obj) {
         obj->vel_x = x;
         func_80138070(obj, obj->field_a0);
     } else {
-        func_80131094(obj);
+        advance_sequence_checked(obj);
     }
 }
 
@@ -156,7 +156,7 @@ void func_801b533c_slot04_0f(Object *obj) {
         obj->state_2 = 0;
         obj->state_3 = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b537c_slot04_0f(Object *o) {
@@ -201,7 +201,7 @@ void func_801b5528_slot04_0f(Object *obj) {
     if ((config->field_65 | config->field_a8) == 0) {
         ref_other.p = obj->field_3c;
         if (*(u16 *)&ref_other.p->state_0 == 1 && ref_other.p->state_2 == 7) {
-            func_80131094(obj);
+            advance_sequence_checked(obj);
             func_801b57b4_slot04_0f(obj);
             if ((s16)obj->step_flags >= 0) {
                 goto go;
@@ -257,7 +257,7 @@ void func_801b5708_slot04_0f(Object *obj) {
         obj->state_2 = 0;
         obj->state_3 = 0;
     }
-    func_80131094(obj);
+    advance_sequence_checked(obj);
 }
 
 void func_801b5748_slot04_0f(Object *o) {

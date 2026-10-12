@@ -13,7 +13,7 @@ void func_80150b80(Menu *menu, int a) {
     menu->field_28 = menu->field_2c = lo + menu->field_28;
     menu->field_2c = (data_8017eb44[hi * 8 + lo] << 3) + menu->field_2c;
     func_8015cec4(menu->field_28, &menu->field_f0);
-    func_8014f604(0);
+    set_cd_volume(0);
     func_8016a730(0, 0, 1);
     func_8016904c(0, 0x55, 0x55);
     menu->field_00 = 2;

@@ -31,7 +31,7 @@ void func_801b02cc_slot04_09(Object *obj) {
             }
             k = (s8)func_80125734(obj, k);
             obj->field_48 = k;
-            func_80130678(obj, data_801c7b94_slot04_09[k]);
+            set_sequence_by_side(obj, data_801c7b94_slot04_09[k]);
         }
     } else {
         update_sequence(obj);
