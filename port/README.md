@@ -5,6 +5,9 @@ options off by default. See [graphics and settings](graphics.md) for super/life
 pixel-grid sampling, the independently optional arcade canvas, WIP common-UI
 centering and scoped checks.
 
+The native macOS build (a 32-bit-pointer guest in a micro-VM) is designed in
+[`mac/README.md`](mac/README.md).
+
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
 Linux. **The game does not run on macOS or Linux, and on Windows it is
 not shown to play to its end.** What runs since 2026-10-10, on Windows: a
