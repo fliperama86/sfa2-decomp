@@ -570,6 +570,10 @@ class PortSubjects(Fixture):
                 with self.assertRaises(model.Problem):
                     self.names(['port/mac/vm.c'])
                 self.assertNotIn('test_mac', self.names(['port/src/a.c']))
+                # a change that holds a file nobody names and one that names the Mac-only control file keeps that control file, in either order
+                for order in (['port/mac/vm.c', 'port/src/zz_unnamed.c'], ['port/src/zz_unnamed.c', 'port/mac/vm.c']):
+                    with patch.object(review, 'on_macos', lambda: True):
+                        self.assertEqual(self.names(order)[:-1], ['test_mac', 'test_one', 'test_three', 'test_two'], order)
             self.table({'test_one': ['port/src/a.c'], 'test_two': [], 'test_three': []})   # no line for test_mac
             with self.assertRaises(model.Problem):
                 self.names(['port/src/a.c'])
