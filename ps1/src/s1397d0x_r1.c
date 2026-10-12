@@ -57,24 +57,24 @@ u8 func_801397d0(s32 arg_a, Object *b, Box6 *c) {
         px = -px;
     }
     /* Stand-in, not recovered source: one stand-in at 2 places, the two terms that are added to the placed x of a below, each of which is 0 for every value of ox, reproduce the original's choice of registers. Without them this function differs from the original in 7 instruction slots. */
-    ax = ox + (a->pos_x & 0xffff) + (((u32)ox << 24) & 0x100) + (((u32)ox << 23) & 0x100);
+    ax = ox + (a->pos_x & 0xffff) + (int)(((u32)ox << 24) & 0x100) + (int)(((u32)ox << 23) & 0x100);
     bx = px + (b->pos_x & 0xffff);
     data_80188ed0.out_3c = ax;
     data_80188ed0.out_40 = bx;
     dx = bx - ax;
-    adx = dx << 16 < 0 ? -dx : dx;
+    adx = ((u32)dx << 16) >> 31 ? -dx : dx;
     if ((s16)(pw + ow) < (s16)adx) {
         return 1;
     }
     /* Stand-in, not recovered source: the term that is added to the placed y of a below, which is 0 for every value of oy, reproduces the original's choice of registers. Without it this function differs from the original in 6 instruction slots. */
-    ay = (a->pos_y & 0xffff) - oy + (((u32)oy << 24) & 0x100);
+    ay = (a->pos_y & 0xffff) - oy + (int)(((u32)oy << 24) & 0x100);
     /* Stand-in, not recovered source: the term that is added to the placed y of b below, which is 0 for every value of py, reproduces the original's choice of registers. Without it this function differs from the original in 8 instruction slots. */
-    by = (b->pos_y & 0xffff) - py + (((u32)py << 24) & 0x100);
+    by = (b->pos_y & 0xffff) - py + (int)(((u32)py << 24) & 0x100);
     data_80188ed0.out_44 = ay;
     data_80188ed0.out_48 = by;
     dy = by - ay;
     /* One local (py) holds both the box y and the absolute y distance. Written with a separate local, this function differs from the original in 15 instruction slots. */
-    py = dy << 16 < 0 ? -dy : dy;
+    py = ((u32)dy << 16) >> 31 ? -dy : dy;
     /* Stand-in, not recovered source: the term that is ORed to the absolute y distance below, which is 0 for every value of dy, reproduces the original's order of instructions. Without it this function differs from the original in 15 instruction slots (built size 340 bytes instead of 344). */
     /* The (int) cast is plain C; with u32 here the function differs from the original in 1 instruction slot. */
     return (s16)(ph + oh) < ((s16)py | (int)(((u32)dy << 24) & 0x100));
