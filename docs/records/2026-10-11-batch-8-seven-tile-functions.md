@@ -1,4 +1,3 @@
-
 ## Batch 8: seven more tile-map functions of the stage modules exact, no stand-in (2026-10-11)
 
 - Seven functions from `slot06_nonmatching`, relatives of the routine of

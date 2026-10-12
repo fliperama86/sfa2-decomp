@@ -1,4 +1,3 @@
-
 ## Batch 16: the third sibling of batch 15 exact (2026-10-11)
 
 - `func_801b4a3c_slot04_0e` (260 bytes), from `slot04b_nonmatching`;

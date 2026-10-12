@@ -1,4 +1,3 @@
-
 ## Batch 3: four functions exact, three with labelled stand-ins and one without, in one pull request (2026-10-11)
 
 - Four functions are published together: `func_8011cf98`,

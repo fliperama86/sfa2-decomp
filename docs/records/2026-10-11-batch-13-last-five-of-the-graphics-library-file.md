@@ -1,4 +1,3 @@
-
 ## Batch 13: the last five functions of the library's graphics file exact (2026-10-11)
 
 - `PutDispEnv` (`0x80158470`, 1060 bytes), `_clr` (`0x801591a4`, 544),

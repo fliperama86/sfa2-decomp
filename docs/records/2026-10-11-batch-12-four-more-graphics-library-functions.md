@@ -1,4 +1,3 @@
-
 ## Batch 12: four more functions of the graphics library exact (2026-10-11)
 
 - `SetDrawEnv` (`0x80158a84`, 676 bytes), `_getctl` (`0x801598e8`, 24),
