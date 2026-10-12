@@ -8000,6 +8000,14 @@ functions = [
 ]
 
 [[unit]]
+name = "s13c6acx_r1"
+source = "s13c6acx_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_8013c6ac", address = 0x8013c6ac, size = 708 },
+]
+
+[[unit]]
 name = "n12b8dc_r14"
 source = "n12b8dc_r14.c"
 flags = ["-O2", "-G0"]
