@@ -11,7 +11,7 @@ void func_80130678(Object *object, int index);
 void func_801b1fd8_slot04_0f(Object *obj);
 void func_801b1ddc_slot04_0f(Object *obj);
 void func_801b2094_slot04_0f(Object *obj);
-void func_801b21f8_slot04_0f(Object *obj);
+void func_801b21f8_slot04_0f(Object *o, int a, int pos);
 void func_801b2270_slot04_0f(Object *obj);
 
 void func_801b1d04_slot04_0f(Object *obj) {
@@ -35,6 +35,7 @@ void func_801b1d64_slot04_0f(Object *o) {
     func_801b1ddc_slot04_0f(o);
 }
 
+/* The call of func_801b21f8_slot04_0f passes one argument although the callee takes three: the original does not set the second and third argument registers before it. Written with the arguments (two zeros), this unit is 8 bytes longer and differs from the original in 10 instruction slots. */
 void func_801b1ddc_slot04_0f(Object *o) {
     update_sequence(o);
     func_801b2270_slot04_0f(o);
@@ -42,7 +43,7 @@ void func_801b1ddc_slot04_0f(Object *o) {
         o->state_3 = o->state_3 + 1;
         o->field_01 = 0;
         ((Slot04bObj *)o)->field_46 = 0x10;
-        func_801b21f8_slot04_0f(o);
+        ((void (*)(Object *))func_801b21f8_slot04_0f)(o);
     }
 }
 
@@ -114,12 +115,13 @@ void func_801b2018_slot04_0f(Object *o) {
     func_801b2094_slot04_0f(o);
 }
 
+/* The call of func_801b21f8_slot04_0f passes one argument although the callee takes three: the original does not set the second and third argument registers before it. Written with the arguments (two zeros), this unit is 8 bytes longer and differs from the original in 6 instruction slots. */
 void func_801b2094_slot04_0f(Object *o) {
     update_sequence(o);
     if ((s16)o->step_flags < 0) {
         ((Slot04bObj *)o)->field_46 = 0x10;
         o->state_3 = o->state_3 + 1;
-        func_801b21f8_slot04_0f(o);
+        ((void (*)(Object *))func_801b21f8_slot04_0f)(o);
     }
 }
 

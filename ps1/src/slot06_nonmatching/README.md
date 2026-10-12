@@ -265,12 +265,6 @@ func_801e8bd8_slot06_08 edges: constants 71, altered runs 142, unnoticed 43, all
   slot 511: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1334
   slot 516: addiu s2,s2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1524
 func_801e8dc4_slot06_00 edges: constants 9, altered runs 18, unnoticed 0, all discarded 0
-func_801e96fc_slot06_0b edges: constants 35, altered runs 64, unnoticed 2, all discarded 0
-  slot 231: addiu t2,t2,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1724
-  slot 236: addiu t3,t3,0x1, immediate 0x1 -> 0x0: different 0 of 2000, discarded 1762
-  slot 108: not executed by any case
-  slot 115: not executed by any case
-  slot 211: not executed by any case
 func_801e9738_slot06_0e edges: constants 17, altered runs 32, unnoticed 6, all discarded 4
   slot 96: addiu a1,t2,0x4, immediate 0x4 -> 0x5: different 0 of 2000, discarded 1883
   slot 96: addiu a1,t2,0x4, immediate 0x4 -> 0x3: different 0 of 2000, discarded 1883
@@ -483,7 +477,6 @@ What the replay command of the folder printed on 2026-10-10, one line per functi
 
 ```
 func_801e8dc4_slot06_00 replay: fixtures 1, passed 1, failed 0
-func_801e96fc_slot06_0b replay: fixtures 12, passed 12, failed 0
 ```
 
 ## Controls of the tool
@@ -658,8 +651,6 @@ func_801e8bd8_slot06_08: built 1496 bytes, original 2124 bytes; cases 2000, disc
 func_801e8bd8_slot06_08 coverage: 523 of 531 instruction slots of the original executed
 func_801e8dc4_slot06_00: built 344 bytes, original 432 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e8dc4_slot06_00 coverage: 108 of 108 instruction slots of the original executed
-func_801e96fc_slot06_0b: built 820 bytes, original 996 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_801e96fc_slot06_0b coverage: 246 of 249 instruction slots of the original executed
 func_801e9738_slot06_0e: built 588 bytes, original 628 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801e9738_slot06_0e coverage: 156 of 157 instruction slots of the original executed
 ```
@@ -673,8 +664,6 @@ func_801e8bd8_slot06_08 control: different 110 of 2000 (expected more than 0)
   altered: row count limit 0x20 changed to 0x10, instruction slot 67
 func_801e8dc4_slot06_00 control: different 2000 of 2000 (expected more than 0)
   altered: constant 0x100 of field_78 changed to 0x101, instruction slot 69
-func_801e96fc_slot06_0b control: different 1813 of 2000 (expected more than 0)
-  altered: record counter store moved by two bytes, instruction slot 193
 func_801e9738_slot06_0e control: different 1883 of 2000 (expected more than 0)
   altered: v coordinate store moved by one byte, instruction slot 107
 ```
@@ -685,7 +674,6 @@ The write audit (`--cases 2000 --writes FUNC`, seed 1):
 func_801e84cc_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e8bd8_slot06_08 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e8dc4_slot06_00 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_801e96fc_slot06_0b writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801e9738_slot06_0e writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 ```
 

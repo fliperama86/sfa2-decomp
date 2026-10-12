@@ -1,9 +1,0 @@
-{
- "fixtures": [
-  {"args": ["0x80040000", "0xc3d7f3b6", "0x00000000"], "calls": [], "case": 0, "ends_in_callee": false, "note": "slots: 30 new", "reads": [["0x8004000b", "f5"], ["0x80040012", "a2d9"], ["0x80040332", "598a"], ["0x80040338", "af"], ["0x801c5b92", "13ea"]], "recorders": [], "result": null, "same": [], "seed": 1, "watch": [], "writes": [["0x80040010", "0000"], ["0x8004004c", "00406afc"], ["0x80040338", "00"]]}
- ],
- "format": 1,
- "function": "func_801b21f8_slot04_0f",
- "recorded": {"cases": 2000, "comparison": "func_801b21f8_slot04_0f: built 88 bytes, original 120 bytes; cases 2000, discarded 0, equal 2000, different 0", "date": "2026-10-10", "seed": 1},
- "uncovered": {"edges": [], "slots": []}
-}
