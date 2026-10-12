@@ -61,6 +61,8 @@
 #ifndef PORT_STREAM_H
 #define PORT_STREAM_H
 
+#include "guest.h"
+
 /* StSetRing(ring, n): the ring at `ring` of n slots; then it is cleared as the library's StClearRing does: r = s = w = 0, dmabusy = 0,
  * every slot's state 0, nextchunk = curframe = 0, the bound deferred flag written 0, the queue emptied. */
 void port_StSetRing(unsigned long *ring, int n);
@@ -68,7 +70,7 @@ void port_StSetRing(unsigned long *ring, int n);
 /* StSetStream(mode, start, end, f1, f2): mask = 1; start and end frames (0: from the first / no end); f1 called when a frame is
  * complete, f2 at the end frame and at a stall; mode & 1 is the busy rule's switch; nextchunk = curframe = 0. Touches no slot, no
  * w, s or r. */
-void port_StSetStream(unsigned long mode, unsigned long start, unsigned long end, void (*f1)(void), void (*f2)(void));
+void port_StSetStream(uint32_t mode, uint32_t start, uint32_t end, port_fn f1, port_fn f2);
 
 /* StGetNext(&addr, &header): looks at slot r. State 1 (a wrap marker): r = 0 (the marker is cleared only when end is not 0), then
  * the slot is looked at again. State 2: it becomes 4, *addr is the data block, *header the header, the result 0. Otherwise 1.

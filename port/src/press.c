@@ -46,13 +46,13 @@ static void need(const char *call, const char *what, const void *p, unsigned lon
 
 static void run_completion(void)
 {
-    void (*f)(void) = port_iopage_dma_callback(1);
+    port_fn f = port_iopage_dma_callback(1);
     state = 0;
     n_taken++;
     takes++;
     if (f) {
-        port_target_check("decoder output callback", (const void *)f);   /* its address checked now, as iopage.c does for its own */
-        f();
+        port_target_check("decoder output callback", PORT_FN_ADDR(f));   /* its address checked now, as iopage.c does for its own */
+        port_call0(f);
     } else {
         dropped++;
     }
@@ -127,21 +127,24 @@ int port_DecDCTvlc(unsigned long *bs, unsigned long *buf)
 {
     unsigned a = (unsigned)(size_t)buf, b = (unsigned)(size_t)bs, head, used = 0;
     unsigned long long room;
+    unsigned char *hbs, *hbuf;
     int rc;
     if (!bs) port_halt(PORT_EXIT_OTHER, "DecDCTvlc: a null bitstream (the continuation of a decode in parts)");
     need("DecDCTvlc", "the bitstream's header", bs, 8);
     need("DecDCTvlc", "the output (the command word, and the 64 end codes after the codes)", buf, 4 + 64 * 2);
     room = (RAM_END - a - 4 - 64 * 2) / 2;
-    memcpy(&head, bs, 4);
-    rc = port_mdec_vlc((const unsigned char *)bs, RAM_END - b, (unsigned short *)buf + 2, (unsigned)room, &used);
+    hbs = port_gs(bs, RAM_END - b);
+    hbuf = port_gs(buf, RAM_END - a);
+    memcpy(&head, hbs, 4);
+    rc = port_mdec_vlc(hbs, RAM_END - b, (unsigned short *)hbuf + 2, (unsigned)room, &used);
     if (rc == PORT_MDEC_E_VERSION) {
-        memcpy(buf, &head, 4);
+        memcpy(hbuf, &head, 4);
         return -1;
     }
     if (rc != PORT_MDEC_OK) port_halt(PORT_EXIT_OTHER, "DecDCTvlc: the bitstream reader's result is %d", rc);
-    memcpy(buf, &head, 4);
+    memcpy(hbuf, &head, 4);
     {
-        unsigned short *end = (unsigned short *)buf + 2 + used;
+        unsigned short *end = (unsigned short *)hbuf + 2 + used;
         unsigned i;
         for (i = 0; i < 64; i++) end[i] = 0xFE00;
     }
@@ -152,12 +155,14 @@ int port_DecDCTvlc(unsigned long *bs, unsigned long *buf)
 void port_DecDCTin(unsigned long *buf, int mode)
 {
     unsigned w, count, depth;
+    uint32_t *word;
     NEED_CHIP("DecDCTin");
     need("DecDCTin", "the command word", buf, 4);
-    w = (unsigned)*buf;
+    word = port_gs(buf, 4);
+    w = *word;
     w = (mode & 1) ? (w & ~(1u << 27)) : (w | (1u << 27));
     w = (mode & 2) ? (w | (1u << 25)) : (w & ~(1u << 25));
-    *buf = w;
+    *word = w;
     if ((w >> 29) != 1) port_halt(PORT_EXIT_OTHER, "DecDCTin: the command word 0x%08x is not a decode", w);
     depth = (w >> 27) & 3;
     if (depth < 2) port_halt(PORT_EXIT_OTHER, "DecDCTin: the command word 0x%08x has a monochrome depth, which is not modelled", w);
@@ -165,7 +170,7 @@ void port_DecDCTin(unsigned long *buf, int mode)
     if (count & 31) port_halt(PORT_EXIT_OTHER, "DecDCTin: %u words of codes is not a multiple of 32, which is not modelled", count);
     need("DecDCTin", "the codes", (const char *)buf + 4, (unsigned long long)count * 4);
     if (state != 0) port_halt(PORT_EXIT_OTHER, "DecDCTin: an output transfer is pending");
-    if (Psyz_MdecCommand(w, (const char *)buf + 4, count) != 0) port_halt(PORT_EXIT_OTHER, "DecDCTin: the chip refused the command 0x%08x", w);
+    if (Psyz_MdecCommand(w, port_gs((const char *)buf + 4, (size_t)count * 4), count) != 0) port_halt(PORT_EXIT_OTHER, "DecDCTin: the chip refused the command 0x%08x", w);
     mb_bytes = depth == 2 ? 768 : 512;
     handed = 0;
     in_us = port_now_us();
@@ -181,7 +186,7 @@ void port_DecDCTout(unsigned long *buf, int words)
     n = 32ull * ((unsigned)words >> 5);
     need("DecDCTout", "the strip", buf, n * 4);
     wait_for_output();
-    if (Psyz_MdecRead(buf, (size_t)n) != 0)
+    if (Psyz_MdecRead(port_gs(buf, (size_t)(n * 4)), (size_t)n) != 0)
         port_halt(PORT_EXIT_OTHER, "DecDCTout: the chip cannot give %llu words (more than the frame holds, or broken codes)", n);
     handed += n * 4;
     blocks = mb_bytes ? (handed + mb_bytes - 1) / mb_bytes : 0;
@@ -190,9 +195,9 @@ void port_DecDCTout(unsigned long *buf, int words)
     state = 1;
 }
 
-void (*port_DecDCToutCallback(void (*f)(void)))(void)
+port_fn port_DecDCToutCallback(port_fn f)
 {
-    return (void (*)(void))port_h_DMACallback(1, f);
+    return (port_fn)(uintptr_t)port_h_DMACallback(1, f);
 }
 
 void port_press_poll(void)

@@ -56,6 +56,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef PORT_GUEST_VM
+#include "../mac/platform.h"
+#endif
+
 #ifdef _WIN32
 #include <windows.h>
 /* A fault nobody handles ends the program with one line that says where, instead of the system's dialog. */
@@ -117,7 +121,11 @@ int main(int argc, char **argv)
     char err[PORT_ERR];
     struct port_disc disc;
     struct port_program prog;
+#ifdef PORT_GUEST_VM
+    unsigned char *ram = NULL;   /* the machine's RAM, once port_map has made it */
+#else
     unsigned char *ram = (unsigned char *)(size_t)PORT_RAM_BASE;
+#endif
     unsigned with_c, without_c, entry;
 
     for (i = 1; i < argc; i++) {
@@ -141,6 +149,9 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--dump-every") == 0 && i + 1 < argc) dump_every = (unsigned)atoi(argv[++i]);
         else if (strcmp(argv[i], "--input") == 0 && i + 1 < argc && !input_path) input_path = argv[++i];
         else if (strcmp(argv[i], "--skip-programs") == 0) port_skip_programs = 1;
+#ifdef PORT_GUEST_VM
+        else if (strcmp(argv[i], "--guest") == 0 && i + 1 < argc) port_mac_image_path = argv[++i];
+#endif
         else if (strcmp(argv[i], "--watchdog") == 0 && i + 1 < argc) watchdog = (unsigned)atoi(argv[++i]);
         else if (argv[i][0] != '-' && !disc_path) disc_path = argv[i];
         else bad = 1;
@@ -183,6 +194,9 @@ int main(int argc, char **argv)
     SetUnhandledExceptionFilter(crashed);
 #endif
     if (port_map(err, sizeof err) != 0) return refuse(err);
+#ifdef PORT_GUEST_VM
+    ram = vm_g(PORT_RAM_BASE, PORT_RAM_SIZE);
+#endif
     if (port_mirror_init(trace, err, sizeof err) != 0) return refuse(err);
     if (port_iopage_init(audio_dump, audio_device, trace, err, sizeof err) != 0) return refuse(err);
     printf("memory: RAM at 0x%08x (2 MB), scratchpad at 0x%08x\n", PORT_RAM_BASE, PORT_SCRATCH);
@@ -228,7 +242,11 @@ int main(int argc, char **argv)
 
     port_clock_start();
     if (!no_interrupt) port_interrupt_start(burst);
+#ifdef PORT_GUEST_VM
+    port_call0(entry);
+#else
     ((void (*)(void))(size_t)entry)();
+#endif
     port_stop_main_returned();
     return 0;
 }

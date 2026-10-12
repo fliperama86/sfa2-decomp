@@ -65,6 +65,12 @@
 
 #include <ctype.h>
 #include <stdint.h>
+#ifdef PORT_GUEST_VM
+#include "../mac/platform.h"
+#define PORT_STOP_SITE(returned) (returned)   /* the stop stubs of the Mac build give the site itself */
+#else
+#define PORT_STOP_SITE(returned) ((returned) - 5)
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -116,6 +122,7 @@ static int same_name(const char *a, const char *b)
     return *a == *b;
 }
 
+#ifndef PORT_GUEST_VM
 static void jump_site(unsigned address, unsigned char opcode, const void *target)
 {
     unsigned char *site = (unsigned char *)(size_t)address;
@@ -123,13 +130,14 @@ static void jump_site(unsigned address, unsigned char opcode, const void *target
     site[0] = opcode;
     memcpy(site + 1, &rel, 4);
 }
+#endif
 
 /* ---- the stop call of a module function without C ---------------------- */
 
 void port_module_stop(unsigned returned);
 void port_module_stop(unsigned returned)
 {
-    unsigned address = returned - 5, i;
+    unsigned address = PORT_STOP_SITE(returned), i;
     int owner = address >= PORT_RAM_BASE && address - PORT_RAM_BASE < PORT_RAM_SIZE ? owner_page[(address - PORT_RAM_BASE) / PAGE] - 1 : -1;
     for (i = 0; owner >= 0 && i < port_absent_count; i++)
         if (port_absents[i].image == owner && port_absents[i].address == address) {
@@ -374,6 +382,7 @@ static const char *row_name(unsigned i)
     return i < port_function_count ? port_functions[i].name : port_absents[i - port_function_count].name;
 }
 
+#ifndef PORT_GUEST_VM
 static unsigned char row_opcode(unsigned i)
 {
     return i < port_function_count ? 0xe9 : 0xe8;   /* a jump to the C, or a call to the stop */
@@ -383,9 +392,36 @@ static const void *row_target(unsigned i)
 {
     return i < port_function_count ? port_functions[i].impl : (const void *)port_module_stop_entry;
 }
+#endif
 
 #define ROWS (port_function_count + port_absent_count)
 
+#ifdef PORT_GUEST_VM
+/* The stub of row `i` at `address`: a branch to the C, or the `hvc` of the stop (port/mac/platform.c). */
+static uint32_t stub_word(unsigned i, unsigned address)
+{
+    if (i < port_function_count) {
+        int64_t delta = (int64_t)(unsigned)(uintptr_t)port_functions[i].impl - (int64_t)address;
+        return 0x14000000u | ((uint32_t)(delta >> 2) & 0x3ffffffu);
+    }
+    return 0xd4000002u | ((PORT_MAC_STOP_BASE + (i - port_function_count)) << 5);
+}
+
+static void jump_site_row(unsigned address, unsigned i)
+{
+    unsigned char *ram = port_gs((const void *)(uintptr_t)PORT_RAM_BASE, PORT_RAM_SIZE);
+    if (i < port_function_count) port_mac_put_branch(ram, address, (unsigned)(uintptr_t)port_functions[i].impl);
+    else port_mac_put_hvc(ram, address, PORT_MAC_STOP_BASE + (i - port_function_count));
+}
+
+/* Is the stub of row `i` still at `address`? */
+static int bytes_are_row(unsigned address, unsigned i)
+{
+    uint32_t w;
+    memcpy(&w, port_gs((const void *)(uintptr_t)address, 4), 4);
+    return w == stub_word(i, address);
+}
+#else
 /* Are the five bytes at `address` exactly the jump or call that jump_site writes for `target`? */
 static int bytes_are(unsigned address, unsigned char opcode, const void *target)
 {
@@ -393,6 +429,7 @@ static int bytes_are(unsigned address, unsigned char opcode, const void *target)
     uint32_t rel = (uint32_t)((uintptr_t)target - ((uintptr_t)site + 5));
     return site[0] == opcode && memcmp(site + 1, &rel, 4) == 0;
 }
+#endif
 
 /* 1: the entry of image `index` at `address` is installed and its jump remains valid. 0: not installed (or its page
  * is no longer the image's: it will be placed anew on the next call). -1: it was installed, its page is still the
@@ -406,7 +443,11 @@ static int entry_valid(int index, unsigned address)
     for (i = 0; i < ROWS; i++) {
         if (row_image(i) != index || row_address(i) != address) continue;
         if (!entry_state[i] || !owned(index, address & ~(PAGE - 1)) || !owned(index, (address + 4) & ~(PAGE - 1))) return 0;
+#ifdef PORT_GUEST_VM
+        return bytes_are_row(address, i) ? 1 : -1;
+#else
         return bytes_are(address, row_opcode(i), row_target(i)) ? 1 : -1;
+#endif
     }
     return 0;
 }
@@ -449,7 +490,7 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
     }
 #define SAME(a) do { \
         unsigned off_ = (a) - im->address, n_ = c->size - off_ < WINDOW ? c->size - off_ : WINDOW; \
-        if (off_ >= c->size || memcmp((const void *)(size_t)(a), bytes + off_, n_) != 0) { \
+        if (off_ >= c->size || memcmp(port_gs((const void *)(size_t)(a), n_), bytes + off_, n_) != 0) { \
             printf("refused: image %s: the memory at 0x%08x is not the pinned content any more (the chunk at sector %u of %s was changed after the disc wrote it); no jump of it was written\n", \
                    im->name, (a), c->first_sector, f->name); \
             finish(PORT_EXIT_REFUSED); \
@@ -461,7 +502,11 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
     for (i = 0; i < ROWS; i++) {
         unsigned a = row_address(i);
         if (row_image(i) != index || !ON_BECOMING(a)) continue;
+#ifdef PORT_GUEST_VM
+        jump_site_row(a, i);
+#else
         jump_site(a, row_opcode(i), row_target(i));
+#endif
         entry_state[i] = 1;
         if (i < port_function_count) with_c++;
         else without_c++;
@@ -738,6 +783,31 @@ static unsigned sys_thread(void)
 static int sys_install(void)
 {
     return AddVectoredExceptionHandler(1, vectored) ? 0 : -1;
+}
+
+#elif defined(PORT_GUEST_VM)
+
+/* The macOS build: the permission of a page is the guest's own page table (port/mac/vm.c); a call into a page that is not executable
+ * comes to the machine's hook, on the one thread that runs the game. */
+static int sys_protect(unsigned address, unsigned size, int executable)
+{
+    return vm_protect(address, size, VM_R | VM_W | (executable ? VM_X : 0));
+}
+
+static int exec_fault(uint32_t address)
+{
+    return fault(address, address, 1) == 0;
+}
+
+static int sys_install(void)
+{
+    vm_exec_fault_set(exec_fault);
+    return 0;
+}
+
+static unsigned sys_thread(void)
+{
+    return 1;
 }
 
 #else

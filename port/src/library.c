@@ -13,6 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef PORT_GUEST_VM
+#include "../mac/platform.h"
+#endif
+
 void port_halt(int status, const char *fmt, ...)
 {
     va_list ap;
@@ -41,6 +45,9 @@ static unsigned traced_count;
 void port_trace_set(FILE *f)
 {
     trace_file = f;
+#ifdef PORT_GUEST_VM
+    port_mac_trace_calls(f != NULL);
+#endif
 }
 
 void port_trace_line(const char *fmt, ...)
@@ -77,7 +84,9 @@ void *port_trace_log(unsigned returned, const unsigned *args)
     return NULL;
 }
 
-#if defined(__i386__)
+#if defined(PORT_GUEST_VM)
+/* the Mac build logs a call in its hostcall dispatcher (port/mac/platform.c) */
+#elif defined(__i386__)
 #define PORT_STR2(x) #x
 #define PORT_STR(x) PORT_STR2(x)
 #define PORT_US PORT_STR(__USER_LABEL_PREFIX__)
@@ -108,6 +117,7 @@ void port_trace_entry(void)
 
 /* ---- the install ---- */
 
+#ifndef PORT_GUEST_VM
 static void put(unsigned char *ram, unsigned address, unsigned char opcode, const void *target)
 {
     unsigned char *site = ram + (address - PORT_RAM_BASE);
@@ -115,6 +125,7 @@ static void put(unsigned char *ram, unsigned address, unsigned char opcode, cons
     site[0] = opcode;
     memcpy(site + 1, &rel, 4);
 }
+#endif
 
 /* A table entry names its function by the build's name, or as `@0xADDRESS`
  * (the function at that address, whatever the build calls it). */
@@ -238,6 +249,9 @@ int port_library_install(unsigned char *ram, struct port_install *out, char *err
             if (e->note) out->noop++;
         } else
             out->stops++;
+#ifdef PORT_GUEST_VM
+        if (e) port_mac_put_host(ram, a->address, e->host, a->name);   /* a function without a host routine keeps the stop stub of jumps.c */
+#else
         if (trace_file) {
             traced[traced_count].site = a->address;
             traced[traced_count].name = a->name;
@@ -246,9 +260,14 @@ int port_library_install(unsigned char *ram, struct port_install *out, char *err
             put(ram, a->address, 0xe8, (const void *)port_trace_entry);
         } else if (e)
             put(ram, a->address, 0xe9, e->host);
+#endif
     }
     for (k = 0; k < override_total(); k++) {
+#ifdef PORT_GUEST_VM
+        port_mac_put_host(ram, find_function(override_at(k)->name)->address, override_at(k)->host, override_at(k)->name);
+#else
         put(ram, find_function(override_at(k)->name)->address, 0xe9, override_at(k)->host);
+#endif
         out->overrides++;
     }
     return 0;

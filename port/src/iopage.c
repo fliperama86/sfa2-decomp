@@ -123,7 +123,7 @@ static unsigned chip_reads, chip_writes, dma_reads, dma_writes, transfers, bytes
 
 /* The completion. State: 0 none, 1 pending, 2 claimed by the timer thread, which is redirecting the game's thread to deliver
  * it, 3 taken by a poll or by the vblank's delivery and about to be run. */
-static void (*dma_callback[7])(void);
+static port_fn dma_callback[7];
 static volatile int completion_state;
 static unsigned long long completion_due_us;
 static unsigned taken[4], dropped;   /* completions taken by how: 1 poll, 2 timer, 3 vblank; dropped for want of a routine */
@@ -289,7 +289,7 @@ static int dma_start(unsigned control, char *why, size_t n)
         snprintf(why, n, "with a DMA start while the completion of the last transfer is pending");
         return -1;
     }
-    ram = (unsigned char *)(size_t)(PORT_RAM_BASE + off);
+    ram = port_gs((const void *)(size_t)(PORT_RAM_BASE + off), (size_t)bytes);
     LOCK();
     if (control & 1) {
         Psyz_SpuFifoWriteBulk(ram, (unsigned)bytes);
@@ -350,20 +350,20 @@ void port_iopage_served(void)
  * `dma` (0 to 6) ends a transfer, and returns the previous one, as InterruptCallback here. Only channel 4 is ever raised. The
  * library registers its routine with DMACallback(4, _spu_FiDMA) in _SpuInit and removes it with DMACallback(4, 0) in SpuQuit
  * (libspu/s_dcb.c's _SpuDataCallback, from s_ini.c and s_q.c). A channel outside 0 to 6 changes nothing and returns 0. */
-void *port_h_DMACallback(int dma, void (*func)(void))
+void *port_h_DMACallback(int dma, port_fn func)
 {
-    void (*previous)(void);
+    port_fn previous;
     if (dma < 0 || dma > 6) return NULL;
     previous = dma_callback[dma];
     dma_callback[dma] = func;
-    return (void *)previous;
+    return PORT_FN_PTR(previous);
 }
 
 /* The routine registered for channel `dma` (0 to 6), or null (also for a channel outside that range): press.c's completion of an
  * output transfer calls the one of channel 1. */
-void (*port_iopage_dma_callback(int dma))(void)
+port_fn port_iopage_dma_callback(int dma)
 {
-    return dma < 0 || dma > 6 ? NULL : dma_callback[dma];
+    return dma < 0 || dma > 6 ? PORT_FN_NULL : dma_callback[dma];
 }
 
 /* The completion is taken: the state is cleared first (the routine may start a transfer), then the routine is called, its
@@ -373,8 +373,8 @@ static void run_completion(int how)
     completion_state = 0;
     taken[how]++;
     if (dma_callback[4]) {
-        port_target_check("dma callback", (const void *)dma_callback[4]);
-        dma_callback[4]();
+        port_target_check("dma callback", PORT_FN_ADDR(dma_callback[4]));
+        port_call0(dma_callback[4]);
     } else {
         dropped++;
     }

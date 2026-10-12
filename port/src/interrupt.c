@@ -207,7 +207,7 @@ void port_interrupt_start(int burst_mode)
     if (!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &game_thread, 0, FALSE, DUPLICATE_SAME_ACCESS)) return;
     CreateThread(NULL, 0, timer, NULL, 0, NULL);
 }
-#else
+#elif !defined(PORT_GUEST_VM)   /* the macOS build has its own, in port/mac/platform.c */
 void port_interrupt_start(int burst_mode)
 {
     (void)burst_mode;

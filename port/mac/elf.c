@@ -75,6 +75,10 @@ int elf_load(const char *path, struct elf_image *image, char *err, size_t errsiz
         }
         memcpy(at, d + offset, filesz);
         perms = (flags & 4 ? VM_R : 0) | (flags & 2 ? VM_W : 0) | (flags & 1 ? VM_X : 0);
+        if (flags & 1) {
+            if (image->text_end == 0 || vaddr < image->text_begin) image->text_begin = vaddr;
+            if (vaddr + memsz > image->text_end) image->text_end = vaddr + memsz;
+        }
         if (vm_protect(vaddr, ((size_t)memsz + 0xfff) & ~(size_t)0xfff, perms) != 0) {
             free(d);
             return fail(err, errsize, path, "cannot give a segment its permissions");
@@ -123,20 +127,33 @@ int elf_load(const char *path, struct elf_image *image, char *err, size_t errsiz
 
 void elf_free(struct elf_image *image)
 {
+    free(image->by_name);
     free(image->symbols);
     free(image->strings);
     memset(image, 0, sizeof *image);
 }
 
+static int by_name_cmp(const void *a, const void *b)
+{
+    return strcmp((*(const struct elf_symbol *const *)a)->name, (*(const struct elf_symbol *const *)b)->name);
+}
+
 int elf_find(const struct elf_image *image, const char *name, uint32_t *address)
 {
-    size_t i;
-    for (i = 0; i < image->count; i++)
-        if (strcmp(image->symbols[i].name, name) == 0) {
-            *address = image->symbols[i].address;
-            return 0;
-        }
-    return -1;
+    struct elf_image *mutable_image = (struct elf_image *)image;
+    const struct elf_symbol key = { name, 0, 0 }, *k = &key, *const *hit;
+    if (!image->by_name && image->count) {
+        size_t i;
+        mutable_image->by_name = malloc(image->count * sizeof *image->by_name);
+        if (!mutable_image->by_name) return -1;
+        for (i = 0; i < image->count; i++) mutable_image->by_name[i] = &image->symbols[i];
+        qsort(mutable_image->by_name, image->count, sizeof *image->by_name, by_name_cmp);
+    }
+    if (!image->by_name) return -1;
+    hit = bsearch(&k, image->by_name, image->count, sizeof *image->by_name, by_name_cmp);
+    if (!hit) return -1;
+    *address = (*hit)->address;
+    return 0;
 }
 
 const char *elf_symbol_at(const struct elf_image *image, uint32_t address, uint32_t *offset)

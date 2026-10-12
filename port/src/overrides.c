@@ -14,7 +14,7 @@ static void port_o_func_80119030(void)
 {
     int i;
     for (i = 0; i < 3; i++) {
-        unsigned char *v = (unsigned char *)(size_t)(0x801fc200u + (unsigned)i * 0x80u);
+        unsigned char *v = port_gs((const void *)(size_t)(0x801fc200u + (unsigned)i * 0x80u), 12);   /* the stores below reach offsets 0 to 1 and 8 to 11 */
         *(unsigned short *)v = 0;
         *(unsigned *)(v + 8) = 0x801fec00u + (unsigned)i * 0x800u;
     }

@@ -29,6 +29,7 @@ EM_AARCH64 = 183
 ET_EXEC = 2
 PT_LOAD = 1
 PF_X, PF_W = 1, 2
+BOUND_BASE = 0x7000    # the first hostcall number of the programs' library routines that the host serves (port/mac/platform.h)
 HVC_BASE = 0xD4000002  # `hvc #0`; the 16-bit immediate sits at bits 5 to 20
 RET = 0xD65F03C0
 
@@ -68,14 +69,14 @@ def hvc_number(word: int) -> int | None:
     return (word >> 5) & 0xFFFF if (word & 0xFFE0001F) == HVC_BASE else None
 
 
-def render_host_stubs(routines: list[str]) -> str:
-    """Assembly of one stub per routine that the host serves: `NAME: hvc #K; ret`, K from 1 in the order of the sorted names.
+def render_host_stubs(routines: list[str], first: int = 1) -> str:
+    """Assembly of one stub per routine that the host serves: `NAME: hvc #K; ret`, K from `first` in the order of the sorted names.
     The host finds each routine again from the symbol and the `hvc` it reads there, so no side table exists. No names, no text."""
     names = sorted(set(routines))
     if not names:
         return ""
     out = ["\t.text\n"]
-    for k, name in enumerate(names, 1):
+    for k, name in enumerate(names, first):
         out.append(f"\t.globl\t{name}\n\t.type\t{name}, %function\n\t.p2align\t3\n{name}:\n\thvc\t#{k}\n\tret\n\t.size\t{name}, . - {name}\n")
     return "".join(out)
 

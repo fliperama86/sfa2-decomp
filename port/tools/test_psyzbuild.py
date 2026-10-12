@@ -330,6 +330,9 @@ def link_cases():
     yield "link-items-probe-without-extension", same(
         pb.probe_link_items("build probe: link\n\tLINK_LIBRARIES = -lm a.a\n", build), ["-lm", "/b/obj/a.a"]
     )
+    macos = "build probe: link\n  LINK_LIBRARIES = psyz/libpsyz.a -framework Cocoa -Xlinker -weak_framework -Xlinker Haptics -lm\n"
+    yield "link-items-keep-the-names-after-framework-options", same(
+        pb.probe_link_items(macos, build), ["/b/obj/psyz/libpsyz.a", "-framework", "Cocoa", "-Xlinker", "-weak_framework", "-Xlinker", "Haptics", "-lm"])
     yield "link-items-dotdot-is-resolved", same(pb.probe_link_items("build probe: l\n  LINK_LIBRARIES = ../x/a.a\n", build), ["/b/x/a.a"])
     for name, text in (
         ("link-no-probe-fails", "build libpsyz.a: AR a.o\n  LINK_LIBRARIES = a\n"),

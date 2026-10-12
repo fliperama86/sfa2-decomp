@@ -20,8 +20,8 @@ static unsigned w, s, r;
 static unsigned mask, start, end;
 static unsigned curframe, nextchunk;
 static unsigned mode;
-static void (*f1)(void);
-static void (*f2)(void);
+static port_fn f1;
+static port_fn f2;
 static unsigned dmabusy;
 static int active;      /* the handler is running */
 
@@ -41,8 +41,18 @@ static void need(const char *call, const char *what, const void *p, unsigned lon
         port_halt(PORT_EXIT_OTHER, "%s: %s at 0x%08x, %llu bytes, is not inside the game's RAM", call, what, (unsigned)a, n);
 }
 
-static unsigned g16(const unsigned char *p) { return (unsigned)p[0] | (unsigned)p[1] << 8; }
-static void s16(unsigned char *p, unsigned v) { p[0] = (unsigned char)v; p[1] = (unsigned char)(v >> 8); }
+static unsigned g16(const unsigned char *p)
+{
+    const unsigned char *q = port_gs(p, 2);
+    return (unsigned)q[0] | (unsigned)q[1] << 8;
+}
+
+static void s16(unsigned char *p, unsigned v)
+{
+    unsigned char *q = port_gs(p, 2);
+    q[0] = (unsigned char)v;
+    q[1] = (unsigned char)(v >> 8);
+}
 
 static void need_ring(const char *call)
 {
@@ -71,21 +81,22 @@ static unsigned char *blkp(const char *call, unsigned i)
 
 static void put_state(const char *call, unsigned i, unsigned v) { s16(hdrp(call, i), v); }
 
-static void callback(const char *path, void (*f)(void))
+static void callback(const char *path, port_fn f)
 {
     if (!f) return;
-    port_target_check(path, (const void *)f);
-    f();
+    port_target_check(path, PORT_FN_ADDR(f));
+    port_call0(f);
 }
 
 /* 1 in the program's deferred flag: sectors are put aside, and the program's output routine is to call the handler again. */
 static void raise_flag(void)
 {
-    unsigned char *p = (unsigned char *)(size_t)flag_address;
+    unsigned char *p = (unsigned char *)(size_t)flag_address, *q;
     if (!flag_address) port_halt(PORT_EXIT_OTHER, "StCdInterrupt: %u sectors are put aside (the decoder is busy) and no deferred flag is bound", qcount);
     need("StCdInterrupt", "the deferred flag", p, 4);
-    p[0] = 1;
-    p[1] = p[2] = p[3] = 0;
+    q = port_gs(p, 4);
+    q[0] = 1;
+    q[1] = q[2] = q[3] = 0;
 }
 
 /* The busy rule's test. It is made again before every sector, queued or at hand: a frame callback may start an output transfer. */
@@ -110,13 +121,13 @@ void port_StSetRing(unsigned long *ring, int n)
     if (flag_address) {
         unsigned char *p = (unsigned char *)(size_t)flag_address;
         need("StSetRing", "the deferred flag", p, 4);
-        memset(p, 0, 4);
+        memset(port_gs(p, 4), 0, 4);
     }
     nextchunk = curframe = 0;
     qhead = qcount = 0;   /* this layer's own rule: the library has no queue */
 }
 
-void port_StSetStream(unsigned long m, unsigned long st, unsigned long en, void (*a)(void), void (*b)(void))
+void port_StSetStream(uint32_t m, uint32_t st, uint32_t en, port_fn a, port_fn b)
 {
     mask = 1;
     start = (unsigned)st;
@@ -141,8 +152,8 @@ int port_StGetNext(unsigned long **addr, unsigned long **header)
     }
     if (g16(h) == 2) {
         s16(h, 4);
-        *addr = (unsigned long *)blkp("StGetNext", r);
-        *header = (unsigned long *)h;
+        *(uint32_t *)port_gs(addr, 4) = (uint32_t)(uintptr_t)blkp("StGetNext", r);
+        *(uint32_t *)port_gs(header, 4) = (uint32_t)(uintptr_t)h;
         return 0;
     }
     port_tick();   /* a poll that fails lets the clock and the interrupts go, as the other polls do */
@@ -221,7 +232,7 @@ static void work(const unsigned char *qb, int qsector)
                 return;
             }
             if (g16(hdrp(C, 0)) != 0) { s16(h, 0); return; }
-            memcpy(hdrp(C, 0), h, HDR);
+            memcpy(port_gs(hdrp(C, 0), HDR), port_gs(h, HDR), HDR);
             s16(h, 1);
             w = 0;
             h = hdrp(C, 0);

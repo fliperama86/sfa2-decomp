@@ -14,6 +14,10 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#ifdef PORT_GUEST_VM
+#include <string.h>
+#include "../mac/platform.h"
+#endif
 
 #define THREAD_SLOTS  4
 #define HANDLE_BASE   0xff000000u
@@ -159,6 +163,107 @@ int port_h_CloseTh(unsigned handle)
     else DeleteFiber(s->fiber);
     s->used = 0;
     s->fiber = NULL;
+    return 1;
+}
+
+#elif defined(PORT_GUEST_VM)
+
+/* The macOS build: a task is a saved set of the machine's registers on a stack of its own in the guest's memory (port/mac/vm.h). The one that
+ * runs has its registers in the machine; ChangeTh saves them and loads another's. */
+#define TASK_STACK 0x100000u
+
+struct slot {
+    int used, fresh;
+    unsigned entry;
+    uint32_t stack;
+    struct vm_context ctx;
+};
+
+static struct slot slots[THREAD_SLOTS];   /* slot 0 is the main thread */
+static unsigned current;
+static int started;
+
+static uint64_t returned(uint64_t a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint64_t f, uint64_t g, uint64_t h)
+{
+    (void)a; (void)b; (void)c; (void)d; (void)e; (void)f; (void)g; (void)h;
+    port_halt(PORT_EXIT_THREAD, "the function of a thread (0x%08x) returned; the game never lets one", slots[current].entry);
+    return 0;
+}
+
+static void start(void)
+{
+    if (started) return;
+    started = 1;
+    slots[0].used = 1;
+    vm_hostcall_set(VM_HOSTCALL_EXIT, "thread returned", returned);
+}
+
+static struct slot *slot_of(unsigned handle)
+{
+    unsigned i = handle - HANDLE_BASE;
+    if (handle < HANDLE_BASE || i >= THREAD_SLOTS || !slots[i].used) return NULL;
+    return &slots[i];
+}
+
+/* BIOS B0 0Eh OpenTh(pc, sp, gp): a new thread that starts at `pc` when first switched to; returns its handle, 0xff000001 and up, the lowest
+ * free; -1 when none is free. */
+unsigned port_h_OpenTh(unsigned pc, unsigned sp, unsigned gp);
+unsigned port_h_OpenTh(unsigned pc, unsigned sp, unsigned gp)
+{
+    unsigned i;
+    (void)sp;
+    (void)gp;
+    start();
+    for (i = 1; i < THREAD_SLOTS; i++)
+        if (!slots[i].used) {
+            struct vm_context here;
+            if (!slots[i].stack) slots[i].stack = vm_alloc(TASK_STACK, 4096);
+            if (!slots[i].stack) port_halt(PORT_EXIT_OTHER, "threads: no memory for a stack");
+            vm_context_save(&here);
+            memset(&slots[i].ctx, 0, sizeof slots[i].ctx);
+            slots[i].ctx.pc = pc;
+            slots[i].ctx.sp = slots[i].stack + TASK_STACK;
+            slots[i].ctx.x[30] = VM_TRAMP_EXIT;
+            slots[i].ctx.cpsr = here.cpsr;
+            slots[i].used = 1;
+            slots[i].fresh = 1;
+            slots[i].entry = pc;
+            return HANDLE_BASE + i;
+        }
+    return 0xffffffffu;
+}
+
+/* BIOS B0 10h ChangeTh(handle): runs that thread until some thread changes back here; returns 1 then (0 at once for a handle that is not open). */
+int port_h_ChangeTh(unsigned handle);
+int port_h_ChangeTh(unsigned handle)
+{
+    struct slot *to;
+    start();
+    to = slot_of(handle);
+    if (!to) return 0;
+    if (handle - HANDLE_BASE == current) return 1;
+    vm_context_save(&slots[current].ctx);
+    slots[current].ctx.pc = slots[current].ctx.x[30];   /* the call returns to its caller, with 1, when this thread is run again */
+    slots[current].ctx.x[0] = 1;
+    current = handle - HANDLE_BASE;
+    if (to->fresh) {
+        to->fresh = 0;
+        port_target_check("thread entry", PORT_FN_ADDR(to->entry));
+    }
+    vm_context_load(&to->ctx);
+    return 1;
+}
+
+/* BIOS B0 0Fh CloseTh(handle): frees the slot (it is the lowest free one for the next OpenTh) and returns 1; 0 for a handle that is not open or the main
+ * thread. A thread that closes itself is not run again. */
+int port_h_CloseTh(unsigned handle);
+int port_h_CloseTh(unsigned handle)
+{
+    struct slot *s;
+    start();
+    s = slot_of(handle);
+    if (!s || handle == HANDLE_BASE) return 0;
+    s->used = 0;
     return 1;
 }
 

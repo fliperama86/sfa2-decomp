@@ -39,6 +39,11 @@ enum { VM_R = 1, VM_W = 2, VM_X = 4 };
  * A routine of fewer parameters is called through this type too; a routine takes what it needs. */
 typedef uint64_t (*vm_hostcall_fn)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 #define VM_HOSTCALL_MAX 0xff00u           /* numbers 1 to VM_HOSTCALL_MAX - 1; 0 returns from a call into the guest */
+#define VM_HOSTCALL_EXIT 0xfeffu          /* reserved: the call that VM_TRAMP_EXIT makes (a task's function returned); give it a routine with vm_hostcall_set */
+#define VM_TRAMP_EXIT    0x87e00840u      /* `hvc #VM_HOSTCALL_EXIT`: the address to give a new task as its return address */
+
+/* A routine of the host, while it runs from a hostcall: the number of the `hvc` that called it (one routine may serve many numbers). */
+unsigned vm_hostcall_number(void);
 
 /* An access to the I/O page and what follows it (VM_IO_BASE, VM_IO_SIZE): `size` is 1, 2, 4 or 8. */
 typedef uint64_t (*vm_mmio_read_fn)(uint32_t address, unsigned size);
@@ -55,6 +60,10 @@ struct vm_fault {
  * guest's registers are put back as they were when the call began). */
 typedef void (*vm_fault_fn)(const struct vm_fault *fault);
 
+/* The guest ran code on a page that the host made not executable (vm_protect without VM_X): `address` is where. Return 1 when the page can be
+ * run now (the host has changed it and made it executable): the guest goes on at the same instruction. 0: it is a fault. */
+typedef int (*vm_exec_fault_fn)(uint32_t address);
+
 /* Called, on the vCPU's thread, when another thread asked for an interrupt (vm_interrupt): between two guest instructions, or
  * before the guest's next one. It may call vm_call. */
 typedef void (*vm_interrupt_fn)(void);
@@ -65,7 +74,10 @@ void vm_destroy(void);
 /* Memory. The host's pointer to a guest address, or NULL when [address, address + size) is not whole inside one of: the RAM (through
  * any of its three views), the scratchpad's page, the private area below VM_PRIVATE_LIMIT. */
 void *vm_g(uint32_t address, size_t size);
-/* Map [va, va + size) of the guest's private area with `perms` (whole pages); for the image's segments and stacks. */
+/* The guest address of a host pointer into the RAM (its 0x80000000 view), the scratchpad or the private area; 0 if it is in none. */
+uint32_t vm_addr_of(const void *host);
+/* Give [va, va + size) the permissions `perms` (whole 4 KB pages) in the guest's own view: the private area (the image's segments, stacks), or
+ * the RAM through its 0x80000000 view (a page that is not executable until the host says so). */
 int   vm_protect(uint32_t va, size_t size, int perms);
 /* Some bytes of the private area from VM_IMAGE_LIMIT up, never freed: the guest address, or 0 when it is full. The area is mapped
  * VM_R | VM_W. */
@@ -79,6 +91,7 @@ const char *vm_hostcall_name(unsigned number);
 void vm_mmio_set(vm_mmio_read_fn read, vm_mmio_write_fn write);
 void vm_fault_set(vm_fault_fn fn);
 void vm_interrupt_set(vm_interrupt_fn fn);
+void vm_exec_fault_set(vm_exec_fault_fn fn);
 void vm_interrupt(void);                         /* any thread */
 
 /* The guest's registers (x0 to x30, 31 is the stack pointer; the program counter). Valid between exits: in a routine of the host

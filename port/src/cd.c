@@ -467,30 +467,35 @@ static void need_disc(void)
 
 static uintptr_t ram_base(void)
 {
+#ifdef PORT_GUEST_VM
+    return (uintptr_t)PORT_RAM_BASE;   /* the game's addresses are the console's own; the RAM is reached through port_gs, not through port_cd_ram */
+#else
     return port_cd_ram ? (uintptr_t)port_cd_ram : (uintptr_t)PORT_RAM_BASE;
+#endif
 }
 
-static unsigned char *lib_ptr(unsigned address)
+/* `size` bytes of the game's RAM at the PS1 address `address`, as a host pointer for this access only. */
+static unsigned char *lib_ptr(unsigned address, size_t size)
 {
-    return (unsigned char *)(ram_base() + (address - PORT_RAM_BASE));
+    return port_gs((const void *)(ram_base() + (address - PORT_RAM_BASE)), size);
 }
 
 static unsigned lib_get32(unsigned address)
 {
-    const unsigned char *p = lib_ptr(address);
+    const unsigned char *p = lib_ptr(address, 4);
     return (unsigned)p[0] | (unsigned)p[1] << 8 | (unsigned)p[2] << 16 | (unsigned)p[3] << 24;
 }
 
 static void lib_put32(unsigned address, unsigned v)
 {
-    unsigned char *p = lib_ptr(address);
+    unsigned char *p = lib_ptr(address, 4);
     p[0] = (unsigned char)v;
     p[1] = (unsigned char)(v >> 8);
     p[2] = (unsigned char)(v >> 16);
     p[3] = (unsigned char)(v >> 24);
 }
 
-/* The offset in RAM of a host pointer, or -1. */
+/* The offset in RAM of a pointer of the game's (a host pointer in the Windows program, a guest address on the Mac), or -1. */
 static long ram_offset(const void *p)
 {
     uintptr_t b = ram_base(), a = (uintptr_t)p;
@@ -529,7 +534,7 @@ static void frames_to_pos(int frames, unsigned char *p)
 
 unsigned char *port_CdIntToPos(int i, unsigned char *p)
 {
-    frames_to_pos(i + 150, p);
+    frames_to_pos(i + 150, port_gs(p, 3));
     return p;
 }
 
@@ -540,17 +545,19 @@ static int from_bcd(unsigned char b)
 
 int port_CdPosToInt(const unsigned char *p)
 {
-    return (from_bcd(p[0]) * 60 + from_bcd(p[1])) * 75 + from_bcd(p[2]) - 150;
+    const unsigned char *h = port_gs(p, 3);
+    return (from_bcd(h[0]) * 60 + from_bcd(h[1])) * 75 + from_bcd(h[2]) - 150;
 }
 
 /* A Setloc parameter that the controller accepts: BCD digits, second < 60,
  * frame < 75, at or after 00:02:00. Gives the image's sector. */
 static int loc_valid(const unsigned char *p, unsigned *sector)
 {
+    const unsigned char *h = port_gs(p, 3);
     int i;
     for (i = 0; i < 3; i++)
-        if ((p[i] & 0xf) > 9 || (p[i] >> 4) > 9) return 0;
-    if (from_bcd(p[1]) >= 60 || from_bcd(p[2]) >= 75) return 0;
+        if ((h[i] & 0xf) > 9 || (h[i] >> 4) > 9) return 0;
+    if (from_bcd(h[1]) >= 60 || from_bcd(h[2]) >= 75) return 0;
     if (port_CdPosToInt(p) < 0) return 0;
     *sector = (unsigned)port_CdPosToInt(p);
     return 1;
@@ -612,6 +619,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
 {
     unsigned char one[8];
     unsigned sector;
+    const unsigned char *g;
 
     need_disc();
     switch (com) {
@@ -627,7 +635,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         settle_pending();
     }
     cd.sync = 0;
-    lib_ptr(PORT_CD_VAR_LASTCOM)[0] = (unsigned char)com;
+    lib_ptr(PORT_CD_VAR_LASTCOM, 1)[0] = (unsigned char)com;
     one[0] = cd.status;
 
     switch (com) {
@@ -672,14 +680,16 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
         respond(one, 1, 3);
         break;
     case 0xd:   /* the file and channel that the mode's filter bit lets through */
-        cd.filter_file = param[0];
-        cd.filter_channel = param[1];
+        g = port_gs(param, 2);
+        cd.filter_file = g[0];
+        cd.filter_channel = g[1];
         respond(one, 1, 2);
         break;
     case 0xe:
-        if (param[0] & 0x10) cd_stop("disc mode (2,328-byte form)", param[0]);
-        if ((cd.mode ^ param[0]) & 0x80) clear_carry();
-        cd.mode = param[0];
+        g = port_gs(param, 1);
+        if (g[0] & 0x10) cd_stop("disc mode (2,328-byte form)", g[0]);
+        if ((cd.mode ^ g[0]) & 0x80) clear_carry();
+        cd.mode = g[0];
         respond(one, 1, 2);
         break;
     case 0x11:   /* track, index, position in the track, absolute position */
@@ -692,7 +702,7 @@ static int issue(int com, const unsigned char *param, unsigned char *result, int
     }
     lib_put32(PORT_CD_VAR_STATUS, cd.status);
     if (fast) return 0;
-    if (result) memcpy(result, cd.sync_result, 8);
+    if (result) memcpy(port_gs(result, 8), cd.sync_result, 8);
     return cd.sync == 5 ? -1 : 0;
 }
 
@@ -784,7 +794,7 @@ int port_CdSync(int mode, unsigned char *result)
         if (cd.sync == 2 || cd.sync == 5) {
             int r = cd.sync;
             cd.sync = 2;
-            if (result) memcpy(result, cd.sync_result, 8);
+            if (result) memcpy(port_gs(result, 8), cd.sync_result, 8);
             return r;
         }
         if (mode) return 0;
@@ -809,7 +819,7 @@ int port_CdReady(int mode, unsigned char *result)
         if (cd.ready) {
             int r = cd.ready;
             cd.ready = 0;
-            if (result) memcpy(result, cd.ready_result, 8);
+            if (result) memcpy(port_gs(result, 8), cd.ready_result, 8);
             return r;
         }
         if (mode) return 0;
@@ -839,7 +849,7 @@ int port_CdMix(void *vol)
     /* CdlATV: four bytes, left to left, left to right, right to right, right to left (the order of PsyZ's CD_vol and of the game's
      * call); 128 is unity. A null pointer changes nothing. */
     if (vol) {
-        const unsigned char *v = (const unsigned char *)vol;
+        const unsigned char *v = (const unsigned char *)port_gs(vol, 4);
         port_audio_lock();
         memcpy(xa.vol, v, 4);
         xa.passthrough = (v[0] == 127 || v[0] == 128) && (v[2] == 127 || v[2] == 128) && v[1] == 0 && v[3] == 0;
@@ -895,7 +905,7 @@ int port_CdGetSector(void *madr, int words)
     if (want == 0) return 1;
     need_buffer(madr, want, "CdGetSector");   /* the count and the address are the game's: both inside the RAM, or nothing is copied */
     bytes = (unsigned)want;
-    give = fifo_take((unsigned char *)madr, bytes);
+    give = fifo_take((unsigned char *)port_gs(madr, bytes), bytes);
     land((unsigned char *)madr, bytes, give, (int)cd.cur_sector);
     return 1;
 }
@@ -913,7 +923,7 @@ void port_cd_store(void *madr, const void *src, unsigned bytes, int sector)
     need_disc();
     if (!bytes) return;
     need_buffer(madr, bytes, "port_cd_store");
-    memcpy(madr, src, bytes);
+    memcpy(port_gs(madr, bytes), src, bytes);
     land((unsigned char *)madr, bytes, bytes, sector);
 }
 
@@ -930,14 +940,27 @@ int port_cd_source_at(unsigned address)
 
 /* ---- delivery ---------------------------------------------------------- */
 
+#ifdef PORT_GUEST_VM
+#define READY_CALL(handler, intr, result) port_call2((handler), (intr), (result))
+#else
+#define READY_CALL(handler, intr, result) ((void (*)(int, unsigned char *))(uintptr_t)(handler))((intr), (result))
+#endif
+
 static void call_ready(unsigned handler, int intr)
 {
+#ifdef PORT_GUEST_VM
+    /* the game's handler receives the response buffer: on the Mac it is a cell of the game's memory, filled before the call */
+    unsigned char *result = port_cell("cd_ready_result", sizeof cd.ready_result);
+    memcpy(port_gs(result, sizeof cd.ready_result), cd.ready_result, sizeof cd.ready_result);
+#else
+    unsigned char *result = cd.ready_result;
+#endif
     if (!port_cd_call) port_target_check("ready callback", (const void *)(uintptr_t)handler);
     port_handler_depth++;   /* the vblank must not interrupt the ready handler */
     if (port_cd_call)
-        port_cd_call(handler, intr, cd.ready_result);
+        port_cd_call(handler, intr, result);
     else
-        ((void (*)(int, unsigned char *))(uintptr_t)handler)(intr, cd.ready_result);
+        READY_CALL(handler, intr, result);
     port_handler_depth--;
 }
 
@@ -1014,7 +1037,7 @@ static int ring_full(int *regardless)
     unsigned w, r, fill;
 
     if (cd.unguarded || cd.host_ready || !cd.reading || (cd.mode & 0x40) || lib_get32(PORT_CD_VAR_READY_CB) != GUARD_HANDLER) return 0;
-    b = lib_ptr(GUARD_STREAM);
+    b = lib_ptr(GUARD_STREAM, 0x18);
     w = b[0x16];
     r = b[0x17];
     if (w < 1 || w > 7 || r < 1 || r > 7) return 0;   /* no stream has run, or these are not the places */

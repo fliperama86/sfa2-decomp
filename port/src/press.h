@@ -44,6 +44,8 @@
 #ifndef PORT_PRESS_H
 #define PORT_PRESS_H
 
+#include "guest.h"
+
 #define PORT_PRESS_US_PER_MACROBLOCK 55u
 
 /* DecDCTReset(mode). 0: ResetCallback (the runtime's), then the chip is reset and sent the two tables that Sony's library sends at
@@ -95,7 +97,7 @@ void port_DecDCTin(unsigned long *buf, int mode);
 void port_DecDCTout(unsigned long *buf, int words);
 
 /* DecDCToutCallback(f): the library's is DMACallback(1, f); this one calls port_h_DMACallback(1, f) and returns its result. */
-void (*port_DecDCToutCallback(void (*f)(void)))(void);
+port_fn port_DecDCToutCallback(port_fn f);
 
 /* The completion, called from kernel.c next to the sound transfer's calls: port_press_poll on the game's thread from port_tick,
  * under the same condition as the sound transfer's poll; port_press_claim_due by the timer thread (1: claimed, due time passed);

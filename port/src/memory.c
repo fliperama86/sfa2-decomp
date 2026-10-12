@@ -48,7 +48,7 @@ void port_unmap(void)
     VirtualFree((void *)(size_t)PORT_SCRATCH, 0, MEM_RELEASE);
 }
 
-#else
+#elif !defined(PORT_GUEST_VM)   /* the macOS build has its own, in port/mac/platform.c */
 
 int port_game_span(const void *p, size_t n)
 {

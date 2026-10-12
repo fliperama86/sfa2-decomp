@@ -14,8 +14,8 @@
 void *port_h_memcpy(void *dst, const void *src, unsigned n);
 void *port_h_memcpy(void *dst, const void *src, unsigned n)
 {
-    unsigned char *d = dst;
-    const unsigned char *s = src;
+    unsigned char *d = port_gs(dst, n);
+    const unsigned char *s = port_gs(src, n);
     while (n--) *d++ = *s++;
     return dst;
 }
@@ -24,7 +24,7 @@ void *port_h_memcpy(void *dst, const void *src, unsigned n)
 void *port_h_memset(void *dst, int c, unsigned n);
 void *port_h_memset(void *dst, int c, unsigned n)
 {
-    unsigned char *d = dst;
+    unsigned char *d = port_gs(dst, n);
     while (n--) *d++ = (unsigned char)c;
     return dst;
 }
@@ -33,7 +33,8 @@ void *port_h_memset(void *dst, int c, unsigned n)
 char *port_h_strcpy(char *dst, const char *src);
 char *port_h_strcpy(char *dst, const char *src)
 {
-    char *d = dst;
+    char *d = port_g(dst);
+    src = port_g(src);
     while ((*d++ = *src++) != 0) {
     }
     return dst;
@@ -43,7 +44,8 @@ char *port_h_strcpy(char *dst, const char *src)
 char *port_h_strcat(char *dst, const char *src);
 char *port_h_strcat(char *dst, const char *src)
 {
-    char *d = dst;
+    char *d = port_g(dst);
+    src = port_g(src);
     while (*d) d++;
     while ((*d++ = *src++) != 0) {
     }
@@ -55,6 +57,8 @@ char *port_h_strcat(char *dst, const char *src)
 int port_h_strcmp(const char *a, const char *b);
 int port_h_strcmp(const char *a, const char *b)
 {
+    a = port_g(a);
+    b = port_g(b);
     while (*a && *a == *b) {
         a++;
         b++;

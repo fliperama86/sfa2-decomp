@@ -123,16 +123,25 @@ def guest_tables_write_addresses_and_declare_nothing():
 
 
 @case
-def guest_tables_refuse_a_program():
-    row = H.ProgramRow if hasattr(H, "ProgramRow") else None
-    if row is None:
-        return
-    fake = H.ProgramRow("logo", "logo.exe", "00" * 32, "main", [], [])
-    try:
-        H.render_tables([], [], [], "11" * 32, programs=[fake], impl_at={})
-    except H.Problem:
-        return
-    raise AssertionError("a program row was accepted in the guest tables")
+def guest_tables_hold_the_programs_main_calls_and_bound_routines():
+    call = H.Call("port_stream_bind", "data_8002edb8_logo")
+    row = H.ProgramRow("logo", "logo.exe", "00" * 32, "func_800106fc_logo", [call], [H.Call("port_stream_bind")])
+    text = H.render_tables([], [], [], "11" * 32, programs=[row], impl_at={"impl_func_800106fc_logo": 0x80250000}, bound={"DecDCTin": "port_DecDCTin", "DecDCTout": "port_DecDCTout"},
+                           data_at={"data_8002edb8_logo": 0x8002edb8})
+    assert "(void *)0x80250000u" in text, text
+    assert "extern unsigned char ps1_" not in text and "impl_func_800106fc_logo" not in text.replace("0x80250000u", ""), text
+    assert "port_stream_bind(0x8002edb8u);" in text and "port_stream_bind(0);" in text, text
+    assert '{ "port_DecDCTin", (void *)port_DecDCTin },' in text and '{ "port_DecDCTout", (void *)port_DecDCTout },' in text and "port_bound_count = 2;" in text, text
+    empty = H.render_tables([], [], [], "11" * 32, impl_at={})
+    assert "port_bound_count = 0;" in empty and "{ 0, 0 }," in empty, empty
+    windows = H.render_tables([], [], [], "11" * 32, programs=[row])
+    assert "extern unsigned char ps1_data_8002edb8_logo[];" in windows and "port_bounds" not in windows and "impl_func_800106fc_logo" in windows, windows
+
+
+@case
+def host_stubs_can_start_at_another_number():
+    text = G.render_host_stubs(["port_b", "port_a"], G.BOUND_BASE)
+    assert "hvc\t#%d" % G.BOUND_BASE in text and "hvc\t#%d" % (G.BOUND_BASE + 1) in text, text
 
 
 def main() -> int:
