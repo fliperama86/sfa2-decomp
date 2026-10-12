@@ -6,6 +6,26 @@ to read that, so that a reader can check it. A name says what the uses show
 and no more. A field whose uses do not show a meaning keeps `field_` and its
 offset.
 
+## How many have a name
+
+    python ps1/tools/namestats.py
+
+prints, from the build configuration, the field table and the symbol table,
+how many functions, fields and data symbols have a name instead of a
+placeholder (`func_`, `data_`, `table_` or `jtbl_` and an address, `field_`
+and an offset). The tool's header says what is counted: Sony's library is
+left out of the functions, because its names were found and not given, and a
+function that has only nonmatching C is not counted, because it keeps its
+placeholder by rule. The count says how many things were given a name, not
+that the names are right.
+
+The workflow that draws the coverage map runs the command on every pull
+request and on every push to `main`, and publishes its three percentages as
+bars under the map in the README (a full bar is every thing of its kind; a
+bar is drawn at least two units wide once anything has a name), with the
+counts beside them as `names.json`. Nothing is written into the repository,
+so a rename needs no second step to keep the bars current.
+
 ## How a field gets its name
 
 A field is named in one place, its line of the field table

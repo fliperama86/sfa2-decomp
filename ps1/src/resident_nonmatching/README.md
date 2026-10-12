@@ -49,7 +49,7 @@ it is not equivalence. Details of the files are on the page of the tool's folder
 
 Functions of this folder without a fixtures file, by reason:
 
-- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_8013a3a8`, `func_80140cd8`.
+- The cases, or a callee they run, read bytes that the setup did not make. Those bytes come from the game's memory image, so a file for the function would publish them and none is kept. `func_8013a3a8`.
 - The file is larger than 100,000 bytes, also with `--max 6` (or with its one case). It is not kept. `func_8011c724`, `func_8013245c`, `func_8014e890`.
 
 What the replay command of the folder printed on 2026-10-10, one line per function:
@@ -60,7 +60,6 @@ func_80131ab4 replay: fixtures 6, passed 6, failed 0
 func_801397d0 replay: fixtures 4, passed 4, failed 0
 func_8013b0c4 replay: fixtures 10, passed 10, failed 0
 func_8013c6ac replay: fixtures 8, passed 8, failed 0
-func_8013db48 replay: fixtures 12, passed 12, failed 0
 func_8013f474 replay: fixtures 12, passed 12, failed 0
 func_801452ec replay: fixtures 5, passed 5, failed 0
 func_80151324 replay: fixtures 5, passed 5, failed 0
@@ -94,12 +93,8 @@ func_8013b0c4: built 884 bytes, original 1172 bytes; cases 2000, discarded 0, eq
 func_8013b0c4 coverage: 293 of 293 instruction slots of the original executed
 func_8013c6ac: built 704 bytes, original 708 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8013c6ac coverage: 177 of 177 instruction slots of the original executed
-func_8013db48: built 408 bytes, original 408 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_8013db48 coverage: 102 of 102 instruction slots of the original executed
 func_8013f474: built 376 bytes, original 388 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_8013f474 coverage: 97 of 97 instruction slots of the original executed
-func_80140cd8: built 440 bytes, original 488 bytes; cases 2000, discarded 0, equal 2000, different 0
-func_80140cd8 coverage: 122 of 122 instruction slots of the original executed
 func_801452ec: built 860 bytes, original 1632 bytes; cases 2000, discarded 0, equal 2000, different 0
 func_801452ec coverage: 406 of 408 instruction slots of the original executed
 func_8014e890: built 780 bytes, original 780 bytes; cases 2000, discarded 0, equal 2000, different 0
@@ -127,12 +122,8 @@ func_8013b0c4 control: different 1445 of 2000 (expected more than 0)
   altered: store to field_17f moved by one byte, instruction slot 49
 func_8013c6ac control: different 1546 of 2000 (expected more than 0)
   altered: kind constant 9 changed to 10, instruction slot 33
-func_8013db48 control: different 85 of 2000 (expected more than 0)
-  altered: first branch on v0 == 0 removed, instruction slot 46
 func_8013f474 control: different 323 of 2000 (expected more than 0)
   altered: first branch on v0 == 0 removed, instruction slot 4
-func_80140cd8 control: different 1520 of 2000 (expected more than 0)
-  altered: store of field_5c moved by two bytes, instruction slot 91
 func_801452ec control: different 1860 of 2000 (expected more than 0)
   altered: texture byte store moved by one byte, instruction slot 184
 func_8014e890 control: different 2000 of 2000 (expected more than 0)
@@ -152,9 +143,7 @@ func_801397d0 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8013a3a8 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8013b0c4 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8013c6ac writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_8013db48 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8013f474 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
-func_80140cd8 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_801452ec writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_8014e890 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)
 func_80151324 writes: cases 2000, discarded 0, outside 0 (largest 0 bytes)

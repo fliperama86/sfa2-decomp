@@ -772,7 +772,7 @@
 8013d65c	472	func_8013d65c	-	-	0	0	closed
 8013d834	412	func_8013d834	-	-	0	0	closed
 8013d9d0	376	func_8013d9d0	-	-	0	0	closed
-8013db48	408	-	-	-	0	0	closed
+8013db48	408	func_8013db48	-	-	0	0	closed
 8013dce0	172	func_8013dce0	-	-	0	0	closed
 8013dd8c	160	func_8013dd8c	-	-	0	0	closed
 8013de2c	84	func_8013de2c	-	-	1	0	open
@@ -827,7 +827,7 @@
 80140770	616	func_80140770	-	-	0	0	open
 801409d8	388	func_801409d8	-	-	0	0	open
 80140b5c	380	func_80140b5c	-	-	0	0	open
-80140cd8	488	-	-	-	0	0	open
+80140cd8	488	func_80140cd8	-	-	0	0	open
 80140ec0	64	func_80140ec0	-	-	1	0	open
 80140f00	36	func_80140f00	-	-	0	0	closed
 80140f24	36	func_80140f24	-	-	0	0	closed
