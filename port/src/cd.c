@@ -144,8 +144,9 @@
  * for a reader that takes every sector. It does not apply to a read with the mode's XA bit (0x40) set during which CdReady has
  * not been called. The game's music is such a read: ReadS with the mode 0xc8, driven by functions that call CdSync and never
  * CdReady (ps1/src/s14f9f0_r6.c), and the game learns that a track has ended from the drive's position alone:
- * check_cd_position_and_set_command_state (ps1/src/m14ff20_r2.c) asks GetlocP at every pass and, once the position is above the
- * track's end, stops the track or starts it again. The disc's audio files hold sectors that are no audio between the audio
+ * check_cd_position_and_set_command_state (ps1/src/m14ff20_r2.c; the game's handler of the vertical blank calls it) asks GetlocP
+ * again each time the answer to its last command has come and, once the position is above the track's end, stops the track or
+ * starts it again. The disc's audio files hold sectors that are no audio between the audio
  * sectors (the places of a channel whose track is shorter than its file hold sectors with the submode 0). Such a sector is a data
  * sector: it goes into the FIFO and sets the ready flag, and the next one replaces it, as on the console, where the drive waits
  * for no one. With the polling rule applied to it the drive stood at the first such sector for ever, the position never passed

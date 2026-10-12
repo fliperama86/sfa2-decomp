@@ -2116,8 +2116,10 @@ a read that no one polls: `ReadS` with the mode `0xc8`, driven by
 functions that call `CdSync` and never `CdReady`
 (`ps1/src/s14f9f0_r6.c`). The game learns that a track has ended from the
 drive's position alone: `check_cd_position_and_set_command_state`
-(`ps1/src/m14ff20_r2.c`) asks `GetlocP` at every pass and, once the
-position is above the track's end, stops the track or starts it again
+(`ps1/src/m14ff20_r2.c`; the game's handler of the vertical blank calls
+it) asks `GetlocP` again each time the answer to its last command has
+come and, once the position is above the track's end, stops the track or
+starts it again
 (the track's length and whether it repeats are in the table at
 `0x8017eb44`, read from that function and from
 `start_cd_track_from_code`, `ps1/src/m14ff20_r3.c`). An audio file of the
@@ -2149,7 +2151,10 @@ the state that the position test sets for a track that plays once) that
 clears it. The record
 [`2026-10-12-music-stream-data-sectors.md`](../docs/records/2026-10-12-music-stream-data-sectors.md)
 has the tracks of the user's disc on which this was measured and the
-runs of the game.
+runs of the game;
+[`2026-10-12-music-stream-game-runs.md`](../docs/records/2026-10-12-music-stream-game-runs.md)
+has the screen of the score ranking as the game showed it with the change
+and without it.
 
 The decoder. `port/src/xa.c` is pure C (`stdint.h` and `string.h`, no
 global). It takes a raw sector of 2,352 bytes, refuses it if the
