@@ -5,7 +5,7 @@ anything under `ps1/`, and no game source changes for it. Read
 [`../README.md`](../README.md) first: this page only adds what is different
 on this machine.
 
-**State: the guest image builds and verifies (package 1 below). No Mac program exists yet.**
+**State: the guest image builds and verifies, and the machine runs made-up guest code (packages 1 and 2 below). No game runs on it yet.**
 
 ## Why the Windows design does not carry over
 
@@ -92,6 +92,41 @@ One vCPU, one VM per process. The guest runs at EL1 with the MMU on
   (`hv_vcpus_exit`) and runs the interrupt work at that exit, with the
   game's interrupt-disable state respected.
 
+## The machine's code and its controls
+
+`vm.h` is the interface (read it first), `vm.c` the machine, `elf.c` the
+loader of `guest.elf` and its symbols (it also names the function that a
+guest address lies in, for a crash line). The machine is one vCPU at EL1
+with identity page tables of 4 KB pages made by `vm_create`; the system
+registers are set by the host. A program that uses it is signed with
+`vm.entitlements` (`codesign -s - --entitlements port/mac/vm.entitlements PROGRAM`).
+
+An access to the I/O page that the exit describes (`ISV`) is decoded from
+the syndrome. A load or store with a write back of its base register (a
+post- or pre-indexed form, which compilers choose) has no description, so
+`vm.c` reads the instruction and decodes those forms itself; any other
+form ends in a fault line that gives the instruction's word, to be built
+when a real run stops on it (as the Windows program does for its own
+decoder).
+
+```sh
+python3 port/tools/test_vm.py        # a few seconds; needs aarch64-elf-gcc and an Apple Silicon Mac
+```
+
+It builds made-up guest code (`port/mac/test/guest.c`) with the ILP32
+compiler, links it with the real linker script and the real host stubs of
+`guestlink.py`, builds and signs a host program and runs 21 cases: a list
+summed through two views of the RAM, the three views alias, the
+scratchpad is a separate page, accesses of the I/O page exit with their
+size and value (plain and write-back forms, signed byte), a hostcall, a
+call from the host into the guest that calls the host again, a switch
+between two tasks through saved contexts, four faults (an unmapped
+read, an undefined instruction, a write to code, a run of data) that
+name their address and function and leave the machine usable, and an
+interrupt from another thread that runs the hook between instructions.
+It needs no disc and no game. On 2026-10-12 all 21 pass; a recursive
+function of 1.3 million calls took 4 ms in the guest.
+
 ## The guest image
 
 ```sh
@@ -146,7 +181,7 @@ Each is a small pull request with isolated checks (see
 | # | Package | Check that needs no disc and no running game |
 | --- | --- | --- |
 | 1 | This page and the guest image build (`hostbuild.py --guest`). **Done.** | `test_guestlink.py`; the link verification |
-| 2 | VM core in `port/mac/`: memory map, page tables, vectors, `hvc` dispatch, MMIO exits, call into the guest, saved register sets, cancel | a test program that runs made-up guest code |
+| 2 | VM core in `port/mac/` (`vm.c`, `elf.c`): memory map, page tables, vectors, `hvc` dispatch, I/O exits, call into the guest, saved register sets, interrupt. **Done.** | `test_vm.py`: 21 cases, about a second |
 | 3 | `port_g` / `port_call` in the shared runtime files, no change to the Windows objects | the Windows objects before and after, compared |
 | 4 | Mac start: load the disc, write the stubs, call the game's `main`, kernel, C library, threads | stops by name at the first missing function |
 | 5 | Video through PsyZ, pads | |
