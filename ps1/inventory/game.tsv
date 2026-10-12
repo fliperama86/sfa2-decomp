@@ -1330,7 +1330,7 @@
 80151f64	136	func_80151f64	graphics	graphics	0	0	closed
 80151fec	156	func_80151fec	graphics	graphics	0	0	closed
 80152088	156	func_80152088	graphics	graphics	0	0	closed
-80152124	124	-	graphics	graphics	0	0	closed
+80152124	124	func_80152124	graphics	graphics	0	0	closed
 801521a0	128	func_801521a0	graphics	graphics	0	0	closed
 80152220	64	func_80152220	-	-	1	0	open
 80152260	248	func_80152260	-	-	0	0	closed

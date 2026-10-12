@@ -1,4 +1,3 @@
-
 ## Batch 15: two functions of the character modules exact, a load kept apart from its shift (2026-10-11)
 
 - `func_801b4100_slot04_0e` (268 bytes) and `func_801b420c_slot04_0e`

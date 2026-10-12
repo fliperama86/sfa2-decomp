@@ -1,4 +1,3 @@
-
 ## Batch 9: three functions exact, the shared code written once per path (2026-10-11)
 
 - `func_80078628_slot00` (132 bytes, second placement in `slot08` at

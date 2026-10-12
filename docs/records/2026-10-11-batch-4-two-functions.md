@@ -1,4 +1,3 @@
-
 ## Batch 4: two functions exact with labelled stand-ins, in one pull request (2026-10-11)
 
 - `func_8014c4a8` (128 bytes, resident) and `func_800145f4_slot28` (132

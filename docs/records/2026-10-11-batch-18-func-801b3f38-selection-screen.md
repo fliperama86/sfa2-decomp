@@ -1,4 +1,3 @@
-
 ## Batch 18: `func_801b3f38_slot04_sel` exact, the sibling of batch 17 (2026-10-11)
 
 - `func_801b3f38_slot04_sel` (340 bytes, the selection screen's module),

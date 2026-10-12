@@ -1,4 +1,3 @@
-
 ## Batch 10: two more functions of the stage modules exact (2026-10-11)
 
 - `func_801e9798_slot06_06` (972 bytes) and `func_801ea3b4_slot06_08`
