@@ -41,7 +41,8 @@ void func_801e8dc4_slot06_00(Object *obj) {
     r->field_10 = data_801e9f60_slot06_00[(u8)i];
     k = i | 1;
     r->field_00 = data_801e9f60_slot06_00[k & 0xff] & 0xffff0000;
-    /* Stand-in, not recovered source: the local m, which is only a copy of k, reproduces the original's order of instructions. Without it this function differs from the original in 34 instruction slots. */
+    /* Stand-in, not recovered source: the local m, which is only a copy of k, reproduces the original's order of instructions. Without it this function differs from the original in 6 instruction slots. */
+    /* The figure's control keeps the value: m is gone and the access that reads it has the index (i | 1) & 0xff; the build is then 428 bytes. */
     m = k;
     k = i | 2;
     r->field_04 = 0xf80000 - ((u16)data_801e9f60_slot06_00[m & 0xff] << 16);
