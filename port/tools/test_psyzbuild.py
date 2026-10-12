@@ -360,7 +360,7 @@ def real_cases(root):
     yield "real-patch-one-file-one-hunk", same([(f.path, len(f.hunks)) for f in files], [(LIB_PATH, 1)])
     yield "real-patch-expects-the-three-lines", same(files[0].hunks[0].old, LIB)
     yield "real-patch-leaves-the-flush-only", same(files[0].hunks[0].new, ["        Draw_FlushBuffer();"])
-    yield "real-patch-commit-from-its-header", same(pb.patch_commit(text), "6d01339aadf16c5c9d6e44f44c0d66514752e472")
+    yield "real-patch-commit-from-its-header", same(pb.patch_commit(text), "4c68cab400cba341be3d2066993fcdf778301acf")
 
     def body(lines):
         return "\n".join(lines) + "\n"

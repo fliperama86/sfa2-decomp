@@ -1,5 +1,5 @@
 PsyZ patch for the port. Written by this project; applies to PsyZ commit
-6d01339aadf16c5c9d6e44f44c0d66514752e472 (port/external/psyz at its pin).
+4c68cab400cba341be3d2066993fcdf778301acf (port/external/psyz at its pin).
 Applied by port/tools/psyzbuild.py to a copy of PsyZ, never to the submodule.
 
 License: the PsyZ files this patch changes are under the
@@ -141,9 +141,9 @@ or global UV correction is changed. The port selects only its known HUD tiles.
 
  unsigned char* Psyz_VideoAllocVramDump(int* w, int* h) {
 @@ -1213,7 +1259,17 @@
-             }
-
-             if (isTextured) {
+                     vertex_cur[i].umin = umin;
+                     vertex_cur[i].vmin = vmin;
+                 }
 -                FixupFlipUV(vertex_cur, code & EXTRA_VERTEX);
 +                int fixed_hud = 0;
 +                if (sfa2_pixel_perfect_ui && (tpage & PORT_VIDEO_PIXEL_GRID) && (code & EXTRA_VERTEX)) {

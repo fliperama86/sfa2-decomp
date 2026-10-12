@@ -117,7 +117,10 @@ it, and the rule above replaces it for the time until the port runs:
 
 PsyZ replaces the PSY-Q library, so that source written against it compiles
 for other machines. It is a submodule at `external/psyz`, pinned to commit
-`6d01339aadf16c5c9d6e44f44c0d66514752e472` (of 2026-10-10; the pin before it was of 2026-10-05). A submodule records an address
+`4c68cab400cba341be3d2066993fcdf778301acf` (of 2026-10-12: PsyZ's change #196, "keep a slanted polygon's texels inside its own UVs", the one commit
+that stands on `6d01339aadf16c5c9d6e44f44c0d66514752e472`, the pin of 2026-10-10; the pin before that was of 2026-10-05). While #196 is not
+merged upstream the commit is reachable as `refs/pull/196/head` of the PsyZ repository: `git submodule update --init port/external/psyz` fetches
+it by its hash. When PsyZ has the change on its main, the pin moves to that commit. A submodule records an address
 and a commit: no file of PsyZ is in this repository. The newer library has a
 movie decoder core, a 24-bit display mode, a DMA notification and decompiled movie routines;
 the port does not use them yet.
