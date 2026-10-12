@@ -35,7 +35,7 @@ one u32 "type". For table 0 the two readings give the same number.
 
 ## What the resident loader does
 
-From exact functions in `ps1/src/s14f9f0_r3.c` and `ps1/src/y14e890_r2.c`:
+From exact functions in `ps1/src/resident/disc/read_stream_sector_to_source_ptr.c` and `ps1/src/resident/disc/read_cd_file_by_index_into_memory.c`:
 
 - `func_801501a0` steps to the next entry. It takes the size from offset 4,
   the table number from the u16 at offset 2 and the first-word copy from
@@ -48,7 +48,7 @@ From exact functions in `ps1/src/s14f9f0_r3.c` and `ps1/src/y14e890_r2.c`:
 - `func_80150180` compares the first word at the destination with the entry's
   copy and sets a state byte to 3 when they differ.
 - `func_80150100` transfers a sector into a buffer at `0x801e0000` plus a
-  multiple of 2,048 instead. `ps1/src/s14f9f0_r4.c` hands that buffer to
+  multiple of 2,048 instead. `ps1/src/resident/disc/load_stream_image.c` hands that buffer to
   `SsVabTransBodyPartly`.
 - `func_8014f194` loads a stand-alone executable: it transfers the header
   sector to `0x801e0000`, takes the load address from header offset 0x18 and

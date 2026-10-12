@@ -1,0 +1,21 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../../game.h"
+#include "../../../protos.h"
+#include "../../../externs.h"
+
+/* The form of enter_state_7_set_other_lock_sequence_by_mode_a_slot04_07 of another character file, with four
+   other constants and three of its statements in another order. */
+void set_states_and_other_lock_then_sequence_c_slot04_01(Object *obj) {
+    obj->state_0 = 1;
+    obj->state_1 = 0;
+    obj->state_2 = 7;
+    obj->state_3 = 0;
+    obj->field_15a = 8;
+    obj->facing_side = obj->saved_facing;
+    obj->field_157 = 0;
+    obj->active_flag_3 = 1;
+    obj->field_6b = 0;
+    obj->other->field_6b = 0x19;
+    obj->other_lock = 0x1d;
+    set_sequence_by_side_and_mode(obj, 0x41);
+}

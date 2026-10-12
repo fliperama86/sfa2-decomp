@@ -202,6 +202,33 @@ def case_function_with_a_file_of_its_name(tmp: Path) -> str | None:
     return expect(apply(tmp, "src", "port"), 0, "func_80010000 -> advance: 4 places")
 
 
+def case_unit_file_is_renamed_with_its_function(tmp: Path) -> str | None:
+    old = OLD.replace('source = "a.c"', 'source = "func_80010000.c"')
+    new = NEW.replace('source = "a.c"', 'source = "func_80010000.c"')
+    tree(tmp, {"src/func_80010000.c": SOURCE}, old=old, new=new)
+    problem = expect(apply(tmp, "--dry-run", "src"), 0, "file func_80010000.c -> advance.c")
+    if problem:
+        return problem
+    if not (tmp / "src/func_80010000.c").exists():
+        return "a dry run moved the file"
+    problem = expect(apply(tmp, "src"), 0, "file func_80010000.c -> advance.c")
+    if problem:
+        return problem
+    if (tmp / "src/func_80010000.c").exists() or (tmp / "src/advance.c").read_text() != WANTED:
+        return "the unit's file was not renamed, or its text was not rewritten"
+    return None if 'source = "advance.c"' in (tmp / "src/build.toml").read_text() else "the source line did not follow"
+
+
+def case_unit_file_name_taken(tmp: Path) -> str | None:
+    old = OLD.replace('source = "a.c"', 'source = "func_80010000.c"')
+    new = NEW.replace('source = "a.c"', 'source = "func_80010000.c"')
+    tree(tmp, {"src/func_80010000.c": SOURCE, "src/advance.c": "other\n"}, old=old, new=new)
+    problem = expect(apply(tmp, "src"), 1, "refused", "advance.c exists already")
+    if problem:
+        return problem
+    return None if (tmp / "src/func_80010000.c").read_text() == SOURCE else "a refused run rewrote a file"
+
+
 def case_not_an_identifier(tmp: Path) -> str | None:
     tree(tmp, {"src/a.c": SOURCE}, new=OLD.replace('name = "func_80010000", address', 'name = "9lives", address'))
     return expect(apply(tmp, "src"), 1, "refused", "not a C identifier")
@@ -239,6 +266,8 @@ CASES = [
     Case("one-of-two-placements-is-refused", case_one_of_two_placements),
     Case("both-placements-renamed-together", case_both_placements),
     Case("function-with-a-file-of-its-name-is-refused", case_function_with_a_file_of_its_name),
+    Case("unit-file-is-renamed-with-its-function", case_unit_file_is_renamed_with_its_function),
+    Case("unit-file-name-taken-is-refused", case_unit_file_name_taken),
     Case("not-an-identifier-is-refused", case_not_an_identifier),
     Case("no-rename-changes-nothing", case_no_rename),
     Case("bad-configuration-is-refused", case_bad_configuration),

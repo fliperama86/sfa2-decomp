@@ -1,6 +1,6 @@
 /*
  * The port's C for func_800e11e4_slot0f. It runs in the PC program in place of
- * the C of the unit slot0f_119c_r1.c (under ps1/src/slot0f/); the PS1 build
+ * the C of the unit test_events_fifth_to_seventh_of_array_slot0f.c (under ps1/src/slot0f/); the PS1 build
  * does not use this file, and the unit keeps the exact C.
  *
  * What is different from the unit's C: this function returns the result of

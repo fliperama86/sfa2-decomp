@@ -1,6 +1,6 @@
 /*
  * The port's C for func_8001385c_slot01. It runs in the PC program in place
- * of the C of the unit slot01_3440_r3.c; the PS1 build does not use this
+ * of the C of the unit init_object_by_table_index_slot01.c; the PS1 build does not use this
  * file, and the unit keeps the exact C.
  *
  * What is different from the unit's C: the call of clear_or_set_flag_by_pos_x_limit is written

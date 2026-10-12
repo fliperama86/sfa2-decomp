@@ -52,13 +52,13 @@ does that is on [the port's page](../README.md), under "Overrides in C".
 
 | Function | Unit of its exact C | What the override adds | Callee | What lies before the call, and what it leaves in `a0` |
 | --- | --- | --- | --- | --- |
-| `func_8014dcc0` | `ps1/src/s14d8a4_r2.c` | passes `object` | the function in `scr_d4_left` or `scr_184_right` | nothing: the parameter |
-| `func_8012126c` | `ps1/src/s120f40_r2.c` | passes `state` in the second arm | `func_80013834` (the module `slot28` has it) | nothing: the parameter |
-| `func_801212c8` | `ps1/src/s120f40_r2.c` | passes its parameter | `func_8001365c` (the module `slot12` has it) | nothing: the parameter |
-| `func_801212e8` | `ps1/src/s120f40_r2.c` | passes its parameter | `func_800136b0` (the module `slot12` has it) | nothing: the parameter |
-| `func_80146794` | `ps1/src/s1460ec_r3.c` | passes `object`, or the word at offset 0x18 of the object as it was when `func_80131094` was entered | `func_80120028` | `func_80131094`, which leaves `a0` alone on two paths and loads that word into it on the third (when the halfword at 0x38, lowered by one, is 0 and the signed halfword at 0x3a is negative) |
-| `func_8001385c_slot01` | `ps1/src/slot01/slot01_3440_r3.c` | passes `obj` | `func_8011ffdc` | a call through the table `data_80015a64_slot01`, three entries, none writes `a0` |
-| `func_801b12bc_slot04_0f` | `ps1/src/slot04_0f/slot04_0f_09e4_r1_b.c` | passes `obj` | `func_80141c4c` | nothing: the parameter |
+| `func_8014dcc0` | `ps1/src/resident/script/init_script_entry_by_script_index.c` | passes `object` | the function in `scr_d4_left` or `scr_184_right` | nothing: the parameter |
+| `func_8012126c` | `ps1/src/resident/menus/load_side_command_once_else_call_next.c` | passes `state` in the second arm | `func_80013834` (the module `slot28` has it) | nothing: the parameter |
+| `func_801212c8` | `ps1/src/resident/menus/load_side_command_once_else_call_next.c` | passes its parameter | `func_8001365c` (the module `slot12` has it) | nothing: the parameter |
+| `func_801212e8` | `ps1/src/resident/menus/load_side_command_once_else_call_next.c` | passes its parameter | `func_800136b0` (the module `slot12` has it) | nothing: the parameter |
+| `func_80146794` | `ps1/src/resident/objects/call_state_0_handler_from_ca28_table.c` | passes `object`, or the word at offset 0x18 of the object as it was when `func_80131094` was entered | `func_80120028` | `func_80131094`, which leaves `a0` alone on two paths and loads that word into it on the third (when the halfword at 0x38, lowered by one, is 0 and the signed halfword at 0x3a is negative) |
+| `func_8001385c_slot01` | `ps1/src/overlays/character_demo/init_object_by_table_index_slot01.c` | passes `obj` | `func_8011ffdc` | a call through the table `data_80015a64_slot01`, three entries, none writes `a0` |
+| `func_801b12bc_slot04_0f` | `ps1/src/overlays/characters/dhalsim/count_down_then_reset_or_update_sequence_slot04_0f.c` | passes `obj` | `func_80141c4c` | nothing: the parameter |
 | `func_800205b4_slot28` | `ps1/src/slot28/slot28_05b4x_r1.c` | passes `obj` | `func_80131094` | `func_80020608_slot28`, a leaf that never writes `a0` |
 | `func_8001714c_slot28` | `ps1/src/slot28/slot28_714cx_r1.c` | passes `obj` | `func_80131094` | a call through the table `data_800306cc_slot28`, two entries, both leaves that never write `a0` |
 
@@ -66,9 +66,9 @@ The three that return the result:
 
 | Function | Unit of its exact C | What the override adds | Library call | Where the original's callers read the result |
 | --- | --- | --- | --- | --- |
-| `func_800e11e4_slot0f` | `ps1/src/slot0f/slot0f_119c_r1.c` | returns the result of `open` | `open` | `func_800e0850_slot0f` at 800e0924, 800e0944, 800e0968; `func_800e0a1c_slot0f` at 800e0adc (each `move s0,v0` after the call) |
-| `func_800e1250_slot0f` | `ps1/src/slot0f/slot0f_119c_r1.c` | returns the result of `read` | `read` | `func_800e0a1c_slot0f`, `bltz v0` at 800e0b00 |
-| `func_800e12cc_slot0f` | `ps1/src/slot0f/slot0f_119c_r2.c` | returns the result of `write` | `write` | `func_800e0850_slot0f`, `bne v0,v1` at 800e09d4 |
+| `func_800e11e4_slot0f` | `ps1/src/overlays/attract_demo/test_events_fifth_to_seventh_of_array_slot0f.c` | returns the result of `open` | `open` | `func_800e0850_slot0f` at 800e0924, 800e0944, 800e0968; `func_800e0a1c_slot0f` at 800e0adc (each `move s0,v0` after the call) |
+| `func_800e1250_slot0f` | `ps1/src/overlays/attract_demo/test_events_fifth_to_seventh_of_array_slot0f.c` | returns the result of `read` | `read` | `func_800e0a1c_slot0f`, `bltz v0` at 800e0b00 |
+| `func_800e12cc_slot0f` | `ps1/src/overlays/attract_demo/func_800e12cc_slot0f.c` | returns the result of `write` | `write` | `func_800e0850_slot0f`, `bne v0,v1` at 800e09d4 |
 
 Since 2026-10-12 the units of these three define them with their result
 (`int`, `long`, `long`): the same bytes build from a definition that returns
@@ -106,7 +106,7 @@ The one that gives a local a value:
 
 | Function | Unit of its exact C | What the override adds | The path | What the original uses there |
 | --- | --- | --- | --- | --- |
-| `func_801347b4` | `ps1/src/d347b4_r1.c` | `col` is 0 at its declaration | the map has no rows and the kind is 2 or 3: the loops do not run, and `func_801350c0` is called with `col` | the low byte of `s7`, which the function writes first inside the loop over the rows (`andi a1,s7,0xff` at 80134e5c) |
+| `func_801347b4` | `ps1/src/resident/graphics/func_801347b4.c` | `col` is 0 at its declaration | the map has no rows and the kind is 2 or 3: the loops do not run, and `func_801350c0` is called with `col` | the low byte of `s7`, which the function writes first inside the loop over the rows (`andi a1,s7,0xff` at 80134e5c) |
 
 Its test cannot compare that path: the original's value there depends on
 the caller, so the setup makes at least one row when the kind is 2 or 3
@@ -124,9 +124,9 @@ The ones that mask a shift count:
 
 | Function | Unit of its exact C | What the override adds | The inputs | What the original does there |
 | --- | --- | --- | --- | --- |
-| `func_80141534` | `ps1/src/e41534_r1.c` | `& 31` on the count of the shift in the return statement | the count is the first byte of `dir` halved, plus 6 when the second byte is not 0, plus 1 when flag 0x8000 is clear: 32 or more whenever the first byte is 64 or more | `srav` at 801415ac; the console takes the count modulo 32 (read from the listing) |
-| `func_8013bfa4` | `ps1/src/d3bfa4_r1.c` | `& 31` on the count of the shift in the test before the state bytes (`0x800000 >> field_02`) | the count is the table object's `field_02`, a byte: 32 or more whenever that byte is | `srav` at 8013c4ec; the console takes the count modulo 32 (read from the listing) |
-| `func_80120604` | `ps1/src/d20604_r1.c` | `& 31` on the count of the shift that makes the channel's bit, in the argument of the call to `func_8016a7e4` in command 0 (`1 << chan_idx`) | the count is the channel, bits 7 to 11 of the entry's second word (0 to 31), plus 4 when `alt` is not 0: 32 or more whenever the field is 28 or more and `alt` is not 0 | `sllv` at 80120708; the console takes the count modulo 32 (read from the listing) |
+| `func_80141534` | `ps1/src/resident/input/func_80141534.c` | `& 31` on the count of the shift in the return statement | the count is the first byte of `dir` halved, plus 6 when the second byte is not 0, plus 1 when flag 0x8000 is clear: 32 or more whenever the first byte is 64 or more | `srav` at 801415ac; the console takes the count modulo 32 (read from the listing) |
+| `func_8013bfa4` | `ps1/src/resident/fighters/func_8013bfa4.c` | `& 31` on the count of the shift in the test before the state bytes (`0x800000 >> field_02`) | the count is the table object's `field_02`, a byte: 32 or more whenever that byte is | `srav` at 8013c4ec; the console takes the count modulo 32 (read from the listing) |
+| `func_80120604` | `ps1/src/resident/sound/func_80120604.c` | `& 31` on the count of the shift that makes the channel's bit, in the argument of the call to `func_8016a7e4` in command 0 (`1 << chan_idx`) | the count is the channel, bits 7 to 11 of the entry's second word (0 to 31), plus 4 when `alt` is not 0: 32 or more whenever the field is 28 or more and `alt` is not 0 | `sllv` at 80120708; the console takes the count modulo 32 (read from the listing) |
 
 Its test compares those inputs too: the setup draws the first byte of
 `dir` from 0 to 255, so most cases that reach the shift have a count of 32

@@ -1,0 +1,32 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../protos.h"
+#include "../../externs.h"
+
+extern Slot12Rec data_8002bca4_slot12[];
+extern u8 data_8002bfb4_slot12[][10];
+void copy_string_with_suffix_by_mode_slot12(u8 *src, u8 *dst, int mode);
+
+void build_name_text_record_slot12(Object *obj, int a) {
+    Slot12Rec *e;
+    u8 *fr;
+
+    fr = (u8 *)ptr_8019040c;
+    fr += (s16)obj->health << 4;
+    e = &data_8002bca4_slot12[obj->table_index];
+    e->field_08 = 0x10;
+    e->field_09 = 0x10;
+    e->field_0a = 2;
+    e->field_0b = 0x12;
+    e->field_00 = 0;
+    if (a == 1) {
+        e->field_0b = 0x1d;
+    }
+    fr += 4;
+    copy_string_with_suffix_by_mode_slot12(fr, data_8002bfb4_slot12[obj->table_index], 0);
+    e->data_ptr = data_8002bfb4_slot12[obj->table_index];
+    e->pos_x = obj->base_x + 0x30;
+    e->pos_y = obj->base_y;
+    e->pos_x = e->pos_x - 8;
+    e->pos_y = e->pos_y - 8;
+}

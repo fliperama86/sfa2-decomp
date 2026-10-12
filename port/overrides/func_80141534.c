@@ -1,6 +1,6 @@
 /*
  * The port's C for func_80141534. It runs in the PC program in place of the
- * C of the unit e41534_r1.c; the PS1 build does not use this file, and the
+ * C of the unit resident/input/func_80141534.c; the PS1 build does not use this file, and the
  * unit keeps the exact C.
  *
  * What is different from the unit's C: the shift count is masked with 31 in

@@ -1,0 +1,36 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../externs.h"
+#include "../../protos.h"
+
+
+/* Form found by automatic permutation search. */
+void start_motion_from_record_flip_facing(Object *object)
+{
+  s32 b;
+  int new_var;
+  s32 a;
+  if ((object->step_flags << 16) >= 0)
+  {
+    update_sequence(object);
+  }
+  else
+  {
+    object->state_3 = 1;
+    a = motion_recs[object->kind].vel_x;
+    object->vel_y = motion_recs[object->kind].vel_y;
+    b = motion_recs[object->kind].accel_x;
+    object->accel_y = motion_recs[object->kind].accel_y;
+    new_var = object->facing_side ^ 1;
+    object->facing_side = new_var;
+    if (object->facing_side != 0)
+    {
+      a = -a;
+      b = -b;
+    }
+    object->vel_x = a;
+    a = b;
+    object->accel_x = a;
+    set_sequence_by_side(object, 0x13);
+  }
+}

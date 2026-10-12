@@ -1,0 +1,15 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../../game.h"
+#include "../../../protos.h"
+#include "../../../externs.h"
+
+void advance_state_3_restore_facing_set_sequence_2_slot04_0a(Object *obj);
+void update_sequence_or_finish_on_flag_4_slot04_0a(Object *obj);
+
+void call_init_or_update_finish_flag_four_slot04_0a(Object *obj) {
+    if (obj->state_3 == 0) {
+        advance_state_3_restore_facing_set_sequence_2_slot04_0a(obj);
+    } else {
+        update_sequence_or_finish_on_flag_4_slot04_0a(obj);
+    }
+}

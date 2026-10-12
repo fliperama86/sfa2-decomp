@@ -1,0 +1,25 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../../game.h"
+#include "../../../protos.h"
+#include "../../../externs.h"
+
+extern ObjectFn data_801ec944_slot06_09[];
+extern SequenceStep *data_801ec92c_slot06_09[];
+
+void set_accel_and_countdown_from_tables_slot06_09(Object *obj);
+
+void call_handler_by_state_0_slot06_09(Object *obj) {
+    data_801ec944_slot06_09[obj->state_0](obj);
+}
+
+void init_object_and_start_sequence_by_table_index_slot06_09(Object *obj) {
+    obj->field_0a = 1;
+    obj->field_0f = 1;
+    obj->spawn_mode = 4;
+    obj->vel_x = 0;
+    obj->image_row = 0;
+    obj->field_0c = 0;
+    obj->state_0++;
+    set_accel_and_countdown_from_tables_slot06_09(obj);
+    set_sequence_entry(obj, data_801ec92c_slot06_09[obj->table_index]);
+}

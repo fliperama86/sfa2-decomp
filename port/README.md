@@ -1752,7 +1752,7 @@ and a start with no sound option is today's `--no-audio`.
 
 Why the library's own C. Two facts, both read in the source. Game
 functions that are library code read the library's state in RAM:
-`func_8016a7e4` in `ps1/src/s1682d0_r10.c` follows the pointer at
+`func_8016a7e4` in `ps1/src/resident/sound/func_8016a7c4.c` follows the pointer at
 `0x80183138` (`_spu_RXX` in `symbols.ld`, the library's pointer to the
 chip's registers) to a voice's registers, and reads the word at
 `0x801831e8` (`_spu_keystat`). PsyZ's library keeps its own `_spu_RXX`
@@ -2120,15 +2120,15 @@ saw them, are 4-bit, stereo, 37,800 Hz.
 The sectors between the audio, and how a track ends. The game's music is
 a read that no one polls: `ReadS` with the mode `0xc8`, driven by
 functions that call `CdSync` and never `CdReady`
-(`ps1/src/s14f9f0_r6.c`). The game learns that a track has ended from the
+(`ps1/src/resident/disc/update_menu_cd_state_after_sync.c`). The game learns that a track has ended from the
 drive's position alone: `check_cd_position_and_set_command_state`
-(`ps1/src/m14ff20_r2.c`; the game's handler of the vertical blank calls
+(`ps1/src/resident/disc/check_cd_position_and_set_command_state.c`; the game's handler of the vertical blank calls
 it) asks `GetlocP` again each time the answer to its last command has
 come and, once the position is above the track's end, stops the track or
 starts it again
 (the track's length and whether it repeats are in the table at
 `0x8017eb44`, read from that function and from
-`start_cd_track_from_code`, `ps1/src/m14ff20_r3.c`). An audio file of the
+`start_cd_track_from_code`, `ps1/src/resident/disc/start_cd_track_from_code.c`). An audio file of the
 disc holds eight channels in turn, and where a channel's track is shorter
 than its file the channel's places hold sectors with the submode 0, which
 are no audio. Such a sector is a data sector: it goes into the FIFO and
@@ -2140,8 +2140,8 @@ drive goes on, as on the console, where the drive waits for no one. A
 call of `CdReady` during the read shows a reader that polls, and from
 then on one sector waits again; a new read begins the question again.
 With the XA bit clear the rule holds from the read's start: the game's
-two readers that poll set the mode `0x80` first (`ps1/src/y14e890_r2.c`,
-`ps1/src/v6_r1.c`). Not covered, and no code of the game does it: a
+two readers that poll set the mode `0x80` first (`ps1/src/resident/disc/read_cd_file_by_index_into_memory.c`,
+`ps1/src/resident/disc/seek_cd_position_with_retries.c`). Not covered, and no code of the game does it: a
 reader that polls with the XA bit set loses the sectors of a vblank's row
 that comes before its first poll.
 
@@ -2150,9 +2150,9 @@ position never passed the track's end, so a track that repeats fell
 silent where another channel of its file ended (issue 279) and a track
 that plays once never ended for the game (issue 258). The screen of the
 score ranking waits for that end: `count_down_then_advance_step_index_slot12`
-(`ps1/src/slot12/slot12_3a3c_r8.c`) goes on only when the byte at
+(`ps1/src/overlays/continue_screen/advance_substep_when_fade_done_slot12.c`) goes on only when the byte at
 `0x80190949` is 0, the music object's mark that a track is on, and at a
-track's end it is `pause_cd_and_clear_menu_command` (`ps1/src/s14f9f0_r6.c`, the handler of
+track's end it is `pause_cd_and_clear_menu_command` (`ps1/src/resident/disc/update_menu_cd_state_after_sync.c`, the handler of
 the state that the position test sets for a track that plays once) that
 clears it. The record
 [`2026-10-12-music-stream-data-sectors.md`](../docs/records/2026-10-12-music-stream-data-sectors.md)
@@ -2509,14 +2509,14 @@ more that the game has not read.
 - It applies only to a streamed load of the game. A read is on, the
   mode's XA bit is clear, and the ready handler that the game stored in
   the library's variable is its stream handler, `func_8014f918` at
-  `0x8014f918` (`ps1/src/n14a648_r9.c`). With another handler, with none
+  `0x8014f918` (`ps1/src/resident/disc/update_stream_control_by_mode.c`). With another handler, with none
   (the game polls) or with the XA bit set there is no guard.
 - The ring is read from two bytes of the game's stream object,
   `ctl_80190948` at `0x80190948`. The game's source shows that byte
   `0x16` is the place a sector is written to (it is stepped from 1 to 7
   and back to 1, and the handler's work writes the sector at that place:
-  `l14de94_r3.c`, `s14f9f0_r3.c`) and that byte `0x17` is the place the
-  main loop reads next (stepped the same way, `l14de94_r4.c`), and that
+  `resident/disc/open_vab_and_queue_body_transfer.c`, `resident/disc/read_stream_sector_to_source_ptr.c`) and that byte `0x17` is the place the
+  main loop reads next (stepped the same way, `resident/disc/dispatch_pending_stream_entries.c`), and that
   both are 0 before a stream starts. (Some kinds of sector are read into
   a buffer of their own and do not use the ring; they move neither place.)
   That the pair is a ring of seven

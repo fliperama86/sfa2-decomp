@@ -1,0 +1,49 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../externs.h"
+#include "../../protos.h"
+
+
+void reset_slot_stage_clear_result(Object *object, int index, int unused) {
+    object->slots[(u8)index].stage = 0;
+    data_80188f44 = 0;
+}
+
+void clear_global_flag_ignoring_object(Object *unused) {
+    data_80188f44 = 0;
+}
+
+void reset_slot_stage_set_result(Object *object, int index, int unused) {
+    object->slots[(u8)index].stage = 0;
+    data_80188f44 = 1;
+}
+
+void set_slot_level_from_repeat_count(Object *object, int index) {
+    Slot *slot = &object->slots[(u8)index];
+    int level;
+    u16 raw = *(u16 *)&slot->repeat_count;
+    s16 value;
+    if (object->field_7e == 0) {
+        value = raw;
+        if (value < 0x79) level = 0;
+        else if (value < 0xf1) level = 2;
+        else if (value < 0x1e1) level = 4;
+        else if (value < 0x3c1) level = 6;
+        else level = 8;
+    } else {
+        value = raw;
+        if (value < 0xb) level = 0;
+        else if (value < 0x10) level = 2;
+        else if (value < 0x15) level = 4;
+        else if (value < 0x1a) level = 6;
+        else level = 8;
+    }
+    object->slots[(u8)index].level = level;
+    object->slots[(u8)index].stage = 0;
+    data_80188f44 = 1;
+}
+
+void set_side_ring_flag(Object *object) {
+    if (object->side != 0) ring_right[0] = 1;
+    else ring_left[0] = 1;
+}

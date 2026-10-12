@@ -1,0 +1,23 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../../game.h"
+#include "../../../protos.h"
+#include "../../../externs.h"
+
+void hit_other_when_mode_set_clear_flag_slot04_07(Object *obj) {
+    Object *o;
+
+    if (((Slot04aObj *)obj)->mode != 0) {
+        o = obj->other;
+        obj->state_3 = obj->state_3 + 1;
+        o->field_15b = 1;
+        set_other_hit_reaction_state_0(obj, 0, 5, -0x200, 0, 0, 1);
+        if (((Slot04aObj *)o)->field_5c < 0) {
+            obj->field_167 = 2;
+            if (obj->field_49 != 0) {
+                obj->field_167 = 0x17;
+            }
+        }
+        obj->active_flag_4 = 0;
+    }
+    update_sequence(obj);
+}

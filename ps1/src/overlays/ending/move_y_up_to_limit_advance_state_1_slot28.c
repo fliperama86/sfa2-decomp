@@ -1,0 +1,14 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../protos.h"
+#include "../../externs.h"
+
+void move_y_up_to_limit_advance_state_1_slot28(Object *obj) {
+    int t = *(u16 *)&obj->pos_y - 6;
+    *(u16 *)&obj->pos_y = t;
+    if ((s16)t <= 0xa0) {
+        obj->pos_y = 0xa0;
+        obj->state_1++;
+    }
+    obj->field_01 = 1;
+}

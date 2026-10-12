@@ -1,0 +1,68 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../../game.h"
+#include "../../../protos.h"
+#include "../../../externs.h"
+
+void apply_velocity_and_acceleration_slot04_0a(Object *obj);
+
+void move_until_ground_then_start_landing_sequence_slot04_0a(Object *obj) {
+    s16 y;
+    int a;
+    apply_velocity_and_acceleration_slot04_0a(obj);
+    y = obj->ground_y;
+    if (obj->pos_y < y) {
+        update_sequence(obj);
+    } else {
+        obj->pos_y = y;
+        obj->pos_y_frac = 0;
+        obj->active_state = 0;
+        obj->state_3 = 5;
+        if (obj->direction_index == 0) {
+            a = 0x36;
+        } else {
+            a = 0x37;
+            if (obj->direction_index == 4) {
+                obj->state_3 = 3;
+                a = 0x38;
+            }
+        }
+        set_sequence_by_side_and_mode(obj, a);
+    }
+}
+
+void set_slide_velocity_when_mode_set_slot04_0a(Object *obj) {
+    int a;
+    int b;
+    if (((Slot04aObj *)obj)->mode != 0) {
+        a = 0xe0000;
+        b = -0x8000;
+        obj->state_3++;
+        if (obj->facing_side == 0) {
+            a = 0xfff20000;
+            b = 0x8000;
+        }
+        obj->vel_x = a;
+        obj->accel_x = b;
+    }
+    update_sequence(obj);
+}
+
+void slide_until_vel_x_zero_and_update_sequence_slot04_0a(Object *obj) {
+    SequenceStep *p;
+    FrameRecord *fr;
+    *(s32 *)&obj->pos_x_frac += obj->vel_x;
+    obj->vel_x += obj->accel_x;
+    if (obj->vel_x == 0) {
+        obj->pos_x_frac = 0;
+        obj->state_3++;
+        p = obj->sequence;
+        p++;
+        obj->sequence = p;
+        obj->step_timer = p->duration;
+        fr = obj->frames + obj->sequence->frame_index;
+        obj->frame = fr;
+        obj->frame_sound_index = fr->sequence_param;
+        obj->sequence_changed_flag = 1;
+    }
+    update_sequence(obj);
+}

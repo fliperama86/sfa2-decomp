@@ -1,6 +1,6 @@
 /*
  * The port's C for func_80120604. It runs in the PC program in place of the
- * C of the unit d20604_r1.c; the PS1 build does not use this file, and the
+ * C of the unit resident/sound/func_80120604.c; the PS1 build does not use this file, and the
  * unit keeps the exact C.
  *
  * What is different from the unit's C: the shift count is masked with 31 in
@@ -177,7 +177,7 @@ void func_80120604(unsigned song, int alt, unsigned short start, int pos) {
                 ((u16 *)(base + 0x74b4))[song] = start;
             }
             /* Called as the definition (without this cast) it differs in 17 instruction lines.
-               The definition (s160fbc_r10_b.c) takes its last two parameters as unsigned short.
+               The definition (resident/sound/func_80164ef0.c) takes its last two parameters as unsigned short.
                The original's code sign-extends them here before the call, so the call is made
                through a type that takes them as short. */
             ((void (*)(int, int, short, short))func_80164ef0)(song_data[8], (*cmd)[0] % 0x1000, right, left);

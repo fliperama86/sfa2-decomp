@@ -32,7 +32,7 @@ ranges and the layout, and says nothing about understanding of retained bytes.
 | `ps1/tools/test_verify_cc1_golden.py` | public | Controls for the compiler checker |
 | `ps1/src/build.toml` | public | Baseline pin, toolchain pins, unit declarations |
 | `ps1/src/symbols.ld` | public | Addresses of symbols not defined by C units |
-| `ps1/src/*.c` | public | Reconstructed source, one file per unit |
+| `ps1/src/resident/`, `ps1/src/overlays/` | public | Reconstructed source, one file per unit (layout: `ps1/src/README.md`) |
 | `ps1/src/sdk/include/` | private | SDK headers of another project, under its license |
 | `ps1/build/<tag>/` | generated | Objects, linker script, ELF, image, report |
 | `ps1/local/baseline/manifest.json` | private | Per-file hashes derived from the disc image |
@@ -367,7 +367,8 @@ build does. The names and what each is inferred from are on the
 [names page](names.md).
 
 Renaming a function. A function is renamed in its entry of `build.toml`, and
-`ps1/tools/renamefuncs.py` rewrites the places where the name is written:
+`ps1/tools/renamefuncs.py` rewrites the places where the name is written, and
+renames a unit's source file when the file is named after the function:
 
 - `pairs OLD NEW` lists the renames between two configurations: a function
   that kept its image and address and changed its name.

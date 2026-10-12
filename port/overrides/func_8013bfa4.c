@@ -1,6 +1,6 @@
 /*
  * The port's C for func_8013bfa4. It runs in the PC program in place of the
- * C of the unit d3bfa4_r1.c; the PS1 build does not use this file, and the
+ * C of the unit resident/fighters/func_8013bfa4.c; the PS1 build does not use this file, and the
  * unit keeps the exact C.
  *
  * What is different from the unit's C: the shift count is masked with 31 in
@@ -234,7 +234,7 @@ void func_8013bfa4(void) {
             select_min_placement_and_test(ref_third.p, ref_second.p, box);
             add_table_score_to_player_on_hit((Actor *)box, ref_second.p);
             /* The original's instructions here: move v0,zero; a load; bnez v0. The mask lies outside
-               the width of the byte field. Without the test the unit d3bfa4_r1.c has 448 instructions
+               the width of the byte field. Without the test the unit resident/fighters/func_8013bfa4.c has 448 instructions
                instead of 450 and differs in 12 instruction lines. */
             /* The test below is a stand-in, not recovered source: the original has a branch here on a value its compiler reduced to the constant 0, so it is never taken. The bytes do not say which condition the source had; this one builds the original's instructions. */
             if (ref_third.p->field_02 & 0x100) {

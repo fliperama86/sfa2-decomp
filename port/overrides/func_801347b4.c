@@ -1,6 +1,6 @@
 /*
  * The port's C for func_801347b4. It runs in the PC program in place of the
- * C of the unit d347b4_r1.c; the PS1 build does not use this file, and the
+ * C of the unit resident/graphics/func_801347b4.c; the PS1 build does not use this file, and the
  * unit keeps the exact C.
  *
  * What is different from the unit's C: the local `col` is set to 0 at its

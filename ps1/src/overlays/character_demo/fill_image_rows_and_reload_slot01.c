@@ -1,0 +1,46 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../protos.h"
+#include "../../externs.h"
+
+extern int data_80055f38_slot01;
+extern u8 data_80055ea4_slot01;
+
+void fill_image_rows_and_reload_slot01(void) {
+    s16 i;
+    s16 j;
+    s16 k;
+    for (i = 0; i < 5; i++) {
+        for (j = 1; j < 0x10; j++) {
+            for (k = 0; k < 0x20; k++) {
+                data_801a27e4_rows[i][k * 16 + j] = 0x8421;
+            }
+        }
+    }
+    queue_five_jobs();
+}
+
+void move_selection_index_on_buttons_slot01(void) {
+    int moved = 0;
+    if (data_801a696a & 0x80) {
+        data_80055f38_slot01 = data_80055f38_slot01 - 1;
+        if (data_80055f38_slot01 < 0) {
+            data_80055f38_slot01 = 0;
+        }
+        moved = 1;
+    }
+    if (data_801a696a & 0x10) {
+        data_80055f38_slot01 = data_80055f38_slot01 + 1;
+        if (data_80055f38_slot01 >= 0x14) {
+            data_80055f38_slot01 = 0x13;
+        }
+        moved++;
+    }
+    if (moved != 0) {
+        data_80055ea4_slot01 = 0;
+        data_8018f5a0->step_index = 3;
+        data_8018f5a0->substep_index = 0;
+        data_8018f5a0->step_index_2 = 0;
+        data_8018f5a0->pass_index = 1;
+    }
+}

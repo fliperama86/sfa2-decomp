@@ -1,0 +1,43 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../../game.h"
+#include "../../../protos.h"
+#include "../../../externs.h"
+
+extern s16 data_801c7cb8_slot04_09[];
+void stop_x_motion_against_facing_then_move_slot04_09(Object *obj);
+void spawn_fourth_frame_child_index_zero_slot04_09(Object *obj);
+
+void update_airborne_until_fall_flip_facing_slot04_09(Object *obj) {
+    stop_x_motion_against_facing_then_move_slot04_09(obj);
+    spawn_fourth_frame_child_index_zero_slot04_09(obj);
+    if (obj->vel_y >= 0 && (s16)obj->step_flags >= 0) {
+        update_sequence(obj);
+    } else {
+        obj->state_3++;
+        obj->facing_side ^= 1;
+        set_sequence_by_side_and_mode(obj, 0x49);
+    }
+}
+
+void hit_other_and_spawn_on_defeat_at_sequence_end_slot04_09(Object *obj) {
+    Object *o;
+
+    stop_x_motion_against_facing_then_move_slot04_09(obj);
+    spawn_fourth_frame_child_index_zero_slot04_09(obj);
+    if ((s16)obj->step_flags >= 0) {
+        update_sequence(obj);
+    } else {
+        obj->state_3++;
+        o = obj->other;
+        o->field_15b = 1;
+        game_state.state_param = 0x18;
+        set_other_hit_reaction_state_0(obj, 5, 10, *(s16 *)((u8 *)data_801c7cb8_slot04_09 + (obj->direction_index & 0xfe)), 0, 1, 0);
+        o = obj->other;
+        if ((s16)o->health < 0) {
+            obj->field_167 = 0x19;
+            obj->field_255 = 6;
+            game_state.spawn_kind = 0;
+            spawn_game_state_kind_object(obj);
+        }
+    }
+}

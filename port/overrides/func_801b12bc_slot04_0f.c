@@ -1,6 +1,6 @@
 /*
  * The port's C for func_801b12bc_slot04_0f. It runs in the PC program in
- * place of the C of the unit slot04_0f_09e4_r1_b.c; the PS1 build does not
+ * place of the C of the unit count_down_then_reset_or_update_sequence_slot04_0f.c; the PS1 build does not
  * use this file, and the unit keeps the exact C.
  *
  * What is different from the unit's C: the call of is_state_01010101_and_ready is written

@@ -1,0 +1,31 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../externs.h"
+#include "../../protos.h"
+
+
+
+void check_slot_high_input_bits_and_advance(Object *object, int index, int arg) {
+    u16 entry = table_8017aaf8[(u8)arg * 7 + object->slots[(u8)index].entry_index];
+    int mine = entry & -0x1000;
+    int theirs = object->input_word & -0x1000;
+
+    if (!(entry & 0x400)) {
+        if ((s16)mine == (s16)theirs) {
+            goto ok;
+        }
+    } else if ((theirs & mine) != 0) {
+        goto ok;
+    }
+    clear_global_flag_ignoring_object(object);
+    return;
+ok:
+    if (!(entry & 1)) {
+        set_slot_random_timer_and_advance(object, (u8)index, (u8)arg);
+    } else {
+        object->slots[(u8)index].timer = 0xb;
+        object->slots[(u8)index].repeat_count = 6;
+        object->slots[(u8)index].stage++;
+        object->slots[(u8)index].entry_index++;
+    }
+}

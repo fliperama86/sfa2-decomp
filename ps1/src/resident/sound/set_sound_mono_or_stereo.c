@@ -1,0 +1,75 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../externs.h"
+#include "../../protos.h"
+
+void set_sound_mono_or_stereo(int a) {
+    int x;
+    if (a == 0) {
+        func_8016582c();
+        x = 0;
+    } else {
+        func_80165840();
+        x = 1;
+    }
+    set_cd_mix_mode(x);
+}
+
+void close_vab_and_sep(int a) {
+    func_8016a3b0(data_80190a44[a]);
+    func_8016a70c(data_80190a44[a + 8]);
+}
+
+void stop_all_keys_clear_table(void) {
+    s8 *p;
+    int i;
+    func_80164bbc(0);
+    for (i = 23, p = data_80190a44 + 23; i >= 0; i--, p--) {
+        p[0x748c] = 0;
+    }
+}
+
+/* b is a full word of which the low byte is used: spawn_hit_effects_and_play_sounds passes a halfword without masking it. Declared as a byte parameter, that caller differs from the original in 26 instruction slots. */
+void stop_sep_by_index(int a, int b) {
+    func_8016936c(data_80190a44[a + 8], table_8016e6e0[a][(b & 0xff) * 2] & 0xfff);
+}
+
+void stop_sep_by_word(int a) {
+    int hi = (a & 0xff00) >> 8;
+    func_8016936c(data_80190a44[hi + 8], table_8016e6e0[hi][(a & 0xff) * 2] & 0xfff);
+}
+
+void play_side_sound_at(Object *o, int b, int c) {
+    int d = o->pos_x - (s16)box_margin[0];
+    if (d < -192) {
+        d = -192;
+    } else if (d >= 576) {
+        d = 575;
+    }
+    func_80120604(b, b, c & 0xff, (short)d);
+}
+
+void play_sound_at(Object *o, int b, unsigned c) {
+    int d;
+    if (o != 0) {
+        d = o->pos_x - (s16)box_margin[0];
+        if (d < -192) {
+            d = -192;
+        } else if (d >= 576) {
+            d = 575;
+        }
+    } else {
+        d = 192;
+    }
+    func_80120604((c & 0xff00) >> 8, b, c & 0xff, (short)d);
+}
+
+void call_func_with_side_x_origin(int a, unsigned c) {
+    int d;
+    if (a == 0) {
+        d = 64;
+    } else {
+        d = 320;
+    }
+    func_80120604((c & 0xff00) >> 8, a, c & 0xff, (short)d);
+}

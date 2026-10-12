@@ -3,8 +3,8 @@
  * Every routine of the table takes the call and returns what the game takes as
  * success; the note on each entry says so, for --list-library. Where the game
  * compares a result, it is given by the game's own use: SsVabTransBodyPartly
- * returns the vab id it was given (the game compares the two: d25684_r2.c,
- * s14f9f0_r4.c), SsVabTransCompleted returns 1, transfer complete (the game calls it with
+ * returns the vab id it was given (the game compares the two: resident/disc/transfer_vab_body.c,
+ * resident/disc/load_stream_image.c), SsVabTransCompleted returns 1, transfer complete (the game calls it with
  * 1 and waits on it, PSY-Q's SS_WAIT_COMPLETED). The rest return 0. */
 #include "port.h"
 

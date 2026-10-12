@@ -1,6 +1,6 @@
 /*
  * The port's C for func_8014dcc0. It runs in the PC program in place of the
- * C of the unit s14d8a4_r2.c; the PS1 build does not use this file, and the
+ * C of the unit resident/script/init_script_entry_by_script_index.c; the PS1 build does not use this file, and the
  * unit keeps the exact C.
  *
  * What is different from the unit's C: the call through the scratchpad

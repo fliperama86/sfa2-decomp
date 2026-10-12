@@ -20,6 +20,12 @@ refuses to rename it: a nonmatching function, or an exact one that the port
 overrides (`port/overrides/func_ADDRESS.c`). The tools that build and test
 such a file read the function's address out of the file's name.
 
+The source file of a unit is the exception. It is named after the first
+function it holds (`ps1/src/README.md`, "Where a file is"), so when that
+function is renamed the tool renames the file too, in the same run, and the
+`source` line of the new configuration follows by the text replacement. It
+refuses, before writing anything, when the new file name is taken.
+
 What it does not do: it does not decide a name, and it does not show that
 the build still gives the same bytes; the matching build shows that. It
 does not rewrite Markdown unless a file is given by its own path: a page
@@ -72,6 +78,15 @@ def functions(path: Path) -> dict[tuple[str, int], str]:
                 raise Refused(f"{path}: {found[key]} and {function['name']} are declared at one address of one image")
             found[key] = function["name"]
     return found
+
+
+def unit_sources(path: Path, base: Path) -> set[Path]:
+    """The source files the configuration declares for its units, resolved against `base`."""
+    try:
+        config = tomllib.loads(path.read_text())
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        raise Refused(f"{path}: {exc}") from exc
+    return {(base / unit["source"]).resolve() for unit in config.get("unit", []) if "source" in unit}
 
 
 def renames(old: dict[tuple[str, int], str], new: dict[tuple[str, int], str]) -> dict[str, str]:
@@ -131,9 +146,16 @@ def apply(args) -> int:
     files = [f for f in text_files(args.paths) if f.resolve() != args.old.resolve()]
     # A file named after a function (nonmatching C, an override of the port, their contracts and fixtures) is
     # found by that name, and the tools that test it read the address out of it.
-    held = sorted(f for f in files if f.name.split(".")[0] in pairs)
+    base = args.new.resolve().parent
+    sources = unit_sources(args.new, base) | unit_sources(args.old, base)
+    held = sorted(f for f in files if f.name.split(".")[0] in pairs and f.resolve() not in sources)
     if held:
         raise Refused("\n".join(f"{f.name.split('.')[0]} keeps its name: the file {f} is named after it" for f in held))
+    # A unit's file named after a renamed function is renamed with it.
+    moves = [(f, f.with_name(pairs[f.stem] + f.suffix)) for f in files if f.resolve() in sources and f.stem in pairs]
+    clashes = [f"{to} exists already: {src} cannot be renamed to it" for src, to in moves if to.exists()]
+    if clashes:
+        raise Refused("\n".join(clashes))
     if args.fresh:
         taken = set(pairs.values())
         hits = []
@@ -171,8 +193,13 @@ def apply(args) -> int:
             changed += 1
             if not args.dry_run:
                 file.write_text(new_text)
+    for src, to in moves:
+        if not args.dry_run:
+            src.rename(to)
     for name, other in sorted(pairs.items()):
         print(f"{name} -> {other}: {counts.get(name, 0)} places")
+    for src, to in moves:
+        print(f"file {src.name} -> {to.name}")
     print("by kind of file: " + (", ".join(f"{suffix} {count}" for suffix, count in sorted(by_suffix.items())) or "none"))
     print(
         f"{len(pairs)} renames, {sum(counts.values())} places {'found' if args.dry_run else 'rewritten'} "

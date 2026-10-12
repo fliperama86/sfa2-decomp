@@ -1,0 +1,137 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../protos.h"
+#include "../../externs.h"
+
+extern Slot04SelRec8fc8 *data_801b8fc8_slot04_sel[];
+extern Slot04SelRec8f78 *data_801b8f78_slot04_sel[];
+extern Slot04SelRec94c0 *data_801b94c0_slot04_sel[];
+extern Slot04SelRec8fc8 *data_801b92a0_slot04_sel[];
+extern TextItem *data_801b9908_slot04_sel[];
+extern Slot04SelRec8ccc data_801b8ccc_slot04_sel[];
+extern u8 data_801b8d20_slot04_sel[];
+extern u8 data_801b8d8c_slot04_sel[];
+extern u8 data_801b9d70_slot04_sel;
+extern u8 data_801b9d74_slot04_sel;
+
+void set_selection_from_direction_buttons_b_slot04_sel(Object *obj, Slot04SelRec9d78 *rec, int a);
+void update_kind_2_4_hold_counters_c_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);
+void update_button_sequence_matcher_3_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec);
+void check_opposite_player_same_selection_3_slot04_sel(void);
+
+void select_kind_for_side_chosen_by_step_index_slot04_sel(Object *obj, Object *other, Slot04SelRec9d78 *rec) {
+    /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
+    u8 unused[8];
+    Object *p;
+    u8 side;
+    Slot04SelRec8fc8 *s0;
+    Slot04SelRec8f78 *s2;
+    Slot04SelRec94c0 *s5;
+    Slot04SelRec8fc8 *a1;
+    TextItem *b1;
+    int i;
+
+    if (data_8018f5a0->step_index_2 == 1) {
+        side = obj->side;
+        p = obj;
+    } else if (data_8018f5a0->step_index_2 == 2) {
+        p = other;
+        side = obj->side ^ 1;
+    }
+    s0 = data_801b8fc8_slot04_sel[side];
+    s2 = data_801b8f78_slot04_sel[side];
+    s5 = data_801b94c0_slot04_sel[side];
+    if (rec->field_04 == 0) {
+        if (((game_state.side_mask >> obj->side) & 1) == 0) {
+            return;
+        }
+        data_801b9d74_slot04_sel = rec->field_04;
+        set_selection_from_direction_buttons_b_slot04_sel(obj, rec, 0x11);
+        rec->selection_index = data_801b8d20_slot04_sel[rec->selection_index * 5 + data_801b9d70_slot04_sel];
+        data_801b9d70_slot04_sel = rec->selection_index;
+        rec->field_04 = data_801b9d74_slot04_sel;
+        p->kind = data_801b9d70_slot04_sel;
+        game_state.selection_value = data_801b9d70_slot04_sel;
+        update_kind_2_4_hold_counters_c_slot04_sel(p, obj, rec);
+        if (rec->field_14 == 0xb4 && p->kind == 4) {
+            p->kind = 0x12;
+        }
+        if (data_8016e68e != 0) {
+            if (rec->hold_count_b == 0xb4 && p->kind == 2) {
+                p->kind = 0x14;
+            }
+        }
+        update_button_sequence_matcher_3_slot04_sel(p, obj, rec);
+        if (rec->field_04 != 0 && p->kind == 2 && rec->set_flag_d != 0) {
+            p->kind = 0x14;
+            data_8016e68e = -1;
+        }
+        s5->table_value_plus_side = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].base_value + side * 0x18;
+        s5->table_value = data_801b8ccc_slot04_sel[data_801b9d70_slot04_sel].copied_value;
+        add_item_to_table(s5);
+
+        i = 0;
+        s0 = data_801b8fc8_slot04_sel[side];
+        a1 = data_801b92a0_slot04_sel[p->kind];
+        do {
+            s0->data_ptr[i] = a1->data_ptr[i];
+            i++;
+        } while (i < 0x10);
+        s0->copied_byte = a1->copied_byte;
+        add_item_to_table(s0);
+
+        i = 0;
+        s2 = data_801b8f78_slot04_sel[side];
+        b1 = data_801b9908_slot04_sel[p->kind];
+        do {
+            s2->text[i] = b1->text[i];
+            i++;
+        } while (i < 10);
+        s2->palette = b1->palette;
+        add_item_to_table(s2);
+
+        if (rec->field_04 == 0) {
+            return;
+        }
+        call_func_with_side_x_origin(side, data_801b8d8c_slot04_sel[data_801b9d70_slot04_sel]);
+        game_state.side = p->side;
+        game_state.mode |= 1 << obj->side;
+        if (rec->input_bits == 0x10 || rec->input_bits == 0x80) {
+            p->field_d4 = 0;
+            p->select_value_1 = 0;
+        }
+        if (rec->input_bits == 0x20 || rec->input_bits == 0x40) {
+            p->field_d4 = 1;
+            p->select_value_1 = 1;
+        }
+        if (rec->input_bits == 0x90) {
+            p->field_d4 = 2;
+            p->select_value_1 = 2;
+        }
+        if (rec->input_bits == 0x60) {
+            p->field_d4 = 3;
+            p->select_value_1 = 3;
+        }
+        if (rec->input_bits == 0xc0) {
+            p->field_d4 = 4;
+            p->select_value_1 = 4;
+        }
+        if (rec->input_bits == 0x30) {
+            p->field_d4 = 5;
+            p->select_value_1 = 5;
+        }
+        ref_other.p = p;
+        check_opposite_player_same_selection_3_slot04_sel();
+        if (data_8019045c[0] != 0) {
+            data_8019045c[0] = 0;
+            if (p->field_d4 == 0) {
+                data_8019045c[0] = 1;
+            }
+            p->field_d4 = data_8019045c[0];
+        }
+    } else {
+        add_item_to_table(s5);
+        add_item_to_table(s0);
+        add_item_to_table(s2);
+    }
+}

@@ -1,0 +1,61 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../protos.h"
+#include "../../externs.h"
+
+extern Slot12Quad data_8002bc94_slot12[];
+extern u8 data_8002bc8c_slot12[];
+extern SequenceStep *data_80028444_slot12[];
+extern u8 data_80028500_slot12[];
+extern u8 *data_800284ec_slot12[];
+
+/* What it does (inferred, not an original name): fills in a record of 0x40
+   bytes in a table, selected by the object's table_index, with a fixed size
+   (16 by 16, kind 2) and a length byte that depends on game_state.mode_flag_2
+   (0x14 when it is 0, else 0x10), and has the resident routine
+   set_sequence_from_table_5 set up the object's sequence from a list of steps (the
+   list at entry 0 of the table data_80028444_slot12 when mode_flag_2 is 0,
+   else the list at entry 8). When the second argument is 1 the length byte
+   becomes 0x1d and the routine is called again with the list at entry 4.
+   The record also takes a pointer chosen by the object's health, the
+   object's base_x and base_y minus 8 as its x and y, and the object
+   itself is moved to base_x + 8 and base_y - 8. A flag byte for the
+   record is set. It is the twin of init_slot0f_cell_record_with_sequence_slot0f, with that
+   unit's form. */
+void init_slot12_cell_record_with_sequence_slot12(Object *obj, int mode) {
+    Slot12Rec *rec = &((Slot12Rec *)data_8002bc94_slot12)[obj->table_index];
+
+    rec->field_00 = 0;
+    rec->field_08 = 0x10;
+    rec->field_09 = 0x10;
+    rec->field_0a = 2;
+    /* The first call and the second, conditional one stand in each arm, with the arm's list in a local of its own. With one call of each kind behind the arms and the list in one local set in both this function differs from the original in 24 instruction slots. */
+    if (game_state.mode_flag_2 == 0) {
+        SequenceStep **steps = &data_80028444_slot12[0];
+
+        rec->field_0b = 0x14;
+        set_sequence_from_table_5(obj, data_80028500_slot12[(s16)obj->health], steps);
+        if (mode == 1) {
+            rec->field_0b = 0x1d;
+            set_sequence_from_table_5(obj, data_80028500_slot12[(s16)obj->health], &data_80028444_slot12[4]);
+        }
+    } else {
+        SequenceStep **steps = &data_80028444_slot12[8];
+
+        rec->field_0b = 0x10;
+        set_sequence_from_table_5(obj, data_80028500_slot12[(s16)obj->health], steps);
+        if (mode == 1) {
+            rec->field_0b = 0x1d;
+            set_sequence_from_table_5(obj, data_80028500_slot12[(s16)obj->health], &data_80028444_slot12[4]);
+        }
+    }
+    rec->data_ptr = data_800284ec_slot12[(s16)obj->health];
+    data_8002bc8c_slot12[obj->table_index] = 1;
+    rec->pos_x = obj->base_x;
+    rec->pos_y = obj->base_y;
+    rec->pos_x = rec->pos_x - 8;
+    rec->pos_y = rec->pos_y - 8;
+    obj->pos_x = obj->base_x + 8;
+    /* The halfword is read signed here, as the original reads it (`lh`); without the cast this function differs from the original in 15 instruction slots. */
+    obj->pos_y = (s16)obj->base_y - 8;
+}

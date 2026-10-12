@@ -1,6 +1,6 @@
 /*
  * The port's C for func_8012126c. It runs in the PC program in place of the
- * C of the unit s120f40_r2.c; the PS1 build does not use this file, and the
+ * C of the unit resident/menus/load_side_command_once_else_call_next.c; the PS1 build does not use this file, and the
  * unit keeps the exact C.
  *
  * What is different from the unit's C: the call of func_80013834 in the

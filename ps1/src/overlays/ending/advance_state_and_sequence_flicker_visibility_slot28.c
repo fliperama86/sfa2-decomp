@@ -1,0 +1,16 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../game.h"
+#include "../../protos.h"
+#include "../../externs.h"
+
+void advance_state_and_sequence_flicker_visibility_slot28(Object *o) {
+    if (((Slot28Obj *)o)->field_3a < 0) {
+        o->state_0++;
+    }
+    o->field_01 = 0;
+    advance_sequence_checked(o);
+    o->variant_index = o->variant_index ^ 1;
+    if (o->variant_index != 0) {
+        o->field_01 = 1;
+    }
+}

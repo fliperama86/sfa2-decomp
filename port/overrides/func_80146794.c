@@ -1,6 +1,6 @@
 /*
  * The port's C for func_80146794. It runs in the PC program in place of the
- * C of the unit s1460ec_r3.c; the PS1 build does not use this file, and the
+ * C of the unit resident/objects/call_state_0_handler_from_ca28_table.c; the PS1 build does not use this file, and the
  * unit keeps the exact C.
  *
  * What is different from the unit's C: the call of set_flag_and_push_if_mode_8 is written

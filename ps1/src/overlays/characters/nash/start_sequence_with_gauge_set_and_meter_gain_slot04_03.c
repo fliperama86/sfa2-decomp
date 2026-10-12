@@ -1,0 +1,14 @@
+/* Reconstruction. Names/roles inferred, not original symbols. */
+#include "../../../game.h"
+#include "../../../protos.h"
+#include "../../../externs.h"
+
+void start_sequence_with_gauge_set_and_meter_gain_slot04_03(Object *obj) {
+    obj->state_3 = obj->state_3 + 1;
+    add_to_meter_clamped(obj, 3);
+    play_sound_at(obj, obj->side ^ 1, 0x31a);
+    obj->gauge = 0x60;
+    obj->countdown = 0;
+    ((Slot04aObj *)obj)->field_1cf = 0;
+    set_sequence_by_side_and_mode(obj, 0x40);
+}

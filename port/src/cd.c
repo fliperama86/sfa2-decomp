@@ -143,8 +143,8 @@
  * A stream of audio that no one polls. The polling rule (without a handler the next sector waits until the last one is taken) is
  * for a reader that takes every sector. It does not apply to a read with the mode's XA bit (0x40) set during which CdReady has
  * not been called. The game's music is such a read: ReadS with the mode 0xc8, driven by functions that call CdSync and never
- * CdReady (ps1/src/s14f9f0_r6.c), and the game learns that a track has ended from the drive's position alone:
- * check_cd_position_and_set_command_state (ps1/src/m14ff20_r2.c; the game's handler of the vertical blank calls it) asks GetlocP
+ * CdReady (ps1/src/resident/disc/update_menu_cd_state_after_sync.c), and the game learns that a track has ended from the drive's position alone:
+ * check_cd_position_and_set_command_state (ps1/src/resident/disc/check_cd_position_and_set_command_state.c; the game's handler of the vertical blank calls it) asks GetlocP
  * again each time the answer to its last command has come and, once the position is above the track's end, stops the track or
  * starts it again. The disc's audio files hold sectors that are no audio between the audio
  * sectors (the places of a channel whose track is shorter than its file hold sectors with the submode 0). Such a sector is a data
@@ -154,7 +154,7 @@
  * A call of CdReady during the read (either mode of the call) shows a reader that polls, and from then on one sector waits for
  * the poll as before, whatever the mode's bits; a new read (ReadN, ReadS) begins the question again. With the XA bit clear the
  * rule holds from the read's start, polled or not yet: the game's two readers that poll set the mode 0x80 first
- * (ps1/src/y14e890_r2.c, ps1/src/v6_r1.c), and their first sector must wait even when a vblank comes before their first poll.
+ * (ps1/src/resident/disc/read_cd_file_by_index_into_memory.c, ps1/src/resident/disc/seek_cd_position_with_retries.c), and their first sector must wait even when a vblank comes before their first poll.
  * Not covered, and no code of the game does it: a reader that polls with the XA bit set loses the sectors of a vblank's row that
  * comes before its first poll.
  *
@@ -166,13 +166,13 @@
  * for ever. So the drive does not deliver a sector of a streamed load while the ring holds 4 sectors or more that the game has
  * not read.
  *  - Where it applies: a read is on, the mode's XA bit (0x40) is clear, and the ready handler stored in the library variable is
- *    the game's stream handler, update_stream_control_by_mode at 0x8014f918 (ps1/src/n14a648_r9.c; the game's function v10_r1.c stores it before a
+ *    the game's stream handler, update_stream_control_by_mode at 0x8014f918 (ps1/src/resident/disc/update_stream_control_by_mode.c; the game's function resident/disc/start_cd_track_from_table.c stores it before a
  *    streamed load and the loaders store 0). With another handler, with none (the game polls) or with the XA bit set, there is no
  *    guard, whatever the ring holds.
  *  - The ring: bytes 0x16 and 0x17 of the game's stream object, ctl_80190948 at 0x80190948. The source shows that byte 0x16 is the
  *    place a sector is written to (the handler's work, 0x801e0000 plus the place times 2048; it is stepped 1 to 7, wrapping from 8 to
- *    1, l14de94_r3.c and s14f9f0_r3.c) and byte 0x17 the place the main loop reads next (l14de94_r4.c, wrapping the same way);
- *    both are 0 before a stream starts (s14ec80_r4.c, v10_r1.c). That the two bytes ARE a ring of seven that holds the written
+ *    1, resident/disc/open_vab_and_queue_body_transfer.c and resident/disc/read_stream_sector_to_source_ptr.c) and byte 0x17 the place the main loop reads next (resident/disc/dispatch_pending_stream_entries.c, wrapping the same way);
+ *    both are 0 before a stream starts (resident/disc/close_slots_and_seek_cd_position.c, resident/disc/start_cd_track_from_table.c). That the two bytes ARE a ring of seven that holds the written
  *    but unread sectors, and that the fill is (w + 7 - r) % 7, is INFERRED from that source and from traces of good loads.
  *    With either byte outside 1 to 7 there is no guard.
  *  - The rule: before each sector of a vblank's row, with the fill 4 or more, the sector is not delivered and the row ends, the
