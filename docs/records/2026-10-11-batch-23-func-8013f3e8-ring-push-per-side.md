@@ -1,8 +1,9 @@
 ## Batch 23: `func_8013f3e8` exact, the ring push written once per side (2026-10-11)
 
 - `func_8013f3e8` (140 bytes, resident), from `resident_nonmatching`.
-  The tree is made from main at `e63e132`; batch 22 (pull request 301)
-  is not in it.
+  The tree is made from main at `e63e132`; main with batch 22 (pull
+  request 301, merged first) is merged in, and the checks below ran on
+  that head.
 - No stand-in and no label: the unit is plain C. The stack space that
   the original reserves and never uses (16 bytes) comes with this text;
   the earlier candidates had an unused local for it.
@@ -64,10 +65,9 @@
   change, the unit put back. The byte-offset scan: none. The private
   check of resident functions against the declared tables that hold
   them: 0 differ. The compiler's warnings on the unit: none. The
-  records test (`tools/ai_workflow/tests/test_workflow.py`): one
-  failing test on this tree, as on main, for 27 older records that
-  begin with an empty line (pull request 301 corrects them); this
-  record's file is not among the refused ones. The map's render, on this tree (without
-  batch 22):
-  `overall: 5561/5600 distinct functions exact (99.3%); 13017/13072 placements (99.6%); 1777464/1809836 code bytes (98.2%)`.
+  records test (`tools/ai_workflow/tests/test_workflow.py`): 84 run,
+  OK (it failed on this branch before main was merged in, as on main
+  then, for the 27 older records that batch 22 corrected). The map's
+  render, with batch 22:
+  `overall: 5562/5600 distinct functions exact (99.3%); 13018/13072 placements (99.6%); 1777588/1809836 code bytes (98.2%)`.
   No whole build, no PC build, no differential test.
