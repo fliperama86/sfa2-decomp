@@ -17668,6 +17668,15 @@ functions = [
 ]
 
 [[unit]]
+name = "slot04_0f_21f8x_r1"
+image = "slot04_0f"
+source = "slot04_0f/slot04_0f_21f8x_r1.c"
+flags = ["-O2", "-G0"]
+functions = [
+  { name = "func_801b21f8_slot04_0f", address = 0x801b21f8, size = 120 },
+]
+
+[[unit]]
 name = "slot04_0f_2270x_r1"
 image = "slot04_0f"
 source = "slot04_0f/slot04_0f_2270x_r1.c"
