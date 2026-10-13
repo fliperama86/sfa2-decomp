@@ -190,6 +190,15 @@ int  port_library_list(char *err, size_t errsize);
  * (the registered handlers, then port_cd_tick, then port_gpu_present); otherwise it yields the
  * processor briefly. A call made from inside a handler does nothing. */
 void port_tick(void);
+/* The fast clock of the setting fast_loads (kernel.c). port_clock_hurry(1)/(0): while a fast load loop runs, port_tick does not sleep for the next vblank
+ * (they nest). port_clock_blank_start(n): for at most n frames, or until port_clock_frame_drawn is given a frame of PORT_CLOCK_RICH_PACKETS packets or
+ * more, a vblank that is not due is made due. The packets of a loading screen are about 30, a menu or a fight 200 and up. */
+#define PORT_CLOCK_RICH_PACKETS 150u
+void port_clock_hurry(int on);
+void port_clock_blank_start(unsigned max_frames);
+void port_clock_frame_drawn(unsigned packets);
+/* gpu.c: PsyZ batches the image uploads of one command buffer (port/psyz.patch), for the setting fast_loads. No effect without PsyZ. */
+void port_gpu_set_batched_uploads(int on);
 /* ResetCallback's work, for ResetGraph(0 or 3), which does it in PSY-Q. */
 void port_callbacks_reset(void);
 /* Marks the callback layer as not started (see kernel.c); port_program_exec calls it before a built-in program's setup. */

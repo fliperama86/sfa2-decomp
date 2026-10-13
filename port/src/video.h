@@ -106,4 +106,5 @@ static inline int port_video_tag_life_fill(uint32_t ot,uint32_t address,unsigned
 void Psyz_Sfa2SetArcadeCanvas(int enabled);
 void Psyz_Sfa2SetPixelPerfectUi(int enabled);
 int Psyz_Sfa2ExperimentalVideoAvailable(void);
+void Psyz_Sfa2SetBatchedUploads(int on);
 #endif

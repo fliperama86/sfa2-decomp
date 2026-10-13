@@ -100,6 +100,7 @@ int  port_gpu_read_frame(unsigned short *pixels) { (void)pixels; return -1; }
 int  port_gpu_display_enabled(void) { return 0; }
 int port_gpu_set_video_options(int ui,int arcade) { return ui || arcade ? -1 : 0; }
 int port_gpu_set_ui_layout(int enabled) { return enabled ? -1 : 0; }
+void port_gpu_set_batched_uploads(int on) { (void)on; }
 
 #else
 
@@ -267,6 +268,10 @@ int port_gpu_set_video_options(int ui,int arcade)
     if((ui || arcade) && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
     Psyz_Sfa2SetPixelPerfectUi(ui);
     pixel_perfect_ui=!!ui;arcade_video=!!arcade;return 0;
+}
+void port_gpu_set_batched_uploads(int on)
+{
+    Psyz_Sfa2SetBatchedUploads(on);
 }
 int port_gpu_set_ui_layout(int enabled)
 {
@@ -535,6 +540,7 @@ static void send_list(uint32_t *first)
         node = ram_at(head & LINK_END, here);
     }
     chunk_flush();
+    port_clock_frame_drawn(count);
 }
 
 /* ---- routines that go to PsyZ ---- */

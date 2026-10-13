@@ -27,7 +27,7 @@ test_hostcheck_stop = ["port/tools/hostcheck.py"]
 test_hostfixtures = ["port/replay/"]
 test_hostgpu = ["port/src/gpu.c", "port/src/gpu.h", "port/psyz.patch"]
 test_hostiopage = ["port/src/iopage.c", "port/src/mirror.c", "port/psyz.patch"]
-test_hostkernel_start = ["port/src/kernel.c"]
+test_hostkernel_start = ["port/src/kernel.c", "port/src/port.h"]
 test_hostlaunch = [
     "port/src/port.h", "port/src/port_tables.h", "port/src/guest.h",
     "port/src/main.c", "port/src/memory.c", "port/src/disc.c", "port/src/jumps.c", "port/src/sha256.c", "port/src/library.c",

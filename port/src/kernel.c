@@ -498,6 +498,32 @@ unsigned port_frames(void)
     return total_frames;
 }
 
+/* The fast clock (setting fast_loads; loadwait.h). Two independent ways to spend less of the host's time on frames that show nothing:
+ *  - hurry: while a fast load loop runs (a depth, loops nest), port_tick does not sleep for the next vblank. The loop's guest code polls
+ *    (TestEvent and others call port_tick), and each poll slept up to 2 ms: a load of a few thousand polls took a quarter of a second.
+ *  - blank: after a load the game spends a few frames, one every 1/60 s, finishing its loading screen and starting the next screen; the display
+ *    shows nothing worth the wait. From port_clock_blank_start until a frame with PORT_CLOCK_RICH_PACKETS packets or more is drawn
+ *    (port_clock_frame_drawn), or for the frames given at most, a vblank that is not due yet is made due: the clock's start moves back a frame.
+ *    The game still takes every frame, counted as before. */
+static int hurry_depth;
+static unsigned blank_until;   /* the frame count below which the blank fast-forward runs; 0: not running */
+
+void port_clock_hurry(int on)
+{
+    hurry_depth += on ? 1 : -1;
+    if (hurry_depth < 0) hurry_depth = 0;
+}
+
+void port_clock_blank_start(unsigned max_frames)
+{
+    blank_until = total_frames + max_frames;
+}
+
+void port_clock_frame_drawn(unsigned packets)
+{
+    if (packets >= PORT_CLOCK_RICH_PACKETS) blank_until = 0;
+}
+
 /* The one clock. A vblank is due when 1/60 s has passed since the previous one's slot; it is taken exactly once,
  * by whichever comes first: a library routine that ticks (port_tick) or the timer thread interrupting the game
  * (interrupt.c). Both take it with this same step. Far behind (the host was stopped): the lag is one vblank,
@@ -595,7 +621,8 @@ void port_tick(void)
     if (vblanks_taken >= vblanks_due(now)) {
         unsigned long long next = clock_start_us + (unsigned long long)(vblanks_taken + 1) * FRAME_US;
         unsigned long long left = next > now ? next - now : 0;
-        sleep_us(left > 2000 ? 2000 : left);
+        if (blank_until && total_frames < blank_until) clock_start_us -= FRAME_US;   /* the next vblank is due now */
+        else if (!hurry_depth) sleep_us(left > 2000 ? 2000 : left);
         now = now_us();
     }
     if (take_vblank(now)) {
