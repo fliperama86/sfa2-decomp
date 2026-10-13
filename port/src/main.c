@@ -113,7 +113,8 @@ int main(int argc, char **argv)
     int audio_device = PORT_AUDIO_DEFAULT;
     const char *input_path = NULL;
     const char *settings_path = "settings.ini";
-    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1;
+    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1;
+    const char *card1_path = "card1.mcr", *card2_path = NULL;   /* --card1, --card2: the card files of the setting memory_card */
     int volume = 100;   /* --volume PERCENT: the gain of the audio device's output */
     int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
     struct port_install installed;
@@ -143,6 +144,10 @@ int main(int argc, char **argv)
             if (end == argv[i] || *end || v < 0 || v > 100) bad = 1;
             else volume = (int)v;
         }
+        else if (strcmp(argv[i], "--memory-card") == 0) card_override=1;
+        else if (strcmp(argv[i], "--no-memory-card") == 0) card_override=0;
+        else if (strcmp(argv[i], "--card1") == 0 && i + 1 < argc && argv[i + 1][0]) card1_path = argv[++i];
+        else if (strcmp(argv[i], "--card2") == 0 && i + 1 < argc && argv[i + 1][0]) card2_path = argv[++i];
         else if (strcmp(argv[i], "--fast-loads") == 0) loads_override=1;
         else if (strcmp(argv[i], "--ps1-loading") == 0) loads_override=0;
         else if (strcmp(argv[i], "--arcade-video") == 0) canvas_override=1;
@@ -171,11 +176,13 @@ int main(int argc, char **argv)
         if(canvas_override>=0)port_settings.arcade_video=canvas_override;
         if(center_override>=0)port_settings.center_ui=center_override;
         if(loads_override>=0)port_settings.fast_loads=loads_override;
+        if(card_override>=0)port_settings.memory_card=card_override;
         if(show_settings) {
             if(disc_path || list)return refuse("--show-settings takes no disc or --list-library");
             printf("[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = %s\n",
                 port_settings.pixel_perfect_ui?"true":"false",port_settings.arcade_video?"true":"false",port_settings.center_ui?"true":"false",
                 port_settings.fast_loads?"true":"false");
+            printf("memory_card = %s\n", port_settings.memory_card?"true":"false");
             printf("volume = %d\n", volume);
             return 0;
         }
@@ -185,7 +192,7 @@ int main(int argc, char **argv)
         return 0;
     }
     if (bad || list || !disc_path) {
-        printf("usage: %s [--settings FILE] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
+        printf("usage: %s [--settings FILE] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] [--card1 FILE] [--card2 FILE] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
         fflush(stdout);
         return 2;
     }
@@ -228,6 +235,8 @@ int main(int argc, char **argv)
     if (port_cd_init(&disc) != 0) return refuse("the disc layer cannot start");
     port_cd_set_fast_waits(port_settings.fast_loads);
     port_gpu_set_batched_uploads(port_settings.fast_loads);
+    if (port_card_configure(port_settings.memory_card, card1_path, card2_path, err, sizeof err) != 0) return refuse(err);
+    atexit(port_card_flush);
     if (port_jumps_write(ram, &with_c, &without_c, err, sizeof err) != 0) return refuse(err);
     printf("jumps: %u written for functions with C, %u for functions without\n", with_c, without_c);
     fflush(stdout);

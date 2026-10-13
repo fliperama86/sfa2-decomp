@@ -32,7 +32,7 @@ test_hostlaunch = [
     "port/src/port.h", "port/src/port_tables.h", "port/src/guest.h",
     "port/src/main.c", "port/src/memory.c", "port/src/disc.c", "port/src/jumps.c", "port/src/sha256.c", "port/src/library.c",
     "port/src/settings.c", "port/src/settings.h",
-    "port/src/kernel.c", "port/src/threads.c", "port/src/overrides.c", "port/src/clib.c", "port/src/sound.c", "port/src/card.c",
+    "port/src/kernel.c", "port/src/threads.c", "port/src/overrides.c", "port/src/clib.c", "port/src/sound.c", "port/src/card.c", "port/src/memcard.c", "port/src/memcard.h",
     "port/src/cd.c", "port/src/cd.h", "port/src/xa.c", "port/src/xa.h", "port/src/modules.c", "port/src/modules.h",
     "port/src/debug.c", "port/src/interrupt.c", "port/src/mirror.c", "port/src/mirror.h", "port/src/mirrorcore.c",
     "port/src/iopage.c", "port/src/input.c", "port/src/programs.c", "port/src/programs.h",
@@ -41,6 +41,7 @@ test_hostloadwait = [
     "port/src/loadwait.c", "port/src/loadwait.h", "port/src/port.h", "port/src/port_tables.h", "port/src/settings.h", "port/src/guest.h",
     "port/src/cd.h",
 ]
+test_hostmemcard = ["port/src/card.c", "port/src/memcard.c", "port/src/memcard.h", "port/src/port.h", "port/src/guest.h"]
 test_hostmdec = ["port/src/mdec.c", "port/src/mdec.h"]
 test_hostmirror = ["port/src/mirror.c", "port/src/mirror.h", "port/src/mirrorcore.c", "port/tools/mirror_native_test.c"]
 test_hostmodules = ["port/src/modules.c", "port/src/modules.h"]

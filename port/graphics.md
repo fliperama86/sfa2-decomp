@@ -59,7 +59,7 @@ CLI overrides address these same settings, with the last override winning:
 | UI sampling | `--pixel-perfect-ui` | `--ps1-rendering` |
 | Native canvas | `--arcade-video` | `--ps1-video` |
 | Common UI position | `--center-ui` | `--ps1-ui-layout` |
-| Loading waits (not graphics) | `--fast-loads` | `--ps1-loading` |
+| Loading waits (not graphics; on by default) | `--fast-loads` | `--ps1-loading` |
 
 `--volume PERCENT` (0 to 100, default 100) sets the gain of the sound output. It is a command-line option only (the settings file takes
 true or false values), it is not a graphics setting, and `--show-settings` reports it on a line after the settings. It does not change a

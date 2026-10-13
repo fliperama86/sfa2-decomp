@@ -206,6 +206,11 @@ void port_callbacks_program_start(void);
 /* The BIOS's DeliverEvent: events open for (class, spec) and enabled get their
  * handler called, or are marked ready for TestEvent. */
 void port_deliver_event(unsigned event_class, unsigned spec);
+/* card.c: the memory cards of the setting memory_card. on 0: no cards (the game is told the slots are empty). on 1: slot 1 is the 128 KB card file at path1 (made
+ * when the game first changes it, if it is not there), slot 2 the file at path2, or empty when path2 is NULL. -1 and a line in err for a file of another size. port_card_flush
+ * writes the cards that have unwritten changes (the game's close and format already do). */
+int port_card_configure(int on, const char *path1, const char *path2, char *err, size_t errsize);
+void port_card_flush(void);
 /* The port's own seam to the disc layer (cd.c). */
 void port_cd_tick(void);
 /* A ready handler of the runtime's own for the disc layer (cd.c): called for each delivered data sector with (1, result) and for a disc
