@@ -29,7 +29,7 @@ it does not show the patch to be needed there; the patch is kept.
 
 Batched uploads: with Psyz_Sfa2SetBatchedUploads(1) (the port's setting fast_loads) the LoadImage calls that go into one command buffer share the
 upload transfer buffer, one after the other, instead of cycling it for every call. A screen change makes the game call LoadImage over a thousand
-times; each cycle made the driver allocate a new buffer of the whole size, and those calls took 160 to 600 ms. With it off nothing changes.
+times; each cycle made the driver allocate a new buffer of the whole size, and those calls took 160 to 600 ms. With it off nothing changes. The OpenGL backend (sdl3_gl.c) has a no-op of the same name, as for the other setters of the port, so that it links.
 
 Output volume: Psyz_Sfa2SetVolume(gain) sets the gain of the one SDL audio stream that PsyZ opens (SDL_SetAudioStreamGain), and
 Psyz_AudioInit applies the stored gain before it starts the stream, so a call before the device opens also counts. The port's
@@ -233,7 +233,7 @@ or global UV correction is changed. The port selects only its known HUD tiles.
 +    if (sfa2_batch_uploads) sfa2_upload_used += sfa2_bytes;
 --- a/psyz/src/platform/sdl3_gl.c
 +++ b/psyz/src/platform/sdl3_gl.c
-@@ -27,6 +27,10 @@
+@@ -27,6 +27,11 @@
 
  #include "sdl3_common.h"
  #include "sdl3_draw.h"
@@ -241,6 +241,7 @@ or global UV correction is changed. The port selects only its known HUD tiles.
 +int Psyz_Sfa2ExperimentalVideoAvailable(void) { return 0; }
 +void Psyz_Sfa2SetArcadeCanvas(int enabled) { (void)enabled; }
 +void Psyz_Sfa2SetPixelPerfectUi(int enabled) { (void)enabled; }
++void Psyz_Sfa2SetBatchedUploads(int on) { (void)on; }
  #include "rgb24.h"
  static bool display_rgb24;
  static GLuint rgb24_texture, rgb24_fbo;

@@ -6,6 +6,7 @@ fixture (video_gpu_test.c) for an already built SDK, never a game replay.
 """
 from pathlib import Path
 import subprocess
+import re
 import tempfile
 import unittest
 import psyzbuild
@@ -66,6 +67,12 @@ class Video(unittest.TestCase):
             self.assertIn('(code & PORT_VIDEO_LIFE_FILL)', gpu)
             gl = (root / 'psyz/src/platform/sdl3_gl.c').read_text()
             self.assertIn('Psyz_Sfa2ExperimentalVideoAvailable(void) { return 0; }', gl)
+            # Every function the port declares for a backend is defined by both backends (the OpenGL fallback must link too).
+            declared = re.findall(r'^\w+ (Psyz_Sfa2\w+)\(', (ROOT / 'port/src/video.h').read_text(), re.M)
+            self.assertIn('Psyz_Sfa2SetBatchedUploads', declared)
+            for name in declared:
+                for backend, source in (('sdl3_gpu.c', gpu), ('sdl3_gl.c', gl)):
+                    self.assertRegex(source, r'(?m)^\w+ %s\([^)]*\) *\{' % name, '%s lacks %s' % (backend, name))
             # Reject applying twice, rather than guessing against stale input.
             with self.assertRaises(psyzbuild.Problem):
                 psyzbuild.apply_patch(text, root)
