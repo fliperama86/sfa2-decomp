@@ -120,7 +120,18 @@ int main(void)
         else if (!strcmp(cmd, "mkdir")) printf("S %d\n", mkdir(a, 0755));    /* helpers that change the files around the card; each prints its result */
         else if (!strcmp(cmd, "rmdir")) printf("S %d\n", rmdir(a));
         else if (!strcmp(cmd, "unlink")) printf("S %d\n", unlink(a));
-        else if (!strcmp(cmd, "exists")) { struct stat st; printf("X %d\n", lstat(a, &st) == 0); }
+        else if (!strcmp(cmd, "blocktmp")) {   /* blocktmp PATH N: the first N temporary names of this process for PATH taken: a file, a link to the file "victim" in the card's folder, a folder, in turn */
+            int i, bad = 0;
+            for (i = 0; i < atoi(b); i++) {
+                char name[400], target[400];
+                snprintf(name, sizeof name, "%s.%lu.%d.tmp", a, (unsigned long)getpid(), i);
+                snprintf(target, sizeof target, "%s.victim", a);
+                if (i % 3 == 0) { FILE *f = fopen(name, "wb"); if (!f || fputs("blocker", f) < 0 || fclose(f)) bad = 1; }
+                else if (i % 3 == 1) bad |= symlink(target, name) != 0;
+                else bad |= mkdir(name, 0755) != 0;
+            }
+            printf("S %d\n", bad);
+        }
         else if (!strcmp(cmd, "symlink")) printf("S %d\n", symlink(a, b));
         else if (!strcmp(cmd, "info")) printf("I %ld\n", port_h_card_info(strtol(a, 0, 0)));
         else if (!strcmp(cmd, "load")) printf("I %ld\n", port_h_card_load(strtol(a, 0, 0)));
@@ -315,10 +326,10 @@ def card_failure_cases(root: Path, cc: str):
 
     # 1. the card's file cannot be replaced (a folder is in its place): format says 0, the card stays as it was, a line says why, no .tmp is left
     p = d / "blocked.mcr"
-    r, err = run_err(exe, f"configure 1 {p}\nmkdir {p}\nformat bu00:\nexists {p}.tmp\nload 0\nopen bu00:X 0x10200\nrmdir {p}\nformat bu00:\nload 0\n")
-    yield check("format that cannot write the card's file answers 0, leaves the card unformatted and no .tmp, and says so on standard error; it works once the place is free",
-                r == ["K 0 ", "S 0", "O 0", "X 0", ev(0x2000), "I 1", "P -1", "S 0", "O 1", ev(0x4), "I 1"] and "not saved to" in err and "blocked.mcr" in err
-                and "replace the card file" in err and not Path(f"{p}.tmp").exists() and p.read_bytes()[:2] == b"MC", f"{r} {err!r}")
+    r, err = run_err(exe, f"configure 1 {p}\nmkdir {p}\nformat bu00:\nload 0\nopen bu00:X 0x10200\nrmdir {p}\nformat bu00:\nload 0\n")
+    yield check("format that cannot write the card's file answers 0, leaves the card unformatted and no temporary file, and says so on standard error; it works once the place is free",
+                r == ["K 0 ", "S 0", "O 0", ev(0x2000), "I 1", "P -1", "S 0", "O 1", ev(0x4), "I 1"] and "not saved to" in err and "blocked.mcr" in err
+                and "replace the card file" in err and not list(d.glob("blocked.mcr.*")) and p.read_bytes()[:2] == b"MC", f"{r} {err!r}")
     # 2. close that cannot write answers -1, the card keeps the data (still dirty), and the flush at exit writes it once it can
     p = d / "retry.mcr"
     r, err = run_err(exe, f"configure 1 {p}\nformat bu00:\nopen bu00:A 0x10200\nwrite 0 8192 7\nunlink {p}\nmkdir {p}\nclose 0\nrmdir {p}\nflush\n")
@@ -331,17 +342,38 @@ def card_failure_cases(root: Path, cc: str):
     r, err = run_err(exe, f"configure 1 {d}/nodir/x.mcr\nload 0\nformat bu00:\n")
     yield check("a card file in a folder that is not there is a new card; formatting it answers 0 and says that the temporary file cannot be made",
                 r == ["K 0 ", ev(0x2000), "I 1", "O 0"] and "create the temporary file" in err, f"{r} {err!r}")
-    # 4. an old .tmp that is a link is not followed (its target is not written), and a stale .tmp file is replaced
+    # 4. a file or a link named NAME.tmp is neither written through nor removed; the save uses a name of its own and leaves no temporary file
     p, victim = d / "link.mcr", d / "victim.txt"
     victim.write_bytes(b"victim")
-    r, err = run_err(exe, f"configure 1 {p}\nformat bu00:\nsymlink {victim} {p}.tmp\nopen bu00:A 0x10200\nwrite 0 8192 3\nclose 0\n")
-    yield check("a .tmp that is a link to another file is removed, not written through: the other file is unchanged, the card's file has the data, no .tmp is left",
-                r == ["K 0 ", "O 1", "S 0", "P 0", "W 8192", "Q 0"] and victim.read_bytes() == b"victim" and not Path(f"{p}.tmp").exists()
+    Path(f"{p}.tmp").symlink_to(victim)
+    r, err = run_err(exe, f"configure 1 {p}\nformat bu00:\nopen bu00:A 0x10200\nwrite 0 8192 3\nclose 0\n")
+    yield check("a NAME.tmp that is a link to another file is not written through and not removed: the other file is unchanged, the card's file has the data, no temporary file of the save is left",
+                r == ["K 0 ", "O 1", "P 0", "W 8192", "Q 0"] and victim.read_bytes() == b"victim" and Path(f"{p}.tmp").is_symlink()
+                and sorted(x.name for x in d.glob("link.mcr.*")) == ["link.mcr.tmp"]
                 and len(p.read_bytes()) == 131072 and p.read_bytes()[8192:8192 + 4] == bytes([3, 4, 5, 6]) and err == "", f"{r} {err!r}")
     p = d / "stale.mcr"
     Path(f"{p}.tmp").write_bytes(b"stale")
     r = run(exe, f"configure 1 {p}\nformat bu00:\n")
-    yield check("a stale .tmp file does not stop a save", r == ["K 0 ", "O 1"] and not Path(f"{p}.tmp").exists() and p.read_bytes()[:2] == b"MC" and len(p.read_bytes()) == 131072, f"{r}")
+    yield check("a stale NAME.tmp file is kept as it is and does not stop a save",
+                r == ["K 0 ", "O 1"] and Path(f"{p}.tmp").read_bytes() == b"stale" and sorted(x.name for x in d.glob("stale.mcr.*")) == ["stale.mcr.tmp"]
+                and p.read_bytes()[:2] == b"MC" and len(p.read_bytes()) == 131072, f"{r}")
+    # taken temporary names (a file, a link, a folder, in turn) are skipped and left alone; with every name tried taken the save fails and removes nothing
+    p = d / "taken.mcr"
+    Path(f"{p}.victim").write_bytes(b"victim")
+    r, err = run_err(exe, f"configure 1 {p}\nblocktmp {p} 3\nformat bu00:\n")
+    names = sorted(x.name for x in d.glob("taken.mcr.*"))
+    blockers = [x for x in d.glob("taken.mcr.*.tmp")]
+    yield check("temporary names that are taken (a file, a link, a folder) are skipped and left as they are; the save works under the next name",
+                r == ["K 0 ", "S 0", "O 1"] and len(blockers) == 3 and p.read_bytes()[:2] == b"MC" and Path(f"{p}.victim").read_bytes() == b"victim"
+                and sum(x.is_symlink() for x in blockers) == 1 and sum(x.is_dir() for x in blockers) == 1 and sum(x.is_file() and not x.is_symlink() for x in blockers) == 1
+                and all(x.read_bytes() == b"blocker" for x in blockers if x.is_file() and not x.is_symlink()) and err == "", f"{r} {names} {err!r}")
+    p = d / "alltaken.mcr"
+    Path(f"{p}.victim").write_bytes(b"victim")
+    r, err = run_err(exe, f"configure 1 {p}\nblocktmp {p} 8\nformat bu00:\nload 0\n")
+    blockers = list(d.glob("alltaken.mcr.*.tmp"))
+    yield check("with every temporary name taken the save fails safely: format answers 0, nothing is removed or written through, the card file is not made, a line says so",
+                r == ["K 0 ", "S 0", "O 0", ev(0x2000), "I 1"] and len(blockers) == 8 and not p.exists() and Path(f"{p}.victim").read_bytes() == b"victim"
+                and "create the temporary file" in err and "File exists" in err, f"{r} {len(blockers)} {err!r}")
     # 5. a card file that exists and cannot be read is refused, not offered for formatting
     p = d / "unreadable.mcr"
     p.write_bytes(bytes(131072))
@@ -364,9 +396,9 @@ def card_failure_cases(root: Path, cc: str):
     if not git:
         yield check("generated card files are ignored (skipped: git is missing)", True)
     else:
-        names = ["card1.mcr", "card1.mcr.tmp", "port/build/mac/card2.mcr", "elsewhere/save.mcr.tmp"]
+        names = ["card1.mcr", "card1.mcr.tmp", "card1.mcr.4242.0.tmp", "port/build/mac/card2.mcr", "elsewhere/save.mcr.tmp"]
         got = [subprocess.run([git, "check-ignore", "-q", n], cwd=HERE.parent.parent, capture_output=True).returncode for n in names]
-        yield check("card files and their .tmp files are ignored by git, in the repository folder and below it", got == [0, 0, 0, 0], f"{got}")
+        yield check("card files and their .tmp files are ignored by git, in the repository folder and below it", got == [0] * 5, f"{got}")
 
 
 def main() -> int:

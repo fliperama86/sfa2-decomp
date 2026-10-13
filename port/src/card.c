@@ -37,12 +37,14 @@
 #define WRITE _write
 #define CLOSE _close
 #define UNLINK _unlink
+#define PROCESS_ID() ((unsigned long)GetCurrentProcessId())
 #else
 #include <unistd.h>
 #define OPEN_NEW(p) open(p, O_WRONLY | O_CREAT | O_EXCL, 0666)
 #define WRITE write
 #define CLOSE close
 #define UNLINK unlink
+#define PROCESS_ID() ((unsigned long)getpid())
 #endif
 
 #define SW_CARD 0xf4000001u
@@ -56,6 +58,7 @@
 #define CARD_FWRITE 0x2
 #define CARD_FCREAT 0x200
 #define MAX_FILES 16
+#define TMP_TRIES 8   /* temporary file names tried for one save */
 #define DIRENTRY_SIZE 40u
 
 struct slot {
@@ -78,9 +81,10 @@ static char pattern[MC_NAME + 2];   /* the pattern of the last firstfile */
 
 /* ---- the files ---- */
 
-/* The card's file is replaced whole: the image goes to NAME.tmp, created here and nowhere else (an old .tmp, a link too, is removed first, and
- * the new file is made exclusively), and the .tmp then takes the place of the card's file. 0 when the card's file holds the image, else -1 with
- * a line on standard error; the slot stays dirty then, so the next flush tries again. */
+/* The card's file is replaced whole: the image goes to a temporary file of its own, NAME.PID.N.TMP (the process and a count make the name), made
+ * exclusively, so that a file or a link that is there already is never opened, written or removed, and another process's temporary file is not
+ * touched; the temporary file then takes the place of the card's file. Only the temporary file this save made is removed, when the save fails. 0 when
+ * the card's file holds the image, else -1 with a line on standard error; the slot stays dirty then, so the next flush tries again. */
 static int replace_file(const char *tmp, const char *path, int *code)
 {
 #ifdef _WIN32
@@ -101,22 +105,21 @@ static int replace_file(const char *tmp, const char *path, int *code)
 static int flush_slot(struct slot *s)
 {
     char *tmp;
-    int fd, code = 0;
+    int fd = -1, code = 0, attempt, win32 = 0;
     const char *step = NULL;
     size_t n, done = 0;
+    static unsigned count;
     if (!s || !s->dirty || !s->path) return 0;
     n = strlen(s->path);
-    tmp = malloc(n + 5);
+    tmp = malloc(n + 48);
     if (!tmp) {
         fprintf(stderr, "memory card: not saved to %s: out of memory\n", s->path);
         return -1;
     }
-    memcpy(tmp, s->path, n);
-    memcpy(tmp + n, ".tmp", 5);
-    fd = OPEN_NEW(tmp);
-    if (fd < 0 && errno == EEXIST) {
-        UNLINK(tmp);
+    for (attempt = 0; attempt < TMP_TRIES; attempt++) {   /* a name that is taken is skipped, never reused */
+        snprintf(tmp, n + 48, "%s.%lu.%u.tmp", s->path, PROCESS_ID(), count++);
         fd = OPEN_NEW(tmp);
+        if (fd >= 0 || errno != EEXIST) break;
     }
     if (fd < 0) {
         step = "create the temporary file";
@@ -135,12 +138,17 @@ static int flush_slot(struct slot *s)
             step = "close the temporary file";
             code = errno;
         }
-        if (!step && replace_file(tmp, s->path, &code) != 0) step = "replace the card file";
+        if (!step && replace_file(tmp, s->path, &code) != 0) {
+            step = "replace the card file";
+#ifdef _WIN32
+            win32 = 1;   /* the code is the system's, not the C library's */
+#endif
+        }
         if (step) UNLINK(tmp);
     }
     if (step) {
         fprintf(stderr, "memory card: not saved to %s: cannot %s (error %d%s%s)\n", s->path, step, code,
-                code ? ": " : "", code ? strerror(code) : "");
+                code && !win32 ? ": " : "", code && !win32 ? strerror(code) : "");
         free(tmp);
         return -1;
     }

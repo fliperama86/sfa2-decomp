@@ -22,6 +22,7 @@ dist/
 # Memory card images of the port (card1.mcr in the working directory) and their temporary files
 *.mcr
 *.mcr.tmp
+*.mcr.*.tmp
 # Defense in depth for binary inputs and toolchains
 *.bin
 *.rom
