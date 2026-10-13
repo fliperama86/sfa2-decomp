@@ -1,14 +1,22 @@
 # Current state and entry points
 
-The selected PS1 program has an original-address matching build for the resident
-image and declared overlay images. It still retains raw ranges. This is not a
-whole-game build from recovered source, a completed decompilation, or proof of
-live gameplay. The PC port starts the game from the user's disc on Windows and
-played into a second fight in one scripted run; its sound is off unless asked
-(a build with the game's own sound library plays the sequenced sound and the audio
-streamed from the disc), it skips the disc's
-stand-alone programs, stops by name where C is missing, and is not shown to play
-to the end.
+All functions that the static sweep finds are exact: 5,600 distinct
+functions, 13,072 placements counting code linked a second time, 1.8 MB of
+code. The resident executable has 1,852 (1,797 from C, 55 from assembly)
+and 77 overlay images own the rest, every one from C. The build still
+takes data (tables, text, similar) from the original files: units declare 44
+read-only and 8 initialised data ranges, so about two fifths of the
+resident payload is raw. Names are inferred, none is an original symbol (98%
+of functions, 68% of fields and 8% of data symbols have one). The
+sweep's boundaries are estimates, and no whole-game build or disc rebuild
+from source alone has been shown. There is no fresh-clone import and build
+yet.
+
+The PC port runs the game from the user's disc on Windows and, since
+2026-10-12, natively on macOS with Apple Silicon (in a small virtual
+machine): title, menus, a fight and sound. It skips the disc's stand-alone
+programs, stops by name where C is missing, and is not shown to play to the
+end. It does not run on Linux.
 
 ## Source of truth
 

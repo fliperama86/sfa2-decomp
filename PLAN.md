@@ -1,6 +1,6 @@
 # SFA2 delivery plan
 
-Date: 2026-10-03. This is the game-focused continuation after migration from
+Date: 2026-10-03, state refreshed 2026-10-13. This is the game-focused continuation after migration from
 the separate 68000 workbench. It does not import that project's CPS2 backend,
 milestones, encryption requirements, or completion claims.
 
@@ -20,69 +20,31 @@ is required to finish this selected target unless explicitly added.
 
 - Static baseline audit and resident-code load mapping exist. All 260 disc
   files are pinned by hash in a private manifest derived from the disc image.
-- 1,759 functions match exactly: 1,706 from C (289,388 bytes) and 53 from
-  assembly (1,040 bytes): stubs and the program entry routine, code that was
-  assembly in the original. Units also own 2,352 bytes of
-  read-only data in 20 ranges and 5,900 bytes of initialised data in eight.
-  302 of the C functions are Sony SDK library functions built from a public
-  reconstruction of the SDK, part of them adapted to this SDK version (seven
-  that the reconstruction lacks were written here, and two that it has only
-  in a much smaller later form), and
-  42 of the stubs are generated from its macros. 84 functions have a form
-  found by an automatic permutation search and say so in their source, six
-  of them cleaned by hand afterwards; 25 more say that they were finished by
-  hand from a candidate the search had reshaped, 4 that they were written
-  by hand in the form of such a function, and 1 that its form came from a
-  scripted enumeration of variants.
-- The [matching build](ps1/docs/matching-build.md) rebuilds the whole resident
-  executable byte-identically from declared owners. C units link at original
-  addresses; the other 315,720 payload bytes are retained raw and counted
-  separately. Checks fail closed and carry their own negative controls.
+- Every function that the static sweep finds is exact: 5,600 distinct
+  functions, 13,072 placements counting code linked a second time. The
+  resident executable has 1,852 (1,797 from C, 55 from assembly: stubs and the
+  program entry routine, code that was assembly in the original) and 77
+  overlay images own the rest from C. Of the resident C functions, many are Sony
+  SDK library functions built from a public reconstruction of the SDK, part of
+  them adapted to this SDK version; a number have a form found by an automatic
+  permutation search and say so in their source.
+- The [matching build](ps1/docs/matching-build.md) rebuilds the resident
+  executable and the overlay images byte-identically from declared owners. C
+  units link at original addresses. Data is owned only in part: units declare
+  44 read-only and 8 initialised data ranges, and the rest of each payload is
+  retained raw and counted separately. Checks fail closed and carry their own
+  negative controls.
 - The build runs locally with a native GCC 2.6.3. The pinned reference
   compiler reproduces the same image.
-- Seventy-seven overlay modules are in the build as images of their own. `slot2a`:
-  all 28 functions are exact from C, 6,052 bytes, and 15,112 bytes are
-  retained raw. `slot0b`: 57 C functions, 5,892 bytes, are exact and 25,544 bytes
-  are retained raw. `slot12`: 181 C functions, 27,872 bytes, are exact and
-  92,296 bytes are retained raw. `slot16`: 11 C functions, 984 bytes, are exact and 10,406 bytes are
-  retained raw. In `slot17` the 11 functions of `slot16` are linked a
-  second time, at another address and from the same objects, and are exact
-  against its own chunk; 10,406 bytes are retained raw there as well.
-  `slot00`: 109 C functions, 12,240 bytes, are exact and 4,964 bytes are
-  retained raw; `slot08` is the same 109 functions linked a second time,
-  exact against its own chunk. `slot2b`: 103 C functions, 9,396 bytes,
-  are exact and 23,172 bytes are retained raw; `slot2c` is the same 103
-  functions linked a second time, exact against its own chunk. `slot0f`:
-  218 C functions, 33,288 bytes, are exact and 70,560 bytes are retained
-  raw. The 20 stage modules, `slot06_00` to `slot06_13`: 845 C
-  functions, 139,908 bytes, are exact and 1,220,780 bytes are retained
-  raw. `slot27`: 208 C functions, 30,184 bytes, are exact and 97,140
-  bytes are retained raw. `slot28`: 679 C functions, 84,216 bytes, are
-  exact and 185,800 bytes are retained raw. `slot01`: 117 C functions,
-  16,372 bytes, are exact and 270,168 bytes are retained raw.
-  `slot04_00` to `slot04_0b`, the first-side blocks of twelve character
-  files: 2,100 C functions, 253,332 bytes, are exact and 684,880 bytes
-  are retained raw; eleven of them are linked a second time as
-  `slot05_00` to `slot05_0b` without `slot05_06` and are exact against
-  the chunks of the `X` files. `slot05_06`, the second side of the
-  twelfth, is four bytes shorter than its first side and is an image
-  with units of its own, copied from those of `slot04_06`: 228 C
-  functions, 25,276 bytes, are exact and 62,624 bytes are retained raw.
-  The 11
-  first-side character blocks of slot
-  `0x4`, `slot04_0c` to `slot04_17`: 2,311 C functions, 277,928 bytes,
-  are exact and 732,412 bytes are retained raw; the eight second-side
-  images `slot05_0c` to `slot05_14` are the same functions linked a
-  second time, exact against their own chunks, with two units of one
-  character raw there. `slot04_sel`, the content of slot `0x4` of
-  `SELECT.PAC`: 89 C functions, 27,092 bytes, are exact and 13,288 bytes
-  are retained raw. The other modules are not in the build.
-- No complete overlay source coverage, whole-program source inventory,
-  ownership of game data, rebuilt disc, or live-gameplay observations are
-  claimed.
-- The repository's public-facing files are documentation, tooling and, since
-  2026-10-05, the reconstructed PS1 source in `ps1/src/`. Building it needs
-  local inputs that the repository does not contain.
+- The source is sorted by subsystem, character, stage and screen, one file per
+  unit named after its first function ([layout](ps1/src/README.md)).
+- Names are inferred; 98% of functions, 68% of fields and 8% of data symbols
+  have one, and none is an original symbol.
+- No whole-program source from which a disc is rebuilt, ownership of all game
+  data, or live-gameplay observations of the matched code are claimed.
+- The repository's public-facing files are documentation, tooling and the
+  reconstructed PS1 source in `ps1/src/`. Building it needs local inputs that
+  the repository does not contain.
 
 ## Validation principle
 
@@ -102,15 +64,15 @@ C or intentional changes require separate behavioral tests and clear labels.
 | --- | --- | --- |
 | Feasibility | Connected matching-C pilot with actual build/diff evidence | Achieved at three-function scope |
 | Baseline and inventory | Pinned code-bearing files, load/overlay maps, original-vs-inferred symbols, function/data boundaries | Disc files pinned; [overlay map](ps1/docs/overlays.md) with link addresses confirmed against the loader's tables, and an inventory of the functions inside the modules that is an estimate from a static sweep; [library families](ps1/docs/library-families.md) of the game functions in the resident image and the modules, an estimate over the same sweep |
-| Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image: code, read-only data, initialised data, bss and assembly owners. Module images are built and compared the same way, each linked alone; four are declared, one of them as a second link of another: the same units at the other address, compared with its own chunk |
-| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | Resident image: 1,759 functions (1,371 game, 388 library) of the 1,852 that a sweep of its code counts (1,436 game, 416 library). Module images: `slot2a` 28 functions, `slot0b` 57 functions, `slot12` 181 functions, `slot16` 11 functions, and the same 11 linked again in `slot17`, `slot00` 109 functions, and the same 109 linked again in `slot08`, `slot2b` 103 functions, and the same 103 linked again in `slot2c`, `slot0f` 218 functions, the 20 stage modules `slot06_00` to `slot06_13` 845 functions, `slot27` 208 functions, `slot28` 679 functions, `slot01` 117 functions, the twelve character blocks `slot04_00` to `slot04_0b` 2,100 functions, linked again in eleven images `slot05_00` to `slot05_0b`, the 11 character blocks `slot04_0c` to `slot04_17` 2,311 functions, linked again in the eight images `slot05_0c` to `slot05_14`, `slot04_sel` 89 functions, `slot05_06` 228 functions. Expanding |
-| Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Planned |
+| Reproducible matching build | Range ownership, original-address linking, fallback accounting, build manifests, fail-closed byte checks | Working for the resident image and all 77 overlay images, each linked and compared alone; second links of shared units are compared with their own chunks |
+| Gameplay reconstruction | Expand meaningful connected routines/subsystems with readable types and named data | Code: every function of the sweep is exact (5,600 distinct, 13,072 placements; resident 1,852, overlays 11,220 placements). Data and names remain |
+| Coverage and exceptions | All scoped executable code accounted for; reviewed C/assembly, SDK handling, explained exceptions | Code is accounted for; exceptions and data ownership are under review |
 | Reproduction and delivery | Clean rebuild, complete code-payload comparisons, source/provenance review, operating instructions and remaining limits | Planned |
 
-Continue by adding units to the matching build, following callers and callees
-of the matched group. Add data ownership to the build when a unit first needs
-it. Do not start a new generic architecture project or require a full-disc
-builder before extending useful source coverage.
+Continue with game data ownership, names and the delivery steps. Add data
+ownership to the build when a unit first needs it. Do not start a new generic
+architecture project or require a full-disc builder before extending useful
+source coverage.
 
 Assembly/raw retention can bootstrap a whole-image build, but its bytes must be
 reported separately from recovered C. A byte-identical copy-through build is

@@ -45,16 +45,14 @@ Reconstructed source, published:
   shared headers, and the Sony library part in `src/sdk/` (see its README for
   where that part comes from and its license).
 - The source of overlay modules is published there too, by the owner's
-  decision of 2026-10-06, in one folder per module image: `src/slot2a/`,
-  `src/slot2b/`, `src/slot00/`, `src/slot0b/`, `src/slot0f/`,
-  `src/slot12/`, `src/slot16/`, `src/slot27/`, `src/slot28/`, `src/slot01/`, the 20 folders `src/slot06_00/` to
-  `src/slot06_13/` of the stage modules and the 23 folders
-  `src/slot04_00/` to `src/slot04_17/` (there is no `src/slot04_13/`) of
-  the first-side character blocks, `src/slot04_sel/` and `src/slot05_06/`. The images `slot17`, `slot08` and `slot2c` are linked
-  from the units of `slot16`, `slot00` and `slot2b` and have no folder;
-  the eleven images `slot05_00` to `slot05_0b` without `slot05_06` and the
-  eight images `slot05_0c` to `slot05_14` are linked from the units of
-  the character blocks in the same way.
+  decision of 2026-10-06. The layout is by what the code is, not by slot:
+  `src/resident/<subsystem>/` for the main program, `src/overlays/characters/<name>/`
+  and `src/overlays/stages/<name>/` for the character and stage modules, and
+  one folder each for the single screens. Each unit's file is named after
+  its first function. [`src/README.md`](src/README.md) describes it and
+  [`docs/source-map.tsv`](docs/source-map.tsv) maps every file to its earlier
+  name. The images that are second links (`slot08`, `slot17`, `slot2c` and the
+  `slot05_*` images) are linked from the same units and have no folder.
 
 Needed to build and not in the repository:
 

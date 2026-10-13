@@ -15,11 +15,21 @@ result reuse and explicit small task contracts. Acceptance is in
 
 ## Reconstruction lane
 
-Continue the existing connected reconstruction, including parked resident and
-overlay candidates. Derive missing-C work from the ledger and existing matching
-configuration, not dated prose counts. Preserve readable C and original mapping.
-The [previous next-package specification](goals-history.md#next-implementation-package)
-retains the source forms, compiler findings and ordered candidates.
+Every function of the sweep is exact (see [current state](current-state.md)),
+so the work is no longer finding code to match. What is left, from the ledger
+and the build configuration:
+
+- Game data: replace the retained tables, text and similar data with
+  declared, compared owners (the build declares 52 data ranges today).
+- Names: fields (68% named) and data symbols (8%) have the most placeholders.
+- Source quality: forms found by a permutation search, assembly and SDK
+  exceptions, types and comments that make the code readable.
+- Delivery: a fresh clone cannot build yet; the import of the user's own disc
+  files and the compiler needs instructions and a manifest.
+
+The source is sorted by subsystem, character, stage and screen in
+[`ps1/src/`](../ps1/src/README.md); a function renamed with
+`ps1/tools/renamefuncs.py` has its file renamed with it.
 
 SDK completion still has owner decisions open concerning widened pointer
 arithmetic, volatile-only stores and assembler delay instructions. Do not choose

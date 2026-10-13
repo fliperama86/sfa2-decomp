@@ -5,29 +5,25 @@ options off by default (except fast loading waits, on by default). See [graphics
 pixel-grid sampling, the independently optional arcade canvas, WIP common-UI
 centering and scoped checks.
 
-The native macOS build (a 32-bit-pointer guest in a micro-VM) is designed in
-[`mac/README.md`](mac/README.md).
-
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
-Linux. **The game does not run on macOS or Linux, and on Windows it is
-not shown to play to its end.** What runs since 2026-10-10, on Windows: a
-program linked from the game's unchanged C that starts the game from the
-user's disc image. In one scripted run of five minutes it went from the
-title through a first fight into a second. Its sound plays on the
-machine's output unless it is told not to, or goes to a file ("Sound out"
-below); it runs the logo's program and the opening movie's program from their C
-(the logo's movie plays, without its sound so far) and skips the disc's
-other stand-alone programs, which have no C, and a function
-without C would end it with that function's name; the build counts one
-such function of the game, the entry code, which it does not run. It is
-described under "The host program" below. The library
-that is to replace Sony's passes its own tests on a runner of each. With GCC every
-one of its C units compiles on Linux and on Windows, and Apple's compiler
-on macOS refuses a few, in a trial that is described below. This folder
-holds the decisions taken so far, one pinned dependency, one check of that
-dependency, one comparison of it with what the game calls, and one trial
-that compiles the game's C with a PC compiler and lists what the objects
-need. It changes nothing under `ps1/`.
+Linux. **State, 2026-10-13: the game runs from the user's disc image on
+Windows and, natively, on macOS with Apple Silicon. It does not run on
+Linux, and it is not shown to play to its end.** On both it starts the game
+from the unchanged C of the game: the logo and opening programs, the title,
+the menus and fights, with the game's own sound and the streamed audio. On
+Windows one scripted run of five minutes went from the title through a first
+fight into a second; on the Mac a fight was played from an input script. The
+program skips the disc's other stand-alone programs, which have no C, and a
+function without C ends it with that function's name. The macOS build is
+described in [`mac/README.md`](mac/README.md) (the game's C runs as guest
+code in a small virtual machine, since a Mac program cannot hold memory at the
+PS1's addresses); the Windows program is described under "The host program"
+below. The library that is to replace Sony's passes its own tests on a runner
+of each system. With GCC every one of its C units compiles on Linux and on
+Windows, and Apple's compiler on macOS refuses a few, in a trial that is
+described below. This folder holds the decisions taken so far, the pinned
+dependency and its checks, and the trial that compiles the game's C with a PC
+compiler and lists what the objects need. It changes nothing under `ps1/`.
 
 The rule for a port is in the [requirements](../docs/requirements.md): the
 game code stays as close to the original as possible, only Sony's library
