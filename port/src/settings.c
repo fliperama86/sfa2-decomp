@@ -24,7 +24,7 @@
 #define UNLINK unlink
 #endif
 struct port_settings port_settings;
-void port_settings_defaults(struct port_settings *out) { out->pixel_perfect_ui=0;out->arcade_video=0;out->center_ui=0;out->fast_loads=0;out->memory_card=0; }
+void port_settings_defaults(struct port_settings *out) { out->pixel_perfect_ui=0;out->arcade_video=0;out->center_ui=0;out->fast_loads=1;out->memory_card=0; }
 static int failure(char *err,size_t size,unsigned line,const char *why)
 {
     if(err && size) {

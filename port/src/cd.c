@@ -158,7 +158,7 @@
  * Not covered, and no code of the game does it: a reader that polls with the XA bit set loses the sectors of a vblank's row that
  * comes before its first poll.
  *
- * FAST WAITS (the experimental setting fast_loads, off by default; port_cd_set_fast_waits). A blocking wait of the game (CdReady or
+ * FAST WAITS (the experimental setting fast_loads, on by default; port_cd_set_fast_waits). A blocking wait of the game (CdReady or
  * CdSync with mode 0) steps the host's clock once at every poll, and that step sleeps until the next vblank is due whenever the
  * game is ahead of the host's clock, so a read that the game polls sector by sector (the game's loaders of its files into RAM) runs at
  * the pace of those sleeps, not of the disc. With the setting on, a blocking wait steps the clock only at every FAST_WAIT_REAL-th poll

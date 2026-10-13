@@ -19,17 +19,18 @@ int main(int argc,char **argv)
       "[experimental]\nfast_loads=1", "[experimental]\nfast_loads=true\nfast_loads=false",
       "[experimental]\nmemory_card=1", "[experimental]\nmemory_card=true\nmemory_card=false"};
     size_t i;
-    assert(argc==2);port_settings_defaults(&s);assert(!s.pixel_perfect_ui && !s.arcade_video && !s.center_ui && !s.fast_loads && !s.memory_card);
+    assert(argc==2);port_settings_defaults(&s);assert(!s.pixel_perfect_ui && !s.arcade_video && !s.center_ui && s.fast_loads && !s.memory_card);
     s.pixel_perfect_ui=7;s.arcade_video=9;s.center_ui=11;s.fast_loads=13;s.memory_card=15;
     assert(port_settings_load(argv[1],&s,0,err,sizeof err));assert(s.pixel_perfect_ui==7 && s.arcade_video==9 && s.center_ui==11 && s.fast_loads==13 && s.memory_card==15);
-    assert(!port_settings_load(argv[1],&s,1,err,sizeof err));assert(!s.pixel_perfect_ui && !s.arcade_video && !s.center_ui && !s.fast_loads && !s.memory_card);
-    read_case("",0,1,0,0,0,0,0);
+    assert(!port_settings_load(argv[1],&s,1,err,sizeof err));assert(!s.pixel_perfect_ui && !s.arcade_video && !s.center_ui && s.fast_loads && !s.memory_card);
+    read_case("",0,1,0,0,0,1,0);
     { const char *text="\xef\xbb\xbf # comment\r\n [experimental] \r\n pixel_perfect_ui = true ; yes\r\narcade_video=false";
-      read_case(text,strlen(text),1,1,0,0,0,0); }
-    read_case("[experimental]\narcade_video=true",32,1,0,1,0,0,0);
-    read_case("[experimental]\ncenter_ui=true",29,1,0,0,1,0,0);
+      read_case(text,strlen(text),1,1,0,0,1,0); }
+    read_case("[experimental]\narcade_video=true",32,1,0,1,0,1,0);
+    read_case("[experimental]\ncenter_ui=true",29,1,0,0,1,1,0);
     read_case("[experimental]\nfast_loads=true",30,1,0,0,0,1,0);
-    read_case("[experimental]\nmemory_card=true",31,1,0,0,0,0,1);
+    read_case("[experimental]\nfast_loads=false",31,1,0,0,0,0,0);
+    read_case("[experimental]\nmemory_card=true",31,1,0,0,0,1,1);
     for(i=0;i<sizeof invalid/sizeof invalid[0];i++)read_case(invalid[i],strlen(invalid[i]),0,0,0,0,0,0);
     memset(longline,'x',sizeof longline);read_case(longline,sizeof longline,0,0,0,0,0,0);
     { const char text[]="[experimental]\narcade_video=true\0ignored";read_case(text,sizeof text-1,0,0,0,0,0,0); }

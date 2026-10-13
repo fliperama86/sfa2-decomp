@@ -38,7 +38,7 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             exe = path / 'startup'
             subprocess.run(['gcc', '-std=c11', '-O1', '-I', str(ROOT / 'port/src'),
                 str(path / 'test.c'), str(ROOT / 'port/src/settings.c'), '-o', str(exe)], check=True, timeout=15)
-            def run(args, expected, ui=None, canvas=None, center=False, fast=False, card=False):
+            def run(args, expected, ui=None, canvas=None, center=False, fast=True, card=False):
                 result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
                     cwd=path, capture_output=True, text=True, timeout=3)
                 self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
@@ -55,9 +55,9 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
                 self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
                 if line: self.assertIn(line, result.stdout.splitlines())
             volume([], 0, 'volume = 100')
-            run(['--memory-card'], 0, False, False, False, False, True)
-            run(['--memory-card', '--no-memory-card'], 0, False, False, False, False, False)
-            run(['--card1', 'a.mcr', '--card2', 'b.mcr'], 0, False, False, False, False, False)
+            run(['--memory-card'], 0, False, False, False, True, True)
+            run(['--memory-card', '--no-memory-card'], 0, False, False, False, True, False)
+            run(['--card1', 'a.mcr', '--card2', 'b.mcr'], 0, False, False, False, True, False)
             volume(['--card1'], 2)
             volume(['--card2'], 2)
             volume(['--card1', ''], 2)
@@ -78,11 +78,15 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             run(['--settings', str(config), '--arcade-video'], 0, True, True)
             run(['--center-ui'], 0, True, False, True)
             run(['--center-ui', '--ps1-ui-layout'], 0, True, False, False)
+            run(['--ps1-loading'], 0, True, False, False, False)
             run(['--fast-loads'], 0, True, False, False, True)
             run(['--fast-loads', '--ps1-loading'], 0, True, False, False, False)
             config.write_text('[experimental]\nfast_loads = true\n')
             run([], 0, False, False, False, True)
             run(['--ps1-loading'], 0, False, False, False, False)
+            config.write_text('[experimental]\nfast_loads = false\n')
+            run([], 0, False, False, False, False)
+            run(['--fast-loads'], 0, False, False, False, True)
             config.write_text('[experimental]\npixel_perfect_ui = true\ncenter_ui = true\n')
             run(['--ps1-ui-layout', '--settings', str(config)], 0, True, False, False)
             run(['--settings', str(config), '--arcade-video'], 0, True, True, True)
