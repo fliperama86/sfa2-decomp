@@ -234,6 +234,7 @@ int main(int argc, char **argv)
     port_disc_handle = &disc;
     if (port_cd_init(&disc) != 0) return refuse("the disc layer cannot start");
     port_cd_set_fast_waits(port_settings.fast_loads);
+    port_gpu_set_batched_uploads(port_settings.fast_loads);
     if (port_card_configure(port_settings.memory_card, card1_path, card2_path, err, sizeof err) != 0) return refuse(err);
     atexit(port_card_flush);
     if (port_jumps_write(ram, &with_c, &without_c, err, sizeof err) != 0) return refuse(err);

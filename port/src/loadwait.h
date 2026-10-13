@@ -23,6 +23,7 @@ struct port_loadwait_hooks {
     void (*step)(void);                      /* the game's step: (the wait's own flag,) update_cd_control() */
     void (*drive)(void);                     /* port_cd_tick(): one vblank of the disc */
     void (*tick)(void);                      /* port_tick(): the host's real clock and events */
+    void (*hurry)(int on);                   /* port_clock_hurry: 1 before the load starts, 0 after it is done (the clock does not sleep inside) */
     void (*finish)(void);                    /* after the load, or null */
 };
 
@@ -37,7 +38,8 @@ void port_loadwait(const struct port_loadwait_hooks *hooks, unsigned a, unsigned
  *  - state 0 ends where the fade-in ends: the state index two on, the delay 1, the counter 0x20, the wait flag 0x80, the palette at
  *    full scale once (the fade-in's last step), and the text's string pointer on an empty string;
  *  - state 3 ends where the fade-out ends: the state index one on, the counter -1, the delay 1; no palette step (the thread's end
- *    restores the palette in any case). */
+ *    restores the palette in any case). It also starts the blank fast-forward of the clock (kernel.c): the frames that follow, until the next
+ *    screen is drawn, are not waited for. */
 /* The game's black fades (fade_palette_bank, one step a call). Every fade of a whole screen to or from black is a thread that calls the
  * palette routine once a frame until the routine says it is done: mode 0 darkens one notch a call, mode 1 brightens to the backup
  * palette, a level that moves by `amount`. With the setting on, a call in mode 0 or 1 runs the routine's own steps one after the
@@ -52,6 +54,7 @@ struct port_loadscreen_fields {
     unsigned *text_ptr;                                        /* the text item's string pointer (a guest address) */
     unsigned empty_string;                                     /* the guest address of the text's terminator "@@", where an empty string would stand */
     void (*palette_full)(void);                                /* scale_palette_rows_from_backup_bank(4, 0x20, 0x1f, 0) and queue_image_upload_job(4, 7) */
+    void (*blank_start)(void);                                 /* port_clock_blank_start: the frames after the loads, until the next screen, run without the wait */
 };
 void port_loadscreen_start(const struct port_loadscreen_fields *f);
 void port_loadscreen_fadeout(const struct port_loadscreen_fields *f);

@@ -16,6 +16,7 @@ static void stop(const char *fmt,...)
     va_list args;va_start(args,fmt);vfprintf(stderr,fmt,args);va_end(args);abort();
 }
 static void DrawOTag(OT_TYPE *words);
+void port_clock_frame_drawn(unsigned packets) { (void)packets; }   /* the clock's hook that the list walker calls */
 /* REAL_GPU_SEAM */
 static unsigned captured_count;
 static struct { unsigned len;uint32_t words[12]; } captured[16];

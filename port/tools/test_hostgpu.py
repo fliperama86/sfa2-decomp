@@ -174,6 +174,7 @@ void port_tick(void)
 }
 
 void port_callbacks_reset(void) { resets++; }
+void port_clock_frame_drawn(unsigned packets) { (void)packets; }
 
 /* ---- the library by name ---- */
 
@@ -1169,7 +1170,7 @@ def program_cases(rig: Rig, work: Path):
     syms = subprocess.run([nm, "-g", str(work / "stub.o")], capture_output=True, text=True)
     defined = sorted(l.split()[-1] for l in syms.stdout.splitlines() if " T " in l or " D " in l or " R " in l)
     undefined = sorted(l.split()[-1] for l in syms.stdout.splitlines() if l.strip().startswith("U "))
-    yield "stub-defines-the-tables-and-present-and-needs-nothing", same((defined, undefined), (sorted(["_port_gpu_display_enabled", "_port_gpu_library", "_port_gpu_present", "_port_gpu_read_frame", "_port_gpu_set_video_options", "_port_gpu_set_ui_layout"]), []))
+    yield "stub-defines-the-tables-and-present-and-needs-nothing", same((defined, undefined), (sorted(["_port_gpu_display_enabled", "_port_gpu_library", "_port_gpu_present", "_port_gpu_read_frame", "_port_gpu_set_video_options", "_port_gpu_set_ui_layout", "_port_gpu_set_batched_uploads"]), []))
 
     reason = rig.build()
     yield "trial-program-builds-gpu-c-with-psyz-warning-free", reason

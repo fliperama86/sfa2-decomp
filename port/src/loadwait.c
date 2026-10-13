@@ -12,12 +12,14 @@
 void port_loadwait(const struct port_loadwait_hooks *h, unsigned a, unsigned b)
 {
     unsigned n;
+    h->hurry(1);
     h->start(a, b);
     for (n = 1; !h->done(); n++) {
         h->step();   /* the frame's own order: the game's step, then the vblank (the disc's step) that ends the frame */
         h->drive();
         if (n % PORT_LOADWAIT_TICK_EVERY == 0) h->tick();
     }
+    h->hurry(0);
     if (h->finish) h->finish();
 }
 
@@ -44,6 +46,7 @@ void port_loadscreen_fadeout(const struct port_loadscreen_fields *f)
     *f->state_index = (unsigned short)(*f->state_index + 1);
     *f->step_delay = 1;
     *f->step_counter = 0xffffu;
+    f->blank_start();
 }
 
 /* The game's routines, by their addresses in the PS1's memory (the build's names are start_cd_track_from_table, is_cd_ctl_mode_3
@@ -60,6 +63,7 @@ static void start(unsigned a, unsigned b) { port_call3(GAME_FN(FN_START_FROM_TAB
 static int  done(void)                    { return port_callr0(GAME_FN(FN_IS_MODE_3)) != 0; }
 static void drive(void)                   { port_cd_tick(); }
 static void tick(void)                    { port_tick(); }
+static void hurry(int on)                 { port_clock_hurry(on); }
 
 /* start_cd_track_wait_with_thread_switch: the waiting game thread gives the frame to the main thread, whose frame runs the step. */
 static void step_plain(void)              { port_call0(GAME_FN(FN_UPDATE_CD)); }
@@ -91,6 +95,9 @@ static void palette_full(void)
     port_call2(GAME_FN(FN_QUEUE_UPLOAD), 4, 7);
 }
 
+#define BLANK_MAX_FRAMES 40u   /* the most frames the fast blank run lasts if no screen with 150 packets or more comes */
+static void blank_start(void) { port_clock_blank_start(BLANK_MAX_FRAMES); }
+
 static void screen_fields(struct port_loadscreen_fields *f)
 {
     unsigned hud = *(unsigned *)port_gs((const void *)(uintptr_t)HUD_POINTER, 4);
@@ -101,10 +108,11 @@ static void screen_fields(struct port_loadscreen_fields *f)
     f->text_ptr = port_gs((const void *)(uintptr_t)LOADING_TEXT_PTR, 4);
     f->empty_string = EMPTY_STRING;
     f->palette_full = palette_full;
+    f->blank_start = blank_start;
 }
 
-static const struct port_loadwait_hooks plain   = { start, done, step_plain,   drive, tick, 0 };
-static const struct port_loadwait_hooks flagged = { start, done, step_flagged, drive, tick, finish_flagged };
+static const struct port_loadwait_hooks plain   = { start, done, step_plain,   drive, tick, hurry, 0 };
+static const struct port_loadwait_hooks flagged = { start, done, step_flagged, drive, tick, hurry, finish_flagged };
 
 static void port_o_wait_with_thread_switch(int a, int b);
 static void port_o_wait_with_thread_switch(int a, int b) { port_loadwait(&plain, (unsigned)a, (unsigned)b); }
