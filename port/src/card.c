@@ -16,7 +16,8 @@
  *    device is "bu00:" (slot 1) or "bu10:" (slot 2). open: flags FREAD 1, FWRITE 2, FCREAT 0x200 with the size in blocks in the bits from 16; -1
  *    for a card that is absent or not formatted, a file that is not there, a name that is there already when creating, or no room. read and write
  *    do the whole transfer at once (the console's complete in the background; the game retries on -1 and does not wait for an event) and return
- *    the bytes done, never past the file's size; close returns the descriptor. Writes reach the card file at close and at format.
+ *    the bytes done, never past the file's size; close returns the descriptor. Writes reach the card file at close and at format; a card file that cannot be written
+ *    makes close and format answer -1 and 0 (and a line on standard error), and the card keeps what it holds for the flush at exit.
  *    firstfile and nextfile fill the game's DIRENTRY (name[20], attr, size, next, head, system[6]: 40 bytes; head is the file's first block)
  *    and return its address, or 0 for no more files; they list the files whose first block is in use, in block order, those that match the
  *    pattern ('?' and a final '*').
@@ -24,10 +25,24 @@
  * Not made: deleting or renaming a file, a card taken out or changed while the game runs, the card's timing. */
 #include "port.h"
 #include "memcard.h"
+#include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #ifdef _WIN32
+#include <io.h>
 #include <windows.h>
+#define OPEN_NEW(p) _open(p, _O_WRONLY | _O_CREAT | _O_EXCL | _O_BINARY, _S_IREAD | _S_IWRITE)
+#define WRITE _write
+#define CLOSE _close
+#define UNLINK _unlink
+#else
+#include <unistd.h>
+#define OPEN_NEW(p) open(p, O_WRONLY | O_CREAT | O_EXCL, 0666)
+#define WRITE write
+#define CLOSE close
+#define UNLINK unlink
 #endif
 
 #define SW_CARD 0xf4000001u
@@ -37,9 +52,9 @@
 #define EV_TIMOUT 0x0100u
 #define EV_NEW 0x2000u
 
-#define FREAD 0x1
-#define FWRITE 0x2
-#define FCREAT 0x200
+#define CARD_FREAD 0x1
+#define CARD_FWRITE 0x2
+#define CARD_FCREAT 0x200
 #define MAX_FILES 16
 #define DIRENTRY_SIZE 40u
 
@@ -63,39 +78,75 @@ static char pattern[MC_NAME + 2];   /* the pattern of the last firstfile */
 
 /* ---- the files ---- */
 
-static void replace_file(const char *tmp, const char *path)
+/* The card's file is replaced whole: the image goes to NAME.tmp, created here and nowhere else (an old .tmp, a link too, is removed first, and
+ * the new file is made exclusively), and the .tmp then takes the place of the card's file. 0 when the card's file holds the image, else -1 with
+ * a line on standard error; the slot stays dirty then, so the next flush tries again. */
+static int replace_file(const char *tmp, const char *path, int *code)
 {
 #ifdef _WIN32
-    MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+    if (!MoveFileExA(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        *code = (int)GetLastError();
+        return -1;
+    }
+    return 0;
 #else
-    rename(tmp, path);
+    if (rename(tmp, path) != 0) {
+        *code = errno;
+        return -1;
+    }
+    return 0;
 #endif
 }
 
 static int flush_slot(struct slot *s)
 {
     char *tmp;
-    FILE *f;
-    int bad = 0;
-    size_t n;
+    int fd, code = 0;
+    const char *step = NULL;
+    size_t n, done = 0;
     if (!s || !s->dirty || !s->path) return 0;
     n = strlen(s->path);
     tmp = malloc(n + 5);
-    if (!tmp) return -1;
+    if (!tmp) {
+        fprintf(stderr, "memory card: not saved to %s: out of memory\n", s->path);
+        return -1;
+    }
     memcpy(tmp, s->path, n);
     memcpy(tmp + n, ".tmp", 5);
-    f = fopen(tmp, "wb");
-    if (!f) {
+    fd = OPEN_NEW(tmp);
+    if (fd < 0 && errno == EEXIST) {
+        UNLINK(tmp);
+        fd = OPEN_NEW(tmp);
+    }
+    if (fd < 0) {
+        step = "create the temporary file";
+        code = errno;
+    } else {
+        while (done < MC_SIZE) {
+            int r = (int)WRITE(fd, s->img + done, (unsigned)(MC_SIZE - done));
+            if (r <= 0) {
+                step = "write the temporary file";
+                code = errno;
+                break;
+            }
+            done += (size_t)r;
+        }
+        if (CLOSE(fd) != 0 && !step) {
+            step = "close the temporary file";
+            code = errno;
+        }
+        if (!step && replace_file(tmp, s->path, &code) != 0) step = "replace the card file";
+        if (step) UNLINK(tmp);
+    }
+    if (step) {
+        fprintf(stderr, "memory card: not saved to %s: cannot %s (error %d%s%s)\n", s->path, step, code,
+                code ? ": " : "", code ? strerror(code) : "");
         free(tmp);
         return -1;
     }
-    if (fwrite(s->img, 1, MC_SIZE, f) != MC_SIZE) bad = 1;
-    if (fclose(f)) bad = 1;
-    if (!bad) replace_file(tmp, s->path);
-    else remove(tmp);
     free(tmp);
-    if (!bad) s->dirty = 0;
-    return bad ? -1 : 0;
+    s->dirty = 0;
+    return 0;
 }
 
 static int open_slot(int index, const char *path, char *err, size_t errsize)
@@ -117,6 +168,12 @@ static int open_slot(int index, const char *path, char *err, size_t errsize)
     }
     strcpy(s->path, path);
     f = fopen(path, "rb");
+    if (!f && errno != ENOENT) {
+        snprintf(err, errsize, "memory card: cannot read %s: %s", path, strerror(errno));
+        free(s->path);
+        free(s);
+        return -1;
+    }
     if (f) {
         if (fseek(f, 0, SEEK_END) == 0) size = ftell(f);
         if (size != (long)MC_SIZE || fseek(f, 0, SEEK_SET) != 0 || fread(s->img, 1, MC_SIZE, f) != MC_SIZE) {
@@ -128,7 +185,7 @@ static int open_slot(int index, const char *path, char *err, size_t errsize)
         }
         fclose(f);
     }
-    /* a card file that is not there is a card that was never formatted (zeros); it is written when the game first changes it */
+    /* a card file that is not there (and only that) is a card that was never formatted (zeros); it is written when the game first changes it */
     s->present = 1;
     s->is_new = 1;
     slots[index] = s;
@@ -250,21 +307,28 @@ static struct slot *formatted_slot(int index)
     return enabled && s && s->present && mc_is_formatted(s->img) ? s : NULL;
 }
 
-/* format(devname): 1 when the card was formatted, 0 when there is no card. */
+/* format(devname): 1 when the card was formatted (and its file written), 0 when there is no card or the file could not be written. */
 long port_h_card_format(const char *devname);
 long port_h_card_format(const char *devname)
 {
     char buf[16];
     const char *rest;
     struct slot *s;
-    int index;
+    int index, was_dirty;
+    static unsigned char before[MC_SIZE];
     if (!enabled) return 0;
     if (guest_string(devname, buf, sizeof buf) != 0 || (index = device(buf, &rest)) < 0) return 0;
     s = slots[index];
     if (!s || !s->present) return 0;
+    memcpy(before, s->img, MC_SIZE);
+    was_dirty = s->dirty;
     mc_format(s->img);
     s->dirty = 1;
-    flush_slot(s);
+    if (flush_slot(s) != 0) {   /* the card is as it was, and the game is told the format failed */
+        memcpy(s->img, before, MC_SIZE);
+        s->dirty = was_dirty;
+        return 0;
+    }
     return 1;
 }
 
@@ -339,7 +403,7 @@ long port_h_card_open(const char *devname, long flags)
     s = formatted_slot(index);
     if (!s) return -1;
     first = mc_find(s->img, rest);
-    if (flags & FCREAT) {
+    if (flags & CARD_FCREAT) {
         if (first) return -1;
         first = mc_create(s->img, rest, (unsigned)((unsigned long)flags >> 16));
         if (!first) return -1;
@@ -353,7 +417,7 @@ long port_h_card_open(const char *devname, long flags)
     files[fd].used = 1;
     files[fd].slot = index;
     files[fd].first = first;
-    files[fd].mode = (int)(flags & 3) | ((flags & FCREAT) ? FWRITE : 0);
+    files[fd].mode = (int)(flags & 3) | ((flags & CARD_FCREAT) ? CARD_FWRITE : 0);
     files[fd].pos = 0;
     return fd;
 }
@@ -371,7 +435,7 @@ long port_h_card_read(long fd, void *buf, long n)
     struct file *f = file_of(fd);
     unsigned char *dst;
     unsigned done;
-    if (!f || n < 0 || !(f->mode & FREAD)) return -1;
+    if (!f || n < 0 || !(f->mode & CARD_FREAD)) return -1;
     dst = port_gs(buf, (size_t)n);
     if (!dst && n) return -1;
     done = mc_read(slots[f->slot]->img, f->first, f->pos, dst, (unsigned)n);
@@ -386,7 +450,7 @@ long port_h_card_write(long fd, void *buf, long n)
     struct file *f = file_of(fd);
     const unsigned char *src;
     unsigned done;
-    if (!f || n < 0 || !(f->mode & FWRITE)) return -1;
+    if (!f || n < 0 || !(f->mode & CARD_FWRITE)) return -1;
     src = port_gs(buf, (size_t)n);
     if (!src && n) return -1;
     done = mc_write(slots[f->slot]->img, f->first, f->pos, src, (unsigned)n);
@@ -395,15 +459,16 @@ long port_h_card_write(long fd, void *buf, long n)
     return (long)done;
 }
 
-/* close(fd): the descriptor, or -1; the card's file is written here if the card changed. */
+/* close(fd): the descriptor, or -1 (also when the card's file, written here if the card changed, could not be written; the descriptor is closed). */
 long port_h_card_close(long fd);
 long port_h_card_close(long fd)
 {
     struct file *f = file_of(fd);
+    int rc;
     if (!f) return -1;
-    flush_slot(slots[f->slot]);
+    rc = flush_slot(slots[f->slot]);   /* a card file that could not be written is -1; the slot stays dirty for the next flush */
     f->used = 0;
-    return fd;
+    return rc ? -1 : fd;
 }
 
 /* ---- with no card (the setting off) ---- */
