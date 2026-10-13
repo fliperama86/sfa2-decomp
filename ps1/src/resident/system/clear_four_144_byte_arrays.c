@@ -4,10 +4,10 @@
 #include "../../protos.h"
 
 void clear_four_144_byte_arrays(void) {
-    u8 *a = data_801aa544;
-    u8 *b = data_801aa5d4;
+    u8 *a = background_layers;
+    u8 *b = main_layer;
     u8 *c = cam_obj;
-    u8 *d = data_801904d8;
+    u8 *d = fourth_layer;
     unsigned int i;
     int z = 0;
     for (i = 0; i < 0x90; i++) {

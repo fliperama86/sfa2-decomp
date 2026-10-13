@@ -25,8 +25,8 @@ void spawn_effect_object_type_3_at_object(Object *object)
     new_object->spawn_y = 0x1e0;
     new_object->parent = object;
     new_object->field_90 = (void *) 0x800fb100;
-    new_object->data_ptr_a = data_80172a48;
-    new_object->data_ptr_b = data_80173c9c;
+    new_object->data_ptr_a = spawned_object_data_a;
+    new_object->data_ptr_b = spawned_object_data_b;
     new_object->team_id = side;
   }
 }

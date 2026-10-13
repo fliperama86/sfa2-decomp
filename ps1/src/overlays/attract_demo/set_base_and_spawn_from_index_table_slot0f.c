@@ -10,7 +10,7 @@ void set_base_and_spawn_from_index_table_slot0f(Object *obj) {
     int i = obj->table_index;
     if (i != 5) {
         i <<= 2;
-        if (data_80190468.p->field_01 == 0) {
+        if (ref_game_state.p->field_01 == 0) {
             obj->base_x = data_800f013c_slot0f[i];
             obj->base_y = data_800f013c_slot0f[i + 1];
             obj->spawn_x = data_800f013c_slot0f[i + 2];

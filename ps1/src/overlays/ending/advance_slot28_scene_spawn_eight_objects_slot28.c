@@ -18,8 +18,8 @@ void advance_slot28_scene_spawn_eight_objects_slot28(Object *obj) {
     int i;
     Object *p;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index = screen_state->pass_index + 1;
         release_active_objects_in_table_5_slot28();
         set_sequence_from_table_5(data_80051a00_slot28.p, 1, data_80039280_slot28);
         p = data_80051a04_slot28[0];

@@ -22,8 +22,8 @@ void setup_slot28_pass_objects_and_fade_slot28(Object *obj) {
     Object **slot;
     int one;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index = screen_state->pass_index + 1;
         release_active_objects_in_table_6_slot28();
         o = (Object *)pop_block_from_pool();
         if (o != 0) {

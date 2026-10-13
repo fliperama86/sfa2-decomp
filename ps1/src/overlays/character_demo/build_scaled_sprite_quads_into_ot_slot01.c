@@ -33,7 +33,7 @@ void build_scaled_sprite_quads_into_ot_slot01(Object *obj, u8 *prim_arg, int unu
     if (flag != 0) {
         p += count;
     }
-    ot = (u32 *)data_801987c8;
+    ot = (u32 *)current_ordering_table;
     /* Stand-in, not recovered source: the term that is ORed to ot below, which is 0 for every value of prim, reproduces the original's choice of registers. Without it this function differs from the original in 88 instruction slots. */
     ot = (u32 *)((u8 *)ot + (((u32)(unsigned long long)prim << 24) & 0x100));
     do {

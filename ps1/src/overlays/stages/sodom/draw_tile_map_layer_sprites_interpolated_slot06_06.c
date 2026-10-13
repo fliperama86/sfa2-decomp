@@ -13,7 +13,7 @@ extern Slot06Tile data_801f25b0_slot06_06[2][0x4b];
    row's screen offset, as in the model. In the last partial row the list
    head is addressed at each use (the local ot is not used there). */
 void draw_tile_map_layer_sprites_interpolated_slot06_06(void) {
-    Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
+    Slot06Draw *c = (Slot06Draw *)main_layer;
     int q;
     int x;
     int pos;
@@ -61,9 +61,9 @@ void draw_tile_map_layer_sprites_interpolated_slot06_06(void) {
     }
     rows = c->height >> 4;
     mask = (c->width >> 4) - 1;
-    rec = data_801f25b0_slot06_06[data_801a27d0];
+    rec = data_801f25b0_slot06_06[draw_buffer_index];
     n = (u32)(c->field_4c - ((pos >> 16) & -16)) >> 4;
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < n; i++, row++) {
         u16 cc = col;
         if (row < 0 || row > rows) {
@@ -107,8 +107,8 @@ void draw_tile_map_layer_sprites_interpolated_slot06_06(void) {
                     tp->sprt.v = (tile >> 2) & -8;
                     tp->sprt.clut = e[1];
                     tp->mode[0] = 0xe1000000 + (tile >> 10);
-                    ((PrimTag *)rec)->addr = ((PrimTag *)((u8 *)data_801987c8 + c->ot_index * 4))->addr;
-                    ((PrimTag *)((u8 *)data_801987c8 + c->ot_index * 4))->addr = (u32)rec;
+                    ((PrimTag *)rec)->addr = ((PrimTag *)((u8 *)current_ordering_table + c->ot_index * 4))->addr;
+                    ((PrimTag *)((u8 *)current_ordering_table + c->ot_index * 4))->addr = (u32)rec;
                     rec++;
                 }
                 cc = mask & (cc + 1);

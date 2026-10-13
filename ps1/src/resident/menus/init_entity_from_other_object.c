@@ -9,7 +9,7 @@ void init_entity_from_other_object(ObjectView *entity, Object *other) {
     entity->kind_table_value = table_8016f4f0[other->kind];
     entity->field_62 = other->field_d4;
     entity->other_side = other->side;
-    hud = (HudBig *)data_8018f5a0;
+    hud = (HudBig *)screen_state;
     hud->field_4a = 5;
     hud->field_4c = 0;
     entity->field_c6 = 0;
@@ -31,7 +31,7 @@ void init_entity_from_other_object(ObjectView *entity, Object *other) {
 
 void clear_hud_and_entity_fields_then_switch_entry(GameState *state) {
     ObjectView *entity = (ObjectView *)state;
-    HudBig *hud = (HudBig *)data_8018f5a0;
+    HudBig *hud = (HudBig *)screen_state;
     hud->field_48 = 0;
     entity->field_c2 = 0;
     hud->field_4a = 0;

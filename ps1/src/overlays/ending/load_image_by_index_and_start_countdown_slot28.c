@@ -13,7 +13,7 @@ void add_indexed_item_to_table_if_value_at_least_5_slot28(Object *obj);
 void load_image_by_index_and_start_countdown_slot28(Object *obj) {
     HudState *h;
     load_image_from_stream(data_800517b8_slot28[(s8)data_8016e685]);
-    h = data_8018f5a0;
+    h = screen_state;
     h->countdown_timer = 0x12c;
     h->step_index_2 = h->step_index_2 + 1;
     init_four_textured_screen_quads_slot28(obj);
@@ -25,7 +25,7 @@ void link_quads_and_next_substep_when_timer_negative_slot28(Object *obj) {
     int t;
     add_indexed_item_to_table_if_value_at_least_5_slot28(obj);
     link_two_quads_into_ordering_table_slot28(obj);
-    h = data_8018f5a0;
+    h = screen_state;
     t = h->countdown_timer - 1;
     h->countdown_timer = t;
     if ((s16)t < 0) {

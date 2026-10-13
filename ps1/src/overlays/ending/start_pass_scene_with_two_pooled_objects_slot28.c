@@ -17,7 +17,7 @@ void start_pass_scene_with_two_pooled_objects_slot28(Object *obj) {
     int y;
     int one;
     if (obj->field_f0 == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         x = 0xf0;
         h->countdown_timer = x;
         h->pass_index = h->pass_index + 1;

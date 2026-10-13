@@ -12,7 +12,7 @@ void update_countdown_and_spawn_blocks_slot12(void) {
     *p = t;
     if ((s16)t < 0) {
         Block172 *b;
-        data_8018f5a0->step_index = data_8018f5a0->step_index + 1;
+        screen_state->step_index = screen_state->step_index + 1;
         *p = 0x2f;
         if (game_state.field_44 & 0x80) {
             play_side_sound_at(data_8002d56c_slot12, game_state.sound_side ^ 1, 5);

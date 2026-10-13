@@ -17,11 +17,11 @@ void reset_and_push_object_to_pool_table(Slab172 *s) {
     clear_bytes(s, 0xac);
     s->field_44 = 0;
     s->type_code = 12;
-    data_80197f10++;
+    free_block_count++;
     s->field_26 = 0;
     s->linked_entry_0 = 0;
     s->linked_entry_1 = 0;
     s->linked_entry_2 = 0;
     s->linked_entry_3 = 0;
-    table_80197f20[data_80197f10] = s;
+    table_80197f20[free_block_count] = s;
 }

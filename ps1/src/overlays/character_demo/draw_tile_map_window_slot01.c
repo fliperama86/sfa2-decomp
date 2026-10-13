@@ -26,8 +26,8 @@ void draw_tile_map_window_slot01(Object *obj) {
     s16 c;
 
     row = y >= 0 ? y >> 3 : (y - 7) / 8;
-    p = data_80033bb4_slot01[data_801a27d0];
-    ot = (u32 *)data_801987c8 + ((Slot01Obj *)o)->ot_index;
+    p = data_80033bb4_slot01[draw_buffer_index];
+    ot = (u32 *)current_ordering_table + ((Slot01Obj *)o)->ot_index;
     for (i = 0; i < 10; i++) {
         x = x0;
         if (row >= 0 && row < w) {

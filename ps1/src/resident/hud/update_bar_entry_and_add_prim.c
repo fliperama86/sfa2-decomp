@@ -4,7 +4,7 @@
 #include "../../protos.h"
 
 void update_bar_entry_and_add_prim(Object *object) {
-    s16 index = data_801a27d0;
+    s16 index = draw_buffer_index;
     u8 *base = data_801ac6a8;
 
     if (object->variant_index_2 >= 0x90) {
@@ -21,7 +21,7 @@ void update_bar_entry_and_add_prim(Object *object) {
             *(u16 *)&base[(index << 4) + 0x18c] = 0xa6 - object->variant_index_2 * 2;
             *(u16 *)&base[(index << 4) + 0x190] = object->variant_index_2 * 2;
         }
-        func_8015bf34(data_801987c8 + 0x1c, &base[(index << 4) + 0x184]);
+        func_8015bf34(current_ordering_table + 0x1c, &base[(index << 4) + 0x184]);
     } else {
         if (data_8019842c == 0) {
             *(u16 *)&base[(index << 4) + 0x1b0] = object->variant_index_2;
@@ -31,7 +31,7 @@ void update_bar_entry_and_add_prim(Object *object) {
             }
             *(u16 *)&base[(index << 4) + 0x1b0] = object->variant_index_2 * 2;
         }
-        func_8015bf34(data_801987c8 + 0x1c, &base[(index << 4) + 0x1a4]);
+        func_8015bf34(current_ordering_table + 0x1c, &base[(index << 4) + 0x1a4]);
     }
     func_801347b4(7, object->sequence->data_ptr, object->pos_x, object->pos_y, 7, 0x19);
 }

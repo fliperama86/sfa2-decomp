@@ -34,10 +34,10 @@ void draw_background_layers_by_flags_slot06_06(void) {
 }
 
 void init_four_layers_tile_maps_slot06_06(void) {
-    init_layer_tile_map_5800_conditional_slot06_06((Slot06Layer *)data_801aa544);
-    init_layer_tile_map_6000_with_rect_slot06_06((Slot06Layer *)data_801aa5d4);
+    init_layer_tile_map_5800_conditional_slot06_06((Slot06Layer *)background_layers);
+    init_layer_tile_map_6000_with_rect_slot06_06((Slot06Layer *)main_layer);
     set_layer_tile_map_param_6400_width_scale_slot06_06((Slot06Layer *)cam_obj);
-    set_layer_tile_map_param_6000_width_scale_slot06_06((Slot06Layer *)data_801904d8);
+    set_layer_tile_map_param_6000_width_scale_slot06_06((Slot06Layer *)fourth_layer);
 }
 
 void init_slot_layer_prim_buffers_gray_e_slot06_06(void) {

@@ -35,9 +35,9 @@ void init_two_child_objects_and_set_motion_slot27(Object *obj) {
         ref_other.p->parent = obj;
         ((ObjectWords *)obj)->word_58 = (s32)ref_other.p;
     }
-    p0 = (s32 *)&data_8019045c;
-    p1 = data_80190464;
-    p2 = data_8019046c;
+    p0 = (s32 *)&scratch_word_a;
+    p1 = scratch_word_b;
+    p2 = scratch_word_c;
     p3 = (s32 *)&data_8019047c;
     *p0 = 0;
     *p1 = -2;
@@ -63,12 +63,12 @@ void init_two_child_objects_and_set_motion_slot27(Object *obj) {
     *p0 = ref_other.p->field_d8 + 2;
     load_palette_anim_from_table_index_slot27(obj);
     *p0 = ref_other.p->side * 2;
-    data_80190464[0] = data_80026a08_slot27[data_8019045c[0]];
-    data_8019046c[0] = data_80026a08_slot27[data_8019045c[0] + 1];
-    obj->vel_x = data_80190464[0];
-    obj->vel_y = data_8019046c[0];
-    data_80190464[0] = data_80190464[0] << 3;
-    data_8019046c[0] = data_8019046c[0] - data_80190464[0];
-    obj->pos_x = data_8019046c[0];
+    scratch_word_b[0] = data_80026a08_slot27[scratch_word_a[0]];
+    scratch_word_c[0] = data_80026a08_slot27[scratch_word_a[0] + 1];
+    obj->vel_x = scratch_word_b[0];
+    obj->vel_y = scratch_word_c[0];
+    scratch_word_b[0] = scratch_word_b[0] << 3;
+    scratch_word_c[0] = scratch_word_c[0] - scratch_word_b[0];
+    obj->pos_x = scratch_word_c[0];
     obj->pos_y = 0x3c;
 }

@@ -33,6 +33,6 @@ void set_sequence_from_table_index_slot27(Object *obj) {
 
 void call_handler_by_state_0_with_refs_slot27(Object *obj) {
     ref_other.p = obj->parent;
-    (*(Object **)&data_80190458) = obj->other;
+    (*(Object **)&ref_aux) = obj->other;
     data_80028110_slot27[obj->state_0](obj);
 }

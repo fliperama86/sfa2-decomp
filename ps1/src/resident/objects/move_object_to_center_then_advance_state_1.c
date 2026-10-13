@@ -16,7 +16,7 @@ void move_object_to_center_then_advance_state_1(Object *object) {
             object->health = 0;
             object->image_row = 0;
             if (object->variant_index_2 == 7) {
-                data_8018f598 = 1;
+                white_fill_active = 1;
             }
         }
     } else {

@@ -6,13 +6,13 @@
 void reset_hud_indices_and_state_counters_slot0f(GameState *state, int flag);
 
 void check_buttons_and_call_reset_slot0f(GameState *state) {
-    if (((data_801a696a | data_801a6976) & 0x820) != 0) {
+    if (((pad_1_pressed | pad_2_pressed) & 0x820) != 0) {
         reset_hud_indices_and_state_counters_slot0f(state, 1);
     }
 }
 
 void reset_hud_indices_and_state_counters_slot0f(GameState *state, int flag) {
-    HudState *hud = data_8018f5a0;
+    HudState *hud = screen_state;
     scratch_word_10 = 0;
     hud->state_index = 0;
     hud->phase_index = 0;

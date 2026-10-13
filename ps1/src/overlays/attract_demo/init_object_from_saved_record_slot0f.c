@@ -19,9 +19,9 @@ void init_object_from_saved_record_slot0f(Object *obj) {
     obj->vel_x = 0xfffa8000;
     obj->state_0++;
     obj->facing_side = 0;
-    rec = table_8016e614;
+    rec = streak_rank_table;
     if (obj->table_index == 0) {
-        rec = table_8016e5c4;
+        rec = score_rank_table;
     }
     obj->spawn_x = 0x60;
     obj->spawn_y = 0x1f0;

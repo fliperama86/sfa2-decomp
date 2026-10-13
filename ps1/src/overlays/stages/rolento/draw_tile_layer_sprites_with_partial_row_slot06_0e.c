@@ -5,14 +5,14 @@
 
 extern Slot06Tile data_801f22d4_slot06_0e[2][0x7c];
 
-/* Draws the layer of data_801aa5d4: tile records of the visible 16-pixel
+/* Draws the layer of main_layer: tile records of the visible 16-pixel
    cells into the primitive list, one row of 25 cells per pass, and a last
    partial row when the vertical position is not a multiple of 16 (inferred).
    The tile mask and the column counter cc are 16-bit locals, and the locals r
    (a copy of row) and yy (the row's screen offset) are kept, as in the model
    draw_tile_layer_sprites_with_partial_row_slot06_04. */
 void draw_tile_layer_sprites_with_partial_row_slot06_0e(void) {
-    Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
+    Slot06Draw *c = (Slot06Draw *)main_layer;
     int q;
     int x;
     int pos;
@@ -60,9 +60,9 @@ void draw_tile_layer_sprites_with_partial_row_slot06_0e(void) {
     }
     rows = c->height >> 4;
     mask = (c->width >> 4) - 1;
-    rec = data_801f22d4_slot06_0e[data_801a27d0];
+    rec = data_801f22d4_slot06_0e[draw_buffer_index];
     n = (u32)(c->field_4c - ((pos >> 16) & -16)) >> 4;
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < n; i++, row++) {
         u16 cc = col;
         if (row < 0 || row > rows) {

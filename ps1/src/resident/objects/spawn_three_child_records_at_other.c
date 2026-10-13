@@ -11,7 +11,7 @@ void spawn_three_child_records_at_other(Object *object) {
   Object *o;
   int e, e2, e3;
   Object *t;
-  if (data_80197f10 >= 3) {
+  if (free_block_count >= 3) {
     get_three_pool_objects_sorted((u32 *) p);
     t = object->other;
     t->field_27a = 1;

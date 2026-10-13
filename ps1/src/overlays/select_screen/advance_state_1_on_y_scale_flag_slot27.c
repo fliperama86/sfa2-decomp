@@ -19,7 +19,7 @@ void update_selection_from_pressed_buttons_slot27(void) {
 
     *sel = game_state.selection;
     if (game_state.busy_flag == 0) {
-        int *pad = data_80190464;
+        int *pad = scratch_word_b;
 
         *pad = ~game_state.other_object->prev_input_bits;
         *pad = game_state.other_object->input_bits & *pad;
@@ -39,7 +39,7 @@ void set_side_bit_in_pass_index_slot27(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
     side = game_state.other_object->side;
     *(int *)&game_state.field_354 = side;
-    h = &data_8018f5a0->pass_index;
+    h = &screen_state->pass_index;
     *h |= 1 << side;
 }
 

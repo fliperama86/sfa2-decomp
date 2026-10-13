@@ -10,7 +10,7 @@ extern u32 *data_8002b618_slot12;
 extern u8 data_8002ab94_slot12[];
 int func_8015bdd4(int a, int b);
 
-/* What it does (inferred, not an original name): handles a pointer (data_8002b614_slot12) that walks a buffer of 20-byte primitives. Called with a == 0xff it steps the pointer back by one primitive and links that primitive's tag to the address held in the word that data_8002b618_slot12 points at, then sets that word to the buffer data_8002ab94_slot12 plus 0x540 bytes times data_801a27d0. Called with any other a it initializes the primitive at the pointer, sets its position from x, y and the object's position, looks a up in a table of nine bytes and, when found, sets its texture bytes from the index, gives it colour 0x80 and size 16 by 16, sets its halfword at 0xe from a library call, steps the pointer on by one primitive and links the finished primitive's tag to it. */
+/* What it does (inferred, not an original name): handles a pointer (data_8002b614_slot12) that walks a buffer of 20-byte primitives. Called with a == 0xff it steps the pointer back by one primitive and links that primitive's tag to the address held in the word that data_8002b618_slot12 points at, then sets that word to the buffer data_8002ab94_slot12 plus 0x540 bytes times draw_buffer_index. Called with any other a it initializes the primitive at the pointer, sets its position from x, y and the object's position, looks a up in a table of nine bytes and, when found, sets its texture bytes from the index, gives it colour 0x80 and size 16 by 16, sets its halfword at 0xe from a library call, steps the pointer on by one primitive and links the finished primitive's tag to it. */
 void add_sprite_or_finish_sprite_buffer_slot12(Object *obj, u8 a, s16 x, s16 y) {
     /* The bytes are written as the string constant of twelve bytes whose first nine are the table: the original has the bytes 00 01 00 after the table at 0x80010021 (no instruction reads them) and the build compares them. The struct of nine bytes copies the nine the function uses; read this way a PC compiler gets the same nine bytes (a string constant of bytes, nothing depends on alignment or the character set, the bytes are written as hex escapes). */
     /* Stand-in, not recovered source: the initializer's three extra bytes reproduce the original's read-only data behind the table, which no instruction reads. Without them the unit's read-only data differs from the original in 1 byte. */
@@ -48,6 +48,6 @@ void add_sprite_or_finish_sprite_buffer_slot12(Object *obj, u8 a, s16 x, s16 y) 
         data_8002b614_slot12 = (p - 5);
         ((PrimTag *)(p - 5))->addr = 0xffffff;
         ((PrimTag *)(p - 5))->addr = ((PrimTag *)ot)->addr;
-        ((PrimTag *)ot)->addr = (u32)(data_8002ab94_slot12 + data_801a27d0 * 0x540);
+        ((PrimTag *)ot)->addr = (u32)(data_8002ab94_slot12 + draw_buffer_index * 0x540);
     }
 }

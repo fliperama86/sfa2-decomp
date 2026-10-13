@@ -9,10 +9,10 @@ void sync_vec_table_index_from_field_slot27(Object *obj);
 
 void update_choice_from_pressed_buttons_slot27(void) {
     Object *p = ref_other.p;
-    int *x = (int *)data_8019045c;
+    int *x = (int *)scratch_word_a;
     *x = p->field_d8;
     if (game_state.busy_flag == 0) {
-        int *y = data_80190464;
+        int *y = scratch_word_b;
         int m = ~p->prev_input_bits;
         int t;
         int u;
@@ -32,8 +32,8 @@ void update_choice_from_pressed_buttons_slot27(void) {
 }
 
 void add_y_offset_to_clamped_health_slot27(Object *obj) {
-    *(int *)data_8019045c = (s16)obj->y_offset;
-    obj->health += *(int *)data_8019045c;
+    *(int *)scratch_word_a = (s16)obj->y_offset;
+    obj->health += *(int *)scratch_word_a;
     if (obj->health & 0x8000) {
         obj->health = 0;
     }
@@ -44,12 +44,12 @@ void add_y_offset_to_clamped_health_slot27(Object *obj) {
 }
 
 void sync_vec_table_index_from_field_slot27(Object *obj) {
-    *(int *)data_8019045c = obj->field_62;
-    if (obj->vec_table_index == *(int *)data_8019045c) {
+    *(int *)scratch_word_a = obj->field_62;
+    if (obj->vec_table_index == *(int *)scratch_word_a) {
         set_linked_objects_velocity_from_health_slot27(obj);
     } else {
-        obj->vec_table_index = *(int *)data_8019045c;
-        *(int *)data_8019045c = *(int *)data_8019045c + 2;
+        obj->vec_table_index = *(int *)scratch_word_a;
+        *(int *)scratch_word_a = *(int *)scratch_word_a + 2;
         load_palette_anim_from_table_index_slot27(obj);
         set_linked_objects_velocity_from_health_slot27(obj);
     }

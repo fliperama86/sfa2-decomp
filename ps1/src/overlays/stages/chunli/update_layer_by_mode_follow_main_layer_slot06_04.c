@@ -3,7 +3,7 @@
 #include "../../../protos.h"
 #include "../../../externs.h"
 
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 
 void init_sprite_at_1c0_zero(Sprite *sprite);
 
@@ -14,10 +14,10 @@ void update_layer_by_mode_follow_main_layer_slot06_04(Slot06Layer *layer) {
     if (layer->mode == 0) {
         init_sprite_at_1c0_zero((Sprite *)layer);
     } else if (layer->mode == 1) {
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         d = l2->field_22;
         d -= l2->ref_x;
-        d += data_80190542;
+        d += fourth_layer_offset_x;
         d += layer->ref_x;
         d += layer->pos_x_int;
         layer->field_22 = d;

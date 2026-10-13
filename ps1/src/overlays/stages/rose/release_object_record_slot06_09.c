@@ -45,10 +45,10 @@ void update_object_pos_y_from_layer_and_advance_slot06_09(Object *o) {
     Slot06Obj *obj = (Slot06Obj *)o;
 
     if (game_state.field_65 == 0) {
-        o->pos_y = 0xf0 - (obj->y_offset + ((Slot06Layer *)data_801aa544)->pos_y_int);
+        o->pos_y = 0xf0 - (obj->y_offset + ((Slot06Layer *)background_layers)->pos_y_int);
         advance_sequence_checked(o);
     }
-    if (((Slot06Layer *)data_801aa544)->pos_x_int >= 0x3a0) {
+    if (((Slot06Layer *)background_layers)->pos_x_int >= 0x3a0) {
         o->state_0++;
     }
     set_flag_and_push_if_mode_8(o);

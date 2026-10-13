@@ -30,11 +30,11 @@ void spawn_children_per_direction_active_ff(Object *object, int a_arg, int b_arg
       new_var->parent = object;
       new_var->spawn_x = 0x60;
       new_var->spawn_y = 0x1e0;
-      new_var->data_ptr_a = data_80172a48;
+      new_var->data_ptr_a = spawned_object_data_a;
       new_var->health = a;
       new_var->y_offset = b;
       new_var->field_90 = (void *) 0x800fb100;
-      new_var->data_ptr_b = data_80173c9c;
+      new_var->data_ptr_b = spawned_object_data_b;
       new_var->field_1c = side;
     }
   }

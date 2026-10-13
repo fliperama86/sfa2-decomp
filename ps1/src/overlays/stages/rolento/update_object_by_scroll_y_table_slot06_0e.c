@@ -25,7 +25,7 @@ void update_object_by_scroll_y_table_slot06_0e(Object *obj) {
         start_sequence_from_lookup_index_slot06_0e(obj);
         obj->countdown += 2;
     }
-    if (((Slot06Layer *)data_801aa544)->state_index == 2) {
+    if (((Slot06Layer *)background_layers)->state_index == 2) {
         obj->state_0++;
         c->state_0 = 2;
     }

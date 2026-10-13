@@ -16,8 +16,8 @@ void set_sequence_of_fourth_hud_object_5_slot28(Object *obj, int arg);
 void advance_hud_pass_when_object_flag_set_slot28(Object *obj) {
     Object *b = data_80051964_slot28.p;
     if (b->field_6b != 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index += 1;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index += 1;
         release_active_objects_in_table_3_slot28();
         b = (Object *)pop_block_from_pool();
         if (b != 0) {

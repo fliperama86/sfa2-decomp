@@ -30,5 +30,5 @@ void call_state_1_handler_and_link_sprite_slot12(Object *obj) {
     }
     o = obj;
     t = o->table_index * 64;
-    build_sprite_from_sequence_data_and_link_slot12(o, (Slot12Sprite *)((u8 *)t + (data_801a27d0 * 32 + (int)base)));
+    build_sprite_from_sequence_data_and_link_slot12(o, (Slot12Sprite *)((u8 *)t + (draw_buffer_index * 32 + (int)base)));
 }

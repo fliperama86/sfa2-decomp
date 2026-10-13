@@ -33,7 +33,7 @@ void advance_state_when_step_flag_negative_slot01(Object *obj) {
         obj->field_01 = 0;
         obj->state_0++;
         game_state.busy_flag = 0;
-        data_801ae02c = 0;
+        single_object_active = 0;
     }
     advance_sequence_checked(obj);
 }

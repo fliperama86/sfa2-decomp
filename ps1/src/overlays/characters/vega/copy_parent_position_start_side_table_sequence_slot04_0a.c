@@ -18,9 +18,9 @@ void copy_parent_position_start_side_table_sequence_slot04_0a(Object *obj) {
     obj->image_row = p->image_row;
     obj->facing_side = p->facing_side;
     if (p->side == 0) {
-        t = data_1f8000b4;
+        t = seqs_b4_left;
     } else {
-        t = data_1f800164;
+        t = seqs_164_right;
     }
     set_sequence_from_table_5(obj, 0x15, t);
 }

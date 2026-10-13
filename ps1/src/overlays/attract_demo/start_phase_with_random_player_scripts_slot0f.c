@@ -8,7 +8,7 @@ void update_countdown_timer_and_run_frame_slot0f(GameState *g);
 
 void start_phase_with_random_player_scripts_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     h->phase_index += 1;
     h->step_index = 0;
     obj->field_c6 = 0x1e0;
@@ -30,7 +30,7 @@ void update_countdown_timer_and_advance_phase_slot0f(Object *o) {
     t -= 1;
     obj->field_c6 = t;
     if (t == 0) {
-        data_8018f5a0->phase_index += 1;
+        screen_state->phase_index += 1;
         player_right.field_01 = 0;
         player_left.field_01 = 0;
         obj->field_4e = 1;

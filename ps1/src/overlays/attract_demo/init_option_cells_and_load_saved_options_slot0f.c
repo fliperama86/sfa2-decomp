@@ -13,7 +13,7 @@ void noop_empty_function_slot0f(void);
 void store_and_darken_palette_row_slot0f(void);
 
 void init_option_cells_and_load_saved_options_slot0f(void) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     int i;
     data_800f0200_slot0f = 0;
     data_800f0204_slot0f = 0;

@@ -23,10 +23,10 @@ void init_slot01_screen_and_spawn_objects_slot01(void) {
     s2 = game_state.focus_object;
     data_80055f3c_slot01 = game_state.kind_index;
     data_801ac6a8[0] = 0;
-    data_801aa5ea[0] = 0;
+    view_scroll_y[0] = 0;
     game_state.kind_index = data_801abf08;
     s1 = s2->kind_copy;
-    data_80190568 = 1;
+    kind_handlers_enabled = 1;
     init_object_pools();
     if (data_801abf08 != 0x12) {
         spawn_position_table_objects_and_list_objects();
@@ -39,7 +39,7 @@ void init_slot01_screen_and_spawn_objects_slot01(void) {
     rect.h = 2;
     func_80157fc4(&rect, data_80015174_slot01);
     func_80157d9c(0);
-    if (data_80197f10 >= 2) {
+    if (free_block_count >= 2) {
         rect.x = 0x70;
         rect.y = 0x1e0;
         rect.w = 0x10;
@@ -71,7 +71,7 @@ void init_slot01_screen_and_spawn_objects_slot01(void) {
             data_8002ceb0_slot01->spawn_y = 0x1e0;
             data_80055f44_slot01.p = data_8002ceb0_slot01;
         }
-        data_8018f5a0->substep_index++;
+        screen_state->substep_index++;
         game_state.timer_or_bits = 0x30;
         game_state.field_4f = 0;
         game_state.status_flags = 0;

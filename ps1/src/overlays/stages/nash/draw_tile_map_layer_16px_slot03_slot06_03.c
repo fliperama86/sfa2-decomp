@@ -14,7 +14,7 @@ extern u16 data_801f8000_slot06_03;
    position before the sign change, as in the model draw_tile_layer_0_16px_slot06_00,
    where the effect of each is measured. */
 void draw_tile_map_layer_16px_slot03_slot06_03(void) {
-    Chan *c = data_801aa544;
+    Chan *c = background_layers;
     int x;
     int pos;
     s16 y;
@@ -36,7 +36,7 @@ void draw_tile_map_layer_16px_slot03_slot06_03(void) {
     u16 mask;
     u16 cc;
     data_801f8000_slot06_03 = 0;
-    other = data_801aa544[1].field_1e;
+    other = background_layers[1].field_1e;
     x = c->scroll_y - 0x100000;
     pos = -x;
     t = (pos >> 16) - game_state.scroll_y;
@@ -54,8 +54,8 @@ void draw_tile_map_layer_16px_slot03_slot06_03(void) {
     } else {
         row = (y - 15) / 16;
     }
-    rec = data_801ee810_slot06_03[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801ee810_slot06_03[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 16; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {

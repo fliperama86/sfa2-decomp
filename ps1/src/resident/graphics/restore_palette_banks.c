@@ -10,7 +10,7 @@ void restore_palette_banks(void) {
     data_80190111 = 0;
     player_left.field_01 = 1;
     player_right.field_01 = 1;
-    data_8018f598 = 0;
+    white_fill_active = 0;
     copy_palette_rows_from_backup_bank(0, 0x20, 0);
     copy_palette_rows_from_backup_bank(1, 0x20, 0);
     copy_palette_rows_from_backup_bank(2, 0x20, 0);

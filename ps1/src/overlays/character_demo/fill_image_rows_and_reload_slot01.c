@@ -22,14 +22,14 @@ void fill_image_rows_and_reload_slot01(void) {
 
 void move_selection_index_on_buttons_slot01(void) {
     int moved = 0;
-    if (data_801a696a & 0x80) {
+    if (pad_1_pressed & 0x80) {
         data_80055f38_slot01 = data_80055f38_slot01 - 1;
         if (data_80055f38_slot01 < 0) {
             data_80055f38_slot01 = 0;
         }
         moved = 1;
     }
-    if (data_801a696a & 0x10) {
+    if (pad_1_pressed & 0x10) {
         data_80055f38_slot01 = data_80055f38_slot01 + 1;
         if (data_80055f38_slot01 >= 0x14) {
             data_80055f38_slot01 = 0x13;
@@ -38,9 +38,9 @@ void move_selection_index_on_buttons_slot01(void) {
     }
     if (moved != 0) {
         data_80055ea4_slot01 = 0;
-        data_8018f5a0->step_index = 3;
-        data_8018f5a0->substep_index = 0;
-        data_8018f5a0->step_index_2 = 0;
-        data_8018f5a0->pass_index = 1;
+        screen_state->step_index = 3;
+        screen_state->substep_index = 0;
+        screen_state->step_index_2 = 0;
+        screen_state->pass_index = 1;
     }
 }

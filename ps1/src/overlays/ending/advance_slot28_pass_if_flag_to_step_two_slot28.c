@@ -15,9 +15,9 @@ void set_sequence_of_fourth_hud_object_10_slot28(Object *obj, int arg);
 
 void advance_slot28_pass_if_flag_to_step_two_slot28(Object *obj) {
     Object *b;
-    if (data_80190949 != 0 && obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index++;
+    if (menu_active_flag != 0 && obj->field_f0 == 0) {
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index++;
         release_active_objects_in_table_8_slot28();
         set_sequence_from_table_5(data_80051ac0_slot28.p, 2, data_8003f084_slot28);
         b = data_80051ac4_slot28[0];

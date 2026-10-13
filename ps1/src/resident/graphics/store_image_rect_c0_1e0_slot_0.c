@@ -22,5 +22,5 @@ void store_image_rect_c0_1e0_slot_0(void)
   p = p + new_var4;
   new_var = new_var3;
   func_80158028(&r, p);
-  data_801aa4dc[new_var] = 0x1f;
+  palette_fade_level[new_var] = 0x1f;
 }

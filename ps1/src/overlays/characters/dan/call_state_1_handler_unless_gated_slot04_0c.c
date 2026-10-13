@@ -5,8 +5,8 @@
 
 extern void (*data_801be1e0_slot04_0c[])(Object *, Object *);
 extern ObjectFn data_801be218_slot04_0c[];
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
+extern SequenceStep **seqs_b4_left;
+extern SequenceStep **seqs_164_right;
 
 void reset_and_push_object_to_pool_table(Slab172 *o);
 void clear_or_set_flag_by_pos_x_limit(Object *o);
@@ -30,9 +30,9 @@ void move_y_up_until_ground_then_set_sequence_slot04_0c(Object *obj) {
         obj->state_1++;
         obj->pos_y = obj->ground_y;
         if (p->side == 0) {
-            t = data_1f8000b4;
+            t = seqs_b4_left;
         } else {
-            t = data_1f800164;
+            t = seqs_164_right;
         }
         set_sequence_from_table_5(obj, 2, t);
     }

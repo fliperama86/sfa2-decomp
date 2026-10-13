@@ -22,7 +22,7 @@ void queue_step_row_upload_jobs_slot28(SequenceStep *step) {
     Rect r;
     int idx;
     int last;
-    if (data_8018f598 == 0) {
+    if (white_fill_active == 0) {
         p = (u16 *)step->data_ptr;
         do {
             r.x = *p++;

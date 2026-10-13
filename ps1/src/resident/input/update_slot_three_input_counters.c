@@ -10,6 +10,6 @@ void update_slot_three_input_counters(Object *object, int index, int arg) {
         && (u8)update_input_counter_pair_with_limit(&slot->entry_index + 4, table_8017ab6c[(u8)arg * 7] & 0xc, ((s16 *)table_8017ab6c)[(u8)arg * 7 + 5], ((s16 *)table_8017ab6c)[(u8)arg * 7 + 6], object->pressed_bits) == 0) {
         clear_global_flag_ignoring_object(object);
     } else {
-        data_80188f44 = 1;
+        slot_result_flag = 1;
     }
 }

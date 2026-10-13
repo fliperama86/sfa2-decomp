@@ -4,7 +4,7 @@
 #include "../../externs.h"
 
 /* Inferred declarations, not original ones. */
-extern HudState *data_8018f5a0;
+extern HudState *screen_state;
 extern TextBuf data_801b8638_slot04_sel;
 extern TextBuf data_801b874c_slot04_sel;
 extern Slot04SelRec9d38 data_801b9d38_slot04_sel[];
@@ -47,13 +47,13 @@ void update_select_screen_step_e_slot04_sel(void) {
         if (r->active_flag != 0 || r[1].active_flag != 0) {
             r->count = 0;
             q->count = 0;
-            data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
-            data_8018f5a0->step_index_2 = 0;
+            screen_state->substep_index = screen_state->substep_index + 1;
+            screen_state->step_index_2 = 0;
         }
     }
     if (data_801b9d68_slot04_sel != game_state.side_mask || data_801b9d6c_slot04_sel != game_state.mode) {
         r->count = 0;
         q->count = 0;
-        data_8018f5a0->step_index_2 = 0;
+        screen_state->step_index_2 = 0;
     }
 }

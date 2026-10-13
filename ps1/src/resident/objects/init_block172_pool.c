@@ -18,7 +18,7 @@ void init_block172_pool(void)
   i = 0;
   data_801a27d4 = 8;
   data_801a27cc = 8;
-  data_80197f10 = 0x27;
+  free_block_count = 0x27;
   *cursor = (Block172 *)data_801a89f4;
   do
   {

@@ -6,10 +6,10 @@
 void update_cells_from_entry_table_slot28(Object *o);
 
 void count_down_then_fade_out_step_slot28(int *p) {
-    int t = data_8018f5a0->countdown_timer - 1;
-    data_8018f5a0->countdown_timer = t;
+    int t = screen_state->countdown_timer - 1;
+    screen_state->countdown_timer = t;
     if ((s16)t < 0) {
-        data_8018f5a0->step_index_2++;
+        screen_state->step_index_2++;
         start_fade_mode_1_and_wait();
     }
     update_cells_from_entry_table_slot28((Object *)p);
@@ -23,10 +23,10 @@ void finish_step_when_wait_flag_clear_slot28(int *p) {
     update_blocks();
     update_active_slab172_entries();
     if (game_state.wait_flag == 0) {
-        data_80190568 = 0;
-        data_8018f5a0->step_index_2 = 0;
-        data_8018f5a0->pass_index = 0;
-        data_8018f5a0->substep_index++;
+        kind_handlers_enabled = 0;
+        screen_state->step_index_2 = 0;
+        screen_state->pass_index = 0;
+        screen_state->substep_index++;
     }
 }
 

@@ -25,7 +25,7 @@ void enter_script_mode_by_arg_or_random_bit(Object *object) {
 void enter_script_mode_save_state(Object *object) {
     object->script_mode = 1;
     object->saved_script_word = object->field_20c;
-    object->script_pointer = (s32)data_80189460;
+    object->script_pointer = (s32)script_cursor;
     start_random_script_from_table_index(object);
     read_script_word_and_dispatch(object);
 }

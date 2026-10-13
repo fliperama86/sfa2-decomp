@@ -4,7 +4,7 @@
 #include "../../../externs.h"
 
 void set_object_position_from_layer_offsets_slot06_00(Object *object) {
-    Slot06Layer *layer = (Slot06Layer *)data_801aa544;
+    Slot06Layer *layer = (Slot06Layer *)background_layers;
     s16 d;
 
     d = layer->ref_x;

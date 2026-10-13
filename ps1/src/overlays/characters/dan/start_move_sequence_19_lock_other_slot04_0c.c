@@ -17,7 +17,7 @@ extern ObjectFn data_801bd9c4_slot04_0c[];
 extern u16 data_801bd974_slot04_0c[];
 extern s32 data_801bd994_slot04_0c[];
 extern u16 data_801a2944[];
-extern u8 data_801ad398;
+extern u8 script_condition_result;
 
 void start_move_sequence_19_lock_other_slot04_0c(Object *obj) {
     u8 t;
@@ -94,7 +94,7 @@ int try_enter_state_7_kind_3_slot04_0c(Object *obj) {
 }
 
 void func_801b1088_slot04_0c(Object *obj) {
-    data_801ad398 = data_801bd8f8_slot04_0c[obj->field_15a](obj);
+    script_condition_result = data_801bd8f8_slot04_0c[obj->field_15a](obj);
 }
 
 int is_link_flags_zero_slot04_0c(Object *obj) {

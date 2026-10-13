@@ -9,9 +9,9 @@ extern void (*data_800284cc_slot12[])(Object *);
 void init_record_fields_by_mode_flag_2_slot12(Object *obj);
 
 void call_handler_by_table_index_slot12(Object *obj) {
-    ref_first.p = (Object *)table_8016e5c4;
+    ref_first.p = (Object *)score_rank_table;
     if (game_state.mode_flag_2 != 0) {
-        ref_first.p = (Object *)table_8016e614;
+        ref_first.p = (Object *)streak_rank_table;
     }
     data_800284ac_slot12[obj->table_index](obj);
 }

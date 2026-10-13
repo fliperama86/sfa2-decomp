@@ -9,7 +9,7 @@ void spawn_pooled_object_with_index_by_player_flags_slot01(void);
 
 void advance_substep_and_spawn_pooled_object_type_a_slot01(void) {
     Object *o;
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
@@ -20,7 +20,7 @@ void advance_substep_and_spawn_pooled_object_type_a_slot01(void) {
 
 void advance_substep_and_spawn_pooled_object_type_b_slot01(void) {
     Object *o;
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
         o->active_count = 1;
@@ -34,7 +34,7 @@ void advance_substep_and_spawn_pooled_object_type_b_slot01(void) {
 
 void spawn_hud_object_from_kind_slot01(void) {
     Object *o;
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
     spawn_pooled_object_with_index_by_player_flags_slot01();
     o = (Object *)pop_block_from_pool();
     if (o != 0) {

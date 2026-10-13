@@ -10,7 +10,7 @@ void spawn_three_child_objects_at_fixed_spawn(Object *object) {
   Object *p[3];
   Object *o;
   int e, e2, e3;
-  if (data_80197f10 >= 3) {
+  if (free_block_count >= 3) {
     get_three_pool_objects_sorted((u32 *) p);
     o = p[0];
     o->active_count = 1;

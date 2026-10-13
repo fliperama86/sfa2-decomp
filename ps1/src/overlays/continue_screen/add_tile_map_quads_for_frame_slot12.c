@@ -53,13 +53,13 @@ void add_tile_map_quads_for_frame_slot12(Object *obj, FrameRecord *frames) {
     xmax = cx + tile->half_width;
     xb = xmax - 0x10;
     xa = xmin + 0x10;
-    fp = data_80029350_slot12 + data_801a27d0 * 0x34 + obj->field_02 * 26;
+    fp = data_80029350_slot12 + draw_buffer_index * 0x34 + obj->field_02 * 26;
     d = tile->tile_value - 0xc8;
-    y = data_801aa5ea[0] - d;
+    y = view_scroll_y[0] - d;
     list = (u16 *)(tile + 1);
     ytop0 = y - 0x20;
     ybot0 = y - 0x10;
-    arg = (int)(data_801987c8 + 0x48);
+    arg = (int)(current_ordering_table + 0x48);
     flip = obj->facing_side;
     for (row = 0; row < h; row++) {
         for (col = 0; col < w; col++) {

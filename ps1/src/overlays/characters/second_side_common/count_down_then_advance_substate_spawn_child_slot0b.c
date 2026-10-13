@@ -11,7 +11,7 @@ void count_down_then_advance_substate_spawn_child_slot0b(ModObj *obj) {
     obj->step_accum += 0x10;
     obj->counter_a += 1;
     obj->counter_b += 1;
-    if (data_80190468.p->phase_state != 1) {
+    if (ref_game_state.p->phase_state != 1) {
         t = obj->countdown_timer;
         t--;
         obj->countdown_timer = t;
@@ -27,7 +27,7 @@ void count_down_then_advance_substate_spawn_child_slot0b(ModObj *obj) {
 }
 
 void advance_substate_on_phase_2_slot0b(ModObj *obj) {
-    if (data_80190468.p->phase_state == 2) {
+    if (ref_game_state.p->phase_state == 2) {
         obj->countdown_timer = 0xf;
         obj->substate_index += 1;
         ref_other.p = obj->owner_object;

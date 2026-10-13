@@ -5,7 +5,7 @@
 
 void init_players_and_hud_for_slot0f_scene_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     Object *left = &player_left;
     Object *right = left + 1;
     h->step_index += 1;
@@ -55,9 +55,9 @@ void init_players_and_hud_for_slot0f_scene_slot0f(Object *o) {
     left->kind = ((u8 *)&data_801ac624)[0];
     obj->field_40 = ((u16 *)&data_801ac624)[1];
     update_player_inputs_and_pick_handler();
-    data_80190568 = 1;
-    data_801aa544[0].active_flag = 1;
-    data_801aa5d4[0] = 1;
+    kind_handlers_enabled = 1;
+    background_layers[0].active_flag = 1;
+    main_layer[0] = 1;
     cam_obj[0] = 1;
     queue_image_upload_job(0, 6);
     queue_image_upload_job(1, 0);

@@ -211,7 +211,7 @@ void update_record_offset_and_check_hit_slot04_0e(Object *obj) {
     pos &= 0xffff;
     u <<= 16;
     pos |= u;
-    d = (pos >> 16) - *(u16 *)(data_801aa5d4 + 0x12);
+    d = (pos >> 16) - *(u16 *)(main_layer + 0x12);
     if (d >= 0x181) {
         spawn_ground_child_and_set_sequence_slot04_0e(obj);
         return;

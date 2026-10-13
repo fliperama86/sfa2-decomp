@@ -26,7 +26,7 @@ void advance_pass_spawn_slot28_objects_d_slot28(Object *obj) {
     Object *p;
     int one;
     if (obj->field_f0 == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         h->countdown_timer = 0x258;
         h->pass_index++;
         release_active_objects_in_table_14_slot28();

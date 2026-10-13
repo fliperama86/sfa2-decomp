@@ -6,7 +6,7 @@
 /* Form found by automatic permutation search. */
 void branch_script_if_value_ge_table_column(Object *object)
 {
-  short v = *(data_80189460++);
+  short v = *(script_cursor++);
   u16 new_var;
   new_var = v >> 8;
   object->script_byte_hi = new_var;

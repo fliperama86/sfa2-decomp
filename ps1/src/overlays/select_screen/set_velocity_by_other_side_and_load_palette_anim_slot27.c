@@ -6,8 +6,8 @@
 void load_palette_anim_from_table_index_slot27(Object *obj);
 
 void set_velocity_by_other_side_and_load_palette_anim_slot27(Object *obj) {
-    int *x = (int *)data_8019045c;
-    int *y = data_80190464;
+    int *x = (int *)scratch_word_a;
+    int *y = scratch_word_b;
     obj->state_3 = 0;
     obj->state_2 = obj->state_2 + 1;
     *x = -0x10;

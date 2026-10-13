@@ -13,7 +13,7 @@ void advance_pass_and_set_sequences_2_slot28(Object *obj) {
     Object *o;
     Object *q;
     if (obj->field_f0 == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         h->countdown_timer = 0x258;
         h->pass_index += 1;
         o = data_8005187c_slot28[0];
@@ -33,7 +33,7 @@ void advance_pass_and_set_sequences_2_slot28(Object *obj) {
 
 void advance_pass_and_set_sequences_3_slot28(Object *obj) {
     if (obj->field_f0 == 0 && (s16)data_8005187c_slot28[3]->step_flags < 0) {
-        data_8018f5a0->pass_index += 1;
+        screen_state->pass_index += 1;
         set_sequence_from_table_5(data_8005187c_slot28[2], 3, data_80029ee4_slot28);
         set_sequence_of_fourth_hud_object_slot28(obj, 3);
     }

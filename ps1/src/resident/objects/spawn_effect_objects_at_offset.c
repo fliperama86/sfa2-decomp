@@ -24,9 +24,9 @@ void spawn_effect_objects_at_offset(Object *object, int x, int y)
     o->facing_side = object->facing_side;
     o->spawn_x = 0x60;
     o->spawn_y = 0x1e0;
-    o->data_ptr_a = &data_80172a48;
+    o->data_ptr_a = &spawned_object_data_a;
     o->field_90 = (void *) 0x800fb100;
-    o->data_ptr_b = &data_80173c9c;
+    o->data_ptr_b = &spawned_object_data_b;
     if (o->facing_side != 0)
     {
       dx = -x;
@@ -54,9 +54,9 @@ void spawn_effect_objects_at_offset(Object *object, int x, int y)
           new_var = (o->parent = object);
           o->spawn_x = 0x60;
           o->spawn_y = 0x1e0;
-          o->data_ptr_a = &data_80172a48;
+          o->data_ptr_a = &spawned_object_data_a;
           o->field_90 = (void *) 0x800fb100;
-          o->data_ptr_b = &data_80173c9c;
+          o->data_ptr_b = &spawned_object_data_b;
         }
         x++;
       }

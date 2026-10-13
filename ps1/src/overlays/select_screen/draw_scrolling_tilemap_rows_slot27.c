@@ -8,7 +8,7 @@
  * value plus 0x40 is outside 0 to 0x1c0. Otherwise it walks 8 map rows and
  * 0x30 columns of 4-byte cells (a tile halfword and a texture page
  * halfword); each cell different from the "empty" value at 0x1e gets a
- * 0x1c-byte record in the buffer chosen by data_801a27d0 (position, texture
+ * 0x1c-byte record in the buffer chosen by draw_buffer_index (position, texture
  * coordinates, command word, texture page), linked into the list head
  * selected by the byte at 0x8a of the scroll record.
  */
@@ -87,8 +87,8 @@ void draw_scrolling_tilemap_rows_slot27(void) {
         /* Merged into one statement (`... / 8 + 2`) it differs in 23 instruction lines. */
         line = (vy < 0 ? vy - 7 : vy) / 8;
         line += 2;
-        prim = (Slot27Prim *)data_8002b388_slot27[data_801a27d0];
-        ot = (u32 *)data_801987c8 + scroll->field_8a;
+        prim = (Slot27Prim *)data_8002b388_slot27[draw_buffer_index];
+        ot = (u32 *)current_ordering_table + scroll->field_8a;
         for (r = 2; r < 10; r++, line++) {
             /* Set before the row test: inside it, 2 instruction lines differ. */
             col = col0;

@@ -78,7 +78,7 @@ void update_player_right_object(void) {
 void update_object_input_and_timers(Object *object) {
     if (object->other_state_code) object->other_state_code--;
     if (object->mode_flag_2 == 0) {
-        if (game_state.versus_flag != 0 && data_801a6984[0] != 0 &&
+        if (game_state.versus_flag != 0 && input_block[0] != 0 &&
             game_state.mode == object->side + 1)
             replay_input_log(object);
         load_remapped_input(object);

@@ -8,7 +8,7 @@ void update_object_with_x_wobble_until_sequence_ends(Object *object) {
     if ((s16)object->step_flags < 0) {
         object->state_0 = object->state_0 + 1;
     } else {
-        s32 *wobble = (s32 *)data_8019045c;
+        s32 *wobble = (s32 *)scratch_word_a;
 
         object->countdown = object->countdown + 1;
         *(s32 *)&object->pos_y_frac = *(s32 *)&object->pos_y_frac - object->vel_y;

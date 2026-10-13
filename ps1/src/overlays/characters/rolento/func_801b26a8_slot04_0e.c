@@ -20,7 +20,7 @@ void call_handler_by_handler_index_if_active_slot04_0e(Slot04bObj *obj);
 u8 call_handler_by_limit_hi_returning_slot04_0e(Object *obj);
 
 void func_801b26a8_slot04_0e(Object *obj) {
-    data_801ad398 = data_801c5f90_slot04_0e[obj->field_15a](obj);
+    script_condition_result = data_801c5f90_slot04_0e[obj->field_15a](obj);
 }
 
 int is_link_flags_zero_slot04_0e(Object *obj) {

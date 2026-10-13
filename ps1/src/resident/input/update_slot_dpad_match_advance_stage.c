@@ -3,7 +3,7 @@
 #include "../../externs.h"
 #include "../../protos.h"
 
-extern u16 data_801a6966;
+extern u16 pad_1_held;
 
 void update_slot_dpad_match_advance_stage(Object *object, u8 index, u8 arg) {
     u16 buttons;
@@ -13,14 +13,14 @@ void update_slot_dpad_match_advance_stage(Object *object, u8 index, u8 arg) {
         reset_slot_stage_clear_result(object, index, arg);
         return;
     }
-    if (data_801a6984[0] == 0) {
+    if (input_block[0] == 0) {
         if (object->side == 0) {
-            buttons = data_801a6966 & 0xf000;
+            buttons = pad_1_held & 0xf000;
         } else {
-            buttons = data_801a6972 & 0xf000;
+            buttons = pad_2_held & 0xf000;
         }
     }
-    if (game_state.versus_flag != 0 && data_801a6984[0] != 0 &&
+    if (game_state.versus_flag != 0 && input_block[0] != 0 &&
         game_state.mode == object->field_02 + 1) {
         buttons = object->input_bits & 0xf000;
     }

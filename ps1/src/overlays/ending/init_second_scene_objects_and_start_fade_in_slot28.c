@@ -22,11 +22,11 @@ void init_second_scene_objects_and_start_fade_in_slot28(Object *obj) {
     Object *p;
     int one;
     int two;
-    data_8018f5a0->step_index_2 = data_8018f5a0->step_index_2 + 1;
+    screen_state->step_index_2 = screen_state->step_index_2 + 1;
     clear_ten_entry_table_5_slot28();
     start_fade_mode_1_and_wait();
     one = 1;
-    data_80190568 = one;
+    kind_handlers_enabled = one;
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
         init_object_data_pointers_a_7_slot28(p);

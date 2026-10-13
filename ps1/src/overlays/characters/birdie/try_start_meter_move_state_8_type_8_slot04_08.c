@@ -38,5 +38,5 @@ int try_start_meter_move_state_8_type_8_slot04_08(Object *obj) {
 }
 
 void func_801b12ec_slot04_08(Object *obj) {
-    data_801ad398 = data_801c3b70_slot04_08[obj->field_15a](obj);
+    script_condition_result = data_801c3b70_slot04_08[obj->field_15a](obj);
 }

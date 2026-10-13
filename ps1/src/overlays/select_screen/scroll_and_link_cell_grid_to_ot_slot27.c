@@ -7,8 +7,8 @@ extern Slot27Rec9348 data_80029348_slot27[];
 extern void (*data_800284fc_slot27[])(Object *);
 
 void scroll_and_link_cell_grid_to_ot_slot27(Object *obj) {
-    Cell20 *c = data_80029348_slot27[data_801a27d0].cells;
-    PrimTag *ot = (PrimTag *)data_801987c8 + 0x1d;
+    Cell20 *c = data_80029348_slot27[draw_buffer_index].cells;
+    PrimTag *ot = (PrimTag *)current_ordering_table + 0x1d;
     int i;
     int j;
     int t = obj->health;

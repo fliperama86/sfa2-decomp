@@ -14,9 +14,9 @@ void init_script_entry_by_script_index(Object *object) {
     index = object->script_index;
     object->script_entry_index = index;
     p = table[index];
-    data_80189460 = p + 1;
+    script_cursor = p + 1;
     first = *p;
-    object->script_ptr_3 = (s32)data_80189460;
+    object->script_ptr_3 = (s32)script_cursor;
     object->field_224 = 0;
     object->field_25d = 0;
     object->field_20c = first;
@@ -33,5 +33,5 @@ void set_countdown_from_table_with_random(Object *object) {
 u8 func_8014dcc0(Object *object) {
     if (object->side == 0) scr_d4_left();
     else scr_184_right();
-    return data_801ad398;
+    return script_condition_result;
 }

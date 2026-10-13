@@ -90,8 +90,8 @@ int spawn_game_state_kind_object(Object *object) {
         o->active_flag = src->facing_side;
         o->field_1c = src->field_1c;
         w = src->field_255;
-        o->data_ptr_a = &data_80172a48;
-        o->data_ptr_b = &data_80173c9c;
+        o->data_ptr_a = &spawned_object_data_a;
+        o->data_ptr_b = &spawned_object_data_b;
         o->field_90 = (void *)0x800fb100;
         o->pos_x = 0;
         o->pos_y = 0;

@@ -13,7 +13,7 @@ extern ObjectFn data_801c6064_slot04_0f[];
 extern ObjectFn data_801c6074_slot04_0f[];
 extern ObjectFn data_801c6088_slot04_0f[];
 extern ObjectFn data_801c6294_slot04_0f[];
-extern ObjectRef data_80190458;
+extern ObjectRef ref_aux;
 
 void call_handler_by_state_1_then_offset_slot04_0f(Object *obj);
 void call_handler_by_state_1_then_offset_2_slot04_0f(Object *obj);
@@ -297,6 +297,6 @@ void set_sequence_by_sound_side_shifted_by_flag_slot04_0f(Object *obj, int a) {
 }
 
 void call_handler_by_state_0_with_parent_2_slot04_0f(Object *obj) {
-    data_80190458.p = obj->parent;
+    ref_aux.p = obj->parent;
     data_801c6294_slot04_0f[obj->state_0](obj);
 }

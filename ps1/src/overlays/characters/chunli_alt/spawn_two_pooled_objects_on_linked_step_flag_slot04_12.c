@@ -59,8 +59,8 @@ void spawn_two_pooled_objects_on_linked_step_flag_slot04_12(Object *obj) {
                     p->spawn_x = 0x60;
                     p->spawn_y = 0x1e0;
                     p->field_90 = (void *)0x800fb100;
-                    p->data_ptr_a = (void *)data_80172a48;
-                    p->data_ptr_b = (void *)data_80173c9c;
+                    p->data_ptr_a = (void *)spawned_object_data_a;
+                    p->data_ptr_b = (void *)spawned_object_data_b;
                     p->mode_id = 0x20;
                     p->field_1c = f;
                     p->sound_side = obj->sound_side;

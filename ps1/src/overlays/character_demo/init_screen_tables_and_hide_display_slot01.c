@@ -7,7 +7,7 @@ void init_screen_tables_and_hide_display_slot01(void) {
     /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
     int unused[2];
     init_sprite_tables();
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
     data_801aa65e[0] = 1;
     data_80190562[0] = 1;
     game_state.status_flags = 0;

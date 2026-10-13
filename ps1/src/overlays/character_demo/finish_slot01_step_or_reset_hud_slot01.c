@@ -37,21 +37,21 @@ void finish_slot01_step_or_reset_hud_slot01(void) {
         start_wait_with_two_halfword_stores_slot01();
         spawn_object_and_loop_while_busy_slot01();
         loop_updates_while_wait_flag_slot01();
-        data_8018f5a0->phase_index = 3;
-        data_8018f5a0->step_index = 0;
+        screen_state->phase_index = 3;
+        screen_state->step_index = 0;
         game_state.countdown_2 = 0;
-        data_8018f5a0->substep_index = 0;
+        screen_state->substep_index = 0;
         game_state.timer_or_bits = 0;
-        data_8018f5a0->step_index_2 = 0;
+        screen_state->step_index_2 = 0;
         game_state.countdown_timer_2 = 0;
-        data_8018f5a0->pass_index = 0;
+        screen_state->pass_index = 0;
         game_state.field_cc = 0;
-        data_8018f5a0->pass_index = 0;
+        screen_state->pass_index = 0;
         game_state.status_flags = 0;
         game_state.field_80 = 0;
         game_state.field_09 = 1;
     } else {
-        data_8018f5a0->substep_index++;
+        screen_state->substep_index++;
         game_state.field_09 = 1;
     }
 }

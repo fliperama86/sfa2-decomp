@@ -14,7 +14,7 @@ void load_slot27_screen_graphics_and_camera_slot27(void) {
     clear_arrays_and_init_pools_and_sprite_tables();
     r.x = 0x380;
     data_80029324_slot27 = 0;
-    data_8018db10 = 0;
+    palette_altered_flag = 0;
     r.y = 0x100;
     r.w = 0x40;
     r.h = 0x100;
@@ -50,12 +50,12 @@ void load_slot27_screen_graphics_and_camera_slot27(void) {
         data_801a27e4_rows[7][0x160 + i] = ((u16 *)0x800ed400)[i];
     }
     queue_image_upload_job(2, 2);
-    data_801aa544[0].scroll_x = 0x248;
-    ((u16 *)&data_801aa544[0].scroll_y)[1] = 0x100;
-    data_801aa544[1].scroll_x = 0x148;
-    ((u16 *)&data_801aa544[1].scroll_y)[1] = 0;
-    data_801aa544[2].scroll_x = 0x48;
-    ((u16 *)&data_801aa544[2].scroll_y)[1] = 0x700;
+    background_layers[0].scroll_x = 0x248;
+    ((u16 *)&background_layers[0].scroll_y)[1] = 0x100;
+    background_layers[1].scroll_x = 0x148;
+    ((u16 *)&background_layers[1].scroll_y)[1] = 0;
+    background_layers[2].scroll_x = 0x48;
+    ((u16 *)&background_layers[2].scroll_y)[1] = 0x700;
     game_state.cam_x = 0x248;
     game_state.cam_y = 0x100;
     game_state.field_d2 = 0x148;
@@ -65,11 +65,11 @@ void load_slot27_screen_graphics_and_camera_slot27(void) {
     game_state.field_da = 0;
     func_80157d9c(0);
     if (game_state.pause_flag != 0) {
-        data_8018f5a0->substep_index++;
+        screen_state->substep_index++;
         game_state.pause_flag = 0;
         call_handler_by_hud_step_index_2_2_slot27();
     } else {
-        HudState *h = data_8018f5a0;
+        HudState *h = screen_state;
         h->step_index_2++;
         h->pass_index = 0;
         h->field_54 = 0;

@@ -3,17 +3,17 @@
 #include "../../externs.h"
 #include "../../protos.h"
 
-extern u16 data_801a6966;
+extern u16 pad_1_held;
 
 
 void load_remapped_input(Object *object) {
     u16 sum = 0;
     u16 i;
     u32 w;
-    if (object->field_02 == 0 && data_801a6984[0] == 0) data_80185ff8 = data_801a6966;
-    if (object->field_02 == 1 && data_801a6984[0] == 0) data_80185ff8 = data_801a6972;
-    if (object->field_02 == 0 && data_801a6984[0] != 0) data_80185ff8 = object->input_bits;
-    if (object->field_02 == 1 && data_801a6984[0] != 0) data_80185ff8 = object->input_bits;
+    if (object->field_02 == 0 && input_block[0] == 0) data_80185ff8 = pad_1_held;
+    if (object->field_02 == 1 && input_block[0] == 0) data_80185ff8 = pad_2_held;
+    if (object->field_02 == 0 && input_block[0] != 0) data_80185ff8 = object->input_bits;
+    if (object->field_02 == 1 && input_block[0] != 0) data_80185ff8 = object->input_bits;
     i = 0;
     w = data_80185ff8;
     table_80185fd8[object->field_02][0] = (w >> 7) & 1;

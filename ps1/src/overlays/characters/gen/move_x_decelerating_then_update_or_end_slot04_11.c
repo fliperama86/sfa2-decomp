@@ -10,7 +10,7 @@ extern s16 data_801c75c0_slot04_11[];
 extern u8 data_801c75fc_slot04_11[];
 extern u8 data_801c75fd_slot04_11[];
 extern s32 data_801c7604_slot04_11[];
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 
 void update_meter_by_mode_or_table(Object *object);
 void set_flag_225_add_direction_to_counter(GameState *state, Object *object);
@@ -49,7 +49,7 @@ void spawn_game_state_object_when_step_limit_clear_slot04_11(Object *obj) {
     obj->field_167 = (obj->direction_index >> 1) + 0xc;
     if (obj->step_limit == 0) {
         obj->step_limit = 0xff;
-        data_80190468.p->field_6b = 5;
+        ref_game_state.p->field_6b = 5;
         spawn_game_state_kind_object(obj);
     }
 }
@@ -146,14 +146,14 @@ void update_hit_sequence_with_launch_on_flag_slot04_11(Object *obj) {
     int a;
 
     if (k != 0) {
-        data_80190468.p->vec_table_index = 0x20;
+        ref_game_state.p->vec_table_index = 0x20;
         obj->step_flags = obj->step_flags & 0xff80;
         spawn_two_effects_at_other_ground(obj);
         play_side_sound_at(obj, obj->side, 8);
         j = k - 1;
         if (apply_damage_to_other_return_defeated(obj, data_801c75c0_slot04_11[j * 2], data_801c75c0_slot04_11[j * 2 + 1]) != 0) {
             play_sound_at(obj, obj->side, 0x319);
-            data_80190468.p->field_6b = 4;
+            ref_game_state.p->field_6b = 4;
             spawn_game_state_kind_object(obj);
         } else {
             play_sound_at(obj, obj->side, 0x319);

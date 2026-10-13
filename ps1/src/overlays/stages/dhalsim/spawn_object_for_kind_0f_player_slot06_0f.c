@@ -3,7 +3,7 @@
 #include "../../../protos.h"
 #include "../../../externs.h"
 
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 extern ObjectFn data_801eefc4_slot06_0f[];
 extern ObjectFn data_801eefd4_slot06_0f[];
 extern ObjectFn data_801eefe4_slot06_0f[];
@@ -29,12 +29,12 @@ void spawn_object_for_kind_0f_player_slot06_0f(void) {
     Object *n;
     Object *right;
     int k;
-    data_80190468.p = (Object *)&game_state;
-    if (((GameState *)data_80190468.p)->kind_index == 0xf && ((GameState *)data_80190468.p)->field_80 == 0) {
+    ref_game_state.p = (Object *)&game_state;
+    if (((GameState *)ref_game_state.p)->kind_index == 0xf && ((GameState *)ref_game_state.p)->field_80 == 0) {
         s = &player_left;
         right = s + 1;
         k = player_left.kind == 0xf;
-        if (player_right.kind == ((GameState *)data_80190468.p)->kind_index) {
+        if (player_right.kind == ((GameState *)ref_game_state.p)->kind_index) {
             k |= 2;
         }
         if (k != 1) {
@@ -64,7 +64,7 @@ void spawn_object_for_kind_0f_player_slot06_0f(void) {
 }
 
 void call_handler_by_state_0_3_slot06_0f(Object *obj) {
-    data_80190468.p = (Object *)&game_state;
+    ref_game_state.p = (Object *)&game_state;
     data_801eefc4_slot06_0f[obj->state_0](obj);
 }
 
@@ -95,7 +95,7 @@ void init_object_from_parent_position_slot06_0f(Object *obj) {
 }
 
 void update_child_object_by_state_1_handler_slot06_0f(Object *obj) {
-    GameState *g = (GameState *)data_80190468.p;
+    GameState *g = (GameState *)ref_game_state.p;
     if (g->gate_flag == 0) {
         game_state.other_object = obj->parent;
         if (obj->table_index == game_state.other_object->kind) {

@@ -43,7 +43,7 @@ void init_sprite_object_position_and_build_sprites_slot2a(Object *obj) {
 void update_state_1_and_draw_sprites_slot2a(Object *obj) {
     table_801e225c_slot2a[obj->state_1](obj);
     if (data_801e25d8_slot2a[obj->table_index] != 0) {
-        build_and_link_sprite_set_prims_slot2a(obj, (SpritePrim *)(data_801e25dc_slot2a + obj->table_index * 0x500 + data_801a27d0 * 0x280));
+        build_and_link_sprite_set_prims_slot2a(obj, (SpritePrim *)(data_801e25dc_slot2a + obj->table_index * 0x500 + draw_buffer_index * 0x280));
     }
     link_sprite_array_into_ordering_table_slot2a(obj);
 }

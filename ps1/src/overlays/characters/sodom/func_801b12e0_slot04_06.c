@@ -6,5 +6,5 @@
 extern ObjectFnInt data_801c528c_slot04_06[];
 
 void func_801b12e0_slot04_06(Object *obj) {
-    data_801ad398 = data_801c528c_slot04_06[obj->field_15a](obj);
+    script_condition_result = data_801c528c_slot04_06[obj->field_15a](obj);
 }

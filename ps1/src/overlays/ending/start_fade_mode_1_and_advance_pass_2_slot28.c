@@ -13,13 +13,13 @@ extern Object *data_80051c24_slot28[];
 void start_fade_mode_1_and_advance_pass_2_slot28(Object *obj) {
     if (((Slot28Obj *)data_80051c5c_slot28.p)->field_3a < 0) {
         start_fade_mode_1_and_wait();
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->pass_index = screen_state->pass_index + 1;
     }
 }
 
 void advance_substep_when_wait_flag_clear_14_slot28(Object *obj) {
     if (game_state.wait_flag == 0) {
-        data_8018f5a0->substep_index += 1;
+        screen_state->substep_index += 1;
     }
 }
 

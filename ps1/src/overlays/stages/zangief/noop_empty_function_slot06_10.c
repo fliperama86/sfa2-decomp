@@ -51,7 +51,7 @@ void update_layer_flags_and_parallax_position_slot06_10(Slot06Layer *layer) {
             layer->flags_bits = (layer->flags_bits + 0x200) & 0x600;
         }
     }
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     d = l2->field_22;
     d -= l2->ref_x;
     d -= d / 8;

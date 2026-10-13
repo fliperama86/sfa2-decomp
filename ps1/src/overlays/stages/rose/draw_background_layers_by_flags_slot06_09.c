@@ -6,7 +6,7 @@
 extern u16 data_801ea124_slot06_09[];
 extern u16 data_801e9e78_slot06_09[];
 extern s16 data_801e9e7a_slot06_09[];
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 
 void init_first_layer_tile_map_slot06_09(Slot06Layer *layer);
 void init_layer_map_fields_main_slot06_09(Slot06Layer *layer);
@@ -43,10 +43,10 @@ void draw_background_layers_by_flags_slot06_09(void) {
 }
 
 void init_four_layers_tile_maps_slot06_09(void) {
-    init_first_layer_tile_map_slot06_09((Slot06Layer *)data_801aa544);
-    init_layer_map_fields_main_slot06_09((Slot06Layer *)data_801aa5d4);
+    init_first_layer_tile_map_slot06_09((Slot06Layer *)background_layers);
+    init_layer_map_fields_main_slot06_09((Slot06Layer *)main_layer);
     set_layer_tile_map_and_scale_f_slot06_09((Slot06Layer *)cam_obj);
-    init_layer_map_fields_basic_slot06_09((Slot06Layer *)data_801904d8);
+    init_layer_map_fields_basic_slot06_09((Slot06Layer *)fourth_layer);
 }
 
 void init_slot_tile_groups_and_poly_buffers_gray_g_slot06_09(void) {
@@ -82,10 +82,10 @@ void update_layer_half_parallax_by_state_slot06_09(Slot06Layer *layer) {
     if (layer->state_index == 0) {
         scroll_layer_x_with_table_steps_slot06_09(layer);
     }
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     d = l2->field_22;
     d -= l2->ref_x;
-    d += data_80190542;
+    d += fourth_layer_offset_x;
     d /= 2;
     d += layer->ref_x;
     d += layer->pos_x_int;

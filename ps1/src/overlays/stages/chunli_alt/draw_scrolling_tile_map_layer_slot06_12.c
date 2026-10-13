@@ -18,7 +18,7 @@ extern s16 data_8019054e;
    8 bytes longer. The offset at 0x12 is read as the high half of
    end_x_fixed, which the layout has as 32 bits. */
 void draw_scrolling_tile_map_layer_slot06_12(void) {
-    Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
+    Slot06Draw *c = (Slot06Draw *)main_layer;
     int x;
     int pos;
     s16 y;
@@ -64,8 +64,8 @@ void draw_scrolling_tile_map_layer_slot06_12(void) {
     col = (g & (c->width - 1)) >> 4;
     blank = braw;
     rows = nr;
-    rec = data_801f11e0_slot06_12[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801f11e0_slot06_12[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 8; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {

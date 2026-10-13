@@ -4,12 +4,12 @@
 #include "../../protos.h"
 
 void clear_data_block_and_game_state_bytes(void) {
-    u8 *p = &data_801ae02c;
+    u8 *p = &single_object_active;
     u32 i;
     for (i = 0; i < 0xac; i++) {
         *p++ = 0;
     }
-    (&data_801ae02c)[8] = 0x18;
+    (&single_object_active)[8] = 0x18;
     game_state.busy_flag = 0;
     game_state.field_04 = 0;
     game_state.pause_flag = 0;

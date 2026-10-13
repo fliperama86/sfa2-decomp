@@ -15,7 +15,7 @@ void setup_rank_screen_images_and_blocks_slot0f(Object *arg) {
     Rect r;
     Block172 *b;
     int one;
-    data_8018f5a0->phase_index++;
+    screen_state->phase_index++;
     game_state.field_2bc = 0;
     obj = arg;
     start_fade_mode_1_and_wait();
@@ -31,7 +31,7 @@ void setup_rank_screen_images_and_blocks_slot0f(Object *arg) {
     clear_players_arrays_state_and_init_pools();
     one = 1;
     clear_arrays_and_init_pools_and_sprite_tables();
-    data_80190568 = one;
+    kind_handlers_enabled = one;
     r.x = 0x280;
     r.y = 0;
     r.w = 0x40;

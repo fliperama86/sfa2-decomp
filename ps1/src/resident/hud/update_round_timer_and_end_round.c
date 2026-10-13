@@ -12,7 +12,7 @@ void update_round_timer_and_end_round(GameState *state) {
         a->field_4e = 0xff;
         return;
     }
-    if ((a->field_30 == 0 || *(u16 *)data_801a6984 != 0) && (a->field_49 & 0x80) == 0 &&
+    if ((a->field_30 == 0 || *(u16 *)input_block != 0) && (a->field_49 & 0x80) == 0 &&
         *(u16 *)&a->field_64 == 0 && a->mode == 0) {
         a->countdown--;
         if (a->countdown == 0) {
@@ -40,8 +40,8 @@ void update_round_timer_and_end_round(GameState *state) {
             a->field_5d = 3;
             a->field_5e = 3;
         }
-        data_8018f5a0->substep_index++;
-        data_8018f5a0->step_index_2 = 0;
+        screen_state->substep_index++;
+        screen_state->step_index_2 = 0;
         a->field_ca = 0;
         a->active_flag = 1;
         a->active_flag_2 = 1;

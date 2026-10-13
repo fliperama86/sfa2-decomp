@@ -17,7 +17,7 @@ void advance_pass_spawn_slot28_objects_i_slot28(Object *obj) {
     HudState *h;
     Object *p;
     if (obj->field_f0 == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         h->pass_index++;
         release_active_objects_in_table_16_slot28();
         set_sequence_of_fourth_hud_object_18_slot28(obj, 2);

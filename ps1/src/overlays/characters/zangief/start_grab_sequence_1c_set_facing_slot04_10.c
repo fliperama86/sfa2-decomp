@@ -4,7 +4,7 @@
 #include "../../../externs.h"
 
 extern u16 box_margin[];
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 extern ObjectFn data_801c69ac_slot04_10[];
 extern ObjectFn data_801c69c0_slot04_10[];
 
@@ -46,7 +46,7 @@ void update_sequence_with_hit_on_step_flag_slot04_10(Object *obj) {
         }
     } else {
         obj->step_flags = a & 0xff00;
-        data_80190468.p->vec_table_index = 0x3c;
+        ref_game_state.p->vec_table_index = 0x3c;
         spawn_two_effects_at_other_ground(obj);
         update_sequence(obj);
         apply_damage_to_other_return_defeated(obj, 0x12, 0);

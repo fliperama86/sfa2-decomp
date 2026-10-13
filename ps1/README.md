@@ -26,6 +26,9 @@ Public tools, free of game data:
 - `tools/namestats.py`: how many functions, fields and data symbols have a
   name instead of a placeholder, as three printed lines, JSON and the
   README's bars. The repository's workflow runs it on every push.
+- `tools/renamedata.py`: renames data symbols everywhere their names are
+  written, from a table `OLD<TAB>NEW`, with its controls in
+  `tools/test_renamedata.py`.
 - `tools/librefs.py`: the names by which the reference-derived library
   units of a finished build refer to library functions.
 - `tools/funcscan.py`: function boundaries in MIPS code by a linear sweep,

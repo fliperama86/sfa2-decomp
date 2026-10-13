@@ -12,7 +12,7 @@ void script_branch_if_value_ge_compare_limit(Object *object)
 {
   short new_var;
   short new_var2;
-  u16 v = *(data_80189460++);
+  u16 v = *(script_cursor++);
   new_var = v;
   new_var2 = new_var >> 8;
   object->script_byte_hi = new_var2;

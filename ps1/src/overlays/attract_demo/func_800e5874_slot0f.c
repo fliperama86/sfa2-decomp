@@ -12,7 +12,7 @@ void reset_phase_step_and_object_fields_slot0f(Slot0fObj *obj, int flag);
 
 void func_800e5874_slot0f(Object *obj) {
     if (obj->field_01 == 0) {
-        if ((data_801a696a | data_801a6976) & 0x800) {
+        if ((pad_1_pressed | pad_2_pressed) & 0x800) {
             reset_phase_step_and_object_fields_slot0f((Slot0fObj *)obj, 0);
         }
     }

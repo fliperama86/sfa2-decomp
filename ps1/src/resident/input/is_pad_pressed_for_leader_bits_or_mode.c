@@ -23,11 +23,11 @@ int is_pad_pressed_for_leader_bits_or_mode(void) {
 }
 
 u8 is_pad_button_pressed(void) {
-    return (data_801a696a & 0x9f0) != 0;
+    return (pad_1_pressed & 0x9f0) != 0;
 }
 
 u8 is_pad_button_pressed_2(void) {
-    return (data_801a6976 & 0x9f0) != 0;
+    return (pad_2_pressed & 0x9f0) != 0;
 }
 
 void call_input_step_handler(void) {

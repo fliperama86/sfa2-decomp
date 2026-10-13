@@ -7,7 +7,7 @@ extern Slot06TileW data_801f6734_slot06_0e[2][0x75];
 
 /*
  * What it does (inferred, not an original name): draws the third tile layer
- * of the stage, data_801aa544[2], as sprite records. The layer's scroll_y
+ * of the stage, background_layers[2], as sprite records. The layer's scroll_y
  * (high half) minus game_state.scroll_y gives a vertical position y; its
  * scroll_x gives a horizontal position. The window is 13 columns by 9
  * rows of 32-pixel cells, starting at the cell row (y & 0x1f0) / 32 and the
@@ -21,7 +21,7 @@ extern Slot06TileW data_801f6734_slot06_0e[2][0x75];
  * the layer's ot_index. There is no test of the row against a row count.
  */
 void draw_tile_map_layer_sprites_32px_slot06_0e(void) {
-    Chan *c = &data_801aa544[2];
+    Chan *c = &background_layers[2];
     int pos;
     int y;
     s16 px;
@@ -59,8 +59,8 @@ void draw_tile_map_layer_sprites_32px_slot06_0e(void) {
     sy = y & 0x1f;
     col = (px & (w - 1)) >> 5;
     row = (y & 0x1f0) / 32;
-    rec = data_801f6734_slot06_0e[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801f6734_slot06_0e[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 9; i++, row++) {
         cc = col;
         /* The term (row >> 12) & 0xf in every arm and the test f16 >= 0x100 are instructions of the original (a shift by 11 with the mask 0x1e, and 0x100 taken off before the compare). row is at most 15 + 8 here, so the term is 0, and the test is true where it is reached. */

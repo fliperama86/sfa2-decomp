@@ -65,32 +65,32 @@ void update_select_screen_step_d_slot04_sel(void) {
             l->field_d4 = (l->field_d4 & 1) + 4;
             ref_other.p = l;
             check_opposite_player_same_selection_2_slot04_sel();
-            if (data_8019045c[0] != 0) {
-                l->field_d4 = l->field_d4 ^ *(u8 *)data_8019045c;
+            if (scratch_word_a[0] != 0) {
+                l->field_d4 = l->field_d4 ^ *(u8 *)scratch_word_a;
             }
         }
         if (b->field_09 == 0 && r->field_d8 != 0) {
             r->field_d4 = (r->field_d4 & 1) + 4;
             ref_other.p = r;
             check_opposite_player_same_selection_2_slot04_sel();
-            if (data_8019045c[0] != 0) {
-                r->field_d4 = r->field_d4 ^ *(u8 *)data_8019045c;
+            if (scratch_word_a[0] != 0) {
+                r->field_d4 = r->field_d4 ^ *(u8 *)scratch_word_a;
             }
         }
-        data_8018f5a0->step_index_2 = 0;
-        data_8018f5a0->substep_index++;
+        screen_state->step_index_2 = 0;
+        screen_state->substep_index++;
     }
     m = game_state.side_mask;
     if (m == (a->field_09 | b->field_09) && m != 0) {
         if (a->field_0b != 0 || b->field_0b != 0) {
             a->count = 0;
             b->count = 0;
-            data_8018f5a0->step_index_2++;
+            screen_state->step_index_2++;
         }
     }
     if (data_801b9d68_slot04_sel != game_state.side_mask || data_801b9d6c_slot04_sel != game_state.mode) {
         a->count = 0;
         b->count = 0;
-        data_8018f5a0->step_index_2 = 0;
+        screen_state->step_index_2 = 0;
     }
 }

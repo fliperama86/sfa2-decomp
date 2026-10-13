@@ -13,8 +13,8 @@ void init_object_position_and_sequence_from_table(Object *object)
   margin = box_margin[0];
   object->pos_y = 0x70;
   object->field_01 = 2;
-  object->data_ptr_a = data_80172a48;
-  object->data_ptr_b = data_80173c9c;
+  object->data_ptr_a = spawned_object_data_a;
+  object->data_ptr_b = spawned_object_data_b;
   object->spawn_x = 0x60;
   object->field_90 = (void *) 0x800fb100;
   object->pos_x = margin + 0xc0;

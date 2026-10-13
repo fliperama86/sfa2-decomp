@@ -10,7 +10,7 @@ void count_down_timer_then_next_substep_slot01(void) {
     int t = game_state.timer_or_bits - 1;
     game_state.timer_or_bits = t;
     if ((s16)t < 0 || is_pad_pressed_for_side_bits_or_mode() != 0) {
-        data_8018f5a0->substep_index++;
+        screen_state->substep_index++;
         game_state.status_flags = 0xff;
         if (game_state.mode != 0) {
             game_state.field_09 = 0;
@@ -23,7 +23,7 @@ void start_timer_and_spawn_hud_object_slot01(void) {
     Object *p;
 
     s0 = game_state.focus_object;
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
     game_state.timer_or_bits = 0xb4;
     data_8002ceb0_slot01->spawn_y = 0x1e9;
     p = (Object *)pop_block_from_pool();

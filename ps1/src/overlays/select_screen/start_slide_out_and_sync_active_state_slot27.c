@@ -10,7 +10,7 @@ void start_slide_out_and_sync_active_state_slot27(Object *obj) {
     int v;
     int k;
 
-    if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
+    if (screen_state->substep_index >= 3 && game_state.mode != 3) {
         obj->state_0 = obj->state_0 + 1;
         v = 8;
         if (p->side == 0) {

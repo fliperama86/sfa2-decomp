@@ -15,7 +15,7 @@ void update_layer_follow_main_layer_scaled_slot06_07(Slot06Layer *layer) {
     if (layer->mode == 0) {
         init_sprite_at_1c0_zero((Sprite *)layer);
     } else if (layer->mode == 1) {
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         d = *(s32 *)&l2->bound_x_c;
         d -= *(s32 *)&l2->bound_x_a;
         d += data_80190544;

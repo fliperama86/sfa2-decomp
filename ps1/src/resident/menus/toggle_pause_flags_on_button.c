@@ -6,16 +6,16 @@
 void toggle_pause_flags_on_button(void) {
     unsigned char v;
     if (game_state.field_74 == 0) {
-        if (((HudBig *)data_8018f5a0)->step_count == 1 && game_state.field_04 == 0) {
-            if ((game_state.mode & 1) && (data_801a696a & 0x800) && game_state.field_31 < 2) {
-                if (((HudBig *)data_8018f5a0)->substate_index == 0) {
+        if (((HudBig *)screen_state)->step_count == 1 && game_state.field_04 == 0) {
+            if ((game_state.mode & 1) && (pad_1_pressed & 0x800) && game_state.field_31 < 2) {
+                if (((HudBig *)screen_state)->substate_index == 0) {
                     game_state.field_31 = game_state.field_31 ^ 1;
                 }
                 apply_palette_mode_from_game_state_flag(0);
             }
-            if ((game_state.mode & 2) && (data_801a6976 & 0x800)
+            if ((game_state.mode & 2) && (pad_2_pressed & 0x800)
                 && (game_state.field_31 == 0 || game_state.field_31 == 2)) {
-                if (((HudBig *)data_8018f5a0)->substate_index == 0) {
+                if (((HudBig *)screen_state)->substate_index == 0) {
                     game_state.field_31 = game_state.field_31 ^ 2;
                 }
                 apply_palette_mode_from_game_state_flag(1);
@@ -58,7 +58,7 @@ void apply_palette_mode_from_game_state_flag(int a) {
         copy_palette_rows_from_backup_bank(3, 0x20, 0);
         copy_palette_rows_from_backup_bank(4, 0x20, 0);
         queue_five_jobs();
-        ((HudBig *)data_8018f5a0)->substate_index = 0;
+        ((HudBig *)screen_state)->substate_index = 0;
         for (i = 0; i < 2; i++) {
             base[(i << 4) + 0x188] = 0x49;
             base[(i << 4) + 0x189] = 0xc9;

@@ -3,7 +3,7 @@
 #include "../../../protos.h"
 #include "../../../externs.h"
 
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 
 void scroll_layer_left_and_update_offsets_slot06_04(Slot06Layer *layer);
 void set_layer_flags_and_timer_from_table_slot06_04(Slot06Layer *layer);
@@ -20,10 +20,10 @@ void scroll_layer_left_and_update_offsets_slot06_04(Slot06Layer *layer) {
             set_layer_flags_and_timer_from_table_slot06_04(layer);
         }
     }
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     d = l2->field_22;
     d -= l2->ref_x;
-    d += data_80190542;
+    d += fourth_layer_offset_x;
     d += layer->ref_x;
     d += layer->pos_x_int;
     layer->field_22 = d;

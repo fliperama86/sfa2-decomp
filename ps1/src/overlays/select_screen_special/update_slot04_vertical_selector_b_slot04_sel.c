@@ -40,8 +40,8 @@ void update_slot04_vertical_selector_b_slot04_sel(Object *obj, Slot04SelRec9d38 
                 obj->field_d4 = (obj->field_d4 & 1) + 4;
                 ref_other.p = obj;
                 check_opposite_player_same_selection_2_slot04_sel();
-                if (data_8019045c[0] != 0) {
-                    obj->field_d4 = obj->field_d4 ^ data_8019045c[0];
+                if (scratch_word_a[0] != 0) {
+                    obj->field_d4 = obj->field_d4 ^ scratch_word_a[0];
                 }
             }
             rec->count++;

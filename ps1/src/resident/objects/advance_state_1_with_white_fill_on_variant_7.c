@@ -28,7 +28,7 @@ void advance_state_1_with_row_restore_on_variant_7(Object *object) {
                 object->state_1--;
                 object->step_count = 1;
                 object->field_a3 = 1;
-                data_8018f598 = 1;
+                white_fill_active = 1;
             } else {
                 object->step_count = 0;
                 object->field_a3 = 0;

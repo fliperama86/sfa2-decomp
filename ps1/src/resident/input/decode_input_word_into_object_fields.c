@@ -12,31 +12,31 @@ void decode_input_word_into_object_fields(Object *object)
   object->hit_flag_a = 0;
   object->attack_param_d = 0;
   object->direction_flag = 0;
-  if (data_80189464 & 2)
+  if (script_work_value & 2)
   {
     object->hit_flag_a = 1;
   }
-  if (data_80189464 & 4)
+  if (script_work_value & 4)
   {
     object->attack_param_d = 1;
   }
-  if (data_80189464 & 8)
+  if (script_work_value & 8)
   {
     object->direction_flag = 1;
   }
-  if (data_80189464 & 1)
+  if (script_work_value & 1)
   {
     unpack_shifted_nibbles_into_direction_fields(object);
     return;
   }
-  new_var = &data_80189464;
+  new_var = &script_work_value;
   v = ((s16) (*new_var)) >> 4;
-  data_80189464 = v;
+  script_work_value = v;
   object->input_dir_0 = v & 0xf;
-  v = ((s16) data_80189464) >> 4;
-  data_80189464 = v;
+  v = ((s16) script_work_value) >> 4;
+  script_work_value = v;
   object->input_dir_second = v & 0xf;
-  v = ((s16) data_80189464) >> 4;
-  data_80189464 = v;
+  v = ((s16) script_work_value) >> 4;
+  script_work_value = v;
   object->direction_index = v & 0xf;
 }

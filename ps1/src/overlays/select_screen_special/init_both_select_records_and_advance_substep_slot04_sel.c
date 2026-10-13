@@ -18,12 +18,12 @@ void init_both_select_records_and_advance_substep_slot04_sel(Object *unused_obj,
     data_801b6d60_slot04_sel[1](l, a);
     data_801b6d60_slot04_sel[2](r, b);
     if (game_state.pause_flag != 0) {
-        data_8018f5a0->substep_index += 1;
-        data_8018f5a0->step_index_2 = 0;
+        screen_state->substep_index += 1;
+        screen_state->step_index_2 = 0;
         game_state.pause_flag = 0;
     } else {
-        data_8018f5a0->substep_index += 2;
-        data_8018f5a0->step_index_2 = 0;
+        screen_state->substep_index += 2;
+        screen_state->step_index_2 = 0;
         game_state.field_80 = 0;
         game_state.b0_flag = 0;
         game_state.selection_value = 0xff;

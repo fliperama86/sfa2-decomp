@@ -9,7 +9,7 @@ void queue_menu_items_with_highlight_slot0f(int a);
 void update_menu_mode_selection_slot0f(GameState *state, Menu *menu) {
     u16 buttons;
     func_800e004c_slot0f((Object *)menu);
-    buttons = data_801a696a | data_801a6976;
+    buttons = pad_1_pressed | pad_2_pressed;
     if ((buttons & 0x5000) != 0) {
         if ((buttons & 0x1000) != 0) {
             menu->mode_index = (s8)menu->mode_index - 1;
@@ -42,12 +42,12 @@ void update_menu_mode_selection_slot0f(GameState *state, Menu *menu) {
     }
     menu->active_flag = 0;
     if ((buttons & 0x820) != 0) {
-        if ((data_801a696a & 0x820) != 0) {
+        if ((pad_1_pressed & 0x820) != 0) {
             menu->active_flag = 1;
         } else {
             menu->active_flag = 2;
         }
-        data_8018f5a0->phase_index++;
+        screen_state->phase_index++;
         play_sound_at(0, 0, 0x205);
     }
     queue_menu_items_with_highlight_slot0f((s8)menu->mode_index);

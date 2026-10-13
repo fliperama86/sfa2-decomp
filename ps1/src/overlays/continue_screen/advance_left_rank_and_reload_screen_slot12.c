@@ -13,7 +13,7 @@ void copy_rank_palette_to_two_buffers_slot12(Object *obj);
 void advance_left_rank_and_reload_screen_slot12(Object *obj) {
     Rect rect;
     Object *p;
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
 
     h->step_index++;
     game_state.field_2bc = 0;
@@ -27,7 +27,7 @@ void advance_left_rank_and_reload_screen_slot12(Object *obj) {
         clear_players_arrays_state_and_init_pools();
         clear_arrays_and_init_pools_and_sprite_tables();
         init_block172_pool();
-        data_80190568 = 1;
+        kind_handlers_enabled = 1;
         rect.x = 0x280;
         rect.y = 0;
         rect.w = 0x40;

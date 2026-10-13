@@ -7,7 +7,7 @@
 /* Form found by automatic permutation search. */
 void branch_script_if_other_below_ground_offset(Object *object)
 {
-  u16 v = *(data_80189460++);
+  u16 v = *(script_cursor++);
   Object *other = object->other;
   u16 new_var;
   Object *new_var2;

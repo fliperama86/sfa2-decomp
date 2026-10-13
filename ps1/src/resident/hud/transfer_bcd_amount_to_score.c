@@ -8,7 +8,7 @@ void transfer_bcd_amount_to_score(GameState *g) {
     if (o->mode_flag_2 == 0) {
         set_selected_value_by_input_threshold((Entity *)g);
         if ((u8)is_pad_pressed_for_leader_bits_or_mode() != 0 || g->bcd_step_amount > g->bcd_amount) {
-            data_8018f5a0->step_index_2++;
+            screen_state->step_index_2++;
             g->countdown_timer_2 = 0x5a;
             o->score = add_bcd(o->score, g->bcd_amount << 8);
             g->bcd_amount = 0;

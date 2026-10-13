@@ -427,7 +427,7 @@ def setup_func_801e9080_slot06_00(state, rng, sym) -> Setup:
     game_state = sym["game_state"]
     state.w8(game_state + 0x64, 0 if rng.random() < 0.9 else rng.randrange(1, 256))
     state.w16(game_state + 0x92, halfword(rng))
-    for layer in ("data_801aa5d4", "data_801aa544", "cam_obj"):
+    for layer in ("main_layer", "background_layers", "cam_obj"):
         state.w16(sym[layer] + 0x12, halfword(rng))
         state.w16(sym[layer] + 0x16, halfword(rng))
 
@@ -452,7 +452,7 @@ def setup_func_801e9080_slot06_00(state, rng, sym) -> Setup:
 
     lists = state.alloc(4 * 16)
     fill(state, lists, 4 * 16, rng)
-    state.w32(sym["data_801987c8"], lists)
+    state.w32(sym["current_ordering_table"], lists)
 
     obj = state.alloc(0x394)
     fill(state, obj, 0x394, rng)
@@ -461,8 +461,8 @@ def setup_func_801e9080_slot06_00(state, rng, sym) -> Setup:
     state.w8(obj + 0x0F, rng.choice((0, rng.randrange(256))))
     state.w32(obj + 0x18, step)
 
-    state.w16(sym["data_801adfe4"], rng.randrange(0, 85 - written + 1))
-    state.w8(sym["data_801a27d0"], rng.randrange(2))
+    state.w16(sym["tile_sprite_count"], rng.randrange(0, 85 - written + 1))
+    state.w8(sym["draw_buffer_index"], rng.randrange(2))
     fill(state, sym["data_801f3050_slot06_00"], 2 * 85 * 28, rng)
     return Setup(args=(obj,), returns_value=False)
 

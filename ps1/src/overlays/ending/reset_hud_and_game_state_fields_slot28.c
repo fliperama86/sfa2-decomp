@@ -7,7 +7,7 @@ extern u16 data_800285d4_slot28[];
 extern void (*data_80028a4c_slot28[])(Object *);
 
 void reset_hud_and_game_state_fields_slot28(void) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     h->phase_index = 9;
     game_state.step_delay_timer = 0;
     h->step_index = 0;

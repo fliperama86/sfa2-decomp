@@ -157,7 +157,7 @@ void sync_kind_then_call_move_handler_slot04_17(Object *obj) {
             build_metrics(obj);
         }
     }
-    data_801ad398 = data_801ce260_slot04_17[obj->field_15a](obj);
+    script_condition_result = data_801ce260_slot04_17[obj->field_15a](obj);
 }
 
 int is_kind_seventeen_slot04_17(Object *obj) {

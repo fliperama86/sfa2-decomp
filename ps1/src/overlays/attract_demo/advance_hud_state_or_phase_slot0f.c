@@ -16,7 +16,7 @@ void advance_hud_state_or_phase_slot0f(Object *obj) {
     if (((Slot0fObj *)obj)->field_01 != 0) {
         advance_hud_state_index_and_reset_slot0f((Slot0fObj *)obj);
     } else {
-        data_8018f5a0->phase_index++;
+        screen_state->phase_index++;
         if (game_state.mode_flag_2 == 0) {
             reset_phase_step_and_object_fields_slot0f((Slot0fObj *)obj, 1);
         } else {

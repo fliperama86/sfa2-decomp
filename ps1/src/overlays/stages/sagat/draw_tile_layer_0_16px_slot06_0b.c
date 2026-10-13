@@ -10,7 +10,7 @@ extern Slot06Tile data_801ec138_slot06_0b[2][0x34];
    The locals are 16-bit and x keeps the pre-negation position, as in the
    model draw_tile_layer_0_16px_slot06_00. */
 void draw_tile_layer_0_16px_slot06_0b(void) {
-    Chan *c = data_801aa544;
+    Chan *c = background_layers;
     int x;
     int pos;
     s16 y;
@@ -46,8 +46,8 @@ void draw_tile_layer_0_16px_slot06_0b(void) {
     } else {
         row = (y - 15) / 16;
     }
-    rec = data_801ec138_slot06_0b[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801ec138_slot06_0b[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 16; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {

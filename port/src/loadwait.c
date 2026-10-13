@@ -78,7 +78,7 @@ static void step_flagged(void)
 static void finish_flagged(void)          { *(unsigned short *)port_gs((const void *)(uintptr_t)SCREEN_FLAGS, 2) &= 0x1fu; }
 
 /* The loading screen's fields (see loadwait.h): game_state is 0x80190108 (step_counter at 0xc2, step_delay_timer at 0xc4, wait_flag at 0xf0);
- * data_8018f5a0 holds the pointer to the structure whose halfword at 0x48 is the state index; the text item is at 0x8017f2ec with its
+ * screen_state holds the pointer to the structure whose halfword at 0x48 is the state index; the text item is at 0x8017f2ec with its
  * string pointer at 0x8017f2f8; the string "NOW LOADING...@@" is at 0x8016da10 (the game ends its text with "@@", not a NUL) and its terminator at 0x8016da1e. */
 #define HUD_POINTER         0x8018f5a0u
 #define STEP_COUNTER        0x801901cau

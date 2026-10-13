@@ -16,7 +16,7 @@ void update_sequence_with_end_flags_slot12(Object *obj) {
         obj->field_01 = 0;
         obj->state_0++;
         game_state.busy_flag = 0;
-        data_801ae02c = 0;
+        single_object_active = 0;
     }
     if (data_8002d57c_slot12 != 0) {
         advance_sequence_checked(obj);

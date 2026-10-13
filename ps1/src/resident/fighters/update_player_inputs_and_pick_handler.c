@@ -3,7 +3,7 @@
 #include "../../externs.h"
 #include "../../protos.h"
 
-extern u16 data_801a6966;
+extern u16 pad_1_held;
 
 /* Exact: the earlier candidate matches once the externs it needs are declared. */
 void update_player_inputs_and_pick_handler(void) {
@@ -13,10 +13,10 @@ void update_player_inputs_and_pick_handler(void) {
         player_right.prev_input_bits_2 = player_right.input_bits_2;
         player_left.prev_input_word = player_left.input_word;
         player_right.prev_input_word = player_right.input_word;
-        player_left.input_bits_2 = data_801a6966;
-        player_right.input_bits_2 = data_801a6972;
-        player_left.input_word = data_801a6966;
-        player_right.input_word = data_801a6972;
+        player_left.input_bits_2 = pad_1_held;
+        player_right.input_bits_2 = pad_2_held;
+        player_left.input_word = pad_1_held;
+        player_right.input_word = pad_2_held;
         update_saved_facing_for_both_players();
         if (player_left.status_flag == 0xff) {
             update_both_players();

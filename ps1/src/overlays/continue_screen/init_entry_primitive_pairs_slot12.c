@@ -17,11 +17,11 @@ void init_entry_primitive_pairs_slot12(Object *obj) {
         init_two_prims_with_draw_mode_slot12(obj, a, 0x10, 0x10);
         a->tpage = 0x7f07;
         r = func_8015bd0c(0, 0, 0x3c0, 0x100);
-        a->cmd = 0xe1000000 + (((Object *)data_801987c8)->step_count << 9) + (((Object *)data_801987c8)->field_a3 << 10) + (r & 0x1f);
+        a->cmd = 0xe1000000 + (((Object *)current_ordering_table)->step_count << 9) + (((Object *)current_ordering_table)->field_a3 << 10) + (r & 0x1f);
         a++;
         a->tpage = 0x7f07;
         r = func_8015bd0c(0, 0, 0x3c0, 0x100);
-        a->cmd = 0xe1000000 + (((Object *)data_801987c8)->step_count << 9) + (((Object *)data_801987c8)->field_a3 << 10) + (r & 0x1f);
+        a->cmd = 0xe1000000 + (((Object *)current_ordering_table)->step_count << 9) + (((Object *)current_ordering_table)->field_a3 << 10) + (r & 0x1f);
         a++;
     }
     a = data_8002c528_slot12;

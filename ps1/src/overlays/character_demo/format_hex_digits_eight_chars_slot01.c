@@ -35,8 +35,8 @@ void reset_hud_state_and_restore_kind_index_slot01(GameState *g) {
     HudState *h;
     set_menu_command_by_code(6, 2);
     game_state.kind_index = *(u16 *)&data_80055f3c_slot01;
-    h = data_8018f5a0;
-    data_80190568 = 0;
+    h = screen_state;
+    kind_handlers_enabled = 0;
     data_80055ea4_slot01 = 0;
     h->step_index = 0;
     game_state.countdown_2 = 0;

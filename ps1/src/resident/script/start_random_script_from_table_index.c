@@ -20,7 +20,7 @@ void start_random_script_from_table_index(Object *object) {
     object->script_entry_index = value;
     p = (u16 *)table[(s16)value];
     next = p + 1;
-    data_80189460 = next;
+    script_cursor = next;
     first = *p;
     object->script_ptr_1 = (s32)next;
     object->field_224 = 0;
@@ -46,7 +46,7 @@ void start_random_script_from_other_frame(Object *object) {
     object->script_entry_index = value;
     p = (u16 *)table[(s16)value];
     next = p + 1;
-    data_80189460 = next;
+    script_cursor = next;
     first = *p;
     object->script_ptr_2 = (s32)next;
     object->field_224 = 0;

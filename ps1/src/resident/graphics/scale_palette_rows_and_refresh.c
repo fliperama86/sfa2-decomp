@@ -17,5 +17,5 @@ void scale_palette_rows_and_refresh(void) {
 }
 
 void call_substate_table_entry(void) {
-    table_8016e804[((HudBig *)data_8018f5a0)->substate_index]();
+    table_8016e804[((HudBig *)screen_state)->substate_index]();
 }

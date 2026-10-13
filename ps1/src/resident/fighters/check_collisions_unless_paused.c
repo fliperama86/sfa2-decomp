@@ -15,7 +15,7 @@ void check_collisions_unless_paused(void) {
         check_player_hits_and_set_defeat_bits();
         check_object_pair_box_collisions();
         func_8013bfa4();
-        if (game_state.versus_flag != 0 && *(u16 *)data_801a6984 == 0) {
+        if (game_state.versus_flag != 0 && *(u16 *)input_block == 0) {
             player_left.health = 0x90;
             player_right.health = 0x90;
         }

@@ -4,7 +4,7 @@
 #include "../../protos.h"
 
 void start_hud_stage_step_sequence(GameState *state) {
-    ((Hud *)data_8018f5a0)->stage++;
+    ((Hud *)screen_state)->stage++;
     state->step_delay_timer = 1;
     state->step_counter = 0;
     state->wait_flag = 1;
@@ -20,7 +20,7 @@ void update_fade_step_counter_up(GameState *state) {
         queue_image_upload_job(4, 7);
         state->step_counter++;
         if ((s16)state->step_counter >= 0x20) {
-            ((Hud *)data_8018f5a0)->stage++;
+            ((Hud *)screen_state)->stage++;
             state->wait_flag = 0x80;
         }
     }

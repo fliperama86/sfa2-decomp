@@ -11,6 +11,6 @@ void set_voice_thread_entry_and_open(int a, int b) {
 }
 
 void set_snd_ctl_thread_entry_and_close(int a) {
-    set_table_entry_and_global_pointer(&((SndCtl *)data_8018f5a0)->field_0c, a);
-    close_sound_thread_and_switch_to_main(((SndCtl *)data_8018f5a0)->field_0c);
+    set_table_entry_and_global_pointer(&((SndCtl *)screen_state)->field_0c, a);
+    close_sound_thread_and_switch_to_main(((SndCtl *)screen_state)->field_0c);
 }

@@ -6,7 +6,7 @@
 void advance_palette_animation_and_upload_slot27(Object *obj);
 
 void move_pos_x_until_target_and_step_palette_slot27(Object *obj) {
-    s32 *t = (s32 *)data_8019045c;
+    s32 *t = (s32 *)scratch_word_a;
     *t = obj->vel_x;
     obj->pos_x = obj->pos_x + *(u16 *)t;
     *t = obj->pos_x;

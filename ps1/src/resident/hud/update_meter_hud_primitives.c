@@ -6,7 +6,7 @@
 
 
 void update_meter_hud_primitives(u8 *base, Object *a, Object *b) {
-    u16 raw = data_801a27d0;
+    u16 raw = draw_buffer_index;
     s16 index;
     u8 *p;
 

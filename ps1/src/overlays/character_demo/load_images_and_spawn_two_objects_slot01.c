@@ -6,7 +6,7 @@
 void load_images_and_spawn_two_objects_slot01(void) {
     Rect r;
     Object *o;
-    if (data_80197f10 >= 5) {
+    if (free_block_count >= 5) {
         r.x = 0x70;
         r.y = 0x1e0;
         r.w = 0x10;
@@ -56,5 +56,5 @@ void load_images_and_spawn_two_objects_slot01(void) {
             o->parent = game_state.focus_object;
         }
     }
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
 }

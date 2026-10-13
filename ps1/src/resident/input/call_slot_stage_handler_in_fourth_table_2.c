@@ -6,7 +6,7 @@
 
 int call_slot_stage_handler_in_fourth_table_2(Object *object, int index, u8 arg) {
     table_8017ac14[object->slots[(u8)index].stage](object, (u8)index, arg);
-    return data_80188f44;
+    return slot_result_flag;
 }
 
 void init_slot_fields_and_advance_stage(Object *object, int index, int arg) {

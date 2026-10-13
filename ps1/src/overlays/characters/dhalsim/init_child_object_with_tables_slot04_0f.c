@@ -7,7 +7,7 @@ extern SequenceStep *data_801c6144_slot04_0f[];
 extern FrameRecord data_801c6150_slot04_0f[];
 extern BoxTables data_801c618c_slot04_0f[];
 extern ObjectFn data_801c62a4_slot04_0f[];
-extern ObjectRef data_80190458;
+extern ObjectRef ref_aux;
 
 void reset_and_push_block_object_type_8(Slab172 *o);
 void clear_or_set_flag_by_pos_x_limit(Object *o);
@@ -19,8 +19,8 @@ void init_child_object_with_tables_slot04_0f(Object *obj) {
     obj->ot_depth = 0;
     obj->variant_index_2 = 0xff;
     obj->state_0 = obj->state_0 + 1;
-    obj->field_49 = data_80190458.p->field_49;
-    obj->field_1c = data_80190458.p->field_1c;
+    obj->field_49 = ref_aux.p->field_49;
+    obj->field_1c = ref_aux.p->field_1c;
     obj->box_tables = data_801c618c_slot04_0f;
     obj->health = 0xff;
     obj->active_state = 0;
@@ -40,7 +40,7 @@ void call_handler_by_state_1_unless_paused_slot04_0f(Object *obj) {
 }
 
 void advance_state_0_on_frame_param_zero_slot04_0f(Object *obj) {
-    if (data_80190458.p->frame->frame_param == 0) {
+    if (ref_aux.p->frame->frame_param == 0) {
         obj->state_0 = obj->state_0 + 1;
     }
     advance_sequence_checked(obj);
@@ -48,7 +48,7 @@ void advance_state_0_on_frame_param_zero_slot04_0f(Object *obj) {
 }
 
 void advance_or_reset_states_on_frame_param_slot04_0f(Object *obj) {
-    if (data_80190458.p->frame->frame_param == 0) {
+    if (ref_aux.p->frame->frame_param == 0) {
         obj->state_0 = obj->state_0 + 1;
     } else {
         obj->state_0 = 1;

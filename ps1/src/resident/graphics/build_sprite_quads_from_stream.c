@@ -75,8 +75,8 @@ void build_sprite_quads_from_stream(Slab172 *p) {
         x1 = obj->pos_x - 16 - box_margin[0];
         x2 = obj->pos_x - box_margin[0];
         py = obj->pos_y - 8;
-        y1 = data_801aa5ea[0] + py;
-        y2 = data_801aa5ea[0] + py;
+        y1 = view_scroll_y[0] + py;
+        y2 = view_scroll_y[0] + py;
     }
     if (obj->field_0f != 0) {
         y2 = y2 + data_8019019a;
@@ -86,7 +86,7 @@ void build_sprite_quads_from_stream(Slab172 *p) {
     i = 0;
     src = (u16 *)((hdr->offset & 0xfffe) + ((u8 *)obj->stream));
     cur = (SpriteQuad *)data_801a4fe8;
-    seq = ((obj->sequence_index * 4) + 0x20) + (u8 *)data_801987c8;
+    seq = ((obj->sequence_index * 4) + 0x20) + (u8 *)current_ordering_table;
     /* The third place of the stand-in above. The figure is the one above: all terms taken out. This place: two terms ORed to i, each 0 for every i and a2. */
     while ((i | (int)(((u32)i << 24) & 0x100) | (int)(((u32)a2 << 24) & 0x100)) < count) {
         if (flags & 1) {
@@ -159,7 +159,7 @@ void build_sprite_quads_from_stream(Slab172 *p) {
             a2 = (a2 + 1) & 15;
             /* The fourth place of the stand-in above. The figure is the one above: all terms taken out. This place: the term ORed to a2 is 0 for every tile. */
             if ((a2 | (int)(((u32)(u16)tile << 24) & 0x100)) == 0) {
-                func_8015bf34((int)seq, (Cmd *)((u8 *)data_8018db18 + (data_801a27d0 * 0x540) + ((u16)tile * 12)));
+                func_8015bf34((int)seq, (Cmd *)((u8 *)data_8018db18 + (draw_buffer_index * 0x540) + ((u16)tile * 12)));
                 tile = data_80183c90[(u16)tile];
             }
         }
@@ -174,7 +174,7 @@ void build_sprite_quads_from_stream(Slab172 *p) {
     }
     if (a2 != 0) {
         /* The fifth place of the stand-in above. The figure is the one above: all terms taken out. This place: the term added to the tile offset is 0 for every i. */
-        func_8015bf34((int)seq, (Cmd *)((u8 *)data_8018db18 + (data_801a27d0 * 0x540) + (tile * 12 + (int)(((u32)i << 24) & 0x100))));
+        func_8015bf34((int)seq, (Cmd *)((u8 *)data_8018db18 + (draw_buffer_index * 0x540) + (tile * 12 + (int)(((u32)i << 24) & 0x100))));
     }
     data_801a4fe8 = (u8 *)cur;
 }

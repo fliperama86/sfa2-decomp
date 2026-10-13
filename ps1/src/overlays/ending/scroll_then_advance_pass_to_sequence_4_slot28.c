@@ -13,7 +13,7 @@ void scroll_then_advance_pass_to_sequence_4_slot28(Object *obj) {
     scroll_two_objects_x_with_wrap_slot28(obj);
     p = data_8005198c_slot28.p;
     if ((s16)p->step_flags < 0) {
-        HudState *h = data_8018f5a0;
+        HudState *h = screen_state;
         h->countdown_timer = 0xb4;
         h->pass_index += 1;
         p = data_80051958_slot28.p;

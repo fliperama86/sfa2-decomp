@@ -38,12 +38,12 @@ void update_button_config_screen_slot0f(void) {
     add_item_to_table(&data_800e9968_slot0f);
     add_item_to_table(&data_800e9978_slot0f);
     add_item_to_table(&data_800e9988_slot0f);
-    pad = &data_801a696a;
+    pad = &pad_1_pressed;
     if (*pad & 0x800) {
-        data_8018f5a0->pass_index = 3;
+        screen_state->pass_index = 3;
     }
-    if (data_801a6976 & 0x800) {
-        data_8018f5a0->pass_index = 3;
+    if (pad_2_pressed & 0x800) {
+        screen_state->pass_index = 3;
     }
     if (*pad & 0x4000) {
         data_800e98e3_slot0f[data_800f024c_slot0f * 5] = data_8016e674[data_800f024c_slot0f];
@@ -96,7 +96,7 @@ void update_button_config_screen_slot0f(void) {
         data_800f0254_slot0f = data_800f024c_slot0f;
         play_sound_at(0, 0, 0x34c);
     }
-    pad = &data_801a6976;
+    pad = &pad_2_pressed;
     if (*pad & 0x4000) {
         data_800e990f_slot0f[data_800f0250_slot0f * 5] = data_8016e67c[data_800f0250_slot0f];
         data_800e981b_slot0f[data_800f0250_slot0f * 14] = 0x1b;

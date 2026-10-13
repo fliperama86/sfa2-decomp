@@ -17,7 +17,7 @@ void clear_ten_entry_table_9_slot28(void);
 void init_object_data_pointers_a_11_slot28(Object *obj);
 
 void init_slot28_scene_a_objects_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     Object *p;
     int one;
     h->countdown_timer = 0x258;
@@ -26,7 +26,7 @@ void init_slot28_scene_a_objects_slot28(Object *obj) {
     one = 1;
     clear_ten_entry_table_9_slot28();
     start_fade_mode_1_and_wait();
-    data_80190568 = one;
+    kind_handlers_enabled = one;
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
         init_object_data_pointers_a_11_slot28(p);

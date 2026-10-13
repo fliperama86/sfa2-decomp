@@ -22,8 +22,8 @@ void start_pass_scrolling_objects_spawn_slot28(Object *obj) {
     Object *b;
     Object *prev;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x12c;
-        data_8018f5a0->pass_index += 1;
+        screen_state->countdown_timer = 0x12c;
+        screen_state->pass_index += 1;
         release_active_objects_in_table_3_slot28();
         set_sequence_from_table_5(data_8005197c_slot28.p, 0, data_80034518_slot28);
         b = data_80051980_slot28[0];

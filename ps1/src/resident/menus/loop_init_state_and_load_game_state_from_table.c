@@ -10,9 +10,9 @@ void loop_init_state_and_load_game_state_from_table(void) {
     Tune2a *t = &table_8016e664;
     HudState *h;
     func_80157d00(1);
-    data_8018f5a0->state_index = 0;
+    screen_state->state_index = 0;
     for (;;) {
-        h = data_8018f5a0;
+        h = screen_state;
         switch (h->state_index) {
         case 0:
             data_8019093c = z;
@@ -23,7 +23,7 @@ void loop_init_state_and_load_game_state_from_table(void) {
             if (*(int *)0x1f800000 == 0) {
                 start_sound_and_set_volumes();
             }
-            data_8018f5a0->state_index = data_8018f5a0->state_index + 1;
+            screen_state->state_index = screen_state->state_index + 1;
             break;
         case 1:
             h->state_index = h->state_index + 1;
@@ -43,11 +43,11 @@ void loop_init_state_and_load_game_state_from_table(void) {
             g->handler_index = t->field_26;
             g->table_index = t->field_28;
             g->field_2a = t->field_29;
-            data_8018f5a0->state_index = 0;
-            data_8018f5a0->phase_index = 0;
-            data_8018f5a0->step_index = 0;
-            data_8018f5a0->substep_index = 0;
-            data_8018f5a0->step_index_2 = 0;
+            screen_state->state_index = 0;
+            screen_state->phase_index = 0;
+            screen_state->step_index = 0;
+            screen_state->substep_index = 0;
+            screen_state->step_index_2 = 0;
             switch_to_next_table_entry_and_wait();
             break;
         }

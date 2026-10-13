@@ -5,7 +5,7 @@
 
 
 void branch_script_if_other_above_ground_offset(Object *object) {
-    u16 v = *data_80189460++;
+    u16 v = *script_cursor++;
     Object *other = object->other;
     if ((u16)(other->ground_y - v) >= (u16)other->pos_y) {
         read_script_word_and_dispatch(object);
@@ -36,7 +36,7 @@ void branch_script_if_other_link_entry_ge_3(Object *object) {
 }
 
 void branch_script_if_own_health_below_value(Object *object) {
-    s16 v = *(s16 *)data_80189460++;
+    s16 v = *(s16 *)script_cursor++;
     if ((s16)object->health < v) {
         read_script_word_and_dispatch(object);
     } else {

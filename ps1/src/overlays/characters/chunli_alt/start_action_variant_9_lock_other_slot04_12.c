@@ -96,7 +96,7 @@ void clear_two_nine_byte_groups_unless_kind_4_slot04_12(Object *obj) {
 }
 
 void func_801b156c_slot04_12(Object *obj) {
-    data_801ad398 = data_801c4a20_slot04_12[obj->field_15a](obj);
+    script_condition_result = data_801c4a20_slot04_12[obj->field_15a](obj);
 }
 
 int return_true_always_slot04_12(Object *obj) {

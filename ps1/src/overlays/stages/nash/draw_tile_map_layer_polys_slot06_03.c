@@ -5,7 +5,7 @@
 
 extern Poly28 data_801f4c40_slot06_03[2][0x48];
 
-/* Draws the layer data_801aa544[1] as 24-cell rows of 16-pixel quads, the
+/* Draws the layer background_layers[1] as 24-cell rows of 16-pixel quads, the
    first row drawn cropped at the top by an offset (inferred). Forms that
    have to stay, each measured by undoing it alone on this function:
    - t holds the row offset before row and off are made from it: written
@@ -53,22 +53,22 @@ void draw_tile_map_layer_polys_slot06_03(void) {
     u16 *e;
     Poly28 *rec;
     u32 *ot;
-    blank = ((Slot06Layer *)data_801aa5d4)->packed_param;
-    n = ((Slot06Layer *)data_801aa5d4)->signed_param;
-    f12 = (s16)((Slot06Layer *)data_801aa5d4)->scroll_x;
+    blank = ((Slot06Layer *)main_layer)->packed_param;
+    n = ((Slot06Layer *)main_layer)->signed_param;
+    f12 = (s16)((Slot06Layer *)main_layer)->scroll_x;
     sx = f12 & 0xf;
-    y = ((Slot06Layer *)data_801aa5d4)->field_4c - (n + 5);
+    y = ((Slot06Layer *)main_layer)->field_4c - (n + 5);
     sy = y & 0xf;
-    col = (f12 & (((Slot06Layer *)data_801aa5d4)->map_width - 1)) >> 4;
-    t = (s16)((Slot06Layer *)data_801aa5d4)->field_4c - 5;
+    col = (f12 & (((Slot06Layer *)main_layer)->map_width - 1)) >> 4;
+    t = (s16)((Slot06Layer *)main_layer)->field_4c - 5;
     row = t / 16;
     off = t - (row << 4);
-    mask = (((Slot06Layer *)data_801aa5d4)->map_width >> 4) - 1;
+    mask = (((Slot06Layer *)main_layer)->map_width >> 4) - 1;
     first = 0;
-    rec = data_801f4c40_slot06_03[data_801a27d0];
-    ot = &((u32 *)data_801987c8)[14];
-    for (i = (s16)y / 16; i < (lim = (s16)y / 16 + 15) - ((s16)((Slot06Layer *)data_801aa5d4)->field_4c - 5) / 16; i++, row++) {
-        line = ((Slot06Layer *)data_801aa5d4)->tile_map_ptr + 0x800 + ((u16)row >> 4) * ((((Slot06Layer *)data_801aa5d4)->map_width >> 9) << 10) + ((row & 0xf) << 6);
+    rec = data_801f4c40_slot06_03[draw_buffer_index];
+    ot = &((u32 *)current_ordering_table)[14];
+    for (i = (s16)y / 16; i < (lim = (s16)y / 16 + 15) - ((s16)((Slot06Layer *)main_layer)->field_4c - 5) / 16; i++, row++) {
+        line = ((Slot06Layer *)main_layer)->tile_map_ptr + 0x800 + ((u16)row >> 4) * ((((Slot06Layer *)main_layer)->map_width >> 9) << 10) + ((row & 0xf) << 6);
         ya = sy + (i << 4);
         cc = col;
         yu = ya;

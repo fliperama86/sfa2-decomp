@@ -6,16 +6,16 @@
 
 void reset_slot_stage_clear_result(Object *object, int index, int unused) {
     object->slots[(u8)index].stage = 0;
-    data_80188f44 = 0;
+    slot_result_flag = 0;
 }
 
 void clear_global_flag_ignoring_object(Object *unused) {
-    data_80188f44 = 0;
+    slot_result_flag = 0;
 }
 
 void reset_slot_stage_set_result(Object *object, int index, int unused) {
     object->slots[(u8)index].stage = 0;
-    data_80188f44 = 1;
+    slot_result_flag = 1;
 }
 
 void set_slot_level_from_repeat_count(Object *object, int index) {
@@ -40,7 +40,7 @@ void set_slot_level_from_repeat_count(Object *object, int index) {
     }
     object->slots[(u8)index].level = level;
     object->slots[(u8)index].stage = 0;
-    data_80188f44 = 1;
+    slot_result_flag = 1;
 }
 
 void set_side_ring_flag(Object *object) {

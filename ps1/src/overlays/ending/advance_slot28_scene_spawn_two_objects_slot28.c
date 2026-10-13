@@ -19,9 +19,9 @@ void release_active_objects_in_table_4_slot28(void);
 
 void advance_slot28_scene_spawn_two_objects_slot28(Object *obj) {
     Object *s;
-    if (data_80190949 != 0 && obj->field_f0 == 0) {
-        data_8018f5a0->pass_index++;
-        data_8018f5a0->countdown_timer = 0x1e0;
+    if (menu_active_flag != 0 && obj->field_f0 == 0) {
+        screen_state->pass_index++;
+        screen_state->countdown_timer = 0x1e0;
         release_active_objects_in_table_4_slot28();
         set_sequence_from_table_5(data_800519c0_slot28.p, 1, data_80036694_slot28);
         s = data_800519c4_slot28[0];

@@ -5,7 +5,7 @@
 
 
 void select_buffers_and_run_first_setup(void) {
-    int n = data_801a27d0;
+    int n = draw_buffer_index;
     data_801a4fe8 = (u8 *)data_801987cc[n];
     data_801a697c = (u8 *)data_8018db18[n];
     data_801ad3dc = (u8 *)&data_801987cc[n][0x280];

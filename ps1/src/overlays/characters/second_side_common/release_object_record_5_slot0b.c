@@ -16,7 +16,7 @@ void add_vel_x_and_accel_x_to_position_words_slot0b(Object *obj) {
 }
 
 void call_handler_by_state_if_flag_set_slot0b(void) {
-    u8 *p = &data_801ae02c;
+    u8 *p = &single_object_active;
     if (*p != 0) {
         data_801e4d5c_slot0b[data_801ae02e]((Object *)p);
     }

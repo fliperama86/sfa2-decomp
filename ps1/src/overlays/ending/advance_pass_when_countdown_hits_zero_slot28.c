@@ -13,7 +13,7 @@ void init_object_data_pointers_a_6_slot28(Object *obj);
 void release_active_objects_in_table_4_slot28(void);
 
 void advance_pass_when_countdown_hits_zero_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;
     if ((s16)t == 0) {
@@ -25,7 +25,7 @@ void advance_pass_when_countdown_hits_zero_slot28(Object *obj) {
 void advance_pass_and_spawn_sequence_4_object_slot28(Object *obj) {
     Object *p;
     if (obj->field_f0 == 0) {
-        HudState *h = data_8018f5a0;
+        HudState *h = screen_state;
         h->countdown_timer = 0x1e0;
         h->pass_index = h->pass_index + 1;
         release_active_objects_in_table_4_slot28();

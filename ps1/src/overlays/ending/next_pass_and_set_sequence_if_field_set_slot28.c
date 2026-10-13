@@ -10,7 +10,7 @@ void set_sequence_of_fourth_hud_object_7_slot28(Object *obj, int arg);
 
 void next_pass_and_set_sequence_if_field_set_slot28(Object *obj) {
     if (obj->field_f0 != 0) {
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->pass_index = screen_state->pass_index + 1;
         set_sequence_of_fourth_hud_object_7_slot28(obj, 1);
     }
 }
@@ -31,8 +31,8 @@ void scroll_objects_up_until_limit_slot28(Object *obj) {
     o = data_80051a04_slot28[0];
     ((Slot28Obj *)o)->pos_y -= 0x4000;
     if (o->pos_y < -0x6f) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index = screen_state->pass_index + 1;
         o->pos_y = -0x70;
         set_sequence_of_fourth_hud_object_7_slot28(obj, 2);
     }

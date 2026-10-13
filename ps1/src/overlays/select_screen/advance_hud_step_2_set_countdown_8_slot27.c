@@ -10,7 +10,7 @@ void fill_rows_white_and_queue_jobs_slot27(void);
 
 void advance_hud_step_2_set_countdown_8_slot27(void) {
     if (game_state.busy_flag == 0) {
-        data_8018f5a0->step_index_2++;
+        screen_state->step_index_2++;
         game_state.countdown_2 = 8;
     }
 }
@@ -29,12 +29,12 @@ void alternate_row_effect_until_countdown_2_expires_slot27(void) {
     t = *c - 1;
     *c = t;
     if ((s16)t == 0) {
-        data_8018f5a0->step_index_2++;
+        screen_state->step_index_2++;
         data_80029324_slot27 = 0;
     }
 }
 
 void advance_hud_step_2_set_countdown_2_slot27(void) {
-    data_8018f5a0->step_index_2++;
+    screen_state->step_index_2++;
     game_state.countdown_2 = 2;
 }

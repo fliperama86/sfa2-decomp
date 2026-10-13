@@ -41,7 +41,7 @@ void init_object_after_hit_and_spawn_three_effects(Object *object) {
     object->field_267 = 0;
     object->cursor_timer_b = object->field_7e;
     object->frame_count = 0;
-    if (data_80197f10 >= 3) {
+    if (free_block_count >= 3) {
         get_three_pool_objects_sorted(p);
         o = p[0];
         o->active_count = 1;

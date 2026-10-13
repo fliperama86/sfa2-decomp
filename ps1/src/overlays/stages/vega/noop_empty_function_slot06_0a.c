@@ -36,7 +36,7 @@ void toggle_flag_and_set_layer_scroll_half_slot06_0a(Slot06Layer *layer) {
     s16 e;
 
     layer->flags_bits ^= 0x200;
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     d = l2->field_22;
     d -= l2->ref_x;
     d /= 2;

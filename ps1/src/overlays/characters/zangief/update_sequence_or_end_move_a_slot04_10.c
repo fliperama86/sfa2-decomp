@@ -4,7 +4,7 @@
 #include "../../../externs.h"
 
 extern ObjectFn data_801c6a54_slot04_10[];
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 void start_action_if_buttons_pressed(Object *object);
@@ -33,7 +33,7 @@ void start_state_3_sequence_by_direction_slot04_10(Object *obj) {
     obj->field_225 = 1;
     obj->state_3++;
     add_to_meter_clamped(obj, 7);
-    add_one_to_ec4_if_object_unflagged((GameState *)data_80190468.p, obj);
+    add_one_to_ec4_if_object_unflagged((GameState *)ref_game_state.p, obj);
     a = 0x49;
     if (obj->field_49 != 0) {
         a = 0x53;

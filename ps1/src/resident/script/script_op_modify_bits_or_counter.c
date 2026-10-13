@@ -13,8 +13,8 @@ void script_op_modify_bits_or_counter(Object *object)
   u16 limit;
   if (object->script_arg == 0)
   {
-    limit = *(data_80189460++);
-    bits = *(data_80189460++);
+    limit = *(script_cursor++);
+    bits = *(script_cursor++);
     if (((s16) limit) < object->table_column)
     {
       object->script_bits |= bits;
@@ -23,8 +23,8 @@ void script_op_modify_bits_or_counter(Object *object)
   else
     if (object->script_arg == 2)
   {
-    limit = *(data_80189460++);
-    bits = *(data_80189460++);
+    limit = *(script_cursor++);
+    bits = *(script_cursor++);
     new_var = ~bits;
     if (((s16) limit) < object->table_column)
     {

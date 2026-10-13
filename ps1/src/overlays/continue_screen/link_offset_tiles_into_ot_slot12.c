@@ -9,14 +9,14 @@ extern Slot12Tile data_8002a794_slot12[];
 
 void link_offset_tiles_into_ot_slot12(Object *obj) {
     u16 *t = data_80022e48_slot12;
-    u32 *ot = (u32 *)((u8 *)data_801987c8 + 0x3c);
+    u32 *ot = (u32 *)((u8 *)current_ordering_table + 0x3c);
     Slot12Tile *p;
     int i;
 
     if (obj->table_index == 0) {
-        p = data_8002a394_slot12 + data_801a27d0 * 0x20;
+        p = data_8002a394_slot12 + draw_buffer_index * 0x20;
     } else {
-        p = data_8002a794_slot12 + data_801a27d0 * 0x20;
+        p = data_8002a794_slot12 + draw_buffer_index * 0x20;
     }
     for (i = 0; i < 14; i++) {
         p->x = obj->pos_x + *t++;

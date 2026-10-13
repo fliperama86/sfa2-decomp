@@ -24,12 +24,12 @@ void clear_ten_entry_table_slot28(void);
 void setup_pooled_objects_for_menu_screen_a_slot28(Object *obj) {
     Object *o;
     int one;
-    data_8018f5a0->countdown_timer = 0x258;
-    data_8018f5a0->step_index_2 = data_8018f5a0->step_index_2 + 1;
+    screen_state->countdown_timer = 0x258;
+    screen_state->step_index_2 = screen_state->step_index_2 + 1;
     clear_ten_entry_table_slot28();
     start_fade_mode_1_and_wait();
     one = 1;
-    data_80190568 = one;
+    kind_handlers_enabled = one;
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
         init_object_data_pointers_a_3_slot28(o);

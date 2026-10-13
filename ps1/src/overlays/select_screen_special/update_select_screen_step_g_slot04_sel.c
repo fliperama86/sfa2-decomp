@@ -39,12 +39,12 @@ void update_select_screen_step_g_slot04_sel(void) {
                 r[1].field_04 = 0;
                 r[0].field_0e = 0;
                 r[1].field_0e = 0;
-                data_8018f5a0->step_index_2--;
+                screen_state->step_index_2--;
             } else {
                 r[0].field_00 = 0;
                 r[1].field_00 = 0;
-                data_8018f5a0->substep_index++;
-                data_8018f5a0->step_index_2 = 0;
+                screen_state->substep_index++;
+                screen_state->step_index_2 = 0;
             }
         }
     }

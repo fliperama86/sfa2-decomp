@@ -17,8 +17,8 @@ void advance_slot28_scene_spawn_one_object_slot28(Object *obj) {
     Object *p;
     SequenceStep **t;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x1e0;
-        data_8018f5a0->pass_index += 1;
+        screen_state->countdown_timer = 0x1e0;
+        screen_state->pass_index += 1;
         release_active_objects_in_table_6_slot28();
         p = (Object *)pop_block_from_pool();
         if (p != 0) {

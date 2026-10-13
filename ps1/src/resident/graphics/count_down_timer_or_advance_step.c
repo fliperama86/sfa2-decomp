@@ -41,9 +41,9 @@ void update_countdown_timer_on_pad_input(GameState *state, Object *object) {
     if (state->field_09 == 0 && state->state_2c_flag == 0) {
         u16 pad;
         if (object->side != 0)
-            pad = data_801a6976;
+            pad = pad_2_pressed;
         else
-            pad = data_801a696a;
+            pad = pad_1_pressed;
         if (pad & 0xfc) {
             if (*(s16 *)&object->field_b2 == 0) {
                 object->countdown_timer = 1;
@@ -63,9 +63,9 @@ u8 is_side_pad_bit_800_pressed(GameState *state, Object *object) {
     if (state->state_46_flag == 0 && state->field_09 == 0) {
         u16 pad;
         if (object->side == 0)
-            pad = data_801a696a;
+            pad = pad_1_pressed;
         else
-            pad = data_801a6976;
+            pad = pad_2_pressed;
         if (pad & 0x800)
             return 1;
     }
@@ -140,9 +140,9 @@ void reset_object_steps_unless_active_flag(GameState *state, Object *object) {
 void loop_hud_state_until_fade_done(void) {
     game_state.fade_busy = 0x1f;
     do {
-        ((HudWide *)data_8018f5a0)->field_48 = 0;
-        table_8016f5fc[((HudWide *)data_8018f5a0)->state_index >> 1]();
-        request_sound_command_and_switch_thread(((HudWide *)data_8018f5a0)->fade_arg);
+        ((HudWide *)screen_state)->field_48 = 0;
+        table_8016f5fc[((HudWide *)screen_state)->state_index >> 1]();
+        request_sound_command_and_switch_thread(((HudWide *)screen_state)->fade_arg);
     } while (game_state.fade_busy != 0);
     game_state.wait_flag = 0;
     close_snd_thread_and_switch_main();
@@ -327,8 +327,8 @@ void fade_in_palette_bank_4(void) {
 }
 
 void update_fade_brighten_all_banks(void) {
-    ((HudWide *)data_8018f5a0)->countdown--;
-    if (((HudWide *)data_8018f5a0)->countdown & 0x80) {
+    ((HudWide *)screen_state)->countdown--;
+    if (((HudWide *)screen_state)->countdown & 0x80) {
         game_state.fade_busy = 0;
     } else {
         fade_palette_bank(0, 1, 2);
@@ -341,8 +341,8 @@ void update_fade_brighten_all_banks(void) {
 }
 
 void update_fade_darken_all_banks(void) {
-    ((HudWide *)data_8018f5a0)->countdown--;
-    if (((HudWide *)data_8018f5a0)->countdown & 0x80) {
+    ((HudWide *)screen_state)->countdown--;
+    if (((HudWide *)screen_state)->countdown & 0x80) {
         game_state.fade_busy = 0;
     } else {
         fade_palette_bank(0, -1, 3);
@@ -355,8 +355,8 @@ void update_fade_darken_all_banks(void) {
 }
 
 void brighten_banks_0_2_3_with_countdown(void) {
-    ((HudWide *)data_8018f5a0)->countdown--;
-    if (((HudWide *)data_8018f5a0)->countdown & 0x80) {
+    ((HudWide *)screen_state)->countdown--;
+    if (((HudWide *)screen_state)->countdown & 0x80) {
         game_state.fade_busy = 0;
     } else {
         fade_palette_bank(0, 1, 2);
@@ -369,8 +369,8 @@ void brighten_banks_0_2_3_with_countdown(void) {
 }
 
 void darken_banks_0_2_3_with_countdown(void) {
-    ((HudWide *)data_8018f5a0)->countdown--;
-    if (((HudWide *)data_8018f5a0)->countdown & 0x80) {
+    ((HudWide *)screen_state)->countdown--;
+    if (((HudWide *)screen_state)->countdown & 0x80) {
         game_state.fade_busy = 0;
     } else {
         fade_palette_bank(0, -1, 3);

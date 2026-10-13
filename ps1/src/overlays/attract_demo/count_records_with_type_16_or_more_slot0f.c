@@ -14,7 +14,7 @@ void count_records_with_type_16_or_more_slot0f(Object *o) {
     int v;
 
     data_800f7b74_slot0f[2].value = 0;
-    p = &data_80190468.p->accum_count;
+    p = &ref_game_state.p->accum_count;
     i = obj->record_offset;
     n = 0;
     if (*p != 0xff) {
@@ -37,7 +37,7 @@ void count_record_bytes_of_two_types_into_value_slot0f(Object *o) {
     int v;
 
     data_800f7b74_slot0f[3].value = 0;
-    p = &data_80190468.p->accum_count;
+    p = &ref_game_state.p->accum_count;
     i = obj->record_offset;
     n = 0;
     if (*p != 0xff) {

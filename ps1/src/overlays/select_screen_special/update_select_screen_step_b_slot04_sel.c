@@ -44,12 +44,12 @@ void update_select_screen_step_b_slot04_sel(void) {
     if (game_state.side_mask == (rec0->confirm_mask | rec1->confirm_mask) && game_state.side_mask != 0 && (rec0->field_0b != 0 || rec1->field_0b != 0)) {
         rec0->state = 0;
         rec1->state = 0;
-        data_8018f5a0->step_index_2 = 0;
-        data_8018f5a0->substep_index++;
+        screen_state->step_index_2 = 0;
+        screen_state->substep_index++;
     }
     if (data_801b9d28_slot04_sel != game_state.side_mask || data_801b9d2c_slot04_sel != game_state.mode) {
         rec0->state = 0;
         rec1->state = 0;
-        data_8018f5a0->step_index_2 = 1;
+        screen_state->step_index_2 = 1;
     }
 }

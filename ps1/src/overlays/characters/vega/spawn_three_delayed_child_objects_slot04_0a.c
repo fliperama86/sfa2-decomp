@@ -10,7 +10,7 @@ void spawn_three_delayed_child_objects_slot04_0a(Object *obj) {
     int b;
     Object *t;
 
-    if (data_80197f10 >= 3) {
+    if (free_block_count >= 3) {
         get_three_pool_objects_sorted((u32 *)p);
         t = p[0];
         t->active_count = 1;

@@ -7,7 +7,7 @@
    with the table halfword fixed at step 1 and the pad compared as a whole.
    It decrements the slot's timer; when that reaches 0 it calls
    reset_slot_stage_clear_result and returns. Otherwise it takes the table halfword
-   table_8017a8cc[arg * 7 + 1], the object's two input halfwords ORed
+   slot_input_table[arg * 7 + 1], the object's two input halfwords ORed
    together (bits, pressed_bits | released_bits) and the entry's mask (its low
    byte, q):
      - entry bit 0x200 clear: a hit (reset_slot_stage_set_result) when the pad and mask
@@ -31,7 +31,7 @@ void check_slot_input_against_table_entry(Object *object, u8 index, u8 arg) {
         reset_slot_stage_clear_result(object, index, arg);
         return;
     }
-    entry = table_8017a8cc[(arg * 7) + 1];
+    entry = slot_input_table[(arg * 7) + 1];
     /* Stand-in, not recovered source: the assignment below, which nothing reads (m is set again three statements down), reproduces the original's choice of registers. Without it this function differs from the original in 16 instruction slots. */
     m = entry;
     bits = object->pressed_bits | object->released_bits;

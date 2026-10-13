@@ -4,8 +4,8 @@
 #include "../../../externs.h"
 
 extern void (*data_801be1e0_slot04_0c[])(Object *, Object *);
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
+extern SequenceStep **seqs_b4_left;
+extern SequenceStep **seqs_164_right;
 
 void init_object_from_parent_position_slot04_0c(Object *obj) {
     Object *p = obj->parent;
@@ -26,8 +26,8 @@ void init_object_from_parent_position_slot04_0c(Object *obj) {
     }
     obj->vel_y = 0xfffd8000;
     if (p->side == 0) {
-        set_sequence_from_table_5(obj, 1, data_1f8000b4);
+        set_sequence_from_table_5(obj, 1, seqs_b4_left);
     } else {
-        set_sequence_from_table_5(obj, 1, data_1f800164);
+        set_sequence_from_table_5(obj, 1, seqs_164_right);
     }
 }

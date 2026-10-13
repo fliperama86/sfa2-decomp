@@ -6,9 +6,9 @@
 void set_sequence_from_other_side_table_slot04_0b(Object *obj, int index) {
     SequenceStep **table;
     if (((Slot04aObj *)ref_other.p)->side == 0) {
-        table = data_1f8000b4;
+        table = seqs_b4_left;
     } else {
-        table = data_1f800164;
+        table = seqs_164_right;
     }
     set_sequence_from_table_5(obj, (s16)index, table);
 }

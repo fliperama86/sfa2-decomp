@@ -53,7 +53,7 @@ void fill_cell_record_rects_from_history(Object *obj, u16 column, u16 frame, Blo
     }
     x0 = r->pos_x - 0x10 - box_margin[0];
     x1 = r->pos_x - box_margin[0];
-    yy = r->pos_y + (data_801aa5ea[0] - 8);
+    yy = r->pos_y + (view_scroll_y[0] - 8);
     /* The original loads only the low byte of the entry (lbu): without the (u8) the build loads 16 bits and differs in 1 instruction line. */
     mode = (u8) data_80183d74[idx][dist];
     y0 = yy;
@@ -62,7 +62,7 @@ void fill_cell_record_rects_from_history(Object *obj, u16 column, u16 frame, Blo
         y0 = game_state.scroll_y + yy;
         y1 = y0;
     }
-    rec = (Pooled *) &data_801987cc[data_801a27d0][0x280 + obj->side * 320 + column * 80];
+    rec = (Pooled *) &data_801987cc[draw_buffer_index][0x280 + obj->side * 320 + column * 80];
     sp = (u16 *) ((u8 *) obj->data_ptr_a + (hdr->pos_x & 0xfffe));
     for (i = 0; i < count; i++) {
         /* fa and fb as locals; the plain tests inside the ifs differ in 14 instruction lines. */
@@ -129,7 +129,7 @@ void fill_cell_record_rects_from_history(Object *obj, u16 column, u16 frame, Blo
         }
     }
     /* The two words of one entry of data_80185c04, taken as words of its row with a 16-bit index. The entry's own address, (u32 *) &data_80185c04[sel][side * 4 + column] and that + 1, differs in 28 instruction lines; the word index without the (u16) in 20. */
-    func_8015bf70((u8 *) data_801987c8 + (second->field_09 * 4 + 0x30),
-                  &((u32 *) data_80185c04[data_801a27d0])[(u16) ((obj->side * 4 + column) * 2)],
-                  &((u32 *) data_80185c04[data_801a27d0])[(u16) ((obj->side * 4 + column) * 2) + 1]);
+    func_8015bf70((u8 *) current_ordering_table + (second->field_09 * 4 + 0x30),
+                  &((u32 *) data_80185c04[draw_buffer_index])[(u16) ((obj->side * 4 + column) * 2)],
+                  &((u32 *) data_80185c04[draw_buffer_index])[(u16) ((obj->side * 4 + column) * 2) + 1]);
 }

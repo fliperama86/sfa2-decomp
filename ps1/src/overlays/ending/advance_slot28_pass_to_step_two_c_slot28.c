@@ -16,8 +16,8 @@ void release_active_objects_in_table_11_slot28(void);
 void advance_slot28_pass_to_step_two_c_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index = screen_state->pass_index + 1;
         release_active_objects_in_table_11_slot28();
         set_sequence_from_table_5(data_80051b8c_slot28.p, 2, data_80045c40_slot28);
         b = data_80051b90_slot28[0];

@@ -7,7 +7,7 @@ extern Poly28 data_801f04d0_slot06_0b[2][0xb0];
 extern Slot06TileW data_801f3bd0_slot06_0b[2][0x5b];
 extern u16 data_801ebb7c_slot06_0b[];
 extern u16 data_801eab7c_slot06_0b[];
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 
 void func_8015c09c(void *prim);
 void init_draw_mode_prim_4(Tx *tx);
@@ -50,10 +50,10 @@ void update_layer_position_half_offset_slot06_0b(Slot06Layer *layer) {
     if (layer->mode == 0) {
         init_cam_position_and_consume_pending((Cam *)layer, 0x140, 0);
     } else if (layer->mode == 1) {
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         d = l2->field_22;
         d -= l2->ref_x;
-        d += data_80190542;
+        d += fourth_layer_offset_x;
         d /= 2;
         d += layer->ref_x;
         d += layer->pos_x_int;

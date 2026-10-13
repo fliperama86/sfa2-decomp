@@ -3,12 +3,12 @@
 #include "../../../protos.h"
 #include "../../../externs.h"
 
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 
 void update_layer_follow_and_flag_blink_slot06_02(Slot06Layer *layer);
 
 void update_layer_follow_and_flag_blink_slot06_02(Slot06Layer *layer) {
-    Slot06Layer *l2 = (Slot06Layer *)data_801aa5d4;
+    Slot06Layer *l2 = (Slot06Layer *)main_layer;
     s16 d;
 
     layer->field_8b--;
@@ -20,7 +20,7 @@ void update_layer_follow_and_flag_blink_slot06_02(Slot06Layer *layer) {
     layer->flags_bits = d;
     d = l2->field_22;
     d -= l2->ref_x;
-    d += data_80190542;
+    d += fourth_layer_offset_x;
     d -= d / 16;
     d += layer->ref_x;
     d += layer->pos_x_int;

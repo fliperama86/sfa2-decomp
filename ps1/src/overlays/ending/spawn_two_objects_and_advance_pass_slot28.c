@@ -11,7 +11,7 @@ extern SequenceStep *data_80034530_slot28[];
 void set_sequence_of_fourth_hud_object_5_slot28(Object *obj, int arg);
 
 void spawn_two_objects_and_advance_pass_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     Object *b;
     h->countdown_timer = 0x12c;
     h->pass_index++;

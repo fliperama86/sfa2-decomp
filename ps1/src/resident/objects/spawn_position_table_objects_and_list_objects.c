@@ -7,7 +7,7 @@
 void spawn_position_table_objects_and_list_objects(void) {
     s16 v;
     int t;
-    if (data_80197f10 >= 6) {
+    if (free_block_count >= 6) {
         t = game_state.field_48 * 2 - 1;
         v = game_state.count_index;
         if (v != t) {

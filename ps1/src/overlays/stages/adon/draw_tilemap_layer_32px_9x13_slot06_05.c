@@ -5,12 +5,12 @@
 
 extern Slot06TileW data_801f30a4_slot06_05[2][0x68];
 
-/* Draws the layer of data_801aa544[2]: for 9 rows of 13 cells of 32 pixels,
+/* Draws the layer of background_layers[2]: for 9 rows of 13 cells of 32 pixels,
    a tile record for each cell that is not blank, linked into the primitive
    list (inferred). The locals t, sx, sy, mask and cc are 16-bit, as in the model
    draw_tilemap_layer_32px_9x13_slot06_00. */
 void draw_tilemap_layer_32px_9x13_slot06_05(void) {
-    Chan *c = &data_801aa544[2];
+    Chan *c = &background_layers[2];
     int x;
     int pos;
     s16 y;
@@ -46,8 +46,8 @@ void draw_tilemap_layer_32px_9x13_slot06_05(void) {
     } else {
         row = (y - 31) / 32;
     }
-    rec = data_801f30a4_slot06_05[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801f30a4_slot06_05[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 9; i++, row++) {
         cc = col;
         if (row < 0 || rows < row) {

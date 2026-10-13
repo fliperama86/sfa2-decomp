@@ -8,7 +8,7 @@ void compute_layer_step_and_accumulate_slot06_04(Slot06Layer *layer) {
     int d;
 
     d = layer->field_60;
-    d -= *(s32 *)&((Slot06Layer *)data_801aa5d4)->bound_x_a;
+    d -= *(s32 *)&((Slot06Layer *)main_layer)->bound_x_a;
     d /= 64;
     layer->computed_value = d;
     layer->neg_accum = 0;

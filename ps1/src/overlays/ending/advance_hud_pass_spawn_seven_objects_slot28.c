@@ -16,8 +16,8 @@ void advance_hud_pass_spawn_seven_objects_slot28(Object *obj) {
     s16 t;
     if (obj->field_f0 == 0) {
         t = 0x3c0;
-        data_8018f5a0->countdown_timer = t;
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->countdown_timer = t;
+        screen_state->pass_index = screen_state->pass_index + 1;
         release_two_stored_objects_slot28(obj);
         p = (Object *)pop_block_from_pool();
         b = p;

@@ -39,13 +39,13 @@ void init_object_data_pointers_a_slot28(Object *obj) {
 }
 
 void call_pass_handler_and_update_blocks_a_slot28(Object *obj) {
-    data_8002ac84_slot28[data_8018f5a0->pass_index](obj);
+    data_8002ac84_slot28[screen_state->pass_index](obj);
     update_blocks();
     update_active_slab172_entries();
 }
 
 void advance_pass_index_and_set_sequence_0_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     h->pass_index = h->pass_index + 1;
     set_sequence_of_fourth_hud_object_slot28(obj, 0);
 }

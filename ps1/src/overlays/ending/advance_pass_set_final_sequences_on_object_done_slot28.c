@@ -11,7 +11,7 @@ void set_sequence_of_fourth_hud_object_3_slot28(Object *obj, int arg);
 void advance_pass_set_final_sequences_on_object_done_slot28(Object *o) {
     Object *p = data_80051908_slot28.p;
     if (((Slot28Obj *)p)->field_3a < 0) {
-        p = (Object *)data_8018f5a0;
+        p = (Object *)screen_state;
         ((HudState *)p)->countdown_timer = 0x12c;
         ((HudState *)p)->pass_index++;
         p = data_800518d0_slot28[0];
@@ -36,6 +36,6 @@ void fade_and_advance_pass_when_object_done_slot28(Object *obj) {
     if (((Slot28Obj *)data_80051908_slot28.p)->field_3a < 0) {
         set_menu_command_by_code(6, 3);
         start_fade_mode_1_and_wait();
-        data_8018f5a0->pass_index++;
+        screen_state->pass_index++;
     }
 }

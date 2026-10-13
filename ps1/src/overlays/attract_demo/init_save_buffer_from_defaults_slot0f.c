@@ -19,5 +19,5 @@ void init_save_buffer_from_defaults_slot0f(Object *obj) {
 }
 
 void call_handler_by_step_index_slot0f(void) {
-    data_800e971c_slot0f[data_8018f5a0->step_index]();
+    data_800e971c_slot0f[screen_state->step_index]();
 }

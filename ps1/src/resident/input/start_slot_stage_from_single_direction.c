@@ -3,9 +3,9 @@
 #include "../../externs.h"
 #include "../../protos.h"
 
-extern u16 data_801a6966;
+extern u16 pad_1_held;
 
-/* buttons is not set on every path: when data_801a6984 is not zero and the
+/* buttons is not set on every path: when input_block is not zero and the
    second condition does not hold, the code tests the register as it is.
    Reading the unset local is undefined behaviour in C. It reproduces the
    original's instructions with this compiler and is not a defined
@@ -16,14 +16,14 @@ void start_slot_stage_from_single_direction(Object *object, u8 index, u8 arg) {
     u16 entry;
     u8 t0;
     int buttons;
-    if (data_801a6984[0] == 0) {
+    if (input_block[0] == 0) {
         if (object->side == 0) {
-            buttons = data_801a6966 & 0xf000;
+            buttons = pad_1_held & 0xf000;
         } else {
-            buttons = data_801a6972 & 0xf000;
+            buttons = pad_2_held & 0xf000;
         }
     }
-    if (game_state.versus_flag != 0 && data_801a6984[0] != 0 && game_state.mode == object->field_02 + 1) {
+    if (game_state.versus_flag != 0 && input_block[0] != 0 && game_state.mode == object->field_02 + 1) {
         buttons = object->input_bits & 0xf000;
     }
     if ((u16)buttons == 0) {
@@ -42,7 +42,7 @@ void start_slot_stage_from_single_direction(Object *object, u8 index, u8 arg) {
             return;
         }
         object->slots[(u8)index].stage = object->slots[(u8)index].stage + 1;
-        entry = table_8017a8cc[(u8)arg * 7];
+        entry = slot_input_table[(u8)arg * 7];
         object->slots[(u8)index].entry_index = t0;
         object->slots[(u8)index].repeat_count = entry;
         ((void (*)(Object *, u8, u8, u16))set_slot_random_timer)(object, (u8)index, (u8)arg, entry);

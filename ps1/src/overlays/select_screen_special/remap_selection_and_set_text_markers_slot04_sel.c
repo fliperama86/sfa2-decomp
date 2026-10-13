@@ -37,7 +37,7 @@ void remap_selection_and_set_text_markers_slot04_sel(void) {
             q[3] = 2;
         }
     }
-    data_8018f5a0->step_index_2++;
+    screen_state->step_index_2++;
     t = data_801b85e8_slot04_sel[0];
     data_801b8540_slot04_sel[0]->buf[4] = 0x1b;
     if (data_8016e69a[left->side] != 0) {

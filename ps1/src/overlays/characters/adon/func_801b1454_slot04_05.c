@@ -8,7 +8,7 @@ extern ObjectFn data_801c13c4_slot04_05[];
 extern ObjectFn data_801c13ec_slot04_05[];
 
 void func_801b1454_slot04_05(Object *obj) {
-    data_801ad398 = data_801c139c_slot04_05[obj->field_15a](obj);
+    script_condition_result = data_801c139c_slot04_05[obj->field_15a](obj);
 }
 
 int return_true_always_slot04_05(Object *obj) {

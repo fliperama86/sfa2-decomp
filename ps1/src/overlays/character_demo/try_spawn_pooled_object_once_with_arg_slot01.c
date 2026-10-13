@@ -6,7 +6,7 @@
 int try_spawn_pooled_object_once_with_arg_slot01(u8 arg) {
     int ret = 0;
     Object *p;
-    u8 *flag = &data_801ae02c;
+    u8 *flag = &single_object_active;
 
     if (*flag == 0) {
         *flag = 1;

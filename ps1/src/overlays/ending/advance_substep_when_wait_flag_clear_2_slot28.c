@@ -8,7 +8,7 @@ extern Object *data_800518fc_slot28[];
 
 void advance_substep_when_wait_flag_clear_2_slot28(Object *obj) {
     if (game_state.wait_flag == 0) {
-        data_8018f5a0->substep_index += 1;
+        screen_state->substep_index += 1;
     }
 }
 

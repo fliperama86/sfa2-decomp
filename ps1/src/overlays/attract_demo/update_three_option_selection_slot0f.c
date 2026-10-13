@@ -9,10 +9,10 @@ extern Slot0fRec94ec *data_800e9698_slot0f;
 
 void update_three_option_selection_slot0f(void) {
     s8 *p;
-    if ((data_801a696a | data_801a6976) & 0x2000) {
+    if ((pad_1_pressed | pad_2_pressed) & 0x2000) {
         p = &data_800f8556_slot0f;
         *p = (*p + 1 < 3) ? *p + 1 : 0;
-    } else if ((data_801a696a | data_801a6976) & 0x8000) {
+    } else if ((pad_1_pressed | pad_2_pressed) & 0x8000) {
         p = &data_800f8556_slot0f;
         *p = (*p - 1 >= 0) ? *p - 1 : 2;
     } else {

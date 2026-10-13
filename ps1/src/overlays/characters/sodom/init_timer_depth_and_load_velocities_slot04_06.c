@@ -19,9 +19,9 @@ void set_sequence_from_table_index_by_sound_side_slot04_06(Object *obj) {
     u8 a = obj->table_index + 0x11;
 
     if (obj->sound_side == 0) {
-        table = data_1f8000b4;
+        table = seqs_b4_left;
     } else {
-        table = data_1f800164;
+        table = seqs_164_right;
     }
     set_sequence_from_table_5(obj, a, table);
 }

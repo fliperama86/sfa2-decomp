@@ -8,7 +8,7 @@ void queue_rect_upload_job_slot28(Object *o);
 void set_sequence_of_fourth_hud_object_7_slot28(Object *o, int n);
 
 void advance_pass_on_countdown_zero_play_sound_slot28(Object *o) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     Object *p;
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;

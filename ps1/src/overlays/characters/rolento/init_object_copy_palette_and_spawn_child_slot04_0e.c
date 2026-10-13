@@ -170,13 +170,13 @@ void update_sequence_with_mode_actions_slot04_0e(Object *obj) {
             c->field_02 = 0x14;
             c->ot_depth = 0;
             c->field_0e = 0;
-            c->pos_y = -((Slot06Layer *)data_801aa5d4)->scroll_y;
+            c->pos_y = -((Slot06Layer *)main_layer)->scroll_y;
             c->parent = obj;
             r = (u8 *)data_801c5eb0_slot04_0e + ((((Slot04bObj *)obj)->mode_bits & 0xf) << 2);
             x = *(u16 *)r;
             c->pos_x = x;
             r += 2;
-            c->pos_x = x + ((Slot06Layer *)data_801aa5d4)->scroll_x;
+            c->pos_x = x + ((Slot06Layer *)main_layer)->scroll_x;
             c->table_index = r[0];
             c->variant_index = r[1];
             ((Slot04bObj *)obj)->mode = 0;

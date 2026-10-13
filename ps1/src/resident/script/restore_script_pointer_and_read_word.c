@@ -15,9 +15,9 @@ void restore_script_pointer_and_read_word(Object *object)
   object->script_mode = 0;
   new_var2 = object;
   new_var2->field_20c = new_var2->saved_script_word;
-  data_80189460 = (u16 *) new_var2->script_pointer;
-  new_var2->script_ptr = (s32) data_80189460;
-  t = *(data_80189460++);
+  script_cursor = (u16 *) new_var2->script_pointer;
+  new_var2->script_ptr = (s32) script_cursor;
+  t = *(script_cursor++);
   v = t;
   t = ((s16) v) >> 8;
   new_var2->script_opcode_high = t;

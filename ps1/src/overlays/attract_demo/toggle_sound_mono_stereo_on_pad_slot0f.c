@@ -10,7 +10,7 @@ extern Slot0fRec94ec *data_800e96d8_slot0f;
 void toggle_sound_mono_stereo_on_pad_slot0f(void) {
     u8 *p;
     u8 v;
-    if ((data_801a696a | data_801a6976) & 0xa000) {
+    if ((pad_1_pressed | pad_2_pressed) & 0xa000) {
         p = &data_800f855c_slot0f;
         *p ^= 1;
         v = *p;

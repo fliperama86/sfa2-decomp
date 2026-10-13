@@ -17,7 +17,7 @@ void update_cycling_option_display_slot0f(void) {
     s8 *q;
     s8 sel;
     int cnt;
-    u16 pad = data_801a696a | data_801a6976;
+    u16 pad = pad_1_pressed | pad_2_pressed;
 
     if (pad & 0x20) {
         data_800f8578_slot0f = 1;

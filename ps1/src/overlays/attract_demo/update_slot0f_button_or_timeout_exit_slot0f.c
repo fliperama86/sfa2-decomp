@@ -8,10 +8,10 @@ void tick_timer_and_build_two_tilemap_layers_slot0f(void);
 void reset_hud_state_and_sound_by_arg_slot0f(Object *obj, int a);
 
 void update_slot0f_button_or_timeout_exit_slot0f(GameState *state, Menu *menu) {
-    if (((data_801a696a | data_801a6976) & 0x860) != 0) {
-        if (((data_801a696a | data_801a6976) & 0x820) != 0) {
-            data_8018f5a0->step_index = 0;
-            data_8018f5a0->phase_index++;
+    if (((pad_1_pressed | pad_2_pressed) & 0x860) != 0) {
+        if (((pad_1_pressed | pad_2_pressed) & 0x820) != 0) {
+            screen_state->step_index = 0;
+            screen_state->phase_index++;
         } else {
             reset_hud_state_and_sound_by_arg_slot0f((Object *)state, 1);
         }

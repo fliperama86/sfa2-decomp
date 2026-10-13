@@ -18,7 +18,7 @@ void advance_slot28_pass_to_step_two_slot28(Object *obj) {
     Object *p;
     HudState *g;
     if (obj->field_f0 == 0) {
-        g = data_8018f5a0;
+        g = screen_state;
         g->countdown_timer = 0x258;
         g->pass_index = g->pass_index + 1;
         copy_table_twice_to_buffer_slot28(obj);

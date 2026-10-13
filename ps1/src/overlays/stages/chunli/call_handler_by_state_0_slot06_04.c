@@ -7,7 +7,7 @@ extern ObjectFn data_801e9e6c_slot06_04[];
 extern s32 data_801e9e7c_slot06_04[];
 extern u8 data_801e9eac_slot06_04[];
 extern SequenceStep *data_801eb300_slot06_04[];
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 
 void set_flag_and_push_if_mode_8(Object *o);
 void update_object_wrapped_x_motion_slot06_04(Object *obj);
@@ -64,7 +64,7 @@ void set_vel_x_from_table_index_slot06_04(Object *obj) {
 void set_pos_x_wrapped_to_scroll_slot06_04(Object *obj, int arg) {
     s16 x = arg;
 
-    if ((u32)(x - (s16)data_80190542 - (s16)((Slot06Layer *)data_801aa5d4)->scroll_x + 0x40) >= 0x200) {
+    if ((u32)(x - (s16)fourth_layer_offset_x - (s16)((Slot06Layer *)main_layer)->scroll_x + 0x40) >= 0x200) {
         x = ((x ^ 0x200) - 0x80) & 0x3ff;
         x += 0x80;
     }

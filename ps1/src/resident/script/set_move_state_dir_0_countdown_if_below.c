@@ -6,9 +6,9 @@
 
 void set_move_state_dir_0_countdown_if_below(Object *object) {
     set_limits_from_script_word(object);
-    object->countdown_3 = *data_80189460++;
-    data_80189464 = data_80189464 - object->compare_limit;
-    if ((s16)data_80189464 >= 0) {
+    object->countdown_3 = *script_cursor++;
+    script_work_value = script_work_value - object->compare_limit;
+    if ((s16)script_work_value >= 0) {
         read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 1;
@@ -24,9 +24,9 @@ void set_move_state_dir_0_countdown_if_below(Object *object) {
 
 void set_move_state_dir_1_countdown_if_above(Object *object) {
     set_limits_from_script_word(object);
-    object->countdown_3 = *data_80189460++;
-    data_80189464 = data_80189464 - object->compare_limit;
-    if ((s16)data_80189464 < 0) {
+    object->countdown_3 = *script_cursor++;
+    script_work_value = script_work_value - object->compare_limit;
+    if ((s16)script_work_value < 0) {
         read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 1;
@@ -44,11 +44,11 @@ void set_move_state_dir_by_limit_countdown(Object *object) {
     u16 old;
     u16 value;
     set_limits_from_script_word(object);
-    value = *data_80189460++;
-    old = data_80189464;
+    value = *script_cursor++;
+    old = script_work_value;
     object->countdown_3 = value;
-    data_80189464 = old - object->compare_limit + 3;
-    if (data_80189464 < 6) {
+    script_work_value = old - object->compare_limit + 3;
+    if (script_work_value < 6) {
         read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 1;

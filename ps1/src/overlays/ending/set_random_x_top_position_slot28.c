@@ -28,12 +28,12 @@ void init_random_vertical_motion_and_facing_slot28(Object *obj) {
 }
 
 void call_handler_by_step_index_2_slot28(Object *obj) {
-    data_8005174c_slot28[data_8018f5a0->step_index_2](data_80051ce4_slot28);
+    data_8005174c_slot28[screen_state->step_index_2](data_80051ce4_slot28);
 }
 
 void init_scroll_scene_and_start_fade_slot28(int *p) {
     GameState *g = &game_state;
-    data_8018f5a0->step_index_2++;
+    screen_state->step_index_2++;
     p[1] = 0;
     p[0] = 0x8000;
     spawn_objects_by_state_index_slot28((Object *)g);
@@ -41,6 +41,6 @@ void init_scroll_scene_and_start_fade_slot28(int *p) {
     call_menu_code_from_table_by_state_index_slot28((Object *)g);
     init_sixteen_records_to_eight_slot28(p);
     scroll_by_step_and_end_on_variant_ff_slot28(p);
-    data_80190568 = 1;
+    kind_handlers_enabled = 1;
     start_fade_mode_c01_and_wait();
 }

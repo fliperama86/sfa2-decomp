@@ -19,7 +19,7 @@ y from the grid position minus the scroll remainder, u and v from bits of
 the cell, the command word from its top bits (arithmetic shift), the
 texture page from the second halfword, increments the record counter
 data_800f7264_slot0f (16 bits), and links the record into the list head
-selected by c->field_8a in the array data_801987c8 points at. */
+selected by c->field_8a in the array current_ordering_table points at. */
 /* count is an int: the original does not narrow it at entry. With an s16 parameter this function is 604 bytes and differs from the original in 43 instruction slots. */
 void build_tilemap_row_primitives_slot0f(Chan *c, Strip1c *buf, int count) {
     int row;
@@ -56,7 +56,7 @@ void build_tilemap_row_primitives_slot0f(Chan *c, Strip1c *buf, int count) {
     } else {
         ty = ((s16)fy - 15) / 16;
     }
-    ot = ((u32 *)data_801987c8) + c->ot_index;
+    ot = ((u32 *)current_ordering_table) + c->ot_index;
     for (row = 0; row < 0xf; row++, ty++) {
         ix = x;
         if ((s16)ty < 0 || (s16)ty >= h) {

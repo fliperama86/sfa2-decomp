@@ -25,7 +25,7 @@ void draw_variant_sprite_until_signal_slot0f(Object *obj) {
     default:
         goto skip;
     }
-    fill_sprite_from_sequence_and_link_slot0f(obj, (Slot12Sprite *)((Slot12Prim *)(obj->table_index * 64 + (data_801a27d0 * 32 + (u32)t))));
+    fill_sprite_from_sequence_and_link_slot0f(obj, (Slot12Sprite *)((Slot12Prim *)(obj->table_index * 64 + (draw_buffer_index * 32 + (u32)t))));
 skip:
     if (game_state.field_2bc == 10) {
         obj->state_0++;
@@ -38,6 +38,6 @@ void release_object_record_2_slot0f(Object *obj) {
 }
 
 void call_handler_by_state_0_3_slot0f(Object *obj) {
-    data_80190468.p = (Object *)&game_state;
+    ref_game_state.p = (Object *)&game_state;
     data_800eff4c_slot0f[obj->state_0](obj);
 }

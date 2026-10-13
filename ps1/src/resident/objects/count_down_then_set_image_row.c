@@ -5,7 +5,7 @@
 
 void count_down_then_set_image_row(Object *object) {
     int t;
-    if (object->variant_index_2 == 7) data_8018f598 = 0;
+    if (object->variant_index_2 == 7) white_fill_active = 0;
     t = object->countdown - 1;
     object->countdown = t;
     if ((s16)t < 0) {

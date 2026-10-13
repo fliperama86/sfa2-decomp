@@ -43,8 +43,8 @@ void update_side_selection_menu_cursor_and_confirm_slot04_sel(Object *obj, Slot0
                     obj->field_d4 = (obj->field_d4 & 1) + 4;
                     ref_other.p = obj;
                     check_opposite_player_same_selection_slot04_sel();
-                    if (data_8019045c[0] != 0) {
-                        obj->field_d4 = obj->field_d4 ^ data_8019045c[0];
+                    if (scratch_word_a[0] != 0) {
+                        obj->field_d4 = obj->field_d4 ^ scratch_word_a[0];
                     }
                 }
                 rec->state = rec->state + 1;

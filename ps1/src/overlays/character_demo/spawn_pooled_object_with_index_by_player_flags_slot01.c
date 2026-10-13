@@ -20,8 +20,8 @@ void spawn_pooled_object_with_index_by_player_flags_slot01(void) {
 void start_wait_with_two_halfword_stores_slot01(void) {
     if (game_state.fade_busy == 0) {
         game_state.wait_flag = 0x1f;
-        ((u16 *)data_80190464)[0] = 0x2201;
-        ((u16 *)data_8019046c)[0] = 0x1e00;
+        ((u16 *)scratch_word_b)[0] = 0x2201;
+        ((u16 *)scratch_word_c)[0] = 0x1e00;
         set_voice_thread_entry_and_open(2, 4);
     }
 }

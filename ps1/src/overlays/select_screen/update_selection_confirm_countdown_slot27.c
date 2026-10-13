@@ -20,7 +20,7 @@ void update_selection_confirm_countdown_slot27(Object *obj) {
         game_state.table_index_3 = 0;
     }
     {
-        int *s = (int *)data_8019045c;
+        int *s = (int *)scratch_word_a;
         u8 *f = &game_state.selection;
 
         v = *s & 1;
@@ -39,7 +39,7 @@ void update_selection_confirm_countdown_slot27(Object *obj) {
     t46 = obj->countdown; t46--;
     obj->countdown = t46;
     if (t46 != 0) {
-        int *s = (int *)data_8019045c;
+        int *s = (int *)scratch_word_a;
 
         *s = ~game_state.other_object->prev_input_bits;
         *s = (game_state.other_object->input_bits & *s) & 0xf0;
@@ -56,7 +56,7 @@ void update_selection_confirm_countdown_slot27(Object *obj) {
             ref_first.p = (Object *)((ObjectWords *)obj)->word_58;
         }
         ref_first.p->field_6b = 0xff;
-        t = (int *)data_8019045c;
+        t = (int *)scratch_word_a;
         *t = game_state.selection;
         call_func_with_side_x_origin(game_state.other_object->side, 1);
         *t = 0xa;

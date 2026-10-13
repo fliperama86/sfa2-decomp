@@ -23,14 +23,14 @@ extern u8 data_8002b024_slot28[];
 void init_object_data_pointers_a_2_slot28(Object *obj);
 
 void func_800149a0_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     Object *o;
     int one;
     h->countdown_timer = 0xf0;
     h->step_index_2 = h->step_index_2 + 1;
     start_fade_mode_1_and_wait();
     one = 1;
-    data_80190568 = one;
+    kind_handlers_enabled = one;
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
         init_object_data_pointers_a_2_slot28(o);

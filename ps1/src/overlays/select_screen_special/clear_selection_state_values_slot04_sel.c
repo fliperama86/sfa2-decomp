@@ -22,7 +22,7 @@ void call_select_handler_for_both_players_slot04_sel(void) {
     data_801b9c24_slot04_sel[0](r, b + 1);
     if (game_state.side_mask != 0) {
         if (b[0] != 0 || b[1] != 0) {
-            data_8018f5a0->phase_index = 1;
+            screen_state->phase_index = 1;
         }
     }
     add_item_to_table(data_801b9cd8_slot04_sel);

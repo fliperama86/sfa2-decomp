@@ -16,7 +16,7 @@ void update_layer_wrap_offset_value_slot06_12(Slot06Layer *layer) {
     int pos;
     int t;
 
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     if (game_state.field_65 == 0) {
         layer->wrap_offset -= 0x4000;
     }
@@ -56,7 +56,7 @@ void scroll_layer_parallax_quarter_x_slot06_12(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         *(s32 *)&layer->pos_x -= 0x2000;
     }
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     d = l2->field_22;
     d -= l2->ref_x;
     d /= 4;

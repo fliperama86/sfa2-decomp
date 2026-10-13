@@ -13,7 +13,7 @@ int try_action_if_state_allows(Object *object) {
     if (object->state_2 == 8) return 0;
     if (object->state_2 == 9) return 0;
     if (object->state_2 == 5) {
-        if (*(s16 *)data_8019046c != 0) {
+        if (*(s16 *)scratch_word_c != 0) {
             if (object->field_d8 != 0) return 0;
             if (object->countdown_5 != 0) goto go;
         }
@@ -39,7 +39,7 @@ int try_start_effect_request(Object *object) {
         if (*(u8 *)&game_state.field_354 != 0) return 0;
         if ((is_other_object_state_0_and_1_six_one(object) & 0xff) != 0) return 0;
     }
-    if (*(u8 *)data_80190464 == 0) {
+    if (*(u8 *)scratch_word_b == 0) {
         object->effect_request = 2;
         if (object->mode_flag_2 == 0) add_table_bcd_score_to_player(0xd, (s8)object->side);
     }

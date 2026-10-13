@@ -19,9 +19,9 @@ void read_script_word_or_restore_script(Object *object)
   else
   {
     init_script_from_table_index(object);
-    data_80189460 = (u16 *) object->script_pointer;
-    object->script_ptr = (s32) data_80189460;
-    t = *(data_80189460++);
+    script_cursor = (u16 *) object->script_pointer;
+    object->script_ptr = (s32) script_cursor;
+    t = *(script_cursor++);
     v = t;
     t = ((s16) v) >> 8;
     object->script_opcode_high = t;

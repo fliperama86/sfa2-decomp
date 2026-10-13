@@ -13,8 +13,8 @@ void link_selector_records_into_ordering_table_slot2a(Object *obj);
 /* The masked copy of p is taken first in the loop. With it the compiler loads the mask 0xffffff before 0xff000000, as the original does. */
 void link_sprite_array_into_ordering_table_slot2a(Object *obj) {
     u32 i;
-    u32 *p = (u32 *)((u8 *)data_801e2fdc_slot2a + obj->table_index * 0x10c0 + data_801a27d0 * 0x860);
-    u32 *q = (u32 *)((u8 *)data_801987c8 + 8);
+    u32 *p = (u32 *)((u8 *)data_801e2fdc_slot2a + obj->table_index * 0x10c0 + draw_buffer_index * 0x860);
+    u32 *q = (u32 *)((u8 *)current_ordering_table + 8);
     u32 n = data_801e515c_slot2a;
     u32 pa;
     for (i = 0; i < n; i++) {

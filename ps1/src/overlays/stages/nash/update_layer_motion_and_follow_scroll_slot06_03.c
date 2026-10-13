@@ -19,7 +19,7 @@ void update_layer_motion_and_follow_scroll_slot06_03(Slot06Layer *layer) {
     } else if (layer->state_index == 2) {
         move_layer_with_x_y_velocity_updates_slot06_03(layer);
     }
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     d = l2->field_22;
     d -= l2->ref_x;
     d += layer->ref_x;

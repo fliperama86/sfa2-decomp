@@ -24,7 +24,7 @@ void init_object_velocity_from_position_set_sequence_slot06_0a(Object *obj) {
 }
 
 void call_table_handler_with_bound_deltas_slot06_0a(Object *obj) {
-    Slot06Layer *l = (Slot06Layer *)data_801aa5d4;
+    Slot06Layer *l = (Slot06Layer *)main_layer;
 
     int x = *(s32 *)&l->bound_x_a - *(s32 *)&l->bound_x_c;
     int y = *(s32 *)&l->bound_y_a - *(s32 *)&l->bound_y_c;

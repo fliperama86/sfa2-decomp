@@ -10,7 +10,7 @@
 void script_branch_if_linked_distance_le_value(Object *object)
 {
   s16 new_var;
-  int value = *(data_80189460++);
+  int value = *(script_cursor++);
   Object *other = object->other;
   new_var = ((s16) value) >> 8;
   object->script_byte_hi = new_var;
@@ -19,7 +19,7 @@ void script_branch_if_linked_distance_le_value(Object *object)
   {
     ref_second.p = (Object *) other->linked_object_3;
     store_box_distance_to_other_x(object);
-    if (object->script_byte_lo >= ((s16) data_80189464))
+    if (object->script_byte_lo >= ((s16) script_work_value))
     {
       read_script_word_and_dispatch(object);
     }

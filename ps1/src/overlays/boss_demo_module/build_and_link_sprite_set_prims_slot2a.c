@@ -88,7 +88,7 @@ void build_and_link_sprite_set_prims_slot2a(Object *obj, SpritePrim *prim) {
             prim->u3 = s4 + a;
             prim->v3 = s3 + b;
         }
-        ot = (u32 *)data_801987c8;
+        ot = (u32 *)current_ordering_table;
         ((PrimTag *)prim)->addr = ((PrimTag *)&ot[obj->table_index])->addr;
         ((PrimTag *)&ot[obj->table_index])->addr = (u32)prim;
         prim++;

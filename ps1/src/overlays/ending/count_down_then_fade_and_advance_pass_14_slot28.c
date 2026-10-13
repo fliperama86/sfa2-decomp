@@ -10,19 +10,19 @@ extern u8 data_8004ef00_slot28[];
 extern Object *data_80051ca4_slot28[];
 
 void count_down_then_fade_and_advance_pass_14_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;
     if ((s16)t < 0) {
         set_menu_command_by_code(6, 3);
         start_fade_mode_1_and_wait();
-        data_8018f5a0->pass_index += 1;
+        screen_state->pass_index += 1;
     }
 }
 
 void advance_substep_when_wait_flag_clear_16_slot28(Object *obj) {
     if (game_state.wait_flag == 0) {
-        data_8018f5a0->substep_index += 1;
+        screen_state->substep_index += 1;
     }
 }
 

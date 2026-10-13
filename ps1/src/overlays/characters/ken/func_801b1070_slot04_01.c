@@ -10,7 +10,7 @@ extern ObjectFn data_801bef28_slot04_01[];
 extern ObjectFn data_801bef54_slot04_01[];
 
 void func_801b1070_slot04_01(Object *obj) {
-    data_801ad398 = data_801beed0_slot04_01[obj->field_15a](obj);
+    script_condition_result = data_801beed0_slot04_01[obj->field_15a](obj);
 }
 
 int return_true_always_slot04_01(Object *obj) {

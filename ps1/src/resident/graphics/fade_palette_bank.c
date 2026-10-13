@@ -35,10 +35,10 @@ int fade_palette_bank(u8 bank, s16 amount, u8 mode) {
                 r2 = p & 0x1f;
                 g2 = (p >> 5) & 0x1f;
                 b2 = (p >> 10) & 0x1f;
-                if (data_801aa4dc[bank] <= 0) data_801aa4dc[bank] = 0;
-                r = r2 * data_801aa4dc[bank] / 31;
-                g = g2 * data_801aa4dc[bank] / 31;
-                b = b2 * data_801aa4dc[bank] / 31;
+                if (palette_fade_level[bank] <= 0) palette_fade_level[bank] = 0;
+                r = r2 * palette_fade_level[bank] / 31;
+                g = g2 * palette_fade_level[bank] / 31;
+                b = b2 * palette_fade_level[bank] / 31;
                 if (r2 < r) r = r2;
                 if (g2 < g) g = g2;
                 if (b2 < b) b = b2;
@@ -77,10 +77,10 @@ int fade_palette_bank(u8 bank, s16 amount, u8 mode) {
             data_801a27e4_rows[bank][n * 16 + k] = flag + (r + ((b << 10) + (g << 5)));
         }
     }
-    data_801aa4dc[bank] += amount;
-    if (data_801aa4dc[bank] < 0 && mode == 0) {
+    palette_fade_level[bank] += amount;
+    if (palette_fade_level[bank] < 0 && mode == 0) {
         return 1;
-    } else if (data_801aa4dc[bank] >= 32 && mode == 1) {
+    } else if (palette_fade_level[bank] >= 32 && mode == 1) {
         return 1;
     }
     return 0;

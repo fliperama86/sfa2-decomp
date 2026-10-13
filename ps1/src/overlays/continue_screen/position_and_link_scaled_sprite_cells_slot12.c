@@ -19,9 +19,9 @@ void position_and_link_scaled_sprite_cells_slot12(Object *obj, Slot12List *list)
     u32 pa;
     u16 n = list->count;
 
-    c = data_80028b48_slot12[data_801a27d0].cells;
+    c = data_80028b48_slot12[draw_buffer_index].cells;
     e = list->entries;
-    t = (u32 *)((char *)data_801987c8 + 0x24);
+    t = (u32 *)((char *)current_ordering_table + 0x24);
     for (i = 0; i < n; i++) {
         x = *e++;
         y = *e++;

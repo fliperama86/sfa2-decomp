@@ -19,10 +19,10 @@ void update_state_0_on_active_count_two_slot27(Object *obj) {
 }
 
 void set_sequence_from_other_kind_slot27(Object *obj) {
-    data_80190458.p = ref_other.p->other;
-    if (data_80190458.p->kind < 0x15) {
-        set_sequence_from_table_5(obj, data_80190458.p->kind, data_800292cc_slot27[data_80190458.p->side]);
-        obj->variant_index = data_80190458.p->kind;
+    ref_aux.p = ref_other.p->other;
+    if (ref_aux.p->kind < 0x15) {
+        set_sequence_from_table_5(obj, ref_aux.p->kind, data_800292cc_slot27[ref_aux.p->side]);
+        obj->variant_index = ref_aux.p->kind;
         *(u16 *)&obj->pos_x = *(u16 *)&ref_other.p->pos_x;
         *(u16 *)&obj->pos_y = *(u16 *)&ref_other.p->pos_y;
     } else {

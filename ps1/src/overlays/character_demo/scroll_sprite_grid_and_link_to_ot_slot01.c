@@ -6,8 +6,8 @@
 extern Slot01Rec31b98 data_80031b98_slot01[];
 
 void scroll_sprite_grid_and_link_to_ot_slot01(Object *obj) {
-    Cell20 *c = data_80031b98_slot01[data_801a27d0].cells;
-    PrimTag *ot = (PrimTag *)data_801987c8 + 0x1d;
+    Cell20 *c = data_80031b98_slot01[draw_buffer_index].cells;
+    PrimTag *ot = (PrimTag *)current_ordering_table + 0x1d;
     int i;
     int j;
     int t = obj->health;

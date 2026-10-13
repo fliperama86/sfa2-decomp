@@ -21,9 +21,9 @@ void spawn_two_counted_objects_variant_0(Object *object) {
                 o->field_90 = (void *)0x800fb100;
                 o->spawn_x = 0x60;
                 o->spawn_y = 0x1e0;
-                o->data_ptr_a = &data_80172a48;
+                o->data_ptr_a = &spawned_object_data_a;
                 o->parent = object;
-                o->data_ptr_b = &data_80173c9c;
+                o->data_ptr_b = &spawned_object_data_b;
                 data_801a27cc--;
             }
         }
@@ -48,9 +48,9 @@ void spawn_two_counted_objects_variant_2(Object *object) {
                 o->field_90 = (void *)0x800fb100;
                 o->spawn_x = 0x60;
                 o->spawn_y = 0x1e0;
-                o->data_ptr_a = &data_80172a48;
+                o->data_ptr_a = &spawned_object_data_a;
                 o->parent = object;
-                o->data_ptr_b = &data_80173c9c;
+                o->data_ptr_b = &spawned_object_data_b;
                 data_801a27cc--;
             }
         }
@@ -75,8 +75,8 @@ void spawn_three_objects_variant_4(Object *object) {
             o->field_90 = (void *)0x800fb100;
             o->spawn_x = 0x60;
             o->spawn_y = 0x1e0;
-            o->data_ptr_a = &data_80172a48;
-            o->data_ptr_b = &data_80173c9c;
+            o->data_ptr_a = &spawned_object_data_a;
+            o->data_ptr_b = &spawned_object_data_b;
         }
     }
 }
@@ -99,9 +99,9 @@ void spawn_two_counted_objects_variant_6(Object *object) {
                 o->field_90 = (void *)0x800fb100;
                 o->spawn_x = 0x60;
                 o->spawn_y = 0x1e0;
-                o->data_ptr_a = &data_80172a48;
+                o->data_ptr_a = &spawned_object_data_a;
                 o->parent = object;
-                o->data_ptr_b = &data_80173c9c;
+                o->data_ptr_b = &spawned_object_data_b;
                 data_801a27cc--;
             }
         }

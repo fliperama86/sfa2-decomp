@@ -3,7 +3,7 @@
 #include "../../../protos.h"
 #include "../../../externs.h"
 
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 extern ObjectFn data_801ce49c_slot04_17[];
 
 void update_meter_by_mode_or_table(Object *object);
@@ -37,7 +37,7 @@ void spawn_game_state_object_when_step_limit_clear_slot04_17(Object *obj) {
     obj->field_167 = (obj->direction_index >> 1) + 0xc;
     if (obj->step_limit == 0) {
         obj->step_limit = 0xff;
-        data_80190468.p->field_6b = 5;
+        ref_game_state.p->field_6b = 5;
         spawn_game_state_kind_object(obj);
     }
 }

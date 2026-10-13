@@ -15,12 +15,12 @@ void update_button_config_menu(void) {
     add_item_to_table(&data_80181324);
     add_item_to_table(&data_80181334);
     if (game_state.field_31 != 0) {
-        if ((data_801a696a & 0x800) || (data_801a6976 & 0x800)) {
-            ((HudBig *)data_8018f5a0)->substate_index = 0;
+        if ((pad_1_pressed & 0x800) || (pad_2_pressed & 0x800)) {
+            ((HudBig *)screen_state)->substate_index = 0;
         }
     }
 
-    pad = &data_801a696a;
+    pad = &pad_1_pressed;
     if (*pad & 0x4000) {
         data_8018125e[data_8018d250 * 5 + 1] = *(tab + data_8018d250 + 0x10);
         data_80181094[data_8018d250 * 14 + 1] = 0x1b;
@@ -71,7 +71,7 @@ void update_button_config_menu(void) {
         play_sound_at(0, 0, 0x34c);
     }
 
-    pad2 = &data_801a6976;
+    pad2 = &pad_2_pressed;
     if (*pad2 & 0x4000) {
         data_8018128a[data_8018d254 * 5 + 1] = *(tab + data_8018d254 + 0x18);
         data_80181138[data_8018d254 * 14 + 1] = 0x1b;

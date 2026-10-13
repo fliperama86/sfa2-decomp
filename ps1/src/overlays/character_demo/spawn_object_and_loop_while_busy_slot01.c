@@ -19,12 +19,12 @@ void spawn_object_and_loop_while_busy_slot01(void) {
 
 void start_job_zero_and_advance_substep_slot01(void) {
     if (try_spawn_pooled_object_once_with_arg_slot01(0)) {
-        HudState *h = data_8018f5a0;
+        HudState *h = screen_state;
         game_state.busy_flag = 0xff;
         h->substep_index++;
     }
 }
 
 void increment_substep_index_slot01(void) {
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
 }

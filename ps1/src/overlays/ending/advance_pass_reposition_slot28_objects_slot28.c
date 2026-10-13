@@ -19,7 +19,7 @@ void advance_pass_reposition_slot28_objects_slot28(Object *obj) {
     int v;
     if (obj->field_f0 == 0) {
         v = 0x1e0;
-        h = data_8018f5a0;
+        h = screen_state;
         h->countdown_timer = v;
         h->pass_index++;
         release_active_objects_in_table_16_slot28();
@@ -46,7 +46,7 @@ void advance_pass_reposition_slot28_objects_slot28(Object *obj) {
 void advance_pass_on_step_flag_start_music_slot28(Object *obj) {
     Object *o = data_80051cdc_slot28.p;
     if ((s16)o->step_flags < 0) {
-        data_8018f5a0->pass_index++;
+        screen_state->pass_index++;
         set_menu_command_by_code(1, 0x601);
         start_fade_mode_1a01_and_wait();
     }

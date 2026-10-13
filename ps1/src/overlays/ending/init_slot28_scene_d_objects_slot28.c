@@ -22,12 +22,12 @@ void init_object_data_pointers_a_14_slot28(Object *obj);
 
 void init_slot28_scene_d_objects_slot28(Object *obj) {
     Object *o;
-    data_8018f5a0->countdown_timer = 0x12c;
-    data_8018f5a0->step_index_2 = data_8018f5a0->step_index_2 + 1;
+    screen_state->countdown_timer = 0x12c;
+    screen_state->step_index_2 = screen_state->step_index_2 + 1;
     set_menu_command_one_and_wait_pending(0x504);
     clear_ten_entry_table_12_slot28();
     start_fade_mode_1_and_wait();
-    data_80190568 = 1;
+    kind_handlers_enabled = 1;
     o = (Object *)pop_block_from_pool();
     if (o != 0) {
         init_object_data_pointers_a_14_slot28(o);

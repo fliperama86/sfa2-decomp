@@ -20,7 +20,7 @@ void call_handler_by_state_1_4_slot0f(Object *obj) {
 void start_countdown_and_advance_state_1_slot0f(Object *obj) {
     obj->countdown = 0x1e;
     obj->state_1++;
-    if (data_80190468.p->field_01 != 0) {
+    if (ref_game_state.p->field_01 != 0) {
         obj->state_1 = 3;
     }
     build_cell_name_hex_win_records_index_0_slot0f(obj);

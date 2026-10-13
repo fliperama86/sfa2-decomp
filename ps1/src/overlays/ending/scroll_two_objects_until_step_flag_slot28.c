@@ -21,7 +21,7 @@ void scroll_two_objects_until_step_flag_slot28(Object *obj) {
     }
     p = data_80051cdc_slot28.p;
     if ((s16)p->step_flags < 0) {
-        p = (Object *)data_8018f5a0;
+        p = (Object *)screen_state;
         ((HudState *)p)->pass_index++;
         start_fade_mode_1a01_and_wait();
     }

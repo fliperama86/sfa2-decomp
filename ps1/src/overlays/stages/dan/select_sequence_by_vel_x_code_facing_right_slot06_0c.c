@@ -236,7 +236,7 @@ void init_variant_object_with_start_values_slot06_0c(Object *obj) {
 
 void update_object_variant_by_scroll_slot06_0c(Object *obj) {
     if ((game_state.field_65 | game_state.field_74) == 0) {
-        if (obj->vel_y >= (s16)((Slot06Layer *)data_801aa5d4)->scroll_x) {
+        if (obj->vel_y >= (s16)((Slot06Layer *)main_layer)->scroll_x) {
             if (obj->variant_index != 0) {
                 obj->variant_index = 0;
                 set_sequence_by_variant_index_threshold_slot06_0c(obj);
@@ -285,7 +285,7 @@ void init_object_vel_accel_from_position_word_slot06_0c(Object *obj) {
 }
 
 void set_object_position_from_layer_bounds_slot06_0c(Object *obj) {
-    Slot06Layer *l = (Slot06Layer *)data_801aa5d4;
+    Slot06Layer *l = (Slot06Layer *)main_layer;
     s32 a;
 
     a = *(s32 *)&l->bound_x_a - *(s32 *)&l->bound_x_c;

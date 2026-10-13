@@ -17,7 +17,7 @@ void init_jump_velocity_by_scroll_position_slot04_04(Object *obj) {
     vel = 0x40000;
     obj->vel_y = 0x60000;
     obj->accel_y = -0x4800;
-    lx = ((Slot06Layer *)data_801aa5d4)->scroll_x;
+    lx = ((Slot06Layer *)main_layer)->scroll_x;
     x = obj->pos_x;
     acc = -0x500;
     if (x >= (s16)(lx + 0x60)) {

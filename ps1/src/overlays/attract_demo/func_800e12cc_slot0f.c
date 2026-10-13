@@ -26,8 +26,8 @@ long func_800e12cc_slot0f(long fd, void *buf, long n) {
 
 void copy_saved_block_to_game_tables_slot0f(void) {
     copy_rece664_record_slot0f((Slot0fRece664 *)(data_800e8504_slot0f + 0x100), (Slot0fRece664 *)table_8016e664);
-    copy_six_rece5c4_records_slot0f((Slot0fRece5c4 *)(data_800e8504_slot0f + 0x130), (Slot0fRece5c4 *)table_8016e5c4);
-    copy_six_rece5c4_records_slot0f((Slot0fRece5c4 *)(data_800e8504_slot0f + 0x190), (Slot0fRece5c4 *)table_8016e614);
+    copy_six_rece5c4_records_slot0f((Slot0fRece5c4 *)(data_800e8504_slot0f + 0x130), (Slot0fRece5c4 *)score_rank_table);
+    copy_six_rece5c4_records_slot0f((Slot0fRece5c4 *)(data_800e8504_slot0f + 0x190), (Slot0fRece5c4 *)streak_rank_table);
     copy_64_bytes_slot0f(data_800e8504_slot0f + 0x1f0, (u8 *)&game_state + 0x15e);
     *(u16 *)((u8 *)&game_state + 0x21e) = *(u16 *)(data_800e8504_slot0f + 0x230);
 }

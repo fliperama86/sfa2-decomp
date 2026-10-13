@@ -12,5 +12,5 @@ void load_velocities_from_table_slot28(Object *obj) {
 }
 
 void call_handler_by_substep_index_slot28(Object *obj) {
-    data_800289d4_slot28[data_8018f5a0->substep_index](obj);
+    data_800289d4_slot28[screen_state->substep_index](obj);
 }

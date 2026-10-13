@@ -3,8 +3,8 @@
 #include "../../../protos.h"
 #include "../../../externs.h"
 
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
+extern SequenceStep **seqs_b4_left;
+extern SequenceStep **seqs_164_right;
 extern ObjectFn data_801c6650_slot04_14[];
 extern u8 data_801c6658_slot04_14[];
 extern ObjectFn data_801c665c_slot04_14[];
@@ -205,9 +205,9 @@ void unlink_from_parent_and_release_object_slot04_14(Object *o) {
 
 void set_sequence_from_variant_index_by_parent_side_slot04_14(Object *o) {
     if (o->parent->side == 0) {
-        set_sequence_from_table_5(o, o->variant_index, data_1f8000b4);
+        set_sequence_from_table_5(o, o->variant_index, seqs_b4_left);
     } else {
-        set_sequence_from_table_5(o, o->variant_index, data_1f800164);
+        set_sequence_from_table_5(o, o->variant_index, seqs_164_right);
     }
 }
 

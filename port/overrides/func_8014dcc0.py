@@ -6,8 +6,8 @@ Choices of the setup:
   - scr_d4_left and scr_184_right (scratchpad words) each hold the address
     of its own small block, and a recorder of one argument sits in each
     block; both return 0;
-  - data_801ad398 is a random byte;
-  - the log watches the object whole and data_801ad398 at every call.
+  - script_condition_result is a random byte;
+  - the log watches the object whole and script_condition_result at every call.
 """
 from contracts import CallLog, Contract, Setup, fill
 
@@ -16,8 +16,8 @@ def setup(state, rng, sym) -> Setup:
     obj = state.alloc(0x394)
     fill(state, obj, 0x394, rng)
     state.w8(obj + 0xA6, 0 if rng.random() < 0.5 else rng.randrange(1, 256))
-    state.w8(sym["data_801ad398"], rng.getrandbits(8))
-    log = CallLog(state, 256, watch=((obj, 0x394 // 4), (sym["data_801ad398"] & ~3, 1)))
+    state.w8(sym["script_condition_result"], rng.getrandbits(8))
+    log = CallLog(state, 256, watch=((obj, 0x394 // 4), (sym["script_condition_result"] & ~3, 1)))
     for cell in ("scr_d4_left", "scr_184_right"):
         block = state.alloc(8)
         state.w32(sym[cell], block)

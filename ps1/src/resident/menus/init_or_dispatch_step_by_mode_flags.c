@@ -8,10 +8,10 @@ void init_or_dispatch_step_by_mode_flags(GameState *state)
 {
   Entity *entity = (Entity *)state;
   char new_var;
-  if (data_8018f5a0->step_index == 0)
+  if (screen_state->step_index == 0)
   {
     init_sprite_tables();
-    data_8018f5a0->step_index++;
+    screen_state->step_index++;
     new_var = 1;
     if (((data_8016e68b != 0) || (entity->mode_flag_a != 0)) || (entity->mode_flag_b != 0))
     {
@@ -21,10 +21,10 @@ void init_or_dispatch_step_by_mode_flags(GameState *state)
     {
       close_sounds_and_load_command_4(0);
     }
-    data_8018f5a0->substep_index = 0;
-    data_8018f5a0->step_index_2 = 0;
-    data_8018f5a0->pass_index = 0;
-    data_8018f5a0->field_54 = 0;
+    screen_state->substep_index = 0;
+    screen_state->step_index_2 = 0;
+    screen_state->pass_index = 0;
+    screen_state->field_54 = 0;
   }
   else
   {
@@ -48,9 +48,9 @@ void init_or_dispatch_step_by_mode_flags(GameState *state)
       func_801b4a88(entity);
     }
   }
-  if (data_8018f5a0->step_index == 2)
+  if (screen_state->step_index == 2)
   {
-    data_8018f5a0->step_index = 0;
-    data_8018f5a0->phase_index++;
+    screen_state->step_index = 0;
+    screen_state->phase_index++;
   }
 }

@@ -35,7 +35,7 @@ void init_child_object_from_parent_with_palette_copy_slot04_02(Object *obj) {
         obj->spawn_x = other->spawn_x;
         obj->spawn_y = other->spawn_y;
         obj->pos_x = box_margin[0] + 0xb8;
-        obj->pos_y = 0x78 - data_801aa5ea[0];
+        obj->pos_y = 0x78 - view_scroll_y[0];
         obj->image_row = 0x1f;
         obj->spawn_flag = 1;
         obj->countdown = 0x15;
@@ -49,9 +49,9 @@ void init_child_object_from_parent_with_palette_copy_slot04_02(Object *obj) {
         obj->table_index = palette;
         copy_palette_table_by_arg_and_queue_upload_slot04_02(obj, palette);
         if (other->side == 0) {
-            set_sequence_from_table_5(obj, 8, data_1f8000b4);
+            set_sequence_from_table_5(obj, 8, seqs_b4_left);
         } else {
-            set_sequence_from_table_5(obj, 8, data_1f800164);
+            set_sequence_from_table_5(obj, 8, seqs_164_right);
         }
         clear_or_set_flag_by_pos_x_limit(obj);
     } else {

@@ -21,8 +21,8 @@ void advance_pass_spawn_slot28_objects_b_slot28(Object *obj) {
     int i;
     int one;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index++;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index++;
         release_active_objects_in_table_13_slot28();
         set_sequence_from_table_5(data_80051c0c_slot28.p, 1, data_8004a088_slot28);
         o = data_80051c10_slot28[0];

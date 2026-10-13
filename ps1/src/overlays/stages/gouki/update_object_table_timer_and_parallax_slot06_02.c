@@ -21,15 +21,15 @@ void update_object_table_timer_and_parallax_slot06_02(Object *o) {
             set_sequence_index_from_table_slot06_02(o);
         }
     }
-    d = *(s32 *)&((Slot06Layer *)data_801aa5d4)->bound_x_c;
-    d -= *(s32 *)&((Slot06Layer *)data_801aa5d4)->bound_x_a;
+    d = *(s32 *)&((Slot06Layer *)main_layer)->bound_x_c;
+    d -= *(s32 *)&((Slot06Layer *)main_layer)->bound_x_a;
     d += data_80190544;
     d += d / 16;
     d += obj->fixed_offset;
     e = obj->base_value + (d >> 16);
     obj->computed_value = e;
-    e = ((Slot06Layer *)data_801aa5d4)->field_26;
-    e -= ((Slot06Layer *)data_801aa5d4)->field_0e;
+    e = ((Slot06Layer *)main_layer)->field_26;
+    e -= ((Slot06Layer *)main_layer)->field_0e;
     e += obj->offset_a;
     e += obj->offset_b;
     obj->parallax_factor = e;

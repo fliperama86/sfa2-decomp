@@ -4,5 +4,5 @@
 #include "../../protos.h"
 
 void call_substate_table_entry_2(void) {
-    table_8018134c[((HudBig *)data_8018f5a0)->substate_index]();
+    table_8018134c[((HudBig *)screen_state)->substate_index]();
 }

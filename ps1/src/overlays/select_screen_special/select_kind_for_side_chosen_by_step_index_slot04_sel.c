@@ -31,10 +31,10 @@ void select_kind_for_side_chosen_by_step_index_slot04_sel(Object *obj, Object *o
     TextItem *b1;
     int i;
 
-    if (data_8018f5a0->step_index_2 == 1) {
+    if (screen_state->step_index_2 == 1) {
         side = obj->side;
         p = obj;
-    } else if (data_8018f5a0->step_index_2 == 2) {
+    } else if (screen_state->step_index_2 == 2) {
         p = other;
         side = obj->side ^ 1;
     }
@@ -122,12 +122,12 @@ void select_kind_for_side_chosen_by_step_index_slot04_sel(Object *obj, Object *o
         }
         ref_other.p = p;
         check_opposite_player_same_selection_3_slot04_sel();
-        if (data_8019045c[0] != 0) {
-            data_8019045c[0] = 0;
+        if (scratch_word_a[0] != 0) {
+            scratch_word_a[0] = 0;
             if (p->field_d4 == 0) {
-                data_8019045c[0] = 1;
+                scratch_word_a[0] = 1;
             }
-            p->field_d4 = data_8019045c[0];
+            p->field_d4 = scratch_word_a[0];
         }
     } else {
         add_item_to_table(s5);

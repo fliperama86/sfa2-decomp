@@ -21,13 +21,13 @@ void spawn_two_blocks_and_advance_substep_index_slot12(void) {
         o->table_index = 0x80;
         data_8002d574_slot12 = o;
     }
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
 }
 
 void increment_substep_index_2_slot12(void) {
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
 }
 
 void increment_substep_index_3_slot12(void) {
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
 }

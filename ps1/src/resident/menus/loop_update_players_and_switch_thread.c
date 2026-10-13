@@ -7,10 +7,10 @@ void loop_update_players_and_switch_thread(void) {
     GameState *g = &game_state;
     Object *left;
 
-    ((HudBig *)data_8018f5a0)->field_48 = 0;
-    ((HudBig *)data_8018f5a0)->field_4a = 0;
-    ((HudBig *)data_8018f5a0)->field_4c = 0;
-    ((HudBig *)data_8018f5a0)->step_count = 0;
+    ((HudBig *)screen_state)->field_48 = 0;
+    ((HudBig *)screen_state)->field_4a = 0;
+    ((HudBig *)screen_state)->field_4c = 0;
+    ((HudBig *)screen_state)->step_count = 0;
 loop:
     if (data_8019032d == 0) {
         left = &player_left;

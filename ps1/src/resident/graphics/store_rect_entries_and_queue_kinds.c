@@ -16,7 +16,7 @@ void store_rect_entries_and_queue_kinds(SeqRec *rec)
   short v;
   short kind;
   u16 b;
-  if (data_8018f598 != 0)
+  if (white_fill_active != 0)
   {
     return;
   }

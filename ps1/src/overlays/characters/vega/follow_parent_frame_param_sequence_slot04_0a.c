@@ -25,9 +25,9 @@ void follow_parent_frame_param_sequence_slot04_0a(Object *obj, Object *parent) {
                 obj->image_row = parent->image_row;
                 obj->variant_index = t;
                 if (parent->side == 0) {
-                    set_sequence_from_table_5(obj, (s16)t, data_1f8000b4);
+                    set_sequence_from_table_5(obj, (s16)t, seqs_b4_left);
                 } else {
-                    set_sequence_from_table_5(obj, (s16)t, data_1f800164);
+                    set_sequence_from_table_5(obj, (s16)t, seqs_164_right);
                 }
             } else if (((Slot04aObj *)obj)->mode == 0) {
                 x = parent->countdown;

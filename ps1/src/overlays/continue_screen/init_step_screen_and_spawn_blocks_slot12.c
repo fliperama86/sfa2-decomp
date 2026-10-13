@@ -31,8 +31,8 @@ void init_step_screen_and_spawn_blocks_slot12(void) {
             request_sound_command_and_switch_thread(1);
         }
     }
-    data_80190568 = 1;
-    data_8018f5a0->step_index = data_8018f5a0->step_index + 1;
+    kind_handlers_enabled = 1;
+    screen_state->step_index = screen_state->step_index + 1;
     o = game_state.object;
     game_state.countdown_2 = 0x1f;
     game_state.field_d2 = 0x40;
@@ -49,7 +49,7 @@ void init_step_screen_and_spawn_blocks_slot12(void) {
     data_8002d568_slot12 = &player_left + (o->side ^ 1);
     game_state.loop_mode = 0;
     set_menu_command_by_code(1, 0x607);
-    while (data_80190949 == 0 || game_state.wait_flag != 0) {
+    while (menu_active_flag == 0 || game_state.wait_flag != 0) {
         update_blocks();
         update_active_slab172_entries();
         queue_player_status_text_items();

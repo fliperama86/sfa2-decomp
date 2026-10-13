@@ -12,11 +12,11 @@ extern u32 data_801e7668_slot0b;
  * 16-bit cells (columns, rows, a texture page offset, the x and y origin,
  * then the cells). For each cell whose low 14 bits are not 0 it initialises a
  * 0x1c-byte record through init_draw_mode_prim_3, fills in the position (the object's
- * pos_x less box_margin, pos_y plus data_801aa5ea less 8, 16 pixels per cell,
+ * pos_x less box_margin, pos_y plus view_scroll_y less 8, 16 pixels per cell,
  * less the origin), the texture coordinates and command word from the cell,
  * grey colour 0x80 and the texture page, and links the record into the list
  * head selected by the object. Records are taken in order from one of two
- * buffers chosen by data_801a27d0.
+ * buffers chosen by draw_buffer_index.
  */
 void draw_tilemap_cells_from_sequence_slot0b(Object *obj) {
     Tilemap *map = (Tilemap *)obj->sequence->data_ptr;
@@ -34,12 +34,12 @@ void draw_tilemap_cells_from_sequence_slot0b(Object *obj) {
     tpage = ((obj->image_row + map->page_offset) << 6) + 0x7808;
     x0 = obj->pos_x - box_margin[0];
     /* The listing loads pos_y unsigned; the plain obj->pos_y differs in 1 instruction line. */
-    y = (u16)obj->pos_y + data_801aa5ea[0] - 8;
-    ot = (u32 *)data_801987c8 + obj->ot_depth;
+    y = (u16)obj->pos_y + view_scroll_y[0] - 8;
+    ot = (u32 *)current_ordering_table + obj->ot_depth;
     w = map->field_04;
     h = map->field_06;
     data_801e7668_slot0b = 0;
-    if ((u8)data_801a27d0 != 0) {
+    if ((u8)draw_buffer_index != 0) {
         p += 0x930;
     }
     for (row = 0; row < map->rows; row++) {

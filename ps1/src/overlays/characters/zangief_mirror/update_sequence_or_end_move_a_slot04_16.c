@@ -5,7 +5,7 @@
 
 extern ObjectFn data_801ca1e8_slot04_16[];
 extern ObjectFn data_801ca1f8_slot04_16[];
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 extern u16 box_margin[];
 
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
@@ -38,7 +38,7 @@ void start_state_3_sequence_by_direction_slot04_16(Object *obj) {
     obj->field_225 = 1;
     obj->state_3++;
     add_to_meter_clamped(obj, 7);
-    add_one_to_ec4_if_object_unflagged((GameState *)data_80190468.p, obj);
+    add_one_to_ec4_if_object_unflagged((GameState *)ref_game_state.p, obj);
     a = 0x49;
     if (obj->field_49 != 0) {
         a = 0x53;

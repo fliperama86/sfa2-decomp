@@ -27,7 +27,7 @@ void update_pending_flag_from_table_bit(GameState *g) {
 }
 
 void call_handler_by_stage_0_1(GameState *state) {
-    unsigned v = ((Hud *)data_8018f5a0)->stage;
+    unsigned v = ((Hud *)screen_state)->stage;
     if (v == 0) {
         reset_game_state_for_round(state);
     } else if (v == 1) {

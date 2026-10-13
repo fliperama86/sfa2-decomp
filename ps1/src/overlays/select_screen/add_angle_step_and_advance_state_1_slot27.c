@@ -8,7 +8,7 @@ extern ObjectFn data_80027cfc_slot27[];
 void add_angle_step_and_advance_state_1_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     int v;
-    if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
+    if (screen_state->substep_index >= 3 && game_state.mode != 3) {
         obj->angle += obj->field_4c;
         v = (s16)obj->angle;
         if ((u32)v >= 0x381) {

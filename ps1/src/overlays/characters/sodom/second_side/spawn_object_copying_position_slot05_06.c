@@ -21,8 +21,8 @@ int spawn_object_copying_position_slot05_06(Object *obj) {
         ref_other.p->mode_id = 0x20;
         ref_other.p->field_90 = (void *)0x800fb100;
         ref_other.p->sound_side = obj->sound_side;
-        ref_other.p->data_ptr_a = data_80172a48;
-        ref_other.p->data_ptr_b = data_80173c9c;
+        ref_other.p->data_ptr_a = spawned_object_data_a;
+        ref_other.p->data_ptr_b = spawned_object_data_b;
         return 1;
     }
     return 0;

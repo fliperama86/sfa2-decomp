@@ -143,7 +143,7 @@ void update_slot06_11_both_players_and_scroll_slot06_11(Object *obj) {
     track_other_motion_and_spawn_effects_slot06_11(obj, p, (Slot06_11Rec0028 *)((u8 *)obj + 0x5c));
     game_state.pair_ptr = (Pair *)(p + 1);
     track_other_motion_and_spawn_effects_slot06_11(obj, p + 1, (Slot06_11Rec0028 *)((u8 *)obj + 0x28));
-    obj->pos_x = ((Slot06Layer *)data_801aa5d4)->scroll_x;
+    obj->pos_x = ((Slot06Layer *)main_layer)->scroll_x;
     if (game_state.field_74 == 0) {
         obj->pos_y = 0xf8 - (obj->pos_y ^ 1);
     }

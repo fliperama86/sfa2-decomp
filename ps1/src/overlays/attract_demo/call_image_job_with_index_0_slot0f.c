@@ -16,7 +16,7 @@ void call_step_handler_and_update_blocks_slot0f(Object *obj) {
     u16 *timer = &data_801903ca;
     HudState *hud;
     *timer = *timer - 1;
-    hud = data_8018f5a0;
+    hud = screen_state;
     data_800ebc68_slot0f[hud->step_index](obj);
     update_blocks();
     update_active_slab172_entries();
@@ -26,7 +26,7 @@ void call_step_handler_and_update_blocks_slot0f(Object *obj) {
 void advance_step_when_state_is_1_slot0f(Object *o) {
     Slot0fObj *obj = (Slot0fObj *)o;
     if (data_801903c4[0] == 1) {
-        data_8018f5a0->step_index++;
+        screen_state->step_index++;
         if (obj->field_ee != 0) {
             set_phase_two_clear_step_slot0f(o);
         } else {

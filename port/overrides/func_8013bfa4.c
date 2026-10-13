@@ -27,13 +27,13 @@
  *     and, through is_box_separated_2, its field_08, field_0b, pos_x, pos_y and
  *     wide_boxes; the player's field_163, countdown_4, other_lock, field_295,
  *     field_69, active_state, hit_type, health, boxes_a, boxes_b, boxes_c,
- *     frame (box_a, box_b, box_c); data_80190468 (a pointer to an object
+ *     frame (box_a, box_b, box_c); ref_game_state (a pointer to an object
  *     whose bytes at 0x5c to 0x5e it writes).
- *   Writes: ref_other, ref_third, ref_second, ref_first, data_80190458,
+ *   Writes: ref_other, ref_third, ref_second, ref_first, ref_aux,
  *     data_801904c0, the overlap record at 80188ed0 (its in_ and f_ words,
  *     and the out_ fields through is_box_separated_2), data_80188f30; the
  *     player's field_241 and hit_type; the table object's active_count,
- *     state_0 to state_3, health; three bytes at data_80190468 + 0x5c.
+ *     state_0 to state_3, health; three bytes at ref_game_state + 0x5c.
  *   Callees that run as the original code: reset_hit_results (clears the
  *     overlap record; inferred) and is_box_separated_2 (computes the overlap).
  *     Callees replaced by recorders, which return 0: apply_hit_box_to_target (a, b),
@@ -43,11 +43,11 @@
  *     just set; read from the original's listing, not tested), and so does
  *     this C.
  *   Watched by the recorders at every call, whole: the table objects, both
- *     players, the object at data_80190468, the overlap record,
+ *     players, the object at ref_game_state, the overlap record,
  *     data_80188f30, ref_first to data_80190414 and the word after it,
- *     data_80190458, data_801904c0, ref_other and ref_third.
+ *     ref_aux, data_801904c0, ref_other and ref_third.
  *   Aliasing: the table objects, the players, their frames, box tables and
- *     box lists, and the object at data_80190468 are distinct blocks; the
+ *     box lists, and the object at ref_game_state are distinct blocks; the
  *     table may repeat an object.
  *   Excluded: a count above the size of the table (the original reads the
  *     memory below the symbol; the table holds at most 12 entries).
@@ -71,7 +71,7 @@ extern u16 data_80188edc, data_80188ee0, data_80188ee4, data_80188ee8,
     data_80188efc, data_80188f00, data_80188f04, data_80188f08,
     data_80188f0c, data_80188f10, data_80188f14, data_80188f18;
 
-/* Three state bytes at offset 0x5c of the object that data_80190468 points at. Two u16
+/* Three state bytes at offset 0x5c of the object that ref_game_state points at. Two u16
    fields of Object cover these bytes; writing them as u16 differs in 23 instruction lines. */
 typedef struct {
     u8 pad[0x5c];
@@ -138,11 +138,11 @@ void func_8013bfa4(void) {
             if (ref_third.p->frame->active == 0) {
                 continue;
             }
-            /* The box table is read back from data_80190458; taking it from the object again
+            /* The box table is read back from ref_aux; taking it from the object again
                differs in 41 instruction lines. */
-            data_80190458.p = (Object *)ref_third.p->box_tables;
-            box = (Box32 *)((BoxTables *)data_80190458.p)->boxes_b;
-            data_801904c0.p = data_80190458.p;
+            ref_aux.p = (Object *)ref_third.p->box_tables;
+            box = (Box32 *)((BoxTables *)ref_aux.p)->boxes_b;
+            data_801904c0.p = ref_aux.p;
             box += ref_third.p->frame->active;
             ref_first.p = (Object *)box;
             reset_hit_results();
@@ -221,14 +221,14 @@ void func_8013bfa4(void) {
             if (ref_second.p->hit_type != 0xff && (s16)ref_second.p->health >= 0) {
                 /* The override: the count is masked, as the console's shift does it. */
                 if (0x800000 >> (ref_third.p->field_02 & 31)) {
-                    ((StateBytes *)data_80190468.p)->state = 0xf;
-                    ((StateBytes *)data_80190468.p)->mode = 2;
-                    ((StateBytes *)data_80190468.p)->mode2 = 2;
+                    ((StateBytes *)ref_game_state.p)->state = 0xf;
+                    ((StateBytes *)ref_game_state.p)->mode = 2;
+                    ((StateBytes *)ref_game_state.p)->mode2 = 2;
                 }
                 if (ref_third.p->field_49 != 0) {
-                    ((StateBytes *)data_80190468.p)->state = 7;
-                    ((StateBytes *)data_80190468.p)->mode = 1;
-                    ((StateBytes *)data_80190468.p)->mode2 = 1;
+                    ((StateBytes *)ref_game_state.p)->state = 7;
+                    ((StateBytes *)ref_game_state.p)->mode = 1;
+                    ((StateBytes *)ref_game_state.p)->mode2 = 1;
                 }
             }
             select_min_placement_and_test(ref_third.p, ref_second.p, box);

@@ -13,8 +13,8 @@ void init_object_data_pointers_a_13_slot28(Object *obj);
 void advance_pass_spawn_object_slot_b64_1_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index = screen_state->pass_index + 1;
         b = data_80051b64_slot28[0];
         b->variant_index = 0xff;
         b = data_80051b94_slot28.p;

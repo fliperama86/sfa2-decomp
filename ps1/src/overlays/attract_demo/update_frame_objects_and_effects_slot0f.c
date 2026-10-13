@@ -15,7 +15,7 @@ void update_frame_objects_and_effects_slot0f(GameState *g, int x) {
     separate_overlapping_players();
     update_blocks();
     call_active_block_handlers();
-    if (data_80190568 != 0) {
+    if (kind_handlers_enabled != 0) {
         set_capped_value_and_ot_indices(g);
     }
     if (g->state_param != 0) {

@@ -17,8 +17,8 @@ void set_sequence_of_fourth_hud_object_15_slot28(Object *obj, int arg);
 void advance_pass_spawn_two_slot28_objects_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index = screen_state->pass_index + 1;
         release_active_objects_in_table_13_slot28();
         set_sequence_from_table_5(data_80051c0c_slot28.p, 2, data_8004a088_slot28);
         b = data_80051c10_slot28[0];

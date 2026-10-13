@@ -15,7 +15,7 @@ void update_selection_index_from_pad_slot0f(void) {
     u8 *p;
     s8 *q;
     s8 sel;
-    u16 pad = data_801a696a | data_801a6976;
+    u16 pad = pad_1_pressed | pad_2_pressed;
 
     if (pad & 0x2000) {
         q = &data_800f855d_slot0f;

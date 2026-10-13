@@ -6,7 +6,7 @@
 extern SequenceStep **data_800282e8_slot27[];
 
 void update_sequence_on_active_state_change_slot27(Object *obj) {
-    int *p = data_8019045c;
+    int *p = scratch_word_a;
     int idx;
     *p = obj->field_62;
     if (obj->active_state != *p) {
@@ -16,6 +16,6 @@ void update_sequence_on_active_state_change_slot27(Object *obj) {
         *p = *p * 2;
         idx = obj->table_index + *p;
         *p = idx;
-        set_sequence_from_table_5(obj, idx, data_800282e8_slot27[(*(Config **)&data_80190458)->table_index]);
+        set_sequence_from_table_5(obj, idx, data_800282e8_slot27[(*(Config **)&ref_aux)->table_index]);
     }
 }

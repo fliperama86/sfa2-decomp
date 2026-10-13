@@ -72,9 +72,9 @@ def setup(state, rng, sym):
         if tile:
             tiles += 1
 
-    state.w32(sym["data_801987c8"], state.alloc(0x40))
+    state.w32(sym["current_ordering_table"], state.alloc(0x40))
     selector = rng.choice((0, 1, 0, 1, 0xFFFF))
-    state.w32(sym["data_801a27d0"], (rng.getrandbits(16) << 16) | selector)
+    state.w32(sym["draw_buffer_index"], (rng.getrandbits(16) << 16) | selector)
     count = rng.randrange(0, 144 - tiles + 1)
     state.w16(sym["data_80188d04"], count)
 

@@ -9,7 +9,7 @@ extern void (*data_80026ee8_slot27[])(Object *);
 
 void start_sequence_if_side_bit_set_2_slot27(Object *obj) {
     u8 *mode = &game_state.mode;
-    int *side = data_80190464;
+    int *side = scratch_word_b;
     Object *o = obj->other;
 
     if ((((*mode | game_state.side_mask) >> (*side = o->side)) & 1) != 0) {

@@ -4,7 +4,7 @@
 #include "../../protos.h"
 
 void branch_script_if_other_kind_equals_arg(Object *object) {
-    s16 v = *data_80189460++;
+    s16 v = *script_cursor++;
     if (object->other->kind == v) {
         read_script_word_and_dispatch(object);
     } else {
@@ -13,7 +13,7 @@ void branch_script_if_other_kind_equals_arg(Object *object) {
 }
 
 void branch_script_if_kind_equals_arg(Object *object) {
-    s16 v = *data_80189460++;
+    s16 v = *script_cursor++;
     if (object->kind == v) {
         read_script_word_and_dispatch(object);
     } else {

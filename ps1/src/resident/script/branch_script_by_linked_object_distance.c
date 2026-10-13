@@ -10,11 +10,11 @@
    straight from w >> 8: 6, and 8 bytes shorter. It reaches w through t; read
    straight into w: 3, and 4 bytes shorter. */
 void branch_script_by_linked_object_distance(Object *object) {
-    u16 *p = data_80189460;
+    u16 *p = script_cursor;
     Object *other;
     s16 w;
     u16 t;
-    data_80189460 = p + 1;
+    script_cursor = p + 1;
     other = object->other;
     t = *p;
     w = t;
@@ -33,7 +33,7 @@ void branch_script_by_linked_object_distance(Object *object) {
     store_box_distance_to_other_x(object);
     t = object->limit_lo;
     t = t | (object->limit_hi << 8);
-    if (t >= data_80189464) {
+    if (t >= script_work_value) {
     none:
         read_script_word_and_dispatch(object);
     } else {

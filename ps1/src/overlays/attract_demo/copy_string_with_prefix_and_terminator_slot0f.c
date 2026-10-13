@@ -35,7 +35,7 @@ void count_records_with_high_bit_slot0f(Object *o) {
     int i;
 
     data_800f7b74_slot0f[0].value = 0;
-    p = &data_80190468.p->accum_count;
+    p = &ref_game_state.p->accum_count;
     i = obj->record_offset;
     n = 0;
     if (*p != 0xff) {
@@ -57,7 +57,7 @@ void count_record_bytes_in_range_c_to_f_slot0f(Object *o) {
     int v;
 
     data_800f7b74_slot0f[1].value = 0;
-    p = &data_80190468.p->accum_count;
+    p = &ref_game_state.p->accum_count;
     i = obj->record_offset;
     n = 0;
     if (*p != 0xff) {

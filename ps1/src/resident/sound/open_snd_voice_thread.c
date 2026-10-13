@@ -11,7 +11,7 @@ void open_snd_voice_thread(int a, u32 b) {
     VOICES[a].thread_handle = func_8015760c(b, VOICES[a].stack_address, VOICES[a].thread_arg);
     VOICES[a].saved_high_byte = game_state.step_value >> 8;
     VOICES[a].saved_low_byte = *(u8 *)&game_state.step_value;
-    VOICES[a].saved_byte_a = *(u16 *)data_8019046c >> 8;
+    VOICES[a].saved_byte_a = *(u16 *)scratch_word_c >> 8;
     VOICES[a].saved_byte_b = data_8019047c;
     func_8015786c();
 }

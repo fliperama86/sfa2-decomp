@@ -13,8 +13,8 @@ void finish_selection_pass_and_set_kind_index_slot27(void) {
     int value;
     data_8002f158_slot27 = 0;
     value = game_state.mode | game_state.side_mask;
-    if (data_8018f5a0->pass_index == value) {
-        data_8018f5a0->substep_index++;
+    if (screen_state->pass_index == value) {
+        screen_state->substep_index++;
         game_state.field_09 = 1;
         select_kind_for_second_player((Select *)&game_state);
         if (game_state.b0_flag != 0) {
@@ -32,12 +32,12 @@ void finish_selection_pass_and_set_kind_index_slot27(void) {
             }
         }
         game_state.countdown_2 = 0;
-        data_8018f5a0->step_index_2 = 0;
-        data_8018f5a0->pass_index = 0;
-        data_8018f5a0->field_54 = 0;
-        data_8018f5a0->substep_index++;
+        screen_state->step_index_2 = 0;
+        screen_state->pass_index = 0;
+        screen_state->field_54 = 0;
+        screen_state->substep_index++;
         if ((game_state.mode | game_state.side_mask) == 3) {
-            data_8018f5a0->substep_index++;
+            screen_state->substep_index++;
             game_state.countdown_2 = 0x40;
         }
     }

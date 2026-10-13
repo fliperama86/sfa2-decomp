@@ -9,7 +9,7 @@ void update_blocks(void) {
 
     game_state.field_24 = 0x28;
     do {
-        if (b->active_flag != 0 && data_80190568 != 0) {
+        if (b->active_flag != 0 && kind_handlers_enabled != 0) {
             if (b->pool_kind == 0x20) {
                 if (b->handler_table_select == 0) {
                     table_80172980[b->handler_index](b);

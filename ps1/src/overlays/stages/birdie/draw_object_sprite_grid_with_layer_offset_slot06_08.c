@@ -46,12 +46,12 @@ void draw_object_sprite_grid_with_layer_offset_slot06_08(Object *object) {
 
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
-        layer = (Slot06Layer *)data_801aa5d4;
+        layer = (Slot06Layer *)main_layer;
         x = ((Slot06Obj *)object)->pos_x - layer->scroll_x
             + ((s16)layer->scroll_x - (s16)layer->ref_x) * (s16)((Slot06Obj *)object)->parallax_factor / 88;
         y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 4) {
-        layer = (Slot06Layer *)data_801aa544;
+        layer = (Slot06Layer *)background_layers;
         x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
         y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 0xc) {
@@ -63,13 +63,13 @@ void draw_object_sprite_grid_with_layer_offset_slot06_08(Object *object) {
         y = ((Slot06Obj *)object)->pos_y;
     }
     if (object->field_0f != 0) y = y + game_state.scroll_y;
-    cnt = data_801adfe4;
+    cnt = tile_sprite_count;
     hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
     tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
-    ot = (u32 *)data_801987c8 + object->ot_depth;
-    sel = *(u8 *)&data_801a27d0;
+    ot = (u32 *)current_ordering_table + object->ot_depth;
+    sel = *(u8 *)&draw_buffer_index;
     for (row = 0; row < hdr[2]; row++) {
         for (col = 0; col < hdr[0]; col++) {
             off = (col + row * hdr[0]) * 2;
@@ -99,5 +99,5 @@ void draw_object_sprite_grid_with_layer_offset_slot06_08(Object *object) {
             }
         }
     }
-    data_801adfe4 = cnt;
+    tile_sprite_count = cnt;
 }

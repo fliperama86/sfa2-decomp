@@ -4,7 +4,7 @@
 #include "../../../externs.h"
 
 extern u16 data_801eb8ec_slot06_0e[];
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 
 void init_first_layer_tile_map_slot06_0e(Slot06Layer *layer);
 void init_layer_tile_map_0e_with_bounds_slot06_0e(Slot06Layer *layer);
@@ -41,10 +41,10 @@ void draw_background_layers_by_flags_slot06_0e(void) {
 }
 
 void init_four_layers_tile_maps_slot06_0e(void) {
-    init_first_layer_tile_map_slot06_0e((Slot06Layer *)data_801aa544);
-    init_layer_tile_map_0e_with_bounds_slot06_0e((Slot06Layer *)data_801aa5d4);
+    init_first_layer_tile_map_slot06_0e((Slot06Layer *)background_layers);
+    init_layer_tile_map_0e_with_bounds_slot06_0e((Slot06Layer *)main_layer);
     init_layer_tile_map_0e_front_slot06_0e((Slot06Layer *)cam_obj);
-    init_layer_tile_map_fields_b_slot06_0e((Slot06Layer *)data_801904d8);
+    init_layer_tile_map_fields_b_slot06_0e((Slot06Layer *)fourth_layer);
 }
 
 void init_slot_tile_sprite_and_poly_buffers_gray_k_slot06_0e(void) {
@@ -85,10 +85,10 @@ void update_layer_by_state_with_parallax_slot06_0e(Slot06Layer *layer) {
     } else if (layer->state_index == 1) {
         advance_layer_pos_y_to_limit_slot06_0e(layer);
     }
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     d = l2->field_22;
     d -= l2->ref_x;
-    d += data_80190542;
+    d += fourth_layer_offset_x;
     d /= 4;
     d += layer->ref_x;
     d += layer->pos_x_int;

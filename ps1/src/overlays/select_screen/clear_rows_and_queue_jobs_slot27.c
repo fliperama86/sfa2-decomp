@@ -11,7 +11,7 @@ void clear_rows_and_queue_jobs_slot27(void) {
     int i;
     int j;
 
-    if (data_8018db10 == 0) {
+    if (palette_altered_flag == 0) {
         for (set = 0; set < 5; set++) {
             for (i = 0; i < 0x10; i++) {
                 for (j = 0; j < 0x20; j++) {
@@ -19,8 +19,8 @@ void clear_rows_and_queue_jobs_slot27(void) {
                 }
             }
         }
-        data_8018f598 = 1;
-        data_8018db10 = data_8018db10 + 1;
+        white_fill_active = 1;
+        palette_altered_flag = palette_altered_flag + 1;
     }
     queue_image_upload_job(0, 0);
     queue_image_upload_job(1, 1);

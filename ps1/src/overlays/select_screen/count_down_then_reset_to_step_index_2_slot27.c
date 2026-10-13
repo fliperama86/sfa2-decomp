@@ -12,11 +12,11 @@ void count_down_then_reset_to_step_index_2_slot27(void) {
     if ((s16)t == 0) {
         clear_arrays_and_init_pools_and_sprite_tables();
         restore_rows_from_backup_and_queue_jobs_slot27();
-        data_8018f5a0->step_index = 2;
-        data_8018f5a0->substep_index = 0;
-        data_8018f5a0->step_index_2 = 0;
-        data_8018f5a0->pass_index = 0;
-        data_8018f5a0->field_54 = 0;
+        screen_state->step_index = 2;
+        screen_state->substep_index = 0;
+        screen_state->step_index_2 = 0;
+        screen_state->pass_index = 0;
+        screen_state->field_54 = 0;
     }
 }
 

@@ -6,16 +6,16 @@
 /* Exact. The first argument register is never read, so it is an unused int;
    the fill loop is written with goto so the constants stay inside the loop. */
 
-extern u16 data_801a6966;
+extern u16 pad_1_held;
 
 void update_name_entry_input(int unused, NameEntry *o) {
     s16 i;
     u16 raw;
     s16 pad;
     int j;
-    raw = data_801a6966;
+    raw = pad_1_held;
     if (o->side) {
-        raw = data_801a6972;
+        raw = pad_2_held;
     }
     pad = raw;
     if (pad == 0) {

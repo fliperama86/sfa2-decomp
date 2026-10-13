@@ -8,15 +8,15 @@ void draw_text_items(void)
 {
   u16 line;
   int i;
-  data_8018d13c = (Cmd *)data_8018a4bc[data_801a27d0];
-  data_8018d140 = data_8018ccbc[data_801a27d0];
+  data_8018d13c = (Cmd *)data_8018a4bc[draw_buffer_index];
+  data_8018d140 = data_8018ccbc[draw_buffer_index];
   for (i = 0; i < data_8018d204; i++)
   {
     TextItem *item = table_8018d144[i];
     u16 y = item->y;
     int pal = item->palette;
     u16 x0 = item->x;
-    u8 *base = (u8 *) (item->table_index << 2) + (int) data_801987c8;
+    u8 *base = (u8 *) (item->table_index << 2) + (int) current_ordering_table;
     u8 c = item->char_code;
     unsigned short step = item->step;
     u16 x = x0;

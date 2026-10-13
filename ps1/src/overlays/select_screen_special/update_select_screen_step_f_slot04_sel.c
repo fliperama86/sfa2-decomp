@@ -37,9 +37,9 @@ void update_select_screen_step_f_slot04_sel(void) {
     Slot04SelRec9d78 *a = data_801b9d78_slot04_sel;
     Slot04SelRec9d78 *b = a + 1;
     add_item_to_table(data_801b9310_slot04_sel);
-    if (data_8018f5a0->step_index_2 == 1) {
+    if (screen_state->step_index_2 == 1) {
         add_item_to_table(data_801b9330_slot04_sel);
-    } else if (data_8018f5a0->step_index_2 == 2) {
+    } else if (screen_state->step_index_2 == 2) {
         add_item_to_table(data_801b9358_slot04_sel);
     }
     add_item_to_table(data_801b8fe0_slot04_sel + 0);
@@ -62,7 +62,7 @@ void update_select_screen_step_f_slot04_sel(void) {
     add_item_to_table(data_801b9244_slot04_sel);
     data_801b8cc8_slot04_sel[a->field_00](l, r, a);
     data_801b8cc8_slot04_sel[b->field_00](r, l, b);
-    if (data_8018f5a0->step_index_2 == 1) {
+    if (screen_state->step_index_2 == 1) {
         if (game_state.side_mask == (a->field_04 | b->field_04)) {
             a->field_00 = 0;
             b->field_00 = 0;
@@ -72,9 +72,9 @@ void update_select_screen_step_f_slot04_sel(void) {
             b->field_14 = 0;
             a->hold_count_b = 0;
             b->hold_count_b = 0;
-            data_8018f5a0->step_index_2 = data_8018f5a0->step_index_2 + 1;
+            screen_state->step_index_2 = screen_state->step_index_2 + 1;
         }
-    } else if (data_8018f5a0->step_index_2 == 2) {
+    } else if (screen_state->step_index_2 == 2) {
         Object *o1 = data_801b8fc4_slot04_sel[game_state.side_mask];
         Object *o0 = data_801b8f74_slot04_sel[game_state.side_mask];
         add_item_to_table(o1);
@@ -84,8 +84,8 @@ void update_select_screen_step_f_slot04_sel(void) {
             b->field_00 = 0;
             l->mode_flag_2 = 0;
             r->mode_flag_2 = 0;
-            data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
-            data_8018f5a0->step_index_2 = 0;
+            screen_state->substep_index = screen_state->substep_index + 1;
+            screen_state->step_index_2 = 0;
             game_state.kind_index = (u8)get_table_entry(game_state.selection_value);
         }
     }

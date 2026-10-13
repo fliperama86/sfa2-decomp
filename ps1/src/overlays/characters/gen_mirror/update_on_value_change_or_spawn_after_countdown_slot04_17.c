@@ -39,10 +39,10 @@ void update_on_value_change_or_spawn_after_countdown_slot04_17(Object *o) {
                 n->base_x = 0x240;
                 n->spawn_x = 0x60;
                 n->spawn_y = 0x1e2;
-                n->data_ptr_a = data_80172a48;
+                n->data_ptr_a = spawned_object_data_a;
                 n->base_y = 0;
                 n->field_90 = (void *)0x800fb100;
-                n->data_ptr_b = data_80173c9c;
+                n->data_ptr_b = spawned_object_data_b;
                 n->sound_side = o->sound_side;
             }
         }

@@ -21,7 +21,7 @@ void update_game_frame(GameState *g) {
         call_active_block_handlers();
         set_capped_value_and_ot_indices(g);
     } else {
-        table_8016e7ac[data_8018f5a0->substep_index](g);
+        table_8016e7ac[screen_state->substep_index](g);
         if (g->field_4f != 0) {
             return;
         }
@@ -47,7 +47,7 @@ void update_game_frame(GameState *g) {
             push_player_out_of_type_9_object_boxes();
             update_blocks();
             call_active_block_handlers();
-            if (data_80190568 != 0) {
+            if (kind_handlers_enabled != 0) {
                 set_capped_value_and_ot_indices(g);
             }
             if (g->state_param != 0) {

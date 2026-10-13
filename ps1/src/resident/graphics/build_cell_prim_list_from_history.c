@@ -50,7 +50,7 @@ void build_cell_prim_list_from_history(Object *obj, u16 column, u16 frame, Block
                 return;
             }
         }
-        sel = data_801a27d0;
+        sel = draw_buffer_index;
         if (data_80185c84[obj->side][column][sel] == (int)hdr && data_80185cc4[obj->side][column][sel] == size && data_80185ce4[obj->side][column][sel] == second->clut_offset) {
             return;
         }

@@ -16,8 +16,8 @@ void script_branch_on_random_bit(Object *object) {
 }
 
 void script_branch_if_meter_ge_value(Object *object) {
-    s16 *p = (s16 *)data_80189460;
-    data_80189460 = (u16 *)(p + 1);
+    s16 *p = (s16 *)script_cursor;
+    script_cursor = (u16 *)(p + 1);
     if ((s16)object->meter >= *p) {
         read_script_word_and_dispatch(object);
     } else {

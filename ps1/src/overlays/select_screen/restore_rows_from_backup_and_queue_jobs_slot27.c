@@ -6,7 +6,7 @@
 void restore_rows_from_backup_and_queue_jobs_slot27(void) {
     int i;
     int j;
-    if (data_8018db10 != 0) {
+    if (palette_altered_flag != 0) {
         for (i = 0; i < 5; i++) {
             for (j = 0; j < 0x200; j++) {
                 data_801a27e4_rows[i][j] = data_801a27e4_rows[i + 5][j];
@@ -17,6 +17,6 @@ void restore_rows_from_backup_and_queue_jobs_slot27(void) {
         queue_image_upload_job(2, 2);
         queue_image_upload_job(3, 3);
         queue_image_upload_job(4, 7);
-        data_8018db10 = 0;
+        palette_altered_flag = 0;
     }
 }

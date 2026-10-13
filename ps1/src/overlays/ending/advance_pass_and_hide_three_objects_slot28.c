@@ -17,7 +17,7 @@ void advance_pass_and_hide_three_objects_slot28(Object *obj) {
     if (obj->field_f0 == 0) {
         /* Stand-in, not recovered source: three nested do-while wrappers around the statement that loads the HUD pointer reproduce the original's choice of registers. Without it this function differs from the original in 11 instruction slots. */
         /* With two wrappers: 6 slots. Inferred: the compiler counts a reference inside a wrapper twice for each level, so the pointer outranks the count of pass_index and takes v0. */
-        do { do { do { h = data_8018f5a0; } while (0); } while (0); } while (0);
+        do { do { do { h = screen_state; } while (0); } while (0); } while (0);
         h->countdown_timer = 0x258;
         h->pass_index++;
         set_sequence_of_fourth_hud_object_slot28(obj, 4);

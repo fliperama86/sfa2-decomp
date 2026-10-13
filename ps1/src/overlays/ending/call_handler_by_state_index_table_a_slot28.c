@@ -14,7 +14,7 @@ void ignore_object_empty_slot28(Object *obj) {
 }
 
 void advance_substep_and_set_active_flag_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     h->countdown_timer = 1;
     h->step_index_2 = 0;
     h->pass_index = 0;

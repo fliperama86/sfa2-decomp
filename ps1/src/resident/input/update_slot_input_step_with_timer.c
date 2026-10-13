@@ -23,7 +23,7 @@ void update_slot_input_step_with_timer(Object *object, int index, int arg)
     return;
   }
   arg &= 0xff;
-  entry = table_8017a8cc[(arg * 7) + object->slots[index].entry_index];
+  entry = slot_input_table[(arg * 7) + object->slots[index].entry_index];
   mask = object->pressed_bits & 0xf0ff;
   if (mask == 0)
     goto call_c8;

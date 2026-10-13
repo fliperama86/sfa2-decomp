@@ -15,8 +15,8 @@ extern ObjectFn data_801c4e30_slot04_12[];
 extern ObjectFn data_801c4e40_slot04_12[];
 extern ObjectFn data_801c4e54_slot04_12[];
 extern SequenceStep **data_801c4f08_slot04_12[];
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
+extern SequenceStep **seqs_b4_left;
+extern SequenceStep **seqs_164_right;
 extern SequenceStep **data_1f8000f0;
 extern SequenceStep **data_1f8001a0;
 
@@ -163,9 +163,9 @@ void init_follower_from_parent_kind_slot04_12(Object *obj) {
     obj->variant_index = 0;
     if (obj->table_index == 0) {
         if (p->side == 0) {
-            data_801c4f08_slot04_12[0] = data_1f8000b4;
+            data_801c4f08_slot04_12[0] = seqs_b4_left;
         } else {
-            data_801c4f08_slot04_12[1] = data_1f800164;
+            data_801c4f08_slot04_12[1] = seqs_164_right;
         }
     } else {
         if (p->side == 0) {

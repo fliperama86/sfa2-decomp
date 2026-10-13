@@ -24,9 +24,9 @@
  *   Reads: the object's ot_depth (list index), image_row, field_0e, field_0f,
  *     scroll_x, scroll_y and sequence; for field_0e 8, 4 or 0xc the
  *     scroll_x and scroll_y of the matching layer block; game_state.scroll_y
- *     when field_0f is not 0; the record counter data_801adfe4 and the
- *     buffer selector data_801a27d0 (byte, 0 or 1); the list base pointer
- *     data_801987c8 and the list head word it points at.
+ *     when field_0f is not 0; the record counter tile_sprite_count and the
+ *     buffer selector draw_buffer_index (byte, 0 or 1); the list base pointer
+ *     current_ordering_table and the list head word it points at.
  *   Header, at object->sequence->data_ptr: byte 0 columns, byte 2 rows,
  *     byte 3 a texture page offset, u16 at 4 and 6 the x and y origin, then
  *     rows * columns u16 cells from offset 8. Cell value 0 (low 14 bits) is
@@ -79,11 +79,11 @@ void draw_object_tile_grid_sprites_slot06_00(Object *object) {
 
     if (game_state.field_64 != 0) return;
     if (object->field_0e == 8) {
-        layer = (Slot06Layer *)data_801aa5d4;
+        layer = (Slot06Layer *)main_layer;
         x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
         y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 4) {
-        layer = (Slot06Layer *)data_801aa544;
+        layer = (Slot06Layer *)background_layers;
         x = ((Slot06Obj *)object)->pos_x - layer->scroll_x;
         y = ((Slot06Obj *)object)->pos_y + layer->scroll_y - 8;
     } else if (object->field_0e == 0xc) {
@@ -95,13 +95,13 @@ void draw_object_tile_grid_sprites_slot06_00(Object *object) {
         y = ((Slot06Obj *)object)->pos_y;
     }
     if (object->field_0f != 0) y = y + game_state.scroll_y;
-    cnt = data_801adfe4;
+    cnt = tile_sprite_count;
     hdr = (u8 *)object->sequence->data_ptr;
     ox = *(u16 *)(hdr + 4);
     oy = *(u16 *)(hdr + 6);
     tpage = ((object->image_row + hdr[3]) << 6) + 0x7806;
-    ot = (u32 *)data_801987c8 + object->ot_depth;
-    sel = *(u8 *)&data_801a27d0;
+    ot = (u32 *)current_ordering_table + object->ot_depth;
+    sel = *(u8 *)&draw_buffer_index;
     for (row = 0; row < hdr[2]; row++) {
         for (col = 0; col < hdr[0]; col++) {
             off = (col + row * hdr[0]) * 2;
@@ -127,5 +127,5 @@ void draw_object_tile_grid_sprites_slot06_00(Object *object) {
             }
         }
     }
-    data_801adfe4 = cnt;
+    tile_sprite_count = cnt;
 }

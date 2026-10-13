@@ -18,7 +18,7 @@ void wait_countdown_then_advance_step_index_slot12(void) {
             return;
         }
     }
-    data_8018f5a0->step_index++;
+    screen_state->step_index++;
     set_menu_command_by_code(6, 2);
     reset_to_phase_7_when_no_side_bits_slot12();
 }

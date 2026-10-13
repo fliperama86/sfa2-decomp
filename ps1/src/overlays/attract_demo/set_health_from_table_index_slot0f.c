@@ -34,9 +34,9 @@ store:
 }
 
 void call_handler_by_table_index_slot0f(Object *obj) {
-    ref_first.p = (Object *)table_8016e5c4;
+    ref_first.p = (Object *)score_rank_table;
     if (game_state.mode_flag_2 != 0) {
-        ref_first.p = (Object *)table_8016e614;
+        ref_first.p = (Object *)streak_rank_table;
     }
     data_800f018c_slot0f[obj->table_index](obj);
 }

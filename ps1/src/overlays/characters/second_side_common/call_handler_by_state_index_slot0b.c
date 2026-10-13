@@ -19,10 +19,10 @@ void nop_mod_object_handler_slot0b(ModObj *obj) {
 
 void update_owned_object_by_substate_slot0b(ModObj *obj) {
     ref_other.p = obj->owner_object;
-    if (data_80190468.p->state_0 == 0) {
+    if (ref_game_state.p->state_0 == 0) {
         data_801e471c_slot0b[obj->substate_index](obj);
         if (data_80190a40 != 1) {
-            build_scaled_rotated_quads_from_layout_slot0b(obj, data_801e46b4_slot0b[ref_other.p->side], ref_other.p->side, data_801a27d0);
+            build_scaled_rotated_quads_from_layout_slot0b(obj, data_801e46b4_slot0b[ref_other.p->side], ref_other.p->side, draw_buffer_index);
         }
     } else {
         set_mode_and_child_mode_slot0b(obj);

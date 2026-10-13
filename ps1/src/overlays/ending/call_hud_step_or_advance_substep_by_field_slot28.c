@@ -13,7 +13,7 @@ void call_hud_step_or_advance_substep_by_field_slot28(Object *o) {
     if (obj->field_1c == 0) {
         call_handler_by_hud_step_index_2_19_slot28((Object *)&game_state);
     } else {
-        HudState *h = data_8018f5a0;
+        HudState *h = screen_state;
         h->substep_index = h->substep_index + 1;
     }
 }
@@ -22,7 +22,7 @@ void call_hud_step_or_advance_substep_by_byte_slot28(Object *obj) {
     if ((s8)data_8016e685 >= 2) {
         call_handler_by_hud_step_index_2_20_slot28((Object *)&game_state);
     } else {
-        HudState *h = data_8018f5a0;
+        HudState *h = screen_state;
         h->substep_index = h->substep_index + 1;
     }
 }
@@ -31,7 +31,7 @@ void reset_players_and_hud_indices_when_idle_slot28(Object *o) {
     if (((Slot28Obj *)o)->field_f0 == 0) {
         HudState *h;
         ((Slot28Obj *)o)->field_19 = 0;
-        h = data_8018f5a0;
+        h = screen_state;
         player_left.field_a5 = 0;
         player_right.field_a5 = 0;
         player_left.field_01 = 0;

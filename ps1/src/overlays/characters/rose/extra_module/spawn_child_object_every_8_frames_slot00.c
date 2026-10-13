@@ -24,9 +24,9 @@ void spawn_child_object_every_8_frames_slot00(Object *o) {
             p->spawn_flag = 1;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
-            p->data_ptr_a = &data_80172a48;
+            p->data_ptr_a = &spawned_object_data_a;
             p->field_90 = (void *)0x800fb100;
-            p->data_ptr_b = &data_80173c9c;
+            p->data_ptr_b = &spawned_object_data_b;
             p->pos_y = y;
             p->sound_side = o->sound_side;
         }

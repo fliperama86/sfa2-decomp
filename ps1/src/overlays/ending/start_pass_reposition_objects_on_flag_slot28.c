@@ -20,9 +20,9 @@ void start_pass_reposition_objects_on_flag_slot28(Object *obj) {
     int one;
     int x60;
 
-    if (data_80190949 != 0 && obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index++;
+    if (menu_active_flag != 0 && obj->field_f0 == 0) {
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index++;
         release_active_objects_in_table_3_slot28();
         x60 = 0x60;
         o = data_80051980_slot28[0];

@@ -7,9 +7,9 @@ extern Object *data_8002d56c_slot12;
 extern Object *data_8002d568_slot12;
 
 void init_pools_and_store_player_pointers_slot12(void) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     int one = 1;
-    data_80190568 = one;
+    kind_handlers_enabled = one;
     h->substep_index++;
     game_state.field_09 = one;
     game_state.state_2c_flag = 0xff;
@@ -21,11 +21,11 @@ void init_pools_and_store_player_pointers_slot12(void) {
 }
 
 void increment_substep_index_slot12(void) {
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
 }
 
 void advance_step_index_and_clear_timers_slot12(void) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     h->step_index++;
     h->substep_index = 0;
     game_state.timer_or_bits = 0;

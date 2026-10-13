@@ -14,7 +14,7 @@ void init_object_position_and_sequence_slot0b(Object *obj) {
     obj->scroll_factor = 0;
     obj->state_0++;
     obj->pos_x = box_margin[0];
-    obj->pos_y = data_801aa5ea[0] + 8;
+    obj->pos_y = view_scroll_y[0] + 8;
     set_sequence_from_table_5(obj, obj->field_02, data_801e7630_slot0b);
 }
 
@@ -22,10 +22,10 @@ void update_object_at_box_margin_position_slot0b(Object *obj) {
     if ((s16)obj->step_flags < 0) {
         obj->field_01 = 0;
         obj->state_0++;
-        data_80190468.p->state_2 = 0;
+        ref_game_state.p->state_2 = 0;
     }
     obj->pos_x = box_margin[0];
-    obj->pos_y = data_801aa5ea[0] + 8;
+    obj->pos_y = view_scroll_y[0] + 8;
     advance_sequence_checked(obj);
 }
 
@@ -36,6 +36,6 @@ void reset_slot_object_and_busy_flag_slot0b(Object *obj) {
     p[2] = 0;
     p[3] = 0;
     ((u8 *)p)[8] = 0x18;
-    data_801ae02c = 0;
+    single_object_active = 0;
     game_state.busy_flag = 0;
 }

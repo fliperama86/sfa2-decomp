@@ -6,10 +6,10 @@
 /* Form found by automatic permutation search. */
 void set_limits_from_script_word(Object *object)
 {
-  u16 v = *(data_80189460++);
+  u16 v = *(script_cursor++);
   s16 new_var;
   new_var = ((s16) v) >> 8;
-  data_80189464 = v;
+  script_work_value = v;
   object->limit_hi = new_var;
   object->limit_lo = v;
 }

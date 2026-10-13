@@ -6,7 +6,7 @@
 extern ObjectFnInt data_801c0578_slot04_0a[];
 
 void func_801b0c88_slot04_0a(Object *obj) {
-    data_801ad398 = data_801c0578_slot04_0a[obj->field_15a](obj);
+    script_condition_result = data_801c0578_slot04_0a[obj->field_15a](obj);
 }
 
 int return_true_always_slot04_0a(Object *obj) {

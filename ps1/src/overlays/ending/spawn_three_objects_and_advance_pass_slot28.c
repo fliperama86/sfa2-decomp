@@ -15,7 +15,7 @@ void set_sequence_of_fourth_hud_object_18_slot28(Object *o, int arg);
 void spawn_three_objects_and_advance_pass_slot28(Object *obj) {
     Object *p;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->pass_index++;
+        screen_state->pass_index++;
         set_sequence_from_table_5(data_80051ccc_slot28[0], 1, data_800502c8_slot28);
         p = (Object *)pop_block_from_pool();
         if (p != 0) {

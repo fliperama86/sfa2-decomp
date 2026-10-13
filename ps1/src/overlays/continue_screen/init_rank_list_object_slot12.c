@@ -28,7 +28,7 @@ void init_rank_list_object_slot12(Object *obj) {
     obj->pos_y = 0x58;
     obj->y_offset = 0xa;
     obj->base_x = 0;
-    obj->variant_index = table_8016e5c4[game_state.left_rank_index].level;
+    obj->variant_index = score_rank_table[game_state.left_rank_index].level;
     if (game_state.field_2bf == 0) {
         ((ObjectWords *)obj)->word_50 = (int)game_state.config + 0x19e;
         obj->accel_x = *(s16 *)((u8 *)game_state.config + 0x220);

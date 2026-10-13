@@ -10,7 +10,7 @@ extern Poly28 data_801f46a4_slot06_0f[2][0x84];
    of the layer; the first row drawn is cropped at the top (inferred).
    The forms of the model draw_skewed_tile_layer_quads_slot06_04 are kept as there. */
 void draw_skewed_tile_layer_quads_slot06_0f(void) {
-    Slot06Layer *c = (Slot06Layer *)data_801aa5d4;
+    Slot06Layer *c = (Slot06Layer *)main_layer;
     u16 sx;
     u16 sy;
     u16 col;
@@ -59,10 +59,10 @@ void draw_skewed_tile_layer_quads_slot06_0f(void) {
     row = (s16)c->field_4c / 16;
     mask = (c->map_width >> 4) - 1;
     t = (s16)c->field_4c - (row << 4);
-    ot = &((u32 *)data_801987c8)[data_801aa544[1].ot_index - 1];
+    ot = &((u32 *)current_ordering_table)[background_layers[1].ot_index - 1];
     sy2 = t;
     first = 0;
-    rec = data_801f46a4_slot06_0f[data_801a27d0];
+    rec = data_801f46a4_slot06_0f[draw_buffer_index];
     for (i = (s16)y / 16, d1x = d1, d2x = d2, sy2s = (s16)sy2, m16 = (s16)sy2 - 16; i < (lim = (s16)y / 16 + 15) - (s16)c->field_4c / 16; i++, row++) {
         line = c->tile_map_ptr + ((u16)row >> 4) * ((c->map_width >> 9) << 10) + ((row & 0xf) << 6);
         ya = sy + (i << 4);

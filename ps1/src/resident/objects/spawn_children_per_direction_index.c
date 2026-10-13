@@ -28,11 +28,11 @@ void spawn_children_per_direction_index(Object *object, int a_arg, int b_arg)
       new_object->parent = object;
       new_object->spawn_x = 0x60;
       new_object->spawn_y = 0x1e0;
-      new_object->data_ptr_a = data_80172a48;
+      new_object->data_ptr_a = spawned_object_data_a;
       new_object->health = a;
       new_object->y_offset = b;
       new_object->field_90 = (void *) 0x800fb100;
-      new_object->data_ptr_b = data_80173c9c;
+      new_object->data_ptr_b = spawned_object_data_b;
       new_object->field_1c = side;
     }
   }

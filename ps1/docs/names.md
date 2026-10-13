@@ -118,6 +118,36 @@ function is in its entry and its first name follows from that.
   nonmatching functions or a record under `docs/records/`, keeps the names
   of the day of the run.
 
+## How a data symbol gets its name
+
+A data symbol has its name and its address together in one place, its line
+in `ps1/src/symbols.ld`, and is declared in `ps1/src/externs.h`. Its first
+name is `data_` or `table_` and the address. A table of lines
+`OLD<TAB>NEW` is made from the uses, and
+
+    python ps1/tools/renamedata.py apply --map TABLE \
+        ps1/src port ps1/docs/function-notes.tsv
+
+replaces the old name, as a whole word, everywhere it is written (`check`
+does the same and writes nothing). It refuses a new name that is written
+anywhere already, that is not lower case snake case, that is a placeholder
+or a C keyword, or an old name that the symbol file does not define. A
+second run on a tree that has the new names repairs a branch from before
+the rename.
+
+- A name says what the uses show and no more. A symbol whose uses do not
+  show a meaning keeps its placeholder.
+- A symbol whose address another symbol shares (a second name for the same
+  bytes, seen as another type) is named together with it; the first batch
+  left three of them for that.
+- The names are proposed from a reading of the uses (the function names of
+  the code that reads and writes it count as evidence) and reviewed; the
+  record of a batch is in `docs/records/`. Where two symbols are the same
+  thing on the two sides of the screen, they are named as a pair
+  (`pad_1_held`, `pad_2_held`).
+- A rename of this kind changes no byte of any image: the matching build of
+  every image is what shows that it did not.
+
 ## Functions
 
 | Address | Name | What the code shows |

@@ -38,10 +38,10 @@ void draw_background_layers_by_flags_slot06_11(void) {
 }
 
 void init_background_layers_slot06_11(void) {
-    init_first_layer_tile_map_slot06_11((Slot06Layer *)data_801aa544);
-    set_layer_tile_map_param_580e_width_scale_slot06_11((Slot06Layer *)data_801aa5d4);
+    init_first_layer_tile_map_slot06_11((Slot06Layer *)background_layers);
+    set_layer_tile_map_param_580e_width_scale_slot06_11((Slot06Layer *)main_layer);
     init_layer_tile_map_fields_slot06_11((Slot06Layer *)cam_obj);
-    noop_byte_pointer_slot06_11(data_801904d8);
+    noop_byte_pointer_slot06_11(fourth_layer);
 }
 
 void init_gray_tile_groups_and_sprites_with_noop_slot06_11(void) {
@@ -59,7 +59,7 @@ void update_layer_follow_offset_slot06_11(Slot06Layer *layer) {
     if (layer->mode == 0) {
         init_sprite_at_1c0_zero((Sprite *)layer);
     } else if (layer->mode == 1) {
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         d = l2->field_22;
         d -= l2->ref_x;
         d += layer->ref_x;

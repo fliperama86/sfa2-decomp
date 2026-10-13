@@ -35,10 +35,10 @@ void draw_background_layers_by_flags_slot06_03(void) {
 }
 
 void init_four_layers_tile_maps_slot06_03(void) {
-    init_first_layer_tile_map_slot06_03((Slot06Layer *)data_801aa544);
-    init_layer_map_and_sprite_colors_slot06_03((Slot06Layer *)data_801aa5d4);
+    init_first_layer_tile_map_slot06_03((Slot06Layer *)background_layers);
+    init_layer_map_and_sprite_colors_slot06_03((Slot06Layer *)main_layer);
     set_layer_tile_map_and_scale_f_slot06_03((Slot06Layer *)cam_obj);
-    set_layer_tile_map_and_scale_e_slot06_03((Slot06Layer *)data_801904d8);
+    set_layer_tile_map_and_scale_e_slot06_03((Slot06Layer *)fourth_layer);
 }
 
 void init_gray_tile_sprite_and_poly_banks_set_two_slot06_03(void) {

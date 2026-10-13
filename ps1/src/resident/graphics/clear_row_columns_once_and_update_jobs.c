@@ -7,7 +7,7 @@ void clear_row_columns_once_and_update_jobs(void) {
     s16 i, j, k;
     u16 *p;
 
-    if (data_8018db10 == 0) {
+    if (palette_altered_flag == 0) {
         for (i = 0; i < 5; i++) {
             j = 1;
             p = (u16 *)(data_801a27e4 + (i << 10));
@@ -17,8 +17,8 @@ void clear_row_columns_once_and_update_jobs(void) {
                 }
             }
         }
-        data_8018f598 = 1;
-        data_8018db10 = data_8018db10 + 1;
+        white_fill_active = 1;
+        palette_altered_flag = palette_altered_flag + 1;
     }
     queue_five_jobs();
 }

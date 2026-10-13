@@ -24,10 +24,10 @@ void wait_then_start_fade_spawn_blocks_advance_slot12(void) {
         o->spawn_x = 0;
         o->spawn_y = 0x1e1;
     }
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
 }
 
 void advance_substep_and_enable_display_slot12(void) {
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
     func_80157d00(1);
 }

@@ -46,10 +46,10 @@ void init_indicator_object_above_other_slot04_11(Object *obj) {
     Object *o;
 
     obj->field_01 = 1;
-    obj->data_ptr_a = data_80172a48;
+    obj->data_ptr_a = spawned_object_data_a;
     obj->field_90 = (void *)0x800fb100;
     obj->state_0++;
-    obj->data_ptr_b = data_80173c9c;
+    obj->data_ptr_b = spawned_object_data_b;
     set_position_above_other_by_kind_slot04_11(obj);
     o = ref_other.p->other;
     play_side_sound_at(o, o->side, 0xf);

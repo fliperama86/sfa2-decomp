@@ -19,7 +19,7 @@ void advance_slot28_pass_to_step_three_slot28(Object *obj) {
     HudState *h;
     Object *p;
     if (obj->field_f0 == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         h->countdown_timer = 8;
         h->pass_index++;
         release_active_objects_in_table_8_slot28();

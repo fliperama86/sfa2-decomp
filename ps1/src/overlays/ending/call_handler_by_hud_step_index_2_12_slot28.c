@@ -6,5 +6,5 @@
 extern void (*data_800445b4_slot28[])(Object *);
 
 void call_handler_by_hud_step_index_2_12_slot28(Object *obj) {
-    data_800445b4_slot28[data_8018f5a0->step_index_2](obj);
+    data_800445b4_slot28[screen_state->step_index_2](obj);
 }

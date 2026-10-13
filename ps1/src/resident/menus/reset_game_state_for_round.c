@@ -6,12 +6,12 @@
 /* A second name for the byte that externs.h declares as the scalar u8 data_801a8067 (four other units use the scalar; both names stand for the address 0x80198067). Read through the scalar, this function differs from the original in 7 instruction lines. */
 extern u8 table_801a8067[];
 /* Declared as an array here, not as the scalar u16 that 15 other units declare: read through the scalar this function differs from the original in 5 instruction lines. */
-extern u16 data_801a6966[];
+extern u16 pad_1_held[];
 void init_player_object(Object *object, u8 a1, u16 a2);
 extern u8 table_8016e730[];
 
 /* Inferred, not original names: starts a round. It counts a step in the status
-   block data_8018f5a0, runs clear_players_arrays_state_and_init_pools, resets many fields of the game state,
+   block screen_state, runs clear_players_arrays_state_and_init_pools, resets many fields of the game state,
    loads others from table_8016e664 and the bytes data_8016e685 to data_8016e688
    (table_value_b gets 0xff when data_8016e688 is not 0) and from data_801a8067 and
    data_801a83fb, calls set_sound_mono_or_stereo with setup_param, sets field_110, head_a and
@@ -26,7 +26,7 @@ void reset_game_state_for_round(GameState *state) {
     int zero;
     int none;
     unsigned char rnd;
-    data_8018f5a0->state_index++;
+    screen_state->state_index++;
     clear_players_arrays_state_and_init_pools();
     /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
     /* With 0 written at its uses this function differs from the original in 25 instruction lines. */
@@ -83,8 +83,8 @@ void reset_game_state_for_round(GameState *state) {
     rnd = get_random_byte() & 0x78;
     state->random_value = rnd;
     state->reset_value = 7;
-    init_player_object(l, 0, data_801a6966[0]);
-    init_player_object(r, 1, data_801a6972);
+    init_player_object(l, 0, pad_1_held[0]);
+    init_player_object(r, 1, pad_2_held);
     if (state->side_bits & 1) {
         l->field_a5 = 2;
         l->kind = zero;
@@ -103,6 +103,6 @@ void reset_game_state_for_round(GameState *state) {
     state->table_index_3 = table_8016e730[state->table_index];
     init_counters_from_index_table(state);
     data_801a6938 = zero;
-    data_801a6984[0] = 0;
+    input_block[0] = 0;
     data_801a6985 = zero;
 }

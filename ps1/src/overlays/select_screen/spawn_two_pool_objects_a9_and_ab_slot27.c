@@ -23,7 +23,7 @@ void fill_rows_white_and_queue_jobs_slot27(void) {
     int i;
     int j;
     u16 *row;
-    if (data_8018db10 == 0) {
+    if (palette_altered_flag == 0) {
         for (i = 0; i < 5; i++) {
             row = data_801a27e4_rows[i];
             for (j = 0x1ff; j >= 0; j--) {
@@ -35,6 +35,6 @@ void fill_rows_white_and_queue_jobs_slot27(void) {
         queue_image_upload_job(2, 2);
         queue_image_upload_job(3, 3);
         queue_image_upload_job(4, 7);
-        data_8018db10++;
+        palette_altered_flag++;
     }
 }

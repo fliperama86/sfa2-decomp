@@ -9,7 +9,7 @@ extern ObjectFn data_801cea08_slot04_17[];
 extern s16 data_801cea10_slot04_17[];
 extern ObjectFn data_801cea18_slot04_17[];
 extern ObjectFn data_801cea24_slot04_17[];
-extern ObjectRef data_80190458;
+extern ObjectRef ref_aux;
 extern ObjectRef data_80190414;
 
 void clear_object_and_push_on_free_stack(Object *o);
@@ -33,7 +33,7 @@ void set_kind_11_or_call_by_input_dir_slot04_17(Object *obj);
 
 void call_handler_by_state_0_with_parent_refs_slot04_17(Object *obj) {
     ref_other.p = obj->parent;
-    data_80190458.p = ref_other.p->parent;
+    ref_aux.p = ref_other.p->parent;
     data_80190414.p = obj->other;
     data_801ce9f0_slot04_17[obj->state_0](obj);
 }

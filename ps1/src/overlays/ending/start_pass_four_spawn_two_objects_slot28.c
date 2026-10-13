@@ -15,7 +15,7 @@ void set_sequence_of_fourth_hud_object_3_slot28(Object *obj, int arg);
 
 void start_pass_four_spawn_two_objects_slot28(Object *obj) {
     if (obj->field_f0 == 0) {
-        HudState *h = data_8018f5a0;
+        HudState *h = screen_state;
         Object *p;
         int x;
         int one;

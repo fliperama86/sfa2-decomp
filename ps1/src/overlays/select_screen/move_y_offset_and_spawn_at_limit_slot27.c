@@ -6,7 +6,7 @@
 void move_y_offset_and_spawn_at_limit_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
     Object *n;
-    if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
+    if (screen_state->substep_index >= 3 && game_state.mode != 3) {
         int sum = *(u16 *)&o->pos_y + obj->pos_y_offset;
         int y;
         *(u16 *)&o->pos_y = sum;
@@ -27,7 +27,7 @@ void move_y_offset_and_spawn_at_limit_slot27(Object *o) {
 
 void move_y_offset_until_limit_slot27(Object *o) {
     Slot27Obj *obj = (Slot27Obj *)o;
-    if (data_8018f5a0->substep_index >= 3 && game_state.mode != 3) {
+    if (screen_state->substep_index >= 3 && game_state.mode != 3) {
         int sum = *(u16 *)&o->pos_y + obj->pos_y_offset;
         int y;
         *(u16 *)&o->pos_y = sum;

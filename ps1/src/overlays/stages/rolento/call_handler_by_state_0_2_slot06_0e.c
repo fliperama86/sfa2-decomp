@@ -36,7 +36,7 @@ void init_object_state_and_first_sequence_a_slot06_0e(Object *obj) {
 }
 
 void update_object_side_from_layer_scroll_slot06_0e(Object *obj) {
-    Slot06Layer *layer = (Slot06Layer *)data_801aa5d4;
+    Slot06Layer *layer = (Slot06Layer *)main_layer;
     u8 side;
     s16 x;
     if (layer->scroll_x > layer->ref_x) {
@@ -158,7 +158,7 @@ void init_object_state_and_first_sequence_b_slot06_0e(Object *obj) {
 }
 
 void place_object_side_by_bounds_at_parent_y_slot06_0e(Object *obj) {
-    Slot06Layer *layer = (Slot06Layer *)data_801aa5d4;
+    Slot06Layer *layer = (Slot06Layer *)main_layer;
     Object *p = obj->parent;
     if (*(u32 *)&layer->bound_x_b > *(u32 *)&layer->bound_x_a) {
         obj->facing_side = 1;

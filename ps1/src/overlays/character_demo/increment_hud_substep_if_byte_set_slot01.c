@@ -7,7 +7,7 @@ void reset_hud_state_and_restore_kind_index_slot01(GameState *g);
 
 void increment_hud_substep_if_byte_set_slot01(void) {
     if (*(u8 *)&data_801ae066 != 0) {
-        data_8018f5a0->substep_index++;
+        screen_state->substep_index++;
     }
 }
 

@@ -5,13 +5,13 @@
 
 extern Slot06Tile data_801ec3b4_slot06_05[2][0x7d];
 
-/* Draws the layer of data_801aa544[0]: for 16 rows of 25 cells of 16
+/* Draws the layer of background_layers[0]: for 16 rows of 25 cells of 16
    pixels, a tile record for each cell that is not blank, linked into the
    primitive list (inferred). The locals t, sx, mask and cc are 16-bit and x
    holds the position before the sign change, as in the model
    draw_tile_layer_0_16px_slot06_00, where the effect of each is measured. */
 void draw_tile_layer_0_16px_slot06_05(void) {
-    Chan *c = data_801aa544;
+    Chan *c = background_layers;
     int x;
     int pos;
     s16 y;
@@ -47,8 +47,8 @@ void draw_tile_layer_0_16px_slot06_05(void) {
     } else {
         row = (y - 15) / 16;
     }
-    rec = data_801ec3b4_slot06_05[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801ec3b4_slot06_05[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 16; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {

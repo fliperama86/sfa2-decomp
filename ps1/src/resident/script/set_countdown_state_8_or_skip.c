@@ -57,7 +57,7 @@ void set_countdown_one_mode_eight_state_one(Object *object) {
 }
 
 void set_countdown_from_script_state_one(Object *object) {
-    u16 value = *data_80189460++;
+    u16 value = *script_cursor++;
     object->field_208 = 0;
     object->field_209 = 8;
     object->countdown_3 = value;
@@ -66,9 +66,9 @@ void set_countdown_from_script_state_one(Object *object) {
 
 void set_state_if_script_value_below_limit(Object *object) {
     set_limits_from_script_word(object);
-    object->countdown_3 = *data_80189460++;
-    data_80189464 = data_80189464 - object->compare_limit;
-    if ((s16)data_80189464 >= 0) {
+    object->countdown_3 = *script_cursor++;
+    script_work_value = script_work_value - object->compare_limit;
+    if ((s16)script_work_value >= 0) {
         read_script_word_and_dispatch(object);
     } else {
         object->field_209 = 0xb;
@@ -82,9 +82,9 @@ void set_state_if_script_value_below_limit(Object *object) {
 
 void set_state_if_script_value_at_least_limit(Object *object) {
     set_limits_from_script_word(object);
-    object->countdown_3 = *data_80189460++;
-    data_80189464 = data_80189464 - object->compare_limit;
-    if ((s16)data_80189464 < 0) {
+    object->countdown_3 = *script_cursor++;
+    script_work_value = script_work_value - object->compare_limit;
+    if ((s16)script_work_value < 0) {
         read_script_word_and_dispatch(object);
     } else {
         object->field_209 = 0xc;
@@ -144,8 +144,8 @@ void call_script_table_by_arg_half(Object *object) {
 
 void set_move_state_dir_0_if_below_limit(Object *object) {
     set_limits_from_script_word(object);
-    data_80189464 = data_80189464 - object->compare_limit;
-    if ((s16)data_80189464 >= 0) {
+    script_work_value = script_work_value - object->compare_limit;
+    if ((s16)script_work_value >= 0) {
         read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 1;
@@ -161,8 +161,8 @@ void set_move_state_dir_0_if_below_limit(Object *object) {
 
 void set_move_state_dir_1_if_below_limit(Object *object) {
     set_limits_from_script_word(object);
-    data_80189464 = data_80189464 - object->compare_limit;
-    if ((s16)data_80189464 >= 0) {
+    script_work_value = script_work_value - object->compare_limit;
+    if ((s16)script_work_value >= 0) {
         read_script_word_and_dispatch(object);
     } else {
         object->field_208 = 1;

@@ -12,7 +12,7 @@ void advance_pass_hide_object_spawn_marker_slot28(Object *obj) {
     Object *b;
 
     if (obj->field_f0 == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         h->countdown_timer = 0x258;
         h->pass_index++;
         b = data_80051b04_slot28[0];

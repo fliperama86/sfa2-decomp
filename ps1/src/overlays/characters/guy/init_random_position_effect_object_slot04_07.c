@@ -41,9 +41,9 @@ void init_random_position_effect_object_slot04_07(Object *obj) {
     *(s32 *)&obj->ground_y = w;
     set_random_velocities_from_table_slot04_07(obj);
     if (o->side == 0) {
-        p = (s32 *)data_1f8000b4;
+        p = (s32 *)seqs_b4_left;
     } else {
-        p = (s32 *)data_1f800164;
+        p = (s32 *)seqs_164_right;
     }
     v = p[5];
     *(s32 *)&obj->field_20 = v;

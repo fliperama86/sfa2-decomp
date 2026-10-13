@@ -5,7 +5,7 @@
 
 extern Slot06Tile data_801f0d40_slot06_03[2][0x120];
 
-/* Draws the layer of data_801aa544[1]: for the rows of 25 cells of 16
+/* Draws the layer of background_layers[1]: for the rows of 25 cells of 16
    pixels that lie between the adjusted position and the layer's field_4c
    (at most 16), a tile record for each cell that is not blank, linked into
    the primitive list; the adjusted position goes back into the layer first
@@ -13,7 +13,7 @@ extern Slot06Tile data_801f0d40_slot06_03[2][0x120];
    draw_tile_layer_0_16px_slot06_00. The local f12 holds scroll_x sign-extended, as
    in the model draw_tile_layer_1_16px_slot06_00. */
 void draw_tile_layer_sprites_saving_pos_slot06_03(void) {
-    Chan *c = &data_801aa544[1];
+    Chan *c = &background_layers[1];
     int x;
     int pos;
     s16 y;
@@ -54,9 +54,9 @@ void draw_tile_layer_sprites_saving_pos_slot06_03(void) {
     }
     mask = (c->map_width >> 4) - 1;
     rows = c->map_height >> 4;
-    rec = data_801f0d40_slot06_03[data_801a27d0];
+    rec = data_801f0d40_slot06_03[draw_buffer_index];
     nr = ((u32)(c->field_4c - ((pos >> 16) & -16)) >> 4) + 1;
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < nr; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {

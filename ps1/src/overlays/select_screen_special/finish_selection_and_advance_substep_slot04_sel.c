@@ -17,12 +17,12 @@ void finish_selection_and_advance_substep_slot04_sel(Object *unused_obj, Slot04S
     data_801b8ca8_slot04_sel[1](p, r);
     data_801b8ca8_slot04_sel[1](q, s);
     if (game_state.pause_flag != 0) {
-        data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
-        data_8018f5a0->step_index_2 = 0;
+        screen_state->substep_index = screen_state->substep_index + 1;
+        screen_state->step_index_2 = 0;
         game_state.pause_flag = 0;
     } else {
-        data_8018f5a0->substep_index = data_8018f5a0->substep_index + 2;
-        data_8018f5a0->step_index_2 = 0;
+        screen_state->substep_index = screen_state->substep_index + 2;
+        screen_state->step_index_2 = 0;
         game_state.field_80 = 0;
         game_state.b0_flag = 0;
         game_state.selection_value = 0xff;

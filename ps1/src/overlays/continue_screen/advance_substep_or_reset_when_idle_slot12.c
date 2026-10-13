@@ -15,7 +15,7 @@ void advance_substep_or_reset_when_idle_slot12(void) {
         data_8002d57c_slot12 = 1;
         if (game_state.busy_flag == 0) {
             if (game_state.mode_copy_2 != 0) {
-                data_8018f5a0->substep_index++;
+                screen_state->substep_index++;
                 game_state.field_09 = 0;
                 game_state.state_2c_flag = 0;
             } else {

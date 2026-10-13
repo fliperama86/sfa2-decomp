@@ -9,7 +9,7 @@ extern u8 data_800426b8_slot28[];
 extern Object *data_80051b18_slot28[];
 
 void count_down_then_spawn_object_next_pass_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     Object *p;
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;

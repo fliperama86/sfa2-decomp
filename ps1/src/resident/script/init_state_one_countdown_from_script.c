@@ -7,7 +7,7 @@ void init_state_one_countdown_from_script(Object *object) {
     u16 value;
     object->field_208 = 0;
     object->field_209 = 0;
-    value = *data_80189460++;
+    value = *script_cursor++;
     object->state_0 = 1;
     object->state_1 = 0;
     object->state_2 = 0;

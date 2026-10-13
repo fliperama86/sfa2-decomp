@@ -59,8 +59,8 @@ void build_sized_sprite_quads_into_ot_slot01(Object *obj, u8 *p) {
         prim->v2 = hi + c;
         prim->u3 = lo + b;
         prim->v3 = hi + c;
-        ((PrimTag *)prim)->addr = ((PrimTag *)((u32 *)data_801987c8 + idx))->addr;
-        ((PrimTag *)((u32 *)data_801987c8 + idx))->addr = (u32)prim;
+        ((PrimTag *)prim)->addr = ((PrimTag *)((u32 *)current_ordering_table + idx))->addr;
+        ((PrimTag *)((u32 *)current_ordering_table + idx))->addr = (u32)prim;
         prim++;
     } while (n != 0);
 }

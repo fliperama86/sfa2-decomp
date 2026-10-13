@@ -3,7 +3,7 @@
 Choices of the setup:
   - the state is a 0x364-byte block of random bytes (field_70 is one of
     them);
-  - data_8018f5a0 points at a 0x60-byte block of random bytes; its halfword
+  - screen_state points at a 0x60-byte block of random bytes; its halfword
     at 0x4c is 0 in half of the cases (first arm), else 1 to 65535 (second
     arm);
   - the log watches the state and the record whole at every call;
@@ -19,7 +19,7 @@ def setup(state, rng, sym) -> Setup:
     hud = state.alloc(0x60)
     fill(state, hud, 0x60, rng)
     state.w16(hud + 0x4C, 0 if rng.random() < 0.5 else rng.randrange(1, 0x10000))
-    state.w32(sym["data_8018f5a0"], hud)
+    state.w32(sym["screen_state"], hud)
     log = CallLog(state, 256, watch=((st, 0x364 // 4), (hud, 0x60 // 4)))
     log.replace(sym["load_command_7_and_wait"], 1, 0)
     log.replace(sym["func_80013834"], 1, 0)

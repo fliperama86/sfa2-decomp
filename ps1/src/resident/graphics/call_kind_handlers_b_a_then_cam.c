@@ -19,7 +19,7 @@ void call_kind_handlers_b_cam_then_a(void) {
 
 void call_kind_handler_and_copy_fields_a(void) {
     u16 p, q;
-    data_801723c0[game_state.kind_index](&data_801aa544);
+    data_801723c0[game_state.kind_index](&background_layers);
     p = data_801aa566;
     q = data_801aa56a;
     data_801aa556 = p;

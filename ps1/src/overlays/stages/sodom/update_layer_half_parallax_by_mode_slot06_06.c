@@ -12,7 +12,7 @@ void update_layer_half_parallax_by_mode_slot06_06(Slot06Layer *layer) {
     if (layer->mode == 0) {
         init_cam_position_with_fixed_origin((Cam *)layer);
     } else if (layer->mode == 1) {
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         d = l2->field_22;
         d -= l2->ref_x;
         d /= 2;

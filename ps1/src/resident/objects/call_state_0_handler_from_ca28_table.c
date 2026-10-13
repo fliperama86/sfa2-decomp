@@ -13,8 +13,8 @@ void init_object_spawn_position_and_sequence(Object *object) {
     object->spawn_x = 0x60;
     object->spawn_y = 0x1e0;
     object->field_90 = (void *)0x800fb100;
-    object->data_ptr_a = data_80172a48;
-    object->data_ptr_b = data_80173c9c;
+    object->data_ptr_a = spawned_object_data_a;
+    object->data_ptr_b = spawned_object_data_b;
     object->state_0 = object->state_0 + 1;
     set_sequence_from_table_5(object, object->variant_index, (SequenceStep **)table_8017c7f8);
 }

@@ -27,12 +27,12 @@ void init_player_object(Object *object, u8 a1, u16 a2) {
 
 void call_handler_by_phase_index_unless_flags_set(GameState *state) {
     if (data_801ac61c == 0 || data_801a89f0 == 0) {
-        table_8016e738[data_8018f5a0->phase_index](state);
+        table_8016e738[screen_state->phase_index](state);
     }
 }
 
 void advance_phase_and_clear_player_flags(GameState *state) {
-    data_8018f5a0->phase_index++;
+    screen_state->phase_index++;
     state->alt_flag = 1;
     state->field_64 = 0;
     player_left.field_01 = 0;

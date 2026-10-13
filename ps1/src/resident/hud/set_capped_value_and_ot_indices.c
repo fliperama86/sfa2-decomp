@@ -17,8 +17,8 @@ void set_capped_value_and_ot_indices(ObjectView *object) {
     }
     object->capped_value = v;
     data_8017262c[game_state.kind_index]();
-    data_801aa544[0].ot_index = data_801725f0[object->table_index * 3 + 0];
-    data_801aa544[1].ot_index = data_801725f0[object->table_index * 3 + 1];
-    data_801aa544[2].ot_index = data_801725f0[object->table_index * 3 + 2];
+    background_layers[0].ot_index = data_801725f0[object->table_index * 3 + 0];
+    background_layers[1].ot_index = data_801725f0[object->table_index * 3 + 1];
+    background_layers[2].ot_index = data_801725f0[object->table_index * 3 + 2];
     data_80190562[0] = data_801725f0[object->table_index * 3 + 1];
 }

@@ -93,7 +93,7 @@ void dispatch_script_op_by_script_arg(Object *object) {
     if (object->script_arg == 0) {
         object->field_224++;
         set_limits_from_script_word(object);
-        table_8017d030[(s16)data_80189464 >> 1](object);
+        table_8017d030[(s16)script_work_value >> 1](object);
     } else if (object->script_arg == 2) {
         skip_script_block_then_read_opcode(object);
     } else if (object->script_arg == 4) {

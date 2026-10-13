@@ -69,7 +69,7 @@ void update_object_oscillate_around_target_x_slot06_05(Object *obj) {
                 }
             }
         }
-        if (*(s32 *)(data_801aa5d4 + 0x10) < 0x170) {
+        if (*(s32 *)(main_layer + 0x10) < 0x170) {
             return;
         }
         advance_sequence_checked(obj);

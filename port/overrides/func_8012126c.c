@@ -21,23 +21,23 @@
  * as in the original code.
  *
  * What the function does (inferred): when the u16 step_index of the record
- * data_8018f5a0 points at is 0, it raises that field by one and calls
+ * screen_state points at is 0, it raises that field by one and calls
  * load_command_7_and_wait with the low seven bits of state->audio_arg; otherwise it
  * calls func_80013834 with the state.
  *
  * Contract:
  *   Argument: state (a0), a pointer to a state record; it is not written.
- *   Reads: data_8018f5a0 (a pointer), the halfword at 0x4c of the record it
+ *   Reads: screen_state (a pointer), the halfword at 0x4c of the record it
  *     points at, and the byte at 0x70 of the state in the first arm.
  *   Result: none.
- *   Writes: the halfword at 0x4c of the record data_8018f5a0 points at
+ *   Writes: the halfword at 0x4c of the record screen_state points at
  *     (the first arm).
  *   Callees: load_command_7_and_wait (1 argument) and func_80013834 are replaced in
  *     the test by recorders that log their arguments and return 0. What they
  *     do is outside the test. The test watches the state and the record at
  *     every call, so the write to step_index is seen at the call.
  *   Aliasing: the state and the record are separate blocks.
- *   Excluded inputs: a null state or a null data_8018f5a0 (the original
+ *   Excluded inputs: a null state or a null screen_state (the original
  *     reads through them).
  *   Not reached by any input: none known (see the coverage line).
  */
@@ -46,8 +46,8 @@
 #include "../../ps1/src/externs.h"
 
 void func_8012126c(GameState *state) {
-    if (data_8018f5a0->step_index == 0) {
-        data_8018f5a0->step_index++;
+    if (screen_state->step_index == 0) {
+        screen_state->step_index++;
         load_command_7_and_wait(state->audio_arg & 0x7f);
     } else {
         ((void (*)(GameState *))func_80013834)(state);

@@ -4,7 +4,7 @@
 #include "../../../externs.h"
 
 extern ObjectFn data_801ca1d8_slot04_16[];
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 
 void add_one_to_ec4_if_object_unflagged(GameState *state, Object *object);
 void choose_random_action_values_slot04_16(Object *obj, int arg);
@@ -17,7 +17,7 @@ void start_backward_move_sequence_slow_slot04_16(Object *obj) {
     ((Slot04bObj *)obj)->field_298 = 4;
     obj->state_3++;
     add_to_meter_clamped(obj, 6);
-    add_one_to_ec4_if_object_unflagged((GameState *)data_80190468.p, obj);
+    add_one_to_ec4_if_object_unflagged((GameState *)ref_game_state.p, obj);
     obj->vel_x = 0xfffe8000;
     a = 0x47;
     if (obj->field_49 != 0) {
@@ -40,7 +40,7 @@ void start_backward_move_sequence_fast_slot04_16(Object *obj) {
     ((Slot04bObj *)obj)->field_298 = 4;
     obj->state_3++;
     add_to_meter_clamped(obj, 6);
-    add_one_to_ec4_if_object_unflagged((GameState *)data_80190468.p, obj);
+    add_one_to_ec4_if_object_unflagged((GameState *)ref_game_state.p, obj);
     a = 0x48;
     obj->vel_x = 0xffff0000;
     if (obj->field_49 != 0) {

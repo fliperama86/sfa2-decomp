@@ -14,7 +14,7 @@ void advance_pass_and_set_sequences_1_slot28(Object *obj) {
     HudState *h;
     Object *o;
     if (obj->field_f0 == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         h->pass_index = h->pass_index + 1;
         h->countdown_timer = 0x258;
         set_sequence_from_table_5(data_80051878_slot28.p, 0, data_80029ed0_slot28);

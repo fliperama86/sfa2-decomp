@@ -31,6 +31,6 @@ void set_next_order_value_by_direction(Object *object, u8 index) {
 int call_slot_stage_handler_in_second_table(Object *object, u8 index, u8 arg) {
     u8 r;
     table_8017abd8[object->slots[index].stage](object, index, arg);
-    r = data_80188f44;
+    r = slot_result_flag;
     return r;
 }

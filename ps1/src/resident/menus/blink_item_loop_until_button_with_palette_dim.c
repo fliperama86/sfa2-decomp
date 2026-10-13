@@ -17,7 +17,7 @@ void blink_item_loop_until_button_with_palette_dim(void)
   game_state.loop_mode = 0;
   v = 0x700;
   set_menu_command_by_code(1, v);
-  while ((data_80190949 == 0) || (game_state.wait_flag != 0))
+  while ((menu_active_flag == 0) || (game_state.wait_flag != 0))
   {
     select_buffers_and_run_first_setup();
     request_sound_command_and_switch_thread(1);

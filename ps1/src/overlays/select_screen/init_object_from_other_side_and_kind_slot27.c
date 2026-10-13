@@ -25,7 +25,7 @@ void init_object_from_other_side_and_kind_slot27(Object *obj) {
     obj->image_row = 0;
     obj->field_01 = 0;
     obj->state_1 = obj->state_1 + 1;
-    g = (u32 *)data_80190464;
+    g = (u32 *)scratch_word_b;
     v = p->side;
     *g = v;
     d = 2;

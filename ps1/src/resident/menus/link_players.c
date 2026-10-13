@@ -25,15 +25,15 @@ void link_players(GameState *state, Object *a1, Object *a2) {
 }
 
 void call_handler_by_substep_index(GameState *state) {
-    if (data_8018f5a0->substep_index == 0) {
+    if (screen_state->substep_index == 0) {
         advance_substep_and_reset_object_ids((Object *)state);
-    } else if (data_8018f5a0->substep_index == 1) {
+    } else if (screen_state->substep_index == 1) {
         call_step_handler_then_update_blocks_and_buffers((Object *)state);
     }
 }
 
 void advance_substep_and_reset_object_ids(Object *object) {
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
     object->phase_state = 0;
     spawn_position_table_objects_and_list_objects();
     func_801e1d0c(0);
@@ -42,8 +42,8 @@ void advance_substep_and_reset_object_ids(Object *object) {
 }
 
 void call_step_handler_then_update_blocks_and_buffers(Object *object) {
-    u8 *flag = &data_801ae02c;
-    table_8016e774[data_8018f5a0->step_index_2](object);
+    u8 *flag = &single_object_active;
+    table_8016e774[screen_state->step_index_2](object);
     if (*flag != 0) {
         func_801e1b64();
         func_801e1d6c(flag);
@@ -55,11 +55,11 @@ void call_step_handler_then_update_blocks_and_buffers(Object *object) {
 }
 
 void advance_step_and_finish_on_field_af(Object *object) {
-    data_8018f5a0->step_index_2++;
+    screen_state->step_index_2++;
     object->field_dc |= 0xe;
     if (object->countdown_2 != 0) {
-        data_8018f5a0->step_index_2 = 0xc;
-        data_8018f5a0->countdown_timer = 0x10;
+        screen_state->step_index_2 = 0xc;
+        screen_state->countdown_timer = 0x10;
         object->ot_depth = 1;
         object->linked_object_2 = 0xff;
         init_hud_primitives();

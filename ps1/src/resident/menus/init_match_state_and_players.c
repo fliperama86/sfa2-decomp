@@ -10,12 +10,12 @@ void init_match_state_and_players(GameState *g) {
     int z;
     z = 0;
     l = &player_left;
-    data_8018f5a0->step_index++;
-    data_8018f5a0->substep_index = 0;
+    screen_state->step_index++;
+    screen_state->substep_index = 0;
     g->timer_or_bits = 0;
-    data_8018f5a0->step_index_2 = 0;
+    screen_state->step_index_2 = 0;
     g->countdown_timer_2 = 0;
-    data_8018f5a0->pass_index = 0;
+    screen_state->pass_index = 0;
     g->field_cc = 0;
     g->input_enable_bits = 0;
     g->pause_flag_2 = 0;
@@ -99,7 +99,7 @@ void init_match_state_and_players(GameState *g) {
     set_menu_command_one_and_wait_pending(0x604);
     request_sound_command_and_switch_thread(1);
     func_80157d00(1);
-    data_80190568 = 1;
+    kind_handlers_enabled = 1;
     data_801a6938 = z;
     close_voice_thread(2);
 }

@@ -21,5 +21,5 @@ void store_image_rect_b0_1f0_to_table(void)
   new_var = table_801a2a84;
   func_80158028(&rect, new_var);
   func_80158028(&rect, new_var = &table_801a2a84[0x1400]);
-  data_801aa4dc[0] = 0x1f;
+  palette_fade_level[0] = 0x1f;
 }

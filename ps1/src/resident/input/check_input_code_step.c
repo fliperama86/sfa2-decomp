@@ -3,12 +3,12 @@
 #include "../../protos.h"
 #include "../../externs.h"
 
-extern u16 data_801a6966;
+extern u16 pad_1_held;
 
 /*
  * What it does (inferred): decodes a code word of the player's input log.
- * The side of the object game_state.focus_object selects the word data_801a6972
- * (side not 0) or data_801a6966; its low byte goes to data_80185fc8 and its
+ * The side of the object game_state.focus_object selects the word pad_2_held
+ * (side not 0) or pad_1_held; its low byte goes to data_80185fc8 and its
  * top nibble to data_80185fcc. The low byte picks a base value for
  * data_80185fd0 (0x94 and 0x90: 0; 0x68 and 0x60: 4; 0xc0: 8; 0x30: 0xc;
  * 6: 0x10; 9: 0x14); the byte 0 or any other value fails. A known byte
@@ -21,11 +21,11 @@ void check_input_code_step(void) {
     u8 byte;
     u16 nib;
     if (game_state.focus_object->side) {
-        code = &data_801a6972;
+        code = &pad_2_held;
         byte = *code & 0xff;
         nib = *code;
     } else {
-        code = &data_801a6966;
+        code = &pad_1_held;
         byte = *code & 0xff;
         nib = *code;
     }

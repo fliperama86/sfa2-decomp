@@ -16,13 +16,13 @@ void init_slot28_scene_objects_step_2_slot28(Object *obj) {
     int one;
     Object *p;
     Object *b;
-    data_8018f5a0->countdown_timer = 0xb4;
-    data_8018f5a0->step_index_2 += 1;
+    screen_state->countdown_timer = 0xb4;
+    screen_state->step_index_2 += 1;
     set_menu_command_one_and_wait_pending(0x305);
     one = 1;
     clear_ten_entry_table_6_slot28();
     start_fade_mode_1_and_wait();
-    data_80190568 = one;
+    kind_handlers_enabled = one;
     p = (Object *)pop_block_from_pool();
     if (p != 0) {
         init_object_data_pointers_a_8_slot28(p);

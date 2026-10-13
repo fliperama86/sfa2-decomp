@@ -5,7 +5,7 @@
 
 
 void unpack_shifted_nibbles_into_direction_fields(Object *object) {
-    object->field_15a = (u16)(data_80189464 = (s16)data_80189464 >> 3) >> 1 & 0xf;
-    object->input_dir_second = (data_80189464 = (s16)data_80189464 >> 5) & 0xf;
-    object->direction_index = (data_80189464 = (s16)data_80189464 >> 4) & 0xf;
+    object->field_15a = (u16)(script_work_value = (s16)script_work_value >> 3) >> 1 & 0xf;
+    object->input_dir_second = (script_work_value = (s16)script_work_value >> 5) & 0xf;
+    object->direction_index = (script_work_value = (s16)script_work_value >> 4) & 0xf;
 }

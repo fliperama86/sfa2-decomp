@@ -35,8 +35,8 @@ void follow_parent_frame_param_with_x_offset_slot04_0b(Object *obj, Object *pare
     }
     obj->variant_index = idx;
     if (parent->side == 0) {
-        set_sequence_from_table_5(obj, idx, data_1f8000b4);
+        set_sequence_from_table_5(obj, idx, seqs_b4_left);
     } else {
-        set_sequence_from_table_5(obj, idx, data_1f800164);
+        set_sequence_from_table_5(obj, idx, seqs_164_right);
     }
 }

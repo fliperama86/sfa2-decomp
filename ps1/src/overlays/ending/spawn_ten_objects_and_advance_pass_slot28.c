@@ -40,8 +40,8 @@ void spawn_ten_objects_and_advance_pass_slot28(Object *obj)
             active = 1;
         } while (0);
         mode = 2;
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index++;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index++;
         copy_words_to_two_buffer_copies_slot28(obj);
         o = data_80051bd0_slot28[0];
         slot = &data_80051ba4_slot28[1];

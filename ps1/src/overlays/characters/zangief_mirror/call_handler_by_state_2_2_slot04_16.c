@@ -16,7 +16,7 @@ u8 spawn_random_offset_effect_index_zero(Object *object);
 u8 get_random_byte(void);
 int try_action_unless_state_bytes_match(Object *object);
 extern u16 box_margin[];
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
 int apply_damage_to_other_return_defeated(Object *object, int a, int b);
@@ -133,7 +133,7 @@ void update_sequence_with_hit_on_step_flag_slot04_16(Object *obj) {
         }
     } else {
         obj->step_flags = a & 0xff00;
-        data_80190468.p->vec_table_index = 0x3c;
+        ref_game_state.p->vec_table_index = 0x3c;
         spawn_two_effects_at_other_ground(obj);
         update_sequence(obj);
         apply_damage_to_other_return_defeated(obj, 0x12, 0);

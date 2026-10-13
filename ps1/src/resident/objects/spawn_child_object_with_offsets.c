@@ -25,8 +25,8 @@ void spawn_child_object_with_offsets(Object *parent, int x_arg, int y_arg) {
         object->facing_side = parent->facing_side;
         object->spawn_x = 0x60;
         object->spawn_y = 0x1e0;
-        object->data_ptr_a = data_80172a48;
+        object->data_ptr_a = spawned_object_data_a;
         object->field_90 = (void *)0x800fb100;
-        object->data_ptr_b = data_80173c9c;
+        object->data_ptr_b = spawned_object_data_b;
     }
 }

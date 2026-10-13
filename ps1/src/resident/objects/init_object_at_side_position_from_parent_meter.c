@@ -31,9 +31,9 @@ void update_variant_index_from_parent_meter(Object *object) {
   u8 a;
   u8 b;
   int t;
-  other = data_80190468.p;
+  other = ref_game_state.p;
   b = ((u8 *) other)[0x4d] | ((u8 *) other)[0x4e];
-  a = other->state_0 | data_801ae02c;
+  a = other->state_0 | single_object_active;
   if (a | b) {
     set_state_0_to_end_clear_flag_byte(object);
   } else {

@@ -27,8 +27,8 @@
  *     only its low 16 bits count), a3 = d (y base, a full word), the fifth
  *     argument e (low 16 bits count) and the sixth f (low 8 bits count) on
  *     the stack at sp + 0x10 and sp + 0x14. No return value.
- *   Reads: the header and cells; data_801a27d0 (low halfword);
- *     data_80188d04; data_80188d28 after select_meter_level_table_entry; data_801987c8.
+ *   Reads: the header and cells; draw_buffer_index (low halfword);
+ *     data_80188d04; data_80188d28 after select_meter_level_table_entry; current_ordering_table.
  *   Writes: for each non-zero tile, the page word and the corner and
  *     texture fields of one record (offsets 0x08 to 0x25), data_80188d28
  *     (set to 0), data_80188d04 (plus 1); whatever select_meter_level_table_entry and
@@ -56,7 +56,7 @@
  *   Excluded: data_80188d04 plus the number of non-zero tiles must be at
  *     most 144 (the record buffer ends there; beyond it the original would
  *     overwrite the variables after the table). The buffer selector (the low
- *     halfword of data_801a27d0) is 0, 1 or 0xffff (-1). Rows equal to 0
+ *     halfword of draw_buffer_index) is 0, 1 or 0xffff (-1). Rows equal to 0
  *     with the kind 2 or 3: the original then passes its caller's untouched
  *     register as the column count to update_meter_animation_indices, a value no C can
  *     express (read from the original's listing, not tested); with rows 0
@@ -78,8 +78,8 @@ void update_meter_animation_indices(u8 a, u8 b);
 /*
  * What it does (inferred, not an original name): draws a tile map as sprite
  * records in the table data_80186004, one record per non-zero tile at the next
- * free index data_80188d04 of the buffer data_801a27d0, and hands each record
- * to func_8015bf34 with a pointer into the list array at data_801987c8. The
+ * free index data_80188d04 of the buffer draw_buffer_index, and hands each record
+ * to func_8015bf34 with a pointer into the list array at current_ordering_table. The
  * kind changes the page word and the corner layout. Kinds 2 and 3 call
  * select_meter_level_table_entry for each tile and update_meter_animation_indices once at the end.
  * Parameters: the kind (low 8 bits count), the map header (an address, columns
@@ -97,7 +97,7 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
     Tilemap *map = (Tilemap *)map_addr;
     /* The x base as 16 bits. */
     u16 x0 = x_arg;
-    s16 idx = data_801a27d0;
+    s16 idx = draw_buffer_index;
     int row;
     int col = 0; /* the one change against the unit: see the header */
     int dx = 1;
@@ -178,7 +178,7 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
                 (&data_80186004[idx].polys[data_80188d04])->v2 = v1 + 0x10 - dy;
                 (&data_80186004[idx].polys[data_80188d04])->u3 = u1 + 0x10 - dx;
                 (&data_80186004[idx].polys[data_80188d04])->v3 = v1 + 0x10 - dy;
-                func_8015bf34((int)data_801987c8 + list * 4, (Cmd *)&data_80186004[idx].polys[data_80188d04]);
+                func_8015bf34((int)current_ordering_table + list * 4, (Cmd *)&data_80186004[idx].polys[data_80188d04]);
                 data_80188d04++;
             }
         }

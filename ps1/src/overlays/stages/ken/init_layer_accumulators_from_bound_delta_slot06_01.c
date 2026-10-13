@@ -9,7 +9,7 @@ void init_layer_accumulators_from_bound_delta_slot06_01(Slot06Layer *layer) {
 
     i = 0;
     d = layer->field_60;
-    d -= *(s32 *)&((Slot06Layer *)data_801aa5d4)->bound_x_a;
+    d -= *(s32 *)&((Slot06Layer *)main_layer)->bound_x_a;
     layer->neg_accum = 0;
     layer->pos_accum = 0;
     d >>= 7;

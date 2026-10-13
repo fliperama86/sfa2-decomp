@@ -14,7 +14,7 @@ int read_script_word_and_run_opcode(Object *object)
   u16 *p = (u16 *) object->script_ptr;
   u16 t;
   s16 w;
-  data_80189460 = p + 1;
+  script_cursor = p + 1;
   t = *p;
   w = t;
   t = w >> 8;
@@ -26,25 +26,25 @@ int read_script_word_and_run_opcode(Object *object)
     call_script_switch_by_arg(object);
   }
   call_script_opcode_table_by_high_byte(object);
-  object->script_ptr = (s32) data_80189460;
+  object->script_ptr = (s32) script_cursor;
   t = object->script_mode;
   if (t == 0)
   {
-    object->script_pointer = (s32) data_80189460;
+    object->script_pointer = (s32) script_cursor;
     return;
   }
   if (t == 1)
   {
-    object->script_ptr_1 = (s32) data_80189460;
+    object->script_ptr_1 = (s32) script_cursor;
     return;
   }
   if (t == 2)
   {
-    object->script_ptr_2 = (s32) data_80189460;
+    object->script_ptr_2 = (s32) script_cursor;
     return;
   }
   if (t == 3)
   {
-    object->script_ptr_3 = (s32) data_80189460;
+    object->script_ptr_3 = (s32) script_cursor;
   }
 }

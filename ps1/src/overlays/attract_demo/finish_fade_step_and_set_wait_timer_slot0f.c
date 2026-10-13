@@ -10,7 +10,7 @@ void set_phase_two_clear_step_slot0f(Object *obj);
 void finish_fade_step_and_set_wait_timer_slot0f(Object *obj) {
     fade_palette_rows_in_with_jobs_slot0f(obj);
     if (obj->field_f0 == 0) {
-        data_8018f5a0->step_index++;
+        screen_state->step_index++;
         data_801903c4[0] = 2;
         call_image_job_with_index_0_slot0f(obj);
         data_801903ca = 0;
@@ -26,7 +26,7 @@ void finish_fade_step_and_set_wait_timer_slot0f(Object *obj) {
 
 void advance_step_when_value_is_nine_slot0f(Object *obj) {
     if (data_801903c4[0] == 9) {
-        data_8018f5a0->step_index++;
+        screen_state->step_index++;
         data_801903c8[0] = 0x32;
     }
 }
@@ -38,7 +38,7 @@ void count_down_then_set_phase_two_slot0f(Object *obj) {
     *p = n;
     if (n == 0) {
         *p = t;
-        if (data_80190949 == 0) {
+        if (menu_active_flag == 0) {
             data_801903c4[0] = 10;
             set_phase_two_clear_step_slot0f(obj);
         }
@@ -46,6 +46,6 @@ void count_down_then_set_phase_two_slot0f(Object *obj) {
 }
 
 void set_phase_two_clear_step_slot0f(Object *obj) {
-    data_8018f5a0->phase_index = 2;
-    data_8018f5a0->step_index = 0;
+    screen_state->phase_index = 2;
+    screen_state->step_index = 0;
 }

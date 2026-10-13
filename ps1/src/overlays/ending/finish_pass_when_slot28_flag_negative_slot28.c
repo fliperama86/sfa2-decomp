@@ -14,7 +14,7 @@ void finish_pass_when_slot28_flag_negative_slot28(Object *obj) {
     if (((Slot28Obj *)p)->field_3a < 0) {
         p = data_80051b48_slot28.p;
         p->pos_x = -0x148;
-        data_8018f5a0->countdown_timer = 0x3c;
-        data_8018f5a0->pass_index++;
+        screen_state->countdown_timer = 0x3c;
+        screen_state->pass_index++;
     }
 }

@@ -58,5 +58,5 @@ void clear_slot_byte_runs_unless_kind_4_slot04_04(Object *obj) {
 }
 
 void func_801b156c_slot04_04(Object *obj) {
-    data_801ad398 = data_801c4188_slot04_04[obj->field_15a](obj);
+    script_condition_result = data_801c4188_slot04_04[obj->field_15a](obj);
 }

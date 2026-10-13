@@ -26,8 +26,8 @@ int spawn_random_offset_object_with_variant(Object *object, int n) {
         ref_other.p->spawn_x = 0x60;
         ref_other.p->spawn_y = 0x1e0;
         ref_other.p->field_90 = (void *)0x800fb100;
-        ref_other.p->data_ptr_a = &data_80172a48;
-        ref_other.p->data_ptr_b = &data_80173c9c;
+        ref_other.p->data_ptr_a = &spawned_object_data_a;
+        ref_other.p->data_ptr_b = &spawned_object_data_b;
         return 1;
     }
     return 0;

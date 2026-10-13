@@ -6,7 +6,7 @@
 extern Object *data_80051a98_slot28[];
 
 void count_down_hud_timer_then_advance_pass_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;
     if ((s16)t == 0) {

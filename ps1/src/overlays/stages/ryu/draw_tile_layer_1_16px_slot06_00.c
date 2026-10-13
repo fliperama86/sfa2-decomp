@@ -5,14 +5,14 @@
 
 extern Slot06Tile data_801edc80_slot06_00[2][270];
 
-/* Draws the layer of data_801aa544[1]: for 16 rows of 25 cells of 16 pixels,
+/* Draws the layer of background_layers[1]: for 16 rows of 25 cells of 16 pixels,
    a tile record for each cell that is not blank, linked into the primitive
    list; the adjusted position goes back into the layer first (inferred).
    The locals t, sx, sy, mask and cc are 16-bit, as in
    draw_tile_layer_0_16px_slot06_00. The local f12 holds scroll_x sign-extended: read
    without the cast, one instruction slot differs (lhu for lh). */
 void draw_tile_layer_1_16px_slot06_00(void) {
-    Chan *c = &data_801aa544[1];
+    Chan *c = &background_layers[1];
     int x;
     int pos;
     s16 y;
@@ -51,8 +51,8 @@ void draw_tile_layer_1_16px_slot06_00(void) {
         row = (y - 15) / 16;
     }
     mask = (c->map_width >> 4) - 1;
-    rec = data_801edc80_slot06_00[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801edc80_slot06_00[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     rows = c->map_height >> 4;
     for (i = 0; i < 16; i++, row++) {
         cc = col;

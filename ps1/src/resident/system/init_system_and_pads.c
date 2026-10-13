@@ -61,6 +61,6 @@ void init_display_buffers(int a, int b, int c, int d) {
     func_80157f30(&rect, 0, 0, 0);
     func_80158208((void *)0x801fc000, 0x1e);
     func_80158208((void *)0x801fc0e8, 0x1e);
-    data_801a27d0 = 0;
-    data_801987c8 = buf;
+    draw_buffer_index = 0;
+    current_ordering_table = buf;
 }

@@ -39,10 +39,10 @@ void init_script_from_table_index(Object *object) {
     if (object->side == 0) table = scr_c4_left;
     else table = scr_174_right;
     p = table[object->script_table_index >> 1];
-    data_80189460 = p + 1;
+    script_cursor = p + 1;
     first = *p;
-    object->script_pointer = (s32)data_80189460;
-    object->data_ptr = (s32)data_80189460;
+    object->script_pointer = (s32)script_cursor;
+    object->data_ptr = (s32)script_cursor;
     object->field_224 = 0;
     object->field_25d = 0;
     object->field_20c = first;

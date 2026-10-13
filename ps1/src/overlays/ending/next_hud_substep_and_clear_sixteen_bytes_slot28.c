@@ -3,7 +3,7 @@
 #include "../../protos.h"
 #include "../../externs.h"
 
-extern HudState *data_8018f5a0;
+extern HudState *screen_state;
 /* A table of 16 bytes, inferred from the code. */
 extern u8 data_80051ea8_slot28[16];
 void copy_table_twice_call_state_handler_slot28(Object *obj);
@@ -19,10 +19,10 @@ void next_hud_substep_and_clear_sixteen_bytes_slot28(Object *obj) {
     int i = 0xf;
     u8 *p;
 
-    data_8018f5a0->step_index_2 = 0;
-    data_8018f5a0->pass_index = 0;
-    data_8018f5a0->field_54 = 0;
-    data_8018f5a0->substep_index = data_8018f5a0->substep_index + 1;
+    screen_state->step_index_2 = 0;
+    screen_state->pass_index = 0;
+    screen_state->field_54 = 0;
+    screen_state->substep_index = screen_state->substep_index + 1;
     /* The byte at 0x4f is the last byte of vel_x. */
     ((u8 *)&obj->vel_x)[3] = 0;
     obj->damage = 0;
@@ -41,7 +41,7 @@ void next_hud_substep_and_clear_sixteen_bytes_slot28(Object *obj) {
         /* Stand-in, not recovered source: the statement below, which ORs to the counter a term that is 0 for every value of it, reproduces the original's choice of registers. Without it this function differs from the original in 8 instruction slots. */
         i |= ((u32)i << 24) & 0x100;
     } while (--i >= 0);
-    data_8018f5a0->field_5e = 0xf0;
+    screen_state->field_5e = 0xf0;
     ((void (*)(Object *))clear_arrays_and_init_pools_and_sprite_tables)(obj);
     copy_table_twice_call_state_handler_slot28(obj);
     /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */

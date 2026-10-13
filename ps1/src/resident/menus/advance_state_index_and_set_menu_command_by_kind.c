@@ -5,7 +5,7 @@
 
 void advance_state_index_and_set_menu_command_by_kind(GameState *state) {
     Entity *entity = (Entity *)state;
-    ((HudBig *)data_8018f5a0)->state_index++;
+    ((HudBig *)screen_state)->state_index++;
     entity->field_6c = 1;
     if (entity->pass_count == 0) {
         set_menu_command_by_code(1, table_8016e6f8[game_state.kind_index]);

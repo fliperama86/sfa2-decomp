@@ -15,7 +15,7 @@ void start_phase_screen_variant_a_slot0f(Object *arg) {
     Rect r;
     Block172 *b;
     int one;
-    data_8018f5a0->phase_index++;
+    screen_state->phase_index++;
     game_state.field_2bc = 0;
     obj = arg;
     start_fade_mode_1_and_wait();
@@ -29,7 +29,7 @@ void start_phase_screen_variant_a_slot0f(Object *arg) {
         data_801903c0 = 0;
     }
     one = 1;
-    data_80190568 = one;
+    kind_handlers_enabled = one;
     r.x = 0x280;
     r.y = 0;
     r.w = 0x40;

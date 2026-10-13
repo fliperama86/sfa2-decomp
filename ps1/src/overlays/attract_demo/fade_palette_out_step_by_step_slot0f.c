@@ -17,7 +17,7 @@ void fade_palette_out_step_by_step_slot0f(GameState *state) {
         n = state->step_counter - 1;
         state->step_counter = n;
         if ((s16)n < 0) {
-            data_8018f5a0->phase_index++;
+            screen_state->phase_index++;
         }
     }
 }

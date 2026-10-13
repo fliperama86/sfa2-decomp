@@ -51,5 +51,5 @@ void store_and_darken_palette_row_slot0f(void) {
 }
 
 void call_handler_by_substate_index_slot0f(void) {
-    data_800e99a0_slot0f[((HudBig *)data_8018f5a0)->substate_index]();
+    data_800e99a0_slot0f[((HudBig *)screen_state)->substate_index]();
 }

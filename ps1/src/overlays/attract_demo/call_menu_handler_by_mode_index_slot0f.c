@@ -38,6 +38,6 @@ void call_step_handler_by_step_index_slot0f(GameState *state, Menu *menu) {
 }
 
 void decrement_phase_and_call_loop_slot0f(GameState *state, Menu *menu) {
-    data_8018f5a0->phase_index--;
+    screen_state->phase_index--;
     loop_menu_object_until_loop_flag_clear_slot0f();
 }

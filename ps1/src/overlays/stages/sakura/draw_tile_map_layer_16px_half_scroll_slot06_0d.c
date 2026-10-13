@@ -11,7 +11,7 @@ extern Slot06Tile data_801ed5e4_slot06_0d[2][0x74];
    position before the sign change, as in the model draw_tile_layer_0_16px_slot06_00,
    where the effect of each is measured. */
 void draw_tile_map_layer_16px_half_scroll_slot06_0d(void) {
-    Chan *c = data_801aa544;
+    Chan *c = background_layers;
     int x;
     int pos;
     s16 y;
@@ -47,8 +47,8 @@ void draw_tile_map_layer_16px_half_scroll_slot06_0d(void) {
     } else {
         row = (y - 15) / 16;
     }
-    rec = data_801ed5e4_slot06_0d[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801ed5e4_slot06_0d[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 16; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {

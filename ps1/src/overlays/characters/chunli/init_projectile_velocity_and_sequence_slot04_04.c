@@ -27,9 +27,9 @@ void init_projectile_velocity_and_sequence_slot04_04(Object *obj) {
     } else {
         ((ObjectWords *)obj)->word_58 = obj->pos_x;
         if (p->side == 0) {
-            s = *data_1f8000b4;
+            s = *seqs_b4_left;
         } else {
-            s = *data_1f800164;
+            s = *seqs_164_right;
         }
     }
     set_sequence_entry(obj, s);

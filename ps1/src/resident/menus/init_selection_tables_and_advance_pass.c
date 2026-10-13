@@ -6,7 +6,7 @@
 /*
  * What it does (inferred, not original names): prepares the tables of a
  * two-column selection screen. It advances a counter of the HUD state
- * (pass_index of data_8018f5a0) when game_state.versus_flag is not 0, or calls
+ * (pass_index of screen_state) when game_state.versus_flag is not 0, or calls
  * add_item_to_table with one of two blocks (chosen by game_state.field_31) and,
  * if the player selected by field_31 has bit 0x100 in input_bits, advances the
  * counter and calls play_sound_at. Then it clears the cursor bytes, sets
@@ -29,11 +29,11 @@ void init_selection_tables_and_advance_pass(void) {
             add_item_to_table(data_80181060);
         }
         if ((g->field_31 == 1 && (player_left.input_bits & 0x100)) || (g->field_31 == 2 && (player_right.input_bits & 0x100))) {
-            data_8018f5a0->pass_index++;
+            screen_state->pass_index++;
             play_sound_at(0, 0, 0x34c);
         }
     } else {
-        data_8018f5a0->pass_index++;
+        screen_state->pass_index++;
     }
     i = 0;
     data_8018d250 = 0;

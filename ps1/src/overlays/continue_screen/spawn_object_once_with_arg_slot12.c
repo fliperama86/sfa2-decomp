@@ -6,7 +6,7 @@
 extern void (*data_80023170_slot12[])(Object *);
 void call_handler_by_state_0_with_tile_update_slot12(Object *obj);
 
-/* v is not set on every path: when the flag at data_801ae02c is already set,
+/* v is not set on every path: when the flag at single_object_active is already set,
    the call at the end passes the register as it is. Reading the unset local
    is undefined behaviour in C. It reproduces the original's instructions
    with this compiler and is not a defined implementation: a port has to
@@ -14,7 +14,7 @@ void call_handler_by_state_0_with_tile_update_slot12(Object *obj);
 int spawn_object_once_with_arg_slot12(u8 arg) {
     Object *v;
     int r;
-    u8 *flag = &data_801ae02c;
+    u8 *flag = &single_object_active;
 
     r = 0;
     if (*flag == 0) {

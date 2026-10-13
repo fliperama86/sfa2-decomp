@@ -18,7 +18,7 @@ void build_scaled_rotated_quads_from_layout_slot0b(ModObj *obj_arg, void *buf_ar
     if (flag != 0) {
         p = buf + n;
     }
-    ot = (u32 *)data_801987c8;
+    ot = (u32 *)current_ordering_table;
     do {
         s16 x = *coords++;
         s16 y = *coords++;

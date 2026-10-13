@@ -23,7 +23,7 @@ void set_table_index_3_from_table(u8 index) {
 
 void reinit_round_and_copy_five_rows(void) {
     data_80197f1c = 0;
-    ((HudBig *)data_8018f5a0)->substate_index = 0;
+    ((HudBig *)screen_state)->substate_index = 0;
     game_state.field_65 = 0;
     clear_arrays_and_init_pools_and_sprite_tables();
     call_handler_by_kind_index_a();

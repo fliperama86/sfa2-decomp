@@ -17,7 +17,7 @@ void fill_meter_segments_for_both_objects(u8 *base, Object *left, Object *right)
 {
   /* The unused local reproduces the stack frame of the original, which reserves the space and never uses it. It is a stand-in, not an explanation. */
   u8 unused[8];
-  int index = *(s16 *)&data_801a27d0;
+  int index = *(s16 *)&draw_buffer_index;
   s16 j;
   u8 *p;
   u16 c;

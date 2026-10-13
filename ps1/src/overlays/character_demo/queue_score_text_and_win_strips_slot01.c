@@ -24,7 +24,7 @@ void format_decimal_six_chars_slot01(int value, char *buf);
  * text records in data_800150cc_slot01, formats two or three numbers into
  * their buffers and queues each record with add_item_to_table. Last it fills
  * win_count + 1 strips and links them into the ordering table head of the
- * buffer data_801a27d0.
+ * buffer draw_buffer_index.
  */
 void queue_score_text_and_win_strips_slot01(void) {
     Object *o = game_state.focus_object;
@@ -65,10 +65,10 @@ void queue_score_text_and_win_strips_slot01(void) {
         add_item_to_table(&data_800150cc_slot01[6]);
         if (data_8002cea8_slot01->team_id != 0) {
             data_8002cea4_slot01 = 0x88;
-            data_8002ce9c_slot01 = data_80190014[data_801a27d0];
+            data_8002ce9c_slot01 = data_80190014[draw_buffer_index];
         } else {
             data_8002cea4_slot01 = 0x158;
-            data_8002ce9c_slot01 = strips[data_801a27d0];
+            data_8002ce9c_slot01 = strips[draw_buffer_index];
         }
         data_8002cea0_slot01 = data_8002cea8_slot01->win_count;
         if (data_8002cea0_slot01 >= 0) {
@@ -78,7 +78,7 @@ void queue_score_text_and_win_strips_slot01(void) {
                 p->pos_x = data_8002cea4_slot01 - data_8002cea0_slot01 * 16;
                 p->pos_y = 0x6e;
                 /* The head of the ordering table of the buffer in use, 0xe8 bytes per buffer. Written through the symbol data_801fc050 the function differs in 12 instruction slots. */
-                ot = (PrimTag *)(0x801fc050 + data_801a27d0 * 0xe8);
+                ot = (PrimTag *)(0x801fc050 + draw_buffer_index * 0xe8);
                 ((PrimTag *)p)->addr = ot->addr;
                 data_8002cea0_slot01--;
                 data_8002ce9c_slot01 = p + 1;

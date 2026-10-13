@@ -11,7 +11,7 @@ void ramp_child_vel_x_until_target_slot27(Object *obj) {
         ref_first.p = (Object *)((ObjectWords *)obj)->word_58;
     }
     if ((obj->state_3 & 1) == 0) {
-        int *x = (int *)data_8019045c;
+        int *x = (int *)scratch_word_a;
         *x = obj->vel_x;
         ref_first.p->vel_x += *x;
         *x = obj->vel_y;

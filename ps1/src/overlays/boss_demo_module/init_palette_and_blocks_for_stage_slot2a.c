@@ -16,7 +16,7 @@ void init_palette_and_blocks_for_stage_slot2a(void) {
     Block172 *base;
     int a1;
 
-    data_8018f5a0->pass_index++;
+    screen_state->pass_index++;
     game_state.state_2c_flag = 1;
     game_state.status_flags = 0;
     game_state.field_4f = 0;
@@ -35,7 +35,7 @@ void init_palette_and_blocks_for_stage_slot2a(void) {
     }
     game_state.loop_mode = 0;
     set_menu_command_by_code(1, a1);
-    while (data_80190949 == 0 || game_state.wait_flag != 0) {
+    while (menu_active_flag == 0 || game_state.wait_flag != 0) {
         select_buffers_and_run_first_setup();
         request_sound_command_and_switch_thread(1);
     }

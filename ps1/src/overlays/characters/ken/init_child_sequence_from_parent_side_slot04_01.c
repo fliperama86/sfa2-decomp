@@ -7,9 +7,9 @@ void init_child_sequence_from_parent_side_slot04_01(Object *obj) {
     obj->spawn_flag = 1;
     obj->state_0++;
     if (obj->parent->side == 0) {
-        set_sequence_from_table_5(obj, obj->variant_index, data_1f8000b4);
+        set_sequence_from_table_5(obj, obj->variant_index, seqs_b4_left);
     } else {
-        set_sequence_from_table_5(obj, obj->variant_index, data_1f800164);
+        set_sequence_from_table_5(obj, obj->variant_index, seqs_164_right);
     }
 }
 

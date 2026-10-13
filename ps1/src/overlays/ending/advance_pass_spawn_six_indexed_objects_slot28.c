@@ -14,8 +14,8 @@ extern u8 data_8003feb8_slot28[];
 void advance_pass_spawn_six_indexed_objects_slot28(Object *obj) {
     Object *b;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x168;
-        data_8018f5a0->pass_index++;
+        screen_state->countdown_timer = 0x168;
+        screen_state->pass_index++;
         set_sequence_from_table_5(data_80051b00_slot28[0], 2, data_80041498_slot28);
         b = data_80051b00_slot28[1];
         b->pos_x = 0x38;

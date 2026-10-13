@@ -14,7 +14,7 @@ extern u8 data_80185fc4;
 extern u8 data_8016e801;
 extern u8 data_8016e802;
 extern u8 data_8016e803;
-extern HudState *data_8018f5a0;
+extern HudState *screen_state;
 void update_option_menu_selection(Object *a, Triple *b);
 void reset_fields_and_clear_position_fracs(ObjectView *a, Object *b, Object *c);
 
@@ -25,8 +25,8 @@ void reset_fields_and_clear_position_fracs(ObjectView *a, Object *b, Object *c);
    of the two pad records has a non-zero third byte (c), it acts on the
    mode byte data_8016e800:
      - 4, 5 or 6: clears both c bytes and does nothing else;
-     - otherwise: increments pass_index of the HUD block data_8018f5a0,
-       clears the input block data_801a6984 (field_00, field_01, index, last,
+     - otherwise: increments pass_index of the HUD block screen_state,
+       clears the input block input_block (field_00, field_01, index, last,
        flag), clears round_count, field_19f, hit_count_2, field_1a1 and field_1a2
        of both players, calls call_side_func_then_queue_job on each player, clears
        game_state.pending_flag and field_6d, calls set_selected_flag_by_index with
@@ -63,7 +63,7 @@ void update_option_menu_and_apply_selected_mode(void) {
     update_option_menu_selection(l, t = data_80185fac);
     r = l + 1;
     update_option_menu_selection(r, ++t);
-    p = (InputBlock *)data_801a6984;
+    p = (InputBlock *)input_block;
     g = &game_state;
     /* The local holds a constant: the original keeps this value in a register of its own. The name is inferred. */
     /* With 0 written in the loop that stores it, this function differs from the original in 14 instruction slots. */
@@ -76,7 +76,7 @@ void update_option_menu_and_apply_selected_mode(void) {
             data_80185fac[0].c = 0;
             data_80185fac[1].c = 0;
         } else {
-            data_8018f5a0->pass_index++;
+            screen_state->pass_index++;
             p->index = 0;
             p->last = 0;
             p->flag = 0;
@@ -123,11 +123,11 @@ void update_option_menu_and_apply_selected_mode(void) {
             } else if (data_8016e800 == 3) {
                 data_80185fac[0].c = 0;
                 data_80185fac[1].c = 0;
-                data_8018f5a0->phase_index = 1;
-                data_8018f5a0->step_index = 0;
-                data_8018f5a0->substep_index = 0;
-                data_8018f5a0->step_index_2 = 0;
-                data_8018f5a0->pass_index = 0;
+                screen_state->phase_index = 1;
+                screen_state->step_index = 0;
+                screen_state->substep_index = 0;
+                screen_state->step_index_2 = 0;
+                screen_state->pass_index = 0;
                 g->alt_flag = 1;
                 g->mode = 0;
                 g->side_mask = g->side_bits;

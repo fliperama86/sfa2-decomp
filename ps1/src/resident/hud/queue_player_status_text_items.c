@@ -37,7 +37,7 @@ void queue_player_status_text_items(void) {
                 queue_name_text(g, o);
             }
         } else if (data_80190138 != 0) {
-            if (data_801a6984[1] != 0) {
+            if (input_block[1] != 0) {
                 if (g->loop_counter & 0x20) {
                     if (g->mode & 1) {
                         add_item_to_table(&data_80172380[0]);
@@ -45,7 +45,7 @@ void queue_player_status_text_items(void) {
                         add_item_to_table(&data_80172380[1]);
                     }
                 }
-            } else if (g->versus_flag != 0 && data_801a6984[0] != 0) {
+            } else if (g->versus_flag != 0 && input_block[0] != 0) {
                 if (g->loop_counter & 0x20) {
                     if (g->mode & 1) {
                         add_item_to_table(&data_80172380[2]);

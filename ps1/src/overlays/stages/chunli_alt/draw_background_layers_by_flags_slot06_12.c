@@ -39,10 +39,10 @@ void draw_background_layers_by_flags_slot06_12(void) {
 }
 
 void init_four_layers_tile_maps_slot06_12(void) {
-    init_first_layer_tile_map_slot06_12((Slot06Layer *)data_801aa544);
-    set_layer_tile_map_and_rect_params_slot06_12((Slot06Layer *)data_801aa5d4);
+    init_first_layer_tile_map_slot06_12((Slot06Layer *)background_layers);
+    set_layer_tile_map_and_rect_params_slot06_12((Slot06Layer *)main_layer);
     set_layer_tile_map_params_b_slot06_12((Slot06Layer *)cam_obj);
-    noop_layer_function_slot06_12((Slot06Layer *)data_801904d8);
+    noop_layer_function_slot06_12((Slot06Layer *)fourth_layer);
 }
 
 void init_gray_tile_banks_and_sprites_with_noop_b_slot06_12(void) {
@@ -67,7 +67,7 @@ void scroll_layer_parallax_half_x_slot06_12(Slot06Layer *layer) {
     if (game_state.field_65 == 0) {
         *(s32 *)&layer->pos_x -= 0x7000;
     }
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     d = l2->field_22;
     d -= l2->ref_x;
     d /= 2;

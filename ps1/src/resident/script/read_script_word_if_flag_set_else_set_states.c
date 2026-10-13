@@ -49,8 +49,8 @@ void branch_script_by_other_height_and_vel(Object *object) {
     if (other->active_state != 1) {
         read_script_word_and_dispatch(object);
     } else {
-        data_80189464 = other->ground_y - data_80189464;
-        if ((s16)data_80189464 < other->pos_y && other->vel_y > 0) {
+        script_work_value = other->ground_y - script_work_value;
+        if ((s16)script_work_value < other->pos_y && other->vel_y > 0) {
             read_script_word_and_dispatch(object);
         } else {
             object->field_209 = 4;
@@ -86,7 +86,7 @@ void init_script_state_with_countdown(Object *object) {
     object->state_1 = 0;
     object->state_2 = 0;
     object->state_3 = 0;
-    object->countdown_3 = *data_80189460++;
+    object->countdown_3 = *script_cursor++;
     if (find_active_wide_box_and_check_other(object)) {
         object->field_208 = 3;
         object->field_209 = 0;

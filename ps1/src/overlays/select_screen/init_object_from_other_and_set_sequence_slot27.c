@@ -23,6 +23,6 @@ void init_object_from_other_and_set_sequence_slot27(Object *obj) {
     obj->spawn_x = 0;
     obj->image_row = 0;
     data_80028e84_slot27[obj->table_index](obj);
-    idx = data_8019045c[0];
+    idx = scratch_word_a[0];
     set_sequence_from_table_5(obj, idx, data_8002904c_slot27);
 }

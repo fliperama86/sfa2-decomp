@@ -35,6 +35,6 @@ void release_object_to_pool_table_10_slot12(Object *obj) {
 extern void (*data_80028a04_slot12[])(Object *);
 
 void call_handler_by_state_0_7_slot12(Object *obj) {
-    data_80190468.p = (Object *)&game_state;
+    ref_game_state.p = (Object *)&game_state;
     data_80028a04_slot12[obj->state_0](obj);
 }

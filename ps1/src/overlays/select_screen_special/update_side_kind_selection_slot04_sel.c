@@ -116,12 +116,12 @@ void update_side_kind_selection_slot04_sel(Object *obj, Slot04SelRec *p) {
                 }
                 ref_other.p = obj;
                 check_opposite_player_same_selection_slot04_sel();
-                if (data_8019045c[0] != 0) {
-                    data_8019045c[0] = 0;
+                if (scratch_word_a[0] != 0) {
+                    scratch_word_a[0] = 0;
                     if (obj->field_d4 == 0) {
-                        data_8019045c[0] = 1;
+                        scratch_word_a[0] = 1;
                     }
-                    obj->field_d4 = *(u8 *)data_8019045c;
+                    obj->field_d4 = *(u8 *)scratch_word_a;
                 }
             }
         } else if ((game_state.mode >> obj->side) & 1) {

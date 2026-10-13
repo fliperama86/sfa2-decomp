@@ -15,7 +15,7 @@ void loop_menu_object_until_loop_flag_clear_slot0f(void) {
     o->state_index = 0;
     data_800f857c_slot0f.loop_flag = 1;
     do {
-        o->input_bits = data_801a696a | data_801a6976;
+        o->input_bits = pad_1_pressed | pad_2_pressed;
         data_800e8778_slot0f[(s8)o->state_index]((Object *)o);
         call_handler_by_handler_index_b_slot0f((Object *)o);
         request_sound_command_and_switch_thread(1);

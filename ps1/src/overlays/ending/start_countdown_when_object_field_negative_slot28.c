@@ -12,14 +12,14 @@ void release_four_stored_objects_slot28(Object *obj);
 
 void start_countdown_when_object_field_negative_slot28(Object *obj) {
     if (((Slot28Obj *)data_800518c8_slot28.p)->field_3a < 0) {
-        data_8018f5a0->countdown_timer = 0xc0;
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->countdown_timer = 0xc0;
+        screen_state->pass_index = screen_state->pass_index + 1;
         set_menu_command_by_code(6, 1);
     }
 }
 
 void count_down_then_advance_pass_and_call_slot28(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     int t = h->countdown_timer - 1;
     h->countdown_timer = t;
     if ((s16)t < 0) {
@@ -32,7 +32,7 @@ void advance_pass_and_start_fade_1a01_if_idle_slot28(Object *obj) {
     Object *o;
     HudState *h;
     if (obj->field_f0 == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         h->countdown_timer = 0xf0;
         h->pass_index = h->pass_index + 1;
         release_four_stored_objects_slot28(obj);

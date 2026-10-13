@@ -11,7 +11,7 @@ void tick_slot_timer_and_check_input_2(Object *object, u8 index, u8 arg) {
     if (object->slots[index].timer == 0) {
         reset_slot_stage_clear_result(object, index, arg);
     } else {
-        entry = table_8017a8cc[arg * 7 + object->slots[index].entry_index];
+        entry = slot_input_table[arg * 7 + object->slots[index].entry_index];
         if ((entry & 0xf000) != (object->input_word & 0xf000)) {
             clear_global_flag_ignoring_object(object);
         } else {

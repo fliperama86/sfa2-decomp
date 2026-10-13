@@ -5,7 +5,7 @@
 
 void advance_state_index_if_not_looping(GameState *state) {
     if (state->loop_mode == 0) {
-        data_8018f5a0->state_index++;
+        screen_state->state_index++;
         state->step_counter = 0x1f;
     }
 }

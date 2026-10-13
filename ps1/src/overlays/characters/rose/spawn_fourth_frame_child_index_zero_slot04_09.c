@@ -21,10 +21,10 @@ void spawn_fourth_frame_child_index_zero_slot04_09(Object *o) {
             p->spawn_flag = 1;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
-            p->data_ptr_a = &data_80172a48;
+            p->data_ptr_a = &spawned_object_data_a;
             p->field_90 = (void *)0x800fb100;
             p->image_row = 0;
-            p->data_ptr_b = &data_80173c9c;
+            p->data_ptr_b = &spawned_object_data_b;
             p->pos_y = y;
             p->sound_side = o->side;
         }
@@ -49,10 +49,10 @@ void spawn_fourth_frame_child_index_four_slot04_09(Object *o) {
             p->spawn_flag = 1;
             p->spawn_x = 0x60;
             p->spawn_y = 0x1e0;
-            p->data_ptr_a = &data_80172a48;
+            p->data_ptr_a = &spawned_object_data_a;
             p->field_90 = (void *)0x800fb100;
             p->image_row = 0;
-            p->data_ptr_b = &data_80173c9c;
+            p->data_ptr_b = &spawned_object_data_b;
             p->pos_y = y;
             p->sound_side = o->side;
         }

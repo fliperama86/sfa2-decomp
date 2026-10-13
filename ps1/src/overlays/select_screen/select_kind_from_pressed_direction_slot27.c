@@ -16,7 +16,7 @@ void select_kind_from_pressed_direction_slot27(void) {
     if (game_state.busy_flag != 0) return;
     o = ref_other.p;
     m = ~o->prev_input_bits;
-    q = (u32 *)data_8019045c;
+    q = (u32 *)scratch_word_a;
     *q = m;
     v = o->input_bits & m;
     *q = v & 0xf000;

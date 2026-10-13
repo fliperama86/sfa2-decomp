@@ -50,7 +50,7 @@ void toggle_step_flags_and_count_down_slot06_11(Object *obj) {
 }
 
 void start_countdown_and_toggle_layer_flags_slot06_11(Object *obj) {
-    u16 *p = (u16 *)(data_801aa5d4 + 0x4a);
+    u16 *p = (u16 *)(main_layer + 0x4a);
     u16 *q = (u16 *)(cam_obj + 0x4a);
 
     obj->state_1++;
@@ -62,7 +62,7 @@ void start_countdown_and_toggle_layer_flags_slot06_11(Object *obj) {
 void count_down_then_toggle_layer_flag_bits_slot06_11(Object *obj) {
     obj->countdown = (s16)obj->countdown - 1;
     if ((s16)obj->countdown == 0) {
-        u16 *p = (u16 *)(data_801aa5d4 + 0x4a);
+        u16 *p = (u16 *)(main_layer + 0x4a);
         u16 *q = (u16 *)(cam_obj + 0x4a);
 
         obj->state_1 = 0;

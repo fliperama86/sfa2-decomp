@@ -16,7 +16,7 @@ void fade_palette_in_step_by_step_slot0f(GameState *state) {
         queue_image_upload_job(4, 7);
         state->step_counter++;
         if ((s16)state->step_counter >= 0x20) {
-            data_8018f5a0->phase_index++;
+            screen_state->phase_index++;
         }
     }
 }

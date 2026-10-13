@@ -27,7 +27,7 @@ void reset_hud_to_phase_4_and_init_pools_slot12(void) {
 }
 
 void call_step_table_then_update_blocks_and_text_slot12(void) {
-    data_800175b4_slot12[data_8018f5a0->step_index]();
+    data_800175b4_slot12[screen_state->step_index]();
     update_blocks();
     update_active_slab172_entries();
     queue_player_status_text_items();

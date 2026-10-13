@@ -31,7 +31,7 @@ int try_start_state_seven_move_nine_slot04_0d(Object *obj) {
 }
 
 void func_801b1158_slot04_0d(Object *obj) {
-    data_801ad398 = data_801c2980_slot04_0d[obj->field_15a](obj);
+    script_condition_result = data_801c2980_slot04_0d[obj->field_15a](obj);
 }
 
 int is_linked_object_3_null_slot04_0d(Object *obj) {

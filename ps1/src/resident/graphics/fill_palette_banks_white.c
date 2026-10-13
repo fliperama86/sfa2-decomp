@@ -11,7 +11,7 @@ void fill_palette_banks_white(void) {
     data_80190111 = 1;
     player_left.field_01 = 0;
     player_right.field_01 = 0;
-    data_8018f598 = 1;
+    white_fill_active = 1;
     for (i = 0; i < 32; i++)
         for (j = 0; j < 16; j++) {
             data_801a27e4_rows[0][i * 16 + j] = 0x7fff;

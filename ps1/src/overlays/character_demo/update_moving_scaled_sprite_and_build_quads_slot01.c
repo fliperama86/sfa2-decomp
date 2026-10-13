@@ -30,7 +30,7 @@ void update_moving_scaled_sprite_and_build_quads_slot01(Object *o) {
             init_object_position_from_health_offset_slot01(o);
         }
     }
-    build_scaled_sprite_quads_into_ot_slot01(o, data_8002ceb8_slot01, s->side, data_801a27d0);
+    build_scaled_sprite_quads_into_ot_slot01(o, data_8002ceb8_slot01, s->side, draw_buffer_index);
 }
 
 void init_object_position_from_health_offset_slot01(Object *obj) {
@@ -53,5 +53,5 @@ void set_state_3_and_child_state_2_slot01(Object *o) {
 }
 
 void draw_sprites_for_parent_side_slot01(Object *obj) {
-    build_scaled_sprite_quads_into_ot_slot01(obj, data_8002ceb8_slot01, obj->parent->side, data_801a27d0);
+    build_scaled_sprite_quads_into_ot_slot01(obj, data_8002ceb8_slot01, obj->parent->side, draw_buffer_index);
 }

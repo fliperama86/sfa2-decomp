@@ -15,7 +15,7 @@ extern u32 table_801e47a8_slot0b[];
    used). The four corners are the entry's coordinate pair plus the object's
    position, widened by width and height; the texture coordinates are formed
    the same way. The record is linked into the list head
-   data_801987c8[table_801e47a8_slot0b[object.ot_depth]]. */
+   current_ordering_table[table_801e47a8_slot0b[object.ot_depth]]. */
 void build_sprite_set_quads_into_ot_slot0b(Object *obj, u8 *p) {
     Poly28 *prim = (Poly28 *)p;
     SpriteSet *shape = (SpriteSet *)obj->sequence->data_ptr;
@@ -59,8 +59,8 @@ void build_sprite_set_quads_into_ot_slot0b(Object *obj, u8 *p) {
         prim->v2 = hi + c;
         prim->u3 = lo + b;
         prim->v3 = hi + c;
-        ((PrimTag *)prim)->addr = ((PrimTag *)((u32 *)data_801987c8 + idx))->addr;
-        ((PrimTag *)((u32 *)data_801987c8 + idx))->addr = (u32)prim;
+        ((PrimTag *)prim)->addr = ((PrimTag *)((u32 *)current_ordering_table + idx))->addr;
+        ((PrimTag *)((u32 *)current_ordering_table + idx))->addr = (u32)prim;
         prim++;
     } while (n != 0);
 }

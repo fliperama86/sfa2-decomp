@@ -133,12 +133,12 @@ void update_fighter_select_panel_with_counts_slot04_sel(Object *obj, Slot04SelRe
         }
         ref_other.p = obj;
         check_opposite_player_same_selection_2_slot04_sel();
-        if (data_8019045c[0] != 0) {
-            data_8019045c[0] = 0;
+        if (scratch_word_a[0] != 0) {
+            scratch_word_a[0] = 0;
             if (obj->field_d4 == 0) {
-                data_8019045c[0] = 1;
+                scratch_word_a[0] = 1;
             }
-            obj->field_d4 = data_8019045c[0];
+            obj->field_d4 = scratch_word_a[0];
         }
     } else {
         add_item_to_table(s5);

@@ -10,10 +10,10 @@ void update_eight_step_bar_selection_slot0f(void) {
     s8 *p;
     s8 *q;
     int i;
-    if ((data_801a696a | data_801a6976) & 0x2000) {
+    if ((pad_1_pressed | pad_2_pressed) & 0x2000) {
         p = data_800f8554_slot0f;
         *p = (*p + 1 < 8) ? *p + 1 : 0;
-    } else if ((data_801a696a | data_801a6976) & 0x8000) {
+    } else if ((pad_1_pressed | pad_2_pressed) & 0x8000) {
         p = data_800f8554_slot0f;
         *p = (*p - 1 >= 0) ? *p - 1 : 7;
     } else {

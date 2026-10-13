@@ -3,7 +3,7 @@
 #include "../../../protos.h"
 #include "../../../externs.h"
 
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 
 void move_with_x_stop_on_direction_mismatch_slot04_10(Object *obj);
 void load_velocities_from_table_slot04_10(Object *obj);
@@ -27,7 +27,7 @@ void update_throw_hit_other_then_flip_facing_slot04_10(Object *obj) {
         ref_other.p = obj->other;
         if ((s16)ref_other.p->health < 0) {
             obj->field_167 = (obj->direction_index >> 1) + 0xc;
-            data_80190468.p->field_6b = 0;
+            ref_game_state.p->field_6b = 0;
             spawn_game_state_kind_object(obj);
         }
         obj->vel_x = 0x10000;
@@ -103,13 +103,13 @@ void update_hit_flag_damage_or_launch_with_velocity_slot04_10(Object *obj) {
         update_sequence(obj);
     } else if (st == 0xf) {
         obj->step_flags = v & 0xff00;
-        data_80190468.p->vec_table_index = (obj->direction_index << 2) + 0x3c;
+        ref_game_state.p->vec_table_index = (obj->direction_index << 2) + 0x3c;
         spawn_two_effects_at_other_ground(obj);
         update_sequence(obj);
         play_side_sound_at(obj, obj->side, 0xa);
         if ((u8)apply_damage_to_other_return_defeated(obj, 0xd, 0x1b)) {
             obj->field_167 = (obj->direction_index >> 1) + 0xc;
-            data_80190468.p->field_6b = 4;
+            ref_game_state.p->field_6b = 4;
             spawn_game_state_kind_object(obj);
         }
         play_sound_at(obj, obj->side, 0x319);
@@ -181,12 +181,12 @@ void update_airborne_or_land_damage_other_slot04_10(Object *obj) {
         obj->active_state = 0;
         obj->pos_y = obj->ground_y;
         *(u32 *)&obj->pos_y_frac &= 0xffff0000;
-        data_80190468.p->vec_table_index = (obj->direction_index << 2) + 0x3c;
+        ref_game_state.p->vec_table_index = (obj->direction_index << 2) + 0x3c;
         spawn_two_effects_at_other_ground(obj);
         set_sequence_by_side_and_mode(obj, 0x38);
         if ((u8)apply_damage_to_other_return_defeated(obj, 0xa, 0x1c)) {
             obj->field_167 = (obj->direction_index >> 1) + 0xc;
-            data_80190468.p->field_6b = 4;
+            ref_game_state.p->field_6b = 4;
             spawn_game_state_kind_object(obj);
         }
         play_sound_at(obj, obj->side, 0x319);

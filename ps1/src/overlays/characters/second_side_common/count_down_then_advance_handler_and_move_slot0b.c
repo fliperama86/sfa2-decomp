@@ -7,7 +7,7 @@ void update_fx_fy_with_steps_slot0b(Slot0bObj *obj);
 
 void count_down_then_advance_handler_and_move_slot0b(Slot0bObj *obj) {
     int v;
-    if (data_80190468.p->phase_state == 2) {
+    if (ref_game_state.p->phase_state == 2) {
         v = obj->countdown_timer - 1;
         obj->countdown_timer = v;
         if ((s16)v < 0) {

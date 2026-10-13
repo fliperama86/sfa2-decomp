@@ -10,11 +10,11 @@ void init_spawned_object_with_random_offset(Object *object) {
 
     object->field_01 = 1;
     object->spawn_flag = 1;
-    object->data_ptr_a = &data_80172a48;
+    object->data_ptr_a = &spawned_object_data_a;
     object->state_0 = object->state_0 + 1;
     object->field_90 = (void *)0x800fb100;
     object->ot_depth = 0;
-    object->data_ptr_b = &data_80173c9c;
+    object->data_ptr_b = &spawned_object_data_b;
     object->pos_x = object->pos_x + table_8017c9f0[get_random_byte() & 0xf];
     object->pos_y = object->pos_y - table_8017c9f0[get_random_byte() & 0xf];
     set_image_row_from_team_id(object);

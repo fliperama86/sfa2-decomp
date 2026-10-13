@@ -38,7 +38,7 @@ void store_five_images_then_next_substep_slot01(void) {
     func_80158028(&r, (u8 *)data_801a2be4 + 0xc00);
     func_80157d9c(0);
     if (try_spawn_pooled_object_once_with_arg_slot01(3) != 0) {
-        data_8018f5a0->substep_index++;
+        screen_state->substep_index++;
         game_state.busy_flag = 0xff;
     }
 }

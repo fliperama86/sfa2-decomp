@@ -9,9 +9,9 @@ extern u8 data_80029324_slot27;
 
 void call_substep_handler_and_update_blocks_once_slot27(void) {
     int one;
-    data_80017bc4_slot27[data_8018f5a0->substep_index]();
+    data_80017bc4_slot27[screen_state->substep_index]();
     one = 1;
-    data_80190568 = one;
+    kind_handlers_enabled = one;
     update_blocks();
     call_active_block_handlers();
     if (data_80029324_slot27 != 0 && game_state.setup_done_flag == 0) {
@@ -23,5 +23,5 @@ void call_substep_handler_and_update_blocks_once_slot27(void) {
 }
 
 void call_handler_by_hud_step_index_2_slot27(void) {
-    data_80017bdc_slot27[data_8018f5a0->step_index_2]();
+    data_80017bdc_slot27[screen_state->step_index_2]();
 }

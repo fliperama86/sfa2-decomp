@@ -17,18 +17,18 @@ void read_script_input_words_and_set_state(Object *object) {
         object->field_209 = 0;
         object->state_1 = 0;
         object->state_3 = 7;
-        v = *data_80189460++;
-        data_80189464 = v;
+        v = *script_cursor++;
+        script_work_value = v;
         w = v;
         t = w >> 8;
         object->limit_hi = t;
         object->limit_lo = v;
-        v = *data_80189460++;
+        v = *script_cursor++;
         w = v;
         t = w >> 8;
         object->script_byte_hi = t;
         object->script_byte_lo = v;
-        v = *data_80189460++;
+        v = *script_cursor++;
         w = v;
         t = w >> 8;
         object->limit_hi_2 = t;
@@ -42,18 +42,18 @@ void read_script_input_words_and_set_state(Object *object) {
             object->countdown_3 = t;
         }
     } else {
-        v = *data_80189460++;
-        data_80189464 = v;
+        v = *script_cursor++;
+        script_work_value = v;
         w = v;
         t = w >> 8;
         object->limit_hi = t;
         object->limit_lo = v;
-        v = *data_80189460++;
+        v = *script_cursor++;
         w = v;
         t = w >> 8;
         object->script_byte_hi = t;
         object->script_byte_lo = v;
-        v = *data_80189460++;
+        v = *script_cursor++;
         w = v;
         t = w >> 8;
         object->limit_hi_2 = t;

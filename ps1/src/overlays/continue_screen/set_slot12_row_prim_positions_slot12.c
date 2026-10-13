@@ -14,7 +14,7 @@ void set_slot12_row_prim_positions_slot12(Object *o) {
     Slot12Prim *p;
     int i = 0;
     if (obj->entry_count >= 0) {
-        p = &data_8002c528_slot12[data_801a27d0];
+        p = &data_8002c528_slot12[draw_buffer_index];
         do {
             p[i * 2].x = obj->base_x + i * 16 + 16;
             p[i * 2].y = obj->base_y;
@@ -27,7 +27,7 @@ void set_slot12_end_prim_and_hud_positions_slot12(Object *o) {
     Slot12Obj *obj = (Slot12Obj *)o;
     int i = 0;
     int t = obj->entry_count << 4;
-    Slot12Prim *p = &data_8002c3c8_slot12[data_801a27d0];
+    Slot12Prim *p = &data_8002c3c8_slot12[draw_buffer_index];
     HudSlot *q;
     do {
         p[i * 2].x = obj->base_x + data_80028a58_slot12[i] + t + 16;

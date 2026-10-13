@@ -45,6 +45,6 @@ void fill_two_prims_from_list_slot0f(Object *obj, Slot12Prim *prim, int idx) {
     u = list[0];
     list++;
     r = func_8015bd0c(0, 0, (s16)u, (s16)list[0]);
-    prim->cmd = 0xe1000000 + (((Object *)data_801987c8)->step_count << 9) + (((Object *)data_801987c8)->field_a3 << 10) + (r & 0x1f);
-    next->cmd = 0xe1000000 + (((Object *)data_801987c8)->step_count << 9) + (((Object *)data_801987c8)->field_a3 << 10) + (r & 0x1f);
+    prim->cmd = 0xe1000000 + (((Object *)current_ordering_table)->step_count << 9) + (((Object *)current_ordering_table)->field_a3 << 10) + (r & 0x1f);
+    next->cmd = 0xe1000000 + (((Object *)current_ordering_table)->step_count << 9) + (((Object *)current_ordering_table)->field_a3 << 10) + (r & 0x1f);
 }

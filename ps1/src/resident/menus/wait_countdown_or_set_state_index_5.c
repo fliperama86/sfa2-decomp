@@ -14,8 +14,8 @@ void wait_countdown_or_set_state_index_5(GameState *state) {
                 return;
             }
         }
-        ((HudBig *)data_8018f5a0)->state_index = 5;
+        ((HudBig *)screen_state)->state_index = 5;
     } else {
-        ((HudBig *)data_8018f5a0)->state_index++;
+        ((HudBig *)screen_state)->state_index++;
     }
 }

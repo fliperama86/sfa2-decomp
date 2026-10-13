@@ -9,7 +9,7 @@ void start_slot_stage_match_input_top_bits_2(Object *object, u8 index, u8 arg) {
     u8 step;
 
     object->slots[index].entry_index = 0;
-    entry = table_8017a8cc[arg * 7];
+    entry = slot_input_table[arg * 7];
     if ((entry & 0xf000) != (object->input_word & 0xf000)) {
         reset_slot_stage_clear_result(object, index, arg);
     } else {

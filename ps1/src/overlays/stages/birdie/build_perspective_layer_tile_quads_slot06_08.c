@@ -7,7 +7,7 @@ extern Poly28 data_801f2504_slot06_08[2][0x108];
 
 /*
  * What it does (inferred, not original names): draws a tile layer in
- * perspective, as quads. The layer block data_801aa5d4 holds a tile map
+ * perspective, as quads. The layer block main_layer holds a tile map
  * (tile_map_ptr, map_width wide, scale high, in pixels) and a scroll position.
  * The first pass draws a few rows (3 to 6, by the layer's scroll_y plus
  * game_state.scroll_y), starting at the row of the layer's signed_param, with
@@ -21,7 +21,7 @@ extern Poly28 data_801f2504_slot06_08[2][0x108];
  * the tile cell, linked into the list head selected by the layer's field_8a.
  */
 void build_perspective_layer_tile_quads_slot06_08(void) {
-    Slot06Layer *c = (Slot06Layer *)data_801aa5d4;
+    Slot06Layer *c = (Slot06Layer *)main_layer;
     /* Plain C: v holds the layer's field_1c here and a row's y value in the second pass (one variable for two values; the second use is labelled below). */
     int v;
     /* Plain C: rw is a variable of its own, set first after the count (set after mask it gives 5 differing instruction slots). */
@@ -100,8 +100,8 @@ void build_perspective_layer_tile_quads_slot06_08(void) {
     /* Stand-in, not recovered source: the local lo, which only holds the constant -6, reproduces the original's choice of registers. Without it this function differs from the original in 100 instruction slots. */
     lo = -6;
     mask = (c->map_width >> 4) - 1;
-    rec = data_801f2504_slot06_08[data_801a27d0];
-    ot = (u32 *)data_801987c8 + c->field_8a;
+    rec = data_801f2504_slot06_08[draw_buffer_index];
+    ot = (u32 *)current_ordering_table + c->field_8a;
     for (i = 0; i < count; i++, row++) {
         ix = col;
         /* Stand-in, not recovered source: the local rowsx, which is only a copy of rw as an s16, reproduces the original's choice of registers. Without it this function differs from the original in 8 instruction slots. */

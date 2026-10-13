@@ -62,18 +62,18 @@ void draw_tilemap_as_textured_quads(Object *object) {
                     lo = n % 16;
                 } while (0);
                 hi = n / 16;
-                func_8015c09c(&data_801a4ff0[side].pairs[idx].polys[data_801a27d0]);
+                func_8015c09c(&data_801a4ff0[side].pairs[idx].polys[draw_buffer_index]);
                 /* The (u8) cast narrows the quotient (at most 63) and makes the shift unsigned; without it this function differs from the original in 1 instruction slots. */
-                data_801a4ff0[side].pairs[idx].polys[data_801a27d0].tpage = func_8015bd0c(0, 0, (s16)object->base_x + ((u8)(n / 256)) * 64, (s16)object->base_y);
-                data_801a4ff0[side].pairs[idx].polys[data_801a27d0].clut = func_8015bdd4((s16)object->spawn_x, (s16)object->spawn_y + object->image_row * object->field_0c + m->page_offset);
+                data_801a4ff0[side].pairs[idx].polys[draw_buffer_index].tpage = func_8015bd0c(0, 0, (s16)object->base_x + ((u8)(n / 256)) * 64, (s16)object->base_y);
+                data_801a4ff0[side].pairs[idx].polys[draw_buffer_index].clut = func_8015bdd4((s16)object->spawn_x, (s16)object->spawn_y + object->image_row * object->field_0c + m->page_offset);
                 if (object->table_index < 2) {
                     /* Stand-in, not recovered source: one stand-in at 27 places, the byte offset from the pointer cast to u8 (side * 0xc80 + idx * 0x50, which is the address of data_801a4ff0[side].pairs[idx]) written out for each store of the quad, reproduces the original's order of instructions. Without it this function differs from the original in 322 instruction slots. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].r0 = 0x80;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].r0 = 0x80;
                     /* The second place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].g0 = 0x80;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].g0 = 0x80;
                     /* The third place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].b0 = 0x80;
-                    func_8015bfe8(&data_801a4ff0[side].pairs[idx].polys[data_801a27d0], 1);
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].b0 = 0x80;
+                    func_8015bfe8(&data_801a4ff0[side].pairs[idx].polys[draw_buffer_index], 1);
                 }
                 dy = object->health;
                 if (object->table_index == 9 || object->table_index == 10) {
@@ -81,59 +81,59 @@ void draw_tilemap_as_textured_quads(Object *object) {
                 }
                 if (flag == 0) {
                     /* The fourth place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].x0 = px + col * 16 - m->field_04;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].x0 = px + col * 16 - m->field_04;
                     /* The fifth place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].y0 = py + row * (dy + 16) - m->field_06;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].y0 = py + row * (dy + 16) - m->field_06;
                     /* The sixth place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].x1 = px + col * 16 - m->field_04 + 16;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].x1 = px + col * 16 - m->field_04 + 16;
                     /* The seventh place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].y1 = py + row * (dy + 16) - m->field_06;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].y1 = py + row * (dy + 16) - m->field_06;
                     /* The eighth place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].x2 = px + col * 16 - m->field_04;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].x2 = px + col * 16 - m->field_04;
                     /* The ninth place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].y2 = dy + 16 + (py + row * (dy + 16) - m->field_06);
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].y2 = dy + 16 + (py + row * (dy + 16) - m->field_06);
                     /* The tenth place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].x3 = px + col * 16 - m->field_04 + 16;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].x3 = px + col * 16 - m->field_04 + 16;
                     /* The 11th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].y3 = dy + 16 + (py + row * (dy + 16) - m->field_06);
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].y3 = dy + 16 + (py + row * (dy + 16) - m->field_06);
                 } else {
                     /* Stand-in, not recovered source: the local tile_size, which only holds the constant 16 where the original shows no register of its own for it, reproduces the original's choice of registers. Without it this function differs from the original in 11 instruction slots. */
                     tile_size = 16;
                     /* The 12th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].x0 = px + col * tile_size - (m->field_04 - tile_size);
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].x0 = px + col * tile_size - (m->field_04 - tile_size);
                     /* The 13th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].y0 = py + row * tile_size - m->field_06;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].y0 = py + row * tile_size - m->field_06;
                     /* The 14th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].x1 = px + col * tile_size - m->field_04;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].x1 = px + col * tile_size - m->field_04;
                     /* The 15th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].y1 = py + row * tile_size - m->field_06;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].y1 = py + row * tile_size - m->field_06;
                     /* The 16th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].x2 = px + col * tile_size - (m->field_04 - tile_size);
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].x2 = px + col * tile_size - (m->field_04 - tile_size);
                     /* The 17th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].y2 = py + row * (dy + tile_size) - (m->field_06 - tile_size);
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].y2 = py + row * (dy + tile_size) - (m->field_06 - tile_size);
                     /* The 18th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].x3 = px + col * tile_size - m->field_04;
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].x3 = px + col * tile_size - m->field_04;
                     /* The 19th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].y3 = py + row * (dy + tile_size) - (m->field_06 - tile_size);
+                    ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].y3 = py + row * (dy + tile_size) - (m->field_06 - tile_size);
                 }
                 /* Stand-in, not recovered source: the local l, which is only a copy of lo, and the local h, which is only a copy of hi, reproduce the original's choice of registers. Without it this function differs from the original in 53 instruction slots. */
                 /* The 20th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].u0 = (l = lo) << 4;
+                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].u0 = (l = lo) << 4;
                 /* The 21st place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].v0 = (h = hi) << 4;
+                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].v0 = (h = hi) << 4;
                 /* The 22nd place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].u1 = (l << 4) + 15;
+                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].u1 = (l << 4) + 15;
                 /* The 23rd place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].v1 = h << 4;
+                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].v1 = h << 4;
                 /* The 24th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].u2 = l << 4;
+                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].u2 = l << 4;
                 /* The 25th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].v2 = (h << 4) + 15;
+                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].v2 = (h << 4) + 15;
                 /* The 26th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].u3 = (l << 4) + 15;
+                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].u3 = (l << 4) + 15;
                 /* The 27th place of the stand-in above. The figure is the one above: the byte offset written as data_801a4ff0[side].pairs[idx] at all 27 places. */
-                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[data_801a27d0].v3 = (h << 4) + 15;
-                func_8015bf34((int)((u8 *)data_801987c8 + (object->ot_depth * 4 + 0x20)), (Cmd *)&data_801a4ff0[side].pairs[idx].polys[data_801a27d0]);
+                ((Poly28 *)(((u8 *)data_801a4ff0) + (side * 0xc80) + (idx * 0x50)))[draw_buffer_index].v3 = (h << 4) + 15;
+                func_8015bf34((int)((u8 *)current_ordering_table + (object->ot_depth * 4 + 0x20)), (Cmd *)&data_801a4ff0[side].pairs[idx].polys[draw_buffer_index]);
                 idx++;
             }
         }

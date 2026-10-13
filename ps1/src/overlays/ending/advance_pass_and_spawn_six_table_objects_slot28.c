@@ -22,7 +22,7 @@ void advance_pass_and_spawn_six_table_objects_slot28(Object *obj) {
     Object *q;
     int five;
     if (obj->field_f0 == 0) {
-        HudState *h = data_8018f5a0;
+        HudState *h = screen_state;
         h->countdown_timer = 0xf0;
         h->pass_index = h->pass_index + 1;
         release_active_objects_in_table_4_slot28();

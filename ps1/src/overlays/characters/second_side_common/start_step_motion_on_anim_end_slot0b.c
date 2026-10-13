@@ -8,7 +8,7 @@ void set_sequence_and_init_list_cells_tpage_clut_slot0b(Slot0bObj *obj, int arg)
 void call_step_on_anim_member_slot0b(Slot0bObj *obj);
 
 void start_step_motion_on_anim_end_slot0b(Slot0bObj *obj) {
-    if (data_80190468.p->phase_state == 1 || obj->anim.loop < 0) {
+    if (ref_game_state.p->phase_state == 1 || obj->anim.loop < 0) {
         obj->countdown_timer = 0xf;
         obj->fx_step = 0x180000;
         obj->fy_step = 0xfff40000;

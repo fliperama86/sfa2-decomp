@@ -28,6 +28,6 @@ void release_object_to_pool_table_11_slot27(Object *obj) {
 
 void call_handler_by_state_0_with_refs_2_slot27(Object *obj) {
     ref_other.p = obj->parent;
-    (*(Object **)&data_80190458) = obj->other;
+    (*(Object **)&ref_aux) = obj->other;
     data_80028e74_slot27[obj->state_0](obj);
 }

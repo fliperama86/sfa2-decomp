@@ -11,7 +11,7 @@ extern Slot06Tile data_801f085c_slot06_08[2][0x83];
    written into the expression, the function is 8 bytes shorter and 133
    instruction slots differ. */
 void draw_scrolling_tile_map_layer_slot06_08(void) {
-    Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
+    Slot06Draw *c = (Slot06Draw *)main_layer;
     int q;
     int x;
     int pos;
@@ -54,9 +54,9 @@ void draw_scrolling_tile_map_layer_slot06_08(void) {
     n = (u32)(c->field_4c - ((y - 0x40) & -16)) >> 4;
     sx = x12 & 0xf;
     mask = (c->width >> 4) - 1;
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     c->pos_fixed = pos;
-    rec = data_801f085c_slot06_08[data_801a27d0];
+    rec = data_801f085c_slot06_08[draw_buffer_index];
     blank = c->blank_value;
     col = (x12 & (c->width - 1)) >> 4;
     i = ((x >> 16) + 0x3f) / 16;

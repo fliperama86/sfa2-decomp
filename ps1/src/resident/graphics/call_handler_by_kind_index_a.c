@@ -9,7 +9,7 @@ void call_handler_by_kind_index_a(void) {
 }
 
 void call_kind_handler_if_flag_set(void) {
-    if (data_80190568 != 0) {
+    if (kind_handlers_enabled != 0) {
         table_801725a0[game_state.kind_index]();
     }
 }
@@ -68,5 +68,5 @@ void store_image_rows_to_table(Object *object, short index, int w, int h) {
     rect.h = 5;
     func_80158028(&rect, table_801a27e4 + (index << 5));
     func_80158028(&rect, table_801a27e4 + 0x1400 + (index << 5));
-    data_801aa4dc[0] = 0x1f;
+    palette_fade_level[0] = 0x1f;
 }

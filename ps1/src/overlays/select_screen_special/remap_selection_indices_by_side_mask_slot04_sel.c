@@ -29,5 +29,5 @@ void remap_selection_indices_by_side_mask_slot04_sel(void) {
             r->selection_index = 2;
         }
     }
-    data_8018f5a0->step_index_2 = data_8018f5a0->step_index_2 + 1;
+    screen_state->step_index_2 = screen_state->step_index_2 + 1;
 }

@@ -19,7 +19,7 @@ void update_slot_stage_pressed_bits_any_match(Object *object, u8 index, u8 arg)
   else
   {
     new_var = 0;
-    entry = table_8017a8cc[(arg * 7) + object->slots[index].entry_index];
+    entry = slot_input_table[(arg * 7) + object->slots[index].entry_index];
     new_var2 = entry & 0xf0ff;
     mask = 0xf0ff;
     mask = object->pressed_bits & mask;

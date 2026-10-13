@@ -11,8 +11,8 @@ void update_meter_animation_indices(u8 a, u8 b);
 /*
  * What it does (inferred, not an original name): draws a tile map as sprite
  * records in the table data_80186004, one record per non-zero tile at the next
- * free index data_80188d04 of the buffer data_801a27d0, and hands each record
- * to func_8015bf34 with a pointer into the list array at data_801987c8. The
+ * free index data_80188d04 of the buffer draw_buffer_index, and hands each record
+ * to func_8015bf34 with a pointer into the list array at current_ordering_table. The
  * kind changes the page word and the corner layout. Kinds 2 and 3 call
  * select_meter_level_table_entry for each tile and update_meter_animation_indices once at the end.
  * Parameters: the kind (low 8 bits count), the map header (an address, columns
@@ -30,7 +30,7 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
     Tilemap *map = (Tilemap *)map_addr;
     /* The x base as 16 bits. */
     u16 x0 = x_arg;
-    s16 idx = data_801a27d0;
+    s16 idx = draw_buffer_index;
     int row;
     int col;
     int dx = 1;
@@ -111,7 +111,7 @@ void func_801347b4(int kind_arg, u32 map_addr, int x_arg, int y_base, int list_a
                 (&data_80186004[idx].polys[data_80188d04])->v2 = v1 + 0x10 - dy;
                 (&data_80186004[idx].polys[data_80188d04])->u3 = u1 + 0x10 - dx;
                 (&data_80186004[idx].polys[data_80188d04])->v3 = v1 + 0x10 - dy;
-                func_8015bf34((int)data_801987c8 + list * 4, (Cmd *)&data_80186004[idx].polys[data_80188d04]);
+                func_8015bf34((int)current_ordering_table + list * 4, (Cmd *)&data_80186004[idx].polys[data_80188d04]);
                 data_80188d04++;
             }
         }

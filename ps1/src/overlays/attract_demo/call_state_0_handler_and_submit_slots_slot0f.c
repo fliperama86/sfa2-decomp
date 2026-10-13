@@ -14,7 +14,7 @@ void fill_sprite_from_sequence_and_link_slot0f(Object *obj, Slot12Sprite *cell);
 void call_state_0_handler_and_submit_slots_slot0f(Object *obj) {
     int i;
     int k;
-    data_80190468.p = (Object *)&game_state;
+    ref_game_state.p = (Object *)&game_state;
     data_800f012c_slot0f[obj->state_0](obj);
     k = obj->table_index;
     if (k == 5) {
@@ -33,6 +33,6 @@ void call_state_0_handler_and_submit_slots_slot0f(Object *obj) {
             }
         }
     } else if (data_800f7d48_slot0f[k] == 1) {
-        fill_sprite_from_sequence_and_link_slot0f(obj, (Slot12Sprite *)(data_800f7e90_slot0f + k * 4 + data_801a27d0 * 2));
+        fill_sprite_from_sequence_and_link_slot0f(obj, (Slot12Sprite *)(data_800f7e90_slot0f + k * 4 + draw_buffer_index * 2));
     }
 }

@@ -4,7 +4,7 @@
 #include "../../../externs.h"
 
 extern ObjectFn data_801c7ce0_slot04_11[];
-extern ObjectRef data_80190458;
+extern ObjectRef ref_aux;
 extern ObjectRef data_80190414;
 
 void clear_object_and_push_on_free_stack(Object *o);
@@ -13,7 +13,7 @@ void follow_ref_other_and_advance_sequence_slot04_11(Object *obj);
 
 void call_handler_by_state_0_with_parent_refs_slot04_11(Object *obj) {
     ref_other.p = obj->parent;
-    data_80190458.p = ref_other.p->parent;
+    ref_aux.p = ref_other.p->parent;
     data_80190414.p = obj->other;
     data_801c7ce0_slot04_11[obj->state_0](obj);
 }

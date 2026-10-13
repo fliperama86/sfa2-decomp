@@ -8,7 +8,7 @@ void call_step_on_anim_member_slot0b(Slot0bObj *obj);
 
 void update_countdown_then_reset_position_slot0b(Slot0bObj *obj) {
     int v;
-    if (data_80190468.p->phase_state == 1 || (v = obj->countdown_timer - 1, obj->countdown_timer = v, (s16)v < 0)) {
+    if (ref_game_state.p->phase_state == 1 || (v = obj->countdown_timer - 1, obj->countdown_timer = v, (s16)v < 0)) {
         obj->step_count++;
         if (obj->entry_index == 0) {
             play_sound_at(0, 0, 0x32d);

@@ -7,8 +7,8 @@ void spawn_six_objects_on_first_state(Object *object) {
     int i;
     Object *o;
     if (object->state_2 == 0) {
-        data_8018f5a0->step_index_2++;
-        data_8018f5a0->countdown_timer = 0x20;
+        screen_state->step_index_2++;
+        screen_state->countdown_timer = 0x20;
         object->ot_depth = 0;
         object->linked_object_2 = 0;
         object->phase_state = 0;

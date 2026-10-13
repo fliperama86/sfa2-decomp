@@ -11,7 +11,7 @@ extern Slot06Tile data_801eedb4_slot06_01[2][0x113];
    draw_tile_layer_0_16px_slot06_00. The local x holds the position before the sign
    change, as in the model. */
 void draw_tilemap_layer_16px_12x25_slot06_01(void) {
-    Chan *c = data_801aa544;
+    Chan *c = background_layers;
     int x;
     int pos;
     s16 y;
@@ -47,8 +47,8 @@ void draw_tilemap_layer_16px_12x25_slot06_01(void) {
     } else {
         row = (y - 15) / 16;
     }
-    rec = data_801eedb4_slot06_01[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801eedb4_slot06_01[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 12; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {

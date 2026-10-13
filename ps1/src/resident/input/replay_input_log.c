@@ -3,7 +3,7 @@
 #include "../../externs.h"
 #include "../../protos.h"
 
-extern u16 data_801a6966;
+extern u16 pad_1_held;
 
 
 void replay_input_log(Object *object) {

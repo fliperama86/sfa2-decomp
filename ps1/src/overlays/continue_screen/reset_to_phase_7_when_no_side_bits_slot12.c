@@ -20,7 +20,7 @@ void reset_to_phase_7_when_no_side_bits_slot12(void) {
             queue_player_status_text_items();
             request_sound_command_and_switch_thread(1);
         }
-        h = data_8018f5a0;
+        h = screen_state;
         h->phase_index = 7;
         h->step_index = 0;
         game_state.countdown_2 = 0;

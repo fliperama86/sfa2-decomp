@@ -11,7 +11,7 @@ void update_or_draw_sprite_set_slot01(Object *obj) {
         advance_sequence_checked(obj);
         set_flag_and_push_if_mode_8(obj);
     } else {
-        build_sized_sprite_quads_into_ot_slot01(obj, data_800319b8_slot01 + data_801a27d0 * 0xf0);
+        build_sized_sprite_quads_into_ot_slot01(obj, data_800319b8_slot01 + draw_buffer_index * 0xf0);
     }
 }
 

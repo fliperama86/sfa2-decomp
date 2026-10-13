@@ -6,9 +6,9 @@
 void advance_sequence_with_key_rewind_and_hold(Object *object) {
     u16 keys;
     if (object->field_02 == 0) {
-        keys = data_801a696a;
+        keys = pad_1_pressed;
     } else {
-        keys = data_801a6976;
+        keys = pad_2_pressed;
     }
     if (keys & 1) {
         object->step_timer = object->step_timer - 1;

@@ -17,5 +17,5 @@ void store_image_rect_f0_1e0_slot_3(void)
   func_80158028(&r, new_var);
   p = new_var + 0x1400;
   func_80158028(&r, p);
-  data_801aa4dc[3] = 0x1f;
+  palette_fade_level[3] = 0x1f;
 }

@@ -8,7 +8,7 @@ void spawn_three_child_objects(Object *obj) {
     /* s3 gets no value in this function: the three stores of it below write what the register holds on entry, as the original's instructions do. Nothing is claimed here about what that is. init_object_after_hit_and_spawn_three_effects has the same local. */
     s16 s3;
 
-    if (data_80197f10 >= 3) {
+    if (free_block_count >= 3) {
         if (obj->field_49 == 0) {
             get_three_pool_objects_sorted((u32 *)p);
             p[0]->active_count = 1;

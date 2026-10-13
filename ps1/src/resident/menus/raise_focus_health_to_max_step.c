@@ -31,7 +31,7 @@ void raise_focus_health_to_max_step(GameState *g)
     }
     else
     {
-      data_8018f5a0->step_index_2++;
+      screen_state->step_index_2++;
       g->countdown_timer_2 = 0x5a;
       o = g->focus_object;
       o->saved_health = o->health;

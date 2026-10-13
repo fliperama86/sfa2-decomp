@@ -6,7 +6,7 @@
 void add_vel_x_and_accel_x_to_position_words_slot0b(Object *obj);
 
 void update_slot0b_countdown_then_snap_pos_x_slot0b(Object *obj) {
-    if (data_80190468.p->phase_state != 1) {
+    if (ref_game_state.p->phase_state != 1) {
         { int t = obj->countdown - 1; obj->countdown = t; }
         if ((s16)obj->countdown >= 0) goto tail;
     }
@@ -17,7 +17,7 @@ tail:
 }
 
 void func_801e1a54_slot0b(Object *obj) {
-    if (data_80190468.p->phase_state != 2) return;
+    if (ref_game_state.p->phase_state != 2) return;
     obj->countdown = 0x10;
     obj->vel_x = -0x80000;
     obj->accel_x = 0;

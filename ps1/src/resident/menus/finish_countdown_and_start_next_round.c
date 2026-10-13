@@ -21,11 +21,11 @@ void finish_countdown_and_start_next_round(GameState *state)
       return;
     }
   }
-  ((HudBig *)data_8018f5a0)->step_count = 0;
+  ((HudBig *)screen_state)->step_count = 0;
   entity->field_c8 = 0;
-  ((HudBig *)data_8018f5a0)->state_index = 0;
+  ((HudBig *)screen_state)->state_index = 0;
   entity->countdown_timer = 0;
-  ((HudBig *)data_8018f5a0)->substate_index = 0;
+  ((HudBig *)screen_state)->substate_index = 0;
   entity->field_cc = 0;
   entity->field_4d = 0;
   entity->field_4e = 0;
@@ -71,7 +71,7 @@ void finish_countdown_and_start_next_round(GameState *state)
     call_handler_by_kind_index_a();
     entity->active_flag_2 = 1;
     entity->pass_count++;
-    if (data_80190568 != 0)
+    if (kind_handlers_enabled != 0)
     {
       set_capped_value_and_ot_indices(entity);
     }

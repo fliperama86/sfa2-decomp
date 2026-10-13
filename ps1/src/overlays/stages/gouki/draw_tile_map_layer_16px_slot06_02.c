@@ -13,7 +13,7 @@ extern u16 data_801f8978_slot06_02;
    reaches 0xd4, the number of records per buffer (inferred). The locals t,
    sx, mask and cc are 16-bit, as in the model draw_tile_layer_0_16px_slot06_00. */
 void draw_tile_map_layer_16px_slot06_02(void) {
-    Chan *c = data_801aa544;
+    Chan *c = background_layers;
     int x;
     int pos;
     s16 y;
@@ -46,14 +46,14 @@ void draw_tile_map_layer_16px_slot06_02(void) {
     sy = y & 0xf;
     col = ((s16)c->scroll_x & (c->map_width - 1)) >> 4;
     blank = c->field_1e;
-    blank2 = data_801aa544[1].field_1e;
+    blank2 = background_layers[1].field_1e;
     if (y >= 0) {
         row = y >> 4;
     } else {
         row = (y - 15) / 16;
     }
-    rec = data_801ef0e8_slot06_02[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801ef0e8_slot06_02[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 13; i++, row++) {
         cc = col;
         if (row < 0 || row >= rows) {

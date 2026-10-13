@@ -8,7 +8,7 @@ void compute_layer_accumulators_shift_7_slot06_0d(Slot06Layer *layer) {
     int n;
 
     n = layer->field_60;
-    n -= *(s32 *)&((Slot06Layer *)data_801aa5d4)->bound_x_a;
+    n -= *(s32 *)&((Slot06Layer *)main_layer)->bound_x_a;
     layer->neg_accum = 0;
     layer->pos_accum = 0;
     n >>= 7;

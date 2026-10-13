@@ -25,9 +25,9 @@ void init_child_from_other_and_set_table_sequence_slot04_08(Object *obj, Object 
     obj->spawn_mode = 6;
     obj->field_1c = h;
     if (other->side == 0) {
-        data_801c3ea4_slot04_08 = data_1f8000b4;
+        data_801c3ea4_slot04_08 = seqs_b4_left;
     } else {
-        data_801c3ea8_slot04_08 = data_1f800164;
+        data_801c3ea8_slot04_08 = seqs_164_right;
     }
     if (other->side == 0) {
         set_sequence_from_table_5(obj, (u8)(obj->table_index + 8), data_801c3ea4_slot04_08);

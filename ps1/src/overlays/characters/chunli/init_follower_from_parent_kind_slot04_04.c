@@ -21,9 +21,9 @@ void init_follower_from_parent_kind_slot04_04(Object *obj) {
     obj->variant_index = 0;
     if (obj->table_index == 0) {
         if (p->side == 0) {
-            data_801c4670_slot04_04[0] = data_1f8000b4;
+            data_801c4670_slot04_04[0] = seqs_b4_left;
         } else {
-            data_801c4670_slot04_04[1] = data_1f800164;
+            data_801c4670_slot04_04[1] = seqs_164_right;
         }
     } else {
         if (p->side == 0) {

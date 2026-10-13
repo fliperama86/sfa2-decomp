@@ -7,7 +7,7 @@
  * What it does (inferred, not original names): steps one numbered slot of
  * an object. It decrements the slot's timer; when that reaches 0 it
  * calls reset_slot_stage_clear_result and returns. Otherwise it takes the table entry
- * table_8017a8cc[arg * 7 + slot.entry_index], the object's two input halfwords
+ * slot_input_table[arg * 7 + slot.entry_index], the object's two input halfwords
  * ORed together (pad) and the pad's low two bits (dir), and matches the
  * entry's mask (its low byte). Entry bit 0x200 clear: a hit when pad and
  * mask share a bit of 0xfc, or the mask has a bit of 0x94 and dir is 1, or
@@ -27,7 +27,7 @@ void check_slot_input_by_entry_index(Object *object, u8 index, u8 arg) {
         reset_slot_stage_clear_result(object, index, arg);
         return;
     }
-    mask = table_8017a8cc[arg * 7 + object->slots[index].entry_index];
+    mask = slot_input_table[arg * 7 + object->slots[index].entry_index];
     pad = object->pressed_bits | object->released_bits;
     dir = pad & 3;
     /* mask holds the whole table entry first and its low byte from here on: with a local of its own for

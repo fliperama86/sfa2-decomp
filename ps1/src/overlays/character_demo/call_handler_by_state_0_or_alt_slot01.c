@@ -11,7 +11,7 @@ void init_effect_motion_and_load_image_slot01(Object *obj);
 void init_sprite_set_textured_quads_slot01(Object *obj, u8 *a, int b, int c, int d);
 
 void call_handler_by_state_0_or_alt_slot01(Object *obj) {
-    data_80190468.p = (Object *)&game_state;
+    ref_game_state.p = (Object *)&game_state;
     if (obj->table_index & 0x80) {
         call_handler_by_state_0_2_slot01(obj);
     } else {

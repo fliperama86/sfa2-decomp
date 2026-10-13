@@ -6,7 +6,7 @@
 extern ObjectFnInt data_801c24fc_slot04_0b[];
 
 void func_801b14ac_slot04_0b(Object *obj) {
-    data_801ad398 = data_801c24fc_slot04_0b[obj->field_15a](obj);
+    script_condition_result = data_801c24fc_slot04_0b[obj->field_15a](obj);
 }
 
 int has_remaining_count_slot04_0b(Object *obj) {

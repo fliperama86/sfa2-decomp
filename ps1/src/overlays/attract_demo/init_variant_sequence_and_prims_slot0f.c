@@ -12,10 +12,10 @@ extern Slot12Prim data_800f7a34_slot0f[];
 void init_two_prims_with_draw_mode_slot0f(Object *obj, Slot12Prim *a, int b, int c);
 
 void init_variant_sequence_and_prims_slot0f(Object *obj) {
-    FrameRecord *rec = table_8016e614;
+    FrameRecord *rec = streak_rank_table;
 
     if (game_state.mode_flag_2 == 0) {
-        rec = table_8016e5c4;
+        rec = score_rank_table;
     }
     obj->field_01 = 0;
     obj->state_0++;

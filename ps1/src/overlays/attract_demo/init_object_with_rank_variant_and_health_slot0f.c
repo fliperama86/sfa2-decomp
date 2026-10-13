@@ -23,11 +23,11 @@ void init_object_with_rank_variant_and_health_slot0f(Object *obj) {
     obj->y_offset = 10;
     obj->base_x = 0;
     obj->state_0++;
-    obj->variant_index = table_8016e5c4[game_state.left_rank_index].level;
+    obj->variant_index = score_rank_table[game_state.left_rank_index].level;
     ((ObjectWords *)obj)->word_50 = (s32)game_state.cursor;
-    game_state.row_ptr = (Row *)((u8 *)data_80190468.p + 0x21e);
+    game_state.row_ptr = (Row *)((u8 *)ref_game_state.p + 0x21e);
     ((ObjectWords *)obj)->word_54 = (s32)game_state.row_ptr;
-    t = ((Object *)((u8 *)data_80190468.p + ((Slot0fObj *)data_80190468.p)->object_offset))->accum_count & 0x3f;
+    t = ((Object *)((u8 *)ref_game_state.p + ((Slot0fObj *)ref_game_state.p)->object_offset))->accum_count & 0x3f;
     /* health is stored twice. The first store goes through a plain pointer:
        written as a member store, this compiler moves the load of the second
        value above it. What the original source had here is not known. */

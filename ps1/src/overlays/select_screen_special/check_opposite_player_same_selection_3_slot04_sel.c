@@ -7,7 +7,7 @@
 
 void check_opposite_player_same_selection_3_slot04_sel(void) {
     ObjectRef *ref;
-    int *sel = (int *)data_8019045c;
+    int *sel = (int *)scratch_word_a;
     int v;
 
     v = game_state.other_object->side;
@@ -19,7 +19,7 @@ void check_opposite_player_same_selection_3_slot04_sel(void) {
     {
         Object *p;
 
-        ref = &data_80190458;
+        ref = &ref_aux;
         p = &player_left;
         ref->p = p;
         if (v != 0) {
@@ -31,12 +31,12 @@ void check_opposite_player_same_selection_3_slot04_sel(void) {
     if (v == 0x11 || v == 0x13) {
         goto both;
     }
-    if (data_80190458.p->kind == v) {
+    if (ref_aux.p->kind == v) {
         goto same;
     }
     goto zero;
 both:
-    v = data_80190458.p->kind;
+    v = ref_aux.p->kind;
     SEL = v;
     if (v == 0x11) {
         goto same;
@@ -46,11 +46,11 @@ both:
     }
 same:
     {
-        int *t = (int *)data_8019045c;
+        int *t = (int *)scratch_word_a;
 
         v = game_state.other_object->field_d4;
         *t = v;
-        if (data_80190458.p->field_d4 != v) {
+        if (ref_aux.p->field_d4 != v) {
             goto zero;
         }
         *t = 1;

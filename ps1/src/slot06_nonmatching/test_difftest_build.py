@@ -63,7 +63,7 @@ def edit(text: str, old: str, new: str) -> str:
 
 
 ANCHOR_DECL = "extern Slot06Tile data_801f3050_slot06_00[2][85];\n"
-ANCHOR_END = "    data_801adfe4 = cnt;\n}"
+ANCHOR_END = "    tile_sprite_count = cnt;\n}"
 ANCHOR_RETURN = "    if (game_state.field_64 != 0) return;\n"
 
 

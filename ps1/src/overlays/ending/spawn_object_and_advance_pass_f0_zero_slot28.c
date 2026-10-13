@@ -13,7 +13,7 @@ void init_object_data_pointers_a_8_slot28(Object *obj);
 void spawn_object_and_advance_pass_f0_zero_slot28(Object *obj) {
     Object *p;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->pass_index += 1;
+        screen_state->pass_index += 1;
         p = (Object *)pop_block_from_pool();
         if (p != 0) {
             init_object_data_pointers_a_8_slot28(p);

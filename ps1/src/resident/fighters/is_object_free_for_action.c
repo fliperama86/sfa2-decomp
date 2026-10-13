@@ -14,13 +14,13 @@ u8 is_object_free_for_action(Object *object) {
 
 int func_80141788(Object *object) {
     if (object->field_7e != 0) return 0;
-    data_8019046c[0] = 1;
+    scratch_word_c[0] = 1;
     return try_action_clearing_one_flag(object);
 }
 
 u8 try_action_clearing_both_flags(Object *object) {
-    s32 *flag = data_80190464;
-    data_8019046c[0] = 0;
+    s32 *flag = scratch_word_b;
+    scratch_word_c[0] = 0;
     *flag = 0;
     if (*(u32 *)&object->state_0 == 0x20101) return try_start_effect_request(object);
     *flag = 1;
@@ -29,7 +29,7 @@ u8 try_action_clearing_both_flags(Object *object) {
 }
 
 u8 try_action_clearing_one_flag(Object *object) {
-    s32 *flag = data_80190464;
+    s32 *flag = scratch_word_b;
     *flag = 0;
     if (*(u32 *)&object->state_0 == 0x20101) return try_start_effect_request(object);
     *flag = 1;

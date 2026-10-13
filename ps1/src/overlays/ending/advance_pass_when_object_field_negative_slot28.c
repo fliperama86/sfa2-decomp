@@ -12,7 +12,7 @@ void advance_pass_when_object_field_negative_slot28(Object *obj) {
     if (obj->field_f0 == 0) {
         p = data_800518c8_slot28.p;
         if (((Slot28Obj *)p)->field_3a < 0) {
-            HudState *h = data_8018f5a0;
+            HudState *h = screen_state;
             h->pass_index = h->pass_index + 1;
             p = data_80051890_slot28.p;
             p->variant_index = 0xff;

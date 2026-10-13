@@ -45,7 +45,7 @@ static inline int port_video_arcade_fit(int w,int h,struct port_video_view *out)
     out->w=unit*4;out->h=unit*3;out->x=(w-out->w)/2;out->y=(h-out->h)/2;
     return 1;
 }
-/* data_801987c8 stores a pointer, not an inline table. Initialization/frame
+/* current_ordering_table stores a pointer, not an inline table. Initialization/frame
  * swap select these two 30-entry tables. Return -1 for unrelated addresses. */
 static inline int port_video_ot_index(uint32_t ot)
 {

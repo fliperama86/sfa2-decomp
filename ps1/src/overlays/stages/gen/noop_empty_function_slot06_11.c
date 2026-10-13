@@ -28,7 +28,7 @@ void update_layer_by_mode_follow_main_slot06_11(Slot06Layer *layer) {
     if (layer->mode == 0) {
         init_cam_position_and_consume_pending((Cam *)layer, 0x1c0, 0x10);
     } else if (layer->mode == 1) {
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         d = l2->field_22;
         d -= l2->ref_x;
         d += layer->ref_x;

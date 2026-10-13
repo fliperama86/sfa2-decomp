@@ -30,7 +30,7 @@ void advance_or_switch_sequence_on_other_flag_slot27(Object *obj) {
         call_advance_sequence_checked_2_slot27(obj);
     } else {
         obj->state_1++;
-        *(int *)data_8019045c = 1;
+        *(int *)scratch_word_a = 1;
         set_sequence_from_table_5(obj, 1, data_8002904c_slot27);
     }
 }

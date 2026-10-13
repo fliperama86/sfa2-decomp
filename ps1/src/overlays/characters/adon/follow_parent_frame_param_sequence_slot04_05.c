@@ -28,8 +28,8 @@ void follow_parent_frame_param_sequence_slot04_05(Object *obj, Object *parent) {
     }
     obj->variant_index = idx;
     if (parent->side == 0) {
-        set_sequence_from_table_5(obj, idx, data_1f8000b4);
+        set_sequence_from_table_5(obj, idx, seqs_b4_left);
     } else {
-        set_sequence_from_table_5(obj, idx, data_1f800164);
+        set_sequence_from_table_5(obj, idx, seqs_164_right);
     }
 }

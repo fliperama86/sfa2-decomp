@@ -14,7 +14,7 @@ extern u8 data_801ca514_slot04_16[];
 extern SequenceStep *data_801ca550_slot04_16[];
 extern ObjectFn data_801ca55c_slot04_16[];
 extern ObjectFn data_801ca56c_slot04_16[];
-extern ObjectRef data_80190468;
+extern ObjectRef ref_game_state;
 
 int apply_velocity_and_check_ground(Object *object);
 void set_other_hit_reaction_state_0(Object *object, u8 a, u8 b, s16 c, u16 d, u32 e, u8 f);
@@ -254,13 +254,13 @@ void update_throw_by_step_flag_byte_with_damage_slot04_16(Object *obj) {
         update_sequence(obj);
     } else if ((t & 0xff) == 0xf) {
         obj->step_flags = t & 0xff00;
-        data_80190468.p->vec_table_index = obj->direction_index * 4 + 0x3c;
+        ref_game_state.p->vec_table_index = obj->direction_index * 4 + 0x3c;
         spawn_two_effects_at_other_ground(obj);
         update_sequence(obj);
         play_side_sound_at(obj, obj->side, 6);
         if ((u8)apply_damage_to_other_return_defeated(obj, *(s16 *)((u8 *)data_801ca474_slot04_16 + (obj->direction_index & 0xfe)), 0) != 0) {
             obj->field_167 = (obj->direction_index >> 1) + 0xc;
-            data_80190468.p->field_6b = 4;
+            ref_game_state.p->field_6b = 4;
             spawn_game_state_kind_object(obj);
         }
         play_sound_at(obj, obj->side, 0x319);
@@ -325,7 +325,7 @@ void update_damage_on_flag_or_start_next_sequence_slot04_16(Object *obj) {
         if ((t & 0xff) == 0xf) {
             apply_damage_to_other_return_defeated(obj, -0xed, 0);
             obj->step_flags = obj->step_flags & 0xff00;
-            data_80190468.p->vec_table_index = obj->direction_index * 4 + 0x3c;
+            ref_game_state.p->vec_table_index = obj->direction_index * 4 + 0x3c;
             play_sound_at(obj, obj->side, 0x319);
             spawn_two_effects_at_other_ground(obj);
         }
@@ -341,7 +341,7 @@ void update_damage_on_flag_or_start_next_sequence_slot04_16(Object *obj) {
 }
 
 void func_801b6370_slot04_16(Object *obj) {
-    data_801ad398 = data_801ca47c_slot04_16[obj->field_15a](obj);
+    script_condition_result = data_801ca47c_slot04_16[obj->field_15a](obj);
 }
 
 int has_remaining_count_slot04_16(Object *obj) {

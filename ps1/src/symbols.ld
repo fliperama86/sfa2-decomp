@@ -61,10 +61,10 @@ seqs_14c_right = 0x1f80014c;
 handlers_04 = 0x80171850;
 data_801985b8 = 0x801985b8;
 data_80198225 = 0x80198225;
-data_801a6984 = 0x801a6984;
+input_block = 0x801a6984;
 
 /* Added by src.u_misc_3f. */
-data_80188f44 = 0x80188f44;
+slot_result_flag = 0x80188f44;
 ring_left = 0x80188f54;
 ring_right = 0x80189154;
 
@@ -128,8 +128,8 @@ motion_table = 0x8016fb34;
 input_log = 0x801a698c;
 data_801a6985 = 0x801a6985;
 data_801a6987 = 0x801a6987;
-data_801a6966 = 0x801a6966;
-data_801a6972 = 0x801a6972;
+pad_1_held = 0x801a6966;
+pad_2_held = 0x801a6972;
 data_80185ff8 = 0x80185ff8;
 data_80185ffc = 0x80185ffc;
 table_80185fd8 = 0x80185fd8;
@@ -142,10 +142,10 @@ table_80171b40 = 0x80171b40;
 table_80171b48 = 0x80171b48;
 
 /* Added by src.u_s128464. */
-data_80197f10 = 0x80197f10;
-data_8019046c = 0x8019046c;
+free_block_count = 0x80197f10;
+scratch_word_c = 0x8019046c;
 handlers_07 = 0x80171998;
-data_80190464 = 0x80190464;
+scratch_word_b = 0x80190464;
 
 /* Added by src.u_s12a5ac. */
 handler_table_19a8 = 0x801719a8;
@@ -202,8 +202,8 @@ data_801721c8 = 0x801721c8;
 data_80190474 = 0x80190474;
 data_801723c0 = 0x801723c0;
 data_80172410 = 0x80172410;
-data_801aa544 = 0x801aa544;
-data_801aa5d4 = 0x801aa5d4;
+background_layers = 0x801aa544;
+main_layer = 0x801aa5d4;
 data_801aa556 = 0x801aa556;
 data_801aa55a = 0x801aa55a;
 data_801aa566 = 0x801aa566;
@@ -238,16 +238,16 @@ cam_f48 = 0x801aa6ac;
 cam_f4a = 0x801aa6ae;
 cam_f50 = 0x801aa6b4;
 cam_f54 = 0x801aa6b8;
-data_80190568 = 0x80190568;
+kind_handlers_enabled = 0x80190568;
 table_801a27e4 = 0x801a27e4;
 table_801a2a84 = 0x801a2a84;
-data_801aa4dc = 0x801aa4dc;
+palette_fade_level = 0x801aa4dc;
 
 /* Added by src.u_s137004. */
 data_801a27e4 = 0x801a27e4;
-data_8018db10 = 0x8018db10;
+palette_altered_flag = 0x8018db10;
 data_8018daf4 = 0x8018daf4;
-data_8018f598 = 0x8018f598;
+white_fill_active = 0x8018f598;
 handlers_267c = 0x8017267c;
 data_801a27e4_rows = 0x801a27e4;
 
@@ -301,7 +301,7 @@ kind_pair_handlers = 0x801773bc;
 
 /* Added by src.u_s13d0fc. */
 table_8017abb8 = 0x8017abb8;
-table_8017a8cc = 0x8017a8cc;
+slot_input_table = 0x8017a8cc;
 data_8016d9a4 = 0x8016d9a4;
 data_80188f4c = 0x80188f4c;
 data_80188f50 = 0x80188f50;
@@ -340,8 +340,8 @@ handlers_b61c = 0x8017b61c;
 handlers_b630 = 0x8017b630;
 handlers_b640 = 0x8017b640;
 table_8017c7f8 = 0x8017c7f8;
-data_80172a48 = 0x80172a48;
-data_80173c9c = 0x80173c9c;
+spawned_object_data_a = 0x80172a48;
+spawned_object_data_b = 0x80173c9c;
 
 /* Added by src.u_s1449fc. */
 table_8017b654 = 0x8017b654;
@@ -391,8 +391,8 @@ data_8017cf30 = 0x8017cf30;
 data_8017cf6c = 0x8017cf6c;
 data_8017cf9c = 0x8017cf9c;
 data_8017cfc4 = 0x8017cfc4;
-data_80189460 = 0x80189460;
-data_80189464 = 0x80189464;
+script_cursor = 0x80189460;
+script_work_value = 0x80189464;
 
 /* Added by src.u_s14aa4c. */
 table_8017d010 = 0x8017d010;
@@ -420,7 +420,7 @@ scr_d4_left = 0x1f8000d4;
 scr_184_right = 0x1f800184;
 data_8017d320 = 0x8017d320;
 data_8017d300 = 0x8017d300;
-data_801ad398 = 0x801ad398;
+script_condition_result = 0x801ad398;
 data_80189468 = 0x80189468;
 data_8017d340 = 0x8017d340;
 data_8017d368 = 0x8017d368;
@@ -445,7 +445,7 @@ data_8017ec7c = 0x8017ec7c;
 table_8017d9e4 = 0x8017d9e4;
 table_8017ec9c = 0x8017ec9c;
 data_801900fc = 0x801900fc;
-data_8018f5a0 = 0x8018f5a0;
+screen_state = 0x8018f5a0;
 data_80190948 = 0x80190948;
 data_80190126 = 0x80190126;
 data_8018d204 = 0x8018d204;
@@ -612,8 +612,8 @@ data_80185ce4 = 0x80185ce4;
 data_80183c90 = 0x80183c90;
 data_801846fc = 0x801846fc;
 data_80184700 = 0x80184700;
-data_801a696a = 0x801a696a;
-data_801a6976 = 0x801a6976;
+pad_1_pressed = 0x801a696a;
+pad_2_pressed = 0x801a6976;
 
 /* Added by src.u_s11b678. */
 data_801ac888 = 0x801ac888;
@@ -622,7 +622,7 @@ data_801a27d4 = 0x801a27d4;
 data_801a27cc = 0x801a27cc;
 data_801a89f4 = 0x801a89f4;
 table_80197f20 = 0x80197f20;
-data_801904d8 = 0x801904d8;
+fourth_layer = 0x801904d8;
 data_801a6960 = 0x801a6960;
 data_801a89b0 = 0x801a89b0;
 data_801a4fec = 0x801a4fec;
@@ -681,7 +681,7 @@ table_8016e760 = 0x8016e760;
 table_8016e774 = 0x8016e774;
 data_801ac61c = 0x801ac61c;
 data_801a89f0 = 0x801a89f0;
-data_801ae02c = 0x801ae02c;
+single_object_active = 0x801ae02c;
 data_80190a40 = 0x80190a40;
 
 /* Added by src.u_s1221e8. */
@@ -839,7 +839,7 @@ data_8018945c = 0x8018945c;
 
 /* Added by src.u_m1474b8. */
 seqs_8017cbac = 0x8017cbac;
-data_8019045c = 0x8019045c;
+scratch_word_a = 0x8019045c;
 table_8017cd54 = 0x8017cd54;
 table_8017cdb4 = 0x8017cdb4;
 
@@ -888,7 +888,7 @@ data_801a6978 = 0x801a6978;
 data_8019047c = 0x8019047c;
 data_8016e6a0 = 0x8016e6a0;
 data_801901be = 0x801901be;
-data_801a27d0 = 0x801a27d0;
+draw_buffer_index = 0x801a27d0;
 data_801a4fe8 = 0x801a4fe8;
 data_801a695c = 0x801a695c;
 data_801a697c = 0x801a697c;
@@ -900,8 +900,8 @@ data_8018db18 = 0x8018db18;
 data_8019056c = 0x8019056c;
 
 /* Added by src.u_m1566e8. */
-table_8016e5c4 = 0x8016e5c4;
-table_8016e614 = 0x8016e614;
+score_rank_table = 0x8016e5c4;
+streak_rank_table = 0x8016e614;
 data_80181998 = 0x80181998;
 data_8018199a = 0x8018199a;
 table_801818d0 = 0x801818d0;
@@ -1004,7 +1004,7 @@ data_80185fb4 = 0x80185fb4;
 data_80185fb8 = 0x80185fb8;
 data_801ae028 = 0x801ae028;
 table_8016e828 = 0x8016e828;
-data_80190949 = 0x80190949;
+menu_active_flag = 0x80190949;
 data_8016e858 = 0x8016e858;
 data_8016e863 = 0x8016e863;
 
@@ -1036,7 +1036,7 @@ strips2 = 0x80188ddc;
 /* Added by src.u_l134624. */
 data_80198098 = 0x80198098;
 data_8019842c = 0x8019842c;
-data_801987c8 = 0x801987c8;
+current_ordering_table = 0x801987c8;
 data_80188d6c = 0x80188d6c;
 data_80188ebc = 0x80188ebc;
 data_80188ec0 = 0x80188ec0;
@@ -1153,7 +1153,7 @@ data_801fc18e = 0x801fc18e;
 data_801fc18f = 0x801fc18f;
 data_8018e598 = 0x8018e598;
 data_8018f5e4 = 0x8018f5e4;
-data_801adfe4 = 0x801adfe4;
+tile_sprite_count = 0x801adfe4;
 func_80158470 = 0x80158470;
 data_8019093c = 0x8019093c;
 data_80190940 = 0x80190940;
@@ -1185,13 +1185,13 @@ data_801abf10 = 0x801abf10;
 data_801ac30c = 0x801ac30c;
 data_801ad358 = 0x801ad358;
 table_801900f8 = 0x801900f8;
-data_801aa5ea = 0x801aa5ea;
+view_scroll_y = 0x801aa5ea;
 data_801a87c8 = 0x801a87c8;
 data_80185c04 = 0x80185c04;
 
 /* Added by src.u_y11fcc0. */
 data_80190414 = 0x80190414;
-data_80190458 = 0x80190458;
+ref_aux = 0x80190458;
 
 /* Added by src.u_y146ba0. */
 data_8017ceec = 0x8017ceec;
@@ -1698,7 +1698,7 @@ table_8017ab88 = 0x8017ab88;
 /* Added by src.u_n13d520. */
 
 /* Added by src.u_n145b60. */
-data_80190468 = 0x80190468;
+ref_game_state = 0x80190468;
 data_8017cf60 = 0x8017cf60;
 
 /* Added by src.u_n14a648. */
@@ -2565,7 +2565,7 @@ data_80028864_slot27 = 0x80028864;
 data_801a3c24 = 0x801a3c24;
 
 /* Added by src.u_slot06_01_8000. */
-data_80190542 = 0x80190542;
+fourth_layer_offset_x = 0x80190542;
 data_801eb9b4_slot06_01 = 0x801eb9b4;
 data_801eedb4_slot06_01 = 0x801eedb4;
 data_801ed9b4_slot06_01 = 0x801ed9b4;
@@ -2907,8 +2907,8 @@ data_801eeff4_slot06_0f = 0x801eeff4;
 
 /* Added by src.u_slot06_0f_a618. */
 data_801eeffc_slot06_0f = 0x801eeffc;
-data_1f8000b4 = 0x1f8000b4;
-data_1f800164 = 0x1f800164;
+seqs_b4_left = 0x1f8000b4;
+seqs_164_right = 0x1f800164;
 
 /* Added by src.u_slot06_10_8000. */
 data_801ebc10_slot06_10 = 0x801ebc10;

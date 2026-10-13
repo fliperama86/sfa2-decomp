@@ -69,7 +69,7 @@ void check_object_pair_box_collisions(void) {
             if (b->frame->box_a == 0)
                 continue;
             box_a = (Box6 *)a->box_tables;
-            data_80190458.p = (Object *)box_a;
+            ref_aux.p = (Object *)box_a;
             /* The do-while wrapper reproduces the original's choice of registers: the compiler counts a reference inside it twice. It adds no instruction. It is a stand-in for whatever grouped these statements in the original source, not an explanation. */
             do {
                 index_a = a->frame->box_a;

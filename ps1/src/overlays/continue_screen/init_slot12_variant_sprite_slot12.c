@@ -12,11 +12,11 @@ extern u8 data_8002c268_slot12[];
 void init_two_prims_with_draw_mode_slot12(Object *obj, Slot12Prim *a, int b, int c);
 
 void init_slot12_variant_sprite_slot12(Object *obj) {
-    FrameRecord *rec = table_8016e614;
+    FrameRecord *rec = streak_rank_table;
     u8 t;
 
     if (game_state.mode_flag_2 == 0) {
-        rec = table_8016e5c4;
+        rec = score_rank_table;
     }
     obj->field_01 = 0;
     obj->state_0++;

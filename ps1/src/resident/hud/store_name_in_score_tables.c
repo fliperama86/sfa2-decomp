@@ -12,7 +12,7 @@ void store_name_in_score_tables(void *a, Object *object) {
     object->phase_index++;
     replace_blocked_name(a, object);
     copy_top_rank_data_by_side(a, object);
-    r = table_8016e5c4;
+    r = score_rank_table;
     i = object->score_rank - 1;
     if (i < 5) {
         r = &r[i];
@@ -21,7 +21,7 @@ void store_name_in_score_tables(void *a, Object *object) {
         r->handler_index = object->name_char_2;
         r->box_index = object->name_char_3;
     }
-    r = table_8016e614;
+    r = streak_rank_table;
     i = object->field_121 - 1;
     if (i < 5) {
         r = &r[i];

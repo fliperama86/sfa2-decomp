@@ -67,7 +67,7 @@ void update_select_screen_step_a_slot04_sel(void) {
     if (game_state.side_mask == (data_801b9cf0_slot04_sel[0].field_04 | data_801b9cf0_slot04_sel[1].field_04)) {
         r[0].state = 1;
         r[1].state = 1;
-        data_8018f5a0->step_index_2++;
+        screen_state->step_index_2++;
     }
     data_801b9d28_slot04_sel = game_state.side_mask;
     data_801b9d2c_slot04_sel = game_state.mode;

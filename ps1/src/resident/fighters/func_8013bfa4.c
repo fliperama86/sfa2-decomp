@@ -17,7 +17,7 @@ extern u16 data_80188edc, data_80188ee0, data_80188ee4, data_80188ee8,
     data_80188efc, data_80188f00, data_80188f04, data_80188f08,
     data_80188f0c, data_80188f10, data_80188f14, data_80188f18;
 
-/* Three state bytes at offset 0x5c of the object that data_80190468 points at. Two u16
+/* Three state bytes at offset 0x5c of the object that ref_game_state points at. Two u16
    fields of Object cover these bytes; writing them as u16 differs in 23 instruction lines. */
 typedef struct {
     u8 pad[0x5c];
@@ -84,11 +84,11 @@ void func_8013bfa4(void) {
             if (ref_third.p->frame->active == 0) {
                 continue;
             }
-            /* The box table is read back from data_80190458; taking it from the object again
+            /* The box table is read back from ref_aux; taking it from the object again
                differs in 41 instruction lines. */
-            data_80190458.p = (Object *)ref_third.p->box_tables;
-            box = (Box32 *)((BoxTables *)data_80190458.p)->boxes_b;
-            data_801904c0.p = data_80190458.p;
+            ref_aux.p = (Object *)ref_third.p->box_tables;
+            box = (Box32 *)((BoxTables *)ref_aux.p)->boxes_b;
+            data_801904c0.p = ref_aux.p;
             box += ref_third.p->frame->active;
             ref_first.p = (Object *)box;
             reset_hit_results();
@@ -167,14 +167,14 @@ void func_8013bfa4(void) {
             if (ref_second.p->hit_type != 0xff && (s16)ref_second.p->health >= 0) {
                 /* Masking the shift count with 31 differs in 16 instruction lines. */
                 if (0x800000 >> ref_third.p->field_02) {
-                    ((StateBytes *)data_80190468.p)->state = 0xf;
-                    ((StateBytes *)data_80190468.p)->mode = 2;
-                    ((StateBytes *)data_80190468.p)->mode2 = 2;
+                    ((StateBytes *)ref_game_state.p)->state = 0xf;
+                    ((StateBytes *)ref_game_state.p)->mode = 2;
+                    ((StateBytes *)ref_game_state.p)->mode2 = 2;
                 }
                 if (ref_third.p->field_49 != 0) {
-                    ((StateBytes *)data_80190468.p)->state = 7;
-                    ((StateBytes *)data_80190468.p)->mode = 1;
-                    ((StateBytes *)data_80190468.p)->mode2 = 1;
+                    ((StateBytes *)ref_game_state.p)->state = 7;
+                    ((StateBytes *)ref_game_state.p)->mode = 1;
+                    ((StateBytes *)ref_game_state.p)->mode2 = 1;
                 }
             }
             select_min_placement_and_test(ref_third.p, ref_second.p, box);

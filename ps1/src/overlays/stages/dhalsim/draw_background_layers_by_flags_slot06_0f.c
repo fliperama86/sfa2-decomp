@@ -5,7 +5,7 @@
 
 extern Slot06Tile data_801ef004_slot06_0f[2][0xc9];
 extern u16 data_801ecbc4_slot06_0f[];
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 
 void init_first_layer_tile_map_slot06_0f(Slot06Layer *layer);
 void init_tile_prim_rows_gray_draw_mode_slot06_0f(void);
@@ -39,10 +39,10 @@ void draw_background_layers_by_flags_slot06_0f(void) {
 }
 
 void init_four_layers_tile_maps_slot06_0f(void) {
-    init_first_layer_tile_map_slot06_0f((Slot06Layer *)data_801aa544);
-    init_layer_tile_map_0f_with_bounds_slot06_0f((Slot06Layer *)data_801aa5d4);
+    init_first_layer_tile_map_slot06_0f((Slot06Layer *)background_layers);
+    init_layer_tile_map_0f_with_bounds_slot06_0f((Slot06Layer *)main_layer);
     init_layer_tile_map_fields_slot06_0f((Slot06Layer *)cam_obj);
-    init_layer_tile_map_params_short_slot06_0f((Slot06Layer *)data_801904d8);
+    init_layer_tile_map_params_short_slot06_0f((Slot06Layer *)fourth_layer);
 }
 
 void init_slot_tile_sprite_and_poly_buffers_gray_l_slot06_0f(void) {
@@ -60,10 +60,10 @@ void update_layer_by_mode_half_scroll_slot06_0f(Slot06Layer *layer) {
     if (layer->mode == 0) {
         init_sprite_at_1c0_zero((Sprite *)layer);
     } else if (layer->mode == 1) {
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         d = l2->field_22;
         d -= l2->ref_x;
-        d += data_80190542;
+        d += fourth_layer_offset_x;
         d /= 2;
         d += layer->ref_x;
         d += layer->pos_x_int;

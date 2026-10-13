@@ -124,7 +124,7 @@ void update_object_x_from_layer_scroll_slot06_12(Object *obj) {
     int x;
 
     if (game_state.field_65 == 0) {
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         x = l2->scroll_x;
         x -= l2->ref_x;
         x &= -0x80;
@@ -156,7 +156,7 @@ void init_object_saving_position_in_velocity_slot06_12(Object *obj) {
 }
 
 void offset_pos_x_by_layer_scroll_start_sequence_slot06_12(Object *obj) {
-    Slot06Layer *l2 = (Slot06Layer *)data_801aa5d4;
+    Slot06Layer *l2 = (Slot06Layer *)main_layer;
 
     obj->pos_x = l2->ref_x - l2->scroll_x + (u16)obj->pos_x;
     set_sequence_from_table_5(obj, 1, data_801eee74_slot06_12);
@@ -167,7 +167,7 @@ void update_object_position_from_layer_scroll_slot06_12(Object *obj) {
     s16 d;
 
     if (game_state.field_65 == 0) {
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         d = l2->field_0e;
         d -= l2->scroll_y;
         d += d >> 2;

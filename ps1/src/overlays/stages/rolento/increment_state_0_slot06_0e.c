@@ -68,7 +68,7 @@ void update_object_sequence_until_scroll_y_slot06_0e(Object *obj) {
         advance_sequence_checked(obj);
     }
     if (((Slot06Layer *)cam_obj)->scroll_y >= 0x500) {
-        if (((Slot06Layer *)data_801aa544)->state_index == 2) {
+        if (((Slot06Layer *)background_layers)->state_index == 2) {
             obj->state_0++;
         }
         clear_or_set_flag_by_pos_x_limit(obj);

@@ -15,7 +15,7 @@ void release_active_objects_in_table_5_slot28(void);
 void advance_pass_and_spawn_six_scene_objects_slot28(Object *obj) {
     Object *p;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->pass_index = data_8018f5a0->pass_index + 1;
+        screen_state->pass_index = screen_state->pass_index + 1;
         release_active_objects_in_table_5_slot28();
         p = data_80051a08_slot28.p;
         p->field_01 = 0;

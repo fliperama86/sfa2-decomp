@@ -15,7 +15,7 @@ void advance_hud_pass_to_stage_2_slot28(Object *obj) {
     HudState *h;
     n = obj->field_f0;
     if (n == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         h->countdown_timer = c;
         n = h->pass_index + 1;
         h->pass_index = n;

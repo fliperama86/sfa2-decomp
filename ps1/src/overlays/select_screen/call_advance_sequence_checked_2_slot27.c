@@ -21,11 +21,11 @@ void load_velocities_from_table_2_slot27(Object *obj) {
 }
 
 void offset_position_by_selection_slot27(Object *obj) {
-    *(int *)data_8019045c = -0x27;
+    *(int *)scratch_word_a = -0x27;
     if (game_state.selection != 0) {
-        *(int *)data_8019045c = 7;
+        *(int *)scratch_word_a = 7;
     }
-    *(u16 *)&obj->pos_x += *(u16 *)data_8019045c;
+    *(u16 *)&obj->pos_x += *(u16 *)scratch_word_a;
     *(u16 *)&obj->pos_y -= 8;
 }
 

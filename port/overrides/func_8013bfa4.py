@@ -23,12 +23,12 @@ Choices made by the setup:
     6-byte box records;
   - positions, origins, extents are small numbers (so that boxes overlap) in
     nine cases of ten and random otherwise;
-  - data_80190468 points at a block of its own;
+  - ref_game_state points at a block of its own;
   - the six pointer words the function writes (ref_first, ref_second,
-    data_80190458, ref_other, ref_third, data_801904c0) start as random words;
+    ref_aux, ref_other, ref_third, data_801904c0) start as random words;
   - every recorder copies, at each call, whole: the table objects, both
-    players, the block at data_80190468, data_80188ed0, data_80188f30,
-    ref_first to data_80190414 and its next word, data_80190458,
+    players, the block at ref_game_state, data_80188ed0, data_80188f30,
+    ref_first to data_80190414 and its next word, ref_aux,
     data_801904c0, ref_other and ref_third; no pointer argument is filled for
     the call (the box is a record of an existing list, not word aligned), so
     there is no pointee;
@@ -135,16 +135,16 @@ def setup(state, rng, sym) -> Setup:
 
     block = state.alloc(0x394)
     fill(state, block, 0x394, rng)
-    state.w32(sym["data_80190468"], block)
+    state.w32(sym["ref_game_state"], block)
 
     for index in range(12):
         state.w32(table - 4 * index, rng.choice(objects))
 
     # the pointer words the function writes start random
-    for name in ("ref_first", "ref_second", "data_80190458", "ref_other", "ref_third", "data_801904c0"):
+    for name in ("ref_first", "ref_second", "ref_aux", "ref_other", "ref_third", "data_801904c0"):
         state.w32(sym[name], rng.getrandbits(32))
 
-    watch = [(sym["ref_first"], 4), (sym["data_80190458"], 1), (sym["ref_other"], 1), (sym["ref_third"], 1),
+    watch = [(sym["ref_first"], 4), (sym["ref_aux"], 1), (sym["ref_other"], 1), (sym["ref_third"], 1),
              (sym["data_801904c0"], 1),
              (sym["data_80188ed0"], 0x4C // 4), (sym["data_80188f30"], 1), (block, 0x394 // 4)]
     watch += [(obj, 0x394 // 4) for obj in objects]

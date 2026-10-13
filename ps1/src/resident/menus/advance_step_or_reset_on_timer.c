@@ -6,15 +6,15 @@
 void advance_step_or_reset_on_timer(GameState *state) {
     if (((Entity *)state)->field_6c == 0) {
         if (((Entity *)state)->mode_flag_b == 0) {
-            ((HudBig *)data_8018f5a0)->step_count++;
+            ((HudBig *)screen_state)->step_count++;
             ((Entity *)state)->field_c8 = 0;
             ((Entity *)state)->countdown_timer = 0;
-            ((HudBig *)data_8018f5a0)->substate_index = 0;
+            ((HudBig *)screen_state)->substate_index = 0;
             ((Entity *)state)->field_cc = 0;
             if (((Entity *)state)->nonzero_flag != 0 || ((Entity *)state)->field_78->mode_flag_2 != 0) {
-                ((HudBig *)data_8018f5a0)->state_index = 5;
+                ((HudBig *)screen_state)->state_index = 5;
             } else {
-                ((HudBig *)data_8018f5a0)->state_index = 0;
+                ((HudBig *)screen_state)->state_index = 0;
                 ((Entity *)state)->field_ac = 0xff;
             }
         } else {

@@ -59,9 +59,9 @@ void push_player_out_of_type_9_object_boxes(void)
         if (ref_second.p->frame->box_index == 0) {
             continue;
         }
-        /* pbase holds the loaded pointer that is stored to data_80190458 and then stepped into player_box: with the loaded pointer stepped in player_box itself the unit differs in 33 instruction slots. */
+        /* pbase holds the loaded pointer that is stored to ref_aux and then stepped into player_box: with the loaded pointer stepped in player_box itself the unit differs in 33 instruction slots. */
         pbase = (Box6 *)ref_second.p->unknown_148;
-        data_80190458.p = (Object *)pbase;
+        ref_aux.p = (Object *)pbase;
         player_box = pbase + ref_second.p->frame->box_index;
         /* fi holds the box's origin_y here and its other values below (one variable for several values): with a separate local for origin_y the unit builds 712 bytes and differs in 54 instruction slots. */
         fi = obj_box->origin_y;

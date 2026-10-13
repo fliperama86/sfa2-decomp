@@ -7,7 +7,7 @@ extern Slot06Tile data_801ef554_slot06_0e[2][0xd0];
 
 /*
  * What it does (inferred, not an original name): draws the first tile layer
- * of the stage, data_801aa544[0], as sprite records. The layer's scroll_y
+ * of the stage, background_layers[0], as sprite records. The layer's scroll_y
  * (high half) minus game_state.scroll_y gives a vertical position y; its
  * scroll_x gives a horizontal position. The window is 25 columns by 16
  * rows of 16-pixel cells, starting at the cell row y / 16 and the cell
@@ -44,7 +44,7 @@ void draw_tile_map_16px_tiles_slot06_0e(void) {
     /* Holds the row's vertical offset once per row for the inner loop; computing (i << 4) - sy at the store gives 2 differing slots. */
     int yy;
 
-    c = data_801aa544;
+    c = background_layers;
     px = c->scroll_x;
     blank = c->field_1e;
     pos = c->scroll_y;
@@ -59,8 +59,8 @@ void draw_tile_map_16px_tiles_slot06_0e(void) {
     sy = y & 0xf;
     col = (px & (w - 1)) >> 4;
     row = (y & 0x1f0) / 16;
-    rec = data_801ef554_slot06_0e[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801ef554_slot06_0e[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 16; i++, row++) {
         cc = col;
         /* Stand-in, not recovered source: the three-way test below, whose three arms are the same statement and whose two conditions are those of the sibling draw_tile_map_layer_sprites_32px_slot06_0e, reproduces the original's choice of registers. Without it this function differs from the original in 56 instruction slots. */

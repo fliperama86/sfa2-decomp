@@ -12,7 +12,7 @@ extern Slot06Tile data_801efaec_slot06_09[2][0x109];
    yy holds the row's screen offset, as in the model
    draw_tile_layer_sprites_with_partial_row_slot06_04, where the effect of each is measured. */
 void draw_tile_layer_sprites_with_partial_row_slot06_09(void) {
-    Slot06Draw *c = (Slot06Draw *)data_801aa5d4;
+    Slot06Draw *c = (Slot06Draw *)main_layer;
     int q;
     int x;
     int pos;
@@ -60,9 +60,9 @@ void draw_tile_layer_sprites_with_partial_row_slot06_09(void) {
     }
     rows = c->height >> 4;
     mask = (c->width >> 4) - 1;
-    rec = data_801efaec_slot06_09[data_801a27d0];
+    rec = data_801efaec_slot06_09[draw_buffer_index];
     n = (u32)(c->field_4c - ((pos >> 16) & -16)) >> 4;
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < n; i++, row++) {
         u16 cc = col;
         if (row < 0 || row > rows) {

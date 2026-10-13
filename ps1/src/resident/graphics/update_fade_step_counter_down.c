@@ -14,7 +14,7 @@ void update_fade_step_counter_down(GameState *state) {
         m = state->step_counter - 1;
         state->step_counter = m;
         if ((s16)m < 0) {
-            ((Hud *)data_8018f5a0)->stage++;
+            ((Hud *)screen_state)->stage++;
         }
     }
 }

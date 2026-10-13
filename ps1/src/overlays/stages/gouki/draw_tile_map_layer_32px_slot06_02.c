@@ -6,14 +6,14 @@
 extern Slot06TileW data_801f8638_slot06_02[2][13];
 extern u16 data_801f8978_slot06_02;
 
-/* Draws the layer of data_801aa544[2]: for 9 rows of 13 cells of 32 pixels,
+/* Draws the layer of background_layers[2]: for 9 rows of 13 cells of 32 pixels,
    a tile record for each cell that is not blank, linked into the primitive
    list (inferred). A counter at data_801f8978 is cleared on entry and counted
    per record; the function returns when it reaches 13, the number of records
    per buffer (inferred). The locals t, sx, sy, mask and cc are 16-bit, as in
    draw_tile_layer_0_16px_slot06_00. */
 void draw_tile_map_layer_32px_slot06_02(void) {
-    Chan *c = &data_801aa544[2];
+    Chan *c = &background_layers[2];
     int x;
     int pos;
     s16 y;
@@ -50,8 +50,8 @@ void draw_tile_map_layer_32px_slot06_02(void) {
         row = (y - 31) / 32;
     }
     data_801f8978_slot06_02 = 0;
-    rec = data_801f8638_slot06_02[data_801a27d0];
-    ot = (u32 *)((u8 *)data_801987c8 + c->ot_index * 4);
+    rec = data_801f8638_slot06_02[draw_buffer_index];
+    ot = (u32 *)((u8 *)current_ordering_table + c->ot_index * 4);
     for (i = 0; i < 9; i++, row++) {
         cc = col;
         if (row < 0 || rows < row) {

@@ -38,7 +38,7 @@ void remap_select_kinds_and_mark_cursor_text_slot04_sel(void) {
             b->kind = 2;
         }
     }
-    data_8018f5a0->step_index_2 += 1;
+    screen_state->step_index_2 += 1;
     p = data_801b7570_slot04_sel[0];
     q = data_801b7618_slot04_sel[0];
     p->buf[4] = 0x1b;

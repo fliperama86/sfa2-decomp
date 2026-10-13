@@ -25,6 +25,8 @@ ranges and the layout, and says nothing about understanding of retained bytes.
 | `ps1/tools/test_renamefields.py` | public | Controls for the field renamer |
 | `ps1/tools/renamefuncs.py` | public | Renames functions everywhere their names are written, by whole words |
 | `ps1/tools/test_renamefuncs.py` | public | Controls for the function renamer |
+| `ps1/tools/renamedata.py` | public | Renames data symbols everywhere their names are written, by whole words |
+| `ps1/tools/test_renamedata.py` | public | Controls for the data symbol renamer |
 | `ps1/tools/mergeunits.py` | public | Merge per-unit work directories |
 | `ps1/tools/test_mergeunits.py` | public | Controls for the merge tool |
 | `ps1/tools/baseline.py` | public | Disc/file baseline manifest and verification |

@@ -8,7 +8,7 @@
 /* Form found by automatic permutation search. */
 u8 call_script_op_by_high_bits(Object *object)
 {
-  u16 v = *(data_80189460++);
+  u16 v = *(script_cursor++);
   ScriptFn *new_var;
   data_80189468 = v;
   return (*(new_var = &data_8017d340[((s16) v) >> 9]))(object);

@@ -15,7 +15,7 @@ void spawn_object_when_sequence_ends_slot28(Object *obj) {
     Object *p;
     p = data_800519d0_slot28.p;
     if ((s16)p->step_flags < 0) {
-        HudState *h = data_8018f5a0;
+        HudState *h = screen_state;
         h->pass_index++;
         h->countdown_timer = 0xb4;
         p = data_8005199c_slot28.p;

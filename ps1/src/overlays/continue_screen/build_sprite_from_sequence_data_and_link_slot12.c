@@ -30,8 +30,8 @@ void build_sprite_from_sequence_data_and_link_slot12(Object *obj, Slot12Sprite *
     s->lookup_result = func_8015bdd4(a, b);
     a = *p++;
     v = func_8015bd0c(0, 0, a, *p);
-    base = (Object *)data_801987c8;
-    ot = (u32 *)data_801987c8 + idx;
+    base = (Object *)current_ordering_table;
+    ot = (u32 *)current_ordering_table + idx;
     w = base->step_count << 9;
     t = (base->field_a3 << 10) + 0xe1000000;
     s->word_04 = w + t + (v & 0x1f);

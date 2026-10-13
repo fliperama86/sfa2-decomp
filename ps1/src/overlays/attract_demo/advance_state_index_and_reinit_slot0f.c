@@ -8,7 +8,7 @@ void queue_item_from_table_by_index_slot0f(int a);
 void update_frame_objects_and_effects_slot0f(GameState *g, int x);
 
 void advance_state_index_and_reinit_slot0f(Object *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     h->state_index++;
     h->phase_index = 0;
     h->step_index = 0;

@@ -46,9 +46,9 @@ void follow_parent_frame_param_with_blink_slot04_09(Object *obj, Object *parent)
     } else {
         obj->variant_index = n;
         if (parent->side == 0) {
-            t = data_1f8000b4;
+            t = seqs_b4_left;
         } else {
-            t = data_1f800164;
+            t = seqs_164_right;
         }
         set_sequence_from_table_5(obj, n, t);
         if (((Slot04aObj *)obj)->mode == 1) {

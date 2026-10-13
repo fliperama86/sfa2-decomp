@@ -5,7 +5,7 @@
 
 /* The same distance as set_compare_limit_from_box_distance, for the object's partner (object->other)
    and a box chosen by the animation frame of the object that ref_second points
-   at (inferred). The result goes to the global data_80189464. The partner's
+   at (inferred). The result goes to the global script_work_value. The partner's
    facing_side selects the mirrored arm. The distance: the object's x minus the sum
    of the partner's x and the box half-width (origin minus the extent byte,
    negated when the partner's facing_side is non-zero), as a 16-bit number made
@@ -20,7 +20,7 @@ void store_box_distance_to_other_x(Object *object) {
     int origin;
     int e;
     int sum;
-    /* delta is a 16-bit local, the width of data_80189464: with an int local this function differs from the original in 3 instruction slots. */
+    /* delta is a 16-bit local, the width of script_work_value: with an int local this function differs from the original in 3 instruction slots. */
     short delta;
     other = object->other;
     /* The index is read into a local before the box pointer is formed; with the box formed in one expression this function differs from the original in 15 instruction slots. */
@@ -46,5 +46,5 @@ void store_box_distance_to_other_x(Object *object) {
     if ((s16)origin < 0) {
         delta = -origin;
     }
-    data_80189464 = delta;
+    script_work_value = delta;
 }

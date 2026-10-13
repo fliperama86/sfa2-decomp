@@ -28,15 +28,15 @@ void reset_phase_indices_on_timer_expiry_slot12(void) {
             play_sounds_at_countdown_timer_values_slot12();
             request_sound_command_and_switch_thread(1);
         }
-        data_8018f5a0->phase_index = 0;
+        screen_state->phase_index = 0;
         game_state.step_delay_timer = 0;
-        data_8018f5a0->step_index = 0;
+        screen_state->step_index = 0;
         game_state.countdown_2 = 0;
-        data_8018f5a0->substep_index = 0;
+        screen_state->substep_index = 0;
         game_state.timer_or_bits = 0;
-        data_8018f5a0->step_index_2 = 0;
+        screen_state->step_index_2 = 0;
         game_state.countdown_timer_2 = 0;
-        data_8018f5a0->pass_index = 0;
+        screen_state->pass_index = 0;
         game_state.field_cc = 0;
         clear_arrays_and_init_pools_and_sprite_tables();
     }

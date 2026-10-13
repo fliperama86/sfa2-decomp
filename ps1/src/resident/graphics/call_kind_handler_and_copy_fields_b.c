@@ -6,7 +6,7 @@
 
 
 void call_kind_handler_and_copy_fields_b(void) {
-    data_80172410[game_state.kind_index](&data_801aa5d4);
+    data_80172410[game_state.kind_index](&main_layer);
     data_801aa5fe = data_801aa5f6;
     data_801aa602 = data_801aa5fa;
 }

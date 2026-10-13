@@ -5,8 +5,8 @@
 
 void reset_round_fields_and_advance_step_2(GameState *state) {
     Attacker *a = (Attacker *)state;
-    data_8018f5a0->step_index_2++;
-    data_8018f5a0->pass_index = 0;
+    screen_state->step_index_2++;
+    screen_state->pass_index = 0;
     data_801a6938 = 1;
     a->field_cc = 0;
     a->field_4e = 1;

@@ -17,9 +17,9 @@ void set_sequence_of_fourth_hud_object_18_slot28(Object *o, int arg);
 void advance_pass_if_flag_spawn_two_objects_slot28(Object *obj) {
     HudState *h;
     Object *p;
-    if (data_80190949 != 0) {
+    if (menu_active_flag != 0) {
         if (obj->field_f0 == 0) {
-            h = data_8018f5a0;
+            h = screen_state;
             h->countdown_timer = 0x258;
             h->pass_index++;
             release_active_objects_in_table_16_slot28();

@@ -3,7 +3,7 @@
 #include "../../../protos.h"
 #include "../../../externs.h"
 
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 
 void update_layer_by_mode_halved_offset_slot06_01(Slot06Layer *layer) {
     Slot06Layer *l2;
@@ -15,10 +15,10 @@ void update_layer_by_mode_halved_offset_slot06_01(Slot06Layer *layer) {
         if (game_state.field_65 == 0) {
             *(s32 *)&layer->pos_x += -0x8000;
         }
-        l2 = (Slot06Layer *)data_801aa5d4;
+        l2 = (Slot06Layer *)main_layer;
         d = l2->field_22;
         d -= l2->ref_x;
-        d += data_80190542;
+        d += fourth_layer_offset_x;
         d /= 2;
         d += layer->ref_x;
         d += layer->pos_x_int;

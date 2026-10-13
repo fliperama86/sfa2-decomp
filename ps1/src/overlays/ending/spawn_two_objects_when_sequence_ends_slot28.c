@@ -14,7 +14,7 @@ void spawn_two_objects_when_sequence_ends_slot28(Object *o) {
     Slot28Obj *obj = (Slot28Obj *)o;
     Object *b = data_8005198c_slot28.p;
     if ((s16)b->step_flags < 0) {
-        data_8018f5a0->pass_index++;
+        screen_state->pass_index++;
         b = (Object *)pop_block_from_pool();
         if (b != 0) {
             b->active_count = 1;

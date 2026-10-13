@@ -5,7 +5,7 @@
 
 extern u16 data_801ec8ec_slot06_0e[];
 extern u16 data_801ed8ec_slot06_0e[];
-extern u16 data_80190542;
+extern u16 fourth_layer_offset_x;
 extern Poly28 data_801f3df4_slot06_0e[2][0x84];
 extern Slot06TileW data_801f6734_slot06_0e[2][0x75];
 extern void (*data_801eac90_slot06_0e[])(Slot06Layer *layer);
@@ -72,10 +72,10 @@ void update_layer_state_and_follow_main_layer_slot06_0e(Slot06Layer *layer) {
     s16 e;
 
     data_801eac90_slot06_0e[layer->state_index](layer);
-    l2 = (Slot06Layer *)data_801aa5d4;
+    l2 = (Slot06Layer *)main_layer;
     d = l2->field_22;
     d -= l2->ref_x;
-    d += data_80190542;
+    d += fourth_layer_offset_x;
     d /= 2;
     d += layer->ref_x;
     d += layer->pos_x_int;
@@ -114,7 +114,7 @@ void count_down_layer_timer_then_signal_layer_slot06_0e(Slot06Layer *layer) {
     layer->countdown_timer -= 1;
     if (layer->countdown_timer == 0) {
         layer->state_index++;
-        ((Slot06Layer *)data_801aa544)->field_00 = 2;
+        ((Slot06Layer *)background_layers)->field_00 = 2;
         layer->field_8b = 0;
     }
 }

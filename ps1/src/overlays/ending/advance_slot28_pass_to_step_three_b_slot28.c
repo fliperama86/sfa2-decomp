@@ -13,8 +13,8 @@ void set_sequence_of_fourth_hud_object_12_slot28(Object *obj, int arg);
 void advance_slot28_pass_to_step_three_b_slot28(Object *obj) {
     Object *p;
     if (obj->field_f0 == 0) {
-        data_8018f5a0->countdown_timer = 0x258;
-        data_8018f5a0->pass_index++;
+        screen_state->countdown_timer = 0x258;
+        screen_state->pass_index++;
         release_active_objects_in_table_10_slot28();
         set_sequence_from_table_5(data_80051b40_slot28.p, 2, data_8004384c_slot28);
         p = data_80051b44_slot28[0];

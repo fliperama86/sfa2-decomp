@@ -8,11 +8,11 @@ extern Slot2aSlot data_801e5164_slot2a[][2];
 extern u16 *data_801e52c8_slot2a;
 
 void link_selector_records_into_ordering_table_slot2a(Object *obj) {
-    u32 *link = (u32 *)data_801987c8 + 1;
+    u32 *link = (u32 *)current_ordering_table + 1;
     Rec14 *rec;
     u32 tail;
     int i;
-    rec = (Rec14 *)((u8 *)data_801e5164_slot2a + obj->table_index * 0xb0 + data_801a27d0 * 0x58);
+    rec = (Rec14 *)((u8 *)data_801e5164_slot2a + obj->table_index * 0xb0 + draw_buffer_index * 0x58);
     for (i = 0; i < 2; i++) {
         if (data_801e5160_slot2a[obj->table_index] == 0) {
             rec->field_0d = *(u8 *)data_801e52c8_slot2a * 0x30;

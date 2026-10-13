@@ -23,7 +23,7 @@ void copy_record_and_set_sequence_slot06_06(Object *obj, Slot06_06Rece1d8 *src, 
 void select_scroll_record_and_copy_to_object_slot06_06(Object *obj) {
     Slot06_06Rec83d8 *r;
 
-    if ((s16)((Slot06Layer *)data_801aa5d4)->scroll_x < obj->vel_x) {
+    if ((s16)((Slot06Layer *)main_layer)->scroll_x < obj->vel_x) {
         r = &data_801f83d8_slot06_06[obj->table_index][0];
     } else {
         r = &data_801f83d8_slot06_06[obj->table_index][1];

@@ -22,10 +22,10 @@ void init_rank_object_motion_and_data_slot12(Object *obj) {
     obj->state_0 = obj->state_0 + 1;
     if (obj->table_index == 0) {
         k = game_state.left_rank_index;
-        rec = table_8016e5c4 + k;
+        rec = score_rank_table + k;
     } else {
         k = game_state.right_rank_index;
-        rec = table_8016e614 + k;
+        rec = streak_rank_table + k;
     }
     obj->spawn_x = 0x60;
     obj->spawn_y = 0x1f0;

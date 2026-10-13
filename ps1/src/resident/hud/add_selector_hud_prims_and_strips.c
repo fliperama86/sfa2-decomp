@@ -19,19 +19,19 @@ void call_function_at_data_pointer(void);
  * What it does (inferred, not original names): queues the pieces of a
  * screen for drawing. It clears data_80188d04 and returns at once when
  * data_8019016c is not 0, data_801a6938 is 0, the first byte of
- * data_801ac6a8 is 0 or data_8018db10 is not 0. Otherwise it hands
+ * data_801ac6a8 is 0 or palette_altered_flag is not 0. Otherwise it hands
  * records of data_801ac6a8, of the tables and of the strips (all picked by
  * the buffer selector sel) to func_8015bf34 together with three pointers
- * into the block at data_801987c8, calls func_801347b4 seven times with
+ * into the block at current_ordering_table, calls func_801347b4 seven times with
  * the words data_801ac86c to data_801ac884, and ends with queue_player_status_text_items.
  */
 void add_selector_hud_prims_and_strips(void) {
     /* Only the low 16 bits of the selector count, as a signed number. */
-    s16 sel = data_801a27d0;
-    /* data_801987c8 is only added to here, never read through. */
-    int part20 = (int)data_801987c8 + 0x20;
-    int part38 = (int)data_801987c8 + 0x38;
-    int part3c = (int)data_801987c8 + 0x3c;
+    s16 sel = draw_buffer_index;
+    /* current_ordering_table is only added to here, never read through. */
+    int part20 = (int)current_ordering_table + 0x20;
+    int part38 = (int)current_ordering_table + 0x38;
+    int part3c = (int)current_ordering_table + 0x3c;
     u8 *base = data_801ac6a8;
     Strip1c *p1;
     int i;
@@ -43,7 +43,7 @@ void add_selector_hud_prims_and_strips(void) {
         return;
     if (base[0] == 0)
         return;
-    if (data_8018db10 != 0)
+    if (palette_altered_flag != 0)
         return;
 
     func_8015bf34(part20, (Cmd *)&base[sel * 16 + 0xc4]);

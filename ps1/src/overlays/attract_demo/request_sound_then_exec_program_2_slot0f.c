@@ -23,7 +23,7 @@ void func_800e004c_slot0f(Object *obj) {
 }
 
 void reset_hud_state_and_sound_by_arg_slot0f(Object *obj, int arg) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     h->state_index = 0;
     h->phase_index = 0;
     h->step_index = 0;

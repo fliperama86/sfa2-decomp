@@ -7,7 +7,7 @@
 void branch_script_if_table_column_ge_value(Object *object)
 {
   short new_var2;
-  u16 v = *(data_80189460++);
+  u16 v = *(script_cursor++);
   u16 new_var;
   new_var2 = v;
   new_var = new_var2 >> 8;

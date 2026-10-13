@@ -10,13 +10,13 @@
 /* Form found by automatic permutation search. */
 void read_script_word_and_dispatch(Object *object)
 {
-  u16 v = *(data_80189460++);
+  u16 v = *(script_cursor++);
   s16 w;
   w = v;
   v = w >> 8;
   object->script_opcode_high = v;
   object->script_arg = w;
-  object->script_ptr = (s32) data_80189460;
+  object->script_ptr = (s32) script_cursor;
   w = object->script_opcode_high;
   if (w != 0xff)
   {

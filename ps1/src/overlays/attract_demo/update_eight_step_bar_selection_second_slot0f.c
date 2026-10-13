@@ -10,10 +10,10 @@ void update_eight_step_bar_selection_second_slot0f(void) {
     s8 *p;
     s8 *q;
     int i;
-    if ((data_801a696a | data_801a6976) & 0x2000) {
+    if ((pad_1_pressed | pad_2_pressed) & 0x2000) {
         p = &data_800f8558_slot0f;
         *p = (*p + 1 < 8) ? *p + 1 : 0;
-    } else if ((data_801a696a | data_801a6976) & 0x8000) {
+    } else if ((pad_1_pressed | pad_2_pressed) & 0x8000) {
         p = &data_800f8558_slot0f;
         *p = (*p - 1 >= 0) ? *p - 1 : 7;
     } else {
@@ -37,7 +37,7 @@ extern Slot0fRec94ec *data_800e96a8_slot0f;
 
 void toggle_two_option_selection_slot0f(void) {
     u8 *p;
-    if ((data_801a696a | data_801a6976) & 0xa000) {
+    if ((pad_1_pressed | pad_2_pressed) & 0xa000) {
         p = &data_800f855a_slot0f;
         *p ^= 1;
         data_800e96a8_slot0f = &data_800e951c_slot0f[(s8)*p];

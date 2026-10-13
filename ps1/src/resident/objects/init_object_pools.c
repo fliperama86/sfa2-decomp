@@ -65,7 +65,7 @@ void init_object_pools(void) {
     } while (i < 16);
     i = 0;
     cursor2 = &alloc_cursor_80190478;
-    data_80197f10 = 0x27;
+    free_block_count = 0x27;
     *cursor2 = (Object *)data_801a89f4;
     do {
         slot2 = cursor2;

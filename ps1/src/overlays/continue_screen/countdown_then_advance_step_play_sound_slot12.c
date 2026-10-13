@@ -12,7 +12,7 @@ void countdown_then_advance_step_play_sound_slot12(void) {
 
     *t = v;
     if ((s16)v < 0) {
-        data_8018f5a0->step_index++;
+        screen_state->step_index++;
         game_state.status_flags = 0xff;
         *t = 0x1f;
         if (game_state.field_44 & 0x80) {
@@ -29,7 +29,7 @@ void countdown_then_advance_step_clear_status_slot12(void) {
 
     *t = v;
     if ((s16)v < 0) {
-        data_8018f5a0->step_index++;
+        screen_state->step_index++;
         game_state.status_flags = 0;
         *t = 0x78;
     }

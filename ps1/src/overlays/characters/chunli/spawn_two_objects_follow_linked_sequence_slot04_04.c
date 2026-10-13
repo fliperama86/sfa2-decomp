@@ -58,8 +58,8 @@ void spawn_two_objects_follow_linked_sequence_slot04_04(Object *obj) {
                 p->field_90 = (void *)0x800fb100;
                 p->spawn_x = 0x60;
                 p->spawn_y = 0x1e0;
-                p->data_ptr_a = data_80172a48;
-                p->data_ptr_b = data_80173c9c;
+                p->data_ptr_a = spawned_object_data_a;
+                p->data_ptr_b = spawned_object_data_b;
                 p->mode_id = 0x20;
                 p->sound_side = obj->sound_side;
                 p->parent = obj;

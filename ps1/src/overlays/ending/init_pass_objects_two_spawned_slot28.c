@@ -16,7 +16,7 @@ void init_pass_objects_two_spawned_slot28(Object *obj) {
     HudState *h;
     Object *p;
     if (obj->field_f0 == 0) {
-        h = data_8018f5a0;
+        h = screen_state;
         h->countdown_timer = 0x258;
         h->pass_index++;
         set_sequence_from_table_5(data_80051c4c_slot28.p, 0, data_8004bd74_slot28);

@@ -3,8 +3,8 @@
 #include "../../../protos.h"
 #include "../../../externs.h"
 
-extern SequenceStep **data_1f8000b4;
-extern SequenceStep **data_1f800164;
+extern SequenceStep **seqs_b4_left;
+extern SequenceStep **seqs_164_right;
 void clear_or_set_flag_by_pos_x_limit(Object *o);
 extern ObjectFn data_801c4ef8_slot04_12[];
 
@@ -53,9 +53,9 @@ void init_projectile_velocity_and_sequence_slot04_12(Object *obj) {
     } else {
         ((ObjectWords *)obj)->word_58 = obj->pos_x;
         if (p->side == 0) {
-            s = *data_1f8000b4;
+            s = *seqs_b4_left;
         } else {
-            s = *data_1f800164;
+            s = *seqs_164_right;
         }
     }
     set_sequence_entry(obj, s);

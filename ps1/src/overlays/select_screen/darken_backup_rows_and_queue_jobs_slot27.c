@@ -16,7 +16,7 @@ void darken_backup_rows_and_queue_jobs_slot27(void) {
     int k = 0x10;
 
 
-    if (data_8018db10 == 0) {
+    if (palette_altered_flag == 0) {
         for (set = 0; set < 5; set++) {
             for (i = 0; i < 0x20; i++) {
                 for (j = 1; j < 0x10; j++) {
@@ -38,6 +38,6 @@ void darken_backup_rows_and_queue_jobs_slot27(void) {
         queue_image_upload_job(2, 2);
         queue_image_upload_job(3, 3);
         queue_image_upload_job(4, 7);
-        data_8018db10 = data_8018db10 + 1;
+        palette_altered_flag = palette_altered_flag + 1;
     }
 }

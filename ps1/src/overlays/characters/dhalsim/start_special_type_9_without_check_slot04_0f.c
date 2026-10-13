@@ -158,7 +158,7 @@ int try_start_move_3_with_dir_slot04_0f(Object *obj) {
 }
 
 void func_801b1a90_slot04_0f(Object *obj) {
-    data_801ad398 = data_801c5a30_slot04_0f[obj->field_15a](obj);
+    script_condition_result = data_801c5a30_slot04_0f[obj->field_15a](obj);
 }
 
 int set_slot_17_stage_from_inputs_slot04_0f(Object *obj) {

@@ -45,7 +45,7 @@ u8 try_enter_state_7_with_action_code_ten_slot04_02(Object *obj) {
 }
 
 void func_801b1730_slot04_02(Object *obj) {
-    data_801ad398 = data_801c61d8_slot04_02[obj->field_15a](obj);
+    script_condition_result = data_801c61d8_slot04_02[obj->field_15a](obj);
 }
 
 int return_true_always_slot04_02(Object *obj) {

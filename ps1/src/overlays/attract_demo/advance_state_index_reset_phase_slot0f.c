@@ -8,8 +8,8 @@ void check_buttons_and_call_reset_slot0f(GameState *state);
 
 void advance_state_index_reset_phase_slot0f(GameState *state) {
     state->wait_flag = 0;
-    data_8018f5a0->phase_index = 0;
-    data_8018f5a0->state_index++;
+    screen_state->phase_index = 0;
+    screen_state->state_index++;
 }
 
 void request_sound_then_exec_program_1_slot0f(GameState *state) {
@@ -21,6 +21,6 @@ void request_sound_then_exec_program_1_slot0f(GameState *state) {
 }
 
 void call_state_handler_b_then_check_pad_slot0f(GameState *state) {
-    data_800e83c8_slot0f[data_8018f5a0->state_index](state);
+    data_800e83c8_slot0f[screen_state->state_index](state);
     check_buttons_and_call_reset_slot0f(state);
 }

@@ -17,9 +17,9 @@ void set_landing_sequence_when_below_ground_slot04_06(Object *obj) {
         a = (a & 1) | 0x18;
         obj->state_1 = t;
         if (obj->sound_side == 0) {
-            set_sequence_from_table_5(obj, a, data_1f8000b4);
+            set_sequence_from_table_5(obj, a, seqs_b4_left);
         } else {
-            set_sequence_from_table_5(obj, a, data_1f800164);
+            set_sequence_from_table_5(obj, a, seqs_164_right);
         }
     }
     advance_sequence_checked(obj);

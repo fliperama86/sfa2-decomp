@@ -13,7 +13,7 @@ void init_object_with_two_child_objects_slot27(Object *o) {
             ref_other.p->active_count = 1;
             ref_other.p->field_02 = 0x1d;
             ref_other.p->table_index = 0;
-            ref_other.p->other = (*(Object **)&data_80190458);
+            ref_other.p->other = (*(Object **)&ref_aux);
             ref_other.p->parent = o;
             obj->other_ref = ref_other.p;
         }
@@ -22,7 +22,7 @@ void init_object_with_two_child_objects_slot27(Object *o) {
             ref_other.p->active_count = 1;
             ref_other.p->field_02 = 0x1d;
             ref_other.p->table_index = 1;
-            ref_other.p->other = (*(Object **)&data_80190458);
+            ref_other.p->other = (*(Object **)&ref_aux);
             ref_other.p->parent = o;
             obj->linked_object = ref_other.p;
         }

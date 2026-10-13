@@ -25,7 +25,7 @@ void init_object_position_sequence_and_two_prims_slot0f(Object *o) {
 }
 
 void draw_background_sprite_advance_state_slot0f(Object *obj) {
-    fill_sprite_from_sequence_and_link_slot0f(obj, (Slot12Sprite *)(&data_800f7cf4_slot0f[data_801a27d0]));
+    fill_sprite_from_sequence_and_link_slot0f(obj, (Slot12Sprite *)(&data_800f7cf4_slot0f[draw_buffer_index]));
     if (game_state.field_2bc == 10) {
         obj->state_0++;
     }

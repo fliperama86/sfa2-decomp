@@ -7,17 +7,17 @@ extern Slot12Img data_800ebc94_slot0f[];
 
 void reset_phase_step_and_object_fields_slot0f(Slot0fObj *obj, int flag) {
     if (flag == 0) {
-        data_8018f5a0->phase_index++;
+        screen_state->phase_index++;
     }
-    data_8018f5a0->phase_index = 0;
-    data_8018f5a0->step_index = 0;
-    data_8018f5a0->substep_index = 0;
+    screen_state->phase_index = 0;
+    screen_state->step_index = 0;
+    screen_state->substep_index = 0;
     obj->field_ee = 0;
     obj->field_f0 = 0;
 }
 
 void advance_hud_state_index_and_reset_slot0f(Slot0fObj *obj) {
-    HudState *h = data_8018f5a0;
+    HudState *h = screen_state;
     h->state_index++;
     h->phase_index = 0;
     h->step_index = 0;

@@ -18,8 +18,8 @@ void release_four_stored_objects_slot28(Object *obj) {
 void count_down_to_zero_then_advance_pass_gated_slot28(Object *obj) {
     HudState *h;
     int t;
-    if (data_80190949 != 0 && obj->field_f0 == 0) {
-        h = data_8018f5a0;
+    if (menu_active_flag != 0 && obj->field_f0 == 0) {
+        h = screen_state;
         t = h->countdown_timer - 1;
         h->countdown_timer = t;
         if ((s16)t == 0) {

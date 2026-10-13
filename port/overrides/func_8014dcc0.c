@@ -27,14 +27,14 @@
  * Contract:
  *   Argument: object (a0), a pointer to an object record; it is not written.
  *   Reads: byte at 0xa6 of the object (the side), the two scratchpad
- *     pointers scr_d4_left and scr_184_right, and the byte data_801ad398.
- *   Result: data_801ad398 (a byte).
+ *     pointers scr_d4_left and scr_184_right, and the byte script_condition_result.
+ *   Result: script_condition_result (a byte).
  *   Writes: nothing itself.
  *   Callees: the two pointers' targets are replaced in the test by one
  *     recorder each (placed in a block that the setup stores in the
  *     pointer's cell), which logs its first argument and returns 0. What
  *     those functions do is outside the test. The test watches the object
- *     and data_801ad398 at each call.
+ *     and script_condition_result at each call.
  *   Aliasing: the object and the two recorder blocks are separate.
  *   Excluded inputs: a null object (the original reads through it).
  *   Not reached by any input: none known (see the coverage line).
@@ -46,5 +46,5 @@
 u8 func_8014dcc0(Object *object) {
     if (object->side == 0) ((u8 (*)(Object *))scr_d4_left)(object);
     else ((u8 (*)(Object *))scr_184_right)(object);
-    return data_801ad398;
+    return script_condition_result;
 }

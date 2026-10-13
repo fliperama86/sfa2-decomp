@@ -19,7 +19,7 @@ void init_substep_screen_and_spawn_objects_slot12(void) {
     queue_image_upload_job(1, 0);
     queue_image_upload_job(2, 1);
     queue_image_upload_job(3, 2);
-    data_8018f5a0->substep_index++;
+    screen_state->substep_index++;
     game_state.status_flags = 0;
     game_state.field_4f = 0;
     game_state.field_65 = 0;
