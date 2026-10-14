@@ -31,6 +31,32 @@ static inline int port_ui_packet_kind(uint32_t address,const uint32_t *words,uns
     return 0;
 }
 static inline int port_ui_s11(unsigned value) { return (int)((value&2047)^1024)-1024; }
+/* The six super-meter fill records (one per level and side, two display buffers
+ * each) on their list: 1 to 3 for the level, counted from the middle of the screen
+ * outward, 0 for every other packet. Address and list before any packet read. */
+static inline int port_ui_super_fill_level(uint32_t address,const uint32_t *words,unsigned len,int list)
+{
+    uint32_t p=address&0x1fffffffu;
+    if(list!=8 || len!=3 || p<0x1ac76cu || p>=0x1ac82cu || (p-0x1ac76cu)%16 ||
+       ((words[0]>>24)&0xfc)!=0x60)return 0;
+    return (int)((p-0x1ac76cu)/32%3)+1;
+}
+/* The meter frame's 16-pixel tiles carry 15 texels on the original path, which
+ * shows their rows from 8 down one pixel lower and never shows the last row. The
+ * game's fills (Y 213; 3, 4 and 4 rows by level) fit that picture. One-to-one
+ * tiles show the artwork's interior from Y 212, and 3, 4 and 5 rows tall. Inferred
+ * from the frame's tile rows and the fill records' constants. Y and height of
+ * the copied command only: X, width, colour and the game's record stay. */
+static inline int port_ui_super_fill(uint32_t *words,unsigned len,int level)
+{
+    int w,h;
+    if(len!=3 || level<1 || level>3 || ((words[0]>>24)&0xfc)!=0x60)return 0;
+    w=(int16_t)words[2];h=(int16_t)(words[2]>>16);
+    if(port_ui_s11(words[1]>>16)!=213 || h!=(level==1?3:4) || w<0 || w>48)return 0;
+    words[1]=(words[1]&0xffffu)|212u<<16;
+    words[2]=(words[2]&0xffffu)|(uint32_t)(level+2)<<16;
+    return 1;
+}
 /* One already validated GP0 command, not a whole packet. Transactional on bad
  * length/coordinate range. X only, apart from composing the selected life fix.
  * UV/color/control words are never changed, nor the command/marker bits. */
