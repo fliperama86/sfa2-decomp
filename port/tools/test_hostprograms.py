@@ -123,6 +123,11 @@ int port_skip_programs;
 static int source_sector = -1;
 
 int port_cd_source_at(unsigned address) { (void)address; return source_sector; }
+static int intro_enabled;
+int port_intro_program(const char *name) {
+    if (!intro_enabled) return 0;
+    printf("native intro %s\n", name); return 1;
+}
 void port_callbacks_program_start(void) { printf("callbacks fresh\n"); }
 void port_press_report(const char *program) { printf("decoder report %s\n", program); }
 void port_trace_line(const char *fmt, ...)
@@ -170,6 +175,7 @@ int main(int argc, char **argv)
         rest += n;
         if (!strcmp(cmd, "src")) source_sector = atoi(rest);
         else if (!strcmp(cmd, "skip")) port_skip_programs = atoi(rest);
+        else if (!strcmp(cmd, "intro")) intro_enabled = atoi(rest);
         else if (!strcmp(cmd, "poke")) {   /* ADDRESS HEXBYTES */
             unsigned a; int k = 0;
             char *h;
@@ -253,6 +259,17 @@ def expect(rc: int, lines: list[str], want_rc: int, want: list[str]):
 def setup_main_teardown_in_order():
     rc, l = run(exec_lines("alpha"))
     return expect(rc, l, 0, ran("alpha"))
+
+
+def intro_replaces_only_after_validation():
+    rc, lines = run(["intro 1"] + exec_lines("alpha"))
+    bad = expect(rc, lines, 0, ["callbacks fresh", "trace: program alpha: start",
+        "native intro alpha", "trace: program alpha: native intro returned", "R 1"])
+    if bad: return bad
+    path, _ = changed_file("alpha", 0x800 + 5, "intro")
+    rc, lines = run(["intro 1"] + exec_lines("alpha"), path)
+    if rc != EXIT_PROGRAM or any("native intro" in line for line in lines):
+        return f"intro bypassed file validation: {rc}, {lines}"
 
 
 def callbacks_start_fresh_once_after_the_checks_and_before_setup():
@@ -737,7 +754,7 @@ def nothing_is_called_before_every_check_passed():
     return ram_body_changed("alpha", PROGRAMS["alpha"]["t_size"] - 1)
 
 
-NAMES = [setup_main_teardown_in_order, callbacks_start_fresh_once_after_the_checks_and_before_setup,
+NAMES = [intro_replaces_only_after_validation, setup_main_teardown_in_order, callbacks_start_fresh_once_after_the_checks_and_before_setup,
          decoder_report_once_with_the_programs_name_after_everything_else, the_right_one_of_two, the_first_row_of_two_is_not_taken_for_the_second, a_row_without_setup_and_teardown,
          a_later_sector_of_the_file_finds_and_reads_the_whole_file, header_at_the_rams_first_bytes_runs, file_of_exactly_the_headers_fields_with_no_body_runs,
          a_second_exec_runs_again, body_ending_at_the_rams_end_runs, body_starting_at_the_rams_start_runs, header_in_the_last_16_bytes_of_the_ram_runs,

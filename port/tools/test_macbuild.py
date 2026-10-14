@@ -109,6 +109,7 @@ def case_a_failed_link_or_signature_leaves_no_program():
 def case_the_files_and_flags():
     names = [p.name for p in M.runtime_sources()]
     assert "mirrorcore.c" not in names and "kernel.c" in names and names[-4:] == ["platform.c", "guest.c", "vm.c", "elf.c"], names
+    assert all(name in names for name in ("intro.c", "scene.c", "sequence.c")), names
     psyz = {"include": "/inc", "define": ["__psyz"]}
     gpu = M.compile_args(PORT / "src" / "gpu.c", Path("g.o"), psyz, True)
     assert "-DPORT_HAVE_PSYZ" in gpu and "-D__psyz" in gpu and "-DPORT_SOUND_LIBRARY_C" in gpu and "-DPORT_GUEST_VM" in gpu, gpu

@@ -28,7 +28,7 @@ Old figures describe their own date, not today's completion.
   code. User-supplied disc data stays private. Read `port/README.md` first.
   Arcade intro/attract restoration never changes `ps1/`, including metadata.
   Saturn is a potential byte-matching C target, not just a visual reference (2026-10-14).
-  One user input preferred. Intro-first CPS2 work authorized; whole-port pivot remains open.
+  One input preferred; CPS2 intro slice is opt-in (port/intro/README.md); whole-port pivot open.
 - Sound is part of the port's normal build, by the owner's decision of
   2026-10-10: a build with PsyZ has the game's sound library and plays
   without being asked. A test or a script that starts the program gives

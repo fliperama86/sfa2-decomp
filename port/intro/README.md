@@ -1,23 +1,67 @@
 # Intro asset recovery
 
-Port-only research toward the arcade-style intro and attract mode. **No intro
-player is implemented here yet. Nothing under `ps1/` is changed.** Any eventual
-runtime feature belongs in the normal port behind a default-off experimental
-setting, not in the matching PS1 reconstruction.
+Port-only restoration of arcade-style intro behavior. **A bounded first scene
+slice now runs in the normal port behind `arcade_intro`, default off. Nothing
+under `ps1/` is changed. This is not a complete intro or attract mode.**
 
-## Current implementation direction
+## Test the first scene
 
-The owner authorized an intro-first CPS2 implementation on 2026-10-14, while
-considering a later single-input port. Saturn is valuable as a possible
-byte-matching C reconstruction target, not merely a visual reference. A match
-still needs compiler/build evidence; C ancestry alone does not establish it.
+The existing Windows executable can replace the PS1 opening movie with
+192 updates (about 3.2 seconds) of Gouki and animated flames, then return to
+the title flow. Leave the title idle to reach the opening. Start skips the
+slice; Escape closes the normal port window.
 
-The first implementation is [the C sequence core](sequence-contract.md): select
-an original relative-table entry, then follow its countdowns and branches.
-The CPS2 actor that consumes the first intro loop has been located. This core
-has no runtime call site yet, and there is still no visible intro player.
-Scene composition, movement/spawning, effects and sound remain. The intended
-intro data source is the user's CPS2 set, not an additional Saturn disc.
+Build with the existing `./build.sh win`. Import your examined arcade archive
+once, without distributing the output:
+
+```sh
+python port/intro/import_scene.py INPUT/arcade.zip port/local/intro-asset-probe/intro.dat
+```
+
+Then use the **same** executable (paths here are placeholders, in the host's
+native syntax):
+
+```text
+sfa2.exe --skip-programs --arcade-intro --intro-data PATH/intro.dat PATH/PS1.cue
+```
+
+Or set `arcade_intro = true` under `[experimental]` in the shared settings
+file and pass `--settings FILE`. The default pack path is `intro.dat` in the
+working directory. `--ps1-intro` overrides the setting off and restores the
+original opening route without reading any arcade pack. No separate player,
+interpreter or captured video is used. Invalid/missing enabled input stops
+with an explicit message. The importer currently accepts only the supplied,
+examined US 960306 archive, including its observed graphics variants.
+
+This test slice uses both the normal PS1 disc and the privately imported CPS2
+scene data. It does not settle the future single-input user experience or
+adopt a whole-port CPS2 asset pivot. Saturn is not a runtime input.
+
+## Implemented and missing
+
+The [C sequence core](sequence-contract.md) now drives six foreground poses
+from relocated original records. The native compositor uses extracted tiles,
+metasprite layouts and palettes, with code-derived anchor placement, four-update
+foreground durations, six-update background pages, palette cycling and row
+scroll. The [bounded contract](../../docs/tasks/intro-first-scene.md) states the
+normalization and sources. This is project-authored C, not byte-matching Saturn
+C or a claim of whole-scene differential equivalence.
+
+Not implemented: warm-up and flashes, particles, sound, the remaining intro
+scenes and attract-mode flow. Full brightness and initial effect phase are
+normalized in this slice. The existing port's 60 Hz clock is used, not an exact
+CPS2 refresh clock. The owner must be able to test this build before a new PR.
+
+The owner authorized intro-first CPS2 implementation on 2026-10-14. Saturn
+remains valuable as a possible byte-matching C target. A match still needs
+compiler/build evidence; C ancestry alone does not establish it.
+
+Focused synthetic checks (seconds, no game or private input):
+
+```sh
+python port/tools/test_intro_scene.py
+python port/tools/test_settings.py
+```
 
 ## Code-first recovery
 

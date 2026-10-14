@@ -96,6 +96,9 @@
 
 const struct port_library  port_gpu_library[]   = { { 0, 0, 0 } };
 void port_gpu_present(void) {}
+int port_gpu_intro_begin(void) { return -1; }
+void port_gpu_intro_frame(const uint16_t *pixels) { (void)pixels; }
+void port_gpu_intro_end(void) {}
 int  port_gpu_read_frame(unsigned short *pixels) { (void)pixels; return -1; }
 int  port_gpu_display_enabled(void) { return 0; }
 int port_gpu_set_video_options(int ui,int arcade) { return ui || arcade ? -1 : 0; }
@@ -705,6 +708,35 @@ static int host_MoveImage(RECT *rect, int x, int y)
 
 /* DISPENV is the same on both sides (see the top), so the game's own struct is
  * handed over. Library code at 0x80158470 returns its argument. */
+/* Host-owned pixels must not pass through the PS1-address span checker. The
+ * shared arcade canvas crops rows 0..7, so upload at y=8. No game RAM touched. */
+int port_gpu_intro_begin(void)
+{
+    DISPENV env;
+    if(!Psyz_Sfa2ExperimentalVideoAvailable()) return -1;
+    host_ResetGraph(0);
+    SetDefDispEnv(&env,0,0,368,240);
+    PutDispEnv(&env);
+    Psyz_Sfa2SetArcadeCanvas(1);
+    ui_canvas_active=1;
+    return 0;
+}
+void port_gpu_intro_frame(const uint16_t *pixels)
+{
+    RECT rect={0,PORT_ARCADE_TOP,PORT_ARCADE_W,PORT_ARCADE_H};
+    LoadImage(&rect,(u_long *)(uintptr_t)pixels);
+    Psyz_GpuExeque();
+    SetDispMask(1);
+    display_on=1;
+}
+void port_gpu_intro_end(void)
+{
+    SetDispMask(0);
+    display_on=0;
+    Psyz_Sfa2SetArcadeCanvas(0);
+    ui_canvas_active=0;
+}
+
 static DISPENV *host_PutDispEnv(DISPENV *env)
 {
     begin();
