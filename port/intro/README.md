@@ -40,6 +40,14 @@ offsets and unused fields are deliberately ignored. Equal timings alone are
 inspection. Background-page animation and palette cycling are separate from
 these sprite records. Saturn is an analysis reference, not a new port input.
 
+The [first table search](../../docs/records/2026-10-14-intro-animation-tables.md)
+checked 248 nonstream files. It found no native-format match for the main
+six-step sprite loop, and no matching RGB tables for the three cycling
+palettes. Smaller timing matches lead to larger character/stage drawings,
+not confirmed intro particles. This does not exclude retimed, differently
+encoded or compressed tables. The earlier PS1 portrait sequences are real,
+but they do not supply the missing intro schedule. No Saturn port is adopted.
+
 ## Background decoder
 
 `assets.py` reads the two opening files extracted from a user-supplied Japanese
