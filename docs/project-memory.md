@@ -61,6 +61,7 @@ Old figures describe their own date, not today's completion.
   code, not a way around a game function that does not match.
 - CI/CD: tracked WIP uses default-off settings flags, preserving default behavior.
   Before a port-feature PR, give the owner a runnable build and test instructions.
+  Ember-only changes to the same Akuma slice are insufficient: next test needs intro progression (2026-10-14).
   Keep PR monitoring active until review is handled, polling owner comments every 60 s.
   Merge after scoped checks and owner approval; no private source silos or bypass.
 - [Agent worktrees](agent-worktrees.md): integration-only main, separate workers
@@ -116,5 +117,4 @@ Current state belongs in [current-state.md](current-state.md), next packages in
 [goals.md](goals.md), and acceptance specifications in `docs/tasks/`.
 ## Workflow implementation lessons
 When relaunching a rebuilt Windows binary from WSL, close its identified prior test instance: Windows can reuse that loaded image despite new disk bytes.
-Record submodule pins/availability; missing system libraries and failed smokes are not passes.
-Port test selectors must declare transitive imports outside `port/tools` explicitly (PR368).
+Record submodule pins; missing libraries/failed smokes are not passes. Declare transitive test imports outside `port/tools` (PR368).

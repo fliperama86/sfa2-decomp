@@ -46,9 +46,11 @@ assets in Git or changes to PS1 source for the port before it runs.
 Current owner-directed intro work: PR370's owner-tested default-off Gouki/fire
 slice is merged. The next normal Windows build adds moving embers reconstructed
 from CPS2 code, with scoped differential evidence and a private version-2 pack.
-It is ready for owner testing, not yet owner-tested or in a PR. Fade/flash
-transitions and phase carry-in remain the next bounded increment, followed by
-sound. Keep every change port-only. The whole-port CPS2-only asset pivot remains
+The owner tested it and rejected the ember-only increment as insufficient: it
+still shows only the same Akuma/flames slice. Do not open a PR for this as an
+approved feature. Prioritize actual intro progression, transitions and subsequent
+scenes, rather than another cosmetic variation of the same short scene. Sound
+also remains unfinished. Keep every change port-only. The whole-port CPS2-only asset pivot remains
 undecided. See [intro scope](../port/intro/README.md) and the
 [particle contract](../port/intro/particles-contract.md).
 
