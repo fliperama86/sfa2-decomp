@@ -109,6 +109,28 @@ class IntroAnimation(unittest.TestCase):
         with self.assertRaises(a.InputError):
             a.references(bytes(32))
 
+    def test_palette_rgb_and_control_bits(self):
+        colors = tuple((i * 0x431 + 0x5b5b) & 0x7fff for i in range(16))
+        changed = (0x1234,) + tuple(c | (0x8000 if i % 2 else 0)
+                                   for i, c in enumerate(colors[1:]))
+        data = struct.pack('<16H', *changed)
+        self.assertEqual(a.palette_candidates(b'xx' + data, colors), [2])
+        self.assertEqual(a.palette_candidates(b'x' + data, colors), [])
+        for at in range(2, 32):
+            bad = bytearray(data)
+            bad[at] ^= 1  # change an RGB component, not bit 15
+            self.assertEqual(a.palette_candidates(bytes(bad), colors), [])
+        self.assertEqual(a.palette_candidates(data[:-1], colors), [])
+
+    def test_palette_refusals_and_limit(self):
+        colors = tuple(range(16))
+        data = struct.pack('<16H', *colors)
+        for bad in [colors[:-1], colors + (0,), (0x10000,) + colors[1:]]:
+            with self.assertRaises(a.InputError):
+                a.palette_candidates(data, bad)
+        with self.assertRaises(a.InputError):
+            a.palette_candidates(data * 2, colors, limit=1)
+
     def test_output_restricted_and_never_overwritten(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(a, 'ROOT', Path(tmp)):
             root = Path(tmp)

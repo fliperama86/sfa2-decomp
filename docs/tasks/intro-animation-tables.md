@@ -18,6 +18,10 @@ Never infer scene identity from timing alone. Preserve all candidates; a hit
 limit, malformed reference, missing file or hash mismatch fails explicitly.
 This is not a search of compressed, sector-slack or streamed data.
 
+Also search the first scene's three distinct cycling palettes. Compare the
+15 nontransparent RGB555 entries, ignoring each color's control bit and pen
+zero. This establishes only a color-component match, not equal rendering.
+
 ## Scope
 Own `port/intro/animation.py`, its synthetic control, control-selection entry
 and documentation. Nothing under `ps1/` changes. Import the existing disc

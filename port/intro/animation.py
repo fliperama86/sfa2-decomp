@@ -97,6 +97,27 @@ def references(code: bytes) -> list[dict]:
     return result
 
 
+def palette_candidates(data: bytes, colors: tuple[int, ...], limit: int = 10000) -> list[int]:
+    """Find a 16-color RGB555 palette, ignoring transparent pen 0 and bit 15.
+
+    This compares color components only, not transparency/control-bit behavior.
+    Input words are decoded integers; searched words use PS1 little-endian order.
+    """
+    if len(colors) != 16 or any(not 0 <= c <= 0xffff for c in colors) or limit < 1:
+        raise InputError('expected sixteen color words and positive hit limit')
+    pattern = b'.{2}'
+    for color in colors[1:]:
+        low, high = color & 255, (color >> 8) & 127
+        pattern += re.escape(bytes([low])) + b'[' + re.escape(bytes([high, high | 128])) + b']'
+    hits = []
+    for match in re.finditer(b'(?=' + pattern + b')', data, re.DOTALL):
+        if match.start() % 2 == 0:
+            if len(hits) == limit:
+                raise InputError('palette candidate limit exceeded')
+            hits.append(match.start())
+    return hits
+
+
 def verify_file(data: bytes, entry: dict) -> None:
     if len(data) != entry['size'] or hashlib.sha256(data).hexdigest() != entry['sha256']:
         raise InputError(f"baseline mismatch: {entry['path']}")
