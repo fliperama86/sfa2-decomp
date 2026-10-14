@@ -5,6 +5,22 @@ player is implemented here yet. Nothing under `ps1/` is changed.** Any eventual
 runtime feature belongs in the normal port behind a default-off experimental
 setting, not in the matching PS1 reconstruction.
 
+## Code-first recovery
+
+Recover behavior from the supplied CPS2 program, using Saturn decompilation
+to clarify it. Do not reconstruct timings or transitions by visually mimicking
+a recording. User testing validates the resulting implementation, not its spec.
+Before writing a replacement controller, investigate the owner's hypothesis
+that the PS1 disc retains the original in-engine intro code.
+
+The first [PS1 code probe](../../docs/records/2026-10-14-intro-code-probe.md)
+found existing ending/scroll-scene C and sprite layouts referencing the same
+Gouki portrait. The two referenced layouts collectively use all 211 distinct
+nonuniform cells previously matched to the Saturn portrait. This is more than
+unreferenced artwork, but **not evidence of the full arcade intro controller**.
+The normal PS1 opening route selects the movie player. Dormant scene code and
+equivalent controllers elsewhere remain an open question.
+
 ## Background decoder
 
 `assets.py` reads the two opening files extracted from a user-supplied Japanese
