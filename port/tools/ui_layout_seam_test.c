@@ -48,6 +48,8 @@ int main(void)
         uint32_t font[]={0x64808080,40u<<16|40,0x78070000,8u<<16|8};
         uint32_t world[]={0x600000ff,100u<<16|300,8u<<16|8};
         uint32_t life[]={0x61ffff00,18u<<16|8,5u<<16|144};
+        uint32_t super1[]={0x6049c9f3,213u<<16|150,3u<<16|16};
+        uint32_t super3[]={0x60f0f020,213u<<16|294,4u<<16|48};
         uint32_t hud[]={0x2c808080,60u<<16|20,0x78070000,60u<<16|36,0x000d000f,
             76u<<16|20,0x00000f00,76u<<16|36,0x00000f0f};
         uint32_t strip[]={0xe100001f,0xe2000000,0x03000000,0x7c808080,104u<<16|120,0x78070000};
@@ -58,9 +60,13 @@ int main(void)
         append(base,14,0x801ac6ac,life,3);
         append(base,14,0x80188d6c+frame*0x38,strip,6);
         append(base,17,0x80186004+frame*0x1680,hud,9);
+        append(base,8,0x801ac76c+frame*16,super1,3);
+        append(base,8,0x801ac80c+frame*16,super3,3);
+        append(base,8,0x801ac82c,super3,3); /* The record after the six: same words, not a meter fill. */
+        append(base,9,0x801ac78c,super3,3); /* A meter record on another list is not one either. */
         memcpy(saved,ram,PORT_RAM_SIZE);
         pixel_perfect_ui=!!(flags&1);ui_canvas_active=!!(flags&2);center_ui=!!(flags&4);
-        captured_count=0;send_list(at(base+29*4));assert(captured_count==5);
+        captured_count=0;send_list(at(base+29*4));assert(captured_count==9);
         assert(!memcmp(saved,ram,PORT_RAM_SIZE));
         assert(captured[0].len==9);assert(captured[0].words[1]==(60u<<16|(unsigned)(20+dx)));
         for(i=0;i<9;i++)if(i!=1 && i!=3 && i!=5 && i!=7)assert(captured[0].words[i]==hud[i]);
@@ -72,11 +78,17 @@ int main(void)
         assert(captured[3].words[1]==(40u<<16|(unsigned)(40+dx)));
         assert(captured[3].words[0]==font[0] && captured[3].words[2]==font[2] && captured[3].words[3]==font[3]);
         assert(captured[4].len==3 && !memcmp(captured[4].words,world,sizeof world));
+        for(i=5;i<7;i++)assert(captured[i].len==3 && !memcmp(captured[i].words,super3,sizeof super3));
+        n=pixel_perfect_ui?212:213;
+        assert(captured[7].len==3 && captured[7].words[0]==super3[0]);
+        assert(captured[7].words[1]==(n<<16|(unsigned)(294+dx)) && captured[7].words[2]==((pixel_perfect_ui?5u:4u)<<16|48));
+        assert(captured[8].len==3 && captured[8].words[0]==super1[0]);
+        assert(captured[8].words[1]==(n<<16|(unsigned)(150+dx)) && captured[8].words[2]==(3u<<16|16));
         captured_count=0;
         { uint32_t single[]={0x03000000,0x600000ff,20u<<16|20,4u<<16|4};
           send_single(single);assert(captured_count==1 && captured[0].words[1]==single[2]); }
     }
     free(saved);assert(!munmap(ram,PORT_RAM_SIZE));
-    puts("UI seam: real walker/copy, both frame tables, eight flag states, compound sprite, RAM/world/single-packet identity pass");
+    puts("UI seam: real walker/copy, both frame tables, eight flag states, compound sprite, meter fills, RAM/world/single-packet identity pass");
     return 0;
 }

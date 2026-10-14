@@ -54,6 +54,31 @@ int main(void)
         assert(port_ui_packet_kind(addr,p,3,list)==kind);
         assert(!port_ui_packet_kind(addr,p,3,list+1));
     }
+    /* Twelve meter fill records, three levels a side; their neighbours and other lists are none. */
+    for(i=0;i<28;i++) {
+        uint32_t addr=0x801ac6ac+i*16;int level=i>=12 && i<24?(int)((i-12)/2%3)+1:0;
+        assert(port_ui_super_fill_level(addr,p,3,8)==level);
+        assert(port_ui_super_fill_level(addr&0xffffffu,p,3,8)==level);
+        assert(!port_ui_super_fill_level(addr,p,3,7) && !port_ui_super_fill_level(addr,p,3,14));
+        assert(!port_ui_super_fill_level(addr+4,p,3,8) && !port_ui_super_fill_level(addr,p,4,8));
+    }
+    p[0]=0x64808080;assert(!port_ui_super_fill_level(0x801ac76c,p,3,8));
+    for(i=1;i<=3;i++)for(j=0;j<=48;j++) {
+        uint32_t fill[3]={0x6249c9f3u,213u<<16|(150u+i),(i==1?3u:4u)<<16|j},old[3];
+        memcpy(old,fill,sizeof fill);
+        assert(!port_ui_super_fill(fill,3,0) && !port_ui_super_fill(fill,3,4) && !port_ui_super_fill(fill,2,(int)i));
+        assert(!memcmp(old,fill,sizeof fill));
+        assert(port_ui_super_fill(fill,3,(int)i)==1);
+        assert(fill[0]==old[0] && fill[1]==(212u<<16|(150u+i)) && fill[2]==((i+2)<<16|j));
+        assert(!port_ui_super_fill(fill,3,(int)i)); /* Its own result is not a second input. */
+    }
+    { static const uint32_t bad[][3]={{0x60000000u,212u<<16|150,3u<<16|16},{0x60000000u,214u<<16|150,3u<<16|16},
+          {0x60000000u,213u<<16|150,4u<<16|16},{0x60000000u,213u<<16|150,3u<<16|49},
+          {0x60000000u,213u<<16|150,3u<<16|0xffff},{0x64000000u,213u<<16|150,3u<<16|16}};
+      for(i=0;i<sizeof bad/sizeof bad[0];i++) { uint32_t q[3];memcpy(q,bad[i],sizeof q);
+          assert(!port_ui_super_fill(q,3,1));assert(!memcmp(q,bad[i],sizeof q)); }
+      { uint32_t q[3]={0x60000000u,213u<<16|150,3u<<16|16};assert(!port_ui_super_fill(q,3,2) && !port_ui_super_fill(q,3,3));
+        q[2]=4u<<16|16;assert(!port_ui_super_fill(q,3,1));assert(port_ui_super_fill(q,3,3) && q[2]==(5u<<16|16)); } }
     p[0]=0xe100001f;
     for(i=0;i<12;i++)assert(port_ui_packet_kind(0x80188d6c+i*28,p,6,14)==1);
     for(i=0;i<16;i++)assert(port_ui_packet_kind(0x8018ff34+i*28,p,6,14)==1);
@@ -65,6 +90,6 @@ int main(void)
     assert(!port_ui_packet_kind(0x8018ccbc,p,4,14));
     assert(!port_ui_packet_kind(0x8018a4bd,p,4,14));
     assert(!port_ui_packet_kind(0x80100000,p,4,14)); /* A world sprite at the same depth. */
-    puts("UI layout: 72 geometry forms, transactional edges, life composition, exact buffers and canvas gates pass");
+    puts("UI layout: 72 geometry forms, transactional edges, life composition, meter fill rows, exact buffers and canvas gates pass");
     return 0;
 }

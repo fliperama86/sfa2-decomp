@@ -450,7 +450,7 @@ static void chunk_flush(void)
 }
 #endif
 
-static void chunk_add(const uint32_t *words, unsigned len, unsigned n, int dx, int fix_life)
+static void chunk_add(const uint32_t *words, unsigned len, unsigned n, int dx, int fix_life, int super_level)
 {
 #ifdef PORT_GUEST_VM
     unsigned i, pos = 0;
@@ -466,10 +466,11 @@ static void chunk_add(const uint32_t *words, unsigned len, unsigned n, int dx, i
     while (pos < len) {
         unsigned code = words[pos] >> 24, need = is_nop_kind(code) ? 1 : command_words(code);
         if (!is_nop_kind(code)) {
-            if (dx) {
+            if (dx || super_level) {
                 uint32_t copy[12]; /* Largest accepted geometry command is GT4. */
                 if (need>12) stop("gpu: UI command exceeds its bounded copy");
                 for (i=0;i<need;i++) copy[i]=words[pos+i];
+                port_ui_super_fill(copy,need,super_level);
                 if (port_ui_translate(copy,need,dx,fix_life)<0)
                     stop("gpu: UI layout coordinate/command is out of range");
                 for (i=0;i<need;i++) CHUNK_PUT(copy[i]);
@@ -504,7 +505,7 @@ static void send_single(const uint32_t *packet)
     chunk_last = NULL;
     if (len) {
         walk_payload(port_a(packet), packet + 1, len, &effective);
-        if (effective) chunk_add(packet + 1, len, effective, 0, 0);
+        if (effective) chunk_add(packet + 1, len, effective, 0, 0, 0);
     }
     chunk_flush();
 }
@@ -533,8 +534,10 @@ static void send_list(uint32_t *first)
         if (len) {
             unsigned effective = 0;
             int kind=dx?port_ui_packet_kind(here,node+1,len,list_index):0;
+            /* The meter's fills follow its one-to-one frame, with or without the centred layout. */
+            int level=pixel_perfect_ui?port_ui_super_fill_level(here,node+1,len,list_index):0;
             walk_payload(here, node + 1, len, &effective);
-            if (effective) chunk_add(node + 1, len, effective, kind?dx:0, kind==2 && pixel_perfect_ui);
+            if (effective) chunk_add(node + 1, len, effective, kind?dx:0, kind==2 && pixel_perfect_ui, level);
         }
         if ((head & LINK_END) == LINK_END) break;
         node = ram_at(head & LINK_END, here);

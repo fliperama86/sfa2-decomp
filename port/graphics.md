@@ -16,7 +16,11 @@ each 16x16 source tile one-to-one onto the native pixel grid, including mirrored
 tiles, mixed UV spans and the last tile of a texture page. The life-frame artwork
 has a six-row interior; selected yellow and delayed-damage fills render at that
 height, keeping their original X, widths, colors and health logic. Empty fills
-remain empty. Original game C, packet geometry and disc assets stay unchanged:
+remain empty. The super-meter frame's interior is one row higher on that grid
+and three, four and five rows tall by level, so the meter's fills are drawn from
+Y 212 at those heights in place of Y 213 and three, four and four rows; this one
+is done in the bridge's copy of the packet, with no marker in the record.
+Original game C, packet geometry and disc assets stay unchanged:
 the bridge adds markers only to known HUD records/lists, and the backend adjusts
 decoded render geometry. This is not a global correction for all UI or scaled/
 rotated graphics, and it does not import assets or recenter the HUD.
