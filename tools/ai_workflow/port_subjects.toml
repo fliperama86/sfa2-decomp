@@ -20,7 +20,7 @@
 
 [controls]
 test_intro_assets = ["port/intro/assets.py"]
-test_intro_animation = ["port/intro/animation.py"]
+test_intro_animation = ["port/intro/animation.py", "port/intro/assets.py"]
 test_build_sh = []   # about `build.sh` at the root of the tree, which is not a file of `port/`: it runs stand-ins and reads no file of the port
 test_hostaudio = ["port/src/iopage.c", "port/src/cd.c", "port/src/cd.h", "port/src/main.c", "port/psyz.patch"]
 test_hostbuild = ["port/programs.toml", "port/src/port_tables.h"]

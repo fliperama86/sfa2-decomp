@@ -28,6 +28,7 @@ Old figures describe their own date, not today's completion.
   code. User-supplied disc data stays private. Read `port/README.md` first.
   Arcade intro/attract restoration never changes `ps1/`, including metadata.
   Prefer PS1-only intro data: search its animation tables before adopting Saturn's.
+  Prioritize one user input; CPS2-only assets are under consideration, not an approved pivot.
 - Sound is part of the port's normal build, by the owner's decision of
   2026-10-10: a build with PsyZ has the game's sound library and plays
   without being asked. A test or a script that starts the program gives
@@ -115,6 +116,5 @@ Current state belongs in [current-state.md](current-state.md), next packages in
 [goals.md](goals.md), and acceptance specifications in `docs/tasks/`.
 
 ## Workflow implementation lessons
-A Git submodule is not a missing file. Record its pin and available content separately.
-Optional modules may lack system libraries; report availability, not an unearned pass.
-Keep failed smoke evidence; never relabel it a pass.
+Record submodule pins/availability; missing system libraries and failed smokes are not passes.
+Port test selectors must declare transitive imports outside `port/tools` explicitly (PR368).

@@ -57,3 +57,14 @@ separate arcade exploratory reports. The evidence manifest records hashes.
 These contain extracted values and are not published. Published source is
 project-authored format/search logic and synthetic tests, with no game bytes,
 pseudocode, third-party implementation, personal paths or credentials.
+
+### Review correction
+
+The owner found that the animation control also depends on `port/intro/assets.py`.
+The dependency collector follows imports only within `port/tools`, so its
+explicit subject entry now includes that helper. This is a selector-only
+correction. A targeted `port_controls` selection check confirmed that changing
+`assets.py` selects exactly the asset and animation controls; unchanged animation
+controls, game builds and disc scans were not rerun. The lesson is recorded in active memory. The owner subsequently raised
+single-input ergonomics and a possible CPS2-only asset backend; that is a
+feasibility question, not approval to change runtime inputs.
