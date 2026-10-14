@@ -75,6 +75,19 @@ the commands are in the [PlayStation notes](ps1/README.md) and the
 [matching build guide](ps1/docs/matching-build.md). The first rule is: a
 function counts as done only when its bytes match.
 
+The PC program has one command. It needs the tools that the
+[port page](port/README.md) names on your `PATH`, and your disc image only
+to start the game:
+
+```sh
+./build.sh win       # the Windows program; `mac` builds the macOS one
+./build.sh -r win    # the same, then start the game with the disc image that SFA2_DISC names
+```
+
+A second run does not build again what is already built. The head of
+[`build.sh`](build.sh) says what it runs, what it skips and where your own
+paths go.
+
 The repository's own checks need Python 3.12 and a MIPS binutils install:
 
 ```sh
