@@ -61,7 +61,7 @@ Old figures describe their own date, not today's completion.
   code, not a way around a game function that does not match.
 - CI/CD: tracked WIP uses default-off settings flags, preserving default behavior.
   Before a port-feature PR, give the owner a runnable build and test instructions.
-  Use small reviewed PRs; poll owner comments every 60 seconds while active.
+  Keep PR monitoring active until review is handled, polling owner comments every 60 s.
   Merge after scoped checks and owner approval; no private source silos or bypass.
 - [Agent worktrees](agent-worktrees.md): integration-only main, separate workers
   and pinned review, canonical outputs per worktree; provisioning remains undone.
