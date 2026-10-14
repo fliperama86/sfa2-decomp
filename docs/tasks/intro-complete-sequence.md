@@ -50,3 +50,14 @@ existing ignored intro folder. Publish project-authored source, contracts,
 synthetic fixtures and scoped records only. Complete importer/runtime behavior,
 limitations and provenance must be documented. Owner testing precedes the PR;
 then monitor only owner's comments every 60 seconds and merge only on approval.
+
+## Implementation checkpoint
+
+Shared graphics and metasprite adapters are tracked at 689c1cae, with scoped
+evidence in [the adapter record](../records/2026-10-14-intro-complete-adapters.md).
+Offline discovery reaches all eight original phases, including secondary actor
+pools, but substitutes cooperative scheduling and is not a native intro.
+Original-state captures are never runtime playback input. Native controllers,
+actor lifecycles, typed resource import and sound remain outstanding. Do not
+launch or announce the rebuilt executable: its opening route is still the old
+bounded first-scene slice.
