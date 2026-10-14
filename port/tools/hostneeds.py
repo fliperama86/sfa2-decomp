@@ -42,7 +42,10 @@ A name that two units declare, or that the symbol file gives twice, has
 the address of the first. A needed name has the first class that applies:
 
     library by name        a unit under `sdk/` declares it
-    assembly               a unit whose source is not C declares it
+    assembly               a unit whose source is not C declares it (a source
+                           that does not end in `.c`, or a unit of
+                           `kind = "asm"` whatever its file is named, as
+                           `hostcheck.py` reads it)
     unit not compiled      a C unit that is not under `sdk/` and did not
                            pass declares it
     unknown                it has no address
@@ -206,7 +209,7 @@ def read_config(path: Path) -> tuple[list[Unit], list[str]]:
             raise Problem(f"{path}: unit {index} has no name")
         if not isinstance(source, str) or not source:
             raise Problem(f"{path}: unit {name} has no source")
-        kind = "sdk" if source.startswith("sdk/") else "c" if source.endswith(".c") else "assembly"
+        kind = "sdk" if source.startswith("sdk/") else "c" if source.endswith(".c") and entry.get("kind") != "asm" else "assembly"
         image = entry.get("image")
         if image is not None and not isinstance(image, str):
             raise Problem(f"{path}: the image of unit {name} is not a string")
