@@ -5,13 +5,27 @@ player is implemented here yet. Nothing under `ps1/` is changed.** Any eventual
 runtime feature belongs in the normal port behind a default-off experimental
 setting, not in the matching PS1 reconstruction.
 
+## Current implementation direction
+
+The owner authorized an intro-first CPS2 implementation on 2026-10-14, while
+considering a later single-input port. Saturn is valuable as a possible
+byte-matching C reconstruction target, not merely a visual reference. A match
+still needs compiler/build evidence; C ancestry alone does not establish it.
+
+The first implementation is [the C sequence core](sequence-contract.md): select
+an original relative-table entry, then follow its countdowns and branches.
+The CPS2 actor that consumes the first intro loop has been located. This core
+has no runtime call site yet, and there is still no visible intro player.
+Scene composition, movement/spawning, effects and sound remain. The intended
+intro data source is the user's CPS2 set, not an additional Saturn disc.
+
 ## Code-first recovery
 
 Recover behavior from the supplied CPS2 program, using Saturn decompilation
 to clarify it. Do not reconstruct timings or transitions by visually mimicking
 a recording. User testing validates the resulting implementation, not its spec.
-Before writing a replacement controller, investigate the owner's hypothesis
-that the PS1 disc retains the original in-engine intro code.
+The earlier probes investigated the owner's hypothesis that the PS1 disc
+retains the original in-engine intro code.
 
 The first [PS1 code probe](../../docs/records/2026-10-14-intro-code-probe.md)
 found existing ending/scroll-scene C and sprite layouts referencing the same
@@ -21,8 +35,7 @@ unreferenced artwork, but **not evidence of the full arcade intro controller**.
 The normal PS1 opening route selects the movie player. Dormant scene code and
 equivalent controllers elsewhere remain an open question.
 
-The owner prefers PS1-only code and data, including any surviving animation
-tables. `animation.py` searches the manifest-listed, nonstream PS1 disc files
+The earlier PS1-only investigation included any surviving animation tables. `animation.py` searches the manifest-listed, nonstream PS1 disc files
 for the first Saturn scene's five referenced sprite schedules:
 
 ```sh
@@ -108,8 +121,8 @@ bounded tile search does not prove whole-disc absence.
 
 Before introducing a scene player, finish its map placement, sprite list,
 palette effects and timing contract. Build a per-scene dependency manifest:
-use PS1 data where equality is proven, and user-supplied supplemental assets
-where it is not. Keep arcade fidelity distinct from Saturn-reference behavior.
+derive intro data from the supplied CPS2 set, recording the exact revision
+and any behavior reconstructed from Saturn. Keep arcade fidelity distinct from Saturn-reference behavior.
 Do not insert an original-code interpreter or import decompiler output as
 project source. Intro playback and the attract-mode controller are separate
 pieces; neither is claimed by this asset-recovery increment.
