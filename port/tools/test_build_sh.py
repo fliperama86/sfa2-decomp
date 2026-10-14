@@ -95,6 +95,7 @@ class Tree:
         for name in ("psyzbuild", "hostbuild", "macbuild"):
             self.write(f"port/tools/{name}.py", TOOL)
         self.write("port/psyz.patch", "a patch\n")
+        self.write("port/src/video.h", "/* a policy */\n")
         self.write("port/settings.ini", "[experimental]\n")
         self.psyz = root / "port/external/psyz"
         if psyz != "missing":
@@ -209,6 +210,9 @@ def case_the_library_is_built_again_when_an_input_changed(root: Path):
     same(tree.run("win")[:2], (0, WIN[1:]), "after the patch")
     tree.write("port/tools/psyzbuild.py", TOOL + "\n")
     same(tree.run("win")[:2], (0, WIN), "the tool changed")
+    tree.write("port/src/video.h", "/* another policy */\n")
+    same(tree.run("win")[:2], (0, WIN), "the policy header that the library holds a copy of changed")
+    same(tree.run("win")[:2], (0, WIN[1:]), "after the policy header")
     same(tree.run("win", STUB_CC="cc 2.0")[:2], (0, WIN), "the compiler's version line changed")
     same(tree.run("win", STUB_CC="cc 2.0")[:2], (0, WIN[1:]), "after the compiler")
     tree.write("port/external/psyz/psyz/a.c", "int b;\n")

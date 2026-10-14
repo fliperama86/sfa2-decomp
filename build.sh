@@ -25,8 +25,9 @@
 #   - The PsyZ submodule is fetched only when port/external/psyz is empty (git submodule update --init, then its
 #     SDL submodule). A checkout that is there is never moved; a line says so when it is not at the pinned commit.
 #   - The library step is skipped when the last run of it by this script ended well for the same PsyZ commit with no
-#     change in its work tree, the same port/psyz.patch, the same psyzbuild.py and the same first line of the
-#     compiler's --version. That is written beside the build folder, as FOLDER.key. A PsyZ folder that is not a git
+#     change in its work tree, the same port/psyz.patch, the same psyzbuild.py, the same port/src/video.h (the
+#     policy header that psyzbuild.py copies into the library) and the same first line of the compiler's --version.
+#     That is written beside the build folder, as FOLDER.key. A PsyZ folder that is not a git
 #     work tree of its own is always built again (psyzbuild.py itself compiles only what changed).
 #   - The program step (hostbuild.py, and macbuild.py for the Mac) is skipped when the last run of it by this script
 #     ended well and nothing it was made from changed since: git status shows no change and no new file under ps1/
@@ -104,6 +105,7 @@ library_key() {
     echo "psyz $(git -C $PSYZ rev-parse HEAD)"
     echo "patch $(git hash-object port/psyz.patch)"
     echo "tool $(git hash-object port/tools/psyzbuild.py)"
+    echo "policy $(git hash-object port/src/video.h)"
     echo "compiler $version"
 }
 
