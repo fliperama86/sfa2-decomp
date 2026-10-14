@@ -20,6 +20,8 @@
 
 [controls]
 test_intro_particles = ["port/intro/particles.c", "port/intro/particles.h", "port/intro/particles-fixtures.json", "port/intro/verify_particles.py", "port/intro/verify_sequence.py"]
+test_intro_video = ["port/intro/video.c", "port/intro/video.h", "port/intro/tests/video_test.c"]
+test_intro_sprites = ["port/intro/sprites.c", "port/intro/sprites.h", "port/intro/video.h", "port/intro/sprites-fixtures.json", "port/intro/verify_sprites.py", "port/intro/verify_sequence.py"]
 test_intro_scene = ["port/intro/particles.c", "port/intro/particles.h", "port/intro/embers.c", "port/intro/embers.h", "port/intro/import_scene.py", "port/intro/scene.c", "port/intro/scene.h", "port/intro/sequence.c", "port/intro/sequence.h", "port/src/intro.c", "port/src/intro.h", "port/src/gpu.c", "port/src/gpu.h", "port/src/sha256.c"]
 test_intro_assets = ["port/intro/assets.py"]
 test_intro_animation = ["port/intro/animation.py", "port/intro/assets.py"]

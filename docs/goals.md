@@ -49,7 +49,11 @@ from CPS2 code, with scoped differential evidence and a private version-2 pack.
 The owner tested it and rejected the ember-only increment as insufficient: it
 still shows only the same Akuma/flames slice. Do not open a PR for this as an
 approved feature. Prioritize actual intro progression, transitions and subsequent
-scenes, rather than another cosmetic variation of the same short scene. Sound
+scenes, rather than another cosmetic variation of the same short scene. The
+owner now explicitly requires the entire intro before any further test/readiness
+notification. Follow [the complete-intro task](tasks/intro-complete-sequence.md).
+Shared native graphics and metasprite adapters are in progress; original-state
+offline captures are not native full-intro playback. Sound
 also remains unfinished. Keep every change port-only. The whole-port CPS2-only asset pivot remains
 undecided. See [intro scope](../port/intro/README.md) and the
 [particle contract](../port/intro/particles-contract.md).

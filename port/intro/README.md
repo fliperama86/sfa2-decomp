@@ -34,8 +34,9 @@ interpreter or captured video is used. Invalid/missing enabled input stops
 with an explicit message. The importer currently accepts only the supplied,
 examined US 960306 archive, including its observed graphics variants.
 
-The version-2 owner-test build is ready, not yet owner-tested or submitted as
-a PR. Its [particle contract](particles-contract.md) reconstructs the original
+The owner tested version 2 and rejected its ember-only scope as insufficient.
+It is not a complete-intro test candidate or an approved feature. Its
+[particle contract](particles-contract.md) reconstructs the original
 RNG, spawning and fixed-point movement. The old version-1 pack still works and
 retains the earlier no-particle scene. Do not overwrite it. To prepare the new
 pack during development, use the pinned decrypted analysis image of the same
@@ -76,6 +77,15 @@ Not implemented: warm-up, fades/flashes, sound, the remaining intro
 scenes and attract-mode flow. Full brightness and initial effect phase are
 normalized in this slice. The existing port's 60 Hz clock is used, not an exact
 CPS2 refresh clock. The owner must be able to test this build before a new PR.
+
+The active [complete-intro task](../../docs/tasks/intro-complete-sequence.md)
+requires the ENTIRE intro before another readiness notification or owner test.
+Native [graphics composition](video-contract.md) and
+[metasprite expansion](sprites-contract.md) now cover the shared formats needed
+by all scenes. These are intermediate source components, not a new runnable
+intro. Offline original-state captures are analysis evidence only, never
+runtime playback data. Native controllers, actors, complete import and sound
+remain required before integration into the normal opening route.
 
 The owner authorized intro-first CPS2 implementation on 2026-10-14. Saturn
 remains valuable as a possible byte-matching C target. A match still needs

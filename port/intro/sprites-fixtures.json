@@ -1,0 +1,3002 @@
+{
+  "provenance": "Synthetic numeric inputs and isolated original-consumer outputs, no game assets.",
+  "cases": [
+    {
+      "mode": 0,
+      "cells": 3,
+      "budget": 896,
+      "blocks": [
+        [
+          22773,
+          16932,
+          46934,
+          78
+        ],
+        [
+          -15689,
+          -7603,
+          35046,
+          78
+        ],
+        [
+          25503,
+          -30924,
+          28972,
+          78
+        ]
+      ],
+      "style": {
+        "x": 3246,
+        "y": 13880,
+        "x_flags": 8192,
+        "y_flags": 24576,
+        "bypass": 0,
+        "flip": 3,
+        "palette_mode": 0,
+        "palette": 220,
+        "expand_x": 1,
+        "expand_y": 0,
+        "rotate": 0,
+        "matrix": [
+          -28140,
+          15611,
+          -10233,
+          -4451
+        ]
+      },
+      "name": "synthetic-mode0-case0",
+      "after": {
+        "result": 1,
+        "count": 5,
+        "cells_left": 893,
+        "objects": "23a96004b756006e21e763db88e6006e20ff62f4712c006e"
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 16,
+      "budget": 16,
+      "blocks": [
+        [
+          -21531,
+          29368,
+          23282,
+          13097
+        ],
+        [
+          -8910,
+          -9367,
+          42390,
+          4117
+        ],
+        [
+          -19844,
+          23087,
+          5103,
+          8788
+        ]
+      ],
+      "style": {
+        "x": 37812,
+        "y": 39949,
+        "x_flags": 57344,
+        "y_flags": 8192,
+        "bypass": 0,
+        "flip": 2,
+        "palette_mode": 1,
+        "palette": 54,
+        "expand_x": -32768,
+        "expand_y": 0,
+        "rotate": 1,
+        "matrix": [
+          -1570,
+          10257,
+          -14097,
+          -19616
+        ]
+      },
+      "name": "synthetic-mode2-case1",
+      "after": {
+        "result": 1,
+        "count": 5,
+        "cells_left": 0,
+        "objects": "e39921155af23376e0e62084a5961056e23021ae13ef2216"
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 15,
+      "budget": 0,
+      "blocks": [
+        [
+          -25439,
+          21787,
+          51561,
+          313
+        ],
+        [
+          -31099,
+          -3644,
+          7454,
+          12376
+        ],
+        [
+          -30675,
+          16646,
+          64303,
+          4115
+        ],
+        [
+          1876,
+          28306,
+          25774,
+          12855
+        ]
+      ],
+      "style": {
+        "x": 22240,
+        "y": 31278,
+        "x_flags": 32768,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 3,
+        "palette_mode": 1,
+        "palette": 6,
+        "expand_x": 32767,
+        "expand_y": 1,
+        "rotate": 1,
+        "matrix": [
+          -11130,
+          21315,
+          -23649,
+          -1518
+        ]
+      },
+      "name": "synthetic-mode4-case2",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 62,
+      "budget": 62,
+      "blocks": [
+        [
+          6403,
+          -26016,
+          37336,
+          9064
+        ],
+        [
+          -18554,
+          -29451,
+          18246,
+          9064
+        ],
+        [
+          10813,
+          23652,
+          32552,
+          9064
+        ],
+        [
+          -11099,
+          -22469,
+          44286,
+          9064
+        ],
+        [
+          -17874,
+          -1956,
+          61699,
+          9064
+        ]
+      ],
+      "style": {
+        "x": 516,
+        "y": 44324,
+        "x_flags": 49152,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 1,
+        "palette_mode": 255,
+        "palette": 104,
+        "expand_x": 0,
+        "expand_y": -1,
+        "rotate": 1,
+        "matrix": [
+          22616,
+          -22047,
+          22278,
+          3573
+        ]
+      },
+      "name": "synthetic-mode6-case3",
+      "after": {
+        "result": 1,
+        "count": 7,
+        "cells_left": 0,
+        "objects": "c1c0231435d82370c1c020f0eb462370c1c020f023282370c1c020f050fe2370c1c020f095032370"
+      }
+    },
+    {
+      "mode": 8,
+      "cells": 31,
+      "budget": 31,
+      "blocks": [
+        [
+          -21445,
+          -3081,
+          8153,
+          13060
+        ],
+        [
+          27110,
+          21215,
+          38224,
+          9049
+        ],
+        [
+          6838,
+          3104,
+          44731,
+          4874
+        ],
+        [
+          22224,
+          29852,
+          33486,
+          8290
+        ]
+      ],
+      "style": {
+        "x": 19171,
+        "y": 48634,
+        "x_flags": 8192,
+        "y_flags": 24576,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 128,
+        "palette": 226,
+        "expand_x": 0,
+        "expand_y": 0,
+        "rotate": 1,
+        "matrix": [
+          -18179,
+          -315,
+          28768,
+          -27174
+        ]
+      },
+      "name": "synthetic-mode8-case4",
+      "after": {
+        "result": 1,
+        "count": 6,
+        "cells_left": 0,
+        "objects": "21c020f0c3d9000621c020f03950005b21c020f052bb000c21c020f026ce0064"
+      }
+    },
+    {
+      "mode": 10,
+      "cells": 48,
+      "budget": 0,
+      "blocks": [
+        [
+          14712,
+          -13556,
+          11845,
+          4956
+        ],
+        [
+          5644,
+          -22509,
+          22240,
+          46
+        ],
+        [
+          -30265,
+          -14932,
+          18238,
+          9035
+        ],
+        [
+          -26545,
+          -27123,
+          13423,
+          8226
+        ]
+      ],
+      "style": {
+        "x": 20975,
+        "y": 28083,
+        "x_flags": 24576,
+        "y_flags": 24576,
+        "bypass": 0,
+        "flip": 2,
+        "palette_mode": 1,
+        "palette": 223,
+        "expand_x": 1,
+        "expand_y": -32768,
+        "rotate": 0,
+        "matrix": [
+          8104,
+          27064,
+          -15835,
+          13972
+        ]
+      },
+      "name": "synthetic-mode10-case5",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 4,
+      "budget": 896,
+      "blocks": [
+        [
+          19013,
+          13142,
+          27571,
+          8317
+        ],
+        [
+          -11564,
+          -5171,
+          41400,
+          8317
+        ],
+        [
+          20553,
+          22635,
+          7673,
+          8317
+        ],
+        [
+          -27437,
+          8609,
+          56016,
+          8317
+        ]
+      ],
+      "style": {
+        "x": 21009,
+        "y": 54311,
+        "x_flags": 40960,
+        "y_flags": 8192,
+        "bypass": 1,
+        "flip": 2,
+        "palette_mode": 0,
+        "palette": 151,
+        "expand_x": 32767,
+        "expand_y": -1,
+        "rotate": 1,
+        "matrix": [
+          15380,
+          32537,
+          -30630,
+          23284
+        ]
+      },
+      "name": "synthetic-mode0-case6",
+      "after": {
+        "result": 1,
+        "count": 6,
+        "cells_left": 892,
+        "objects": "a056237d6bb3207da0e523f4a1b8207da25a20921df9207da2e421c8dad0207d"
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 95,
+      "budget": 95,
+      "blocks": [
+        [
+          23624,
+          -24553,
+          59821,
+          865
+        ],
+        [
+          601,
+          -25283,
+          4473,
+          13145
+        ],
+        [
+          2998,
+          -10663,
+          18821,
+          799
+        ],
+        [
+          -23908,
+          22740,
+          62027,
+          4638
+        ],
+        [
+          -30444,
+          -5431,
+          25863,
+          8772
+        ]
+      ],
+      "style": {
+        "x": 56401,
+        "y": 64655,
+        "x_flags": 32768,
+        "y_flags": 16384,
+        "bypass": 1,
+        "flip": 0,
+        "palette_mode": 1,
+        "palette": 78,
+        "expand_x": 0,
+        "expand_y": -1,
+        "rotate": 0,
+        "matrix": [
+          7927,
+          79,
+          -18245,
+          -22371
+        ]
+      },
+      "name": "synthetic-mode2-case7",
+      "after": {
+        "result": 1,
+        "count": 7,
+        "cells_left": 0,
+        "objects": "809940a6e9ad036182aa41cc11793359800742e84985031f82ed4163f24b121e8165435865072244"
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 85,
+      "budget": 84,
+      "blocks": [
+        [
+          1878,
+          2892,
+          55287,
+          274
+        ]
+      ],
+      "style": {
+        "x": 23077,
+        "y": 28487,
+        "x_flags": 57344,
+        "y_flags": 0,
+        "bypass": 1,
+        "flip": 1,
+        "palette_mode": 128,
+        "palette": 0,
+        "expand_x": -32768,
+        "expand_y": 32767,
+        "rotate": 0,
+        "matrix": [
+          22449,
+          -26766,
+          -30421,
+          -14501
+        ]
+      },
+      "name": "synthetic-mode4-case8",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 84,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 87,
+      "budget": 0,
+      "blocks": [
+        [
+          -31671,
+          32325,
+          10722,
+          618
+        ],
+        [
+          27065,
+          9983,
+          37503,
+          618
+        ]
+      ],
+      "style": {
+        "x": 21817,
+        "y": 27251,
+        "x_flags": 32768,
+        "y_flags": 0,
+        "bypass": 1,
+        "flip": 1,
+        "palette_mode": 1,
+        "palette": 71,
+        "expand_x": -32768,
+        "expand_y": 0,
+        "rotate": 1,
+        "matrix": [
+          -6988,
+          -10314,
+          -5736,
+          -24355
+        ]
+      },
+      "name": "synthetic-mode6-case9",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 8,
+      "cells": 19,
+      "budget": 18,
+      "blocks": [
+        [
+          23627,
+          14124,
+          8413,
+          4949
+        ],
+        [
+          -19775,
+          -298,
+          19356,
+          9077
+        ],
+        [
+          -4314,
+          -11860,
+          32404,
+          8216
+        ]
+      ],
+      "style": {
+        "x": 9214,
+        "y": 48854,
+        "x_flags": 0,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 3,
+        "palette_mode": 0,
+        "palette": 83,
+        "expand_x": 1,
+        "expand_y": 1,
+        "rotate": 0,
+        "matrix": [
+          28077,
+          11498,
+          6645,
+          -20649
+        ]
+      },
+      "name": "synthetic-mode8-case10",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 18,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 10,
+      "cells": 47,
+      "budget": 47,
+      "blocks": [
+        [
+          16743,
+          16555,
+          2194,
+          4102
+        ],
+        [
+          -28062,
+          10299,
+          19217,
+          612
+        ],
+        [
+          -13922,
+          20904,
+          39097,
+          4710
+        ],
+        [
+          -9457,
+          2461,
+          52747,
+          8450
+        ]
+      ],
+      "style": {
+        "x": 10645,
+        "y": 63632,
+        "x_flags": 57344,
+        "y_flags": 16384,
+        "bypass": 1,
+        "flip": 0,
+        "palette_mode": 255,
+        "palette": 40,
+        "expand_x": 1,
+        "expand_y": -1,
+        "rotate": 0,
+        "matrix": [
+          -30269,
+          -2953,
+          15095,
+          22937
+        ]
+      },
+      "name": "synthetic-mode10-case11",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 47,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 2,
+      "budget": 896,
+      "blocks": [
+        [
+          -6432,
+          -4734,
+          22568,
+          577
+        ],
+        [
+          -13351,
+          31688,
+          42121,
+          577
+        ]
+      ],
+      "style": {
+        "x": 44504,
+        "y": 48516,
+        "x_flags": 24576,
+        "y_flags": 24576,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 255,
+        "palette": 161,
+        "expand_x": -32768,
+        "expand_y": 0,
+        "rotate": 0,
+        "matrix": [
+          -24683,
+          -16068,
+          -17639,
+          -8644
+        ]
+      },
+      "name": "synthetic-mode0-case12",
+      "after": {
+        "result": 1,
+        "count": 4,
+        "cells_left": 894,
+        "objects": "60b863f25828004261b161aca4890042"
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 74,
+      "budget": 896,
+      "blocks": [
+        [
+          13780,
+          -10607,
+          13257,
+          8779
+        ]
+      ],
+      "style": {
+        "x": 26936,
+        "y": 52002,
+        "x_flags": 32768,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 1,
+        "palette_mode": 0,
+        "palette": 234,
+        "expand_x": -32768,
+        "expand_y": 32767,
+        "rotate": 0,
+        "matrix": [
+          -16232,
+          29812,
+          -31016,
+          14600
+        ]
+      },
+      "name": "synthetic-mode2-case13",
+      "after": {
+        "result": 1,
+        "count": 3,
+        "cells_left": 822,
+        "objects": "833401b333c9226b"
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 32,
+      "budget": 31,
+      "blocks": [
+        [
+          -27828,
+          4001,
+          25437,
+          636
+        ],
+        [
+          -32353,
+          2539,
+          33542,
+          13100
+        ],
+        [
+          24194,
+          22441,
+          26303,
+          355
+        ],
+        [
+          -32562,
+          20521,
+          15822,
+          8516
+        ]
+      ],
+      "style": {
+        "x": 31409,
+        "y": 936,
+        "x_flags": 32768,
+        "y_flags": 8192,
+        "bypass": 0,
+        "flip": 3,
+        "palette_mode": 0,
+        "palette": 90,
+        "expand_x": 32767,
+        "expand_y": -1,
+        "rotate": 0,
+        "matrix": [
+          -27269,
+          -4954,
+          -23436,
+          -30143
+        ]
+      },
+      "name": "synthetic-mode4-case14",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 31,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 74,
+      "budget": 896,
+      "blocks": [
+        [
+          -29373,
+          21145,
+          42727,
+          4617
+        ]
+      ],
+      "style": {
+        "x": 10476,
+        "y": 29372,
+        "x_flags": 32768,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 1,
+        "palette_mode": 0,
+        "palette": 48,
+        "expand_x": 0,
+        "expand_y": -1,
+        "rotate": 0,
+        "matrix": [
+          -21776,
+          -283,
+          -14477,
+          -21431
+        ]
+      },
+      "name": "synthetic-mode6-case15",
+      "after": {
+        "result": 1,
+        "count": 3,
+        "cells_left": 822,
+        "objects": "81c020f04ae71229"
+      }
+    },
+    {
+      "mode": 8,
+      "cells": 87,
+      "budget": 0,
+      "blocks": [
+        [
+          -26751,
+          -26824,
+          22417,
+          633
+        ],
+        [
+          -32681,
+          19916,
+          31701,
+          8276
+        ],
+        [
+          -9432,
+          31094,
+          47880,
+          329
+        ],
+        [
+          8472,
+          8178,
+          38449,
+          4925
+        ]
+      ],
+      "style": {
+        "x": 7235,
+        "y": 9729,
+        "x_flags": 40960,
+        "y_flags": 24576,
+        "bypass": 0,
+        "flip": 3,
+        "palette_mode": 255,
+        "palette": 112,
+        "expand_x": -32768,
+        "expand_y": 0,
+        "rotate": 0,
+        "matrix": [
+          -3395,
+          -6313,
+          22824,
+          -18320
+        ]
+      },
+      "name": "synthetic-mode8-case16",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 10,
+      "cells": 63,
+      "budget": 0,
+      "blocks": [
+        [
+          30166,
+          2176,
+          9945,
+          12345
+        ],
+        [
+          -28560,
+          11972,
+          23052,
+          12354
+        ],
+        [
+          -11133,
+          -5998,
+          44627,
+          4392
+        ],
+        [
+          16063,
+          29976,
+          20765,
+          12299
+        ],
+        [
+          -7633,
+          23357,
+          30567,
+          4645
+        ]
+      ],
+      "style": {
+        "x": 63230,
+        "y": 24690,
+        "x_flags": 24576,
+        "y_flags": 24576,
+        "bypass": 0,
+        "flip": 3,
+        "palette_mode": 0,
+        "palette": 51,
+        "expand_x": 32767,
+        "expand_y": 1,
+        "rotate": 1,
+        "matrix": [
+          11695,
+          -21516,
+          -2784,
+          9113
+        ]
+      },
+      "name": "synthetic-mode10-case17",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 2,
+      "budget": 0,
+      "blocks": [
+        [
+          -30637,
+          13595,
+          60038,
+          8753
+        ],
+        [
+          5486,
+          -936,
+          26293,
+          8753
+        ]
+      ],
+      "style": {
+        "x": 21693,
+        "y": 4726,
+        "x_flags": 0,
+        "y_flags": 16384,
+        "bypass": 1,
+        "flip": 0,
+        "palette_mode": 1,
+        "palette": 36,
+        "expand_x": -32768,
+        "expand_y": 0,
+        "rotate": 0,
+        "matrix": [
+          17360,
+          -18322,
+          12267,
+          -2460
+        ]
+      },
+      "name": "synthetic-mode0-case18",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 79,
+      "budget": 896,
+      "blocks": [
+        [
+          10673,
+          -15883,
+          32379,
+          12622
+        ],
+        [
+          2967,
+          -18818,
+          41286,
+          12590
+        ],
+        [
+          23853,
+          2306,
+          25428,
+          4964
+        ]
+      ],
+      "style": {
+        "x": 40356,
+        "y": 23467,
+        "x_flags": 49152,
+        "y_flags": 0,
+        "bypass": 1,
+        "flip": 3,
+        "palette_mode": 0,
+        "palette": 47,
+        "expand_x": -32768,
+        "expand_y": 0,
+        "rotate": 0,
+        "matrix": [
+          6205,
+          -8637,
+          -30044,
+          23969
+        ]
+      },
+      "name": "synthetic-mode2-case19",
+      "after": {
+        "result": 1,
+        "count": 5,
+        "cells_left": 817,
+        "objects": "c35501a07e7b314ec13b0229a146312ec2d100ad63541364"
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 18,
+      "budget": 0,
+      "blocks": [
+        [
+          8156,
+          12298,
+          50021,
+          8757
+        ],
+        [
+          18743,
+          -13064,
+          55231,
+          9019
+        ]
+      ],
+      "style": {
+        "x": 53684,
+        "y": 18549,
+        "x_flags": 40960,
+        "y_flags": 0,
+        "bypass": 1,
+        "flip": 3,
+        "palette_mode": 255,
+        "palette": 39,
+        "expand_x": -1,
+        "expand_y": 0,
+        "rotate": 1,
+        "matrix": [
+          3028,
+          -22127,
+          -1727,
+          -29934
+        ]
+      },
+      "name": "synthetic-mode4-case20",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 55,
+      "budget": 896,
+      "blocks": [
+        [
+          -2062,
+          29595,
+          36803,
+          8733
+        ],
+        [
+          -17686,
+          32309,
+          30831,
+          8733
+        ]
+      ],
+      "style": {
+        "x": 61243,
+        "y": 513,
+        "x_flags": 24576,
+        "y_flags": 24576,
+        "bypass": 1,
+        "flip": 2,
+        "palette_mode": 255,
+        "palette": 39,
+        "expand_x": 0,
+        "expand_y": -1,
+        "rotate": 1,
+        "matrix": [
+          -13952,
+          -23121,
+          13585,
+          -26937
+        ]
+      },
+      "name": "synthetic-mode6-case21",
+      "after": {
+        "result": 1,
+        "count": 4,
+        "cells_left": 841,
+        "objects": "61c020f033c3221d61c020f01c6f221d"
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 4,
+      "budget": 4,
+      "blocks": [
+        [
+          8884,
+          6170,
+          5812,
+          4
+        ],
+        [
+          31748,
+          28733,
+          46687,
+          4
+        ],
+        [
+          12706,
+          -30398,
+          60806,
+          4
+        ],
+        [
+          -32331,
+          4769,
+          30346,
+          4
+        ]
+      ],
+      "style": {
+        "x": 9415,
+        "y": 7137,
+        "x_flags": 8192,
+        "y_flags": 8192,
+        "bypass": 0,
+        "flip": 1,
+        "palette_mode": 1,
+        "palette": 135,
+        "expand_x": 32767,
+        "expand_y": 1,
+        "rotate": 1,
+        "matrix": [
+          27595,
+          -26862,
+          -25522,
+          -2619
+        ]
+      },
+      "name": "synthetic-mode0-case24",
+      "after": {
+        "result": 1,
+        "count": 6,
+        "cells_left": 0,
+        "objects": "220323fb16b4002720b3201eb65f002723152123ed86002723022282768a0027"
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 4,
+      "budget": 3,
+      "blocks": [
+        [
+          10337,
+          -1378,
+          10177,
+          8819
+        ]
+      ],
+      "style": {
+        "x": 51695,
+        "y": 45168,
+        "x_flags": 24576,
+        "y_flags": 8192,
+        "bypass": 0,
+        "flip": 3,
+        "palette_mode": 128,
+        "palette": 88,
+        "expand_x": 0,
+        "expand_y": -1,
+        "rotate": 1,
+        "matrix": [
+          -23097,
+          6784,
+          -1050,
+          23691
+        ]
+      },
+      "name": "synthetic-mode2-case25",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 3,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 76,
+      "budget": 896,
+      "blocks": [
+        [
+          9400,
+          21234,
+          44644,
+          4613
+        ],
+        [
+          -4178,
+          3328,
+          6692,
+          4907
+        ],
+        [
+          -27774,
+          27834,
+          15419,
+          4356
+        ],
+        [
+          -7903,
+          5036,
+          54039,
+          12920
+        ],
+        [
+          21321,
+          17019,
+          63903,
+          8793
+        ]
+      ],
+      "style": {
+        "x": 8935,
+        "y": 7683,
+        "x_flags": 32768,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 2,
+        "palette_mode": 128,
+        "palette": 191,
+        "expand_x": 0,
+        "expand_y": 1,
+        "rotate": 0,
+        "matrix": [
+          30549,
+          26557,
+          2967,
+          9212
+        ]
+      },
+      "name": "synthetic-mode4-case26",
+      "after": {
+        "result": 1,
+        "count": 7,
+        "cells_left": 820,
+        "objects": "839f22f152641244829520e3be24136a82692129e03b11438008221777173237823023589d9f2218"
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 80,
+      "budget": 896,
+      "blocks": [
+        [
+          23497,
+          -9316,
+          22175,
+          8471
+        ],
+        [
+          4496,
+          30505,
+          19722,
+          8471
+        ],
+        [
+          -10771,
+          8709,
+          45656,
+          8471
+        ]
+      ],
+      "style": {
+        "x": 51937,
+        "y": 28379,
+        "x_flags": 40960,
+        "y_flags": 8192,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 1,
+        "palette": 49,
+        "expand_x": 0,
+        "expand_y": 1,
+        "rotate": 1,
+        "matrix": [
+          -5028,
+          -11799,
+          26124,
+          27749
+        ]
+      },
+      "name": "synthetic-mode6-case27",
+      "after": {
+        "result": 1,
+        "count": 5,
+        "cells_left": 816,
+        "objects": "a1c020f0fa9f2111a1c020f0f10a2111a1c021b956582111"
+      }
+    },
+    {
+      "mode": 10,
+      "cells": 92,
+      "budget": 91,
+      "blocks": [
+        [
+          16316,
+          4805,
+          41887,
+          8769
+        ]
+      ],
+      "style": {
+        "x": 17890,
+        "y": 27708,
+        "x_flags": 24576,
+        "y_flags": 16384,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 255,
+        "palette": 12,
+        "expand_x": -1,
+        "expand_y": -1,
+        "rotate": 0,
+        "matrix": [
+          -12306,
+          26042,
+          -2431,
+          22438
+        ]
+      },
+      "name": "synthetic-mode10-case29",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 91,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 3,
+      "budget": 0,
+      "blocks": [
+        [
+          8296,
+          7928,
+          11300,
+          37
+        ],
+        [
+          9094,
+          -11277,
+          165,
+          37
+        ],
+        [
+          17970,
+          14517,
+          50535,
+          37
+        ]
+      ],
+      "style": {
+        "x": 19190,
+        "y": 49285,
+        "x_flags": 0,
+        "y_flags": 8192,
+        "bypass": 1,
+        "flip": 1,
+        "palette_mode": 255,
+        "palette": 87,
+        "expand_x": 32767,
+        "expand_y": -1,
+        "rotate": 1,
+        "matrix": [
+          -24604,
+          -22688,
+          24150,
+          1894
+        ]
+      },
+      "name": "synthetic-mode0-case30",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 32,
+      "budget": 896,
+      "blocks": [
+        [
+          -3965,
+          -17529,
+          60937,
+          3
+        ],
+        [
+          -28405,
+          -7065,
+          26311,
+          35
+        ],
+        [
+          -30379,
+          10716,
+          19797,
+          12621
+        ],
+        [
+          565,
+          -4666,
+          4118,
+          4436
+        ],
+        [
+          3278,
+          31927,
+          62020,
+          12375
+        ]
+      ],
+      "style": {
+        "x": 61950,
+        "y": 64285,
+        "x_flags": 32768,
+        "y_flags": 8192,
+        "bypass": 1,
+        "flip": 3,
+        "palette_mode": 255,
+        "palette": 170,
+        "expand_x": -32768,
+        "expand_y": -1,
+        "rotate": 1,
+        "matrix": [
+          5702,
+          -32524,
+          18606,
+          5460
+        ]
+      },
+      "name": "synthetic-mode4-case32",
+      "after": {
+        "result": 1,
+        "count": 7,
+        "cells_left": 864,
+        "objects": "828122a492090003830923840ac70023835320f9f155314d803320e3b416115482cc23d496443057"
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 63,
+      "budget": 63,
+      "blocks": [
+        [
+          1011,
+          -29303,
+          61424,
+          13117
+        ],
+        [
+          -32412,
+          -19768,
+          7553,
+          13117
+        ],
+        [
+          -29328,
+          -30951,
+          11446,
+          13117
+        ],
+        [
+          28711,
+          15402,
+          22044,
+          13117
+        ]
+      ],
+      "style": {
+        "x": 15641,
+        "y": 34256,
+        "x_flags": 57344,
+        "y_flags": 0,
+        "bypass": 1,
+        "flip": 0,
+        "palette_mode": 1,
+        "palette": 38,
+        "expand_x": -1,
+        "expand_y": 0,
+        "rotate": 0,
+        "matrix": [
+          -2006,
+          -23176,
+          -29244,
+          5587
+        ]
+      },
+      "name": "synthetic-mode6-case33",
+      "after": {
+        "result": 1,
+        "count": 6,
+        "cells_left": 0,
+        "objects": "e1c020f093f0333de1c020f0c181333de1c020f0d0b6333de1c020f0fa1c333d"
+      }
+    },
+    {
+      "mode": 8,
+      "cells": 69,
+      "budget": 0,
+      "blocks": [
+        [
+          -25014,
+          2057,
+          22109,
+          12818
+        ],
+        [
+          -23653,
+          -18213,
+          5143,
+          358
+        ],
+        [
+          14558,
+          3021,
+          62940,
+          13146
+        ],
+        [
+          -19782,
+          2927,
+          21940,
+          4990
+        ]
+      ],
+      "style": {
+        "x": 22948,
+        "y": 16490,
+        "x_flags": 24576,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 1,
+        "palette_mode": 1,
+        "palette": 205,
+        "expand_x": -1,
+        "expand_y": 1,
+        "rotate": 1,
+        "matrix": [
+          6375,
+          28112,
+          24269,
+          -2258
+        ]
+      },
+      "name": "synthetic-mode8-case34",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 2,
+      "budget": 0,
+      "blocks": [
+        [
+          -13173,
+          19755,
+          9932,
+          351
+        ],
+        [
+          30211,
+          -14847,
+          10368,
+          351
+        ]
+      ],
+      "style": {
+        "x": 44684,
+        "y": 32769,
+        "x_flags": 16384,
+        "y_flags": 8192,
+        "bypass": 0,
+        "flip": 2,
+        "palette_mode": 255,
+        "palette": 14,
+        "expand_x": 0,
+        "expand_y": 32767,
+        "rotate": 0,
+        "matrix": [
+          -32281,
+          -30234,
+          18079,
+          -3632
+        ]
+      },
+      "name": "synthetic-mode0-case36",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 51,
+      "budget": 0,
+      "blocks": [
+        [
+          -2857,
+          32209,
+          34969,
+          8543
+        ],
+        [
+          19772,
+          10314,
+          42114,
+          8543
+        ]
+      ],
+      "style": {
+        "x": 53516,
+        "y": 18654,
+        "x_flags": 24576,
+        "y_flags": 16384,
+        "bypass": 0,
+        "flip": 2,
+        "palette_mode": 255,
+        "palette": 155,
+        "expand_x": 32767,
+        "expand_y": -1,
+        "rotate": 0,
+        "matrix": [
+          -4283,
+          10730,
+          -20307,
+          -14290
+        ]
+      },
+      "name": "synthetic-mode6-case39",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 8,
+      "cells": 5,
+      "budget": 896,
+      "blocks": [
+        [
+          -18257,
+          -29142,
+          32649,
+          9062
+        ],
+        [
+          -17538,
+          -1140,
+          24443,
+          8796
+        ],
+        [
+          -13195,
+          32549,
+          54528,
+          4110
+        ],
+        [
+          1442,
+          -14779,
+          12738,
+          12338
+        ]
+      ],
+      "style": {
+        "x": 16821,
+        "y": 5016,
+        "x_flags": 49152,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 255,
+        "palette": 176,
+        "expand_x": -1,
+        "expand_y": -32768,
+        "rotate": 0,
+        "matrix": [
+          27856,
+          21491,
+          -28274,
+          -5479
+        ]
+      },
+      "name": "synthetic-mode8-case40",
+      "after": {
+        "result": 1,
+        "count": 6,
+        "cells_left": 891,
+        "objects": "c2d820f023890076c17a20f0037b004cc1c020f07900001ec1c020f0d5c20022"
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 1,
+      "budget": 0,
+      "blocks": [
+        [
+          -17009,
+          27569,
+          58133,
+          12899
+        ]
+      ],
+      "style": {
+        "x": 8198,
+        "y": 28507,
+        "x_flags": 32768,
+        "y_flags": 0,
+        "bypass": 1,
+        "flip": 1,
+        "palette_mode": 0,
+        "palette": 138,
+        "expand_x": -32768,
+        "expand_y": 1,
+        "rotate": 1,
+        "matrix": [
+          1219,
+          12197,
+          -25926,
+          -14642
+        ]
+      },
+      "name": "synthetic-mode0-case42",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 39,
+      "budget": 896,
+      "blocks": [
+        [
+          15164,
+          -22833,
+          46029,
+          555
+        ]
+      ],
+      "style": {
+        "x": 2268,
+        "y": 23198,
+        "x_flags": 24576,
+        "y_flags": 8192,
+        "bypass": 1,
+        "flip": 0,
+        "palette_mode": 128,
+        "palette": 181,
+        "expand_x": 0,
+        "expand_y": -32768,
+        "rotate": 1,
+        "matrix": [
+          -16275,
+          26337,
+          159,
+          -8670
+        ]
+      },
+      "name": "synthetic-mode2-case43",
+      "after": {
+        "result": 1,
+        "count": 3,
+        "cells_left": 857,
+        "objects": "6018216db3cd022b"
+      }
+    },
+    {
+      "mode": 8,
+      "cells": 42,
+      "budget": 896,
+      "blocks": [
+        [
+          21691,
+          21345,
+          18990,
+          4891
+        ],
+        [
+          -17474,
+          16941,
+          26673,
+          13103
+        ],
+        [
+          16286,
+          -8647,
+          27051,
+          4116
+        ],
+        [
+          -1808,
+          13848,
+          7479,
+          786
+        ],
+        [
+          25879,
+          30384,
+          31698,
+          8452
+        ]
+      ],
+      "style": {
+        "x": 59881,
+        "y": 14230,
+        "x_flags": 57344,
+        "y_flags": 24576,
+        "bypass": 0,
+        "flip": 3,
+        "palette_mode": 0,
+        "palette": 245,
+        "expand_x": 0,
+        "expand_y": 1,
+        "rotate": 1,
+        "matrix": [
+          20596,
+          -29345,
+          -31527,
+          -32619
+        ]
+      },
+      "name": "synthetic-mode8-case46",
+      "after": {
+        "result": 1,
+        "count": 7,
+        "cells_left": 854,
+        "objects": "e1c020f0ee2e137be1c020f00c31334fe1c021520dab1074e1c020f0c1370372e1c020f01fd22164"
+      }
+    },
+    {
+      "mode": 10,
+      "cells": 47,
+      "budget": 896,
+      "blocks": [
+        [
+          15986,
+          12231,
+          24356,
+          12610
+        ],
+        [
+          10118,
+          9855,
+          62861,
+          275
+        ],
+        [
+          -4883,
+          7502,
+          28094,
+          12295
+        ],
+        [
+          -1006,
+          -21519,
+          60301,
+          4442
+        ],
+        [
+          3689,
+          20554,
+          9141,
+          12407
+        ]
+      ],
+      "style": {
+        "x": 23902,
+        "y": 29276,
+        "x_flags": 8192,
+        "y_flags": 24576,
+        "bypass": 1,
+        "flip": 0,
+        "palette_mode": 128,
+        "palette": 137,
+        "expand_x": -32768,
+        "expand_y": -1,
+        "rotate": 1,
+        "matrix": [
+          -22487,
+          23114,
+          -10597,
+          -25305
+        ]
+      },
+      "name": "synthetic-mode10-case47",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 896,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 35,
+      "budget": 0,
+      "blocks": [
+        [
+          10703,
+          19211,
+          20839,
+          4108
+        ]
+      ],
+      "style": {
+        "x": 33887,
+        "y": 44897,
+        "x_flags": 0,
+        "y_flags": 8192,
+        "bypass": 0,
+        "flip": 1,
+        "palette_mode": 128,
+        "palette": 111,
+        "expand_x": -1,
+        "expand_y": 1,
+        "rotate": 1,
+        "matrix": [
+          -31329,
+          26506,
+          8195,
+          -25974
+        ]
+      },
+      "name": "synthetic-mode4-case50",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 15,
+      "budget": 15,
+      "blocks": [
+        [
+          -12105,
+          32320,
+          34039,
+          12377
+        ],
+        [
+          -29571,
+          -14333,
+          51751,
+          12377
+        ]
+      ],
+      "style": {
+        "x": 48721,
+        "y": 19517,
+        "x_flags": 0,
+        "y_flags": 16384,
+        "bypass": 0,
+        "flip": 2,
+        "palette_mode": 128,
+        "palette": 96,
+        "expand_x": -1,
+        "expand_y": -1,
+        "rotate": 0,
+        "matrix": [
+          4796,
+          11304,
+          -24560,
+          -18554
+        ]
+      },
+      "name": "synthetic-mode6-case51",
+      "after": {
+        "result": 1,
+        "count": 4,
+        "cells_left": 0,
+        "objects": "01c020f028f7305901c020f06e273059"
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 1,
+      "budget": 896,
+      "blocks": [
+        [
+          22593,
+          -28345,
+          298,
+          12304
+        ]
+      ],
+      "style": {
+        "x": 58992,
+        "y": 12269,
+        "x_flags": 8192,
+        "y_flags": 8192,
+        "bypass": 1,
+        "flip": 1,
+        "palette_mode": 128,
+        "palette": 209,
+        "expand_x": 1,
+        "expand_y": -32768,
+        "rotate": 1,
+        "matrix": [
+          8272,
+          -8940,
+          21125,
+          26642
+        ]
+      },
+      "name": "synthetic-mode0-case54",
+      "after": {
+        "result": 1,
+        "count": 3,
+        "cells_left": 895,
+        "objects": "22b12134012a3010"
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 67,
+      "budget": 0,
+      "blocks": [
+        [
+          -9013,
+          30267,
+          19352,
+          4638
+        ]
+      ],
+      "style": {
+        "x": 42469,
+        "y": 15319,
+        "x_flags": 32768,
+        "y_flags": 16384,
+        "bypass": 1,
+        "flip": 2,
+        "palette_mode": 255,
+        "palette": 240,
+        "expand_x": 1,
+        "expand_y": 1,
+        "rotate": 0,
+        "matrix": [
+          25094,
+          3946,
+          11716,
+          -20557
+        ]
+      },
+      "name": "synthetic-mode2-case55",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 61,
+      "budget": 60,
+      "blocks": [
+        [
+          -13462,
+          20208,
+          63381,
+          12386
+        ],
+        [
+          28065,
+          6092,
+          57754,
+          13102
+        ],
+        [
+          -5586,
+          1478,
+          57361,
+          22
+        ],
+        [
+          12935,
+          -32137,
+          48210,
+          12570
+        ]
+      ],
+      "style": {
+        "x": 26937,
+        "y": 15803,
+        "x_flags": 24576,
+        "y_flags": 24576,
+        "bypass": 1,
+        "flip": 2,
+        "palette_mode": 1,
+        "palette": 159,
+        "expand_x": 0,
+        "expand_y": -1,
+        "rotate": 1,
+        "matrix": [
+          16165,
+          -928,
+          -11043,
+          -31932
+        ]
+      },
+      "name": "synthetic-mode4-case56",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 60,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 10,
+      "cells": 87,
+      "budget": 87,
+      "blocks": [
+        [
+          -22076,
+          -9357,
+          23599,
+          12293
+        ]
+      ],
+      "style": {
+        "x": 19416,
+        "y": 65405,
+        "x_flags": 57344,
+        "y_flags": 24576,
+        "bypass": 1,
+        "flip": 0,
+        "palette_mode": 0,
+        "palette": 159,
+        "expand_x": 1,
+        "expand_y": 32767,
+        "rotate": 0,
+        "matrix": [
+          -24823,
+          -31098,
+          25702,
+          -1436
+        ]
+      },
+      "name": "synthetic-mode10-case59",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 87,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 39,
+      "budget": 39,
+      "blocks": [
+        [
+          -18760,
+          -14400,
+          56565,
+          285
+        ]
+      ],
+      "style": {
+        "x": 24985,
+        "y": 64300,
+        "x_flags": 16384,
+        "y_flags": 16384,
+        "bypass": 0,
+        "flip": 1,
+        "palette_mode": 128,
+        "palette": 16,
+        "expand_x": -32768,
+        "expand_y": 0,
+        "rotate": 0,
+        "matrix": [
+          -9948,
+          -21461,
+          13236,
+          22115
+        ]
+      },
+      "name": "synthetic-mode2-case61",
+      "after": {
+        "result": 1,
+        "count": 3,
+        "cells_left": 0,
+        "objects": "42c142ecdcf5012d"
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 90,
+      "budget": 896,
+      "blocks": [
+        [
+          -23492,
+          -26681,
+          42441,
+          299
+        ],
+        [
+          -21540,
+          -14795,
+          44460,
+          124
+        ]
+      ],
+      "style": {
+        "x": 22989,
+        "y": 22439,
+        "x_flags": 8192,
+        "y_flags": 16384,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 0,
+        "palette": 164,
+        "expand_x": -32768,
+        "expand_y": -32768,
+        "rotate": 0,
+        "matrix": [
+          20857,
+          28654,
+          -18423,
+          2667
+        ]
+      },
+      "name": "synthetic-mode4-case62",
+      "after": {
+        "result": 1,
+        "count": 4,
+        "cells_left": 806,
+        "objects": "2209236e49c9012b21a921dc51ac007c"
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 56,
+      "budget": 55,
+      "blocks": [
+        [
+          -26278,
+          32748,
+          35594,
+          12926
+        ],
+        [
+          20139,
+          -27766,
+          20327,
+          12926
+        ],
+        [
+          24384,
+          -15981,
+          6704,
+          12926
+        ],
+        [
+          -17893,
+          -28110,
+          12475,
+          12926
+        ]
+      ],
+      "style": {
+        "x": 34237,
+        "y": 33824,
+        "x_flags": 24576,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 1,
+        "palette_mode": 0,
+        "palette": 2,
+        "expand_x": -1,
+        "expand_y": 0,
+        "rotate": 1,
+        "matrix": [
+          -16255,
+          25265,
+          -16194,
+          -6139
+        ]
+      },
+      "name": "synthetic-mode6-case63",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 55,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 5,
+      "budget": 0,
+      "blocks": [
+        [
+          26335,
+          30806,
+          62095,
+          310
+        ],
+        [
+          22037,
+          16625,
+          42897,
+          310
+        ],
+        [
+          3420,
+          12647,
+          21145,
+          310
+        ],
+        [
+          -13638,
+          27042,
+          22052,
+          310
+        ],
+        [
+          -28971,
+          24495,
+          59705,
+          310
+        ]
+      ],
+      "style": {
+        "x": 46351,
+        "y": 30910,
+        "x_flags": 24576,
+        "y_flags": 0,
+        "bypass": 1,
+        "flip": 2,
+        "palette_mode": 128,
+        "palette": 158,
+        "expand_x": 1,
+        "expand_y": 1,
+        "rotate": 0,
+        "matrix": [
+          -30208,
+          -5719,
+          8847,
+          29090
+        ]
+      },
+      "name": "synthetic-mode0-case66",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 10,
+      "cells": 17,
+      "budget": 896,
+      "blocks": [
+        [
+          4638,
+          22448,
+          21008,
+          12320
+        ],
+        [
+          731,
+          6392,
+          50440,
+          4881
+        ],
+        [
+          26635,
+          29679,
+          4272,
+          12620
+        ],
+        [
+          -23335,
+          27692,
+          14825,
+          12348
+        ],
+        [
+          -7265,
+          -30626,
+          12429,
+          4405
+        ]
+      ],
+      "style": {
+        "x": 38625,
+        "y": 26175,
+        "x_flags": 24576,
+        "y_flags": 0,
+        "bypass": 1,
+        "flip": 3,
+        "palette_mode": 1,
+        "palette": 70,
+        "expand_x": 32767,
+        "expand_y": -32768,
+        "rotate": 0,
+        "matrix": [
+          11811,
+          31832,
+          -27369,
+          -22235
+        ]
+      },
+      "name": "synthetic-mode10-case71",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 896,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 8,
+      "cells": 39,
+      "budget": 38,
+      "blocks": [
+        [
+          32306,
+          6488,
+          15202,
+          12545
+        ],
+        [
+          -7160,
+          24722,
+          47485,
+          16
+        ],
+        [
+          -9498,
+          3317,
+          45471,
+          4733
+        ],
+        [
+          -25965,
+          -518,
+          22287,
+          638
+        ],
+        [
+          -14002,
+          23897,
+          44194,
+          540
+        ]
+      ],
+      "style": {
+        "x": 57078,
+        "y": 53545,
+        "x_flags": 8192,
+        "y_flags": 8192,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 128,
+        "palette": 103,
+        "expand_x": 32767,
+        "expand_y": 1,
+        "rotate": 1,
+        "matrix": [
+          -18358,
+          -30994,
+          -21321,
+          19610
+        ]
+      },
+      "name": "synthetic-mode8-case76",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 38,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 0,
+      "cells": 3,
+      "budget": 2,
+      "blocks": [
+        [
+          -23661,
+          -16946,
+          3519,
+          593
+        ],
+        [
+          -30789,
+          -18169,
+          43824,
+          593
+        ],
+        [
+          -23260,
+          15916,
+          28399,
+          593
+        ]
+      ],
+      "style": {
+        "x": 29965,
+        "y": 49739,
+        "x_flags": 40960,
+        "y_flags": 16384,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 0,
+        "palette": 161,
+        "expand_x": -1,
+        "expand_y": 32767,
+        "rotate": 0,
+        "matrix": [
+          736,
+          32448,
+          1560,
+          -26756
+        ]
+      },
+      "name": "synthetic-mode0-case84",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 2,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 96,
+      "budget": 95,
+      "blocks": [
+        [
+          20532,
+          -7753,
+          23822,
+          8495
+        ],
+        [
+          -4461,
+          21289,
+          48322,
+          12643
+        ],
+        [
+          28825,
+          -8603,
+          21047,
+          4168
+        ],
+        [
+          1261,
+          -6209,
+          37027,
+          40
+        ],
+        [
+          -15033,
+          -19994,
+          26612,
+          8770
+        ]
+      ],
+      "style": {
+        "x": 29398,
+        "y": 20602,
+        "x_flags": 32768,
+        "y_flags": 24576,
+        "bypass": 0,
+        "flip": 2,
+        "palette_mode": 1,
+        "palette": 51,
+        "expand_x": 32767,
+        "expand_y": -1,
+        "rotate": 0,
+        "matrix": [
+          -16706,
+          20285,
+          -4454,
+          22484
+        ]
+      },
+      "name": "synthetic-mode2-case85",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 95,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 25,
+      "budget": 0,
+      "blocks": [
+        [
+          27723,
+          12224,
+          3307,
+          4199
+        ],
+        [
+          13274,
+          23415,
+          41508,
+          4199
+        ],
+        [
+          -2996,
+          -9299,
+          57783,
+          4199
+        ]
+      ],
+      "style": {
+        "x": 23254,
+        "y": 10414,
+        "x_flags": 49152,
+        "y_flags": 16384,
+        "bypass": 1,
+        "flip": 0,
+        "palette_mode": 255,
+        "palette": 79,
+        "expand_x": -32768,
+        "expand_y": 32767,
+        "rotate": 1,
+        "matrix": [
+          29985,
+          661,
+          -7401,
+          31491
+        ]
+      },
+      "name": "synthetic-mode6-case93",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 7,
+      "budget": 7,
+      "blocks": [
+        [
+          -8862,
+          22462,
+          8018,
+          796
+        ],
+        [
+          -28704,
+          -29665,
+          5217,
+          12317
+        ],
+        [
+          -4528,
+          -2307,
+          12896,
+          12924
+        ]
+      ],
+      "style": {
+        "x": 33517,
+        "y": 37735,
+        "x_flags": 40960,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 255,
+        "palette": 15,
+        "expand_x": 32767,
+        "expand_y": -32768,
+        "rotate": 1,
+        "matrix": [
+          18099,
+          -25559,
+          23634,
+          6784
+        ]
+      },
+      "name": "synthetic-mode4-case98",
+      "after": {
+        "result": 1,
+        "count": 5,
+        "cells_left": 0,
+        "objects": "a04f2325c352030ba2cd2386b861300ca13d2264d660326b"
+      }
+    },
+    {
+      "mode": 4,
+      "cells": 54,
+      "budget": 896,
+      "blocks": [
+        [
+          -24729,
+          -5194,
+          49593,
+          4178
+        ]
+      ],
+      "style": {
+        "x": 10437,
+        "y": 44253,
+        "x_flags": 49152,
+        "y_flags": 8192,
+        "bypass": 1,
+        "flip": 1,
+        "palette_mode": 1,
+        "palette": 163,
+        "expand_x": -1,
+        "expand_y": 32767,
+        "rotate": 0,
+        "matrix": [
+          -12019,
+          -19659,
+          18120,
+          1929
+        ]
+      },
+      "name": "synthetic-mode4-case104",
+      "after": {
+        "result": 1,
+        "count": 3,
+        "cells_left": 842,
+        "objects": "c02c209365b91052"
+      }
+    },
+    {
+      "mode": 2,
+      "cells": 7,
+      "budget": 7,
+      "blocks": [
+        [
+          18005,
+          -7877,
+          49905,
+          8980
+        ]
+      ],
+      "style": {
+        "x": 22608,
+        "y": 39743,
+        "x_flags": 32768,
+        "y_flags": 16384,
+        "bypass": 0,
+        "flip": 1,
+        "palette_mode": 255,
+        "palette": 120,
+        "expand_x": 1,
+        "expand_y": 0,
+        "rotate": 0,
+        "matrix": [
+          4284,
+          3124,
+          -2808,
+          15857
+        ]
+      },
+      "name": "synthetic-mode2-case109",
+      "after": {
+        "result": 1,
+        "count": 3,
+        "cells_left": 0,
+        "objects": "81bb407ac2f1232c"
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 46,
+      "budget": 0,
+      "blocks": [
+        [
+          26782,
+          -1061,
+          29006,
+          4377
+        ],
+        [
+          -28701,
+          17320,
+          52544,
+          4377
+        ],
+        [
+          27826,
+          -11391,
+          11726,
+          4377
+        ],
+        [
+          -4069,
+          -16490,
+          12108,
+          4377
+        ]
+      ],
+      "style": {
+        "x": 38027,
+        "y": 14547,
+        "x_flags": 32768,
+        "y_flags": 24576,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 128,
+        "palette": 120,
+        "expand_x": 0,
+        "expand_y": 32767,
+        "rotate": 1,
+        "matrix": [
+          -13398,
+          4632,
+          26744,
+          -26582
+        ]
+      },
+      "name": "synthetic-mode6-case111",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 0,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 10,
+      "cells": 99,
+      "budget": 99,
+      "blocks": [
+        [
+          23209,
+          -28619,
+          10703,
+          12899
+        ],
+        [
+          -12835,
+          19353,
+          40961,
+          8996
+        ],
+        [
+          21233,
+          22700,
+          1614,
+          542
+        ],
+        [
+          12201,
+          20299,
+          39704,
+          9061
+        ]
+      ],
+      "style": {
+        "x": 46870,
+        "y": 62164,
+        "x_flags": 40960,
+        "y_flags": 8192,
+        "bypass": 0,
+        "flip": 2,
+        "palette_mode": 128,
+        "palette": 86,
+        "expand_x": -32768,
+        "expand_y": -1,
+        "rotate": 1,
+        "matrix": [
+          27252,
+          -2224,
+          9381,
+          18677
+        ]
+      },
+      "name": "synthetic-mode10-case113",
+      "after": {
+        "result": 0,
+        "count": 2,
+        "cells_left": 99,
+        "objects": ""
+      }
+    },
+    {
+      "mode": 6,
+      "cells": 1,
+      "budget": 896,
+      "blocks": [
+        [
+          100,
+          0,
+          0,
+          0
+        ]
+      ],
+      "style": {
+        "x": 64,
+        "y": 16,
+        "x_flags": 49152,
+        "y_flags": 0,
+        "bypass": 0,
+        "flip": 0,
+        "palette_mode": 0,
+        "palette": 104,
+        "expand_x": 32767,
+        "expand_y": 0,
+        "rotate": 0,
+        "matrix": [
+          22616,
+          -22047,
+          22278,
+          3573
+        ]
+      },
+      "name": "scale-truncates-product-to-word",
+      "after": {
+        "result": 1,
+        "count": 3,
+        "cells_left": 895,
+        "objects": "c09d2010a4000000"
+      }
+    }
+  ]
+}
