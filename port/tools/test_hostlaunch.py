@@ -802,6 +802,19 @@ STUBS = r"""
 void c_main(void) { puts("C main ran"); fflush(stdout); }
 void c_big(void) { puts("C big ran"); fflush(stdout); }
 #include "port.h"
+#include "intro.h"
+/* Intro assets/rendering are outside this launch fixture. Preserve the
+ * disabled path, but refuse an accidental request to exercise the feature. */
+int port_intro_configure(int enabled,const char *path,char *err,size_t size)
+{
+    (void)path;
+    if (enabled) {
+        if (err && size) snprintf(err,size,"arcade intro is outside the launch fixture");
+        return -1;
+    }
+    return 0;
+}
+int port_intro_program(const char *name) { (void)name; return 0; }
 int test_presents;
 void port_gpu_present(void) { test_presents++; }
 int port_gpu_set_video_options(int ui,int arcade) { (void)ui;(void)arcade;return 0; }

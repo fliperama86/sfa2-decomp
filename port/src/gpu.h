@@ -38,6 +38,12 @@ int port_gpu_set_ui_layout(int enabled);
 /* Sharp-bilinear presentation (setting sharp_bilinear): -1 when asked for without the patched SDL_GPU backend. */
 int port_gpu_set_sharp_bilinear(int enabled);
 
+/* Native intro host-buffer display. begin resets callbacks/GPU, frame takes
+ * 384x224 RGB555 pixels, end disables display/canvas before normal game setup. */
+int port_gpu_intro_begin(void);
+void port_gpu_intro_frame(const uint16_t *pixels);
+void port_gpu_intro_end(void);
+
 /* The video memory, 1024 x 512 halfwords, into a buffer of the caller's own
  * (not the game's). 0, or -1 (buffer untouched) when the graphics were not used yet
  * or the window is gone. */

@@ -1920,7 +1920,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     runtime: Path = args.runtime
     if not (runtime / "port_tables.h").is_file():
         raise Problem(f"{runtime / 'port_tables.h'} does not exist")
-    runtime_sources = sorted(runtime.glob("*.c"))
+    runtime_sources = sorted(runtime.glob("*.c")) + sorted((runtime.parent / "intro").glob("*.c"))
     sweep_entries = read_sweep_rows(args.sweep_rows)
     inventory = read_inventory(config_path.parent.parent / "inventory", config)
     image_archives = read_image_archives(config_path.parent.parent / "inventory", config)

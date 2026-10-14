@@ -1,0 +1,23 @@
+[
+  {"name":"select-forward", "op":"select", "size":1024, "table":128, "index":0,
+   "data":[[128,"0080"],[256,"00070035"]], "before":[512,19,82], "after":[256,7,53]},
+  {"name":"select-signed-backward", "op":"select", "size":1024, "table":512, "index":0,
+   "data":[[512,"ff00"],[256,"ffff8001"]], "before":[0,0,0], "after":[256,65535,32769]},
+  {"name":"select-index-mask", "op":"select", "size":2048, "table":128, "index":511,
+   "data":[[638,"0380"],[1024,"00008000"]], "before":[0,9,9], "after":[1024,0,32768]},
+  {"name":"countdown-only", "op":"tick", "size":0, "data":[],
+   "before":[4294967295,2,65535], "after":[4294967295,1,65535]},
+  {"name":"zero-wraps", "op":"tick", "size":0, "data":[],
+   "before":[4294967295,0,17], "after":[4294967295,65535,17]},
+  {"name":"advance-loads-full-flags", "op":"tick", "size":1024,
+   "data":[[256,"00018000"],[272,"ffffd123"]], "before":[256,1,1], "after":[272,65535,53539]},
+  {"name":"old-state-flags-control-branch", "op":"tick", "size":1024,
+   "data":[[256,"00010000"],[272,"00000300"],[768,"00090022"]],
+   "before":[256,1,32769], "after":[768,9,34]},
+  {"name":"self-loop-hold", "op":"tick", "size":1024,
+   "data":[[256,"0fff8000"],[272,"00000100"]], "before":[256,1,32768], "after":[256,4095,32768]},
+  {"name":"branch-to-zero", "op":"tick", "size":512,
+   "data":[[0,"00038001"],[272,"00000000"]], "before":[256,1,65535], "after":[0,3,32769]},
+  {"name":"select-minimum-displacement", "op":"select", "size":32770, "table":32768, "index":0,
+   "data":[[32768,"8000"],[0,"00023fff"]], "before":[0,0,0], "after":[0,2,16383]}
+]

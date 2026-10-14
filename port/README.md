@@ -5,6 +5,9 @@ options off by default (except fast loading waits, on by default). See [graphics
 pixel-grid sampling, the independently optional arcade canvas, WIP common-UI
 centering and scoped checks.
 
+An opt-in, bounded [arcade intro scene slice](intro/README.md) is available for
+owner testing in the normal executable. It is not the complete intro.
+
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
 Linux. **State, 2026-10-13: the game runs from the user's disc image on
 Windows and, natively, on macOS with Apple Silicon. It does not run on

@@ -24,7 +24,7 @@
 #define UNLINK unlink
 #endif
 struct port_settings port_settings;
-void port_settings_defaults(struct port_settings *out) { out->pixel_perfect_ui=0;out->arcade_video=0;out->center_ui=0;out->fast_loads=1;out->memory_card=0;out->sharp_bilinear=0; }
+void port_settings_defaults(struct port_settings *out) { out->pixel_perfect_ui=0;out->arcade_video=0;out->center_ui=0;out->fast_loads=1;out->memory_card=0;out->sharp_bilinear=0;out->arcade_intro=0; }
 static int failure(char *err,size_t size,unsigned line,const char *why)
 {
     if(err && size) {
@@ -61,13 +61,14 @@ static int line_read(char *text,unsigned row,int *section,unsigned *seen,
     else if(!strcmp(key,"fast_loads"))bit=8;
     else if(!strcmp(key,"memory_card"))bit=16;
     else if(!strcmp(key,"sharp_bilinear"))bit=32;
+    else if(!strcmp(key,"arcade_intro"))bit=64;
     else return failure(err,size,row,"unknown key");
     if(*seen&(unsigned)bit)return failure(err,size,row,"duplicate key");
     if(!strcmp(value,"true"))b=1;
     else if(!strcmp(value,"false"))b=0;
     else return failure(err,size,row,"expected true or false");
     *seen|=(unsigned)bit;
-    if(bit==1)next->pixel_perfect_ui=b;else if(bit==2)next->arcade_video=b;else if(bit==4)next->center_ui=b;else if(bit==8)next->fast_loads=b;else if(bit==16)next->memory_card=b;else next->sharp_bilinear=b;
+    if(bit==1)next->pixel_perfect_ui=b;else if(bit==2)next->arcade_video=b;else if(bit==4)next->center_ui=b;else if(bit==8)next->fast_loads=b;else if(bit==16)next->memory_card=b;else if(bit==32)next->sharp_bilinear=b;else next->arcade_intro=b;
     return 0;
 }
 int port_settings_read(FILE *file,struct port_settings *out,char *err,size_t size)
@@ -108,16 +109,17 @@ int port_settings_save(const char *path,const struct port_settings *value,char *
        (value->center_ui!=0 && value->center_ui!=1) ||
        (value->fast_loads!=0 && value->fast_loads!=1) ||
        (value->memory_card!=0 && value->memory_card!=1) ||
-       (value->sharp_bilinear!=0 && value->sharp_bilinear!=1))return failure(err,size,0,"invalid value for save");
+       (value->sharp_bilinear!=0 && value->sharp_bilinear!=1) ||
+       (value->arcade_intro!=0 && value->arcade_intro!=1))return failure(err,size,0,"invalid value for save");
     tmp=malloc(n+5);if(!tmp)return failure(err,size,0,"out of memory");
     memcpy(tmp,path,n);memcpy(tmp+n,".tmp",5);
     fd=OPEN_NEW(tmp);
     if(fd<0) { free(tmp);return failure(err,size,0,"cannot create exclusive temporary file"); }
     file=FDOPEN(fd,"wb");
     if(!file) { CLOSE(fd);UNLINK(tmp);free(tmp);return failure(err,size,0,"cannot open temporary stream"); }
-    if(fprintf(file,"[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = %s\nmemory_card = %s\nsharp_bilinear = %s\n",
+    if(fprintf(file,"[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = %s\nmemory_card = %s\nsharp_bilinear = %s\narcade_intro = %s\n",
        value->pixel_perfect_ui?"true":"false",value->arcade_video?"true":"false",value->center_ui?"true":"false",
-       value->fast_loads?"true":"false",value->memory_card?"true":"false",value->sharp_bilinear?"true":"false")<0)bad=1;
+       value->fast_loads?"true":"false",value->memory_card?"true":"false",value->sharp_bilinear?"true":"false",value->arcade_intro?"true":"false")<0)bad=1;
     if(fclose(file))bad=1;
     if(!bad) {
 #ifdef _WIN32

@@ -27,8 +27,8 @@ Old figures describe their own date, not today's completion.
   until the port runs. It runs C only, never an interpreter of missing original
   code. User-supplied disc data stays private. Read `port/README.md` first.
   Arcade intro/attract restoration never changes `ps1/`, including metadata.
-  Prefer PS1-only intro data: search its animation tables before adopting Saturn's.
-  Prioritize one user input; CPS2-only assets are under consideration, not an approved pivot.
+  Saturn is a potential byte-matching C target, not just a visual reference (2026-10-14).
+  One input preferred; CPS2 intro slice is opt-in (port/intro/README.md); whole-port pivot open.
 - Sound is part of the port's normal build, by the owner's decision of
   2026-10-10: a build with PsyZ has the game's sound library and plays
   without being asked. A test or a script that starts the program gives
@@ -59,10 +59,10 @@ Old figures describe their own date, not today's completion.
   these two units (of the library it compiles the sound part's C, in its
   normal build with PsyZ, and nothing else). This is for the library's
   code, not a way around a game function that does not match.
-- CI/CD: integrate tracked WIP behind default-off settings flags, preserving
-  original behavior. Use small reviewed PRs and short-lived branches.
-  Poll owner comments every 60 seconds while active. Merge frequently after
-  scoped checks and owner approval; no private source silos or review bypass.
+- CI/CD: tracked WIP uses default-off settings flags, preserving default behavior.
+  Before a port-feature PR, give the owner a runnable build and test instructions.
+  Keep PR monitoring active until review is handled, polling owner comments every 60 s.
+  Merge after scoped checks and owner approval; no private source silos or bypass.
 - [Agent worktrees](agent-worktrees.md): integration-only main, separate workers
   and pinned review, canonical outputs per worktree; provisioning remains undone.
 - After an approved merge, proceed to the next goal without asking. Decisions

@@ -1,17 +1,75 @@
 # Intro asset recovery
 
-Port-only research toward the arcade-style intro and attract mode. **No intro
-player is implemented here yet. Nothing under `ps1/` is changed.** Any eventual
-runtime feature belongs in the normal port behind a default-off experimental
-setting, not in the matching PS1 reconstruction.
+Port-only restoration of arcade-style intro behavior. **A bounded first scene
+slice now runs in the normal port behind `arcade_intro`, default off. Nothing
+under `ps1/` is changed. This is not a complete intro or attract mode.**
+
+## Test the first scene
+
+The existing Windows executable can replace the PS1 opening movie with
+192 updates (about 3.2 seconds) of Gouki and animated flames, then return to
+the title flow. Leave the title idle to reach the opening. Start skips the
+slice; Escape closes the normal port window.
+
+Build with the existing `./build.sh win`. Import your examined arcade archive
+once, without distributing the output:
+
+```sh
+python port/intro/import_scene.py INPUT/arcade.zip port/local/intro-asset-probe/intro.dat
+```
+
+Then use the **same** executable (paths here are placeholders, in the host's
+native syntax):
+
+```text
+sfa2.exe --skip-programs --arcade-intro --intro-data PATH/intro.dat PATH/PS1.cue
+```
+
+Or set `arcade_intro = true` under `[experimental]` in the shared settings
+file and pass `--settings FILE`. The default pack path is `intro.dat` in the
+working directory. `--ps1-intro` overrides the setting off and restores the
+original opening route without reading any arcade pack. No separate player,
+interpreter or captured video is used. Invalid/missing enabled input stops
+with an explicit message. The importer currently accepts only the supplied,
+examined US 960306 archive, including its observed graphics variants.
+
+This test slice uses both the normal PS1 disc and the privately imported CPS2
+scene data. It does not settle the future single-input user experience or
+adopt a whole-port CPS2 asset pivot. Saturn is not a runtime input.
+
+## Implemented and missing
+
+The [C sequence core](sequence-contract.md) now drives six foreground poses
+from relocated original records. The native compositor uses extracted tiles,
+metasprite layouts and palettes, with code-derived anchor placement, four-update
+foreground durations, six-update background pages, palette cycling and row
+scroll. The [bounded contract](../../docs/tasks/intro-first-scene.md) states the
+normalization and sources. This is project-authored C, not byte-matching Saturn
+C or a claim of whole-scene differential equivalence.
+
+Not implemented: warm-up and flashes, particles, sound, the remaining intro
+scenes and attract-mode flow. Full brightness and initial effect phase are
+normalized in this slice. The existing port's 60 Hz clock is used, not an exact
+CPS2 refresh clock. The owner must be able to test this build before a new PR.
+
+The owner authorized intro-first CPS2 implementation on 2026-10-14. Saturn
+remains valuable as a possible byte-matching C target. A match still needs
+compiler/build evidence; C ancestry alone does not establish it.
+
+Focused synthetic checks (seconds, no game or private input):
+
+```sh
+python port/tools/test_intro_scene.py
+python port/tools/test_settings.py
+```
 
 ## Code-first recovery
 
 Recover behavior from the supplied CPS2 program, using Saturn decompilation
 to clarify it. Do not reconstruct timings or transitions by visually mimicking
 a recording. User testing validates the resulting implementation, not its spec.
-Before writing a replacement controller, investigate the owner's hypothesis
-that the PS1 disc retains the original in-engine intro code.
+The earlier probes investigated the owner's hypothesis that the PS1 disc
+retains the original in-engine intro code.
 
 The first [PS1 code probe](../../docs/records/2026-10-14-intro-code-probe.md)
 found existing ending/scroll-scene C and sprite layouts referencing the same
@@ -21,8 +79,7 @@ unreferenced artwork, but **not evidence of the full arcade intro controller**.
 The normal PS1 opening route selects the movie player. Dormant scene code and
 equivalent controllers elsewhere remain an open question.
 
-The owner prefers PS1-only code and data, including any surviving animation
-tables. `animation.py` searches the manifest-listed, nonstream PS1 disc files
+The earlier PS1-only investigation included any surviving animation tables. `animation.py` searches the manifest-listed, nonstream PS1 disc files
 for the first Saturn scene's five referenced sprite schedules:
 
 ```sh
@@ -108,8 +165,8 @@ bounded tile search does not prove whole-disc absence.
 
 Before introducing a scene player, finish its map placement, sprite list,
 palette effects and timing contract. Build a per-scene dependency manifest:
-use PS1 data where equality is proven, and user-supplied supplemental assets
-where it is not. Keep arcade fidelity distinct from Saturn-reference behavior.
+derive intro data from the supplied CPS2 set, recording the exact revision
+and any behavior reconstructed from Saturn. Keep arcade fidelity distinct from Saturn-reference behavior.
 Do not insert an original-code interpreter or import decompiler output as
 project source. Intro playback and the attract-mode controller are separate
 pieces; neither is claimed by this asset-recovery increment.

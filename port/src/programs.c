@@ -2,6 +2,7 @@
 #include "port.h"
 #include "port_tables.h"
 #include "programs.h"
+#include "intro.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -94,6 +95,10 @@ int port_program_exec(const char *disc_name, unsigned sector, unsigned size, voi
 
     port_callbacks_program_start();
     port_trace_line("program %s: start", row->name);
+    if (port_intro_program(row->name)) {
+        port_trace_line("program %s: native intro returned",row->name);
+        return 1;
+    }
     if (row->setup) row->setup();
 #ifdef PORT_GUEST_VM
     port_call0((port_fn)(uintptr_t)row->main);   /* the program's main is guest code: its address is in the table */

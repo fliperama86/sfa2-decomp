@@ -19,8 +19,10 @@
 # listed only for the files their own cases are about.
 
 [controls]
+test_intro_scene = ["port/intro/import_scene.py", "port/intro/scene.c", "port/intro/scene.h", "port/intro/sequence.c", "port/intro/sequence.h", "port/src/intro.c", "port/src/intro.h", "port/src/gpu.c", "port/src/gpu.h", "port/src/sha256.c"]
 test_intro_assets = ["port/intro/assets.py"]
 test_intro_animation = ["port/intro/animation.py", "port/intro/assets.py"]
+test_intro_sequence = ["port/intro/sequence.c", "port/intro/sequence.h", "port/intro/sequence-fixtures.json", "port/intro/verify_sequence.py"]
 test_build_sh = []   # about `build.sh` at the root of the tree, which is not a file of `port/`: it runs stand-ins and reads no file of the port
 test_hostaudio = ["port/src/iopage.c", "port/src/cd.c", "port/src/cd.h", "port/src/main.c", "port/psyz.patch"]
 test_hostbuild = ["port/programs.toml", "port/src/port_tables.h"]
@@ -34,7 +36,7 @@ test_hostkernel_start = ["port/src/kernel.c", "port/src/port.h"]
 test_hostlaunch = [
     "port/src/port.h", "port/src/port_tables.h", "port/src/guest.h",
     "port/src/main.c", "port/src/memory.c", "port/src/disc.c", "port/src/jumps.c", "port/src/sha256.c", "port/src/library.c",
-    "port/src/settings.c", "port/src/settings.h",
+    "port/src/settings.c", "port/src/settings.h", "port/src/intro.h",
     "port/src/kernel.c", "port/src/threads.c", "port/src/overrides.c", "port/src/clib.c", "port/src/sound.c", "port/src/card.c", "port/src/memcard.c", "port/src/memcard.h",
     "port/src/cd.c", "port/src/cd.h", "port/src/xa.c", "port/src/xa.h", "port/src/modules.c", "port/src/modules.h",
     "port/src/debug.c", "port/src/interrupt.c", "port/src/mirror.c", "port/src/mirror.h", "port/src/mirrorcore.c",

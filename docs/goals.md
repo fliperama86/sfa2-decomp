@@ -43,6 +43,13 @@ behavior and missing C under explicit contracts, with scoped differential
 checks. Missing C stops with its name. No original-code interpreter, supplied
 assets in Git or changes to PS1 source for the port before it runs.
 
+Current owner-directed intro work: the default-off Gouki/fire scene slice has
+been tested by the owner and is ready for review (source at 1bb04c0b). After
+its approved merge, recover the first scene's missing fades/flashes and moving
+embers from CPS2 code, as bounded port-only work; sound follows separately.
+Provide another runnable owner-test build before that increment's PR. The
+whole-port CPS2-only asset pivot remains undecided. See [intro scope](../port/intro/README.md).
+
 ## Small work packages
 
 For each next item, fill [the task template](tasks/template.md): owned paths,
