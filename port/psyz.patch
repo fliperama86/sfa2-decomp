@@ -42,6 +42,15 @@ both flags disabled, normal texture sampling and presentation remain unchanged.
 The project-authored shared policy header is copied by psyzbuild.py. No shader
 or global UV correction is changed. The port selects only its known HUD tiles.
 
+Sharp-bilinear presentation: with Psyz_Sfa2SetSharpBilinear(1) (the port's
+setting sharp_bilinear) the SDL_GPU backend first enlarges the picture by whole
+factors with nearest sampling, into a texture of its own, and stretches that
+texture to its place in the window with linear sampling. The factors come from
+the shared policy header. When the window is a whole multiple of the picture on
+both sides, and with the setting off, presentation is the one nearest blit as
+before. The VRAM view of the debugger is never filtered. The OpenGL backend has
+a no-op of the same name.
+
 --- a/psyz/src/psyz/libgpu.c
 +++ b/psyz/src/psyz/libgpu.c
 @@ -165,3 +165,1 @@
@@ -58,7 +67,7 @@ or global UV correction is changed. The port selects only its known HUD tiles.
  #include <SDL3/SDL.h>
  #include "sdl3_common.h"
  #include "sdl3_draw.h"
-@@ -83,6 +84,34 @@
+@@ -83,6 +84,74 @@
  static Posi display_area = {0, 0};
  static Posi display_size = {256, 240};
  static Posi cur_display_size = {-1, -1};
@@ -90,6 +99,46 @@ or global UV correction is changed. The port selects only its known HUD tiles.
 +    printf("arcade-video: %s\n",enabled ? "384x224 active canvas, arcade 4:3 presentation" : "original presentation for other display mode");
 +    fflush(stdout);
 +}
++/* Optional sharp-bilinear presentation of the SFA2 port: whole-factor nearest
++ * enlargement into this texture, then one linear stretch to the window. */
++static int sfa2_sharp_bilinear;
++static SDL_GPUTexture* sfa2_sharp_texture;
++static Uint32 sfa2_sharp_w, sfa2_sharp_h;
++void Psyz_Sfa2SetSharpBilinear(int enabled) { sfa2_sharp_bilinear = !!enabled; }
++static int Sfa2SharpPrescale(SDL_GPUCommandBuffer* cmd, SDL_GPUBlitRegion* src, SDL_Rect dst) {
++    struct port_video_view pre;
++    if (!sfa2_sharp_bilinear || debug_show_vram ||
++        !port_video_sharp_fit((int)src->w,(int)src->h,dst.w,dst.h,&pre)) return 0;
++    if (!sfa2_sharp_texture || sfa2_sharp_w != (Uint32)pre.w || sfa2_sharp_h != (Uint32)pre.h) {
++        const SDL_GPUTextureCreateInfo info = {
++            .type = SDL_GPU_TEXTURETYPE_2D,
++            .format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
++            .usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER,
++            .width = (Uint32)pre.w,
++            .height = (Uint32)pre.h,
++            .layer_count_or_depth = 1,
++            .num_levels = 1,
++        };
++        if (sfa2_sharp_texture) SDL_ReleaseGPUTexture(device, sfa2_sharp_texture);
++        sfa2_sharp_texture = SDL_CreateGPUTexture(device, &info);
++        sfa2_sharp_w = (Uint32)pre.w;
++        sfa2_sharp_h = (Uint32)pre.h;
++        if (!sfa2_sharp_texture) return 0; /* nearest, as with the setting off */
++        printf("sharp-bilinear: picture %ux%u, nearest to %dx%d, linear to %dx%d\n",(unsigned)src->w,(unsigned)src->h,pre.w,pre.h,dst.w,dst.h);
++        fflush(stdout);
++    }
++    if (!sfa2_sharp_texture) return 0;
++    const SDL_GPUBlitInfo enlarge = {
++        .source = *src,
++        .destination = {.texture = sfa2_sharp_texture, .w = (Uint32)pre.w, .h = (Uint32)pre.h},
++        .load_op = SDL_GPU_LOADOP_DONT_CARE,
++        .filter = SDL_GPU_FILTER_NEAREST,
++        .cycle = true,
++    };
++    SDL_BlitGPUTexture(cmd, &enlarge);
++    *src = (SDL_GPUBlitRegion){.texture = sfa2_sharp_texture, .w = (Uint32)pre.w, .h = (Uint32)pre.h};
++    return 1;
++}
  static Posi draw_offset = {0, 0};
  static Posi draw_area_start = {0, 0};
  static Posi draw_area_end = {0x10000, 0x10000};
@@ -114,7 +163,7 @@ or global UV correction is changed. The port selects only its known HUD tiles.
                  float game_aspect =
                      GetCurrentGameAspectRatio(display_size.x, display_size.y);
                  if (debug_show_vram) {
-@@ -802,6 +836,16 @@
+@@ -802,6 +874,17 @@
 
                  WndSize win = {(int)sc_w, (int)sc_h};
                  SDL_Rect dst = FitGameToWindow(game_aspect, win);
@@ -128,10 +177,28 @@ or global UV correction is changed. The port selects only its known HUD tiles.
 +                        fflush(stdout);
 +                    }
 +                }
++                const int sfa2_sharp = Sfa2SharpPrescale(cmd, &src, dst);
 
                  const SDL_GPUBlitInfo blit = {
                      .source = src,
-@@ -994,11 +1038,13 @@
+@@ -822,5 +902,5 @@
+                     .load_op = SDL_GPU_LOADOP_CLEAR,
+                     .clear_color = {0.0f, 0.0f, 0.0f, 1.0f},
+-                    .filter = SDL_GPU_FILTER_NEAREST,
++                    .filter = sfa2_sharp ? SDL_GPU_FILTER_LINEAR : SDL_GPU_FILTER_NEAREST,
+                 };
+                 SDL_BlitGPUTexture(cmd, &blit);
+@@ -881,5 +964,9 @@
+         if (scaled_vram_render) {
+             SDL_ReleaseGPUTexture(device, scaled_vram_render);
+             scaled_vram_render = NULL;
+         }
++        if (sfa2_sharp_texture) {
++            SDL_ReleaseGPUTexture(device, sfa2_sharp_texture);
++            sfa2_sharp_texture = NULL;
++        }
+         if (vram_sampler) {
+@@ -994,11 +1081,13 @@
  }
 
  unsigned char* Psyz_VideoAllocCapturedFrame(int* w, int* h) {
@@ -233,7 +300,7 @@ or global UV correction is changed. The port selects only its known HUD tiles.
 +    if (sfa2_batch_uploads) sfa2_upload_used += sfa2_bytes;
 --- a/psyz/src/platform/sdl3_gl.c
 +++ b/psyz/src/platform/sdl3_gl.c
-@@ -27,6 +27,11 @@
+@@ -27,6 +27,12 @@
 
  #include "sdl3_common.h"
  #include "sdl3_draw.h"
@@ -242,6 +309,7 @@ or global UV correction is changed. The port selects only its known HUD tiles.
 +void Psyz_Sfa2SetArcadeCanvas(int enabled) { (void)enabled; }
 +void Psyz_Sfa2SetPixelPerfectUi(int enabled) { (void)enabled; }
 +void Psyz_Sfa2SetBatchedUploads(int on) { (void)on; }
++void Psyz_Sfa2SetSharpBilinear(int enabled) { (void)enabled; }
  #include "rgb24.h"
  static bool display_rgb24;
  static GLuint rgb24_texture, rgb24_fbo;

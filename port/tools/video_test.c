@@ -105,6 +105,25 @@ int main(void)
       p[7]=0x62;assert(port_video_tag_life_fill(0x1fc038,0x1ac6ac,p,1));assert(p[7]==0x63);
       p[7]=0x60;assert(!port_video_tag_life_fill(0x801fc038,0x801ac6cc,p,1)); /* Wrong side. */
     }
+    /* Sharp bilinear: whole factors a side, none for whole multiples, never past the place. */
+    assert(port_video_sharp_fit(384,224,1280,960,&view));assert(view.x==0 && view.y==0 && view.w==1152 && view.h==896);
+    assert(port_video_sharp_fit(384,224,1440,1080,&view));assert(view.w==1152 && view.h==896);
+    assert(port_video_sharp_fit(384,224,1536,900,&view));assert(view.w==1536 && view.h==896);
+    assert(port_video_sharp_fit(384,224,1500,896,&view));assert(view.w==1152 && view.h==896);
+    assert(port_video_sharp_fit(368,240,640,480,&view));assert(view.w==368 && view.h==480);
+    assert(port_video_sharp_fit(384,224,300,200,&view));assert(view.w==384 && view.h==224);
+    assert(port_video_sharp_fit(384,224,767,447,&view));assert(view.w==384 && view.h==224);
+    for(i=1;i<=8;i++)for(base=1;base<=8;base++) {
+        view.w=view.h=7;assert(!port_video_sharp_fit(384,224,384*i,224*base,&view));assert(!view.w && !view.h); }
+    for(i=1;i<2000;i+=7)for(base=1;base<1500;base+=11)if(port_video_sharp_fit(384,224,i,base,&view)) {
+        assert(view.w%384==0 && view.h%224==0 && view.w>=384 && view.h>=224);
+        assert((view.w<=i || view.w==384) && (view.h<=base || view.h==224));
+        assert(view.w+384>i && view.h+224>base); /* The largest whole factor that fits. */
+    } else assert(i%384==0 && base%224==0);
+    assert(!port_video_sharp_fit(0,224,1280,960,&view));assert(!port_video_sharp_fit(384,0,1280,960,&view));
+    assert(!port_video_sharp_fit(384,224,0,960,&view));assert(!port_video_sharp_fit(384,224,1280,-1,&view));
+    assert(!port_video_sharp_fit(-384,224,1280,960,&view));assert(!view.w && !view.h);
+    assert(port_video_sharp_fit(384,224,INT_MAX,INT_MAX,&view));assert(view.w>0 && view.h>0 && view.w%384==0 && view.h%224==0);
     assert(port_video_arcade_fit(1280,960,&view));assert(view.x==0 && view.y==0 && view.w==1280 && view.h==960);
     assert(port_video_arcade_fit(1920,1080,&view));assert(view.x==240 && view.y==0 && view.w==1440 && view.h==1080);
     assert(!port_video_arcade_fit(383,288,&view));assert(!port_video_arcade_fit(384,287,&view));
@@ -112,6 +131,6 @@ int main(void)
     assert(!port_video_canvas_allowed(384,240,0,0));assert(port_video_canvas_allowed(384,240,0,1));
     assert(!port_video_canvas_allowed(320,240,0,1));assert(!port_video_canvas_allowed(384,240,1,1));
     assert(!port_video_canvas_allowed(384,224,0,1));
-    puts("video: mirrors/UV256/idempotence, super/life selection, eight fill records, flag-off packet identity, aspect/mode gates pass");
+    puts("video: mirrors/UV256/idempotence, super/life selection, eight fill records, flag-off packet identity, aspect/mode gates, sharp-bilinear factors pass");
     return 0;
 }

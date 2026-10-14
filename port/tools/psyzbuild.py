@@ -527,7 +527,7 @@ def install_video_header(work: Path, patch_text: str) -> None:
 
 def video_api_metadata(work: Path) -> dict:
     """The explicit header install is the ABI marker for the optional patch."""
-    return {"port_video_api": 2} if (work / "psyz/src/platform/port_video.h").is_file() else {}
+    return {"port_video_api": 3} if (work / "psyz/src/platform/port_video.h").is_file() else {}
 
 
 def build(args: argparse.Namespace, out: list[str]) -> None:

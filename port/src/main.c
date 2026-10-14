@@ -113,7 +113,7 @@ int main(int argc, char **argv)
     int audio_device = PORT_AUDIO_DEFAULT;
     const char *input_path = NULL;
     const char *settings_path = "settings.ini";
-    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1;
+    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1,sharp_override=-1;
     const char *card1_path = "card1.mcr", *card2_path = NULL;   /* --card1, --card2: the card files of the setting memory_card */
     int volume = 100;   /* --volume PERCENT: the gain of the audio device's output */
     int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
@@ -138,6 +138,8 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--ps1-rendering") == 0) ui_override=0;
         else if (strcmp(argv[i], "--center-ui") == 0) center_override=1;
         else if (strcmp(argv[i], "--ps1-ui-layout") == 0) center_override=0;
+        else if (strcmp(argv[i], "--sharp-bilinear") == 0) sharp_override=1;
+        else if (strcmp(argv[i], "--nearest-scaling") == 0) sharp_override=0;
         else if (strcmp(argv[i], "--volume") == 0 && i + 1 < argc) {
             char *end;
             long v = strtol(argv[++i], &end, 10);
@@ -177,12 +179,14 @@ int main(int argc, char **argv)
         if(center_override>=0)port_settings.center_ui=center_override;
         if(loads_override>=0)port_settings.fast_loads=loads_override;
         if(card_override>=0)port_settings.memory_card=card_override;
+        if(sharp_override>=0)port_settings.sharp_bilinear=sharp_override;
         if(show_settings) {
             if(disc_path || list)return refuse("--show-settings takes no disc or --list-library");
             printf("[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = %s\n",
                 port_settings.pixel_perfect_ui?"true":"false",port_settings.arcade_video?"true":"false",port_settings.center_ui?"true":"false",
                 port_settings.fast_loads?"true":"false");
             printf("memory_card = %s\n", port_settings.memory_card?"true":"false");
+            printf("sharp_bilinear = %s\n", port_settings.sharp_bilinear?"true":"false");
             printf("volume = %d\n", volume);
             return 0;
         }
@@ -197,7 +201,8 @@ int main(int argc, char **argv)
         return 2;
     }
     if(port_gpu_set_video_options(port_settings.pixel_perfect_ui,port_settings.arcade_video) ||
-       port_gpu_set_ui_layout(port_settings.center_ui))
+       port_gpu_set_ui_layout(port_settings.center_ui) ||
+       port_gpu_set_sharp_bilinear(port_settings.sharp_bilinear))
         return refuse("experimental graphics require the patched PsyZ SDL_GPU backend");
     if (trace != (trace_path != NULL)) return refuse("--trace and --trace-file FILE go together");
     if (trace_path && !(trace_file = fopen(trace_path, "w"))) return refuse("cannot open the trace file");

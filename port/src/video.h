@@ -45,6 +45,19 @@ static inline int port_video_arcade_fit(int w,int h,struct port_video_view *out)
     out->w=unit*4;out->h=unit*3;out->x=(w-out->w)/2;out->y=(h-out->h)/2;
     return 1;
 }
+/* Sharp bilinear: the size the picture is first enlarged to with nearest sampling,
+ * a whole factor of each side (the largest that fits its place in the window, at
+ * least 1), before one linear stretch to that place. 0, and nothing to enlarge,
+ * when the place is a whole multiple of the picture on both sides: nearest
+ * sampling alone is exact there. Never larger than the place unless the place is
+ * smaller than the picture. */
+static inline int port_video_sharp_fit(int sw,int sh,int dw,int dh,struct port_video_view *out)
+{
+    *out=(struct port_video_view){0,0,0,0};
+    if(sw<=0 || sh<=0 || dw<=0 || dh<=0 || (dw%sw==0 && dh%sh==0))return 0;
+    out->w=dw/sw>1?sw*(dw/sw):sw;out->h=dh/sh>1?sh*(dh/sh):sh;
+    return 1;
+}
 /* current_ordering_table stores a pointer, not an inline table. Initialization/frame
  * swap select these two 30-entry tables. Return -1 for unrelated addresses. */
 static inline int port_video_ot_index(uint32_t ot)
@@ -107,4 +120,5 @@ void Psyz_Sfa2SetArcadeCanvas(int enabled);
 void Psyz_Sfa2SetPixelPerfectUi(int enabled);
 int Psyz_Sfa2ExperimentalVideoAvailable(void);
 void Psyz_Sfa2SetBatchedUploads(int on);
+void Psyz_Sfa2SetSharpBilinear(int enabled);
 #endif

@@ -9,6 +9,7 @@ No arcade ROM or replacement artwork is required for these options.
 pixel_perfect_ui = false
 arcade_video = false
 center_ui = false
+sharp_bilinear = false
 ```
 
 `pixel_perfect_ui` corrects **super-meter and life-frame tile sampling**. It maps
@@ -49,6 +50,18 @@ the same default-off flag. True16:9 and edge anchoring for that width are future
 work. Original game RAM/geometry stays unchanged; translation is in copied SDK
 packets. Both sampling and layout compose without changing health-bar widths.
 
+`sharp_bilinear` changes only how the finished picture is **stretched to the
+window**. The picture is first enlarged by the largest whole factor of each side
+that fits its place in the window, with nearest sampling, and the result is then
+stretched to that place with linear sampling. Pixels keep hard edges, and where
+the window is not a whole multiple of the picture the uneven pixel sizes of
+nearest sampling become a thin blend at the pixel borders. When the place is a
+whole multiple on both sides, and with the setting off, the picture is drawn
+with nearest sampling alone, as before. It applies to every display mode,
+movies included, and works with or without the other options; nothing of the
+game's drawing changes. How it looks is the owner's to judge: no check here
+reads the window's pixels.
+
 ## Configuration
 
 At startup the port reads `settings.ini` in the working directory. A missing
@@ -63,6 +76,7 @@ CLI overrides address these same settings, with the last override winning:
 | UI sampling | `--pixel-perfect-ui` | `--ps1-rendering` |
 | Native canvas | `--arcade-video` | `--ps1-video` |
 | Common UI position | `--center-ui` | `--ps1-ui-layout` |
+| Window scaling | `--sharp-bilinear` | `--nearest-scaling` |
 | Loading waits (not graphics; on by default) | `--fast-loads` | `--ps1-loading` |
 
 `--volume PERCENT` (0 to 100, default 100) sets the gain of the sound output. It is a command-line option only (the settings file takes
@@ -85,7 +99,7 @@ same-directory temporary file, keeping the prior file on failure.
 ## Build and validation
 
 Rebuild PsyZ with the existing `psyzbuild.py` and updated `port/psyz.patch` before
-linking. Its metadata advertises `port_video_api = 2`; the host build refuses
+linking. Its metadata advertises `port_video_api = 3`; the host build refuses
 stale SDK caches before compiling any game units. The tool copies the
 project-owned `video.h` policy into the dependency
 build copy, never modifying the source submodule. Patch context and changes

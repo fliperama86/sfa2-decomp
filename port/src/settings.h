@@ -3,7 +3,7 @@
 #define PORT_SETTINGS_H
 #include <stddef.h>
 #include <stdio.h>
-struct port_settings { int pixel_perfect_ui, arcade_video, center_ui, fast_loads, memory_card; };
+struct port_settings { int pixel_perfect_ui, arcade_video, center_ui, fast_loads, memory_card, sharp_bilinear; };
 extern struct port_settings port_settings;
 void port_settings_defaults(struct port_settings *out);
 int port_settings_read(FILE *file,struct port_settings *out,char *err,size_t size);

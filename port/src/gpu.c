@@ -100,6 +100,7 @@ int  port_gpu_read_frame(unsigned short *pixels) { (void)pixels; return -1; }
 int  port_gpu_display_enabled(void) { return 0; }
 int port_gpu_set_video_options(int ui,int arcade) { return ui || arcade ? -1 : 0; }
 int port_gpu_set_ui_layout(int enabled) { return enabled ? -1 : 0; }
+int port_gpu_set_sharp_bilinear(int enabled) { return enabled ? -1 : 0; }
 void port_gpu_set_batched_uploads(int on) { (void)on; }
 
 #else
@@ -277,6 +278,11 @@ int port_gpu_set_ui_layout(int enabled)
 {
     if(enabled && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
     center_ui=!!enabled;return 0;
+}
+int port_gpu_set_sharp_bilinear(int enabled)
+{
+    if(enabled && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
+    Psyz_Sfa2SetSharpBilinear(enabled);return 0;
 }
 static int display_on;   /* the display enable the layer last sent (GP1 command 03) */
 

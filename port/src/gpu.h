@@ -35,6 +35,8 @@ void port_gpu_present(void);
 int port_gpu_set_video_options(int pixel_perfect_ui,int arcade_video);
 /* Default-off common UI centering, active only in the wider game canvas. */
 int port_gpu_set_ui_layout(int enabled);
+/* Sharp-bilinear presentation (setting sharp_bilinear): -1 when asked for without the patched SDL_GPU backend. */
+int port_gpu_set_sharp_bilinear(int enabled);
 
 /* The video memory, 1024 x 512 halfwords, into a buffer of the caller's own
  * (not the game's). 0, or -1 (buffer untouched) when the graphics were not used yet

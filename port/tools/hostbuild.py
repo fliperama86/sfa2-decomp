@@ -1872,8 +1872,8 @@ class Failure(Exception):
 def require_video_api(info: dict, runtime: Path) -> None:
     """Reject stale SDK caches before compiling game units for the new GPU bridge."""
     gpu = runtime / "gpu.c"
-    if gpu.is_file() and "Psyz_Sfa2SetArcadeCanvas" in gpu.read_text() and info.get("port_video_api") != 2:
-        raise Problem("the PsyZ build lacks port_video_api 2; rebuild it with the updated port/psyz.patch before building the port")
+    if gpu.is_file() and "Psyz_Sfa2SetArcadeCanvas" in gpu.read_text() and info.get("port_video_api") != 3:
+        raise Problem("the PsyZ build lacks port_video_api 3; rebuild it with the updated port/psyz.patch before building the port")
 
 
 def read_psyz(folder: Path) -> tuple[dict, str]:
