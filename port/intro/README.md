@@ -21,6 +21,25 @@ unreferenced artwork, but **not evidence of the full arcade intro controller**.
 The normal PS1 opening route selects the movie player. Dormant scene code and
 equivalent controllers elsewhere remain an open question.
 
+The owner prefers PS1-only code and data, including any surviving animation
+tables. `animation.py` searches the manifest-listed, nonstream PS1 disc files
+for the first Saturn scene's five referenced sprite schedules:
+
+```sh
+python port/intro/animation.py --opening-z INPUT/OPENING.Z --disc INPUT/PS1.bin \
+  --manifest INPUT/manifest.json --output port/local/intro-asset-probe/animation-search.json
+python port/tools/test_intro_animation.py
+```
+
+The manifest is the private PS1 baseline file inventory (`files` entries with
+`path`, `size`, `sha256`). Every searched file is verified. Output is private,
+never overwrites existing evidence, and lists the scope and exclusions. The
+tool normalizes endianness and relocated branch fields; differing artwork
+offsets and unused fields are deliberately ignored. Equal timings alone are
+**candidates**, not recovered intro tables. Their artwork and consumers need
+inspection. Background-page animation and palette cycling are separate from
+these sprite records. Saturn is an analysis reference, not a new port input.
+
 ## Background decoder
 
 `assets.py` reads the two opening files extracted from a user-supplied Japanese
