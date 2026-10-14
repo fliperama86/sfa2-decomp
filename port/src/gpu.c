@@ -542,8 +542,12 @@ static void send_list(uint32_t *first)
             int kind=dx?port_ui_packet_kind(here,node+1,len,list_index):0;
             /* The meter's fills follow its one-to-one frame, with or without the centred layout. */
             int level=pixel_perfect_ui?port_ui_super_fill_level(here,node+1,len,list_index):0;
+            uint32_t halves[18];
             walk_payload(here, node + 1, len, &effective);
-            if (effective) chunk_add(node + 1, len, effective, kind?dx:0, kind==2 && pixel_perfect_ui, level);
+            /* P2's mirrored life caps go as two halves that keep the frame's checker in phase. */
+            if (effective && pixel_perfect_ui && port_ui_life_cap_halves(here,node+1,len,list_index,halves))
+                chunk_add(halves, 18, 18, kind?dx:0, 0, 0);
+            else if (effective) chunk_add(node + 1, len, effective, kind?dx:0, kind==2 && pixel_perfect_ui, level);
         }
         if ((head & LINK_END) == LINK_END) break;
         node = ram_at(head & LINK_END, here);

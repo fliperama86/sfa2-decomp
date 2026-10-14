@@ -14,18 +14,16 @@ static inline int port_video_canvas_allowed(int w,int h,int rgb24,int enabled)
 {
     return enabled && w==384 && h==240 && !rgb24;
 }
-/* One-to-one texels for a 16x16 HUD tile. A 15-texel side grows to 16. A side
- * that is mirrored (its coordinate falls while its texel rises) and already has
- * 16 texels is sampled one texel further on, as the console samples it and as
- * PsyZ's FixupFlipUV does on the original path: the console's texel at a pixel
- * counts from the vertex, so a mirrored 16-texel side shows texels 16 down to 1.
- * Without that, mirrored tiles of a dithered frame show the dither one column out
- * of phase with their unmirrored neighbours. A mirrored 15-texel side already
- * shows 15 down to 0 on the console, one-to-one. */
+/* One-to-one texels for a 16x16 HUD tile. A 15-texel side grows to 16, and a
+ * mirrored tile is an exact mirror (texels 15 down to 0), which keeps the frames'
+ * borders where their artwork puts them. The console shows a mirrored 16-texel
+ * side one texel on (16 down to 1); PR 364 copied that here and moved P1's
+ * life-frame corner by a pixel. The dither of P2's mirrored life caps is mended
+ * in the bridge instead (port_ui_life_cap_halves in ui_layout.h). */
 static inline int port_video_pixel_grid(struct port_video_corner p[4])
 {
     unsigned short lo_u=p[0].u,hi_u=p[0].u,lo_v=p[0].v,hi_v=p[0].v;
-    int i,dx=p[1].x-p[0].x,dy=p[2].y-p[0].y,shift_u,shift_v;
+    int i,dx=p[1].x-p[0].x,dy=p[2].y-p[0].y;
     if((dx!=16 && dx!=-16) || (dy!=16 && dy!=-16) ||
        p[0].x!=p[2].x || p[1].x!=p[3].x || p[0].y!=p[1].y || p[2].y!=p[3].y ||
        p[0].u!=p[2].u || p[1].u!=p[3].u || p[0].v!=p[1].v || p[2].v!=p[3].v)return 0;
@@ -38,13 +36,9 @@ static inline int port_video_pixel_grid(struct port_video_corner p[4])
     if(hi_u>256 || hi_v>256 || (hi_u==256 && hi_u-lo_u==15) ||
        (hi_v==256 && hi_v-lo_v==15) ||
        (hi_u-lo_u!=15 && hi_u-lo_u!=16) || (hi_v-lo_v!=15 && hi_v-lo_v!=16))return 0;
-    shift_u=hi_u-lo_u==16 && ((p[0].x>p[1].x)!=(p[0].u>p[1].u));
-    shift_v=hi_v-lo_v==16 && ((p[0].y>p[2].y)!=(p[0].v>p[2].v));
-    if((shift_u && hi_u>=256) || (shift_v && hi_v>=256))return 0;
     for(i=0;i<4;i++) {
         if(hi_u-lo_u==15 && p[i].u==hi_u)p[i].u++;
         if(hi_v-lo_v==15 && p[i].v==hi_v)p[i].v++;
-        p[i].u+=shift_u;p[i].v+=shift_v;
     }
     return 1;
 }

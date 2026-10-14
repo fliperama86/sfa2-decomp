@@ -4,6 +4,21 @@
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
+/* A life-frame cap as the tile-map drawer writes a mirrored tile: corner 0 at
+ * the right edge with the low texel, corner 1 at the left with the high one. */
+static void cap(uint32_t w[9],int x,unsigned u,unsigned span)
+{
+    w[0]=0x2c808080u;w[1]=7u<<16|(unsigned)(x+16);w[2]=0x7a470000u|48u<<8|u;
+    w[3]=7u<<16|(unsigned)x;w[4]=(0x002du|PORT_VIDEO_PIXEL_GRID)<<16|48u<<8|(u+span);
+    w[5]=23u<<16|(unsigned)(x+16);w[6]=0x55550000u|63u<<8|u;w[7]=23u<<16|(unsigned)x;w[8]=0x66660000u|63u<<8|(u+span);
+}
+static void half(const uint32_t *q,int x,unsigned u_left,unsigned u_right)
+{
+    assert(q[0]==0x2c808080u && q[1]==(7u<<16|(unsigned)(x+8)) && q[3]==(7u<<16|(unsigned)x));
+    assert(q[5]==(23u<<16|(unsigned)(x+8)) && q[7]==(23u<<16|(unsigned)x));
+    assert(q[2]==(0x7a470000u|48u<<8|u_right) && q[4]==(0x002du<<16|48u<<8|u_left));
+    assert(q[6]==(0x55550000u|64u<<8|u_right) && q[8]==(0x66660000u|64u<<8|u_left));
+}
 int main(void)
 {
     static const struct { unsigned code,len,n;unsigned xy[4]; } shapes[]={
@@ -79,6 +94,30 @@ int main(void)
           assert(!port_ui_super_fill(q,3,1));assert(!memcmp(q,bad[i],sizeof q)); }
       { uint32_t q[3]={0x60000000u,213u<<16|150,3u<<16|16};assert(!port_ui_super_fill(q,3,2) && !port_ui_super_fill(q,3,3));
         q[2]=4u<<16|16;assert(!port_ui_super_fill(q,3,1));assert(port_ui_super_fill(q,3,3) && q[2]==(5u<<16|16)); } }
+    /* P2's two mirrored life caps: outer half an exact mirror (texels one lower for
+     * PsyZ's flip fix), inner half unmirrored; the pixel-grid marker is cleared. */
+    for(i=0;i<2;i++) { uint32_t w[9],old[9],out[18];unsigned span=15+i;
+        cap(w,208,192,span);memcpy(old,w,sizeof w);
+        assert(port_ui_life_cap_halves(0x80186004u+40*i,w,9,14,out));assert(!memcmp(old,w,sizeof w));
+        half(out,208,207,199);half(out+9,216,192,200);
+        cap(w,352,160,span);
+        assert(port_ui_life_cap_halves(0x187904u,w,9,14,out));
+        half(out,360,167,159);half(out+9,352,168,176); }
+    { uint32_t w[9],q[9],out[18],sentinel[18];cap(w,208,192,15);
+      for(i=0;i<18;i++)sentinel[i]=out[i]=0xdeadbeefu+i;
+      assert(!port_ui_life_cap_halves(0x80186004u,w,9,13,out));assert(!port_ui_life_cap_halves(0x80186004u,w,9,8,out));
+      assert(!port_ui_life_cap_halves(0x80186008u,w,9,14,out));assert(!port_ui_life_cap_halves(0x80188d04u,w,9,14,out));
+      assert(!port_ui_life_cap_halves(0x80185fdcu,w,9,14,out));assert(!port_ui_life_cap_halves(0x80186004u,w,8,14,out));
+      for(j=0;j<14;j++) { memcpy(q,w,sizeof q);
+          switch(j) { case 0:q[0]=0x24808080u;break; /* a triangle */
+              case 1:q[1]=7u<<16|208;q[3]=7u<<16|224;q[5]=23u<<16|208;q[7]=23u<<16|224;break; /* unmirrored */
+              case 2:q[2]=(q[2]&~0xffu)|176;q[6]=(q[6]&~0xffu)|176;q[4]=(q[4]&~0xffu)|191;q[8]=(q[8]&~0xffu)|191;break; /* the body tile */
+              case 3:q[2]+=1u<<8;break; case 4:q[1]+=1u<<16;break; case 5:q[7]+=1u<<16;break;
+              case 6:q[4]=(q[4]&0xff00ffffu)|(0x002cu|PORT_VIDEO_PIXEL_GRID)<<16;break; /* another page */
+              case 7:q[4]-=1;break; case 8:q[6]-=1u<<8;break; case 9:q[8]+=1;break;
+              case 10:q[5]+=1;break; case 11:q[6]+=1;break; case 12:q[3]+=1;break; case 13:q[1]+=1;break; }
+          assert(!port_ui_life_cap_halves(0x80186004u,q,9,14,out)); }
+      assert(!memcmp(out,sentinel,sizeof out)); }
     p[0]=0xe100001f;
     for(i=0;i<12;i++)assert(port_ui_packet_kind(0x80188d6c+i*28,p,6,14)==1);
     for(i=0;i<16;i++)assert(port_ui_packet_kind(0x8018ff34+i*28,p,6,14)==1);
@@ -90,6 +129,6 @@ int main(void)
     assert(!port_ui_packet_kind(0x8018ccbc,p,4,14));
     assert(!port_ui_packet_kind(0x8018a4bd,p,4,14));
     assert(!port_ui_packet_kind(0x80100000,p,4,14)); /* A world sprite at the same depth. */
-    puts("UI layout: 72 geometry forms, transactional edges, life composition, meter fill rows, exact buffers and canvas gates pass");
+    puts("UI layout: 72 geometry forms, transactional edges, life composition, meter fill rows, P2 life caps, exact buffers and canvas gates pass");
     return 0;
 }

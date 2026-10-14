@@ -63,26 +63,23 @@ int main(void)
             (short)((((i&2)!=0)^((flip&2)!=0))*16),
             (unsigned short)(16+(i&1?16:0)),(unsigned short)(16+(i&2?15:0))};
         assert(port_video_pixel_grid(c));
-        /* The full U side of a mirrored tile is sampled one texel on, as on the console. */
-        for(i=0;i<4;i++)assert(c[i].u==16+(flip&1)+(i&1?16:0) && c[i].v==16+(i&2?16:0));
+        /* A full side stays as it is, mirrored or not: an exact mirror. */
+        for(i=0;i<4;i++)assert(c[i].u==16+(i&1?16:0) && c[i].v==16+(i&2?16:0));
     }
-    /* Both sides full and mirrored: both one on. Mirrored but 15 texels: grown only. */
+    /* Full sides, mirrored on either axis or both: unchanged, an exact mirror. */
     for(flip=0;flip<4;flip++)for(base=0;base<=224;base+=16) {
         struct port_video_corner c[4];
         for(i=0;i<4;i++)c[i]=(struct port_video_corner){
             (short)((((i&1)!=0)^((flip&1)!=0))*16),(short)((((i&2)!=0)^((flip&2)!=0))*16),
             (unsigned short)(base+(i&1?16:0)),(unsigned short)(base+(i&2?16:0))};
         assert(port_video_pixel_grid(c));
-        for(i=0;i<4;i++)assert(c[i].u==base+(flip&1)+(i&1?16:0) && c[i].v==base+(flip&2?1:0)+(i&2?16:0));
+        for(i=0;i<4;i++)assert(c[i].u==base+(i&1?16:0) && c[i].v==base+(i&2?16:0));
     }
-    /* Texels that fall with a falling coordinate are no mirror; rising against it they are. */
+    /* A turned tile and a tile mirrored in height only keep their texels too. */
     { struct port_video_corner c[4]={{16,16,48,48},{0,16,32,48},{16,0,48,32},{0,0,32,32}};
       assert(port_video_pixel_grid(c));assert(c[0].u==48 && c[1].u==32 && c[0].v==48 && c[2].v==32); }
     { struct port_video_corner c[4]={{0,16,32,32},{16,16,48,32},{0,0,32,48},{16,0,48,48}};
-      assert(port_video_pixel_grid(c));assert(c[0].u==32 && c[1].u==48 && c[0].v==33 && c[2].v==49); }
-    /* A mirrored full side at the end of the page has no texel one on: the original path draws it. */
-    { struct port_video_corner c[4]={{16,0,240,0},{0,0,256,0},{16,16,240,16},{0,16,256,16}},old[4];
-      memcpy(old,c,sizeof c);assert(!port_video_pixel_grid(c));assert(!memcmp(old,c,sizeof c)); }
+      assert(port_video_pixel_grid(c));assert(c[0].u==32 && c[1].u==48 && c[0].v==32 && c[2].v==48); }
     /* All eight exact records, full/partial/empty widths, and no RAM geometry edits. */
     for(i=0;i<8;i++)for(base=0;base<=144;base++) {
         unsigned char p[16]={0},old[16];int right=(i&2)!=0;
