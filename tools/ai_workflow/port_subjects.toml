@@ -19,7 +19,8 @@
 # listed only for the files their own cases are about.
 
 [controls]
-test_intro_scene = ["port/intro/import_scene.py", "port/intro/scene.c", "port/intro/scene.h", "port/intro/sequence.c", "port/intro/sequence.h", "port/src/intro.c", "port/src/intro.h", "port/src/gpu.c", "port/src/gpu.h", "port/src/sha256.c"]
+test_intro_particles = ["port/intro/particles.c", "port/intro/particles.h", "port/intro/particles-fixtures.json", "port/intro/verify_particles.py", "port/intro/verify_sequence.py"]
+test_intro_scene = ["port/intro/particles.c", "port/intro/particles.h", "port/intro/embers.c", "port/intro/embers.h", "port/intro/import_scene.py", "port/intro/scene.c", "port/intro/scene.h", "port/intro/sequence.c", "port/intro/sequence.h", "port/src/intro.c", "port/src/intro.h", "port/src/gpu.c", "port/src/gpu.h", "port/src/sha256.c"]
 test_intro_assets = ["port/intro/assets.py"]
 test_intro_animation = ["port/intro/animation.py", "port/intro/assets.py"]
 test_intro_sequence = ["port/intro/sequence.c", "port/intro/sequence.h", "port/intro/sequence-fixtures.json", "port/intro/verify_sequence.py"]

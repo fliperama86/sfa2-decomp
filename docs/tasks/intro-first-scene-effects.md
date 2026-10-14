@@ -73,3 +73,10 @@ same sprite subtype: the steady helper sets its interval first, then maps it
 to subtype 1, 3 or 4. The flash-phase helper changes both subtype and render
 priority/layer. Preserve that distinction when writing the particle contract.
 No new controller C or behavioral proof is claimed by this task document.
+
+## Bounded implementation order
+Implement and offer the moving-ember steady slice first, under the explicit
+[particle contract](../../port/intro/particles-contract.md). Keep fade/flash
+transitions as the next increment; no visual imitation or invented phase
+carry-in. Version 1 packs retain their old behavior. Version 2 uses private
+PC-relative tables extracted from the existing pinned analysis derivative.

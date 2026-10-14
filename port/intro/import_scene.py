@@ -15,6 +15,8 @@ ARCHIVE_SHA = '7d3c1e06fff291e92abb041d65197f7d5e4b9c3967d75c26292e5308d740efbb'
 PROGRAM_SHA = 'd6f4a2c7de9259e6241dbaaed6af8f673d49b03e5df23f5f50614909ea82937c'
 GFX_SHA = '493c16ea3da9561e10e02fae3f686aa7ec78b3189ffe4501b20ea9aa2e1a832f'
 MAGIC = b'SFA2I001'
+OPCODE_SHA = '5b2bc2e9e1201460b996850270e6b88ff55670ccfa64c74ef62d81ad1ba83384'
+EMBER_SIZE = 608 + 612 + 36*256
 PAYLOAD_SIZE = 102 + (16 + 512 + 48)*2 + 6*384*144 + 4*256*256*2 + 512*256
 
 
@@ -97,7 +99,37 @@ def foreground(rom, gfx, address):
     return bytes(out)
 
 
-def scene(rom, gfx):
+def embers(rom, gfx, opcodes):
+    require(len(opcodes) == 0x300000 and hashlib.sha256(opcodes).hexdigest() == OPCODE_SHA,
+            'unsupported opcode derivative: use the pinned analysis image of this archive')
+    seq = bytearray(612)
+    images = []
+    for kind in range(6):
+        original = 0x229120 + struct.unpack_from('>h', rom, 0x229122+kind*2)[0]
+        start, count = 12+kind*100, 5 if kind == 0 else 6
+        struct.pack_into('>H', seq, kind*2, start)
+        for i in range(count):
+            ticks, flags, art, a, b = struct.unpack_from('>HHIII', rom, original+i*16)
+            require(ticks == (4095 if i+1 == count else 8) and
+                    flags == (0x8000 if i+1 == count else 0) and not a and not b,
+                    'unexpected particle sequence')
+            mode, cells, attr, offset, code = struct.unpack_from('>5H', rom, art)
+            require(mode == 0 and cells == 1 and attr == 0, 'unexpected particle layout')
+            coordinates, = struct.unpack_from('>I', rom, 0x9f260+offset)
+            require(struct.unpack_from('>hh', rom, coordinates) == (-8, -8), 'particle anchor')
+            images.append(tile(gfx, code+0x10000, 16))
+            struct.pack_into('>HHI', seq, start+i*16, ticks, flags, kind*6+i)
+        target, = struct.unpack_from('>I', rom, original+count*16)
+        require(target == original+(count-1)*16, 'unexpected particle hold target')
+        struct.pack_into('>I', seq, start+count*16, start+(count-1)*16)
+        if count == 5: images.append(bytes([15])*256)
+    # These are encrypted PC-relative data in the supplied archive, not opcode
+    # bytes for execution. Nothing from this derivative enters the runtime but
+    # these fixed-size numeric tables; original instructions are never retained.
+    return opcodes[0x73d9a:0x73dfa] + opcodes[0x73e10:0x74010] + seq + b''.join(images)
+
+
+def scene(rom, gfx, opcodes=None):
     start = 0x229120 + struct.unpack_from('>h', rom, 0x229120)[0]
     records = bytearray(rom[start:start+100])
     require(len(records) == 100, 'truncated sequence')
@@ -116,10 +148,15 @@ def scene(rom, gfx):
                + rom[0x2959c0:0x295a20] + b''.join(pictures)
                + b''.join(struct.pack('>65536H', *frame) for frame in bg) + portrait)
     require(len(payload) == PAYLOAD_SIZE, 'internal payload length')
-    return MAGIC + hashlib.sha256(payload).digest() + payload
+    magic = MAGIC
+    if opcodes is not None:
+        payload += embers(rom, gfx, opcodes)
+        require(len(payload) == PAYLOAD_SIZE+EMBER_SIZE, 'internal particle payload length')
+        magic = b'SFA2I002'
+    return magic + hashlib.sha256(payload).digest() + payload
 
 
-def import_zip(path):
+def import_zip(path, opcodes=None):
     require(hashlib.sha256(path.read_bytes()).hexdigest() == ARCHIVE_SHA,
             'unsupported arcade archive: expected the investigated US 960306 input')
     with zipfile.ZipFile(path) as archive:
@@ -131,7 +168,7 @@ def import_zip(path):
                                 for group in ((13, 15, 17, 19), (14, 16, 18, 20))))
     require(hashlib.sha256(rom).hexdigest() == PROGRAM_SHA, 'program data digest')
     require(hashlib.sha256(gfx).hexdigest() == GFX_SHA, 'graphics layout digest')
-    return scene(rom, gfx)
+    return scene(rom, gfx, opcodes)
 
 
 def private_output(path):
@@ -144,10 +181,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('archive', type=Path)
     parser.add_argument('output', type=Path)
+    parser.add_argument('--opcodes', type=Path, help='private pinned analysis derivative; enables version-2 embers')
     args = parser.parse_args()
     try:
         private_output(args.output)
-        pack = import_zip(args.archive)
+        pack = import_zip(args.archive, args.opcodes.read_bytes() if args.opcodes else None)
         # Never overwrite an earlier artifact or original input.
         with args.output.open('xb') as file:
             file.write(pack)

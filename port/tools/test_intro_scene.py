@@ -11,6 +11,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
+from intro_particles_support import Motion, tables
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'port/intro'))
@@ -23,8 +25,13 @@ PORTRAIT = BACK + 4*256*256*2
 
 class Sequence(C.Structure):
     _fields_ = [('record', C.c_uint32), ('remaining', C.c_uint16), ('flags', C.c_uint16)]
+class Ember(C.Structure):
+    _fields_ = [('motion', Motion), ('sequence', Sequence), ('state', C.c_uint8), ('subtype', C.c_uint8)]
+class Embers(C.Structure):
+    _fields_ = [('data', C.c_void_p), ('slots', Ember*39), ('seed', C.c_uint16),
+                ('interval', C.c_uint16), ('available', C.c_uint16), ('free_slots', C.c_uint8*39)]
 class Scene(C.Structure):
-    _fields_ = [('data', C.c_void_p), ('foreground', Sequence), ('tick', C.c_uint)]
+    _fields_ = [('data', C.c_void_p), ('foreground', Sequence), ('tick', C.c_uint), ('embers', Embers)]
 
 
 def fixture():
@@ -39,8 +46,25 @@ def fixture():
     return p
 
 
+def ember_fixture():
+    p=bytearray(imp.EMBER_SIZE)
+    for i in range(12): struct.pack_into('>II',p,i*8,0x10000,0)
+    for i in range(128): struct.pack_into('>hh',p,96+i*4,100,100)
+    for kind in range(6):
+        start,count=12+kind*100,5 if kind==0 else 6
+        struct.pack_into('>H',p,608+kind*2,start)
+        for i in range(count):
+            struct.pack_into('>HHI',p,608+start+i*16,4095 if i+1==count else 8,
+                             0x8000 if i+1==count else 0,kind*6+i)
+        struct.pack_into('>I',p,608+start+count*16,start+(count-1)*16)
+    p[1220:]=b'\1'*(36*256)
+    p[1220+5*256:1220+6*256]=b'\x0f'*256
+    return p
+
+
 def pack(payload):
-    return imp.MAGIC + hashlib.sha256(payload).digest() + payload
+    magic=b'SFA2I002' if len(payload)==imp.PAYLOAD_SIZE+imp.EMBER_SIZE else imp.MAGIC
+    return magic + hashlib.sha256(payload).digest() + payload
 
 STUBS = r'''
 #include "port.h"
@@ -68,13 +92,15 @@ class IntroScene(unittest.TestCase):
         lib = cls.root / 'scene.so'
         subprocess.run(['gcc', '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror', '-shared', '-fPIC',
             '-I', str(ROOT / 'port/src'), str(ROOT / 'port/intro/scene.c'),
-            str(ROOT / 'port/intro/sequence.c'), str(ROOT / 'port/src/intro.c'),
+            str(ROOT / 'port/intro/sequence.c'), str(ROOT / 'port/intro/particles.c'),
+            str(ROOT / 'port/intro/embers.c'), str(ROOT / 'port/src/intro.c'),
             str(ROOT / 'port/src/sha256.c'), str(cls.root / 'stubs.c'), '-o', str(lib)], check=True, timeout=15)
         cls.lib = C.CDLL(str(lib))
         cls.lib.intro_scene_init.argtypes = [C.POINTER(Scene), C.c_void_p, C.c_size_t]
         cls.lib.intro_scene_frame.argtypes = [C.POINTER(Scene), C.c_void_p]
         cls.lib.port_intro_configure.argtypes = [C.c_int, C.c_char_p, C.c_void_p, C.c_size_t]
         cls.lib.port_intro_program.argtypes = [C.c_char_p]
+        cls.lib.intro_embers_frame.argtypes = [C.POINTER(Embers),C.c_void_p,C.c_void_p]
 
     @classmethod
     def tearDownClass(cls):
@@ -182,6 +208,87 @@ class IntroScene(unittest.TestCase):
         self.assertEqual(C.c_uint.in_dll(self.lib,'uploaded').value-before,193)
         self.lib.port_intro_configure(0,b'/missing',err,len(err))
         self.assertEqual(self.lib.port_intro_program(b'z2o'),0)
+
+    def test_particle_import_layout(self):
+        rom=bytearray(0x240000);gfx=bytearray(0x10001*128);opcodes=bytearray(0x300000)
+        opcodes[0x73d9a:0x73dfa]=tables()[:96];opcodes[0x73e10:0x74010]=tables()[96:]
+        struct.pack_into('>I',rom,0x9f260,0xc0000);struct.pack_into('>hh',rom,0xc0000,-8,-8)
+        for kind in range(6):
+            start=0x229200+kind*100;count=5 if kind==0 else 6
+            struct.pack_into('>h',rom,0x229122+kind*2,start-0x229120)
+            for i in range(count):
+                struct.pack_into('>HHIII',rom,start+i*16,4095 if i+1==count else 8,
+                                 0x8000 if i+1==count else 0,0x230000,0,0)
+            struct.pack_into('>I',rom,start+count*16,start+(count-1)*16)
+        struct.pack_into('>5H',rom,0x230000,0,1,0,0,0)
+        with self.assertRaisesRegex(ValueError,'unsupported opcode'): imp.embers(rom,gfx,opcodes)
+        with patch.object(imp,'OPCODE_SHA',hashlib.sha256(opcodes).hexdigest()):
+            data=imp.embers(rom,gfx,opcodes)
+            self.assertEqual(len(data),imp.EMBER_SIZE)
+            self.assertEqual(data[:608],tables())
+            self.assertEqual(struct.unpack_from('>I',data,608+12+80)[0],76)
+            self.assertEqual(data[1220:1220+256],bytes(256))
+            self.assertEqual(data[1220+5*256:1220+6*256],bytes([15])*256)
+            for at,value,why in ((0x230000,1,'layout'),(0x230004,1,'layout'),
+                                 (0xc0000,0,'anchor'),(0x229200+80,1,'hold target')):
+                bad=bytearray(rom);bad[at]=value
+                with self.assertRaisesRegex(ValueError,why):imp.embers(bad,gfx,opcodes)
+
+    def test_embers_lifecycle_and_priority(self):
+        p=fixture()+ember_fixture();state=Scene()
+        struct.pack_into('>H',p,SEQ+2,0xf00)
+        struct.pack_into('>H',p,SEQ+4,0x00f)
+        for pose in range(6):p[FORE+pose*384*144+(140-80)*384+100]=2
+        data=C.create_string_buffer(bytes(p));pixels=(C.c_uint16*(384*224))()
+        self.assertEqual(self.lib.intro_scene_init(C.byref(state),data,len(p)),0)
+        self.assertEqual((state.embers.seed,state.embers.interval,state.embers.available),(0x1234,4,39))
+        for _ in range(3):
+            self.assertEqual(self.lib.intro_scene_frame(C.byref(state),pixels),1)
+            self.assertEqual(pixels[140*384+100],0x7c00)
+        self.assertEqual(self.lib.intro_scene_frame(C.byref(state),pixels),1)
+        self.assertEqual(pixels[140*384+100],0x001f)
+        e=state.embers.slots[38]
+        self.assertEqual((e.state,e.motion.x,e.motion.y),(2,100<<16,100<<16))
+        self.assertEqual(state.embers.available,38)
+        state.embers.interval=1000
+        self.lib.intro_scene_frame(C.byref(state),pixels)
+        self.assertEqual(e.motion.x,101<<16)
+        e.motion.x=417<<16
+        self.lib.intro_scene_frame(C.byref(state),pixels)
+        self.assertEqual((e.state,state.embers.available),(6,38))
+        self.lib.intro_scene_frame(C.byref(state),pixels)
+        self.assertEqual((e.state,state.embers.available),(0,39))
+        self.assertEqual(state.embers.free_slots[38],38)
+        state.embers.interval=1
+        colors=(C.c_uint16*16)(*range(16))
+        for _ in range(512):
+            self.assertEqual(self.lib.intro_embers_frame(C.byref(state.embers),pixels,colors),0)
+            free=state.embers.available
+            self.assertGreaterEqual(free,5)
+            self.assertEqual(free+sum(e.state!=0 for e in state.embers.slots),39)
+            self.assertEqual(len(set(state.embers.free_slots[:free])),free)
+            self.assertTrue(all(state.embers.slots[i].state==0 for i in state.embers.free_slots[:free]))
+
+    def test_particle_pack_validation_and_runtime(self):
+        p=fixture()+ember_fixture();data=C.create_string_buffer(bytes(p));state=Scene()
+        self.assertEqual(self.lib.intro_scene_init(C.byref(state),data,len(p)),0)
+        before=bytes(state)
+        for at,value in ((608,1),(608+12,1),(608+12+7,255),(608+12+84,1),
+                         (1220,16),(1220+5*256,1)):
+            bad=bytearray(p);bad[imp.PAYLOAD_SIZE+at]=value;buf=C.create_string_buffer(bytes(bad))
+            self.assertEqual(self.lib.intro_scene_init(C.byref(state),buf,len(bad)),-1)
+            self.assertEqual(bytes(state),before)
+        path=self.root/'particles.dat';err=C.create_string_buffer(256);valid=pack(p)
+        for bad in (valid[:-1],valid+b'x',imp.MAGIC+valid[8:]):
+            path.write_bytes(bad)
+            self.assertEqual(self.lib.port_intro_configure(1,str(path).encode(),err,len(err)),-1)
+        path.write_bytes(valid)
+        self.assertEqual(self.lib.port_intro_configure(1,str(path).encode(),err,len(err)),0,err.value)
+        C.c_uint.in_dll(self.lib,'skip').value=0
+        before=C.c_uint.in_dll(self.lib,'uploaded').value
+        self.assertEqual(self.lib.port_intro_program(b'z2o'),1)
+        self.assertEqual(C.c_uint.in_dll(self.lib,'uploaded').value-before,192)
+        self.lib.port_intro_configure(0,b'',None,0)
 
     def test_gpu_upload_contract(self):
         # Compile the actual three new GPU functions against command stubs.
