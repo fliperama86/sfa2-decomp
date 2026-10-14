@@ -114,7 +114,7 @@ file in `docs/records/` (one per change) or a dated/domain report. The
 history is the archive: preserve its bytes and do not append to it.
 Current state belongs in [current-state.md](current-state.md), next packages in
 [goals.md](goals.md), and acceptance specifications in `docs/tasks/`.
-
 ## Workflow implementation lessons
+When relaunching a rebuilt Windows binary from WSL, close its identified prior test instance: Windows can reuse that loaded image despite new disk bytes.
 Record submodule pins/availability; missing system libraries and failed smokes are not passes.
 Port test selectors must declare transitive imports outside `port/tools` explicitly (PR368).
