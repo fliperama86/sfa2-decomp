@@ -513,6 +513,12 @@ def selection_cases(root: Path):
     config = tree(root, "select-b", {"ua": ("x.C", "int a;\n"), "ub": ("y.c", "int b;\n"), "uc": ("sdk/z.s", "nop\n")})
     proc = run(config, root / "select-b-build", cc)
     yield "select-upper-case-c-is-not-c", need(proc) or same(lines(proc)[3], "units: 1 compiled, 1 under sdk/ and 1 not C left out")
+    # A unit of kind "asm" is assembly whatever its file is named: the configuration has such units in files that end in .c.
+    config = tree(root, "select-c", {"ua": ("func_a.c", "int a;\n"), "ux": ("func_x.c", ".set noreorder\n"), "uy": ("func_y.c", "int y;\n")})
+    text = config.read_text()
+    config.write_text(text.replace('name = "ux"\n', 'name = "ux"\nkind = "asm"\n').replace('name = "uy"\n', 'name = "uy"\nkind = "c"\n'))
+    proc = run(config, root / "select-c-build", cc)
+    yield "select-kind-asm-in-a-c-file-is-not-c", need(proc) or same(lines(proc)[3], "units: 2 compiled, 0 under sdk/ and 1 not C left out")
 
 
 def entries(root: Path, tag: str, rows: list[tuple[str, str]]) -> Path:

@@ -37,7 +37,7 @@ The units
 ---------
 
 The C units of the configuration as `hostcheck` selects them (not under
-`sdk/`, source ending in `.c`), and every `func_*.c` of every folder
+`sdk/`, source ending in `.c`, not of `kind = "asm"`), and every `func_*.c` of every folder
 `*_nonmatching` next to the configuration, but for the folder
 `library_nonmatching`: its files are C of Sony's library, and like the units
 under `sdk/` they are compiled here only with the sound library (with `--psyz`,
@@ -671,8 +671,9 @@ def read_functions(entry: dict, path: Path) -> list[Function]:
 def select_units(config: dict, path: Path, sound_library: bool = False) -> Selection:
     """The jobs to compile, every declared function, and the count of images that are like another.
 
-    With `sound_library` the units whose source is under sdk/libsnd/ or sdk/libspu/ and ends in .c, and the files of the
-    folder library_nonmatching, are jobs too, marked as library jobs."""
+    With `sound_library` the units whose source is under sdk/libsnd/ or sdk/libspu/ and ends in .c (and whose kind is not
+    "asm": such a unit is assembly whatever its file is named), and the files of the folder library_nonmatching, are jobs too,
+    marked as library jobs."""
     images = read_images(config, path)
     by_name = {i["name"]: i for i in images}
     units, _, _ = hostcheck.read_units(config, path)
@@ -682,7 +683,7 @@ def select_units(config: dict, path: Path, sound_library: bool = False) -> Selec
         for entry in config.get("unit", []):
             source = entry.get("source", "")
             folder = next((f for f in SOUND_FOLDERS if source.startswith(f"sdk/{f}/")), None)
-            if folder is None or not source.endswith(".c"):
+            if folder is None or not source.endswith(".c") or entry.get("kind") == "asm":
                 continue
             if entry["name"] in compiled:
                 raise Problem(f"{path}: unit name {entry['name']} is used twice")

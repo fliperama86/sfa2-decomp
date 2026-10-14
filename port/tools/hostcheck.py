@@ -11,9 +11,12 @@ The units
 ---------
 
 Every `[[unit]]` of the build configuration whose `source` ends in `.c` and
-does not begin with `sdk/`. Units under `sdk/` are Sony's library, which a
-port swaps; they and the units whose source is not C are left out and
-counted, a unit under `sdk/` as that whatever its source ends in. The
+does not begin with `sdk/`, and whose `kind` is not `"asm"`. Units under
+`sdk/` are Sony's library, which a port swaps; they and the units whose
+source is not C are left out and counted, a unit under `sdk/` as that
+whatever its source ends in. A unit of `kind = "asm"` is not C whatever its
+file is named: the matching build assembles it, and the configuration has
+such units whose file ends in `.c`. The
 `flags` of a unit are for the PS1 compiler and are not used. Two units
 that are compiled and have one name are an error: their objects would be
 one file.
@@ -234,7 +237,7 @@ def read_units(config: dict, path: Path) -> tuple[list[Unit], int, int]:
         if source.startswith("sdk/"):
             sdk += 1
             continue
-        if not source.endswith(".c"):
+        if not source.endswith(".c") or entry.get("kind") == "asm":
             other += 1
             continue
         if name in seen:

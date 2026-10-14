@@ -1216,6 +1216,15 @@ def sound_cases(root: Path):
     config, path = config_tree(root, "snd-sel2", unit("ua", "a.c", [("fa", 0x80100000)]) + unit("so", "sdk/other/o.c", [("of", 0x80100130)]) + unit("sa", "sdk/libsnd/sa.s", kind="asm"))
     yield "sound-select-no-library-unit-is-refused", raises(lambda: hb.select_units(config, path, True), "--no-sound-library", "sdk/libsnd")
     yield "sound-select-no-library-unit-is-fine-without-the-option", same([j.name for j in hb.select_units(config, path).jobs], ["ua"])
+    # A unit of kind "asm" is assembly whatever its file is named: no job, in the game's folders and in the library's; its functions keep their names.
+    config, path = config_tree(root, "snd-sel3", unit("ua", "a.c", [("fa", 0x80100000)]) + unit("ue", "func_e.c", [("ef", 0x80100040)], kind="asm")
+                               + unit("sa", "sdk/libsnd/sa.c", [("saf", 0x80100140)], kind="asm") + unit("sn", "sdk/libsnd/sn.c", [("snf", 0x80100150)]))
+    for rel in ("func_e.c", "sdk/libsnd/sa.c"):
+        write(path.parent / rel, ".set noreorder\n")
+    write(path.parent / "sdk/libsnd/sn.c", "int x;\n")
+    sel = hb.select_units(config, path, True)
+    yield "select-kind-asm-in-a-c-file-is-no-job", same(sorted(j.name for j in sel.jobs), ["sn", "ua"])
+    yield "select-kind-asm-in-a-c-file-keeps-its-names", same(sorted(f.name for f in sel.declared), ["ef", "fa", "saf", "snf"])
 
     # A whole run with --psyz and nothing said about sound: the library is compiled.
     config, folder = sound_tree(root, "snd")

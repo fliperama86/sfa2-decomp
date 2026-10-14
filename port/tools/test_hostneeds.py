@@ -80,8 +80,8 @@ def put(path: Path, text: str) -> Path:
     return path
 
 
-def unit(name: str, source: str, funcs=(), image: str | None = None, state: str = "passed") -> dict:
-    return {"name": name, "source": source, "funcs": list(funcs), "image": image, "state": state}
+def unit(name: str, source: str, funcs=(), image: str | None = None, state: str = "passed", kind: str | None = None) -> dict:
+    return {"name": name, "source": source, "funcs": list(funcs), "image": image, "state": state, "kind": kind}
 
 
 def make(root: Path, tag: str, units=(), images=IMAGES, symbols="", game=(), library=(), nm=None, skip_objects=(), extra_rows=()) -> Tree:
@@ -93,6 +93,8 @@ def make(root: Path, tag: str, units=(), images=IMAGES, symbols="", game=(), lib
         toml += f'\n[[unit]]\nname = "{u["name"]}"\nsource = "{u["source"]}"\n'
         if u["image"]:
             toml += f'image = "{u["image"]}"\n'
+        if u["kind"]:
+            toml += f'kind = "{u["kind"]}"\n'
         toml += "functions = [\n"
         for fname, addr in u["funcs"]:
             toml += f'  {{ name = "{fname}", address = {addr:#x}, size = 4 }},\n'
@@ -335,6 +337,7 @@ def decl_cases(root: Path):
         unit("sdkish", "sdk_x/foo.c", [("SdkishFn", 0x80111000)], state="failed"),
         unit("cs", "lib.c.s", [("CsFn", 0x80112000)]),
         unit("sdkdotc", "sdk.c", [("SdkDotC", 0x80113000)], state="failed"),
+        unit("asm_in_c", "func_q.c", [("AsmInC", 0x80114000)], state=None, kind="asm"),   # assembly in a file that ends in .c: hostcheck.py leaves it out
     ]
     expect = {
         "Both": X("library by name", "80150000"),
@@ -345,6 +348,7 @@ def decl_cases(root: Path):
         "SdkishFn": X("unit not compiled", "80111000"),
         "CsFn": X("assembly", "80112000"),
         "SdkDotC": X("unit not compiled", "80113000"),
+        "AsmInC": X("assembly", "80114000"),
     }
     yield from group(root, "decl", expect, units, library=["80150000"])
 
