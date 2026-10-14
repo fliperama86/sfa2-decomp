@@ -746,6 +746,19 @@ cross compiler, the program started from that shell.
 
 ### Building it
 
+One command at the root of the repository runs the library's build (above)
+and this one in order, and with `-r` starts the program:
+
+```sh
+./build.sh [-r] win|mac [PROGRAM OPTION ...]
+```
+
+It decides nothing about the build: it calls the tools of this page with
+their default folders, skips a step whose inputs are those of its last run
+that ended well, and takes the disc image for `-r` from `SFA2_DISC`. Its
+head is its contract; `python3 port/tools/test_build_sh.py` checks it with
+stand-ins for the tools. The tool it calls for the program:
+
 ```sh
 python3 port/tools/hostbuild.py [--config ps1/src/build.toml] [--cc CC] [--build DIR] [--overrides DIR] [--jobs N] [--list]
 ```

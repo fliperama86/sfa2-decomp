@@ -199,6 +199,10 @@ python3 port/tools/macbuild.py                                      # the progra
 port/build/mac/sfa2-mac [--no-audio] [--skip-programs] DISC         # DISC is the user's .cue or .bin; run it from any folder
 ```
 
+`./build.sh mac` at the root of the repository runs the three build lines in that order, and `./build.sh -r mac` starts the program afterwards
+with the disc image that `SFA2_DISC` names (the head of `build.sh` is its contract). The script was written and run on Linux under WSL for the
+Windows program; its `mac` path was run only with stand-ins for the tools (`port/tools/test_build_sh.py`), not on a Mac.
+
 The options are those of the Windows program (`port/src/main.c`), plus `--guest FILE` for another image (by default `guest.elf` in the folder of the program).
 
 ## What this does not show
