@@ -13,7 +13,10 @@ center_ui = false
 
 `pixel_perfect_ui` corrects **super-meter and life-frame tile sampling**. It maps
 each 16x16 source tile one-to-one onto the native pixel grid, including mirrored
-tiles, mixed UV spans and the last tile of a texture page. The life-frame artwork
+tiles, mixed UV spans and the last tile of a texture page. A mirrored side that
+already has 16 texels is sampled one texel on, as the console and the original
+path sample it, so the life frame's dither keeps its phase across P2's mirrored
+end tiles. The life-frame artwork
 has a six-row interior; selected yellow and delayed-damage fills render at that
 height, keeping their original X, widths, colors and health logic. Empty fills
 remain empty. The super-meter frame's interior is one row higher on that grid
