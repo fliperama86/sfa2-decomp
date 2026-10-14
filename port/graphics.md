@@ -14,10 +14,12 @@ sharp_bilinear = false
 
 `pixel_perfect_ui` corrects **super-meter and life-frame tile sampling**. It maps
 each 16x16 source tile one-to-one onto the native pixel grid, including mirrored
-tiles, mixed UV spans and the last tile of a texture page. A mirrored side that
-already has 16 texels is sampled one texel on, as the console and the original
-path sample it, so the life frame's dither keeps its phase across P2's mirrored
-end tiles. The life-frame artwork
+tiles, mixed UV spans and the last tile of a texture page. Mirrored tiles are
+exact mirrors, which keeps every frame border where its artwork puts it. P2's
+two life-frame caps are P1's mirrored, and a mirrored 16-pixel tile turns the
+bar's one-pixel checker out of phase; the bridge draws each of them as two
+halves, the cap's outer half mirrored and its inner half (the bar's repeating
+body) unmirrored, so the checker runs on unbroken. The life-frame artwork
 has a six-row interior; selected yellow and delayed-damage fills render at that
 height, keeping their original X, widths, colors and health logic. Empty fills
 remain empty. The super-meter frame's interior is one row higher on that grid

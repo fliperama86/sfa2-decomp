@@ -19,11 +19,11 @@ static void DrawOTag(OT_TYPE *words);
 void port_clock_frame_drawn(unsigned packets) { (void)packets; }   /* the clock's hook that the list walker calls */
 /* REAL_GPU_SEAM */
 static unsigned captured_count;
-static struct { unsigned len;uint32_t words[12]; } captured[16];
+static struct { unsigned len;uint32_t words[24]; } captured[16];
 static void DrawOTag(OT_TYPE *node)
 {
     for(;;) {
-        unsigned i;assert(captured_count<16 && node[1]<=12);
+        unsigned i;assert(captured_count<16 && node[1]<=24);
         captured[captured_count].len=(unsigned)node[1];
         for(i=0;i<node[1];i++)captured[captured_count].words[i]=(uint32_t)node[2+i];
         captured_count++;
@@ -49,12 +49,17 @@ int main(void)
         uint32_t world[]={0x600000ff,100u<<16|300,8u<<16|8};
         uint32_t life[]={0x61ffff00,18u<<16|8,5u<<16|144};
         uint32_t super1[]={0x6049c9f3,213u<<16|150,3u<<16|16};
+        /* P2's left life cap as the tile-map drawer writes it, marked for the pixel grid. */
+        uint32_t cap[]={0x2c808080,7u<<16|224,0x7a470000u|48u<<8|192,7u<<16|208,0x002d0000u|PORT_VIDEO_PIXEL_GRID<<16|48u<<8|207,
+            23u<<16|224,63u<<8|192,23u<<16|208,63u<<8|207};
         uint32_t super3[]={0x60f0f020,213u<<16|294,4u<<16|48};
         uint32_t hud[]={0x2c808080,60u<<16|20,0x78070000,60u<<16|36,0x000d000f,
             76u<<16|20,0x00000f00,76u<<16|36,0x00000f0f};
         uint32_t strip[]={0xe100001f,0xe2000000,0x03000000,0x7c808080,104u<<16|120,0x78070000};
         memset(ram,0,PORT_RAM_SIZE);
         for(i=0;i<30;i++)*at(base+i*4)=i?(base+(i-1)*4)&LINK_END:LINK_END;
+        append(base,14,0x80186004+40*3+frame*0x1680,cap,9);
+        append(base,13,0x80186004+40*5+frame*0x1680,cap,9); /* the same cap on another list stays whole */
         append(base,14,0x80100200,world,3);
         append(base,14,0x8018a4bc+frame*0x1400,font,4);
         append(base,14,0x801ac6ac,life,3);
@@ -66,7 +71,7 @@ int main(void)
         append(base,9,0x801ac78c,super3,3); /* A meter record on another list is not one either. */
         memcpy(saved,ram,PORT_RAM_SIZE);
         pixel_perfect_ui=!!(flags&1);ui_canvas_active=!!(flags&2);center_ui=!!(flags&4);
-        captured_count=0;send_list(at(base+29*4));assert(captured_count==9);
+        captured_count=0;send_list(at(base+29*4));assert(captured_count==11);
         assert(!memcmp(saved,ram,PORT_RAM_SIZE));
         assert(captured[0].len==9);assert(captured[0].words[1]==(60u<<16|(unsigned)(20+dx)));
         for(i=0;i<9;i++)if(i!=1 && i!=3 && i!=5 && i!=7)assert(captured[0].words[i]==hud[i]);
@@ -78,17 +83,31 @@ int main(void)
         assert(captured[3].words[1]==(40u<<16|(unsigned)(40+dx)));
         assert(captured[3].words[0]==font[0] && captured[3].words[2]==font[2] && captured[3].words[3]==font[3]);
         assert(captured[4].len==3 && !memcmp(captured[4].words,world,sizeof world));
-        for(i=5;i<7;i++)assert(captured[i].len==3 && !memcmp(captured[i].words,super3,sizeof super3));
+        if(pixel_perfect_ui) {
+            static const unsigned xs[8]={7u<<16|216,7u<<16|208,23u<<16|216,23u<<16|208,7u<<16|224,7u<<16|216,23u<<16|224,23u<<16|216};
+            assert(captured[5].len==18);
+            for(i=0;i<2;i++) { const uint32_t *q=captured[5].words+9*i;
+                assert(q[0]==cap[0] && q[2]>>16==0x7a47 && q[4]>>16==0x002d);
+                assert(q[1]==xs[4*i]+(unsigned)dx && q[3]==xs[4*i+1]+(unsigned)dx && q[5]==xs[4*i+2]+(unsigned)dx && q[7]==xs[4*i+3]+(unsigned)dx);
+                assert((q[2]&0xffff)==(48u<<8|(i?200u:199u)) && (q[4]&0xffff)==(48u<<8|(i?192u:207u)));
+                assert(q[6]==(64u<<8|(i?200u:199u)) && q[8]==(64u<<8|(i?192u:207u))); }
+        } else {
+            assert(captured[5].len==9);
+            for(i=0;i<9;i++)assert(captured[5].words[i]==((i&1)?cap[i]+(unsigned)dx:cap[i]));
+        }
+        assert(captured[6].len==9);
+        for(i=0;i<9;i++)assert(captured[6].words[i]==((i&1)?cap[i]+(unsigned)dx:cap[i]));
+        for(i=7;i<9;i++)assert(captured[i].len==3 && !memcmp(captured[i].words,super3,sizeof super3));
         n=pixel_perfect_ui?212:213;
-        assert(captured[7].len==3 && captured[7].words[0]==super3[0]);
-        assert(captured[7].words[1]==(n<<16|(unsigned)(294+dx)) && captured[7].words[2]==((pixel_perfect_ui?5u:4u)<<16|48));
-        assert(captured[8].len==3 && captured[8].words[0]==super1[0]);
-        assert(captured[8].words[1]==(n<<16|(unsigned)(150+dx)) && captured[8].words[2]==(3u<<16|16));
+        assert(captured[9].len==3 && captured[9].words[0]==super3[0]);
+        assert(captured[9].words[1]==(n<<16|(unsigned)(294+dx)) && captured[9].words[2]==((pixel_perfect_ui?5u:4u)<<16|48));
+        assert(captured[10].len==3 && captured[10].words[0]==super1[0]);
+        assert(captured[10].words[1]==(n<<16|(unsigned)(150+dx)) && captured[10].words[2]==(3u<<16|16));
         captured_count=0;
         { uint32_t single[]={0x03000000,0x600000ff,20u<<16|20,4u<<16|4};
           send_single(single);assert(captured_count==1 && captured[0].words[1]==single[2]); }
     }
     free(saved);assert(!munmap(ram,PORT_RAM_SIZE));
-    puts("UI seam: real walker/copy, both frame tables, eight flag states, compound sprite, meter fills, RAM/world/single-packet identity pass");
+    puts("UI seam: real walker/copy, both frame tables, eight flag states, compound sprite, meter fills, P2 life cap, RAM/world/single-packet identity pass");
     return 0;
 }
