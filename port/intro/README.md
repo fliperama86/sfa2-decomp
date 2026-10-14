@@ -7,7 +7,8 @@ under `ps1/` is changed. This is not a complete intro or attract mode.**
 ## Test the first scene
 
 The existing Windows executable can replace the PS1 opening movie with
-192 updates (about 3.2 seconds) of Gouki and animated flames, then return to
+192 updates (about 3.2 seconds) of Gouki and animated flames, with moving
+embers when a version-2 pack is supplied, then return to
 the title flow. Leave the title idle to reach the opening. Start skips the
 slice; Escape closes the normal port window.
 
@@ -33,6 +34,23 @@ interpreter or captured video is used. Invalid/missing enabled input stops
 with an explicit message. The importer currently accepts only the supplied,
 examined US 960306 archive, including its observed graphics variants.
 
+The version-2 owner-test build is ready, not yet owner-tested or submitted as
+a PR. Its [particle contract](particles-contract.md) reconstructs the original
+RNG, spawning and fixed-point movement. The old version-1 pack still works and
+retains the earlier no-particle scene. Do not overwrite it. To prepare the new
+pack during development, use the pinned decrypted analysis image of the same
+arcade archive (not another ROM):
+
+```sh
+python port/intro/import_scene.py INPUT/arcade.zip port/local/intro-asset-probe/intro-embers.dat \
+  --opcodes INPUT/arcade-opcodes.bin
+```
+
+Select that pack with the existing `--intro-data` option. The runtime never
+reads decrypted program bytes. Automating this analysis-only decryption step
+in the final importer remains unfinished; this is not the final import UX.
+The prepared private owner-test pack needs no further extraction.
+
 This test slice uses both the normal PS1 disc and the privately imported CPS2
 scene data. It does not settle the future single-input user experience or
 adopt a whole-port CPS2 asset pivot. Saturn is not a runtime input.
@@ -47,7 +65,14 @@ scroll. The [bounded contract](../../docs/tasks/intro-first-scene.md) states the
 normalization and sources. This is project-authored C, not byte-matching Saturn
 C or a claim of whole-scene differential equivalence.
 
-Not implemented: warm-up and flashes, particles, sound, the remaining intro
+Version-2 packs add the steady scene's moving embers from original artwork,
+sequence records and privately imported velocity/spawn tables. Forty original
+actor slots are modeled, including the one occupied by the main flames.
+Spawning, two random selections at initialization, acceleration reversal,
+unsigned bounds and deferred deletion follow the recovered code. The initial
+seed and interval are explicitly normalized, not inherited from omitted scenes.
+
+Not implemented: warm-up, fades/flashes, sound, the remaining intro
 scenes and attract-mode flow. Full brightness and initial effect phase are
 normalized in this slice. The existing port's 60 Hz clock is used, not an exact
 CPS2 refresh clock. The owner must be able to test this build before a new PR.
@@ -60,7 +85,7 @@ Focused synthetic checks (seconds, no game or private input):
 
 ```sh
 python port/tools/test_intro_scene.py
-python port/tools/test_settings.py
+python port/tools/test_intro_particles.py
 ```
 
 ## Code-first recovery

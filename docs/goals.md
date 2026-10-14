@@ -43,12 +43,14 @@ behavior and missing C under explicit contracts, with scoped differential
 checks. Missing C stops with its name. No original-code interpreter, supplied
 assets in Git or changes to PS1 source for the port before it runs.
 
-Current owner-directed intro work: the default-off Gouki/fire scene slice has
-been tested by the owner and is ready for review (source at 1bb04c0b). After
-its approved merge, recover the first scene's missing fades/flashes and moving
-embers from CPS2 code, as bounded port-only work; sound follows separately.
-Provide another runnable owner-test build before that increment's PR. The
-whole-port CPS2-only asset pivot remains undecided. See [intro scope](../port/intro/README.md).
+Current owner-directed intro work: PR370's owner-tested default-off Gouki/fire
+slice is merged. The next normal Windows build adds moving embers reconstructed
+from CPS2 code, with scoped differential evidence and a private version-2 pack.
+It is ready for owner testing, not yet owner-tested or in a PR. Fade/flash
+transitions and phase carry-in remain the next bounded increment, followed by
+sound. Keep every change port-only. The whole-port CPS2-only asset pivot remains
+undecided. See [intro scope](../port/intro/README.md) and the
+[particle contract](../port/intro/particles-contract.md).
 
 ## Small work packages
 
