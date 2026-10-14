@@ -59,10 +59,10 @@ Old figures describe their own date, not today's completion.
   these two units (of the library it compiles the sound part's C, in its
   normal build with PsyZ, and nothing else). This is for the library's
   code, not a way around a game function that does not match.
-- CI/CD: integrate tracked WIP behind default-off settings flags, preserving
-  original behavior. Use small reviewed PRs and short-lived branches.
-  Poll owner comments every 60 seconds while active. Merge frequently after
-  scoped checks and owner approval; no private source silos or review bypass.
+- CI/CD: tracked WIP uses default-off settings flags, preserving default behavior.
+  Before a port-feature PR, give the owner a runnable build and test instructions.
+  Use small reviewed PRs; poll owner comments every 60 seconds while active.
+  Merge after scoped checks and owner approval; no private source silos or bypass.
 - [Agent worktrees](agent-worktrees.md): integration-only main, separate workers
   and pinned review, canonical outputs per worktree; provisioning remains undone.
 - After an approved merge, proceed to the next goal without asking. Decisions
