@@ -27,6 +27,7 @@ Old figures describe their own date, not today's completion.
   until the port runs. It runs C only, never an interpreter of missing original
   code. User-supplied disc data stays private. Read `port/README.md` first.
   Arcade intro/attract restoration never changes `ps1/`, including metadata.
+  Code-first, not visual mimicry: check PS1 leftovers, then CPS2 with Saturn as a guide.
 - Sound is part of the port's normal build, by the owner's decision of
   2026-10-10: a build with PsyZ has the game's sound library and plays
   without being asked. A test or a script that starts the program gives
@@ -115,6 +116,5 @@ Current state belongs in [current-state.md](current-state.md), next packages in
 
 ## Workflow implementation lessons
 A Git submodule is not a missing file. Record its pin and available content separately.
-Optional Python modules can have absent system
-libraries even while required checks run; track that availability rather than
-claiming all optional modules ran. Keep failed smoke evidence; never relabel it a pass.
+Optional modules may lack system libraries; report availability, not an unearned pass.
+Keep failed smoke evidence; never relabel it a pass.
