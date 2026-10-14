@@ -26,6 +26,7 @@ Old figures describe their own date, not today's completion.
 - The port stays beside the PS1 work, with no PS1 changes made for the port
   until the port runs. It runs C only, never an interpreter of missing original
   code. User-supplied disc data stays private. Read `port/README.md` first.
+  Arcade intro/attract restoration never changes `ps1/`, including metadata.
 - Sound is part of the port's normal build, by the owner's decision of
   2026-10-10: a build with PsyZ has the game's sound library and plays
   without being asked. A test or a script that starts the program gives
@@ -113,8 +114,7 @@ Current state belongs in [current-state.md](current-state.md), next packages in
 [goals.md](goals.md), and acceptance specifications in `docs/tasks/`.
 
 ## Workflow implementation lessons
-A Git submodule entry is not a missing regular file. Record its pinned commit
-and available content separately. Optional Python modules can have absent system
+A Git submodule is not a missing file. Record its pin and available content separately.
+Optional Python modules can have absent system
 libraries even while required checks run; track that availability rather than
-claiming that all optional modules were executed. Initial failed smoke reports
-remain in private evidence and are not relabeled as successful runs.
+claiming all optional modules ran. Keep failed smoke evidence; never relabel it a pass.
