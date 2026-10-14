@@ -51,6 +51,12 @@ existing `port/local/intro-asset-probe/` location. The report includes a static
 consumer route separately from the behavioral checks; those checks do not
 execute the scene controller or establish full intro fidelity.
 
+A separate data-integration probe at `6902b58a` ran the native C reader on the
+hash-verified original first-loop data. It selected all six records in order
+and returned to the initial state after 24 animation updates. This used no
+original CPU execution and did not render the scene. Its private trace and
+separate manifest preserve source/report hashes without altering earlier evidence.
+
 ### Tool limitations and lessons
 
 REA refused this ELF architecture. The existing private Ghidra project was
