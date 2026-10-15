@@ -4,11 +4,11 @@
 
 `world.c`, `director.c` and the actor units are native C reconstruction work in
 progress. They do not yet replace the first-scene runtime in `port/src/intro.c`.
-All eight scene controllers are present. Actor kinds 80, 82 through 8a, 8e and
-secondary kinds 20 through 22 are implemented. The logo/duel actors, other map
-and palette actors, fader scheduling, final lettering, resource packaging,
-render-list integration and sound are not yet complete. This is not a complete
-intro or a build ready for another owner test.
+All eight scene controllers, primary kinds 01 and 80 through 8e, secondary
+kinds 20 through 22, and UI kind 8 are implemented for the observed supplied
+profile. Native map consumers, palette fades, title lettering and display-list
+assembly are present. Full resource packaging, host scheduling and sound remain
+unfinished. This is not yet a complete-intro owner-test build.
 
 ## State, resources and dependencies
 
@@ -35,11 +35,15 @@ are rejected rather than dereferenced.
 
 `intro_director_step` returns -1 for an error, 0 while the controller is active,
 and 1 after the exit flag. It is a controller tick, not a claim about scheduler
-or host display cadence. Cooperative yields and full fade/audio scheduling
+or host display cadence. Cooperative yields and host fade/audio scheduling
 still need integration. Palette bank shadows, timer underflow, fractional
 coordinates, ordered group allocation and aliased completion signals remain
 explicit. The strip-exit substate intentionally ticks and queues twice; the
-headshot controller's initial completion long is two, not zero. The strip
+headshot controller's initial completion low word is two, not zero. The
+original long write also retains an unused caller-register upper word; native
+C uses zero there instead of preserving CPU register residue. That is a stated
+nonmatching projection until the actors replace those bytes with completion
+markers, not full raw-state identity. The strip
 scene's initial scroll coordinates are one, the map-clear helper's returned
 scalar, not visually guessed zeros.
 
@@ -47,11 +51,11 @@ Supported actor input is initialized intro state with the subtype/state and
 resource graph used by the supplied variant. The functions are not a general
 CPS2 runtime. Unsupported kinds and malformed state fail closed. Secondary
 actors are attached effects, not independently collected primary sprites.
-The renderer still needs to traverse their parent links.
+The native renderer traverses their parent links in original order.
 
 ## Evidence boundary
 
-The 34 fixtures in `native-fixtures.json` use project-constructed state and
+The 53 fixtures in `native-fixtures.json` use project-constructed state and
 synthetic zero data, with results computed by the isolated original routines.
 They contain no extracted artwork, palette tables, opcode bytes or captured
 frames. The private recording run verified that their only resource reads
@@ -70,3 +74,22 @@ original call stack and scheduler task storage) and, for director/montage/
 secondary runs, video memory. See the change record for exact scope and the
 preserved failed attempts. These do not replace the remaining dependency,
 clock, presentation and sound work.
+
+## Additional reconstruction evidence
+
+The [second reconstruction record](../../docs/records/2026-10-14-intro-native-rendering.md)
+covers all-phase controller/actor/fade/UI traversal, native display lists and
+isolated map/fade tests. The complete state traversal is not a game boot, a
+proof of real-time audio synchronization, or final owner acceptance. Startup
+still uses oracle-prepared dependency state in that comparison.
+
+`fade.c` supports only the three intro-used tasks: brightness down, brightness
+up and RGB-to-white. Bank-wide brightness changes are gated by the first color;
+the task completes on the later invocation that observes its target. Timing
+and completion flags preserve the scoped scheduler shim, not a new claim of
+console display timing. `maps.c` parses bounded tile-pair rectangles with the
+original plane-specific row and column wraps. `text.c` parses bounded strings,
+with explicit UI slot capacity (47 blocks after the in-slot header).
+
+The supplied logo profile implements regional variants 1 and 4, not other
+region choices. Unsupported kinds, formats and state transitions remain errors.

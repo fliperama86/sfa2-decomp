@@ -34,7 +34,7 @@ uint8_t *intro_world_actor(struct intro_world *w,unsigned pool,uint16_t actor)
     if(offset>=p->count*p->stride || offset%p->stride) {w->error="intro: actor link";return NULL;}
     return w->ram+actor;
 }
-static void reset_draw_lists(struct intro_world *w)
+void intro_world_reset_draw_lists(struct intro_world *w)
 {
     static const uint16_t tops[]={0x6202,0x6216,0x6252,0x6286,0x62de,0x6336,0x638e,0x63e6,0x643e,0x6496,0x64ee,0x6546};
     unsigned i;
@@ -67,7 +67,7 @@ void intro_world_reset_actors(struct intro_world *w)
     }
     memset(ig(w,0x6552),0,2048);
     for(i=0;i<4;i++) sw(w,0x6216+2*i,0x8400u+i*0x400u);
-    reset_draw_lists(w);
+    intro_world_reset_draw_lists(w);
 }
 uint16_t intro_world_alloc(struct intro_world *w,unsigned pool)
 {
@@ -105,7 +105,7 @@ void intro_world_update_actors(struct intro_world *w,unsigned pool)
 }
 void intro_world_clear_maps(struct intro_world *w)
 {
-    unsigned i;
+    unsigned i;w->clear_objects=1;
     for(i=0;i<0x4000;i+=4) {ip32(w->video+i,0x00200000u);ip32(w->video+0x4000+i,0xa4200000u);ip32(w->video+0x8000+i,0x09000000u);}
     for(i=0xe000;i<0x10000;i+=2) ip16(w->video+i,192);
     if(!*ig(w,0x95)) {*ig(w,0x94)^=1;*ig(w,0x95)=255;}

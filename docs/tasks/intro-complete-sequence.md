@@ -66,3 +66,9 @@ Native controller/actor work now exists in the normal `port/intro/` source tree.
 See `port/intro/director-contract.md` for the implemented subset and remaining
 dependencies. It is not connected to the opening runtime yet and is not a
 complete-intro test build.
+
+The next checkpoint implements all observed actor families, fades, maps,
+lettering and native display-list assembly. Two scoped traversals compare all
+eight phases through exit, including generated object records. Resource import,
+independent startup, host cadence and sound are still required. No new owner
+notification or PR is authorized by this intermediate evidence.

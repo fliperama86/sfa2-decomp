@@ -118,3 +118,10 @@ Current state belongs in [current-state.md](current-state.md), next packages in
 ## Workflow implementation lessons
 When relaunching a rebuilt Windows binary from WSL, close its identified prior test instance: Windows can reuse that loaded image despite new disk bytes.
 Record submodule pins; missing libraries/failed smokes are not passes. Declare transitive test imports outside `port/tools` (PR368).
+- Intro controller correction (2026-10-14): isolated calls with cleared data
+  registers hid an original caller-register residue in the initial headshot
+  completion word. The low word is two; the high word is not reliably zero.
+  Do not introduce CPU-register state to reproduce unused residue. Document
+  the nonmatching semantic projection and prove completion flags are compared
+  after native/original actors replace them, rather than claim full raw-state
+  identity from an isolated caller precondition.

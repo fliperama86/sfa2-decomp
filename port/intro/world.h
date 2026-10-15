@@ -35,6 +35,7 @@ struct intro_world {
     int (*present)(struct intro_world *);
     int (*title)(struct intro_world *);
     const char *error;
+    unsigned clear_objects; /* Pending blank-list publication, not a CPU register. */
     unsigned rendered,sound_command,fade_mode,fade_target,fade_delay;
 };
 static inline uint16_t iw16(const uint8_t *p) { return (uint16_t)((unsigned)p[0]*256u+p[1]); }
@@ -51,6 +52,7 @@ static inline int countdown(struct intro_world *w,unsigned field) { unsigned n=(
 const uint8_t *intro_world_table(struct intro_world *,unsigned,uint32_t,size_t);
 uint8_t *intro_world_video(struct intro_world *,uint32_t,size_t);
 void intro_world_reset_actors(struct intro_world *);
+void intro_world_reset_draw_lists(struct intro_world *);
 uint16_t intro_world_alloc(struct intro_world *,unsigned pool);
 int intro_world_delete(struct intro_world *,unsigned pool,uint16_t actor);
 uint8_t *intro_world_actor(struct intro_world *,unsigned pool,uint16_t actor);
@@ -62,4 +64,7 @@ void intro_world_palette_copy(struct intro_world *,uint32_t source,uint32_t dest
 void intro_world_palettes(struct intro_world *,unsigned full);
 unsigned intro_world_random(struct intro_world *);
 int intro_director_step(struct intro_world *);
+int intro_fade_tick(struct intro_world *);
+void intro_map_write(struct intro_world *,unsigned,uint32_t,uint32_t,unsigned);
+uint32_t intro_map_position(struct intro_world *,unsigned,unsigned,unsigned);
 #endif

@@ -30,3 +30,37 @@ const char *intro_actor_test_run(uint8_t *ram,uint8_t *video,unsigned pool,uint1
     memcpy(ram,world.ram,sizeof world.ram);memcpy(video,world.video,sizeof world.video);
     return world.error;
 }
+static int core_actor(struct intro_world *w,unsigned pool,uint16_t id)
+{return intro_actor_step_native(w,pool,id);}
+#ifdef INTRO_TEST_PRESENTATION
+#include "../presentation.h"
+static struct intro_presentation display;
+static int core_present(struct intro_world *w)
+{
+    *ig(w,0x95)=0; /* Stand-in for the display boundary, as in the oracle. */
+    return intro_present_objects(w,&display)<0 ? -1 : 0;
+}
+size_t intro_core_test_objects(uint8_t *out,size_t capacity)
+{
+    size_t n=display.count*8+4;
+    if(capacity<n) return 0;
+    memcpy(out,display.objects,n);return n;
+}
+#else
+static int core_present(struct intro_world *w)
+{intro_world_reset_draw_lists(w);return 0;}
+#endif
+void intro_core_test_start(const uint8_t *ram,const uint8_t *video)
+{
+    memset(&world,0,sizeof world);memcpy(world.ram,ram,sizeof world.ram);memcpy(world.video,video,sizeof world.video);
+    world.read=read_table;world.actor_step=core_actor;world.present=core_present;world.title=intro_title_write;
+}
+const char *intro_core_test_tick(uint8_t *ram,uint8_t *video)
+{
+    intro_director_step(&world);
+#ifdef INTRO_TEST_PRESENTATION
+    intro_present_clear(&world,&display);
+#endif
+    if(!gw(&world,IG_EXIT)) {intro_fade_tick(&world);intro_world_random(&world);}
+    memcpy(ram,world.ram,sizeof world.ram);memcpy(video,world.video,sizeof world.video);return world.error;
+}

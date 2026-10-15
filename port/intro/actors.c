@@ -155,9 +155,14 @@ int intro_actor_step_native(struct intro_world *w,unsigned pool,uint16_t actor)
 {
     uint8_t *a=intro_world_actor(w,pool,actor);if(!a) return -1;
     if(pool==1) {intro_actor_secondary(w,a);return w->error ? -1 : 0;}
-    if(pool!=0) {w->error="intro: native UI actor missing";return -1;}
+    if(pool==2) {intro_actor_ui(w,a);return w->error ? -1 : 0;}
+    if(pool!=0) {w->error="intro: native actor pool missing";return -1;}
     switch(a[IA_KIND]) {
+    case 1:case 0x8d:intro_actor_map(w,a);break;
+    case 0x8c:intro_actor_palette(w,a);break;
     case 0x80:flame(w,a);break;
+    case 0x81:intro_actor_logo(w,a);break;
+    case 0x8b:intro_actor_duel(w,a);break;
     case 0x82:strip(w,a);break;
     case 0x84:wind_actor(w,a);break;
     case 0x83:intro_actor_strips(w,a);break;

@@ -12,7 +12,7 @@ import tempfile
 import unittest
 
 ROOT=Path(__file__).resolve().parents[2]
-SOURCES=['world.c','director.c','actors.c','actor_portraits.c','actor_montage.c','particles.c','tests/director_bridge.c']
+SOURCES=['world.c','director.c','actors.c','actor_portraits.c','actor_montage.c','particles.c','maps.c','actor_maps.c','actor_palette.c','actor_logo.c','actor_duel.c','fade.c','text.c','tests/director_bridge.c']
 MUTANTS={
     'row_wrap':('director.c','(gw(w,IG_ROW)-1u)&511u','(gw(w,IG_ROW)-1u)&255u'),
     'double_update':('actors.c','tick_collect(w,a,1);break;','/* deliberately omitted inner update */ break;'),
