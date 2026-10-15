@@ -27,4 +27,4 @@ on the Mac; no wider suite is needed.
 Private logs are `pr371-selector-linux.log` and
 `pr371-selector-darwin-command.log` in the existing intro evidence folder.
 No port/library rebuild, game launch, unrelated control, or prior evidence
-rerun occurred. The owner-tested executable and imported pack are unchanged.
+rerun occurred. The previously validated executable and imported pack are unchanged.
