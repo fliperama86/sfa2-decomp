@@ -1,21 +1,16 @@
 # Active project memory
-
 This is the short startup context, not a replacement for preserved evidence.
 Read [current state](current-state.md), [requirements](requirements.md) and
 [the plan](../PLAN.md). Retrieve only relevant historical sections:
-
 ```sh
 python tools/ai_workflow/workflow.py context --query "compiler" --limit 80
 ```
-
 The previous memory is byte-preserved in
 [project-memory-history.md](project-memory-history.md). Its heading/line index
 and whole-file hash are in [project-memory-index.json](project-memory-index.json).
 The former goals log is preserved in [goals-history.md](goals-history.md).
 Old figures describe their own date, not today's completion.
-
 ## Scope and owner decisions
-
 - Active repository: SFA2, PS1 Japan `SLPS_004.15`, not the old 68k project.
   Windows is reference research. Keep unrelated work untouched.
 - Readable gameplay C is required, with explicit assembly/SDK exceptions.
@@ -28,7 +23,7 @@ Old figures describe their own date, not today's completion.
   code. User-supplied disc data stays private. Read `port/README.md` first.
   Arcade intro/attract restoration never changes `ps1/`, including metadata.
   Saturn is a potential byte-matching C target, not just a visual reference (2026-10-14).
-  One input preferred; CPS2 intro slice is opt-in (port/intro/README.md); whole-port pivot open.
+  One input preferred; complete CPS2 intro is opt-in (port/intro/README.md); whole-port pivot open.
 - Sound is part of the port's normal build, by the owner's decision of
   2026-10-10: a build with PsyZ has the game's sound library and plays
   without being asked. A test or a script that starts the program gives
@@ -61,6 +56,7 @@ Old figures describe their own date, not today's completion.
   code, not a way around a game function that does not match.
 - CI/CD: tracked WIP uses default-off settings flags, preserving default behavior.
   Before a port-feature PR, give the owner a runnable build and test instructions.
+  Owner wants notification/testing only when the ENTIRE intro is done, not partial scenes (2026-10-14).
   Keep PR monitoring active until review is handled, polling owner comments every 60 s.
   Merge after scoped checks and owner approval; no private source silos or bypass.
 - [Agent worktrees](agent-worktrees.md): integration-only main, separate workers
@@ -71,17 +67,15 @@ Old figures describe their own date, not today's completion.
   only to resolve a specific uncertainty, not as a routine review gate.
   Reuse existing verified evidence. Checks stay isolated and fast; never
   repeat unchanged runs. Read [efficiency.md](efficiency.md) before a run.
-
 ## Working style
 Answer first, briefly, one subject at a time. No em dash, unnecessary lists of
 identifiers, recaps or suggestions about stopping. Distinguish what ran from
 what is planned. Preserve failed experiments and their original evidence.
-Recover intro behavior from code, not visual mimicry. For mechanical tasks use bounded
-acceptance commands. Stop and report options on a decision-bearing fork.
+Recover intro behavior from code, not visual mimicry. Use bounded acceptance commands; report decision forks.
+For owner testing, prefer the existing build/run script over a manual launch command (2026-10-14).
 Reuse one stable folder per purpose: no per-experiment/iteration trees (2026-10-12).
-Permanent source tracked by domain; private outputs reuse fixed locations. Experimental
-toggles in settings [experimental], not special builds/launchers; defaults off (same date).
-
+Permanent source stays tracked; private outputs reuse fixed locations; experimental settings default off.
+Never end a reply implying work/notifications will continue without an active execution mechanism (owner correction, 2026-10-14).
 ## Lessons to apply before a run
 - PR reviews use plain PR comments: `**APPROVE** SHA` or `**REQUEST CHANGES** SHA`, as prior PRs (owner correction, 2026-10-12).
 - Validate pointer declarations and initialization before encoding selectors.
@@ -106,15 +100,21 @@ toggles in settings [experimental], not special builds/launchers; defaults off (
 - The canonical coverage tool currently counts some excluded second-link
   owners. The linked ledger flags rows without an applicable owner as raw;
   it preserves canonical aggregate totals rather than silently rewriting them.
-
 ## Keeping this file small
-
 Keep active memory within 120 lines. Put detailed new evidence in a record
 file in `docs/records/` (one per change) or a dated/domain report. The
 history is the archive: preserve its bytes and do not append to it.
 Current state belongs in [current-state.md](current-state.md), next packages in
 [goals.md](goals.md), and acceptance specifications in `docs/tasks/`.
-
 ## Workflow implementation lessons
-Record submodule pins/availability; missing system libraries and failed smokes are not passes.
-Port test selectors must declare transitive imports outside `port/tools` explicitly (PR368).
+When relaunching a rebuilt Windows binary from WSL, close its identified prior test instance: Windows can reuse that loaded image despite new disk bytes.
+Record submodule pins; missing libraries/failed smokes are not passes. Declare transitive test imports outside `port/tools` (PR368).
+- Intro controller correction (2026-10-14): isolated calls with cleared data
+  registers hid headshot caller residue: low word two, high word not reliably zero.
+  Preserve no CPU registers for unused residue: document the nonmatching
+  projection and compare actual completion markers, not isolated preconditions.
+- Sound cue correction: do not infer "stop" from a call site. The intro finale
+  queues command 0xbd with parameter 0x1000; its sound-driver meaning was not
+  recovered. Keep that cue opaque rather than silently stopping music.
+- Disc lookup takes a basename, not an ISO path. Use real directory parsing, not a permissive loader mock.
+- Native linker controls select Apple `-dead_strip` versus GNU `--gc-sections` (PR371).

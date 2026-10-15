@@ -43,12 +43,18 @@ behavior and missing C under explicit contracts, with scoped differential
 checks. Missing C stops with its name. No original-code interpreter, supplied
 assets in Git or changes to PS1 source for the port before it runs.
 
-Current owner-directed intro work: the default-off Gouki/fire scene slice has
-been tested by the owner and is ready for review (source at 1bb04c0b). After
-its approved merge, recover the first scene's missing fades/flashes and moving
-embers from CPS2 code, as bounded port-only work; sound follows separately.
-Provide another runnable owner-test build before that increment's PR. The
-whole-port CPS2-only asset pivot remains undecided. See [intro scope](../port/intro/README.md).
+Current owner-directed intro work: the complete eight-phase native sequence
+now runs in the normal Windows executable, with the PS1-disc soundtrack,
+transitions, animated title, fade and return to the game. It is ready for the
+owner's requested full-intro test. The earlier Akuma/flames-only slice was
+rejected as insufficient; legacy packs now fail explicitly rather than replaying
+that slice. See [the runtime evidence](records/2026-10-14-intro-full-runtime.md)
+and [complete-intro task](tasks/intro-complete-sequence.md). The owner authorized
+PR publication on 2026-10-15; review and merge remain pending. The flag remains
+off by default and all changes
+are port-only. Sound is a PS1 XA adaptation, not bit-perfect QSound. The rest
+of attract mode and whole-port CPS2-only asset pivot remain separate, undecided
+work. See [intro scope and fidelity limits](../port/intro/README.md).
 
 ## Small work packages
 

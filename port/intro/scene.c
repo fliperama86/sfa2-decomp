@@ -14,7 +14,7 @@ int intro_scene_init(struct intro_scene *scene,const uint8_t *data,size_t size)
 {
     struct intro_scene next;
     unsigned i;
-    if(!scene || !data || size!=INTRO_PAYLOAD_BYTES || be16(data)!=2) return -1;
+    if(!scene || !data || (size!=INTRO_PAYLOAD_BYTES && size!=INTRO_PAYLOAD_BYTES+INTRO_EMBER_BYTES) || be16(data)!=2) return -1;
     /* This pack version is deliberately one bounded six-pose loop. Validate
      * all records, not just the first, before rendering can inspect art IDs. */
     for(i=0;i<6;i++) {
@@ -29,6 +29,7 @@ int intro_scene_init(struct intro_scene *scene,const uint8_t *data,size_t size)
     for(i=PORTRAIT;i<INTRO_PAYLOAD_BYTES;i++) if(data[i]>15) return -1;
     memset(&next,0,sizeof next);
     next.data=data;
+    if(size>INTRO_PAYLOAD_BYTES && intro_embers_init(&next.embers,data+INTRO_PAYLOAD_BYTES,INTRO_EMBER_BYTES)) return -1;
     if(intro_sequence_select(data,INTRO_SEQUENCE_BYTES,0,0,&next.foreground)) return -1;
     *scene=next;
     return 0;
@@ -71,6 +72,11 @@ int intro_scene_frame(struct intro_scene *scene,uint16_t *pixels)
             }
             pixels[y*INTRO_W+x]=c;
         }
+    }
+    if(scene->embers.data) {
+        uint16_t colors[16];
+        for(x=0;x<16;x++) colors[x]=color(data+PALETTES,x);
+        if(intro_embers_frame(&scene->embers,pixels,colors)) return -1;
     }
     scene->tick++;
     /* Already validated, no runtime-ROM branch can escape this small table. */

@@ -84,6 +84,9 @@ struct port_xa_counts {
     unsigned played, held, refused, skipped, silent;   /* sectors */
     unsigned frames, pulled, queued;                    /* frames at 44,100 Hz: queued in all, pulled in all, in the queue now */
 };
+/* Optional native program stream. Installed/removed under the audio lock;
+ * called with that lock held. Null preserves the ordinary XA queue path. */
+extern size_t (*port_cd_audio_override)(short *,size_t);
 void   port_xa_set_sink(int on);
 size_t port_xa_pull(short *out, size_t num_frames);
 void   port_xa_counts_get(struct port_xa_counts *out);

@@ -18,6 +18,12 @@ machine): title, menus, a fight and sound. It skips the disc's stand-alone
 programs, stops by name where C is missing, and is not shown to play to the
 end. It does not run on Linux.
 
+The port-only experimental arcade intro now completes all eight native phases
+in the normal Windows executable, with an adapted PS1-disc soundtrack, then
+returns to the game. It is ready for owner testing, not yet accepted or merged;
+the flag stays default off. See the
+[runtime evidence and fidelity limits](records/2026-10-14-intro-full-runtime.md).
+
 ## Source of truth
 
 - Scope and acceptance: [requirements](requirements.md), [plan](../PLAN.md).
