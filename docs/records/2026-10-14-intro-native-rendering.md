@@ -1,4 +1,4 @@
-# Intro reconstruction: all observed actors and native display lists
+## Intro reconstruction: all observed actors and native display lists (2026-10-14)
 
 This checkpoint adds native map/palette/logo/duel actors, final tile lettering
 and blinking UI, three palette-fade tasks, and display-list assembly. The old

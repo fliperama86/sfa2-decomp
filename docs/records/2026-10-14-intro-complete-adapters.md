@@ -1,4 +1,4 @@
-# Complete-intro dependency discovery and native graphics adapters
+## Complete-intro dependency discovery and native graphics adapters (2026-10-14)
 
 The owner's acceptance boundary is now the **entire intro**, not another
 Akuma/fire slice or cosmetic addition. No owner test, launch or PR is requested

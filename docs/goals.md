@@ -49,8 +49,9 @@ transitions, animated title, fade and return to the game. It is ready for the
 owner's requested full-intro test. The earlier Akuma/flames-only slice was
 rejected as insufficient; legacy packs now fail explicitly rather than replaying
 that slice. See [the runtime evidence](records/2026-10-14-intro-full-runtime.md)
-and [complete-intro task](tasks/intro-complete-sequence.md). Owner acceptance is
-pending; no PR has been opened. The flag remains off by default and all changes
+and [complete-intro task](tasks/intro-complete-sequence.md). The owner authorized
+PR publication on 2026-10-15; review and merge remain pending. The flag remains
+off by default and all changes
 are port-only. Sound is a PS1 XA adaptation, not bit-perfect QSound. The rest
 of attract mode and whole-port CPS2-only asset pivot remain separate, undecided
 work. See [intro scope and fidelity limits](../port/intro/README.md).
