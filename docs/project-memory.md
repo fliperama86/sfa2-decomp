@@ -116,5 +116,5 @@ Record submodule pins; missing libraries/failed smokes are not passes. Declare t
 - Sound cue correction: do not infer "stop" from a call site. The intro finale
   queues command 0xbd with parameter 0x1000; its sound-driver meaning was not
   recovered. Keep that cue opaque rather than silently stopping music.
-- Disc lookup takes a basename, not an ISO path. Use real directory parsing in
-  loader controls so a permissive stand-in cannot hide this integration error.
+- Disc lookup takes a basename, not an ISO path. Use real directory parsing, not a permissive loader mock.
+- Native linker controls select Apple `-dead_strip` versus GNU `--gc-sections` (PR371).
