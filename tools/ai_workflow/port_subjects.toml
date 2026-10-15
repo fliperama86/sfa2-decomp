@@ -19,6 +19,7 @@
 # listed only for the files their own cases are about.
 
 [controls]
+test_intro_native = ["port/intro/world.c", "port/intro/world.h", "port/intro/director.c", "port/intro/actors.c", "port/intro/actors.h", "port/intro/actor_portraits.c", "port/intro/actor_montage.c", "port/intro/particles.c", "port/intro/particles.h", "port/intro/video.h", "port/intro/native-fixtures.json", "port/intro/tests/director_bridge.c"]
 test_intro_particles = ["port/intro/particles.c", "port/intro/particles.h", "port/intro/particles-fixtures.json", "port/intro/verify_particles.py", "port/intro/verify_sequence.py"]
 test_intro_video = ["port/intro/video.c", "port/intro/video.h", "port/intro/tests/video_test.c"]
 test_intro_sprites = ["port/intro/sprites.c", "port/intro/sprites.h", "port/intro/video.h", "port/intro/sprites-fixtures.json", "port/intro/verify_sprites.py", "port/intro/verify_sequence.py"]

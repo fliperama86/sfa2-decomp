@@ -61,3 +61,8 @@ Original-state captures are never runtime playback input. Native controllers,
 actor lifecycles, typed resource import and sound remain outstanding. Do not
 launch or announce the rebuilt executable: its opening route is still the old
 bounded first-scene slice.
+
+Native controller/actor work now exists in the normal `port/intro/` source tree.
+See `port/intro/director-contract.md` for the implemented subset and remaining
+dependencies. It is not connected to the opening runtime yet and is not a
+complete-intro test build.
