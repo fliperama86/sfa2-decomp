@@ -313,8 +313,10 @@ static int clamp16(int v)
 /* Frames out of the queue through the volumes of the last CdMix; the count given (0 with no stream). The caller holds the lock.
  * PsyZ's own pull does the same sum: out_left = (left * v0 + right * v3) >> 7, out_right = (left * v1 + right * v2) >> 7,
  * clamped to 16 bits, and no sum when the volumes are 127 or 128 straight through. */
+size_t (*port_cd_audio_override)(short *,size_t);
 size_t port_xa_pull(short *out, size_t num_frames)
 {
+    if(port_cd_audio_override) return port_cd_audio_override(out,num_frames);
     size_t give = num_frames < xa.count ? num_frames : xa.count, i;
     int v0 = xa.vol[0], v1 = xa.vol[1], v2 = xa.vol[2], v3 = xa.vol[3];
 

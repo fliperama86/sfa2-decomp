@@ -1,21 +1,16 @@
 # Active project memory
-
 This is the short startup context, not a replacement for preserved evidence.
 Read [current state](current-state.md), [requirements](requirements.md) and
 [the plan](../PLAN.md). Retrieve only relevant historical sections:
-
 ```sh
 python tools/ai_workflow/workflow.py context --query "compiler" --limit 80
 ```
-
 The previous memory is byte-preserved in
 [project-memory-history.md](project-memory-history.md). Its heading/line index
 and whole-file hash are in [project-memory-index.json](project-memory-index.json).
 The former goals log is preserved in [goals-history.md](goals-history.md).
 Old figures describe their own date, not today's completion.
-
 ## Scope and owner decisions
-
 - Active repository: SFA2, PS1 Japan `SLPS_004.15`, not the old 68k project.
   Windows is reference research. Keep unrelated work untouched.
 - Readable gameplay C is required, with explicit assembly/SDK exceptions.
@@ -72,7 +67,6 @@ Old figures describe their own date, not today's completion.
   only to resolve a specific uncertainty, not as a routine review gate.
   Reuse existing verified evidence. Checks stay isolated and fast; never
   repeat unchanged runs. Read [efficiency.md](efficiency.md) before a run.
-
 ## Working style
 Answer first, briefly, one subject at a time. No em dash, unnecessary lists of
 identifiers, recaps or suggestions about stopping. Distinguish what ran from
@@ -82,7 +76,6 @@ acceptance commands. Stop and report options on a decision-bearing fork.
 Reuse one stable folder per purpose: no per-experiment/iteration trees (2026-10-12).
 Permanent source stays tracked; private outputs reuse fixed locations; experimental settings default off.
 Never end a reply implying work/notifications will continue without an active execution mechanism (owner correction, 2026-10-14).
-
 ## Lessons to apply before a run
 - PR reviews use plain PR comments: `**APPROVE** SHA` or `**REQUEST CHANGES** SHA`, as prior PRs (owner correction, 2026-10-12).
 - Validate pointer declarations and initialization before encoding selectors.
@@ -107,9 +100,7 @@ Never end a reply implying work/notifications will continue without an active ex
 - The canonical coverage tool currently counts some excluded second-link
   owners. The linked ledger flags rows without an applicable owner as raw;
   it preserves canonical aggregate totals rather than silently rewriting them.
-
 ## Keeping this file small
-
 Keep active memory within 120 lines. Put detailed new evidence in a record
 file in `docs/records/` (one per change) or a dated/domain report. The
 history is the archive: preserve its bytes and do not append to it.
@@ -119,9 +110,11 @@ Current state belongs in [current-state.md](current-state.md), next packages in
 When relaunching a rebuilt Windows binary from WSL, close its identified prior test instance: Windows can reuse that loaded image despite new disk bytes.
 Record submodule pins; missing libraries/failed smokes are not passes. Declare transitive test imports outside `port/tools` (PR368).
 - Intro controller correction (2026-10-14): isolated calls with cleared data
-  registers hid an original caller-register residue in the initial headshot
-  completion word. The low word is two; the high word is not reliably zero.
-  Do not introduce CPU-register state to reproduce unused residue. Document
-  the nonmatching semantic projection and prove completion flags are compared
-  after native/original actors replace them, rather than claim full raw-state
-  identity from an isolated caller precondition.
+  registers hid headshot caller residue: low word two, high word not reliably zero.
+  Preserve no CPU registers for unused residue: document the nonmatching
+  projection and compare actual completion markers, not isolated preconditions.
+- Sound cue correction: do not infer "stop" from a call site. The intro finale
+  queues command 0xbd with parameter 0x1000; its sound-driver meaning was not
+  recovered. Keep that cue opaque rather than silently stopping music.
+- Disc lookup takes a basename, not an ISO path. Use real directory parsing in
+  loader controls so a permissive stand-in cannot hide this integration error.

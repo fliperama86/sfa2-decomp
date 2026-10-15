@@ -508,7 +508,7 @@ static void logo_scene(struct intro_world *w)
         break;
     case 8:
         if(gw(w,IG_LINK)==0x8181 && countdown(w,IG_TIMER)) {step(w);fade(w,1,0);}
-        if(gw(w,IG_TIMER)==255) w->sound_command=0x100; /* Explicit stop request, not command-register residue. */
+        if(gw(w,IG_TIMER)==255) w->sound_command=0x100; /* Title sound cue (original queue command 0xbd, parameter 0x1000). */
         intro_world_update_actors(w,0);intro_world_update_actors(w,2);goto present;
     case 10:
         if(!*ig(w,IG_FADE_WAIT)) {sw(w,IG_EXIT,gw(w,IG_EXIT)+2);memset(ig(w,IG_SCENE),0,20);palette_bank(w,0x92a0,1);}

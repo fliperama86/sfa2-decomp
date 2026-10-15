@@ -72,3 +72,13 @@ lettering and native display-list assembly. Two scoped traversals compare all
 eight phases through exit, including generated object records. Resource import,
 independent startup, host cadence and sound are still required. No new owner
 notification or PR is authorized by this intermediate evidence.
+
+## Full runtime checkpoint
+
+The normal executable now runs all eight phases from a sparse, locally imported
+pack and uses the user's PS1 opening soundtrack. Independent native startup,
+full resource coverage, runtime return, muted audio capture and picture-upload
+comparison are recorded in `docs/records/2026-10-14-intro-full-runtime.md`.
+The entire sequence is ready for the owner's requested test. No PR has been
+opened, and owner acceptance remains pending. Sound is an explicit PS1-stream
+adaptation; exact QSound output and CPS2 scheduler/cycle timing are not claimed.

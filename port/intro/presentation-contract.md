@@ -26,8 +26,8 @@ state, not a copied CPU side effect. Original transform register-save scratch
 is not game state and is excluded explicitly from state comparisons.
 
 `intro_present_video` maps software register shadows to the shared video
-adapter. It performs no drawing or original execution. Cooperative scheduling,
-independent initialization, final packaging and sound remain separate work.
+adapter. It performs no drawing or original execution. Host scheduling, independent initialization, packaging and sound are described
+in `runtime-contract.md`; their limits are not display-list equivalence claims.
 
 ## Evidence
 

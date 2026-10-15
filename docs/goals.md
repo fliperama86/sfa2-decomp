@@ -43,20 +43,17 @@ behavior and missing C under explicit contracts, with scoped differential
 checks. Missing C stops with its name. No original-code interpreter, supplied
 assets in Git or changes to PS1 source for the port before it runs.
 
-Current owner-directed intro work: PR370's owner-tested default-off Gouki/fire
-slice is merged. The next normal Windows build adds moving embers reconstructed
-from CPS2 code, with scoped differential evidence and a private version-2 pack.
-The owner tested it and rejected the ember-only increment as insufficient: it
-still shows only the same Akuma/flames slice. Do not open a PR for this as an
-approved feature. Prioritize actual intro progression, transitions and subsequent
-scenes, rather than another cosmetic variation of the same short scene. The
-owner now explicitly requires the entire intro before any further test/readiness
-notification. Follow [the complete-intro task](tasks/intro-complete-sequence.md).
-Shared native graphics and metasprite adapters are in progress; original-state
-offline captures are not native full-intro playback. Sound
-also remains unfinished. Keep every change port-only. The whole-port CPS2-only asset pivot remains
-undecided. See [intro scope](../port/intro/README.md) and the
-[particle contract](../port/intro/particles-contract.md).
+Current owner-directed intro work: the complete eight-phase native sequence
+now runs in the normal Windows executable, with the PS1-disc soundtrack,
+transitions, animated title, fade and return to the game. It is ready for the
+owner's requested full-intro test. The earlier Akuma/flames-only slice was
+rejected as insufficient; legacy packs now fail explicitly rather than replaying
+that slice. See [the runtime evidence](records/2026-10-14-intro-full-runtime.md)
+and [complete-intro task](tasks/intro-complete-sequence.md). Owner acceptance is
+pending; no PR has been opened. The flag remains off by default and all changes
+are port-only. Sound is a PS1 XA adaptation, not bit-perfect QSound. The rest
+of attract mode and whole-port CPS2-only asset pivot remain separate, undecided
+work. See [intro scope and fidelity limits](../port/intro/README.md).
 
 ## Small work packages
 

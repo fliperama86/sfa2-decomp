@@ -1,102 +1,83 @@
-# Intro asset recovery
+# Native arcade intro
 
-Port-only restoration of arcade-style intro behavior. **A bounded first scene
-slice now runs in the normal port behind `arcade_intro`, default off. Nothing
-under `ps1/` is changed. This is not a complete intro or attract mode.**
+The complete eight-phase intro now runs as native C in the normal port behind
+`[experimental] arcade_intro`, default off. It includes the opening, character
+strips and portraits, montage, Ryu/Ken sequence, animated title, fades and sound.
+Nothing under `ps1/` changes. This does not implement the rest of arcade attract
+mode or change the game's asset source to CPS2.
 
-## Test the first scene
+## Import and run
 
-The existing Windows executable can replace the PS1 opening movie with
-192 updates (about 3.2 seconds) of Gouki and animated flames, with moving
-embers when a version-2 pack is supplied, then return to
-the title flow. Leave the title idle to reach the opening. Start skips the
-slice; Escape closes the normal port window.
-
-Build with the existing `./build.sh win`. Import your examined arcade archive
-once, without distributing the output:
+Build the normal port, then import the supplied, examined arcade archive once:
 
 ```sh
-python port/intro/import_scene.py INPUT/arcade.zip port/local/intro-asset-probe/intro.dat
+python port/intro/import_full.py INPUT/arcade.zip port/local/intro-asset-probe/intro-full.dat
 ```
 
-Then use the **same** executable (paths here are placeholders, in the host's
-native syntax):
+The importer needs Python, a native C compiler and a C++ compiler (`--cc` and
+`--cxx` select them). It obtains the key from the supplied archive, decrypts the
+inline-data carrier transiently with the licensed import-only helper, and runs
+project-authored native C to collect the data/tile closure. No emulator, second
+analysis ROM or separate player is required. It verifies native output again
+using only the resulting sparse asset pack. Original program images, frame
+recordings and game assets are never distributed with this source.
+
+Use the same normal executable and the user's normal PS1 Japan disc:
 
 ```text
-sfa2.exe --skip-programs --arcade-intro --intro-data PATH/intro.dat PATH/PS1.cue
+sfa2.exe --skip-programs --arcade-intro --intro-data PATH/intro-full.dat PATH/PS1.cue
 ```
 
-Or set `arcade_intro = true` under `[experimental]` in the shared settings
-file and pass `--settings FILE`. The default pack path is `intro.dat` in the
-working directory. `--ps1-intro` overrides the setting off and restores the
-original opening route without reading any arcade pack. No separate player,
-interpreter or captured video is used. Invalid/missing enabled input stops
-with an explicit message. The importer currently accepts only the supplied,
-examined US 960306 archive, including its observed graphics variants.
+Paths above are placeholders in the host's native syntax. Alternatively set
+`arcade_intro = true` under `[experimental]` in the shared settings file.
+`--ps1-intro` restores the original movie route and does not read an intro pack.
+Start skips and returns to the normal game; Return is keyboard Start. Escape
+closes the port window. The source feature remains default off.
 
-The owner tested version 2 and rejected its ember-only scope as insufficient.
-It is not a complete-intro test candidate or an approved feature. Its
-[particle contract](particles-contract.md) reconstructs the original
-RNG, spawning and fixed-point movement. The old version-1 pack still works and
-retains the earlier no-particle scene. Do not overwrite it. To prepare the new
-pack during development, use the pinned decrypted analysis image of the same
-arcade archive (not another ROM):
+**Old first-scene packs are rejected with an explicit re-import message.** They
+cannot silently launch the old Akuma/flames-only slice again. Historical slice
+source and evidence remain preserved, but are not the current runtime route.
+The importer refuses unknown archive revisions and never overwrites existing
+outputs. Prepared packs and their reports stay private under `port/local/`.
 
-```sh
-python port/intro/import_scene.py INPUT/arcade.zip port/local/intro-asset-probe/intro-embers.dat \
-  --opcodes INPUT/arcade-opcodes.bin
-```
+## Sound and fidelity boundary
 
-Select that pack with the existing `--intro-data` option. The runtime never
-reads decrypted program bytes. Automating this analysis-only decryption step
-in the final importer remains unfinished; this is not the final import UX.
-The prepared private owner-test pack needs no further extraction.
+Pictures and animation use recovered CPS2 C behavior and original imported
+artwork/tables, not video playback or visual-mimic timing. No Saturn code is
+used by this implementation. The current profile uses the examined US 960306
+archive and its recovered Zero 2 intro variant; other configurations are not
+claimed. Startup RNG is explicitly normalized for reproducible import/playback.
 
-This test slice uses both the normal PS1 disc and the privately imported CPS2
-scene data. It does not settle the future single-input user experience or
-adopt a whole-port CPS2 asset pivot. Saturn is not a runtime input.
+Sound comes from the user's PS1 disc's original opening XA stream, excluding
+its preceding Capcom-logo portion. It needs no additional audio file or Saturn
+disc. Native C decodes/mixes that soundtrack through the normal audio backend;
+it already includes its recorded title cue. The native exit fade controls its
+cutoff. This is an intentional soundtrack adaptation, **not a reconstructed
+QSound driver or bit-perfect arcade audio**. The normal port's 60 Hz clock is
+used; exact CPS2 scheduler/cycle timing is not claimed.
 
-## Implemented and missing
+The final original sound queue command is kept opaque in the director. It was
+initially mislabeled as a stop request; the recovered code only establishes
+its queue command and parameter, not that interpretation. The host does not
+silently cut music at that cue.
 
-The [C sequence core](sequence-contract.md) now drives six foreground poses
-from relocated original records. The native compositor uses extracted tiles,
-metasprite layouts and palettes, with code-derived anchor placement, four-update
-foreground durations, six-update background pages, palette cycling and row
-scroll. The [bounded contract](../../docs/tasks/intro-first-scene.md) states the
-normalization and sources. This is project-authored C, not byte-matching Saturn
-C or a claim of whole-scene differential equivalence.
+## Evidence and testing
 
-Version-2 packs add the steady scene's moving embers from original artwork,
-sequence records and privately imported velocity/spawn tables. Forty original
-actor slots are modeled, including the one occupied by the main flames.
-Spawning, two random selections at initialization, acceleration reversal,
-unsigned bounds and deferred deletion follow the recovered code. The initial
-seed and interval are explicitly normalized, not inherited from omitted scenes.
+The [integration record](../../docs/records/2026-10-14-intro-full-runtime.md)
+separates original-routine comparisons, native resource closure, controls and
+normal executable observation. All eight phases reach their native exit.
+Controller/actor state, fade/map consumers and generated display lists have
+scoped original evidence; independent native startup is compared separately.
+The normal Windows program completed all 2,948 updates, with a silent audio
+dump and captures compared to native RGB555 output, then returned to the game.
+This is readiness for owner testing, not owner acceptance or a merged PR.
 
-Not implemented: warm-up, fades/flashes, sound, the remaining intro
-scenes and attract-mode flow. Full brightness and initial effect phase are
-normalized in this slice. The existing port's 60 Hz clock is used, not an exact
-CPS2 refresh clock. The owner must be able to test this build before a new PR.
-
-The active [complete-intro task](../../docs/tasks/intro-complete-sequence.md)
-requires the ENTIRE intro before another readiness notification or owner test.
-Native [graphics composition](video-contract.md) and
-[metasprite expansion](sprites-contract.md) now cover the shared formats needed
-by all scenes. These are intermediate source components, not a new runnable
-intro. Offline original-state captures are analysis evidence only, never
-runtime playback data. Native controllers, actors, complete import and sound
-remain required before integration into the normal opening route.
-
-The owner authorized intro-first CPS2 implementation on 2026-10-14. Saturn
-remains valuable as a possible byte-matching C target. A match still needs
-compiler/build evidence; C ancestry alone does not establish it.
-
-Focused synthetic checks (seconds, no game or private input):
-
-```sh
-python port/tools/test_intro_scene.py
-python port/tools/test_intro_particles.py
-```
+Focused controls are the `port/tools/test_intro_{native,maps,fade,presentation,
+player,resources,import,runtime,audio,audio_host}.py` files. They use synthetic
+inputs and do not boot the game. Prior unchanged sprite/video/sequence evidence
+is reused. The [director](director-contract.md),
+[presentation](presentation-contract.md) and [resource/audio](runtime-contract.md)
+contracts state supported paths and explicit approximations.
 
 ## Code-first recovery
 
@@ -196,12 +177,12 @@ palettes, complete intro assets on PS1, or equivalent sequencing. The supplied
 arcade program is a US revision; both console discs are Japanese. A failed
 bounded tile search does not prove whole-disc absence.
 
-## Next runtime boundary
+## Historical asset-recovery boundary
 
-Before introducing a scene player, finish its map placement, sprite list,
-palette effects and timing contract. Build a per-scene dependency manifest:
-derive intro data from the supplied CPS2 set, recording the exact revision
-and any behavior reconstructed from Saturn. Keep arcade fidelity distinct from Saturn-reference behavior.
-Do not insert an original-code interpreter or import decompiler output as
-project source. Intro playback and the attract-mode controller are separate
-pieces; neither is claimed by this asset-recovery increment.
+The original asset-only increment required map placement, sprite lists,
+palette effects, timing contracts and a dependency manifest before playback.
+Arcade fidelity stays distinct from Saturn-reference behavior; original-code
+interpreters and imported decompiler output are excluded. Intro playback and
+the attract-mode controller are separate pieces. Neither was claimed by that
+asset-recovery increment. The current full intro is documented above; the
+broader attract-mode controller is not implemented by it.

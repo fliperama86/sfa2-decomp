@@ -1,4 +1,4 @@
-"""Seconds, generated data only: importer, native scene, pack and opening hook.
+"""Seconds, generated data only: legacy importer/scene cores and GPU upload contract.
 
 No original ROM, game, GPU/window or audio. Compiles just the affected feature.
 Unchanged selector/tick oracle evidence belongs to test_intro_sequence.py.
@@ -66,45 +66,23 @@ def pack(payload):
     magic=b'SFA2I002' if len(payload)==imp.PAYLOAD_SIZE+imp.EMBER_SIZE else imp.MAGIC
     return magic + hashlib.sha256(payload).digest() + payload
 
-STUBS = r'''
-#include "port.h"
-#include <stdlib.h>
-#include <string.h>
-unsigned uploaded,begin_count,end_count,frames,skip;
-void port_halt(int code,const char *fmt,...) { (void)code;(void)fmt;abort(); }
-int port_gpu_intro_begin(void) { begin_count++;return 0; }
-void port_gpu_intro_frame(const uint16_t *p) { (void)p;uploaded++; }
-void port_gpu_intro_end(void) { end_count++; }
-void port_pad_host_init(void) {}
-void port_pad_host_read(unsigned char *p,int n) { memset(p,255,n);p[0]=0;p[1]=0x41;if(skip)p[2]&=~8; }
-void port_input_apply(unsigned char *p,unsigned n) { (void)p;(void)n; }
-void port_clock_frame_drawn(unsigned n) { (void)n; }
-unsigned port_frames(void) { return frames; }
-void port_tick(void) { frames++; }
-'''
-
 class IntroScene(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temp = tempfile.TemporaryDirectory()
         cls.root = Path(cls.temp.name)
-        (cls.root / 'stubs.c').write_text(STUBS)
         lib = cls.root / 'scene.so'
         subprocess.run(['gcc', '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror', '-shared', '-fPIC',
             '-I', str(ROOT / 'port/src'), str(ROOT / 'port/intro/scene.c'),
             str(ROOT / 'port/intro/sequence.c'), str(ROOT / 'port/intro/particles.c'),
-            str(ROOT / 'port/intro/embers.c'), str(ROOT / 'port/src/intro.c'),
-            str(ROOT / 'port/src/sha256.c'), str(cls.root / 'stubs.c'), '-o', str(lib)], check=True, timeout=15)
+            str(ROOT / 'port/intro/embers.c'), '-o', str(lib)], check=True, timeout=15)
         cls.lib = C.CDLL(str(lib))
         cls.lib.intro_scene_init.argtypes = [C.POINTER(Scene), C.c_void_p, C.c_size_t]
         cls.lib.intro_scene_frame.argtypes = [C.POINTER(Scene), C.c_void_p]
-        cls.lib.port_intro_configure.argtypes = [C.c_int, C.c_char_p, C.c_void_p, C.c_size_t]
-        cls.lib.port_intro_program.argtypes = [C.c_char_p]
         cls.lib.intro_embers_frame.argtypes = [C.POINTER(Embers),C.c_void_p,C.c_void_p]
 
     @classmethod
     def tearDownClass(cls):
-        cls.lib.port_intro_configure(0, b'', None, 0)
         cls.temp.cleanup()
 
     def test_import_safeguards(self):
@@ -179,7 +157,7 @@ class IntroScene(unittest.TestCase):
         self.assertEqual(self.lib.intro_scene_frame(C.byref(state),pixels),0)
         self.assertEqual(bytes(pixels),old)
 
-    def test_validation_atomic_and_pack_runtime(self):
+    def test_validation_atomic(self):
         p=fixture();state=Scene();data=C.create_string_buffer(bytes(p))
         self.assertEqual(self.lib.intro_scene_init(C.byref(state),data,len(p)),0)
         before=bytes(state)
@@ -188,27 +166,6 @@ class IntroScene(unittest.TestCase):
             self.assertEqual(self.lib.intro_scene_init(C.byref(state),buf,len(bad)),-1,(at,value))
             self.assertEqual(bytes(state),before)
         self.assertEqual(self.lib.intro_scene_init(C.byref(state),data,len(p)-1),-1)
-        err=C.create_string_buffer(256);path=self.root/'scene.dat'
-        self.assertEqual(self.lib.port_intro_configure(0,b'/missing',err,len(err)),0)
-        self.assertEqual(self.lib.port_intro_program(b'z2o'),0)
-        self.assertEqual(self.lib.port_intro_configure(1,b'/missing',err,len(err)),-1)
-        valid=pack(p)
-        for content in (valid[:-1],valid+b'x',b'badmagic'+valid[8:],valid[:80]+b'X'+valid[81:],pack(p[:FORE]+b'\x10'+p[FORE+1:])):
-            path.write_bytes(content)
-            self.assertEqual(self.lib.port_intro_configure(1,str(path).encode(),err,len(err)),-1)
-        path.write_bytes(valid)
-        self.assertEqual(self.lib.port_intro_configure(1,str(path).encode(),err,len(err)),0,err.value)
-        self.assertEqual(self.lib.port_intro_program(b'logo'),0)
-        before=C.c_uint.in_dll(self.lib,'uploaded').value
-        self.assertEqual(self.lib.port_intro_program(b'z2o'),1)
-        self.assertEqual(C.c_uint.in_dll(self.lib,'uploaded').value-before,192)
-        self.assertEqual(C.c_uint.in_dll(self.lib,'end_count').value,C.c_uint.in_dll(self.lib,'begin_count').value)
-        C.c_uint.in_dll(self.lib,'skip').value=1
-        self.assertEqual(self.lib.port_intro_program(b'z2o'),1)
-        self.assertEqual(C.c_uint.in_dll(self.lib,'uploaded').value-before,193)
-        self.lib.port_intro_configure(0,b'/missing',err,len(err))
-        self.assertEqual(self.lib.port_intro_program(b'z2o'),0)
-
     def test_particle_import_layout(self):
         rom=bytearray(0x240000);gfx=bytearray(0x10001*128);opcodes=bytearray(0x300000)
         opcodes[0x73d9a:0x73dfa]=tables()[:96];opcodes[0x73e10:0x74010]=tables()[96:]
@@ -269,7 +226,7 @@ class IntroScene(unittest.TestCase):
             self.assertEqual(len(set(state.embers.free_slots[:free])),free)
             self.assertTrue(all(state.embers.slots[i].state==0 for i in state.embers.free_slots[:free]))
 
-    def test_particle_pack_validation_and_runtime(self):
+    def test_particle_pack_validation(self):
         p=fixture()+ember_fixture();data=C.create_string_buffer(bytes(p));state=Scene()
         self.assertEqual(self.lib.intro_scene_init(C.byref(state),data,len(p)),0)
         before=bytes(state)
@@ -278,18 +235,6 @@ class IntroScene(unittest.TestCase):
             bad=bytearray(p);bad[imp.PAYLOAD_SIZE+at]=value;buf=C.create_string_buffer(bytes(bad))
             self.assertEqual(self.lib.intro_scene_init(C.byref(state),buf,len(bad)),-1)
             self.assertEqual(bytes(state),before)
-        path=self.root/'particles.dat';err=C.create_string_buffer(256);valid=pack(p)
-        for bad in (valid[:-1],valid+b'x',imp.MAGIC+valid[8:]):
-            path.write_bytes(bad)
-            self.assertEqual(self.lib.port_intro_configure(1,str(path).encode(),err,len(err)),-1)
-        path.write_bytes(valid)
-        self.assertEqual(self.lib.port_intro_configure(1,str(path).encode(),err,len(err)),0,err.value)
-        C.c_uint.in_dll(self.lib,'skip').value=0
-        before=C.c_uint.in_dll(self.lib,'uploaded').value
-        self.assertEqual(self.lib.port_intro_program(b'z2o'),1)
-        self.assertEqual(C.c_uint.in_dll(self.lib,'uploaded').value-before,192)
-        self.lib.port_intro_configure(0,b'',None,0)
-
     def test_gpu_upload_contract(self):
         # Compile the actual three new GPU functions against command stubs.
         source=(ROOT/'port/src/gpu.c').read_text().split('/* Host-owned pixels',1)[1]

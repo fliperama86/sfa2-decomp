@@ -3,12 +3,14 @@
 ## Scope and status
 
 `world.c`, `director.c` and the actor units are native C reconstruction work in
-progress. They do not yet replace the first-scene runtime in `port/src/intro.c`.
+progress. They now supply the complete native runtime in `port/src/intro.c`.
 All eight scene controllers, primary kinds 01 and 80 through 8e, secondary
 kinds 20 through 22, and UI kind 8 are implemented for the observed supplied
 profile. Native map consumers, palette fades, title lettering and display-list
-assembly are present. Full resource packaging, host scheduling and sound remain
-unfinished. This is not yet a complete-intro owner-test build.
+assembly are present. Sparse resource packaging and the normal-port driver now connect them. Sound
+uses the PS1 opening stream, not a reconstructed QSound driver; see the runtime
+contract for clock and soundtrack limits. The build is ready for owner testing,
+not a claim of owner acceptance.
 
 ## State, resources and dependencies
 
@@ -20,9 +22,9 @@ playback. The position-history buffers are populated by native actor movement
 and consumed by native trails during the same run.
 
 The resource callback distinguishes indirect data reads from inline data
-operands. The finished importer must whitelist actual data ranges and reject
-missing/invalid ranges. It must not package executable regions merely because
-some data tables share those address ranges. The private original-program
+operands. The importer collects only ranges requested as data by native C and rejects
+missing/invalid ranges. It does not package whole executable regions merely
+because data tables share their address range. The private original-program
 oracle is development-only and never part of the native executable.
 
 The director explicitly calls actor update, presentation and title-lettering
@@ -35,8 +37,8 @@ are rejected rather than dereferenced.
 
 `intro_director_step` returns -1 for an error, 0 while the controller is active,
 and 1 after the exit flag. It is a controller tick, not a claim about scheduler
-or host display cadence. Cooperative yields and host fade/audio scheduling
-still need integration. Palette bank shadows, timer underflow, fractional
+or host display cadence. Cooperative yields are normalized at the host display boundary; exact original
+scheduler/cycle timing is not claimed. Palette bank shadows, timer underflow, fractional
 coordinates, ordered group allocation and aliased completion signals remain
 explicit. The strip-exit substate intentionally ticks and queues twice; the
 headshot controller's initial completion low word is two, not zero. The
@@ -80,8 +82,8 @@ clock, presentation and sound work.
 The [second reconstruction record](../../docs/records/2026-10-14-intro-native-rendering.md)
 covers all-phase controller/actor/fade/UI traversal, native display lists and
 isolated map/fade tests. The complete state traversal is not a game boot, a
-proof of real-time audio synchronization, or final owner acceptance. Startup
-still uses oracle-prepared dependency state in that comparison.
+proof of real-time audio synchronization, or final owner acceptance. That earlier comparison uses oracle-prepared dependency state. The later
+independent-initialization comparison is in the integration record.
 
 `fade.c` supports only the three intro-used tasks: brightness down, brightness
 up and RGB-to-white. Bank-wide brightness changes are gated by the first color;
