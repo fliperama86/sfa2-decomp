@@ -71,8 +71,8 @@ Old figures describe their own date, not today's completion.
 Answer first, briefly, one subject at a time. No em dash, unnecessary lists of
 identifiers, recaps or suggestions about stopping. Distinguish what ran from
 what is planned. Preserve failed experiments and their original evidence.
-Recover intro behavior from code, not visual mimicry. For mechanical tasks use bounded
-acceptance commands. Stop and report options on a decision-bearing fork.
+Recover intro behavior from code, not visual mimicry. Use bounded acceptance commands; report decision forks.
+For owner testing, prefer the existing build/run script over a manual launch command (2026-10-14).
 Reuse one stable folder per purpose: no per-experiment/iteration trees (2026-10-12).
 Permanent source stays tracked; private outputs reuse fixed locations; experimental settings default off.
 Never end a reply implying work/notifications will continue without an active execution mechanism (owner correction, 2026-10-14).
