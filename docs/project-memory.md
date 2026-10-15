@@ -80,8 +80,8 @@ what is planned. Preserve failed experiments and their original evidence.
 Recover intro behavior from code, not visual mimicry. For mechanical tasks use bounded
 acceptance commands. Stop and report options on a decision-bearing fork.
 Reuse one stable folder per purpose: no per-experiment/iteration trees (2026-10-12).
-Permanent source tracked by domain; private outputs reuse fixed locations. Experimental
-toggles in settings [experimental], not special builds/launchers; defaults off (same date).
+Permanent source stays tracked; private outputs reuse fixed locations; experimental settings default off.
+Never end a reply implying work/notifications will continue without an active execution mechanism (owner correction, 2026-10-14).
 
 ## Lessons to apply before a run
 - PR reviews use plain PR comments: `**APPROVE** SHA` or `**REQUEST CHANGES** SHA`, as prior PRs (owner correction, 2026-10-12).
