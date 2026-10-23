@@ -65,6 +65,11 @@ port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC
   their first use; tile 0 and the PS1's own last tiles from the disc), no
   larger than the disc's chunk: the encoder is the loader's own (fewer bytes
   than the PS1's), not the PS1's.
+- `--arcade-check` ends with a coverage report: how many bytes of the
+  disc's files (other than the program and the music and movie streams) the
+  loader builds equal to the disc's, in all and by kind of file. On
+  2026-10-23: 17% in all, the fighter files 43%, the stages 56%, the rest 0%
+  (the modules' code, which the port's C replaces, counts as not built).
 - With a disc, the first read of each disc file prints
   `arcade: NAME from the disc: no arcade source yet`. Played through, those
   lines are the list of files the loader has still to build, in the order

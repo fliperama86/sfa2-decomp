@@ -31,6 +31,7 @@ struct range {
 static struct range ranges[MAX_RANGES];
 static unsigned range_count;
 static unsigned file_first[MAX_FILES], file_ranges[MAX_FILES];   /* each file's ranges, after they are sorted */
+static unsigned long long built_bytes[MAX_FILES];                /* bytes of each file that the loader builds equal to the disc's */
 
 /* Files whose built blocks differ from the disc's where the PS1 changed the arcade's data (port/arcade/README.md):
  * palettes (PL02, PL14, PL0B), body-part tile numbering (PL08, PL0E). They stay the disc's until the files that
@@ -310,6 +311,7 @@ static unsigned serve_units(struct port_disc *d, int f, unsigned at, unsigned ch
         while (j < count && built_unit[j] && !memcmp(bytes + j * unit, disc + j * unit, unit)) j++;
         if (j > i) {
             if (!check) add_range(f, at + i * unit, bytes + i * unit, (j - i) * unit);
+            built_bytes[f] += (unsigned long long)(j - i) * unit;
             served += j - i;
             i = j;
         } else {
@@ -383,6 +385,7 @@ static unsigned fighters(struct port_disc *d, int check)
                        same_tiles == numbered ? ", but the chunk does not pack in the disc's size" : "");
                 tile_wrong++;
             }
+            built_bytes[f] += out.lists_size + out.positions_size + (sprites ? ssize : 0u);
             if (!check) {
                 add_range(f, moff + a->lists, out.lists, out.lists_size);
                 add_range(f, poff + a->positions, out.positions, out.positions_size);
@@ -427,6 +430,7 @@ static int serve_if_same(struct port_disc *d, int f, unsigned at, unsigned char 
 {
     int same = same_as_disc(d, &files[f], at, bytes, n);
     if (same < 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", files[f].name);
+    if (same) built_bytes[f] += n;
     if (same && !check) add_range(f, at, bytes, n);
     else free(bytes);
     return same;
@@ -513,6 +517,44 @@ static void stages(struct port_disc *d, int check)
     fflush(stdout);
 }
 
+/* How much of the files the game reads the loader builds, by kind of file (the name up to its digits), and the streams
+ * (music, movies) apart. */
+static void coverage(int check)
+{
+    struct kind { char name[16]; unsigned long long built, size; unsigned files; } kinds[48];
+    unsigned i, nk = 0, k;
+    unsigned long long built = 0, size = 0, streams = 0;
+    for (i = 0; i < file_count; i++) {
+        const char *n = files[i].name, *dot = strrchr(n, '.');
+        char name[16];
+        size_t len = 0;
+        if (dot && (!strcmp(dot, ".xa") || !strcmp(dot, ".str"))) { streams += files[i].size; continue; }
+        if (dot && (!strcmp(dot, ".cnf") || !strcmp(dot, ".inf") || !strcmp(dot, ".dat"))) continue;   /* not game data */
+        if (!strncmp(n, "slps_", 5)) continue;   /* the program: its data is counted by the pieces, its code is the port's C */
+        while (n[len] && !(n[len] >= '0' && n[len] <= '9') && n[len] != '.' && len + 1 < sizeof name) { name[len] = n[len]; len++; }
+        name[len] = 0;
+        for (k = 0; k < nk && strcmp(kinds[k].name, name); k++) {}
+        if (k == nk) {
+            if (nk == sizeof kinds / sizeof kinds[0]) continue;
+            memcpy(kinds[nk].name, name, len + 1);
+            kinds[nk].built = kinds[nk].size = 0;
+            kinds[nk].files = 0;
+            nk++;
+        }
+        kinds[k].built += built_bytes[i];
+        kinds[k].size += files[i].size;
+        kinds[k].files++;
+        built += built_bytes[i];
+        size += files[i].size;
+    }
+    printf("arcade%s: coverage: %llu of %llu bytes (%llu%%) of the disc's files other than the program and the streams are built from the arcade set (the modules' code, which the port's C replaces, counts as not built); the streams (%llu MB of recorded music and movies) are not\n",
+           check ? " check" : "", built, size, size ? built * 100 / size : 0, streams >> 20);
+    for (k = 0; k < nk; k++)
+        if (kinds[k].size >= 65536)
+            printf("arcade%s: coverage: %-8s %3u files, %3llu%% built\n", check ? " check" : "", kinds[k].name, kinds[k].files, kinds[k].built * 100 / kinds[k].size);
+    fflush(stdout);
+}
+
 static int by_place(const void *a, const void *b)
 {
     const struct range *x = a, *y = b;
@@ -541,9 +583,11 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     qsort(files, file_count, sizeof files[0], by_sector);
     memset(told, 0, sizeof told);
     memset(built, 0, sizeof built);
+    memset(built_bytes, 0, sizeof built_bytes);
     wrong = fighters(d, check);
     wrong += parts(d, check);
     stages(d, check);
+    coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
     port_disc_patch_hook = patch;
