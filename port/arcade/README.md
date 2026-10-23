@@ -256,8 +256,13 @@ scripts (nothing of it is in the tree):
   echo and chime patterns, not songs. The fight and menu music is the XA
   streams: 64 recorded tracks, with no arcade source; the arcade's music is
   59 songs of up to 16 tracks for its Z80 sound program (command table at
-  `0x9006`, interpreter at `0x0b07`), which a player of the port's own could
-  play on the arcade's samples.
+  `0x9006`, interpreter at `0x0b07`). [`music.md`](music.md) specifies it
+  (songs, effects, the track code, the 32 control commands, envelopes, the
+  volume, pitch and rate formulas, what the chip must do), and `music.py` is
+  its reference in Python: its register writes equal the sound program's for
+  all 59 songs and 868 effects (compared, privately, with an emulation of the
+  sound program that is not part of the project). The fighters' themes map to
+  songs by the fighter index; the other screens' songs are not all settled.
 - **Samples** (`samples.py`, all banks). 355 of the 409 distinct PS1
   samples are arcade samples: the chip's sample taken as 24,000 Hz,
   resampled to a rate the bank's tone gives (44100 times 2 to the power of

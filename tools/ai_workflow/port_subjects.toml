@@ -118,6 +118,7 @@ test_arcade_sequence = ["port/arcade/sequence.c", "port/arcade/sequence.h", "por
 test_arcade_other_files = ["port/arcade/other_files.py", "port/arcade/screens.py"]
 test_arcade_screens = ["port/arcade/screens.c", "port/arcade/screens.h", "port/arcade/screens_table.c", "port/arcade/tests/screens_test.c", "port/arcade/screens.py", "port/arcade/tilepack.c"]
 test_arcade_vag = ["port/arcade/vag.c", "port/arcade/vag.h", "port/arcade/vag_table.c", "port/arcade/samples.py"]
+test_arcade_music = ["port/arcade/music.py"]
 test_arcade_fighter = ["port/arcade/fighter.c", "port/arcade/fighter.h", "port/arcade/fighters_table.c", "port/arcade/tests/fighter_test.c", "port/arcade/fighters.py"]
 test_arcade_tilepack = ["port/arcade/tilepack.py", "port/arcade/fighters.py"]
 test_arcade_tilepack_c = ["port/arcade/tilepack.c", "port/arcade/tilepack.h", "port/arcade/tilepack.py"]
