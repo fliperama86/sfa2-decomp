@@ -17,7 +17,6 @@
 #include <string.h>
 
 #define MAX_FILES 512
-#define MAX_RANGES 32768
 
 static struct arcade_rom rom;
 static int enabled;
@@ -32,8 +31,8 @@ struct range {
     unsigned offset, size;  /* in the file */
     unsigned char *bytes;
 };
-static struct range ranges[MAX_RANGES];
-static unsigned range_count;
+static struct range *ranges;   /* grown as needed */
+static unsigned range_count, range_room;
 static unsigned file_first[MAX_FILES], file_ranges[MAX_FILES];   /* each file's ranges, after they are sorted */
 static unsigned long long built_bytes[MAX_FILES];                /* bytes of each file that the loader builds equal to the disc's */
 
@@ -259,7 +258,13 @@ static int same_as_disc(struct port_disc *d, const struct port_disc_file *f, uns
 
 static void add_range(int f, unsigned offset, unsigned char *bytes, unsigned size)
 {
-    if (range_count == MAX_RANGES) port_halt(PORT_EXIT_PROGRAM, "arcade: more built ranges than the loader holds");
+    if (range_count == range_room) {
+        unsigned room = range_room ? range_room * 2u : 4096u;
+        struct range *more = realloc(ranges, (size_t)room * sizeof *more);
+        if (!more || room < range_room) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory for the built ranges");
+        ranges = more;
+        range_room = room;
+    }
     ranges[range_count].sector = files[f].sector;
     ranges[range_count].offset = offset;
     ranges[range_count].size = size;
