@@ -7,6 +7,7 @@
 #include "../arcade/stage.h"
 #include "../arcade/screens.h"
 #include "../arcade/music.h"
+#include "../arcade/module_data.h"
 #include "../arcade/program.h"
 #include "../arcade/program_more.h"
 #include "../arcade/rom.h"
@@ -661,6 +662,30 @@ static unsigned screens(struct port_disc *d, int check)
     return wrong;
 }
 
+/* The rest of the fighter files' code chunks' data: tables equal to the arcade's, converted records and pointer words
+ * (module_data.c), served where equal to the disc's. */
+static void module_data(struct port_disc *d, int check)
+{
+    unsigned i, at, n;
+    unsigned long long served = 0;
+    for (i = 0; i < arcade_module_data_count; i++) {
+        const struct arcade_module_data *m = &arcade_module_data[i];
+        int f = file_index(d, m->file);
+        unsigned char *bytes, *known;
+        if (pac_chunk(d, &files[f], m->slot, &at, &n) != 0 || n != m->size)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no chunk of slot 0x%x as the module table says", m->file, m->slot);
+        if (!(bytes = calloc(n, 1)) || !(known = calloc(n, 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+        if (arcade_module_data_build(rom.program, ARCADE_PROGRAM_SIZE, m, bytes, known, n) != 0)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: a piece of the module's data does not build", m->file);
+        served += serve_units(d, f, at, bytes, known, n, 1, check);
+        free(known);
+        if (check) free(bytes);   /* else the ranges point into it */
+    }
+    printf("arcade%s: fighters: %llu bytes of the modules' other data (tables, records, pointer words) built from the arcade set and %s\n",
+           check ? " check" : "", served, check ? "equal to the disc's" : "used");
+    fflush(stdout);
+}
+
 /* ---- music: the arcade's songs in place of the disc's recorded streams (port/arcade/music.md, section 11) */
 
 /* The PS1's music code (file * 256 + channel of ZERO2_XA/ZERO20N.XA) and the arcade song that is the same music: the fighters'
@@ -743,6 +768,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     memset(built_bytes, 0, sizeof built_bytes);
     wrong = fighters(d, check);
     wrong += parts(d, check);
+    module_data(d, check);
     stages(d, check);
     wrong += screens(d, check);
     if (check) coverage(check);

@@ -229,6 +229,13 @@ scripts (nothing of it is in the tree):
   program's 2,125 pointer words are a table of the build's layout. Two more
   layouts for the pieces: `n` (a PS1 byte from a 16-bit arcade value) and
   `e` (a PS1 32-bit value from an arcade byte).
+- **The rest of the fighter modules' data** (`module_data.py`, every byte
+  of the 45 modules classed): after the code (1.07 MB) and the blocks of
+  `fighter.c` and `sequence.c` (1.73 MB), 845 KB are left, of which 90% are
+  built by `module_data.c` (generated table of pieces and pointer words):
+  450 KB equal to arcade tables, 119 KB of records the PS1 narrowed (hurt
+  boxes, 8 bytes to 6), 69 KB of pointer words, 125 KB of zeros. Left: the
+  PS1's own tables and art (77 KB) and some near-arcade bytes.
 - **The rest of the program's data** (`program_map.py`, every byte
   classed): 29% arcade tables (the 72 pieces), 19% cell lists and position
   runs of effects in the fighters' format, 12% the Sony library's data
