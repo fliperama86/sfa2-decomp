@@ -111,6 +111,15 @@ scripts (nothing of it is in the tree):
   arcade records of mode 0 (one code a cell); in PL08 and PL0E some lists
   sort their cells in two groups. The arcade build does not copy the PS1's
   changes: it converts the arcade's records.
+- **Stages** (`stages.py`, all 20). The two layers of 16- and 32-pixel
+  cells are the arcade's scroll maps cell for cell (all cells in 17 and 19
+  stages); their palettes are the arcade's (4-bit channels scaled
+  `n*17*43/45`); the shared and object tiles and the object palettes are
+  arcade tiles and palettes, flips stored as separate tiles. Open: the third
+  layer is arcade art (stage 00 entirely) but the arcade map that places it
+  is not found, its palettes mostly differ, stage 04's object tiles are the
+  PS1's own, and the order in which the PS1 packs tiles into pages is not
+  fully derived.
 - **The rest of the program's data** (`program_map.py`, every byte
   classed): 29% arcade tables (the 72 pieces), 19% cell lists and position
   runs of effects in the fighters' format, 12% the Sony library's data
