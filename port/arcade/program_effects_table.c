@@ -26,7 +26,7 @@ static const struct arcade_fighter_segment segments[] = {
     {0x21b12eu, 21u, 0x20000u},
 };
 
-static const struct arcade_effects_drop drops[] = {
+static const struct arcade_fighter_drop drops[] = {
     {0x217fd4u, 2u},
     {0x217fe0u, 8u},
     {0x217fe0u, 10u},

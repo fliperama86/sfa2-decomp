@@ -49,7 +49,7 @@ static int effects(const char *prog_path, const char *spec_path, const char *dir
     FILE *spec = fopen(spec_path, "r");
     struct arcade_effects e;
     struct arcade_fighter_segment *segs = NULL;
-    struct arcade_effects_drop *drops = NULL;
+    struct arcade_fighter_drop *drops = NULL;
     struct arcade_effects_out out;
     unsigned long address, ps, ls, gap, cols, rows, ns, nd, i;
     char err[256];

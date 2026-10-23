@@ -46,6 +46,8 @@ struct builder {
     size_t prog_size;
     int bad;
     unsigned psplit, by_run;
+    const struct arcade_fighter_drop *drops;
+    unsigned ndrops;
     uint8_t *lists;
     uint32_t lists_size, lists_cap;
     uint8_t *pos;
@@ -124,10 +126,38 @@ static int cmp_unit(const void *pa, const void *pb)
     return a->rec < c->rec ? -1 : a->rec > c->rec;
 }
 
-/* The art record at a (mode 2, or mode 0 with one code a cell) as cells in record order, with their parts. */
+/* Is cell `idx` of the record at `a` one the PS1 leaves out? (the drops are sorted, so a binary search) */
+static int dropped(const struct builder *b, uint32_t a, unsigned idx)
+{
+    unsigned lo = 0, hi = b->ndrops;
+    while (lo < hi) {
+        unsigned mid = (lo + hi) / 2;
+        const struct arcade_fighter_drop *d = &b->drops[mid];
+        if (d->record == a && d->cell == idx) return 1;
+        if (d->record < a || (d->record == a && d->cell < idx)) lo = mid + 1;
+        else hi = mid;
+    }
+    return 0;
+}
+
+/* Is there a cell left out of record `a` with an index of `from` or more? (the first drop not before (a, from)) */
+static int has_drop_from(const struct builder *b, uint32_t a, unsigned from)
+{
+    unsigned lo = 0, hi = b->ndrops;
+    while (lo < hi) {
+        unsigned mid = (lo + hi) / 2;
+        const struct arcade_fighter_drop *d = &b->drops[mid];
+        if (d->record < a || (d->record == a && d->cell < from)) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo < b->ndrops && b->drops[lo].record == a;
+}
+
+/* The art record at a (mode 2, or mode 0 with one code a cell) as cells in record order, with their parts, without the cells
+ * the PS1 leaves out (none for a fighter file). */
 static int read_record(struct builder *b, uint32_t a, uint32_t bank, struct cell *cells, unsigned *count, uint32_t *end)
 {
-    unsigned mode, declared, nb, k, n = 0, g = 0, gp = 0, stride;
+    unsigned mode, declared, nb, k, n = 0, kept = 0, g = 0, gp = 0, stride;
     uint16_t shared = 0, prev_attr = 0;
     int32_t prev_x = 0, idx;
     int64_t coord;
@@ -162,23 +192,26 @@ static int read_record(struct builder *b, uint32_t a, uint32_t bank, struct cell
         if (k && x < prev_x) g++;
         if (k && (x < prev_x || ((attr ^ prev_attr) & 0x1fu))) gp++;
         for (j = 0; j < h; j++)
-            for (i = 0; i < w; i++) {
+            for (i = 0; i < w; i++, n++) {
                 unsigned ci = (attr & 0x20u) ? w - 1 - i : i, cj = (attr & 0x40u) ? h - 1 - j : j;
-                struct cell *c = &cells[n];
+                struct cell *c = &cells[kept];
+                if (dropped(b, a, n)) continue;
                 c->code = code + ci + 16u * cj + bank;
                 c->x = x + 16 * (int32_t)i;
                 c->y = y + 16 * (int32_t)j;
                 c->flags = (uint16_t)(attr & 0x7fu);
                 c->part = (uint16_t)(b->psplit ? gp : g);
                 c->idx = (uint16_t)n;
-                n++;
+                kept++;
             }
         prev_x = x;
         prev_attr = attr;
     }
     if (b->bad) return fail(b, "record %#x: read outside the program", (unsigned)a);
     if (n != declared) return fail(b, "record %#x: blocks add up to %u of its %u cells", (unsigned)a, n, declared);
-    *count = n;
+    if (!kept) return fail(b, "record %#x: every cell is left out", (unsigned)a);
+    if (has_drop_from(b, a, n)) return fail(b, "record %#x: a cell left out is not among its %u cells", (unsigned)a, n);
+    *count = kept;
     *end = a + 8 + stride * nb;
     return 0;
 }
@@ -488,7 +521,10 @@ int arcade_fighter_build(const uint8_t *program, size_t program_size, const stru
     b.psplit = (f->rules & ARCADE_FIGHTER_PALETTE_PARTS) != 0;
     b.by_run = (f->rules & ARCADE_FIGHTER_NUMBER_BY_RUN) != 0;
     if (err && errsize) err[0] = 0;
+    b.drops = f->drops;
+    b.ndrops = f->drop_count;
     if (f->segment_count && !f->segments) return fail(&b, "%s: segments missing", f->file);
+    if (f->drop_count && !f->drops) return fail(&b, "%s: drops missing", f->file);
     b.lists_cap = f->lists_room;
     b.pos_cap = f->positions_room;
     b.lists = malloc((size_t)b.lists_cap + 1);

@@ -27,11 +27,26 @@ split into regions: compressed tile segments (offset table, then blocks, as tile
 rest (pictures). The loader's own order of things (for a TIM header, the rectangle says how many bytes the loader reads, not the block
 size) is followed. Every chunk is reported once for each distinct content, with the number of files that carry it.
 
+The converter that the port runs is C (screens.c, with the table screens_table.c). The model it reproduces, and the finder of each chunk's
+recipe (what to build from the arcade, what stays the disc's), are in screens.py (its docstring says what a recipe is). Two options use them:
+
+  --c-table     print port/arcade/screens_table.c: the recipes of every chunk of the select, demo, continue, ending, boss and character-demo
+                files that has tiles, palettes or pictures from the arcade (addresses, counts and layouts, no game bytes);
+  --compare-c   build screens.c with the checked-in table and, for each file and chunk, compare the C with the model (screens.py's
+                model_chunk) and with the disc at the bytes it claims (a packed tile segment is compared as the tiles it decodes to), then print
+                the bytes built, the bytes equal to the disc and the bytes the arcade gives alone, by file kind.
+
+Not covered by any recipe (they stay the disc's): the modules (code, and the cell lists of the select screen module are not byte-equal to the
+fighters' rules), the sound banks, the four full-colour ending illustrations, the title and ranking screens' own pictures, the select screen's
+cell map, the name plate cell map, the PS1's own tiles, palettes and cells inside the chunks that do have a recipe.
+
 Inputs: the disc image (raw 2352-byte sectors, --disc) and the arcade set's ZIP (--arcade, MAME's sfa2u), both only read. It writes nothing
 except a temporary folder that holds a small C helper compiled at run time, removed on exit. It prints counts, addresses and sizes,
-never game bytes. It is an analysis and reference tool; the converter that the port runs will be written in C.
+never game bytes (--c-table prints the C table to the standard output).
 
     python3 port/arcade/other_files.py --disc BIN --arcade ZIP [--only ASCII] [--no-modules] [--detail] [--lists]
+    python3 port/arcade/other_files.py --disc BIN --arcade ZIP --c-table > port/arcade/screens_table.c
+    python3 port/arcade/other_files.py --disc BIN --arcade ZIP --compare-c
 """
 import argparse
 import collections
@@ -971,6 +986,34 @@ def disc_files_report(files, sec, f, ctx=None, with_modules=True):
             print('  %-22s %8d  padding (%s)' % (path, size, 'all zero in its first 16 KB' if not any(data) else 'not zero'))
 
 
+def screens_main(args, files, sec, ctx, tmp, started):
+    """--c-table and --compare-c: the recipes of the screens' chunks (screens.py), as the C table or compared with the C build."""
+    import screens
+    disc = {}
+    for path in sorted(files):
+        if not path.upper().endswith('.PAC') or (args.only and kind_of(path.rsplit('/', 1)[1]) != args.only.upper()):
+            continue
+        k = kind_of(path.rsplit('/', 1)[1])
+        if k not in KIND_ORDER:
+            continue
+        lba, size = files[path]
+        data = sec(lba, (size + SECTOR - 1) // SECTOR)[:size]
+        seen = collections.Counter()
+        chunks = []
+        for c in pac.chunk_table(data):
+            chunks.append((c['table'], c['slot'], seen[(c['table'], c['slot'])], data[c['offset']:c['offset'] + c['size']]))
+            seen[(c['table'], c['slot'])] += 1
+        disc[path.rsplit('/', 1)[1]] = (k, chunks)
+    env = screens.Env(tmp, ctx.prog, ctx.gfx)
+    table = screens.collect(disc, env, sys.modules[__name__])
+    text = screens.c_table(table, 'python3 port/arcade/other_files.py --disc DISC --arcade SET --c-table')
+    if args.c_table:
+        sys.stdout.write(text)
+        print('%d files, %d recipes in %.1f s' % (len(table.files), len(table.recipes), time.monotonic() - started), file=sys.stderr)
+        return 0
+    return screens.compare_report(table, text, disc, env, ctx, tmp, started)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--disc', required=True, help='disc image, raw 2352-byte sectors')
@@ -979,6 +1022,8 @@ def main(argv=None):
     ap.add_argument('--no-modules', action='store_true', help='skip the search of the modules for arcade-equal runs (it takes seconds a module)')
     ap.add_argument('--detail', action='store_true', help='print the regions of the first content of each chunk and the arcade addresses found')
     ap.add_argument('--lists', action='store_true', help="also compare the modules' cell lists with the arcade's art records (fighters.analyse; about 2 s a file)")
+    ap.add_argument('--c-table', action='store_true', help='print port/arcade/screens_table.c (the recipes the runtime C builds the screens from)')
+    ap.add_argument('--compare-c', action='store_true', help='build screens.c with the checked-in table and compare it with the model and the disc, per file')
     args = ap.parse_args(argv)
     started = time.monotonic()
     tmp = tempfile.mkdtemp(prefix='other-files-')
@@ -986,6 +1031,8 @@ def main(argv=None):
         ctx = Context(args.arcade, tmp)
         with open(args.disc, 'rb') as f:
             files, sec = stages.iso_files(f)
+            if args.c_table or args.compare_c:
+                return screens_main(args, files, sec, ctx, tmp, started)
             pac_report(files, sec, ctx, args.only, not args.no_modules, args.detail)
             if args.lists:
                 print('== cell lists of the modules against the arcade art records')

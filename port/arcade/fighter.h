@@ -27,6 +27,13 @@ struct arcade_fighter_segment {
     uint32_t bank;
 };
 
+/* A cell of a record that the PS1 leaves out: the record's address and the cell's index in the record's own order (blocks in
+ * order, each block row by row). Lists are sorted by record, then cell. */
+struct arcade_fighter_drop {
+    uint32_t record;
+    uint16_t cell;
+};
+
 struct arcade_fighter {
     const char *file;                   /* "PL00.PAC" */
     uint16_t module_slot;               /* table 0 slot of the chunk holding the lists (and the positions, see below) */
@@ -36,6 +43,8 @@ struct arcade_fighter {
     unsigned rules;                     /* ARCADE_FIGHTER_* flags */
     const struct arcade_fighter_segment *segments;
     unsigned segment_count;
+    const struct arcade_fighter_drop *drops;   /* cells of those records left out of the lists (none for a fighter file: NULL, 0) */
+    unsigned drop_count;
 };
 
 extern const struct arcade_fighter arcade_fighters[];

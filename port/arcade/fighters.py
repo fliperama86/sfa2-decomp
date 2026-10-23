@@ -1059,7 +1059,7 @@ def c_table(rows, omitted):
         slot = 'ARCADE_FIGHTER_SAME_CHUNK' if row['positions_slot'] is None else f'{row["positions_slot"]:#x}u'
         key = tuple(row['segments'])
         out.append(f'    {{"{row["file"]}", {row["module_slot"]}u, {slot}, {row["positions"]:#x}u, {row["lists"]:#x}u, {row["positions_room"]}u, '
-                   f'{row["lists_room"]}u, {rules}, {names[key]}, {len(key)}u}},')
+                   f'{row["lists_room"]}u, {rules}, {names[key]}, {len(key)}u, NULL, 0u}},')
     out += ['};', 'const unsigned arcade_fighter_count = sizeof arcade_fighters / sizeof arcade_fighters[0];', '']
     return '\n'.join(out)
 
@@ -1086,7 +1086,7 @@ class CLib:
         self.Fighter._fields_ = [('file', ctypes.c_char_p), ('module_slot', ctypes.c_uint16), ('positions_slot', ctypes.c_uint16),
                                  ('positions', ctypes.c_uint32), ('lists', ctypes.c_uint32), ('positions_room', ctypes.c_uint32),
                                  ('lists_room', ctypes.c_uint32), ('rules', ctypes.c_uint), ('segments', ctypes.POINTER(self.Seg)),
-                                 ('segment_count', ctypes.c_uint)]
+                                 ('segment_count', ctypes.c_uint), ('drops', ctypes.c_void_p), ('drop_count', ctypes.c_uint)]
         count = ctypes.c_uint.in_dll(self.lib, 'arcade_fighter_count').value
         self.rows = (self.Fighter * count).in_dll(self.lib, 'arcade_fighters')
         self.lib.arcade_fighter_build.argtypes = [ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(self.Fighter), ctypes.POINTER(self.Out),

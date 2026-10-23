@@ -69,8 +69,9 @@ port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC
 - `--arcade-check` ends with a coverage report: how many bytes of the
   disc's files (other than the program and the music and movie streams) the
   loader builds equal to the disc's, in all and by kind of file. On
-  2026-10-23: 17% in all, the fighter files 43%, the stages 56%, the rest 0%
-  (the modules' code, which the port's C replaces, counts as not built).
+  2026-10-23: 37% in all, built from the arcade alone (the fighter files 43%,
+  the stages 56%, the screens from 3% (endings) to 90% (the HUD file)); the
+  modules' code, which the port's C replaces, counts as not built.
 - With a disc, the first read of each disc file prints
   `arcade: NAME from the disc: no arcade source yet`. Played through, those
   lines are the list of files the loader has still to build, in the order
@@ -204,9 +205,16 @@ scripts (nothing of it is in the tree):
   --c-table`). In the runtime 34,771 steps, 11,313 frame records and 9,075
   table entries equal the disc's and are served; 4,080 steps, the PS1's own or
   changed, stay the disc's.
-- **The other files** (`other_files.py`). The select, continue, ending, boss
-  and demo screens are mostly arcade tiles and palettes (from 65% to 100% of
-  their tiles), with modules that are code and cell lists of the art records.
+- **The other files** (`other_files.py`, `screens.py`). The select,
+  continue, ending, boss and demo screens are mostly arcade tiles and
+  palettes (from 65% to 100% of their tiles), with modules that are code and
+  cell lists of the art records. `screens.c` builds their tiles, palettes and
+  pictures by recipes (generated `screens_table.c`: runs of arcade tiles,
+  pieces of scroll 1, palette addresses), 379 chunks of 172 files; the
+  loader serves the bytes equal to the disc's and the packed tile segments
+  whose tiles decode to the disc's (in a segment, the PS1's own tiles come
+  from the disc). The modules' cell lists are not built: the fighter rules do
+  not reproduce them.
   The PS1's own: the movies (4 STR), the recorded music (8 XA files), the
   four full-color ending illustrations, the title picture, the layout of the
   dialogue text, the select screen's 27 voice samples, `CAPCOM.BIN`.

@@ -20,7 +20,7 @@ import fighters as F
 import program_map as P
 
 FLAGS = ('-std=c99', '-O1', '-Wall', '-Wextra', '-Werror')
-SOURCES = [ROOT / 'port/arcade' / n for n in ('program.c', 'program_more.c', 'program_effects_table.c', 'program_relocs_table.c')]
+SOURCES = [ROOT / 'port/arcade' / n for n in ('fighter.c', 'program.c', 'program_more.c', 'program_effects_table.c', 'program_relocs_table.c')]
 DRIVER = ROOT / 'port/arcade/tests/program_more_test.c'
 
 

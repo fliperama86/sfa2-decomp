@@ -5,374 +5,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* The conversion of the arcade's art records to the PS1's cell lists, for the effects. It is fighter.c's conversion (the
- * rules and why are in fighters.py: Converter and model_build, and the tool's docstring) in its plain form, with the one
- * thing the effects need that a fighter's lists do not: a list of cells of a record that the PS1 leaves out. Palette parts
- * and tile numbering by run (the two rules of PL0E) are not here. program_map.py's effects_model is the specification
- * and tools/test_arcade_program_more.py checks this code against it. */
+/* The effects' lists are fighter.c's conversion of the arcade's art records (the rules and why are in fighters.py: Converter
+ * and model_build), with the cells the PS1 leaves out (the descriptor's drops, handled by arcade_fighter_build), and with
+ * the PS1's pictures appended after: their one position stream and the last empty list. program_map.py's effects_model is
+ * the specification and tools/test_arcade_program_more.py checks this code against it. */
 
-#define COORD_TABLE 0x9f260u   /* arcade: table of pointers to coordinate blocks, indexed by the record's coordinate index */
-#define MAX_CELLS 512u         /* a list longer than this is not a list */
-#define MAX_CODE 0x40000u      /* tile codes: 16 bits and the bank (0 to 3 times 0x10000) */
-#define FLIPS 0x60u
 #define EMPTY_LIST_BYTES 12u
 
-struct cell {
-    uint32_t code;
-    int32_t x, y;
-    uint16_t flags, part, idx;
-};
-
-struct builder {
-    const uint8_t *prog;
-    size_t prog_size;
-    int bad;
-    uint8_t *lists;
-    uint32_t lists_size, lists_cap;
-    uint8_t *pos;
-    uint32_t pos_size, pos_cap;
-    uint32_t *stream_off, *stream_len, *stream_hash;   /* streams stored once */
-    size_t nstreams, streams_cap;
-    uint16_t *num;      /* tile number of a code (0: not numbered) */
-    uint8_t *flip;      /* by number: how the tile is stored (bit 0 across, bit 1 down) */
-    uint32_t next;
-    uint32_t *used;     /* records already converted */
-    size_t nused, used_cap;
-    const struct arcade_effects_drop *drops;
-    unsigned ndrops;
-    char *err;
-    size_t errsize;
-};
-
-static int fail(struct builder *b, const char *fmt, ...)
+static int fail(char *err, size_t errsize, const char *fmt, ...)
 {
-    if (b->err && b->errsize) {
+    if (err && errsize) {
         va_list ap;
         va_start(ap, fmt);
-        vsnprintf(b->err, b->errsize, fmt, ap);
+        vsnprintf(err, errsize, fmt, ap);
         va_end(ap);
     }
     return -1;
-}
-
-static uint16_t rd16(struct builder *b, size_t o)
-{
-    if (o > b->prog_size || b->prog_size - o < 2) {
-        b->bad = 1;
-        return 0;
-    }
-    return (uint16_t)(b->prog[o] << 8 | b->prog[o + 1]);
-}
-
-static uint32_t rd32(struct builder *b, size_t o)
-{
-    return (uint32_t)rd16(b, o) << 16 | rd16(b, o + 2);
-}
-
-static void put16(uint8_t *p, unsigned v)
-{
-    p[0] = (uint8_t)v;
-    p[1] = (uint8_t)(v >> 8);
-}
-
-static int cmp_cell(const void *pa, const void *pb)
-{
-    const struct cell *a = pa, *c = pb;
-    if (a->part != c->part) return a->part > c->part ? -1 : 1;   /* the parts last first */
-    if (a->y != c->y) return a->y < c->y ? -1 : 1;
-    if (a->x != c->x) return a->x < c->x ? -1 : 1;
-    return a->idx < c->idx ? -1 : a->idx > c->idx;               /* equal positions keep the record's order */
-}
-
-/* Is cell `idx` of the record at `a` one the PS1 leaves out? (the drops are sorted, so a binary search) */
-static int dropped(const struct builder *b, uint32_t a, unsigned idx)
-{
-    unsigned lo = 0, hi = b->ndrops;
-    while (lo < hi) {
-        unsigned mid = (lo + hi) / 2;
-        const struct arcade_effects_drop *d = &b->drops[mid];
-        if (d->record == a && d->cell == idx) return 1;
-        if (d->record < a || (d->record == a && d->cell < idx)) lo = mid + 1;
-        else hi = mid;
-    }
-    return 0;
-}
-
-/* Is there a cell left out of record `a` with an index of `from` or more? (the first drop not before (a, from)) */
-static int has_drop_from(const struct builder *b, uint32_t a, unsigned from)
-{
-    unsigned lo = 0, hi = b->ndrops;
-    while (lo < hi) {
-        unsigned mid = (lo + hi) / 2;
-        const struct arcade_effects_drop *d = &b->drops[mid];
-        if (d->record < a || (d->record == a && d->cell < from)) lo = mid + 1;
-        else hi = mid;
-    }
-    return lo < b->ndrops && b->drops[lo].record == a;
-}
-
-/* The art record at a (mode 2, or mode 0 with one code a cell) as cells in record order, without the cells the PS1 leaves
- * out; `declared` is the record's own count. */
-static int read_record(struct builder *b, uint32_t a, uint32_t bank, struct cell *cells, unsigned *count, uint32_t *end)
-{
-    unsigned mode, declared, nb, k, n = 0, kept = 0, g = 0, stride;
-    uint16_t shared = 0;
-    int32_t prev_x = 0, idx;
-    int64_t coord;
-    uint32_t ptr;
-
-    b->bad = 0;
-    if ((a & 1) || a > b->prog_size || b->prog_size - a < 8) return fail(b, "record %#x: outside the program", (unsigned)a);
-    mode = rd16(b, a);
-    if (mode != 0 && mode != 2) return fail(b, "record %#x: not an art record (mode %u)", (unsigned)a, mode);
-    declared = rd16(b, a + 2);
-    idx = (int16_t)rd16(b, (size_t)a + 6);
-    if (declared < 1 || declared > MAX_CELLS) return fail(b, "record %#x: %u cells", (unsigned)a, declared);
-    if (mode == 2) {
-        nb = rd16(b, (size_t)a + 4) + 1u;
-        stride = 4;
-    } else {
-        shared = (uint16_t)(rd16(b, (size_t)a + 4) & 0x7f);
-        nb = declared;
-        stride = 2;
-    }
-    if ((size_t)a + 8 + (size_t)stride * nb > b->prog_size) return fail(b, "record %#x: blocks outside the program", (unsigned)a);
-    coord = (int64_t)COORD_TABLE + idx;
-    if (coord < 0 || (uint64_t)coord + 4 > b->prog_size) return fail(b, "record %#x: coordinate index %d outside the program", (unsigned)a, (int)idx);
-    ptr = rd32(b, (size_t)coord);
-    if ((ptr & 1) || (uint64_t)ptr + 4u * nb > b->prog_size) return fail(b, "record %#x: coordinates at %#x outside the program", (unsigned)a, (unsigned)ptr);
-    for (k = 0; k < nb; k++) {
-        uint32_t code = rd16(b, (size_t)a + 8 + (size_t)stride * k);
-        uint16_t attr = mode == 2 ? rd16(b, (size_t)a + 10 + 4 * (size_t)k) : shared;
-        int32_t x = (int16_t)rd16(b, (size_t)ptr + 4 * (size_t)k), y = (int16_t)rd16(b, (size_t)ptr + 4 * (size_t)k + 2);
-        unsigned w = ((attr >> 8) & 15u) + 1u, h = ((attr >> 12) & 15u) + 1u, i, j;
-        if (n + w * h > declared) return fail(b, "record %#x: blocks add up to more than its %u cells", (unsigned)a, declared);
-        if (k && x < prev_x) g++;
-        for (j = 0; j < h; j++)
-            for (i = 0; i < w; i++, n++) {
-                unsigned ci = (attr & 0x20u) ? w - 1 - i : i, cj = (attr & 0x40u) ? h - 1 - j : j;
-                struct cell *c = &cells[kept];
-                if (dropped(b, a, n)) continue;
-                c->code = code + ci + 16u * cj + bank;
-                c->x = x + 16 * (int32_t)i;
-                c->y = y + 16 * (int32_t)j;
-                c->flags = (uint16_t)(attr & 0x7fu);
-                c->part = (uint16_t)g;
-                c->idx = (uint16_t)n;
-                kept++;
-            }
-        prev_x = x;
-    }
-    if (b->bad) return fail(b, "record %#x: read outside the program", (unsigned)a);
-    if (n != declared) return fail(b, "record %#x: blocks add up to %u of its %u cells", (unsigned)a, n, declared);
-    if (!kept) return fail(b, "record %#x: every cell is left out", (unsigned)a);
-    if (has_drop_from(b, a, n)) return fail(b, "record %#x: a cell left out is not among its %u cells", (unsigned)a, n);
-    *count = kept;
-    *end = a + 8 + stride * nb;
-    return 0;
-}
-
-/* ---- output blocks */
-
-static int lists_put(struct builder *b, const uint8_t *p, size_t n)
-{
-    if (n > b->lists_cap - b->lists_size) return fail(b, "the lists need more than their room of %u bytes", (unsigned)b->lists_cap);
-    memcpy(b->lists + b->lists_size, p, n);
-    b->lists_size += (uint32_t)n;
-    return 0;
-}
-
-/* Offset of the stream in the positions: an identical stream stored before, else appended (always appended when `fresh`,
- * and then not found by later streams). */
-static int pos_add(struct builder *b, const uint8_t *s, uint32_t len, int fresh, uint32_t *off)
-{
-    uint32_t h = 2166136261u, i;
-    size_t e;
-    for (i = 0; i < len; i++) h = (h ^ s[i]) * 16777619u;
-    if (!fresh)
-        for (e = 0; e < b->nstreams; e++)
-            if (b->stream_hash[e] == h && b->stream_len[e] == len && memcmp(b->pos + b->stream_off[e], s, len) == 0) {
-                *off = b->stream_off[e];
-                return 0;
-            }
-    if (len > b->pos_cap - b->pos_size) return fail(b, "the positions need more than their room of %u bytes", (unsigned)b->pos_cap);
-    memcpy(b->pos + b->pos_size, s, len);
-    *off = b->pos_size;
-    b->pos_size += len;
-    if (!fresh) {
-        if (b->nstreams + 1 > b->streams_cap) {
-            size_t cap = b->streams_cap ? b->streams_cap * 2 : 64;
-            uint32_t *o = realloc(b->stream_off, cap * sizeof *o), *l, *hh;
-            if (!o) return fail(b, "out of memory");
-            b->stream_off = o;
-            l = realloc(b->stream_len, cap * sizeof *l);
-            if (!l) return fail(b, "out of memory");
-            b->stream_len = l;
-            hh = realloc(b->stream_hash, cap * sizeof *hh);
-            if (!hh) return fail(b, "out of memory");
-            b->stream_hash = hh;
-            b->streams_cap = cap;
-        }
-        b->stream_off[b->nstreams] = *off;
-        b->stream_len[b->nstreams] = len;
-        b->stream_hash[b->nstreams] = h;
-        b->nstreams++;
-    }
-    return 0;
-}
-
-/* The list for numbered cells (number, flags) in order and its position offset. Plain (no flip bit, one flags value for all):
- * mode 0 (a word a cell) or mode 4 (first number, run - 1), the shorter wins, a tie goes to 4, the third header word is the
- * palette. Otherwise mode 2 (number, flags) or mode 6 (first number, flags, run - 1), the shorter wins, a tie goes to 6, the
- * third word is cells - 1. */
-static int encode_list(struct builder *b, const uint16_t *t, const uint16_t *f, unsigned n, uint32_t pos)
-{
-    uint8_t buf[10 + 6 * MAX_CELLS];
-    uint16_t rt[MAX_CELLS], rf[MAX_CELLS], rr[MAX_CELLS];
-    unsigned i, nr = 0, plain = 1, mode, len;
-
-    if (pos > 0xffffu) return fail(b, "a position offset of %u does not fit 16 bits", (unsigned)pos);
-    for (i = 0; i < n; i++)
-        if ((f[i] & FLIPS) || f[i] != f[0]) plain = 0;
-    for (i = 0; i < n; i++) {
-        if (nr && (uint32_t)rt[nr - 1] + rr[nr - 1] + 1u == t[i] && (plain || rf[nr - 1] == f[i])) {
-            rr[nr - 1]++;
-        } else {
-            rt[nr] = t[i];
-            rf[nr] = f[i];
-            rr[nr] = 0;
-            nr++;
-        }
-    }
-    if (plain) {
-        mode = n < 2 * nr ? 0 : 4;
-        put16(buf + 2, mode);
-        put16(buf + 4, f[0] & 0x1fu);
-    } else {
-        mode = 2 * n < 3 * nr ? 2 : 6;
-        put16(buf + 2, mode);
-        put16(buf + 4, n - 1);
-    }
-    put16(buf, n);
-    put16(buf + 6, 0);
-    put16(buf + 8, pos);
-    len = 10;
-    if (mode == 0) {
-        for (i = 0; i < n; i++, len += 2) put16(buf + len, t[i]);
-    } else if (mode == 4) {
-        for (i = 0; i < nr; i++, len += 4) {
-            put16(buf + len, rt[i]);
-            put16(buf + len + 2, rr[i]);
-        }
-    } else if (mode == 2) {
-        for (i = 0; i < n; i++, len += 4) {
-            put16(buf + len, t[i]);
-            put16(buf + len + 2, f[i]);
-        }
-    } else {
-        for (i = 0; i < nr; i++, len += 6) {
-            put16(buf + len, rt[i]);
-            put16(buf + len + 2, rf[i]);
-            put16(buf + len + 4, rr[i]);
-        }
-    }
-    return lists_put(b, buf, len);
-}
-
-/* The number of the code, new (the next one, stored with the flip of this use) when not seen before. */
-static int tile_assign(struct builder *b, uint32_t code, unsigned flags)
-{
-    if (code >= MAX_CODE) return fail(b, "tile code %#x is outside the video chip's range", (unsigned)code);
-    if (b->num[code]) return 0;
-    if (b->next > 0xffffu) return fail(b, "more than 65535 tiles");
-    b->flip[b->next] = (uint8_t)(((flags & 0x20u) ? 1 : 0) | ((flags & 0x40u) ? 2 : 0));
-    b->num[code] = (uint16_t)b->next++;
-    return 0;
-}
-
-static int emit(struct builder *b, const struct cell *cells, unsigned n, int fresh)
-{
-    uint16_t t[MAX_CELLS], f[MAX_CELLS];
-    uint8_t stream[6 * MAX_CELLS];
-    unsigned i, len = 0, rn = 0, have = 0;
-    int32_t rx = 0, ry = 0, lx = 0, ly = 0;
-    uint32_t off = 0;
-
-    for (i = 0; i < n; i++) {
-        uint16_t num = b->num[cells[i].code];
-        unsigned bake = ((b->flip[num] & 1u) ? 0x20u : 0) | ((b->flip[num] & 2u) ? 0x40u : 0);
-        t[i] = num;
-        f[i] = (uint16_t)(cells[i].flags ^ bake);
-    }
-    /* position runs: horizontally adjacent cells (the cells are in order); a run is dx, dy, length - 1 */
-    for (i = 0; i <= n; i++) {
-        if (i < n && have && cells[i].y == ry && cells[i].x == rx + 16 * (int32_t)(rn + 1)) {
-            rn++;
-            continue;
-        }
-        if (have) {
-            int32_t dx = rx - lx, dy = ry - ly;
-            if (dx < -32768 || dx > 32767 || dy < -32768 || dy > 32767) return fail(b, "a position step of (%d, %d) does not fit 16 bits", (int)dx, (int)dy);
-            put16(stream + len, (unsigned)dx & 0xffffu);
-            put16(stream + len + 2, (unsigned)dy & 0xffffu);
-            put16(stream + len + 4, rn);
-            len += 6;
-            lx = rx + 16 * (int32_t)rn;
-            ly = ry;
-        }
-        if (i < n) {
-            rx = cells[i].x;
-            ry = cells[i].y;
-            rn = 0;
-            have = 1;
-        }
-    }
-    if (pos_add(b, stream, len, fresh, &off)) return -1;
-    return encode_list(b, t, f, n, off);
-}
-
-static int empty_list(struct builder *b)
-{
-    uint8_t e[EMPTY_LIST_BYTES] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    if (b->pos_size > 0xffffu) return fail(b, "a position offset of %u does not fit 16 bits", (unsigned)b->pos_size);
-    put16(e + 8, b->pos_size);
-    return lists_put(b, e, sizeof e);
-}
-
-static int record(struct builder *b, uint32_t at, struct cell *cells, unsigned n)
-{
-    int32_t left = cells[0].x;
-    unsigned i, again = 0;
-    size_t e;
-
-    qsort(cells, n, sizeof *cells, cmp_cell);
-    for (i = 0; i < n; i++)
-        if (cells[i].x < left) left = cells[i].x;
-    for (e = 0; e < b->nused; e++)
-        if (b->used[e] == at) again = left < -256;
-    if (again)   /* a record drawn a second time and starting far left: its leftmost cell goes to x = 0, its stream apart */
-        for (i = 0; i < n; i++) cells[i].x -= left;
-    if (b->nused + 1 > b->used_cap) {
-        size_t cap = b->used_cap ? b->used_cap * 2 : 64;
-        uint32_t *u = realloc(b->used, cap * sizeof *u);
-        if (!u) return fail(b, "out of memory");
-        b->used = u;
-        b->used_cap = cap;
-    }
-    b->used[b->nused++] = at;
-    for (i = 0; i < n; i++)
-        if (tile_assign(b, cells[i].code, cells[i].flags)) return -1;
-    return emit(b, cells, n, again);
-}
-
-static void release(struct builder *b)
-{
-    free(b->stream_off);
-    free(b->stream_len);
-    free(b->stream_hash);
-    free(b->num);
-    free(b->flip);
-    free(b->used);
 }
 
 void arcade_effects_free(struct arcade_effects_out *out)
@@ -385,97 +33,83 @@ void arcade_effects_free(struct arcade_effects_out *out)
 int arcade_effects_build(const uint8_t *program, size_t program_size, const struct arcade_effects *e,
                          struct arcade_effects_out *out, char *err, size_t errsize)
 {
-    struct builder b;
-    unsigned s, c;
-    uint32_t built_lists, total;
-    uint8_t *data = NULL, *known = NULL;
-    int rc = -1;
+    struct arcade_fighter f;
+    struct arcade_fighter_out fo;
+    uint32_t total, lists_cap, pos_end;
+    uint8_t *data, *known;
 
     memset(out, 0, sizeof *out);
-    memset(&b, 0, sizeof b);
-    b.prog = program;
-    b.prog_size = program_size;
-    b.err = err;
-    b.errsize = errsize;
-    b.drops = e->drops;
-    b.ndrops = e->drop_count;
     if (err && errsize) err[0] = 0;
-    if ((e->segment_count && !e->segments) || (e->drop_count && !e->drops)) return fail(&b, "effects: descriptor incomplete");
-    if (e->gap_size > e->lists_size || e->lists_size - e->gap_size < EMPTY_LIST_BYTES) return fail(&b, "effects: the gap does not fit the lists");
+    if ((e->segment_count && !e->segments) || (e->drop_count && !e->drops)) return fail(err, errsize, "effects: descriptor incomplete");
+    if (e->gap_size > e->lists_size || e->lists_size - e->gap_size < EMPTY_LIST_BYTES) return fail(err, errsize, "effects: the gap does not fit the lists");
+    if (e->picture_columns && e->picture_rows > 64) return fail(err, errsize, "effects: %u picture rows", e->picture_rows);
     total = e->positions_size + e->lists_size;
-    b.lists_cap = e->lists_size - e->gap_size;
-    b.pos_cap = e->positions_size;
-    b.lists = malloc((size_t)e->lists_size + 1);
-    b.pos = malloc((size_t)e->positions_size + 1);
-    b.num = calloc(MAX_CODE, sizeof *b.num);
-    b.flip = calloc(0x10000, 1);
+    lists_cap = e->lists_size - e->gap_size;
+    /* the records' lists: all of the room but the last empty list, which comes after the pictures' stream */
+    memset(&f, 0, sizeof f);
+    f.file = "effects";
+    f.positions_room = e->positions_size;
+    f.lists_room = lists_cap - EMPTY_LIST_BYTES;
+    f.segments = e->segments;
+    f.segment_count = e->segment_count;
+    f.drops = e->drops;
+    f.drop_count = e->drop_count;
+    if (arcade_fighter_build(program, program_size, &f, &fo, err, errsize)) return -1;
+    if (fo.lists_size != f.lists_room) {
+        fail(err, errsize, "effects: the lists come to %u bytes, the descriptor leaves %u", (unsigned)fo.lists_size + EMPTY_LIST_BYTES, (unsigned)lists_cap);
+        goto bad;
+    }
+    pos_end = fo.positions_size;
     data = calloc((size_t)total + 1, 1);
     known = calloc((size_t)total + 1, 1);
-    if (!b.lists || !b.pos || !b.num || !b.flip || !data || !known) {
-        fail(&b, "out of memory");
-        goto done;
+    if (!data || !known) {
+        fail(err, errsize, "out of memory");
+        free(data);
+        free(known);
+        goto bad;
     }
-    b.next = 1;
-    for (s = 0; s < e->segment_count; s++) {
-        const struct arcade_fighter_segment *seg = &e->segments[s];
-        uint32_t a = seg->address;
-        for (c = 0; c < seg->count; c++) {
-            if (!seg->address) {
-                if (empty_list(&b)) goto done;
-            } else {
-                struct cell cells[MAX_CELLS];
-                unsigned n = 0;
-                uint32_t end;
-                if (read_record(&b, a, seg->bank, cells, &n, &end) || record(&b, a, cells, n)) goto done;
-                a = end;
-            }
-        }
-    }
-    built_lists = b.lists_size;
+    memcpy(data, fo.positions, pos_end);
     /* the pictures' one stream: a row of columns tiles from the origin, then rows below, each starting at x = 0 */
     if (e->picture_columns && e->picture_rows) {
-        uint8_t stream[6 * 64];
         unsigned r, len = 0;
-        uint32_t off;
-        if (e->picture_rows > 64) {
-            fail(&b, "effects: %u picture rows", e->picture_rows);
-            goto done;
+        if (6u * e->picture_rows > e->positions_size - pos_end) {
+            fail(err, errsize, "the positions need more than their room of %u bytes", (unsigned)e->positions_size);
+            goto bad_data;
         }
         for (r = 0; r < e->picture_rows; r++, len += 6) {
-            put16(stream + len, r ? (unsigned)(-16 * (int)(e->picture_columns - 1u)) & 0xffffu : 0);
-            put16(stream + len + 2, r ? 16u : 0u);
-            put16(stream + len + 4, e->picture_columns - 1u);
+            unsigned dx = r ? (unsigned)(-16 * (int)(e->picture_columns - 1u)) & 0xffffu : 0, dy = r ? 16u : 0u, run = e->picture_columns - 1u;
+            data[pos_end + len] = (uint8_t)dx;
+            data[pos_end + len + 1] = (uint8_t)(dx >> 8);
+            data[pos_end + len + 2] = (uint8_t)dy;
+            data[pos_end + len + 3] = (uint8_t)(dy >> 8);
+            data[pos_end + len + 4] = (uint8_t)run;
+            data[pos_end + len + 5] = (uint8_t)(run >> 8);
         }
-        if (pos_add(&b, stream, len, 1, &off)) goto done;
+        pos_end += len;
     }
-    if (empty_list(&b)) goto done;
-    if (b.lists_size != b.lists_cap) {
-        fail(&b, "effects: the lists come to %u bytes, the descriptor leaves %u", (unsigned)b.lists_size, (unsigned)b.lists_cap);
-        goto done;
+    if (pos_end > 0xffffu) {
+        fail(err, errsize, "a position offset of %u does not fit 16 bits", (unsigned)pos_end);
+        goto bad_data;
     }
-    if (b.pos_size > e->positions_size) {
-        fail(&b, "effects: the positions need %u bytes of %u", (unsigned)b.pos_size, (unsigned)e->positions_size);
-        goto done;
-    }
-    /* assemble: positions (zeros after the streams), the built lists, the gap (unknown), the last empty list */
-    memcpy(data, b.pos, b.pos_size);
     memset(known, 1, e->positions_size);
-    memcpy(data + e->positions_size, b.lists, built_lists);
-    memset(known + e->positions_size, 1, built_lists);
-    memcpy(data + e->positions_size + built_lists + e->gap_size, b.lists + built_lists, EMPTY_LIST_BYTES);
-    memset(known + e->positions_size + built_lists + e->gap_size, 1, EMPTY_LIST_BYTES);
+    memcpy(data + e->positions_size, fo.lists, fo.lists_size);
+    memset(known + e->positions_size, 1, fo.lists_size);
+    /* the gap (unknown), then the last empty list: one cell, tile 0, the position offset the end of the streams */
+    data[e->positions_size + fo.lists_size + e->gap_size] = 1;
+    data[e->positions_size + fo.lists_size + e->gap_size + 8] = (uint8_t)pos_end;
+    data[e->positions_size + fo.lists_size + e->gap_size + 9] = (uint8_t)(pos_end >> 8);
+    memset(known + e->positions_size + fo.lists_size + e->gap_size, 1, EMPTY_LIST_BYTES);
+    arcade_fighter_free(&fo);
     out->data = data;
     out->known = known;
     out->size = total;
-    data = known = NULL;
-    rc = 0;
-done:
+    return 0;
+bad_data:
     free(data);
     free(known);
-    free(b.pos);
-    free(b.lists);
-    release(&b);
-    return rc;
+bad:
+    arcade_fighter_free(&fo);
+    return -1;
 }
 
 /* ---- relocations */

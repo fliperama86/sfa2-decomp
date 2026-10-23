@@ -376,7 +376,7 @@ class FighterC(unittest.TestCase):
         other = dict(row, file='PL99X.PAC', module_slot=5, positions_slot=0x2b)
         text = F.c_table([row, other], [('PL04.PAC', 'a list with no record'), ('PL10.PAC', 'PS1-only art')])
         self.assertEqual(text.count('segments_pl99[] = {'), 1)                           # identical segments are written once
-        self.assertIn('{"PL99.PAC", 4u, ARCADE_FIGHTER_SAME_CHUNK, 0x10u, 0x200u, 100u, 400u, ARCADE_FIGHTER_NUMBER_BY_RUN | ARCADE_FIGHTER_TERMINATOR, segments_pl99, 2u},', text)
+        self.assertIn('{"PL99.PAC", 4u, ARCADE_FIGHTER_SAME_CHUNK, 0x10u, 0x200u, 100u, 400u, ARCADE_FIGHTER_NUMBER_BY_RUN | ARCADE_FIGHTER_TERMINATOR, segments_pl99, 2u, NULL, 0u},', text)
         self.assertIn('{"PL99X.PAC", 5u, 0x2bu,', text)
         self.assertIn('PL04.PAC: a list with no record', text)
         self.assertIn('PL10, PL11 and PL13', text)

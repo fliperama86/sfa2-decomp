@@ -5,6 +5,7 @@
 #include "../arcade/fighter_parts.h"
 #include "../arcade/sequence.h"
 #include "../arcade/stage.h"
+#include "../arcade/screens.h"
 #include "../arcade/program.h"
 #include "../arcade/program_more.h"
 #include "../arcade/rom.h"
@@ -596,6 +597,69 @@ static void coverage(int check)
     fflush(stdout);
 }
 
+/* The other screens' files (select, continue, endings, demos, boss, HUD): their tiles, palettes and pictures by the recipes of
+ * screens_table.c. Bytes equal to the disc's are served, and packed tile segments whose tiles decode to the disc's (checked).
+ * The coverage counts what is built from the arcade alone (a second build without the disc's chunk). */
+static unsigned screens(struct port_disc *d, int check)
+{
+    unsigned i, u, chunks = 0, wrong = 0;
+    unsigned long long served = 0, arcade_only = 0;
+    for (i = 0; i < arcade_screens_file_count; i++) {
+        const struct arcade_screens_file *sf = &arcade_screens_files[i];
+        int f = file_index(d, sf->file);
+        for (u = sf->first; u < (unsigned)sf->first + sf->count; u++) {
+            const struct arcade_screens_use *us = &arcade_screens_uses[u];
+            const struct arcade_screens_recipe *r = &arcade_screens_recipes[us->recipe];
+            struct arcade_screens_out o, alone;
+            unsigned at, n, k;
+            unsigned char *disc;
+            char err[PORT_ERR];
+            if (pac_chunk_nth(d, &files[f], (unsigned)us->table << 16 | us->slot, us->ordinal, &at, &n) != 0 || n != r->size)
+                port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no chunk %u/0x%x as the screens table says", sf->file, us->table, us->slot);
+            if (!(disc = disc_bytes(d, &files[f], at, n))) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", sf->file);
+            if (arcade_screens_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, r, disc, n, &o, err, sizeof err) != 0)
+                port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", sf->file, err);
+            if (check) {   /* the coverage: what the arcade builds alone */
+                unsigned long long a = 0;
+                if (arcade_screens_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, r, NULL, 0, &alone, err, sizeof err) != 0)
+                    port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", sf->file, err);
+                for (k = 0; k < alone.size; k++) a += alone.known[k] != 0;
+                free(alone.data); free(alone.known);
+                arcade_only += a;
+                built_bytes[f] += a;
+            }
+            chunks++;
+            if (arcade_screens_verify(r, &o, disc, n, err, sizeof err) != 0) {
+                wrong++;
+                if (check) printf("arcade check: %s: chunk %u/0x%x: %s\n", sf->file, us->table, us->slot, err);
+            } else {
+                for (k = 0; k < o.size;) {   /* runs of one kind of known byte */
+                    unsigned e = k;
+                    while (e < o.size && o.known[e] == o.known[k]) e++;
+                    if (o.known[k] == 2) {
+                        if (!check) add_range(f, at + k, o.data + k, e - k);
+                        served += e - k;
+                    } else if (o.known[k] == 1) {
+                        unsigned long long before = built_bytes[f];
+                        served += serve_units(d, f, at + k, o.data + k, o.known + k, e - k, 1, check);
+                        built_bytes[f] = before;   /* counted by the build of the arcade alone */
+                    }
+                    k = e;
+                }
+            }
+            free(disc);
+            if (check) { free(o.data); free(o.known); }   /* else the ranges point into it */
+        }
+    }
+    if (check)
+        printf("arcade check: screens: %u chunks of %u files: %llu bytes built, equal to the disc's or decoding to its tiles (%llu of them from the arcade alone, the rest with PS1 tiles in packed segments); %u chunks differ\n",
+               chunks, arcade_screens_file_count, served, arcade_only, wrong);
+    else
+        printf("arcade: screens: %u chunks of %u files: %llu bytes built and used\n", chunks, arcade_screens_file_count, served);
+    fflush(stdout);
+    return wrong;
+}
+
 static int by_place(const void *a, const void *b)
 {
     const struct range *x = a, *y = b;
@@ -628,7 +692,8 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     wrong = fighters(d, check);
     wrong += parts(d, check);
     stages(d, check);
-    coverage(check);
+    wrong += screens(d, check);
+    if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
     port_disc_patch_hook = patch;

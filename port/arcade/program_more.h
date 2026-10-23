@@ -22,19 +22,14 @@
 
 /* ---- effects */
 
-/* A cell of a record that the PS1 leaves out: the record's address and the cell's index in the record's own order (blocks in
- * order, each block row by row). Sorted by record, then cell. */
-struct arcade_effects_drop {
-    uint32_t record;
-    uint16_t cell;
-};
+/* The cells of a record that the PS1 leaves out are struct arcade_fighter_drop (fighter.h). */
 
 struct arcade_effects {
     uint32_t address;                                    /* PS1 address of the positions; the lists follow at address + positions_size */
     uint32_t positions_size, lists_size;                 /* bytes of the two blocks */
     const struct arcade_fighter_segment *segments;       /* consecutive records made into lists, as for a fighter (address 0: empty lists) */
     unsigned segment_count;
-    const struct arcade_effects_drop *drops;
+    const struct arcade_fighter_drop *drops;
     unsigned drop_count;
     /* After the lists made from the segments come gap_size bytes of lists the build does not make (the PS1's pictures), then a
      * last empty list. The positions of those pictures are one stream of `picture_rows` rows of `picture_columns` tiles, stored

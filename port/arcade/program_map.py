@@ -1037,7 +1037,7 @@ def effects_c_table(desc):
            '#include "program_more.h"', '',
            'static const struct arcade_fighter_segment segments[] = {']
     out += [f'    {{{a:#x}u, {c}u, {b:#x}u}},' for a, c, b in desc['segments']]
-    out += ['};', '', 'static const struct arcade_effects_drop drops[] = {']
+    out += ['};', '', 'static const struct arcade_fighter_drop drops[] = {']
     out += [f'    {{{a:#x}u, {i}u}},' for a, i in sorted(desc['drops'])]
     out += ['};', '', 'const struct arcade_effects arcade_effects = {',
             f'    {desc["address"]:#x}u, {desc["positions_size"]}u, {desc["lists_size"]}u,',
@@ -1098,7 +1098,7 @@ def relocs_c_table(rows, symbols):
 
 # ---------------------------------------------------------------- the C against the model and the disc
 
-C_SOURCES = ('program.c', 'program_more.c', 'program_effects_table.c', 'program_relocs_table.c')
+C_SOURCES = ('fighter.c', 'program.c', 'program_more.c', 'program_effects_table.c', 'program_relocs_table.c')
 
 
 class MoreC:
