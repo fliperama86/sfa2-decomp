@@ -80,7 +80,7 @@ def run(args: argparse.Namespace, runner=subprocess.run) -> int:
     exe = out / "sfa2-mac"
     exe.unlink(missing_ok=True)   # nothing of an earlier run stays to look like this one's result
     (out / "guest.elf").unlink(missing_ok=True)
-    jobs = [(s, out / "obj" / (("tables_" if s == tables else "") + s.stem + ".o")) for s in runtime_sources() + [tables]]
+    jobs = [(s, out / "obj" / (("tables_" if s == tables else "") + ("" if s.parent == SRC or s == tables else s.parent.name + "-") + s.stem + ".o")) for s in runtime_sources() + [tables]]
     failures, warnings = build_objects(jobs, psyz, sound, args.jobs, runner)
     for name, text in warnings:
         print(f"== {name}\n{text.strip()[:1500]}", file=sys.stderr)

@@ -2,6 +2,7 @@
 #include "cd.h"
 #include "port.h"
 #include "../arcade/fighter.h"
+#include "../arcade/fighter_parts.h"
 #include "../arcade/program.h"
 #include "../arcade/rom.h"
 #include "../arcade/tilepack.h"
@@ -10,7 +11,7 @@
 #include <string.h>
 
 #define MAX_FILES 512
-#define MAX_RANGES 128
+#define MAX_RANGES 512
 
 static struct arcade_rom rom;
 static int enabled;
@@ -144,13 +145,14 @@ static void read_hook(unsigned sector, unsigned char *raw)
     if (built[f] && !(raw[18] & 0x20)) patch(sector, raw + PORT_DATA_OFFSET, PORT_DATA);   /* a data sector (form 1) */
     if (told[f]) return;
     told[f] = 1;
-    if (built[f]) printf("arcade: %s: its cell lists, positions and sprite tiles from the arcade set, the rest from the disc (first read at frame %u)\n", files[f].name, port_frames());
+    if (built[f]) printf("arcade: %s: built in part from the arcade set, the rest from the disc (first read at frame %u)\n", files[f].name, port_frames());
     else printf("arcade: %s from the disc: no arcade source yet (first read at frame %u)\n", files[f].name, port_frames());
     fflush(stdout);
 }
 
-/* Where table 0's chunk `slot` lies in the PAC file at `sector`: its offset in the file and its size. -1 if there is none. */
-static int pac_chunk(struct port_disc *d, const struct port_disc_file *f, unsigned slot, unsigned *offset, unsigned *size)
+/* Where the nth chunk (from 0) of `type` (table << 16 | slot) lies in the PAC file f: its offset in the file and its size.
+ * -1 if there is none. */
+static int pac_chunk_nth(struct port_disc *d, const struct port_disc_file *f, unsigned type, unsigned nth, unsigned *offset, unsigned *size)
 {
     unsigned char head[PORT_DATA];
     char err[PORT_ERR];
@@ -160,10 +162,10 @@ static int pac_chunk(struct port_disc *d, const struct port_disc_file *f, unsign
     if (count > (PORT_DATA - 0x20) / 32) return -1;
     for (i = 0; i < count; i++) {
         const unsigned char *e = head + 0x20 + 32 * i;
-        unsigned type = e[0] | e[1] << 8 | (unsigned)e[2] << 16 | (unsigned)e[3] << 24;
+        unsigned e_type = e[0] | e[1] << 8 | (unsigned)e[2] << 16 | (unsigned)e[3] << 24;
         unsigned n = e[4] | e[5] << 8 | (unsigned)e[6] << 16 | (unsigned)e[7] << 24;
         if (n > f->size || at > f->size - n) return -1;
-        if (type == slot) {   /* table 0: the type is the slot alone */
+        if (e_type == type && nth-- == 0) {
             *offset = at;
             *size = n;
             return 0;
@@ -171,6 +173,12 @@ static int pac_chunk(struct port_disc *d, const struct port_disc_file *f, unsign
         at += (n + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
     }
     return -1;
+}
+
+/* Table 0's chunk `slot`. */
+static int pac_chunk(struct port_disc *d, const struct port_disc_file *f, unsigned slot, unsigned *offset, unsigned *size)
+{
+    return pac_chunk_nth(d, f, slot, 0, offset, size);
 }
 
 static int changed_by_ps1(const char *name)
@@ -343,6 +351,72 @@ static unsigned fighters(struct port_disc *d, int check)
     return wrong + tile_wrong;
 }
 
+/* The index of the disc's file `name`; halts if there is none. */
+static int file_index(struct port_disc *d, const char *name)
+{
+    unsigned sector, size, k;
+    char err[PORT_ERR];
+    if (port_disc_find(d, name, &sector, &size, err, sizeof err) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", name, err);
+    for (k = 0; k < file_count; k++)
+        if (files[k].sector == sector) return (int)k;
+    port_halt(PORT_EXIT_PROGRAM, "arcade: %s is not in the disc's listing", name);
+    return -1;
+}
+
+/* Built bytes for offset `at` of file f: served in place of the disc's when equal to them (bytes then belong to the
+ * ranges), else freed. 1 equal, 0 not. With check only compared. */
+static int serve_if_same(struct port_disc *d, int f, unsigned at, unsigned char *bytes, unsigned n, int check)
+{
+    int same = same_as_disc(d, &files[f], at, bytes, n);
+    if (same < 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", files[f].name);
+    if (same && !check) add_range(f, at, bytes, n);
+    else free(bytes);
+    return same;
+}
+
+/* The fighter files' palettes (table 1) and pictures (table 2). The PS1's own palettes and page stay the disc's. */
+static unsigned parts(struct port_disc *d, int check)
+{
+    unsigned i, pal_used = 0, pal_bytes = 0, page_used = 0, page_bytes = 0, differ = 0;
+    for (i = 0; i < arcade_parts_count; i++) {
+        const struct arcade_parts_file *a = &arcade_parts_files[i];
+        int f = file_index(d, a->file);
+        unsigned c, at, n, k;
+        char err[PORT_ERR];
+        for (c = 0; c < a->palette_chunks; c++) {
+            unsigned char *b = malloc(ARCADE_PARTS_PALETTE_BYTES), *disc;
+            uint64_t kept = 0;
+            if (!b || pac_chunk_nth(d, &files[f], 0x10000u, c, &at, &n) != 0 || n != ARCADE_PARTS_PALETTE_BYTES)
+                port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no palette chunk %u as the table says", a->file, c);
+            if (arcade_parts_palettes(rom.program, ARCADE_PROGRAM_SIZE, a, b, &kept, err, sizeof err) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
+            if (kept) {   /* the PS1's own colors: the disc's */
+                if (!(disc = disc_bytes(d, &files[f], at, n))) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", a->file);
+                for (k = 0; k < 64; k++)
+                    if (kept >> k & 1u) memcpy(b + 32u * k, disc + 32u * k, 32);
+                free(disc);
+            }
+            if (serve_if_same(d, f, at, b, n, check)) { pal_used++; pal_bytes += n; }
+            else { differ++; if (check) printf("arcade check: %s: palette chunk %u differs\n", a->file, c); }
+        }
+        for (c = 0; a->pages[c]; c++) {
+            unsigned char *b = malloc(ARCADE_PARTS_PAGE_BYTES);
+            int r;
+            if (!b || pac_chunk_nth(d, &files[f], 0x20000u, c, &at, &n) != 0 || n != ARCADE_PARTS_PAGE_BYTES)
+                port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no picture chunk %u as the table says", a->file, c);
+            r = a->pages[c] == 'V' ? arcade_parts_shared(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, b, err, sizeof err)
+                                   : arcade_parts_portrait(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, a, b, err, sizeof err);
+            if (r < 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
+            if (r == 1) { free(b); continue; }   /* the PS1's own page */
+            if (serve_if_same(d, f, at, b, n, check)) { page_used++; page_bytes += n; }
+            else { differ++; if (check) printf("arcade check: %s: picture chunk %u differs\n", a->file, c); }
+        }
+    }
+    printf("arcade%s: fighters: %u palette chunks (%u bytes) and %u picture pages (%u bytes) built from the arcade set%s; %u differ\n",
+           check ? " check" : "", pal_used, pal_bytes, page_used, page_bytes, check ? ", equal to the disc's" : " and used", differ);
+    fflush(stdout);
+    return differ;
+}
+
 int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
 {
     unsigned wrong;
@@ -352,6 +426,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     memset(told, 0, sizeof told);
     memset(built, 0, sizeof built);
     wrong = fighters(d, check);
+    wrong += parts(d, check);
     if (check) return wrong ? 1 : 0;
     port_disc_patch_hook = patch;
     port_cd_read_hook = read_hook;

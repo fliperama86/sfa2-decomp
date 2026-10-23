@@ -8,11 +8,12 @@ The loader that builds what the game reads from the user's arcade set
 either game enters Git: the source holds addresses, sizes and layouts.
 
 **State, 2026-10-23: the loader opens and checks the arcade set and builds
-from it 72 tables of the PS1 program's data (25,784 of 90,088 bytes), and
-for 27 of the 45 fighter files the cell lists and position runs (585 KB,
-equal to the disc's) and the sprite tiles (every tile the disc's, packed by
-the loader's own encoder into 9.8 MB of chunks, each smaller than the
-disc's), all served in place of the disc's. The disc gives everything
+from it 72 tables of the PS1 program's data (25,784 of 90,088 bytes); for 27
+of the 45 fighter files the cell lists and position runs (585 KB, equal to
+the disc's) and the sprite tiles (every tile the disc's, packed by the
+loader's own encoder into 9.8 MB of chunks, each smaller than the disc's);
+and for all 45 the palettes and portrait pages (2.4 MB, equal to the
+disc's). All of it is served in place of the disc's. The disc gives everything
 else. Without a disc the program stops with what it cannot build yet.**
 
 ## The owner's direction
@@ -195,9 +196,14 @@ scripts (nothing of it is in the tree):
   becomes the transparent 0, a black of 0 is written 0x8000): 88% of their
   bytes exactly; the rest are filler ramps of the PS1's own and 62 palettes
   that differ from this US arcade set (perhaps the Japanese revision's). The
-  portrait pages are arcade tiles and arcade palettes; which tile goes in
-  which cell is not derived yet. The sound command lists and the `pQES`
-  sequences of the fighter files are the PS1's own.
+  portrait pages are the arcade's portrait sprites (a mode-4 art record
+  through the pointer at `0x5e6c0 + 0x14*fighter`, cells at
+  ((x+96)/16, (y+80)/16)), the shared "VS" page four records from
+  `0x235658`; the PS1's own choices left are which of 12 shadow cells a page
+  holds and one dropped cell. `fighter_parts.c` builds the palettes and pages
+  of all 45 files (equal to the disc's but the 62 palettes and Gouki's
+  alternate portrait, which stay the disc's). The sound command lists and
+  the `pQES` sequences of the fighter files are the PS1's own.
 - **Samples** (`samples.py`, all banks). 355 of the 409 distinct PS1
   samples are arcade samples: the chip's sample taken as 24,000 Hz,
   resampled to a rate the bank's tone gives (44100 times 2 to the power of

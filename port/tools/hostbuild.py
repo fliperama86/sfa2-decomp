@@ -2246,7 +2246,8 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     objects = sorted([o.job.name for o in built] + [f"{o.job.name}{pl.suffix}" for o in built for pl in o.seconds] + [o.job.name for o in program_outcomes])
     rt_objects: list[Path] = []
     for source in [*runtime_sources, tables_path]:
-        obj = build / "rt" / f"{source.stem}.o"
+        # a file of another folder than the runtime's is named after its folder too (port/intro/sequence.c, port/arcade/sequence.c)
+        obj = build / "rt" / (f"{source.stem}.o" if source.parent == runtime or source == tables_path else f"{source.parent.name}-{source.stem}.o")
         obj.unlink(missing_ok=True)
         extra: list[str] = []
         if psyz and source.name in ("gpu.c", "input.c", "iopage.c", "press.c", "settings.c"):   # settings.c: its graphics defaults are on with PsyZ
