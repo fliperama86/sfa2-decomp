@@ -296,7 +296,7 @@ class Helper(unittest.TestCase):
 class World(unittest.TestCase):
     """A made-up fighter: 24 art records of one 2 x 1 block, the arcade tiles, a PS1 module and a PS1 tile chunk."""
 
-    def build(self, bank):
+    def build(self, bank, flip_first=False):
         rnd = random.Random(3)
         rec_codes = [2 * r for r in range(24)]
         ntiles = bank + 64
@@ -312,11 +312,13 @@ class World(unittest.TestCase):
         prog = bytearray(0xa0000)
         for r, c in enumerate(rec_codes):
             a = 0x1000 + 12 * r
-            struct.pack_into('>HHHhHH', prog, a, 2, 2, 0, 4 * r, c, 0x0100)
+            struct.pack_into('>HHHhHH', prog, a, 2, 2, 0, 4 * r, c, 0x0120 if flip_first and r == 0 else 0x0100)
             struct.pack_into('>I', prog, F.COORD_TABLE + 4 * r, 0x3000 + 4 * r)
             struct.pack_into('>hh', prog, 0x3000 + 4 * r, -16, 16 * (r % 3))
         # the PS1 tiles: number n is the arcade tile n - 1
         tiles = [[rnd.randrange(16) for _ in range(256)]] + [px[n - 1] for n in range(1, 49)]
+        if flip_first:     # record 0 draws codes 1 then 0 (flipped across): numbers 1 and 2, stored flipped, list flags clear
+            tiles[1], tiles[2] = flipped(px[1], 1), flipped(px[0], 1)
         # the module: code, positions (three streams), lists with an empty one after the fifth, the terminator
         code = bytes(8) + JR_RA + bytes(4)
         streams = [struct.pack('<hhH', -16, 16 * y, 1) for y in range(3)]
@@ -331,8 +333,8 @@ class World(unittest.TestCase):
         pad = bytes(-(len(code) + len(positions)) % 8)
         return F.View(bytes(prog)), bytes(gfx), ps1_chunk(tiles), code + positions + pad + lists, len(code), len(code) + len(positions) + len(pad)
 
-    def run_world(self, bank):
-        view, gfx, tiles, mod, pbase, lbase = self.build(bank)
+    def run_world(self, bank, flip_first=False):
+        view, gfx, tiles, mod, pbase, lbase = self.build(bank, flip_first)
         with tempfile.TemporaryDirectory(prefix='fighters-test-') as tmp:
             helper = F.Helper(tmp, gfx)
             r = F.analyse(mod, tiles, view, F.Index(view), helper)
@@ -347,11 +349,16 @@ class World(unittest.TestCase):
         f = r['fit']
         self.assertEqual((f['lists_ours'], f['lists_disc'], f['pos_ours'], f['pos_disc']), (f['lists_disc'], f['lists_disc'], 18, 18))
         self.assertEqual(f['after'], 0)
-        self.assertEqual((r['baked'], r['wrong'], r['unmatched'], r['numbers']), ({}, {}, [], 48))
+        self.assertEqual((r['wrong'], r['unmatched'], r['numbers']), ({}, [], 48))
+        self.assertEqual(r['baked'], {1: (1 + bank, 1), 2: (bank, 1)} if flip_first else {})
         return r
 
     def test_whole_analysis_without_a_bank(self):
         self.run_world(0)
+
+    def test_a_tile_first_used_flipped_is_stored_flipped_and_its_list_flag_cleared(self):
+        r = self.run_world(0, True)
+        self.assertEqual(r['bytes_equal'], 25)
 
     def test_whole_analysis_with_a_bank(self):
         self.run_world(0x10000)

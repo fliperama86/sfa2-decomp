@@ -113,11 +113,15 @@ scripts (nothing of it is in the tree):
   each sorted by (y, x) (Vega's 297 lists all rebuild with it; PL0E also
   starts a part at a change of palette). The arcade build does not copy the
   PS1's changes: it converts the arcade's records.
-- **Room.** The PS1 code reads a module's data at fixed addresses, and only
-  0 to 2 bytes follow the lists. Lists that keep the arcade's flip bits come
-  out 10 to 786 bytes larger in 17 fighters, all of it in the lists whose
-  tiles the PS1 stores flipped. So the loader is to store tiles flipped as
-  the PS1 does, by its rule, and fit by construction.
+- **Room and flipped tiles.** The PS1 code reads a module's data at fixed
+  addresses, and only 0 to 2 bytes follow the lists, so the lists must come
+  out at the PS1's size. The PS1 stores each tile with the flip of its first
+  use in the file, and a list's flag holds a use's flip relative to that
+  (exact for all 106,434 tile codes of the 20 fighters whose art is the
+  arcade's). With that rule the lists of 16 fighters rebuild byte for byte
+  and fit by construction; PL02/PL14 and PL0B differ only in the PS1's
+  palette changes; PL08 and PL0E (Sakura) number some body-part tiles
+  together, and PL0E's lists come out 28 bytes over.
 - **Stages** (`stages.py`, all 20). The two layers of 16- and 32-pixel
   cells are the arcade's scroll maps cell for cell (all cells in 17 and 19
   stages); their palettes are the arcade's (4-bit channels scaled

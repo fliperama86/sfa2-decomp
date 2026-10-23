@@ -16,8 +16,7 @@ index; see the README of this folder):
     attribute word, then one tile code per cell) is a record of 1 x 1 blocks;
   - the cells of a record are sorted by (y, x), except that a record is made of parts (a block whose x is less than
     the previous block's starts a new part) and the PS1 lists the parts in reverse order, each sorted by (y, x); in
-    PL0E a change of palette between blocks also starts a part, in the other characters it does not (the tool tries
-    both for a file and keeps the one that agrees longer with the disc);
+    PL0E (PALETTE_PARTS) a change of palette between blocks also starts a part, in the other characters it does not;
   - one counter per file numbers the tiles, from 1, in the order of first use (a code not seen before gets the
     next number); cells of horizontally adjacent tiles form position runs of three 16-bit values each;
   - identical position streams are stored once, in order of first use;
@@ -35,11 +34,15 @@ rules above it also meets, and handles only as far as stated:
   - empty lists (one cell, tile 0), which have no record; the last one ends the chain (the terminator);
   - lists with no record (the PS1's own poses): skipped (their numbers are reserved so that the counter stays in
     step, their position streams are copied from the module);
-  - tiles stored flipped in the PS1 tile data ("baked flips"): counted and reported, and a list that differs and
-    holds one is counted apart. No rule for them is made up.
+  - tiles stored flipped ("baked"): a tile is stored with the flip (across, down or both) that its first use in the
+    file carries, and its list flags hold the flip of each use relative to that: first use flipped, flag clear; a later
+    use with another flip gets the difference. This is exact for all 162 baked tiles of the 20 fighters whose art is the
+    arcade's (PL10, PL11 and PL13 have PS1-only art); a rule that bakes only tiles whose every use carries one flip
+    misses 110 of them. The line counts the baked tiles and checks
+    that the PS1 tile holds the pixels so flipped.
 
 With --fit it prints, instead of the lines, one line per file with the bytes of the lists and of the positions on the
-disc, in the conversion (the arcade's flips and palettes, no baked flips), the difference, the free bytes right after
+disc, in the conversion (the arcade's palettes, flips baked by the rule above), the difference, the free bytes right after
 each block and whether the conversion fits in place.
 
 Inputs: the disc image (raw 2352-byte sectors) and the arcade set's ZIP (MAME's sfa2u), both given as arguments
@@ -70,6 +73,10 @@ import pac                                    # noqa: E402  the chunk archive re
 
 COORD_TABLE = 0x9f260      # arcade: table of pointers to coordinate blocks, indexed by the record's coordinate index
 JR_RA = 0x03E00008
+FLIPS = 0x60               # the flip bits of a cell's flags: 0x20 across, 0x40 down
+# Characters whose records also start a new part where the palette changes (found in PL0E only; in PL0D, PL15 and PL17
+# a palette change inside a record leaves the plain order). The files PLnn and PLnnX share the entry.
+PALETTE_PARTS = {'PL0E'}
 MODULE_SLOTS = {4, 5}      # table 0 code slots of the fighter module (first side, second side)
 TILE_SLOTS = {1, 2}        # table 0 slots of the sprite tiles (first side, second side)
 MAX_CELLS = 512            # a list longer than this is not read as a list
@@ -667,7 +674,7 @@ def stream_end(mod, at, n):
     return at if c == n else None
 
 
-def analyse(mod, tiles, view, index, helper, others=()):
+def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False):
     """Everything the line and the detail need, as a dict. The key 'error' when the file cannot be read."""
     pend = code_end(mod)
     if pend is None:
@@ -758,7 +765,7 @@ def analyse(mod, tiles, view, index, helper, others=()):
             """The lists as bytes (None where no record), the numbering and the positions. A list without a record keeps
             the counters in step: its numbers are taken and, when its position stream is new, the stream is copied from
             the module at posbase."""
-            num, pos, mine, code_of_num = Numbering(), Positions(), [], {}
+            num, pos, mine, code_of_num, bake = Numbering(), Positions(), [], {}, {}
             for k, lst in enumerate(lists):
                 if is_empty(lst):
                     mine.append((struct.pack('<5HH', 1, 0, 0, 0, len(pos.data), 0), []))
@@ -780,11 +787,13 @@ def analyse(mod, tiles, view, index, helper, others=()):
                     n = num.number(code, canon[code] if code < helper.ntiles else None)
                     if n >= before or n not in code_of_num:
                         code_of_num[n] = code
-                    numbered.append((n, f))
+                    if code not in bake:                    # the tile is stored with the flips of its first use
+                        bake[code] = f & FLIPS
+                    numbered.append((n, f ^ bake[code]))
                 mine.append((encode_list(numbered, pos.add(position_stream(position_runs(cells)))), [n for n, _f in numbered]))
-            return mine, num, pos, code_of_num
+            return mine, num, pos, code_of_num, bake
 
-        mine, num, pos, code_of_num = convert(None, mod)
+        mine, num, pos, code_of_num, bake = convert(None, mod)
         # where the positions are: the first list's stream, converted, is searched for in the module (before the lists, or
         # after them when the lists come first), then in the file's other table-0 chunks
         first_stream = bytes(pos.data[:24]) if 0 in recs else b''
@@ -796,19 +805,21 @@ def analyse(mod, tiles, view, index, helper, others=()):
                 at, posmod, where = chunk.find(first_stream), chunk, f'slot {slot:#x}'
         posbase = at if at >= 0 else None
         if posbase is not None:
-            mine, num, pos, code_of_num = convert(posbase, posmod)
+            mine, num, pos, code_of_num, bake = convert(posbase, posmod)
         r2.update(palette_splits=psplit, posbase=posbase, pos_where=where if posbase is not None else None)
 
-        # tile level: every number of a converted list holds the pixels of its code (flipped storage counts as a match)
+        # tile level: every number of a converted list holds the pixels of its code, flipped as its first use says
         baked, wrong = {}, {}
         for n, code in code_of_num.items():
             want = canon[code] if code < helper.ntiles else -2
-            if n < ntile and ex[n] >= 0 and ex[n] == want:
-                continue
-            flips = [f + 1 for f in range(3) if n < ntile and fl[3 * n + f] == want]
-            if flips:
-                baked[n] = (code, flips[0])
-            else:
+            b = bake.get(code, 0)
+            if b:
+                f = (b >> 5 & 1) | (b >> 5 & 2)            # flip bits 0x20, 0x40 as the classifier's 1 across, 2 down
+                if n < ntile and fl[3 * n + f - 1] == want:
+                    baked[n] = (code, f)
+                else:
+                    wrong[n] = code
+            elif not (n < ntile and ex[n] >= 0 and ex[n] == want):
                 wrong[n] = code
         r2.update(baked=baked, wrong=wrong, numbers=num.next - 1, chunk_tiles=ntile, tiles_ok=len(recs), tiles_of=sum(1 for lst in lists if not is_empty(lst)))
 
@@ -819,8 +830,8 @@ def analyse(mod, tiles, view, index, helper, others=()):
         r2['term_ok'] = None if term is None else term['pos'] == len(pbytes)
         r2['pos_diff'] = None if pbytes == disc_pos else next((i for i, (x, y) in enumerate(zip(pbytes, disc_pos)) if x != y), len(disc_pos))
 
-        # list bytes: each list against the disc's at its own place; a difference in a list with a tile stored flipped is counted apart
-        r2.update(bytes_equal=0, baked_diff=0, kinds=collections.Counter(), first_bad=None, first_other=None)
+        # list bytes: each list against the disc's at its own place
+        r2.update(bytes_equal=0, kinds=collections.Counter(), first_bad=None, first_other=None)
         g = lambda m, i: struct.unpack_from('<H', m, 2 * i)[0] if 2 * i + 2 <= len(m) else None
         for k, lst in enumerate(lists):
             if mine[k] is None:
@@ -832,24 +843,17 @@ def analyse(mod, tiles, view, index, helper, others=()):
                 continue
             w = next((i for i in range(min(len(m), len(disc)) // 2) if m[2 * i:2 * i + 2] != disc[2 * i:2 * i + 2]), min(len(m), len(disc)) // 2)
             bad = dict(k=k, at=lst['at'], word=w, mine=g(m, w), disc=g(disc, w), mine_len=len(m), disc_len=len(disc), n=lst['n'], mode=lst['mode'])
-            if any(n in baked for n in numbers):
-                r2['baked_diff'] += 1
-            else:
-                bad['kind'] = diff_kind(m, disc)
-                r2['kinds'][bad['kind']] += 1
-                if r2['first_other'] is None:
-                    r2['first_other'] = bad
+            bad['kind'] = diff_kind(m, disc)
+            r2['kinds'][bad['kind']] += 1
+            if r2['first_other'] is None:
+                r2['first_other'] = bad
             if r2['first_bad'] is None:
                 r2['first_bad'] = bad
         r2['mine_count'] = sum(1 for m in mine if m is not None)
-        grow = collections.Counter()           # bytes more (+) or fewer (-) than the disc's, by the cause of the difference
-        for m, lst in zip(mine, lists):
-            if m is not None and m[0] != mod[lst['at']:lst['end']]:
-                grow['baked' if any(n in baked for n in m[1]) else 'other'] += len(m[0]) - (lst['end'] - lst['at'])
 
         # fit: the bytes the lists and the positions need, against what the disc has and what is free after them
         ours_lists = sum(len(m[0]) if m else lst['end'] - lst['at'] for m, lst in zip(mine, lists)) + (0 if term is None else term['end'] - term['at'])
-        fit = dict(lists_disc=lend - lbase, lists_ours=ours_lists, pos_disc=None, pos_ours=len(pbytes), module=len(mod), after=len(mod) - lend, grow=grow)
+        fit = dict(lists_disc=lend - lbase, lists_ours=ours_lists, pos_disc=None, pos_ours=len(pbytes), module=len(mod), after=len(mod) - lend)
         zeros = lambda data, o: next((i for i in range(len(data) - o) if data[o + i]), len(data) - o)
         fit['lists_free'] = posbase - lend if posbase is not None and where is None and posbase >= lend else zeros(mod, lend)
         if posbase is not None:
@@ -860,15 +864,7 @@ def analyse(mod, tiles, view, index, helper, others=()):
         r2['fit'] = fit
         return r2
 
-    # the cell order of a record with parts: the file is converted without and, when a record has a palette change
-    # inside it, with the palette changes splitting parts too; the conversion whose positions agree longer with the disc's (then more equal lists) is kept
-    best = tail(False)
-    if any(len({c[5] for c in rec[1]}) != len({c[4] for c in rec[1]}) for rec, _bank in recs.values()):
-        other = tail(True)
-        score = lambda x: (x['pos_len'] + 1 if x['pos_diff'] is None else x['pos_diff'], x['bytes_equal'])
-        if score(other) > score(best):
-            best = other
-    return best
+    return tail(palette_parts)
 
 
 def line(name, side, r):
@@ -904,12 +900,10 @@ def line(name, side, r):
     elif fb is None:
         s += '; list bytes all equal'
     else:
-        other = sum(r['kinds'].values())
-        s += (f'; list bytes equal up to list {fb["k"]} (+{fb["at"]:#x}); {r["bytes_equal"]}/{r["mine_count"]} equal, '
-              f'{r["baked_diff"]} with baked tiles, {other} other')
-        if other:
-            s += ' (' + ', '.join(f'{k} {v}' for k, v in r['kinds'].most_common()) + ')'
-    s += f'; baked flips {len(r["baked"])}'
+        s += f'; list bytes equal up to list {fb["k"]} (+{fb["at"]:#x}); {r["bytes_equal"]}/{r["mine_count"]} equal'
+        if r['kinds']:
+            s += ' (differ: ' + ', '.join(f'{k} {v}' for k, v in r['kinds'].most_common()) + ')'
+    s += f'; baked tiles {len(r["baked"])}'
     if r['wrong']:
         s += f'; tile mismatches {len(r["wrong"])}'
     s += f'; numbering {r["numbers"]} of {r["chunk_tiles"]} tiles'
@@ -932,12 +926,12 @@ def details(name, r):
         out.append(f'  {name}: positions differ at +{r["pos_diff"]:#x} of {r["pos_len"]}')
     b = r['first_other']
     if b:
-        out.append(f'  {name}: first {b["kind"]} difference without a baked tile: list {b["k"]} at +{b["at"]:#x}: n {b["n"]} mode {b["mode"]}, '
+        out.append(f'  {name}: first {b["kind"]} difference: list {b["k"]} at +{b["at"]:#x}: n {b["n"]} mode {b["mode"]}, '
                    f'length mine {b["mine_len"]} disc {b["disc_len"]}, word {b["word"]}: mine {b["mine"]} disc {b["disc"]}')
     if r['baked']:
         n = min(r['baked'])
         code, fl = r['baked'][n]
-        out.append(f'  {name}: first baked flip: tile {n} is arcade tile {code} flipped ({fl})')
+        out.append(f'  {name}: first baked tile: tile {n} is arcade tile {code} flipped ({fl})')
     if r['wrong']:
         n = min(r['wrong'])
         out.append(f'  {name}: first tile mismatch: tile {n} is not arcade tile {r["wrong"][n]}')
@@ -955,7 +949,7 @@ def fit_line(name, r):
     pos = f'positions disc {f["pos_disc"]} ours {f["pos_ours"]} ({f["pos_ours"] - f["pos_disc"]:+d}, free {f["pos_free"]})'
     over = max(0, f['lists_ours'] - f['lists_disc'] - f['lists_free']) + max(0, f['pos_ours'] - f['pos_disc'] - f['pos_free'])
     return (f'{name}: {lists}; {pos}; ' + ('fits' if not over else f'over by {over}') +
-            f'; of the difference {f["grow"]["baked"]:+d} lists with baked tiles, {f["grow"]["other"]:+d} others; module {f["module"]} B, {f["after"]} B after the lists')
+            f'; module {f["module"]} B, {f["after"]} B after the lists')
 
 
 def main(argv=None):
@@ -992,7 +986,7 @@ def main(argv=None):
                     print(f'{name}: {parts}')
                     continue
                 mod, tiles, side, others = parts
-                r = analyse(mod, tiles, view, index, helper, others)
+                r = analyse(mod, tiles, view, index, helper, others, name.removesuffix('.PAC').removesuffix('X') in PALETTE_PARTS)
                 if args.fit:
                     print(fit_line(name, r))
                     continue
