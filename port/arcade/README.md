@@ -88,6 +88,18 @@ scripts (nothing of it is in the tree):
   animation records do not: the PS1's steps are 12 bytes where the arcade's
   are 16 (`port/intro/sequence-contract.md`), and its frames point at its
   own copy of the art.
+- **Cell lists.** A fighter's poses are drawn from cell lists in its module
+  (`unpack_cell_list_into_stream_cells` reads them: a count, a mode 0, 2, 4
+  or 6, a palette, then tile words with flags and runs). Followed on
+  2026-10-23 with a debugger in a fight: the second fighter's lists lie one
+  after another in its module, and 104 of 108 of them, in order, hold
+  exactly the tiles of the arcade's art records that lie one after another
+  at `0x213396` (mode 2, blocks of a code and an attribute whose bits give
+  the block's width and height), the block expanded tile by tile, with the
+  same cell count and palette. The other 4 differ by one tile each, a tile
+  whose pixels another tile repeats. The PS1 numbers the tiles in the order
+  the lists first use them (1,048 of 1,082 new tiles are the previous
+  number plus one) and gives a tile it has already the number it had.
 - **Samples.** One of the 12 voice samples of Ryu's sound bank is the
   arcade's (correlation 0.976 after resampling from about 24 kHz to
   22.05 kHz). The other 11 were not settled by that test.
