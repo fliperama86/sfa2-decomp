@@ -350,12 +350,17 @@ int main(int argc, char **argv)
     printf("program: %s at sector %u, %u bytes to 0x%08x, entry 0x%08x\n", prog.name, prog.sector, prog.t_size, prog.t_addr, prog.pc0);
     printf("identity: SHA-256 matches the build's baseline\n");
     fflush(stdout);
-    if (arcade_check) return port_arcade_program(ram, 1) ? 1 : 0;
+    if (arcade_check) {
+        unsigned differ = port_arcade_program(ram, 1);
+        int files_differ = port_arcade_attach(&disc, 1, err, sizeof err);
+        if (files_differ < 0) return refuse(err);
+        return differ || files_differ ? 1 : 0;
+    }
     port_arcade_program(ram, 0);
 
     port_disc_handle = &disc;
     if (port_cd_init(&disc) != 0) return refuse("the disc layer cannot start");
-    if (port_arcade_attach(&disc, err, sizeof err) != 0) return refuse(err);
+    if (port_arcade_attach(&disc, 0, err, sizeof err) != 0) return refuse(err);
     port_cd_set_fast_waits(port_settings.fast_loads);
     port_gpu_set_batched_uploads(port_settings.fast_loads);
     if (port_card_configure(port_settings.memory_card, card1_path, card2_path, err, sizeof err) != 0) return refuse(err);

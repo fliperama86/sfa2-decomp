@@ -124,6 +124,8 @@ void port_disc_close(struct port_disc *d)
     d->f = NULL;
 }
 
+void (*port_disc_patch_hook)(unsigned sector, unsigned char *data, unsigned n);
+
 int port_disc_read(struct port_disc *d, unsigned sector, unsigned size, unsigned char *out, char *err, size_t errsize)
 {
     unsigned done = 0;
@@ -138,6 +140,7 @@ int port_disc_read(struct port_disc *d, unsigned sector, unsigned size, unsigned
             snprintf(err, errsize, "disc: cannot read sector %u", sector + done / PORT_DATA);
             return -1;
         }
+        if (port_disc_patch_hook) port_disc_patch_hook(sector + done / PORT_DATA, out + done, chunk);
         done += chunk;
     }
     return 0;

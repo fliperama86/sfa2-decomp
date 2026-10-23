@@ -8,9 +8,10 @@ The loader that builds what the game reads from the user's arcade set
 either game enters Git: the source holds addresses, sizes and layouts.
 
 **State, 2026-10-23: the loader opens and checks the arcade set and builds
-72 tables of the PS1 program's data from it (25,784 of 90,088 bytes). The
-disc gives everything else. Without a disc the program stops with what it
-cannot build yet.**
+from it 72 tables of the PS1 program's data (25,784 of 90,088 bytes) and the
+cell lists and position runs of 27 of the 45 fighter files (585 KB), all
+equal to the disc's and served in its place. The disc gives everything
+else. Without a disc the program stops with what it cannot build yet.**
 
 ## The owner's direction
 
@@ -43,6 +44,17 @@ port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC
   and the layout (bytes as they are, or 16-bit or 32-bit values whose bytes
   turn from big-endian to little-endian). After the program is loaded from the
   disc, the runtime (`port/src/arcade.c`) writes each piece over it.
+- `fighter.c` builds a fighter module's position runs and cell lists and
+  the PS1's tile numbering from the arcade's art records (the rules below;
+  `fighters.py` is their specification, and `fighters.py --compare-c`
+  checks the C against it), for the files in `fighters_table.c` (generated
+  by `fighters.py --c-table`: addresses, counts and offsets). The runtime
+  builds them at the start (13 ms for 37 files) and serves each file's
+  blocks in place of the disc's where they are equal to them, to the game's
+  reads (`cd.c`) and the runtime's own (`disc.c`), through one table of
+  byte ranges. The other 10 differ where the PS1 changed the arcade's data
+  and stay the disc's until the steps and tiles that point into them are
+  built too.
 - With a disc, the first read of each disc file prints
   `arcade: NAME from the disc: no arcade source yet`. Played through, those
   lines are the list of files the loader has still to build, in the order
@@ -211,9 +223,12 @@ same either way takes the layout of the rest. So:
   `port/intro/import_scene.py`'s layout; the digests refuse it; the piece
   builder's layouts and bounds and the table's order.
 - With the private inputs: `--arcade-check` with the disc and the set. On
-  2026-10-23: 72 pieces, 25,784 bytes, none differs, in 0.2 seconds with
-  the set's reading and digests; with one piece's layout changed by hand the
-  check names that piece and ends with status 1.
+  2026-10-23: 72 pieces, 25,784 bytes, none differs; 27 of 37 fighter files'
+  blocks equal, the 10 others the PS1's known changes; 0.24 seconds in all
+  with the set's reading and digests. With one piece's layout, or one
+  fighter segment's count, changed by hand the check names it and ends with
+  status 1. A run with the blocks in place went from the title into a fight
+  (Ryu against Dhalsim, both served from the arcade's blocks).
 
 ## Next
 

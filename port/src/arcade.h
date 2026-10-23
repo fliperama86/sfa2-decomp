@@ -21,9 +21,12 @@ void port_arcade_missing(char *line, size_t size);
  * what the disc gave and print each one that differs. Returns the number of
  * pieces that differ (0 when not checking). */
 unsigned port_arcade_program(unsigned char *ram, int check);
-/* Follow the game's reads of the disc: the first read of each file that the
- * loader does not build prints a line. -1 with err if the disc's files cannot
- * be listed. */
-int port_arcade_attach(struct port_disc *d, char *err, size_t size);
+/* Build what the loader builds of the disc's files (today the fighters' cell
+ * lists and position runs); a block equal to the disc's is served in place of
+ * it, from then on, to the game's reads and the runtime's. The first read of
+ * each file prints where it comes from. With check, only compare and print:
+ * 1 if a file differs from the disc but for the PS1's known changes, else 0.
+ * -1 with err if the disc's files cannot be listed. */
+int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size);
 
 #endif

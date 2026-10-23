@@ -205,7 +205,7 @@
 
 unsigned char *port_cd_ram;
 void (*port_cd_written_hook)(unsigned address, unsigned bytes);
-void (*port_cd_read_hook)(unsigned sector);
+void (*port_cd_read_hook)(unsigned sector, unsigned char *raw);
 void (*port_cd_call)(unsigned handler, int intr, unsigned char *result);
 
 #define NWORDS (PORT_RAM_SIZE / 4u)
@@ -1026,7 +1026,7 @@ static int deliver_one(void)
         else if (handler) call_ready(handler, 5);
         return 0;
     }
-    if (port_cd_read_hook) port_cd_read_hook(sector);
+    if (port_cd_read_hook) port_cd_read_hook(sector, raw);
     if ((cd.mode & 0x40) && (raw[18] & 0x04)) {   /* XA audio: played, skipped or refused; never handed to the handler */
         if (!xa_take(raw, sector)) return 0;      /* no room in the queue: the sector stays on the disc, the position does not move */
         cd.pos = sector + 1;

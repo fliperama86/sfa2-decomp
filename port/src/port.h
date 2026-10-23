@@ -59,7 +59,9 @@ struct port_disc {
  * folder) or a .bin itself. */
 int  port_disc_open(struct port_disc *d, const char *path, char *err, size_t errsize);
 void port_disc_close(struct port_disc *d);
-/* Read the data bytes of the sector range starting at `sector`, `size` bytes. */
+/* Read the data bytes of the sector range starting at `sector`, `size` bytes. With port_disc_patch_hook set (the arcade
+ * loader), each sector's bytes then pass through it, which may replace them with what the loader built. */
+extern void (*port_disc_patch_hook)(unsigned sector, unsigned char *data, unsigned n);
 int  port_disc_read(struct port_disc *d, unsigned sector, unsigned size, unsigned char *out, char *err, size_t errsize);
 /* Find a file by name in the root directory or one folder below it (version
  * suffix and case ignored). */

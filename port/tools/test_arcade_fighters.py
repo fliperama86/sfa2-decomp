@@ -374,6 +374,28 @@ class World(unittest.TestCase):
             r = F.analyse(mod, tiles, view, F.Index(view), F.Helper(tmp, gfx), (), False, True)
         self.assertEqual((r['bytes_equal'], r['first_bad'], r['wrong']), (25, None, {}))
 
+    def test_model_build_gives_the_blocks_of_the_whole_analysis(self):
+        # the pure model of the runtime C (segments in, blocks out) equals the analysis' conversion and the made-up disc
+        for bank in (0, 0x10000):
+            view, gfx, tiles, mod, pbase, lbase = self.build(bank, True)
+            with tempfile.TemporaryDirectory(prefix='fighters-test-') as tmp:
+                r = F.analyse(mod, tiles, view, F.Index(view), F.Helper(tmp, gfx))
+            segs = F.segments_of(r['lists'], r['recs'])
+            self.assertEqual(segs, [(0x1000, 5, bank), (0, 1, 0), (0x1000 + 5 * 12, 19, bank)])
+            lists, pos, codes, bake = F.model_build(view, segs, terminator=True)
+            self.assertEqual(lists, mod[lbase:])
+            self.assertEqual(pos, mod[pbase:pbase + 18])
+            self.assertEqual(lists, r['model_lists'])
+            self.assertEqual((codes, bake), (r['code_of_num'], r['bake']))
+            self.assertEqual(bake[1 + bank], 0x20)
+            self.assertEqual(F.model_build(view, segs)[0], mod[lbase:-12])                  # no terminator unless asked
+        with self.assertRaises(ValueError):
+            F.model_build(view, [(0x1000 + 1, 1, 0)])
+        d, why = F.descriptor('PL99.PAC', 2, r)
+        self.assertEqual((d['module_slot'], d['positions_slot'], d['positions'], d['lists'], d['rules'], d['segments']),
+                         (5, None, pbase, lbase, ['TERMINATOR'], segs))
+        self.assertEqual((d['positions_room'], d['lists_room']), (18, len(mod) - lbase))
+
     def test_whole_analysis_with_a_bank(self):
         self.run_world(0x10000)
 

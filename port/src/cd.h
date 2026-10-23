@@ -107,8 +107,9 @@ extern unsigned char *port_cd_ram;
 /* The modules package (modules.c) sets this: called after every CdGetSector
  * that wrote `bytes` bytes at PS1 address `address` in RAM. Null otherwise. */
 extern void (*port_cd_written_hook)(unsigned address, unsigned bytes);
-/* The arcade loader (arcade.c) sets this: called with each sector that the layer reads for the game. Null otherwise. */
-extern void (*port_cd_read_hook)(unsigned sector);
+/* The arcade loader (arcade.c) sets this: called with each sector that the layer reads for the game, the whole raw sector
+ * (2352 bytes), whose data bytes it may replace. Null otherwise. */
+extern void (*port_cd_read_hook)(unsigned sector, unsigned char *raw);
 /* The open image the layer was given by port_cd_init (null before). */
 struct port_disc *port_cd_disc(void);
 extern void (*port_cd_call)(unsigned handler, int intr, unsigned char *result);

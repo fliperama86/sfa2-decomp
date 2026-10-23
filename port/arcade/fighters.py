@@ -50,12 +50,19 @@ With --fit it prints, instead of the lines, one line per file with the bytes of 
 disc, in the conversion (the arcade's palettes, flips baked by the rule above), the difference, the free bytes right after
 each block and whether the conversion fits in place.
 
+With --c-table it prints instead the C file port/arcade/fighters_table.c: for each fighter file whose model fits the
+PS1's room, the arcade segments (address, count, tile bank) the lists are made from, the offsets and room of the two
+blocks and the per-file rules, which the runtime C (fighter.c) builds the blocks from; no game byte. With --compare-c it
+builds fighter.c with the checked-in table into a temporary folder, runs it for every file in the table and prints one
+line per file: C against the model (model_build, and the analysis' own conversion) and C against the disc, for the
+lists, the positions and the tile numbering, and the C's time.
+
 Inputs: the disc image (raw 2352-byte sectors) and the arcade set's ZIP (MAME's sfa2u), both given as arguments
 and both read only. It writes nothing except a temporary folder (a small C helper compiled at run time for the
 tile comparison) that it removes. It prints sizes, addresses and counts, never game bytes beyond a few header
 numbers. It is an analysis and reference tool; the converter that the port runs will be written in C.
 
-    python3 port/arcade/fighters.py --disc BIN --arcade ZIP [--only NAME] [--detail] [--fit]
+    python3 port/arcade/fighters.py --disc BIN --arcade ZIP [--only NAME] [--detail] [--fit] [--c-table | --compare-c]
 """
 import argparse
 import collections
@@ -84,6 +91,9 @@ FLIPS = 0x60               # the flip bits of a cell's flags: 0x20 across, 0x40 
 PALETTE_PARTS = {'PL0E'}
 # Characters whose tile numbers follow the part rule of flush() below (the closest found; see the docstring).
 NUMBER_BY_RUN = {'PL0E'}
+# Characters left out of the C table: their PS1-only art makes the model's sizes the PS1's only by keeping disc bytes.
+PS1_ONLY_ART = {'PL10', 'PL11', 'PL13'}
+RULE_FLAGS = (('PALETTE_PARTS', PALETTE_PARTS), ('NUMBER_BY_RUN', NUMBER_BY_RUN))
 MODULE_SLOTS = {4, 5}      # table 0 code slots of the fighter module (first side, second side)
 TILE_SLOTS = {1, 2}        # table 0 slots of the sprite tiles (first side, second side)
 MAX_CELLS = 512            # a list longer than this is not read as a list
@@ -312,6 +322,92 @@ def encode_list(cells, pos):
     else:
         mode, body = 6, b''.join(struct.pack('<HHH', t, f, r) for t, f, r in runs)
     return struct.pack('<5H', n, mode, n - 1, 0, pos) + body
+
+class Converter:
+    """The conversion of art records to lists: the part of the model that needs only the arcade's records.
+
+    record() takes the cells (code, x, y, flags, group, group with palette splits) of one art record, bank already
+    added, and the record's address; empty() adds an empty list (and ends a run). mine collects the encoded lists
+    (bytes, tile numbers) in order, num/pos/code_of_num/bake are the file's numbering and position data. This is what
+    the runtime C of fighter.c does, from the same records."""
+
+    def __init__(self, palette_splits=False, by_run=False, cls_of=None):
+        self.num, self.pos, self.mine, self.code_of_num, self.bake = Numbering(), Positions(), [], {}, {}
+        self.psplit, self.by_run, self.cls_of = palette_splits, by_run, cls_of
+        self.w = 5 if palette_splits else 4
+        self.used = set()                              # arcade records already converted in this file
+        self.run = []                                  # consecutive lists of records of two or more parts
+
+    def assign(self, code, f):
+        before = self.num.next
+        n = self.num.number(code, self.cls_of(code) if self.cls_of else None)
+        if n >= before or n not in self.code_of_num:
+            self.code_of_num[n] = code
+        if code not in self.bake:                      # the tile is stored with the flips of its first use
+            self.bake[code] = f & FLIPS
+
+    def emit(self, cells, fresh=False):
+        numbered = [(self.num.of[c[0]], c[3] ^ self.bake[c[0]]) for c in cells]
+        self.mine.append((encode_list(numbered, self.pos.add(position_stream(position_runs(cells)), fresh)), [n for n, _f in numbered]))
+
+    def flush(self):
+        # PL0E only (NUMBER_BY_RUN): a run of consecutive lists of records of several parts takes its tile
+        # numbers unit by unit, a unit being one part of one record. The parts of a record are ranked by
+        # cell count, largest first; the units go by rank, then by record; each part by (y, x).
+        w = self.w
+        units = []
+        for i, cells in enumerate(self.run):
+            sizes = collections.Counter(c[w] for c in cells)
+            for rank, part in enumerate(sorted(sizes, key=lambda part: (-sizes[part], part))):
+                units.append((rank, i, [c for c in cells if c[w] == part]))
+        for _rank, _i, pcells in sorted(units, key=lambda u: u[:2]):
+            for c in sorted(pcells, key=lambda c: (c[2], c[1])):
+                self.assign(c[0], c[3])
+        for cells in self.run:
+            self.emit(cells)
+        self.run.clear()
+
+    def empty(self):
+        self.flush()
+        self.mine.append((struct.pack('<5HH', 1, 0, 0, 0, len(self.pos.data), 0), []))
+
+    def record(self, rec_cells, bank, at):
+        cells = order_cells([(c[0] + bank,) + c[1:] for c in rec_cells], self.psplit)
+        left = min(c[1] for c in cells)
+        again = at in self.used and left < -256
+        if again:                                      # a record drawn a second time and starting far left: the PS1 puts
+            cells = [(c[0], c[1] - left) + c[2:] for c in cells]   # its leftmost cell at x = 0, stream apart
+        self.used.add(at)
+        if self.by_run and len({c[self.w] for c in cells}) > 1:
+            self.run.append(cells)
+            return
+        self.flush()
+        for c in cells:
+            self.assign(c[0], c[3])
+        self.emit(cells, again)
+
+
+def model_build(view, segments, palette_splits=False, by_run=False, terminator=False):
+    """The specification of the runtime C (fighter.c): (list bytes, position bytes, {number: code}, {code: flip bits})
+    from the arcade program alone. segments are (address, count, bank): count records of mode 2 or 0 one after the
+    other from address, tile codes plus bank; address 0 stands for count empty lists. terminator adds a last empty list.
+    Raises ValueError for a record that cannot be read."""
+    conv = Converter(palette_splits, by_run)
+    for address, count, bank in segments:
+        a = address
+        for _ in range(count):
+            if address == 0:
+                conv.empty()
+                continue
+            rec = read_any(view, a)
+            if not rec or rec[0] != len(rec[1]):
+                raise ValueError(f'no record at {a:#x}')
+            conv.record(rec[1], bank, a)
+            a = rec[2]
+    if terminator:
+        conv.empty()
+    conv.flush()
+    return b''.join(m[0] for m in conv.mine), bytes(conv.pos.data), conv.code_of_num, conv.bake
 
 
 def parse_list(mod, o):
@@ -768,7 +864,7 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_
         del lists[stop:]
         unmatched = [k for k in unmatched if k < stop]
     lend = lists[-1]['end'] if term is None else term['end']
-    r.update(segments=seg, unmatched=unmatched, lists=lists, term=term, listsend=lend)
+    r.update(segments=seg, unmatched=unmatched, lists=lists, term=term, listsend=lend, recs=recs)
 
     def tail(psplit, by_run):
         r2 = dict(r)
@@ -776,105 +872,68 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_
             """The lists as bytes (None where no record), the numbering and the positions. A list without a record keeps
             the counters in step: its numbers are taken and, when its position stream is new, the stream is copied from
             the module at posbase."""
-            num, pos, mine, code_of_num, bake = Numbering(), Positions(), [], {}, {}
-            w = 5 if psplit else 4
-            used = set()                               # arcade records already converted in this file
-            run = []                                   # consecutive lists of records of two or more parts
-
-            def assign(code, f):
-                before = num.next
-                n = num.number(code, canon[code] if code < helper.ntiles else None)
-                if n >= before or n not in code_of_num:
-                    code_of_num[n] = code
-                if code not in bake:                    # the tile is stored with the flips of its first use
-                    bake[code] = f & FLIPS
-
-            def emit(cells, fresh=False):
-                numbered = [(num.of[c[0]], c[3] ^ bake[c[0]]) for c in cells]
-                mine.append((encode_list(numbered, pos.add(position_stream(position_runs(cells)), fresh)), [n for n, _f in numbered]))
-
-            def flush():
-                # PL0E only (NUMBER_BY_RUN): a run of consecutive lists of records of several parts takes its tile
-                # numbers unit by unit, a unit being one part of one record. The parts of a record are ranked by
-                # cell count, largest first; the units go by rank, then by record; each part by (y, x).
-                units = []
-                for i, cells in enumerate(run):
-                    sizes = collections.Counter(c[w] for c in cells)
-                    for rank, part in enumerate(sorted(sizes, key=lambda part: (-sizes[part], part))):
-                        units.append((rank, i, [c for c in cells if c[w] == part]))
-                for _rank, _i, pcells in sorted(units, key=lambda u: u[:2]):
-                    for c in sorted(pcells, key=lambda c: (c[2], c[1])):
-                        assign(c[0], c[3])
-                for cells in run:
-                    emit(cells)
-                run.clear()
-
+            conv = Converter(psplit, by_run, lambda code: canon[code] if code < helper.ntiles else None)
+            num, pos = conv.num, conv.pos
             for k, lst in enumerate(lists):
-                if is_empty(lst) or k not in recs:
-                    flush()
                 if is_empty(lst):
-                    mine.append((struct.pack('<5HH', 1, 0, 0, 0, len(pos.data), 0), []))
+                    conv.empty()
                     continue
                 if k not in recs:
+                    conv.flush()
                     for t, _f in lst['cells']:
                         if (t & 0x3fff) >= num.next:
                             num.reserve(t & 0x3fff, ps1_tile(t)[0])
                     end = None if posbase is None else stream_end(posmod, posbase + lst['pos'], lst['n'])
                     if end is not None and lst['pos'] == len(pos.data):
                         pos.data += posmod[posbase + lst['pos']:end]
-                    mine.append(None)
+                    conv.mine.append(None)
                     continue
                 rec, bank, at = recs[k]
-                cells = order_cells([(c[0] + bank,) + c[1:] for c in rec[1]], psplit)
-                left = min(c[1] for c in cells)
-                again = at in used and left < -256
-                if again:                             # a record drawn a second time and starting far left: the PS1 puts
-                    cells = [(c[0], c[1] - left) + c[2:] for c in cells]   # its leftmost cell at x = 0, stream apart
-                used.add(at)
-                if by_run and len({c[w] for c in cells}) > 1:
-                    run.append(cells)
-                    continue
-                flush()
-                for c in cells:
-                    assign(c[0], c[3])
-                emit(cells, again)
-            flush()
-            return mine, num, pos, code_of_num, bake
+                conv.record(rec[1], bank, at)
+            conv.flush()
+            return conv.mine, num, pos, conv.code_of_num, conv.bake
 
         mine, num, pos, code_of_num, bake = convert(None, mod)
         # where the positions are: the first list's stream, converted, is searched for in the module (before the lists, or
         # after them when the lists come first), then in the file's other table-0 chunks
         first_stream = bytes(pos.data[:24]) if 0 in recs else b''
         lo, hi = (lend, len(mod)) if first else (pend, lbase)
-        posmod, where = mod, None
+        posmod, where, wslot = mod, None, None
         at = mod.find(first_stream, lo, hi) if first_stream else -1
         for slot, chunk in others:
             if at < 0 and first_stream:
-                at, posmod, where = chunk.find(first_stream), chunk, f'slot {slot:#x}'
+                at, posmod, where, wslot = chunk.find(first_stream), chunk, f'slot {slot:#x}', slot
         posbase = at if at >= 0 else None
         if posbase is not None:
             mine, num, pos, code_of_num, bake = convert(posbase, posmod)
-        r2.update(palette_splits=psplit, posbase=posbase, pos_where=where if posbase is not None else None)
+        r2.update(palette_splits=psplit, posbase=posbase, pos_where=where if posbase is not None else None,
+                  pos_slot=wslot if posbase is not None else None)
 
         # tile level: every number of a converted list holds the pixels of its code, flipped as its first use says
-        baked, wrong = {}, {}
-        for n, code in code_of_num.items():
-            want = canon[code] if code < helper.ntiles else -2
-            b = bake.get(code, 0)
-            if b:
-                f = (b >> 5 & 1) | (b >> 5 & 2)            # flip bits 0x20, 0x40 as the classifier's 1 across, 2 down
-                if n < ntile and fl[3 * n + f - 1] == want:
-                    baked[n] = (code, f)
-                else:
+        def check_tiles(codes, bakes):
+            """(baked {number: (code, flip)}, wrong {number: code}) for numbers -> codes and codes -> flip flag bits."""
+            baked, wrong = {}, {}
+            for n, code in codes.items():
+                want = canon[code] if code < helper.ntiles else -2
+                b = bakes.get(code, 0)
+                if b:
+                    f = (b >> 5 & 1) | (b >> 5 & 2)            # flip bits 0x20, 0x40 as the classifier's 1 across, 2 down
+                    if n < ntile and fl[3 * n + f - 1] == want:
+                        baked[n] = (code, f)
+                    else:
+                        wrong[n] = code
+                elif not (n < ntile and ex[n] >= 0 and ex[n] == want):
                     wrong[n] = code
-            elif not (n < ntile and ex[n] >= 0 and ex[n] == want):
-                wrong[n] = code
-        r2.update(baked=baked, wrong=wrong, numbers=num.next - 1, chunk_tiles=ntile, tiles_ok=len(recs), tiles_of=sum(1 for lst in lists if not is_empty(lst)))
+            return baked, wrong
+        baked, wrong = check_tiles(code_of_num, bake)
+        r2.update(baked=baked, wrong=wrong, numbers=num.next - 1, chunk_tiles=ntile, tiles_ok=len(recs), tiles_of=sum(1 for lst in lists if not is_empty(lst)),
+                  check_tiles=check_tiles, code_of_num=code_of_num, bake=bake)
 
         # positions
         pbytes = bytes(pos.data)
         disc_pos = b'' if posbase is None else posmod[posbase:posbase + len(pbytes)]
         r2['pos_len'] = len(pbytes)
+        r2['model_positions'] = pbytes
         r2['term_ok'] = None if term is None else term['pos'] == len(pbytes)
         r2['pos_diff'] = None if pbytes == disc_pos else next((i for i, (x, y) in enumerate(zip(pbytes, disc_pos)) if x != y), len(disc_pos))
 
@@ -898,6 +957,10 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_
             if r2['first_bad'] is None:
                 r2['first_bad'] = bad
         r2['mine_count'] = sum(1 for m in mine if m is not None)
+        # for the comparison with the runtime C: the lists as one block (when every list was converted), the disc's blocks
+        if all(m is not None for m in mine):
+            r2['model_lists'] = b''.join(m[0] for m in mine) + (b'' if term is None else struct.pack('<5HH', 1, 0, 0, 0, len(pbytes), 0))
+        r2['disc_lists'] = mod[lbase:lend]
 
         # fit: the bytes the lists and the positions need, against what the disc has and what is free after them
         ours_lists = sum(len(m[0]) if m else lst['end'] - lst['at'] for m, lst in zip(mine, lists)) + (0 if term is None else term['end'] - term['at'])
@@ -908,11 +971,177 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_
             ends = [stream_end(posmod, posbase + lst['pos'], lst['n']) for lst in lists if not is_empty(lst)]
             used = max((e - posbase for e in ends if e is not None), default=0)
             fit['pos_disc'] = used
+            r2['disc_positions'] = posmod[posbase:posbase + used]
             fit['pos_free'] = lbase - posbase - used if where is None and posbase < lbase else zeros(posmod, posbase + used)
         r2['fit'] = fit
         return r2
 
     return tail(palette_parts, by_run)
+
+
+def segments_of(lists, recs):
+    """The (address, count, bank) segments of a file's lists, as the runtime C takes them: consecutive lists whose
+    records follow one another with one bank make one segment; empty lists are segments of address 0. None when a list
+    has no record (the PS1's own pose: the C cannot build it)."""
+    out, prev_end = [], None
+    for k, lst in enumerate(lists):
+        if is_empty(lst):
+            if out and out[-1][0] == 0:
+                out[-1] = (0, out[-1][1] + 1, 0)
+            else:
+                out.append((0, 1, 0))
+            prev_end = None
+            continue
+        if k not in recs:
+            return None
+        rec, bank, at = recs[k]
+        if out and out[-1][0] and prev_end == at and out[-1][2] == bank:
+            out[-1] = (out[-1][0], out[-1][1] + 1, bank)
+        else:
+            out.append((at, 1, bank))
+        prev_end = rec[2]
+    return out
+
+
+def descriptor(name, side, r):
+    """(row dict for the C table, None) for a file the C can build, else (None, why not). The row: file, module_slot,
+    positions_slot (None: the same chunk), positions and lists offsets, their rooms, rules (names), segments."""
+    stem = name.removesuffix('.PAC').removesuffix('X')
+    if stem in PS1_ONLY_ART:
+        return None, 'PS1-only art (the model keeps disc bytes)'
+    if 'error' in r:
+        return None, r['error']
+    if r['unmatched']:
+        return None, f'{len(r["unmatched"])} list(s) with no arcade record (the PS1\'s own poses)'
+    if r['posbase'] is None:
+        return None, 'positions not found'
+    f = r['fit']
+    over = max(0, f['lists_ours'] - f['lists_disc'] - f['lists_free']) + max(0, f['pos_ours'] - f['pos_disc'] - f['pos_free'])
+    if over:
+        return None, f'the model is over the PS1\'s room by {over} bytes'
+    segs = segments_of(r['lists'], r['recs'])
+    if segs is None:
+        return None, 'a list with no record'
+    rules = [n for n, chars in RULE_FLAGS if stem in chars] + (['TERMINATOR'] if r['term'] is not None else [])
+    return dict(file=name, module_slot=4 if side == 1 else 5, positions_slot=r['pos_slot'], positions=r['posbase'], lists=r['lbase'],
+                positions_room=f['pos_disc'], lists_room=f['lists_disc'], rules=rules, segments=segs), None
+
+
+def c_table(rows, omitted):
+    """The text of fighters_table.c for descriptor rows [(row)] and omitted [(name, why)]."""
+    out = ['/* GENERATED by `python3 port/arcade/fighters.py --disc DISC --arcade SET --c-table`; do not edit.',
+           ' * For each fighter file whose model reproduces the PS1\'s room: where the position runs and the cell lists lie',
+           ' * in the module chunk, how many bytes the PS1 has for each (the disc\'s sizes), the per-file rules, and the',
+           ' * arcade art records the lists are made from (address, count, tile bank; address 0 is empty lists). Only',
+           ' * addresses, counts and offsets: no byte of either game.',
+           ' *',
+           ' * Left out: PL10, PL11 and PL13 (their PS1-only art makes the model\'s sizes the PS1\'s only by keeping disc',
+           ' * bytes)' + (', and:' if [o for o in omitted if o[0].removesuffix(".PAC").removesuffix("X") not in PS1_ONLY_ART] else '.')]
+    for name, why in omitted:
+        if name.removesuffix('.PAC').removesuffix('X') not in PS1_ONLY_ART:
+            out.append(f' *   {name}: {why}')
+    out += [' */', '#include "fighter.h"', '']
+    names, order = {}, []
+    for row in rows:
+        key = tuple(row['segments'])
+        if key not in names:
+            names[key] = 'segments_' + row['file'].removesuffix('.PAC').lower()
+            order.append(key)
+    for key in order:
+        out.append(f'static const struct arcade_fighter_segment {names[key]}[] = {{')
+        for a, c, bank in key:
+            out.append(f'    {{{a:#x}u, {c}u, {bank:#x}u}},')
+        out.append('};')
+        out.append('')
+    out.append('const struct arcade_fighter arcade_fighters[] = {')
+    for row in rows:
+        rules = ' | '.join('ARCADE_FIGHTER_' + n for n in row['rules']) or '0u'
+        slot = 'ARCADE_FIGHTER_SAME_CHUNK' if row['positions_slot'] is None else f'{row["positions_slot"]:#x}u'
+        key = tuple(row['segments'])
+        out.append(f'    {{"{row["file"]}", {row["module_slot"]}u, {slot}, {row["positions"]:#x}u, {row["lists"]:#x}u, {row["positions_room"]}u, '
+                   f'{row["lists_room"]}u, {rules}, {names[key]}, {len(key)}u}},')
+    out += ['};', 'const unsigned arcade_fighter_count = sizeof arcade_fighters / sizeof arcade_fighters[0];', '']
+    return '\n'.join(out)
+
+
+class CLib:
+    """fighter.c with the checked-in table, compiled into a temporary folder and called through ctypes."""
+
+    class Seg(ctypes.Structure):
+        _fields_ = [('address', ctypes.c_uint32), ('count', ctypes.c_uint16), ('bank', ctypes.c_uint32)]
+
+    class Fighter(ctypes.Structure):
+        pass
+
+    class Out(ctypes.Structure):
+        _fields_ = [('positions', ctypes.c_void_p), ('positions_size', ctypes.c_uint32), ('lists', ctypes.c_void_p), ('lists_size', ctypes.c_uint32),
+                    ('tile_count', ctypes.c_uint32), ('tile_code', ctypes.c_void_p), ('tile_flip', ctypes.c_void_p)]
+
+    def __init__(self, tmp):
+        here = Path(__file__).resolve().parent
+        lib = Path(tmp) / 'fighter.so'
+        subprocess.run(['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-shared', '-fPIC', '-o', str(lib), str(here / 'fighter.c'), str(here / 'fighters_table.c')],
+                       check=True, capture_output=True, timeout=60)
+        self.lib = ctypes.CDLL(str(lib))
+        self.Fighter._fields_ = [('file', ctypes.c_char_p), ('module_slot', ctypes.c_uint16), ('positions_slot', ctypes.c_uint16),
+                                 ('positions', ctypes.c_uint32), ('lists', ctypes.c_uint32), ('positions_room', ctypes.c_uint32),
+                                 ('lists_room', ctypes.c_uint32), ('rules', ctypes.c_uint), ('segments', ctypes.POINTER(self.Seg)),
+                                 ('segment_count', ctypes.c_uint)]
+        count = ctypes.c_uint.in_dll(self.lib, 'arcade_fighter_count').value
+        self.rows = (self.Fighter * count).in_dll(self.lib, 'arcade_fighters')
+        self.lib.arcade_fighter_build.argtypes = [ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(self.Fighter), ctypes.POINTER(self.Out),
+                                                  ctypes.c_char_p, ctypes.c_size_t]
+        self.lib.arcade_fighter_free.argtypes = [ctypes.POINTER(self.Out)]
+
+    def build(self, prog, name):
+        """(lists, positions, {number: code}, {number: flip bits 0..3}, seconds) for the table's row of this file, or an error string."""
+        row = next((r for r in self.rows if r.file.decode() == name), None)
+        if row is None:
+            return None
+        out, err = self.Out(), ctypes.create_string_buffer(256)
+        t0 = time.perf_counter()
+        rc = self.lib.arcade_fighter_build(prog, len(prog), ctypes.byref(row), ctypes.byref(out), err, len(err))
+        took = time.perf_counter() - t0
+        if rc:
+            return err.value.decode()
+        try:
+            lists = ctypes.string_at(out.lists, out.lists_size)
+            pos = ctypes.string_at(out.positions, out.positions_size)
+            codes = (ctypes.c_uint32 * out.tile_count).from_address(out.tile_code)
+            flips = (ctypes.c_uint8 * out.tile_count).from_address(out.tile_flip)
+            numbers = {n: codes[n] for n in range(1, out.tile_count)}
+            flip = {n: flips[n] for n in range(1, out.tile_count)}
+        finally:
+            self.lib.arcade_fighter_free(ctypes.byref(out))
+        return lists, pos, numbers, flip, took
+
+
+def first_diff(a, b):
+    return next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
+
+
+def compare_line(name, r, built, view, row):
+    """One line: the C's blocks against the model (model_build and the analysis' conversion) and against the disc."""
+    if isinstance(built, str):
+        return f'{name}: C refused: {built}'
+    lists, pos, numbers, flip, took = built
+    bake = {code: (0x20 if flip[n] & 1 else 0) | (0x40 if flip[n] & 2 else 0) for n, code in numbers.items()}
+    parts = []
+    segs = row['segments']
+    rule = lambda n: n in row['rules']
+    m_lists, m_pos, m_codes, m_bake = model_build(view, segs, rule('PALETTE_PARTS'), rule('NUMBER_BY_RUN'), rule('TERMINATOR'))
+    for what, mine, ref, pref in (('lists', lists, m_lists, 'model'), ('positions', pos, m_pos, 'model')):
+        parts.append(f'{what} {"=" if mine == ref else "!= (from +%#x, %d B against %d)" % (first_diff(mine, ref), len(mine), len(ref))}{pref}')
+    same_num = numbers == m_codes and bake == m_bake
+    parts.append('numbering ' + ('=' if same_num else '!=') + 'model')
+    a_lists, a_pos = r.get('model_lists'), r.get('model_positions')
+    parts.append('analysis ' + ('=' if (lists, pos, numbers) == (a_lists, a_pos, r['code_of_num']) and bake == r['bake'] else '!='))
+    d_lists, d_pos = r['disc_lists'], r['disc_positions']
+    parts.append('disc: lists ' + ('=' if lists == d_lists else f'differ from +{first_diff(lists, d_lists):#x} ({len(lists)} B against {len(d_lists)})'))
+    parts.append('positions ' + ('=' if pos == d_pos else f'differ from +{first_diff(pos, d_pos):#x} ({len(pos)} B against {len(d_pos)})'))
+    baked, wrong = r['check_tiles'](numbers, bake)
+    parts.append(f'numbering {"=" if not wrong else f"{len(wrong)} tiles off"} ({len(numbers)} tiles, {len(baked)} baked)')
+    return f'{name}: C ' + ', '.join(parts) + f'; {took * 1000:.1f} ms'
 
 
 def line(name, side, r):
@@ -1006,9 +1235,12 @@ def main(argv=None):
     ap.add_argument('--arcade', required=True, help="arcade set ZIP (MAME's sfa2u)")
     ap.add_argument('--only', help='one file, by name (PL00.PAC or PL00)')
     ap.add_argument('--fit', action='store_true', help='print the fit table (bytes of lists and positions: disc, conversion, free) instead of the lines')
+    ap.add_argument('--c-table', action='store_true', help='print port/arcade/fighters_table.c (the descriptors of the files the runtime C builds)')
+    ap.add_argument('--compare-c', action='store_true', help='build fighter.c with the checked-in table and compare it with the model and the disc, per file')
     ap.add_argument('--detail', action='store_true', help='up to six extra lines per file for the first mismatch of each kind')
     args = ap.parse_args(argv)
     started = time.monotonic()
+    rows = []
     tmp = tempfile.mkdtemp(prefix='fighters-')
     try:
         prog, gfx = arcade_views(args.arcade)
@@ -1036,6 +1268,9 @@ def main(argv=None):
                 mod, tiles, side, others = parts
                 stem = name.removesuffix('.PAC').removesuffix('X')
                 r = analyse(mod, tiles, view, index, helper, others, stem in PALETTE_PARTS, stem in NUMBER_BY_RUN)
+                if args.c_table or args.compare_c:
+                    rows.append((name, side, r))
+                    continue
                 if args.fit:
                     print(fit_line(name, r))
                     continue
@@ -1043,7 +1278,27 @@ def main(argv=None):
                 if args.detail:
                     for d in details(name, r):
                         print(d)
-        print(f'{len(names)} files in {time.monotonic() - started:.1f} s')
+        if args.c_table or args.compare_c:
+            table = [(n, descriptor(n, side, r)) for n, side, r in rows]
+            good = [d for _n, (d, _why) in table if d]
+            text = c_table(good, [(n, why) for n, (d, why) in table if not d])
+            if args.c_table:
+                sys.stdout.write(text)
+            else:
+                here = Path(__file__).resolve().parent / 'fighters_table.c'
+                print('fighters_table.c ' + ('is the generated one' if here.read_text() == text else 'DIFFERS from the generated one'))
+                clib = CLib(tmp)
+                total = 0.0
+                for (n, (d, why)), (_n, _side, r) in zip(table, rows):
+                    if not d:
+                        print(f'{n}: not in the C table: {why}')
+                        continue
+                    built = clib.build(view.data, n)
+                    if not isinstance(built, str):
+                        total += built[4]
+                    print(compare_line(n, r, built, view, d))
+                print(f'C time for {len(good)} files: {total * 1000:.1f} ms')
+        print(f'{len(names)} files in {time.monotonic() - started:.1f} s', file=sys.stderr if args.c_table else sys.stdout)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return 0
