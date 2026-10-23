@@ -4,7 +4,9 @@
 Checks port/arcade/sequences.py: the frame record's byte swap, the 12-byte step, the step run finder, the arcade
 record walk (jumps, a jump with bit 15 clear, the walk back to the first record), the pairing of records with steps
 (exact keys, list offsets alone, frame bytes, order), the frame numbering, the frame table finder, the table finders
-of both sides, the flag scale and the range text. One small made-up world (an arcade program with art records,
+of both sides, the flag scale, the range text, the record groups (next_group, tables between groups, records of several groups), the
+reordered table slices, the row of the C table (runs, own spans, scale range, frame overrides) and the model of the C
+(sequence.c) on the made-up world. One small made-up world (an arcade program with art records,
 sequence records and tables, and a PS1 module built from them by the rules) then goes through the whole analysis and
 must come out exact.
 """
@@ -179,6 +181,100 @@ class Pure(unittest.TestCase):
         # the PS1 side: pointers to steps right after the n steps
         mod = b'\0' * 4 + b''.join(Q.pack_step(1, 0, 0, 0, 0) for _ in range(5)) + struct.pack('<4I', *(0x801b0004 + 12 * k for k in (2, 0, 4, 1))) + struct.pack('<I', 0x12345678)
         self.assertEqual(Q.ps1_table_entries(mod, 4, 5, 0x801b0000), [2, 0, 4, 1])
+
+    def test_spans_and_record_end(self):
+        self.assertEqual(Q.spans([1, 2, 3, 7, 9, 10]), [(1, 3), (7, 1), (9, 2)])
+        self.assertEqual(Q.spans([]), [])
+        data, recs, end = self.make_prog()
+        walked = Q.walk_records(bytes(data), BASE)
+        self.assertEqual(Q.record_end(walked[0]), BASE + 24)
+        self.assertEqual(Q.record_end(walked[3]), BASE + 24 * 3 + 28)
+
+    def test_next_group_needs_records_whose_art_is_known(self):
+        data = bytearray(0x180000)
+        a = BASE
+        for k in range(12):
+            a = put_record(data, a, 3, 0, ART + 16 * (k % 3), frame_bytes(1))
+        end = a
+        g2 = end + 0x40                                   # a table's room in between
+        a = g2
+        for k in range(11):
+            a = put_record(data, a, 3, 0, ART + 16 * (k % 3), frame_bytes(2))
+        known = {ART, ART + 16, ART + 32}
+        start, recs = Q.next_group(bytes(data), end, known)
+        self.assertEqual((start, len(recs)), (g2, 11))
+        self.assertIsNone(Q.next_group(bytes(data), end, {ART + 99}))             # art nobody knows: not a group
+        self.assertIsNone(Q.next_group(bytes(data), end, known, window=0x20))      # too far away
+        self.assertIsNone(Q.next_group(bytes(data), a, known))                   # nothing after the last
+        self.assertIsNone(Q.next_group(bytes(data), end, known, min_records=12))
+
+    def test_tables_between_and_after_groups(self):
+        data = bytearray(0x180000)
+        a = put_record(data, BASE, 3, 0, ART, frame_bytes(1))
+        a = put_record(data, a, 3, 0, ART, frame_bytes(1))
+        end1 = a
+        t = a                                              # a table right after group 1
+        g2 = t + 8
+        r2 = put_record(data, g2, 3, 0, ART, frame_bytes(2))
+        struct.pack_into('>hh', data, t, g2 - t, BASE - t)
+        recs = {BASE, BASE + 24, g2}
+        tabs = Q.find_tables(bytes(data), recs, BASE, end1, later=[(g2, r2)])
+        self.assertEqual(tabs, [(t, [g2, BASE])])
+        t2 = r2                                            # and one after group 2
+        struct.pack_into('>h', data, t2, BASE + 24 - t2)
+        tabs = Q.find_tables(bytes(data), recs, BASE, end1, later=[(g2, r2)])
+        self.assertEqual(tabs, [(t, [g2, BASE]), (t2, [BASE + 24])])
+        self.assertEqual([r['a'] for r in Q.model_records(bytes(data), [(BASE, 2), (g2, 1)])], [BASE, BASE + 24, g2])
+        with self.assertRaises(ValueError):
+            Q.model_records(bytes(data), [(BASE, 3)])        # the third record is not one
+
+    def test_match_slices_follow_a_reordered_table(self):
+        flat = [1, 2, 3, 'A1', 4, 5, 6, 7]
+        self.assertEqual(Q.match_slices(flat, [1, 2, 3, 6, 7, 4, 5]), [(0, 0, 3), (6, 3, 2), (4, 5, 2)])
+        self.assertEqual(Q.match_slices([1, 2], [9, 8]), [])
+        self.assertEqual(Q.match_slices([5, 5, 5], [5, 5]), [(0, 0, 2)])
+
+    def test_row_and_model_on_the_world(self):
+        prog, mod, r, s0, fbase, recs = World().build()
+        view = F.View(prog)
+        out = Q.analyse(mod, r, prog, view, min_run=3)
+        row, why = Q.make_row('PL99.PAC', 1, out)
+        self.assertIsNone(why)
+        self.assertEqual((row['groups'], row['runs'], row['own']), ([(BASE, 5)], [(0, 0, 5)], []))
+        self.assertEqual((row['steps'], row['step_count'], row['frames'], row['frame_count'], row['table_entries']), (s0, 5, fbase, 4, 3))
+        self.assertEqual((row['scale'], row['frame_overrides'], row['rules']), ((2, 1), [], []))
+        self.assertEqual(row['slices'], [(0, 0, 3)])
+        offsets = Q.list_offsets(r, view)
+        built = Q.model_build(prog, offsets, row)
+        self.assertEqual(built['steps'], mod[s0:s0 + 60])
+        self.assertEqual(built['steps_built'], [1] * 5)
+        self.assertEqual(built['frames'], mod[fbase:fbase + 64])
+        self.assertEqual(built['table'], mod[s0 + 60:s0 + 72])
+        self.assertEqual(built['table_built'], [1, 1, 1])
+        # the PS1 numbered one frame its own way: the row says so, and the model follows
+        bad = bytearray(mod)
+        struct.pack_into('<H', bad, s0 + 12 * 4 + 10, 2)
+        out = Q.analyse(bytes(bad), r, prog, view, min_run=3)
+        row, _ = Q.make_row('PL99.PAC', 1, out)
+        self.assertEqual(row['frame_overrides'], [(4, 2)])
+        self.assertEqual(Q.model_build(prog, offsets, row)['steps'][48:50], bad[s0 + 48:s0 + 50])
+        self.assertEqual(Q.make_row('PL99.PAC', 1, dict(error='x')), (None, 'x'))
+        with self.assertRaises(ValueError):
+            Q.model_build(prog, offsets, dict(row, runs=[(0, 0, 9)]))
+        with self.assertRaises(ValueError):
+            Q.model_build(prog, offsets, dict(row, frame_overrides=[(99, 1)]))
+
+    def test_model_offsets_from_lists(self):
+        lists = struct.pack('<5H', 1, 0, 0, 0, 0) + struct.pack('<H', 0)           # an empty list: 12 bytes
+        lists += struct.pack('<5H', 2, 0, 0, 0, 0) + struct.pack('<2H', 5, 6)      # a list of two cells: 14 bytes
+        lists += struct.pack('<5H', 1, 0, 0, 0, 0) + struct.pack('<H', 9)
+        view = F.View(bytes(0x1000))
+        # segments: one empty list, then two records (the records are read from the program: none here), so use empty only
+        self.assertEqual(Q.model_offsets(lists[:12], [(0, 1, 0)], view), {})
+        with self.assertRaises(ValueError):
+            Q.model_offsets(lists[:12], [(0, 2, 0)], view)                         # more records than lists
+        with self.assertRaises(ValueError):
+            Q.model_offsets(b'\x01', [(0, 1, 0)], view)                            # not a list
 
 
 class World(unittest.TestCase):

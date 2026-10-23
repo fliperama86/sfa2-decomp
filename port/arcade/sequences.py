@@ -13,31 +13,45 @@ The arcade side. A record is 24 bytes: a big-endian 16-bit countdown, a 16-bit f
 art record (the one that fighters.py converts to the PS1 cell list), then 16 bytes of frame data. When bit 15 of
 the flags is set, 4 more bytes follow: the absolute address of the record the sequence jumps to (a loop). The next
 record follows directly. (A few records in some fighters have the 4 bytes with bit 15 clear; the tool takes them as
-a jump too, and counts them.) The records of a fighter lie in one run, in front of its art records, after the
-tables of 16-bit displacements that select a sequence.
+a jump too, and counts them.) The records of a fighter lie in one or more groups (Rolento's PL0E has two, Gouki's PL02
+too, the second group being the one that PL14 uses), each group in front of its art records or after the tables of
+16-bit displacements that select a sequence; tables lie before the first group, and between and after the groups.
 
 The rules (arcade record i, paired with PS1 step j):
-  - duration = the countdown; flags = the flags word (the PS1 keeps bit 15 as "jump" and the rest as they are);
+  - duration = the countdown; flags = the flags word (the PS1 keeps bit 15 as "jump" and the rest as they are; for the
+    records of one range, in PL04, PL11, PL12, PL13 and PL17, the low byte divided by 0x18);
   - data pointer = the byte offset of the art record's cell list from the list base (fighters.py finds it);
   - loop offset = when the jump flag is set, the PS1 step index of the target record minus j (0 otherwise);
   - frame record = the arcade's 16 frame bytes with each group of 4 bytes reversed (a 32-bit byte swap);
   - frame index = 0 for an all-zero frame, else the frames are numbered from 1 in the order of first use down the
-    step run, and a frame seen before keeps its number.
+    step run, and a frame seen before keeps its number; the steps the PS1 numbered otherwise are listed apart;
+  - the PS1's pointer table is the steps' addresses in the order of the arcade's tables, but for the entries of
+    dropped records, in an order the PS1 chose for the tables (PL0E), and with tables of its own at the end.
 Beyond the rules the tool reports, and does not invent rules for: steps with no arcade record (the PS1's own),
 arcade records the PS1 left out (reductions), and paired steps that differ in one field (the PS1's changes).
 
+The runtime C (sequence.c). model_build is the specification of sequence.c, which builds the steps, the frame records
+and the pointer table of a file from the arcade program and the cell list offsets that fighter.c's lists give. The
+per-file facts it needs are in the generated sequences_table.c (--c-table): where the module keeps the three blocks,
+the arcade's groups and tables, which records make which steps (runs), which PS1 steps are its own (spans), which
+table slots are which table entries (slices), the steps whose frame number is not the first-use one, the scale range
+and the one rule flag. The C builds the runs' steps and leaves the PS1's own to the disc. --compare-c builds the C
+with the checked-in table into a temporary folder and prints, for each file the table covers (fighters_table.c's),
+whether the C equals the model and how many steps, frame records and table entries equal the disc's.
+
 Inputs: the disc image (raw 2352-byte sectors) and the arcade set's ZIP (MAME's sfa2u), both given as arguments and
 both read only. It writes nothing except a temporary folder (fighters.py compiles a small C helper there) that it
-removes. It prints sizes, addresses and counts, never game bytes. It is an analysis and reference tool; the
-converter that the port runs will be written in C.
+removes (--compare-c also compiles and runs the C driver there). It prints sizes, addresses and counts, never game
+bytes. It is an analysis and reference tool; the converter that the port runs is the C.
 
-    python3 port/arcade/sequences.py --disc BIN --arcade ZIP [--only NAME] [--detail]
+    python3 port/arcade/sequences.py --disc BIN --arcade ZIP [--only NAME] [--detail] [--c-table | --compare-c]
 """
 import argparse
 import collections
 import difflib
 import shutil
 import struct
+import subprocess
 import sys
 import tempfile
 import time
@@ -243,11 +257,32 @@ def run_length(prog, recs, p, stop):
     return n
 
 
-def find_tables(prog, recs, first, end, back=0x900, min_run=1):
+def record_end(rec):
+    """The address after a record (24 bytes, 28 with a jump target)."""
+    return rec['a'] + REC + (4 if rec['tgt'] is not None else 0)
+
+
+def next_group(prog, end, known, window=0x400, min_records=10):
+    """(start, records) of the group of records that follows the one ending at end, or None.
+
+    The arcade keeps a character's sequence records in groups with tables between them. The next group starts within
+    window bytes of end at the first address where three records in a row are valid; it is taken when it has at
+    least min_records records and half of their art records are ones the file's lists are made from (known)."""
+    for b in range(end, min(end + window, len(prog)), 2):
+        if valid_record(prog, b) and valid_record(prog, b + REC) and valid_record(prog, b + 2 * REC):
+            recs = walk_records(prog, b)
+            if len(recs) >= min_records and 2 * sum(1 for x in recs if x['art'] in known) >= len(recs):
+                return b, recs
+    return None
+
+
+def find_tables(prog, recs, first, end, back=0x900, min_run=1, later=()):
     """The arcade's sequence tables around the run of records: [(start, [record addresses])], by address.
 
     A table is a list of 16-bit displacements from its own start to a record, ended by a zero word; the tables lie
-    one after another, either right before the first record or right after the last."""
+    one after another, either right before the first record or right after the last. The records may lie in
+    several groups: first and end are the first group's, later is [(start, end)] of the groups after it, and the
+    tables after each group are looked for up to the next group's start."""
     out = []
     for p in range(max(0, first - back), first, 2):
         q, tabs = p, []
@@ -260,14 +295,43 @@ def find_tables(prog, recs, first, end, back=0x900, min_run=1):
         if tabs and q == first:
             out = tabs
             break
-    q = end
-    while q + 2 <= len(prog):
-        n = run_length(prog, recs, q, len(prog))
-        if n < min_run:
-            break
-        out.append((q, n))
-        q += 2 * (n + 1)
+    ends = [end] + [e for _s, e in later]
+    stops = [s for s, _e in later] + [len(prog)]
+    for q, stop in zip(ends, stops):
+        while q + 2 <= stop:
+            n = run_length(prog, recs, q, stop)
+            if n < min_run:
+                break
+            out.append((q, n))
+            q += 2 * (n + 1)
     return [(q, [q + struct.unpack_from('>h', prog, q + 2 * k)[0] for k in range(n)]) for q, n in out]
+
+
+def match_slices(flat, mine):
+    """[(entry, slot, count)]: runs of the arcade's table entries (flat) that the PS1's pointer table (mine) holds
+    in the same order, longest first, by repeated matching of what is left. The PS1 may order the arcade's tables
+    differently (PL0E), so a later run may lie before an earlier one. The result is by slot."""
+    free_a, free_b, out = list(range(len(flat))), list(range(len(mine))), []
+    while free_a and free_b:
+        ka, kb = [flat[i] for i in free_a], [mine[j] for j in free_b]
+        blocks = [b for b in difflib.SequenceMatcher(None, ka, kb, autojunk=False).get_matching_blocks() if b.size]
+        if not blocks:
+            break
+        used_a, used_b = set(), set()
+        for b in blocks:
+            ia, ib = free_a[b.a:b.a + b.size], free_b[b.b:b.b + b.size]
+            k = 0
+            while k < b.size:                     # cut where either side leaves a gap in the original numbering
+                m = k
+                while m + 1 < b.size and ia[m + 1] == ia[m] + 1 and ib[m + 1] == ib[m] + 1:
+                    m += 1
+                out.append((ia[k], ib[k], m - k + 1))
+                k = m + 1
+            used_a.update(ia)
+            used_b.update(ib)
+        free_a = [i for i in free_a if i not in used_a]
+        free_b = [j for j in free_b if j not in used_b]
+    return sorted(out, key=lambda x: x[1])
 
 
 def ps1_table_entries(mod, s0, n, load):
@@ -310,6 +374,168 @@ def ranges(idx):
     return out
 
 
+# ---------------------------------------------------------------- the model of the runtime C (sequence.c)
+#
+# The specification of sequence.c. The inputs are the arcade program, the cell list offsets of the file (what
+# fighter.c's lists give, by art record) and a row: the per-file facts that make_row derives from the disc, in the
+# form of sequences_table.c (addresses, counts and indices; no bytes). Nothing else is read: the PS1's own steps,
+# frame records and table entries are not built.
+
+JUMP_WITHOUT_BIT15 = 'JUMP_WITHOUT_BIT15'   # the one rule flag: the arcade file has records with a jump target and bit 15 clear
+RULE_NAMES = (JUMP_WITHOUT_BIT15,)
+
+
+def spans(idx):
+    """[(first, count)] of the runs of consecutive integers in a sorted list."""
+    out = []
+    for v in idx:
+        if out and out[-1][0] + out[-1][1] == v:
+            out[-1][1] += 1
+        else:
+            out.append([v, 1])
+    return [(a, n) for a, n in out]
+
+
+def model_records(prog, groups, quirks=False):
+    """The records of the groups [(address, count)], one group after the other (as walk_records reads each), or
+    ValueError. With quirks a record whose flags lack bit 15 but that is followed by a record only 4 bytes later is a
+    jump too (the arcade's own slip)."""
+    out = []
+    for a, count in groups:
+        for _ in range(count):
+            if not valid_record(prog, a):
+                raise ValueError(f'no sequence record at {a:#x}')
+            if quirks:
+                rec, a = record_at(prog, a)
+            else:
+                dur, fl, art = struct.unpack_from('>HHI', prog, a)
+                size = REC + 4 if fl & JUMP else REC
+                if a + size > len(prog):
+                    raise ValueError(f'sequence record at {a:#x} runs past the program')
+                tgt = struct.unpack_from('>I', prog, a + REC)[0] if size > REC else None
+                rec, a = dict(a=a, dur=dur, fl=fl, art=art, tgt=tgt, fr=prog[a + 8:a + 24], quirk=False), a + size
+            out.append(rec)
+    return out
+
+
+def model_table_entries(prog, tables):
+    """The arcade record address of each entry of the arcade's sequence tables, one after another:
+    tables is [(address, count)] and an entry is a 16-bit displacement from the start of its table."""
+    out = []
+    for q, n in tables:
+        out += [q + struct.unpack_from('>h', prog, q + 2 * k)[0] for k in range(n)]
+    return out
+
+
+def model_build(prog, offsets, row):
+    """The specification of the runtime C: dict(steps, steps_built, frames, frames_built, table, table_built) for a row of
+    sequences_table.c and offsets {art record address: cell list offset}. The built lists hold 0/1 per step, frame
+    record or table entry; unbuilt bytes are zero. Raises ValueError when the row does not fit the program.
+
+    A run (record, step, count) makes the steps step.. from the arcade records record..: duration and flags as they
+    are (the flags' low byte divided by 0x18 for the records of the scale range, when it is a multiple), the art
+    record's cell list offset, for a jump the distance in steps to the target record's step, the frame record
+    numbered from 1 in the order of first use down the runs (0 for an all-zero frame; the steps the runs leave out
+    are the PS1's own and do not count), except for the steps of the overrides (step, number), which the PS1
+    numbered otherwise. A step whose art record has no list or whose jump target has no step is not built. The
+    pointer table is the steps' addresses in the order of the arcade's tables, for the slices (entry, slot, count)."""
+    ns, nf, ne = row['step_count'], row['frame_count'], row['table_entries']
+    steps, sb = bytearray(STEP * ns), [0] * ns
+    frames, fb = bytearray(FRAME * nf), [0] * nf
+    table, tb = bytearray(4 * ne), [0] * ne
+    recs = model_records(prog, row['groups'], JUMP_WITHOUT_BIT15 in row['rules'])
+    at = {x['a']: k for k, x in enumerate(recs)}
+    step_of = {}
+    for i, j, n in row['runs']:
+        if i + n > len(recs) or j + n > ns:
+            raise ValueError('a run outside the records or the steps')
+        for k in range(n):
+            if i + k in step_of:
+                raise ValueError('runs overlap')
+            step_of[i + k] = j + k
+    if nf:
+        fb[0] = 1                         # frame record 0 is all zero
+    seen, number, top = {}, {}, 0
+    override = dict(row['frame_overrides'])
+    if any(st >= ns for st in override):
+        raise ValueError('a frame override outside the steps')
+    for i, j, n in row['runs']:
+        for k in range(n):
+            conv = convert_frame(recs[i + k]['fr'])
+            if j + k in override:
+                num = override[j + k]
+                top = max(top, num)
+                if any(conv) and conv not in seen:
+                    seen[conv] = num
+            elif not any(conv):
+                num = 0
+            elif conv in seen:
+                num = seen[conv]
+            else:
+                top += 1
+                num = seen[conv] = top
+            if num >= nf:
+                raise ValueError(f'frame {num} beyond the {nf} frame records')
+            frames[FRAME * num:FRAME * (num + 1)] = conv
+            fb[num] = 1
+            number[i + k] = num
+    first, count = row['scale']
+    for i, j, n in row['runs']:
+        for k in range(n):
+            rec, jj = recs[i + k], j + k
+            fl = rec['fl']
+            if first <= i + k < first + count:
+                fl = scale_flags(fl) if scale_flags(fl) is not None else fl
+            dp = offsets.get(rec['art'])
+            if dp is None:
+                continue
+            lo = 0
+            if rec['fl'] & JUMP:
+                sj = step_of.get(at.get(rec['tgt']))
+                if sj is None or not -32768 <= sj - jj <= 32767:
+                    continue
+                lo = sj - jj
+            steps[STEP * jj:STEP * (jj + 1)] = pack_step(rec['dur'], fl, dp, lo, number[i + k])
+            sb[jj] = 1
+    entries = model_table_entries(prog, row['tables'])
+    for e, slot, n in row['slices']:
+        if e + n > len(entries) or slot + n > ne:
+            raise ValueError('a table slice outside the arcade tables or the PS1 table')
+        for t in range(n):
+            sj = step_of.get(at.get(entries[e + t]))
+            if sj is not None:
+                struct.pack_into('<I', table, 4 * (slot + t), row['load'] + row['steps'] + STEP * sj)
+                tb[slot + t] = 1
+    return dict(steps=bytes(steps), steps_built=sb, frames=bytes(frames), frames_built=fb, table=bytes(table), table_built=tb)
+
+
+def model_offsets(lists, segments, view):
+    """{art record address: cell list offset} for lists bytes (fighter.c's, or the model's) and the file's segments
+    (address, count, bank): list k belongs to the k-th record of the segments, address 0 being empty lists. The last
+    list a record gets is kept. Raises ValueError when the lists and the segments disagree."""
+    sizes, o = [], 0
+    while o < len(lists):
+        lst = F.parse_list(lists, o)
+        if lst is None:
+            raise ValueError(f'no list at {o}')
+        sizes.append((o, lst['end'] - o))
+        o = lst['end']
+    out, k = {}, 0
+    for address, count, _bank in segments:
+        a = address
+        for _ in range(count):
+            if k >= len(sizes):
+                raise ValueError('more records than lists')
+            if address:
+                out[a] = sizes[k][0]
+                rec = read_any(view, a)
+                if rec is None:
+                    raise ValueError(f'no record at {a:#x}')
+                a = rec[2]
+            k += 1
+    return out
+
+
 # ---------------------------------------------------------------- the analysis of one file
 
 def analyse(mod, r, prog, view, load=0x801b0000, min_run=MIN_RUN):
@@ -327,6 +553,13 @@ def analyse(mod, r, prog, view, load=0x801b0000, min_run=MIN_RUN):
         return dict(error='no arcade record for the first steps')
     a0 = extend_back(prog, a0)
     arc = walk_records(prog, a0)
+    groups = [(a0, len(arc))]
+    while True:
+        nxt = next_group(prog, record_end(arc[-1]), amap)
+        if nxt is None:
+            break
+        groups.append((nxt[0], len(nxt[1])))
+        arc += nxt[1]
     pairs = pair_records(arc, steps, amap)
     # the frame table, from the frames of the paired steps; then the pairing again, with the PS1's frames as a key
     wanted = {}
@@ -410,18 +643,62 @@ def analyse(mod, r, prog, view, load=0x801b0000, min_run=MIN_RUN):
             else:
                 fr_diff += 1
     # the sequence tables
-    end = arc[-1]['a'] + REC + (4 if arc[-1]['tgt'] is not None else 0)
-    tabs = find_tables(prog, {x['a'] for x in arc}, a0, end)
+    at_group = [0]
+    for _a, n in groups:
+        at_group.append(at_group[-1] + n)
+    bounds = [(arc[at_group[g]]['a'], record_end(arc[at_group[g + 1] - 1])) for g in range(len(groups))]
+    tabs = find_tables(prog, {x['a'] for x in arc}, a0, bounds[0][1], later=bounds[1:])
     flat = [pi.get(at[a], ('arcade only', at[a])) for _q, ents in tabs for a in ents]
     mine = ps1_table_entries(mod, start, len(steps), load)
-    tab_match = sum(b.size for b in difflib.SequenceMatcher(None, flat, mine, autojunk=False).get_matching_blocks())
+    slices = match_slices(flat, mine)
+    tab_match = sum(n for _e, _s, n in slices)
     only_arc = [i for i in range(len(arc)) if i not in pi]
     only_ps1 = [j for j in range(len(steps)) if j not in pj]
-    return dict(start=start, steps=steps, a0=a0, arc=arc, pairs=pairs, exact=len(exact_steps), scaled=len(scaled_steps), counts=c, first=first,
+    return dict(start=start, steps=steps, a0=a0, groups=groups, arc=arc, pairs=pairs, exact=len(exact_steps), scaled=len(scaled_steps), counts=c, first=first,
                 base=base, nframes=nframes, fr_exact=fr_exact, fr_diff=fr_diff, fr_own=nframes - len(set(ref) | {0}),
                 tables=[len(e) for _q, e in tabs], table_arcade=len(flat), table_ps1=len(mine), table_match=tab_match,
+                table_at=[(q, len(e)) for q, e in tabs], slices=slices,
                 only_arc=only_arc, only_ps1=only_ps1, quirks=sum(1 for a in arc if a['quirk']),
                 odd=sum(1 for p in steps if p['odd']))
+
+
+def make_row(name, side, r):
+    """(row for sequences_table.c, None) for a file's analysis r, else (None, why not).
+
+    The runs are the paired records that follow one another in both lists. The frame overrides are the paired steps
+    whose frame number is not the one first use gives (found by running the numbering rule of model_build against
+    the PS1's numbers; the PS1's own steps do not count). The scale range is the records from the first to the last
+    whose flags the PS1 gave the scaled form. The slices are the matching blocks of the arcade's tables and the PS1's
+    pointer table, in entries. The PS1's own steps are the ones no run makes."""
+    if 'error' in r:
+        return None, r['error']
+    if r['base'] is None:
+        return None, 'frame table not found'
+    steps, arc, pairs = r['steps'], r['arc'], r['pairs']
+    runs = []
+    for i, j in pairs:
+        if runs and runs[-1][0] + runs[-1][2] == i and runs[-1][1] + runs[-1][2] == j:
+            runs[-1][2] += 1
+        else:
+            runs.append([i, j, 1])
+    seen, top, over = {}, 0, []
+    for i, j in pairs:
+        conv, got = convert_frame(arc[i]['fr']), steps[j]['fi']
+        want = 0 if not any(conv) else seen.get(conv, top + 1)
+        if want != got:
+            over.append((j, got))
+        if got and (want != got or conv not in seen):
+            top = max(top, got)
+        if any(conv) and conv not in seen:
+            seen[conv] = got
+    scaled = [i for i, j in pairs if arc[i]['fl'] != steps[j]['fl'] and scale_flags(arc[i]['fl']) == steps[j]['fl']]
+    paired = {j for _i, j in pairs}
+    row = dict(file=name, load=LOAD[side], steps=r['start'], step_count=len(steps), frames=r['base'], frame_count=r['nframes'],
+               groups=r['groups'], rules=[JUMP_WITHOUT_BIT15] if r['quirks'] else [],
+               scale=(min(scaled), max(scaled) - min(scaled) + 1) if scaled else (0, 0),
+               runs=[tuple(x) for x in runs], own=spans([j for j in range(len(steps)) if j not in paired]),
+               frame_overrides=over, tables=r['table_at'], slices=r['slices'], table_entries=r['table_ps1'])
+    return row, None
 
 
 def read_any(view, a):
@@ -455,7 +732,8 @@ def line(name, r):
     c, n = r['counts'], len(r['steps'])
     diffs = ', '.join(f'{k} {v}' for k, v in c.most_common() if k in ('dur', 'flags', 'list', 'loop', 'frame index'))
     unknown = ', '.join(f'{k} {v}' for k, v in c.most_common() if k in ('dp unknown', 'loop target unpaired'))
-    s = (f'{name}: steps {n} at +{r["start"]:#x} ({STEP * n} B), arcade run {len(r["arc"])} at {r["a0"]:#x}; paired {len(r["pairs"])}, '
+    groups = f' in {len(r["groups"])} groups' if len(r['groups']) > 1 else ''
+    s = (f'{name}: steps {n} at +{r["start"]:#x} ({STEP * n} B), arcade run {len(r["arc"])} at {r["a0"]:#x}{groups}; paired {len(r["pairs"])}, '
          f'exact {r["exact"]} ({STEP * r["exact"]} B)')
     if r['scaled']:
         s += f' + {r["scaled"]} with scaled flags'
@@ -491,12 +769,117 @@ def details(name, r):
     return out
 
 
+def c_table(rows, omitted):
+    """The text of sequences_table.c for rows [(row)] (make_row's) and omitted [(name, why)]."""
+    out = ['/* GENERATED by `python3 port/arcade/sequences.py --disc DISC --arcade SET --c-table`; do not edit.',
+           ' * For each fighter file of fighters_table.c: where the PS1 module keeps its animation steps, frame records and',
+           ' * sequence pointer table, where the arcade keeps its sequence records (groups), which records make which steps',
+           " * (runs of records and steps), which steps the PS1 added itself (own spans, step indices only), the arcade's",
+           ' * sequence tables, which PS1 table slots are which arcade table entries, the steps whose frame number is not the order of first use, the',
+           ' * records whose flags the PS1 scaled, and the one rule flag. Only addresses, counts and indices: no byte of',
+           ' * either game.']
+    if omitted:
+        out += [' *', ' * Left out:']
+        out += [f' *   {name}: {why}' for name, why in omitted]
+    out += [' */', '#include "sequence.h"', '']
+    kinds = (('groups', 'struct arcade_sequence_group', lambda x: f'{{{x[0]:#x}u, {x[1]}u}}'),
+             ('runs', 'struct arcade_sequence_run', lambda x: f'{{{x[0]}u, {x[1]}u, {x[2]}u}}'),
+             ('own', 'struct arcade_sequence_span', lambda x: f'{{{x[0]}u, {x[1]}u}}'),
+             ('tables', 'struct arcade_sequence_table', lambda x: f'{{{x[0]:#x}u, {x[1]}u}}'),
+             ('slices', 'struct arcade_sequence_slice', lambda x: f'{{{x[0]}u, {x[1]}u, {x[2]}u}}'),
+             ('frame_overrides', 'struct arcade_sequence_frame', lambda x: f'{{{x[0]}u, {x[1]}u}}'))
+    short = {'groups': 'groups', 'runs': 'runs', 'own': 'own', 'tables': 'tables', 'slices': 'slices', 'frame_overrides': 'frames'}
+    names = {}
+    for key, ctype, fmt in kinds:
+        for row in rows:
+            data = tuple(tuple(x) for x in row[key])
+            if data and (key, data) not in names:
+                names[(key, data)] = f'{short[key]}_{row["file"].removesuffix(".PAC").lower()}'
+                out.append(f'static const {ctype} {names[(key, data)]}[] = {{')
+                out += [f'    {fmt(x)},' for x in data]
+                out += ['};', '']
+    out.append('const struct arcade_sequence arcade_sequences[] = {')
+    for row in rows:
+        refs = []
+        for key, _ctype, _fmt in kinds:
+            data = tuple(tuple(x) for x in row[key])
+            refs.append(f'{names[(key, data)]}, {len(data)}u' if data else 'NULL, 0u')
+        rules = ' | '.join('ARCADE_SEQUENCE_' + n for n in row['rules']) or '0u'
+        out.append(f'    {{"{row["file"]}", {row["load"]:#x}u, {row["steps"]:#x}u, {row["frames"]:#x}u, {row["step_count"]}u, '
+                   f'{row["frame_count"]}u, {row["table_entries"]}u, {rules}, {row["scale"][0]}u, {row["scale"][1]}u, '
+                   + ', '.join(refs) + '},')
+    out += ['};', 'const unsigned arcade_sequence_count = sizeof arcade_sequences / sizeof arcade_sequences[0];', '']
+    return '\n'.join(out)
+
+
+def first_diff(a, b):
+    return next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
+
+
+def compile_driver(tmp):
+    """The C driver with the checked-in tables, compiled into tmp; its path."""
+    here = Path(__file__).resolve().parent
+    exe = Path(tmp) / 'sequence_test'
+    subprocess.run(['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-o', str(exe), str(here / 'tests/sequence_test.c'), str(here / 'sequence.c'),
+                    str(here / 'sequences_table.c'), str(here / 'fighter.c'), str(here / 'fighters_table.c')],
+                   check=True, capture_output=True, timeout=120)
+    return exe
+
+
+def run_c(exe, prog_path, name, tmp):
+    """(dict of the C's outputs, milliseconds) for a file of the checked-in tables, or an error string."""
+    d = Path(tmp) / 'c-out'
+    shutil.rmtree(d, ignore_errors=True)
+    d.mkdir()
+    r = subprocess.run([str(exe), 'file', str(prog_path), name, str(d)], capture_output=True, text=True, timeout=120)
+    if r.returncode:
+        return (r.stdout + r.stderr).strip()
+    got = {k: (d / f'{k}.bin').read_bytes() for k in ('steps', 'frames', 'table')}
+    for k in ('steps', 'frames', 'table'):
+        got[k + '_built'] = list((d / f'{k}_built.bin').read_bytes())
+    got['lists'] = {int(a): int(b) for a, b in (ln.split() for ln in (d / 'lists.txt').read_text().split('\n') if ln)}
+    return got, float(r.stdout.split()[1])
+
+
+def disc_equal(built, data, mod, base, size):
+    """(units built, units equal to the disc's) for built flags, the built bytes and the module, at base, size bytes a unit."""
+    n = eq = 0
+    for k, b in enumerate(built):
+        if b:
+            n += 1
+            eq += data[size * k:size * (k + 1)] == mod[base + size * k:base + size * (k + 1)]
+    return n, eq
+
+
+def compare_line(name, row, got, ms, model, mod):
+    """One line: the C against the model (steps, frames, table, list offsets) and against the disc."""
+    if isinstance(got, str):
+        return f'{name}: C refused: {got}'
+    parts = []
+    for what, size in (('steps', STEP), ('frames', FRAME), ('table', 4)):
+        same = got[what] == model[what] and got[what + '_built'] == [int(b) for b in model[what + '_built']]
+        parts.append(f'{what} ' + ('=' if same else f'!= from +{first_diff(got[what], model[what])}') + 'model')
+    parts.append('lists ' + ('=' if got['lists'] == model['offsets'] else '!=') + 'model')
+    disc = []
+    totals = [0, 0]
+    for what, size, base in (('steps', STEP, row['steps']), ('frames', FRAME, row['frames']), ('table', 4, row['steps'] + STEP * row['step_count'])):
+        n, eq = disc_equal(got[what + '_built'], got[what], mod, base, size)
+        disc.append(f'{what} {eq}/{n} ({size * eq} B)')
+        totals[0] += n
+        totals[1] += eq
+    own = sum(n for _a, n in row['own'])
+    return (f'{name}: C ' + ', '.join(parts) + '; equal to the disc: ' + ', '.join(disc) +
+            f'; steps of the PS1\'s own {own} in {len(row["own"])} spans; {ms:.1f} ms')
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--disc', required=True, help='disc image, raw 2352-byte sectors')
     ap.add_argument('--arcade', required=True, help="arcade set ZIP (MAME's sfa2u)")
     ap.add_argument('--only', help='one file, by name (PL00.PAC or PL00)')
     ap.add_argument('--detail', action='store_true', help='extra lines per file: the runs only one side has, the first difference of each kind')
+    ap.add_argument('--c-table', action='store_true', help='print port/arcade/sequences_table.c (the rows of the files the runtime C builds)')
+    ap.add_argument('--compare-c', action='store_true', help='build sequence.c with the checked-in tables and compare it with the model and the disc, per file')
     args = ap.parse_args(argv)
     started = time.monotonic()
     tmp = tempfile.mkdtemp(prefix='sequences-')
@@ -506,6 +889,7 @@ def main(argv=None):
         index = F.Index(view)
         helper = F.Helper(tmp, gfx)
         tot = collections.Counter()
+        found = []
         with open(args.disc, 'rb') as f:
             files, sec = F.iso_files(f)
             names = sorted(p for p in files if p.startswith('/PAC/PL') and p.endswith('.PAC'))
@@ -525,13 +909,15 @@ def main(argv=None):
                     print(f'{name}: {parts}')
                     continue
                 mod, tiles, _side, others = parts
-                # fighters.py may want to know which files order their parts by palette (PALETTE_PARTS, when it has it)
-                kw = dict(palette_parts=name.removesuffix('.PAC').removesuffix('X') in F.PALETTE_PARTS) if hasattr(F, 'PALETTE_PARTS') else {}
-                fr = F.analyse(mod, tiles, view, index, helper, others, **kw)
+                stem = name.removesuffix('.PAC').removesuffix('X')
+                fr = F.analyse(mod, tiles, view, index, helper, others, stem in F.PALETTE_PARTS, stem in F.NUMBER_BY_RUN)
                 if 'error' in fr:
                     print(f'{name}: {fr["error"]}')
                     continue
                 r = analyse(mod, fr, prog_be, view, LOAD[_side])
+                if args.c_table or args.compare_c:
+                    found.append((name, _side, mod, fr, r))
+                    continue
                 print(line(name, r))
                 if 'error' not in r:
                     tot['steps'] += len(r['steps'])
@@ -544,15 +930,69 @@ def main(argv=None):
                 if args.detail:
                     for d in details(name, r):
                         print(d)
-        if tot['steps']:
+        if args.c_table or args.compare_c:
+            rows, omitted, context = [], [], {}
+            for name, side, mod, fr, r in found:
+                drow, why = F.descriptor(name, side, fr)
+                if drow is None:
+                    omitted.append((name, f'not in fighters_table.c: {why}'))
+                    continue
+                row, why = make_row(name, side, r)
+                if row is None:
+                    omitted.append((name, why))
+                    continue
+                rows.append(row)
+                context[name] = (drow, mod)
+            text = c_table(rows, omitted)
+            if args.c_table:
+                sys.stdout.write(text)
+            else:
+                compare_c(args, rows, context, text, prog_be, view, tmp)
+        elif tot['steps']:
             print(f'all: steps {tot["steps"]} ({STEP * tot["steps"]} B), exact {tot["exact"]} ({STEP * tot["exact"]} B) '
                   f'+ {tot["scaled"]} with scaled flags ({STEP * tot["scaled"]} B); '
                   f'frames {tot["frames"]} ({FRAME * tot["frames"]} B), exact {tot["frames exact"]} ({FRAME * tot["frames exact"]} B); '
                   f'table entries {tot["tables"]}, equal in order {tot["tables equal"]}')
-        print(f'{len(names)} files in {time.monotonic() - started:.1f} s')
+        print(f'{len(names)} files in {time.monotonic() - started:.1f} s', file=sys.stderr if args.c_table else sys.stdout)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return 0
+
+
+def compare_c(args, rows, context, text, prog_be, view, tmp):
+    """--compare-c: the checked-in table against the generated one, then per file the C against the model and the disc."""
+    here = Path(__file__).resolve().parent / 'sequences_table.c'
+    print('sequences_table.c ' + ('is the generated one' if here.read_text() == text else 'DIFFERS from the generated one'))
+    exe = compile_driver(tmp)
+    prog_path = Path(tmp) / 'program.bin'
+    prog_path.write_bytes(prog_be)
+    model_lists = {}
+    tot = collections.Counter()
+    for row in rows:
+        drow, mod = context[row['file']]
+        rules = drow['rules']
+        key = (tuple(drow['segments']), tuple(rules))
+        if key not in model_lists:
+            lists = F.model_build(view, drow['segments'], 'PALETTE_PARTS' in rules, 'NUMBER_BY_RUN' in rules, 'TERMINATOR' in rules)[0]
+            model_lists[key] = model_offsets(lists, drow['segments'], view)
+        offsets = model_lists[key]
+        model = model_build(prog_be, offsets, row)
+        # the C's list offsets are sorted by record; the model's dict has the same content
+        model['offsets'] = dict(sorted(offsets.items()))
+        got = run_c(exe, prog_path, row['file'], tmp)
+        if isinstance(got, str):
+            print(compare_line(row['file'], row, got, 0, model, mod))
+            continue
+        out, ms = got
+        print(compare_line(row['file'], row, out, ms, model, mod))
+        for what, size, base in (('steps', STEP, row['steps']), ('frames', FRAME, row['frames']), ('table', 4, row['steps'] + STEP * row['step_count'])):
+            n, eq = disc_equal(out[what + '_built'], out[what], mod, base, size)
+            tot[what + ' built'] += n * size
+            tot[what + ' equal'] += eq * size
+            tot[what + ' size'] += len(out[what])
+        tot['time'] += ms
+    print('all: ' + '; '.join(f'{w} {tot[w + " equal"]} of {tot[w + " built"]} built bytes equal the disc ({tot[w + " size"]} B in all)'
+                              for w in ('steps', 'frames', 'table')) + f'; C time {tot["time"]:.1f} ms for {len(rows)} files')
 
 
 if __name__ == '__main__':

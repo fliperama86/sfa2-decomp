@@ -179,12 +179,24 @@ scripts (nothing of it is in the tree):
   flags, art pointer, 16 frame bytes, and a 4-byte jump target when flags
   bit 15 is set): duration and flags as they are, the art pointer becoming
   the list's offset, a jump becoming the distance in steps, and the frame
-  bytes, each 4 turned, a frame record numbered by first use. 39,628 of the
-  46,483 steps of the 45 files and 13,007 of 13,869 frame records rebuild
-  byte for byte. The PS1 dropped arcade records (Ryu's last 196; Zangief's
-  PL10 245, with countdowns lengthened to cover them, while PL16 has nearly
-  all) and added steps of its own (Ryu 89, Rolento's PL0E 1,138). Which arcade
-  records the PS1 kept is not in the arcade bytes.
+  bytes, each 4 turned, a frame record numbered by first use. An arcade
+  fighter's records can lie in several groups with tables between them. The
+  PS1 dropped arcade records (Ryu's last 196; Zangief's PL10 245, with
+  countdowns lengthened to cover them, while PL16 has nearly all) and added
+  steps of its own: sequences for projectiles that the arcade animates in its
+  code (Ryu's 11 fireball loops, Ken's, Dan's), and small runs in Rolento,
+  Dhalsim, Sakura and others. `sequence.c` builds the arcade-sourced steps,
+  frame records and step tables of the 37 files `fighter.c` covers; which
+  arcade records make which PS1 steps is in its generated table (`sequences.py
+  --c-table`). In the runtime 34,771 steps, 11,313 frame records and 9,075
+  table entries equal the disc's and are served; 4,080 steps, the PS1's own or
+  changed, stay the disc's.
+- **The other files** (`other_files.py`). The select, continue, ending, boss
+  and demo screens are mostly arcade tiles and palettes (from 65% to 100% of
+  their tiles), with modules that are code and cell lists of the art records.
+  The PS1's own: the movies (4 STR), the recorded music (8 XA files), the
+  four full-color ending illustrations, the title picture, the layout of the
+  dialogue text, the select screen's 27 voice samples, `CAPCOM.BIN`.
 - **The rest of the program's data** (`program_map.py`, every byte
   classed): 29% arcade tables (the 72 pieces), 19% cell lists and position
   runs of effects in the fighters' format, 12% the Sony library's data
@@ -204,6 +216,18 @@ scripts (nothing of it is in the tree):
   of all 45 files (equal to the disc's but the 62 palettes and Gouki's
   alternate portrait, which stay the disc's). The sound command lists and
   the `pQES` sequences of the fighter files are the PS1's own.
+- **Sound banks and music** (`samples.py`). The arcade's instrument table is
+  in the Z80 program at `0x8000` (435 records: bank, start, loop, end, root
+  key). The PS1's VAB headers rebuild byte for byte from rules, the arcade and
+  a recipe of the PS1's own (per tone: key ranges, envelopes, the rate the PS1
+  chose for each sample), which has no arcade source. `vag.c` encodes a
+  sample body from the arcade's at the PS1's rate and size (295 of 409 built,
+  sizes equal; not wired in yet). The fighters' `pQES` sequences are short
+  echo and chime patterns, not songs. The fight and menu music is the XA
+  streams: 64 recorded tracks, with no arcade source; the arcade's music is
+  59 songs of up to 16 tracks for its Z80 sound program (command table at
+  `0x9006`, interpreter at `0x0b07`), which a player of the port's own could
+  play on the arcade's samples.
 - **Samples** (`samples.py`, all banks). 355 of the 409 distinct PS1
   samples are arcade samples: the chip's sample taken as 24,000 Hz,
   resampled to a rate the bank's tone gives (44100 times 2 to the power of

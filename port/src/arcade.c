@@ -3,6 +3,7 @@
 #include "port.h"
 #include "../arcade/fighter.h"
 #include "../arcade/fighter_parts.h"
+#include "../arcade/sequence.h"
 #include "../arcade/program.h"
 #include "../arcade/rom.h"
 #include "../arcade/tilepack.h"
@@ -11,7 +12,7 @@
 #include <string.h>
 
 #define MAX_FILES 512
-#define MAX_RANGES 512
+#define MAX_RANGES 32768
 
 static struct arcade_rom rom;
 static int enabled;
@@ -28,6 +29,7 @@ struct range {
 };
 static struct range ranges[MAX_RANGES];
 static unsigned range_count;
+static unsigned file_first[MAX_FILES], file_ranges[MAX_FILES];   /* each file's ranges, after they are sorted */
 
 /* Files whose built blocks differ from the disc's where the PS1 changed the arcade's data (port/arcade/README.md):
  * palettes (PL02, PL14, PL0B), body-part tile numbering (PL08, PL0E). They stay the disc's until the files that
@@ -124,10 +126,14 @@ static int file_of(unsigned sector)
 }
 
 /* The built bytes over the n data bytes of `sector`. */
+static int file_of(unsigned sector);
 static void patch(unsigned sector, unsigned char *data, unsigned n)
 {
-    unsigned i;
-    for (i = 0; i < range_count; i++) {
+    unsigned i, end;
+    int f = file_of(sector);
+    if (f < 0 || !built[f]) return;
+    end = file_first[f] + file_ranges[f];
+    for (i = file_first[f]; i < end; i++) {
         const struct range *r = &ranges[i];
         unsigned long long at, lo, hi;
         if (sector < r->sector) continue;
@@ -288,11 +294,59 @@ done:
     return out;
 }
 
+struct step_stats { unsigned steps, frames, entries, other; };
+
+/* Serve the runs of `count` units of `unit` bytes at file offset `at` that are built and equal to the disc's. The ranges
+ * point into `bytes`, which is not freed. Returns the units served. */
+static unsigned serve_units(struct port_disc *d, int f, unsigned at, unsigned char *bytes, const unsigned char *built_unit,
+                            unsigned count, unsigned unit, int check)
+{
+    unsigned char *disc = disc_bytes(d, &files[f], at, count * unit);
+    unsigned i = 0, served = 0;
+    if (!disc) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", files[f].name);
+    while (i < count) {
+        unsigned j = i;
+        while (j < count && built_unit[j] && !memcmp(bytes + j * unit, disc + j * unit, unit)) j++;
+        if (j > i) {
+            if (!check) add_range(f, at + i * unit, bytes + i * unit, (j - i) * unit);
+            served += j - i;
+            i = j;
+        } else {
+            i++;
+        }
+    }
+    free(disc);
+    return served;
+}
+
+/* The fighter's animation steps, frame records and step tables (sequence.c), served where built and equal to the disc's. */
+static void steps_of(struct port_disc *d, int f, const struct arcade_fighter *a, const struct arcade_fighter_out *fo, unsigned moff,
+                     int check, struct step_stats *st)
+{
+    const struct arcade_sequence *s = arcade_sequence_find(a->file);
+    struct arcade_sequence_lists lists;
+    struct arcade_sequence_out so;
+    char err[PORT_ERR];
+    unsigned n;
+    if (!s) return;
+    if (arcade_sequence_lists(rom.program, ARCADE_PROGRAM_SIZE, a, fo, &lists, err, sizeof err) != 0 ||
+        arcade_sequence_build(rom.program, ARCADE_PROGRAM_SIZE, s, &lists, &so, err, sizeof err) != 0)
+        port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
+    arcade_sequence_lists_free(&lists);
+    n = serve_units(d, f, moff + s->steps, so.steps, so.steps_built, so.step_count, 12, check);
+    st->steps += n;
+    st->other += so.step_count - n;
+    st->frames += serve_units(d, f, moff + s->frames, so.frames, so.frames_built, so.frame_count, 16, check);
+    st->entries += serve_units(d, f, moff + s->steps + 12u * so.step_count, so.table, so.table_built, so.table_entries, 4, check);
+    if (check) arcade_sequence_free(&so);   /* else the ranges point into it */
+}
+
 /* Build each fighter file's position runs and cell lists. Built blocks equal to the disc's are served in place of it;
  * others stay the disc's. With check, only compare, and count the files that differ but for the PS1's known changes. */
 static unsigned fighters(struct port_disc *d, int check)
 {
     unsigned i, used = 0, kept = 0, bytes = 0, wrong = 0, tiles_used = 0, tile_bytes = 0, tile_wrong = 0;
+    struct step_stats st = {0, 0, 0, 0};
     for (i = 0; i < arcade_fighter_count; i++) {
         const struct arcade_fighter *a = &arcade_fighters[i];
         struct arcade_fighter_out out;
@@ -308,6 +362,7 @@ static unsigned fighters(struct port_disc *d, int check)
             port_halt(PORT_EXIT_PROGRAM, "arcade: %s: the file is not laid out as the loader's table says", a->file);
         if (arcade_fighter_build(rom.program, ARCADE_PROGRAM_SIZE, a, &out, err, sizeof err) != 0)
             port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
+        steps_of(d, f, a, &out, moff, check, &st);   /* before the lists may pass to the ranges */
         same_lists = out.lists_size == a->lists_room ? same_as_disc(d, &files[f], moff + a->lists, out.lists, out.lists_size) : 0;
         same_positions = out.positions_size == a->positions_room ? same_as_disc(d, &files[f], poff + a->positions, out.positions, out.positions_size) : 0;
         if (same_lists < 0 || same_positions < 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's blocks", a->file);
@@ -343,6 +398,8 @@ static unsigned fighters(struct port_disc *d, int check)
         }
         arcade_fighter_free(&out);
     }
+    printf("arcade%s: fighters: animation: %u steps, %u frame records and %u table entries built from the arcade set and equal to the disc's%s; %u steps the PS1's own or changed stay the disc's\n",
+           check ? " check" : "", st.steps, st.frames, st.entries, check ? "" : ", used", st.other);
     printf("arcade%s: fighters: %u of %u files' cell lists and positions built from the arcade set (%u bytes)%s; %u differ from the disc's, %u of them not by the PS1's known changes\n",
            check ? " check" : "", used, arcade_fighter_count, bytes, check ? " are equal to the disc's" : " and used", kept, wrong);
     printf("arcade%s: fighters: %u files' sprite tiles built from the arcade graphics and packed (%u bytes), %s\n", check ? " check" : "", tiles_used, tile_bytes,
@@ -417,6 +474,26 @@ static unsigned parts(struct port_disc *d, int check)
     return differ;
 }
 
+static int by_place(const void *a, const void *b)
+{
+    const struct range *x = a, *y = b;
+    if (x->sector != y->sector) return x->sector < y->sector ? -1 : 1;
+    return x->offset < y->offset ? -1 : x->offset > y->offset;
+}
+
+/* Sort the ranges by file and place, and note each file's span of them. */
+static void index_ranges(void)
+{
+    unsigned i, k = 0;
+    qsort(ranges, range_count, sizeof ranges[0], by_place);
+    memset(file_ranges, 0, sizeof file_ranges);
+    for (i = 0; i < file_count; i++) {
+        while (k < range_count && ranges[k].sector < files[i].sector) k++;
+        file_first[i] = k;
+        while (k < range_count && ranges[k].sector == files[i].sector) { file_ranges[i]++; k++; }
+    }
+}
+
 int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
 {
     unsigned wrong;
@@ -428,6 +505,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     wrong = fighters(d, check);
     wrong += parts(d, check);
     if (check) return wrong ? 1 : 0;
+    index_ranges();
     port_disc_patch_hook = patch;
     port_cd_read_hook = read_hook;
     return 0;
