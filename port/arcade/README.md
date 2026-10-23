@@ -107,10 +107,17 @@ scripts (nothing of it is in the tree):
   flipped (a few in most fighters), a palette or flip bit here and there,
   and in Zangief (PL10) and PL11/PL13 art of the PS1's own (poses turned
   half round, tiles the arcade lacks). Some fighters' tile codes are in
-  another bank of the arcade graphics (+0x20000); a few lists come from
-  arcade records of mode 0 (one code a cell); in PL08 and PL0E some lists
-  sort their cells in two groups. The arcade build does not copy the PS1's
-  changes: it converts the arcade's records.
+  another bank of the arcade graphics (+0x20000); some lists come from
+  arcade records of mode 0 (one code a cell). Where a record's blocks step
+  back in x, the record is in parts: the PS1 lists the parts last first,
+  each sorted by (y, x) (Vega's 297 lists all rebuild with it; PL0E also
+  starts a part at a change of palette). The arcade build does not copy the
+  PS1's changes: it converts the arcade's records.
+- **Room.** The PS1 code reads a module's data at fixed addresses, and only
+  0 to 2 bytes follow the lists. Lists that keep the arcade's flip bits come
+  out 10 to 786 bytes larger in 17 fighters, all of it in the lists whose
+  tiles the PS1 stores flipped. So the loader is to store tiles flipped as
+  the PS1 does, by its rule, and fit by construction.
 - **Stages** (`stages.py`, all 20). The two layers of 16- and 32-pixel
   cells are the arcade's scroll maps cell for cell (all cells in 17 and 19
   stages); their palettes are the arcade's (4-bit channels scaled

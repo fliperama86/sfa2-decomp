@@ -77,7 +77,7 @@ class Pure(unittest.TestCase):
         v = self.make_view()
         cells, out, end = F.read_record(v, 0x1000)
         self.assertEqual((cells, end), (5, 0x1010))
-        self.assertEqual(out[0], (0x0123, -16, -32, 3))
+        self.assertEqual(out[0], (0x0123, -16, -32, 3, 0, 0))
         self.assertEqual([c[0] for c in out[1:]], [0x0200, 0x0201, 0x0210, 0x0211])
         self.assertEqual([(c[1], c[2]) for c in out[1:]], [(24, 8), (40, 8), (24, 24), (40, 24)])
         self.assertEqual(F.block_cells(v, 0x1000, 2), 5)
@@ -85,6 +85,53 @@ class Pure(unittest.TestCase):
         self.assertIsNone(F.read_record(v, 0x1200))
         self.assertIsNone(F.read_record(v, 0x1001))
         self.assertIsNone(F.read_record(v, len(v.data)))
+
+    def test_read_record0_and_read_any(self):
+        v = self.make_view()
+        data = bytearray(v.data)
+        # mode 0 at 0x1300: 3 cells, one shared attribute word (palette 5, flip bits kept), coordinate index 16
+        struct.pack_into('>5H', data, 0x1300, 0, 3, 0x0005, 16, 0x0777)
+        struct.pack_into('>2H', data, 0x130a, 0x0778, 0x0779)
+        struct.pack_into('>I', data, F.COORD_TABLE + 16, 0x2100)
+        struct.pack_into('>6h', data, 0x2100, 0, 0, 16, 0, -16, 16)
+        v = F.View(bytes(data))
+        cells, out, end = F.read_record0(v, 0x1300)
+        self.assertEqual((cells, end), (3, 0x130e))
+        self.assertEqual([(c[0], c[1], c[2], c[3]) for c in out], [(0x777, 0, 0, 5), (0x778, 16, 0, 5), (0x779, -16, 16, 5)])
+        self.assertEqual(F.read_any(v, 0x1300), (cells, out, end))
+        self.assertEqual(F.read_any(v, 0x1000)[0], 5)
+        self.assertIsNone(F.read_record0(v, 0x1000))
+        self.assertIsNone(F.read_any(v, 0x1100))
+
+    def test_index_finds_records_of_both_modes_by_cell_count(self):
+        v = self.make_view()
+        data = bytearray(v.data)
+        struct.pack_into('>5H', data, 0x1300, 0, 3, 0x0005, 16, 0x0777)
+        struct.pack_into('>2H', data, 0x130a, 0x0778, 0x0779)
+        struct.pack_into('>I', data, F.COORD_TABLE + 16, 0x2100)
+        index = F.Index(F.View(bytes(data)))
+        self.assertEqual(index.by_cells[5], [0x1000])
+        self.assertEqual(index.by_cells[3], [0x1300])
+        self.assertEqual(index.record(0x1300)[0], 3)
+
+    def test_block_groups_split_where_x_falls_and_with_palette_changes_only_when_asked(self):
+        blocks = [(1, 0x1, -10, 0), (2, 0x1, 0, 0), (3, 0x0, 16, 0), (4, 0x0, -20, 0), (5, 0x0, -4, 0)]
+        self.assertEqual(F.block_groups(blocks), [0, 0, 0, 1, 1])
+        self.assertEqual(F.block_groups(blocks, True), [0, 0, 1, 2, 2])
+        self.assertEqual(F.block_groups(blocks[:1]), [0])
+        self.assertEqual(F.block_groups([]), [])
+
+    def test_order_cells_reverses_the_groups_and_sorts_each(self):
+        # two parts: x ascending in each; the part that comes second in the record comes first in the list
+        blocks = [(10, 0x0000, 0, 16), (11, 0x0000, 16, 0), (20, 0x0000, -32, 32), (21, 0x0000, -16, 0)]
+        cells = F.record_cells(blocks)
+        self.assertEqual([c[4] for c in cells], [0, 0, 1, 1])
+        self.assertEqual([c[0] for c in F.order_cells(cells)], [21, 20, 11, 10])
+        self.assertEqual([c[0] for c in F.sort_cells(cells)], [21, 11, 10, 20])
+        # a palette change splits parts only with the switch
+        pal = F.record_cells([(1, 0x0001, 0, 0), (2, 0x0000, 16, 0)])
+        self.assertEqual([c[0] for c in F.order_cells(pal)], [1, 2])
+        self.assertEqual([c[0] for c in F.order_cells(pal, True)], [2, 1])
 
     def test_sort_cells_by_y_then_x_and_keeps_ties(self):
         cells = [(1, 16, 0, 0), (2, -16, 16, 0), (3, 0, 0, 0), (4, 0, 0, 0), (5, -16, 0, 0)]
@@ -297,6 +344,9 @@ class World(unittest.TestCase):
         self.assertEqual(r['segments'], [(0x1000, 24, 0, bank)])
         self.assertEqual((r['tiles_ok'], r['tiles_of']), (24, 24))
         self.assertEqual((r['bytes_equal'], r['first_bad'], r['pos_diff']), (25, None, None))
+        f = r['fit']
+        self.assertEqual((f['lists_ours'], f['lists_disc'], f['pos_ours'], f['pos_disc']), (f['lists_disc'], f['lists_disc'], 18, 18))
+        self.assertEqual(f['after'], 0)
         self.assertEqual((r['baked'], r['wrong'], r['unmatched'], r['numbers']), ({}, {}, [], 48))
         return r
 
@@ -313,7 +363,14 @@ class World(unittest.TestCase):
         self.assertIn('positions 18 B equal', line)
         self.assertIn('list bytes all equal', line)
         self.assertNotIn(chr(0x2014), line)
+        self.assertNotIn('tile bank', line)
         self.assertLessEqual(len(F.details('PL99.PAC', r)), 6)
+        fit = F.fit_line('PL99.PAC', r)
+        self.assertIn('positions disc 18 ours 18 (+0,', fit)
+        self.assertIn('fits', fit)
+
+    def test_bank_is_named_in_the_line(self):
+        self.assertIn('tile bank 0x10000 for 24 lists', F.line('PL99.PAC', 1, self.run_world(0x10000)))
 
 
 if __name__ == '__main__':

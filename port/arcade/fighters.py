@@ -12,7 +12,12 @@ disc's, how many tiles are stored flipped in the PS1 tile data, and how many til
 The rules it reproduces (the arcade record is: mode word 2, cell count, block count - 1, a coordinate index;
 then blocks of tile code and attribute; the coordinates are blocks of x and y at the pointer found through the
 index; see the README of this folder):
-  - a block expands to the cells of its tile rectangle, flips included; the cells of a record are sorted by (y, x);
+  - a block expands to the cells of its tile rectangle, flips included; a record of mode 0 (a header with one shared
+    attribute word, then one tile code per cell) is a record of 1 x 1 blocks;
+  - the cells of a record are sorted by (y, x), except that a record is made of parts (a block whose x is less than
+    the previous block's starts a new part) and the PS1 lists the parts in reverse order, each sorted by (y, x); in
+    PL0E a change of palette between blocks also starts a part, in the other characters it does not (the tool tries
+    both for a file and keeps the one that agrees longer with the disc);
   - one counter per file numbers the tiles, from 1, in the order of first use (a code not seen before gets the
     next number); cells of horizontally adjacent tiles form position runs of three 16-bit values each;
   - identical position streams are stored once, in order of first use;
@@ -24,24 +29,30 @@ delay slot); the chain of lists (the longest run of valid lists whose first posi
 record of each list, by pixels (a PS1 tile equals an arcade tile, or an arcade tile flipped); and the position
 streams, by searching the module (and the file's other table-0 chunks) for the first converted stream. Beyond the
 rules above it also meets, and handles only as far as stated:
-  - a constant added to the record's tile codes (the video chip's code high bits, 0 to 3 times 0x10000): found by
-    the pixels, one value per run of records;
+  - a constant added to the record's tile codes (the video chip's code high bits, 0 to 3 times 0x10000: the "tile
+    bank"): found by the pixels, one value per run of records; the line names the banks found and how many lists use
+    each;
   - empty lists (one cell, tile 0), which have no record; the last one ends the chain (the terminator);
-  - lists with no mode-2 record: skipped (their numbers are reserved so that the counter stays in step, their
-    position streams are copied from the module); the tool only says how many match a mode-0 record;
+  - lists with no record (the PS1's own poses): skipped (their numbers are reserved so that the counter stays in
+    step, their position streams are copied from the module);
   - tiles stored flipped in the PS1 tile data ("baked flips"): counted and reported, and a list that differs and
     holds one is counted apart. No rule for them is made up.
+
+With --fit it prints, instead of the lines, one line per file with the bytes of the lists and of the positions on the
+disc, in the conversion (the arcade's flips and palettes, no baked flips), the difference, the free bytes right after
+each block and whether the conversion fits in place.
 
 Inputs: the disc image (raw 2352-byte sectors) and the arcade set's ZIP (MAME's sfa2u), both given as arguments
 and both read only. It writes nothing except a temporary folder (a small C helper compiled at run time for the
 tile comparison) that it removes. It prints sizes, addresses and counts, never game bytes beyond a few header
 numbers. It is an analysis and reference tool; the converter that the port runs will be written in C.
 
-    python3 port/arcade/fighters.py --disc BIN --arcade ZIP [--only NAME] [--detail]
+    python3 port/arcade/fighters.py --disc BIN --arcade ZIP [--only NAME] [--detail] [--fit]
 """
 import argparse
 import collections
 import ctypes
+import re
 import shutil
 import struct
 import subprocess
@@ -116,30 +127,49 @@ def record_header(view, a):
     return cells, nb, ptr
 
 
+def block_groups(blocks, palette_splits=False):
+    """Group number of each block (code, attr, x, y) of a record: a block starts a new group when its x is less than
+    the previous block's, or, with palette_splits, when its palette (attr bits 0-4) differs from the previous block's.
+    The arcade's tool wrote a record as parts, each part ordered by x; the PS1 puts the parts in reverse order."""
+    out, g = [], 0
+    for i, (_c, attr, x, _y) in enumerate(blocks):
+        if i and (x < blocks[i - 1][2] or (palette_splits and (attr ^ blocks[i - 1][1]) & 0x1f)):
+            g += 1
+        out.append(g)
+    return out
+
+
+def record_cells(blocks):
+    """Cells (code, x, y, flags, group, group with palette splits) of the blocks (code, attr, x, y), in record order."""
+    out = []
+    for (code, attr, x, y), g, gp in zip(blocks, block_groups(blocks), block_groups(blocks, True)):
+        out += [c + (g, gp) for c in expand_block(code, attr, x, y)]
+    return out
+
+
 def read_record(view, a):
-    """The art record at address a: (declared cells, cells (code, x, y, flags) unsorted, end address), or None."""
+    """The art record at address a: (declared cells, cells (code, x, y, flags, group, group with palette splits)
+    in record order, end address),
+    or None."""
     head = record_header(view, a)
     if not head:
         return None
     cells, nb, ptr = head
-    out = []
-    for k in range(nb):
-        out += expand_block(view.u16(a + 8 + 4 * k), view.u16(a + 10 + 4 * k), view.s16(ptr + 4 * k), view.s16(ptr + 4 * k + 2))
-    return cells, out, a + 8 + 4 * nb
+    blocks = [(view.u16(a + 8 + 4 * k), view.u16(a + 10 + 4 * k), view.s16(ptr + 4 * k), view.s16(ptr + 4 * k + 2)) for k in range(nb)]
+    return cells, record_cells(blocks), a + 8 + 4 * nb
 
 
 def block_cells(view, a, nb):
     """Cells the blocks of the record at a expand to, counted from the attributes only."""
     total = 0
-    for k in range(nb):
-        attr = view.u16(a + 10 + 4 * k)
+    for attr in struct.unpack_from('>' + 'xxH' * nb, view.data, a + 8):
         total += (((attr >> 8) & 15) + 1) * (((attr >> 12) & 15) + 1)
     return total
 
 
 def read_record0(view, a):
-    """The art record of mode 0 at address a, which the fighters' conversion does not use: (cells, cells, end) in the
-    form of read_record, or None. It has a shared attribute word, a coordinate index and one tile code per cell."""
+    """The art record of mode 0 at address a: (cells, cells, end) in the form of read_record, or None. It has a shared
+    attribute word, a coordinate index and one tile code per cell; each cell is a block of 1 x 1 tiles."""
     n = len(view.data)
     if a < 0 or a & 1 or a + 8 > n or view.u16(a) != 0:
         return None
@@ -149,13 +179,25 @@ def read_record0(view, a):
     ptr = view.u32(COORD_TABLE + idx)
     if ptr & 1 or ptr + 4 * cells > n:
         return None
-    out = [(view.u16(a + 8 + 2 * k), view.s16(ptr + 4 * k), view.s16(ptr + 4 * k + 2), attr & 0x7f) for k in range(cells)]
-    return cells, out, a + 8 + 2 * cells
+    blocks = [(view.u16(a + 8 + 2 * k), attr & 0x7f, view.s16(ptr + 4 * k), view.s16(ptr + 4 * k + 2)) for k in range(cells)]
+    return cells, record_cells(blocks), a + 8 + 2 * cells
+
+
+def read_any(view, a):
+    """The art record at address a of mode 2 or mode 0, in the form of read_record, or None."""
+    return read_record(view, a) or read_record0(view, a)
 
 
 def sort_cells(cells):
     """Cells ordered by (y, x); equal positions keep their order."""
     return sorted(cells, key=lambda c: (c[2], c[1]))
+
+
+def order_cells(cells, palette_splits=False):
+    """The PS1's cell order for a record's cells (see record_cells): the groups in reverse order, the cells of each
+    group by (y, x). A record of one group is just sorted."""
+    w = 5 if palette_splits else 4
+    return sorted(cells, key=lambda c: (-c[w], c[2], c[1]))
 
 
 class Numbering:
@@ -188,7 +230,7 @@ class Numbering:
 def position_runs(cells):
     """Runs of horizontally adjacent sorted cells: [x, y, length - 1]."""
     runs = []
-    for _code, x, y, _fl in cells:
+    for _code, x, y, *_rest in cells:
         r = runs[-1] if runs else None
         if r and r[1] == y and x == r[0] + 16 * (r[2] + 1):
             r[2] += 1
@@ -582,35 +624,23 @@ class Index:
         self.view = view
         self.by_cells = collections.defaultdict(list)
         self.cache = {}
-        self._mode0 = None
-        d, pos = view.data, 0
-        while True:
-            pos = d.find(b'\x00\x02', pos)
-            if pos < 0:
-                break
+        d = view.data
+        for m in re.finditer(b'(?=\x00\x02)', d):
+            pos = m.start()
             if not pos & 1:
                 head = record_header(view, pos)
                 if head and block_cells(view, pos, head[1]) == head[0]:
                     self.by_cells[head[0]].append(pos)
-            pos += 1
+        for m in re.finditer(b'(?=\x00\x00\x00[\x01-\x40])', d):
+            pos = m.start()
+            if not pos & 1 and read_record0(view, pos):
+                self.by_cells[view.u16(pos + 2)].append(pos)
 
     def record(self, a):
+        """The art record at a, of mode 2 or mode 0 (cells of 1 x 1 tiles), or None."""
         if a not in self.cache:
-            self.cache[a] = read_record(self.view, a)
+            self.cache[a] = read_any(self.view, a)
         return self.cache[a]
-
-    def mode0(self):
-        """Mode-0 records by cell count, indexed the first time they are asked for."""
-        if self._mode0 is None:
-            self._mode0 = collections.defaultdict(list)
-            d = self.view.data
-            for a in range(0, len(d) - 8, 2):
-                if d[a] == 0 and d[a + 1] == 0 and d[a + 2] == 0 and 1 <= d[a + 3] <= 64 and read_record0(self.view, a):
-                    self._mode0[self.view.u16(a + 2)].append(a)
-        return self._mode0
-
-    def record0(self, a):
-        return read_record0(self.view, a)
 
 
 def is_empty(lst):
@@ -720,110 +750,125 @@ def analyse(mod, tiles, view, index, helper, others=()):
         del lists[stop:]
         unmatched = [k for k in unmatched if k < stop]
     lend = lists[-1]['end'] if term is None else term['end']
-    # a list without a record: does a record of mode 0 (not converted here) have its tiles?
-    alt0 = []
-    for k in unmatched:
-        lst = lists[k]
-        cls = [ps1_tile(t) for t, _f in lst['cells']]
-        pal = sorted(list_palettes(lst))
-        for a in index.mode0().get(lst['n'], ()):
-            rec = index.record0(a)
-            if any(multiset_match(cls, [canon[c[0] + bank] if c[0] + bank < helper.ntiles else -2 for c in rec[1]]) and
-                   pal == sorted(c[3] & 0x1f for c in rec[1]) for bank in BANKS):
-                alt0.append((k, a))
-                break
-    r['alt0'] = alt0
     r.update(segments=seg, unmatched=unmatched, lists=lists, term=term, listsend=lend)
 
-    def convert(posbase, posmod):
-        """The lists as bytes (None where no record), the numbering and the positions. A list without a record keeps
-        the counters in step: its numbers are taken and, when its position stream is new, the stream is copied from
-        the module at posbase."""
-        num, pos, mine, code_of_num = Numbering(), Positions(), [], {}
+    def tail(psplit):
+        r2 = dict(r)
+        def convert(posbase, posmod):
+            """The lists as bytes (None where no record), the numbering and the positions. A list without a record keeps
+            the counters in step: its numbers are taken and, when its position stream is new, the stream is copied from
+            the module at posbase."""
+            num, pos, mine, code_of_num = Numbering(), Positions(), [], {}
+            for k, lst in enumerate(lists):
+                if is_empty(lst):
+                    mine.append((struct.pack('<5HH', 1, 0, 0, 0, len(pos.data), 0), []))
+                    continue
+                if k not in recs:
+                    for t, _f in lst['cells']:
+                        if (t & 0x3fff) >= num.next:
+                            num.reserve(t & 0x3fff, ps1_tile(t)[0])
+                    end = None if posbase is None else stream_end(posmod, posbase + lst['pos'], lst['n'])
+                    if end is not None and lst['pos'] == len(pos.data):
+                        pos.data += posmod[posbase + lst['pos']:end]
+                    mine.append(None)
+                    continue
+                rec, bank = recs[k]
+                cells = order_cells([(c[0] + bank,) + c[1:] for c in rec[1]], psplit)
+                numbered = []
+                for code, _x, _y, f, *_g in cells:
+                    before = num.next
+                    n = num.number(code, canon[code] if code < helper.ntiles else None)
+                    if n >= before or n not in code_of_num:
+                        code_of_num[n] = code
+                    numbered.append((n, f))
+                mine.append((encode_list(numbered, pos.add(position_stream(position_runs(cells)))), [n for n, _f in numbered]))
+            return mine, num, pos, code_of_num
+
+        mine, num, pos, code_of_num = convert(None, mod)
+        # where the positions are: the first list's stream, converted, is searched for in the module (before the lists, or
+        # after them when the lists come first), then in the file's other table-0 chunks
+        first_stream = bytes(pos.data[:24]) if 0 in recs else b''
+        lo, hi = (lend, len(mod)) if first else (pend, lbase)
+        posmod, where = mod, None
+        at = mod.find(first_stream, lo, hi) if first_stream else -1
+        for slot, chunk in others:
+            if at < 0 and first_stream:
+                at, posmod, where = chunk.find(first_stream), chunk, f'slot {slot:#x}'
+        posbase = at if at >= 0 else None
+        if posbase is not None:
+            mine, num, pos, code_of_num = convert(posbase, posmod)
+        r2.update(palette_splits=psplit, posbase=posbase, pos_where=where if posbase is not None else None)
+
+        # tile level: every number of a converted list holds the pixels of its code (flipped storage counts as a match)
+        baked, wrong = {}, {}
+        for n, code in code_of_num.items():
+            want = canon[code] if code < helper.ntiles else -2
+            if n < ntile and ex[n] >= 0 and ex[n] == want:
+                continue
+            flips = [f + 1 for f in range(3) if n < ntile and fl[3 * n + f] == want]
+            if flips:
+                baked[n] = (code, flips[0])
+            else:
+                wrong[n] = code
+        r2.update(baked=baked, wrong=wrong, numbers=num.next - 1, chunk_tiles=ntile, tiles_ok=len(recs), tiles_of=sum(1 for lst in lists if not is_empty(lst)))
+
+        # positions
+        pbytes = bytes(pos.data)
+        disc_pos = b'' if posbase is None else posmod[posbase:posbase + len(pbytes)]
+        r2['pos_len'] = len(pbytes)
+        r2['term_ok'] = None if term is None else term['pos'] == len(pbytes)
+        r2['pos_diff'] = None if pbytes == disc_pos else next((i for i, (x, y) in enumerate(zip(pbytes, disc_pos)) if x != y), len(disc_pos))
+
+        # list bytes: each list against the disc's at its own place; a difference in a list with a tile stored flipped is counted apart
+        r2.update(bytes_equal=0, baked_diff=0, kinds=collections.Counter(), first_bad=None, first_other=None)
+        g = lambda m, i: struct.unpack_from('<H', m, 2 * i)[0] if 2 * i + 2 <= len(m) else None
         for k, lst in enumerate(lists):
-            if is_empty(lst):
-                mine.append((struct.pack('<5HH', 1, 0, 0, 0, len(pos.data), 0), []))
+            if mine[k] is None:
                 continue
-            if k not in recs:
-                for t, _f in lst['cells']:
-                    if (t & 0x3fff) >= num.next:
-                        num.reserve(t & 0x3fff, ps1_tile(t)[0])
-                end = None if posbase is None else stream_end(posmod, posbase + lst['pos'], lst['n'])
-                if end is not None and lst['pos'] == len(pos.data):
-                    pos.data += posmod[posbase + lst['pos']:end]
-                mine.append(None)
+            m, numbers = mine[k]
+            disc = mod[lst['at']:lst['end']]
+            if m == disc:
+                r2['bytes_equal'] += 1
                 continue
-            rec, bank = recs[k]
-            cells = sort_cells([(code + bank, x, y, f) for code, x, y, f in rec[1]])
-            numbered = []
-            for code, _x, _y, f in cells:
-                before = num.next
-                n = num.number(code, canon[code] if code < helper.ntiles else None)
-                if n >= before or n not in code_of_num:
-                    code_of_num[n] = code
-                numbered.append((n, f))
-            mine.append((encode_list(numbered, pos.add(position_stream(position_runs(cells)))), [n for n, _f in numbered]))
-        return mine, num, pos, code_of_num
+            w = next((i for i in range(min(len(m), len(disc)) // 2) if m[2 * i:2 * i + 2] != disc[2 * i:2 * i + 2]), min(len(m), len(disc)) // 2)
+            bad = dict(k=k, at=lst['at'], word=w, mine=g(m, w), disc=g(disc, w), mine_len=len(m), disc_len=len(disc), n=lst['n'], mode=lst['mode'])
+            if any(n in baked for n in numbers):
+                r2['baked_diff'] += 1
+            else:
+                bad['kind'] = diff_kind(m, disc)
+                r2['kinds'][bad['kind']] += 1
+                if r2['first_other'] is None:
+                    r2['first_other'] = bad
+            if r2['first_bad'] is None:
+                r2['first_bad'] = bad
+        r2['mine_count'] = sum(1 for m in mine if m is not None)
+        grow = collections.Counter()           # bytes more (+) or fewer (-) than the disc's, by the cause of the difference
+        for m, lst in zip(mine, lists):
+            if m is not None and m[0] != mod[lst['at']:lst['end']]:
+                grow['baked' if any(n in baked for n in m[1]) else 'other'] += len(m[0]) - (lst['end'] - lst['at'])
 
-    mine, num, pos, code_of_num = convert(None, mod)
-    # where the positions are: the first list's stream, converted, is searched for in the module (before the lists, or
-    # after them when the lists come first), then in the file's other table-0 chunks
-    first_stream = bytes(pos.data[:24]) if 0 in recs else b''
-    lo, hi = (lend, len(mod)) if first else (pend, lbase)
-    posmod, where = mod, None
-    at = mod.find(first_stream, lo, hi) if first_stream else -1
-    for slot, chunk in others:
-        if at < 0 and first_stream:
-            at, posmod, where = chunk.find(first_stream), chunk, f'slot {slot:#x}'
-    posbase = at if at >= 0 else None
-    if posbase is not None:
-        mine, num, pos, code_of_num = convert(posbase, posmod)
-    r.update(posbase=posbase, pos_where=where if posbase is not None else None)
+        # fit: the bytes the lists and the positions need, against what the disc has and what is free after them
+        ours_lists = sum(len(m[0]) if m else lst['end'] - lst['at'] for m, lst in zip(mine, lists)) + (0 if term is None else term['end'] - term['at'])
+        fit = dict(lists_disc=lend - lbase, lists_ours=ours_lists, pos_disc=None, pos_ours=len(pbytes), module=len(mod), after=len(mod) - lend, grow=grow)
+        zeros = lambda data, o: next((i for i in range(len(data) - o) if data[o + i]), len(data) - o)
+        fit['lists_free'] = posbase - lend if posbase is not None and where is None and posbase >= lend else zeros(mod, lend)
+        if posbase is not None:
+            ends = [stream_end(posmod, posbase + lst['pos'], lst['n']) for lst in lists if not is_empty(lst)]
+            used = max((e - posbase for e in ends if e is not None), default=0)
+            fit['pos_disc'] = used
+            fit['pos_free'] = lbase - posbase - used if where is None and posbase < lbase else zeros(posmod, posbase + used)
+        r2['fit'] = fit
+        return r2
 
-    # tile level: every number of a converted list holds the pixels of its code (flipped storage counts as a match)
-    baked, wrong = {}, {}
-    for n, code in code_of_num.items():
-        want = canon[code] if code < helper.ntiles else -2
-        if n < ntile and ex[n] >= 0 and ex[n] == want:
-            continue
-        flips = [f + 1 for f in range(3) if n < ntile and fl[3 * n + f] == want]
-        if flips:
-            baked[n] = (code, flips[0])
-        else:
-            wrong[n] = code
-    r.update(baked=baked, wrong=wrong, numbers=num.next - 1, chunk_tiles=ntile, tiles_ok=len(recs), tiles_of=sum(1 for lst in lists if not is_empty(lst)))
-
-    # positions
-    pbytes = bytes(pos.data)
-    disc_pos = b'' if posbase is None else posmod[posbase:posbase + len(pbytes)]
-    r['pos_len'] = len(pbytes)
-    r['term_ok'] = None if term is None else term['pos'] == len(pbytes)
-    r['pos_diff'] = None if pbytes == disc_pos else next((i for i, (x, y) in enumerate(zip(pbytes, disc_pos)) if x != y), len(disc_pos))
-
-    # list bytes: each list against the disc's at its own place; a difference in a list with a tile stored flipped is counted apart
-    r.update(bytes_equal=0, baked_diff=0, kinds=collections.Counter(), first_bad=None, first_other=None)
-    g = lambda m, i: struct.unpack_from('<H', m, 2 * i)[0] if 2 * i + 2 <= len(m) else None
-    for k, lst in enumerate(lists):
-        if mine[k] is None:
-            continue
-        m, numbers = mine[k]
-        disc = mod[lst['at']:lst['end']]
-        if m == disc:
-            r['bytes_equal'] += 1
-            continue
-        w = next((i for i in range(min(len(m), len(disc)) // 2) if m[2 * i:2 * i + 2] != disc[2 * i:2 * i + 2]), min(len(m), len(disc)) // 2)
-        bad = dict(k=k, at=lst['at'], word=w, mine=g(m, w), disc=g(disc, w), mine_len=len(m), disc_len=len(disc), n=lst['n'], mode=lst['mode'])
-        if any(n in baked for n in numbers):
-            r['baked_diff'] += 1
-        else:
-            bad['kind'] = diff_kind(m, disc)
-            r['kinds'][bad['kind']] += 1
-            if r['first_other'] is None:
-                r['first_other'] = bad
-        if r['first_bad'] is None:
-            r['first_bad'] = bad
-    r['mine_count'] = sum(1 for m in mine if m is not None)
-    return r
+    # the cell order of a record with parts: the file is converted without and, when a record has a palette change
+    # inside it, with the palette changes splitting parts too; the conversion whose positions agree longer with the disc's (then more equal lists) is kept
+    best = tail(False)
+    if any(len({c[5] for c in rec[1]}) != len({c[4] for c in rec[1]}) for rec, _bank in recs.values()):
+        other = tail(True)
+        score = lambda x: (x['pos_len'] + 1 if x['pos_diff'] is None else x['pos_diff'], x['bytes_equal'])
+        if score(other) > score(best):
+            best = other
+    return best
 
 
 def line(name, side, r):
@@ -832,8 +877,15 @@ def line(name, side, r):
     names = [f'{a:#x}+{c}' + (f'@{b >> 16}' if b else '') for a, c, _k, b in r['segments']]
     segs = ' '.join(names) if len(names) <= 4 else ' '.join(names[:3]) + f' ... {len(names)} segments'
     s = f'{name} side {side}: {len(r["lists"]) + (r["term"] is not None)} lists, segments {segs or "none"}; tiles {r["tiles_ok"]}/{r["tiles_of"]} lists'
+    banks = collections.Counter()
+    for _a, count, _k, bank in r['segments']:
+        banks[bank] += count
+    if set(banks) != {0}:
+        s += '; tile bank ' + ', '.join(f'{b:#x} for {c}' for b, c in sorted(banks.items())) + ' lists'
+    if r['palette_splits']:
+        s += '; parts split by palette'
     if r['unmatched']:
-        s += f'; unmatched lists {len(r["unmatched"])} (first {r["unmatched"][0]}, {len(r["alt0"])} match a mode 0 record)'
+        s += f'; unmatched lists {len(r["unmatched"])} (first {r["unmatched"][0]})'
     if r['posbase'] is None:
         s += '; positions not found'
     else:
@@ -892,11 +944,26 @@ def details(name, r):
     return out[:6]
 
 
+def fit_line(name, r):
+    """One line: bytes of lists and of positions on the disc, in the conversion, the difference and the free bytes after."""
+    if 'error' in r:
+        return f'{name}: {r["error"]}'
+    f = r['fit']
+    lists = f'lists disc {f["lists_disc"]} ours {f["lists_ours"]} ({f["lists_ours"] - f["lists_disc"]:+d}, free {f["lists_free"]})'
+    if f['pos_disc'] is None:
+        return f'{name}: {lists}; positions not found'
+    pos = f'positions disc {f["pos_disc"]} ours {f["pos_ours"]} ({f["pos_ours"] - f["pos_disc"]:+d}, free {f["pos_free"]})'
+    over = max(0, f['lists_ours'] - f['lists_disc'] - f['lists_free']) + max(0, f['pos_ours'] - f['pos_disc'] - f['pos_free'])
+    return (f'{name}: {lists}; {pos}; ' + ('fits' if not over else f'over by {over}') +
+            f'; of the difference {f["grow"]["baked"]:+d} lists with baked tiles, {f["grow"]["other"]:+d} others; module {f["module"]} B, {f["after"]} B after the lists')
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--disc', required=True, help='disc image, raw 2352-byte sectors')
     ap.add_argument('--arcade', required=True, help="arcade set ZIP (MAME's sfa2u)")
     ap.add_argument('--only', help='one file, by name (PL00.PAC or PL00)')
+    ap.add_argument('--fit', action='store_true', help='print the fit table (bytes of lists and positions: disc, conversion, free) instead of the lines')
     ap.add_argument('--detail', action='store_true', help='up to six extra lines per file for the first mismatch of each kind')
     args = ap.parse_args(argv)
     started = time.monotonic()
@@ -926,6 +993,9 @@ def main(argv=None):
                     continue
                 mod, tiles, side, others = parts
                 r = analyse(mod, tiles, view, index, helper, others)
+                if args.fit:
+                    print(fit_line(name, r))
+                    continue
                 print(line(name, side, r))
                 if args.detail:
                     for d in details(name, r):
