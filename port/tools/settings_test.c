@@ -3,6 +3,12 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+/* the defaults (settings.c): the graphics settings are on in a build with PsyZ, and the memory cards always */
+#ifdef PORT_HAVE_PSYZ
+#define G 1
+#else
+#define G 0
+#endif
 static void read_case(const char *text,size_t bytes,int ok,int ui,int arcade,int center,int fast,int card,int sharp)
 {
     FILE *f=tmpfile();char err[128];struct port_settings s={7,9,11,13,15,17,19};int rc;
@@ -21,20 +27,20 @@ int main(int argc,char **argv)
       "[experimental]\narcade_intro=yes", "[experimental]\narcade_intro=true\narcade_intro=false",
       "[experimental]\nsharp_bilinear=1", "[experimental]\nsharp_bilinear=true\nsharp_bilinear=false"};
     size_t i;
-    assert(argc==2);port_settings_defaults(&s);assert(!s.pixel_perfect_ui && !s.arcade_video && !s.center_ui && s.fast_loads && !s.memory_card && !s.sharp_bilinear && !s.arcade_intro);
+    assert(argc==2);port_settings_defaults(&s);assert(s.pixel_perfect_ui==G && s.arcade_video==G && s.center_ui==G && s.fast_loads && s.memory_card && s.sharp_bilinear==G && !s.arcade_intro);
     s.pixel_perfect_ui=7;s.arcade_video=9;s.center_ui=11;s.fast_loads=13;s.memory_card=15;s.sharp_bilinear=17;
     assert(port_settings_load(argv[1],&s,0,err,sizeof err));assert(s.pixel_perfect_ui==7 && s.arcade_video==9 && s.center_ui==11 && s.fast_loads==13 && s.memory_card==15 && s.sharp_bilinear==17);
-    assert(!port_settings_load(argv[1],&s,1,err,sizeof err));assert(!s.pixel_perfect_ui && !s.arcade_video && !s.center_ui && s.fast_loads && !s.memory_card && !s.sharp_bilinear && !s.arcade_intro);
-    read_case("",0,1,0,0,0,1,0,0);
+    assert(!port_settings_load(argv[1],&s,1,err,sizeof err));assert(s.pixel_perfect_ui==G && s.arcade_video==G && s.center_ui==G && s.fast_loads && s.memory_card && s.sharp_bilinear==G && !s.arcade_intro);
+    read_case("",0,1,G,G,G,1,1,G);
     { const char *text="\xef\xbb\xbf # comment\r\n [experimental] \r\n pixel_perfect_ui = true ; yes\r\narcade_video=false";
-      read_case(text,strlen(text),1,1,0,0,1,0,0); }
-    read_case("[experimental]\narcade_video=true",32,1,0,1,0,1,0,0);
-    read_case("[experimental]\ncenter_ui=true",29,1,0,0,1,1,0,0);
-    read_case("[experimental]\nfast_loads=true",30,1,0,0,0,1,0,0);
-    read_case("[experimental]\nfast_loads=false",31,1,0,0,0,0,0,0);
-    read_case("[experimental]\nmemory_card=true",31,1,0,0,0,1,1,0);
-    read_case("[experimental]\nsharp_bilinear=true",34,1,0,0,0,1,0,1);
-    read_case("[experimental]\nsharp_bilinear=false\nfast_loads=false",52,1,0,0,0,0,0,0);
+      read_case(text,strlen(text),1,1,0,G,1,1,G); }
+    read_case("[experimental]\narcade_video=true",32,1,G,1,G,1,1,G);
+    read_case("[experimental]\ncenter_ui=true",29,1,G,G,1,1,1,G);
+    read_case("[experimental]\nfast_loads=true",30,1,G,G,G,1,1,G);
+    read_case("[experimental]\nfast_loads=false",31,1,G,G,G,0,1,G);
+    read_case("[experimental]\nmemory_card=true",31,1,G,G,G,1,1,G);
+    read_case("[experimental]\nsharp_bilinear=true",34,1,G,G,G,1,1,1);
+    read_case("[experimental]\nsharp_bilinear=false\nfast_loads=false",52,1,G,G,G,0,1,0);
     for(i=0;i<sizeof invalid/sizeof invalid[0];i++)read_case(invalid[i],strlen(invalid[i]),0,0,0,0,0,0,0);
     memset(longline,'x',sizeof longline);read_case(longline,sizeof longline,0,0,0,0,0,0,0);
     { const char text[]="[experimental]\narcade_video=true\0ignored";read_case(text,sizeof text-1,0,0,0,0,0,0,0); }

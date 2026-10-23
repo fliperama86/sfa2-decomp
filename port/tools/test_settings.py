@@ -12,12 +12,14 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class Settings(unittest.TestCase):
     def test_generated_settings(self):
-        with tempfile.TemporaryDirectory() as folder:
-            path = Path(folder)
-            subprocess.run(['gcc', '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror',
-                '-I', str(ROOT / 'port/src'), str(ROOT / 'port/src/settings.c'),
-                str(ROOT / 'port/tools/settings_test.c'), '-o', str(path / 'test')], check=True, timeout=15)
-            subprocess.run([str(path / 'test'), str(path / 'settings.ini')], check=True, timeout=5)
+        # Twice: as a build without PsyZ compiles settings.c (the graphics defaults off) and as one with it (on).
+        for flags in ([], ['-DPORT_HAVE_PSYZ']):
+            with tempfile.TemporaryDirectory() as folder:
+                path = Path(folder)
+                subprocess.run(['gcc', '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror', *flags,
+                    '-I', str(ROOT / 'port/src'), str(ROOT / 'port/src/settings.c'),
+                    str(ROOT / 'port/tools/settings_test.c'), '-o', str(path / 'test')], check=True, timeout=15)
+                subprocess.run([str(path / 'test'), str(path / 'settings.ini')], check=True, timeout=5)
 
     def test_real_startup_parser_without_game(self):
         # Execute the real startup/CLI parsing section alone. The remainder of
@@ -38,7 +40,7 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             exe = path / 'startup'
             subprocess.run(['gcc', '-std=c11', '-O1', '-I', str(ROOT / 'port/src'),
                 str(path / 'test.c'), str(ROOT / 'port/src/settings.c'), '-o', str(exe)], check=True, timeout=15)
-            def run(args, expected, ui=None, canvas=None, center=False, fast=True, card=False):
+            def run(args, expected, ui=None, canvas=None, center=False, fast=True, card=True):
                 result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
                     cwd=path, capture_output=True, text=True, timeout=3)
                 self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
@@ -57,7 +59,7 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             volume([], 0, 'volume = 100')
             run(['--memory-card'], 0, False, False, False, True, True)
             run(['--memory-card', '--no-memory-card'], 0, False, False, False, True, False)
-            run(['--card1', 'a.mcr', '--card2', 'b.mcr'], 0, False, False, False, True, False)
+            run(['--card1', 'a.mcr', '--card2', 'b.mcr'], 0, False, False, False, True, True)
             volume([], 0, 'arcade_intro = false')
             volume(['--arcade-intro'], 0, 'arcade_intro = true')
             volume(['--arcade-intro','--ps1-intro'], 0, 'arcade_intro = false')
@@ -103,6 +105,17 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             volume([], 0, 'sharp_bilinear = true')
             volume(['--nearest-scaling'], 0, 'sharp_bilinear = false')
             run(['--settings', 'missing.ini'], 2)
+            # A build with PsyZ (settings.c compiled with PORT_HAVE_PSYZ): with no settings file every setting is on but the arcade intro.
+            psyz = path / 'startup-psyz'
+            subprocess.run(['gcc', '-std=c11', '-O1', '-DPORT_HAVE_PSYZ', '-I', str(ROOT / 'port/src'),
+                str(path / 'test.c'), str(ROOT / 'port/src/settings.c'), '-o', str(psyz)], check=True, timeout=15)
+            empty = path / 'empty'
+            empty.mkdir()
+            shown = subprocess.run([str(psyz), '--no-audio', '--show-settings'], cwd=empty, capture_output=True, text=True, timeout=3)
+            self.assertEqual(shown.returncode, 0, shown.stdout + shown.stderr)
+            for line in ('pixel_perfect_ui = true', 'arcade_video = true', 'center_ui = true', 'fast_loads = true', 'memory_card = true',
+                         'sharp_bilinear = true', 'arcade_intro = false'):
+                self.assertIn(line, shown.stdout.splitlines())
             config.write_text('[experimental]\narcade_video = typo\n')
             run([], 2)
             config.write_text('[experimental]\narcade_video = true\narcade_video = false\n')

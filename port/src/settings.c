@@ -24,7 +24,15 @@
 #define UNLINK unlink
 #endif
 struct port_settings port_settings;
-void port_settings_defaults(struct port_settings *out) { out->pixel_perfect_ui=0;out->arcade_video=0;out->center_ui=0;out->fast_loads=1;out->memory_card=0;out->sharp_bilinear=0;out->arcade_intro=0; }
+/* The defaults, by the owner's decision of 2026-10-23: every setting on but the arcade intro, which needs a pack that the player makes.
+ * The graphics settings need PsyZ's patched backend: a build without PsyZ (the controls, which open no window) keeps them off, so that
+ * its defaults never ask for what it cannot do. The build tools compile this file with PORT_HAVE_PSYZ when they link PsyZ. */
+#ifdef PORT_HAVE_PSYZ
+#define GRAPHICS_DEFAULT 1
+#else
+#define GRAPHICS_DEFAULT 0
+#endif
+void port_settings_defaults(struct port_settings *out) { out->pixel_perfect_ui=GRAPHICS_DEFAULT;out->arcade_video=GRAPHICS_DEFAULT;out->center_ui=GRAPHICS_DEFAULT;out->fast_loads=1;out->memory_card=1;out->sharp_bilinear=GRAPHICS_DEFAULT;out->arcade_intro=0; }
 static int failure(char *err,size_t size,unsigned line,const char *why)
 {
     if(err && size) {

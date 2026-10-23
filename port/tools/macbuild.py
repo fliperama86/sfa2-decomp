@@ -28,7 +28,7 @@ PORT = Path(__file__).resolve().parents[1]
 SRC = PORT / "src"
 MAC = PORT / "mac"
 LEFT_OUT = {"mirrorcore.c"}
-PSYZ_FILES = {"gpu.c", "input.c", "iopage.c", "press.c"}
+PSYZ_FILES = {"gpu.c", "input.c", "iopage.c", "press.c", "settings.c"}   # settings.c: its graphics defaults are on with PsyZ
 CFLAGS = ["-O1", "-g", "-Wall", "-Wextra", "-DPORT_GUEST_VM", "-I", str(SRC)]
 
 

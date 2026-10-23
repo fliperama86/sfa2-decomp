@@ -1,7 +1,8 @@
 # Port
 
-Experimental graphics now use the normal port and shared settings, with all
-options off by default (except fast loading waits, on by default). See [graphics and settings](graphics.md) for super/life
+Experimental graphics now use the normal port and shared settings. Since
+2026-10-23, by the owner's decision, every option is on by default but the
+arcade intro (in a build without PsyZ the graphics options stay off). See [graphics and settings](graphics.md) for super/life
 pixel-grid sampling, the independently optional arcade canvas, WIP common-UI
 centering and scoped checks.
 

@@ -54,11 +54,11 @@ Old figures describe their own date, not today's completion.
   these two units (of the library it compiles the sound part's C, in its
   normal build with PsyZ, and nothing else). This is for the library's
   code, not a way around a game function that does not match.
-- CI/CD: tracked WIP uses default-off settings flags, preserving default behavior.
+- CI/CD: tracked WIP uses default-off settings flags, preserving default behavior; by the owner's
+  choice of 2026-10-23 the existing experimental settings default on but arcade_intro (port/graphics.md).
   Before a port-feature PR, give the owner a runnable build and test instructions.
   Owner wants notification/testing only when the ENTIRE intro is done, not partial scenes (2026-10-14).
-  Keep PR monitoring active until review is handled, polling owner comments every 60 s.
-  Merge after scoped checks and owner approval; no private source silos or bypass.
+  Poll PR comments every 60 s; merge after scoped checks and owner approval; no private silos or bypass.
 - [Agent worktrees](agent-worktrees.md): integration-only main, separate workers
   and pinned review, canonical outputs per worktree; provisioning remains undone.
 - After an approved merge, proceed to the next goal without asking. Decisions

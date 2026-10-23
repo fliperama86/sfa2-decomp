@@ -299,7 +299,10 @@ void game_thread_ret(void)
 GAME_CRASH = PROLOGUE + r"""
 void game_crash(void)
 {
-    volatile unsigned *p = (volatile unsigned *)0xffff1000u;   /* the last 64 KB of the address space always fault and are not served */
+#ifndef CRASH_TOP
+#define CRASH_TOP 0xffff1000u
+#endif
+    volatile unsigned *p = (volatile unsigned *)CRASH_TOP;   /* the last 64 KB of the address space always fault and are not served */
     SAY("about to read the top of the address space\n");
     SAY("read %u\n", *p);
 }
@@ -998,7 +1001,9 @@ class Rig:
 
     def write_game(self, path: Path, tag: str, text: str) -> None:
         """Write a made-up C file; for the Linux program the markers' symbols have no underscore."""
-        path.write_text(text if not self.linux else text.replace("_port_game_text", "port_game_text"))
+        # On Linux the 32-bit program's stack lies at a random place near the top of the address space and can cover 0xffff1000;
+        # the last page, above the kernel's limit for a 32-bit process, is never mapped.
+        path.write_text(text if not self.linux else "#define CRASH_TOP 0xfffff000u\n" + text.replace("_port_game_text", "port_game_text"))
 
     def runtime_objects(self) -> list[Path]:
         if not self.objects:
@@ -1209,7 +1214,7 @@ def cases(rig: Rig):
     yield "list-library-needs-no-disc-and-prints-the-groups-with-addresses", verdict((proc.returncode, out), (0, want))
 
     status, lines, img, arg = rig.run("crash", program(G_CRASH), variant="crash")
-    ok = status == 10 and lines[-2] == "about to read the top of the address space" and re.fullmatch(r"stop: crash: access violation \(read 0xffff1000\) in game_crash \(at 0x[0-9a-f]{8}\)", lines[-1])
+    ok = status == 10 and lines[-2] == "about to read the top of the address space" and re.fullmatch(r"stop: crash: access violation \(read 0x%s\) in game_crash \(at 0x[0-9a-f]{8}\)" % ("fffff000" if rig.linux else "ffff1000"), lines[-1])
     yield "a-read-in-the-last-64-kb-of-the-address-space-is-not-served-and-ends-with-a-line-that-says-so-and-names-the-function", None if ok else f"status {status}, lines {lines[-3:]!r}"
 
     # ---- addresses that the game hands to the runtime to call ----
@@ -1253,8 +1258,8 @@ def cases(rig: Rig):
     yield "cdgetsector-into-an-address-outside-the-ram-ends-the-run-before-a-byte-is-copied", verdict(
         (status, lines[-2:]), (6, ["before", "stop: CdGetSector buffer 0x00001000 (2048 bytes) is outside the PS1's RAM"]))
 
-    # ---- the memory card model: empty slots ----
-    status, lines, img, arg = rig.run("card", program(G_CARD), variant="card")
+    # ---- the memory card model: empty slots (the setting memory_card off; it is on by default) ----
+    status, lines, img, arg = rig.run("card", program(G_CARD), variant="card", args=["--no-memory-card"])
     body = lines[lines.index(f"start: 0x{G_CARD:08x}") + 1:] if f"start: 0x{G_CARD:08x}" in lines else lines
     want = ["polling before the request: 0", "info 1", "first ready event index 2", "again 0", "load 1 clear 1", "ready after load: 1",
             "open -1 read -1 firstfile 0 format 0", "stop: main returned"]

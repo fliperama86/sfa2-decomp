@@ -1,15 +1,19 @@
 # Optional graphics and settings
 
-The normal port has one build and one settings model. All experimental
-graphics settings default off, preserving the existing PS1 canvas and sampling.
+The normal port has one build and one settings model. Since 2026-10-23, by the
+owner's decision, every experimental setting is on by default but the arcade
+intro, which needs an intro pack. A build without PsyZ (the controls, which open
+no window) keeps the graphics settings off by default, since it cannot draw
+them; the build tools compile `settings.c` with PsyZ's define for that. Each
+setting can still be turned off in the settings file or on the command line.
 No arcade ROM or replacement artwork is required for these options.
 
 ```ini
 [experimental]
-pixel_perfect_ui = false
-arcade_video = false
-center_ui = false
-sharp_bilinear = false
+pixel_perfect_ui = true
+arcade_video = true
+center_ui = true
+sharp_bilinear = true
 ```
 
 `pixel_perfect_ui` corrects **super-meter and life-frame tile sampling**. It maps
@@ -70,7 +74,7 @@ reads the window's pixels.
 ## Configuration
 
 At startup the port reads `settings.ini` in the working directory. A missing
-default file uses disabled defaults. `--settings FILE` explicitly selects a
+default file uses the defaults above. `--settings FILE` explicitly selects a
 file; missing or invalid explicit files refuse startup. No settings are written
 automatically. Copy/edit the supplied `port/settings.ini`, or give its path.
 
@@ -82,7 +86,8 @@ CLI overrides address these same settings, with the last override winning:
 | Native canvas | `--arcade-video` | `--ps1-video` |
 | Common UI position | `--center-ui` | `--ps1-ui-layout` |
 | Window scaling | `--sharp-bilinear` | `--nearest-scaling` |
-| Loading waits (not graphics; on by default) | `--fast-loads` | `--ps1-loading` |
+| Loading waits (not graphics) | `--fast-loads` | `--ps1-loading` |
+| Memory cards (not graphics) | `--memory-card` | `--no-memory-card` |
 
 `--volume PERCENT` (0 to 100, default 100) sets the gain of the sound output. It is a command-line option only (the settings file takes
 true or false values), it is not a graphics setting, and `--show-settings` reports it on a line after the settings. It does not change a
