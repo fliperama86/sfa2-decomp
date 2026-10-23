@@ -89,6 +89,18 @@ class Pure(unittest.TestCase):
         self.assertTrue(stages.is_flat_palette(bytes(chunk), 7))
         self.assertFalse(stages.is_flat_palette(bytes(chunk), 5))
 
+    def test_row_classes(self):
+        prog = bytearray(0x300000)
+        base = stages.PALETTE_TABLES[0] + 0x400
+        for row in range(3):
+            struct.pack_into('>16H', prog, base + 0x20 * row, *range(0x0100 + row * 0x40, 0x0110 + row * 0x40))
+        chunk = bytearray(96 * 32)
+        for row in range(3):
+            struct.pack_into('<16H', chunk, 32 * 2 * row, *stages.predicted_palette(bytes(prog), 1, 0, row))
+        struct.pack_into('<H', chunk, 64 + 6, 0x1234)             # row 1: one entry differs
+        struct.pack_into('<16H', chunk, 128, *([0x4321] * 16))     # row 2: the whole row differs
+        self.assertEqual(stages.row_classes(bytes(prog), 1, bytes(chunk), 0, [0, 1, 2]), (1, 1, 1))
+
     def test_object_palettes(self):
         prog = bytearray(0x300000)
         for k in range(7):
@@ -121,6 +133,23 @@ class Pure(unittest.TestCase):
                 self.assertEqual(stages.map_word_index(cx, cy, 32, 32), want)
         with self.assertRaises(ValueError):
             stages.map_word_index(0, 0, 32, 8)
+
+    def test_scroll1_sets(self):
+        prog = bytearray(0x300000)
+        for m in (0, 5):                                         # two cell groups: codes 100 * m + 4 * c + r, attribute m
+            for c in range(4):
+                for r in range(4):
+                    struct.pack_into('>HH', prog, stages.GROUPS1 + 64 * m + 4 * (c * 4 + r), 100 * m + 4 * c + r, m)
+        ids = [0] * 64
+        ids[1 * 8 + 2] = 5                                       # column 1, row 2 of the set
+        struct.pack_into('>64H', prog, stages.SETS1 + 128 * 3, *ids)
+        cells = stages.scroll1_set_cells(bytes(prog), 3)
+        self.assertEqual(len(cells), 1024)
+        self.assertEqual(cells[(4 + 2, 8 + 3)], (500 + 4 * 2 + 3, 5))        # group (1, 2) holds cell (c, r) = (2, 3) at x 6, y 11
+        self.assertEqual(cells[(0, 0)], (0, 0))
+        self.assertEqual(stages.scroll1_set_cells(bytes(prog), 0)[(5, 9)], (5, 0))                   # every id 0: group 0 repeated, cell (1, 1) of it
+        self.assertEqual(stages.scroll1_piece(10), (0x10005, 0))
+        self.assertEqual(stages.scroll1_piece(11), (0x10005, 8))
 
     def test_arcade_cells(self):
         self.assertEqual(stages.arcade_cell_tile(0x2271, 0x0c2, 16), (((0x2271 + 0xa400) & 0xffff) + 0x10000, False, True, 2))

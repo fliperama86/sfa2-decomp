@@ -133,11 +133,15 @@ scripts (nothing of it is in the tree):
   cells are the arcade's scroll maps cell for cell (all cells in 17 and 19
   stages); their palettes are the arcade's (4-bit channels scaled
   `n*17*43/45`); the shared and object tiles and the object palettes are
-  arcade tiles and palettes, flips stored as separate tiles. Open: the third
-  layer is arcade art (stage 00 entirely) but the arcade map that places it
-  is not found, its palettes mostly differ, stage 04's object tiles are the
-  PS1's own, and the order in which the PS1 packs tiles into pages is not
-  fully derived.
+  arcade tiles and palettes, flips stored as separate tiles. The third
+  layer is the arcade's scroll 1: block sets at `0x2ad300` of 4x4-cell
+  groups at `0x2b1a80`, four sets a stage (all pixels equal in 4 stages,
+  nearly all in 7 more). Open: the arcade's own list of sets per stage (near
+  `0x1d020`, not decoded), palette entries the arcade changes at run time
+  (163 of 305 rows of that layer equal the arcade's table), some cells of
+  the PS1's own in four stages, stage 04's object tiles, and the order in
+  which the PS1 packs tiles into pages. All of it is in the arcade's data
+  plane: the loader needs no decryption.
 - **Animation steps** (`sequences.py`). A fighter's steps follow its
   lists: 12 bytes each, from the arcade's sequence records (countdown,
   flags, art pointer, 16 frame bytes, and a 4-byte jump target when flags

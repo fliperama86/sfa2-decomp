@@ -9,8 +9,11 @@ tile maps, cell by cell, by pixel content and palette row:
   - layer 1 (16 pixel tiles) and layer 2 (32 pixel tiles) are blocks of the arcade's scroll maps; the tool
     reports which arcade blocks they are (the map tables at 0x2d1f00, 154 blocks of 16x16 cells, and at
     0x2f8700, 101 blocks of 8x8 cells, both column by column) and how many cells agree;
-  - layer 0 (16 pixel cells) is made of the arcade's 8x8 pieces: it reports how many of its non-flat 8x8
-    pieces are pieces of the arcade's tiles (a piece being a quarter of a 16x16 tile, flips included);
+  - layer 0 (16 pixel cells) is the arcade's scroll 1 layer (8x8 cells): four consecutive block sets of 32 x 32 cells
+    from the tables at 0x2ad300 (sets of 8 x 8 ids) and 0x2b1a80 (groups of 4 x 4 cells), cell code n being the
+    left half of the 8 rows of the 16x16 tile 0x10000 + n // 2 (top rows when n is even). The tool reports which
+    sets they are and how many of the 1,024 pieces of each block agree in pixels and in palette row (a PS1 cell is
+    two by two pieces with one palette row, so when its pieces have different rows the PS1 keeps one);
   - the object tiles (table 0 slot 9) and the shared effect tiles (slot 7) are lists of 128-byte tiles: it
     reports how many equal an arcade tile with the colour index one higher (the arcade's 15, transparent,
     is the PS1's 0);
@@ -66,6 +69,8 @@ BLANK_L0 = 0x5800           # the cell code layer 0's setup writes as "no tile"
 BLANK_L2 = 0x20             # the same for layer 2
 PALETTE_TABLES = (0x27c1c0, 0x2865c0, 0x2909c0)   # the arcade's palette rows of layer 0, 1, 2 of stage 0; 0x400 more a stage
 PALETTE_OBJECTS = 0x275c40                         # the arcade's 7 object palette rows of stage 0; 7 * 0x20 more a stage
+SETS1 = 0x2ad300            # the arcade's scroll 1 block sets: 143 sets of 128 bytes (8 x 8 ids of 4 x 4 cell groups), 32 x 32 cells each
+GROUPS1 = 0x2b1a80          # the 4 x 4 cell groups of scroll 1: 64 bytes each, column by column
 TABLE16 = 0x2d1f00          # the arcade's 16x16 cell blocks: 154 blocks of 1,024 bytes
 TABLE32 = 0x2f8700          # the arcade's 32x32 cell blocks: 101 blocks of 256 bytes
 LAYER_NAMES = ('layer 0', 'layer 1', 'layer 2')
@@ -137,6 +142,28 @@ def arcade_cell_tile(code, attr, side):
     if side == 16:
         return (((code + 0xa400) & 0xffff) + 0x10000, bool(attr & 0x20), bool(attr & 0x40), attr & 31)
     return (((code + 0x900) & 0x3fff) + 0x4000, bool(attr & 0x20), bool(attr & 0x40), attr & 31)
+
+
+def scroll1_set_cells(prog, number):
+    """The 32 x 32 cells (code, attribute) of the arcade's scroll 1 block set `number`, as {(x, y): (code, attribute)}.
+
+    The set is 64 big-endian ids, 8 columns of 8 rows; id m names the 4 x 4 cells at GROUPS1 + 64 * m, stored column by
+    column (4 cells down, then the next column)."""
+    ids = struct.unpack_from('>64H', prog, SETS1 + 128 * number)
+    cells = {}
+    for col in range(8):
+        for row in range(8):
+            at = GROUPS1 + 64 * ids[col * 8 + row]
+            for c in range(4):
+                for r in range(4):
+                    cells[(col * 4 + c, row * 4 + r)] = struct.unpack_from('>HH', prog, at + 4 * (c * 4 + r))
+    return cells
+
+
+def scroll1_piece(code):
+    """(index of the 16x16 gfx tile, first pixel row) of a scroll 1 cell code: 8x8 pixels, the left half of the tile's
+    top (even code) or bottom (odd code) eight rows, the tile being 0x10000 + code // 2."""
+    return 0x10000 + (code >> 1), (code & 1) * 8
 
 
 def arcade_block_cell(k, cells):
@@ -263,6 +290,17 @@ def rows_used(module, layers, extents):
     return out
 
 
+def row_classes(prog, stage, chunk, layer, rows):
+    """(equal, a few entries differ (1 to 8), the whole row differs) over the given rows of one layer's table."""
+    out = [0, 0, 0]
+    for row in rows:
+        k = row * 2 + layer if layer < 2 else 64 + row * (2 if len(chunk) // 32 >= 128 else 1)
+        have = struct.unpack_from('<16H', chunk, 32 * k)
+        diff = sum(1 for a, b in zip(have, predicted_palette(prog, stage, layer, row)) if a != b)
+        out[0 if diff == 0 else 1 if diff <= 8 else 2] += 1
+    return tuple(out)
+
+
 def same_palette(a, b):
     """Two 16-entry PS1 palettes equal, black counting the same as 0 or as 0x8000 (the object palettes use 0)."""
     return all(x == y or (x in (0, 0x8000) and y in (0, 0x8000)) for x, y in zip(a, b))
@@ -316,7 +354,8 @@ static void arc_pixels(long idx, int side, int qx0, int qy0, int n, uint8_t *px)
     int b = 0, xx = qx0 + x, yy = qy0 + y;
     if (q) for (int pl = 0; pl < 4; pl++) b |= ((q[yy * side / 2 + xx / 8 * 4 + pl] >> (7 - xx % 8)) & 1) << pl; else b = 15;
     px[y * n + x] = (b + 1) & 15; } }
-static const int NB16 = 154, NB32 = 101;
+static const int NB16 = 154, NB32 = 101, NSET1 = 143;
+static u64 *A8; static uint8_t *Q8;   /* the scroll 1 block sets: 143 sets of 32 x 32 cells, column by column */
 int arc_init(const uint8_t *gfx, long gfx_len, const uint8_t *prog, long prog_len) {
   G = gfx; GN = gfx_len; P = prog; PN = prog_len;
   if (prog_len < 0x2f8700 + 101 * 256) return -1;
@@ -330,6 +369,14 @@ int arc_init(const uint8_t *gfx, long gfx_len, const uint8_t *prog, long prog_le
     const uint8_t *e = prog + 0x2f8700 + b * 256 + k * 4; unsigned code = e[0] << 8 | e[1], attr = e[2] << 8 | e[3];
     arc_pixels((long)((code + 0x900) & 0x3fff) + 0x4000, 32, 0, 0, 32, px);
     A32[b * 64 + k] = fnv(px, 32, !!(attr & 0x20), !!(attr & 0x40)); Q32[b * 64 + k] = attr & 31; }
+  A8 = malloc(sizeof(u64) * NSET1 * 1024); Q8 = malloc(NSET1 * 1024);
+  for (int b = 0; b < NSET1; b++) for (int col = 0; col < 8; col++) for (int row = 0; row < 8; row++) {
+    unsigned m = prog[0x2ad300 + b * 128 + (col * 8 + row) * 2] << 8 | prog[0x2ad300 + b * 128 + (col * 8 + row) * 2 + 1];
+    for (int c = 0; c < 4; c++) for (int r = 0; r < 4; r++) {
+      const uint8_t *e = prog + 0x2b1a80 + (long)m * 64 + (c * 4 + r) * 4; unsigned code = e[0] << 8 | e[1], attr = e[2] << 8 | e[3];
+      if (0x2b1a80 + (long)m * 64 + 64 > prog_len) code = 0x20;
+      arc_pixels(0x10000 + (code >> 1), 16, 0, (code & 1) * 8, 8, px);
+      int k = (col * 4 + c) * 32 + row * 4 + r; A8[b * 1024 + k] = fnv(px, 8, !!(attr & 0x20), !!(attr & 0x40)); Q8[b * 1024 + k] = attr & 31; } }
   return 0; }
 static int page_pixels(const uint8_t *pages, long plen, unsigned code, int side, int dx, int dy, int n, uint8_t *px) {
   long pg = (long)(code >> 10) - 22; int u = (code & 0x1f) * 8 + dx, v = ((code >> 5) & 0x1f) * 8 + dy;
@@ -360,6 +407,25 @@ int match_layer(const uint8_t *pages, long plen, const uint8_t *mod, long mlen, 
         if (a == ph[y * bc + x] && ((a >> 48) == 0xf1a7 || Q[b * bc * bc + k] == pp[y * bc + x])) { m++; if ((a >> 48) != 0xf1a7) mn++; } }
       if (m > bestn) { bestn = m; best = b; ties = 0; bestnf = mn; } else if (m == bestn) ties++; }
     out[n * 5 + 0] = nonflat; out[n * 5 + 1] = best; out[n * 5 + 2] = bestn; out[n * 5 + 3] = ties; out[n * 5 + 4] = bestnf; n++; }
+  return n; }
+/* layer 0: per block of 16 x 16 PS1 cells (32 x 32 pieces of 8 x 8), the best scroll 1 set; 5 ints a block: non-flat pieces, set,
+   pieces equal in pixels and palette row, pieces equal in pixels, non-flat pieces equal in both */
+int match_layer0(const uint8_t *pages, long plen, const uint8_t *mod, long mlen, long off, int wc, int hc, int32_t *out) {
+  int n = 0; uint8_t px[64]; static u64 ph[1024]; static uint8_t pp[1024];
+  for (int by = 0; by < hc / 16; by++) for (int bx = 0; bx < wc / 16; bx++) {
+    int nonflat = 0;
+    for (int y = 0; y < 16; y++) for (int x = 0; x < 16; x++) {
+      unsigned code, clut; int ok = cell_words(mod, mlen, off, wc, 16, bx * 16 + x, by * 16 + y, &code, &clut);
+      for (int q = 0; q < 4; q++) {
+        u64 h = 0xdead000000000000ull | code;
+        if (ok && page_pixels(pages, plen, code, 16, (q & 1) * 8, (q >> 1) * 8, 8, px)) { h = fnv(px, 8, 0, 0); if ((h >> 48) != 0xf1a7) nonflat++; }
+        int k = (x * 2 + (q & 1)) * 32 + y * 2 + (q >> 1); ph[k] = h; pp[k] = ((clut - 0x7800) >> 6) & 31; } }
+    int best = 0, bestn = -1, bestpix = 0, bestnf = 0;
+    for (int b = 0; b < NSET1; b++) {
+      int m = 0, mn = 0, mp = 0;
+      for (int k = 0; k < 1024; k++) { u64 a = A8[b * 1024 + k]; if (a == ph[k]) { mp++; if ((a >> 48) == 0xf1a7 || Q8[b * 1024 + k] == pp[k]) { m++; if ((a >> 48) != 0xf1a7) mn++; } } }
+      if (m > bestn || (m == bestn && mp > bestpix)) { bestn = m; best = b; bestpix = mp; bestnf = mn; } }
+    out[n * 5 + 0] = nonflat; out[n * 5 + 1] = best; out[n * 5 + 2] = bestn; out[n * 5 + 3] = bestpix; out[n * 5 + 4] = bestnf; n++; }
   return n; }
 static u64 hash8(const uint8_t *px, int fl) { return fnv(px, 8, fl & 1, (fl >> 1) & 1); }
 #define H8 23
@@ -416,6 +482,7 @@ class Helper:
         c = ctypes
         self.lib.arc_init.argtypes = [c.c_char_p, c.c_long, c.c_char_p, c.c_long]
         self.lib.match_layer.argtypes = [c.c_char_p, c.c_long, c.c_char_p, c.c_long, c.c_long, c.c_int, c.c_int, c.c_int, c.c_void_p]
+        self.lib.match_layer0.argtypes = [c.c_char_p, c.c_long, c.c_char_p, c.c_long, c.c_long, c.c_int, c.c_int, c.c_void_p]
         self.lib.quadrants.argtypes = [c.c_char_p, c.c_long, c.c_char_p, c.c_long, c.c_long, c.c_int, c.c_int, c.c_void_p]
         self.lib.match_tiles.argtypes = [c.c_char_p, c.c_long, c.c_void_p]
         self.lib.find_palettes.argtypes = [c.c_char_p, c.c_int, c.c_int, c.c_void_p]
@@ -427,6 +494,13 @@ class Helper:
         n = (cells_across // bc) * (cells_down // bc)
         out = (ctypes.c_int32 * (5 * n))()
         if self.lib.match_layer(pages, len(pages), module, len(module), off, cells_across, cells_down, side, out) != n:
+            raise ValueError('layer')
+        return [tuple(out[5 * i:5 * i + 5]) for i in range(n)]
+
+    def match_layer0(self, pages, module, off, cells_across, cells_down):
+        n = (cells_across // 16) * (cells_down // 16)
+        out = (ctypes.c_int32 * (5 * n))()
+        if self.lib.match_layer0(pages, len(pages), module, len(module), off, cells_across, cells_down, out) != n:
             raise ValueError('layer')
         return [tuple(out[5 * i:5 * i + 5]) for i in range(n)]
 
@@ -510,7 +584,7 @@ def analyse(parts, helper, stage, prog):
         item = {'offset': off, 'cells': (across, down), 'side': side}
         if n == 0:
             item['pieces'] = helper.quadrants(pages, module, off, across, down)
-        blocks = helper.match_layer(pages, module, off, across, down, side)
+        blocks = helper.match_layer0(pages, module, off, across, down) if n == 0 else helper.match_layer(pages, module, off, across, down, side)
         item['blocks'] = blocks
         r['layers'].append(item)
     for kind in ('object tiles', 'effect tiles'):
@@ -518,20 +592,27 @@ def analyse(parts, helper, stage, prog):
     for kind in ('palettes', 'shared palettes', 'object palettes'):
         count, offs = helper.palettes(parts[kind])
         r[kind] = (count, offs, sum(1 for k in range(count) if is_flat_palette(parts[kind], k)))
-    r['rows used'] = [len(u) for u in rows_used(module, layers, extents)]
+    used = rows_used(module, layers, extents)
+    r['rows used'] = [len(u) for u in used]
+    r['layer 0 rows'] = row_classes(prog, stage, parts['palettes'], 0, sorted(used[0]))
     r['rule'] = palette_agreement(prog, stage, parts['palettes'], rows_used(module, layers, extents))
     r['object rule'] = object_palette_agreement(prog, stage, parts['object palettes'])
     r['first_difference'] = first_palette_difference(prog, stage, parts['palettes'])
     return r
 
 
+def block_cells_total(item, n):
+    """Cells (pieces for layer 0) in one block of a layer's result."""
+    return 1024 if n == 0 else 256 if item['side'] == 16 else 64
+
+
 def layer_text(item, n):
     blocks = item['blocks']
-    exact = sum(1 for b in blocks if b[2] == (256 if item['side'] == 16 else 64))
+    exact = sum(1 for b in blocks if b[2] == block_cells_total(item, n))
     nonflat, nonflat_ok = sum(b[0] for b in blocks), sum(b[4] for b in blocks)
     text = f'L{n} {item["cells"][0] * item["side"]}x{item["cells"][1] * item["side"]}'
     if n == 0:
-        text += f' 8x8 pieces {item["pieces"][1]}/{item["pieces"][0]} cells equal {nonflat_ok}/{nonflat}'
+        text += f' sets exact {exact}/{len(blocks)} 8x8 pieces {nonflat_ok}/{nonflat} (pixels equal in {sum(b[3] for b in blocks)} of {1024 * len(blocks)}, rows in {sum(b[2] for b in blocks)})'
     else:
         text += f' blocks {exact}/{len(blocks)} cells {nonflat_ok}/{nonflat}'
     return text
@@ -561,12 +642,11 @@ def details(name, r):
     if isinstance(r, str):
         return out
     for n, it in enumerate(r['layers']):
-        if n == 0:
-            continue
         ids = [b[1] for b in it['blocks']]
-        bad = [(i, b) for i, b in enumerate(it['blocks']) if b[2] != (256 if it['side'] == 16 else 64)]
-        out.append(f'  {name} L{n} arcade blocks {ids}' + (f'; first block that differs: #{bad[0][0]} {bad[0][1][2]} cells equal of '
-                                                          f'{256 if it["side"] == 16 else 64}' if bad else ''))
+        total = block_cells_total(it, n)
+        bad = [(i, b) for i, b in enumerate(it['blocks']) if b[2] != total]
+        out.append(f'  {name} L{n} arcade {"scroll 1 sets" if n == 0 else "blocks"} {ids}' + (f'; first block that differs: #{bad[0][0]} {bad[0][1][2]} equal of {total}' if bad else ''))
+    out.append(f'  {name} layer 0 palette rows used: equal / a few entries differ / whole row differs: {r["layer 0 rows"]}')
     out.append(f'  {name} first palette row that differs from the arcade table, per layer (row, entries): {r["first_difference"]}')
     return out
 
