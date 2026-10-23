@@ -100,6 +100,17 @@ scripts (nothing of it is in the tree):
   whose pixels another tile repeats. The PS1 numbers the tiles in the order
   the lists first use them (1,048 of 1,082 new tiles are the previous
   number plus one) and gives a tile it has already the number it had.
+- **All fighters** (`fighters.py`, the rules above run over the 45 fighter
+  files). Ryu's and Dan's lists rebuild exactly, but for one tile of Ryu's
+  that the PS1 stores flipped. Positions are byte-equal in 16 of 23
+  characters. The rest differ where the PS1 changed things: tiles stored
+  flipped (a few in most fighters), a palette or flip bit here and there,
+  and in Zangief (PL10) and PL11/PL13 art of the PS1's own (poses turned
+  half round, tiles the arcade lacks). Some fighters' tile codes are in
+  another bank of the arcade graphics (+0x20000); a few lists come from
+  arcade records of mode 0 (one code a cell); in PL08 and PL0E some lists
+  sort their cells in two groups. The arcade build does not copy the PS1's
+  changes: it converts the arcade's records.
 - **The rest of the program's data** (`program_map.py`, every byte
   classed): 29% arcade tables (the 72 pieces), 19% cell lists and position
   runs of effects in the fighters' format, 12% the Sony library's data
