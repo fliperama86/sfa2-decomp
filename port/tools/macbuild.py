@@ -35,7 +35,9 @@ CFLAGS = ["-O1", "-g", "-Wall", "-Wextra", "-DPORT_GUEST_VM", "-I", str(SRC)]
 def runtime_sources() -> list[Path]:
     """The files that make the program, in a fixed order: the runtime's (less what is left out), the platform layer, the machine."""
     files = [p for p in sorted(SRC.glob("*.c")) if p.name not in LEFT_OUT]
-    return files + sorted((PORT / "intro").glob("*.c")) + sorted((PORT / "arcade").glob("*.c")) + [MAC / "platform.c", MAC / "guest.c", MAC / "vm.c", MAC / "elf.c"]
+    listing = PORT / "arcade" / "build.txt"
+    arcade = [PORT / "arcade" / n.strip() for n in listing.read_text().splitlines() if n.strip() and not n.startswith("#")] if listing.is_file() else []
+    return files + sorted((PORT / "intro").glob("*.c")) + sorted(arcade) + [MAC / "platform.c", MAC / "guest.c", MAC / "vm.c", MAC / "elf.c"]
 
 
 def compile_args(source: Path, obj: Path, psyz: dict | None, sound: bool = False) -> list[str]:

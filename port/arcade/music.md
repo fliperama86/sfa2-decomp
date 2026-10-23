@@ -359,7 +359,32 @@ mixer, against each recorded channel) elsewhere:
 - The 250 Hz interrupt rate is MAME's, supported by the tempos, not measured on a board.
 - Roles of most arcade music selectors (section 10) and the PS1-to-arcade song correspondence outside the fighter themes (section 11).
 
+## 13. The C player
+
+`music.c` / `music.h` is the runtime player: the driver of sections 1 to 9 as C of our own, statement by statement from `music.py`, and a
+mixer for the chip. No Z80 code is run. `arcade_music_open(rom, stereo)` borrows the sound and sample views of `struct arcade_rom`;
+`arcade_music_command(code)` plays a song or effect (an effect with a fixed centre pan), `arcade_music_packet` takes the whole packet of section 2
+(pan motion, special commands), `arcade_music_stop` is special command 0, `arcade_music_render(m, out, frames)` makes 44,100 Hz stereo 16-bit and
+calls the driver's 250 Hz interrupt by itself. `arcade_music_set_log` records the chip writes (tick, register, value): the register writes equal
+the model's for the 59 songs (12 s each), the 868 effects with a pan motion each (3.2 s) and 150 random scripts (`music.py --compare-c`).
+The driver ends a track that reads outside the 256 KB view or runs 200,000 commands in one call (broken data; the Z80 would run on).
+
+The mixer reads the chip's register writes, so nothing else joins driver and sound. Choices that sections 7 and 12 leave open (guesses; the
+named constants are at the top of `music.c`):
+
+- A voice steps `rate / 4096` chip samples per chip output sample (24,038 Hz), so `rate * 0.545 / 4096` samples per output frame, position kept with
+  32 fraction bits; linear interpolation; the register 8v+3 (phase) is the fraction, 16 bits (0x8000 = half a sample). At `position >= end` the
+  position goes back by the loop length; a loop length of 0 holds silent at the end. The bank register of voice v is filed one slot early.
+- Volume 0x2000 is unity: sample (8-bit) * 256 * volume / 0x2000; a fixed output gain of 0.6 (the loudest of the 59 songs peaks at 24,000 of
+  32,767 alone); the sum is clipped, not wrapped.
+- Pan: equal power, left `cos(p * pi / 64)`, right `sin(p * pi / 64)`, p = register - 0x110 clamped to 0..32 (not the chip's table).
+- Echo: a stereo delay line fed by each voice's panned output times its send (register 0xba+v over 0x8000); feedback register 0x93 over 0x8000
+  (0x27ff = 0.31), length `register 0xd9 - 0x554` chip samples (683, 28 ms, from 0x07ff), scaled to the output rate; the return is added to both
+  channels at gain 1. No filter (registers 0xda, 0xdc, 0xe0 to 0xe7 are ignored).
+
 ## Files
 
 `port/arcade/music.py` (the model: `Rom`, `Driver.command(packet)`, `Driver.step()`, `.writes`, `.events`; commands `table`, `song`, `writes`,
-`all`), `port/tools/test_arcade_music.py` (a made-up program image, 32 tests, 0.1 s).
+`all`; `--compare-c` and `--render` build and use the C), `port/arcade/music.c`, `music.h` (the player), `port/tools/test_arcade_music.py` (a
+made-up program image, 32 tests, 0.1 s), `port/tools/test_arcade_music_c.py` (the C against the model on made-up images, the mixer, the
+sanitizers and the 32-bit build, 32 tests, 4 s).

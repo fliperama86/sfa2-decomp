@@ -6,7 +6,11 @@ QSound chip. This module is the executable form of port/arcade/music.md: it read
 tables out of the Z80 program (a data file of the arcade set; no Z80 code is run, nothing is decrypted), decodes a song's
 tracks, and runs the driver's own algorithm (track interpreter, note envelopes, low frequency oscillator, slides, fades,
 pitch and volume formulas) tick by tick, as plain Python of our own. The result is the stream of QSound register
-writes the Z80 program would make, and from it a list of note events. The runtime player will be C that follows this model.
+writes the Z80 program would make, and from it a list of note events. The runtime player is port/arcade/music.c (music.h), C that follows this model statement by statement; `--compare-c`
+builds it into a temporary folder and checks that its register writes (tick, register, value) equal this model's, for the 59
+songs, the 868 sound effects (with every pan motion) and random scripts of commands, and `--render` plays a song or effect through
+its mixer to a WAV file, which is the way to listen to it. Both are private tools: they need the arcade set and write nothing
+but the WAV file named.
 
 Inputs: --arcade ZIP (MAME's sfa2u; only sz2.01a and sz2.02a are read) or --sound FILE (the two members one after
 the other, 262,144 bytes). It writes nothing. Commands:
@@ -15,6 +19,8 @@ the other, 262,144 bytes). It writes nothing. Commands:
     python3 port/arcade/music.py song N --arcade ZIP [--ticks 2000]       # one song: header, tracks, then its note events as text
     python3 port/arcade/music.py writes N --arcade ZIP [--ticks 500]      # the QSound register writes (tick reg value)
     python3 port/arcade/music.py all    --arcade ZIP                      # one line per song: tracks, notes, length
+    python3 port/arcade/music.py --compare-c --arcade ZIP [--sanitize]    # the C player's register writes against this model's
+    python3 port/arcade/music.py --render CODE --arcade ZIP --seconds N --out FILE.wav   # listen: the C player's mixer to a WAV
 
 A tick is one pass of the driver over all tracks: 62.5 per second (the chip's 250 Hz interrupt, every fourth one).
 Verification (2026-10-23): a throwaway Z80 emulator run on the same program produced the register writes of every
@@ -22,8 +28,17 @@ song (59 songs x 6000 ticks, and 868 sound effects); the writes of this model ar
 "Checked against"). The emulator is not part of the repository and the port will not have one.
 """
 import argparse
+import ctypes
+import os
+import random
+import struct
+import subprocess
 import sys
+import tempfile
+import time
+import wave
 import zipfile
+from pathlib import Path
 
 # ---- addresses in the Z80 program (file offset == Z80 address in the fixed 32 KB; above 0x8000 a "linear address"
 # is the file offset, and the driver's bank = (linear >> 14) - 2 puts it in the window at 0x8000).
@@ -181,7 +196,7 @@ class Driver:
     # ---- command packets from the 68000 (0x01e6) -------------------------------------------------------------
     def command(self, packet):
         """`packet`: up to 16 bytes as the 68000 writes them to the shared RAM (code high byte, code low byte, parameters)."""
-        iy = bytes(packet) + bytes(16 - len(packet))
+        iy = (bytes(packet) + bytes(16))[:16]
         self.iy = iy
         if iy[0] == 0xff:
             self.special(iy)
@@ -944,17 +959,316 @@ def event_lines(events):
     return out
 
 
+# ---- the C player (music.c) under ctypes: the runtime's code, built into a temporary folder -----------------------------------------
+HERE = Path(__file__).resolve().parent
+SOUND_SIZE = 0x40000
+SAMPLES_SIZE = 0x400000
+OUTPUT_RATE = 44100
+C_FLAGS = ['-std=c99', '-O2', '-Wall', '-Wextra', '-Werror', '-pedantic']
+SANITIZE_FLAGS = ['-fsanitize=address,undefined', '-fno-sanitize-recover=undefined', '-fno-omit-frame-pointer', '-g']
+
+
+class _RomViews(ctypes.Structure):
+    _fields_ = [('program', ctypes.c_void_p), ('tiles', ctypes.c_void_p), ('samples', ctypes.c_void_p), ('sound', ctypes.c_void_p)]
+
+
+def sanitizer_preload():
+    """The path of the address sanitizer's runtime, to preload into Python when music.c is built with the sanitizers."""
+    out = subprocess.run(['cc', '-print-file-name=libasan.so'], capture_output=True, text=True).stdout.strip()
+    return out if out and os.path.isabs(out) else None
+
+
+class CMusic:
+    """music.c built as a shared library in `tmp` (a folder that exists) and its functions with their types. With `sanitize`, Python
+    must have been started with LD_PRELOAD=sanitizer_preload() (sanitized_environment)."""
+
+    def __init__(self, tmp, sanitize=False):
+        so = Path(tmp) / ('music-san.so' if sanitize else 'music.so')
+        subprocess.run(['cc', *C_FLAGS, *(SANITIZE_FLAGS if sanitize else []), '-shared', '-fPIC', '-o', str(so), str(HERE / 'music.c')],
+                       check=True, capture_output=True, timeout=120)
+        L = self.lib = ctypes.CDLL(str(so))
+        vp, u32, sz = ctypes.c_void_p, ctypes.c_uint32, ctypes.c_size_t
+        L.arcade_music_open.argtypes = [ctypes.POINTER(_RomViews), ctypes.c_int]
+        L.arcade_music_open.restype = vp
+        L.arcade_music_close.argtypes = [vp]
+        L.arcade_music_reset.argtypes = [vp]
+        L.arcade_music_command.argtypes = [vp, ctypes.c_uint]
+        L.arcade_music_packet.argtypes = [vp, ctypes.c_char_p, sz]
+        L.arcade_music_stop.argtypes = [vp]
+        L.arcade_music_tick.argtypes = [vp]
+        L.arcade_music_chip_write.argtypes = [vp, ctypes.c_uint, ctypes.c_uint]
+        L.arcade_music_render.argtypes = [vp, vp, sz]
+        L.arcade_music_tracks.argtypes = [vp]
+        L.arcade_music_tracks.restype = ctypes.c_uint
+        L.arcade_music_set_log.argtypes = [vp, vp, sz]
+        L.arcade_music_log_count.argtypes = [vp]
+        L.arcade_music_log_count.restype = sz
+        L.arcade_music_voice_state.argtypes = [vp, ctypes.c_uint, vp]
+
+    def player(self, sound, samples=None, stereo=True, log=1 << 20):
+        return CPlayer(self, sound, samples, stereo, log)
+
+
+def sanitized_environment():
+    """The environment to start a Python with that can load the sanitized music.c, or None when the compiler has no sanitizer runtime."""
+    pre = sanitizer_preload()
+    if not pre or not os.path.exists(pre):
+        return None
+    env = dict(os.environ, LD_PRELOAD=pre, ASAN_OPTIONS='detect_leaks=0:abort_on_error=0', UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
+    return env
+
+
+class CPlayer:
+    """One C player over a sound program (256 KB bytes) and optional samples (4 MB bytes). `writes()` gives what the driver wrote to the
+    chip since the player was made (the reset's writes included), as the model's `(tick, register, value)` tuples."""
+
+    def __init__(self, cm, sound, samples, stereo, log):
+        if len(sound) != SOUND_SIZE:
+            raise ValueError('the sound program view is 262144 bytes')
+        self.cm, self.lib = cm, cm.lib
+        self.sound = ctypes.create_string_buffer(bytes(sound), SOUND_SIZE)
+        self.samples = ctypes.create_string_buffer(bytes(samples), SAMPLES_SIZE) if samples is not None else None
+        self.views = _RomViews(None, None, ctypes.cast(self.samples, ctypes.c_void_p) if self.samples is not None else None,
+                               ctypes.cast(self.sound, ctypes.c_void_p))
+        self.cap = log
+        self.log = ctypes.create_string_buffer(8 * log)
+        self.m = self.lib.arcade_music_open(ctypes.byref(self.views), 1 if stereo else 0)
+        if not self.m:
+            raise MemoryError('arcade_music_open')
+        self.lib.arcade_music_set_log(self.m, ctypes.cast(self.log, ctypes.c_void_p), log)
+        self.lib.arcade_music_reset(self.m)
+
+    def close(self):
+        if self.m:
+            self.lib.arcade_music_close(self.m)
+            self.m = None
+
+    def __enter__(self): return self
+    def __exit__(self, *a): self.close()
+
+    def packet(self, p): return self.lib.arcade_music_packet(self.m, bytes(p), len(p))
+    def command(self, code): return self.lib.arcade_music_command(self.m, code)
+    def tick(self, n=1):
+        f, m = self.lib.arcade_music_tick, self.m
+        for _ in range(n):
+            f(m)
+    def tracks(self): return self.lib.arcade_music_tracks(self.m)
+    def chip_write(self, reg, val): self.lib.arcade_music_chip_write(self.m, reg, val)
+
+    def voice(self, v):
+        """(bank, addr, rate, loop, end, volume, send, pan) of the mixer's voice v."""
+        buf = ctypes.create_string_buffer(16)
+        self.lib.arcade_music_voice_state(self.m, v, buf)
+        bank, pan = buf.raw[0], buf.raw[14]
+        addr, rate, loop, end, vol, send = struct.unpack_from('<6H', buf.raw, 2)
+        return bank, addr, rate, loop, end, vol, send, pan
+
+    def render(self, frames):
+        """`frames` frames of 44,100 Hz interleaved stereo 16-bit little-endian, as bytes."""
+        out = ctypes.create_string_buffer(4 * max(frames, 1))
+        n = self.lib.arcade_music_render(self.m, out, frames)
+        if n != frames:
+            raise ValueError('arcade_music_render returned %d' % n)
+        return out.raw[:4 * frames]
+
+    def writes(self):
+        n = self.lib.arcade_music_log_count(self.m)
+        if n > self.cap:
+            raise OverflowError('the write log is full (%d writes)' % n)
+        return [(a, b, c) for a, b, c in struct.iter_unpack('<IHH', self.log.raw[:8 * n])]
+
+
+def model_writes(rom, schedule, ticks, stereo=True):
+    """The model's writes for `schedule` ([(interrupt, packet)] in order of interrupt) over `ticks` interrupts."""
+    drv = Driver(rom, stereo)
+    i = 0
+    for t in range(ticks + 1):
+        while i < len(schedule) and schedule[i][0] <= t:
+            drv.command(schedule[i][1])
+            i += 1
+        if t < ticks:
+            drv.step()
+    return drv.writes
+
+
+def c_writes(player, schedule, ticks):
+    i = 0
+    for t in range(ticks + 1):
+        while i < len(schedule) and schedule[i][0] <= t:
+            player.packet(schedule[i][1])
+            i += 1
+        if t < ticks:
+            player.tick()
+    return player.writes()
+
+
+def first_difference(a, b):
+    """None when the lists are equal, else a line about the first index where they differ."""
+    for i, (x, y) in enumerate(zip(a, b)):
+        if x != y:
+            return 'write %d: C %s, model %s' % (i, fmt_write(x), fmt_write(y))
+    if len(a) != len(b):
+        return 'C wrote %d, the model %d' % (len(a), len(b))
+    return None
+
+
+def fmt_write(w): return 'tick %d reg %02x val %04x' % w
+
+
+def effect_packet(code, rng):
+    """The 68000's packet for an effect: the code, then a pan motion (byte 6 low bits) with parameters in bytes 7..12."""
+    p = bytearray(13)
+    p[0], p[1] = code >> 8, code & 255
+    p[6] = rng.randrange(8)
+    p[7] = rng.choice([0, 8, 0x10, 0x18, 0x20, 0x30, rng.randrange(256)])
+    p[8] = rng.randrange(0x30)
+    p[9], p[10] = rng.randrange(4), rng.randrange(256)
+    p[11], p[12] = rng.randrange(4), rng.randrange(256)
+    return bytes(p)
+
+
+def special_packet(rng):
+    n = rng.choice([0, 1, 2, 5, 6, 7, 8, 9, 12, 13, 14, 3, 4, 10, 11])
+    p = bytearray(13)
+    p[0], p[1] = 0xff, n
+    p[2] = rng.choice([0, 0x40, 0x80, 0xff, rng.randrange(256)])
+    p[3] = rng.choice([0, 0xff, rng.randrange(256)]) if n in (8, 9) else rng.randrange(4)
+    p[4] = rng.randrange(256) if n not in (2, 4) else rng.randrange(16)
+    if n in (6, 7, 12, 13):
+        p[3], p[4] = rng.randrange(8), rng.randrange(1, 256)
+    return bytes(p)
+
+
+def random_script(rng, rom, length):
+    """A script of commands: songs, effects (many pan motions), fades, bends and stops, at random interrupts."""
+    songs = [c for c in range(rom.command_count()) if rom.command_entry(c)[1] == 'music']
+    effects = [c for c in range(rom.command_count()) if rom.command_entry(c)[1] == 'effect']
+    sched, t = [], 0
+    for _ in range(length):
+        t += rng.choice([0, 1, 3, 4, 50, 200, 500])
+        r = rng.random()
+        if r < 0.25 and songs:
+            c = rng.choice(songs)
+            sched.append((t, bytes([c >> 8, c & 255])))
+        elif r < 0.7 and effects:
+            sched.append((t, effect_packet(rng.choice(effects), rng)))
+        else:
+            sched.append((t, special_packet(rng)))
+    return sched, t + 1500
+
+
+def compare_c(rom, tmp, sanitize=False, quiet=False, scripts=150):
+    """Compare the C player's register writes with the model's. Returns (lines, ok)."""
+    cm = CMusic(tmp, sanitize)
+    lines, ok = [], True
+
+    def one(player_rom_sound, schedule, ticks, stereo=True):
+        with cm.player(player_rom_sound, stereo=stereo) as pl:
+            return first_difference(c_writes(pl, schedule, ticks), model_writes(rom, schedule, ticks, stereo)), len(pl.writes())
+
+    sound = rom.d
+    songs = [c for c in range(rom.command_count()) if rom.command_entry(c)[1] == 'music']
+    effects = [c for c in range(rom.command_count()) if rom.command_entry(c)[1] == 'effect']
+    for label, codes, ticks, make in (
+            ('songs', songs, 3000, lambda c, rng: bytes([c >> 8, c & 255])),
+            ('effects', effects, 800, lambda c, rng: effect_packet(c, rng))):
+        t0, equal, total, first = time.time(), 0, 0, None
+        for c in codes:
+            rng = random.Random(c)
+            diff, n = one(sound, [(0, make(c, rng))], ticks, stereo=(c % 5 != 4))
+            total += n
+            if diff is None:
+                equal += 1
+            elif first is None:
+                first = 'code 0x%x: %s' % (c, diff)
+        lines.append('%-8s %3d of %3d equal (%d writes, %.1f s)' % (label, equal, len(codes), total, time.time() - t0))
+        if first:
+            ok = False
+            lines.append('  first difference: ' + first)
+    t0, equal, total, first = time.time(), 0, 0, None
+    for i in range(scripts):
+        rng = random.Random(1000 + i)
+        sched, ticks = random_script(rng, rom, rng.randrange(6, 30))
+        diff, n = one(sound, sched, ticks, stereo=(i % 4 != 3))
+        total += n
+        if diff is None:
+            equal += 1
+        elif first is None:
+            first = 'script %d: %s' % (i, diff)
+    lines.append('%-8s %3d of %3d equal (%d writes, %.1f s)' % ('scripts', equal, scripts, total, time.time() - t0))
+    if first:
+        ok = False
+        lines.append('  first difference: ' + first)
+    return lines, ok
+
+
+def chip_samples(path):
+    """The chip's view of the sample ROM from the arcade archive: sz2.11m + sz2.12m with every byte pair swapped."""
+    with zipfile.ZipFile(path) as z:
+        raw = bytearray(z.read('sz2.11m') + z.read('sz2.12m'))
+    raw[0::2], raw[1::2] = raw[1::2], raw[0::2]
+    return bytes(raw)
+
+
+def render_c(rom, samples, code, seconds, out_path, tmp, sanitize=False):
+    """Play command `code` through the C player's mixer for `seconds` and write a stereo 16-bit 44,100 Hz WAV. Returns (frames, took)."""
+    lin, kind = rom.command_entry(code)
+    if kind not in ('music', 'effect'):
+        raise SystemExit('code %d (0x%x) is not a song or an effect' % (code, code))
+    cm = CMusic(tmp, sanitize)
+    frames = int(seconds * OUTPUT_RATE)
+    t0 = time.time()
+    with cm.player(rom.d, samples, log=16) as pl, wave.open(str(out_path), 'wb') as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(OUTPUT_RATE)
+        pl.packet([code >> 8, code & 255, 0, 0, 0, 0, 0, 0x10])
+        done = 0
+        while done < frames:
+            n = min(4410, frames - done)
+            w.writeframes(pl.render(n))
+            done += n
+    return frames, time.time() - t0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    ap.add_argument('cmd', choices=['table', 'song', 'writes', 'all'])
+    ap.add_argument('cmd', nargs='?', choices=['table', 'song', 'writes', 'all'])
     ap.add_argument('code', nargs='?', type=lambda s: int(s, 0))
     ap.add_argument('--arcade')
     ap.add_argument('--sound')
     ap.add_argument('--ticks', type=int, default=2000)
+    ap.add_argument('--compare-c', action='store_true', help='build music.c and compare its register writes with the model\'s')
+    ap.add_argument('--sanitize', action='store_true', help='with --compare-c or --render: build music.c with ASAN and UBSAN (re-runs Python preloaded)')
+    ap.add_argument('--render', type=lambda s: int(s, 0), metavar='CODE', help='play this song or effect through the C player to a WAV file')
+    ap.add_argument('--seconds', type=float, default=30.0)
+    ap.add_argument('--out', help='the WAV file for --render')
     a = ap.parse_args(argv)
     if not (a.arcade or a.sound):
         ap.error('--arcade ZIP or --sound FILE is needed')
+    if a.sanitize and (a.compare_c or a.render is not None) and 'asan' not in os.environ.get('LD_PRELOAD', ''):
+        env = sanitized_environment()
+        if env is None:
+            print('no sanitizer runtime on this machine')
+            return 1
+        return subprocess.run([sys.executable, *sys.argv], env=env).returncode
     rom = Rom(open(a.sound, 'rb').read()) if a.sound else Rom.from_zip(a.arcade)
+    if a.compare_c:
+        with tempfile.TemporaryDirectory(prefix='music-c-') as tmp:
+            lines, ok = compare_c(rom, tmp, a.sanitize)
+        print('\n'.join(lines))
+        print('C == model: %s' % ('yes' if ok else 'NO'))
+        return 0 if ok else 1
+    if a.render is not None:
+        if not a.arcade or not a.out:
+            ap.error('--render needs --arcade ZIP (the samples) and --out FILE.wav')
+        with tempfile.TemporaryDirectory(prefix='music-c-') as tmp:
+            frames, took = render_c(rom, chip_samples(a.arcade), a.render, a.seconds, a.out, tmp, a.sanitize)
+        print('rendered %d frames (%.1f s of audio) of code 0x%x in %.2f s (%.0fx real time) to %s' % (
+            frames, frames / OUTPUT_RATE, a.render, took, frames / OUTPUT_RATE / max(took, 1e-9), a.out))
+        return 0
+    if a.cmd is None:
+        ap.error('a command is needed')
     if a.cmd == 'table':
         cmd_table(rom)
     elif a.cmd in ('writes', 'song'):

@@ -41,6 +41,8 @@ port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip        # stops: wha
 port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC   # compare, then end
 ```
 
+- The program is built from the loader files that `build.txt` lists, so
+  work in progress in this folder does not break the build.
 - `zip.c` reads the archive (its own inflate; no library). `rom.c` puts the
   members together into four views (the 68000 program, the graphics as the
   video chip reads them, the QSound samples and the Z80's program) and
@@ -263,6 +265,13 @@ scripts (nothing of it is in the tree):
   all 59 songs and 868 effects (compared, privately, with an emulation of the
   sound program that is not part of the project). The fighters' themes map to
   songs by the fighter index; the other screens' songs are not all settled.
+  `music.c` is the player of the port's own (the driver's rules and a mixer
+  of 16 voices of the arcade's samples, 44.1 kHz; the pan law and the echo
+  are the guesses `music.md` section 13 names), about 1,000 times faster
+  than real time. In the runtime, when the game starts one of the 35
+  recorded tracks whose arcade song is known, the arcade's song plays in its
+  place, the stream still read and consumed so the game's timing and its
+  volume changes hold; other tracks keep the recording.
 - **Samples** (`samples.py`, all banks). 355 of the 409 distinct PS1
   samples are arcade samples: the chip's sample taken as 24,000 Hz,
   resampled to a rate the bank's tone gives (44100 times 2 to the power of

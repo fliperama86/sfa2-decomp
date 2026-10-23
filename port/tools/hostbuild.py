@@ -2024,7 +2024,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     runtime: Path = args.runtime
     if not (runtime / "port_tables.h").is_file():
         raise Problem(f"{runtime / 'port_tables.h'} does not exist")
-    runtime_sources = sorted(runtime.glob("*.c")) + sorted((runtime.parent / "intro").glob("*.c")) + sorted((runtime.parent / "arcade").glob("*.c"))
+    runtime_sources = sorted(runtime.glob("*.c")) + sorted((runtime.parent / "intro").glob("*.c")) + arcade_sources(runtime.parent / "arcade")
     sweep_entries = read_sweep_rows(args.sweep_rows)
     inventory = read_inventory(config_path.parent.parent / "inventory", config)
     image_archives = read_image_archives(config_path.parent.parent / "inventory", config)
@@ -2343,6 +2343,18 @@ def make_parser() -> argparse.ArgumentParser:
     parser.add_argument("--jobs", type=positive, default=os.cpu_count() or 1)
     parser.add_argument("--list", action="store_true")
     return parser
+
+
+def arcade_sources(folder: Path) -> list[Path]:
+    """The arcade loader's C files the program is built from: those that `build.txt` lists (work in progress stays out)."""
+    listing = folder / "build.txt"
+    if not listing.is_file():
+        return []
+    names = [line.strip() for line in listing.read_text().splitlines() if line.strip() and not line.startswith("#")]
+    for name in names:
+        if not (folder / name).is_file():
+            raise Problem(f"{listing}: {name} is listed but not there")
+    return [folder / name for name in sorted(names)]
 
 
 def main() -> int:

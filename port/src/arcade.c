@@ -6,6 +6,7 @@
 #include "../arcade/sequence.h"
 #include "../arcade/stage.h"
 #include "../arcade/screens.h"
+#include "../arcade/music.h"
 #include "../arcade/program.h"
 #include "../arcade/program_more.h"
 #include "../arcade/rom.h"
@@ -660,6 +661,57 @@ static unsigned screens(struct port_disc *d, int check)
     return wrong;
 }
 
+/* ---- music: the arcade's songs in place of the disc's recorded streams (port/arcade/music.md, section 11) */
+
+/* The PS1's music code (file * 256 + channel of ZERO2_XA/ZERO20N.XA) and the arcade song that is the same music: the fighters'
+ * themes by the two games' tables of the same index, the others by measurement where it was decisive. Codes not here keep the
+ * recorded stream. */
+static const struct { unsigned short code, song; } songs[] = {
+    {0x000, 1}, {0x001, 2}, {0x002, 11}, {0x003, 9}, {0x004, 3}, {0x005, 6}, {0x006, 5}, {0x007, 8},
+    {0x100, 7}, {0x101, 10}, {0x102, 12}, {0x103, 4}, {0x104, 13}, {0x105, 18}, {0x106, 17}, {0x107, 14},
+    {0x200, 15}, {0x201, 16}, {0x202, 53},
+    {0x600, 28}, {0x601, 29}, {0x300, 30}, {0x304, 31}, {0x404, 32}, {0x405, 37}, {0x403, 39}, {0x206, 40},
+    {0x301, 41}, {0x302, 42}, {0x401, 43}, {0x506, 45}, {0x507, 46}, {0x303, 48}, {0x502, 54}, {0x402, 55},
+};
+static struct arcade_music *player;
+static int playing = -1;   /* the song in place of the stream, or -1: the stream's own sound (under the audio lock) */
+
+static void stream_hook(unsigned sector, unsigned channel)
+{
+    int f = file_of(sector), song = -1;
+    unsigned i;
+    const char *n;
+    if (f >= 0 && !strncmp(n = files[f].name, "zero20", 6) && n[6] >= '0' && n[6] <= '7' && channel < 8) {
+        unsigned code = (unsigned)(n[6] - '0') * 256u + channel;
+        for (i = 0; i < sizeof songs / sizeof songs[0]; i++)
+            if (songs[i].code == code) song = songs[i].song;
+        port_trace_line("arcade: stream %s channel %u (music code 0x%03x): %s %d", n, channel, code, song < 0 ? "the disc's recording" : "arcade song", song);
+    }
+    port_audio_lock();
+    if (song != playing) {
+        if (song >= 0) arcade_music_command(player, (unsigned)song);
+        else arcade_music_stop(player);
+        playing = song;
+    }
+    port_audio_unlock();
+}
+
+static size_t music_replace(short *out, size_t frames)
+{
+    if (playing < 0) return 0;
+    return arcade_music_render(player, out, frames) == (int)frames ? frames : 0;
+}
+
+static void music_attach(void)
+{
+    if (!player && !(player = arcade_music_open(&rom, 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: the music player cannot start");
+    playing = -1;
+    port_cd_stream_hook = stream_hook;
+    port_cd_audio_replace = music_replace;
+    printf("arcade: music: %u of the disc's recorded tracks played as the arcade's songs\n", (unsigned)(sizeof songs / sizeof songs[0]));
+    fflush(stdout);
+}
+
 static int by_place(const void *a, const void *b)
 {
     const struct range *x = a, *y = b;
@@ -696,6 +748,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
+    music_attach();
     port_disc_patch_hook = patch;
     port_cd_read_hook = read_hook;
     return 0;

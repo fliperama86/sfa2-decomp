@@ -1,0 +1,22 @@
+# The loader's C files that the PC program is built from (hostbuild.py, macbuild.py). A file joins the build when it is listed here,
+# so work in progress in this folder never breaks the build.
+fighter.c
+fighter_parts.c
+fighter_parts_table.c
+fighters_table.c
+program.c
+program_effects_table.c
+program_more.c
+program_relocs_table.c
+rom.c
+screens.c
+screens_table.c
+sequence.c
+sequences_table.c
+stage.c
+stages_table.c
+tilepack.c
+vag.c
+vag_table.c
+zip.c
+music.c

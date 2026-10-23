@@ -315,11 +315,27 @@ static int clamp16(int v)
  * PsyZ's own pull does the same sum: out_left = (left * v0 + right * v3) >> 7, out_right = (left * v1 + right * v2) >> 7,
  * clamped to 16 bits, and no sum when the volumes are 127 or 128 straight through. */
 size_t (*port_cd_audio_override)(short *,size_t);
+void (*port_cd_stream_hook)(unsigned sector, unsigned channel);
+size_t (*port_cd_audio_replace)(short *out, size_t frames);
 size_t port_xa_pull(short *out, size_t num_frames)
 {
     if(port_cd_audio_override) return port_cd_audio_override(out,num_frames);
     size_t give = num_frames < xa.count ? num_frames : xa.count, i;
     int v0 = xa.vol[0], v1 = xa.vol[1], v2 = xa.vol[2], v3 = xa.vol[3];
+    if (port_cd_audio_replace && give && port_cd_audio_replace(out, give) == give) {   /* the loader's frames, the stream's consumed */
+        if (!xa.passthrough)
+            for (i = 0; i < give; i++) {
+                int l = out[i * 2], r = out[i * 2 + 1];
+                out[i * 2] = (short)clamp16((l * v0 + r * v3) >> 7);
+                out[i * 2 + 1] = (short)clamp16((l * v1 + r * v2) >> 7);
+            }
+        xa.head = (unsigned)((xa.head + give) % XA_QUEUE_FRAMES);
+        xa.count -= (unsigned)give;
+        xa.n.pulled += (unsigned)give;
+        xa.pulls++;
+        if (xa.gone) xa.revived = 1;
+        return give;
+    }
 
     for (i = 0; i < give; i++) {
         int l = xa.q[xa.head * 2], r = xa.q[xa.head * 2 + 1];
@@ -429,6 +445,7 @@ static int xa_take(const unsigned char *raw, unsigned sector)
     xa.holding = 0;
     port_audio_unlock();
     if (!xa.started) {   /* the first sector played since a read began: one line on the output, and one in the trace */
+        if (port_cd_stream_hook) port_cd_stream_hook(sector, info.channel);
         printf("audio: a stream starts at sector %u: file %u channel %u, %s, %d Hz\n", sector, info.file, info.channel, info.stereo ? "stereo" : "mono", info.rate);
         fflush(stdout);
         port_trace_line("xa: frame %u stream starts: sector %u file %u channel %u, %s, %d Hz, %d bits", port_frames(), sector, info.file, info.channel,
