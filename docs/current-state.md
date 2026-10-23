@@ -29,8 +29,10 @@ the flag stays default off. See the
 By the owner's direction of 2026-10-23 the port is to need no PS1 disc: the
 game's C stays, and what it reads is built from the user's arcade set where
 the arcade has it, or written anew. The loader has begun behind the default-off
-setting `arcade_assets`: it builds 25,784 of the 90,088 bytes of the PS1
-program's data; the disc gives the rest ([arcade assets](../port/arcade/README.md)).
+setting `arcade_assets`: it builds 39% of the disc's files (other than the
+program and the music and movie streams) and half of the program's data from
+the arcade set, and plays the arcade's songs for the music tracks it knows;
+the disc gives the rest ([arcade assets](../port/arcade/README.md)).
 
 ## Source of truth
 
