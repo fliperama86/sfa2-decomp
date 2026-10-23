@@ -111,7 +111,7 @@ unsigned port_PadRead(int id)
     (void)id;
     port_pad_host_read(frame, PORT_PAD_FRAME);
     if (frame[0] != 0 || frame[1] != 0x41) return 0;
-    port_input_apply(frame, port_frames());
+    port_input_apply(frame, port_alive());
     return (~(unsigned)(frame[3] | (frame[2] << 8))) & 0xffffu;
 }
 

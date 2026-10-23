@@ -93,7 +93,7 @@ void port_debug_tick(unsigned frame)
 }
 
 /* ---- the watchdog: reports where a run that no longer reaches the frame clock is, and ends it ----
- * A thread that only watches. When no vblank has come for `seconds` it suspends the game's thread, reads its
+ * A thread that only watches. When no vblank (and no frame of the settings menu, port_alive) has come for `seconds` it suspends the game's thread, reads its
  * instruction pointer and the words on its stack that point into the game's implementations, prints
  * one line, and ends the program with status 11. It never calls game code. */
 #ifdef _WIN32
@@ -104,13 +104,13 @@ static unsigned wd_seconds;
 
 static DWORD WINAPI watch(LPVOID unused)
 {
-    unsigned last = port_frames();
+    unsigned last = port_alive();
     unsigned quiet = 0;
     (void)unused;
     for (;;) {
         Sleep(1000);
-        if (port_frames() != last) {
-            last = port_frames();
+        if (port_alive() != last) {
+            last = port_alive();
             quiet = 0;
             continue;
         }
@@ -177,13 +177,13 @@ static void watch_signal(int sig, siginfo_t *si, void *context)
 
 static void *watch(void *unused)
 {
-    unsigned last = port_frames();
+    unsigned last = port_alive();
     unsigned quiet = 0;
     (void)unused;
     for (;;) {
         sleep(1);
-        if (port_frames() != last) {
-            last = port_frames();
+        if (port_alive() != last) {
+            last = port_alive();
             quiet = 0;
             continue;
         }

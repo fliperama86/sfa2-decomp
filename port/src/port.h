@@ -205,6 +205,13 @@ void port_tick(void);
 void port_clock_hurry(int on);
 void port_clock_blank_start(unsigned max_frames);
 void port_clock_frame_drawn(unsigned packets);
+/* The settings menu (menu_run.c, port/settings-menu.md): port_clock_hurrying, is a fast load loop running; port_clock_paused(us), the menu
+ * held the game for `us`: the one clock leaves that time out, so nothing of the game's falls due for it and no vblank is owed. */
+int port_clock_hurrying(void);
+void port_clock_paused(unsigned long long us);
+/* For the watchdog (debug.c): grows at every vblank and at every frame of the settings menu (port_clock_menu_frame). */
+void port_clock_menu_frame(void);
+unsigned port_alive(void);
 /* gpu.c: PsyZ batches the image uploads of one command buffer (port/psyz.patch), for the setting fast_loads. No effect without PsyZ. */
 void port_gpu_set_batched_uploads(int on);
 /* ResetCallback's work, for ResetGraph(0 or 3), which does it in PSY-Q. */
@@ -343,6 +350,12 @@ void port_pad_print_keys(void);                              /* one line at star
 int  port_input_load(const char *path, char *err, size_t errsize);   /* --input FILE: 0, or -1 with a line that names the file and line */
 int  port_input_loaded(void);
 void port_input_apply(unsigned char *frame, unsigned vblank);        /* press the script's buttons held at that vertical blank on a digital pad frame */
+/* The host keys of the script (f1 escape f4 guide) pressed since the last call, as PORT_INPUT_KEY_* (the same bits as gpu.h's PORT_GPU_KEY_*). */
+#define PORT_INPUT_KEY_MENU       1u
+#define PORT_INPUT_KEY_ESCAPE     2u
+#define PORT_INPUT_KEY_FULLSCREEN 4u
+#define PORT_INPUT_KEY_GUIDE      8u
+unsigned port_input_take_keys(void);
 
 /* threads.c */
 /* The gp that the entry code loads (lui/addiu), from the loaded memory. */

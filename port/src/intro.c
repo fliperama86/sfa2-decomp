@@ -52,7 +52,7 @@ int port_intro_program(const char *name)
             port_intro_audio_gain((iw16(player->world.video+0xc000)>>12)*65536u/15u);
         frame=port_frames();port_gpu_intro_frame(pixels);
         do {port_tick();} while(port_frames()==frame);
-        port_pad_host_read(pad,sizeof pad);port_input_apply(pad,port_frames());
+        port_pad_host_read(pad,sizeof pad);port_input_apply(pad,port_alive());
         if(pad[0]==0 && pad[1]!=0xff && !(pad[2]&8)) {skipped=1;break;}
         if(result) {ended=1;break;}
     }

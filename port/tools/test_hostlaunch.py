@@ -842,9 +842,12 @@ unsigned port_arcade_program(unsigned char *ram,int check) { (void)ram;(void)che
 int port_arcade_attach(struct port_disc *d,int check,char *err,size_t size) { (void)d;(void)check;(void)err;(void)size;return 0; }
 int test_presents;
 void port_gpu_present(void) { test_presents++; }
+void port_menu_vblank(void) {}
 int port_gpu_set_video_options(int ui,int arcade) { (void)ui;(void)arcade;return 0; }
 int port_gpu_set_ui_layout(int enabled) { (void)enabled;return 0; }
-int port_gpu_set_sharp_bilinear(int enabled) { (void)enabled;return 0; }
+int port_gpu_set_filter(int filter) { (void)filter;return 0; }
+int port_gpu_set_screen(int screen,int w,int h) { (void)screen;(void)w;(void)h;return 0; }
+void port_gpu_set_host_keys(int on) { (void)on; }
 void port_gpu_set_batched_uploads(int on) { (void)on; }
 int port_gpu_read_frame(unsigned short *pixels)
 {

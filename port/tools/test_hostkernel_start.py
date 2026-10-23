@@ -40,6 +40,7 @@ void port_cd_tick(void) {}
 void port_debug_tick(unsigned f) { (void)f; }
 int port_game_span(const void *p, size_t n) { (void)p; (void)n; return 1; }
 void port_gpu_present(void) {}
+void port_menu_vblank(void) {}
 void port_halt(int s, const char *fmt, ...) { (void)fmt; printf("stop %d\n", s); exit(s); }
 void *port_h_DMACallback(int c, void (*f)(void)) { (void)c; (void)f; return 0; }
 void port_input_apply(unsigned char *f, unsigned n) { (void)f; (void)n; }
@@ -92,6 +93,7 @@ void port_cd_tick(void) {}
 void port_debug_tick(unsigned f) { (void)f; }
 int port_game_span(const void *p, size_t n) { (void)p; (void)n; return 1; }
 void port_gpu_present(void) {}
+void port_menu_vblank(void) {}
 void port_halt(int s, const char *fmt, ...) { (void)fmt; printf("stop %d\n", s); exit(s); }
 void *port_h_DMACallback(int c, void (*f)(void)) { (void)c; (void)f; return 0; }
 void port_input_apply(unsigned char *f, unsigned n) { (void)f; (void)n; }

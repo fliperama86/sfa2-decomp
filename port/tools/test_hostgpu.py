@@ -1170,7 +1170,7 @@ def program_cases(rig: Rig, work: Path):
     syms = subprocess.run([nm, "-g", str(work / "stub.o")], capture_output=True, text=True)
     defined = sorted(l.split()[-1] for l in syms.stdout.splitlines() if " T " in l or " D " in l or " R " in l)
     undefined = sorted(l.split()[-1] for l in syms.stdout.splitlines() if l.strip().startswith("U "))
-    yield "stub-defines-the-tables-and-present-and-needs-nothing", same((defined, undefined), (sorted(["_port_gpu_intro_begin", "_port_gpu_intro_frame", "_port_gpu_intro_end", "_port_gpu_display_enabled", "_port_gpu_library", "_port_gpu_present", "_port_gpu_read_frame", "_port_gpu_set_video_options", "_port_gpu_set_ui_layout", "_port_gpu_set_sharp_bilinear", "_port_gpu_set_batched_uploads"]), []))
+    yield "stub-defines-the-tables-and-present-and-needs-nothing", same((defined, undefined), (sorted(["_port_gpu_intro_begin", "_port_gpu_intro_frame", "_port_gpu_intro_end", "_port_gpu_display_enabled", "_port_gpu_library", "_port_gpu_present", "_port_gpu_read_frame", "_port_gpu_set_video_options", "_port_gpu_set_ui_layout", "_port_gpu_set_filter", "_port_gpu_set_screen", "_port_gpu_screen", "_port_gpu_desktop_size", "_port_gpu_fullscreen_modes", "_port_gpu_set_host_keys", "_port_gpu_take_keys", "_port_gpu_menu_allowed", "_port_gpu_menu_snapshot", "_port_gpu_menu_show", "_port_gpu_set_batched_uploads"]), []))
 
     reason = rig.build()
     yield "trial-program-builds-gpu-c-with-psyz-warning-free", reason

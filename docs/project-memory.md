@@ -55,7 +55,7 @@ Old figures describe their own date, not today's completion.
   normal build with PsyZ, and nothing else). This is for the library's
   code, not a way around a game function that does not match.
 - CI/CD: tracked WIP uses default-off settings flags, preserving default behavior; by the owner's
-  choice of 2026-10-23 the existing experimental settings default on but arcade_intro (port/graphics.md).
+  choice of 2026-10-23 the existing experimental settings default on but arcade_intro (port/graphics.md). PC settings menu, asked for 2026-10-23: saves at once (port/settings-menu.md).
   Before a port-feature PR, give the owner a runnable build and test instructions.
   Owner wants notification/testing only when the ENTIRE intro is done, not partial scenes (2026-10-14).
   Poll PR comments every 60 s; merge after scoped checks and owner approval; no private silos or bypass.

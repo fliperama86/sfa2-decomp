@@ -5,6 +5,12 @@
  * the jumps (the game's C, the stop calls, then the library's host routines
  * and the overrides), and call the game's main.
  *
+ * --settings FILE reads the settings file (settings.ini in the working directory by default; a missing default file gives the defaults, a
+ *   missing or invalid explicit one refuses the start). port_settings_file is what the file gave and port_settings what the program uses:
+ *   the file, then the command line. --show-settings prints both sections in the file's form for the effective settings, then `volume = N`,
+ *   and ends. The command line overrides the file's keys, the last one winning: --sharp-bilinear and --nearest-scaling set [display]
+ *   filter; --settings-menu and --no-settings-menu set [experimental] settings_menu (port/settings-menu.md); the others are in
+ *   port/graphics.md. With the menu on, the menu's saves go to the file that was read (port_settings_path).
  * --list-library needs no disc: it prints the host routines, the ones that do
  * nothing on purpose, the library functions that still stop, and the overrides.
  * --trace with --trace-file FILE writes one line to FILE for every library call
@@ -204,7 +210,7 @@ int main(int argc, char **argv)
     int audio_device = PORT_AUDIO_DEFAULT;
     const char *input_path = NULL;
     const char *settings_path = "settings.ini";
-    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1,sharp_override=-1,intro_override=-1,assets_override=-1,arcade_check=0;
+    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1,filter_override=-1,menu_override=-1,intro_override=-1,assets_override=-1,arcade_check=0;
     const char *intro_path="intro.dat";
     const char *arcade_path="sfa2u.zip";   /* --arcade-rom FILE: the arcade set of the setting arcade_assets */
     const char *card1_path = "card1.mcr", *card2_path = NULL;   /* --card1, --card2: the card files of the setting memory_card */
@@ -238,8 +244,10 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--ps1-rendering") == 0) ui_override=0;
         else if (strcmp(argv[i], "--center-ui") == 0) center_override=1;
         else if (strcmp(argv[i], "--ps1-ui-layout") == 0) center_override=0;
-        else if (strcmp(argv[i], "--sharp-bilinear") == 0) sharp_override=1;
-        else if (strcmp(argv[i], "--nearest-scaling") == 0) sharp_override=0;
+        else if (strcmp(argv[i], "--sharp-bilinear") == 0) filter_override=PORT_FILTER_SHARP_BILINEAR;
+        else if (strcmp(argv[i], "--nearest-scaling") == 0) filter_override=PORT_FILTER_NEAREST;
+        else if (strcmp(argv[i], "--settings-menu") == 0) menu_override=1;
+        else if (strcmp(argv[i], "--no-settings-menu") == 0) menu_override=0;
         else if (strcmp(argv[i], "--volume") == 0 && i + 1 < argc) {
             char *end;
             long v = strtol(argv[++i], &end, 10);
@@ -273,24 +281,23 @@ int main(int argc, char **argv)
         else bad = 1;
     }
     if (!bad) {
-        if(port_settings_load(settings_path,&port_settings,!explicit_settings,err,sizeof err))return refuse(err);
+        /* port_settings_file is what the file gave, port_settings the program's: the file, then the command line. */
+        if(port_settings_load(settings_path,&port_settings_file,!explicit_settings,err,sizeof err))return refuse(err);
+        port_settings_path=settings_path;
+        port_settings=port_settings_file;
         if(ui_override>=0)port_settings.pixel_perfect_ui=ui_override;
         if(canvas_override>=0)port_settings.arcade_video=canvas_override;
         if(center_override>=0)port_settings.center_ui=center_override;
         if(loads_override>=0)port_settings.fast_loads=loads_override;
         if(card_override>=0)port_settings.memory_card=card_override;
-        if(sharp_override>=0)port_settings.sharp_bilinear=sharp_override;
+        if(filter_override>=0)port_settings.filter=filter_override;
+        if(menu_override>=0)port_settings.settings_menu=menu_override;
         if(intro_override>=0)port_settings.arcade_intro=intro_override;
         if(assets_override>=0)port_settings.arcade_assets=assets_override;
         if(show_settings) {
+            /* The file's own form: what port_settings_save writes, of the effective settings. */
             if(disc_path || list)return refuse("--show-settings takes no disc or --list-library");
-            printf("[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = %s\n",
-                port_settings.pixel_perfect_ui?"true":"false",port_settings.arcade_video?"true":"false",port_settings.center_ui?"true":"false",
-                port_settings.fast_loads?"true":"false");
-            printf("memory_card = %s\n", port_settings.memory_card?"true":"false");
-            printf("sharp_bilinear = %s\n", port_settings.sharp_bilinear?"true":"false");
-            printf("arcade_intro = %s\n", port_settings.arcade_intro?"true":"false");
-            printf("arcade_assets = %s\n", port_settings.arcade_assets?"true":"false");
+            port_settings_write(stdout,&port_settings);
             printf("volume = %d\n", volume);
             return 0;
         }
@@ -307,7 +314,7 @@ int main(int argc, char **argv)
         return refuse(line);
     }
     if (bad || list || !disc_path || (arcade_check && !port_settings.arcade_assets)) {
-        printf("usage: %s [--settings FILE] [--arcade-intro --intro-data FILE] [--arcade-assets --arcade-rom FILE [--arcade-check]] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] [--card1 FILE] [--card2 FILE] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
+        printf("usage: %s [--settings FILE] [--sharp-bilinear | --nearest-scaling] [--settings-menu | --no-settings-menu] [--arcade-intro --intro-data FILE] [--arcade-assets --arcade-rom FILE [--arcade-check]] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] [--card1 FILE] [--card2 FILE] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
         fflush(stdout);
         return 2;
     }
@@ -315,8 +322,12 @@ int main(int argc, char **argv)
     if(port_arcade_configure(port_settings.arcade_assets,arcade_path,err,sizeof err))return refuse(err);
     if(port_gpu_set_video_options(port_settings.pixel_perfect_ui,port_settings.arcade_video) ||
        port_gpu_set_ui_layout(port_settings.center_ui) ||
-       port_gpu_set_sharp_bilinear(port_settings.sharp_bilinear))
+       port_gpu_set_filter(port_settings.filter) ||
+       port_gpu_set_screen(port_settings.screen,
+           port_settings.screen==PORT_SCREEN_WINDOW?port_settings.window_w:port_settings.screen==PORT_SCREEN_FULLSCREEN?port_settings.fullscreen_w:0,
+           port_settings.screen==PORT_SCREEN_WINDOW?port_settings.window_h:port_settings.screen==PORT_SCREEN_FULLSCREEN?port_settings.fullscreen_h:0))
         return refuse("experimental graphics require the patched PsyZ SDL_GPU backend");
+    port_gpu_set_host_keys(port_settings.settings_menu);
     if (trace != (trace_path != NULL)) return refuse("--trace and --trace-file FILE go together");
     if (trace_path && !(trace_file = fopen(trace_path, "w"))) return refuse("cannot open the trace file");
     port_trace_set(trace_file);

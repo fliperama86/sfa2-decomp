@@ -91,6 +91,8 @@
 #include <string.h>
 #include "video.h"
 #include "ui_layout.h"
+#include "settings.h"
+#include "menu.h"
 
 #ifndef PORT_HAVE_PSYZ
 
@@ -103,7 +105,18 @@ int  port_gpu_read_frame(unsigned short *pixels) { (void)pixels; return -1; }
 int  port_gpu_display_enabled(void) { return 0; }
 int port_gpu_set_video_options(int ui,int arcade) { return ui || arcade ? -1 : 0; }
 int port_gpu_set_ui_layout(int enabled) { return enabled ? -1 : 0; }
-int port_gpu_set_sharp_bilinear(int enabled) { return enabled ? -1 : 0; }
+int port_gpu_set_filter(int filter) { return filter == PORT_FILTER_NEAREST ? 0 : -1; }
+int port_gpu_set_screen(int screen, int w, int h) { return screen == PORT_SCREEN_WINDOW && w == PORT_WINDOW_DEFAULT_W && h == PORT_WINDOW_DEFAULT_H ? 0 : -1; }
+int port_gpu_screen(void) { return PORT_SCREEN_WINDOW; }
+int port_gpu_desktop_size(int *w, int *h) { (void)w; (void)h; return -1; }
+int port_gpu_fullscreen_modes(int *wh, int max) { (void)wh; (void)max; return 0; }
+void port_gpu_set_host_keys(int on) { (void)on; }
+unsigned port_gpu_take_keys(void) { return 0; }
+int port_gpu_menu_allowed(void) { return 0; }
+int port_gpu_menu_snapshot(uint16_t *vram) { (void)vram; return -1; }
+void port_gpu_menu_begin(int *x, int *y, int *gx, int *gy, int *gw, int *gh) { *x = *y = *gx = *gy = *gw = *gh = 0; }
+void port_gpu_menu_show(const uint16_t *pixels, int x, int y, int w, int h) { (void)pixels; (void)x; (void)y; (void)w; (void)h; }
+void port_gpu_menu_end(void) {}
 void port_gpu_set_batched_uploads(int on) { (void)on; }
 
 #else
@@ -282,12 +295,44 @@ int port_gpu_set_ui_layout(int enabled)
     if(enabled && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
     center_ui=!!enabled;return 0;
 }
-int port_gpu_set_sharp_bilinear(int enabled)
+/* The screen and filter calls need the patched SDL_GPU backend (Psyz_Sfa2ExperimentalVideoAvailable); without it they refuse, as
+ * the stubs at the top do, and PsyZ's setters are not called. */
+int port_gpu_set_filter(int filter)
 {
-    if(enabled && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
-    Psyz_Sfa2SetSharpBilinear(enabled);return 0;
+    if(filter<PORT_FILTER_NEAREST || filter>PORT_FILTER_SHARP_BILINEAR)return -1;
+    if(!Psyz_Sfa2ExperimentalVideoAvailable())return filter==PORT_FILTER_NEAREST?0:-1;
+    Psyz_Sfa2SetFilter(filter);return 0;
+}
+int port_gpu_set_screen(int screen,int w,int h)
+{
+    if(!Psyz_Sfa2ExperimentalVideoAvailable())return screen==PORT_SCREEN_WINDOW && w==PORT_WINDOW_DEFAULT_W && h==PORT_WINDOW_DEFAULT_H?0:-1;
+    return Psyz_Sfa2SetScreen(screen,w,h);
+}
+int port_gpu_screen(void)
+{
+    return Psyz_Sfa2ExperimentalVideoAvailable()?Psyz_Sfa2GetScreen():PORT_SCREEN_WINDOW;
+}
+int port_gpu_desktop_size(int *w,int *h)
+{
+    return Psyz_Sfa2ExperimentalVideoAvailable()?Psyz_Sfa2DesktopSize(w,h):-1;
+}
+int port_gpu_fullscreen_modes(int *wh,int max)
+{
+    return Psyz_Sfa2ExperimentalVideoAvailable()?Psyz_Sfa2FullscreenModes(wh,max):0;
+}
+void port_gpu_set_host_keys(int on)
+{
+    if(Psyz_Sfa2ExperimentalVideoAvailable())Psyz_Sfa2SetHostKeys(on);
+}
+unsigned port_gpu_take_keys(void)
+{
+    return Psyz_Sfa2ExperimentalVideoAvailable()?Psyz_Sfa2TakeKeys():0;
 }
 static int display_on;   /* the display enable the layer last sent (GP1 command 03) */
+/* What the settings menu needs to know: the last DISPENV the game gave PutDispEnv (a copy, forgotten by ResetGraph(0)), and whether a LoadImage
+ * has reached the game's font page (kept: a reset does not clear the video memory). */
+static DISPENV game_env;
+static int disp_valid, font_loaded;
 
 int port_gpu_display_enabled(void) { return display_on; }
 
@@ -315,6 +360,66 @@ int port_gpu_read_frame(unsigned short *pixels)
     memset(pixels, 0, (size_t)FRAME_W * FRAME_H * 2);
     StoreImage(&r, (u_long *)pixels);
     return 0;
+}
+
+/* The settings menu (menu_run.c) runs on the game's thread while the game is paused. It may open when the game has drawn, its display is on
+ * and the game's font page (4-bit texture page at (0x3c0, 0x100), 64 x 256 halfwords) has been loaded. */
+int port_gpu_menu_allowed(void)
+{
+    return started && !closed && display_on && disp_valid && font_loaded;
+}
+
+static void show_display(DISPENV *env)
+{
+    PutDispEnv(env);
+    ui_canvas_active=port_video_canvas_allowed(env->disp.w,env->disp.h,env->isrgb24,arcade_video);
+    Psyz_Sfa2SetArcadeCanvas(ui_canvas_active);
+}
+
+/* The menu's own 15-bit display of PORT_MENU_W x PORT_MENU_H at the game's display's place: the menu reads like the game's menus on every
+ * screen (the title's display is 320 wide). The video memory under it is the menu's copy's to put back (menu_run.c). */
+void port_gpu_menu_begin(int *x, int *y, int *gx, int *gy, int *gw, int *gh)
+{
+    DISPENV env;
+    int mx = game_env.disp.x, my = game_env.disp.y;
+    if (mx < 0) mx = 0;
+    if (my < 0) my = 0;
+    if (mx > FRAME_W - PORT_MENU_W) mx = FRAME_W - PORT_MENU_W;
+    if (my > FRAME_H - PORT_MENU_H) my = FRAME_H - PORT_MENU_H;
+    *x = mx;
+    *y = my;
+    *gx = game_env.disp.x;
+    *gy = game_env.disp.y;
+    *gw = game_env.isrgb24 ? 0 : game_env.disp.w;
+    *gh = game_env.isrgb24 ? 0 : game_env.disp.h;
+    SetDefDispEnv(&env, mx, my, PORT_MENU_W, PORT_MENU_H);
+    show_display(&env);
+}
+
+void port_gpu_menu_end(void)
+{
+    show_display(&game_env);
+}
+
+/* The video memory after the drawing so far, into the caller's buffer (as port_gpu_read_frame, but the queue is flushed first). */
+int port_gpu_menu_snapshot(uint16_t *vram)
+{
+    RECT r = { 0, 0, FRAME_W, FRAME_H };
+    if (!started || closed) return -1;
+    Psyz_GpuExeque();
+    memset(vram, 0, (size_t)FRAME_W * FRAME_H * 2);
+    StoreImage(&r, (u_long *)vram);
+    return 0;
+}
+
+/* Write host-owned pixels to a rectangle of the video memory, as port_gpu_intro_frame does (no check against the game's RAM). */
+void port_gpu_menu_show(const uint16_t *pixels, int x, int y, int w, int h)
+{
+    RECT rect = { (short)x, (short)y, (short)w, (short)h };
+    if (!started || closed) return;
+    if (!rect_fits(x, y, w, h) || w == 0 || h == 0) rect_stop("menu_show", rect.x, rect.y, rect.w, rect.h);
+    LoadImage(&rect, (u_long *)(uintptr_t)pixels);
+    Psyz_GpuExeque();
 }
 
 /* ---- seam: the list walker ---- */
@@ -582,6 +687,7 @@ static int host_ResetGraph(int mode)
          * display as it is. PsyZ's ResetGraph does not touch the display, so the display-off is sent here. */
         Psyz_GpuDisplayCommand(0x03000001u);
         display_on = 0;
+        disp_valid = 0;
         return version;
     }
     need_reset("ResetGraph with a mode other than 0");
@@ -668,6 +774,7 @@ static int host_LoadImage(RECT *rect, void *pixels)
     clamp_size(rect);
     if (!rect_fits(rect->x, rect->y, rect->w, rect->h)) rect_stop("LoadImage", given.x, given.y, given.w, given.h);
     pixels = game_span("LoadImage", pixels, transfer_bytes(rect));
+    if (rect->x < 0x400 && rect->x + rect->w > PORT_MENU_FONT_X && rect->y < PORT_MENU_FONT_Y + 0x100 && rect->y + rect->h > PORT_MENU_FONT_Y) font_loaded = 1;
     return LoadImage(rect, (u_long *)pixels);
 }
 
@@ -744,6 +851,7 @@ static DISPENV *host_PutDispEnv(DISPENV *env)
     SPAN(env, "PutDispEnv", sizeof *env);
     {
         DISPENV *result=PutDispEnv(env);
+        game_env=*env;disp_valid=1;
         ui_canvas_active=port_video_canvas_allowed(env->disp.w,env->disp.h,env->isrgb24,arcade_video);
         Psyz_Sfa2SetArcadeCanvas(ui_canvas_active);
         return (DISPENV *)(uintptr_t)port_a(result);   /* PsyZ returns the host pointer it was given; the game gets its own address back */

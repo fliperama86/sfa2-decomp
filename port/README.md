@@ -10,6 +10,11 @@ The opt-in [arcade assets](arcade/README.md) loader (2026-10-23, work in
 progress) builds what the game reads from the user's arcade set, so that in
 the end no PS1 disc is needed; for now the disc gives what it cannot build.
 
+The opt-in [PC settings menu](settings-menu.md) (2026-10-23, setting
+`settings_menu`, default off) opens in the game with F1 or Escape: window,
+fullscreen or borderless, the resolution and the picture's filter, drawn with
+the game's own font and saved to the settings file at once.
+
 The opt-in [complete native arcade intro](intro/README.md) runs in the normal
 Windows executable, using imported CPS2 artwork/tables and the PS1-disc
 soundtrack. It stays default off; exact QSound audio and the rest of attract

@@ -126,5 +126,15 @@ void Psyz_Sfa2SetArcadeCanvas(int enabled);
 void Psyz_Sfa2SetPixelPerfectUi(int enabled);
 int Psyz_Sfa2ExperimentalVideoAvailable(void);
 void Psyz_Sfa2SetBatchedUploads(int on);
-void Psyz_Sfa2SetSharpBilinear(int enabled);
+/* Since port_video_api 4 (port/settings-menu.md): filter 0 nearest, 1 bilinear, 2 sharp bilinear (replaces SetSharpBilinear). */
+void Psyz_Sfa2SetFilter(int filter);
+/* screen 0 window (w, h its inner size in pixels), 1 exclusive fullscreen (w, h the mode; 0, 0 the desktop's), 2 borderless
+ * fullscreen. Kept and applied when the window opens, at once after. 0, or -1 when SDL refused (the screen stays as it was). */
+int Psyz_Sfa2SetScreen(int screen, int w, int h);
+int Psyz_Sfa2GetScreen(void);
+int Psyz_Sfa2DesktopSize(int *w, int *h);
+int Psyz_Sfa2FullscreenModes(int *wh, int max);
+/* on: Escape, F1, F4 and a gamepad's guide button are kept for TakeKeys (bits 2, 1, 4, 8) instead of PsyZ's own handling. */
+void Psyz_Sfa2SetHostKeys(int on);
+unsigned Psyz_Sfa2TakeKeys(void);
 #endif

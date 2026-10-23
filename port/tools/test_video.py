@@ -21,7 +21,7 @@ class Video(unittest.TestCase):
             root = Path(folder)
             self.assertEqual(psyzbuild.video_api_metadata(root), {})
             psyzbuild.install_video_header(root, PATCH.read_text())
-            self.assertEqual(psyzbuild.video_api_metadata(root), {'port_video_api': 3})
+            self.assertEqual(psyzbuild.video_api_metadata(root), {'port_video_api': 4})
             (root / 'gpu.c').write_text('void f(void) { Psyz_Sfa2SetArcadeCanvas(0); }\n')
             with self.assertRaisesRegex(hostbuild.Problem, 'rebuild'):
                 hostbuild.require_video_api({}, root)
@@ -29,7 +29,9 @@ class Video(unittest.TestCase):
                 hostbuild.require_video_api({'port_video_api': 1}, root)
             with self.assertRaisesRegex(hostbuild.Problem, 'rebuild'):
                 hostbuild.require_video_api({'port_video_api': 2}, root)
-            hostbuild.require_video_api({'port_video_api': 3}, root)
+            with self.assertRaisesRegex(hostbuild.Problem, 'rebuild'):
+                hostbuild.require_video_api({'port_video_api': 3}, root)
+            hostbuild.require_video_api({'port_video_api': 4}, root)
             (root / 'gpu.c').write_text('/* A custom legacy runtime has no extension dependency. */\n')
             hostbuild.require_video_api({}, root)
 
@@ -45,7 +47,7 @@ class Video(unittest.TestCase):
         text = PATCH.read_text()
         patches = psyzbuild.parse_patch(text)
         self.assertEqual({p.path for p in patches}, {'psyz/src/psyz/libgpu.c',
-            'psyz/src/platform/sdl3_gpu.c', 'psyz/src/platform/sdl3_gl.c', 'psyz/src/platform/sdl3_audio.c'})
+            'psyz/src/platform/sdl3_gpu.c', 'psyz/src/platform/sdl3_common.h', 'psyz/src/platform/sdl3_gl.c', 'psyz/src/platform/sdl3_audio.c'})
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             for patch in patches:
@@ -67,18 +69,33 @@ class Video(unittest.TestCase):
             self.assertIn('port_video_arcade_fit', gpu)
             self.assertIn('port_video_life_fill(x, &y, w, &h)', gpu)
             self.assertIn('(code & PORT_VIDEO_LIFE_FILL)', gpu)
-            # Sharp bilinear: the enlargement is asked of the shared policy, the linear filter only follows it, and teardown frees its texture.
+            # Filters: sharp bilinear asks the shared policy for the enlargement, the linear filter follows it (or bilinear alone), and teardown frees its texture.
             self.assertIn('!port_video_sharp_fit((int)src->w,(int)src->h,dst.w,dst.h,&pre)) return 0;', gpu)
-            self.assertIn('if (!sfa2_sharp_bilinear || debug_show_vram ||', gpu)
-            self.assertIn('const int sfa2_sharp = Sfa2SharpPrescale(cmd, &src, dst);', gpu)
-            self.assertIn('.filter = sfa2_sharp ? SDL_GPU_FILTER_LINEAR : SDL_GPU_FILTER_NEAREST,', gpu)
+            self.assertIn('if (sfa2_filter != 2 || debug_show_vram ||', gpu)
+            self.assertIn('const int sfa2_linear = Sfa2SharpPrescale(cmd, &src, dst) || (sfa2_filter == 1 && !debug_show_vram);', gpu)
+            self.assertIn('.filter = sfa2_linear ? SDL_GPU_FILTER_LINEAR : SDL_GPU_FILTER_NEAREST,', gpu)
+            self.assertNotIn('SetSharpBilinear', gpu)
+            # Screen: the window size replaces PsyZ's default at the first show, the fullscreen is entered there, and PsyZ's own flag follows.
+            self.assertIn('SetWindowSizeInPixels(sfa2_win_w, sfa2_win_h);', gpu)
+            self.assertIn('        Sfa2ApplyPendingScreen();\n        SDL_ShowWindow(sdl3_window);', gpu)
+            self.assertIn('is_fullscreen = true;', gpu)
+            self.assertIn('SDL_GetClosestFullscreenDisplayMode(display, w, h, 0.0f, false, &closest)', gpu)
+            self.assertIn('SDL_SetWindowFullscreenMode(sdl3_window, mode)', gpu)
+            # Host keys: recorded by the event pump of the common header, without quitting or toggling.
+            common = (root / 'psyz/src/platform/sdl3_common.h').read_text()
+            self.assertIn('if (sfa2_host_keys && (event.key.scancode == SDL_SCANCODE_ESCAPE ||', common)
+            self.assertIn('case SDL_EVENT_GAMEPAD_BUTTON_DOWN:', common)
+            self.assertIn('event.gbutton.button == SDL_GAMEPAD_BUTTON_GUIDE', common)
             self.assertIn('SDL_ReleaseGPUTexture(device, sfa2_sharp_texture);\n            sfa2_sharp_texture = NULL;', gpu)
             gl = (root / 'psyz/src/platform/sdl3_gl.c').read_text()
             self.assertIn('Psyz_Sfa2ExperimentalVideoAvailable(void) { return 0; }', gl)
             # Every function the port declares for a backend is defined by both backends (the OpenGL fallback must link too).
             declared = re.findall(r'^\w+ (Psyz_Sfa2\w+)\(', (ROOT / 'port/src/video.h').read_text(), re.M)
             self.assertIn('Psyz_Sfa2SetBatchedUploads', declared)
-            self.assertIn('Psyz_Sfa2SetSharpBilinear', declared)
+            self.assertIn('Psyz_Sfa2SetFilter', declared)
+            for name in ('SetScreen', 'GetScreen', 'DesktopSize', 'FullscreenModes', 'SetHostKeys', 'TakeKeys'):
+                self.assertIn('Psyz_Sfa2' + name, declared)
+            self.assertNotIn('Psyz_Sfa2SetSharpBilinear', declared)
             for name in declared:
                 for backend, source in (('sdl3_gpu.c', gpu), ('sdl3_gl.c', gl)):
                     self.assertRegex(source, r'(?m)^\w+ %s\([^)]*\) *\{' % name, '%s lacks %s' % (backend, name))

@@ -18,9 +18,11 @@
  *     repeat SECONDS EVERY BUTTON
  * and a blank line or a line whose first word starts with # is skipped. SECONDS and EVERY are decimal numbers (digits
  * and one point); a time is the frame round(SECONDS * 60), the frame being the number of the vertical blank since the
- * program started (the first is 1), so it does not depend on the host's speed. The times of the lines do not go
+ * program started (the first is 1), counting the frames of the settings menu too (port_alive, kernel.c), so it does not depend on the
+ * host's speed and goes on while the menu holds the game. The times of the lines do not go
  * backwards (the frames, after rounding). BUTTON is one of start select up down left right cross circle square
- * triangle l1 r1 l2 r2 l3 r3. A button is held from its down line to its up line. A repeat line presses BUTTON for 4
+ * triangle l1 r1 l2 r2 l3 r3, or one of the settings menu's host keys f1 escape f4 guide (port/settings-menu.md): a down line of
+ * one of those, or a press of a repeat, is that key's press for port_input_take_keys, and changes no pad button. A button is held from its down line to its up line. A repeat line presses BUTTON for 4
  * frames every EVERY seconds (at least 0.1) from its time up to, not including, the time of the next line that is not a
  * repeat line, or for an hour if there is none; a press of a repeat that would run past that time ends at it.
  * The holds of the down and up lines and the presses of the repeat lines are kept apart: a button is pressed at a
@@ -98,9 +100,11 @@ static int loaded;                       /* a script was read without a refusal 
 static unsigned held;                    /* the buttons the down lines hold: bit i is word bit i of the pad word, 0 L2 ... 15 left */
 static unsigned running[16];             /* for each button, how many presses of repeat lines are running */
 
-static const char *const names[16] = {
+static const char *const names[20] = {
     "l2", "r2", "l1", "r1", "triangle", "circle", "cross", "square",
-    "select", "l3", "r3", "start", "up", "right", "down", "left" };
+    "select", "l3", "r3", "start", "up", "right", "down", "left",
+    "f1", "escape", "f4", "guide" };   /* the last four: the settings menu's host keys, bits 16 up (PORT_INPUT_KEY_*), no pad button */
+static unsigned host_keys;               /* the host keys whose press the script made since port_input_take_keys last took them */
 
 struct line { int repeat; unsigned frame, every, mask; int down; unsigned number; };
 
@@ -275,10 +279,10 @@ int port_input_load(const char *path_given, char *err, size_t errsize)
         button = tok[repeat ? 3 : 1];
         {
             size_t blen = toklen[repeat ? 3 : 1];
-            for (k = 0; k < 16; k++)
+            for (k = 0; k < 20; k++)
                 if (strlen(names[k]) == blen && memcmp(names[k], button, blen) == 0) bit = (int)k;
             if (bit < 0) {
-                snprintf(err, errsize, "input: %s line %u: `%.*s` is not a button (start select up down left right cross circle square triangle l1 r1 l2 r2 l3 r3)", path, n, (int)blen, button);
+                snprintf(err, errsize, "input: %s line %u: `%.*s` is not a button (start select up down left right cross circle square triangle l1 r1 l2 r2 l3 r3 f1 escape f4 guide)", path, n, (int)blen, button);
                 goto done;
             }
         }
@@ -363,6 +367,10 @@ void port_input_apply(unsigned char *raw, unsigned frame)
     unsigned i, word;
     while (applied < nsteps && steps[applied].frame <= frame) {
         const struct step *s = &steps[applied++];
+        if (s->mask >> 16) {   /* a host key: its press is kept for port_input_take_keys, the pad frame does not change */
+            if (s->down) host_keys |= s->mask >> 16;
+            continue;
+        }
         if (!s->pulse) {
             if (s->down) held |= s->mask;
             else held &= ~s->mask;
@@ -379,4 +387,11 @@ void port_input_apply(unsigned char *raw, unsigned frame)
         if (running[i]) word |= 1u << i;
     raw[2] &= (unsigned char)~(word >> 8);
     raw[3] &= (unsigned char)~(word & 0xffu);
+}
+
+unsigned port_input_take_keys(void)
+{
+    unsigned k = host_keys;
+    host_keys = 0;
+    return k;
 }

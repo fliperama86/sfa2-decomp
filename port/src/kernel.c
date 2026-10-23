@@ -9,6 +9,7 @@
  * listing of the game's library (the resident code, addresses given), PSY-Q's
  * documented behaviour, or the BIOS call table (PSX-SPX). */
 #include "port.h"
+#include "menu.h"
 
 #include <string.h>
 
@@ -24,7 +25,9 @@
 #define LINES_PER_SEC  15750ull    /* horizontal retraces a second at 60 frames of 262.5 lines */
 #define SYSCLK8_HZ     4233600ull  /* the system clock (33.8688 MHz) divided by 8: root counter 2 */
 
-static unsigned long long now_us(void)
+static volatile unsigned long long paused_us;   /* the time the settings menu held the game, left out of the clock */
+
+static unsigned long long host_us(void)
 {
 #ifdef _WIN32
     static LARGE_INTEGER freq;
@@ -37,6 +40,14 @@ static unsigned long long now_us(void)
     clock_gettime(CLOCK_MONOTONIC, &t);
     return (unsigned long long)t.tv_sec * 1000000ull + (unsigned long long)t.tv_nsec / 1000ull;
 #endif
+}
+
+/* The one clock: the host's, less the time the settings menu held the game (port_clock_paused). paused_us changes only on the game's
+ * thread at the end of a vblank, in host code, where the timer of interrupt.c never interrupts (it reads the clock only with the game's
+ * thread stopped in the game's code). */
+static unsigned long long now_us(void)
+{
+    return host_us() - paused_us;
 }
 
 /* The one clock, in microseconds (the completion of a transfer, iopage.c, is due by it). */
@@ -376,7 +387,7 @@ static void pads_fill(void)
         if (n > 3) {
             unsigned word = 0;
             if (b[0] == 0 && b[1] == 0x41) {
-                port_input_apply(b, total_frames);
+                port_input_apply(b, port_alive());
                 word = (~(b[3] | (b[2] << 8))) & 0xffffu;
             } else if (port_input_loaded() && !pad_no_controller_said) {
                 pad_no_controller_said = 1;
@@ -508,6 +519,28 @@ unsigned port_frames(void)
 static int hurry_depth;
 static unsigned blank_until;   /* the frame count below which the blank fast-forward runs; 0: not running */
 
+int port_clock_hurrying(void)
+{
+    return hurry_depth > 0;
+}
+
+static volatile unsigned menu_frames;   /* frames of the settings menu, for port_alive (the watchdog's thread reads it) */
+
+void port_clock_paused(unsigned long long us)
+{
+    paused_us += us;
+}
+
+void port_clock_menu_frame(void)
+{
+    menu_frames++;
+}
+
+unsigned port_alive(void)
+{
+    return total_frames + menu_frames;
+}
+
 void port_clock_hurry(int on)
 {
     hurry_depth += on ? 1 : -1;
@@ -564,7 +597,8 @@ static void run_vblank(void)
     port_cd_tick();
     port_iopage_vblank();   /* with --trace, the counts of the sound chip's page now and then */
     port_gpu_present();
-    port_debug_tick(total_frames);
+    port_debug_tick(port_alive());
+    port_menu_vblank();   /* the settings menu (menu_run.c): nothing unless it is on and asked for */
     vblank_in_progress = 0;
 }
 

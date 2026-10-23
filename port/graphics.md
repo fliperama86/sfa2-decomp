@@ -13,8 +13,14 @@ No arcade ROM or replacement artwork is required for these options.
 pixel_perfect_ui = true
 arcade_video = true
 center_ui = true
-sharp_bilinear = true
+
+[display]
+filter = sharp_bilinear
 ```
+
+The file has two sections: `[experimental]` (the switches of the changes below, and
+`settings_menu`) and `[display]` (`screen`, `window_size`, `fullscreen_size` and
+`filter`). [settings-menu.md](settings-menu.md) is the contract of the whole file.
 
 `pixel_perfect_ui` corrects **super-meter and life-frame tile sampling**. It maps
 each 16x16 source tile one-to-one onto the native pixel grid, including mirrored
@@ -59,14 +65,17 @@ the same default-off flag. True16:9 and edge anchoring for that width are future
 work. Original game RAM/geometry stays unchanged; translation is in copied SDK
 packets. Both sampling and layout compose without changing health-bar widths.
 
-`sharp_bilinear` changes only how the finished picture is **stretched to the
+`filter = sharp_bilinear` (a value of `[display] filter`, which is `nearest`,
+`bilinear` or `sharp_bilinear`; before the settings menu it was the key
+`[experimental] sharp_bilinear`) changes only how the finished picture is **stretched to the
 window**. The picture is first enlarged by the largest whole factor of each side
 that fits its place in the window, with nearest sampling, and the result is then
 stretched to that place with linear sampling. Pixels keep hard edges, and where
 the window is not a whole multiple of the picture the uneven pixel sizes of
 nearest sampling become a thin blend at the pixel borders. When the place is a
-whole multiple on both sides, and with the setting off, the picture is drawn
-with nearest sampling alone, as before. It applies to every display mode,
+whole multiple on both sides, and with `filter = nearest`, the picture is drawn
+with nearest sampling alone, as before; `bilinear` stretches it with linear
+sampling alone. It applies to every display mode,
 movies included, and works with or without the other options; nothing of the
 game's drawing changes. How it looks is the owner's to judge: no check here
 reads the window's pixels.
@@ -75,8 +84,19 @@ reads the window's pixels.
 
 At startup the port reads `settings.ini` in the working directory. A missing
 default file uses the defaults above. `--settings FILE` explicitly selects a
-file; missing or invalid explicit files refuse startup. No settings are written
-automatically. Copy/edit the supplied `port/settings.ini`, or give its path.
+file; missing or invalid explicit files refuse startup. The program writes the
+file only with `settings_menu` on, where the settings menu saves its changes to
+the file that was read ([settings-menu.md](settings-menu.md)); with it off no
+file is ever written. Copy/edit the supplied `port/settings.ini`, or give its
+path. `./build.sh -r` gives the program `local/settings.ini` (ignored by Git,
+copied from `port/settings.ini` when it is missing) unless `SFA2_SETTINGS`
+names another file.
+
+The old key `[experimental] sharp_bilinear = true|false` is still read, as
+`filter = sharp_bilinear|nearest`; a file with both keys is refused, and saving
+never writes the old key. A size (`window_size`, `fullscreen_size`) is `WxH` in
+decimal digits, a lowercase `x`, no spaces, no leading zero, each side 320 to
+16384; `fullscreen_size` may also be `desktop`.
 
 CLI overrides address these same settings, with the last override winning:
 
@@ -85,7 +105,8 @@ CLI overrides address these same settings, with the last override winning:
 | UI sampling | `--pixel-perfect-ui` | `--ps1-rendering` |
 | Native canvas | `--arcade-video` | `--ps1-video` |
 | Common UI position | `--center-ui` | `--ps1-ui-layout` |
-| Window scaling | `--sharp-bilinear` | `--nearest-scaling` |
+| Picture filter (`[display] filter`) | `--sharp-bilinear` (filter = sharp_bilinear) | `--nearest-scaling` (filter = nearest) |
+| Settings menu (`[experimental] settings_menu`) | `--settings-menu` | `--no-settings-menu` |
 | Loading waits (not graphics) | `--fast-loads` | `--ps1-loading` |
 | Memory cards (not graphics) | `--memory-card` | `--no-memory-card` |
 
@@ -93,12 +114,15 @@ CLI overrides address these same settings, with the last override winning:
 true or false values), it is not a graphics setting, and `--show-settings` reports it on a line after the settings. It does not change a
 file written by `--audio-dump`. It needs the patched PsyZ (`port/psyz.patch`).
 
-Overrides apply after loading, regardless of where `--settings` appears.
+Overrides apply after loading, regardless of where `--settings` appears. They
+change what the program uses, never what the menu saves: the menu saves the
+file's own values with its change.
 The original-sampling option selects the prior port path, not a claim of
 pixel-identical PS1 GPU output.
-`--show-settings` reports resolved values and exits before any disc, game,
-GPU/window or audio initialization. Options are startup settings; a live UI
-has not been implemented. The future UI uses the same typed C load/save API.
+`--show-settings` reports resolved values, both sections in the file's own form
+(what a save would write), then the `volume = N` line, and exits before any
+disc, game, GPU/window or audio initialization. The settings menu uses the
+same typed C load/save API.
 
 The INI subset accepts LF/CRLF, a UTF-8 BOM, whitespace and `#`/`;` comments.
 Values are exactly `true` or `false`. Unknown/duplicate keys, unknown sections,
@@ -109,7 +133,7 @@ same-directory temporary file, keeping the prior file on failure.
 ## Build and validation
 
 Rebuild PsyZ with the existing `psyzbuild.py` and updated `port/psyz.patch` before
-linking. Its metadata advertises `port_video_api = 3`; the host build refuses
+linking. Its metadata advertises `port_video_api = 4`; the host build refuses
 stale SDK caches before compiling any game units. The tool copies the
 project-owned `video.h` policy into the dependency
 build copy, never modifying the source submodule. Patch context and changes

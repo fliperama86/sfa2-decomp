@@ -12,8 +12,10 @@
 #         (3.21 or later), Ninja, git and Python 3.11 or later on PATH. Run it on a 64-bit Linux that runs 32-bit programs.
 #   -r    after a build that ended well, start the program with the disc image that SFA2_DISC names (the .cue or
 #         the .bin itself). The program gets --skip-programs, then --settings FILE (SFA2_SETTINGS, else
-#         port/settings.ini) unless a PROGRAM OPTION is --settings, then the PROGRAM OPTIONS, then the disc. Its
-#         status is this script's. Without -r a PROGRAM OPTION is refused.
+#         local/settings.ini, which Git ignores, so that the settings menu's saves never change a tracked file; when
+#         that default file is missing, it is made first by copying port/settings.ini) unless a PROGRAM OPTION is
+#         --settings, then the PROGRAM OPTIONS, then the disc. Its status is this script's. Without -r a PROGRAM
+#         OPTION is refused.
 #
 # This script decides nothing about the build. It runs the tools of port/tools in the order of port/README.md
 # ("Building it for the port", "Building it") and of port/mac/README.md, with those tools' own default folders:
@@ -47,12 +49,12 @@
 #   SFA2_DISC      the disc image for -r. For the Windows program under WSL, a path in Windows form, or a path of
 #                  an existing file, which is turned into that form with wslpath. The Mac and Linux programs take
 #                  the path as it is.
-#   SFA2_SETTINGS  the settings file for -r in place of port/settings.ini
+#   SFA2_SETTINGS  the settings file for -r in place of local/settings.ini (a file named here is never created)
 #   SFA2_PYTHON    the Python to run the tools with, by default python3
 #
 # Status: 0 built (with -r, the program's status); 2 a wrong command line or -r without SFA2_DISC, before anything
 # is built; else the status of the tool that failed. Reads no game file. port/tools/test_build_sh.py checks the
-# order, the skipping and the program's command line with stand-ins for the tools, in a few seconds.
+# order, the skipping, the default settings file and the program's command line with stand-ins for the tools, in a few seconds.
 set -eu
 
 usage() {
@@ -170,6 +172,13 @@ for option do
     [ "$option" != --settings ] || settings=0
 done
 if [ $settings = 1 ]; then
-    set -- --settings "$(native "${SFA2_SETTINGS:-port/settings.ini}")" "$@"
+    if [ -z "${SFA2_SETTINGS:-}" ]; then
+        SFA2_SETTINGS=local/settings.ini
+        if [ ! -e $SFA2_SETTINGS ]; then
+            mkdir -p local
+            cp port/settings.ini $SFA2_SETTINGS
+        fi
+    fi
+    set -- --settings "$(native "$SFA2_SETTINGS")" "$@"
 fi
 exec $PROGRAM --skip-programs "$@" "$(native "$SFA2_DISC")"

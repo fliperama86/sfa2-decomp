@@ -42,14 +42,26 @@ both flags disabled, normal texture sampling and presentation remain unchanged.
 The project-authored shared policy header is copied by psyzbuild.py. No shader
 or global UV correction is changed. The port selects only its known HUD tiles.
 
-Sharp-bilinear presentation: with Psyz_Sfa2SetSharpBilinear(1) (the port's
-setting sharp_bilinear) the SDL_GPU backend first enlarges the picture by whole
-factors with nearest sampling, into a texture of its own, and stretches that
-texture to its place in the window with linear sampling. The factors come from
-the shared policy header. When the window is a whole multiple of the picture on
-both sides, and with the setting off, presentation is the one nearest blit as
-before. The VRAM view of the debugger is never filtered. The OpenGL backend has
-a no-op of the same name.
+Picture filter: Psyz_Sfa2SetFilter(filter) (the port's setting [display] filter) chooses how the SDL_GPU backend stretches the finished picture to its
+place in the window: 0 nearest, 1 bilinear, 2 sharp bilinear. Nearest is the one nearest blit, as before. Bilinear is one blit with linear sampling, with no
+enlargement first. Sharp bilinear first enlarges the picture by whole factors with nearest sampling, into a texture of its own, and stretches that texture
+to its place in the window with linear sampling. The factors come from the shared policy header. When the window is a whole multiple of the picture on
+both sides, sharp bilinear is the one nearest blit as before. The VRAM view of the debugger is never filtered. The OpenGL backend has a no-op of the same
+name. This replaces Psyz_Sfa2SetSharpBilinear (port_video_api 3), which had only the choice of 0 and 2.
+
+Screen: Psyz_Sfa2SetScreen(screen, w, h) puts the window in one of three states: 0 a window of the inner size w x h pixels, 1 exclusive fullscreen at the
+mode of the window's display closest to w x h (0 x 0 is the desktop's size), 2 borderless fullscreen (no mode set, the desktop's size). Before the window
+is shown the request is only kept, and the call returns 0; the window then gets the kept window size where PsyZ used its DEFAULT_FRONT_W x DEFAULT_FRONT_H
+(1280 x 960) and the fullscreen is entered as the window is shown. After that the request is applied at once, and leaving fullscreen for the window gives
+it the size of the call. SDL refusing a step makes the call return -1 and leaves the screen as it was; a fullscreen refused as the window is shown leaves a
+window. PsyZ's own is_fullscreen flag follows every change, so its F4 key still works from any state. One line is printed for each change applied.
+Psyz_Sfa2GetScreen returns the state in effect. Psyz_Sfa2DesktopSize gives the desktop mode's size of the window's display (-1 while there is no window),
+and Psyz_Sfa2FullscreenModes the sizes of its fullscreen modes as w, h pairs, each once, largest first, at most as many as the caller has room for. The
+OpenGL backend has no-ops (SetScreen and DesktopSize return -1, GetScreen and FullscreenModes 0).
+
+Host keys: with Psyz_Sfa2SetHostKeys(1) the event pump no longer ends the program on Escape or toggles fullscreen on F4. A key press (not a repeat) of F1,
+Escape or F4, and a gamepad's guide button, are only recorded, as the bits 1, 2, 4 and 8 of a mask that Psyz_Sfa2TakeKeys returns and clears. F6, the VRAM
+view, and the closing of the window stay PsyZ's. With 0, the default, the keys are PsyZ's own and nothing is recorded. The OpenGL backend has no-ops.
 
 --- a/psyz/src/psyz/libgpu.c
 +++ b/psyz/src/psyz/libgpu.c
@@ -67,7 +79,7 @@ a no-op of the same name.
  #include <SDL3/SDL.h>
  #include "sdl3_common.h"
  #include "sdl3_draw.h"
-@@ -83,6 +84,74 @@
+@@ -83,6 +84,231 @@
  static Posi display_area = {0, 0};
  static Posi display_size = {256, 240};
  static Posi cur_display_size = {-1, -1};
@@ -99,15 +111,16 @@ a no-op of the same name.
 +    printf("arcade-video: %s\n",enabled ? "384x224 active canvas, arcade 4:3 presentation" : "original presentation for other display mode");
 +    fflush(stdout);
 +}
-+/* Optional sharp-bilinear presentation of the SFA2 port: whole-factor nearest
-+ * enlargement into this texture, then one linear stretch to the window. */
-+static int sfa2_sharp_bilinear;
++/* The picture filter of the SFA2 port: 0 nearest, 1 bilinear (one linear blit),
++ * 2 sharp bilinear (whole-factor nearest enlargement into this texture, then
++ * one linear stretch to the window). */
++static int sfa2_filter;
 +static SDL_GPUTexture* sfa2_sharp_texture;
 +static Uint32 sfa2_sharp_w, sfa2_sharp_h;
-+void Psyz_Sfa2SetSharpBilinear(int enabled) { sfa2_sharp_bilinear = !!enabled; }
++void Psyz_Sfa2SetFilter(int filter) { sfa2_filter = filter == 1 || filter == 2 ? filter : 0; }
 +static int Sfa2SharpPrescale(SDL_GPUCommandBuffer* cmd, SDL_GPUBlitRegion* src, SDL_Rect dst) {
 +    struct port_video_view pre;
-+    if (!sfa2_sharp_bilinear || debug_show_vram ||
++    if (sfa2_filter != 2 || debug_show_vram ||
 +        !port_video_sharp_fit((int)src->w,(int)src->h,dst.w,dst.h,&pre)) return 0;
 +    if (!sfa2_sharp_texture || sfa2_sharp_w != (Uint32)pre.w || sfa2_sharp_h != (Uint32)pre.h) {
 +        const SDL_GPUTextureCreateInfo info = {
@@ -138,6 +151,162 @@ a no-op of the same name.
 +    SDL_BlitGPUTexture(cmd, &enlarge);
 +    *src = (SDL_GPUBlitRegion){.texture = sfa2_sharp_texture, .w = (Uint32)pre.w, .h = (Uint32)pre.h};
 +    return 1;
++}
++/* The screen of the SFA2 port (Psyz_Sfa2SetScreen): 0 window, 1 exclusive fullscreen, 2 borderless fullscreen. Before the window is shown the
++ * request is only kept; sfa2_win_* is the window's inner size and sfa2_fs_* the mode asked for (0, 0: the desktop's). is_fullscreen (PsyZ's own
++ * flag) follows every change, so that PsyZ's F4 works from any state. */
++#ifndef PLATFORM_IOS
++static int sfa2_screen, sfa2_screen_set;
++static int sfa2_win_w = DEFAULT_FRONT_W, sfa2_win_h = DEFAULT_FRONT_H;
++static int sfa2_fs_w, sfa2_fs_h;
++static SDL_DisplayID Sfa2Display(void) {
++    SDL_DisplayID id = SDL_GetDisplayForWindow(sdl3_window);
++    return id ? id : SDL_GetPrimaryDisplay();
++}
++/* Put the existing window in the screen. `shown` is 0 while the window is still hidden (SDL then only keeps the request). 0, or -1 with the
++ * window as it was. */
++static int Sfa2ApplyScreen(int screen, int w, int h, int shown) {
++    if (screen == 0) {
++        if (is_fullscreen) {
++            if (!SDL_SetWindowFullscreen(sdl3_window, false)) {
++                WARNF("screen: cannot leave fullscreen: %s", SDL_GetError());
++                return -1;
++            }
++            if (shown) SDL_SyncWindow(sdl3_window);
++            is_fullscreen = false;
++        }
++        SetWindowSizeInPixels(w, h);
++        if (shown) {
++            SDL_SyncWindow(sdl3_window);
++            SDL_GetWindowSizeInPixels(sdl3_window, &wnd_size_in_pixels.w, &wnd_size_in_pixels.h);
++        }
++        printf("screen: window %dx%d\n", w, h);
++    } else {
++        SDL_DisplayMode closest, previous;
++        const SDL_DisplayMode* mode = NULL;
++        const SDL_DisplayMode* old = SDL_GetWindowFullscreenMode(sdl3_window);
++        SDL_zero(previous);
++        if (old) previous = *old;
++        if (screen == 1) {
++            const SDL_DisplayID display = Sfa2Display();
++            if (w == 0 && h == 0) {
++                const SDL_DisplayMode* desktop = SDL_GetDesktopDisplayMode(display);
++                if (!desktop) {
++                    WARNF("screen: no desktop mode: %s", SDL_GetError());
++                    return -1;
++                }
++                w = desktop->w;
++                h = desktop->h;
++            }
++            if (!SDL_GetClosestFullscreenDisplayMode(display, w, h, 0.0f, false, &closest)) {
++                WARNF("screen: no fullscreen mode near %dx%d: %s", w, h, SDL_GetError());
++                return -1;
++            }
++            mode = &closest;
++        }
++        if (!SDL_SetWindowFullscreenMode(sdl3_window, mode) || !SDL_SetWindowFullscreen(sdl3_window, true)) {
++            WARNF("screen: cannot enter fullscreen: %s", SDL_GetError());
++            SDL_SetWindowFullscreenMode(sdl3_window, old ? &previous : NULL);
++            return -1;
++        }
++        is_fullscreen = true;
++        if (shown) {
++            SDL_SyncWindow(sdl3_window);
++            SDL_GetWindowSizeInPixels(sdl3_window, &wnd_size_in_pixels.w, &wnd_size_in_pixels.h);
++        }
++        if (mode) printf("screen: fullscreen %dx%d\n", closest.w, closest.h);
++        else printf("screen: borderless\n");
++    }
++    fflush(stdout);
++    return 0;
++}
++/* Called as the window is first shown (after PsyZ has set its size): enters the fullscreen that was asked for. */
++static void Sfa2ApplyPendingScreen(void) {
++    if (!sfa2_screen_set) return;
++    if (sfa2_screen == 0) {
++        printf("screen: window %dx%d\n", sfa2_win_w, sfa2_win_h);
++        fflush(stdout);
++    } else if (Sfa2ApplyScreen(sfa2_screen, sfa2_fs_w, sfa2_fs_h, 0) < 0) {
++        sfa2_screen = 0;
++        printf("screen: window %dx%d (fullscreen refused)\n", sfa2_win_w, sfa2_win_h);
++        fflush(stdout);
++    }
++}
++int Psyz_Sfa2SetScreen(int screen, int w, int h) {
++    if (screen < 0 || screen > 2) return -1;
++    if (screen == 0 && (w <= 0 || h <= 0)) return -1;
++    if (screen == 1 && (w < 0 || h < 0 || (w == 0) != (h == 0))) return -1;
++    if (is_window_visible) {
++        if (!sdl3_window || Sfa2ApplyScreen(screen, w, h, 1) < 0) return -1;
++    }
++    sfa2_screen = screen;
++    sfa2_screen_set = 1;
++    if (screen == 0) {
++        sfa2_win_w = w;
++        sfa2_win_h = h;
++    } else if (screen == 1) {
++        sfa2_fs_w = w;
++        sfa2_fs_h = h;
++    }
++    return 0;
++}
++int Psyz_Sfa2GetScreen(void) {
++    if (!is_window_visible) return sfa2_screen;
++    return is_fullscreen ? (sfa2_screen ? sfa2_screen : 1) : 0;
++}
++int Psyz_Sfa2DesktopSize(int* w, int* h) {
++    const SDL_DisplayMode* desktop;
++    if (!sdl3_window) return -1;
++    desktop = SDL_GetDesktopDisplayMode(Sfa2Display());
++    if (!desktop) return -1;
++    *w = desktop->w;
++    *h = desktop->h;
++    return 0;
++}
++static int Sfa2ModeOrder(const void* a, const void* b) {
++    const int* x = a;
++    const int* y = b;
++    const long long area_x = (long long)x[0] * x[1], area_y = (long long)y[0] * y[1];
++    if (area_x != area_y) return area_x < area_y ? 1 : -1;
++    return x[0] < y[0] ? 1 : x[0] > y[0] ? -1 : 0;
++}
++int Psyz_Sfa2FullscreenModes(int* wh, int max) {
++    int count = 0, n = 0;
++    SDL_DisplayMode** modes;
++    int* list;
++    if (!sdl3_window || max <= 0) return 0;
++    modes = SDL_GetFullscreenDisplayModes(Sfa2Display(), &count);
++    if (!modes) return 0;
++    list = malloc(sizeof(int) * 2 * (size_t)(count > 0 ? count : 1));
++    if (!list) {
++        SDL_free(modes);
++        return 0;
++    }
++    for (int i = 0; i < count; i++) {
++        int seen = 0;
++        for (int j = 0; j < n && !seen; j++) seen = list[2 * j] == modes[i]->w && list[2 * j + 1] == modes[i]->h;
++        if (seen) continue;
++        list[2 * n] = modes[i]->w;
++        list[2 * n + 1] = modes[i]->h;
++        n++;
++    }
++    qsort(list, (size_t)n, 2 * sizeof(int), Sfa2ModeOrder);
++    if (n > max) n = max;
++    memcpy(wh, list, sizeof(int) * 2 * (size_t)n);
++    free(list);
++    SDL_free(modes);
++    return n;
++}
++#endif
++/* Keys for the host (kept by the event pump in sdl3_common.h). */
++void Psyz_Sfa2SetHostKeys(int on) {
++    sfa2_host_keys = !!on;
++    sfa2_keys_pending = 0;
++}
++unsigned Psyz_Sfa2TakeKeys(void) {
++    const unsigned keys = sfa2_keys_pending;
++    sfa2_keys_pending = 0;
++    return keys;
 +}
  static Posi draw_offset = {0, 0};
  static Posi draw_area_start = {0, 0};
@@ -177,7 +346,7 @@ a no-op of the same name.
 +                        fflush(stdout);
 +                    }
 +                }
-+                const int sfa2_sharp = Sfa2SharpPrescale(cmd, &src, dst);
++                const int sfa2_linear = Sfa2SharpPrescale(cmd, &src, dst) || (sfa2_filter == 1 && !debug_show_vram);
 
                  const SDL_GPUBlitInfo blit = {
                      .source = src,
@@ -185,7 +354,7 @@ a no-op of the same name.
                      .load_op = SDL_GPU_LOADOP_CLEAR,
                      .clear_color = {0.0f, 0.0f, 0.0f, 1.0f},
 -                    .filter = SDL_GPU_FILTER_NEAREST,
-+                    .filter = sfa2_sharp ? SDL_GPU_FILTER_LINEAR : SDL_GPU_FILTER_NEAREST,
++                    .filter = sfa2_linear ? SDL_GPU_FILTER_LINEAR : SDL_GPU_FILTER_NEAREST,
                  };
                  SDL_BlitGPUTexture(cmd, &blit);
 @@ -881,5 +964,9 @@
@@ -198,6 +367,15 @@ a no-op of the same name.
 +            sfa2_sharp_texture = NULL;
 +        }
          if (vram_sampler) {
+@@ -1052,3 +1139,3 @@
+ #else
+-            SetWindowSizeInPixels(DEFAULT_FRONT_W, DEFAULT_FRONT_H);
++            SetWindowSizeInPixels(sfa2_win_w, sfa2_win_h);
+ #endif
+@@ -1062,2 +1149,3 @@
+     if (!is_window_visible) {
++        Sfa2ApplyPendingScreen();
+         SDL_ShowWindow(sdl3_window);
 @@ -994,11 +1081,13 @@
  }
 
@@ -298,9 +476,40 @@ a no-op of the same name.
      SDL_EndGPUCopyPass(copy);
      MarkVramDirty((SDL_Rect){rect->x, rect->y, rect->w, rect->h});
 +    if (sfa2_batch_uploads) sfa2_upload_used += sfa2_bytes;
+--- a/psyz/src/platform/sdl3_common.h
++++ b/psyz/src/platform/sdl3_common.h
+@@ -57,4 +57,8 @@
+ static bool is_fullscreen = false;
+ #endif
++/* SFA2 port, Psyz_Sfa2SetHostKeys: with host keys on, the event pump records Escape, F1, F4 and the gamepad's guide button
++   (bits 2, 1, 4, 8) in sfa2_keys_pending for Psyz_Sfa2TakeKeys and does nothing else with them. */
++static int sfa2_host_keys;
++static unsigned sfa2_keys_pending;
+ 
+ // defaults to better support integer scaling
+@@ -894,2 +899,11 @@
+         case SDL_EVENT_KEY_DOWN:
++            if (sfa2_host_keys && (event.key.scancode == SDL_SCANCODE_ESCAPE ||
++                                   event.key.scancode == SDL_SCANCODE_F1 ||
++                                   event.key.scancode == SDL_SCANCODE_F4)) {
++                if (!event.key.repeat) {
++                    sfa2_keys_pending |= event.key.scancode == SDL_SCANCODE_F1 ? 1u
++                                         : event.key.scancode == SDL_SCANCODE_ESCAPE ? 2u : 4u;
++                }
++                break;
++            }
+             if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+@@ -905,2 +919,7 @@
+             break;
++        case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
++            if (sfa2_host_keys && event.gbutton.button == SDL_GAMEPAD_BUTTON_GUIDE) {
++                sfa2_keys_pending |= 8u;
++            }
++            break;
+ #endif
 --- a/psyz/src/platform/sdl3_gl.c
 +++ b/psyz/src/platform/sdl3_gl.c
-@@ -27,6 +27,12 @@
+@@ -27,6 +27,18 @@
 
  #include "sdl3_common.h"
  #include "sdl3_draw.h"
@@ -309,7 +518,13 @@ a no-op of the same name.
 +void Psyz_Sfa2SetArcadeCanvas(int enabled) { (void)enabled; }
 +void Psyz_Sfa2SetPixelPerfectUi(int enabled) { (void)enabled; }
 +void Psyz_Sfa2SetBatchedUploads(int on) { (void)on; }
-+void Psyz_Sfa2SetSharpBilinear(int enabled) { (void)enabled; }
++void Psyz_Sfa2SetFilter(int filter) { (void)filter; }
++int Psyz_Sfa2SetScreen(int screen, int w, int h) { (void)screen; (void)w; (void)h; return -1; }
++int Psyz_Sfa2GetScreen(void) { return 0; }
++int Psyz_Sfa2DesktopSize(int *w, int *h) { (void)w; (void)h; return -1; }
++int Psyz_Sfa2FullscreenModes(int *wh, int max) { (void)wh; (void)max; return 0; }
++void Psyz_Sfa2SetHostKeys(int on) { (void)on; }
++unsigned Psyz_Sfa2TakeKeys(void) { return 0; }
  #include "rgb24.h"
  static bool display_rgb24;
  static GLuint rgb24_texture, rgb24_fbo;

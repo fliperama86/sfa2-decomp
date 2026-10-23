@@ -114,7 +114,7 @@ class Tree:
         if wslpath:
             script(bin_dir / "wslpath", '#!/bin/sh\n[ "$1" = -w ] && echo "W:$2"\n')
         script(bin_dir / "git", GIT.format(python=sys.executable, git=REAL_GIT))
-        for name in ("dirname", "head", "cat", "rm", "grep"):
+        for name in ("dirname", "head", "cat", "rm", "grep", "mkdir", "cp"):
             (bin_dir / name).symlink_to(shutil.which(name))
         self.log = root / "calls.log"
         self.env = {"PATH": str(bin_dir), "HOME": str(root), "GIT_CONFIG_NOSYSTEM": "1", "STUB_LOG": str(self.log), "STUB_CC": "cc 1.0",
@@ -264,7 +264,7 @@ def case_the_program_step_is_skipped_when_nothing_changed(root: Path):
     same(tree.run("win")[:2], (0, WIN), "first run")
     assert (tree.root / "port/build/host.key").is_file(), "no key file beside the program's folder"
     same(tree.run("win")[:2], (0, []), "second run")
-    program = ["program", "port/build/host/sfa2.exe", "--skip-programs", "--settings", "W:port/settings.ini", DISC]
+    program = ["program", "port/build/host/sfa2.exe", "--skip-programs", "--settings", "W:local/settings.ini", DISC]
     same(tree.run("-r", "win", SFA2_DISC=DISC)[:2], (7, [program]), "the program is started after a skipped build")
     tree.write("docs/a.md", "text\n")
     tree.write("local/build.env", "")
@@ -342,9 +342,9 @@ def case_the_submodule_is_fetched_only_when_missing(root: Path):
 def case_the_program_s_command_line(root: Path):
     tree = Tree(root)
     exe, mac, linux = "port/build/host/sfa2.exe", "port/build/mac/sfa2-mac", "port/build/linux/sfa2"
-    same(tree.run("-r", "win", SFA2_DISC=DISC)[:2], (7, WIN + [["program", exe, "--skip-programs", "--settings", "W:port/settings.ini", DISC]]), "no option")
+    same(tree.run("-r", "win", SFA2_DISC=DISC)[:2], (7, WIN + [["program", exe, "--skip-programs", "--settings", "W:local/settings.ini", DISC]]), "no option")
     same(tree.run("-r", "win", "--no-audio", "--volume", "50", SFA2_DISC=DISC)[1][-1],
-         ["program", exe, "--skip-programs", "--settings", "W:port/settings.ini", "--no-audio", "--volume", "50", DISC], "options")
+         ["program", exe, "--skip-programs", "--settings", "W:local/settings.ini", "--no-audio", "--volume", "50", DISC], "options")
     same(tree.run("win", "-r", SFA2_DISC=DISC)[:2], (2, []), "-r after the system is a program option without -r")
     same(tree.run("-r", "win", "--settings", "my file.ini", SFA2_DISC=DISC)[1][-1], ["program", exe, "--skip-programs", "--settings", "my file.ini", DISC],
          "a --settings of the caller's")
@@ -358,13 +358,40 @@ def case_the_program_s_command_line(root: Path):
          ["program", mac, "--skip-programs", "--settings", str(mine), "--no-audio", str(disc)], "the Mac program takes paths as they are")
     same(tree.run("-r", "linux", "--no-audio", SFA2_DISC=str(disc), SFA2_SETTINGS=str(mine))[:2],
          (7, LINUX + [["program", linux, "--skip-programs", "--settings", str(mine), "--no-audio", str(disc)]]), "the Linux program takes paths as they are, wslpath or not")
-    same(tree.run("-r", "linux", SFA2_DISC=DISC)[1][-1], ["program", linux, "--skip-programs", "--settings", "port/settings.ini", DISC], "the Linux program, no option")
+    same(tree.run("-r", "linux", SFA2_DISC=DISC)[1][-1], ["program", linux, "--skip-programs", "--settings", "local/settings.ini", DISC], "the Linux program, no option")
+
+
+def case_the_default_settings_file_is_copied_when_missing(root: Path):
+    tree = Tree(root)
+    tree.write("port/settings.ini", "[experimental]\nsettings_menu = false\n")
+    mine = tree.root / "local/settings.ini"
+    assert not mine.exists()
+    same(tree.run("-r", "linux", SFA2_DISC=DISC)[1][-1], ["program", "port/build/linux/sfa2", "--skip-programs", "--settings", "local/settings.ini", DISC], "the default file")
+    assert mine.read_text() == "[experimental]\nsettings_menu = false\n", "the template is copied when the file is missing"
+    mine.write_text("[display]\nscreen = fullscreen\n")
+    tree.write("port/settings.ini", "[experimental]\nsettings_menu = true\n")
+    tree.run("-r", "linux", SFA2_DISC=DISC)
+    assert mine.read_text() == "[display]\nscreen = fullscreen\n", "a file that is there is not overwritten"
+    shutil.rmtree(tree.root / "local")
+    same(tree.run("-r", "win", SFA2_DISC=DISC)[1][-1], ["program", "port/build/host/sfa2.exe", "--skip-programs", "--settings", "W:local/settings.ini", DISC], "win, folder gone")
+    assert mine.read_text() == "[experimental]\nsettings_menu = true\n", "the folder is made too"
+
+
+def case_no_default_settings_file_is_made_when_one_is_named(root: Path):
+    tree = Tree(root)
+    mine = tree.root / "local/settings.ini"
+    tree.run("-r", "linux", "--settings", "my file.ini", SFA2_DISC=DISC)
+    assert not mine.exists() and not (tree.root / "local").exists(), "a --settings option of the caller's"
+    tree.run("-r", "linux", SFA2_DISC=DISC, SFA2_SETTINGS="no such.ini")
+    assert not mine.exists() and not (tree.root / "local").exists() and not (tree.root / "no such.ini").exists(), "SFA2_SETTINGS"
+    tree.run("linux")
+    assert not (tree.root / "local").exists(), "no -r"
 
 
 def case_without_wslpath_paths_stay(root: Path):
     tree = Tree(root, wslpath=False)
     disc = tree.write("local/a disc.cue", "")
-    same(tree.run("-r", "win", SFA2_DISC=str(disc))[1][-1], ["program", "port/build/host/sfa2.exe", "--skip-programs", "--settings", "port/settings.ini", str(disc)])
+    same(tree.run("-r", "win", SFA2_DISC=str(disc))[1][-1], ["program", "port/build/host/sfa2.exe", "--skip-programs", "--settings", "local/settings.ini", str(disc)])
 
 
 def case_the_local_file_is_read(root: Path):
@@ -380,7 +407,8 @@ CASES = [
     case_the_library_is_built_again_when_an_input_changed, case_a_failed_library_step_is_not_remembered,
     case_a_folder_that_is_no_git_tree_is_built_every_time, case_the_program_step_is_skipped_when_nothing_changed,
     case_the_program_step_runs_again_when_an_input_changed, case_a_failed_program_step_is_not_remembered,
-    case_a_tree_that_is_no_git_tree_builds_the_program_every_time, case_the_submodule_is_fetched_only_when_missing, case_the_program_s_command_line,
+    case_a_tree_that_is_no_git_tree_builds_the_program_every_time, case_the_submodule_is_fetched_only_when_missing, case_the_program_s_command_line, case_the_default_settings_file_is_copied_when_missing,
+    case_no_default_settings_file_is_made_when_one_is_named,
     case_without_wslpath_paths_stay, case_the_local_file_is_read,
 ]
 

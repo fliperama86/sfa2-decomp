@@ -670,7 +670,7 @@ def cases(plain: PadRig, linked: PadRig, psyz_build: Path | None):
             want = f"refused: input: {native} line {line}: {tail}" if line else f"refused: input: {native} {tail}"
             return f"script-{name}-is-refused-with-the-file-and-the-line", None if (status, lines) == (2, [want]) else f"status {status}, lines {lines!r}, wanted {want!r}"
 
-        buttons = "start select up down left right cross circle square triangle l1 r1 l2 r2 l3 r3"
+        buttons = "start select up down left right cross circle square triangle l1 r1 l2 r2 l3 r3 f1 escape f4 guide"
         yield refuse("unknown-button", b"# c\n\n0.5 jump down\n", f"`jump` is not a button ({buttons})", 3)
         yield refuse("button-in-capitals", b"0.5 Cross down\n", f"`Cross` is not a button ({buttons})", 1)
         yield refuse("neither-down-nor-up", b"0.5 cross hold\n", "`hold` is neither down nor up", 1)
