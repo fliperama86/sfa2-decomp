@@ -20,6 +20,7 @@
 
 static const uint32_t palette_tables[3] = {0x27c1c0u, 0x2865c0u, 0x2909c0u};
 #define PALETTE_OBJECTS 0x275c40u
+#define FILL_COLOUR 0x322u         /* the arcade word of a filler palette's fifteen colours */
 
 struct ctx {
     const uint8_t *prog, *tiles;
@@ -132,9 +133,12 @@ static uint32_t map_word_index(unsigned cx, unsigned cy, unsigned across, unsign
 /* ---- layers */
 
 struct layer_set {
-    uint8_t *store;        /* different tiles, the blank first */
+    uint8_t *store;        /* the different tiles in the order they were made, the blank first */
+    uint32_t *slot;        /* the slot offset of each entry of the store */
     uint32_t *table;       /* open addressing: store index + 1 */
-    uint32_t count, cap, tsize;
+    uint32_t count;        /* entries of the store */
+    uint32_t next;         /* the next free slot offset (the layer's slots so far, gaps included) */
+    uint32_t cap, tsize;
     unsigned bytes;
 };
 
@@ -153,9 +157,11 @@ static int set_open(struct layer_set *l, uint32_t cells, unsigned bytes)
     for (l->tsize = 16; l->tsize < 2u * l->cap; l->tsize <<= 1)
         ;
     l->store = calloc(l->cap, bytes);
+    l->slot = calloc(l->cap, sizeof *l->slot);
     l->table = calloc(l->tsize, sizeof *l->table);
-    l->count = 1;          /* the blank tile (all zero) is entry 0 */
-    if (!l->store || !l->table)
+    l->count = 1;          /* the blank tile (all zero) is entry 0, on slot 0 */
+    l->next = 1;
+    if (!l->store || !l->slot || !l->table)
         return -1;
     l->table[hash_bytes(l->store, bytes) & (l->tsize - 1u)] = 1;
     return 0;
@@ -164,22 +170,52 @@ static int set_open(struct layer_set *l, uint32_t cells, unsigned bytes)
 static void set_close(struct layer_set *l)
 {
     free(l->store);
+    free(l->slot);
     free(l->table);
     memset(l, 0, sizeof *l);
 }
 
-/* The index of a tile among the layer's different tiles, adding it when new. */
-static uint32_t set_index(struct layer_set *l, const uint8_t *tile)
+/* The table position of a tile that is in the layer, or of the empty position where it would go. */
+static uint32_t set_find(const struct layer_set *l, const uint8_t *tile)
 {
     uint32_t i = (uint32_t)(hash_bytes(tile, l->bytes) & (l->tsize - 1u));
-    while (l->table[i]) {
-        if (!memcmp(l->store + (size_t)(l->table[i] - 1u) * l->bytes, tile, l->bytes))
-            return l->table[i] - 1u;
+    while (l->table[i] && memcmp(l->store + (size_t)(l->table[i] - 1u) * l->bytes, tile, l->bytes))
         i = (i + 1u) & (l->tsize - 1u);
-    }
+    return i;
+}
+
+static void set_add(struct layer_set *l, const uint8_t *tile, uint32_t slot, int index)
+{
     memcpy(l->store + (size_t)l->count * l->bytes, tile, l->bytes);
-    l->table[i] = ++l->count;
-    return l->count - 1u;
+    l->slot[l->count] = slot;
+    l->count++;
+    if (index)
+        l->table[set_find(l, tile)] = l->count;       /* a tile that is there already is replaced */
+}
+
+/* The slot offset of a tile among the layer's different tiles, adding it on the next slot when new. */
+static uint32_t set_index(struct layer_set *l, const uint8_t *tile)
+{
+    uint32_t i = set_find(l, tile);
+    if (l->table[i])
+        return l->slot[l->table[i] - 1u];
+    set_add(l, tile, l->next, 1);
+    return l->next++;
+}
+
+/* The disc started a new slot for a tile that already exists: a new entry that later cells do not find. */
+static uint32_t set_force_new(struct layer_set *l, const uint8_t *tile)
+{
+    set_add(l, tile, l->next, 0);
+    return l->next++;
+}
+
+/* The disc put a new tile on slot `at` beyond the next free one: the slots between stay without a tile. */
+static uint32_t set_new_at(struct layer_set *l, const uint8_t *tile, uint32_t at)
+{
+    set_add(l, tile, at, 1);
+    l->next = at + 1u;
+    return at;
 }
 
 static int set_cell(struct ctx *c, unsigned set, unsigned x, unsigned y, unsigned *code, unsigned *attr)
@@ -197,14 +233,108 @@ static int set_cell(struct ctx *c, unsigned set, unsigned x, unsigned y, unsigne
     return 0;
 }
 
-/* Build layer n from its descriptor: the cell words into `module`, the different tiles into `ls`. */
-static int build_layer(struct ctx *c, const struct arcade_stage *s, unsigned n, struct layer_set *ls, struct arcade_stage_piece *module)
+/* The PS1 colours of the stage's 32 layer 0 palette rows (entry 0 transparent, black the opaque 0x8000). */
+static int layer0_palettes(struct ctx *c, const struct arcade_stage *s, uint16_t pal[32][16]);
+
+/* What layer 0's cell (x, y) of set `set` is: its tile bytes (16 x 16, 8 bytes a row), the row of its first piece with an opaque
+ * pixel (rows_mask: all such rows, as bits), and what the opaque pixels ask of the palette (need[j] valid where bit j of need_mask is
+ * set; *conflict when two pieces ask for different colours of one index). */
+struct l0_info {
+    uint8_t tile[128];
+    unsigned first_row, rows_mask, need_mask, conflict;
+    uint16_t need[16];
+};
+
+static int l0_cell(struct ctx *c, unsigned set, unsigned x, unsigned y, uint16_t pal[32][16], struct l0_info *o)
+{
+    unsigned q, pc[4], pa[4], px, py;
+    o->first_row = o->rows_mask = o->need_mask = o->conflict = 0;
+    for (q = 0; q < 4; q++)
+        if (set_cell(c, set, 2u * x + (q & 1u), 2u * y + (q >> 1), &pc[q], &pa[q]))
+            return -1;
+    for (q = 0; q < 4; q++) {
+        unsigned used = 0, j, row = pa[q] & 31u;
+        for (py = 0; py < 8; py++)
+            for (px = 0; px < 8; px++) {
+                unsigned v = piece_px(c, pc[q], pa[q], px, py);
+                unsigned ox = (q & 1u) * 8u + px, oy = (q >> 1) * 8u + py;
+                used |= 1u << v;
+                if (ox & 1u)
+                    o->tile[oy * 8u + ox / 2u] |= (uint8_t)(v << 4);
+                else
+                    o->tile[oy * 8u + ox / 2u] = (uint8_t)v;
+            }
+        used &= ~1u;
+        if (!used)
+            continue;
+        if (!o->rows_mask)
+            o->first_row = row;
+        o->rows_mask |= 1u << row;
+        for (j = 1; j < 16; j++) {
+            if (!(used >> j & 1u))
+                continue;
+            if (o->need_mask >> j & 1u) {
+                if (o->need[j] != pal[row][j])
+                    o->conflict = 1;
+            } else {
+                o->need_mask |= 1u << j;
+                o->need[j] = pal[row][j];
+            }
+        }
+    }
+    return 0;
+}
+
+/* The palette row of a layer 0 cell: the first row of `order` (rows by the number of cells with a piece in them, most first) whose
+ * colours the cell asks for; else the row of its first opaque piece; a blank cell row 0. */
+static unsigned l0_row(const struct l0_info *o, const unsigned char *order, unsigned norder, uint16_t pal[32][16])
+{
+    unsigned i, j;
+    if (!o->rows_mask)
+        return 0;
+    if (!o->conflict) {
+        for (i = 0; i < norder; i++) {
+            for (j = 1; j < 16; j++)
+                if ((o->need_mask >> j & 1u) && pal[order[i]][j] != o->need[j])
+                    break;
+            if (j == 16)
+                return order[i];
+        }
+    }
+    return o->first_row;
+}
+
+static void l0_order(const unsigned count[32], unsigned char order[32], unsigned *norder)
+{
+    unsigned n = 0, r, i;
+    for (r = 0; r < 32; r++)
+        if (count[r])
+            order[n++] = (unsigned char)r;
+    for (i = 1; i < n; i++) {                       /* insertion sort: most cells first, the lower row among equals */
+        unsigned char v = order[i];
+        unsigned k = i;
+        while (k > 0 && (count[order[k - 1]] < count[v] || (count[order[k - 1]] == count[v] && order[k - 1] > v))) {
+            order[k] = order[k - 1];
+            k--;
+        }
+        order[k] = v;
+    }
+    *norder = n;
+}
+
+/* Build layer n from its descriptor: the cell words into `module`, the different tiles into `ls`. start: the layer's first page slot. */
+static int build_layer(struct ctx *c, const struct arcade_stage *s, unsigned n, uint32_t start, struct layer_set *ls,
+                       struct arcade_stage_piece *module)
 {
     const struct arcade_stage_layer *l = &s->layer[n];
-    unsigned side = n < 2 ? 16u : 32u, bc = n < 2 ? 16u : 8u, nba, nbd, bx, by, x, y, k;
+    unsigned side = n < 2 ? 16u : 32u, bc = n < 2 ? 16u : 8u, nba, nbd, bx, by, x, y, cell = 0, ex = 0, norder = 0;
+    unsigned count[32];
+    unsigned char order[32];
+    uint16_t pal[32][16];
+    struct l0_info info;
     uint8_t tile[512];
-    if (l->start > 0xffffu)
-        return fail(c, "layer %u starts at slot %u, beyond the pages", n, l->start);
+    if (start > 0xffffu)
+        return fail(c, "layer %u starts at slot %u, beyond the pages", n, start);
     if (!l->across || !l->down || l->across % bc || l->down % bc)
         return fail(c, "layer %u has a bad size (%u)", n, l->across);
     nba = l->across / bc;
@@ -213,6 +343,30 @@ static int build_layer(struct ctx *c, const struct arcade_stage *s, unsigned n, 
         return fail(c, "layer %u names %u block ids", n, l->ids);
     if (set_open(ls, (uint32_t)l->across * l->down, side * side / 2))
         return fail(c, "out of memory in layer %u (%u)", n, 0);
+    memset(count, 0, sizeof count);
+    memset(&info, 0, sizeof info);
+    if (n == 0) {                        /* how many cells have a piece in each row, to order the rows */
+        if (layer0_palettes(c, s, pal))
+            return -1;
+        for (by = 0; by < nbd; by++)
+            for (bx = 0; bx < nba; bx++) {
+                uint32_t a = l->id_at[by * nba + bx];
+                unsigned b, r;
+                if (a >= c->psize)
+                    return fail(c, "layer %u id address %#x is outside the program", n, a);
+                b = a ? c->prog[a] : 0u;
+                if (b >= SET_COUNT)
+                    return fail(c, "layer %u block %u does not exist", n, b);
+                for (y = 0; y < 16; y++)
+                    for (x = 0; x < 16; x++) {
+                        if (l0_cell(c, b, x, y, pal, &info))
+                            return -1;
+                        for (r = 0; r < 32; r++)
+                            count[r] += info.rows_mask >> r & 1u;
+                    }
+            }
+        l0_order(count, order, &norder);
+    }
     for (by = 0; by < nbd; by++) {
         for (bx = 0; bx < nba; bx++) {
             unsigned id_index = by * nba + bx, b;
@@ -223,46 +377,44 @@ static int build_layer(struct ctx *c, const struct arcade_stage *s, unsigned n, 
             if (b >= (n == 0 ? SET_COUNT : n == 1 ? BLOCK16_COUNT : BLOCK32_COUNT))
                 return fail(c, "layer %u block %u does not exist", n, b);
             for (y = 0; y < bc; y++) {
-                for (x = 0; x < bc; x++) {
+                for (x = 0; x < bc; x++, cell++) {
                     unsigned cx = bx * bc + x, cy = by * bc + y, row = 0;
-                    uint32_t idx, code, at;
+                    uint32_t k, code, at;
                     if (n == 0) {
-                        unsigned q, pc[4], pa[4], px, py, opaque = 0;
-                        for (q = 0; q < 4; q++)
-                            if (set_cell(c, b, 2u * x + (q & 1u), 2u * y + (q >> 1), &pc[q], &pa[q]))
-                                return -1;
-                        for (q = 0; q < 4; q++)
-                            for (py = 0; py < 8; py++)
-                                for (px = 0; px < 8; px++) {
-                                    unsigned v = piece_px(c, pc[q], pa[q], px, py);
-                                    unsigned ox = (q & 1u) * 8u + px, oy = (q >> 1) * 8u + py;
-                                    if (v)
-                                        opaque |= 1u << q;
-                                    if (ox & 1u)
-                                        tile[oy * 8u + ox / 2u] |= (uint8_t)(v << 4);
-                                    else
-                                        tile[oy * 8u + ox / 2u] = (uint8_t)v;
-                                }
-                        row = pa[0] & 31u;          /* the first piece with an opaque pixel gives the palette row */
-                        for (q = 4; q-- > 0;)
-                            if (opaque & 1u << q)
-                                row = pa[q] & 31u;
+                        if (l0_cell(c, b, x, y, pal, &info))
+                            return -1;
+                        memcpy(tile, info.tile, 128);
+                        row = l0_row(&info, order, norder, pal);
                     } else {
                         unsigned code16, attr16, fx, fy;
                         size_t base = n == 1 ? TABLE16 + 1024u * (size_t)b : TABLE32 + 256u * (size_t)b;
-                        size_t cell = base + 4u * (x * bc + y);
-                        if (cell + 4 > c->psize)
-                            return fail(c, "layer %u cell at %#x lies outside the program", n, (unsigned)cell);
-                        code16 = be16(c->prog + cell);
-                        attr16 = be16(c->prog + cell + 2);
+                        size_t cellat = base + 4u * (x * bc + y);
+                        uint32_t idx;
+                        if (cellat + 4 > c->psize)
+                            return fail(c, "layer %u cell at %#x lies outside the program", n, (unsigned)cellat);
+                        code16 = be16(c->prog + cellat);
+                        attr16 = be16(c->prog + cellat + 2);
                         fx = (attr16 & 0x20u) != 0;
                         fy = (attr16 & 0x40u) != 0;
                         row = attr16 & 31u;
                         idx = n == 1 ? ((code16 + 0xa400u) & 0xffffu) + 0x10000u : ((code16 + 0x900u) & 0x3fffu) + 0x4000u;
                         ps1_tile(tile_ptr(c, idx, side * side / 2), side, (int)fx, (int)fy, tile);
                     }
-                    k = set_index(ls, tile);
-                    if (slot_code(l->start + k, side, &code))
+                    if (ex < l->exc_count && l->exc[ex].cell == cell) {
+                        uint32_t e = l->exc[ex].slot;
+                        if (e == ARCADE_STAGE_FORCE_NEW)
+                            k = set_force_new(ls, tile);
+                        else if (e < ls->next)
+                            k = e;                           /* a slot made already is shared */
+                        else if (e > 0xffffu)
+                            return fail(c, "layer %u cell %u is given slot offset beyond the pages", n, cell);
+                        else
+                            k = set_new_at(ls, tile, e);
+                        ex++;
+                    } else {
+                        k = set_index(ls, tile);
+                    }
+                    if (k > 0xffffu || slot_code(start + k, side, &code))
                         return fail(c, "layer %u tile %u is beyond the codes", n, k);
                     at = l->map + 2u * map_word_index(cx, cy, l->across, side);
                     if ((size_t)at + 4 > module->size)
@@ -274,7 +426,7 @@ static int build_layer(struct ctx *c, const struct arcade_stage *s, unsigned n, 
                         module->data[at + 2] = (uint8_t)clut;
                         module->data[at + 3] = (uint8_t)(clut >> 8);
                     }
-                    if (l->flags & ARCADE_STAGE_MAP_EXACT)
+                    if ((l->flags & ARCADE_STAGE_MAP_EXACT) || (l->cell_known && (l->cell_known[cell >> 6] >> (cell & 63u) & 1u)))
                         memset(module->known + at, 1, 4);
                 }
             }
@@ -322,24 +474,61 @@ static int row_words(struct ctx *c, uint32_t at, unsigned *w)
     return 0;
 }
 
+static int layer0_palettes(struct ctx *c, const struct arcade_stage *s, uint16_t pal[32][16])
+{
+    unsigned row, i, w[16];
+    for (row = 0; row < 32; row++) {
+        if (row_words(c, palette_tables[0] + 0x400u * s->stage + 0x20u * row, w))
+            return -1;
+        pal[row][0] = 0;
+        for (i = 1; i < 16; i++) {
+            unsigned col = arcade_color_to_ps1(w[i - 1u]);
+            pal[row][i] = (uint16_t)(col ? col : 0x8000u);
+        }
+    }
+    return 0;
+}
+
+static void put_palette(struct arcade_stage_piece *p, unsigned k, const unsigned *w)
+{
+    unsigned i;
+    for (i = 0; i < 16; i++) {
+        unsigned col = i == 0 ? 0u : arcade_color_to_ps1(w[i - 1u]);
+        if (i && !col)
+            col = 0x8000u;                           /* black is the opaque black; 0 is transparent */
+        p->data[32u * k + 2u * i] = (uint8_t)col;
+        p->data[32u * k + 2u * i + 1u] = (uint8_t)(col >> 8);
+    }
+}
+
 static int build_palettes(struct ctx *c, const struct arcade_stage *s, struct arcade_stage_piece *p)
 {
-    unsigned count = p->size / 32u, k, i, layer, row, w[16];
+    unsigned count = p->size / 32u, k, i, layer, row, w[16], r;
     for (k = 0; k < count && k < 128u; k++) {
-        unsigned col;
         if (!palette_group(k, count, &layer, &row))
             continue;
         if (row_words(c, palette_tables[layer] + 0x400u * s->stage + 0x20u * row, w))
             return -1;
-        for (i = 0; i < 16; i++) {
-            col = i == 0 ? 0u : arcade_color_to_ps1(w[i - 1u]);
-            if (i && !col)
-                col = 0x8000u;                       /* black is the opaque black; 0 is transparent */
-            p->data[32u * k + 2u * i] = (uint8_t)col;
-            p->data[32u * k + 2u * i + 1u] = (uint8_t)(col >> 8);
-        }
+        put_palette(p, k, w);
         if ((s->pal_exact[k >> 6] >> (k & 63u)) & 1u)
             memset(p->known + 32u * k, 1, 32);
+    }
+    for (r = 0; r < s->more_count; r++) {
+        const struct arcade_stage_more *m = &s->more[r];
+        for (i = 0; i < m->count; i++) {
+            k = (unsigned)m->k + (unsigned)m->step * i;
+            if (k >= count)
+                return fail(c, "a palette run leaves the chunk (palette %u)", k, 0);
+            if (m->kind == ARCADE_STAGE_MORE_FILL) {
+                unsigned j;
+                for (j = 0; j < 16; j++)
+                    w[j] = FILL_COLOUR;
+            } else if (row_words(c, m->arg + 0x20u * i, w)) {
+                return -1;
+            }
+            put_palette(p, k, w);
+            memset(p->known + 32u * k, 1, 32);
+        }
     }
     return 0;
 }
@@ -425,13 +614,41 @@ const struct arcade_stage *arcade_stage_find(const char *file)
     return NULL;
 }
 
+/* The end of the run of page slots that starts at `end` and goes on through the extras and holes that touch it one after the other. */
+static uint32_t chain_end(uint32_t end, const struct arcade_stage *s)
+{
+    int changed = 1;
+    unsigned e;
+    while (changed) {
+        changed = 0;
+        for (e = 0; e < s->extra_count; e++)
+            if (s->extras[e].slot <= end && end < (uint64_t)s->extras[e].slot + s->extras[e].count) {
+                end = s->extras[e].slot + s->extras[e].count;
+                changed = 1;
+            }
+        for (e = 0; e < s->hole_count; e++)
+            if (s->holes[e].slot <= end && end < (uint64_t)s->holes[e].slot + s->holes[e].count) {
+                end = s->holes[e].slot + s->holes[e].count;
+                changed = 1;
+            }
+    }
+    return end;
+}
+
+/* The first slot of 32 pixel tiles that lies wholly after 16 pixel slot `end16`: the next free 32 pixel column of the pages. */
+static uint32_t l2_start_after(uint32_t end16)
+{
+    uint32_t page = end16 / 256u, rest = end16 % 256u;
+    return page * 64u + (((rest + 15u) / 16u + 1u) / 2u) * 8u;
+}
+
 int arcade_stage_build(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size,
                        const struct arcade_stage *s, struct arcade_stage_out *out, char *err, size_t errsize)
 {
     struct ctx c;
     struct layer_set ls;
     unsigned n, e;
-    uint32_t j, k;
+    uint32_t j, k, start = 0, start1 = 0, count1 = 0;
     c.prog = program; c.tiles = tiles; c.psize = program_size; c.tsize = tiles_size; c.err = err; c.errsize = errsize;
     memset(out, 0, sizeof *out);
     memset(&ls, 0, sizeof ls);
@@ -447,18 +664,29 @@ int arcade_stage_build(const uint8_t *program, size_t program_size, const uint8_
     for (n = 0; n < 3; n++) {
         const struct arcade_stage_layer *l = &s->layer[n];
         unsigned side = n < 2 ? 16u : 32u;
-        if (build_layer(&c, s, n, &ls, &out->module))
+        uint32_t cells = (uint32_t)l->across * l->down;
+        start = l->start;
+        if (n == 1 && (l->flags & ARCADE_STAGE_START_RULE))
+            start = (chain_end(count1, s) + 15u) / 16u * 16u;                  /* count1 holds layer 0's tile count here */
+        if (n == 2 && (l->flags & ARCADE_STAGE_START_RULE))
+            start = l2_start_after(chain_end(start1 + count1, s));             /* start1 and count1 are layer 1's */
+        if (build_layer(&c, s, n, start, &ls, &out->module))
             goto bad;
         for (j = 0; j < ls.count; j++) {
-            int64_t at = slot_place(l->start + j, side, out->pages.size);
+            uint32_t off = ls.slot[j];
+            int64_t at = slot_place(start + off, side, out->pages.size);
             if (at < 0) {
-                fail(&c, "layer %u tile %u does not fit the pages", n, j);
+                fail(&c, "layer %u tile %u does not fit the pages", n, off);
                 goto bad;
             }
             put_slot(out->pages.data, at, side, ls.store + (size_t)j * ls.bytes);
-            if (!(l->flags & ARCADE_STAGE_TILES_EXACT))
+            if (!(l->flags & ARCADE_STAGE_TILES_EXACT) &&
+                !(l->tile_known && off <= cells && (l->tile_known[off >> 6] >> (off & 63u) & 1u)))
                 mark_known(out->pages.known, at, side, 0);
         }
+        if (n == 1)
+            start1 = start;
+        count1 = ls.next;
         set_close(&ls);
     }
     for (e = 0; e < s->extra_count; e++) {

@@ -232,10 +232,14 @@ scripts (nothing of it is in the tree):
   into page slots in the order its scan first uses them, the blank tile
   first. `stage.c` builds the layer maps, pages, layer palettes, object tiles
   and palettes and the shared tiles, with a mask of the bytes known to equal
-  the disc's; the runtime serves 6.2 MB of the 8.4 MB it builds. Left to the
-  disc: palette rows the PS1 merges in the third layer by a rule not
-  recovered, cells and tiles of the PS1's own (stages 03, 10, 0A, 13, and
-  stage 04's object tiles), and the PS1's own mixes of palette rows. All of
+  the disc's; the runtime serves 6.7 MB of the 8.4 MB it builds. The third
+  layer's cells take the first of the stage's rows (by use) that holds their
+  colors (93% of the cells); the PS1 dedupes its tiles after the colors are
+  applied; the larger palette chunks' extra rows are arcade rows of the
+  effects (374 of 512). Left to the disc: the rows the PS1 merged in the
+  third layer by an order-dependent, lossy rule (no exact rule found; not
+  run-time changes: the arcade's alternate tables serve only stages 20 and
+  up), cells and tiles of the PS1's own (247 KB), and 63 mixed palettes. All of
   it is in the arcade's data plane: the loader needs no decryption.
 - **Animation steps** (`sequences.py`). A fighter's steps follow its
   lists: 12 bytes each, from the arcade's sequence records (countdown,

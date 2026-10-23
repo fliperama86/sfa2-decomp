@@ -6,6 +6,8 @@
  *   stage N | size MODULE PAGES PALETTES OBJECTS | pal LO HI
  *   layer N MAP ACROSS DOWN START FLAGS ID_COUNT ADDRESS...
  *   extra SLOT COUNT FIRST FLIP | hole SLOT COUNT | object FIRST COUNT FLIP   (FIRST may be ZERO or DISC)
+ *   exc LAYER CELL SLOT   (SLOT may be NEW) | cknown LAYER WORD... | tknown LAYER WORD...   (64-bit words)
+ *   more K COUNT STEP KIND ARG   (KIND 0 rows from ARG, 1 filler)
  * SPEC (runs) is "TOTAL" then "object" lines. OUTDIR gets module.bin pages.bin palettes.bin objects.bin objpal.bin and a
  * .known file for each; a line "error: ..." on stdout and status 1 when the build refuses. */
 #include "../stage.h"
@@ -61,6 +63,10 @@ struct spec {
     struct arcade_stage_slots *extras;
     struct arcade_stage_hole *holes;
     struct arcade_stage_run *objects;
+    struct arcade_stage_exc *exc[3];
+    unsigned nexc[3];
+    uint64_t *known[3][2];
+    struct arcade_stage_more *more;
     uint32_t total;
 };
 
@@ -69,8 +75,9 @@ static int read_spec(const char *path, struct spec *sp)
     FILE *f = fopen(path, "r");
     char word[64], first[64];
     unsigned long a, b, c, d, e, g, h, i;
-    unsigned ne = 0, nh = 0, no = 0;
+    unsigned ne = 0, nh = 0, no = 0, nm = 0;
     memset(sp, 0, sizeof *sp);
+    sp->more = calloc(256, sizeof *sp->more);
     sp->extras = calloc(4096, sizeof *sp->extras);
     sp->holes = calloc(4096, sizeof *sp->holes);
     sp->objects = calloc(4096, sizeof *sp->objects);
@@ -101,6 +108,23 @@ static int read_spec(const char *path, struct spec *sp)
         } else if (!strcmp(word, "hole")) {
             if (nh >= 4096 || fscanf(f, "%lu %lu", &a, &b) != 2) return -3;
             sp->holes[nh].slot = (uint32_t)a; sp->holes[nh].count = (uint32_t)b; nh++;
+        } else if (!strcmp(word, "exc")) {
+            if (fscanf(f, "%lu %lu %63s", &a, &b, first) != 3 || a > 2) return -3;
+            if (!sp->exc[a]) sp->exc[a] = calloc(4096, sizeof *sp->exc[a]);
+            if (sp->nexc[a] >= 4096) return -3;
+            sp->exc[a][sp->nexc[a]].cell = (uint32_t)b;
+            sp->exc[a][sp->nexc[a]].slot = !strcmp(first, "NEW") ? ARCADE_STAGE_FORCE_NEW : (uint32_t)strtoul(first, NULL, 0);
+            sp->nexc[a]++;
+        } else if (!strcmp(word, "cknown") || !strcmp(word, "tknown")) {
+            int which = word[0] == 't';
+            unsigned long long v;
+            unsigned w = 0;
+            if (fscanf(f, "%lu", &a) != 1 || a > 2) return -3;
+            sp->known[a][which] = calloc(1024, sizeof(uint64_t));
+            while (fscanf(f, "%llu", &v) == 1 && w < 1024) sp->known[a][which][w++] = v;
+        } else if (!strcmp(word, "more")) {
+            if (nm >= 256 || fscanf(f, "%lu %lu %lu %lu %lu", &a, &b, &c, &d, &e) != 5) return -3;
+            sp->more[nm].k = (uint16_t)a; sp->more[nm].count = (uint16_t)b; sp->more[nm].step = (uint8_t)c; sp->more[nm].kind = (uint8_t)d; sp->more[nm].arg = (uint32_t)e; nm++;
         } else if (!strcmp(word, "object")) {
             if (no >= 4096 || fscanf(f, "%63s %lu %lu", first, &b, &c) != 3) return -3;
             sp->objects[no].first = first_word(first); sp->objects[no].count = (uint32_t)b; sp->objects[no].flip = (uint32_t)c; no++;
@@ -111,13 +135,19 @@ static int read_spec(const char *path, struct spec *sp)
     sp->s.extras = sp->extras; sp->s.extra_count = ne;
     sp->s.holes = sp->holes; sp->s.hole_count = nh;
     sp->s.objects = sp->objects; sp->s.object_count = no;
+    sp->s.more = sp->more; sp->s.more_count = nm;
+    for (a = 0; a < 3; a++) {
+        sp->s.layer[a].exc = sp->exc[a]; sp->s.layer[a].exc_count = sp->nexc[a];
+        sp->s.layer[a].cell_known = sp->known[a][0]; sp->s.layer[a].tile_known = sp->known[a][1];
+    }
     return 0;
 }
 
 static void free_spec(struct spec *sp)
 {
     unsigned n;
-    for (n = 0; n < 3; n++) free(sp->ids[n]);
+    for (n = 0; n < 3; n++) { free(sp->ids[n]); free(sp->exc[n]); free(sp->known[n][0]); free(sp->known[n][1]); }
+    free(sp->more);
     free(sp->extras);
     free(sp->holes);
     free(sp->objects);
@@ -191,9 +221,13 @@ static int table(void)
             if (!l->ids || l->ids != (l->across / bc) * (l->down / bc) || !l->id_at) { printf("bad layer %u at %u\n", n, i); return 1; }
             for (k = 0; k < l->ids; k++)
                 if (l->id_at[k] && (l->id_at[k] < 0x1d000u || l->id_at[k] > 0x1e000u)) { printf("id address %#x out of range at %u\n", l->id_at[k], i); return 1; }
-            if (l->flags > 3u) { printf("bad flags at %u\n", i); return 1; }
+            if (l->flags > 7u || ((l->flags & ARCADE_STAGE_START_RULE) && (n == 0 || l->start))) { printf("bad flags at %u\n", i); return 1; }
+            for (k = 0; k < l->exc_count; k++)
+                if (l->exc[k].cell >= (uint32_t)l->across * l->down || (k && l->exc[k].cell <= l->exc[k - 1].cell)) { printf("bad exception at %u\n", i); return 1; }
         }
-        if (s->layer[1].start < s->layer[0].start) { printf("layers out of order at %u\n", i); return 1; }
+        if (!(s->layer[1].flags & ARCADE_STAGE_START_RULE) && s->layer[1].start < s->layer[0].start) { printf("layers out of order at %u\n", i); return 1; }
+        for (k = 0; k < s->more_count; k++)
+            if (!s->more[k].count || !s->more[k].step || s->more[k].kind > ARCADE_STAGE_MORE_FILL) { printf("bad palette run at %u\n", i); return 1; }
         for (k = 0; k < s->extra_count; k++)
             if (!s->extras[k].count) { printf("empty extra run at %u\n", i); return 1; }
     }

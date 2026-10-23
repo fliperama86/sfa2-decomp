@@ -5,9 +5,11 @@ Builds stage.c, the generated descriptor table and a driver with the address and
 arcade (graphics with a transparent tile and flips, scroll 1 sets, 16 and 32 pixel blocks, palette rows, id lists) and made-up
 stage descriptors, and checks that the C gives, byte for byte and known byte for known byte, the module's layer maps, the pages
 (layer tiles in first-use order, extras, holes), the layer palettes, the object tiles and palettes that stages.py's model_stage
-gives, for each flag combination and for random descriptors. It also checks that malformed input is refused (a block that does not
-exist, an address outside the program, a map that does not fit the module, tiles that do not fit the pages, runs that do not add
-up), that the generated table is sane, that the C compiles warning-free for 32 bits, and the helpers that write the table.
+gives, for each flag combination and for random descriptors (with the exceptions of the packing, the known cells and tiles, the
+layer starts given by the packing rule, and the runs of palettes that are arcade rows or filler). It also checks that malformed
+input is refused (a block that does not exist, an address outside the program, a map that does not fit the module, tiles that do
+not fit the pages, runs that do not add up, a run of palettes that leaves the chunk), that the generated table is sane, that the C
+compiles warning-free for 32 bits, and the helpers that write the table.
 """
 from pathlib import Path
 import random, shutil, struct, subprocess, sys, tempfile, unittest
@@ -56,18 +58,25 @@ class World:
             struct.pack_into('>16H', prog, S.PALETTE_OBJECTS + 0xe0 * 3 + 0x20 * k, *[rnd.randrange(0x1000) if rnd.random() < 0.9 else 0 for _ in range(16)])
         self.arc = S.Arc(bytes(prog), bytes(self.gfx))
 
-    def descriptor(self, flags=(3, 3, 3), pal_exact=0, extras=(), holes=(), objects=None, count=96, module=0x3000, pages=3 * 32768):
-        d = {'file': 'TEST.PAC', 'stage': 3, 'extras': list(extras), 'holes': list(holes), 'pal_exact': pal_exact,
+    def descriptor(self, flags=(3, 3, 3), pal_exact=0, extras=(), holes=(), objects=None, count=96, module=0x3000, pages=3 * 32768,
+                   exc=((), (), ()), cell_known=(0, 0, 0), tile_known=(0, 0, 0), more=(), start_rule=(False, False)):
+        d = {'file': 'TEST.PAC', 'stage': 3, 'extras': list(extras), 'holes': list(holes), 'pal_exact': pal_exact, 'more': list(more),
              'object_runs': [(S.RUN_ZERO, 2, 0), (0x10003, 4, 0), (0x10009, 2, 3), (S.RUN_DISC, 1, 0)] if objects is None else objects,
              'layers': [{'map': 0x100, 'across': 64, 'down': 16, 'ids': [0x1d020, 0x1d021, 0x1d022, 0x1d023], 'start': 0, 'flags': flags[0]},
                         {'map': 0x1200, 'across': 64, 'down': 16, 'ids': [0x1d120, 0x1d121, 0x1d122, 0x1d123], 'start': 0, 'flags': flags[1]},
                         {'map': 0x2400, 'across': 32, 'down': 8, 'ids': [0x1d304 + k for k in range(4)], 'start': 0, 'flags': flags[2]}]}
+        for n, layer in enumerate(d['layers']):
+            layer.update({'exc': list(exc[n]), 'cell_known': cell_known[n], 'tile_known': tile_known[n]})
         d['sizes'] = {'module': module, 'pages': pages, 'palettes': count * 32,
                       'object tiles': 128 * sum(c for _f, c, _fl in d['object_runs']), 'object palettes': 224}
         maps, tiles = S.model_stage_raw(self.arc, d)
-        l1 = (len(tiles[0]) + 15) // 16 * 16
+        l1 = S.l1_start_rule(len(tiles[0]), d['extras'], d['holes'])
         d['layers'][1]['start'] = l1
-        d['layers'][2]['start'] = S.l2_start_after(l1 + len(tiles[1]))
+        maps, tiles = S.model_stage_raw(self.arc, d)
+        d['layers'][2]['start'] = S.l2_start_rule(l1 + len(tiles[1]), d['extras'], d['holes'])
+        for n in (1, 2):
+            if start_rule[n - 1]:
+                d['layers'][n]['flags'] |= S.START_RULE
         return d
 
 
@@ -75,9 +84,17 @@ def spec_text(d):
     lines = [f'stage {d["stage"]}', f'size {d["sizes"]["module"]} {d["sizes"]["pages"]} {d["sizes"]["palettes"]} {d["sizes"]["object tiles"]}',
              f'pal {d["pal_exact"] & (2 ** 64 - 1)} {d["pal_exact"] >> 64}']
     for n, l in enumerate(d['layers']):
-        lines.append(f'layer {n} {l["map"]} {l["across"]} {l["down"]} {l["start"]} {l["flags"]} {len(l["ids"])} ' + ' '.join(map(str, l['ids'])))
+        start = 0 if l['flags'] & S.START_RULE else l['start']            # the C must not read it when the rule gives the start
+        lines.append(f'layer {n} {l["map"]} {l["across"]} {l["down"]} {start} {l["flags"]} {len(l["ids"])} ' + ' '.join(map(str, l['ids'])))
+        cells = l['across'] * l['down']
+        lines += [f'exc {n} {c} {"NEW" if sl == S.FORCE_NEW else sl}' for c, sl in l.get('exc', ())]
+        if l.get('cell_known'):
+            lines.append(f'cknown {n} ' + ' '.join(map(str, S.mask_words(l['cell_known'], cells))))
+        if l.get('tile_known'):
+            lines.append(f'tknown {n} ' + ' '.join(map(str, S.mask_words(l['tile_known'], cells + 1))))
     lines += [f'extra {a} {c} {f} {fl}' for a, c, f, fl in d['extras']]
     lines += [f'hole {a} {c}' for a, c in d['holes']]
+    lines += [f'more {k} {c} {st} {kind} {arg}' for k, st, c, kind, arg in d.get('more', ())]
     lines += [f'object {"ZERO" if f == S.RUN_ZERO else "DISC" if f == S.RUN_DISC else f} {c} {fl}' for f, c, fl in d['object_runs']]
     return '\n'.join(lines) + '\n'
 
@@ -145,6 +162,58 @@ class StageC(unittest.TestCase):
             if flags == (3, 3, 3):
                 self.assertEqual(len(pages_known) - sum(pages_known), 128)        # exactly the hole's slot is unknown
 
+    def test_exceptions_of_the_packing_and_the_known_bits(self):
+        w = self.world
+        base = w.descriptor()
+        cells0 = S.layer_cells(w.arc, 0, S.ids_of(w.arc, base['layers'][0]), 64, 16, 3)
+        # a cell that shares an earlier slot, one that takes a new slot though its tile exists, one that skips slots, one that is blank
+        first_new = [i for i, c in enumerate(cells0) if any(c[2])][:6]
+        exc = [(first_new[2], 1), (first_new[3], S.FORCE_NEW), (first_new[4] + 1, 0), (first_new[5] + 3, 30)]
+        d = w.descriptor(flags=(0, 0, 0), exc=(exc, [(10, 2), (11, S.FORCE_NEW), (400, 0)], [(5, 3)]),
+                         cell_known=(0b1011 | 1 << 1000, 1 << 1023 | 0xff, 3), tile_known=(0b111 | 1 << 20, 1 << 5, 0b11))
+        built, model = self.same(w, d)
+        data, known = built['module']
+        self.assertEqual(sum(known) // 4, 4 + 9 + 2)                        # the cells named by the known bits, and no other
+        pages_known = built['pages'][1]
+        self.assertLess(sum(pages_known), len(pages_known))
+        # with the flags set the bits are not needed
+        d2 = w.descriptor(flags=(3, 3, 3), exc=(exc, [], []))
+        self.same(w, d2)
+
+    def test_the_packing_rule_gives_the_layer_starts(self):
+        w = self.world
+        d = w.descriptor(extras=[(300, 4, 0x10005, 0)], holes=[(304, 12)], start_rule=(True, True))
+        built, model = self.same(w, d)
+        d_explicit = w.descriptor(extras=[(300, 4, 0x10005, 0)], holes=[(304, 12)])
+        d_explicit['layers'][1]['start'] = S.layer_start(d, 1, [len(S.model_stage_raw(w.arc, d_explicit)[1][0]), 0, 0, 0])
+        # the rule's starts are the ones the helper put in the descriptor
+        maps, tiles = S.model_stage_raw(w.arc, d)
+        for key in ('module', 'pages'):
+            self.assertEqual(bytes(model[key][0]), bytes(S.model_stage(w.arc, d_explicit)[key][0]))
+        # the C does not read the start field of a layer whose flags say the rule gives it
+        d['layers'][1]['start'] = 7777
+        d['layers'][2]['start'] = 9999
+        self.assertEqual(bytes(S.model_stage(w.arc, d)['pages'][0]), bytes(model['pages'][0]))
+        built2 = self.run_c(w, d)
+        self.assertEqual(built2['pages'][0], built['pages'][0])
+
+    def test_the_other_palettes_are_arcade_rows_or_filler(self):
+        w = self.world
+        more = [(65, 2, 3, S.MORE_ROW, 0x275c40), (71, 2, 2, S.MORE_FILL, 0), (128, 1, 4, S.MORE_ROW, S.PALETTE_TABLES[1] + 0x400 * 3)]
+        d = w.descriptor(count=160, pal_exact=(1 << 3) | (1 << 70), more=more)
+        built, model = self.same(w, d)
+        data, known = built['palettes']
+        self.assertEqual(sum(1 for k in range(160) if known[32 * k]), 2 + 3 + 2 + 4)
+        want = [0] + [S.arcade_color_to_ps1(x) or 0x8000 for x in struct.unpack_from('>15H', w.arc.prog, 0x275c40 + 0x20)]
+        self.assertEqual(list(struct.unpack_from('<16H', data, 67 * 32)), want)
+        fill = [0] + [S.arcade_color_to_ps1(S.FILL_COLOUR)] * 15
+        self.assertEqual(list(struct.unpack_from('<16H', data, 73 * 32)), fill)
+        for bad in ([(65, 2, 80, S.MORE_FILL, 0)], [(150, 1, 20, S.MORE_FILL, 0)], [(65, 2, 1, S.MORE_ROW, 0x2fffe1)], [(65, 2, 1, S.MORE_ROW, 0x400000)]):
+            d = w.descriptor(count=160, more=bad)
+            with self.assertRaises(ValueError):
+                S.model_stage(w.arc, d)
+            self.assertIsInstance(self.run_c(w, d), str, bad)
+
     def test_layers_pack_tiles_in_first_use_order_with_the_blank_first(self):
         d = self.world.descriptor()
         built, _model = self.same(self.world, d)
@@ -197,13 +266,25 @@ class StageC(unittest.TestCase):
 
     def test_random_descriptors(self):
         rnd = random.Random(5)
-        for seed in range(8):
+        for seed in range(12):
             world = World(100 + seed)
             flags = tuple(rnd.randrange(4) for _ in range(3))
             extras = [(300 + 10 * k, rnd.randrange(1, 4), 0x10000 + rnd.randrange(100), rnd.randrange(4)) for k in range(rnd.randrange(3))]
             holes = [(500 + 10 * k, rnd.randrange(1, 3)) for k in range(rnd.randrange(3))]
             objects = [(rnd.choice([S.RUN_ZERO, S.RUN_DISC, 0x10000 + rnd.randrange(100)]), rnd.randrange(1, 4), rnd.randrange(4)) for _ in range(rnd.randrange(1, 6))]
-            d = world.descriptor(flags=flags, extras=extras, holes=holes, objects=objects, pal_exact=rnd.getrandbits(96), count=rnd.choice([64, 96, 127, 128, 160]))
+            cells = (1024, 1024, 256)
+            exc = tuple(sorted((c, rnd.choice([S.FORCE_NEW, 0, 1, 2, 5, 20, 33])) for c in rnd.sample(range(cells[n]), rnd.randrange(0, 12))) for n in range(3))
+            count = rnd.choice([96, 127, 128, 160])
+            more = [(rnd.randrange(64, min(count, 100)), rnd.choice([1, 2]), rnd.randrange(1, 4), S.MORE_FILL, 0) for _ in range(rnd.randrange(3))]
+            more += [(rnd.randrange(64, min(count, 100)), rnd.choice([1, 2]), rnd.randrange(1, 4), S.MORE_ROW, 0x275c40 + 0x20 * rnd.randrange(60)) for _ in range(rnd.randrange(3))]
+            d = world.descriptor(flags=flags, extras=extras, holes=holes, objects=objects, pal_exact=rnd.getrandbits(96), count=count, exc=exc,
+                                 cell_known=tuple(rnd.getrandbits(cells[n]) for n in range(3)), tile_known=tuple(rnd.getrandbits(cells[n] + 1) for n in range(3)),
+                                 more=[m for m in more if m[0] + m[1] * (m[2] - 1) < count], start_rule=(rnd.random() < 0.5, rnd.random() < 0.5))
+            try:
+                S.model_stage(world.arc, d)
+            except ValueError:
+                self.assertIsInstance(self.run_c(world, d), str)          # a descriptor the model refuses is refused by the C too
+                continue
             self.same(world, d)
 
     def test_the_layer_sizes_the_ps1_has(self):

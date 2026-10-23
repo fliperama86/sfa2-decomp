@@ -330,11 +330,128 @@ class Model(unittest.TestCase):
         with self.assertRaises(ValueError):
             stages.layer_cells(arc, 1, [0, 0, 0], 64, 16)                              # three ids for four blocks
 
-    def test_layer_zero_row_is_the_first_piece_with_an_opaque_pixel(self):
-        opaque, clear = [[1] * 8] * 8, [[0] * 8] * 8
-        self.assertEqual(stages.l0_row([clear, clear, opaque, opaque], [0, 0, 2, 3]), 2)
-        self.assertEqual(stages.l0_row([opaque, clear, opaque, opaque], [5, 0, 2, 3]), 5)
-        self.assertEqual(stages.l0_row([clear] * 4, [7, 0, 2, 3]), 7)
+    def test_a_layer_zero_cell_asks_for_colours_and_rows(self):
+        w = World(21)
+        arc = w.arc
+        quad = [(0, 0x02), (1, 0x05), (0, 0x02), (2, 0x05)]
+        tile, rows, needs = stages.l0_cell(arc, 3, quad)
+        self.assertEqual(len(tile), 128)
+        pcs = [arc.piece(c, a) for c, a in quad]
+        self.assertEqual(tile, stages.pack_rows([r0 + r1 for r0, r1 in zip(pcs[0], pcs[1])] + [r0 + r1 for r0, r1 in zip(pcs[2], pcs[3])]))
+        opaque = [any(v for r in p for v in r) for p in pcs]
+        self.assertEqual(rows, [a & 31 for (c, a), o in zip(quad, opaque) if o][:1] + [r for r in dict.fromkeys(a & 31 for (c, a), o in zip(quad, opaque) if o)][1:])
+        if needs is not None:
+            for j, colour in needs.items():
+                self.assertTrue(any(arc.palette(3, 0, a & 31)[j] == colour for (c, a), o in zip(quad, opaque) if o))
+        # a made-up cell with known pieces: tile 0x10000 is transparent, so its pieces ask for nothing
+        blank = stages.l0_cell(arc, 3, [(0, 3), (0, 3), (0, 3), (0, 3)])
+        self.assertEqual(blank[0], bytes(128))
+        self.assertEqual(blank[1], [])
+        self.assertEqual(blank[2], {})
+
+    def test_layer_zero_rows_are_tried_most_popular_first(self):
+        infos = [([2, 5], {}), ([5], {}), ([5, 9], {}), ([2], {}), ([], {}), ([7], {})]
+        self.assertEqual(stages.l0_order(infos), [5, 2, 7, 9])                 # 5 in three cells, 2 in two, then 7 and 9 by number
+        pal = {r: [0] + [r * 16 + j for j in range(15)] for r in range(32)}
+        pal[4] = list(pal[2])
+        pal[6] = list(pal[5])
+        pal[6][3] = 999
+        order = [5, 2, 6]
+        self.assertEqual(stages.l0_row([5], {1: pal[5][1], 3: pal[5][3]}, order, pal), 5)        # the first row that has the colours
+        self.assertEqual(stages.l0_row([2], {1: pal[2][1]}, order, pal), 2)
+        self.assertEqual(stages.l0_row([7, 5], {1: pal[5][1], 3: 999}, order, pal), 6)         # a row of no piece may do
+        self.assertEqual(stages.l0_row([7, 5], {1: 12345}, order, pal), 7)                      # no row has the colour: the first piece's row
+        self.assertEqual(stages.l0_row([7, 5], None, order, pal), 7)                            # the pieces disagree: the first piece's row
+        self.assertEqual(stages.l0_row([], {}, order, pal), 0)                                  # a blank cell: row 0
+
+    def test_exceptions_to_first_use_packing(self):
+        blank = bytes(128)
+        a, b, c = bytes([1]) * 128, bytes([2]) * 128, bytes([3]) * 128
+        cells = [(i, 0, t, 5) for i, t in enumerate([a, b, a, c, b, c, a])]
+        words, tiles = stages.place_layer(cells, 0, 10)
+        self.assertEqual(tiles, [blank, a, b, c])
+        self.assertEqual([stages.slot_of_code(words[(i, 0)][0], 16) - 10 for i in range(7)], [1, 2, 1, 3, 2, 3, 1])
+        # the disc started a new slot for the second a, made both c cells blank (slot 0) and put the last a on that new slot
+        wants = [1, 2, 3, 0, 2, 0, 3]
+        exc = stages.find_exceptions(cells, 16, wants)
+        self.assertEqual(exc, [(2, stages.FORCE_NEW), (3, 0), (5, 0), (6, 3)])
+        words, tiles = stages.place_layer(cells, 0, 10, dict(exc))
+        self.assertEqual([stages.slot_of_code(words[(i, 0)][0], 16) - 10 for i in range(7)], wants)
+        self.assertEqual(tiles, [blank, a, b, a])                    # FORCE_NEW added a copy of the tile; explicit slots added none
+        self.assertEqual(words[(3, 0)][1], 0x7800)                   # a cell on slot 0 is blank: row 0
+        self.assertEqual(words[(0, 0)][1], 0x7800 + 64 * 5)
+        # a tile the packing has not made yet that the disc puts beyond the next free slot gets that slot (the slots between stay empty)
+        exc = stages.find_exceptions(cells, 16, [1, 2, 1, 9, 2, 9, None])
+        self.assertEqual(exc, [(3, 9)])
+        words, tiles = stages.place_layer(cells, 0, 10, dict(exc))
+        self.assertEqual([stages.slot_of_code(words[(i, 0)][0], 16) - 10 for i in range(7)], [1, 2, 1, 9, 2, 9, 1])
+        self.assertEqual(tiles, [blank, a, b] + [None] * 6 + [c])
+        # a tile it has made already is left alone when the disc puts the cell beyond the next free slot, and so is a cell off the pages
+        self.assertEqual(stages.find_exceptions(cells, 16, [1, 2, 9, 3, 2, 3, None]), [])
+        self.assertEqual(stages.find_exceptions(cells, 16, [1, 2, 1, 3, 2, 3, 1]), [])
+        with self.assertRaises(ValueError):
+            stages.place_layer(cells, 0, 10, {3: 0x10000})
+
+    def test_the_starts_the_packing_rule_gives(self):
+        self.assertEqual(stages.chain_end(141, [], []), 141)
+        self.assertEqual(stages.chain_end(207, [], [(207, 16)]), 223)
+        self.assertEqual(stages.chain_end(100, [(100, 5, 7, 0), (105, 1, 8, 1)], [(106, 4)]), 110)       # runs that touch one after the other
+        self.assertEqual(stages.chain_end(100, [(101, 5, 7, 0)], []), 100)                              # a gap ends it
+        self.assertEqual(stages.chain_end(100, [(90, 5, 7, 0)], []), 100)                               # a run that ends before it does not count
+        self.assertEqual(stages.l1_start_rule(141, [], []), 144)             # stage 00 of the examined disc
+        self.assertEqual(stages.l1_start_rule(112, [], []), 112)
+        self.assertEqual(stages.l1_start_rule(207, [], [(207, 16)]), 224)
+        self.assertEqual(stages.l2_start_rule(441, [], []), 112)
+        self.assertEqual(stages.l2_start_rule(749, [], [(749, 4)]) , stages.l2_start_after(753))
+        d = {'extras': [(10, 2, 3, 0)], 'holes': [], 'layers': [{'flags': 0, 'start': 0}, {'flags': stages.START_RULE, 'start': 99}, {'flags': stages.START_RULE, 'start': 99}]}
+        self.assertEqual(stages.layer_start(d, 1, [33, 0, 0, 0]), 48)
+        self.assertEqual(stages.layer_start(d, 2, [33, 100, 0, 48]), stages.l2_start_after(148))
+        d['layers'][1]['flags'] = 0
+        self.assertEqual(stages.layer_start(d, 1, [33, 0, 0, 0]), 99)
+
+    def test_the_other_palettes_are_arcade_rows_or_filler(self):
+        prog = bytearray(0x300000)
+        for row in range(6):
+            struct.pack_into('>16H', prog, 0x2a9000 + 0x20 * row, *[(row * 16 + c * 3 + 1) & 0xfff for c in range(16)])
+        for layer in range(3):
+            for row in range(32):
+                struct.pack_into('>16H', prog, stages.PALETTE_TABLES[layer] + 0x400 * 2 + 0x20 * row, *[(layer * 32 + row) * 7 + c for c in range(16)])
+        prog = bytes(prog)
+        more = [(65, 2, 3, stages.MORE_ROW, 0x2a9020), (71, 2, 2, stages.MORE_FILL, 0), (128, 1, 2, stages.MORE_ROW, 0x2a9000)]
+        data, known = stages.model_palettes(prog, 2, 160, 0, more)
+        for i, k in enumerate((65, 67, 69)):
+            words = struct.unpack_from('>15H', prog, 0x2a9020 + 0x20 * i)
+            self.assertEqual(list(struct.unpack_from('<16H', data, 32 * k)), [0] + [stages.arcade_color_to_ps1(x) or 0x8000 for x in words])
+            self.assertEqual(known[32 * k:32 * k + 32], b'\1' * 32)
+        fill = [0] + [stages.arcade_color_to_ps1(stages.FILL_COLOUR)] * 15
+        self.assertEqual(list(struct.unpack_from('<16H', data, 71 * 32)), fill)
+        self.assertEqual(list(struct.unpack_from('<16H', data, 73 * 32)), fill)
+        self.assertEqual(sum(1 for k in range(160) if known[32 * k]), 3 + 2 + 2)
+        for bad in ([(70, 2, 50, stages.MORE_FILL, 0)], [(65, 2, 1, stages.MORE_ROW, 0x2fffe0 + 0x20)], [(128, 1, 40, stages.MORE_FILL, 0)]):
+            with self.assertRaises(ValueError):
+                stages.model_palettes(prog, 2, 160, 0, bad)
+
+    def test_finding_the_runs_of_other_palettes(self):
+        w = World(7)
+        arc = stages.Arc(bytearray(w.arc.prog), w.arc.gfx)
+        prog = arc.prog
+        for row in range(8):
+            struct.pack_into('>16H', prog, 0x2a9000 + 0x20 * row, *[0x100 + 16 * row + c for c in range(16)])
+        chunk = bytearray(160 * 32)
+        for i, row in enumerate((2, 3, 4)):                                        # palettes 65, 67, 69 are rows 2 to 4
+            struct.pack_into('<16H', chunk, 32 * (65 + 2 * i), 0, *[stages.arcade_color_to_ps1(x) or 0x8000 for x in struct.unpack_from('>15H', prog, 0x2a9000 + 0x20 * row)])
+        struct.pack_into('<16H', chunk, 32 * 128, 0, *[stages.arcade_color_to_ps1(stages.FILL_COLOUR)] * 15)        # palette 128 is filler
+        struct.pack_into('<16H', chunk, 32 * 129, 0, *[1] * 15)                    # palette 129 is neither
+        arc._row_index = {}
+        for at in range(0x2a9000, 0x2a9000 + 0x20 * 8, 0x20):
+            arc._row_index.setdefault((0,) + tuple(stages.arcade_color_to_ps1(x) or 0x8000 for x in struct.unpack_from('>15H', prog, at)), []).append(at)
+        runs = stages.more_runs(arc, bytes(chunk))
+        self.assertEqual(runs, [(65, 2, 3, stages.MORE_ROW, 0x2a9040), (128, 1, 1, stages.MORE_FILL, 0)])
+        data, known = stages.model_palettes(bytes(prog), 3, 160, 0, runs)
+        for k in (65, 67, 69, 128):
+            self.assertEqual(data[32 * k:32 * k + 32], bytes(chunk[32 * k:32 * k + 32]))
+            self.assertEqual(known[32 * k:32 * k + 32], b'\1' * 32)
+        self.assertEqual(known[129 * 32:130 * 32], bytes(32))
 
     def test_locating_ids(self):
         prog = bytearray(0x100)
@@ -448,7 +565,9 @@ class Describe(unittest.TestCase):
         r = stages.analyse(parts, self.helper, 3, w.arc.prog)
         d = stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r)
         self.assertIsInstance(d, dict, d)
-        self.assertEqual([l['flags'] for l in d['layers']], [3, 3, 3])
+        self.assertEqual([l['flags'] & 3 for l in d['layers']], [3, 3, 3])
+        self.assertEqual([bool(l['flags'] & stages.START_RULE) for l in d['layers']], [False, True, True])      # the made-up stage follows the packing rule
+        self.assertEqual([l['exc'] for l in d['layers']], [[], [], []])
         self.assertEqual([l['start'] for l in d['layers']], [l['start'] for l in d0['layers']])
         self.assertEqual([(l['map'], l['across'], l['down']) for l in d['layers']], [(0x100, 64, 16), (0x1200, 64, 16), (0x2400, 32, 8)])
         self.assertEqual(d['layers'][0]['ids'][:4], [0x1d020, 0x1d021, 0x1d022, 0x1d023])
@@ -482,7 +601,11 @@ class Describe(unittest.TestCase):
         r = stages.analyse(parts, self.helper, 3, w.arc.prog)
         d = stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r)
         self.assertIsInstance(d, dict, d)
-        self.assertEqual([l['flags'] for l in d['layers']], [3, 2, 1])
+        self.assertEqual([l['flags'] & 3 for l in d['layers']], [3, 3, 1])           # layer 1's other tile code is an exception of the packing: still exact
+        self.assertEqual(d['layers'][1]['exc'][0][0], 2)                            # the cell at byte 8 of the map comes first
+        self.assertGreater(len(d['layers'][1]['exc']), 1)                           # the tile it first made lies on a slot it no longer uses: later cells say so
+        self.assertEqual(d['layers'][2]['cell_known'], 0)                           # layer 2's map is exact
+        self.assertEqual(bin(d['layers'][2]['tile_known']).count('1'), len(stages.model_stage_raw(w.arc, d)[1][2]) - 1)     # but one of its tiles is gone
         self.assertEqual((d['pal_exact'] >> 5) & 1, 0)
         self.assertEqual(bin(d['pal_exact']).count('1'), 95)
 
