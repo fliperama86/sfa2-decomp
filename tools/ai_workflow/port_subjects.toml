@@ -103,6 +103,8 @@ test_video = ["port/src/video.h", "port/src/gpu.c", "port/psyz.patch", "port/too
 test_ui_layout = ["port/src/ui_layout.h", "port/src/video.h", "port/src/gpu.c", "port/src/gpu.h", "port/tools/ui_layout_test.c", "port/tools/ui_layout_seam_test.c", "port/tools/ui_layout_gpu_test.c"]
 test_arcade_zip = ["port/arcade/zip.c", "port/arcade/zip.h", "port/arcade/tests/zip_test.c"]
 test_arcade_rom = ["port/arcade/rom.c", "port/arcade/rom.h", "port/arcade/program.c", "port/arcade/program.h", "port/arcade/zip.c", "port/arcade/zip.h", "port/src/sha256.c", "port/arcade/tests/rom_test.c", "port/intro/import_scene.py"]
+test_arcade_program_map = ["port/arcade/program_map.py"]
+test_arcade_fighter_parts = ["port/arcade/fighter_parts.py"]
 
 # Files of the port whose check is the build of the PC program alone (`native-build`, which every change of the port that
 # is not a control file gets): no control file reads the tree's own copy of them. The overrides have their own checks

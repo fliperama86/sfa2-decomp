@@ -15,8 +15,9 @@ struct arcade_piece {
     unsigned address;    /* in the PS1 program */
     unsigned size;       /* bytes, even */
     unsigned source;     /* address in the arcade program, even */
-    const char *units;   /* one letter a 16-bit unit, repeated over the piece: 'b' two bytes as they are,
-                          * 'w' a 16-bit value (its two bytes turned, big-endian to little-endian) */
+    const char *units;   /* one letter a field, repeated over the piece, which ends at the end of a field: 'b' two
+                          * bytes as they are, 'w' a 16-bit value (its two bytes turned, big-endian to
+                          * little-endian), 'l' a 32-bit value (its four bytes turned) */
     const char *name;    /* the PS1 symbol it lies in, and the offset */
 };
 

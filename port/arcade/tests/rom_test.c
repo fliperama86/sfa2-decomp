@@ -59,6 +59,15 @@ static void pieces(void)
         if (i % 2) assert(out[2 * i] == s[1] && out[2 * i + 1] == s[0]);
         else assert(out[2 * i] == s[0] && out[2 * i + 1] == s[1]);
     }
+    p.units = "lb"; p.size = 12;   /* a 32-bit field turned, then two bytes as stored, twice */
+    assert(arcade_piece_build(prog, sizeof prog, &p, out) == 0);
+    for (i = 0; i < 2; i++) {
+        const unsigned char *s = prog + 4 + 6 * i;
+        assert(out[6 * i] == s[3] && out[6 * i + 1] == s[2] && out[6 * i + 2] == s[1] && out[6 * i + 3] == s[0]);
+        assert(out[6 * i + 4] == s[4] && out[6 * i + 5] == s[5]);
+    }
+    p.size = 8; assert(arcade_piece_build(prog, sizeof prog, &p, out) == -1);   /* 4 + 2, then a field of 4 past the end */
+    p.size = 8;
     p.units = "bx"; assert(arcade_piece_build(prog, sizeof prog, &p, out) == -1);
     p.units = ""; assert(arcade_piece_build(prog, sizeof prog, &p, out) == -1);
     p.units = "b"; p.size = 7; assert(arcade_piece_build(prog, sizeof prog, &p, out) == -1);

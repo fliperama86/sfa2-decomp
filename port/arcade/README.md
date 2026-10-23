@@ -8,7 +8,7 @@ The loader that builds what the game reads from the user's arcade set
 either game enters Git: the source holds addresses, sizes and layouts.
 
 **State, 2026-10-23: the loader opens and checks the arcade set and builds
-48 tables of the PS1 program's data from it (18,046 of 90,088 bytes). The
+72 tables of the PS1 program's data from it (25,784 of 90,088 bytes). The
 disc gives everything else. Without a disc the program stops with what it
 cannot build yet.**
 
@@ -40,8 +40,8 @@ port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC
   decrypted: the loader reads data, never the program's encrypted opcodes.
 - `program.c` has the pieces of the PS1 program's data that the arcade
   program holds: for each, the PS1 address, the size, the arcade address
-  and the layout (bytes as they are, or 16-bit values whose two bytes turn
-  from big-endian to little-endian). After the program is loaded from the
+  and the layout (bytes as they are, or 16-bit or 32-bit values whose bytes
+  turn from big-endian to little-endian). After the program is loaded from the
   disc, the runtime (`port/src/arcade.c`) writes each piece over it.
 - With a disc, the first read of each disc file prints
   `arcade: NAME from the disc: no arcade source yet`. Played through, those
@@ -100,6 +100,20 @@ scripts (nothing of it is in the tree):
   whose pixels another tile repeats. The PS1 numbers the tiles in the order
   the lists first use them (1,048 of 1,082 new tiles are the previous
   number plus one) and gives a tile it has already the number it had.
+- **The rest of the program's data** (`program_map.py`, every byte
+  classed): 29% arcade tables (the 72 pieces), 19% cell lists and position
+  runs of effects in the fighters' format, 12% the Sony library's data
+  (PsyZ replaces the library), 9% pointers (fixed by the port's layout), 5%
+  text (mostly the PS1's own), 12% zeros, 14% the PS1's own tables (among
+  them the disc's file table, which a disc of the loader's must fill).
+- **Palettes and pictures** (`fighter_parts.py`). The 64 palettes of each
+  fighter file are the arcade's (each 4-bit channel doubled, arcade color 15
+  becomes the transparent 0, a black of 0 is written 0x8000): 88% of their
+  bytes exactly; the rest are filler ramps of the PS1's own and 62 palettes
+  that differ from this US arcade set (perhaps the Japanese revision's). The
+  portrait pages are arcade tiles and arcade palettes; which tile goes in
+  which cell is not derived yet. The sound command lists and the `pQES`
+  sequences of the fighter files are the PS1's own.
 - **Samples.** One of the 12 voice samples of Ryu's sound bank is the
   arcade's (correlation 0.976 after resampling from about 24 kHz to
   22.05 kHz). The other 11 were not settled by that test.
@@ -126,12 +140,16 @@ same either way takes the layout of the rest. So:
 
 - `python3 port/tools/test_arcade_zip.py`: the archive reader and inflate,
   on synthetic archives (stored, every deflate kind, malformed ones).
+- `python3 port/tools/test_arcade_program_map.py`,
+  `test_arcade_fighter_parts.py`: the analysis tools' pure functions, on
+  synthetic data. The tools themselves (`program_map.py`,
+  `fighter_parts.py`) take the private inputs and print a report.
 - `python3 port/tools/test_arcade_rom.py`: the four views from a made-up
   set with the real member names and sizes, against a reference built from
   `port/intro/import_scene.py`'s layout; the digests refuse it; the piece
   builder's layouts and bounds and the table's order.
 - With the private inputs: `--arcade-check` with the disc and the set. On
-  2026-10-23: 48 pieces, 18,046 bytes, none differs, in 0.2 seconds with
+  2026-10-23: 72 pieces, 25,784 bytes, none differs, in 0.2 seconds with
   the set's reading and digests; with one piece's layout changed by hand the
   check names that piece and ends with status 1.
 
