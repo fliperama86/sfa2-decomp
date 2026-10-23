@@ -6,6 +6,7 @@
 #include "../arcade/sequence.h"
 #include "../arcade/stage.h"
 #include "../arcade/program.h"
+#include "../arcade/program_more.h"
 #include "../arcade/rom.h"
 #include "../arcade/tilepack.h"
 #include <stdio.h>
@@ -69,8 +70,47 @@ int port_arcade_enabled(void)
 
 void port_arcade_missing(char *line, size_t size)
 {
-    snprintf(line, size, "arcade: no arcade source yet for the PS1 program's data (SLPS_004.15): %u of its %u bytes are built from the arcade set, the rest needs the disc",
-             piece_bytes(), ARCADE_PS1_DATA_END - ARCADE_PS1_DATA_START);
+    struct arcade_effects_out e;
+    unsigned i, n = piece_bytes() + 4u * arcade_reloc_count;
+    char err[PORT_ERR];
+    if (arcade_effects_build(rom.program, ARCADE_PROGRAM_SIZE, &arcade_effects, &e, err, sizeof err) == 0) {
+        for (i = 0; i < e.size; i++) n += e.known[i];
+        arcade_effects_free(&e);
+    }
+    snprintf(line, size, "arcade: no arcade source yet for all of the PS1 program's data (SLPS_004.15): %u of its %u bytes are built from the arcade set, the rest needs the disc",
+             n, ARCADE_PS1_DATA_END - ARCADE_PS1_DATA_START);
+}
+
+/* The program's pointer words (the build's layout) and the effects' position runs and cell lists. Returns the number of
+ * words and bytes that differ from the disc's (with check). */
+static unsigned program_more(unsigned char *ram, int check)
+{
+    const unsigned span = ARCADE_PS1_DATA_END - ARCADE_PS1_DATA_START;
+    unsigned char *data = ram + (ARCADE_PS1_DATA_START - PORT_RAM_BASE), *words;
+    struct arcade_effects_out e;
+    unsigned i, differ = 0, known = 0;
+    char err[PORT_ERR];
+    if (arcade_relocs_valid(arcade_relocs, arcade_reloc_count) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: the build's table of pointer words is malformed");
+    if (!(words = calloc(span, 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+    if (arcade_relocs_apply(arcade_relocs, arcade_reloc_count, words, span) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: a pointer word lies outside the program's data");
+    for (i = 0; i < arcade_reloc_count; i++) {
+        unsigned at = arcade_relocs[i].location - ARCADE_PS1_DATA_START;
+        if (check) differ += memcmp(words + at, data + at, 4) != 0;
+        else memcpy(data + at, words + at, 4);
+    }
+    free(words);
+    if (arcade_effects_build(rom.program, ARCADE_PROGRAM_SIZE, &arcade_effects, &e, err, sizeof err) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: effects: %s", err);
+    for (i = 0; i < e.size; i++) {
+        unsigned char *at = ram + (arcade_effects.address - PORT_RAM_BASE) + i;
+        if (!e.known[i]) continue;
+        known++;
+        if (check) differ += *at != e.data[i];
+        else *at = e.data[i];
+    }
+    arcade_effects_free(&e);
+    printf("arcade%s: the PS1 program's data: %u pointer words (the port's layout) and %u bytes of effect cell lists and positions built from the arcade set%s\n",
+           check ? " check" : "", arcade_reloc_count, known, check ? "" : ", used");
+    return differ;
 }
 
 unsigned port_arcade_program(unsigned char *ram, int check)
@@ -97,6 +137,7 @@ unsigned port_arcade_program(unsigned char *ram, int check)
         }
     }
     free(out);
+    differ += program_more(ram, check);
     if (check)
         printf("arcade check: %u pieces, %u bytes of the PS1 program's data: %u differ from the disc's\n", arcade_program_piece_count, piece_bytes(), differ);
     else

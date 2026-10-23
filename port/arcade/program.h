@@ -17,7 +17,10 @@ struct arcade_piece {
     unsigned source;     /* address in the arcade program, even */
     const char *units;   /* one letter a field, repeated over the piece, which ends at the end of a field: 'b' two
                           * bytes as they are, 'w' a 16-bit value (its two bytes turned, big-endian to
-                          * little-endian), 'l' a 32-bit value (its four bytes turned) */
+                          * little-endian), 'l' a 32-bit value (its four bytes turned); and two that change the
+                          * width: 'n' a byte of the PS1 that is a 16-bit big-endian value of the arcade (the value
+                          * has to fit a byte), 'e' a 32-bit little-endian value of the PS1 that is a byte of the
+                          * arcade. `size` counts the PS1's bytes; the arcade's are as many as the letters need. */
     const char *name;    /* the PS1 symbol it lies in, and the offset */
 };
 
@@ -25,7 +28,7 @@ extern const struct arcade_piece arcade_program_pieces[];
 extern const unsigned arcade_program_piece_count;
 
 /* The piece's bytes, as the PS1 program has them, into out[0..p->size). -1
- * when the piece does not fit the arcade program or its layout is malformed. */
+ * when the piece does not fit the arcade program, a narrowed value does not fit or its layout is malformed. */
 int arcade_piece_build(const unsigned char *program, size_t program_size, const struct arcade_piece *p, unsigned char *out);
 /* The table's own order and bounds: sorted by address, not overlapping, each
  * inside the PS1 program's data, even, with a well-formed layout. 0 or -1. */

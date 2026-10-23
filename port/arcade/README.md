@@ -8,7 +8,8 @@ The loader that builds what the game reads from the user's arcade set
 either game enters Git: the source holds addresses, sizes and layouts.
 
 **State, 2026-10-23: the loader opens and checks the arcade set and builds
-from it 72 tables of the PS1 program's data (25,784 of 90,088 bytes); for 27
+from it 45,858 of the 90,088 bytes of the PS1 program's data (78 tables, the
+2,125 pointer words of the port's layout, the effects' cell lists); for 27
 of the 45 fighter files the cell lists and position runs (585 KB, equal to
 the disc's) and the sprite tiles (every tile the disc's, packed by the
 loader's own encoder into 9.8 MB of chunks, each smaller than the disc's);
@@ -209,6 +210,15 @@ scripts (nothing of it is in the tree):
   The PS1's own: the movies (4 STR), the recorded music (8 XA files), the
   four full-color ending illustrations, the title picture, the layout of the
   dialogue text, the select screen's 27 voice samples, `CAPCOM.BIN`.
+- **Effects and pointers** (`program_more.c`). The effects' cell lists and
+  positions in the program's data are the fighters' format over arcade art
+  records `0x217fd4` to `0x21b12e` (bank `0x20000`), numbering into a tile
+  chunk that every stage file holds (slot 3); the PS1 left out 40 cells its
+  art tool cleaned to blank (a table) and added 6 full-screen pictures of its
+  own. 216 of 223 lists and their positions are built (11,334 bytes). The
+  program's 2,125 pointer words are a table of the build's layout. Two more
+  layouts for the pieces: `n` (a PS1 byte from a 16-bit arcade value) and
+  `e` (a PS1 32-bit value from an arcade byte).
 - **The rest of the program's data** (`program_map.py`, every byte
   classed): 29% arcade tables (the 72 pieces), 19% cell lists and position
   runs of effects in the fighters' format, 12% the Sony library's data

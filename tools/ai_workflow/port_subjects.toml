@@ -104,6 +104,7 @@ test_ui_layout = ["port/src/ui_layout.h", "port/src/video.h", "port/src/gpu.c", 
 test_arcade_zip = ["port/arcade/zip.c", "port/arcade/zip.h", "port/arcade/tests/zip_test.c"]
 test_arcade_rom = ["port/arcade/rom.c", "port/arcade/rom.h", "port/arcade/program.c", "port/arcade/program.h", "port/arcade/zip.c", "port/arcade/zip.h", "port/src/sha256.c", "port/arcade/tests/rom_test.c", "port/intro/import_scene.py"]
 test_arcade_program_map = ["port/arcade/program_map.py"]
+test_arcade_program_more = ["port/arcade/program_more.c", "port/arcade/program_more.h", "port/arcade/program_effects_table.c", "port/arcade/program_relocs_table.c", "port/arcade/tests/program_more_test.c", "port/arcade/program_map.py", "port/arcade/program.c"]
 test_arcade_fighter_parts = ["port/arcade/fighter_parts.py", "port/arcade/fighter_parts.c"]
 test_arcade_fighter_parts_c = ["port/arcade/fighter_parts.c", "port/arcade/fighter_parts.h", "port/arcade/fighter_parts_table.c", "port/arcade/tests/fighter_parts_test.c", "port/arcade/fighter_parts.py"]
 test_arcade_fighters = ["port/arcade/fighters.py"]

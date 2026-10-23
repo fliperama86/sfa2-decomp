@@ -8,10 +8,19 @@
  * run and the table it lies in. Each piece's layout is what its bytes show: a
  * field whose bytes are the same either way is given the layout of the rest.
  * `--arcade-check` compares every piece with the user's disc. The method and
- * its limits are in port/arcade/README.md. */
+ * its limits are in port/arcade/README.md.
+ *
+ * Added later, from the same tool (`program_map.py --candidates`): shorter exact runs of the
+ * tables the evidence of 20 bits or more ties to the arcade (4 pieces of 8 to 30 bytes), and
+ * two tables of other widths (layout letters 'n' and 'e', see program.h): the byte table
+ * at 0x80176d30 that is the arcade's 16-bit values, and the 32-bit table at 0x8016f550 that
+ * is the arcade's bytes. */
 const struct arcade_piece arcade_program_pieces[] = {
     {0x8016e5c4u,   118u, 0x00d8dcu, "lbbbbbblbbbbbblbbbbbblbbbbbblbbbbbblbbbbbblbbbbbblb", "score_rank_table"},
+    {0x8016e63cu,    30u, 0x00d954u, "bbbblbbbbbblb", "streak_rank_table+0x28"},
+    {0x8016e65cu,     8u, 0x00d974u, "b", "table_8016e654+0x8"},
     {0x8016ea70u,  2688u, 0x099500u, "b", "data_8016ea70+0x0"},
+    {0x8016f550u,    84u, 0x00984au, "e", "table_8016f550"},
     {0x8016f6a8u,   912u, 0x0971aau, "l", "table_8016f658+0x50"},
     {0x8016fa8cu,   160u, 0x098870u, "l", "motion_speed_table"},
     {0x8016fb2cu,  1220u, 0x098928u, "l", "motion_speed_table+0xa0"},
@@ -31,8 +40,11 @@ const struct arcade_piece arcade_program_pieces[] = {
     {0x8017161cu,   152u, 0x097a28u, "b", "kind_table_29b+0xb8"},
     {0x801716b4u,    72u, 0x09772cu, "w", "data_801716b4+0x0"},
     {0x801716fcu,    76u, 0x0977a4u, "w", "data_801716b4+0x48"},
+    {0x80176d30u,    80u, 0x01fb2eu, "n", "table_6d30"},
     {0x80176da0u,   512u, 0x01fc5eu, "b", "data_80176da0+0x0"},
     {0x80176fa0u,    32u, 0x010332u, "b", "data_80176da0+0x200"},
+    {0x80176fd2u,    10u, 0x011448u, "b", "table_80176fc0+0x12"},
+    {0x80176fe0u,    28u, 0x011456u, "b", "table_80176fe0"},
     {0x8017711cu,   352u, 0x011494u, "b", "table_8017711c+0x0"},
     {0x801777d4u,  1024u, 0x09c048u, "b", "table_801777d4+0x0"},
     {0x80177fd4u,   208u, 0x09c968u, "b", "table_80177fd4+0x0"},
@@ -85,10 +97,16 @@ const struct arcade_piece arcade_program_pieces[] = {
 };
 const unsigned arcade_program_piece_count = sizeof arcade_program_pieces / sizeof arcade_program_pieces[0];
 
-/* The bytes of one field of the layout: 2 for 'b' and 'w', 4 for 'l', 0 for anything else. */
+/* The PS1 bytes of one field of the layout: 2 for 'b' and 'w', 4 for 'l' and 'e', 1 for 'n', 0 for anything else. */
 static unsigned field_size(char c)
 {
-    return c == 'b' || c == 'w' ? 2u : c == 'l' ? 4u : 0u;
+    return c == 'b' || c == 'w' ? 2u : c == 'l' || c == 'e' ? 4u : c == 'n' ? 1u : 0u;
+}
+
+/* The arcade bytes the field is made from: 2 for 'b', 'w' and 'n', 4 for 'l', 1 for 'e'. */
+static unsigned source_size(char c)
+{
+    return c == 'b' || c == 'w' || c == 'n' ? 2u : c == 'l' ? 4u : c == 'e' ? 1u : 0u;
 }
 
 /* The layout is well formed and, repeated, ends exactly at the end of size bytes. */
@@ -103,19 +121,41 @@ static int layout_ok(const char *units, unsigned size)
     return at == size;
 }
 
+/* The arcade bytes a well formed layout reads for size PS1 bytes. */
+static size_t layout_source(const char *units, unsigned size)
+{
+    size_t i = 0, n = strlen(units), used = 0;
+    unsigned at = 0;
+    for (; at < size; i = (i + 1) % n) {
+        at += field_size(units[i]);
+        used += source_size(units[i]);
+    }
+    return used;
+}
+
 int arcade_piece_build(const unsigned char *program, size_t program_size, const struct arcade_piece *p, unsigned char *out)
 {
-    size_t i = 0, n;
+    size_t i = 0, n, from = 0;
     unsigned at = 0, k, w;
     const unsigned char *src;
     if (!program || !p || !out || (p->size & 1u) || (p->source & 1u) || !layout_ok(p->units, p->size)) return -1;
-    if (p->source > program_size || p->size > program_size - p->source) return -1;
+    if (p->source > program_size || layout_source(p->units, p->size) > program_size - p->source) return -1;
     n = strlen(p->units);
     src = program + p->source;
     while (at < p->size) {
-        w = field_size(p->units[i]);
-        for (k = 0; k < w; k++) out[at + k] = p->units[i] == 'b' ? src[at + k] : src[at + w - 1u - k];
+        char c = p->units[i];
+        w = field_size(c);
+        if (c == 'n') {   /* a 16-bit arcade value narrowed to a byte: it has to fit */
+            if (src[from]) return -1;
+            out[at] = src[from + 1];
+        } else if (c == 'e') {   /* a byte widened to a 32-bit value, little-endian */
+            out[at] = src[from];
+            out[at + 1] = out[at + 2] = out[at + 3] = 0;
+        } else {
+            for (k = 0; k < w; k++) out[at + k] = c == 'b' ? src[from + k] : src[from + w - 1u - k];
+        }
         at += w;
+        from += source_size(c);
         i = (i + 1) % n;
     }
     return 0;
