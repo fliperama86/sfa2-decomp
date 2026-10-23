@@ -101,9 +101,11 @@ test_settings = ["port/src/settings.c", "port/src/settings.h", "port/src/main.c"
 test_video = ["port/src/video.h", "port/src/gpu.c", "port/psyz.patch", "port/tools/video_test.c", "port/tools/video_gpu_test.c", "port/tools/video_bridge_test.c"]
 
 test_ui_layout = ["port/src/ui_layout.h", "port/src/video.h", "port/src/gpu.c", "port/src/gpu.h", "port/tools/ui_layout_test.c", "port/tools/ui_layout_seam_test.c", "port/tools/ui_layout_gpu_test.c"]
+test_arcade_zip = ["port/arcade/zip.c", "port/arcade/zip.h", "port/arcade/tests/zip_test.c"]
+test_arcade_rom = ["port/arcade/rom.c", "port/arcade/rom.h", "port/arcade/program.c", "port/arcade/program.h", "port/arcade/zip.c", "port/arcade/zip.h", "port/src/sha256.c", "port/arcade/tests/rom_test.c", "port/intro/import_scene.py"]
 
 # Files of the port whose check is the build of the PC program alone (`native-build`, which every change of the port that
 # is not a control file gets): no control file reads the tree's own copy of them. The overrides have their own checks
 # besides (the differential test of each, selected elsewhere in review.py).
 [build]
-only = ["port/overrides/", "port/sweep_rows.toml"]
+only = ["port/overrides/", "port/sweep_rows.toml", "port/src/arcade.c", "port/src/arcade.h"]   # arcade.c: also the private --arcade-check run (port/arcade/README.md)

@@ -825,6 +825,21 @@ int port_intro_configure(int enabled,const char *path,char *err,size_t size)
     return 0;
 }
 int port_intro_program(const char *name) { (void)name; return 0; }
+#include "arcade.h"
+/* The arcade loader is outside this launch fixture too (port/tools/test_arcade_*.py): the disabled path only. */
+int port_arcade_configure(int enabled,const char *path,char *err,size_t size)
+{
+    (void)path;
+    if (enabled) {
+        if (err && size) snprintf(err,size,"arcade assets are outside the launch fixture");
+        return -1;
+    }
+    return 0;
+}
+int port_arcade_enabled(void) { return 0; }
+void port_arcade_missing(char *line,size_t size) { snprintf(line,size,"arcade assets are outside the launch fixture"); }
+unsigned port_arcade_program(unsigned char *ram,int check) { (void)ram;(void)check;return 0; }
+int port_arcade_attach(struct port_disc *d,char *err,size_t size) { (void)d;(void)err;(void)size;return 0; }
 int test_presents;
 void port_gpu_present(void) { test_presents++; }
 int port_gpu_set_video_options(int ui,int arcade) { (void)ui;(void)arcade;return 0; }

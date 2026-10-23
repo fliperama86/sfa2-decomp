@@ -6,6 +6,10 @@ arcade intro (in a build without PsyZ the graphics options stay off). See [graph
 pixel-grid sampling, the independently optional arcade canvas, WIP common-UI
 centering and scoped checks.
 
+The opt-in [arcade assets](arcade/README.md) loader (2026-10-23, work in
+progress) builds what the game reads from the user's arcade set, so that in
+the end no PS1 disc is needed; for now the disc gives what it cannot build.
+
 The opt-in [complete native arcade intro](intro/README.md) runs in the normal
 Windows executable, using imported CPS2 artwork/tables and the PS1-disc
 soundtrack. It stays default off; exact QSound audio and the rest of attract

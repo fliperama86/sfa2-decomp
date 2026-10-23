@@ -1,0 +1,131 @@
+# Arcade assets
+
+The loader that builds what the game reads from the user's arcade set
+(MAME's `sfa2u`), so that in the end the port needs no PS1 disc. Setting
+`[experimental] arcade_assets`, default off; `--arcade-assets` and
+`--ps1-assets` override it, and `--arcade-rom FILE` names the set
+(`sfa2u.zip` by default). Nothing under `ps1/` changes, and no byte of
+either game enters Git: the source holds addresses, sizes and layouts.
+
+**State, 2026-10-23: the loader opens and checks the arcade set and builds
+48 tables of the PS1 program's data from it (18,046 of 90,088 bytes). The
+disc gives everything else. Without a disc the program stops with what it
+cannot build yet.**
+
+## The owner's direction
+
+On 2026-10-23, after the comparison below: "The ps1 code isn't going
+anywhere. We need the ports to maps and use the cps2 assets and
+reimplement what is missing", then "you may start by writing the loader
+targeting the arcade rom and work your way through the files it expects".
+The owner does not need the PS1's own menus, modes or movies for now.
+
+So the game's C stays the PS1's. What it reads (its program's data and the
+files of the disc) is built from the arcade set where the arcade has it,
+and what the arcade lacks is written anew. No code of either game is run
+or interpreted.
+
+## How it works
+
+```
+port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip DISC   # arcade pieces over the disc
+port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip        # stops: what the arcade set cannot give yet
+port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC   # compare, then end
+```
+
+- `zip.c` reads the archive (its own inflate; no library). `rom.c` puts the
+  members together into four views (the 68000 program, the graphics as the
+  video chip reads them, the QSound samples and the Z80's program) and
+  checks each view's SHA-256 against the examined set's. Nothing is
+  decrypted: the loader reads data, never the program's encrypted opcodes.
+- `program.c` has the pieces of the PS1 program's data that the arcade
+  program holds: for each, the PS1 address, the size, the arcade address
+  and the layout (bytes as they are, or 16-bit values whose two bytes turn
+  from big-endian to little-endian). After the program is loaded from the
+  disc, the runtime (`port/src/arcade.c`) writes each piece over it.
+- With a disc, the first read of each disc file prints
+  `arcade: NAME from the disc: no arcade source yet`. Played through, those
+  lines are the list of files the loader has still to build, in the order
+  the game wants them.
+- `--arcade-check` builds every piece and compares it with what the disc
+  gave at its place, prints each one that differs, and ends (status 1 if
+  any differs).
+
+## What the game reads, in order
+
+A run of 150 seconds on 2026-10-23 (title, menus, a fight of Ryu against
+Dhalsim, the continue screen, the opening) printed these first reads, in
+this order: the stand-alone logo program and its movie (`logo.exe`,
+`capcom.bin`, `capcom.str`); `firstsnd.pac`, `ascii.pac`, `demo.pac`,
+`selecta.pac` and a stream `zero203.xa` (title and menus); `game_snd.pac`,
+the stage `stage0f.pac`, the two fighters `pl00.pac` and `pl0fx.pac`, the
+streams `zero206.xa` and `zero201.xa` (the fight); `cdemo0f.pac`,
+`ndemo0f.pac`, `cont00x.pac` and `zero204.xa` (after it); the opening
+program and movie (`z2o.exe`, `z2o.str`). Other modes, stages and fighters
+read other files of the same kinds. The movies and the stand-alone
+programs are the PS1's own; the arcade's opening runs in real time behind
+`arcade_intro`.
+
+The data of the PS1 program is the first thing the game needs: 90,088 bytes
+between the end of its last function (`0x8016d91c`) and its last byte that
+is not zero (`0x80183903`); the rest of the image is zeros. Its code is not
+needed: the C runs instead.
+
+## What the two versions share
+
+Measured on 2026-10-23 with the user's disc and arcade set, with throwaway
+scripts (nothing of it is in the tree):
+
+- **Sprites.** The PS1 keeps each character's art as compressed 16x16
+  tiles (read by `decode_compressed_block`). Every tile of Ryu's (4,199)
+  and Dhalsim's (5,562) files, decoded, is a tile of the arcade graphics,
+  with the color index one higher (the arcade's index 15, transparent, is
+  the PS1's 0).
+- **Tables.** The attack boxes of a character's module are the arcade's
+  records, the same values in the same layout, with 16-bit fields in the
+  other byte order. In the program's data, 48 runs of 32 bytes or more agree
+  with the arcade program in that way (the pieces of `program.c`). The
+  animation records do not: the PS1's steps are 12 bytes where the arcade's
+  are 16 (`port/intro/sequence-contract.md`), and its frames point at its
+  own copy of the art.
+- **Samples.** One of the 12 voice samples of Ryu's sound bank is the
+  arcade's (correlation 0.976 after resampling from about 24 kHz to
+  22.05 kHz). The other 11 were not settled by that test.
+- **Sound.** There is no arcade sound driver in the port yet: the arcade
+  intro plays the PS1 disc's recorded opening music (`port/intro/audio.c`).
+
+## How the pieces were found, and their limits
+
+The PS1 program's data was compared with the arcade program in 2-byte
+units, each equal either as it is or with its two bytes turned. Runs of at
+least 32 bytes, with at least 16 that are not zero, became pieces. Each
+piece's layout is what its own bytes show; a unit whose two bytes are the
+same either way takes the layout of the rest. So:
+
+- A piece is equal to the disc's bytes by construction; `--arcade-check`
+  shows that the table, the archive reader and the layouts agree, not that
+  each piece is the arcade's table of the same meaning.
+- Most pieces are whole tables or long runs at a steady stride; a few short
+  ones were found by value alone. What each table means is not read yet.
+- Data that holds addresses (pointers) does not agree in this way and is not
+  a piece. Neither are the PS1's own tables.
+
+## Checks
+
+- `python3 port/tools/test_arcade_zip.py`: the archive reader and inflate,
+  on synthetic archives (stored, every deflate kind, malformed ones).
+- `python3 port/tools/test_arcade_rom.py`: the four views from a made-up
+  set with the real member names and sizes, against a reference built from
+  `port/intro/import_scene.py`'s layout; the digests refuse it; the piece
+  builder's layouts and bounds and the table's order.
+- With the private inputs: `--arcade-check` with the disc and the set. On
+  2026-10-23: 48 pieces, 18,046 bytes, none differs, in 0.2 seconds with
+  the set's reading and digests; with one piece's layout changed by hand the
+  check names that piece and ends with status 1.
+
+## Next
+
+The rest of the program's data (pointers, the PS1's own tables), then the
+files in the order the game reads them: the sprite files first, whose art
+the arcade has entire, with their animation records rebuilt from the
+arcade's.

@@ -63,6 +63,10 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             volume([], 0, 'arcade_intro = false')
             volume(['--arcade-intro'], 0, 'arcade_intro = true')
             volume(['--arcade-intro','--ps1-intro'], 0, 'arcade_intro = false')
+            volume([], 0, 'arcade_assets = false')
+            volume(['--arcade-assets'], 0, 'arcade_assets = true')
+            volume(['--arcade-assets', '--ps1-assets'], 0, 'arcade_assets = false')
+            volume(['--arcade-rom'], 2)
             volume(['--intro-data'], 2)
             volume(['--intro-data',''], 2)
             volume([], 0, 'sharp_bilinear = false')
@@ -114,7 +118,7 @@ int main(int argc,char **argv)''' + prefix + '\nreturn 2;\n}\n'
             shown = subprocess.run([str(psyz), '--no-audio', '--show-settings'], cwd=empty, capture_output=True, text=True, timeout=3)
             self.assertEqual(shown.returncode, 0, shown.stdout + shown.stderr)
             for line in ('pixel_perfect_ui = true', 'arcade_video = true', 'center_ui = true', 'fast_loads = true', 'memory_card = true',
-                         'sharp_bilinear = true', 'arcade_intro = false'):
+                         'sharp_bilinear = true', 'arcade_intro = false', 'arcade_assets = false'):
                 self.assertIn(line, shown.stdout.splitlines())
             config.write_text('[experimental]\narcade_video = typo\n')
             run([], 2)

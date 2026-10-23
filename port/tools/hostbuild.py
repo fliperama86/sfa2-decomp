@@ -29,7 +29,7 @@ With `--linux` the tool builds the program for 32-bit x86 Linux (`port/linux/REA
 program: the same units, names, tables and checks, with the system's `gcc` and `-m32` (`--cc` defaults to `gcc`, the
 build folder to `port/build/linux`, the output to `sfa2`). Every compiler and assembler run takes `-m32 -maccumulate-outgoing-args` (the second keeps
 the argument passing of the Windows build, see LINUX_TARGET_FLAGS); the runtime's
-files (`RUNTIME/*.c`, the intro's, `port_tables.c`) also take `-fno-pie -D_GNU_SOURCE -pthread`. There is no `.hole`
+files (`RUNTIME/*.c`, the intro's, the arcade loader's, `port_tables.c`) also take `-fno-pie -D_GNU_SOURCE -pthread`. There is no `.hole`
 object: the program is an ELF image that the kernel loads at its own addresses, and the runtime maps the console's
 copy of RAM itself. `--linux` together with `--guest` is refused (status 2). Without `--linux` every command line is
 the one of the Windows program.
@@ -2024,7 +2024,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
     runtime: Path = args.runtime
     if not (runtime / "port_tables.h").is_file():
         raise Problem(f"{runtime / 'port_tables.h'} does not exist")
-    runtime_sources = sorted(runtime.glob("*.c")) + sorted((runtime.parent / "intro").glob("*.c"))
+    runtime_sources = sorted(runtime.glob("*.c")) + sorted((runtime.parent / "intro").glob("*.c")) + sorted((runtime.parent / "arcade").glob("*.c"))
     sweep_entries = read_sweep_rows(args.sweep_rows)
     inventory = read_inventory(config_path.parent.parent / "inventory", config)
     image_archives = read_image_archives(config_path.parent.parent / "inventory", config)

@@ -53,6 +53,7 @@
 #include "modules.h"
 #include "settings.h"
 #include "intro.h"
+#include "arcade.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -203,8 +204,9 @@ int main(int argc, char **argv)
     int audio_device = PORT_AUDIO_DEFAULT;
     const char *input_path = NULL;
     const char *settings_path = "settings.ini";
-    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1,sharp_override=-1,intro_override=-1;
+    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1,sharp_override=-1,intro_override=-1,assets_override=-1,arcade_check=0;
     const char *intro_path="intro.dat";
+    const char *arcade_path="sfa2u.zip";   /* --arcade-rom FILE: the arcade set of the setting arcade_assets */
     const char *card1_path = "card1.mcr", *card2_path = NULL;   /* --card1, --card2: the card files of the setting memory_card */
     int volume = 100;   /* --volume PERCENT: the gain of the audio device's output */
     int list = 0, trace = 0, bad = 0, no_interrupt = 0, burst = 0, i;
@@ -228,6 +230,10 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--arcade-intro") == 0) intro_override=1;
         else if (strcmp(argv[i], "--ps1-intro") == 0) intro_override=0;
         else if (strcmp(argv[i], "--intro-data") == 0 && i+1<argc && argv[i+1][0]) intro_path=argv[++i];
+        else if (strcmp(argv[i], "--arcade-assets") == 0) assets_override=1;
+        else if (strcmp(argv[i], "--ps1-assets") == 0) assets_override=0;
+        else if (strcmp(argv[i], "--arcade-rom") == 0 && i+1<argc && argv[i+1][0]) arcade_path=argv[++i];
+        else if (strcmp(argv[i], "--arcade-check") == 0) arcade_check=1;
         else if (strcmp(argv[i], "--pixel-perfect-ui") == 0) ui_override=1;
         else if (strcmp(argv[i], "--ps1-rendering") == 0) ui_override=0;
         else if (strcmp(argv[i], "--center-ui") == 0) center_override=1;
@@ -275,6 +281,7 @@ int main(int argc, char **argv)
         if(card_override>=0)port_settings.memory_card=card_override;
         if(sharp_override>=0)port_settings.sharp_bilinear=sharp_override;
         if(intro_override>=0)port_settings.arcade_intro=intro_override;
+        if(assets_override>=0)port_settings.arcade_assets=assets_override;
         if(show_settings) {
             if(disc_path || list)return refuse("--show-settings takes no disc or --list-library");
             printf("[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = %s\n",
@@ -283,6 +290,7 @@ int main(int argc, char **argv)
             printf("memory_card = %s\n", port_settings.memory_card?"true":"false");
             printf("sharp_bilinear = %s\n", port_settings.sharp_bilinear?"true":"false");
             printf("arcade_intro = %s\n", port_settings.arcade_intro?"true":"false");
+            printf("arcade_assets = %s\n", port_settings.arcade_assets?"true":"false");
             printf("volume = %d\n", volume);
             return 0;
         }
@@ -291,12 +299,20 @@ int main(int argc, char **argv)
         if (port_library_list(err, sizeof err) != 0) return refuse(err);
         return 0;
     }
-    if (bad || list || !disc_path) {
-        printf("usage: %s [--settings FILE] [--arcade-intro --intro-data FILE] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] [--card1 FILE] [--card2 FILE] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
+    if (!bad && !list && !disc_path && port_settings.arcade_assets) {
+        /* Without a disc the arcade set must give everything; the loader says what it cannot give yet. */
+        char line[PORT_ERR];
+        if(port_arcade_configure(1,arcade_path,err,sizeof err))return refuse(err);
+        port_arcade_missing(line, sizeof line);
+        return refuse(line);
+    }
+    if (bad || list || !disc_path || (arcade_check && !port_settings.arcade_assets)) {
+        printf("usage: %s [--settings FILE] [--arcade-intro --intro-data FILE] [--arcade-assets --arcade-rom FILE [--arcade-check]] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] [--card1 FILE] [--card2 FILE] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
         fflush(stdout);
         return 2;
     }
     if(port_intro_configure(port_settings.arcade_intro,intro_path,err,sizeof err))return refuse(err);
+    if(port_arcade_configure(port_settings.arcade_assets,arcade_path,err,sizeof err))return refuse(err);
     if(port_gpu_set_video_options(port_settings.pixel_perfect_ui,port_settings.arcade_video) ||
        port_gpu_set_ui_layout(port_settings.center_ui) ||
        port_gpu_set_sharp_bilinear(port_settings.sharp_bilinear))
@@ -334,9 +350,12 @@ int main(int argc, char **argv)
     printf("program: %s at sector %u, %u bytes to 0x%08x, entry 0x%08x\n", prog.name, prog.sector, prog.t_size, prog.t_addr, prog.pc0);
     printf("identity: SHA-256 matches the build's baseline\n");
     fflush(stdout);
+    if (arcade_check) return port_arcade_program(ram, 1) ? 1 : 0;
+    port_arcade_program(ram, 0);
 
     port_disc_handle = &disc;
     if (port_cd_init(&disc) != 0) return refuse("the disc layer cannot start");
+    if (port_arcade_attach(&disc, err, sizeof err) != 0) return refuse(err);
     port_cd_set_fast_waits(port_settings.fast_loads);
     port_gpu_set_batched_uploads(port_settings.fast_loads);
     if (port_card_configure(port_settings.memory_card, card1_path, card2_path, err, sizeof err) != 0) return refuse(err);

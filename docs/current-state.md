@@ -26,6 +26,12 @@ returns to the game. It is ready for owner testing, not yet accepted or merged;
 the flag stays default off. See the
 [runtime evidence and fidelity limits](records/2026-10-14-intro-full-runtime.md).
 
+By the owner's direction of 2026-10-23 the port is to need no PS1 disc: the
+game's C stays, and what it reads is built from the user's arcade set where
+the arcade has it, or written anew. The loader has begun behind the default-off
+setting `arcade_assets`: it builds 18,046 of the 90,088 bytes of the PS1
+program's data; the disc gives the rest ([arcade assets](../port/arcade/README.md)).
+
 ## Source of truth
 
 - Scope and acceptance: [requirements](requirements.md), [plan](../PLAN.md).
