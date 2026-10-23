@@ -13,6 +13,12 @@
 
 #include "guest.h"
 
+/* The native Linux program (port/linux/README.md): a 32-bit x86 process, like the Windows program. A 64-bit build on Linux (the
+ * controls that compile a runtime file with the machine's own compiler) is not it and gets the files' other branches. */
+#if defined(__linux__) && defined(__i386__) && !defined(PORT_GUEST_VM)
+#define PORT_LINUX 1
+#endif
+
 #define PORT_RAM_BASE   0x80000000u
 #define PORT_RAM_SIZE   0x00200000u
 #define PORT_SCRATCH    0x1f800000u
@@ -240,9 +246,29 @@ void port_interrupt_start(int burst);
 void port_suspenders_init(void);   /* once, from the game's thread, before any thread that suspends it exists */
 void port_suspenders_stop(void);
 void port_suspenders_check_closed(void);   /* before each ExitProcess, after the stop: with --timer-burst, ends with a line if the gate is still open */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(PORT_LINUX)
 int  port_suspenders_enter(void);
 void port_suspenders_leave(void);
+#endif
+
+#ifdef PORT_LINUX
+/* memory.c (Linux): the console's copy of RAM is mapped from here to 0x200000, the same pages as the RAM's own; below it the system
+ * maps nothing (vm.mmap_min_addr) and mirror.c serves the game's accesses as faults. */
+#define PORT_MIRROR_LOW 0x10000u
+/* The real-time signals that interrupt the game's thread (they need <signal.h>): the vblank's timer (interrupt.c) and the watchdog
+ * (debug.c). Both are blocked while main.c's fault handler runs. */
+#define PORT_SIG_VBLANK (SIGRTMIN)
+#define PORT_SIG_WATCH  (SIGRTMIN + 1)
+/* main.c (Linux): the one handler of SIGSEGV and SIGBUS hands every fault to the layers added here, in the order they were added;
+ * the first that returns 1 has served it and the program resumes with the context as that layer left it. `context` is the signal's
+ * ucontext_t; kind 0 read, 1 write, 8 execute (a Windows access violation's numbers); addr the address accessed; ip the faulting
+ * instruction's. A fault that no layer serves prints main.c's crash line and ends the program. -1 when the table is full. */
+typedef int (*port_fault_layer)(void *context, unsigned kind, unsigned addr, unsigned ip);
+int port_fault_add(port_fault_layer layer);
+/* main.c (Linux): end the program at once with `status`, running no exit handler: the Windows program's ExitProcess. */
+void port_exit_now(int status);
+/* threads.c (Linux): the address just above the stack of the task that runs now (memory.c's port_game_span). */
+unsigned long port_stack_top(void);
 #endif
 
 /* mirror.c: serve the PS1's copy of RAM below 0x200000 (see the file); main.c calls port_mirror_init before the game starts. */

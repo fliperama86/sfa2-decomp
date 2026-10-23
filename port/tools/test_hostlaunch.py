@@ -2,6 +2,7 @@
 """Controls for the runtime's launch path: the whole program, run for real.
 
     python3 test_hostlaunch.py --cc CROSS_CC [--run PREFIX]
+    python3 test_hostlaunch.py --linux [--cc gcc]
 
 The test builds the runtime (every port/src/*.c) with the cross compiler CC
 and small made-up tables of its own (a handful of functions, some with C that
@@ -43,6 +44,12 @@ start. Cases (expected values are worked out here from the fixtures):
   delivered inside it); Exec of a program of the disc ends the run with its name
   and sector, or with --skip-programs prints a line and returns; CdGetSector into
   an address outside the RAM ends the run before a byte is copied;
+
+With --linux (cc then defaults to gcc) the same cases run for the native Linux program (port/linux/README.md): every compile takes
+hostbuild's LINUX_TARGET_FLAGS (the runtime's and the test's C also LINUX_RUNTIME_FLAGS), the link takes LINUX_LINK_FLAGS, there
+is no filler object and no `_` before a symbol, the test's C gets a small `windows.h` of its own (GetTickCount, Sleep,
+GetCurrentThreadId) and a program is started directly. Cases that are about the Windows image (the header page, the filler
+section, the old link) say `not on Linux`. Without --linux nothing differs from before.
 
 PREFIX is a command prefix to start the Windows program (for example a
 compatibility layer); without it the program is started directly (on Windows,
@@ -780,7 +787,7 @@ VARIANTS = {
                            domains('{ "lib_a", (void *)host_a, 0 }, { "@0x%08x", (void *)host_c, 0 },' % LIB_A)),
     "unknown": Variant("unknown", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "lib_a", (void *)host_a, 0 }, { "no_such_function", (void *)host_c, 0 },')),
     "unknown-address": Variant("unknown-address", GAME_MECH, FUN_MECH, ABS_MECH, domains('{ "@0x80100999", (void *)host_c, 0 },')),
-    "over-unknown": Variant("over-unknown", GAME_MECH, FUN_MECH, ABS_MECH, domains("", '{ "lib_a", (void *)over_host, "a library function has no C to replace" },')),
+    "over-unknown": Variant("over-unknown", GAME_MECH, FUN_MECH, ABS_MECH, domains("", '{ "lib_a", (void *)over_host, "a library function has no C to replace", 0 },')),
     "crash": Variant("crash", GAME_CRASH, FUN_CRASH, ABS_BASE, DOMAINS_NONE),
     "tgt-unreg": Variant("tgt-unreg", game_targets(UNREGISTERED), FUN_TARGET, ABS_KERN, kernel_domains()),
     "tgt-absent": Variant("tgt-absent", game_targets(ENTRY_ABSENT), FUN_TARGET, ABS_KERN, kernel_domains()),
@@ -836,10 +843,79 @@ void port_press_report(const char *program) { (void)program; }
 """
 
 
+SHIM_WINDOWS_H = """#ifndef TEST_WINDOWS_H
+#define TEST_WINDOWS_H
+/* what the test's C takes from <windows.h>, for the Linux program */
+#include <errno.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <time.h>
+#include <unistd.h>
+typedef unsigned int DWORD;
+typedef union { long long QuadPart; } LARGE_INTEGER;
+#define PAGE_NOACCESS 1
+#define WINAPI
+static inline DWORD GetLastError(void) { return (DWORD)errno; }
+/* the protection of the page at `address` as the system's map of this process says it, in Windows' numbers: no access 1, read 2, read and
+ * write 4, read and execute 0x20, all three 0x40 */
+typedef struct { DWORD Protect; size_t RegionSize; } MEMORY_BASIC_INFORMATION;
+static inline size_t VirtualQuery(const void *address, MEMORY_BASIC_INFORMATION *info, size_t size)
+{
+    FILE *f = fopen("/proc/self/maps", "r");
+    char line[512], perms[8];
+    unsigned long lo, hi;
+    (void)size;
+    info->Protect = 0; info->RegionSize = 0;
+    while (f && fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%lx-%lx %7s", &lo, &hi, perms) != 3 || (unsigned long)address < lo || (unsigned long)address >= hi) continue;
+        info->RegionSize = hi - (unsigned long)address;
+        info->Protect = perms[0] == 'r' && perms[1] == 'w' && perms[2] == 'x' ? 0x40 : perms[0] == 'r' && perms[1] == 'w' ? 4
+                        : perms[0] == 'r' && perms[2] == 'x' ? 0x20 : perms[0] == 'r' ? 2 : 1;
+        break;
+    }
+    if (f) fclose(f);
+    return info->RegionSize ? sizeof *info : 0;
+}
+typedef void *LPVOID;
+typedef void *HANDLE;
+typedef DWORD (*LPTHREAD_START_ROUTINE)(LPVOID);
+struct test_thread { pthread_t id; LPTHREAD_START_ROUTINE fn; LPVOID arg; };
+static void *test_thread_main(void *p) { struct test_thread *t = (struct test_thread *)p; t->fn(t->arg); return 0; }
+static inline HANDLE CreateThread(void *attributes, size_t stack, LPTHREAD_START_ROUTINE fn, LPVOID arg, DWORD flags, DWORD *id)
+{
+    struct test_thread *t = (struct test_thread *)malloc(sizeof *t);
+    (void)attributes; (void)stack; (void)flags; (void)id;
+    t->fn = fn; t->arg = arg;
+    return pthread_create(&t->id, 0, test_thread_main, t) == 0 ? t : 0;
+}
+static inline DWORD WaitForSingleObject(HANDLE h, DWORD ms)
+{
+    struct test_thread *t = (struct test_thread *)h;
+    struct timespec until;
+    clock_gettime(CLOCK_REALTIME, &until);
+    until.tv_sec += ms / 1000; until.tv_nsec += (long)(ms % 1000) * 1000000l;
+    if (until.tv_nsec >= 1000000000l) { until.tv_sec++; until.tv_nsec -= 1000000000l; }
+    return pthread_timedjoin_np(t->id, 0, &until) == 0 ? 0 : 0x102;
+}
+static inline int QueryPerformanceFrequency(LARGE_INTEGER *f) { f->QuadPart = 1000000000ll; return 1; }
+static inline int QueryPerformanceCounter(LARGE_INTEGER *c) { struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t); c->QuadPart = t.tv_sec * 1000000000ll + t.tv_nsec; return 1; }
+static inline int VirtualProtect(void *address, size_t size, DWORD protection, DWORD *old) { *old = 0; return mprotect(address, size, protection == PAGE_NOACCESS ? PROT_NONE : PROT_READ | PROT_WRITE) == 0; }
+static inline DWORD GetTickCount(void) { struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t); return (DWORD)(t.tv_sec * 1000u + t.tv_nsec / 1000000u); }
+static inline void Sleep(DWORD ms) { usleep(ms * 1000u); }
+static inline DWORD GetCurrentThreadId(void) { return (DWORD)(size_t)pthread_self(); }
+#endif
+"""
+
+
 class Rig:
-    def __init__(self, cc: str, prefix: list[str], work: Path):
-        self.cc, self.prefix, self.work = cc, prefix, work
-        self.wsl = not prefix and shutil.which("wslpath") is not None
+    def __init__(self, cc: str, prefix: list[str], work: Path, linux: bool = False):
+        self.cc, self.prefix, self.work, self.linux = cc, prefix, work, linux
+        self.us = "" if linux else "_"        # what the target puts before a C name
+        self.cflags = list(hb.LINUX_TARGET_FLAGS) if linux else []     # on every compile and link
+        self.lflags = list(hb.LINUX_LINK_FLAGS) if linux else LINK_FLAGS
+        self.wsl = not linux and not prefix and shutil.which("wslpath") is not None
         self.built: dict[str, Path] = {}
         self.objects: list[Path] = []
         self.hole: Path | None = None
@@ -883,18 +959,35 @@ class Rig:
 
     def compile(self, source: Path, extra: list[str] | None = None) -> Path:
         obj = self.work / (source.stem + ("-rt" if source.parent == SRC else "") + ".o")
-        proc = subprocess.run([self.cc, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(SRC), "-c", str(source), "-o", str(obj), *(extra or [])],
+        more = list(self.cflags)
+        if self.linux:
+            more += hb.LINUX_RUNTIME_FLAGS
+            if source.parent != SRC:
+                more += ["-I", str(self.shim())]
+        proc = subprocess.run([self.cc, *more, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(SRC), "-c", str(source), "-o", str(obj), *(extra or [])],
                               capture_output=True, text=True, timeout=300)
         if proc.returncode != 0:
             raise RuntimeError(f"{source.name} did not build:\n" + proc.stderr.strip())
         return obj
 
+    def shim(self) -> Path:
+        """The folder with the test's `windows.h` for the Linux program."""
+        folder = self.work / "shim"
+        folder.mkdir(exist_ok=True)
+        (folder / "windows.h").write_text(SHIM_WINDOWS_H)
+        return folder
+
+    def build_probe(self, source: Path, out: Path) -> subprocess.CompletedProcess:
+        """Build a small program of the test's own (not the runtime) with the target's flags."""
+        extra = [*hb.LINUX_RUNTIME_FLAGS, "-I", str(self.shim())] if self.linux else []
+        return subprocess.run([self.cc, *self.cflags, *extra, "-o", str(out), str(source), *(self.lflags if self.linux else [])], capture_output=True, text=True, timeout=120)
+
     def start_check(self) -> str | None:
-        """None when a Windows program can be started, else the reason."""
+        """None when a program can be started, else the reason."""
         probe = self.work / "probe.c"
         probe.write_text("int main(void) { return 7; }\n")
         out = self.work / "probe.exe"
-        proc = subprocess.run([self.cc, "-o", str(out), str(probe)], capture_output=True, text=True, timeout=120)
+        proc = self.build_probe(probe, out)
         if proc.returncode != 0:
             return "the compiler cannot build a program: " + (proc.stderr.strip().splitlines() or ["?"])[0]
         try:
@@ -902,6 +995,10 @@ class Rig:
         except (OSError, subprocess.TimeoutExpired) as err:
             return f"cannot start a Windows program: {err}"
         return None if ran.returncode == 7 else f"cannot start a Windows program (status {ran.returncode})"
+
+    def write_game(self, path: Path, tag: str, text: str) -> None:
+        """Write a made-up C file; for the Linux program the markers' symbols have no underscore."""
+        path.write_text(text if not self.linux else text.replace("_port_game_text", "port_game_text"))
 
     def runtime_objects(self) -> list[Path]:
         if not self.objects:
@@ -931,17 +1028,20 @@ class Rig:
         key = f"{variant}-{hashlib.sha256(pin).hexdigest()[:8]}" + ("-old" if old_link else "")
         if key not in self.built:
             objs = list(self.runtime_objects())
-            if not old_link:
+            if self.linux and old_link:
+                raise RuntimeError("there is no old link on Linux")
+            if not old_link and not self.linux:
                 objs.append(self.filler())
             for tag, text in (("tables", tables_c(v.functions, v.absents, pin, v.flagged)), ("domains", v.domains_c), ("mbegin", MARK_BEGIN), ("game", v.game), ("mend", MARK_END)):
                 path = self.work / f"{key}-{tag}.c"
-                path.write_text(text)
+                self.write_game(path, tag, text)
                 objs.append(self.compile(path, ["-Wno-unused-function"] if tag == "game" else None))
             names = {n: a for n, a, _ in v.absents} | {n: a for n, a, _ in v.functions}
-            defs = [f"-Wl,--defsym,_ps1_{n}=0x{a:08x}" for n, a in names.items()]
+            defs = [f"-Wl,--defsym,{self.us}ps1_{n}=0x{a:08x}" for n, a in names.items()]
             out = self.work / f"sfa2-{key}.exe"
-            flags = [f for f in LINK_FLAGS if f not in hb.IMAGE_FLAGS] if old_link else LINK_FLAGS
-            proc = subprocess.run([self.cc, "-o", str(out), *map(str, objs), *flags, *defs, *self.libs], capture_output=True, text=True, timeout=300)
+            flags = [f for f in self.lflags if f not in hb.IMAGE_FLAGS] if old_link else self.lflags
+            proc = subprocess.run([self.cc, *self.cflags, "-o", str(out), *map(str, objs), *flags, *defs, *self.libs, *(["-lm"] if self.linux else [])],
+                                  capture_output=True, text=True, timeout=300)
             if proc.returncode != 0:
                 raise RuntimeError("the runtime did not link:\n" + proc.stderr.strip())
             self.built[key] = out
@@ -1006,7 +1106,7 @@ def rig_diagnostic_cases(rig: Rig):
     probe.write_text('#include <stdio.h>\n#include <windows.h>\nint main(int argc, char **argv) { fputs("to stderr\\n", stderr); puts("to stdout"); fflush(stdout); fflush(stderr);'
                      ' if (argc > 1) Sleep(3000); return 5; }\n')
     diag = rig.work / "diag.exe"
-    built = subprocess.run([rig.cc, "-o", str(diag), str(probe)], capture_output=True, text=True, timeout=120)
+    built = rig.build_probe(probe, diag)
     if built.returncode != 0:
         yield "the-rig-records-status-stdout-and-stderr-of-the-last-run", "the probe did not build: " + built.stderr.strip()
     else:
@@ -1282,16 +1382,21 @@ def cases(rig: Rig):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--cc", required=True)
+    parser.add_argument("--cc", default=None)
+    parser.add_argument("--linux", action="store_true", help="run for the native Linux program (cc defaults to gcc)")
     parser.add_argument("--run", default="", help="command prefix that starts a Windows program")
     args = parser.parse_args()
+    if args.cc is None:
+        if not args.linux:
+            parser.error("--cc is required without --linux")
+        args.cc = "gcc"
     if not shutil.which(args.cc):
         print(f"the cross compiler {args.cc} is missing; these controls need it")
         return 2
     BUILD.mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="hostlaunch-", dir=BUILD))
     try:
-        rig = Rig(args.cc, args.run.split(), work)
+        rig = Rig(args.cc, args.run.split(), work, args.linux)
         problem = rig.start_check()
         if problem:
             print(problem)

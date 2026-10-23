@@ -13,7 +13,9 @@ mode are outside this increment. Owner-authorized PR review is pending.
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and
 Linux. **State, 2026-10-13: the game runs from the user's disc image on
 Windows and, natively, on macOS with Apple Silicon. It does not run on
-Linux, and it is not shown to play to its end.** On both it starts the game
+Linux, and it is not shown to play to its end.** **Since 2026-10-23 it runs
+natively on Linux too, as a 32-bit program like the Windows one: see
+[`linux/README.md`](linux/README.md).** On both it starts the game
 from the unchanged C of the game: the logo and opening programs, the title,
 the menus and fights, with the game's own sound and the streamed audio. On
 Windows one scripted run of five minutes went from the title through a first

@@ -61,8 +61,10 @@
 #include "../mac/platform.h"
 #endif
 
+#if defined(_WIN32) || defined(PORT_LINUX)
 #ifdef _WIN32
 #include <windows.h>
+#endif
 /* A fault nobody handles ends the program with one line that says where, instead of the system's dialog. */
 /* The game function whose implementation is the nearest at or below `ip` ("?" if none). */
 const char *port_function_at(size_t ip)
@@ -74,7 +76,9 @@ const char *port_function_at(size_t ip)
     if (best == port_function_count || ip - (size_t)port_functions[best].impl > 0x4000) return "?";
     return port_functions[best].name;
 }
+#endif
 
+#ifdef _WIN32
 static LONG WINAPI crashed(EXCEPTION_POINTERS *p)
 {
     const EXCEPTION_RECORD *r = p->ExceptionRecord;
@@ -94,6 +98,91 @@ static LONG WINAPI crashed(EXCEPTION_POINTERS *p)
     port_suspenders_check_closed();
     ExitProcess(PORT_EXIT_CRASH);
     return EXCEPTION_EXECUTE_HANDLER;
+}
+#elif defined(PORT_LINUX)
+/* Linux (port/linux/README.md): one handler of SIGSEGV and SIGBUS gives each fault to the layers that serve faults (mirror.c,
+ * modules.c), in the order they were added, and prints the Windows program's crash line for a fault that none serves. It runs on an
+ * alternate stack of the game's thread, so that an overflow of a task's stack still gets its line, and with SA_NODEFER, so that a
+ * fault inside a layer's work comes back here (mirror.c ends the program with its second-fault line then). The vblank's and the
+ * watchdog's signals are blocked while it runs. */
+#include <signal.h>
+#include <stdint.h>
+#include <ucontext.h>
+#include <unistd.h>
+
+#define FAULT_LAYERS 4
+#define ALT_STACK 0x10000u
+#define TRAP_PAGE_FAULT 14
+
+static port_fault_layer fault_layers[FAULT_LAYERS];
+static unsigned fault_layer_count;
+
+int port_fault_add(port_fault_layer layer)
+{
+    if (fault_layer_count == FAULT_LAYERS) return -1;
+    fault_layers[fault_layer_count++] = layer;
+    return 0;
+}
+
+void port_exit_now(int status)
+{
+    _exit(status);
+}
+
+static void crash_end(void)
+{
+    fflush(stdout);
+    port_debug_end();
+    port_suspenders_stop();
+    port_suspenders_check_closed();
+    port_exit_now(PORT_EXIT_CRASH);
+}
+
+static void crashed(int sig, siginfo_t *si, void *context)
+{
+    ucontext_t *uc = context;
+    size_t ip = (size_t)uc->uc_mcontext.gregs[REG_EIP];
+    if ((sig == SIGSEGV || sig == SIGBUS) && uc->uc_mcontext.gregs[REG_TRAPNO] == TRAP_PAGE_FAULT) {
+        /* the page fault's error code: bit 4 an instruction fetch, bit 1 a write */
+        unsigned long code = (unsigned long)uc->uc_mcontext.gregs[REG_ERR];
+        unsigned kind = code & 0x10 ? 8 : code & 0x2 ? 1 : 0, where = (unsigned)(uintptr_t)si->si_addr, i;
+        const char *what = kind == 8 ? "execute" : kind ? "write" : "read";
+        for (i = 0; i < fault_layer_count; i++)
+            if (fault_layers[i](context, kind, where, (unsigned)ip)) return;
+        if (where < PORT_RAM_SIZE)
+            printf("stop: crash: the game used the PS1's RAM mirror at 0x%08x (%s) in %s (at 0x%08x)\n", where, what, port_function_at(ip), (unsigned)ip);
+        else
+            printf("stop: crash: access violation (%s 0x%08x) in %s (at 0x%08x)\n", what, where, port_function_at(ip), (unsigned)ip);
+    } else
+        printf("stop: crash: signal %d (trap %d) in %s (at 0x%08x)\n", sig, (int)uc->uc_mcontext.gregs[REG_TRAPNO], port_function_at(ip), (unsigned)ip);
+    crash_end();
+}
+
+static int crash_install(char *err, size_t errsize)
+{
+    static const int sigs[] = { SIGSEGV, SIGBUS, SIGILL, SIGFPE, SIGTRAP };
+    struct sigaction sa;
+    stack_t alt;
+    unsigned i;
+    alt.ss_sp = malloc(ALT_STACK);
+    alt.ss_size = ALT_STACK;
+    alt.ss_flags = 0;
+    if (!alt.ss_sp || sigaltstack(&alt, NULL) != 0) {
+        snprintf(err, errsize, "faults: no alternate stack for the handler");
+        return -1;
+    }
+    memset(&sa, 0, sizeof sa);
+    sa.sa_sigaction = crashed;
+    sa.sa_flags = SA_SIGINFO | SA_ONSTACK | SA_NODEFER;
+    sigemptyset(&sa.sa_mask);
+    sigaddset(&sa.sa_mask, PORT_SIG_VBLANK);
+    sigaddset(&sa.sa_mask, PORT_SIG_WATCH);
+    for (i = 0; i < sizeof sigs / sizeof sigs[0]; i++)
+        if (sigaction(sigs[i], &sa, NULL) != 0) {
+            snprintf(err, errsize, "faults: cannot install the handler of signal %d", sigs[i]);
+            return -1;
+        }
+    return 0;
 }
 #endif
 
@@ -224,6 +313,8 @@ int main(int argc, char **argv)
     atexit(port_debug_end);
 #ifdef _WIN32
     SetUnhandledExceptionFilter(crashed);
+#elif defined(PORT_LINUX)
+    if (crash_install(err, sizeof err) != 0) return refuse(err);
 #endif
     if (port_map(err, sizeof err) != 0) return refuse(err);
 #ifdef PORT_GUEST_VM

@@ -263,6 +263,195 @@ int port_mirror_init(int trace, char *err, size_t errsize)
     return 0;
 }
 
+#elif defined(PORT_LINUX)
+/* Linux (port/linux/README.md): the copy of RAM from PORT_MIRROR_LOW up is mapped (memory.c) and never faults; this layer serves what
+ * lies below it, which the system never maps, and the I/O page, with the decisions, the decoder and the lines of the Windows branch.
+ * main.c's handler of SIGSEGV gives it the faults; the vblank's signal is blocked while it works, and the kernel delivers a fault
+ * before a pending signal, so the context always holds the faulting instruction (no race with the timer, unlike Windows). */
+#include <pthread.h>
+#include <ucontext.h>
+
+static volatile int port_mirror_serving;   /* set while serve() works: a fault of the game's thread then is a second fault */
+
+extern char port_game_text_begin, port_game_text_end;
+
+#define MAX_SEEN 128
+static struct { const char *name; unsigned reads, writes; } seen[MAX_SEEN];
+static unsigned seen_count, tracing;
+static pthread_t game_thread;
+unsigned port_mirror_raced;   /* always 0 here (see above); kept for the controls */
+unsigned port_mirror_served_count;
+
+/* /proc/self/maps: is the page at `addr` in a mapping that can be read, written or run, and where the next mapping (or the end of this
+ * one) begins. Read once per call: the start check makes a handful. */
+static int query_page(unsigned addr, int *accessible, unsigned *next)
+{
+    FILE *f = fopen("/proc/self/maps", "r");
+    char line[512];
+    unsigned long long nearest = 0x100000000ull;
+    if (!f) return -1;
+    *accessible = 0;
+    while (fgets(line, sizeof line, f)) {
+        unsigned long long lo, hi;
+        char perms[8];
+        if (sscanf(line, "%llx-%llx %7s", &lo, &hi, perms) != 3) continue;
+        if (addr >= lo && addr < hi) {
+            *accessible = perms[0] == 'r' || perms[1] == 'w' || perms[2] == 'x';
+            nearest = hi;
+            break;
+        }
+        if (lo > addr && lo < nearest) nearest = lo;
+    }
+    fclose(f);
+    *next = nearest > 0xffffffffull ? 0xfffff000u : (unsigned)nearest;
+    if (*next <= addr) *next = addr + 0x1000;
+    return 0;
+}
+
+static void report(void)
+{
+    unsigned i;
+    for (i = 0; i < seen_count; i++)
+        port_trace_line("mirror: %s: %u reads, %u writes", seen[i].name, seen[i].reads, seen[i].writes);
+}
+
+static void stop_unserved_in(const char *area, const char *what, unsigned where, const char *name, const char *why, const unsigned char *code, unsigned avail)
+{
+    char bytes[64];
+    port_mirror_hex(code, avail > 15 ? 15 : avail, bytes, sizeof bytes);
+    printf("stop: crash: the game used the PS1's %s at 0x%08x (%s) in %s %s: %s\n", area, where, what, name, why, bytes);
+    fflush(stdout);
+    port_suspenders_stop();
+    port_suspenders_check_closed();
+    port_exit_now(PORT_EXIT_CRASH);
+}
+
+static int in_game_code(size_t ip)
+{
+    return ip >= (size_t)&port_game_text_begin && ip < (size_t)&port_game_text_end;
+}
+
+static int serve(void *context, unsigned kind, unsigned addr, unsigned fault_ip)
+{
+    ucontext_t *uc = context;
+    greg_t *g = uc->uc_mcontext.gregs;
+    size_t ip = fault_ip;
+    unsigned avail, i;
+    struct mirror_regs regs;
+    struct mirror_insn in;
+    const unsigned char *code;
+    const char *name, *what;
+    int io, ours_thread = pthread_equal(pthread_self(), game_thread);
+    unsigned temp = 0;
+    void *mem;
+
+    if (port_mirror_serving && ours_thread) {
+        /* a second fault while serving */
+        printf("stop: crash: a second fault (%s 0x%08x) while the PS1's RAM mirror was being served\n", kind == 8 ? "execute" : kind ? "write" : "read", addr);
+        fflush(stdout);
+        port_suspenders_stop();
+        port_suspenders_check_closed();
+        port_exit_now(PORT_EXIT_CRASH);
+    }
+    io = addr >= IO_BASE && addr < IO_END;
+    if (io) {
+        /* The page is closed to everything but the game's thread in the game's code, so any other fault on it ends the program with a line. */
+        int ours = in_game_code(ip);
+        if (!port_mirror_decision_io(kind, addr, 1, ours_thread, ours)) {
+            char why[96];
+            snprintf(why, sizeof why, "%s", ours && ours_thread ? "with an access that is not a read or a write" : "from a thread or code that is not the game's");
+            stop_unserved_in("I/O page", kind == 8 ? "execute" : kind ? "write" : "read", addr, ours ? port_function_at(ip) : "?", why, (const unsigned char *)ip, ours ? (unsigned)((size_t)&port_game_text_end - ip) : 0);
+        }
+    } else if (!port_mirror_decision(kind, addr, 1, ours_thread, in_game_code(ip))) return 0;
+
+    port_mirror_serving = 1;
+    name = port_function_at(ip);
+    what = kind ? "write" : "read";
+    code = (const unsigned char *)ip;
+    avail = (unsigned)((size_t)&port_game_text_end - ip);
+    regs.r[0] = (unsigned)g[REG_EAX]; regs.r[1] = (unsigned)g[REG_ECX]; regs.r[2] = (unsigned)g[REG_EDX]; regs.r[3] = (unsigned)g[REG_EBX];
+    regs.r[4] = (unsigned)g[REG_ESP]; regs.r[5] = (unsigned)g[REG_EBP]; regs.r[6] = (unsigned)g[REG_ESI]; regs.r[7] = (unsigned)g[REG_EDI];
+    regs.eip = (unsigned)ip;
+    regs.eflags = (unsigned)g[REG_EFL];
+    if (port_mirror_decode(code, avail, &regs, &in) != 0)
+        stop_unserved_in(io ? "I/O page" : "RAM mirror", what, addr, name, "with an instruction the port does not serve yet", code, avail);
+    if (in.ea != addr) {
+        char why[80];
+        snprintf(why, sizeof why, "with an instruction whose operand is at 0x%08x, not there", in.ea);
+        stop_unserved_in(io ? "I/O page" : "RAM mirror", what, addr, name, why, code, avail);
+    }
+    if (io) {
+        char why[160];
+        if (!port_mirror_decision_io(kind, addr, in.msize, 1, 1))
+            stop_unserved_in("I/O page", what, addr, name, "with an access that straddles the end of the page", code, avail);
+        /* the instruction's kind decides: an `or` to memory faults as a read and is a fetch, an execution and a store */
+        if (port_mirror_insn_reads(&in) && port_iopage_read(addr, in.msize, &temp, why, sizeof why) != 0)
+            stop_unserved_in("I/O page", what, addr, name, why, code, avail);
+        /* a store or a read-modify-write: refused before the instruction runs, so that a refusal changes nothing */
+        if (port_mirror_insn_writes(&in) && port_iopage_check_write(addr, in.msize, why, sizeof why) != 0)
+            stop_unserved_in("I/O page", what, addr, name, why, code, avail);
+        mem = &temp;
+    } else {
+        if (!port_mirror_decision(kind, addr, in.msize, 1, 1)) {
+            port_mirror_serving = 0;
+            return 0;   /* it straddles the end of the range: the crash line */
+        }
+        mem = (void *)(size_t)(PORT_RAM_BASE + addr);
+    }
+
+    port_mirror_exec(&in, &regs, mem);
+    if (io) {
+        if (port_mirror_insn_writes(&in)) {
+            char why[160];
+            if (port_iopage_write(addr, in.msize, temp, why, sizeof why) != 0)
+                stop_unserved_in("I/O page", what, addr, name, why, code, avail);
+        }
+        port_iopage_served();
+    }
+
+    g[REG_EAX] = (greg_t)regs.r[0]; g[REG_ECX] = (greg_t)regs.r[1]; g[REG_EDX] = (greg_t)regs.r[2]; g[REG_EBX] = (greg_t)regs.r[3];
+    g[REG_ESP] = (greg_t)regs.r[4]; g[REG_EBP] = (greg_t)regs.r[5]; g[REG_ESI] = (greg_t)regs.r[6]; g[REG_EDI] = (greg_t)regs.r[7];
+    g[REG_EFL] = (greg_t)regs.eflags;
+    g[REG_EIP] = (greg_t)regs.eip;
+    port_mirror_served_count++;
+
+    if (!io) {
+        for (i = 0; i < seen_count && seen[i].name != name; i++) {
+        }
+        if (i == seen_count && seen_count < MAX_SEEN) {
+            seen[seen_count].name = name;
+            seen[seen_count].reads = seen[seen_count].writes = 0;
+            seen_count++;
+            printf("mirror: %s uses the PS1's copy of RAM at address 0 (first at 0x%08x; %s)\n", name, addr, what);
+            fflush(stdout);
+        }
+        if (i < seen_count) {
+            if (kind) seen[i].writes++;
+            else seen[i].reads++;
+        }
+    }
+    if (tracing && !io) port_trace_line("mirror: %s %s 0x%08x %u (at 0x%08x)", name, what, addr, in.msize, (unsigned)ip);
+    port_mirror_serving = 0;
+    return 1;
+}
+
+int port_mirror_init(int trace, char *err, size_t errsize)
+{
+    /* the copy of RAM from PORT_MIRROR_LOW is memory.c's mapping; below it no page may be there */
+    if (port_mirror_scan(query_page, PORT_MIRROR_LOW, MIRROR_LIMIT, err, errsize) != 0) return -1;
+    tracing = (unsigned)trace;
+    if (trace) {
+        port_trace_line("mirror: start check: no page of 0x00000000..0x%08x is accessible; the copy of RAM is mapped from 0x%08x", PORT_MIRROR_LOW - 1, PORT_MIRROR_LOW);
+        atexit(report);
+    }
+    game_thread = pthread_self();
+    if (port_fault_add(serve) != 0) {
+        snprintf(err, errsize, "mirror: no access fault handler for this system");
+        return -1;
+    }
+    return 0;
+}
+
 #else
 
 int port_mirror_init(int trace, char *err, size_t errsize)

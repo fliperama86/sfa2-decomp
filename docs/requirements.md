@@ -35,8 +35,8 @@ full build or decompilation already exists.
   one, for macOS on Apple Silicon, Windows and Linux: its decisions and
   state are on the [port page](../port/README.md). Since 2026-10-10 the
   game runs from its C on Windows, and since 2026-10-12 on macOS with
-  Apple Silicon; it is not shown to play to the end and does not run on
-  Linux. By the owner's rule of 2026-10-09, nothing of the game's source
+  Apple Silicon, and since 2026-10-23 natively on Linux; it is not shown
+  to play to the end. By the owner's rule of 2026-10-09, nothing of the game's source
   is changed for the port before it is shown running (now met), and the
   port takes its data from a disc image that the user supplies.
 

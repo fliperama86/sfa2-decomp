@@ -88,6 +88,17 @@ the compiler, its C++ driver, `ar`, `ranlib` and `windres` next to it, found
 by name; the search paths of the compiler's own tree). Any other compiler
 builds for the machine it runs on. The default build folder is
 `port/build/psyz-TRIPLET` (TRIPLET is the compiler's name without `-gcc`).
+With `--m32` the compiler is not MinGW's and the libraries are built as 32-bit x86 code on a 64-bit Linux, for the
+port's Linux program (`port/linux/README.md`): the tool writes `BUILD/toolchain.cmake` with the system name Linux, the
+processor i686, the compiler (`gcc` and the `g++` beside it; `clang` and `clang++`; any other name is refused, status 2)
+and `-m32` in the C, C++ and linker init flags, and the file also points pkg-config at the 32-bit `.pc` files, so that
+SDL finds the 32-bit window system, sound and Vulkan libraries it opens at run time. The rule: `PKG_CONFIG_LIBDIR`
+is set (and `PKG_CONFIG_PATH` emptied) to the folders of the list below that exist, in this order: `/usr/lib32/pkgconfig`
+(Arch Linux), `/usr/lib/i386-linux-gnu/pkgconfig` (Debian and Ubuntu), then `/usr/share/pkgconfig`, which holds the
+files that do not depend on the word size. Without a 32-bit folder among them the run is refused (status 2), since
+SDL would be configured against 64-bit libraries. The default build folder with `--m32` is `port/build/psyz-linux`.
+`--m32` together with a MinGW compiler is refused (status 2) before anything is written. The libraries in
+`psyz.json` are those of the probe's link line, as always; they link with `gcc -m32`.
 Release, `GTE_USE_HW_SQRT=ON`, renderer `sdl3_gpu` (SDL_GPU: Direct3D 12 on
 Windows, Vulkan on Linux, Metal on macOS). SDL is built from the copy as a
 static library, PsyZ's own CMake does that. A wrapper project in
@@ -120,12 +131,12 @@ the last lines of its log on standard error and the whole log in
 (compiler, CMake, Ninja) is missing; one line on standard error says which.
 
 usage:
-  psyzbuild.py [--psyz DIR] [--patch FILE] [--cc CC] [--build DIR]
+  psyzbuild.py [--psyz DIR] [--patch FILE] [--cc CC] [--m32] [--build DIR]
                [--cmake CMAKE] [--ninja NINJA] [--timeout SECONDS]
 
 The defaults: `port/external/psyz`, `port/psyz.patch`,
-`i686-w64-mingw32-gcc`, `port/build/psyz-TRIPLET`, 1800 seconds for each of
-the configure and build steps.
+`i686-w64-mingw32-gcc`, `port/build/psyz-TRIPLET` (`port/build/psyz-linux` with
+`--m32`), 1800 seconds for each of the configure and build steps.
 """
 
 from __future__ import annotations
@@ -341,6 +352,54 @@ def toolchain_text(cc: str) -> str:
     )
 
 
+PKG_CONFIG_32 = ("/usr/lib32/pkgconfig", "/usr/lib/i386-linux-gnu/pkgconfig")   # where the systems keep the 32-bit .pc files
+PKG_CONFIG_SHARED = "/usr/share/pkgconfig"   # word-size independent .pc files
+
+
+def pkg_config_dirs(exists) -> list[str]:
+    """The folders for PKG_CONFIG_LIBDIR of a 32-bit build: the 32-bit folders that exist, then the shared one when it exists.
+    `exists(path)` tells whether a folder is there. Empty when no 32-bit folder exists (the shared one alone is no 32-bit build)."""
+    found = [d for d in PKG_CONFIG_32 if exists(d)]
+    if not found:
+        return []
+    return found + ([PKG_CONFIG_SHARED] if exists(PKG_CONFIG_SHARED) else [])
+
+
+def cxx_of(cc: str) -> str:
+    """The C++ driver beside the C compiler `cc` (a path): `gcc` becomes `g++`, `clang` becomes `clang++`; else a Problem."""
+    path = Path(cc)
+    name = path.name
+    if name.endswith("gcc"):
+        return str(path.with_name(name[:-3] + "g++"))
+    if name.endswith("clang"):
+        return str(path.with_name(name + "++"))
+    raise Problem(f"--m32 cannot tell the C++ compiler that goes with {name}; use gcc or clang (or a name that ends so)")
+
+
+def toolchain_text_m32(cc: str, pkg_dirs: list[str]) -> str:
+    """CMake toolchain file for 32-bit x86 code on a Linux host, with the compiler `cc` (an absolute path) and `-m32`.
+    `pkg_dirs` (from pkg_config_dirs) is where pkg-config looks."""
+    flags = '"-m32"'
+    libdir = ":".join(pkg_dirs)
+    return (
+        "set(CMAKE_SYSTEM_NAME Linux)\n"
+        "set(CMAKE_SYSTEM_PROCESSOR i686)\n"
+        f"set(CMAKE_C_COMPILER {cc})\n"
+        f"set(CMAKE_CXX_COMPILER {cxx_of(cc)})\n"
+        f"set(CMAKE_C_FLAGS_INIT {flags})\n"
+        f"set(CMAKE_CXX_FLAGS_INIT {flags})\n"
+        f"set(CMAKE_EXE_LINKER_FLAGS_INIT {flags})\n"
+        f"set(CMAKE_SHARED_LINKER_FLAGS_INIT {flags})\n"
+        f"set(CMAKE_MODULE_LINKER_FLAGS_INIT {flags})\n"
+        f'set(ENV{{PKG_CONFIG_LIBDIR}} "{libdir}")\n'
+        'set(ENV{PKG_CONFIG_PATH} "")\n'
+    )
+
+
+def default_build_dir(cc: str, m32: bool) -> Path:
+    return PORT / "build" / ("psyz-linux" if m32 else f"psyz-{triplet_of(cc)}")
+
+
 ARGUMENT_OPTIONS = ("-framework", "-weak_framework", "-Xlinker")   # link options whose next word is theirs (macOS)
 
 
@@ -543,7 +602,16 @@ def build(args: argparse.Namespace, out: list[str]) -> None:
     cc = os.path.abspath(cc)
     cmake = which_tool("cmake", args.cmake)
     ninja = which_tool("ninja", args.ninja)
-    build_dir: Path = args.build or PORT / "build" / f"psyz-{triplet_of(args.cc)}"
+    mingw = "mingw" in Path(cc).name
+    if args.m32 and mingw:
+        raise Problem(f"--m32 builds for 32-bit Linux and the compiler {cc} is MinGW's; give the system's gcc")
+    pkg_dirs: list[str] = []
+    if args.m32:
+        pkg_dirs = pkg_config_dirs(os.path.isdir)
+        if not pkg_dirs:
+            raise Problem("--m32 found no folder of 32-bit pkg-config files (" + ", ".join(PKG_CONFIG_32) + "); install the 32-bit development libraries")
+        toolchain_text_m32(cc, pkg_dirs)   # refuses a compiler whose C++ driver is unknown, before anything is written
+    build_dir: Path = args.build or default_build_dir(args.cc, args.m32)
     build_dir = check_paths(source, build_dir, patch_path)
     check_source(source)
     build_dir.mkdir(parents=True, exist_ok=True)
@@ -563,14 +631,13 @@ def build(args: argparse.Namespace, out: list[str]) -> None:
 
     (work / "CMakeLists.txt").write_text(WRAPPER)
     (work / "probe.c").write_text(PROBE)
-    mingw = "mingw" in Path(cc).name
     env = dict(os.environ)
     env["PATH"] = os.pathsep.join([str(Path(ninja).parent), str(Path(cmake).parent), str(Path(cc).parent), env.get("PATH", "")])
     obj = build_dir / "obj"
     configure = [cmake, "-GNinja", f"-DCMAKE_MAKE_PROGRAM={ninja}", "-DCMAKE_BUILD_TYPE=Release", "-DGTE_USE_HW_SQRT=ON", "-DPSYZ_RENDERER=sdl3_gpu"]
-    if mingw:
+    if mingw or args.m32:
         toolchain = build_dir / "toolchain.cmake"
-        toolchain.write_text(toolchain_text(cc))
+        toolchain.write_text(toolchain_text_m32(cc, pkg_dirs) if args.m32 else toolchain_text(cc))
         configure.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchain}")
     else:
         configure.append(f"-DCMAKE_C_COMPILER={cc}")
@@ -596,6 +663,7 @@ def main() -> int:
     parser.add_argument("--psyz", type=Path, default=PORT / "external" / "psyz")
     parser.add_argument("--patch", type=Path, default=PORT / "psyz.patch")
     parser.add_argument("--cc", default="i686-w64-mingw32-gcc")
+    parser.add_argument("--m32", action="store_true", help="build for 32-bit x86 Linux with the system's gcc and -m32; see port/linux/README.md")
     parser.add_argument("--build", type=Path, default=None)
     parser.add_argument("--cmake", default=None)
     parser.add_argument("--ninja", default=None)

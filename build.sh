@@ -1,12 +1,15 @@
 #!/bin/sh
 # Build the port's program for one system and, with -r, start it.
 #
-#   ./build.sh [-r] win|mac [PROGRAM OPTION ...]
+#   ./build.sh [-r] win|mac|linux [PROGRAM OPTION ...]
 #
 #   win   port/build/host/sfa2.exe, the 32-bit Windows program. Needs i686-w64-mingw32-gcc, CMake (3.21 or later),
 #         Ninja, git and Python 3.11 or later on PATH. On Linux and under WSL this is a cross build.
 #   mac   port/build/mac/sfa2-mac, the program for macOS on Apple Silicon. Run it on such a Mac, with the tools that
 #         port/mac/README.md names.
+#   linux port/build/linux/sfa2, the 32-bit Linux program (an ELF image, built with the system's gcc and -m32). Needs gcc
+#         with its 32-bit support (multilib), the 32-bit development libraries that port/linux/README.md names, CMake
+#         (3.21 or later), Ninja, git and Python 3.11 or later on PATH. Run it on a 64-bit Linux that runs 32-bit programs.
 #   -r    after a build that ended well, start the program with the disc image that SFA2_DISC names (the .cue or
 #         the .bin itself). The program gets --skip-programs, then --settings FILE (SFA2_SETTINGS, else
 #         port/settings.ini) unless a PROGRAM OPTION is --settings, then the PROGRAM OPTIONS, then the disc. Its
@@ -20,6 +23,8 @@
 #   mac   psyzbuild.py --cc clang --build port/build/psyz-mac
 #         hostbuild.py --guest --psyz port/build/psyz-mac        the guest image
 #         macbuild.py                                            the program
+#   linux psyzbuild.py --cc gcc --m32 --build port/build/psyz-linux   PsyZ and SDL as 32-bit libraries
+#         hostbuild.py --linux --psyz port/build/psyz-linux      the program
 #
 # What a second run does not do again:
 #   - The PsyZ submodule is fetched only when port/external/psyz is empty (git submodule update --init, then its
@@ -40,7 +45,8 @@
 # One machine's own values come from the environment or from the file local/build.env, which this script reads as
 # shell text before anything else when it exists (the folder local/ is not in Git): additions to PATH, and
 #   SFA2_DISC      the disc image for -r. For the Windows program under WSL, a path in Windows form, or a path of
-#                  an existing file, which is turned into that form with wslpath.
+#                  an existing file, which is turned into that form with wslpath. The Mac and Linux programs take
+#                  the path as it is.
 #   SFA2_SETTINGS  the settings file for -r in place of port/settings.ini
 #   SFA2_PYTHON    the Python to run the tools with, by default python3
 #
@@ -50,7 +56,7 @@
 set -eu
 
 usage() {
-    echo "usage: ./build.sh [-r] win|mac [PROGRAM OPTION ...]" >&2
+    echo "usage: ./build.sh [-r] win|mac|linux [PROGRAM OPTION ...]" >&2
     exit 2
 }
 
@@ -65,7 +71,7 @@ target=
 while [ $# -gt 0 ]; do
     case $1 in
         -r) run=1 ;;
-        win|mac) target=$1; shift; break ;;
+        win|mac|linux) target=$1; shift; break ;;
         *) usage ;;
     esac
     shift
@@ -82,8 +88,9 @@ fi
 
 PSYZ=port/external/psyz
 case $target in
-    win) CC=i686-w64-mingw32-gcc; LIBRARY=port/build/psyz-i686-w64-mingw32; OUT=port/build/host; PROGRAM=$OUT/sfa2.exe ;;
-    mac) CC=clang; LIBRARY=port/build/psyz-mac; OUT=port/build/mac; PROGRAM=$OUT/sfa2-mac ;;
+    win) CC=i686-w64-mingw32-gcc; M32=; LIBRARY=port/build/psyz-i686-w64-mingw32; OUT=port/build/host; PROGRAM=$OUT/sfa2.exe ;;
+    mac) CC=clang; M32=; LIBRARY=port/build/psyz-mac; OUT=port/build/mac; PROGRAM=$OUT/sfa2-mac ;;
+    linux) CC=gcc; M32=--m32; LIBRARY=port/build/psyz-linux; OUT=port/build/linux; PROGRAM=$OUT/sfa2 ;;
 esac
 
 # The submodule: fetched when it is not there, left alone when it is.
@@ -114,7 +121,7 @@ if [ -n "$key" ] && [ -f $LIBRARY/psyz.json ] && [ -f $LIBRARY.key ] && [ "$key"
     echo "build.sh: the library is built already ($LIBRARY)"
 else
     rm -f $LIBRARY.key
-    "$PYTHON" port/tools/psyzbuild.py --cc $CC --build $LIBRARY
+    "$PYTHON" port/tools/psyzbuild.py --cc $CC $M32 --build $LIBRARY
     if [ -n "$key" ]; then
         printf '%s\n' "$key" > $LIBRARY.key
     fi
@@ -139,6 +146,7 @@ else
     rm -f $OUT.key
     case $target in
         win) "$PYTHON" port/tools/hostbuild.py --psyz $LIBRARY ;;
+        linux) "$PYTHON" port/tools/hostbuild.py --linux --psyz $LIBRARY ;;
         mac) "$PYTHON" port/tools/hostbuild.py --guest --psyz $LIBRARY
              "$PYTHON" port/tools/macbuild.py ;;
     esac

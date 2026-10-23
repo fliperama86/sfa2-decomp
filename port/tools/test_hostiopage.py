@@ -2,6 +2,7 @@
 """Controls for the PS1's I/O page (iopage.c, and its part of mirror.c).
 
     python3 test_hostiopage.py --cc CROSS_CC [--psyz-build DIR] [--run PREFIX] [--src DIR] [--only SUBSTRING]
+    python3 test_hostiopage.py --linux [--cc gcc] [--psyz-build DIR] [--src DIR] [--only SUBSTRING]
 
 The page [0x1F801000, 0x1F802000) is closed at start. The game's thread, from the game's code, reaches it through the
 mirror layer's fault handler, which carries each instruction out on a temporary value; three addresses have a model
@@ -47,6 +48,10 @@ addresses in a build without PsyZ (they have no model there) run only without it
   refused at the call, by a poll and by the timer;
 - the services: DMACallback's previous routine, an event delivered and seen once, WaitEvent after a delivery;
 - the counts in the trace, written out by hand, and the completions taken by each way (`--no-interrupt` where only a poll can take it).
+
+With --linux the cases run for the native Linux program (see test_hostlaunch.py for the rig and port/linux/README.md); the page is closed
+with mprotect, and the test's `VirtualQuery` reads the system's map of the process and answers in Windows' numbers. With --psyz-build the
+folder is the Linux PsyZ (port/build/psyz-linux), and SDL's dummy audio driver is named as before.
 
 Every case prints `ok NAME` or `FAIL NAME: why`; the last line is `all N cases that ran behaved as required` or the number of cases
 that did not. --src names another copy of the runtime's folder (the mutants of the controls run on a scratch copy).
@@ -890,8 +895,8 @@ class PsyzRig(L.Rig):
     use the model with nothing pulling from it). The launch rig's other way to start a program, `run_bounded`, takes no environment and
     is refused here."""
 
-    def __init__(self, cc, prefix, work, info):
-        super().__init__(cc, prefix, work)
+    def __init__(self, cc, prefix, work, info, linux=False):
+        super().__init__(cc, prefix, work, linux)
         self.info = info
         self.libs = [str(x) for x in info["link"]]
         self.env = sound_env()
@@ -1047,12 +1052,17 @@ def launch(rig: L.Rig, only: str, psyz: bool, not_run: list[str]):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--cc", required=True)
+    parser.add_argument("--cc", default=None)
+    parser.add_argument("--linux", action="store_true", help="run for the native Linux program (cc defaults to gcc)")
     parser.add_argument("--run", default="", help="command prefix that starts a Windows program")
     parser.add_argument("--src", default=None, help="another copy of the runtime's folder")
     parser.add_argument("--only", default="", help="run only the cases whose name contains this")
     parser.add_argument("--psyz-build", default=None, type=Path, help="a build folder of psyzbuild.py: the cases of the chip, DMA and the completion need it")
     args = parser.parse_args()
+    if args.cc is None:
+        if not args.linux:
+            parser.error("--cc is required without --linux")
+        args.cc = "gcc"
     if not shutil.which(args.cc):
         print(f"the cross compiler {args.cc} is missing; these controls need it")
         return 2
@@ -1068,7 +1078,7 @@ def main() -> int:
             except (OSError, ValueError) as err:
                 print(f"{args.psyz_build / 'psyz.json'} cannot be read ({err}); build PsyZ with psyzbuild.py first")
                 return 2
-        rig = PsyzRig(args.cc, args.run.split(), work, info) if info else L.Rig(args.cc, args.run.split(), work)
+        rig = PsyzRig(args.cc, args.run.split(), work, info, args.linux) if info else L.Rig(args.cc, args.run.split(), work, args.linux)
         problem = rig.start_check()
         if problem:
             print(problem)

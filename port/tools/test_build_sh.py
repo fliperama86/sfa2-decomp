@@ -11,7 +11,7 @@ for `wslpath` (it prints `W:` and its argument) and for `git submodule update` (
 system programs the script uses; the made-up PsyZ folder is a real git work tree of its own, as the submodule is.
 
 The cases show: a wrong command line, a program option without -r and -r without a disc end with status 2 before any tool
-runs; the tools run in the documented order with the documented arguments, for both systems; a tool that fails ends the script
+runs; the tools run in the documented order with the documented arguments, for the three systems; a tool that fails ends the script
 with its status and nothing after it runs, the program included; the library step is skipped on a second run and is run again
 when the PsyZ commit, the patch, the tool or the compiler's version line changed, when the PsyZ tree has a change, when
 `psyz.json` is gone, and after a failed run; a PsyZ folder that is no git work tree of its own is built every time; the
@@ -20,7 +20,7 @@ file there changed or is new (at every run until it is committed, and once after
 inputs or the compiler changed, when the program is gone, and after a failed run, and always where the tree is no git work
 tree; a change elsewhere in the tree does not run it; the submodule is fetched only when the folder is empty; and the program
 gets the documented command line, with paths in Windows
-form only for the Windows program, only for a file that exists and only where `wslpath` is. Every case prints `ok NAME` or
+form only for the Windows program (the Mac's and Linux's take them as they are), only for a file that exists and only where `wslpath` is. Every case prints `ok NAME` or
 `FAIL NAME: why`.
 """
 
@@ -38,8 +38,10 @@ REPO = Path(__file__).resolve().parents[2]
 SCRIPT = REPO / "build.sh"
 WIN_LIB = "port/build/psyz-i686-w64-mingw32"
 MAC_LIB = "port/build/psyz-mac"
+LINUX_LIB = "port/build/psyz-linux"
 WIN = [["psyzbuild", "--cc", "i686-w64-mingw32-gcc", "--build", WIN_LIB], ["hostbuild", "--psyz", WIN_LIB]]
 MAC = [["psyzbuild", "--cc", "clang", "--build", MAC_LIB], ["hostbuild", "--guest", "--psyz", MAC_LIB], ["macbuild"]]
+LINUX = [["psyzbuild", "--cc", "gcc", "--m32", "--build", LINUX_LIB], ["hostbuild", "--linux", "--psyz", LINUX_LIB]]
 DISC = "E:\\a folder\\disc.cue"
 
 TOOL = """import json, os, sys
@@ -58,6 +60,8 @@ if name == "psyzbuild":
     build = Path(argv[argv.index("--build") + 1])
     build.mkdir(parents=True, exist_ok=True)
     (build / "psyz.json").write_text("{}")
+elif name == "hostbuild" and "--linux" in argv:
+    program("port/build/linux/sfa2")
 elif name == "hostbuild" and "--guest" not in argv:
     program("port/build/host/sfa2.exe")
 elif name == "macbuild":
@@ -105,7 +109,7 @@ class Tree:
             self.commit("first")
         bin_dir = root / "bin"
         bin_dir.mkdir()
-        for name in ("i686-w64-mingw32-gcc", "clang"):
+        for name in ("i686-w64-mingw32-gcc", "clang", "gcc"):
             script(bin_dir / name, '#!/bin/sh\necho "$STUB_CC"\necho more\n')
         if wslpath:
             script(bin_dir / "wslpath", '#!/bin/sh\n[ "$1" = -w ] && echo "W:$2"\n')
@@ -148,10 +152,10 @@ def same(got, want, what: str = "") -> None:
 
 def case_a_wrong_command_line_runs_nothing(root: Path):
     tree = Tree(root)
-    for argv in ([], ["linux"], ["-x", "win"], ["-r"], ["win", "--no-audio"], ["mac", "x"]):
+    for argv in ([], ["freebsd"], ["-x", "win"], ["-r"], ["win", "--no-audio"], ["mac", "x"], ["linux", "x"]):
         status, calls, err = tree.run(*argv, SFA2_DISC=DISC)
         same((status, calls), (2, []), " ".join(argv) or "no argument")
-        assert "usage: ./build.sh [-r] win|mac" in err, err
+        assert "usage: ./build.sh [-r] win|mac|linux [PROGRAM OPTION ...]" in err, err
     status, calls, err = tree.run("win", "--no-audio")
     assert "--no-audio: a program option needs -r" in err, err
 
@@ -176,6 +180,15 @@ def case_the_mac_steps_in_order(root: Path):
     same(tree.run("mac")[:2], (0, MAC[1:]), "second run")
 
 
+def case_the_linux_steps_in_order(root: Path):
+    tree = Tree(root)
+    same(tree.run("linux")[:2], (0, LINUX))
+    assert (tree.root / (LINUX_LIB + ".key")).is_file(), "no key file beside the library's folder"
+    same(tree.run("linux")[:2], (0, LINUX[1:]), "second run")
+    same(tree.run("win")[:2], (0, WIN), "the Windows library is another folder")
+    same(tree.run("linux")[:2], (0, LINUX[1:]), "and leaves the Linux library's alone")
+
+
 def case_from_another_folder(root: Path):
     tree = Tree(root)
     other = root / "elsewhere"
@@ -190,6 +203,8 @@ def case_a_failed_tool_ends_the_script(root: Path):
     assert not (tree.root / (WIN_LIB + ".key")).exists(), "a key file after a failed library step"
     same(tree.run("-r", "win", SFA2_DISC=DISC, STUB_FAIL="hostbuild")[:2], (3, WIN), "the program's build fails")
     same(tree.run("-r", "mac", SFA2_DISC=DISC, STUB_FAIL="hostbuild")[:2], (3, MAC[:2]), "the guest image fails")
+    same(tree.run("-r", "linux", SFA2_DISC=DISC, STUB_FAIL="psyzbuild")[:2], (3, LINUX[:1]), "the Linux library fails")
+    same(tree.run("-r", "linux", SFA2_DISC=DISC, STUB_FAIL="hostbuild")[:2], (3, LINUX), "the Linux program's build fails")
     same(tree.run("-r", "mac", SFA2_DISC=DISC, STUB_FAIL="macbuild")[:2], (3, MAC[1:]), "the Mac program's build fails")
 
 
@@ -326,7 +341,7 @@ def case_the_submodule_is_fetched_only_when_missing(root: Path):
 
 def case_the_program_s_command_line(root: Path):
     tree = Tree(root)
-    exe, mac = "port/build/host/sfa2.exe", "port/build/mac/sfa2-mac"
+    exe, mac, linux = "port/build/host/sfa2.exe", "port/build/mac/sfa2-mac", "port/build/linux/sfa2"
     same(tree.run("-r", "win", SFA2_DISC=DISC)[:2], (7, WIN + [["program", exe, "--skip-programs", "--settings", "W:port/settings.ini", DISC]]), "no option")
     same(tree.run("-r", "win", "--no-audio", "--volume", "50", SFA2_DISC=DISC)[1][-1],
          ["program", exe, "--skip-programs", "--settings", "W:port/settings.ini", "--no-audio", "--volume", "50", DISC], "options")
@@ -341,6 +356,9 @@ def case_the_program_s_command_line(root: Path):
          "a settings file that does not exist is handed on as it is")
     same(tree.run("-r", "mac", "--no-audio", SFA2_DISC=str(disc), SFA2_SETTINGS=str(mine))[1][-1],
          ["program", mac, "--skip-programs", "--settings", str(mine), "--no-audio", str(disc)], "the Mac program takes paths as they are")
+    same(tree.run("-r", "linux", "--no-audio", SFA2_DISC=str(disc), SFA2_SETTINGS=str(mine))[:2],
+         (7, LINUX + [["program", linux, "--skip-programs", "--settings", str(mine), "--no-audio", str(disc)]]), "the Linux program takes paths as they are, wslpath or not")
+    same(tree.run("-r", "linux", SFA2_DISC=DISC)[1][-1], ["program", linux, "--skip-programs", "--settings", "port/settings.ini", DISC], "the Linux program, no option")
 
 
 def case_without_wslpath_paths_stay(root: Path):
@@ -357,7 +375,7 @@ def case_the_local_file_is_read(root: Path):
 
 
 CASES = [
-    case_a_wrong_command_line_runs_nothing, case_r_without_a_disc_builds_nothing, case_the_windows_steps_in_order, case_the_mac_steps_in_order,
+    case_a_wrong_command_line_runs_nothing, case_r_without_a_disc_builds_nothing, case_the_windows_steps_in_order, case_the_mac_steps_in_order, case_the_linux_steps_in_order,
     case_from_another_folder, case_a_failed_tool_ends_the_script, case_the_library_is_skipped_when_nothing_changed,
     case_the_library_is_built_again_when_an_input_changed, case_a_failed_library_step_is_not_remembered,
     case_a_folder_that_is_no_git_tree_is_built_every_time, case_the_program_step_is_skipped_when_nothing_changed,

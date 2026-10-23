@@ -149,6 +149,91 @@ void port_debug_watchdog(unsigned seconds)
     DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &game_thread, 0, FALSE, DUPLICATE_SAME_ACCESS);
     CreateThread(NULL, 0, watch, NULL, 0, NULL);
 }
+#elif defined(PORT_LINUX)
+/* Linux (port/linux/README.md): no thread can suspend another, so the watchdog sends the game's thread a signal, whose handler stores
+ * the thread's instruction and stack pointers and keeps the thread parked in the handler (so its stack stays as it was) until the
+ * watchdog has printed its line and ended the program. A thread that does not answer within a second gets a line without the place. */
+#include <pthread.h>
+#include <signal.h>
+#include <time.h>
+#include <ucontext.h>
+#include <unistd.h>
+
+static pthread_t game_thread;
+static unsigned wd_seconds;
+static volatile int wd_answered;
+static volatile unsigned wd_eip, wd_esp;
+
+static void watch_signal(int sig, siginfo_t *si, void *context)
+{
+    ucontext_t *uc = context;
+    (void)sig;
+    (void)si;
+    wd_eip = (unsigned)uc->uc_mcontext.gregs[REG_EIP];
+    wd_esp = (unsigned)uc->uc_mcontext.gregs[REG_ESP];
+    wd_answered = 1;
+    for (;;) pause();   /* parked: the watchdog ends the process */
+}
+
+static void *watch(void *unused)
+{
+    unsigned last = port_frames();
+    unsigned quiet = 0;
+    (void)unused;
+    for (;;) {
+        sleep(1);
+        if (port_frames() != last) {
+            last = port_frames();
+            quiet = 0;
+            continue;
+        }
+        if (++quiet < wd_seconds) continue;
+        {
+            struct timespec wait = { 0, 10000000 };
+            const unsigned *sp;
+            int n = 0, k;
+            char names[400] = "";
+            if (!port_suspenders_enter()) return NULL;   /* the process is ending already */
+            pthread_kill(game_thread, PORT_SIG_WATCH);
+            for (k = 0; k < 100 && !wd_answered; k++) nanosleep(&wait, NULL);
+            if (!wd_answered) {
+                printf("stop: hang: no vblank for %u s; the program's place is not known (its thread did not answer)\n", quiet);
+                fflush(stdout);
+                port_exit_now(PORT_EXIT_HANG);
+            }
+            sp = (const unsigned *)(size_t)wd_esp;
+            for (k = 0; k < 256 && n < 6; k++) {
+                const char *name = port_function_at(sp[k]);
+                if (name[0] != '?' && strlen(names) + strlen(name) + 4 < sizeof names) {
+                    strcat(names, n ? ", " : "");
+                    strcat(names, name);
+                    n++;
+                }
+            }
+            printf("stop: hang: no vblank for %u s; the program is at 0x%08x in %s; stack words point into: %s\n", quiet, wd_eip, port_function_at(wd_eip), names);
+            fflush(stdout);
+            port_exit_now(PORT_EXIT_HANG);   /* the gate stays held */
+        }
+    }
+    return NULL;
+}
+
+void port_debug_watchdog(unsigned seconds)
+{
+    struct sigaction sa;
+    pthread_t t;
+    if (!seconds) return;
+    wd_seconds = seconds;
+    port_suspenders_init();
+    game_thread = pthread_self();
+    memset(&sa, 0, sizeof sa);
+    sa.sa_sigaction = watch_signal;
+    sa.sa_flags = SA_SIGINFO;
+    sigemptyset(&sa.sa_mask);
+    sigaddset(&sa.sa_mask, PORT_SIG_VBLANK);
+    if (sigaction(PORT_SIG_WATCH, &sa, NULL) != 0) return;
+    if (pthread_create(&t, NULL, watch, NULL) == 0) pthread_detach(t);
+}
 #else
 void port_debug_watchdog(unsigned seconds)
 {

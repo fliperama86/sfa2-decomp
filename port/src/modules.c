@@ -785,6 +785,33 @@ static int sys_install(void)
     return AddVectoredExceptionHandler(1, vectored) ? 0 : -1;
 }
 
+#elif defined(PORT_LINUX)
+/* Linux: the permission of a page of the mapped RAM (memory.c). main.c's fault handler gives this layer the faults; it takes an
+ * instruction fetch only (port/linux/README.md). */
+#include <sys/mman.h>
+#include <unistd.h>
+
+static int sys_protect(unsigned address, unsigned size, int executable)
+{
+    return mprotect((void *)(size_t)address, size, PROT_READ | PROT_WRITE | (executable ? PROT_EXEC : 0));
+}
+
+static int exec_layer(void *context, unsigned kind, unsigned addr, unsigned ip)
+{
+    (void)context;
+    return kind == 8 && fault(addr, ip, sys_thread()) == 0;
+}
+
+static unsigned sys_thread(void)
+{
+    return (unsigned)gettid();
+}
+
+static int sys_install(void)
+{
+    return port_fault_add(exec_layer);
+}
+
 #elif defined(PORT_GUEST_VM)
 
 /* The macOS build: the permission of a page is the guest's own page table (port/mac/vm.c); a call into a page that is not executable

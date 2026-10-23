@@ -22,6 +22,18 @@ image of 32-bit-pointer AArch64 code at `0x80200000`, plus `gen/guest_tables.c`.
 The runtime of `port/src` and the programs are not part of it. See
 `port/mac/README.md` and `guestlink.py`.
 
+The Linux program
+-----------------
+
+With `--linux` the tool builds the program for 32-bit x86 Linux (`port/linux/README.md`) instead of the Windows
+program: the same units, names, tables and checks, with the system's `gcc` and `-m32` (`--cc` defaults to `gcc`, the
+build folder to `port/build/linux`, the output to `sfa2`). Every compiler and assembler run takes `-m32 -maccumulate-outgoing-args` (the second keeps
+the argument passing of the Windows build, see LINUX_TARGET_FLAGS); the runtime's
+files (`RUNTIME/*.c`, the intro's, `port_tables.c`) also take `-fno-pie -D_GNU_SOURCE -pthread`. There is no `.hole`
+object: the program is an ELF image that the kernel loads at its own addresses, and the runtime maps the console's
+copy of RAM itself. `--linux` together with `--guest` is refused (status 2). Without `--linux` every command line is
+the one of the Windows program.
+
 The mechanism
 -------------
 
@@ -326,7 +338,10 @@ All objects of the units, every `RUNTIME/*.c` compiled with
 `CC -O1 -Wall -Wextra -c`, `port_tables.o`, the filler object (below) and
 `names.ld` go to one run of the compiler by a response file, with `-static
 -Wl,--large-address-aware -Wl,--disable-dynamicbase` and the settings of the
-image (below), to `BUILD/NAME`. The link is then verified, and a miss ends
+image (below), to `BUILD/NAME`. With `--linux` there is no filler object, and the
+run is `CC @RESPONSE -m32 -no-pie -pthread -Wl,-z,noexecstack`, PsyZ's link items
+(with `--psyz`), then `-lm`; the check of the linked file is the one of "The ELF
+program" below. The link is then verified, and a miss ends
 the tool with status 1 naming the symbols: the header of the linked file
 says what the settings say (below); both markers exist and begin lies below end, every `impl_` function of the tables lies between them and no text symbol of the runtime's objects (`nm` on each) does; with `nm` on the
 linked file, every `ps1_` name of `names.ld` has exactly its address, no plain game name is
@@ -360,6 +375,18 @@ alignment 0x1000, the first section `.hole` at 0x11000 with no bytes in the
 file, the sections one after the other with no gap or overlap, the filler
 reaching 0x200000 and every other section at 0x200000 or above, the headers
 inside the first page. A miss ends the build with status 1.
+
+The ELF program
+---------------
+
+On Linux the process's own image must stay out of the memory that the runtime maps for the console. The check
+(`verify_elf`, a function of the file's bytes) reads the linked file's ELF header and program headers: 32-bit
+(ELFCLASS32), little-endian, machine EM_386, type ET_EXEC (a position-independent ET_DYN is a miss); no PT_LOAD segment
+overlaps `[0, 0x200000)` (the console's copy of RAM and the page below it), `[0x1f800000, 0x1f810000)` (the scratchpad
+and the I/O page) or `[0x80000000, 0x80200000)` (RAM); a PT_GNU_STACK header exists and does not have the execute flag
+(an executable stack gives a 32-bit program READ_IMPLIES_EXEC, and the runtime could not take execution away from a
+page). A miss ends the build with status 1, as the check of the PE header does. The names and markers checks are the
+same ones (an ELF target has no underscore, which the tool finds out as before).
 
 The sound library
 -----------------
@@ -456,13 +483,14 @@ missing or malformed, a name has two addresses, a definition is twice or the
 compiler cannot be run, with one line on standard error that names it.
 
 usage:
-  hostbuild.py [--config BUILD_TOML] [--cc CC] [--nm NM] [--objcopy OBJCOPY] [--build DIR]
+  hostbuild.py [--config BUILD_TOML] [--cc CC] [--nm NM] [--objcopy OBJCOPY] [--guest | --linux] [--build DIR]
                [--out NAME] [--runtime DIR] [--overrides DIR] [--sweep-rows FILE] [--programs FILE] [--psyz DIR] [--no-sound-library] [--sound-library] [--jobs N]
                [--timeout SECONDS] [--list]
 
 The defaults: `ps1/src/build.toml`, found from the place of this script;
 `i686-w64-mingw32-gcc`; the `nm` next to CC with the same prefix (`gcc` at
-its end replaced by `nm`, else `nm`); `port/build/host`; `sfa2.exe`;
+its end replaced by `nm`, else `nm`); `port/build/host`; `sfa2.exe` (with `--linux`: `gcc`; the
+`nm` and `objcopy` of the system; `port/build/linux`; `sfa2`);
 `port/src`; `overrides`, `sdkshim` and `prefix` beside the runtime folder; as many jobs as the machine has processors; 300 seconds.
 """
 
@@ -506,7 +534,15 @@ IMAGE_FLAGS = [
 ]
 LINK_FLAGS = ["-static", "-Wl,--large-address-aware", "-Wl,--disable-dynamicbase", *IMAGE_FLAGS]
 PS1_RANGES = ((0x80000000, 0x801FFFFF), (0x1F800000, 0x1F8003FF))
-TARGET_FLAGS: list[str] = []  # flags that every compiler and assembler run takes besides its own; `--guest` sets them (guestlink.TARGET_FLAGS)
+TARGET_FLAGS: list[str] = []  # flags that every compiler and assembler run takes besides its own; `--guest` and `--linux` set them
+# -maccumulate-outgoing-args: arguments are stored into the stack, not pushed, as GCC does by default for the Windows target. A push of a
+# memory operand at a low address (`ff /6`) is a form that mirror.c does not serve; the Windows build, whose code the decoder was
+# brought up on, has none.
+LINUX_TARGET_FLAGS = ["-m32", "-maccumulate-outgoing-args"]
+LINUX_RUNTIME_FLAGS = ["-fno-pie", "-D_GNU_SOURCE", "-pthread"]   # besides the target flags, on the runtime's files
+LINUX_LINK_FLAGS = ["-m32", "-no-pie", "-pthread", "-Wl,-z,noexecstack"]
+LINUX_FREE = ((0x0, 0x200000), (0x1F800000, 0x1F810000), (0x80000000, 0x80200000))   # what no segment of the Linux program may overlap
+RUNTIME_FLAGS: list[str] = []   # flags of the runtime's compiler runs only; `--linux` sets them
 
 NONMATCHING = re.compile(r"^func_([0-9a-fA-F]{8})(?:_(.+))?$")
 LIBRARY_NONMATCHING = "library_nonmatching"  # C of Sony's library: left out unless the sound library is compiled, like the units under sdk/
@@ -1609,6 +1645,50 @@ def verify_image(data: bytes) -> list[str]:
     return misses
 
 
+def verify_elf(data: bytes) -> list[str]:
+    """The misses of the linked file's ELF headers for the Linux program; empty when none.
+
+    ELFCLASS32, little-endian, EM_386, ET_EXEC; no PT_LOAD segment overlaps a range of LINUX_FREE; a PT_GNU_STACK
+    header exists and is not executable."""
+    def u16(o: int) -> int:
+        return int.from_bytes(data[o:o + 2], "little")
+
+    def u32(o: int) -> int:
+        return int.from_bytes(data[o:o + 4], "little")
+
+    if len(data) < 52 or data[:4] != b"\x7fELF":
+        return ["the file has no ELF header"]
+    misses = []
+    if data[4] != 1:
+        misses.append(f"ELF class {data[4]}, wanted 1 (32-bit)")
+    if data[5] != 1:
+        misses.append(f"ELF data encoding {data[5]}, wanted 1 (little-endian)")
+    if u16(18) != 3:
+        misses.append(f"machine {u16(18)}, wanted 3 (EM_386)")
+    if u16(16) != 2:
+        misses.append(f"file type {u16(16)}, wanted 2 (ET_EXEC)" + (": a position-independent program" if u16(16) == 3 else ""))
+    if misses and (data[4] != 1 or data[5] != 1):
+        return misses   # the program headers are not read as 32-bit little-endian ones
+    phoff, entsize, count = u32(28), u16(42), u16(44)
+    if entsize < 32 or phoff + entsize * count > len(data):
+        return misses + ["the program header table is not inside the file"]
+    stack = None
+    for i in range(count):
+        o = phoff + entsize * i
+        kind, vaddr, memsz, flags = u32(o), u32(o + 8), u32(o + 20), u32(o + 24)
+        if kind == 0x6474E551:   # PT_GNU_STACK
+            stack = flags
+        elif kind == 1 and memsz:   # PT_LOAD
+            for low, high in LINUX_FREE:
+                if vaddr < high and vaddr + memsz > low:
+                    misses.append(f"a segment at {vaddr:#x}, {memsz:#x} bytes, overlaps {low:#x}-{high:#x}")
+    if stack is None:
+        misses.append("no PT_GNU_STACK header: the stack would be executable")
+    elif stack & 1:
+        misses.append("the stack is executable (PT_GNU_STACK has the execute flag)")
+    return misses
+
+
 def text_symbols(nm_text: str) -> list[str]:
     """The names of the text symbols (type T or t) in the text of `nm` for one object; the section symbols (`.text`) are no function."""
     out = []
@@ -1899,12 +1979,36 @@ def read_psyz(folder: Path) -> tuple[dict, str]:
     return info, str(info.get("commit", "unknown"))
 
 
+def target_defaults(args: argparse.Namespace) -> tuple[str, Path, str]:
+    """The compiler, the build folder and the output name that the options leave open: Windows, `--guest` or `--linux`."""
+    if args.guest:
+        return args.cc or guestlink.DEFAULT_CC, args.build or REPO / "port/build/guest", args.out or "guest.elf"
+    if args.linux:
+        return args.cc or "gcc", args.build or REPO / "port/build/linux", args.out or "sfa2"
+    return args.cc or "i686-w64-mingw32-gcc", args.build or REPO / "port/build/host", args.out or "sfa2.exe"
+
+
+def runtime_command(cc: str, extra: list[str], runtime: Path, obj: Path, source: Path) -> list[str]:
+    """The compiler run of one runtime file. The target's flags come first; they are empty for the Windows program."""
+    return [cc, *TARGET_FLAGS, *RUNTIME_FLAGS, "-O1", "-Wall", "-Wextra", "-c", *extra, "-I", str(runtime), "-o", str(obj), str(source)]
+
+
+def link_command(cc: str, response: Path, libraries: list[str], exe: Path, linux: bool) -> list[str]:
+    """The link run: the response file, then the target's flags, PsyZ's libraries and the output."""
+    if linux:
+        return [cc, f"@{response}", *LINUX_LINK_FLAGS, *libraries, "-lm", "-o", str(exe)]
+    return [cc, f"@{response}", *LINK_FLAGS, *libraries, "-o", str(exe)]
+
+
 def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
-    args.cc = args.cc or (guestlink.DEFAULT_CC if args.guest else "i686-w64-mingw32-gcc")
-    args.build = args.build or REPO / ("port/build/guest" if args.guest else "port/build/host")
-    args.out = args.out or ("guest.elf" if args.guest else "sfa2.exe")
+    if args.guest and args.linux:
+        raise Problem("--guest and --linux exclude each other")
+    args.cc, args.build, args.out = target_defaults(args)
     if args.guest:
         TARGET_FLAGS[:] = guestlink.TARGET_FLAGS   # with --psyz the game's sound library is compiled into the guest as well (PsyZ's headers only)
+    if args.linux:
+        TARGET_FLAGS[:] = LINUX_TARGET_FLAGS
+        RUNTIME_FLAGS[:] = LINUX_RUNTIME_FLAGS
     config_path: Path = args.config
     config = hostcheck.read_config(config_path)
     fields_path, header = hostcheck.read_types(config, config_path)
@@ -2149,7 +2253,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
             extra = ["-DPORT_HAVE_PSYZ", *(f"-D{d}" for d in psyz[0]["define"]), "-isystem", psyz[0]["include"]]
         if sound_library and source != tables_path:
             extra.append("-DPORT_SOUND_LIBRARY_C")
-        proc = hostcheck.compile_run([args.cc, "-O1", "-Wall", "-Wextra", "-c", *extra, "-I", str(runtime), "-o", str(obj), str(source)], args.timeout)
+        proc = hostcheck.compile_run(runtime_command(args.cc, extra, runtime, obj, source), args.timeout)
         if proc is None or proc.returncode != 0:
             raise Failure(f"{source}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
         rt_objects.append(obj)
@@ -2158,22 +2262,25 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         asm, obj = build / "gen" / f"{marker}.s", build / "rt" / f"{marker}.o"
         write_text(asm, marker_source(marker, underscore))
         obj.unlink(missing_ok=True)
-        proc = hostcheck.compile_run([args.cc, "-c", "-o", str(obj), str(asm)], args.timeout)
+        proc = hostcheck.compile_run([args.cc, *TARGET_FLAGS, "-c", "-o", str(obj), str(asm)], args.timeout)
         if proc is None or proc.returncode != 0:
             raise Failure(f"{asm}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
         marks.append(obj)
-    hole_asm, hole_obj = build / "gen" / "hole.s", build / "rt" / "hole.o"
-    write_text(hole_asm, hole_source())
-    hole_obj.unlink(missing_ok=True)
-    proc = hostcheck.compile_run([args.cc, "-c", "-o", str(hole_obj), str(hole_asm)], args.timeout)
-    if proc is None or proc.returncode != 0:
-        raise Failure(f"{hole_asm}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
+    filler: list[Path] = []
+    if not args.linux:
+        hole_asm, hole_obj = build / "gen" / "hole.s", build / "rt" / "hole.o"
+        write_text(hole_asm, hole_source())
+        hole_obj.unlink(missing_ok=True)
+        proc = hostcheck.compile_run([args.cc, "-c", "-o", str(hole_obj), str(hole_asm)], args.timeout)
+        if proc is None or proc.returncode != 0:
+            raise Failure(f"{hole_asm}: " + (first_error(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
+        filler = [hole_obj]
     response = build / "link.rsp"
-    write_text(response, "".join(quote(p) + "\n" for p in [hole_obj, marks[0], *(build / "obj" / f"{n}.o" for n in objects), marks[1], *rt_objects, names_path]))
+    write_text(response, "".join(quote(p) + "\n" for p in [*filler, marks[0], *(build / "obj" / f"{n}.o" for n in objects), marks[1], *rt_objects, names_path]))
     exe = build / args.out
     exe.unlink(missing_ok=True)
     libraries = [str(x) for x in psyz[0]["link"]] if psyz else []
-    proc = hostcheck.compile_run([args.cc, f"@{response}", *LINK_FLAGS, *libraries, "-o", str(exe)], args.timeout)
+    proc = hostcheck.compile_run(link_command(args.cc, response, libraries, exe, args.linux), args.timeout)
     if proc is None or proc.returncode != 0 or not exe.is_file():
         raise Failure("link: " + (link_errors(proc.stderr) if proc else f"no end after {args.timeout} seconds"))
     nm = hostcheck.compile_run([args.nm or default_nm(args.cc), str(exe)], args.timeout)
@@ -2185,7 +2292,7 @@ def run(args: argparse.Namespace, out: list[str], listing: list[str]) -> int:
         if listing_nm is None or listing_nm.returncode != 0:
             raise Failure(f"nm did not run on {obj}")
         runtime_symbols += text_symbols(listing_nm.stdout)
-    misses = verify_image(exe.read_bytes())
+    misses = verify_elf(exe.read_bytes()) if args.linux else verify_image(exe.read_bytes())
     misses += verify_rows(functions)
     misses += verify_link(nm.stdout, link_names, all_aliases + program_names.functions, [f[3] for f in functions], underscore, replaced_names, program_names.bound)
     misses += verify_markers(nm.stdout, [f[3] for f in functions] + program_names.functions, runtime_symbols, underscore, replaced_names)
@@ -2216,13 +2323,14 @@ DEFAULT_PROGRAMS = REPO / "port/programs.toml"
 def make_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Build the game's C as one program with every name at its PS1 address.")
     parser.add_argument("--config", type=Path, default=REPO / "ps1/src/build.toml")
-    parser.add_argument("--cc", default=None, help="the C compiler; by default i686-w64-mingw32-gcc, with --guest aarch64-elf-gcc")
+    parser.add_argument("--cc", default=None, help="the C compiler; by default i686-w64-mingw32-gcc, with --guest aarch64-elf-gcc, with --linux gcc")
     parser.add_argument("--nm", default=None)
     parser.add_argument("--objcopy", default=None)
     parser.add_argument("--ld", default=None, help="with --guest: the linker, by default the compiler's name with ld in place of gcc")
     parser.add_argument("--guest", action="store_true", help="build the macOS guest image (32-bit pointers, AArch64) instead of the Windows program; see port/mac/README.md")
-    parser.add_argument("--build", type=Path, default=None, help="by default port/build/host, with --guest port/build/guest")
-    parser.add_argument("--out", default=None, help="by default sfa2.exe, with --guest guest.elf")
+    parser.add_argument("--linux", action="store_true", help="build the 32-bit Linux program (gcc -m32, an ELF image); see port/linux/README.md; not with --guest")
+    parser.add_argument("--build", type=Path, default=None, help="by default port/build/host, with --guest port/build/guest, with --linux port/build/linux")
+    parser.add_argument("--out", default=None, help="by default sfa2.exe, with --guest guest.elf, with --linux sfa2")
     parser.add_argument("--runtime", type=Path, default=REPO / "port/src")
     parser.add_argument("--sweep-rows", type=Path, default=REPO / "port/sweep_rows.toml")
     parser.add_argument("--overrides", type=Path, default=None)

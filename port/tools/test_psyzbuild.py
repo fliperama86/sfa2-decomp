@@ -314,6 +314,37 @@ def toolchain_cases():
     yield "triplet-of-a-plain-name", same((pb.triplet_of("cc"), pb.triplet_of("clang")), ("cc", "clang"))
     yield "triplet-only-a-final-gcc-is-cut", same(pb.triplet_of("gcc-12"), "gcc-12")
 
+    # --m32: a Linux toolchain file for 32-bit code.
+    dirs = ["/usr/lib32/pkgconfig", "/usr/share/pkgconfig"]
+    want = (
+        "set(CMAKE_SYSTEM_NAME Linux)\n"
+        "set(CMAKE_SYSTEM_PROCESSOR i686)\n"
+        "set(CMAKE_C_COMPILER /usr/bin/gcc)\n"
+        "set(CMAKE_CXX_COMPILER /usr/bin/g++)\n"
+        'set(CMAKE_C_FLAGS_INIT "-m32")\n'
+        'set(CMAKE_CXX_FLAGS_INIT "-m32")\n'
+        'set(CMAKE_EXE_LINKER_FLAGS_INIT "-m32")\n'
+        'set(CMAKE_SHARED_LINKER_FLAGS_INIT "-m32")\n'
+        'set(CMAKE_MODULE_LINKER_FLAGS_INIT "-m32")\n'
+        'set(ENV{PKG_CONFIG_LIBDIR} "/usr/lib32/pkgconfig:/usr/share/pkgconfig")\n'
+        'set(ENV{PKG_CONFIG_PATH} "")\n'
+    )
+    yield "m32-toolchain-file-content", same(pb.toolchain_text_m32("/usr/bin/gcc", dirs), want)
+    yield "m32-toolchain-has-no-mingw-or-static-parts", same(("Windows" in want, "-static" in want, "FIND_ROOT" in want), (False, False, False))
+    yield "m32-cxx-driver-beside-the-compiler", same(
+        [pb.cxx_of(c) for c in ("/usr/bin/gcc", "/opt/x/bin/x86_64-linux-gnu-gcc", "/usr/bin/clang")],
+        ["/usr/bin/g++", "/opt/x/bin/x86_64-linux-gnu-g++", "/usr/bin/clang++"])
+    yield "m32-unknown-compiler-name-is-refused", raises(lambda: pb.cxx_of("/usr/bin/cc"), "cc")
+    yield "m32-toolchain-unknown-compiler-is-refused", raises(lambda: pb.toolchain_text_m32("/usr/bin/tcc", dirs), "tcc")
+    present = lambda *have: (lambda d: d in have)   # noqa: E731
+    yield "m32-pkg-config-arch", same(pb.pkg_config_dirs(present("/usr/lib32/pkgconfig", "/usr/share/pkgconfig", "/usr/lib/pkgconfig")), ["/usr/lib32/pkgconfig", "/usr/share/pkgconfig"])
+    yield "m32-pkg-config-debian", same(pb.pkg_config_dirs(present("/usr/lib/i386-linux-gnu/pkgconfig", "/usr/share/pkgconfig")), ["/usr/lib/i386-linux-gnu/pkgconfig", "/usr/share/pkgconfig"])
+    yield "m32-pkg-config-both-in-order", same(pb.pkg_config_dirs(present("/usr/lib/i386-linux-gnu/pkgconfig", "/usr/lib32/pkgconfig")), ["/usr/lib32/pkgconfig", "/usr/lib/i386-linux-gnu/pkgconfig"])
+    yield "m32-pkg-config-shared-folder-alone-is-none", same(pb.pkg_config_dirs(present("/usr/share/pkgconfig")), [])
+    yield "m32-default-build-folder", same(
+        (pb.default_build_dir("gcc", True), pb.default_build_dir("/x/i686-w64-mingw32-gcc", False)),
+        (pb.PORT / "build" / "psyz-linux", pb.PORT / "build" / "psyz-i686-w64-mingw32"))
+
 
 def link_cases():
     build = Path("/b/obj")
@@ -469,7 +500,9 @@ class World:
         args.update(over)
         argv = [sys.executable, str(SCRIPT)]
         for key, val in args.items():
-            if val is not None:
+            if val is True:
+                argv.append(key)   # a flag
+            elif val is not None:
                 argv += [key, str(val)]
         env = dict(os.environ, STANDIN_LOG=str(self.log))
         env.pop("STANDIN_FAIL", None)
@@ -591,6 +624,12 @@ def program_cases(root):
     finally:
         os.environ["PATH"] = env_path
     yield "run-compiler-found-on-path", same((proc.returncode, f"set(CMAKE_C_COMPILER {w6.mingw})" in (w6.build / "toolchain.cmake").read_text()), (0, True))
+    # --m32 with a MinGW compiler: refused before anything is written or run.
+    w7 = World(root)
+    proc = w7.run(**{"--m32": True})
+    yield "run-m32-with-mingw-is-refused", same(
+        (proc.returncode, proc.stdout, "--m32" in proc.stderr and "MinGW" in proc.stderr, len(proc.stderr.strip().splitlines()), w7.calls(), w7.build.exists()),
+        (2, "", True, 1, [], False))
     # A second run on the same folder gives the same lines.
     again = w.run()
     yield "run-second-run-gives-the-same-lines", same((again.returncode, stdout_lines(again)), (0, stdout_lines(w.run())))

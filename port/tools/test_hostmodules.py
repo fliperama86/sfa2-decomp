@@ -2,6 +2,7 @@
 """Controls for the modules package (port/src/modules.c): the launch path, run for real.
 
     python3 test_hostmodules.py --cc CROSS_CC [--run PREFIX]
+    python3 test_hostmodules.py --linux [--cc gcc]
 
 The test builds the runtime (every port/src/*.c the launch controls build, plus
 modules.c) with the cross compiler CC and made-up tables of its own, then runs
@@ -34,6 +35,8 @@ with the real CdIntToPos / CdControlB / CdReady / CdGetSector host routines:
   the disc layer as the ready callback runs when the module is placed, and an address inside the module that is
   no function start is refused before the call;
 - a second placement (`like` image) with its own table: its C runs, its function without C stops by name.
+
+With --linux the cases run for the native Linux program (see test_hostlaunch.py for the rig and port/linux/README.md).
 
 The expected lines are worked out here from the fixtures. Needs the cross compiler
 and a way to start a Windows program, like test_hostlaunch.py; without them this
@@ -455,16 +458,16 @@ class ModRig(tl.Rig):
                 parts = []
                 for tag, text in (("domains", DOMAINS), ("mbegin", tl.MARK_BEGIN), ("game", GAME), ("mend", tl.MARK_END)):
                     path = self.work / f"mod-{tag}.c"
-                    path.write_text(text)
+                    self.write_game(path, tag, text)
                     parts.append(self.compile(path, ["-Wno-unused-function"] if tag == "game" else None))
                 self.built_parts["fixed"] = parts
             path = self.work / f"mod-tables-{key}.c"
             path.write_text(tables_c(pin, unpinned))
-            objs = list(self.runtime_objects()) + [self.filler()] + self.built_parts["fixed"] + [self.compile(path)]
+            objs = list(self.runtime_objects()) + ([] if self.linux else [self.filler()]) + self.built_parts["fixed"] + [self.compile(path)]
             names = {n: a for n, a in LIB.items()} | G | {"ma_f": FA, "mb_f": FA, "mb_g": FB2}
-            defs = [f"-Wl,--defsym,_ps1_{n}=0x{a:08x}" for n, a in names.items()]
+            defs = [f"-Wl,--defsym,{self.us}ps1_{n}=0x{a:08x}" for n, a in names.items()]
             out = self.work / f"sfa2-mod-{key}.exe"
-            proc = subprocess.run([self.cc, "-o", str(out), *map(str, objs), *tl.LINK_FLAGS, *defs], capture_output=True, text=True, timeout=300)
+            proc = subprocess.run([self.cc, *self.cflags, "-o", str(out), *map(str, objs), *self.lflags, *defs, *(["-lm"] if self.linux else [])], capture_output=True, text=True, timeout=300)
             if proc.returncode != 0:
                 raise RuntimeError("the runtime did not link:\n" + proc.stderr.strip())
             self.built[key] = out
@@ -476,7 +479,10 @@ class ModRig(tl.Rig):
         img = disc_image(data, files)
         path = self.work / f"{tag}.bin"
         img.write(path)
-        status, out = self.start(exe, [*(args or []), self.native(path)], timeout)   # records status, stdout and stderr of this run
+        try:
+            status, out = self.start(exe, [*(args or []), self.native(path)], timeout)   # records status, stdout and stderr of this run
+        except subprocess.TimeoutExpired:   # a program that did not end is a wrong case (status None), not the end of the file's run
+            status, out = None, "\n".join(self.last["stdout"]) + "\n"
         lines = out.replace("\r\n", "\n").splitlines()
         if f"start: 0x{entry:08x}" in lines:
             lines = lines[lines.index(f"start: 0x{entry:08x}") + 1:]
@@ -702,16 +708,21 @@ def cases(rig: ModRig):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--cc", required=True)
+    parser.add_argument("--cc", default=None)
+    parser.add_argument("--linux", action="store_true", help="run for the native Linux program (cc defaults to gcc)")
     parser.add_argument("--run", default="", help="command prefix that starts a Windows program")
     args = parser.parse_args()
+    if args.cc is None:
+        if not args.linux:
+            parser.error("--cc is required without --linux")
+        args.cc = "gcc"
     if not shutil.which(args.cc):
         print(f"the cross compiler {args.cc} is missing; these controls need it")
         return 2
     BUILD.mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="hostmodules-", dir=BUILD))
     try:
-        rig = ModRig(args.cc, args.run.split(), work)
+        rig = ModRig(args.cc, args.run.split(), work, args.linux)
         problem = rig.start_check()
         if problem:
             print(problem)

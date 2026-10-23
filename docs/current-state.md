@@ -14,9 +14,11 @@ yet.
 
 The PC port runs the game from the user's disc on Windows and, since
 2026-10-12, natively on macOS with Apple Silicon (in a small virtual
-machine): title, menus, a fight and sound. It skips the disc's stand-alone
+machine): title, menus, a fight and sound. Since 2026-10-23 it also runs
+natively on Linux, as a 32-bit program of the Windows design
+([Linux page](../port/linux/README.md)). It skips the disc's stand-alone
 programs, stops by name where C is missing, and is not shown to play to the
-end. It does not run on Linux.
+end.
 
 The port-only experimental arcade intro now completes all eight native phases
 in the normal Windows executable, with an adapted PS1-disc soundtrack, then

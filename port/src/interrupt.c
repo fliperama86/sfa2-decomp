@@ -24,12 +24,25 @@
  * and is not interrupted. Null until that layer starts. */
 int (*port_page_blocked)(unsigned address);
 
+#if defined(_WIN32) || defined(PORT_LINUX)
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <errno.h>
+#include <pthread.h>
+#include <signal.h>
+#include <string.h>
+#include <time.h>
+#include <ucontext.h>
+#endif
 
 extern char port_game_text_begin, port_game_text_end;
 
+#ifdef _WIN32
 static HANDLE game_thread;
+#else
+static pthread_t game_thread;
+#endif
 static int burst;
 unsigned port_interrupt_count;               /* how many vblanks the timer delivered (for the controls and the page) */
 
@@ -74,6 +87,7 @@ __asm__(".text\n"
 extern volatile unsigned interrupted_eip_cell;
 volatile unsigned interrupted_eip_cell;
 
+#ifdef _WIN32
 int port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip)
 {
     if (context_eip != (unsigned)(size_t)port_interrupt_entry) return 0;
@@ -87,6 +101,17 @@ int port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *
     }
     return 0;
 }
+#else
+/* Linux: never. The vblank's signal is blocked while the fault handler runs and the kernel delivers a fault before a pending
+ * signal, so a fault's context always holds the faulting instruction (port/linux/README.md). */
+int port_interrupt_aimed(unsigned context_eip, unsigned exception_ip, unsigned *fault_ip)
+{
+    (void)context_eip;
+    (void)exception_ip;
+    (void)fault_ip;
+    return 0;
+}
+#endif
 
 void port_interrupt_set_return(unsigned ip)
 {
@@ -99,6 +124,7 @@ static int in_game_code(unsigned eip)
            (eip >= PORT_RAM_BASE && eip < PORT_RAM_BASE + PORT_RAM_SIZE && !(port_page_blocked && port_page_blocked(eip)));
 }
 
+#ifdef _WIN32
 /* The gate. Whoever suspends the game's thread (the timer here, the watchdog of debug.c) holds the gate from before
  * SuspendThread until after ResumeThread. port_suspenders_stop takes the gate once and sets the flag under it; after
  * it returns no suspension is in flight and none can begin. It runs at every way the game's thread ends the process:
@@ -207,6 +233,118 @@ void port_interrupt_start(int burst_mode)
     if (!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &game_thread, 0, FALSE, DUPLICATE_SAME_ACCESS)) return;
     CreateThread(NULL, 0, timer, NULL, 0, NULL);
 }
+#else
+/* Linux (port/linux/README.md). No thread can suspend another here, so the timer sends the game's thread a signal and the signal's
+ * handler, on that thread, makes the Windows timer's decision on its own context and aims it at port_interrupt_entry. The handler
+ * only reads flags and the clock and swaps words atomically (port_interrupt_take): nothing that a signal handler may not do. The
+ * gate keeps the Windows contract with a mutex: after port_suspenders_stop returns, no round is in flight and none begins, and a
+ * signal that is still on its way does nothing once `stopped` is set. Ends that are the Windows program's ExitProcess are
+ * port_exit_now here. */
+static pthread_mutex_t gate = PTHREAD_MUTEX_INITIALIZER;
+static int gate_ready;
+static volatile int stopped;
+static volatile int in_round;
+
+void port_suspenders_init(void)
+{
+    if (gate_ready) return;
+    gate_ready = 1;
+    atexit(port_suspenders_check_closed);   /* registered first, so it runs after the stop: the --timer-burst self-check of the registration */
+    atexit(port_suspenders_stop);
+}
+
+void port_suspenders_stop(void)
+{
+    if (!gate_ready) return;
+    pthread_mutex_lock(&gate);
+    stopped = 1;
+    pthread_mutex_unlock(&gate);
+    if (burst && in_round) {   /* --timer-burst only: the contract of this routine, checked */
+        printf("stop: a suspension round was in flight when the stop returned\n");
+        fflush(stdout);
+        port_exit_now(PORT_EXIT_CRASH);
+    }
+}
+
+void port_suspenders_check_closed(void)
+{
+    if (burst && gate_ready && !stopped) {   /* --timer-burst only: a way of ending the process that did not close the gate */
+        printf("stop: the process was ended while suspensions were still allowed\n");
+        fflush(stdout);
+        port_exit_now(PORT_EXIT_CRASH);
+    }
+}
+
+int port_suspenders_enter(void)
+{
+    pthread_mutex_lock(&gate);
+    if (stopped) {
+        pthread_mutex_unlock(&gate);
+        return 0;
+    }
+    return 1;
+}
+
+void port_suspenders_leave(void)
+{
+    pthread_mutex_unlock(&gate);
+}
+
+/* On the game's thread, at any instruction: the decision of the Windows timer, on the context the signal interrupted. */
+static void vblank_signal(int sig, siginfo_t *si, void *context)
+{
+    ucontext_t *uc = context;
+    greg_t *g = uc->uc_mcontext.gregs;
+    unsigned eip = (unsigned)g[REG_EIP];
+    int saved = errno;
+    (void)sig;
+    (void)si;
+    if (!stopped && in_game_code(eip) && port_interrupt_allowed() && port_interrupt_take()) {
+        interrupted_eip_cell = eip;
+        g[REG_EIP] = (greg_t)(size_t)port_interrupt_entry;
+        port_interrupt_count++;
+    }
+    errno = saved;
+}
+
+static void *timer(void *unused)
+{
+    struct timespec ms = { 0, 1000000 }, brief = { 0, 100000 };
+    (void)unused;
+    for (;;) {
+        /* --timer-burst (a control): a tenth of the usual wait between attempts. Not none: a mutex is not fair, and a thread that
+         * waits for the gate (the stop at an exit) would never get it from a loop that takes it again at once. */
+        nanosleep(burst ? &brief : &ms, NULL);
+        if (!port_suspenders_enter()) return NULL;
+        in_round = 1;
+        if (burst && stopped) {   /* --timer-burst only: the other half of the contract, that none begins after the stop */
+            printf("stop: a suspension round began after the stop\n");
+            fflush(stdout);
+            port_exit_now(PORT_EXIT_CRASH);
+        }
+        if (burst) nanosleep(&ms, NULL);   /* --timer-burst: stay in the round for a moment, so that a missing gate shows in the self-check of the stop */
+        pthread_kill(game_thread, PORT_SIG_VBLANK);
+        in_round = 0;
+        port_suspenders_leave();
+    }
+    return NULL;
+}
+
+void port_interrupt_start(int burst_mode)
+{
+    struct sigaction sa;
+    pthread_t t;
+    burst = burst_mode;
+    port_suspenders_init();
+    game_thread = pthread_self();
+    memset(&sa, 0, sizeof sa);
+    sa.sa_sigaction = vblank_signal;
+    sa.sa_flags = SA_SIGINFO | SA_RESTART;
+    sigemptyset(&sa.sa_mask);
+    if (sigaction(PORT_SIG_VBLANK, &sa, NULL) != 0) return;
+    if (pthread_create(&t, NULL, timer, NULL) == 0) pthread_detach(t);
+}
+#endif
 #elif !defined(PORT_GUEST_VM)   /* the macOS build has its own, in port/mac/platform.c */
 void port_interrupt_start(int burst_mode)
 {

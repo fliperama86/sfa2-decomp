@@ -17,7 +17,11 @@
 
 #include <stdio.h>
 #include <string.h>
+#ifdef _WIN32
 #include <windows.h>
+#else
+#include <sys/mman.h>
+#endif
 
 #define PORT_STR2(x) #x
 #define PORT_STR(x) PORT_STR2(x)
@@ -597,7 +601,12 @@ static void io_page(void)
 int main(void)
 {
     unsigned i;
+#ifdef _WIN32
     code_page = VirtualAlloc(NULL, 4096, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+#else
+    code_page = mmap(NULL, 4096, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (code_page == MAP_FAILED) code_page = NULL;
+#endif
     if (!code_page) {
         printf("FAIL native-setup: no executable page\n");
         return 1;

@@ -96,6 +96,9 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#elif defined(PORT_LINUX)
+#include <errno.h>
+#include <sys/mman.h>
 #endif
 
 #ifdef PORT_HAVE_PSYZ
@@ -544,6 +547,11 @@ int port_iopage_init(const char *audio_dump, int audio_device, int trace, char *
     DWORD old;
     if (!VirtualProtect((void *)(size_t)IO_BASE, IO_END - IO_BASE, PAGE_NOACCESS, &old)) {
         snprintf(err, errsize, "iopage: cannot close the I/O page (system error %lu)", (unsigned long)GetLastError());
+        return -1;
+    }
+#elif defined(PORT_LINUX)
+    if (mprotect((void *)(size_t)IO_BASE, IO_END - IO_BASE, PROT_NONE) != 0) {
+        snprintf(err, errsize, "iopage: cannot close the I/O page (%s)", strerror(errno));
         return -1;
     }
 #else

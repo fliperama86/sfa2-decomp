@@ -267,6 +267,166 @@ int port_h_CloseTh(unsigned handle)
     return 1;
 }
 
+#elif defined(PORT_LINUX)
+
+/* Linux: a task is a context of ucontext.h on a stack of its own (a guard page that faults, then TASK_STACK bytes), in place of a
+ * Windows fiber. A task's context is saved in the task's own record at a switch, not in its slot: a task that closes itself and opens
+ * another, which takes the same slot, before it switches away keeps its context out of the new task's way (as a fiber does). */
+#include <errno.h>
+#include <pthread.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <ucontext.h>
+
+#define TASK_STACK 0x100000u
+#define TASK_GUARD 0x1000u
+
+struct task {
+    ucontext_t ctx;
+    unsigned char *map;   /* the guard page and the stack; NULL for the start-up thread, which runs on the thread's own stack */
+};
+
+struct slot {
+    int used;
+    unsigned entry;
+    struct task *task;
+};
+
+static struct slot slots[THREAD_SLOTS];   /* slot 0 is the main thread */
+static struct task main_task;
+static struct task *running;              /* the task that runs now (NULL before the first call: the start-up thread) */
+static unsigned current;
+static int started;
+static struct task *zombie;               /* a closed task that was running; freed after the next switch */
+
+static void free_task(struct task *t)
+{
+    munmap(t->map, TASK_GUARD + TASK_STACK);
+    free(t);
+}
+
+static void reap(void)
+{
+    if (zombie) {
+        struct task *t = zombie;
+        zombie = NULL;
+        free_task(t);
+    }
+}
+
+static void start(void)
+{
+    if (started) return;
+    started = 1;
+    slots[0].used = 1;
+    slots[0].task = &main_task;
+    running = &main_task;
+}
+
+/* The top of the calling thread's own stack, asked once per thread. */
+static unsigned long own_stack_top(void)
+{
+    static __thread unsigned long top;
+    pthread_attr_t a;
+    void *addr;
+    size_t size;
+    if (top) return top;
+    if (pthread_getattr_np(pthread_self(), &a) != 0) return 0;
+    if (pthread_attr_getstack(&a, &addr, &size) == 0) top = (unsigned long)(uintptr_t)addr + (unsigned long)size;
+    pthread_attr_destroy(&a);
+    return top;
+}
+
+unsigned long port_stack_top(void)
+{
+    if (running && running->map) return (unsigned long)(uintptr_t)(running->map + TASK_GUARD + TASK_STACK);
+    return own_stack_top();
+}
+
+static void task_main(unsigned entry)
+{
+    reap();
+    port_target_check("thread entry", (const void *)(size_t)entry);
+    ((void (*)(void))(size_t)entry)();
+    port_halt(PORT_EXIT_THREAD, "the function of a thread (0x%08x) returned; the game never lets one", entry);
+}
+
+static struct slot *slot_of(unsigned handle)
+{
+    unsigned i = handle - HANDLE_BASE;
+    if (handle < HANDLE_BASE || i >= THREAD_SLOTS || !slots[i].used) return NULL;
+    return &slots[i];
+}
+
+/* BIOS B0 0Eh OpenTh(pc, sp, gp): as the Windows branch. */
+unsigned port_h_OpenTh(unsigned pc, unsigned sp, unsigned gp);
+unsigned port_h_OpenTh(unsigned pc, unsigned sp, unsigned gp)
+{
+    unsigned i;
+    (void)sp;
+    (void)gp;
+    start();
+    for (i = 1; i < THREAD_SLOTS; i++)
+        if (!slots[i].used) {
+            struct task *t = calloc(1, sizeof *t);
+            unsigned char *map;
+            if (!t) port_halt(PORT_EXIT_OTHER, "threads: out of memory");
+            map = mmap(NULL, TASK_GUARD + TASK_STACK, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
+            if (map == MAP_FAILED) port_halt(PORT_EXIT_OTHER, "threads: cannot make a task's stack (%s)", strerror(errno));
+            t->map = map;
+            if (mprotect(map, TASK_GUARD, PROT_NONE) != 0 || getcontext(&t->ctx) != 0)
+                port_halt(PORT_EXIT_OTHER, "threads: cannot make a task (%s)", strerror(errno));
+            t->ctx.uc_stack.ss_sp = map + TASK_GUARD;
+            t->ctx.uc_stack.ss_size = TASK_STACK;
+            t->ctx.uc_link = NULL;
+            makecontext(&t->ctx, (void (*)(void))task_main, 1, pc);
+            slots[i].used = 1;
+            slots[i].entry = pc;
+            slots[i].task = t;
+            return HANDLE_BASE + i;
+        }
+    return 0xffffffffu;
+}
+
+/* BIOS B0 10h ChangeTh(handle): as the Windows branch. */
+int port_h_ChangeTh(unsigned handle);
+int port_h_ChangeTh(unsigned handle)
+{
+    struct slot *to;
+    start();
+    to = slot_of(handle);
+    if (!to) return 0;
+    if (handle - HANDLE_BASE == current) return 1;
+    {
+        unsigned me = current;
+        struct task *self = running;
+        current = handle - HANDLE_BASE;
+        running = to->task;
+        if (swapcontext(&self->ctx, &to->task->ctx) != 0) port_halt(PORT_EXIT_OTHER, "threads: cannot switch tasks (%s)", strerror(errno));
+        current = me;
+        running = self;
+    }
+    reap();
+    return 1;
+}
+
+/* BIOS B0 0Fh CloseTh(handle): as the Windows branch; a task that closes itself is freed after the switch away from it. */
+int port_h_CloseTh(unsigned handle);
+int port_h_CloseTh(unsigned handle)
+{
+    struct slot *s;
+    start();
+    s = slot_of(handle);
+    if (!s || handle == HANDLE_BASE) return 0;
+    if (handle - HANDLE_BASE == current) zombie = s->task;
+    else free_task(s->task);
+    s->used = 0;
+    s->task = NULL;
+    return 1;
+}
+
 #else
 
 unsigned port_h_OpenTh(unsigned pc, unsigned sp, unsigned gp);

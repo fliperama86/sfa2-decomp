@@ -652,6 +652,76 @@ def image_flow_cases(root: Path):
         yield f"image-flow-{tag}-not-honoured-ends-with-status-1", same((proc.returncode, want in proc.stderr, "linked:" in proc.stdout), (1, True, False))
 
 
+def linux_flow_cases(root: Path):
+    """--linux: -m32 on every run, the runtime's own flags, no filler object, the ELF link line and the ELF check."""
+    def tree(tag: str, **spec):
+        config = run_tree(root, tag)
+        write(root / tag / "runtime" / "gpu.c", "int gpu;\n")
+        folder = root / tag / "psyzdir"
+        (folder / "inc").mkdir(parents=True)
+        libs = [write(folder / "libpsyz.a", ""), write(folder / "libSDL3.a", "")]
+        write(folder / "psyz.json", json.dumps({"include": str(folder / "inc"), "define": ["__psyz"], "link": [str(libs[0]), str(libs[1]), "-ldl"], "commit": "abc123"}))
+        cc, nm = fake(root, tag, defs=DEFS, underscore=False, elf={}, **spec)
+        return config, cc, nm, folder, libs
+
+    config, cc, nm, folder, libs = tree("lin")
+    proc = run(root, "lin", config, cc, nm, "--linux", "--psyz", folder, "--no-sound-library")
+    build = root / "lin" / "build"
+    yield "linux-run-verifies", same((proc.returncode, proc.stdout.splitlines()[-1], proc.stderr), (0, f"linked: {build / 'sfa2'}, verified", ""))
+    calls = [x.split() for x in read(root / "lin.log").splitlines()]
+    rsp = [Path(json.loads(x)).name for x in read(build / "link.rsp").splitlines()]
+    yield "linux-no-filler-object", same((rsp[:2], "hole.o" in rsp, (build / "gen" / "hole.s").exists()), (["port_game_text_begin.o", "ua.o"], False, False))
+    link = [c for c in calls if c and c[0].startswith("@")]
+    yield "linux-link-line", same(link[0][1:] if link else None, [*hb.LINUX_LINK_FLAGS, str(libs[0]), str(libs[1]), "-ldl", "-lm", "-o", str(build / "sfa2")])
+    rt = [c for c in calls if "-O1" in c and "-c" in c and c[-1].endswith(".c")]
+    yield "linux-runtime-flags", same(
+        sorted({tuple(c[:9]) for c in rt}), [(*hb.LINUX_TARGET_FLAGS, "-fno-pie", "-D_GNU_SOURCE", "-pthread", "-O1", "-Wall", "-Wextra", "-c")])
+    yield "linux-runtime-files-all-compiled", same(sorted(Path(c[-1]).name for c in rt), ["gpu.c", "main.c", "port_tables.c"])
+    yield "linux-psyz-flags-still-on-gpu-c", same(
+        [c[9:12] for c in rt if c[-1].endswith("gpu.c")], [["-DPORT_HAVE_PSYZ", "-D__psyz", "-isystem"]])
+    units = [c for c in calls if "-S" in c]
+    yield "linux-every-compile-and-assembly-takes-m32", same(
+        (len(units) > 0 and all(c[:2] == hb.LINUX_TARGET_FLAGS for c in units),
+         all(c[:2] == hb.LINUX_TARGET_FLAGS for c in calls if "-c" in c and c[-1].endswith(".s")),
+         all(c[:2] == hb.LINUX_TARGET_FLAGS for c in calls if c[-1].endswith("underscore.c"))), (True, True, True))
+    marks = [c for c in calls if c[-1].endswith("port_game_text_begin.s") or c[-1].endswith("port_game_text_end.s")]
+    yield "linux-markers-take-m32", same([c[:3] for c in marks], [[*hb.LINUX_TARGET_FLAGS, "-c"], [*hb.LINUX_TARGET_FLAGS, "-c"]])
+    yield "linux-target-flags", same(hb.LINUX_TARGET_FLAGS, ["-m32", "-maccumulate-outgoing-args"])
+    yield "linux-names-without-underscore", same(read(build / "gen" / "names.ld").splitlines()[0], "ps1_asmf = 0x80100200;")
+
+    # Without --psyz the link line has no libraries, and the output and folder defaults are the target's.
+    config, cc, nm, folder, libs = tree("lin2")
+    proc = run(root, "lin2", config, cc, nm, "--linux")
+    calls = [x.split() for x in read(root / "lin2.log").splitlines()]
+    link = [c for c in calls if c and c[0].startswith("@")]
+    yield "linux-link-line-without-psyz", same((proc.returncode, link[0][1:] if link else None), (0, [*hb.LINUX_LINK_FLAGS, "-lm", "-o", str(root / "lin2" / "build" / "sfa2")]))
+    yield "linux-defaults", same(
+        [hb.target_defaults(hb.make_parser().parse_args(a)) for a in ([], ["--guest"], ["--linux"], ["--linux", "--cc", "x", "--build", "b", "--out", "o"])],
+        [("i686-w64-mingw32-gcc", hb.REPO / "port/build/host", "sfa2.exe"), (hb.guestlink.DEFAULT_CC, hb.REPO / "port/build/guest", "guest.elf"),
+         ("gcc", hb.REPO / "port/build/linux", "sfa2"), ("x", Path("b"), "o")])
+
+    # Each miss of the ELF check ends the build with status 1, as the PE check does.
+    for tag, elf, want in (
+        ("pie", {"etype": 3}, "file type 3, wanted 2 (ET_EXEC)"),
+        ("low", {"segments": [[PT_LOAD, 0x10000, 0x1000, 5], [PT_GNU_STACK, 0, 0, 6]]}, "overlaps 0x0-0x200000"),
+        ("stack", {"segments": [[PT_LOAD, 0x08048000, 0x1000, 5], [PT_GNU_STACK, 0, 0, 7]]}, "the stack is executable"),
+    ):
+        config, cc, nm, folder, libs = tree("lin-" + tag)
+        cc, nm = fake(root, "lin-" + tag, defs=DEFS, underscore=False, elf=elf)
+        proc = run(root, "lin-" + tag, config, cc, nm, "--linux")
+        yield f"linux-{tag}-miss-ends-with-status-1", same((proc.returncode, want in proc.stderr, "linked:" in proc.stdout), (1, True, False))
+
+    config, cc, nm, folder, libs = tree("lin-guest")
+    proc = run(root, "lin-guest", config, cc, nm, "--linux", "--guest")
+    yield "linux-with-guest-is-refused", same((proc.returncode, proc.stdout, "--guest" in proc.stderr and "--linux" in proc.stderr, len(proc.stderr.strip().splitlines())), (2, "", True, 1))
+
+    # The Windows command lines are the ones they were.
+    yield "linux-windows-runtime-command-unchanged", same(
+        hb.runtime_command("cc", ["-DX"], Path("/r"), Path("/o"), Path("/s.c")), ["cc", "-O1", "-Wall", "-Wextra", "-c", "-DX", "-I", "/r", "-o", "/o", "/s.c"])
+    yield "linux-windows-link-command-unchanged", same(
+        hb.link_command("cc", Path("/l.rsp"), ["a.a", "-lm"], Path("/x.exe"), False), ["cc", "@/l.rsp", *hb.LINK_FLAGS, "a.a", "-lm", "-o", "/x.exe"])
+
+
 def marker_flow_cases(root: Path):
     config = run_tree(root, "mark")
     cc, nm = fake(root, "mark", defs=DEFS, rt_defs=["rtfunc"])
@@ -761,6 +831,69 @@ def image_cases():
     yield "image-section-table-cut", same(hb.verify_image(pe_bytes()[:0x80 + 24 + 224 + 60]), ["4 sections: the filler and the program's own are needed"])
 
 
+# The linked file's ELF headers (verify_elf) on invented headers.
+
+PT_LOAD, PT_GNU_STACK = 1, 0x6474E551
+
+
+def elf_bytes(cls=1, enc=1, machine=3, etype=2, segments=None, entsize=32, count=None) -> bytes:
+    """An ELF header with the given program headers [(type, vaddr, memsz, flags)]; the default is the good one."""
+    if segments is None:
+        segments = [(PT_LOAD, 0x08048000, 0x4000, 5), (PT_LOAD, 0x0804D000, 0x2000, 6), (PT_GNU_STACK, 0, 0, 6)]
+    data = bytearray(52 + entsize * len(segments))
+    data[0:4] = b"\x7fELF"
+    data[4], data[5], data[6] = cls, enc, 1
+    data[16:18] = etype.to_bytes(2, "little")
+    data[18:20] = machine.to_bytes(2, "little")
+    data[28:32] = (52).to_bytes(4, "little")
+    data[42:44] = entsize.to_bytes(2, "little")
+    data[44:46] = (len(segments) if count is None else count).to_bytes(2, "little")
+    for i, (kind, vaddr, memsz, flags) in enumerate(segments):
+        o = 52 + entsize * i
+        data[o:o + 4] = kind.to_bytes(4, "little")
+        data[o + 8:o + 12] = vaddr.to_bytes(4, "little")
+        data[o + 12:o + 16] = vaddr.to_bytes(4, "little")
+        data[o + 20:o + 24] = memsz.to_bytes(4, "little")
+        data[o + 24:o + 28] = flags.to_bytes(4, "little")
+    return bytes(data)
+
+
+def elf_cases():
+    def check(**kw):
+        return hb.verify_elf(elf_bytes(**kw))
+
+    good = [(PT_LOAD, 0x08048000, 0x4000, 5), (PT_GNU_STACK, 0, 0, 6)]
+    stack = lambda *rows: [*rows, (PT_GNU_STACK, 0, 0, 6)]   # noqa: E731
+    yield "elf-good-header", same(check(), [])
+    yield "elf-free-ranges-are-the-ones-of-the-design", same(hb.LINUX_FREE, ((0, 0x200000), (0x1F800000, 0x1F810000), (0x80000000, 0x80200000)))
+    yield "elf-link-flags", same(hb.LINUX_LINK_FLAGS, ["-m32", "-no-pie", "-pthread", "-Wl,-z,noexecstack"])
+    yield "elf-not-elf", same(hb.verify_elf(b"MZ" + bytes(100)), ["the file has no ELF header"])
+    yield "elf-short-file", same(hb.verify_elf(b"\x7fELF"), ["the file has no ELF header"])
+    yield "elf-64-bit", same(check(cls=2), ["ELF class 2, wanted 1 (32-bit)"])
+    yield "elf-big-endian", same(check(enc=2), ["ELF data encoding 2, wanted 1 (little-endian)"])
+    yield "elf-wrong-machine", same(check(machine=62), ["machine 62, wanted 3 (EM_386)"])
+    yield "elf-position-independent", same(check(etype=3), ["file type 3, wanted 2 (ET_EXEC): a position-independent program"])
+    yield "elf-relocatable-object", same(check(etype=1), ["file type 1, wanted 2 (ET_EXEC)"])
+    yield "elf-segment-in-low-memory", same(check(segments=stack((PT_LOAD, 0x10000, 0x1000, 5))), ["a segment at 0x10000, 0x1000 bytes, overlaps 0x0-0x200000"])
+    yield "elf-segment-reaching-into-the-low-range", same(check(segments=stack((PT_LOAD, 0x1FF000, 0x2000, 5))), ["a segment at 0x1ff000, 0x2000 bytes, overlaps 0x0-0x200000"])
+    yield "elf-segment-just-above-the-low-range-is-fine", same(check(segments=stack((PT_LOAD, 0x200000, 0x1000, 5))), [])
+    yield "elf-segment-in-scratchpad", same(check(segments=stack((PT_LOAD, 0x1F800000, 0x100, 6))), ["a segment at 0x1f800000, 0x100 bytes, overlaps 0x1f800000-0x1f810000"])
+    yield "elf-segment-ending-in-scratchpad", same(check(segments=stack((PT_LOAD, 0x1F7FFF00, 0x200, 6))), ["a segment at 0x1f7fff00, 0x200 bytes, overlaps 0x1f800000-0x1f810000"])
+    yield "elf-segment-just-below-scratchpad-is-fine", same(check(segments=stack((PT_LOAD, 0x1F7FFF00, 0x100, 6))), [])
+    yield "elf-segment-in-ram", same(check(segments=stack((PT_LOAD, 0x801FF000, 0x1000, 6))), ["a segment at 0x801ff000, 0x1000 bytes, overlaps 0x80000000-0x80200000"])
+    yield "elf-segment-starting-below-ram", same(check(segments=stack((PT_LOAD, 0x7FFFF000, 0x2000, 6))), ["a segment at 0x7ffff000, 0x2000 bytes, overlaps 0x80000000-0x80200000"])
+    yield "elf-segment-above-ram-is-fine", same(check(segments=stack((PT_LOAD, 0x80200000, 0x1000, 6))), [])
+    yield "elf-empty-segment-is-ignored", same(check(segments=stack((PT_LOAD, 0x10000, 0, 6))), [])
+    yield "elf-other-segment-types-are-not-loads", same(check(segments=stack((4, 0x10000, 0x40, 4))), [])
+    yield "elf-two-misses-both-named", same(len(check(segments=stack((PT_LOAD, 0x10000, 0x1000, 5), (PT_LOAD, 0x80000000, 0x1000, 6)))), 2)
+    yield "elf-no-gnu-stack", same(check(segments=[(PT_LOAD, 0x08048000, 0x4000, 5)]), ["no PT_GNU_STACK header: the stack would be executable"])
+    yield "elf-executable-stack", same(check(segments=[(PT_LOAD, 0x08048000, 0x4000, 5), (PT_GNU_STACK, 0, 0, 7)]), ["the stack is executable (PT_GNU_STACK has the execute flag)"])
+    yield "elf-header-table-cut", same(hb.verify_elf(elf_bytes(segments=good)[:52 + 40]), ["the program header table is not inside the file"])
+    yield "elf-header-count-past-the-file", same(check(count=500), ["the program header table is not inside the file"])
+    yield "elf-small-header-entries", same(check(entsize=16), ["the program header table is not inside the file"])
+    yield "elf-64-bit-and-low-segment-reports-only-the-class", same(check(cls=2, segments=stack((PT_LOAD, 0x10000, 0x1000, 5))), ["ELF class 2, wanted 1 (32-bit)"])
+
+
 # The whole run, with a stand-in compiler.
 
 FAKE = """#!{python}
@@ -860,7 +993,10 @@ if spec.get("link_fail"):
     sys.exit(1)
 sys.path.insert(0, {tools!r})
 import test_hostbuild as T
-pe = T.pe_for_link(args, [json.loads(l) for l in rsp], spec.get("ignore", []), spec.get("skip_hole", False))
+if "elf" in spec:
+    pe = T.elf_bytes(**spec["elf"])
+else:
+    pe = T.pe_for_link(args, [json.loads(l) for l in rsp], spec.get("ignore", []), spec.get("skip_hole", False))
 out.write_bytes(pe + b"\\n" + text.encode("latin-1"))
 """
 
@@ -2370,11 +2506,13 @@ def groups(root: Path, rig: "Rig | None" = None):
     yield verify_cases()
     yield marker_cases()
     yield image_cases()
+    yield elf_cases()
     yield flow_cases(root)
     yield like_cases(root)
     yield sweep_flow_cases(root)
     yield marker_flow_cases(root)
     yield image_flow_cases(root)
+    yield linux_flow_cases(root)
     yield psyz_cases(root)
     yield sound_cases(root)
     yield override_rename_cases()

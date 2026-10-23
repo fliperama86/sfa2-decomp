@@ -2,6 +2,7 @@
 """Controls for the PS1's copy of RAM at address 0 (mirror.c, mirrorcore.c).
 
     python3 test_hostmirror.py --cc CROSS_CC [--run PREFIX] [--src DIR] [--part native|launch|all] [--only SUBSTRING]
+    python3 test_hostmirror.py --linux [--cc gcc] [--src DIR] [--part native|launch|all]
 
 Two parts. The native part (mirror_native_test.c) links mirrorcore.c alone and starts none of the port's program:
 the decision "is this fault served" at its borders, the decoder on every form the file builds (each register
@@ -16,6 +17,12 @@ with a memory operand and its flags, the lines (first use once per function, the
 the counts at exit), a loop of many served accesses with the vblank timer on, and the refusals: an access that
 straddles 0x10000 (crash line), one from host code (crash line), an execute fault at a low address, a form that
 is not served (stop line with the instruction's bytes), a second fault inside the handler. One timing is printed.
+
+With --linux the same file runs for the native Linux program (port/linux/README.md; see test_hostlaunch.py for the rig). There the
+copy of RAM from 0x10000 to 0x1fffff is plain memory: no fault, no first-use line, no trace line. So the cases at 0x11000, 0x3e0cc and
+the top of the copy expect those bytes and no `mirror:` line, the walk's two chains lie below 0x10000 (where the served path is), the
+cases about the image's header page, the program's own first section and the old link say `not on Linux`, a straddle of 0x200000 is an
+ordinary access violation, and the start check's trace line is Linux's.
 
 Every case prints `ok NAME` or `FAIL NAME: why`; the last line is `all cases behaved as required` or the number
 of cases that did not. Windows programs run from a WSL shell as test_hostlaunch.py does. --src names another copy of
@@ -150,12 +157,17 @@ void g_edge_w(void) { SAY("before\n"); LOW8(0x200000) = 1; SAY("after\n"); }
 void g_hdr_r(void) { SAY("header page: %04x\n", LOW16(0x10000)); }
 void g_hdr_w(void) { SAY("before\n"); LOW8(0x10010) = 1; SAY("after\n"); }
 #define NODES 2000
-#define NODE(base, i) ((volatile unsigned *)((base) + (i) * 0x40u))
+#ifndef WALK_A
+#define WALK_A 0x80040000u
+#define WALK_B 0x80070000u
+#define WALK_STRIDE 0x40u
+#endif
+#define NODE(base, i) ((volatile unsigned *)((base) + (i) * WALK_STRIDE))
 static void chain(unsigned base)
 {
     unsigned i;
     for (i = 0; i < NODES; i++) {
-        NODE(base, i)[0] = ((i & 0xffu) << 24) | (i + 1 < NODES ? (base + (i + 1) * 0x40u) & 0xffffffu : 0xffffffu);
+        NODE(base, i)[0] = ((i & 0xffu) << 24) | (i + 1 < NODES ? (base + (i + 1) * WALK_STRIDE) & 0xffffffu : 0xffffffu);
         NODE(base, i)[1] = i * 7u;
     }
 }
@@ -180,17 +192,17 @@ static void walk_report(int spoil)
 {
     LARGE_INTEGER f, a, b, c;
     unsigned i, real, lowv, same_ram = 0;
-    chain(0x80040000u);
-    chain(0x80070000u);
-    if (spoil) NODE(0x80070000u, 1000)[1] += 5;
+    chain(WALK_A);
+    chain(WALK_B);
+    if (spoil) NODE(WALK_B, 1000)[1] += 5;
     QueryPerformanceFrequency(&f);
     QueryPerformanceCounter(&a);
-    real = walk(0x80040000u, 0);
+    real = walk(WALK_A, 0);
     QueryPerformanceCounter(&b);
-    lowv = walk(0x80070000u, 1);
+    lowv = walk(WALK_B, 1);
     QueryPerformanceCounter(&c);
     for (i = 0; i < NODES; i++)
-        if ((NODE(0x80040000u, i)[0] >> 24) == (NODE(0x80070000u, i)[0] >> 24) && NODE(0x80040000u, i)[1] == NODE(0x80070000u, i)[1] && NODE(0x80040000u, i)[1] == i * 7u + 1) same_ram++;
+        if ((NODE(WALK_A, i)[0] >> 24) == (NODE(WALK_B, i)[0] >> 24) && NODE(WALK_A, i)[1] == NODE(WALK_B, i)[1] && NODE(WALK_A, i)[1] == i * 7u + 1) same_ram++;
     SAY("walk of %u nodes: low view %s the real addresses (%08x, %08x), the nodes written %u of %u alike\n", NODES, real == lowv ? "equals" : "DIFFERS from", lowv, real, same_ram, NODES);
     SAY("timing walk: real addresses %lld us, low view %lld us\n", (b.QuadPart - a.QuadPart) * 1000000 / f.QuadPart, (c.QuadPart - b.QuadPart) * 1000000 / f.QuadPart);
 }
@@ -252,6 +264,10 @@ const unsigned port_override_set_count = 1;
 """
 
 
+# On Linux the two chains are in the served range [0, 0x10000): 2000 nodes of 16 bytes each, one after the other.
+LINUX_WALK = "#define WALK_A 0x80000100u\n#define WALK_B 0x80008100u\n#define WALK_STRIDE 0x10u\n"
+
+
 def python_walk() -> int:
     """The checksum the game's walk of 2000 nodes must give (node i: tag i & 0xff, counter i * 7), worked out here."""
     total = 0
@@ -272,8 +288,9 @@ def walk_verdict(status: int, body: list[str]) -> str | None:
 
 def native(rig: L.Rig):
     exe = rig.work / "native.exe"
+    target = [*rig.cflags, *rig.lflags] if rig.linux else ["-static"]
     proc = subprocess.run([rig.cc, "-O1", "-Wall", "-Wextra", "-Werror", "-I", str(L.SRC), "-o", str(exe), str(HERE / "mirror_native_test.c"),
-                           str(L.SRC / "mirrorcore.c"), "-static"], capture_output=True, text=True, timeout=300)
+                           str(L.SRC / "mirrorcore.c"), *target], capture_output=True, text=True, timeout=300)
     if proc.returncode != 0:
         yield "native-controls-build", proc.stderr.strip()[:600]
         return
@@ -291,7 +308,8 @@ def native(rig: L.Rig):
 
 
 def launch(rig: L.Rig):
-    L.VARIANTS["mirror"] = Variant("mirror", GAME_MIRROR, FUN_M, ABS_M, DOMAINS_M)
+    lin = rig.linux
+    L.VARIANTS["mirror"] = Variant("mirror", (LINUX_WALK if lin else "") + GAME_MIRROR, FUN_M, ABS_M, DOMAINS_M)
     yield from L.rig_diagnostic_cases(rig)
 
     def go(tag, name, args=None, timeout=120, old_link=False):
@@ -309,7 +327,8 @@ def launch(rig: L.Rig):
     yield "a-served-write-and-read-of-each-size-and-the-borders-of-the-copy-reach-the-ram", verdict((status, body), (0, want))
 
     status, body = go("hi", "g_hi")
-    want = [first_use("g_hi", 0x11000, "write"), "read back 11110000 cafe0001 7777abcd", "in the RAM 11110000 cafe0001 7777abcd", "last byte 5a, last word 5a77abcd",
+    want = [] if lin else [first_use("g_hi", 0x11000, "write")]   # on Linux 0x10000 and up is plain memory: no fault, no line
+    want += ["read back 11110000 cafe0001 7777abcd", "in the RAM 11110000 cafe0001 7777abcd", "last byte 5a, last word 5a77abcd",
             "wrapped sum: cafe0001", "stop: main returned"]
     yield "a-served-read-and-write-above-64-kb-at-0x11000-0x3e0cc-and-the-last-word-0x1ffffc-and-the-sum-of-two-upper-view-addresses-that-wraps", verdict((status, body), (0, want))
 
@@ -334,7 +353,10 @@ def launch(rig: L.Rig):
         0, [first_use("g_a1", 0x2000, "write"), first_use("g_a2", 0x2000, "read")], ["done: 00000001 00000002 03 00000002 0002", "stop: main returned"]))
     acc = [l for l in lines if re.match(r"mirror: g_a[12] (read|write) ", l)]
     yield "trace-writes-one-line-for-each-access-with-its-size-and-instruction", None if len(acc) == 12 and re.fullmatch(r"mirror: g_a1 write 0x00002000 4 \(at 0x[0-9a-f]{8}\)", acc[0]) else f"{len(acc)} lines: {acc[:2]!r}"
-    yield "the-start-check-runs-and-says-so-with-trace", None if lines[:2] == ["mirror: the program's own range 0x00011000..0x001fffff closed; its header page 0x00010000..0x00010fff stays readable", "mirror: start check: no page of 0x00000000..0x001fffff is accessible (the header page excepted)"] else f"lines {lines[:2]!r}"
+    if lin:
+        yield "the-start-check-runs-and-says-so-with-trace", None if lines[:1] == ["mirror: start check: no page of 0x00000000..0x0000ffff is accessible; the copy of RAM is mapped from 0x00010000"] else f"lines {lines[:2]!r}"
+    else:
+        yield "the-start-check-runs-and-says-so-with-trace", None if lines[:2] == ["mirror: the program's own range 0x00011000..0x001fffff closed; its header page 0x00010000..0x00010fff stays readable", "mirror: start check: no page of 0x00000000..0x001fffff is accessible (the header page excepted)"] else f"lines {lines[:2]!r}"
     counts = [l for l in lines if re.match(r"mirror: g_a[12]: \d+ reads, \d+ writes", l)]
     yield "trace-prints-the-count-per-function-at-exit", verdict(counts, ["mirror: g_a1: 2 reads, 6 writes", "mirror: g_a2: 2 reads, 2 writes"])
 
@@ -345,25 +367,39 @@ def launch(rig: L.Rig):
     ok = status == 10 and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x0000ffff \(write\) in g_straddle_w \(at 0x[0-9a-f]{8}\)", body[-1]) and "after" not in body
     yield "a-write-that-straddles-0x10000-is-the-crash-line-and-the-game-does-not-go-on", None if ok else f"status {status}, lines {body[-3:]!r}"
     status, body = go("top-r", "g_top_r")
-    ok = status == 10 and body[-2] == "before" and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x001ffffe \(read\) in g_top_r \(at 0x[0-9a-f]{8}\)", body[-1])
+    if lin:   # the copy is plain memory up to 0x200000, where nothing is mapped: the fault is an ordinary one, at the page that is missing
+        ok = status == 10 and body[-2] == "before" and re.fullmatch(r"stop: crash: access violation \(read 0x00200000\) in g_top_r \(at 0x[0-9a-f]{8}\)", body[-1])
+    else:
+        ok = status == 10 and body[-2] == "before" and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x001ffffe \(read\) in g_top_r \(at 0x[0-9a-f]{8}\)", body[-1])
     yield "a-read-that-straddles-0x200000-is-the-crash-line", None if ok else f"status {status}, lines {body[-3:]!r}"
     status, body = go("top-w", "g_top_w")
-    ok = status == 10 and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x001fffff \(write\) in g_top_w \(at 0x[0-9a-f]{8}\)", body[-1]) and "after" not in body
+    if lin:
+        ok = status == 10 and re.fullmatch(r"stop: crash: access violation \(write 0x00200000\) in g_top_w \(at 0x[0-9a-f]{8}\)", body[-1]) and "after" not in body
+    else:
+        ok = status == 10 and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x001fffff \(write\) in g_top_w \(at 0x[0-9a-f]{8}\)", body[-1]) and "after" not in body
     yield "a-write-that-straddles-0x200000-is-the-crash-line-and-the-game-does-not-go-on", None if ok else f"status {status}, lines {body[-3:]!r}"
-    status, body = go("edge-r", "g_edge_r")
-    yield "a-read-at-0x200000-is-the-programs-own-first-section-and-not-served", verdict((status, body), (0, ["read at 0x200000: the program's own byte", "stop: main returned"]))
+    if lin:
+        yield "a-read-at-0x200000-is-the-programs-own-first-section-and-not-served (not on Linux: the program is not linked there)", None
+    else:
+        status, body = go("edge-r", "g_edge_r")
+        yield "a-read-at-0x200000-is-the-programs-own-first-section-and-not-served", verdict((status, body), (0, ["read at 0x200000: the program's own byte", "stop: main returned"]))
     status, body = go("edge-w", "g_edge_w")
     ok = status == 10 and body[-2] == "before" and re.fullmatch(r"stop: crash: access violation \(write 0x00200000\) in g_edge_w \(at 0x[0-9a-f]{8}\)", body[-1])
     yield "a-write-at-0x200000-is-the-crash-line", None if ok else f"status {status}, lines {body[-3:]!r}"
-    status, body = go("hdr-r", "g_hdr_r")
-    yield "a-read-of-the-header-page-returns-the-headers-bytes-and-is-not-served", verdict((status, body), (0, ["header page: 5a4d", "stop: main returned"]))
-    status, body = go("hdr-w", "g_hdr_w")
-    ok = status == 10 and body[-2] == "before" and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x00010010 \(write\) in g_hdr_w \(at 0x[0-9a-f]{8}\)", body[-1]) and "after" not in body
-    yield "a-write-to-the-header-page-is-the-crash-line", None if ok else f"status {status}, lines {body[-3:]!r}"
+    if lin:
+        yield "a-read-of-the-header-page-returns-the-headers-bytes-and-is-not-served (not on Linux: no header page)", None
+        yield "a-write-to-the-header-page-is-the-crash-line (not on Linux: no header page)", None
+        yield "a-program-linked-the-old-way-refuses-to-start-and-names-an-accessible-page (not on Linux: no old link)", None
+    else:
+        status, body = go("hdr-r", "g_hdr_r")
+        yield "a-read-of-the-header-page-returns-the-headers-bytes-and-is-not-served", verdict((status, body), (0, ["header page: 5a4d", "stop: main returned"]))
+        status, body = go("hdr-w", "g_hdr_w")
+        ok = status == 10 and body[-2] == "before" and re.fullmatch(r"stop: crash: the game used the PS1's RAM mirror at 0x00010010 \(write\) in g_hdr_w \(at 0x[0-9a-f]{8}\)", body[-1]) and "after" not in body
+        yield "a-write-to-the-header-page-is-the-crash-line", None if ok else f"status {status}, lines {body[-3:]!r}"
 
-    status, body = go("old", "g_rw", old_link=True)
-    ok = status == 2 and len(body) == 1 and re.fullmatch(r"refused: mirror: the system has an accessible page at 0x[0-9a-f]{8}; the PS1's copy of RAM at address 0 cannot be served here", body[0])
-    yield "a-program-linked-the-old-way-refuses-to-start-and-names-an-accessible-page", None if ok else f"status {status}, lines {body[-3:]!r}"
+        status, body = go("old", "g_rw", old_link=True)
+        ok = status == 2 and len(body) == 1 and re.fullmatch(r"refused: mirror: the system has an accessible page at 0x[0-9a-f]{8}; the PS1's copy of RAM at address 0 cannot be served here", body[0])
+        yield "a-program-linked-the-old-way-refuses-to-start-and-names-an-accessible-page", None if ok else f"status {status}, lines {body[-3:]!r}"
 
     status, body = go("walk", "g_walk", args=["--no-interrupt"], timeout=300)
     t = [l for l in body if l.startswith("timing walk:")]
@@ -407,12 +443,17 @@ def launch(rig: L.Rig):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--cc", required=True)
+    parser.add_argument("--cc", default=None)
+    parser.add_argument("--linux", action="store_true", help="run for the native Linux program (cc defaults to gcc)")
     parser.add_argument("--run", default="", help="command prefix that starts a Windows program")
     parser.add_argument("--src", default=None, help="another copy of the runtime's folder")
     parser.add_argument("--part", default="all", choices=["native", "launch", "all"])
     parser.add_argument("--only", default="", help="run the launch cases from the first whose name contains this")
     args = parser.parse_args()
+    if args.cc is None:
+        if not args.linux:
+            parser.error("--cc is required without --linux")
+        args.cc = "gcc"
     if not shutil.which(args.cc):
         print(f"the cross compiler {args.cc} is missing; these controls need it")
         return 2
@@ -421,7 +462,7 @@ def main() -> int:
     L.BUILD.mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="hostmirror-", dir=L.BUILD))
     try:
-        rig = L.Rig(args.cc, args.run.split(), work)
+        rig = L.Rig(args.cc, args.run.split(), work, args.linux)
         problem = rig.start_check()
         if problem:
             print(problem)
