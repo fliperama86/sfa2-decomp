@@ -150,6 +150,17 @@ static const struct port_function *find_function(const char *name)
     return NULL;
 }
 
+/* An override may name a module function too (modules.c places it); a resident one is preferred when both exist. */
+static const struct port_function *find_override_target(const char *name)
+{
+    unsigned i;
+    const struct port_function *f = find_function(name);
+    if (f) return f;
+    for (i = 0; i < port_function_count; i++)
+        if (strcmp(port_functions[i].name, name) == 0) return &port_functions[i];
+    return NULL;
+}
+
 static unsigned override_total(void)
 {
     unsigned s, n = 0;
@@ -203,11 +214,11 @@ static int check(char *err, size_t errsize)
                 snprintf(err, errsize, "overrides: %s is listed twice", o->name);
                 return -1;
             }
-        if (!find_function(o->name)) {
+        if (!find_override_target(o->name)) {
             snprintf(err, errsize, "overrides: %s is listed but this build has no function of that name with C", o->name);
             return -1;
         }
-        if (find_function(o->name)->overridden) {
+        if (find_override_target(o->name)->overridden) {
             snprintf(err, errsize, "overrides: %s has two overrides: a host routine of the overrides table and an override in C of the build", o->name);
             return -1;
         }
@@ -264,6 +275,10 @@ int port_library_install(unsigned char *ram, struct port_install *out, char *err
     }
     for (k = 0; k < override_total(); k++) {
         if (override_at(k)->enabled && !*override_at(k)->enabled) continue;   /* an experimental override whose setting is off: the game's own C stays */
+        if (!find_function(override_at(k)->name)) {   /* a module function's: modules.c writes it at each placement of the module */
+            out->overrides++;
+            continue;
+        }
 #ifdef PORT_GUEST_VM
         port_mac_put_host(ram, find_function(override_at(k)->name)->address, override_at(k)->host, override_at(k)->name);
 #else

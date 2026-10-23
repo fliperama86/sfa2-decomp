@@ -64,9 +64,8 @@ void port_menu_draw(const struct port_menu *m, const struct port_settings *s, co
 /* menu_run.c: called by kernel.c at the end of every vblank, on the game's thread. Does nothing unless settings_menu is
  * on; otherwise takes the host keys and, when asked and possible, runs the menu until it is closed (the game is paused). */
 void port_menu_vblank(void);
-/* menu_run.c, for the mode select's GAME INFORMATION (port/settings-menu.md), which starts the stand-alone program BF3.EXE: with
- * settings_menu on, Exec of that program runs the menu instead (1: it ran, Exec returns; 0: not this program, or the menu is off or
- * cannot open), and the item reads PC OPTIONS: port_menu_module_placed is called by modules.c each time a module is placed. */
-int port_menu_program(const char *name);
+/* menu_run.c, for the mode select's GAME INFORMATION (port/settings-menu.md): with settings_menu on, the item reads PC OPTIONS
+ * (port_menu_module_placed, called by modules.c each time a module is placed) and its handler is the override in
+ * port_menu_overrides (port.h), which opens the menu and goes back to the mode select. */
 void port_menu_module_placed(const char *name);
 #endif

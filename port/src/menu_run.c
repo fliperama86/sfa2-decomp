@@ -227,11 +227,11 @@ void port_menu_vblank(void)
 }
 
 /* The mode select's GAME INFORMATION (the attract module slot0f of DEMO.PAC, at 0x800df000) starts the stand-alone program BF3.EXE, a
- * movie, which the port does not run. With the menu on, the item is PC OPTIONS and opens the menu. The game's own flow stays: after the
- * program the game starts its session again, at the title. Its record in the module's data: the text at 0x800df094 (20 bytes up to the
- * next string, the mode select's strings end with "@@"), the record at 0x800e84e0 (draw_text_items' item: x at +4, the text's address at
- * +12). The game centres the item in 368 pixels: x 56 for 16 characters of 16 pixels, 104 for 10. Read from the disc's DEMO.PAC on
- * 2026-10-23; the bytes are checked before they are changed, so another module or another build of its data is left as it is. */
+ * movie, which the port does not run. With the menu on, the item is PC OPTIONS and opens the menu. Its record in the module's data: the
+ * text at 0x800df094 (20 bytes up to the next string; the mode select's strings end with "@@"), the record at 0x800e84e0
+ * (draw_text_items' item: x at +4, the text's address at +12). The game centres the item in 368 pixels: x 56 for 16 characters of 16
+ * pixels, 104 for 10. Read from the disc's DEMO.PAC on 2026-10-23; the bytes are checked before they are changed, so another module
+ * or another build of its data is left as it is. */
 #define INFO_TEXT 0x800df094u
 #define INFO_ITEM 0x800e84e0u
 static const char info_old[] = "GAME INFORMATION@@";
@@ -260,11 +260,34 @@ void port_menu_module_placed(const char *name)
     }
 }
 
-int port_menu_program(const char *name)
+/* The item's handler, in place of request_sound_then_exec_program_2_slot0f (the mode select's table at 0x800e8404, entry 5) with the
+ * menu on. That function stops the music, marks the session for a restart and starts BF3.EXE, after which the game restarts at the
+ * title. This one does what the handler of BACKUP (entry 4, decrement_phase_and_call_loop_slot0f) does around its own screen: the
+ * mode select's phase one back (screen_state->phase_index, a u16 at +0x4a of the HudState that the pointer at 0x8018f5a0 holds), then
+ * the screen, then a return, so the game goes on in the mode select. */
+#define SCREEN_STATE 0x8018f5a0u
+#define PHASE_INDEX  0x4au
+
+static void port_o_pc_options(unsigned state, unsigned menu)
 {
-    if (!port_settings.settings_menu || strcmp(name, "bf3.exe") != 0 || !port_gpu_menu_allowed()) return 0;
-    printf("settings menu: in place of %s (PC OPTIONS)\n", name);
+    const unsigned char *cell = port_gs((const void *)(uintptr_t)SCREEN_STATE, 4);
+    unsigned hud = cell ? (unsigned)(cell[0] | cell[1] << 8 | cell[2] << 16 | (unsigned)cell[3] << 24) : 0;
+    unsigned char *phase = hud ? port_gs((const void *)(uintptr_t)(hud + PHASE_INDEX), 2) : NULL;
+    (void)state;
+    (void)menu;
+    if (!phase) port_halt(PORT_EXIT_OTHER, "settings menu: the mode select's screen state at 0x%08x is not in the game's memory", hud);
+    {
+        unsigned v = (unsigned)(phase[0] | phase[1] << 8) - 1u;
+        phase[0] = (unsigned char)v;
+        phase[1] = (unsigned char)(v >> 8);
+    }
+    printf("settings menu: PC OPTIONS\n");
     fflush(stdout);
-    run();
-    return 1;
+    if (port_gpu_menu_allowed()) run();
 }
+
+const struct port_override port_menu_overrides[] = {
+    { "request_sound_then_exec_program_2_slot0f", (void *)port_o_pc_options,
+      "the mode select's GAME INFORMATION is PC OPTIONS: the settings menu, then back to the mode select (setting settings_menu)", &port_settings.settings_menu },
+    { NULL, NULL, NULL, NULL }
+};

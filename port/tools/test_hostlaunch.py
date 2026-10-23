@@ -843,7 +843,6 @@ int port_arcade_attach(struct port_disc *d,int check,char *err,size_t size) { (v
 int test_presents;
 void port_gpu_present(void) { test_presents++; }
 void port_menu_vblank(void) {}
-int port_menu_program(const char *name) { (void)name; return 0; }
 void port_menu_module_placed(const char *name) { (void)name; }
 int port_gpu_set_video_options(int ui,int arcade) { (void)ui;(void)arcade;return 0; }
 int port_gpu_set_ui_layout(int enabled) { (void)enabled;return 0; }

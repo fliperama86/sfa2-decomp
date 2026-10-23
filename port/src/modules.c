@@ -383,6 +383,31 @@ static const char *row_name(unsigned i)
     return i < port_function_count ? port_functions[i].name : port_absents[i - port_function_count].name;
 }
 
+/* An override (port_override_sets) of a module function whose setting is on goes in place of the function's C, at each placement:
+ * library.c writes the overrides of resident functions once at start, and those of module functions are written here, since the
+ * disc writes a module's pages again at each load. Found once, in port_modules_init (the settings are read by then). */
+static const void **row_override;
+
+static void overrides_find(void)
+{
+    unsigned s, j, i;
+    free(row_override);
+    row_override = calloc(port_function_count ? port_function_count : 1, sizeof *row_override);
+    if (!row_override) refuse("modules: out of memory");
+    for (s = 0; s < port_override_set_count; s++)
+        for (j = 0; port_override_sets[s][j].name; j++) {
+            const struct port_override *o = &port_override_sets[s][j];
+            if (o->enabled && !*o->enabled) continue;
+            for (i = 0; i < port_function_count; i++)
+                if (port_functions[i].image != -1 && strcmp(port_functions[i].name, o->name) == 0) row_override[i] = o->host;
+        }
+}
+
+static const void *row_impl(unsigned i)
+{
+    return row_override && row_override[i] ? row_override[i] : port_functions[i].impl;
+}
+
 #ifndef PORT_GUEST_VM
 static unsigned char row_opcode(unsigned i)
 {
@@ -391,7 +416,7 @@ static unsigned char row_opcode(unsigned i)
 
 static const void *row_target(unsigned i)
 {
-    return i < port_function_count ? port_functions[i].impl : (const void *)port_module_stop_entry;
+    return i < port_function_count ? row_impl(i) : (const void *)port_module_stop_entry;
 }
 #endif
 
@@ -401,6 +426,7 @@ static const void *row_target(unsigned i)
 /* The stub of row `i` at `address`: a branch to the C, or the `hvc` of the stop (port/mac/platform.c). */
 static uint32_t stub_word(unsigned i, unsigned address)
 {
+    if (i < port_function_count && row_override && row_override[i]) return 0;   /* an override's hvc: bytes_are_row checks it */
     if (i < port_function_count) {
         int64_t delta = (int64_t)(unsigned)(uintptr_t)port_functions[i].impl - (int64_t)address;
         return 0x14000000u | ((uint32_t)(delta >> 2) & 0x3ffffffu);
@@ -411,7 +437,8 @@ static uint32_t stub_word(unsigned i, unsigned address)
 static void jump_site_row(unsigned address, unsigned i)
 {
     unsigned char *ram = port_gs((const void *)(uintptr_t)PORT_RAM_BASE, PORT_RAM_SIZE);
-    if (i < port_function_count) port_mac_put_branch(ram, address, (unsigned)(uintptr_t)port_functions[i].impl);
+    if (i < port_function_count && row_override && row_override[i]) port_mac_put_host(ram, address, row_override[i], row_name(i));
+    else if (i < port_function_count) port_mac_put_branch(ram, address, (unsigned)(uintptr_t)port_functions[i].impl);
     else port_mac_put_hvc(ram, address, PORT_MAC_STOP_BASE + (i - port_function_count));
 }
 
@@ -420,6 +447,7 @@ static int bytes_are_row(unsigned address, unsigned i)
 {
     uint32_t w;
     memcpy(&w, port_gs((const void *)(uintptr_t)address, 4), 4);
+    if (i < port_function_count && row_override && row_override[i]) return (w & 0xffe0001fu) == 0xd4000002u;   /* the host call's hvc */
     return w == stub_word(i, address);
 }
 #else
@@ -748,6 +776,7 @@ void port_modules_init(unsigned text_address, unsigned text_size)
     free(entry_state);
     entry_state = calloc(ROWS ? ROWS : 1, 1);
     if (!entry_state) refuse("modules: out of memory");
+    overrides_find();
     for (p = 0; p < NPAGES; p++) exec_page[p] = 1;
     if (sys_install() != 0) refuse("modules: no access fault handler for this system");
     game_thread = sys_thread();

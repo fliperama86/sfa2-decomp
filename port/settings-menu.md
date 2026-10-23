@@ -122,10 +122,19 @@ a Breath of Fire III preview, not checked), and which the port does not run.
   the port places that module (`modules.c`), `menu_run.c` checks those bytes
   against the disc's and writes `PC OPTIONS` and x 104 over them; other bytes
   there are left as they are, with one line.
-- Exec of `bf3.exe` runs the menu instead (`overrides.c`), and returns. The
-  game's own flow goes on: after that program it starts its session again, so
-  RETURN TO GAME leads to the title screen. The game fades out before Exec, so
-  the menu has a black backdrop there.
+- The item's handler (entry 5 of the mode select's table at 0x800e8404,
+  `request_sound_then_exec_program_2_slot0f`) is an override while the
+  setting is on (`port_menu_overrides`, `menu_run.c`). The game's handler stops
+  the music, marks the session for a restart and starts the program, so the
+  game came back at the title. The override does what BACKUP's handler (entry
+  4) does around its own screen: the mode select's phase one back
+  (`screen_state->phase_index`), the menu, a return. So RETURN TO GAME leads
+  back to the mode select, with PC OPTIONS selected and the music going on.
+- Overrides of module functions: `library.c` writes the overrides of resident
+  functions once at start; one of a module function is written by
+  `modules.c` in place of the function's C at each placement of its module
+  (the disc writes the module's pages again at each load), on the Mac as a
+  host call. An override whose setting is off is never placed.
 - The menu's title is PC OPTIONS in both ways of opening it.
 
 ## The menu
