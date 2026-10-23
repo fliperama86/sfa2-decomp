@@ -144,6 +144,16 @@ scripts (nothing of it is in the tree):
   runs of records drawn in parts) brings it to 627 of 727 exact lists, 6
   bytes under its room; no exact rule was found. Every fighter's lists and
   positions now fit where the PS1 code reads them.
+- **Sprite chunks** (`tilepack.py`). The PS1's tile compression: blocks in
+  tile order after an offset table; a tile with at least 14 zero words takes
+  the zero form, else back references (2 to 5 words, window 16,383 words,
+  longest and farthest first, cut so a tile's last word is a literal) when
+  that is shorter, else 64 literal words. The PS1's encoder also skips about
+  8% of the references these rules make, by no rule found, so no chunk comes
+  out byte for byte (43% to 71% of blocks do); the reader finds tiles by the
+  offset table only, so a valid chunk decodes to the same tiles. The loader
+  is to build valid chunks no larger than the disc's. The tiles themselves
+  are exact from the arcade in 17 of 22 chunks.
 - **Stages** (`stages.py`, all 20). The two layers of 16- and 32-pixel
   cells are the arcade's scroll maps cell for cell (all cells in 17 and 19
   stages); their palettes are the arcade's (4-bit channels scaled
