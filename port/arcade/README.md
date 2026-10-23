@@ -82,6 +82,29 @@ port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC
   gave at its place, prints each one that differs, and ends (status 1 if
   any differs).
 
+## Playing without the disc (the owner's decision of 2026-10-23)
+
+What the arcade does not have (the PS1's own tables, text and menus, its
+added steps and art, the sound banks' settings, the music tracks without an
+arcade song) comes from a one-time import of the user's disc into a private
+file, a pack, as the arcade intro's pack does: nothing of it enters Git.
+
+- `--arcade-import PACK DISC` (with `--arcade-rom`): the program builds what
+  it builds from the arcade, as for a start with the disc, and writes into
+  PACK the disc's layout (each file's name, first sector and size, the
+  sectors' form and XA subheaders) and every byte that it does not build,
+  the program's file included. The movies (`*.STR`) are left out: the port
+  skips them without the disc. The pack is checked by its SHA-256 and names
+  the arcade set's and the build's tables it was made against; a pack of
+  other tables is refused and must be made again.
+- `--arcade-pack PACK` in place of the disc: the disc layer reads a virtual
+  disc whose sectors are the loader's built bytes over the pack's. The pack
+  shrinks as the loader builds more.
+- Sound effects and voices: by the owner's word ("Just use the arcade. It
+  should sound as good as the arcade version"), the game's sound requests
+  play the arcade's effects through the port's own player (`music.c`), not
+  the PS1's sound banks re-encoded.
+
 ## What the game reads, in order
 
 A run of 150 seconds on 2026-10-23 (title, menus, a fight of Ryu against
