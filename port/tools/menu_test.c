@@ -119,7 +119,7 @@ static void ref_menu(struct ref *r, const struct layout *l)
 {
     static const char *label[5] = { "DISPLAY", "RESOLUTION", "FILTER", "RETURN TO GAME", "QUIT GAME" };
     int i, w = W;
-    ref_text(r, 16, "PC SETTINGS", (w - 11 * 16) / 2 + l->title_dx, 24, l->title_pal);
+    ref_text(r, 16, "PC OPTIONS", (w - 10 * 16) / 2 + l->title_dx, 24, l->title_pal);
     for (i = 0; i < 3; i++) {
         ref_text(r, 16, label[i], 16, 56 + 24 * i, l->pal[i]);
         ref_text(r, 16, l->value[i], w - 32 - 16 * (int)strlen(l->value[i]), 56 + 24 * i, l->vpal[i]);
@@ -191,9 +191,9 @@ static void test_drawing(void)
     /* known backdrop pixels: dimmed to an eighth per channel, bit 15 cleared */
     CHECK(out[0] == 0x0c63 && out[1] == 0x0000 && out[2] == 0x0842);
     CHECK(out[0] != 0x1ce7 && out[2] != 0x1084);        /* the old shift by two would give these */
-    /* exact glyph pixels at the spec's positions: title P (104, 24) in 0x1e, DISPLAY's D (16, 56) selected in 0x10, RESOLUTION's R in 0x1a,
+    /* exact glyph pixels at the spec's positions: title P (112, 24) in 0x1e, DISPLAY's D (16, 56) selected in 0x10, RESOLUTION's R in 0x1a,
      * the value S of SHARP BILINEAR (128, 104), RETURN's R centred (80, 152), the 8 x 8 hint U (24, 216) */
-    CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'P', 104, 24, 0x1e) == 0);
+    CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'P', 112, 24, 0x1e) == 0);
     CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'D', 16, 56, 0x10) == 0);
     CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'R', 16, 80, 0x1a) == 0);
     CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'S', 128, 104, 0x16) == 0);       /* a value of an unselected row: palette 0x16 */
@@ -207,8 +207,8 @@ static void test_drawing(void)
     for (i = 0; i < 256; i++) transparent += pattern(16, 'P', i % 16, i / 16) == 0;
     CHECK(transparent > 8);   /* the checked glyph really has transparent texels, which glyph_diff compared with the backdrop */
     /* negative controls: the same checks against a wrong palette or a shifted position must fail */
-    CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'P', 104, 24, 0x1a) != 0);
-    CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'P', 105, 24, 0x1e) != 0);
+    CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'P', 112, 24, 0x1a) != 0);
+    CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'P', 113, 24, 0x1e) != 0);
     CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'D', 16, 56, 0x1a) != 0);
     CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'S', 128, 104, 0x1a) != 0);       /* the value in its label's palette */
     CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'W', 256, 56, 0x16) != 0);
@@ -252,7 +252,7 @@ static void test_drawing(void)
     CHECK(draw_and_diff(&m, &s, 11, 3, 384, 240, &l) == 0);
     port_menu_draw(&m, &s, vram, 37, 29, 384, 240, out);
     CHECK(out[0] == dimmed(backdrop(37, 29)) && out[383] == dimmed(backdrop(37 + 383, 29)) && out[239 * 384] == dimmed(backdrop(37, 29 + 239)));
-    CHECK(glyph_diff(out, 37, 29, 384, 240, 16, 'P', 104, 24, 0x1e) == 0);
+    CHECK(glyph_diff(out, 37, 29, 384, 240, 16, 'P', 112, 24, 0x1e) == 0);
     CHECK(glyph_diff(out, 37, 29, 384, 240, 16, 'R', 16, 80, 0x10) == 0);
     CHECK(glyph_diff(out, 37, 29, 384, 240, 8, 'U', 24, 216, 0x1a) == 0);
     /* a 320 x 240 source (the title screen) is stretched in x: out column c shows source column c * 320 / 384 */
@@ -282,8 +282,8 @@ static void test_drawing(void)
     CHECK(draw_and_diff(&m, &s, 0, 0, -384, 240, &l) == 0);
     port_menu_draw(&m, &s, vram, 0, 0, 0, 0, out);
     CHECK(out[0] == 0x0000 && out[383] == 0x0000 && out[239 * 384 + 383] == 0x0000);
-    CHECK(glyph_diff(out, 0, 0, 0, 0, 16, 'P', 104, 24, 0x1e) == 0);
-    CHECK(glyph_diff(out, 0, 0, 0, 0, 16, 'P', 104, 24, 0x1a) != 0);
+    CHECK(glyph_diff(out, 0, 0, 0, 0, 16, 'P', 112, 24, 0x1e) == 0);
+    CHECK(glyph_diff(out, 0, 0, 0, 0, 16, 'P', 112, 24, 0x1a) != 0);
     /* negative control: a picture drawn from one source differs from the reference of a source one pixel along */
     port_menu_draw(&m, &s, vram, 0, 0, 384, 240, out);
     CHECK(out[10 * 384 + 10] == dimmed(backdrop(10, 10)) && out[10 * 384 + 10] != dimmed(backdrop(11, 10)));

@@ -108,6 +108,26 @@ The menu opens at the end of a vblank when the game has drawn, its display
 is on, the game's font page has been loaded and no fast load is running. A
 press when that is not so is kept until it is (a second press drops it).
 
+## PC OPTIONS in the mode select
+
+By the owner's word of 2026-10-23 ("replace it with PC OPTIONS"), the mode
+select's last item, GAME INFORMATION, is PC OPTIONS while the setting is on.
+On the PS1 that item starts the stand-alone program `BF3.EXE`, which plays
+the movie `BF3.STR` (about 50 MB, two and a half minutes; the name suggests
+a Breath of Fire III preview, not checked), and which the port does not run.
+
+- The item's text and place are data of the attract module (`slot0f` of
+  `DEMO.PAC`, at 0x800df000): the string at 0x800df094 and its text record at
+  0x800e84e0 (x 56, the game centring 16 characters in 368 pixels). Each time
+  the port places that module (`modules.c`), `menu_run.c` checks those bytes
+  against the disc's and writes `PC OPTIONS` and x 104 over them; other bytes
+  there are left as they are, with one line.
+- Exec of `bf3.exe` runs the menu instead (`overrides.c`), and returns. The
+  game's own flow goes on: after that program it starts its session again, so
+  RETURN TO GAME leads to the title screen. The game fades out before Exec, so
+  the menu has a black backdrop there.
+- The menu's title is PC OPTIONS in both ways of opening it.
+
 ## The menu
 
 While it is open the game is paused: no vblank reaches the game, and the
@@ -127,7 +147,7 @@ Layout, in the menu's display (taken from the game's mode select screen: its
 16 x 16 font, 16 pixels a character, rows 24 pixels apart):
 
 ```
-                PC SETTINGS               title, palette 0x1e, centred, y 24
+                PC OPTIONS                title, palette 0x1e, centred, y 24
   DISPLAY             WINDOW              y 56
   RESOLUTION        1280X960              y 80
   FILTER      SHARP BILINEAR              y 104

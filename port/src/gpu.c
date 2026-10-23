@@ -362,12 +362,13 @@ int port_gpu_read_frame(unsigned short *pixels)
     return 0;
 }
 
-/* The settings menu (menu_run.c) runs on the game's thread while the game is paused. It may open when the game has drawn, its display is on
- * and the game's font page (4-bit texture page at (0x3c0, 0x100), 64 x 256 halfwords) has been loaded. */
+/* The settings menu (menu_run.c) runs on the game's thread while the game is paused. It may open when the game has set a display and has
+ * loaded its font page (4-bit texture page at (0x3c0, 0x100), 64 x 256 halfwords). */
 int port_gpu_menu_allowed(void)
 {
-    return started && !closed && display_on && disp_valid && font_loaded;
+    return started && !closed && disp_valid && font_loaded;
 }
+static int menu_display_was;   /* the display enable when the menu began */
 
 static void show_display(DISPENV *env)
 {
@@ -390,15 +391,24 @@ void port_gpu_menu_begin(int *x, int *y, int *gx, int *gy, int *gw, int *gh)
     *y = my;
     *gx = game_env.disp.x;
     *gy = game_env.disp.y;
-    *gw = game_env.isrgb24 ? 0 : game_env.disp.w;
-    *gh = game_env.isrgb24 ? 0 : game_env.disp.h;
+    *gw = game_env.isrgb24 || !display_on ? 0 : game_env.disp.w;
+    *gh = game_env.isrgb24 || !display_on ? 0 : game_env.disp.h;
     SetDefDispEnv(&env, mx, my, PORT_MENU_W, PORT_MENU_H);
     show_display(&env);
+    menu_display_was = display_on;
+    if (!display_on) {
+        SetDispMask(1);
+        display_on = 1;
+    }
 }
 
 void port_gpu_menu_end(void)
 {
     show_display(&game_env);
+    if (!menu_display_was) {
+        SetDispMask(0);
+        display_on = 0;
+    }
 }
 
 /* The video memory after the drawing so far, into the caller's buffer (as port_gpu_read_frame, but the queue is flushed first). */

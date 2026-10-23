@@ -1,6 +1,7 @@
 /* Overrides: host routines that run INSTEAD of the C of a game function, for what
  * cannot run on a PC as written. Each has a note (shown by --list-library). */
 #include "port.h"
+#include "menu.h"
 #include "cd.h"
 #include "programs.h"
 
@@ -46,6 +47,7 @@ int port_h_Exec(void *header, int argc, char **argv)
                 file_sector = files[i].sector;
                 file_size = files[i].size;
             }
+    if (port_menu_program(name)) return 1;   /* GAME INFORMATION's program, PC OPTIONS with the settings menu on (menu_run.c) */
     if (port_program_exec(name, file_sector, file_size, header)) return 1;
     if (!port_skip_programs) port_halt(PORT_EXIT_PROGRAM, "no C yet for the program %s (disc sector %d)", name, sector);
     printf("skipped: Exec of %s (disc sector %d): a program of its own for which no C exists yet; it returns at once\n", name, sector);

@@ -60,6 +60,7 @@
  * The system-specific part (page protection and the fault handler) is the last
  * section of this file. Nothing here interprets or emulates the game's code. */
 #include "modules.h"
+#include "menu.h"
 #include "cd.h"
 #include "port_tables.h"
 
@@ -533,6 +534,7 @@ static void place(int index, const struct chunk *c, const unsigned char *bytes, 
      * entry on those pages was installed above or the placement was refused. */
     printf("module: %s at 0x%08x, %u C jumps, %u without C\n", im->name, im->address, with_c, without_c);
     fflush(stdout);
+    port_menu_module_placed(im->name);   /* the settings menu's item in the mode select (menu_run.c) */
 }
 
 /* The image that the bytes at `address` came from, by the word record of the disc layer: the chunk that wrote the

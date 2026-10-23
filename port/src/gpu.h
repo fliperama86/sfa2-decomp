@@ -60,14 +60,13 @@ void port_gpu_set_host_keys(int on);
 unsigned port_gpu_take_keys(void);
 
 /* For the settings menu (menu_run.c), on the game's thread while the game is paused.
- *  - menu_allowed: 1 when the game has drawn, its display is on and it has loaded its font page (a LoadImage reached the page at
- *    (0x3c0, 0x100)).
+ *  - menu_allowed: 1 when the game has set a display and has loaded its font page (a LoadImage reached the page at (0x3c0, 0x100)).
  *  - menu_snapshot: the video memory (1024 x 512 halfwords) after the drawing so far, into the caller's buffer; 0 or -1.
  *  - menu_begin: shows a display of the menu's own, PORT_MENU_W x PORT_MENU_H, at the game's display's place (moved in where it
- *    would pass the edge of the video memory); its place in *x, *y, and the game's display rectangle in *gx .. *gh (0 x 0 for a
- *    24-bit display, whose picture the menu does not read).
+ *    would pass the edge of the video memory), turning the display on if the game had it off; its place in *x, *y, and the game's
+ *    display rectangle in *gx .. *gh (0 x 0, no picture behind the menu, for a 24-bit display or one that was off).
  *  - menu_show: writes w x h halfwords at (x, y) of the video memory, from a host buffer.
- *  - menu_end: the game's display as the game last set it. */
+ *  - menu_end: the game's display as the game last set it, off again if it was. */
 int port_gpu_menu_allowed(void);
 int port_gpu_menu_snapshot(uint16_t *vram);
 void port_gpu_menu_begin(int *x, int *y, int *gx, int *gy, int *gw, int *gh);

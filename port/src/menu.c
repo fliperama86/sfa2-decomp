@@ -244,7 +244,7 @@ void port_menu_draw(const struct port_menu *m, const struct port_settings *s, co
 {
     struct canvas c;
     int i, py, px;
-    static const char title[] = "PC SETTINGS";
+    static const char title[] = "PC OPTIONS";
     c.out = out; c.vram = vram; c.w = PORT_MENU_W; c.h = PORT_MENU_H;
     /* the backdrop: the game's display stretched to the menu's size (nearest), dimmed; black where there is none */
     for (py = 0; py < PORT_MENU_H; py++)

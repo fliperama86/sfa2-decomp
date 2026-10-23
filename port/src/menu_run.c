@@ -152,6 +152,7 @@ static void run(void)
         return;
     }
     port_gpu_menu_begin(&x, &y, &gx, &gy, &gw, &gh);
+    take_keys();   /* a key pressed before the menu opened does not close it */
     host_info(&host);
     port_menu_open(&m, pad_word());
     printf("settings menu: open\n");
@@ -223,4 +224,47 @@ void port_menu_vblank(void)
     if (!requested || port_clock_hurrying() || !port_gpu_menu_allowed()) return;
     requested = 0;
     run();
+}
+
+/* The mode select's GAME INFORMATION (the attract module slot0f of DEMO.PAC, at 0x800df000) starts the stand-alone program BF3.EXE, a
+ * movie, which the port does not run. With the menu on, the item is PC OPTIONS and opens the menu. The game's own flow stays: after the
+ * program the game starts its session again, at the title. Its record in the module's data: the text at 0x800df094 (20 bytes up to the
+ * next string, the mode select's strings end with "@@"), the record at 0x800e84e0 (draw_text_items' item: x at +4, the text's address at
+ * +12). The game centres the item in 368 pixels: x 56 for 16 characters of 16 pixels, 104 for 10. Read from the disc's DEMO.PAC on
+ * 2026-10-23; the bytes are checked before they are changed, so another module or another build of its data is left as it is. */
+#define INFO_TEXT 0x800df094u
+#define INFO_ITEM 0x800e84e0u
+static const char info_old[] = "GAME INFORMATION@@";
+static const char info_new[] = "PC OPTIONS@@";
+
+void port_menu_module_placed(const char *name)
+{
+    static int said;
+    unsigned char *text, *item;
+    int ok;
+    if (!port_settings.settings_menu || strcmp(name, "slot0f") != 0) return;
+    text = port_gs((const void *)(uintptr_t)INFO_TEXT, sizeof info_old - 1);
+    item = port_gs((const void *)(uintptr_t)INFO_ITEM, 16);
+    ok = text && item && memcmp(text, info_old, sizeof info_old - 1) == 0 && (item[4] | item[5] << 8) == 56 &&
+         (item[12] | item[13] << 8 | (unsigned)item[14] << 16 | (unsigned)item[15] << 24) == INFO_TEXT;
+    if (ok) {
+        memcpy(text, info_new, sizeof info_new - 1);
+        item[4] = 104;
+        item[5] = 0;
+    }
+    if (!said) {
+        said = 1;
+        printf(ok ? "settings menu: the mode select's GAME INFORMATION is PC OPTIONS\n"
+                  : "settings menu: the mode select's GAME INFORMATION is not where it was read from; it stays as it is\n");
+        fflush(stdout);
+    }
+}
+
+int port_menu_program(const char *name)
+{
+    if (!port_settings.settings_menu || strcmp(name, "bf3.exe") != 0 || !port_gpu_menu_allowed()) return 0;
+    printf("settings menu: in place of %s (PC OPTIONS)\n", name);
+    fflush(stdout);
+    run();
+    return 1;
 }
