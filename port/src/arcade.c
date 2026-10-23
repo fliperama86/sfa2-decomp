@@ -31,7 +31,9 @@ struct range {
     unsigned sector;        /* the file's first sector */
     unsigned offset, size;  /* in the file */
     unsigned char *bytes;
+    int equal;              /* 1: equal to the disc's bytes (a pack leaves them out); 0: decoding to the same (a pack keeps the disc's) */
 };
+static struct port_disc *pack_disc;   /* the disc when it is a pack: what to serve is what was served when the pack was made */
 static struct range *ranges;   /* grown as needed */
 static unsigned range_count, range_room;
 static unsigned file_first[MAX_FILES], file_ranges[MAX_FILES];   /* each file's ranges, after they are sorted */
@@ -197,8 +199,8 @@ static void read_hook(unsigned sector, unsigned char *raw)
     if (built[f] && !(raw[18] & 0x20)) patch(sector, raw + PORT_DATA_OFFSET, PORT_DATA);   /* a data sector (form 1) */
     if (told[f]) return;
     told[f] = 1;
-    if (built[f]) printf("arcade: %s: built in part from the arcade set, the rest from the disc (first read at frame %u)\n", files[f].name, port_frames());
-    else printf("arcade: %s from the disc: no arcade source yet (first read at frame %u)\n", files[f].name, port_frames());
+    if (built[f]) printf("arcade: %s: built in part from the arcade set, the rest from the %s (first read at frame %u)\n", files[f].name, pack_disc ? "pack" : "disc", port_frames());
+    else printf("arcade: %s from the %s: no arcade source yet (first read at frame %u)\n", files[f].name, pack_disc ? "pack" : "disc", port_frames());
     fflush(stdout);
 }
 
@@ -242,8 +244,25 @@ static int changed_by_ps1(const char *name)
 }
 
 /* Compare `n` built bytes with the disc's at offset `at` of file f. 1 equal, 0 different, -1 unreadable. */
+/* With a pack: whether [at, at + n) of the file lies in what was built equal to the disc's when the pack was made. */
+static int recorded(const struct port_disc_file *f, unsigned at, unsigned n)
+{
+    const unsigned (*r)[2];
+    const unsigned char *digest;
+    unsigned count, lo = 0, hi;
+    if (port_disc_pack_built(pack_disc, f->sector, &r, &count, &digest) != 0) return 0;
+    hi = count;
+    while (lo < hi) {   /* the last range that starts at or before `at` */
+        unsigned mid = (lo + hi) / 2;
+        if (r[mid][0] <= at) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo > 0 && (unsigned long long)at + n <= (unsigned long long)r[lo - 1][0] + r[lo - 1][1];
+}
+
 static int same_as_disc(struct port_disc *d, const struct port_disc_file *f, unsigned at, const unsigned char *bytes, unsigned n)
 {
+    if (pack_disc) return recorded(f, at, n);
     unsigned first = at / PORT_DATA, skip = at % PORT_DATA, span = (skip + n + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
     unsigned char *disc = malloc(span ? span : 1);
     char err[PORT_ERR];
@@ -257,7 +276,13 @@ static int same_as_disc(struct port_disc *d, const struct port_disc_file *f, uns
     return same;
 }
 
+static void add_range_kind(int f, unsigned offset, unsigned char *bytes, unsigned size, int equal);
 static void add_range(int f, unsigned offset, unsigned char *bytes, unsigned size)
+{
+    add_range_kind(f, offset, bytes, size, 1);
+}
+
+static void add_range_kind(int f, unsigned offset, unsigned char *bytes, unsigned size, int equal)
 {
     if (range_count == range_room) {
         unsigned room = range_room ? range_room * 2u : 4096u;
@@ -270,6 +295,7 @@ static void add_range(int f, unsigned offset, unsigned char *bytes, unsigned siz
     ranges[range_count].offset = offset;
     ranges[range_count].size = size;
     ranges[range_count].bytes = bytes;
+    ranges[range_count].equal = equal;
     range_count++;
     built[f] = 1;
 }
@@ -358,7 +384,7 @@ static unsigned serve_units(struct port_disc *d, int f, unsigned at, unsigned ch
     if (!disc) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", files[f].name);
     while (i < count) {
         unsigned j = i;
-        while (j < count && built_unit[j] && !memcmp(bytes + j * unit, disc + j * unit, unit)) j++;
+        while (j < count && built_unit[j] && (pack_disc ? recorded(&files[f], at + j * unit, unit) : !memcmp(bytes + j * unit, disc + j * unit, unit))) j++;
         if (j > i) {
             if (!check) add_range(f, at + i * unit, bytes + i * unit, (j - i) * unit);
             built_bytes[f] += (unsigned long long)(j - i) * unit;
@@ -439,7 +465,7 @@ static unsigned fighters(struct port_disc *d, int check)
             if (!check) {
                 add_range(f, moff + a->lists, out.lists, out.lists_size);
                 add_range(f, poff + a->positions, out.positions, out.positions_size);
-                if (sprites) add_range(f, soff, sprites, ssize);
+                if (sprites) add_range_kind(f, soff, sprites, ssize, 0);
                 out.lists = out.positions = NULL;   /* the ranges own them now */
             } else {
                 free(sprites);
@@ -501,14 +527,17 @@ static unsigned parts(struct port_disc *d, int check)
             if (!b || pac_chunk_nth(d, &files[f], 0x10000u, c, &at, &n) != 0 || n != ARCADE_PARTS_PALETTE_BYTES)
                 port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no palette chunk %u as the table says", a->file, c);
             if (arcade_parts_palettes(rom.program, ARCADE_PROGRAM_SIZE, a, b, &kept, err, sizeof err) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
-            if (kept) {   /* the PS1's own colors: the disc's */
-                if (!(disc = disc_bytes(d, &files[f], at, n))) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", a->file);
-                for (k = 0; k < 64; k++)
-                    if (kept >> k & 1u) memcpy(b + 32u * k, disc + 32u * k, 32);
-                free(disc);
+            {   /* palette by palette: the PS1's own colors (kept) stay the disc's */
+                unsigned char mask[64];
+                unsigned got;
+                (void)disc;
+                for (k = 0; k < 64; k++) mask[k] = !(kept >> k & 1u);
+                got = serve_units(d, f, at, b, mask, 64, 32, check);
+                for (k = 0; k < 64; k++) got += !mask[k];
+                if (got == 64) { pal_used++; pal_bytes += n; }
+                else { differ++; if (check) printf("arcade check: %s: palette chunk %u differs\n", a->file, c); }
+                if (check) free(b);   /* else the ranges point into it */
             }
-            if (serve_if_same(d, f, at, b, n, check)) { pal_used++; pal_bytes += n; }
-            else { differ++; if (check) printf("arcade check: %s: palette chunk %u differs\n", a->file, c); }
         }
         for (c = 0; a->pages[c]; c++) {
             unsigned char *b = malloc(ARCADE_PARTS_PAGE_BYTES);
@@ -637,7 +666,8 @@ static unsigned screens(struct port_disc *d, int check)
                 built_bytes[f] += a;
             }
             chunks++;
-            if (arcade_screens_verify(r, &o, disc, n, err, sizeof err) != 0) {
+            /* With a pack its chunk lacks the bytes built equal to the disc's: the pack's digests check them instead. */
+            if (!pack_disc && arcade_screens_verify(r, &o, disc, n, err, sizeof err) != 0) {
                 wrong++;
                 if (check) printf("arcade check: %s: chunk %u/0x%x: %s\n", sf->file, us->table, us->slot, err);
             } else {
@@ -645,7 +675,7 @@ static unsigned screens(struct port_disc *d, int check)
                     unsigned e = k;
                     while (e < o.size && o.known[e] == o.known[k]) e++;
                     if (o.known[k] == 2) {
-                        if (!check) add_range(f, at + k, o.data + k, e - k);
+                        if (!check) add_range_kind(f, at + k, o.data + k, e - k, 0);
                         served += e - k;
                     } else if (o.known[k] == 1) {
                         unsigned long long before = built_bytes[f];
@@ -787,10 +817,148 @@ static void index_ranges(void)
     }
 }
 
+/* The SHA-256 of the bytes built equal to the disc's in file f, its ranges one after another in order (after index_ranges). */
+static void built_digest(int f, unsigned char out[32])
+{
+    unsigned i, end = file_first[f] + file_ranges[f];
+    size_t total = 0, at = 0;
+    unsigned char *all;
+    for (i = file_first[f]; i < end; i++)
+        if (ranges[i].equal) total += ranges[i].size;
+    if (!(all = malloc(total ? total : 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+    for (i = file_first[f]; i < end; i++)
+        if (ranges[i].equal) { memcpy(all + at, ranges[i].bytes, ranges[i].size); at += ranges[i].size; }
+    port_sha256(all, total, out);
+    free(all);
+}
+
+static int is_named(const char *name, const char *const *list)
+{
+    for (; *list; list++)
+        if (!strcmp(name, *list)) return 1;
+    return 0;
+}
+
+static int le_put(FILE *o, unsigned long long v, unsigned bytes)
+{
+    unsigned char b[8];
+    unsigned i;
+    for (i = 0; i < bytes; i++) b[i] = (unsigned char)(v >> (8 * i));
+    return fwrite(b, 1, bytes, o) == bytes ? 0 : -1;
+}
+
+struct extent { unsigned first, count, kind, file_size, file; unsigned long long at; };
+
+/* Write the pack (port/arcade/README.md, "Playing without the disc"; the format is in disc.c): the disc's layout and every byte the
+ * loader does not build equal to the disc's. The music streams and the two movies the port plays are whole raw sectors; the movies of
+ * the programs it skips and the padding file are left out. Called after port_arcade_attach without check, with the disc. */
+int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t size)
+{
+    static const char *const raw_files[] = {"capcom.str", "z2o.str", NULL};
+    static const char *const left_out[] = {"a2o.str", "bf3.str", "znull.dat", NULL};
+    unsigned total = (unsigned)(d->length / PORT_SECTOR), i, n = 0, next = 0, k;
+    struct extent *ex = calloc(2u * file_count + 2u, sizeof *ex);
+    unsigned long long at, bytes_kept = 0, sectors_raw = 0;
+    FILE *o;
+    unsigned char raw[PORT_SECTOR];
+    if (!enabled || !ex) { snprintf(err, size, "arcade: import: %s", ex ? "the arcade set is not open" : "out of memory"); free(ex); return -1; }
+    for (i = 0; i <= file_count; i++) {   /* files in sector order, the sectors between them as raw extents */
+        unsigned first = i < file_count ? files[i].sector : total, count = i < file_count ? (files[i].size + PORT_DATA - 1u) / PORT_DATA : 0;
+        if (first > next) { ex[n].first = next; ex[n].count = first - next; ex[n].kind = 1; ex[n].file = ~0u; n++; }
+        if (i == file_count) break;
+        if (count && first >= next) {
+            ex[n].first = first; ex[n].count = count; ex[n].file = i; ex[n].file_size = files[i].size;
+            ex[n].kind = is_named(files[i].name, left_out) ? 2u : (strstr(files[i].name, ".xa") || is_named(files[i].name, raw_files)) ? 1u : 0u;
+            n++;
+            next = first + count;
+        }
+    }
+    if (!(o = fopen(path, "wb"))) { free(ex); snprintf(err, size, "arcade: import: cannot create %s", path); return -1; }
+    k = 0;
+    for (i = 0; i < n; i++) k += ex[i].kind != 2;
+    at = 16ull + 64ull * k;
+    for (i = 0; i < n; i++) {   /* where each extent's data goes */
+        struct extent *e = &ex[i];
+        if (e->kind == 2) continue;
+        e->at = at;
+        if (e->kind == 1) at += (unsigned long long)e->count * PORT_SECTOR;
+        else {
+            unsigned r, end = file_first[e->file] + file_ranges[e->file], built_n = 0, data_n = 0, cur = 0;
+            unsigned long long data_bytes = 0;
+            for (r = file_first[e->file]; r < end; r++)
+                if (ranges[r].equal) {
+                    built_n++;
+                    if (ranges[r].offset > cur) { data_n++; data_bytes += ranges[r].offset - cur; }
+                    cur = ranges[r].offset + ranges[r].size;
+                }
+            if (e->file_size > cur) { data_n++; data_bytes += e->file_size - cur; }
+            at += 8ull * (built_n + data_n) + data_bytes;
+        }
+    }
+    if (fwrite("SFA2PK01", 1, 8, o) != 8 || le_put(o, total, 4) || le_put(o, k, 4)) goto bad;
+    for (i = 0; i < n; i++) {   /* the table */
+        struct extent *e = &ex[i];
+        unsigned char digest[32];
+        unsigned built_n = 0, data_n = 0, r, end, cur = 0;
+        if (e->kind == 2) continue;
+        memset(digest, 0, sizeof digest);
+        if (e->kind == 0) {
+            end = file_first[e->file] + file_ranges[e->file];
+            for (r = file_first[e->file]; r < end; r++)
+                if (ranges[r].equal) { built_n++; if (ranges[r].offset > cur) data_n++; cur = ranges[r].offset + ranges[r].size; }
+            if (e->file_size > cur) data_n++;
+            built_digest((int)e->file, digest);
+        }
+        if (le_put(o, e->first, 4) || le_put(o, e->count, 4) || le_put(o, e->kind, 4) || le_put(o, e->kind == 0 ? e->file_size : 0, 4) ||
+            le_put(o, data_n, 4) || le_put(o, built_n, 4) || fwrite(digest, 1, 32, o) != 32 || le_put(o, e->at, 8)) goto bad;
+    }
+    for (i = 0; i < n; i++) {   /* the data */
+        struct extent *e = &ex[i];
+        if (e->kind == 2) continue;
+        if (e->kind == 1) {
+            for (k = 0; k < e->count; k++) {
+                if (port_disc_raw(d, e->first + k, raw) != 0 || fwrite(raw, 1, PORT_SECTOR, o) != PORT_SECTOR) goto bad;
+            }
+            sectors_raw += e->count;
+        } else {
+            unsigned r, end = file_first[e->file] + file_ranges[e->file], cur = 0, pass;
+            unsigned char *disc = disc_bytes(d, &files[e->file], 0, e->file_size);
+            if (!disc) goto bad;
+            for (pass = 0; pass < 3; pass++) {   /* the data ranges, the built ranges, then the data ranges' bytes */
+                cur = 0;
+                for (r = file_first[e->file]; r <= end; r++) {
+                    unsigned start = r < end ? ranges[r].offset : e->file_size;
+                    if (r < end && !ranges[r].equal) continue;
+                    if (pass == 1) {
+                        if (r < end && (le_put(o, ranges[r].offset, 4) || le_put(o, ranges[r].size, 4))) { free(disc); goto bad; }
+                    } else if (start > cur) {
+                        if (pass == 0 ? (le_put(o, cur, 4) || le_put(o, start - cur, 4)) : fwrite(disc + cur, 1, start - cur, o) != start - cur) { free(disc); goto bad; }
+                        if (pass == 2) bytes_kept += start - cur;
+                    }
+                    if (r < end) cur = ranges[r].offset + ranges[r].size;
+                }
+            }
+            free(disc);
+        }
+    }
+    if (fclose(o) != 0) { o = NULL; goto bad; }
+    printf("arcade: import: %s: %llu bytes of the disc's files kept (what the loader does not build) and %llu raw sectors of streams; %llu MB in all\n",
+           path, bytes_kept, sectors_raw, at >> 20);
+    fflush(stdout);
+    free(ex);
+    return 0;
+bad:
+    if (o) fclose(o);
+    free(ex);
+    snprintf(err, size, "arcade: import: cannot write %s", path);
+    return -1;
+}
+
 int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
 {
     unsigned wrong;
     if (!enabled) return 0;
+    pack_disc = d->pack ? d : NULL;
     if (port_disc_list(d, files, MAX_FILES, &file_count, err, size) != 0) return -1;
     qsort(files, file_count, sizeof files[0], by_sector);
     memset(told, 0, sizeof told);
@@ -805,6 +973,22 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
+    if (pack_disc) {   /* what is served now must be what was served when the pack was made */
+        unsigned i;
+        for (i = 0; i < file_count; i++) {
+            const unsigned (*r)[2];
+            const unsigned char *digest;
+            unsigned char got[32];
+            unsigned count;
+            if (port_disc_pack_built(d, files[i].sector, &r, &count, &digest) != 0) continue;
+            built_digest((int)i, got);
+            if (memcmp(got, digest, 32) != 0) {
+                snprintf(err, size, "arcade: the pack was made by another build of the loader (%s differs): make it again with --arcade-import", files[i].name);
+                return -1;
+            }
+        }
+        printf("arcade: the pack's files and the loader's build agree\n");
+    }
     music_attach();
     port_disc_patch_hook = patch;
     port_cd_read_hook = read_hook;

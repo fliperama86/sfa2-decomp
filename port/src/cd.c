@@ -1029,9 +1029,7 @@ static int deliver_one(void)
      * stream of audio that no one polls") */
     if (!handler && !cd.host_ready && cd.ready && (!(cd.mode & 0x40) || cd.polled)) return 0;
     sector = cd.pos;
-    if ((unsigned long long)sector >= cd.total ||
-        fseek(cd.disc->f, (long)((unsigned long long)sector * PORT_SECTOR), SEEK_SET) != 0 ||
-        fread(raw, 1, PORT_SECTOR, cd.disc->f) != PORT_SECTOR) {
+    if ((unsigned long long)sector >= cd.total || port_disc_raw(cd.disc, sector, raw) != 0) {
         /* past the end of the image (or unreadable): a disc error, and the read stops */
         cd.reading = 0;
         set_status(ST_ERR);

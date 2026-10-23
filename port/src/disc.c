@@ -118,10 +118,160 @@ int port_disc_open(struct port_disc *d, const char *path, char *err, size_t errs
     return 0;
 }
 
+/* ---- the arcade loader's pack (port/arcade/README.md, "Playing without the disc"). Little-endian: "SFA2PK01", u32 sectors of the
+ * disc, u32 extents; per extent 64 bytes (u32 first sector, u32 sectors, u32 kind, u32 file size, u32 ranges, u32 built ranges,
+ * 32 bytes SHA-256, u64 offset of its data in the pack); the data: kind 1, its raw sectors; kind 0, the ranges (u32 offset, u32
+ * size, sorted), the built ranges (the same), then the ranges' bytes one after another. Sectors in no extent are not in the pack. */
+struct pack_extent {
+    unsigned first, count, kind, file_size, range_count, built_count;
+    unsigned char digest[32];
+    unsigned long long at;
+    unsigned (*ranges)[2];
+    unsigned long long *range_at;   /* where each range's bytes are in the pack */
+    unsigned (*built)[2];
+};
+struct port_pack {
+    FILE *f;
+    unsigned sectors, count;
+    struct pack_extent *e;
+};
+
+static void pack_free(struct port_pack *p)
+{
+    unsigned i;
+    if (!p) return;
+    if (p->f) fclose(p->f);
+    for (i = 0; p->e && i < p->count; i++) {
+        free(p->e[i].ranges);
+        free(p->e[i].range_at);
+        free(p->e[i].built);
+    }
+    free(p->e);
+    free(p);
+}
+
+static int read_pairs(FILE *f, unsigned n, unsigned limit, unsigned (**out)[2])
+{
+    unsigned char b[8];
+    unsigned i, end = 0;
+    *out = malloc((n ? n : 1) * sizeof **out);
+    if (!*out) return -1;
+    for (i = 0; i < n; i++) {
+        if (fread(b, 1, 8, f) != 8) return -1;
+        (*out)[i][0] = le32(b);
+        (*out)[i][1] = le32(b + 4);
+        if ((*out)[i][0] < end || (*out)[i][1] > limit || (*out)[i][0] > limit - (*out)[i][1]) return -1;   /* sorted, inside the file */
+        end = (*out)[i][0] + (*out)[i][1];
+    }
+    return 0;
+}
+
+int port_disc_open_pack(struct port_disc *d, const char *path, char *err, size_t errsize)
+{
+    unsigned char h[64];
+    struct port_pack *p;
+    unsigned i, k, last = 0;
+    memset(d, 0, sizeof *d);
+    if (strlen(path) >= sizeof d->path) return fail(err, errsize, "pack: path is too long");
+    strcpy(d->path, path);
+    if (!(p = calloc(1, sizeof *p))) return fail(err, errsize, "pack: out of memory");
+    if (!(p->f = fopen(path, "rb"))) { pack_free(p); return fail(err, errsize, "pack: cannot open the pack"); }
+    if (fread(h, 1, 16, p->f) != 16 || memcmp(h, "SFA2PK01", 8) != 0) { pack_free(p); return fail(err, errsize, "pack: not a pack of this loader (make it with --arcade-import)"); }
+    p->sectors = le32(h + 8);
+    p->count = le32(h + 12);
+    if (p->count > 65536u || !(p->e = calloc(p->count ? p->count : 1, sizeof *p->e))) { pack_free(p); return fail(err, errsize, "pack: malformed table"); }
+    for (i = 0; i < p->count; i++) {
+        struct pack_extent *e = &p->e[i];
+        if (fread(h, 1, 64, p->f) != 64) { pack_free(p); return fail(err, errsize, "pack: short table"); }
+        e->first = le32(h); e->count = le32(h + 4); e->kind = le32(h + 8); e->file_size = le32(h + 12);
+        e->range_count = le32(h + 16); e->built_count = le32(h + 20);
+        memcpy(e->digest, h + 24, 32);
+        e->at = (unsigned long long)le32(h + 56) | (unsigned long long)le32(h + 60) << 32;
+        if (e->kind > 1 || e->first < last || e->count > p->sectors || e->first > p->sectors - e->count ||
+            (e->kind == 0 && e->file_size > (unsigned long long)e->count * PORT_DATA)) {
+            pack_free(p);
+            return fail(err, errsize, "pack: malformed extent");
+        }
+        last = e->first + e->count;
+    }
+    for (i = 0; i < p->count; i++) {
+        struct pack_extent *e = &p->e[i];
+        unsigned long long at;
+        if (e->kind != 0) continue;
+        if (fseek(p->f, (long)e->at, SEEK_SET) != 0 || read_pairs(p->f, e->range_count, e->file_size, &e->ranges) != 0 ||
+            read_pairs(p->f, e->built_count, e->file_size, &e->built) != 0 || !(e->range_at = malloc((e->range_count ? e->range_count : 1) * sizeof *e->range_at))) {
+            pack_free(p);
+            return fail(err, errsize, "pack: malformed ranges");
+        }
+        at = e->at + 8ull * (e->range_count + e->built_count);
+        for (k = 0; k < e->range_count; k++) { e->range_at[k] = at; at += e->ranges[k][1]; }
+    }
+    d->pack = p;
+    d->length = (unsigned long long)p->sectors * PORT_SECTOR;
+    return 0;
+}
+
+static struct pack_extent *pack_extent(struct port_pack *p, unsigned sector)
+{
+    unsigned lo = 0, hi = p->count;
+    while (lo < hi) {
+        unsigned mid = (lo + hi) / 2;
+        if (p->e[mid].first <= sector) lo = mid + 1;
+        else hi = mid;
+    }
+    if (lo == 0 || sector >= p->e[lo - 1].first + p->e[lo - 1].count) return NULL;
+    return &p->e[lo - 1];
+}
+
+static unsigned char bcd(unsigned v) { return (unsigned char)((v / 10u) << 4 | v % 10u); }
+
+static int pack_raw(struct port_pack *p, unsigned sector, unsigned char *raw)
+{
+    struct pack_extent *e = pack_extent(p, sector);
+    unsigned lba = sector + 150u, from, to, k;
+    if (!e) return -1;
+    if (e->kind == 1)
+        return fseek(p->f, (long)(e->at + (unsigned long long)(sector - e->first) * PORT_SECTOR), SEEK_SET) == 0 &&
+               fread(raw, 1, PORT_SECTOR, p->f) == PORT_SECTOR ? 0 : -1;
+    memset(raw, 0, PORT_SECTOR);   /* a form 1 data sector: sync, its address, mode 2, the subheader of data */
+    memset(raw + 1, 0xff, 10);
+    raw[12] = bcd(lba / 4500u); raw[13] = bcd(lba / 75u % 60u); raw[14] = bcd(lba % 75u); raw[15] = 2;
+    raw[18] = raw[22] = 8;
+    from = (sector - e->first) * PORT_DATA;
+    to = from + PORT_DATA;
+    for (k = 0; k < e->range_count; k++) {   /* the bytes the pack holds; the rest are the loader's (zero until it patches them) */
+        unsigned a = e->ranges[k][0], b = a + e->ranges[k][1], lo = a > from ? a : from, hi = b < to ? b : to;
+        if (a >= to) break;
+        if (lo < hi && (fseek(p->f, (long)(e->range_at[k] + (lo - a)), SEEK_SET) != 0 ||
+                        fread(raw + PORT_DATA_OFFSET + (lo - from), 1, hi - lo, p->f) != hi - lo)) return -1;
+    }
+    return 0;
+}
+
+int port_disc_raw(struct port_disc *d, unsigned sector, unsigned char *raw)
+{
+    unsigned long long at = (unsigned long long)sector * PORT_SECTOR;
+    if (d->pack) return pack_raw(d->pack, sector, raw);
+    if (at + PORT_SECTOR > d->length || at > 0x7fffffffu || fseek(d->f, (long)at, SEEK_SET) != 0 || fread(raw, 1, PORT_SECTOR, d->f) != PORT_SECTOR) return -1;
+    return 0;
+}
+
+int port_disc_pack_built(struct port_disc *d, unsigned sector, const unsigned (**ranges)[2], unsigned *count, const unsigned char **digest)
+{
+    struct pack_extent *e;
+    if (!d->pack || !(e = pack_extent(d->pack, sector)) || e->first != sector || e->kind != 0) return -1;
+    *ranges = (const unsigned (*)[2])e->built;
+    *count = e->built_count;
+    *digest = e->digest;
+    return 0;
+}
+
 void port_disc_close(struct port_disc *d)
 {
     if (d->f) fclose(d->f);
     d->f = NULL;
+    pack_free(d->pack);
+    d->pack = NULL;
 }
 
 void (*port_disc_patch_hook)(unsigned sector, unsigned char *data, unsigned n);
@@ -132,6 +282,17 @@ int port_disc_read(struct port_disc *d, unsigned sector, unsigned size, unsigned
     while (done < size) {
         unsigned long long at = (unsigned long long)(sector + done / PORT_DATA) * PORT_SECTOR + PORT_DATA_OFFSET;
         unsigned chunk = size - done < PORT_DATA ? size - done : PORT_DATA;
+        if (d->pack) {
+            unsigned char raw[PORT_SECTOR];
+            if (pack_raw(d->pack, sector + done / PORT_DATA, raw) != 0) {
+                snprintf(err, errsize, "disc: sector %u is not in the pack", sector + done / PORT_DATA);
+                return -1;
+            }
+            memcpy(out + done, raw + PORT_DATA_OFFSET, chunk);
+            if (port_disc_patch_hook) port_disc_patch_hook(sector + done / PORT_DATA, out + done, chunk);
+            done += chunk;
+            continue;
+        }
         if (at + chunk > d->length || at > 0x7fffffffu) {
             snprintf(err, errsize, "disc: the image ends inside sector %u (truncated)", sector + done / PORT_DATA);
             return -1;

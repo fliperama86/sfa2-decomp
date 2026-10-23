@@ -28,5 +28,7 @@ unsigned port_arcade_program(unsigned char *ram, int check);
  * 1 if a file differs from the disc but for the PS1's known changes, else 0.
  * -1 with err if the disc's files cannot be listed. */
 int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size);
+/* After port_arcade_attach without check: write the pack of the disc (port/arcade/README.md, "Playing without the disc"). */
+int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t size);
 
 #endif

@@ -45,10 +45,12 @@ void port_unmap(void);
 int  port_game_span(const void *p, size_t n);
 
 /* disc.c */
+struct port_pack;
 struct port_disc {
     FILE *f;
-    char path[1024];           /* the image file actually read (the .bin) */
-    unsigned long long length; /* its size in bytes */
+    char path[1024];           /* the image file actually read (the .bin), or the pack */
+    unsigned long long length; /* its size in bytes (of the disc it stands for, with a pack) */
+    struct port_pack *pack;    /* a pack of the arcade loader in place of the image (port/arcade/README.md), or null */
 };
 
 #define PORT_SECTOR 2352u
@@ -59,6 +61,14 @@ struct port_disc {
  * folder) or a .bin itself. */
 int  port_disc_open(struct port_disc *d, const char *path, char *err, size_t errsize);
 void port_disc_close(struct port_disc *d);
+/* Open a pack of the arcade loader as the disc: its sectors are the image's but for the bytes the loader builds. */
+int  port_disc_open_pack(struct port_disc *d, const char *path, char *err, size_t errsize);
+/* The whole raw sector (2352 bytes) of the image, or of the pack (its sectors' headers made anew for the data files). -1 past the
+ * end or for a sector the pack does not hold. */
+int  port_disc_raw(struct port_disc *d, unsigned sector, unsigned char *raw);
+/* With a pack: the ranges of the file at `sector` that the loader built equal to the disc's when the pack was made (pairs of offset
+ * and size, sorted) and the SHA-256 of their bytes. 0, or -1 when the pack has no such file. */
+int  port_disc_pack_built(struct port_disc *d, unsigned sector, const unsigned (**ranges)[2], unsigned *count, const unsigned char **digest);
 /* Read the data bytes of the sector range starting at `sector`, `size` bytes. With port_disc_patch_hook set (the arcade
  * loader), each sector's bytes then pass through it, which may replace them with what the loader built. */
 extern void (*port_disc_patch_hook)(unsigned sector, unsigned char *data, unsigned n);

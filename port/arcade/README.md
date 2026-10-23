@@ -39,6 +39,8 @@ or interpreted.
 port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip DISC   # arcade pieces over the disc
 port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip        # stops: what the arcade set cannot give yet
 port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC   # compare, then end
+port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-import local/sfa2.pack DISC   # once
+port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-pack local/sfa2.pack          # no disc
 ```
 
 - The program is built from the loader files that `build.txt` lists, so
@@ -100,6 +102,16 @@ file, a pack, as the arcade intro's pack does: nothing of it enters Git.
 - `--arcade-pack PACK` in place of the disc: the disc layer reads a virtual
   disc whose sectors are the loader's built bytes over the pack's. The pack
   shrinks as the loader builds more.
+- Done on 2026-10-23: the pack is written in 3 seconds (437 MB: 93 MB of the
+  files' bytes the loader does not build, 365 MB of music streams and the
+  logo and opening movies as raw sectors; `A2O.STR`, `BF3.STR` and
+  `ZNULL.DAT` left out) to `local/`, which Git ignores. A start from it with
+  no disc went from the title into a fight, and the arcade intro ran with
+  its soundtrack. The pack holds, per file, the ranges the loader served and
+  their SHA-256: a build whose bytes differ refuses the pack. Without the
+  disc the screens' own check against the disc is not made (the pack lacks
+  those bytes); the digests check them. The fighters' palettes are served
+  palette by palette, so that the PS1's own stay in the pack.
 - Sound effects and voices: by the owner's word ("Just use the arcade. It
   should sound as good as the arcade version"), the game's sound requests
   play the arcade's effects through the port's own player (`music.c`), not

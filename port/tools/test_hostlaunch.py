@@ -840,6 +840,7 @@ int port_arcade_enabled(void) { return 0; }
 void port_arcade_missing(char *line,size_t size) { snprintf(line,size,"arcade assets are outside the launch fixture"); }
 unsigned port_arcade_program(unsigned char *ram,int check) { (void)ram;(void)check;return 0; }
 int port_arcade_attach(struct port_disc *d,int check,char *err,size_t size) { (void)d;(void)check;(void)err;(void)size;return 0; }
+int port_arcade_import(struct port_disc *d,const char *path,char *err,size_t size) { (void)d;(void)path;(void)err;(void)size;return -1; }
 int test_presents;
 void port_gpu_present(void) { test_presents++; }
 void port_menu_vblank(void) {}

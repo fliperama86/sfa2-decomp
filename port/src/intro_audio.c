@@ -16,19 +16,14 @@ int port_intro_audio_prepare(char *error,size_t size)
         0xf9,0x52,0xbd,0x2c,0xa0,0xb1,0xb5,0xbf,0xda,0x31,0x60,0x5a,0xb8,0x0d,0xd5,0x8c,
         0x4b,0x92,0x12,0x0b,0x3c,0x83,0x6e,0x40,0x42,0xf4,0xf8,0x8a,0x8b,0x67,0xd4,0x1c
     };
-    struct port_disc *disc=port_cd_disc();unsigned sector,bytes,i;uint8_t *raw,digest[32];FILE *file;int bad=0;
+    struct port_disc *disc=port_cd_disc();unsigned sector,bytes,i;uint8_t *raw,digest[32];int bad=0;
     if(music.samples) return 0;
     if(!disc || port_disc_find(disc,"Z2O.STR",&sector,&bytes,error,size)) return -1;
     if(bytes!=16896000u) return fail(error,size,"unsupported PS1 opening stream");
     raw=malloc(INTRO_AUDIO_RAW_SIZE);if(!raw) return fail(error,size,"out of memory");
-    /* A separate read-only handle never changes the running drive's cursor. */
-    file=fopen(disc->path,"rb");if(!file) {free(raw);return fail(error,size,"cannot open supplied disc");}
-    for(i=0;i<INTRO_AUDIO_SECTORS;i++) {
-        unsigned long long offset=((unsigned long long)sector+558u+8u*i)*PORT_SECTOR;
-        if(offset+PORT_SECTOR>disc->length || offset>0x7fffffffu || fseek(file,(long)offset,SEEK_SET) ||
-           fread(raw+(size_t)i*PORT_SECTOR,1,PORT_SECTOR,file)!=PORT_SECTOR) {bad=1;break;}
-    }
-    if(fclose(file)) bad=1;
+    /* The drive's reads seek for every sector they read, so these reads do not disturb its cursor. */
+    for(i=0;i<INTRO_AUDIO_SECTORS;i++)
+        if(port_disc_raw(disc,sector+558u+8u*i,raw+(size_t)i*PORT_SECTOR)) {bad=1;break;}
     if(bad) {free(raw);return fail(error,size,"cannot read soundtrack sectors");}
     port_sha256(raw,INTRO_AUDIO_RAW_SIZE,digest);
     if(memcmp(digest,expected,sizeof digest)) {free(raw);return fail(error,size,"unsupported soundtrack data");}
