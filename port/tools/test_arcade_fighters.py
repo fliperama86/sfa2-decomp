@@ -137,6 +137,14 @@ class Pure(unittest.TestCase):
         cells = [(1, 16, 0, 0), (2, -16, 16, 0), (3, 0, 0, 0), (4, 0, 0, 0), (5, -16, 0, 0)]
         self.assertEqual([c[0] for c in F.sort_cells(cells)], [5, 3, 4, 1, 2])
 
+    def test_positions_dedupe_unless_fresh(self):
+        p = F.Positions()
+        a, b = b'\x01' * 6, b'\x02' * 6
+        self.assertEqual([p.add(a), p.add(b), p.add(a)], [0, 6, 0])
+        self.assertEqual(p.add(a, True), 12)             # stored again, and not found later
+        self.assertEqual(p.add(b), 6)
+        self.assertEqual(len(p.data), 18)
+
     def test_numbering(self):
         n = F.Numbering()
         self.assertEqual([n.number(c) for c in (50, 60, 50, 70, 60)], [1, 2, 1, 3, 2])
@@ -359,6 +367,12 @@ class World(unittest.TestCase):
     def test_a_tile_first_used_flipped_is_stored_flipped_and_its_list_flag_cleared(self):
         r = self.run_world(0, True)
         self.assertEqual(r['bytes_equal'], 25)
+
+    def test_part_wise_numbering_changes_nothing_for_records_of_one_part(self):
+        view, gfx, tiles, mod, pbase, lbase = self.build(0)
+        with tempfile.TemporaryDirectory(prefix='fighters-test-') as tmp:
+            r = F.analyse(mod, tiles, view, F.Index(view), F.Helper(tmp, gfx), (), False, True)
+        self.assertEqual((r['bytes_equal'], r['first_bad'], r['wrong']), (25, None, {}))
 
     def test_whole_analysis_with_a_bank(self):
         self.run_world(0x10000)

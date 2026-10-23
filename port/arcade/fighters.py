@@ -17,8 +17,13 @@ index; see the README of this folder):
   - the cells of a record are sorted by (y, x), except that a record is made of parts (a block whose x is less than
     the previous block's starts a new part) and the PS1 lists the parts in reverse order, each sorted by (y, x); in
     PL0E (PALETTE_PARTS) a change of palette between blocks also starts a part, in the other characters it does not;
-  - one counter per file numbers the tiles, from 1, in the order of first use (a code not seen before gets the
-    next number); cells of horizontally adjacent tiles form position runs of three 16-bit values each;
+  - one counter per file numbers the tiles, from 1, in the order of first use in the lists (a code not seen before gets
+    the next number); exceptions in PL08 (list 235) and PL0E (NUMBER_BY_RUN): the PS1 numbers the parts of
+    consecutive multi-part records unit by unit (parts ranked by cell count, largest first; units by rank, then
+    record), which the tool does for PL0E; it is the closest rule found, not exact (see below);
+  - cells of horizontally adjacent tiles form position runs of three 16-bit values each; a record drawn a second time
+    in the file, whose leftmost cell is left of x = -256, has it moved to x = 0 and its stream stored apart (PL0E lists
+    724 to 726; three cases, so the condition is a guess);
   - identical position streams are stored once, in order of first use;
   - a list is a five-word header and a body in one of four modes (plain tiles, runs of consecutive tiles, tiles
     with flags, runs with flags); the shorter body wins and a tie goes to the run mode.
@@ -77,6 +82,8 @@ FLIPS = 0x60               # the flip bits of a cell's flags: 0x20 across, 0x40 
 # Characters whose records also start a new part where the palette changes (found in PL0E only; in PL0D, PL15 and PL17
 # a palette change inside a record leaves the plain order). The files PLnn and PLnnX share the entry.
 PALETTE_PARTS = {'PL0E'}
+# Characters whose tile numbers follow the part rule of flush() below (the closest found; see the docstring).
+NUMBER_BY_RUN = {'PL0E'}
 MODULE_SLOTS = {4, 5}      # table 0 code slots of the fighter module (first side, second side)
 TILE_SLOTS = {1, 2}        # table 0 slots of the sprite tiles (first side, second side)
 MAX_CELLS = 512            # a list longer than this is not read as a list
@@ -263,7 +270,11 @@ class Positions:
         self.data = bytearray()
         self.at = {}
 
-    def add(self, stream):
+    def add(self, stream, fresh=False):
+        """Offset of the stream; fresh stores it again even when an identical one exists (and is not looked up later)."""
+        if fresh:
+            self.data += stream
+            return len(self.data) - len(stream)
         if stream not in self.at:
             self.at[stream] = len(self.data)
             self.data += stream
@@ -674,7 +685,7 @@ def stream_end(mod, at, n):
     return at if c == n else None
 
 
-def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False):
+def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_run=False):
     """Everything the line and the detail need, as a dict. The key 'error' when the file cannot be read."""
     pend = code_end(mod)
     if pend is None:
@@ -744,7 +755,7 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False):
         for j in range(count):
             if not is_empty(lists[k + j]):
                 rec = index.record(a)
-                recs[k + j] = (rec, best[2])
+                recs[k + j] = (rec, best[2], a)
                 a = rec[2]
         k += count
 
@@ -759,14 +770,48 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False):
     lend = lists[-1]['end'] if term is None else term['end']
     r.update(segments=seg, unmatched=unmatched, lists=lists, term=term, listsend=lend)
 
-    def tail(psplit):
+    def tail(psplit, by_run):
         r2 = dict(r)
         def convert(posbase, posmod):
             """The lists as bytes (None where no record), the numbering and the positions. A list without a record keeps
             the counters in step: its numbers are taken and, when its position stream is new, the stream is copied from
             the module at posbase."""
             num, pos, mine, code_of_num, bake = Numbering(), Positions(), [], {}, {}
+            w = 5 if psplit else 4
+            used = set()                               # arcade records already converted in this file
+            run = []                                   # consecutive lists of records of two or more parts
+
+            def assign(code, f):
+                before = num.next
+                n = num.number(code, canon[code] if code < helper.ntiles else None)
+                if n >= before or n not in code_of_num:
+                    code_of_num[n] = code
+                if code not in bake:                    # the tile is stored with the flips of its first use
+                    bake[code] = f & FLIPS
+
+            def emit(cells, fresh=False):
+                numbered = [(num.of[c[0]], c[3] ^ bake[c[0]]) for c in cells]
+                mine.append((encode_list(numbered, pos.add(position_stream(position_runs(cells)), fresh)), [n for n, _f in numbered]))
+
+            def flush():
+                # PL0E only (NUMBER_BY_RUN): a run of consecutive lists of records of several parts takes its tile
+                # numbers unit by unit, a unit being one part of one record. The parts of a record are ranked by
+                # cell count, largest first; the units go by rank, then by record; each part by (y, x).
+                units = []
+                for i, cells in enumerate(run):
+                    sizes = collections.Counter(c[w] for c in cells)
+                    for rank, part in enumerate(sorted(sizes, key=lambda part: (-sizes[part], part))):
+                        units.append((rank, i, [c for c in cells if c[w] == part]))
+                for _rank, _i, pcells in sorted(units, key=lambda u: u[:2]):
+                    for c in sorted(pcells, key=lambda c: (c[2], c[1])):
+                        assign(c[0], c[3])
+                for cells in run:
+                    emit(cells)
+                run.clear()
+
             for k, lst in enumerate(lists):
+                if is_empty(lst) or k not in recs:
+                    flush()
                 if is_empty(lst):
                     mine.append((struct.pack('<5HH', 1, 0, 0, 0, len(pos.data), 0), []))
                     continue
@@ -779,18 +824,21 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False):
                         pos.data += posmod[posbase + lst['pos']:end]
                     mine.append(None)
                     continue
-                rec, bank = recs[k]
+                rec, bank, at = recs[k]
                 cells = order_cells([(c[0] + bank,) + c[1:] for c in rec[1]], psplit)
-                numbered = []
-                for code, _x, _y, f, *_g in cells:
-                    before = num.next
-                    n = num.number(code, canon[code] if code < helper.ntiles else None)
-                    if n >= before or n not in code_of_num:
-                        code_of_num[n] = code
-                    if code not in bake:                    # the tile is stored with the flips of its first use
-                        bake[code] = f & FLIPS
-                    numbered.append((n, f ^ bake[code]))
-                mine.append((encode_list(numbered, pos.add(position_stream(position_runs(cells)))), [n for n, _f in numbered]))
+                left = min(c[1] for c in cells)
+                again = at in used and left < -256
+                if again:                             # a record drawn a second time and starting far left: the PS1 puts
+                    cells = [(c[0], c[1] - left) + c[2:] for c in cells]   # its leftmost cell at x = 0, stream apart
+                used.add(at)
+                if by_run and len({c[w] for c in cells}) > 1:
+                    run.append(cells)
+                    continue
+                flush()
+                for c in cells:
+                    assign(c[0], c[3])
+                emit(cells, again)
+            flush()
             return mine, num, pos, code_of_num, bake
 
         mine, num, pos, code_of_num, bake = convert(None, mod)
@@ -864,7 +912,7 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False):
         r2['fit'] = fit
         return r2
 
-    return tail(palette_parts)
+    return tail(palette_parts, by_run)
 
 
 def line(name, side, r):
@@ -986,7 +1034,8 @@ def main(argv=None):
                     print(f'{name}: {parts}')
                     continue
                 mod, tiles, side, others = parts
-                r = analyse(mod, tiles, view, index, helper, others, name.removesuffix('.PAC').removesuffix('X') in PALETTE_PARTS)
+                stem = name.removesuffix('.PAC').removesuffix('X')
+                r = analyse(mod, tiles, view, index, helper, others, stem in PALETTE_PARTS, stem in NUMBER_BY_RUN)
                 if args.fit:
                     print(fit_line(name, r))
                     continue

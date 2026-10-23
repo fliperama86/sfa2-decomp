@@ -128,7 +128,10 @@ scripts (nothing of it is in the tree):
   arcade's). With that rule the lists of 16 fighters rebuild byte for byte
   and fit by construction; PL02/PL14 and PL0B differ only in the PS1's
   palette changes; PL08 and PL0E (Birdie, Rolento) number some body-part tiles
-  together, and PL0E's lists come out 28 bytes over.
+  together. For PL0E a rule fitted to its cases (parts numbered by size, in
+  runs of records drawn in parts) brings it to 627 of 727 exact lists, 6
+  bytes under its room; no exact rule was found. Every fighter's lists and
+  positions now fit where the PS1 code reads them.
 - **Stages** (`stages.py`, all 20). The two layers of 16- and 32-pixel
   cells are the arcade's scroll maps cell for cell (all cells in 17 and 19
   stages); their palettes are the arcade's (4-bit channels scaled
