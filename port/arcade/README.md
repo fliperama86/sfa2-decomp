@@ -73,6 +73,13 @@ needed: the C runs instead.
 
 ## What the two versions share
 
+The fighter files are numbered as the PS1 code's modules (`slot04_NN` in
+`ps1/src/overlays/characters/`): 00 Ryu, 01 Ken, 02 Gouki, 03 Nash, 04
+Chun-Li, 05 Adon, 06 Sodom, 07 Guy, 08 Birdie, 09 Rose, 0A Vega, 0B Sagat,
+0C Dan, 0D Sakura, 0E Rolento, 0F Dhalsim, 10 Zangief, 11 Gen; 12, 14, 15,
+16 and 17 are the alternate modules of Chun-Li, Gouki, Sakura, Zangief and
+Gen.
+
 Measured on 2026-10-23 with the user's disc and arcade set, with throwaway
 scripts (nothing of it is in the tree):
 
@@ -101,7 +108,7 @@ scripts (nothing of it is in the tree):
   the lists first use them (1,048 of 1,082 new tiles are the previous
   number plus one) and gives a tile it has already the number it had.
 - **All fighters** (`fighters.py`, the rules above run over the 45 fighter
-  files). Ryu's and Dan's lists rebuild exactly, but for one tile of Ryu's
+  files). Ryu's and Sodom's (PL06) lists rebuild exactly, but for one tile of Ryu's
   that the PS1 stores flipped. Positions are byte-equal in 16 of 23
   characters. The rest differ where the PS1 changed things: tiles stored
   flipped (a few in most fighters), a palette or flip bit here and there,
@@ -110,7 +117,7 @@ scripts (nothing of it is in the tree):
   another bank of the arcade graphics (+0x20000); some lists come from
   arcade records of mode 0 (one code a cell). Where a record's blocks step
   back in x, the record is in parts: the PS1 lists the parts last first,
-  each sorted by (y, x) (Vega's 297 lists all rebuild with it; PL0E also
+  each sorted by (y, x) (Birdie's, PL08, 297 lists all rebuild with it; Rolento's, PL0E, also
   starts a part at a change of palette). The arcade build does not copy the
   PS1's changes: it converts the arcade's records.
 - **Room and flipped tiles.** The PS1 code reads a module's data at fixed
@@ -120,7 +127,7 @@ scripts (nothing of it is in the tree):
   (exact for all 106,434 tile codes of the 20 fighters whose art is the
   arcade's). With that rule the lists of 16 fighters rebuild byte for byte
   and fit by construction; PL02/PL14 and PL0B differ only in the PS1's
-  palette changes; PL08 and PL0E (Sakura) number some body-part tiles
+  palette changes; PL08 and PL0E (Birdie, Rolento) number some body-part tiles
   together, and PL0E's lists come out 28 bytes over.
 - **Stages** (`stages.py`, all 20). The two layers of 16- and 32-pixel
   cells are the arcade's scroll maps cell for cell (all cells in 17 and 19
@@ -140,7 +147,7 @@ scripts (nothing of it is in the tree):
   46,483 steps of the 45 files and 13,007 of 13,869 frame records rebuild
   byte for byte. The PS1 dropped arcade records (Ryu's last 196; Zangief's
   PL10 245, with countdowns lengthened to cover them, while PL16 has nearly
-  all) and added steps of its own (Ryu 89, Dan's PL0E 1,138). Which arcade
+  all) and added steps of its own (Ryu 89, Rolento's PL0E 1,138). Which arcade
   records the PS1 kept is not in the arcade bytes.
 - **The rest of the program's data** (`program_map.py`, every byte
   classed): 29% arcade tables (the 72 pieces), 19% cell lists and position
