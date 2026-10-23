@@ -131,6 +131,17 @@ scripts (nothing of it is in the tree):
   is not found, its palettes mostly differ, stage 04's object tiles are the
   PS1's own, and the order in which the PS1 packs tiles into pages is not
   fully derived.
+- **Animation steps** (`sequences.py`). A fighter's steps follow its
+  lists: 12 bytes each, from the arcade's sequence records (countdown,
+  flags, art pointer, 16 frame bytes, and a 4-byte jump target when flags
+  bit 15 is set): duration and flags as they are, the art pointer becoming
+  the list's offset, a jump becoming the distance in steps, and the frame
+  bytes, each 4 turned, a frame record numbered by first use. 39,628 of the
+  46,483 steps of the 45 files and 13,007 of 13,869 frame records rebuild
+  byte for byte. The PS1 dropped arcade records (Ryu's last 196; Zangief's
+  PL10 245, with countdowns lengthened to cover them, while PL16 has nearly
+  all) and added steps of its own (Ryu 89, Dan's PL0E 1,138). Which arcade
+  records the PS1 kept is not in the arcade bytes.
 - **The rest of the program's data** (`program_map.py`, every byte
   classed): 29% arcade tables (the 72 pieces), 19% cell lists and position
   runs of effects in the fighters' format, 12% the Sony library's data
