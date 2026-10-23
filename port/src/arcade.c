@@ -9,6 +9,10 @@
 #include "../arcade/music.h"
 #include "../arcade/module_data.h"
 #include "../arcade/screen_lists.h"
+#include "../arcade/sounds.h"
+#include "settings.h"
+#include "port_tables.h"
+#include <stdint.h>
 #include "../arcade/program.h"
 #include "../arcade/program_more.h"
 #include "../arcade/rom.h"
@@ -781,18 +785,227 @@ static void stream_hook(unsigned sector, unsigned channel)
     port_audio_unlock();
 }
 
+/* While an arcade song stands for the stream, the stream is consumed in silence: the player sounds through the mix (below). */
 static size_t music_replace(short *out, size_t frames)
 {
     if (playing < 0) return 0;
-    return arcade_music_render(player, out, frames) == (int)frames ? frames : 0;
+    memset(out, 0, frames * 2 * sizeof *out);
+    return frames;
+}
+
+/* The arcade player's sound (songs and effects) added to each block of the output, under the audio lock. */
+static void arcade_mix(short *out, int frames)
+{
+    static int16_t buf[2 * 2048];
+    int done = 0, i;
+    while (done < frames) {
+        int n = frames - done > 2048 ? 2048 : frames - done;
+        if (arcade_music_render(player, buf, (size_t)n) != n) return;
+        for (i = 0; i < 2 * n; i++) {
+            int v = out[2 * done + i] + buf[i];
+            out[2 * done + i] = (short)(v < -32768 ? -32768 : v > 32767 ? 32767 : v);
+        }
+        done += n;
+    }
+}
+
+/* ---- sound effects: the game's sound requests as the arcade's effects (music.md section 12b), by the owner's word: "Just use
+ * the arcade. It should sound as good as the arcade version". A request whose sound the arcade has plays as its effect; the
+ * others play as on the PS1. */
+#define CHUNK_TABLES 0x8017eb1cu    /* data_8017eb1c: the chunk loader's six tables of destinations; table 3 slot s: bank slot s's VAB header */
+#define COMMAND_LISTS 0x8016e6e0u   /* table_8016e6e0[slot]: the bank slot's command list (8-byte entries) */
+#define CAMERA_X 0x801aa5e6u        /* box_margin[0] */
+#define OBJECT_X 0x12u              /* Object.pos_x */
+static unsigned sounds_arcade, sounds_ps1;
+
+/* The disc's VAB headers (the chunks of table 3, slots 0 to 3, of every archive), each with its key (the table's key_vab). The
+ * game's sound library writes into a header once it has opened it, so a slot's header in memory is known by the disc header it is
+ * most like (sound_bank), not by its own key. */
+static uint32_t fnv(const unsigned char *p, size_t n, uint32_t h);
+static const unsigned char *game(unsigned address, size_t n);
+struct bank { uint32_t key; unsigned size; unsigned char *bytes; };
+static struct bank *banks;
+static unsigned bank_count;
+static struct { unsigned address, programs; unsigned char head[32]; uint32_t key; int known; } slot_bank[4];
+
+static void read_banks(struct port_disc *d)
+{
+    unsigned i, slot, nth, at, n, room = 0;
+    char err[PORT_ERR];
+    for (i = 0; i < file_count; i++) {
+        if (!strstr(files[i].name, ".pac")) continue;
+        for (slot = 0; slot < 4; slot++)
+            for (nth = 0; pac_chunk_nth(d, &files[i], 0x30000u | slot, nth, &at, &n) == 0; nth++) {
+                unsigned char *b;
+                if (n < 32 || n > 0x10000u || !(b = malloc(n))) continue;
+                if (port_disc_read(d, files[i].sector + at / PORT_DATA, n, b, err, sizeof err) != 0 || memcmp(b, "pBAV", 4) != 0) { free(b); continue; }
+                if (bank_count == room) {
+                    struct bank *more = realloc(banks, (room = room ? room * 2 : 64) * sizeof *more);
+                    if (!more) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+                    banks = more;
+                }
+                banks[bank_count].key = fnv(b, n, 0x811c9dc5u);
+                banks[bank_count].size = n;
+                banks[bank_count].bytes = b;
+                bank_count++;
+            }
+    }
+}
+
+/* The key of the disc header that the header of `slot` in memory is. Once it has opened a header the library rewrites its last 512
+ * bytes (the samples' sizes become their places in the sound chip's memory) and bytes 8 to 15 of each of the 128 program records
+ * (0xff on the disc); the rest is compared: equal to one disc header, or 0 when none is (or several that differ are). */
+static int same_header(const unsigned char *disc, const unsigned char *memory, unsigned len)
+{
+    unsigned k;
+    for (k = 0; k < len - 512u; k++)
+        if (disc[k] != memory[k] && !(k >= 0x20u && k < 0x820u && (k - 0x20u) % 16u >= 8u)) return 0;
+    return 1;
+}
+
+static int sound_bank(unsigned slot, unsigned vh, unsigned programs, uint32_t *key)
+{
+    const unsigned char *h = game(vh, 32);
+    unsigned len = 3104u + 512u * (programs > 1 ? programs - 1 : 0), i, k, best = 0, best_same = 0;
+    if (!h) return 0;
+    if (slot_bank[slot].address == vh && slot_bank[slot].programs == programs && !memcmp(slot_bank[slot].head, h, 32)) {
+        *key = slot_bank[slot].key;
+        return slot_bank[slot].known;
+    }
+    if (!(h = game(vh, len))) return 0;
+    for (i = 0, k = 0; i < bank_count; i++) {
+        if (banks[i].size != len || !same_header(banks[i].bytes, h, len)) continue;
+        if (best_same && banks[i].key != banks[best].key) k = 1;   /* two disc headers of other keys fit */
+        best_same = len - 512u;
+        best = i;
+    }
+    slot_bank[slot].address = vh;
+    slot_bank[slot].programs = programs;
+    memcpy(slot_bank[slot].head, h, 32);
+    slot_bank[slot].known = best_same && !k;
+    slot_bank[slot].key = slot_bank[slot].known ? banks[best].key : 0;
+    port_trace_line("arcade: sound slot %u: the header at 0x%08x (%u bytes) %s 0x%08x", slot, vh, len,
+                    slot_bank[slot].known ? "is the disc's header of key" : k ? "fits disc headers of several keys:" : "is no disc header:", slot_bank[slot].key);
+    *key = slot_bank[slot].key;
+    return slot_bank[slot].known;
+}
+
+static const unsigned char *game(unsigned address, size_t n)
+{
+    return (const unsigned char *)port_gs((const void *)(uintptr_t)address, n);
+}
+
+static unsigned word_at(unsigned address)
+{
+    const unsigned char *p = game(address, 4);
+    return p ? (unsigned)p[0] | (unsigned)p[1] << 8 | (unsigned)p[2] << 16 | (unsigned)p[3] << 24 : 0;
+}
+
+static uint32_t fnv(const unsigned char *p, size_t n, uint32_t h)
+{
+    size_t i;
+    for (i = 0; i < n; i++) h = (h ^ p[i]) * 0x01000193u;
+    return h;
+}
+
+/* Play the request as the arcade's effect: 1, or 0 when the arcade has no effect for it. */
+static int arcade_effect(unsigned slot, int alt, unsigned start, int pos)
+{
+    const unsigned char *h, *e;
+    unsigned vh, list, programs, k, lo = 0, hi = arcade_sound_count, code, dx, pan;
+    uint32_t key_vab, key_run = 0x811c9dc5u;
+    unsigned char packet[16];
+    if (!player || slot > 3) return 0;
+    vh = word_at(word_at(CHUNK_TABLES + 12u) + 4u * slot);
+    if (!(h = game(vh, 0x14))) return 0;
+    programs = h[0x12] | h[0x13] << 8;
+    if (!sound_bank(slot, vh, programs, &key_vab)) return 0;
+    list = word_at(COMMAND_LISTS + 4u * slot);
+    for (k = start; k < start + 80u; k++) {   /* the sound's entries: up to the first without bit 23 of word 1 */
+        if (!(e = game(list + 8u * k, 8))) return 0;
+        key_run = fnv(e, 8, key_run);
+        if (!(e[6] & 0x80)) break;
+    }
+    while (lo < hi) {
+        unsigned mid = (lo + hi) / 2;
+        const struct arcade_sound *a = &arcade_sounds[mid];
+        if (a->key_vab < key_vab || (a->key_vab == key_vab && a->key_run < key_run)) lo = mid + 1;
+        else hi = mid;
+    }
+    port_trace_line("arcade: sound slot %u start %u: header 0x%08x programs %u key 0x%08x, run key 0x%08x: %s", slot, start, vh, programs, key_vab, key_run,
+                    lo < arcade_sound_count && arcade_sounds[lo].key_vab == key_vab && arcade_sounds[lo].key_run == key_run ? "known" : "not known");
+    if (lo == arcade_sound_count || arcade_sounds[lo].key_vab != key_vab || arcade_sounds[lo].key_run != key_run) return 0;
+    code = alt ? arcade_sounds[lo].code1 : arcade_sounds[lo].code0;
+    if (code == 0xffffu) return 0;
+    dx = pos < 0 ? 0u : pos > 0x17f ? 0x17fu : (unsigned)pos;
+    for (k = 0, pan = 0; k < 15; k++) pan += arcade_sound_pan_edges[k] <= dx;
+    pan = arcade_sound_pan_first + pan - 1u;
+    memset(packet, 0, sizeof packet);
+    packet[0] = (unsigned char)(code >> 8);
+    packet[1] = (unsigned char)code;
+    packet[7] = (unsigned char)pan;   /* byte 6: pan motion 0, fixed */
+    port_audio_lock();
+    arcade_music_packet(player, packet, sizeof packet);
+    port_audio_unlock();
+    sounds_arcade++;
+    return 1;
+}
+
+/* The PS1's own sound for a request the arcade does not have: the game's func_80120604, as the wrappers call it. */
+static void ps1_sound(unsigned slot, int alt, unsigned start, int pos)
+{
+    static port_fn impl;
+    unsigned i;
+    if (!impl)
+        for (i = 0; i < port_function_count; i++)
+            if (port_functions[i].image == -1 && !strcmp(port_functions[i].name, "func_80120604")) impl = (port_fn)port_functions[i].impl;
+    if (!impl) port_halt(PORT_EXIT_OTHER, "arcade: func_80120604 has no implementation in this build");
+    sounds_ps1++;
+    port_call4(impl, slot, (unsigned)alt, start, (unsigned)(short)pos);
+}
+
+static void request(unsigned slot, int alt, unsigned start, int pos)
+{
+    if (!arcade_effect(slot, alt, start, pos)) ps1_sound(slot, alt, start, pos);
+}
+
+/* The camera-relative x of an object, clamped as the game's wrappers do. */
+static int object_pos(unsigned object)
+{
+    const unsigned char *o = game(object + OBJECT_X, 2), *c = game(CAMERA_X, 2);
+    int d = (o ? (short)(o[0] | o[1] << 8) : 0) - (c ? (short)(c[0] | c[1] << 8) : 0);
+    return d < -192 ? -192 : d >= 576 ? 575 : d;
+}
+
+static void port_o_play_side_sound_at(unsigned object, int side, int sound);
+static void port_o_play_side_sound_at(unsigned object, int side, int sound) { request((unsigned)side, side, (unsigned)sound & 0xffu, object_pos(object)); }
+static void port_o_play_sound_at(unsigned object, int side, unsigned sound);
+static void port_o_play_sound_at(unsigned object, int side, unsigned sound) { request((sound & 0xff00u) >> 8, side, sound & 0xffu, object ? object_pos(object) : 192); }
+static void port_o_side_sound(int side, unsigned sound);
+static void port_o_side_sound(int side, unsigned sound) { request((sound & 0xff00u) >> 8, side, sound & 0xffu, side == 0 ? 64 : 320); }
+
+const struct port_override port_arcade_overrides[] = {
+    { "play_side_sound_at", (void *)port_o_play_side_sound_at, "plays the arcade's effect for the sound when the arcade has one (setting arcade_assets)", &port_settings.arcade_assets },
+    { "play_sound_at", (void *)port_o_play_sound_at, "plays the arcade's effect for the sound when the arcade has one (setting arcade_assets)", &port_settings.arcade_assets },
+    { "call_func_with_side_x_origin", (void *)port_o_side_sound, "plays the arcade's effect for the sound when the arcade has one (setting arcade_assets)", &port_settings.arcade_assets },
+    { NULL, NULL, NULL, NULL }
+};
+
+static void sound_counts(void)
+{
+    printf("arcade: sound: %u requests played as the arcade's effects, %u as the PS1's own sounds\n", sounds_arcade, sounds_ps1);
+    fflush(stdout);
 }
 
 static void music_attach(void)
 {
+    static int told;
+    if (!told) { told = 1; atexit(sound_counts); }
     if (!player && !(player = arcade_music_open(&rom, 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: the music player cannot start");
     playing = -1;
     port_cd_stream_hook = stream_hook;
     port_cd_audio_replace = music_replace;
+    port_audio_set_mix(arcade_mix);
     printf("arcade: music: %u of the disc's recorded tracks played as the arcade's songs\n", (unsigned)(sizeof songs / sizeof songs[0]));
     fflush(stdout);
 }
@@ -973,6 +1186,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
+    read_banks(d);
     if (pack_disc) {   /* what is served now must be what was served when the pack was made */
         unsigned i;
         for (i = 0; i < file_count; i++) {

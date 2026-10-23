@@ -530,7 +530,7 @@ view, and the closing of the window stay PsyZ's. With 0, the default, the keys a
  static GLuint rgb24_texture, rgb24_fbo;
 --- a/psyz/src/platform/sdl3_audio.c
 +++ b/psyz/src/platform/sdl3_audio.c
-@@ -10,2 +10,9 @@
+@@ -10,2 +10,11 @@
  static SDL_AudioStream* sdl_stream;
  static SDL_Mutex* mutex;
 +/* Output volume of the SFA2 port (--volume): the gain of PsyZ's one output stream, 1.0 for no change. */
@@ -540,6 +540,13 @@ view, and the closing of the window stay PsyZ's. With 0, the default, the keys a
 +    if (sdl_stream)
 +        SDL_SetAudioStreamGain(sdl_stream, gain);
 +}
-@@ -66,1 +73,2 @@
++/* A source of the SFA2 port mixed into each block after the SPU's (its arcade sound), under the lock; null for none. */
++void (*Psyz_Sfa2Mix)(short* out, int num_frames);
+@@ -29,2 +38,4 @@
+         Psyz_SpuPullSamples(buf, batch);
++        if (Psyz_Sfa2Mix)
++            Psyz_Sfa2Mix(buf, batch);
+         SDL_PutAudioStreamData(stream, buf, batch * N_CHANNELS * SAMPLE_SIZE);
+@@ -66,1 +77,2 @@
 +    SDL_SetAudioStreamGain(sdl_stream, sfa2_volume);
      if (!SDL_ResumeAudioStreamDevice(sdl_stream)) {

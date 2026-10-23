@@ -141,6 +141,14 @@ void port_audio_lock(void)
     Psyz_AudioLock();
 }
 
+extern void (*Psyz_Sfa2Mix)(short *out, int num_frames);   /* port/psyz.patch: mixed into each block after the SPU's, under the lock */
+void port_audio_set_mix(void (*mix)(short *out, int frames))
+{
+    Psyz_AudioLock();
+    Psyz_Sfa2Mix = mix;
+    Psyz_AudioUnlock();
+}
+
 void port_audio_unlock(void)
 {
     Psyz_AudioUnlock();
@@ -179,6 +187,7 @@ int port_iopage_chip_write(unsigned offset, unsigned value)
 #else
 void port_audio_lock(void) {}
 void port_audio_unlock(void) {}
+void port_audio_set_mix(void (*mix)(short *out, int frames)) { (void)mix; }
 int port_iopage_chip_read(unsigned offset, unsigned *value) { (void)offset; (void)value; return 0; }
 int port_iopage_chip_write(unsigned offset, unsigned value) { (void)offset; (void)value; return 0; }
 #endif
@@ -495,6 +504,7 @@ void port_iopage_vblank(void)
         short buf[WAV_FRAMES * 2];
         LOCK();
         Psyz_SpuPullSamples(buf, (int)WAV_FRAMES);
+        if (Psyz_Sfa2Mix) Psyz_Sfa2Mix(buf, (int)WAV_FRAMES);   /* the same sound as the device's */
         UNLOCK();
         if (wav_data > 0xfffff000u - WAV_BYTES || fwrite(buf, 4, WAV_FRAMES, wav) != WAV_FRAMES) wav_stop();   /* the host is little endian */
         else {

@@ -115,7 +115,19 @@ file, a pack, as the arcade intro's pack does: nothing of it enters Git.
 - Sound effects and voices: by the owner's word ("Just use the arcade. It
   should sound as good as the arcade version"), the game's sound requests
   play the arcade's effects through the port's own player (`music.c`), not
-  the PS1's sound banks re-encoded.
+  the PS1's sound banks re-encoded. Done: the three wrappers of the game's
+  sound requests are overrides with `arcade_assets` (`arcade.c`); a request
+  is known by its bank and its run of commands (`sounds_table.c`, generated
+  by `sounds.py`: 396 of 466 sounds), and plays as the arcade's effect with
+  the arcade's pan, else as on the PS1. A bank in memory is matched to its
+  disc header, as the library rewrites part of it (the samples' sizes and 8
+  bytes of each program record). The player's songs and effects sound
+  through a mix of their own after the sound chip's (a hook added to PsyZ by
+  `port/psyz.patch`), so they do not wait in the disc audio's buffer; the
+  recorded tracks it replaces are read and consumed in silence. In a fight
+  344 requests played as the arcade's, 14 as the PS1's (sounds the arcade
+  does not have). The game's own fades of the music do not reach the
+  arcade's songs yet.
 
 ## What the game reads, in order
 

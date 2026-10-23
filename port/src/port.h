@@ -187,7 +187,8 @@ extern const struct port_library port_kernel_library[], port_cd_library[], port_
                                  port_c_library[], port_thread_library[], port_system_library[];
 extern const struct port_override port_game_overrides[];  /* overrides.c; ends with a null name */
 extern const struct port_override port_loadwait_overrides[];  /* loadwait.c; ends with a null name; installed only with the setting fast_loads */
-extern const struct port_override port_menu_overrides[];  /* menu_run.c; ends with a null name; installed only with the setting settings_menu */
+extern const struct port_override port_menu_overrides[];
+extern const struct port_override port_arcade_overrides[];  /* arcade.c; ends with a null name; installed only with the setting arcade_assets */  /* menu_run.c; ends with a null name; installed only with the setting settings_menu */
 
 struct port_install { unsigned host, noop, stops, overrides; };
 

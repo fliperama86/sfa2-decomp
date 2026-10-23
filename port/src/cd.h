@@ -98,6 +98,9 @@ size_t port_xa_pull(short *out, size_t num_frames);
 void   port_xa_counts_get(struct port_xa_counts *out);
 void   port_audio_lock(void);
 void   port_audio_unlock(void);
+/* A source mixed into the output after the sound chip's (the arcade loader's sound), under the audio lock; null for none. A build
+ * without PsyZ has no output and ignores it. */
+void   port_audio_set_mix(void (*mix)(short *out, int frames));
 /* The sound chip's registers for port_CdInit, which stands for library code that writes them itself (iopage.c has the two and says
  * what they do). `offset` is the register's, counted from 0x1F801C00. The return is 1, or 0 in a build with no model of the chip,
  * where nothing is read or written. */
