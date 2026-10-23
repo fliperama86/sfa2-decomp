@@ -46,11 +46,23 @@ What the disc's data shows (all 22 distinct chunks; the numbers are in `report` 
     alignment, popularity of the content, parity and position in the tile all fail; measured on Ryu's chunk and, for the causality, on the PL0D/PL15, PL10/PL16 and PL11/PL17 pairs).
     The reader looks tiles up through the offset table only, so a differing chunk is functionally the same.
 
+The runtime encoder (tilepack.c, tilepack.h; `--compare-c` checks it): the PS1's choices cannot be reproduced and the PS1 layout
+only has room for the disc's chunk, so the C makes the smallest chunk it finds and fails (writes nothing) when that does not fit
+the room it is given. Per tile the smallest of literals, the zero form and LZ with the fewest items (an optimal parse over a hash
+chain of word pairs and triples). On its own that is about 0.5% smaller than the disc's chunk for Ryu and up to 1% larger for others,
+because the disc's encoder keeps literal the words that later tiles copy. So a first pass parses every 4th tile over the tiles before
+it (as if all were literal), counts for each word of each tile how often it is copied (the farthest of the longest match, so that
+the counts gather on one copy), and the second pass keeps literal every word copied at least m times (m = 2, then 3, 1, 4, 0 until
+the chunk fits the room). With this every one of the 22 distinct chunks is 0.8% to 1.5% smaller than the disc's, built from the
+arcade's tiles where the fighters' numbering is exact (the rest from the disc's decoded tiles: PL04, PL08, PL0E, PL10, PL11, PL13),
+and decodes to the same tiles; the 45 files take 0.68 s in all, 0.54 s for the 37 the fighters C builds (13 ms for Ryu's, 29 ms for the largest, Python marshalling included). The Python
+`encode_chunk_small` is the plain optimal parse (no kept words), the reference for the tests.
+
 Inputs: the disc image (raw 2352-byte sectors) and, for the arcade step, the arcade set's ZIP (MAME's sfa2u), both read only. It
 writes nothing. It prints sizes, indexes and counts, never game bytes. It is an analysis and reference tool; the runtime converter
 will be C. The fighters' tile numbering and flips (`fighters.py`, the C `fighter.c`) are used as they are.
 
-    python3 port/arcade/tilepack.py --disc BIN [--arcade ZIP] [--only NAME] [--oracle-pins]
+    python3 port/arcade/tilepack.py --disc BIN [--arcade ZIP] [--only NAME] [--oracle-pins | --compare-c]
 """
 import argparse
 import bisect
@@ -263,6 +275,48 @@ def encode_chunk(tiles, pins=None):
     return struct.pack('<%dI' % len(tiles), *offsets) + struct.pack('<%dH' % len(words), *words), forms
 
 
+def optimal_parse(stream, tile, start):
+    """[(position, length, distance)] with the fewest items: a dynamic programme over the 64 positions, each position offering
+    every length from 2 up to the longest match found there (a prefix of a match is a match). No cut at the end of the tile and
+    no stale flag bits: the reader has no such rules, they are the PS1 encoder's own."""
+    best = [find_match(stream, tile, p, start, MAX_LEN) for p in range(TILE_WORDS)]
+    cost, take = [0] * (TILE_WORDS + 1), [1] * TILE_WORDS
+    for p in range(TILE_WORDS - 1, -1, -1):
+        cost[p], take[p] = cost[p + 1] + 1, 1
+        if best[p]:
+            for n in range(best[p][0], MIN_LEN - 1, -1):
+                if cost[p + n] + 1 < cost[p]:
+                    cost[p], take[p] = cost[p + n] + 1, n
+    items, p = [], 0
+    while p < TILE_WORDS:
+        items.append((p, take[p], best[p][1] if take[p] > 1 else 0))
+        p += take[p]
+    return items
+
+
+def smallest_tile(stream, tile):
+    """(block words, form) of the smallest encoding of a tile after the stream: literals, the zero form, or LZ of the optimal
+    parse; a tie goes to the zero form, then to LZ."""
+    zero = zero_block(tile)
+    items = optimal_parse(stream, tile, len(stream.words))
+    lz = lz_block(tile, items, [0, 0, 0, 0])
+    best = min((len(zero), 0, zero, 'zero'), (len(lz), 1, lz, 'lz'), (len(lit_block(tile)), 2, lit_block(tile), 'lit'))
+    return best[2], best[3]
+
+
+def encode_chunk_small(tiles):
+    """(chunk bytes, forms) for a list of 64-word tiles, each tile in its smallest encoding (see smallest_tile)."""
+    stream, offsets, forms = Stream(), [], []
+    at = 4 * len(tiles)
+    for tile in tiles:
+        block, form = smallest_tile(stream, tile)
+        stream.append(block)
+        offsets.append(at)
+        at += 2 * len(block)
+        forms.append(form)
+    return struct.pack('<%dI' % len(tiles), *offsets) + struct.pack('<%dH' % len(stream.words), *stream.words), forms
+
+
 def encode_rle(tile):
     """An RLE block for a tile (runs of 3 or more equal bytes as pairs). No sprite chunk uses this form, `encode_tile` never
     picks it, and its high byte of n (here 1) is only known to be neither 0 nor 0x80: it exists to test the reader's path."""
@@ -383,6 +437,80 @@ def form_name(chunk, i):
     return 'lit' if n == 0 else 'lz' if n >> 8 == 0 else 'zero' if n >> 8 == 0x80 else 'rle'
 
 
+class CPacker:
+    """tilepack.c compiled into a temporary folder and called through ctypes (the C encoder and reader of the runtime)."""
+
+    def __init__(self, tmp):
+        import ctypes
+        import subprocess
+        here = Path(__file__).resolve().parent
+        lib = Path(tmp) / 'tilepack.so'
+        subprocess.run(['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror', '-shared', '-fPIC', '-o', str(lib), str(here / 'tilepack.c')],
+                       check=True, capture_output=True, timeout=60)
+        self.ctypes = ctypes
+        self.lib = ctypes.CDLL(str(lib))
+        self.lib.arcade_tilepack.argtypes = [ctypes.c_char_p, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint32),
+                                             ctypes.c_char_p, ctypes.c_size_t]
+        self.lib.arcade_tilepack_decode.argtypes = [ctypes.c_char_p, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_char_p,
+                                                    ctypes.c_size_t]
+        self.lib.arcade_tilepack_count.argtypes = [ctypes.c_char_p, ctypes.c_uint32]
+        self.lib.arcade_tilepack_count.restype = ctypes.c_uint32
+
+    def pack(self, tiles, room):
+        """(chunk bytes, None) or (None, error line) for tiles as lists of 64 words and a room in bytes."""
+        c = self.ctypes
+        flat = b''.join(struct.pack('<64H', *t) for t in tiles)
+        out, size, err = c.create_string_buffer(max(room, 1)), c.c_uint32(0), c.create_string_buffer(256)
+        if self.lib.arcade_tilepack(flat, len(tiles), out, room, c.byref(size), err, len(err)):
+            return None, err.value.decode()
+        return out.raw[:size.value], None
+
+    def decode(self, chunk, index):
+        c = self.ctypes
+        tile, err = c.create_string_buffer(128), c.create_string_buffer(256)
+        if self.lib.arcade_tilepack_decode(chunk, len(chunk), index, tile, err, len(err)):
+            raise ValueError(err.value.decode())
+        return tile_words(tile.raw)
+
+
+def compare_c(name, disc, tiles, source, packer):
+    """One line: the C encoder's chunk for the tiles against the disc's chunk (size, and that it decodes to the same tiles)."""
+    started = time.monotonic()
+    chunk, err = packer.pack(tiles, len(disc))
+    took = time.monotonic() - started
+    if chunk is None:
+        big, _ = packer.pack(tiles, 1 << 26)
+        return (f'{name}: C chunk does NOT fit: {err}; unconstrained {len(big)} B, {len(big) - len(disc):+d} B against the disc\'s {len(disc)} B'
+                f' (tiles from {source}) [{took * 1000:.0f} ms]'), False, took
+    same = [w for _f, w in decode_chunk(chunk)] == tiles
+    c_same = all(packer.decode(chunk, i) == tiles[i] for i in range(0, len(tiles), 7))
+    ok = same and c_same
+    return (f'{name}: C chunk {len(chunk)} B against the disc\'s {len(disc)} B ({100.0 * (len(chunk) - len(disc)) / len(disc):+.2f}%, '
+            f'{len(chunk) - len(disc):+d} B); tiles from {source}; decodes to the same tiles: {"yes" if ok else "NO"} [{took * 1000:.0f} ms]'), ok, took
+
+
+def arcade_tiles(tiles, numbers, gfx):
+    """(the tiles with every numbered one rebuilt from the arcade's graphics, how many numbered tiles equal the given ones, how many
+    differ, the first that differs or None). `numbers` maps a tile number to (arcade code, stored flip) as the fighters' C gives it."""
+    mine = list(tiles)
+    eq = bad = 0
+    first_bad = None
+    for n, (code, flip) in sorted(numbers.items()):
+        if n >= len(tiles):
+            continue
+        data = arcade_tile(gfx, code)
+        if flip:
+            data = flip_tile(data, flip)
+        words = tile_words(data)
+        if words == tiles[n]:
+            eq += 1
+        else:
+            bad += 1
+            first_bad = first_bad if first_bad is not None else n
+        mine[n] = words
+    return mine, eq, bad, first_bad
+
+
 def report(name, disc, oracle, numbers=None, gfx=None):
     """The lines for one distinct sprite chunk."""
     started = time.monotonic()
@@ -405,22 +533,7 @@ def report(name, disc, oracle, numbers=None, gfx=None):
                      + ('' if first2 is None else f'; first difference tile {first2} (disc {decoded[first2][0]}, ours {forms2[first2]})')
                      + f'; chunk {"EQUAL" if ours2 == disc else "differs"}')
     if numbers is not None:
-        eq = bad = 0
-        first_bad = None
-        mine = list(tiles)
-        for n, (code, flip) in sorted(numbers.items()):
-            if n >= len(tiles):
-                continue
-            data = arcade_tile(gfx, code)
-            if flip:
-                data = flip_tile(data, flip)
-            words = tile_words(data)
-            if words == tiles[n]:
-                eq += 1
-            else:
-                bad += 1
-                first_bad = first_bad if first_bad is not None else n
-            mine[n] = words
+        mine, eq, bad, first_bad = arcade_tiles(tiles, numbers, gfx)
         extra = count - 1 - len(numbers)
         ours3, _f3 = encode_chunk(mine)
         lines.append(f'  tiles from the arcade (fighters numbering): {eq} of {eq + bad} numbered tiles equal the disc\'s'
@@ -436,6 +549,7 @@ def main(argv=None):
     ap.add_argument('--disc', required=True, help='disc image, raw 2352-byte sectors')
     ap.add_argument('--arcade', help="arcade set ZIP (MAME's sfa2u): also build the tiles from the arcade graphics")
     ap.add_argument('--only', help='one file, by name (PL00 or PL00.PAC)')
+    ap.add_argument('--compare-c', action='store_true', help='build tilepack.c and compare its chunks with the disc\'s (size, same tiles); no other lines')
     ap.add_argument('--oracle-pins', action='store_true', help="also encode with the disc's own later references as pins (diagnostic)")
     args = ap.parse_args(argv)
     sys.path.insert(0, str(ROOT / 'port/arcade'))
@@ -450,6 +564,8 @@ def main(argv=None):
         if args.arcade:
             prog, gfx = fighters.arcade_views(args.arcade)
             clib = fighters.CLib(tmp)
+        packer = CPacker(tmp) if args.compare_c else None
+        results = []
         seen = {}
         with open(args.disc, 'rb') as f:
             files, sec = fighters.iso_files(f)
@@ -466,6 +582,19 @@ def main(argv=None):
                     print(f'{name}: {len(chunks)} sprite chunks')
                     continue
                 chunk = data[chunks[0]['offset']:chunks[0]['offset'] + chunks[0]['size']]
+                if args.compare_c:
+                    tiles = [w for _f, w in decode_chunk(chunk)]
+                    source = 'the disc'
+                    built = clib.build(prog, name) if clib is not None else None
+                    if built is not None and not isinstance(built, str):
+                        numbers = {n: (code, built[3][n]) for n, code in built[2].items()}
+                        mine, _eq, bad, _first = arcade_tiles(tiles, numbers, gfx)
+                        if not bad:
+                            tiles, source = mine, 'the arcade (tile 0 and unnumbered ones from the disc)'
+                    line, ok, took = compare_c(name, chunk, tiles, source, packer)
+                    print(line)
+                    results.append((name, ok, chunk, took, built is not None and not isinstance(built, str)))
+                    continue
                 if chunk in seen:
                     print(f'{name}: same chunk as {seen[chunk]}')
                     continue
@@ -479,7 +608,13 @@ def main(argv=None):
                         print(f'{name}: the C builder refused: {built}')
                 for line in report(name, chunk, args.oracle_pins, numbers, gfx):
                     print(line)
-        print(f'{len(seen)} distinct chunks in {time.monotonic() - started:.1f} s')
+        if args.compare_c:
+            fits = all(r[1] for r in results)
+            print(f'{len(results)} files, {len(set(r[2] for r in results))} distinct chunks, all decode to the same tiles and fit the disc\'s room: {fits}; '
+                  f'C time {1000 * sum(r[3] for r in results):.0f} ms for all, {1000 * sum(r[3] for r in results if r[4]):.0f} ms for the '
+                  f'{sum(1 for r in results if r[4])} the fighters C builds')
+        else:
+            print(f'{len(seen)} distinct chunks in {time.monotonic() - started:.1f} s')
     finally:
         import shutil
         shutil.rmtree(tmp, ignore_errors=True)

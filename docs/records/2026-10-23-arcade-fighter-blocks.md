@@ -21,3 +21,12 @@ Ryu's and Dhalsim's blocks served from the arcade's.
 Not covered yet: PL04 (a pose of the PS1's own), PL10, PL11 and PL13 (art of
 the PS1's own), the sprite tiles, the animation steps and everything else
 of the files.
+
+Then the sprite tiles: `tilepack.c` (a helper agent's encoder: the PS1's
+format, its own choices, every chunk 0.8% to 1.5% smaller than the disc's)
+packs each of the 27 files' sprite chunk from the arcade tiles at the start.
+`--arcade-check` decodes them against the disc's chunks: every tile equal,
+status 0, 0.7 s; with the color conversion broken by hand, every tile
+differs and the status is 1. A run of 120 s with sound went into a fight
+with Ryu's and Dhalsim's chunks served from the arcade's tiles.
+`test_arcade_tilepack_c.py` (14) and `test_arcade_tilepack.py` (24) pass.

@@ -8,9 +8,11 @@ The loader that builds what the game reads from the user's arcade set
 either game enters Git: the source holds addresses, sizes and layouts.
 
 **State, 2026-10-23: the loader opens and checks the arcade set and builds
-from it 72 tables of the PS1 program's data (25,784 of 90,088 bytes) and the
-cell lists and position runs of 27 of the 45 fighter files (585 KB), all
-equal to the disc's and served in its place. The disc gives everything
+from it 72 tables of the PS1 program's data (25,784 of 90,088 bytes), and
+for 27 of the 45 fighter files the cell lists and position runs (585 KB,
+equal to the disc's) and the sprite tiles (every tile the disc's, packed by
+the loader's own encoder into 9.8 MB of chunks, each smaller than the
+disc's), all served in place of the disc's. The disc gives everything
 else. Without a disc the program stops with what it cannot build yet.**
 
 ## The owner's direction
@@ -54,7 +56,11 @@ port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC
   reads (`cd.c`) and the runtime's own (`disc.c`), through one table of
   byte ranges. The other 10 differ where the PS1 changed the arcade's data
   and stay the disc's until the steps and tiles that point into them are
-  built too.
+  built too. For the 27, `tilepack.c` packs the fighter's sprite chunk from
+  the arcade tiles (the color index one higher, stored with the flip of
+  their first use; tile 0 and the PS1's own last tiles from the disc), no
+  larger than the disc's chunk: the encoder is the loader's own (fewer bytes
+  than the PS1's), not the PS1's.
 - With a disc, the first read of each disc file prints
   `arcade: NAME from the disc: no arcade source yet`. Played through, those
   lines are the list of files the loader has still to build, in the order
@@ -234,8 +240,10 @@ same either way takes the layout of the rest. So:
   builder's layouts and bounds and the table's order.
 - With the private inputs: `--arcade-check` with the disc and the set. On
   2026-10-23: 72 pieces, 25,784 bytes, none differs; 27 of 37 fighter files'
-  blocks equal, the 10 others the PS1's known changes; 0.24 seconds in all
-  with the set's reading and digests. With one piece's layout, or one
+  blocks equal, the 10 others the PS1's known changes; the 27 sprite chunks
+  decode to the disc's tiles, tile for tile; 0.7 seconds in all with the
+  set's reading and digests. With the color conversion broken by hand the
+  check fails on every tile. With one piece's layout, or one
   fighter segment's count, changed by hand the check names it and ends with
   status 1. A run with the blocks in place went from the title into a fight
   (Ryu against Dhalsim, both served from the arcade's blocks).

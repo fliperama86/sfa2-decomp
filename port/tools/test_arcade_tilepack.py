@@ -218,6 +218,35 @@ class Encoder(unittest.TestCase):
         self.assertEqual(stream.flags, [0, 0, 0, 0])
 
 
+class Small(unittest.TestCase):
+    def test_optimal_parse_never_has_more_items_than_the_greedy_one(self):
+        rng = random.Random(12)
+        fewer = 0
+        stream = T.Stream()
+        for i in range(120):
+            tile = random_tile(rng, rng.randrange(0, 20), rng.choice([3, 5, 8]))
+            start = len(stream.words)
+            opt, greedy = T.optimal_parse(stream, tile, start), T.lz_parse(stream, tile, start)
+            self.assertLessEqual(len(opt), len(greedy))
+            fewer += len(opt) < len(greedy)
+            self.assertEqual(sum(length for _p, length, _d in opt), 64)
+            self.assertEqual([p for p, _l, _d in opt], [sum(l for _q, l, _e in opt[:k]) for k in range(len(opt))])
+            stream.append(T.encode_tile(stream, tile)[0])
+        self.assertGreater(fewer, 0)
+
+    def test_small_chunks_round_trip_and_are_the_smallest_per_tile(self):
+        rng = random.Random(13)
+        tiles = [[0] * 64, distinct_tile(rng), distinct_tile(rng, 30)] + [random_tile(rng, rng.randrange(0, 40), rng.choice([3, 6])) for _ in range(80)]
+        chunk, forms = T.encode_chunk_small(tiles)
+        self.assertEqual([w for _f, w in T.decode_chunk(chunk)], tiles)
+        sizes = T.block_sizes(chunk)
+        for (o, size), tile in zip(sizes, tiles):
+            self.assertLessEqual(size, 130)
+            zeros = sum(1 for w in tile if not w)
+            self.assertLessEqual(size, 10 + 2 * (64 - zeros))
+        self.assertEqual(forms[0], 'zero')
+
+
 class Arcade(unittest.TestCase):
     @staticmethod
     def reference_tile(q):
