@@ -359,6 +359,83 @@ mixer, against each recorded channel) elsewhere:
 - The 250 Hz interrupt rate is MAME's, supported by the tempos, not measured on a board.
 - Roles of most arcade music selectors (section 10) and the PS1-to-arcade song correspondence outside the fighter themes (section 11).
 
+## 12b. The PS1's sound requests
+
+How the PS1 game asks for a sound effect or a voice, how the arcade asks for the same one, and the rule that turns the first into the
+second (`sounds.py` is the executable form; `sounds.py --c-table` prints the rows as numbers). The port plays these through section 13's
+player, not through the PS1's banks. Status 2026-10-23: analysis only, nothing wired.
+
+**The PS1's request.** There is no queue. The game calls the sound player `func_80120604(song, alt, start, pos)` (ps1/src/resident/sound) at
+once, from three wrappers in `set_sound_mono_or_stereo.c`: `play_sound_at(Object *o, int side, unsigned code)` (446 call sites),
+`play_side_sound_at(Object *o, int side, int index)` (344; the side's own bank, `song = side`) and `call_func_with_side_x_origin(side,
+code)` (52; the origin is the left or right of the screen). The code is `song * 256 + start`. The fields:
+
+- `song` 0 to 3 picks a bank slot: its VAB (`data_80190a44[song]`, loaded by table 3/4 slot `song` of a chunk archive), its SEP file (table 5 slot
+  0x100 + song) and its command list (`table_8016e6e0[song]`, table 3 slot `song + 4`, at most 640 bytes). Slots 0 and 1 are the two players'
+  fighter banks (PLnn.PAC and PLnnX.PAC); 2 and 3 are the shared banks of GAME_SND.PAC (2: menu cursor, confirm and cancel, codes 0x200 to 0x211; 3: hits and the rest, 0x300 to 0x34f),
+  FIRSTSND.PAC (the same, loaded at start), DEMO.PAC (2), END*.PAC (3), CONT*.PAC and SELECT*.PAC (0). `alt` is the side; channels are moved up by four for side 1.
+- `start` is the entry of the list where the sound begins. The list is 8-byte entries; a sound is the run from `start` to the first entry whose
+  word 1 has bit 23 clear. Command (word 0 bits 12-15): 0 key on (program byte 3, tone word 1 bits 12-15, note bits 24-30, channel 7-11, priority
+  16-22, volume 0-6, pan byte 2: 0xff = from `pos`, else 0..127 with 0x40 the centre); 1 play sequence `low12` of the bank's SEP file; 9 volume;
+  11 stop a channel (0xfff all); the others do nothing. A run often holds a key on and a stop.
+- `pos` = the object's x minus the camera's, clamped to -192 .. 575 (192 for no object, 64 or 320 for the side wrappers); the PS1's pan is
+  `(pos + 192) / 6` (0 left, 64 centre, 127 right).
+- Other calls that touch sound: `stop_sep_by_index/word` (5 sites), `stop_all_keys_clear_table` (7), `close_vab_and_sep` (12, unloading), the
+  volume setup in `start_sound_and_set_volumes`. `request_sound_command_and_switch_thread(n)` is a thread switch, not a request. Music is the CD
+  stream (`set_menu_command_by_code`, section 11).
+
+**Where a port-side replacement goes.** `func_80120604`: every effect passes it with all four values, and it is the only caller of the key-on
+and sequence-play library calls. It has a C override (`port/overrides/func_80120604.c`, the shift count mask); a host override of the same
+function is refused at start ("has two overrides"), so one of: (A) host overrides on the three wrappers (they have exact C and no override; each
+computes `pos` itself as the wrapper does), (B) a hook call at the top of the override's C (`if (hook(song, alt, start, pos)) return;`, null in the
+differential test), (C) retiring the C override when the setting is on. The replacement finds the sound (below), sends the packet of section 2
+(`code >> 8`, `code & 255`, byte 6 = 0, byte 7 = pan) with `arcade_music_packet`, and does not run the PS1 library calls.
+
+**The arcade's request** (section 10): 423 small functions between 0x13e4c and 0x186ca of the 68000 program each load a code into `d1` and send it:
+33 a fixed code, 353 `(player & 1) + base`, 28 a code from a two-word table `[player 1, player 2]`, about 380 of them through the pan wrappers
+(`0x13c64`, `0x13c98`: byte 7 = `0x13ccc[clamp(dx, 0, 0x17f)]`, 9 to 23, mode 0; the rest a fixed pan 0x10). Fighters' sounds are codes in their own
+data. The effects come in pairs for the two players with the same events on other voices (voices 12, 13 for player 1 and 14, 15 for player 2; the
+codes differ by 0x100, 0x80, 0x20, 0x10 or 1: 451 different effects among the 868 codes). Ranges by use, as the mapping finds them: 0xa1 to 0xb5 the
+menu, option and jingle sounds (the PS1's 0x200 to 0x211); 0xc0 to 0xf3 and 0x180 to 0x37e the fighters' voices (a block of about ten for each, in
+the order of the fighter file) and 0x100 to 0x171 shared hits and effects (0x101 to 0x10f menu bleeps); 0x60 to 0x7f one voice of each fighter, 160 ms
+late (the select screen's; no PS1 sound maps to them); 0x80 to 0x95 short note patterns of one instrument.
+
+**The mapping.** The PS1's tables do not follow the arcade's numbering (no table equals the arcade's under a shift), so it is found by measurement,
+sound by sound (`sounds.py`): each key on and each sequence note goes through the VAB header to a sample, through samples.py's matches to the arcade
+sample and the instrument records that hold it, and becomes an event (time, instrument, pitch). Pitch is `12 log2(44100 / R) + note - center + shift /
+128` for the PS1 and `pitch / 256 - 1 - root` for the arcade (music.md section 5); over all the key ons of the 239 archives the two round to the same
+number for 2385 of 2583 events of root-72 instruments (2473 within one), and for root-60 instruments the PS1 is one semitone above for 296 of 340
+(20 equal): a convention of the PS1's tool, kept as a constant. The timeline of
+the PS1 sound (key ons at 0, sequence notes at their SEP times) is compared with each of the 868 effects (40 ms plus 3 percent in time, the same
+instrument, the pitch rule). Several fitting effects: the nearest in code to the list's certain sounds (the arcade's block of the fighter). Pair: the
+effect and its twin on the voices two higher are the codes for side 0 and side 1 (`alt`). Methods, best first: *exact* (the same events), *block* (exact,
+several, chosen by nearness), *prefix* (the SEP file ends one echo early), *partial* (the arcade plays more), *instrument* (the same instrument and
+times at another pitch: lower confidence), *seq-first* (the first note's effect for a sequence that has none of its own), *inferred* (between two certain
+neighbors two codes apart, the sample having no arcade source). Fixed by the table: a PS1 pan byte of 0x40 is the arcade's 0x10.
+
+**Coverage** (466 different sounds, keyed by the VAB header and the run of entries; 25 banks and lists on the disc): 396 map: exact 305, block 18,
+prefix 30, partial 1, instrument 19, seq-first 19, inferred 4. 70 do not: 53 have a sample with no arcade source (25 are the select screen's own
+recordings of about half a second at 44.1 kHz, 28 others in the fighter files and the menus, some the PS1's own additions), 9 are samples that no
+effect plays at all, 4 are samples at no instrument record, 4 only stop. By kind: single key ons 349 of 409, sequences of echoes 40 of 45 (the arcade
+has the echoes as events of its own effect: 6 notes where the PS1's SEP has 5), key on and sequence 7 of 8. By list: fighters 305 of 326, title bank
+22 of 24, shared bank 2 (announcer) 17 of 18, shared bank 3 (hits and menu) 40 of 52, continue 6 of 9, ending 4 of 6, demo 2 of 6, select 0 of 25. Of
+the PS1 C's 815 calls with a constant request, 345 + 95 name a shared sound that maps in all or some of the lists that define it, 44 name one that
+does not (0x34c and 0x34d, samples with no arcade source, are 34 of them), and 330 are own-bank sounds that map for 93 percent of the fighters (weighted by the calls).
+642 of the 868 arcade codes (332 of 451 effects) are the target of some PS1 sound; 28 mapped sounds rest on a sample match that covers under 50 percent.
+
+**Runtime key.** The row is found by the FNV-1a 32 of the VAB header (the port sees it in `SsVabOpenHeadSticky(addr, vab_id)`: 3104 bytes for one program,
+512 more for each further one; remember it per `vab_id`) and of the entries of the run from `start` (the list memory at
+`table_8016e6e0[song] + 8 * start`). The generated `arcade_sounds[]` is sorted by that pair for a binary search; the same pair in two archives is the
+same sound (no key had differing banks). Stops: command 11 and `stop_all_keys_clear_table` become special command 1 (stop every effect, music kept),
+`stop_sep_by_*` the same or command 2 on the voices of the side.
+
+**Uncertain.** (1) Sample matches: a weak match can name the wrong instrument (28 mapped sounds); the pitch and time check makes a chance agreement
+unlikely but not impossible. (2) *seq-first*, *instrument* and *partial* (39 sounds, mostly the menu bleeps and the fighters' first echo) play the
+arcade effect that is nearest, not necessarily the one the arcade plays. (3) Side 0 is the lower code; in 51 of the 369 pairs the arcade's
+voices are not two higher, only different (27 sounds have no twin and use one code for both sides). (4) Unmapped sounds are silent; the arcade has no effect for the 25 select-screen recordings. (5) The pan
+table numbers come from the decrypted analysis copy, as section 10's. (6) Time zero of an effect is the first pass (12 ms); not measured against the PS1.
+(7) Which of two identical fighter blocks a shared code belongs to is by nearness only.
+
 ## 13. The C player
 
 `music.c` / `music.h` is the runtime player: the driver of sections 1 to 9 as C of our own, statement by statement from `music.py`, and a
@@ -387,4 +464,5 @@ named constants are at the top of `music.c`):
 `port/arcade/music.py` (the model: `Rom`, `Driver.command(packet)`, `Driver.step()`, `.writes`, `.events`; commands `table`, `song`, `writes`,
 `all`; `--compare-c` and `--render` build and use the C), `port/arcade/music.c`, `music.h` (the player), `port/tools/test_arcade_music.py` (a
 made-up program image, 32 tests, 0.1 s), `port/tools/test_arcade_music_c.py` (the C against the model on made-up images, the mixer, the
-sanitizers and the 32-bit build, 32 tests, 4 s).
+sanitizers and the 32-bit build, 32 tests, 4 s). `port/arcade/sounds.py` (12b: the PS1 sound requests as arcade codes; `--c-table`) and
+`port/tools/test_arcade_sounds.py` (14 tests on made-up data, under a second).
