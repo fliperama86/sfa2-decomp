@@ -1,0 +1,81 @@
+/* A PS1 stage file's pieces built from the arcade program and graphics alone: the three layer maps of the stage module, the
+ * texture pages, the layer palettes, the object tiles and palettes, and the shared effect tiles. The rules are those of the
+ * model in stages.py (its model_stage function is the specification; tools/test_arcade_stage.py and `stages.py --compare-c`
+ * check this code against it and against the disc). Only addresses, counts and rules are here, no byte of either game.
+ *
+ * A piece is built whole, and `known` says which of its bytes the examined disc proved equal to the build (the descriptor's
+ * flags, holes and exact-palette bits): the rest of the piece is what the model makes of it, and the disc gives the real bytes.
+ * In the pages every byte is known but the holes and the tiles of a layer whose flag does not say it is exact. */
+#ifndef ARCADE_STAGE_H
+#define ARCADE_STAGE_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+/* struct arcade_stage_run.first: the arcade graphics tile (128 bytes) the run starts at, or one of these. */
+#define ARCADE_STAGE_ZERO 0xfffffffeu   /* count transparent tiles (all zero) */
+#define ARCADE_STAGE_DISC 0xffffffffu   /* count tiles the arcade does not have: the disc's */
+
+/* Flags of a layer. */
+#define ARCADE_STAGE_MAP_EXACT 1u       /* the layer's cells in the module equal the disc's */
+#define ARCADE_STAGE_TILES_EXACT 2u     /* the layer's tiles in the pages equal the disc's */
+
+/* Consecutive arcade tiles first, first + 1, ...; flip bit 0 mirrors across, bit 1 down (the PS1 stores each flip as a tile). */
+struct arcade_stage_run { uint32_t first, count, flip; };
+/* Page slots (16 pixel tiles of the pages, column by column) the disc fills with tiles the arcade does not have. */
+struct arcade_stage_hole { uint32_t slot, count; };
+/* The same at page slots (16 pixel slots of the pages, column by column) from `slot`. */
+struct arcade_stage_slots { uint32_t slot, count, first, flip; };
+
+struct arcade_stage_layer {
+    uint32_t map;                /* byte offset of the layer's map in the module chunk */
+    uint16_t across, down;       /* cells */
+    uint16_t ids;                /* block ids (blocks across times blocks down, row by row) */
+    uint32_t start;              /* page slot of the layer's blank tile; its tiles follow */
+    unsigned flags;              /* ARCADE_STAGE_MAP_EXACT, ARCADE_STAGE_TILES_EXACT */
+    const uint32_t *id_at;       /* for each id the arcade program address of the byte that holds it (0: the constant 0) */
+};
+
+struct arcade_stage {
+    const char *file;            /* "STAGE00.PAC" */
+    unsigned stage;              /* the stage number the arcade's palette tables are indexed by */
+    struct { uint32_t module, pages, palettes, object_tiles; } size;   /* bytes of the disc's chunks */
+    uint64_t pal_exact[2];       /* bit k: layer palette k of the palette chunk equals the disc's */
+    struct arcade_stage_layer layer[3];
+    const struct arcade_stage_slots *extras; unsigned extra_count;   /* page slots holding arcade tiles apart from the layers */
+    const struct arcade_stage_hole *holes; unsigned hole_count;      /* page slots the build cannot make (not known) */
+    const struct arcade_stage_run *objects; unsigned object_count;   /* the object tile chunk */
+};
+
+extern const struct arcade_stage arcade_stages[];
+extern const unsigned arcade_stage_count;
+extern const struct arcade_stage_run *const arcade_stage_shared;     /* the shared effect tiles (the same in every stage file) */
+extern const unsigned arcade_stage_shared_count;
+
+const struct arcade_stage *arcade_stage_find(const char *file);
+
+struct arcade_stage_piece { uint8_t *data, *known; uint32_t size; };   /* known[i] = 1: data[i] equals the disc's */
+
+struct arcade_stage_out {
+    struct arcade_stage_piece module;          /* only the three layer maps are built */
+    struct arcade_stage_piece pages;
+    struct arcade_stage_piece palettes;        /* the layer palettes (the others of the chunk are not built) */
+    struct arcade_stage_piece object_tiles;
+    struct arcade_stage_piece object_palettes;
+};
+
+/* Build the pieces of `s` from the arcade program (the 68000's view: words big-endian) and graphics. 0, or -1 with a message in
+ * err (an id that names no block, an address or tile outside the arcade views, a layer that does not fit the module or the
+ * pages, runs that do not add up to the chunk): then nothing stays allocated and `out` is zeroed. */
+int arcade_stage_build(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size,
+                       const struct arcade_stage *s, struct arcade_stage_out *out, char *err, size_t errsize);
+void arcade_stage_free(struct arcade_stage_out *out);
+
+/* The shared effect tile chunk (slot 7 of every stage file), from arcade_stage_shared. Free it with arcade_stage_piece_free. */
+int arcade_stage_build_shared(const uint8_t *tiles, size_t tiles_size, struct arcade_stage_piece *out, char *err, size_t errsize);
+/* The same for any list of runs (tests). */
+int arcade_stage_build_runs(const uint8_t *tiles, size_t tiles_size, const struct arcade_stage_run *runs, unsigned count,
+                            uint32_t total, struct arcade_stage_piece *out, char *err, size_t errsize);
+void arcade_stage_piece_free(struct arcade_stage_piece *p);
+
+#endif

@@ -12,8 +12,11 @@ from it 72 tables of the PS1 program's data (25,784 of 90,088 bytes); for 27
 of the 45 fighter files the cell lists and position runs (585 KB, equal to
 the disc's) and the sprite tiles (every tile the disc's, packed by the
 loader's own encoder into 9.8 MB of chunks, each smaller than the disc's);
-and for all 45 the palettes and portrait pages (2.4 MB, equal to the
-disc's). All of it is served in place of the disc's. The disc gives everything
+for all 45 the palettes and portrait pages (2.4 MB, equal to the disc's);
+for the 37 that the fighter tables cover the arcade-sourced animation steps
+(34,771 steps equal to the disc's); and for the 20 stages 6.2 MB of layer
+maps, pages, palettes and tiles. All of it is served in place of the
+disc's. The disc gives everything
 else. Without a disc the program stops with what it cannot build yet.**
 
 ## The owner's direction
@@ -168,12 +171,16 @@ scripts (nothing of it is in the tree):
   arcade tiles and palettes, flips stored as separate tiles. The third
   layer is the arcade's scroll 1: block sets at `0x2ad300` of 4x4-cell
   groups at `0x2b1a80`, four sets a stage (all pixels equal in 4 stages,
-  nearly all in 7 more). Open: the arcade's own list of sets per stage (near
-  `0x1d020`, not decoded), palette entries the arcade changes at run time
-  (163 of 305 rows of that layer equal the arcade's table), some cells of
-  the PS1's own in four stages, stage 04's object tiles, and the order in
-  which the PS1 packs tiles into pages. All of it is in the arcade's data
-  plane: the loader needs no decryption.
+  nearly all in 7 more). The arcade's block ids per stage are in three byte
+  tables (`0x1cff4`, `0x1d0ec`, `0x1d2cc`); the PS1 packs a layer's tiles
+  into page slots in the order its scan first uses them, the blank tile
+  first. `stage.c` builds the layer maps, pages, layer palettes, object tiles
+  and palettes and the shared tiles, with a mask of the bytes known to equal
+  the disc's; the runtime serves 6.2 MB of the 8.4 MB it builds. Left to the
+  disc: palette rows the PS1 merges in the third layer by a rule not
+  recovered, cells and tiles of the PS1's own (stages 03, 10, 0A, 13, and
+  stage 04's object tiles), and the PS1's own mixes of palette rows. All of
+  it is in the arcade's data plane: the loader needs no decryption.
 - **Animation steps** (`sequences.py`). A fighter's steps follow its
   lists: 12 bytes each, from the arcade's sequence records (countdown,
   flags, art pointer, 16 frame bytes, and a 4-byte jump target when flags

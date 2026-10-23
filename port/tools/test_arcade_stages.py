@@ -4,7 +4,9 @@
 Colour conversion, palette rows, the layer map's cell addressing, the arcade cells' tile codes, the scan that
 finds the three layer maps in a module's setup code, the chunk split of a stage file, and (with the helper
 compiled and a tiny made-up arcade program and graphics) the matching of a layer block, of tiles, of 8x8 pieces
-and of palette rows.
+and of palette rows. Then the model that stage.c reproduces (page slots, tile conversion and flips, the scan and
+first-use packing of a layer, run lists, palettes) and the descriptor made from a made-up stage file: its layer
+starts, flags, extras and holes.
 """
 from pathlib import Path
 import random, struct, sys, tempfile, unittest
@@ -12,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'port/arcade'))
 sys.path.insert(0, str(ROOT / 'ps1/tools'))
 import stages  # noqa: E402
+from test_arcade_stage import World  # noqa: E402  the made-up arcade the C test uses
 
 
 def lui(rt, imm): return 0x3c000000 | rt << 16 | imm
@@ -204,6 +207,292 @@ class Pure(unittest.TestCase):
         self.assertEqual(stages.split_stage(pac_file(chunks[:2])), 'no module chunk')
         self.assertEqual(stages.split_stage(pac_file(chunks + [(0, 6, b'more')])), 'two module chunks')
         self.assertEqual(stages.split_stage(pac_file(chunks + [(3, 1, b'xxxx')])), 'unknown chunk table 3 slot 1')
+
+
+class Model(unittest.TestCase):
+    """The model that stage.c reproduces: page slots, tile conversion, layer packing, run lists."""
+
+    def test_slot_codes_and_places(self):
+        # 16 pixel tiles: 16 to a column (v fastest), 16 columns to a page; the code's u and v are in units of 8 pixels
+        self.assertEqual(stages.slot_code(0, 16), 22 << 10)
+        self.assertEqual(stages.slot_code(1, 16), 22 << 10 | 2 << 5)
+        self.assertEqual(stages.slot_code(16, 16), 22 << 10 | 2)
+        self.assertEqual(stages.slot_code(256, 16), 23 << 10)
+        self.assertEqual(stages.slot_code(1, 32), 22 << 10 | 4 << 5)
+        self.assertEqual(stages.slot_code(8, 32), 22 << 10 | 4)
+        self.assertEqual(stages.slot_code(64, 32), 23 << 10)
+        for side in (16, 32):
+            for slot in (0, 1, 7, 8, 15, 16, 63, 64, 255, 256, 700):
+                self.assertEqual(stages.slot_of_code(stages.slot_code(slot, side), side), slot)
+        self.assertIsNone(stages.slot_of_code(5 << 10, 16))               # not on the stage's pages
+        self.assertIsNone(stages.slot_of_code(22 << 10 | 1, 16))          # not on the 16 pixel grid
+        self.assertEqual(stages.slot_place(0, 16), 0)
+        self.assertEqual(stages.slot_place(1, 16), 16 * 128)             # the next tile down
+        self.assertEqual(stages.slot_place(16, 16), 8)                   # the next column: 16 pixels of 4 bits
+        self.assertEqual(stages.slot_place(256, 16), 32768)
+        self.assertEqual(stages.slot_place(1, 32), 32 * 128)
+        self.assertEqual(stages.slot_place(8, 32), 16)
+        self.assertEqual(stages.slot_place(64, 32), 32768)
+        with self.assertRaises(ValueError):
+            stages.slot_code(42 * 256, 16)                                # page 64 has no code
+
+    def test_put_and_get_slot_with_bounds(self):
+        pages = bytearray(32768 * 2)
+        tile = bytes(range(128))
+        self.assertTrue(stages.put_slot(pages, 17, 16, tile))
+        self.assertEqual(stages.get_slot(pages, 17, 16), tile)
+        self.assertEqual(pages[stages.slot_place(17, 16)], 0)
+        self.assertEqual(pages[stages.slot_place(17, 16) + 128], 8)       # the second row of the tile is 128 bytes down
+        self.assertTrue(stages.put_slot(pages, 511, 16, tile))
+        self.assertFalse(stages.put_slot(pages, 512, 16, tile))           # the third page does not exist
+        self.assertFalse(stages.put_slot(pages, -1, 16, tile))
+        big = bytes(range(256)) * 2
+        self.assertTrue(stages.put_slot(pages, 127, 32, big))
+        self.assertEqual(stages.get_slot(pages, 127, 32), big)
+        self.assertFalse(stages.put_slot(pages, 128, 32, big))
+        self.assertFalse(stages.put_slot(bytearray(3000), 1, 16, tile))    # the tile's last row must fit too
+
+    def test_tile_conversion_and_flips(self):
+        gfx = bytearray(0x10000 * 128 + 4 * 128)
+        pixels = [(3 * x + y) % 16 for y in range(16) for x in range(16)]
+        gfx[0x10000 * 128:0x10000 * 128 + 128] = tile_bytes(pixels)
+        gfx[(0x10000 + 1) * 128:(0x10000 + 2) * 128] = b'\xff' * 128
+        arc = stages.Arc(bytes(gfx), bytes(gfx)) if False else stages.Arc(b'', bytes(gfx))
+        rows = arc.rows(0x10000, 16)
+        self.assertEqual([v for r in rows for v in r], [(p + 1) & 15 for p in pixels])
+        plain = arc.tile(0x10000, 16)
+        self.assertEqual(len(plain), 128)
+        for y in range(16):
+            for x in range(16):
+                self.assertEqual((plain[y * 8 + x // 2] >> (4 * (x % 2))) & 15, rows[y][x])      # the left pixel of a pair is the low nibble
+        fx, fy = arc.tile(0x10000, 16, True, False), arc.tile(0x10000, 16, False, True)
+        for y in range(16):
+            for x in range(16):
+                self.assertEqual((fx[y * 8 + x // 2] >> (4 * (x % 2))) & 15, rows[y][15 - x])
+                self.assertEqual((fy[y * 8 + x // 2] >> (4 * (x % 2))) & 15, rows[15 - y][x])
+        self.assertEqual(arc.tile(0x10001, 16), bytes(128))                # arcade colour 15 (transparent) is the PS1's 0
+        self.assertEqual(arc.tile(0x20000, 16), bytes(128))                # a tile outside the graphics is transparent
+        self.assertTrue(arc.has_tile(0x10003) and not arc.has_tile(0x10004) and not arc.has_tile(-1))
+        self.assertEqual(stages.pack_rows([[1, 2, 3, 4]]), bytes([0x21, 0x43]))
+
+    def test_32_pixel_tiles(self):
+        gfx = bytearray(8 * 512)
+        for y in range(32):
+            for x in range(32):
+                for pl in range(4):
+                    gfx[512 + y * 16 + x // 8 * 4 + pl] |= (((x + 2 * y) // 3 >> pl) & 1) << (7 - x % 8)
+        arc = stages.Arc(b'', bytes(gfx))
+        rows = arc.rows(1, 32)
+        self.assertEqual([[((x + 2 * y) // 3 + 1) & 15 for x in range(32)] for y in range(32)], rows)
+        self.assertEqual(len(arc.tile(1, 32)), 512)
+
+    def test_scroll1_pieces(self):
+        gfx = bytearray(0x10000 * 128 + 8 * 128)
+        pixels = [(x + 16 * y) % 15 for y in range(16) for x in range(16)]
+        gfx[0x10002 * 128:0x10003 * 128] = tile_bytes(pixels)
+        arc = stages.Arc(b'', bytes(gfx))
+        top = [[(pixels[y * 16 + x] + 1) & 15 for x in range(8)] for y in range(8)]
+        bottom = [[(pixels[(8 + y) * 16 + x] + 1) & 15 for x in range(8)] for y in range(8)]
+        self.assertEqual(arc.piece(4, 0), top)                              # code 4 = tile 0x10002, top rows
+        self.assertEqual(arc.piece(5, 0), bottom)
+        self.assertEqual(arc.piece(4, 0x20), [r[::-1] for r in top])
+        self.assertEqual(arc.piece(4, 0x40), top[::-1])
+        self.assertEqual(arc.piece(5, 0x60), [r[::-1] for r in bottom[::-1]])
+        self.assertEqual(arc.piece(4, 0x1f), top)                           # the palette row is not part of the piece
+
+    def test_layer_scan_packing_and_blank(self):
+        w = World(21)
+        arc = w.arc
+        ids = [1, 0, 2, 0]
+        cells = stages.layer_cells(arc, 1, ids, 64, 16)
+        self.assertEqual(len(cells), 1024)
+        self.assertEqual([c[:2] for c in cells[:3]], [(0, 0), (1, 0), (2, 0)])         # the cells of a block row by row
+        self.assertEqual(cells[16][:2], (0, 1))
+        self.assertEqual(cells[256][:2], (16, 0))                                      # then the next block along
+        words, tiles = stages.place_layer(cells, 1, 40)
+        self.assertEqual(tiles[0], bytes(128))
+        self.assertEqual(len(set(tiles)), len(tiles))
+        order = []
+        for cx, cy, tile, row in cells:
+            if tile not in order and any(tile):
+                order.append(tile)
+        self.assertEqual(tiles[1:], order)                                              # the blank first, then each tile as the scan first meets it
+        for cx, cy, tile, row in cells:
+            code, clut = words[(cx, cy)]
+            self.assertEqual(code, stages.slot_code(40 + tiles.index(tile), 16))
+            self.assertEqual(clut, 0x7801 + 64 * (0 if not any(tile) else row))
+        with self.assertRaises(ValueError):
+            stages.layer_cells(arc, 1, [154, 0, 0, 0], 64, 16)                         # block 154 does not exist
+        with self.assertRaises(ValueError):
+            stages.layer_cells(arc, 2, [101], 8, 8)
+        with self.assertRaises(ValueError):
+            stages.layer_cells(arc, 0, [143, 0, 0, 0], 64, 16)
+        with self.assertRaises(ValueError):
+            stages.layer_cells(arc, 1, [0, 0, 0], 64, 16)                              # three ids for four blocks
+
+    def test_layer_zero_row_is_the_first_piece_with_an_opaque_pixel(self):
+        opaque, clear = [[1] * 8] * 8, [[0] * 8] * 8
+        self.assertEqual(stages.l0_row([clear, clear, opaque, opaque], [0, 0, 2, 3]), 2)
+        self.assertEqual(stages.l0_row([opaque, clear, opaque, opaque], [5, 0, 2, 3]), 5)
+        self.assertEqual(stages.l0_row([clear] * 4, [7, 0, 2, 3]), 7)
+
+    def test_locating_ids(self):
+        prog = bytearray(0x100)
+        prog[0x20:0x28] = bytes([0, 5, 6, 7, 0, 0, 9, 9])
+        prog[0x40:0x44] = bytes([5, 6, 7, 8])
+        self.assertEqual(stages.locate_ids(prog, [5, 6, 7, 8], 4, 0, 0x100, 0x40), [0x40, 0x41, 0x42, 0x43])
+        self.assertEqual(stages.locate_ids(prog, [0, 5, 6, 7], 4, 0, 0x100, 0x20), [0x20, 0x21, 0x22, 0x23])
+        self.assertEqual(stages.locate_ids(prog, [0, 0, 0, 0], 4, 0, 0x100, 0x40), [0, 0, 0, 0])      # a row of zeros stays constant
+        self.assertEqual(stages.locate_ids(prog, [9, 5, 9, 5], 4, 0, 0x100, 0x30), [0x27, 0x21, 0x27, 0x21])   # no such row: id by id, nearest
+        self.assertEqual(stages.locate_ids(prog, [5, 6, 0, 0], 2, 0, 0x100, 0x41)[:2], [0x40, 0x41])   # rows of the layer's width (2): the near one wins
+        with self.assertRaises(ValueError):
+            stages.locate_ids(prog, [200, 1, 1, 1], 4, 0, 0x100, 0)
+        self.assertEqual(stages.list_pointers(bytes(0x300000), 3), (0x1cff8, 0x1d0f8, 0x1d2cc + 3 * 0x40 + 56))
+
+    def test_run_lists(self):
+        def tile(b):
+            return bytes([b]) * 128
+        chunk = tile(0) + tile(1) + tile(2) + tile(3) + tile(4) + tile(0) + tile(0) + tile(5) + tile(6)
+        matches = [0, 400, 404, 409, -1, 0, 0, 413, 413]
+        # tile 1 = arcade 100 flip 0; tile 2 = arcade 101 flip 0 (consecutive); tile 3 = arcade 102 flip 1 (new run); no match; zeros twice; 103 flip 1 then 103 flip 1
+        matches = [0, 400, 404, 409, -1, 0, 0, 413, 417]
+        self.assertEqual(stages.tile_runs(chunk, matches),
+                         [(stages.RUN_ZERO, 1, 0), (100, 2, 0), (102, 1, 1), (stages.RUN_DISC, 1, 0), (stages.RUN_ZERO, 2, 0), (103, 2, 1)])
+        self.assertEqual(stages.tile_runs(b'', []), [])
+        self.assertEqual(stages.slot_runs([5, 6, 7, 9, 10, 20], [400, 404, 408, 413, 417, -1]), [(5, 3, 100, 0), (9, 2, 103, 1)])
+        self.assertEqual(stages.slot_runs([5, 6], [400, 400]), [(5, 1, 100, 0), (6, 1, 100, 0)])
+        self.assertEqual(stages.hole_runs([3, 4, 5, 9, 11, 12]), [(3, 3), (9, 1), (11, 2)])
+        self.assertEqual(stages.hole_runs([]), [])
+
+    def test_where_layer_two_starts(self):
+        self.assertEqual(stages.l2_start_after(0), 0)
+        self.assertEqual(stages.l2_start_after(1), 8)                        # the first 32 pixel column holds two 16 pixel columns
+        self.assertEqual(stages.l2_start_after(16), 8)
+        self.assertEqual(stages.l2_start_after(17), 8)
+        self.assertEqual(stages.l2_start_after(33), 16)
+        self.assertEqual(stages.l2_start_after(441), 112)                    # stage 00 of the examined disc: 144 + 297 tiles end in page 1, column 11
+        self.assertEqual(stages.l2_start_after(256 * 3 - 1), 3 * 64)             # the end of a page: the next page
+        self.assertEqual(stages.l2_start_after(256 * 2 + 40), 2 * 64 + 16)         # 40 slots: two full columns and a half, so the third 32 pixel column is next
+
+    def test_palettes_of_the_model(self):
+        prog = bytearray(0x300000)
+        for layer in range(3):
+            for row in range(32):
+                struct.pack_into('>16H', prog, stages.PALETTE_TABLES[layer] + 0x400 * 2 + 0x20 * row, *[(layer * 32 + row) * 7 + c for c in range(16)])
+        data, known = stages.model_palettes(bytes(prog), 2, 96, 1 | 1 << 2 | 1 << 70)
+        self.assertEqual(list(struct.unpack_from('<16H', data, 0)), stages.predicted_palette(bytes(prog), 2, 0, 0))
+        self.assertEqual(list(struct.unpack_from('<16H', data, 32)), stages.predicted_palette(bytes(prog), 2, 1, 0))
+        self.assertEqual(list(struct.unpack_from('<16H', data, 70 * 32)), stages.predicted_palette(bytes(prog), 2, 2, 6))
+        self.assertEqual([k for k in range(96) if known[k * 32]], [0, 2, 70])
+        data, known = stages.model_palettes(bytes(prog), 2, 192, 2 ** 192 - 1)
+        self.assertEqual(sum(1 for k in range(192) if known[k * 32]), 64 + 32)            # no row of the tables beyond 128, and every second one of 64 to 127
+        self.assertEqual(data[65 * 32:66 * 32], bytes(32))
+        self.assertEqual(data[130 * 32:131 * 32], bytes(32))
+        obj = stages.model_object_palettes(bytes(prog), 0)
+        self.assertEqual(len(obj), 224)
+        self.assertEqual(struct.unpack_from('<H', obj, 0)[0], 0)
+
+    def test_run_bytes(self):
+        gfx = bytearray(0x10000 * 128 + 8 * 128)
+        for k in range(8):
+            gfx[(0x10000 + k) * 128:(0x10000 + k + 1) * 128] = bytes([k * 17 + 3] * 128)
+        arc = stages.Arc(b'', bytes(gfx))
+        data, known = stages.tile_run_bytes(arc, [(stages.RUN_ZERO, 1, 0), (0x10002, 2, 0), (stages.RUN_DISC, 1, 0), (0x10005, 1, 3)], 5 * 128)
+        self.assertEqual(known, b'\1' * 384 + b'\0' * 128 + b'\1' * 128)
+        self.assertEqual(data[:128], bytes(128))
+        self.assertEqual(data[128:256], arc.tile(0x10002, 16))
+        self.assertEqual(data[512:], arc.tile(0x10005, 16, True, True))
+        with self.assertRaises(ValueError):
+            stages.tile_run_bytes(arc, [(0x10002, 2, 0)], 128)
+        with self.assertRaises(ValueError):
+            stages.tile_run_bytes(arc, [(0x10002, 1, 0)], 256)
+        with self.assertRaises(ValueError):
+            stages.tile_run_bytes(arc, [(0x20000, 1, 0)], 128)
+
+
+def make_stage_file(world, d, extra_tile_slots=(), hole_slots=()):
+    """The parts of a made-up stage file as a disc would hold it: the model's own maps, pages and palettes, plus extra arcade tiles
+    and tiles that are no arcade tile at some page slots; the module has layer setup functions find_layers can read."""
+    built = stages.model_stage(world.arc, d)
+    module = bytearray(built['module'][0])
+    for n, (blank, width) in enumerate(((0x5800, 1024), (0x5810, 1024), (0x20, 1024))):
+        at = 0x3000 + 0x40 * n
+        module[at:at + 48] = words(setup(0x801e8000 + d['layers'][n]['map'], blank, width))
+    pages = bytearray(built['pages'][0])
+    for slot, index, fx, fy in extra_tile_slots:
+        stages.put_slot(pages, slot, 16, world.arc.tile(index, 16, fx, fy))
+    for slot in hole_slots:
+        stages.put_slot(pages, slot, 16, bytes((slot * 7 + k * 13) % 251 | 1 for k in range(128)))
+    palettes = bytearray(built['palettes'][0])
+    parts = {'module': bytes(module), 'pages': bytes(pages), 'palettes': bytes(palettes), 'object tiles': bytes(built['object tiles'][0]),
+             'object palettes': bytes(built['object palettes'][0]), 'effect tiles': bytes(128), 'effects': bytes(16), 'shared palettes': bytes(32)}
+    return parts
+
+
+class Describe(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.dir = tempfile.TemporaryDirectory(prefix='stages-describe-')
+        cls.world = World(31)
+        cls.helper = stages.Helper(cls.dir.name, cls.world.arc.gfx, cls.world.arc.prog)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.dir.cleanup()
+
+    def test_a_stage_the_model_made_is_described_as_exact(self):
+        w = self.world
+        d0 = w.descriptor(extras=[], holes=[], objects=[(0x10006, 4, 0), (0x10009, 2, 3)], count=96)
+        d0['sizes']['module'] = 0x4000
+        parts = make_stage_file(w, d0, extra_tile_slots=[(300, 0x1000a, False, False), (301, 0x1000c, True, False), (302, 0x1000d, False, True)], hole_slots=[310, 311])
+        r = stages.analyse(parts, self.helper, 3, w.arc.prog)
+        d = stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r)
+        self.assertIsInstance(d, dict, d)
+        self.assertEqual([l['flags'] for l in d['layers']], [3, 3, 3])
+        self.assertEqual([l['start'] for l in d['layers']], [l['start'] for l in d0['layers']])
+        self.assertEqual([(l['map'], l['across'], l['down']) for l in d['layers']], [(0x100, 64, 16), (0x1200, 64, 16), (0x2400, 32, 8)])
+        self.assertEqual(d['layers'][0]['ids'][:4], [0x1d020, 0x1d021, 0x1d022, 0x1d023])
+        self.assertEqual(d['layers'][1]['ids'][:1], [0x1d120])
+        self.assertEqual(d['layers'][2]['ids'][:1], [0x1d304])
+        slots = {a + k: (f + k, fl) for a, c, f, fl in d['extras'] for k in range(c)}
+        self.assertEqual(slots, {300: (0x1000a, 0), 301: (0x1000c, 1), 302: (0x1000d, 2)})
+        self.assertEqual(d['holes'], [(310, 2)])
+        self.assertEqual(d['pal_exact'] & (2 ** 96 - 1), sum(1 << k for k in range(96)))
+        self.assertEqual(d['object_runs'], [(0x10006, 4, 0), (0x10009, 2, 3)])
+        self.assertEqual(d['sizes']['pages'], len(parts['pages']))
+        # the descriptor builds the same pieces the file holds, but for the holes
+        model = stages.model_stage(w.arc, d)
+        for label in ('module', 'palettes', 'object tiles', 'object palettes'):
+            data, known = model[label]
+            self.assertTrue(all(a == b for a, b, k in zip(data, parts[label], known) if k), label)
+        data, known = model['pages']
+        self.assertTrue(all(a == b for a, b, k in zip(data, parts['pages'], known) if k))
+        self.assertEqual(len(known) - sum(known), 2 * 128)
+
+    def test_a_layer_that_differs_loses_its_flags_and_a_palette_row_its_bit(self):
+        w = self.world
+        d0 = w.descriptor(objects=[(0x10003, 2, 0)], count=96)
+        d0['sizes']['module'] = 0x4000
+        parts = make_stage_file(w, d0)
+        module, pages, palettes = bytearray(parts['module']), bytearray(parts['pages']), bytearray(parts['palettes'])
+        struct.pack_into('<H', module, 0x1200 + 8, struct.unpack_from('<H', module, 0x1200 + 8)[0] ^ 0x40)       # a layer 1 cell with another tile code
+        struct.pack_into('<H', palettes, 5 * 32 + 4, 0x1234)                                                 # palette 5 (layer 1 row 2) differs
+        stages.put_slot(pages, d0['layers'][2]['start'] + 1, 32, bytes(512))                              # a layer 2 tile is gone
+        parts.update({'module': bytes(module), 'pages': bytes(pages), 'palettes': bytes(palettes)})
+        r = stages.analyse(parts, self.helper, 3, w.arc.prog)
+        d = stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r)
+        self.assertIsInstance(d, dict, d)
+        self.assertEqual([l['flags'] for l in d['layers']], [3, 2, 1])
+        self.assertEqual((d['pal_exact'] >> 5) & 1, 0)
+        self.assertEqual(bin(d['pal_exact']).count('1'), 95)
+
+    def test_an_unreadable_module_is_reported(self):
+        w = self.world
+        d0 = w.descriptor(count=96)
+        parts = make_stage_file(w, d0)
+        parts['module'] = bytes(len(parts['module']))
+        r = stages.analyse(make_stage_file(w, d0), self.helper, 3, w.arc.prog)
+        self.assertEqual(stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r), 'layer maps not found in the module')
 
 
 # ---------------------------------------------------------------- the helper, on a made-up arcade

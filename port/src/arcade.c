@@ -4,6 +4,7 @@
 #include "../arcade/fighter.h"
 #include "../arcade/fighter_parts.h"
 #include "../arcade/sequence.h"
+#include "../arcade/stage.h"
 #include "../arcade/program.h"
 #include "../arcade/rom.h"
 #include "../arcade/tilepack.h"
@@ -474,6 +475,44 @@ static unsigned parts(struct port_disc *d, int check)
     return differ;
 }
 
+/* A stage piece served where known and equal to the disc's: chunk `type`, nth 0, of file f. Returns the bytes served. */
+static unsigned stage_piece(struct port_disc *d, int f, unsigned type, unsigned nth, struct arcade_stage_piece *pc, int check)
+{
+    unsigned at, n;
+    if (!pc->data || !pc->size) return 0;
+    if (pac_chunk_nth(d, &files[f], type, nth, &at, &n) != 0 || pc->size > n)
+        port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no chunk 0x%x as the stage table says", files[f].name, type);
+    return serve_units(d, f, at, pc->data, pc->known, pc->size, 1, check);
+}
+
+/* The stage files: layer maps (in the stage module), texture pages, layer palettes, object tiles and palettes, and the
+ * shared effect tiles, each served where the build knows it and it equals the disc's. */
+static void stages(struct port_disc *d, int check)
+{
+    unsigned i, served = 0, total = 0;
+    struct arcade_stage_piece shared;
+    char err[PORT_ERR];
+    if (arcade_stage_build_shared(rom.tiles, ARCADE_TILES_SIZE, &shared, err, sizeof err) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: stages: %s", err);
+    for (i = 0; i < arcade_stage_count; i++) {
+        const struct arcade_stage *a = &arcade_stages[i];
+        struct arcade_stage_out o;
+        int f = file_index(d, a->file);
+        if (arcade_stage_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, a, &o, err, sizeof err) != 0)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
+        total += o.module.size + o.pages.size + o.palettes.size + o.object_tiles.size + o.object_palettes.size + shared.size;
+        served += stage_piece(d, f, 6u, 0, &o.module, check);            /* the module: its layer maps */
+        served += stage_piece(d, f, 0x20000u, 0, &o.pages, check);       /* table 2: the texture pages */
+        served += stage_piece(d, f, 0x10000u, 0, &o.palettes, check);    /* table 1, first: the layer palettes */
+        served += stage_piece(d, f, 9u, 0, &o.object_tiles, check);
+        served += stage_piece(d, f, 0xau, 0, &o.object_palettes, check);
+        served += stage_piece(d, f, 7u, 0, &shared, check);              /* the shared effect tiles */
+        if (check) arcade_stage_free(&o);   /* else the ranges point into it */
+    }
+    printf("arcade%s: stages: %u of %u bytes of what the loader builds of the %u stage files from the arcade set are equal to the disc's%s\n",
+           check ? " check" : "", served, total, arcade_stage_count, check ? "" : " and used");
+    fflush(stdout);
+}
+
 static int by_place(const void *a, const void *b)
 {
     const struct range *x = a, *y = b;
@@ -504,6 +543,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     memset(built, 0, sizeof built);
     wrong = fighters(d, check);
     wrong += parts(d, check);
+    stages(d, check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
     port_disc_patch_hook = patch;
