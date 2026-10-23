@@ -71,7 +71,7 @@ port/build/linux/sfa2 --arcade-assets --arcade-rom sfa2u.zip --arcade-check DISC
 - `--arcade-check` ends with a coverage report: how many bytes of the
   disc's files (other than the program and the music and movie streams) the
   loader builds equal to the disc's, in all and by kind of file. On
-  2026-10-23: 37% in all, built from the arcade alone (the fighter files 43%,
+  2026-10-23: 39% in all, built from the arcade alone (the fighter files 46%,
   the stages 56%, the screens from 3% (endings) to 90% (the HUD file)); the
   modules' code, which the port's C replaces, counts as not built.
 - With a disc, the first read of each disc file prints
@@ -215,8 +215,12 @@ scripts (nothing of it is in the tree):
   pieces of scroll 1, palette addresses), 379 chunks of 172 files; the
   loader serves the bytes equal to the disc's and the packed tile segments
   whose tiles decode to the disc's (in a segment, the PS1's own tiles come
-  from the disc). The modules' cell lists are not built: the fighter rules do
-  not reproduce them.
+  from the disc). The screen modules' cell lists (`screen_lists.c`) follow
+  the fighters' rules but for the numbering, which looks each tile up in the
+  chain's tile segment (the lowest number with the same pixels, either flip),
+  a part per change of x by other than 16, and a palette map per run of
+  records: 1.16 MB of their lists and positions are built and served. Not
+  built: pictures the PS1 cut from scroll data and the text lines.
   The PS1's own: the movies (4 STR), the recorded music (8 XA files), the
   four full-color ending illustrations, the title picture, the layout of the
   dialogue text, the select screen's 27 voice samples, `CAPCOM.BIN`.

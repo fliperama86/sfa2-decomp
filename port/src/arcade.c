@@ -8,6 +8,7 @@
 #include "../arcade/screens.h"
 #include "../arcade/music.h"
 #include "../arcade/module_data.h"
+#include "../arcade/screen_lists.h"
 #include "../arcade/program.h"
 #include "../arcade/program_more.h"
 #include "../arcade/rom.h"
@@ -691,6 +692,30 @@ static void module_data(struct port_disc *d, int check)
     fflush(stdout);
 }
 
+/* The screen modules' cell lists and position runs (screen_lists.c), served where built and equal to the disc's. */
+static void screen_lists(struct port_disc *d, int check)
+{
+    unsigned i, at, n;
+    unsigned long long served = 0;
+    char err[PORT_ERR];
+    for (i = 0; i < arcade_screen_lists_use_count; i++) {
+        const struct arcade_screen_lists_use *u = &arcade_screen_lists_uses[i];
+        struct arcade_screen_lists_out o;
+        int f = file_index(d, u->file);
+        if (pac_chunk(d, &files[f], u->module_slot, &at, &n) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no module chunk of slot 0x%x", u->file, u->module_slot);
+        if (arcade_screen_lists_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, u, &o, err, sizeof err) != 0)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", u->file, err);
+        if (u->positions > n || o.positions_size > n - u->positions || u->lists > n || o.lists_size > n - u->lists)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: a chain does not fit its module chunk", u->file);
+        served += serve_units(d, f, at + u->positions, o.positions, o.positions_known, o.positions_size, 1, check);
+        served += serve_units(d, f, at + u->lists, o.lists, o.lists_known, o.lists_size, 1, check);
+        if (check) arcade_screen_lists_free(&o);   /* else the ranges point into it */
+    }
+    printf("arcade%s: screens: %llu bytes of the modules' cell lists and position runs built from the arcade set and %s\n",
+           check ? " check" : "", served, check ? "equal to the disc's" : "used");
+    fflush(stdout);
+}
+
 /* ---- music: the arcade's songs in place of the disc's recorded streams (port/arcade/music.md, section 11) */
 
 /* The PS1's music code (file * 256 + channel of ZERO2_XA/ZERO20N.XA) and the arcade song that is the same music: the fighters'
@@ -776,6 +801,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     module_data(d, check);
     stages(d, check);
     wrong += screens(d, check);
+    screen_lists(d, check);
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
