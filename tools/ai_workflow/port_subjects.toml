@@ -107,6 +107,7 @@ test_arcade_program_map = ["port/arcade/program_map.py"]
 test_arcade_fighter_parts = ["port/arcade/fighter_parts.py"]
 test_arcade_fighters = ["port/arcade/fighters.py"]
 test_arcade_stages = ["port/arcade/stages.py"]
+test_arcade_samples = ["port/arcade/samples.py"]
 
 # Files of the port whose check is the build of the PC program alone (`native-build`, which every change of the port that
 # is not a control file gets): no control file reads the tree's own copy of them. The overrides have their own checks

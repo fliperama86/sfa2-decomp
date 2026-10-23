@@ -145,9 +145,15 @@ scripts (nothing of it is in the tree):
   portrait pages are arcade tiles and arcade palettes; which tile goes in
   which cell is not derived yet. The sound command lists and the `pQES`
   sequences of the fighter files are the PS1's own.
-- **Samples.** One of the 12 voice samples of Ryu's sound bank is the
-  arcade's (correlation 0.976 after resampling from about 24 kHz to
-  22.05 kHz). The other 11 were not settled by that test.
+- **Samples** (`samples.py`, all banks). 355 of the 409 distinct PS1
+  samples are arcade samples: the chip's sample taken as 24,000 Hz,
+  resampled to a rate the bank's tone gives (44100 times 2 to the power of
+  (72 minus the center key plus the shift) over 12, from a list of 11
+  rates), times 256, SPU ADPCM encoded, with a zero block first and the
+  PS1's one-shot flags. The PS1's encoder was coarse (17 dB against the
+  arcade data; a careful encode gets 29), so the bytes will not be equal,
+  but the sizes are. The 27 samples of the select screen and 27 others have
+  no source found.
 - **Sound.** There is no arcade sound driver in the port yet: the arcade
   intro plays the PS1 disc's recorded opening music (`port/intro/audio.c`).
 
