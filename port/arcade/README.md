@@ -102,10 +102,13 @@ file, a pack, as the arcade intro's pack does: nothing of it enters Git.
 - `--arcade-pack PACK` in place of the disc: the disc layer reads a virtual
   disc whose sectors are the loader's built bytes over the pack's. The pack
   shrinks as the loader builds more.
-- Done on 2026-10-23: the pack is written in 3 seconds (437 MB: 93 MB of the
-  files' bytes the loader does not build, 365 MB of music streams and the
-  logo and opening movies as raw sectors; `A2O.STR`, `BF3.STR` and
-  `ZNULL.DAT` left out) to `local/`, which Git ignores. A start from it with
+- Done on 2026-10-23: the pack is written in 3 seconds (203 MB: 93 MB of the
+  files' bytes the loader does not build, the music streams and the logo and
+  opening movies; the sectors of the music tracks the loader plays as arcade
+  songs are kept as their 8-byte subheaders only and read back as silence,
+  which halves the pack; `A2O.STR`, `BF3.STR` and `ZNULL.DAT` left out) to
+  `local/`, which Git ignores. A pack that holds a track silent which a build
+  plays as recorded is refused, as is a pack of the earlier format. A start from it with
   no disc went from the title into a fight, and the arcade intro ran with
   its soundtrack. The pack holds, per file, the ranges the loader served and
   their SHA-256: a build whose bytes differ refuses the pack. Without the

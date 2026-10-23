@@ -69,6 +69,8 @@ int  port_disc_raw(struct port_disc *d, unsigned sector, unsigned char *raw);
 /* With a pack: the ranges of the file at `sector` that the loader built equal to the disc's when the pack was made (pairs of offset
  * and size, sorted) and the SHA-256 of their bytes. 0, or -1 when the pack has no such file. */
 int  port_disc_pack_built(struct port_disc *d, unsigned sector, const unsigned (**ranges)[2], unsigned *count, const unsigned char **digest);
+/* With a pack: the music codes (file * 256 + channel of a ZERO2_XA file) whose streams it holds silent. 0, or -1 without a pack. */
+int  port_disc_pack_silent(struct port_disc *d, const unsigned short **codes, unsigned *count);
 /* Read the data bytes of the sector range starting at `sector`, `size` bytes. With port_disc_patch_hook set (the arcade
  * loader), each sector's bytes then pass through it, which may replace them with what the loader built. */
 extern void (*port_disc_patch_hook)(unsigned sector, unsigned char *data, unsigned n);

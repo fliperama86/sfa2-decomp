@@ -118,10 +118,13 @@ int port_disc_open(struct port_disc *d, const char *path, char *err, size_t errs
     return 0;
 }
 
-/* ---- the arcade loader's pack (port/arcade/README.md, "Playing without the disc"). Little-endian: "SFA2PK01", u32 sectors of the
- * disc, u32 extents; per extent 64 bytes (u32 first sector, u32 sectors, u32 kind, u32 file size, u32 ranges, u32 built ranges,
- * 32 bytes SHA-256, u64 offset of its data in the pack); the data: kind 1, its raw sectors; kind 0, the ranges (u32 offset, u32
- * size, sorted), the built ranges (the same), then the ranges' bytes one after another. Sectors in no extent are not in the pack. */
+/* ---- the arcade loader's pack (port/arcade/README.md, "Playing without the disc"). Little-endian: "SFA2PK02", u32 sectors of the
+ * disc, u32 extents, u32 silenced music codes and those codes (u16 each); per extent 64 bytes (u32 first sector, u32 sectors, u32
+ * kind, u32 file size, u32 ranges, u32 built ranges, 32 bytes SHA-256, u64 offset of its data in the pack); the data: kind 1, its
+ * raw sectors; kind 0, the ranges (u32 offset, u32 size, sorted), the built ranges (the same), then the ranges' bytes one after
+ * another; kind 2, a music stream: a byte a sector (1 kept whole, 0 silent), then sector by sector the raw sector (kept) or its
+ * 8-byte subheader (silent: a track the loader plays as an arcade song, read only for the drive's timing). Sectors in no extent
+ * are not in the pack. */
 struct pack_extent {
     unsigned first, count, kind, file_size, range_count, built_count;
     unsigned char digest[32];
@@ -129,11 +132,14 @@ struct pack_extent {
     unsigned (*ranges)[2];
     unsigned long long *range_at;   /* where each range's bytes are in the pack */
     unsigned (*built)[2];
+    unsigned char *kept;            /* kind 2: a byte a sector */
+    unsigned long long *sector_at;  /* kind 2: where each sector's bytes are */
 };
 struct port_pack {
     FILE *f;
-    unsigned sectors, count;
+    unsigned sectors, count, silent_count;
     struct pack_extent *e;
+    unsigned short *silent;   /* the music codes whose streams are silent in the pack */
 };
 
 static void pack_free(struct port_pack *p)
@@ -145,8 +151,11 @@ static void pack_free(struct port_pack *p)
         free(p->e[i].ranges);
         free(p->e[i].range_at);
         free(p->e[i].built);
+        free(p->e[i].kept);
+        free(p->e[i].sector_at);
     }
     free(p->e);
+    free(p->silent);
     free(p);
 }
 
@@ -176,9 +185,15 @@ int port_disc_open_pack(struct port_disc *d, const char *path, char *err, size_t
     strcpy(d->path, path);
     if (!(p = calloc(1, sizeof *p))) return fail(err, errsize, "pack: out of memory");
     if (!(p->f = fopen(path, "rb"))) { pack_free(p); return fail(err, errsize, "pack: cannot open the pack"); }
-    if (fread(h, 1, 16, p->f) != 16 || memcmp(h, "SFA2PK01", 8) != 0) { pack_free(p); return fail(err, errsize, "pack: not a pack of this loader (make it with --arcade-import)"); }
+    if (fread(h, 1, 20, p->f) != 20 || memcmp(h, "SFA2PK02", 8) != 0) { pack_free(p); return fail(err, errsize, "pack: not a pack of this loader (make it again with --arcade-import)"); }
     p->sectors = le32(h + 8);
     p->count = le32(h + 12);
+    p->silent_count = le32(h + 16);
+    if (p->silent_count > 4096u || !(p->silent = calloc(p->silent_count ? p->silent_count : 1, sizeof *p->silent))) { pack_free(p); return fail(err, errsize, "pack: malformed header"); }
+    for (i = 0; i < p->silent_count; i++) {
+        if (fread(h, 1, 2, p->f) != 2) { pack_free(p); return fail(err, errsize, "pack: short header"); }
+        p->silent[i] = (unsigned short)(h[0] | h[1] << 8);
+    }
     if (p->count > 65536u || !(p->e = calloc(p->count ? p->count : 1, sizeof *p->e))) { pack_free(p); return fail(err, errsize, "pack: malformed table"); }
     for (i = 0; i < p->count; i++) {
         struct pack_extent *e = &p->e[i];
@@ -187,7 +202,7 @@ int port_disc_open_pack(struct port_disc *d, const char *path, char *err, size_t
         e->range_count = le32(h + 16); e->built_count = le32(h + 20);
         memcpy(e->digest, h + 24, 32);
         e->at = (unsigned long long)le32(h + 56) | (unsigned long long)le32(h + 60) << 32;
-        if (e->kind > 1 || e->first < last || e->count > p->sectors || e->first > p->sectors - e->count ||
+        if (e->kind > 2 || e->first < last || e->count > p->sectors || e->first > p->sectors - e->count ||
             (e->kind == 0 && e->file_size > (unsigned long long)e->count * PORT_DATA)) {
             pack_free(p);
             return fail(err, errsize, "pack: malformed extent");
@@ -197,6 +212,16 @@ int port_disc_open_pack(struct port_disc *d, const char *path, char *err, size_t
     for (i = 0; i < p->count; i++) {
         struct pack_extent *e = &p->e[i];
         unsigned long long at;
+        if (e->kind == 2) {   /* a byte a sector, then each sector whole or its subheader */
+            if (!(e->kept = malloc(e->count ? e->count : 1)) || !(e->sector_at = malloc((e->count ? e->count : 1) * sizeof *e->sector_at)) ||
+                fseek(p->f, (long)e->at, SEEK_SET) != 0 || fread(e->kept, 1, e->count, p->f) != e->count) {
+                pack_free(p);
+                return fail(err, errsize, "pack: malformed stream");
+            }
+            at = e->at + e->count;
+            for (k = 0; k < e->count; k++) { e->sector_at[k] = at; at += e->kept[k] ? PORT_SECTOR : 8u; }
+            continue;
+        }
         if (e->kind != 0) continue;
         if (fseek(p->f, (long)e->at, SEEK_SET) != 0 || read_pairs(p->f, e->range_count, e->file_size, &e->ranges) != 0 ||
             read_pairs(p->f, e->built_count, e->file_size, &e->built) != 0 || !(e->range_at = malloc((e->range_count ? e->range_count : 1) * sizeof *e->range_at))) {
@@ -233,10 +258,14 @@ static int pack_raw(struct port_pack *p, unsigned sector, unsigned char *raw)
     if (e->kind == 1)
         return fseek(p->f, (long)(e->at + (unsigned long long)(sector - e->first) * PORT_SECTOR), SEEK_SET) == 0 &&
                fread(raw, 1, PORT_SECTOR, p->f) == PORT_SECTOR ? 0 : -1;
-    memset(raw, 0, PORT_SECTOR);   /* a form 1 data sector: sync, its address, mode 2, the subheader of data */
+    if (e->kind == 2 && e->kept[sector - e->first])
+        return fseek(p->f, (long)e->sector_at[sector - e->first], SEEK_SET) == 0 && fread(raw, 1, PORT_SECTOR, p->f) == PORT_SECTOR ? 0 : -1;
+    memset(raw, 0, PORT_SECTOR);   /* sync, the sector's address, mode 2 */
     memset(raw + 1, 0xff, 10);
     raw[12] = bcd(lba / 4500u); raw[13] = bcd(lba / 75u % 60u); raw[14] = bcd(lba % 75u); raw[15] = 2;
-    raw[18] = raw[22] = 8;
+    if (e->kind == 2)   /* a silent sector of a stream: its own subheader, its sound all zero */
+        return fseek(p->f, (long)e->sector_at[sector - e->first], SEEK_SET) == 0 && fread(raw + 16, 1, 8, p->f) == 8 ? 0 : -1;
+    raw[18] = raw[22] = 8;   /* a form 1 data sector: the subheader of data */
     from = (sector - e->first) * PORT_DATA;
     to = from + PORT_DATA;
     for (k = 0; k < e->range_count; k++) {   /* the bytes the pack holds; the rest are the loader's (zero until it patches them) */
@@ -253,6 +282,14 @@ int port_disc_raw(struct port_disc *d, unsigned sector, unsigned char *raw)
     unsigned long long at = (unsigned long long)sector * PORT_SECTOR;
     if (d->pack) return pack_raw(d->pack, sector, raw);
     if (at + PORT_SECTOR > d->length || at > 0x7fffffffu || fseek(d->f, (long)at, SEEK_SET) != 0 || fread(raw, 1, PORT_SECTOR, d->f) != PORT_SECTOR) return -1;
+    return 0;
+}
+
+int port_disc_pack_silent(struct port_disc *d, const unsigned short **codes, unsigned *count)
+{
+    if (!d->pack) return -1;
+    *codes = d->pack->silent;
+    *count = d->pack->silent_count;
     return 0;
 }
 

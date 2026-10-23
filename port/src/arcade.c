@@ -762,6 +762,22 @@ static const struct { unsigned short code, song; } songs[] = {
     {0x600, 28}, {0x601, 29}, {0x300, 30}, {0x304, 31}, {0x404, 32}, {0x405, 37}, {0x403, 39}, {0x206, 40},
     {0x301, 41}, {0x302, 42}, {0x401, 43}, {0x506, 45}, {0x507, 46}, {0x303, 48}, {0x502, 54}, {0x402, 55},
 };
+/* The arcade song for a music code, or -1. */
+static int song_of(unsigned code)
+{
+    unsigned i;
+    for (i = 0; i < sizeof songs / sizeof songs[0]; i++)
+        if (songs[i].code == code) return songs[i].song;
+    return -1;
+}
+
+static unsigned song_codes(unsigned short *out, unsigned max)
+{
+    unsigned i;
+    for (i = 0; i < sizeof songs / sizeof songs[0] && i < max; i++) out[i] = songs[i].code;
+    return i;
+}
+
 static struct arcade_music *player;
 static int playing = -1;   /* the song in place of the stream, or -1: the stream's own sound (under the audio lock) */
 
@@ -1060,7 +1076,18 @@ static int le_put(FILE *o, unsigned long long v, unsigned bytes)
     return fwrite(b, 1, bytes, o) == bytes ? 0 : -1;
 }
 
-struct extent { unsigned first, count, kind, file_size, file; unsigned long long at; };
+struct extent { unsigned first, count, kind, file_size, file; unsigned long long at; unsigned char *kept; };
+static int song_of(unsigned code);
+static unsigned song_codes(unsigned short *out, unsigned max);
+
+/* Whether a sector of the music stream file f (ZERO20N.XA) is kept whole in a pack: not when it is sound of a track the loader plays
+ * as an arcade song. */
+static int stream_sector_kept(int f, const unsigned char *raw)
+{
+    const char *n = files[f].name;
+    if (!(raw[18] & 0x04) || strncmp(n, "zero20", 6) || n[6] < '0' || n[6] > '7' || raw[17] >= 8) return 1;
+    return song_of((unsigned)(n[6] - '0') * 256u + raw[17]) < 0;
+}
 
 /* Write the pack (port/arcade/README.md, "Playing without the disc"; the format is in disc.c): the disc's layout and every byte the
  * loader does not build equal to the disc's. The music streams and the two movies the port plays are whole raw sectors; the movies of
@@ -1081,20 +1108,42 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
         if (i == file_count) break;
         if (count && first >= next) {
             ex[n].first = first; ex[n].count = count; ex[n].file = i; ex[n].file_size = files[i].size;
-            ex[n].kind = is_named(files[i].name, left_out) ? 2u : (strstr(files[i].name, ".xa") || is_named(files[i].name, raw_files)) ? 1u : 0u;
+            ex[n].kind = is_named(files[i].name, left_out) ? 9u : strstr(files[i].name, ".xa") ? 2u : is_named(files[i].name, raw_files) ? 1u : 0u;
             n++;
             next = first + count;
         }
     }
     if (!(o = fopen(path, "wb"))) { free(ex); snprintf(err, size, "arcade: import: cannot create %s", path); return -1; }
-    k = 0;
-    for (i = 0; i < n; i++) k += ex[i].kind != 2;
-    at = 16ull + 64ull * k;
+    {   /* which sectors of the music streams are kept whole */
+        for (i = 0; i < n; i++) {
+            struct extent *e = &ex[i];
+            if (e->kind != 2) continue;
+            if (!(e->kept = malloc(e->count ? e->count : 1))) { fclose(o); free(ex); snprintf(err, size, "arcade: import: out of memory"); return -1; }
+            for (k = 0; k < e->count; k++) {
+                if (port_disc_raw(d, e->first + k, raw) != 0) { fclose(o); free(ex); snprintf(err, size, "arcade: import: cannot read sector %u", e->first + k); return -1; }
+                e->kept[k] = (unsigned char)stream_sector_kept((int)e->file, raw);
+            }
+        }
+    }
+    {
+        unsigned short codes[256];
+        unsigned nc = song_codes(codes, 256);
+        k = 0;
+        for (i = 0; i < n; i++) k += ex[i].kind != 9;
+        at = 20ull + 2ull * nc + 64ull * k;
+        if (fwrite("SFA2PK02", 1, 8, o) != 8 || le_put(o, total, 4) || le_put(o, k, 4) || le_put(o, nc, 4)) goto bad;
+        for (i = 0; i < nc; i++)
+            if (le_put(o, codes[i], 2)) goto bad;
+    }
     for (i = 0; i < n; i++) {   /* where each extent's data goes */
         struct extent *e = &ex[i];
-        if (e->kind == 2) continue;
+        if (e->kind == 9) continue;
         e->at = at;
         if (e->kind == 1) at += (unsigned long long)e->count * PORT_SECTOR;
+        else if (e->kind == 2) {
+            at += e->count;
+            for (k = 0; k < e->count; k++) at += e->kept[k] ? PORT_SECTOR : 8u;
+        }
         else {
             unsigned r, end = file_first[e->file] + file_ranges[e->file], built_n = 0, data_n = 0, cur = 0;
             unsigned long long data_bytes = 0;
@@ -1108,12 +1157,11 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
             at += 8ull * (built_n + data_n) + data_bytes;
         }
     }
-    if (fwrite("SFA2PK01", 1, 8, o) != 8 || le_put(o, total, 4) || le_put(o, k, 4)) goto bad;
     for (i = 0; i < n; i++) {   /* the table */
         struct extent *e = &ex[i];
         unsigned char digest[32];
         unsigned built_n = 0, data_n = 0, r, end, cur = 0;
-        if (e->kind == 2) continue;
+        if (e->kind == 9) continue;
         memset(digest, 0, sizeof digest);
         if (e->kind == 0) {
             end = file_first[e->file] + file_ranges[e->file];
@@ -1127,7 +1175,16 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
     }
     for (i = 0; i < n; i++) {   /* the data */
         struct extent *e = &ex[i];
-        if (e->kind == 2) continue;
+        if (e->kind == 9) continue;
+        if (e->kind == 2) {
+            if (fwrite(e->kept, 1, e->count, o) != e->count) goto bad;
+            for (k = 0; k < e->count; k++) {
+                if (port_disc_raw(d, e->first + k, raw) != 0) goto bad;
+                if (e->kept[k] ? fwrite(raw, 1, PORT_SECTOR, o) != PORT_SECTOR : fwrite(raw + 16, 1, 8, o) != 8) goto bad;
+                if (e->kept[k]) sectors_raw++;
+            }
+            continue;
+        }
         if (e->kind == 1) {
             for (k = 0; k < e->count; k++) {
                 if (port_disc_raw(d, e->first + k, raw) != 0 || fwrite(raw, 1, PORT_SECTOR, o) != PORT_SECTOR) goto bad;
@@ -1155,13 +1212,15 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
         }
     }
     if (fclose(o) != 0) { o = NULL; goto bad; }
-    printf("arcade: import: %s: %llu bytes of the disc's files kept (what the loader does not build) and %llu raw sectors of streams; %llu MB in all\n",
+    printf("arcade: import: %s: %llu bytes of the disc's files kept (what the loader does not build) and %llu raw sectors of streams and movies; %llu MB in all\n",
            path, bytes_kept, sectors_raw, at >> 20);
     fflush(stdout);
+    for (i = 0; i < n; i++) free(ex[i].kept);
     free(ex);
     return 0;
 bad:
     if (o) fclose(o);
+    for (i = 0; i < n; i++) free(ex[i].kept);
     free(ex);
     snprintf(err, size, "arcade: import: cannot write %s", path);
     return -1;
@@ -1200,6 +1259,16 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
                 snprintf(err, size, "arcade: the pack was made by another build of the loader (%s differs): make it again with --arcade-import", files[i].name);
                 return -1;
             }
+        }
+        {
+            const unsigned short *codes;
+            unsigned nc;
+            if (port_disc_pack_silent(d, &codes, &nc) == 0)
+                for (i = 0; i < nc; i++)
+                    if (song_of(codes[i]) < 0) {
+                        snprintf(err, size, "arcade: the pack holds music track 0x%03x silent, which this build plays as recorded: make it again with --arcade-import", codes[i]);
+                        return -1;
+                    }
         }
         printf("arcade: the pack's files and the loader's build agree\n");
     }
