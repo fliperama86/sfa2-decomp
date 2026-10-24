@@ -105,6 +105,32 @@ def find_grids(mod, ntiles):
     return out
 
 
+def grid_hits(mod, at, cols, cells, keys, blank, rec_key):
+    """(lo, hi, hits, why) for the grid at `at` in a module: the lowest and highest tile number it uses, and the arcade art records (address, first code) that have
+    its visible cells (hits, sorted), or hits None with why ('no arcade tiles' or 'no art record')."""
+    nums = sorted({c & 0x3fff for c in cells if c & 0x3fff})
+    lo, hi = nums[0], nums[-1]
+    pts = []
+    ox, oy = struct.unpack_from('<HH', mod, at + 4)
+    for k, c in enumerate(cells):
+        n = c & 0x3fff
+        if not n:
+            continue
+        if n >= len(keys):
+            return lo, hi, None, 'no arcade tiles'
+        if keys[n] is None or keys[n][0] in blank:
+            continue
+        pts.append((k % cols * 16 - ox, k // cols * 16 - oy, keys[n][0] - BANK))
+    if not pts:
+        return lo, hi, None, 'no arcade tiles'
+    pts.sort(key=lambda c: (c[1], c[0]))
+    c0 = pts[0][2]
+    hits = [h for h in rec_key.get(tuple((x, y, c - c0) for x, y, c in pts), []) if h[1] == c0]
+    if not hits:
+        return lo, hi, None, 'no art record'
+    return lo, hi, sorted(hits), ''
+
+
 def grid_rows(mod, runs, shared_runs, index, blank, rec_key):
     """Rows (grid module offset, art record address, lo, hi) for one stage module: the grids that the rule builds equal to the disc's, with the counts.
     runs: the stage's object tile runs (stages.py's object_runs, or tile_runs of the chunk)."""
@@ -112,33 +138,13 @@ def grid_rows(mod, runs, shared_runs, index, blank, rec_key):
     found = find_grids(mod, len(keys))
     rows, counts = [], collections.Counter()
     for at, cols, nrows, cells in found:
-        nums = sorted({c & 0x3fff for c in cells if c & 0x3fff})
-        lo, hi = nums[0], nums[-1]
-        pts = []
-        okk = True
-        ox, oy = struct.unpack_from('<HH', mod, at + 4)
-        for k, c in enumerate(cells):
-            n = c & 0x3fff
-            if not n:
-                continue
-            if n >= len(keys):
-                okk = False
-                break
-            if keys[n] is None or keys[n][0] in blank:
-                continue
-            pts.append((k % cols * 16 - ox, k // cols * 16 - oy, keys[n][0] - BANK))
-        if not okk or not pts:
-            counts['no arcade tiles'] += 1
-            continue
-        pts.sort(key=lambda c: (c[1], c[0]))
-        c0 = pts[0][2]
-        hits = rec_key.get(tuple((x, y, c - c0) for x, y, c in pts))
+        lo, hi, hits, why = grid_hits(mod, at, cols, cells, keys, blank, rec_key)
         if not hits:
-            counts['no art record'] += 1
+            counts[why] += 1
             continue
         disc = bytes(mod[at:at + 8 + 2 * cols * nrows])
         made = None
-        for addr, _c in sorted(hits):
+        for addr, _c in hits:
             made = build_grid(index.record(addr)[1], blank, keys, lo, hi)
             if made == disc:
                 rows.append((at, addr, lo, hi))

@@ -44,6 +44,8 @@ struct builder {
     struct slot *map;
     size_t mask;
     uint64_t zero_key;
+    uint8_t *wtiles;       /* the stored tiles of the pool's windows, in the order of their numbers; wnum[k] is 1 + the index of pool tile k's */
+    unsigned *wnum;
     uint8_t *lists, *lists_known, *pos, *pos_known;
     uint32_t lists_size, lists_cap, pos_size, pos_cap;
     struct posent *ents;
@@ -159,6 +161,38 @@ static int pool_make(struct builder *b, const struct arcade_screen_lists_tile *p
     b->mask = cap - 1;
     memset(zero, 0, sizeof zero);
     pixel_class(zero, &b->zero_key, &zd);
+    {   /* the windows' stored tiles, all at once (the frames are drawn once each for windows that follow one another) */
+        uint32_t *w = NULL;
+        unsigned nw = 0, *at = NULL;
+        for (k = 1; k < count; k++)
+            if (pool[k].kind == 3) nw++;
+        if (nw) {
+            w = malloc(nw * sizeof *w);
+            at = malloc(nw * sizeof *at);
+            b->wtiles = malloc((size_t)nw * TILE_BYTES);
+            b->wnum = calloc(count, sizeof *b->wnum);
+            if (!w || !at || !b->wtiles || !b->wnum) {
+                free(w);
+                free(at);
+                return fail(b, "out of memory");
+            }
+            nw = 0;
+            for (k = 1; k < count; k++)
+                if (pool[k].kind == 3) {
+                    w[nw] = pool[k].code;
+                    at[nw] = k;
+                    nw++;
+                }
+            if (arcade_screens_window_tiles(b->prog, b->psize, b->tiles, b->tsize, w, nw, (uint8_t (*)[TILE_BYTES])b->wtiles, b->err, b->errsize)) {
+                free(w);
+                free(at);
+                return -1;
+            }
+            for (k = 0; k < nw; k++) b->wnum[at[k]] = k + 1u;
+        }
+        free(w);
+        free(at);
+    }
     for (k = 1; k < count; k++) {
         uint64_t key;
         unsigned d, e;
@@ -168,6 +202,16 @@ static int pool_make(struct builder *b, const struct arcade_screen_lists_tile *p
         if (pool[k].kind == 1) {
             key = b->zero_key;
             e = 0;
+        } else if (pool[k].kind == 3) {     /* a window: the class of its stored pixels, which are the tile as stored */
+            uint8_t px[256];
+            unsigned i;
+            const uint8_t *t = b->wtiles + (size_t)(b->wnum[k] - 1u) * TILE_BYTES;
+            for (i = 0; i < TILE_BYTES; i++) {
+                px[2 * i] = t[i] & 15u;
+                px[2 * i + 1] = (uint8_t)(t[i] >> 4);
+            }
+            pixel_class(px, &key, &d);
+            e = d;
         } else {
             if (tile_class(b, pool[k].code, &key, &d))
                 return fail(b, "segment tile %u: arcade tile %#x lies outside the graphics", k, (unsigned)pool[k].code);
@@ -196,6 +240,20 @@ static int lookup(struct builder *b, uint32_t code, unsigned u, uint32_t *number
         return -1;
     *number = s->number;
     *g = (u ^ d ^ s->e) & 3u;
+    return 0;
+}
+
+/* Number and flip bits of a window of 256 pixels; -1 when the segment lacks its class. */
+static int lookup_pixels(struct builder *b, const uint8_t px[256], uint32_t *number, unsigned *g)
+{
+    uint64_t key;
+    unsigned d;
+    const struct slot *s;
+    pixel_class(px, &key, &d);
+    s = slot_of(b, key);
+    if (!s->number) return -1;
+    *number = s->number;
+    *g = (d ^ s->e) & 3u;
     return 0;
 }
 
@@ -431,9 +489,9 @@ static int stream_of(struct builder *b, const struct cell *cells, unsigned n, ui
 static uint32_t own_successor(const struct builder *b, uint32_t n)
 {
     uint32_t k;
-    if (n == 0 || n >= b->pool_count || b->pool[n].kind != 2) return 0;
+    if (n == 0 || n >= b->pool_count || (b->pool[n].kind != 2 && b->pool[n].kind != 3)) return 0;
     for (k = n + 1; k < b->pool_count; k++)
-        if (b->pool[k].kind == 2) return k;
+        if (b->pool[k].kind == 2 || b->pool[k].kind == 3) return k;
     return 0;
 }
 
@@ -505,6 +563,56 @@ static int window_list(struct builder *b, const struct arcade_screen_lists_spec 
     return list_from_cells(b, s, cells, n, pairs, npairs, index, ex);
 }
 
+/* One list cut from an arcade frame: see ARCADE_SCREEN_LISTS_GRID. */
+static int grid_list(struct builder *b, const struct arcade_screen_lists_spec *s, unsigned grid, unsigned index)
+{
+    const struct arcade_screen_lists_grid *g;
+    struct arcade_canvas cv;
+    struct cell cells[MAX_CELLS];
+    uint16_t t[MAX_CELLS], f[MAX_CELLS];
+    uint8_t stream[6 * MAX_CELLS], tile[TILE_BYTES], px[256];
+    char e[160];
+    unsigned n = 0, len = 0, i;
+    int32_t x0, y0, gx, gy;
+    uint32_t off = 0;
+    if (grid >= s->grid_count) return fail(b, "grid %u is not in the table", grid);
+    g = &s->grids[grid];
+    e[0] = 0;
+    if (arcade_compose_record_canvas(b->prog, b->psize, b->tiles, b->tsize, g->address, g->bank, &cv, e, sizeof e)) return fail(b, "list %u: %s", index, e);
+    if (!cv.px) return fail(b, "list %u: the frame at %#x is empty", index, (unsigned)g->address);
+    x0 = cv.x0 + g->ox;
+    y0 = cv.y0 + g->oy;
+    for (gy = y0 - (((y0 - g->qy) % 16) + 16) % 16; gy < y0 + (int32_t)cv.h; gy += 16)
+        for (gx = x0 - (((x0 - g->qx) % 16) + 16) % 16; gx < x0 + (int32_t)cv.w; gx += 16) {
+            uint32_t number;
+            unsigned flip, any = 0;
+            arcade_compose_cut(&cv, gx - g->ox, gy - g->oy, 0, tile);
+            for (i = 0; i < TILE_BYTES; i++) any |= tile[i];
+            if (!any) continue;
+            if (n >= MAX_CELLS) {
+                arcade_compose_free(&cv);
+                return fail(b, "list %u: more than %u cells", index, MAX_CELLS);
+            }
+            for (i = 0; i < TILE_BYTES; i++) {
+                px[2 * i] = tile[i] & 15u;
+                px[2 * i + 1] = (uint8_t)(tile[i] >> 4);
+            }
+            if (lookup_pixels(b, px, &number, &flip)) {
+                arcade_compose_free(&cv);
+                return fail(b, "list %u: a window of the frame at %#x is not in the segment", index, (unsigned)g->address);
+            }
+            cells[n].x = gx;
+            cells[n].y = gy;
+            t[n] = (uint16_t)number;
+            f[n] = (uint16_t)(g->palette | flip << 5);
+            n++;
+        }
+    arcade_compose_free(&cv);
+    if (!n) return fail(b, "list %u: no cells", index);
+    if (stream_of(b, cells, n, stream, &len) || pos_add(b, stream, len, &off)) return -1;
+    return encode_list(b, t, f, n, off);
+}
+
 void arcade_screen_lists_free(struct arcade_screen_lists_out *out)
 {
     free(out->positions);
@@ -561,6 +669,9 @@ int arcade_screen_lists_build_with(const uint8_t *program, size_t program_size, 
                 put16(e + 8, b.pos_size);
                 if (lists_put(&b, e, sizeof e, 1)) goto done;
             }
+        } else if (m->kind == ARCADE_SCREEN_LISTS_GRID) {
+            if (grid_list(&b, spec, m->address, index)) goto done;
+            index++;
         } else if (m->kind == ARCADE_SCREEN_LISTS_REC || m->kind == ARCADE_SCREEN_LISTS_WIN) {
             const struct arcade_screen_lists_pal *pairs = NULL;
             unsigned np = 0;
@@ -605,6 +716,8 @@ done:
     free(b.pos_known);
     free(b.map);
     free(b.ents);
+    free(b.wtiles);
+    free(b.wnum);
     return rc;
 }
 
@@ -650,9 +763,12 @@ struct arcade_screen_lists_tile *arcade_screen_lists_pool(const char *file, unsi
         for (j = 0; j < it->count; j++, n++) {
             if (it->first == ARCADE_SCREENS_ZERO && !(it->flip & ARCADE_SCREENS_BY_DESIGN)) {
                 pool[n].kind = 1;
+            } else if (it->first == ARCADE_SCREENS_WINDOW && !(it->flip & ARCADE_SCREENS_BY_DESIGN)) {
+                pool[n].kind = 3;   /* a window is a tile of the PS1's own, found by its pixels */
+                pool[n].code = it->flip;
             } else if (it->first == ARCADE_SCREENS_ZERO || it->first == ARCADE_SCREENS_DISC || it->first == ARCADE_SCREENS_PIECES || it->first == ARCADE_SCREENS_WINDOW ||
                        (it->flip & ARCADE_SCREENS_BY_DESIGN)) {
-                pool[n].kind = 2;   /* a by-design tile and a window are still the PS1's own tiles for the lists' numbering */
+                pool[n].kind = 2;   /* a by-design tile is the PS1's own tile for the lists' numbering */
             } else {
                 pool[n].code = it->first + j;
                 pool[n].flip = (uint8_t)(it->flip & 3u);
@@ -690,6 +806,8 @@ int arcade_screen_lists_build(const uint8_t *program, size_t program_size, const
     spec.exception_count = c->exception_count;
     spec.windows = arcade_screen_lists_windows;
     spec.window_count = arcade_screen_lists_window_count;
+    spec.grids = arcade_screen_lists_grids;
+    spec.grid_count = arcade_screen_lists_grid_count;
     spec.win_blocks = arcade_screen_lists_win_blocks;
     spec.win_block_count = arcade_screen_lists_win_block_count;
     spec.pals = arcade_screen_lists_pals;

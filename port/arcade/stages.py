@@ -1688,6 +1688,15 @@ def model_stage_pieces(arc, d):
                 raise ValueError(f'the grid at {off} cannot be built from the record at {addr:#x}')
             module[off:off + len(made)] = made
             module_known[off:off + len(made)] = b'\1' * len(made)
+    if d.get('steps'):                                   # the animation steps that point at them (stage_steps.py)
+        import stage_steps as T
+        try:
+            built = T.build_steps(arc.prog, d['steps']['runs'], dict(d['steps']['arts']))
+        except ValueError as e:
+            raise ValueError(f'the steps of the module cannot be built: {e}')
+        for off, made in built.items():
+            module[off:off + len(made)] = made
+            module_known[off:off + len(made)] = b'\1' * len(made)
     pal_own = bytearray(sizes['palettes'])
     palettes = model_palettes(arc.prog, d['stage'], sizes['palettes'] // 32, d['pal_exact'], d.get('more', ()), pal_own)
     if d['layers'][0]['flags'] & L0_OWN:                 # the layer's 32 rows by the own rule (arcade rows and merged ones), served owned
@@ -2485,7 +2494,8 @@ class CLib:
         here = Path(__file__).resolve().parent
         lib = Path(tmp) / 'stage.so'
         subprocess.run(['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror', '-shared', '-fPIC', '-o', str(lib),
-                        str(here / 'stage.c'), str(here / 'stages_table.c'), str(here / 'stage_objects.c'), str(here / 'stage_objects_table.c')], check=True, capture_output=True, timeout=120)
+                        str(here / 'stage.c'), str(here / 'stages_table.c'), str(here / 'stage_objects.c'), str(here / 'stage_objects_table.c'),
+                        str(here / 'stage_steps.c'), str(here / 'stage_steps_table.c')], check=True, capture_output=True, timeout=120)
         self.lib, self.prog, self.gfx = ctypes.CDLL(str(lib)), prog, gfx
         c = ctypes
         self.lib.arcade_stage_find.restype = c.c_void_p
@@ -2686,11 +2696,13 @@ def main(argv=None):
             if isinstance(shared, str):
                 print(shared, file=sys.stderr)
                 return 1
+            import stage_steps
             import stage_objects                      # the grids of each module that the arcade builds equal to the disc's: the model builds them too
             octx = stage_objects.context(prog, gfx)
             for d, parts in rows:
                 d['shared_runs'] = shared
                 d['grids'] = stage_objects.grid_rows(parts['module'], d['object_runs'], shared, octx[1], octx[2], octx[3])[0]
+                d['steps'] = stage_steps.stage_row(prog, parts['module'], d['object_runs'], shared, octx)
             pal_chunk = pal_parts[0] if pal_parts and all(p == pal_parts[0] for p in pal_parts) else None
             pal_runs, pal_design = [], (0, 0)
             if pal_chunk:

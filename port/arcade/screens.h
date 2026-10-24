@@ -107,6 +107,12 @@ int arcade_screens_build(const uint8_t *program, size_t program_size, const uint
                          struct arcade_screens_out *out, char *err, size_t errsize);
 void arcade_screens_free(struct arcade_screens_out *out);
 
+/* The stored tiles (128 bytes each, as the build puts them in a segment) of windows w[0], ... w[n - 1] of the checked-in table (indexes into arcade_screens_windows),
+ * for a builder that numbers cells by the pixels of the tiles (screen_lists.c). The frames are drawn once each for windows that follow one another. 0, or -1 with a
+ * message in err (a window or source outside the table, a frame that does not draw). */
+int arcade_screens_window_tiles(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size, const uint32_t *w, unsigned n,
+                                uint8_t (*out)[128], char *err, size_t errsize);
+
 /* The first word of a chunk. The game's disc stream compares the first word of each chunk it loads with the first word of the chunk's record in the archive
  * header and reads the file again when they differ, so a built chunk must start with the header's word (the chunk's first word on the disc). A chunk whose first
  * bytes are built by design (blank, or an arcade tile in place of the PS1's) takes `word` (little-endian) there: the bytes 0 to 3 that are marked 2 and are not in

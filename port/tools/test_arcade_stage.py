@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / 'port/arcade'))
 import stages as S
 
 FLAGS = ('-std=c99', '-O1', '-Wall', '-Wextra', '-Werror', '-pedantic')
-SOURCES = [ROOT / 'port/arcade' / n for n in ('stage.c', 'stages_table.c', 'stage_objects.c', 'stage_objects_table.c')]
+SOURCES = [ROOT / 'port/arcade' / n for n in ('stage.c', 'stages_table.c', 'stage_objects.c', 'stage_objects_table.c', 'stage_steps.c', 'stage_steps_table.c')]
 PIECES = (('module', 'module'), ('pages', 'pages'), ('palettes', 'palettes'), ('object tiles', 'objects'), ('object palettes', 'objpal'))
 GFX_BYTES = (0x10000 + 128) * 128 + 4096          # 16 pixel scroll tiles from 0x10000; 32 pixel tiles (512 bytes) from 0x4000 are the same bytes
 

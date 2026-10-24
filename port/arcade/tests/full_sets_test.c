@@ -5,9 +5,10 @@
  *   full_sets_test tiles SOURCE ADDRESS BASE ROOM OUT         arcade_full_tiles; prints the count
  * LISTS, ADDRESS, BASE and ROOM are numbers (0x allowed); OUT and CHANGED are written (size bytes). A refusal prints "refused: message" on
  * standard output and exits with 3; any other failure exits with 1.
- * SPEC: one line `file source` and 19 numbers (slot source_slot tiles_slot source_tiles_slot kind load source_load source_positions
- * positions_size source_lists lists_size source_steps step_count source_table_entries positions lists steps table table_entries), then the run
- * count and the outside count; then a line `first count source_first` per run and a line `target source` per outside step. */
+ * SPEC: one line `file source` and 13 numbers (slot source_slot tiles_slot source_tiles_slot kind load source_load source_positions
+ * positions_size source_lists lists_size positions lists), then the block count and the outside count; then for each block a line of 9 numbers
+ * (source_steps step_count source_table_entries steps table table_entries source_frames frames frame_count) and its run count, followed by a
+ * line `first count source_first` per run; then a line `target source` per outside step. */
 #include "../full_sets.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +16,7 @@
 
 #define MAX_RUNS 512
 #define MAX_OUTSIDE 512
+#define MAX_BLOCKS 8
 
 static uint8_t *slurp(const char *path, uint32_t *n)
 {
@@ -52,53 +54,72 @@ static unsigned long num(const char *s)
 
 static void print_row(const struct arcade_full_set *s)
 {
-    unsigned k;
-    printf("%s %s %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n", s->file, s->source, s->slot, s->source_slot, s->tiles_slot,
-           s->source_tiles_slot, s->kind, (unsigned)s->load, (unsigned)s->source_load, (unsigned)s->source_positions, (unsigned)s->positions_size,
-           (unsigned)s->source_lists, (unsigned)s->lists_size, (unsigned)s->source_steps, s->step_count, s->source_table_entries,
-           (unsigned)s->positions, (unsigned)s->lists, (unsigned)s->steps, (unsigned)s->table, s->table_entries, s->run_count, s->outside_count);
-    for (k = 0; k < s->run_count; k++) printf("%u %u %u\n", s->runs[k].first, s->runs[k].count, s->runs[k].source_first);
+    unsigned k, b;
+    printf("%s %s %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n", s->file, s->source, s->slot, s->source_slot, s->tiles_slot, s->source_tiles_slot,
+           s->kind, (unsigned)s->load, (unsigned)s->source_load, (unsigned)s->source_positions, (unsigned)s->positions_size,
+           (unsigned)s->source_lists, (unsigned)s->lists_size, (unsigned)s->positions, (unsigned)s->lists, s->block_count, s->outside_count);
+    for (b = 0; b < s->block_count; b++) {
+        const struct arcade_full_block *u = &s->blocks[b];
+        printf("%u %u %u %u %u %u %u %u %u %u\n", (unsigned)u->source_steps, u->step_count, u->source_table_entries, (unsigned)u->steps,
+               (unsigned)u->table, u->table_entries, (unsigned)u->source_frames, (unsigned)u->frames, u->frame_count, u->run_count);
+        for (k = 0; k < u->run_count; k++) printf("%u %u %u\n", u->runs[k].first, u->runs[k].count, u->runs[k].source_first);
+    }
     for (k = 0; k < s->outside_count; k++) printf("%u %u\n", (unsigned)s->outside[k].target, (unsigned)s->outside[k].source);
 }
 
-static int read_spec(const char *path, struct arcade_full_set *s, struct arcade_full_run *runs, struct arcade_full_step *outside,
-                     char *file, char *source)
+struct spec_store {
+    struct arcade_full_block blocks[MAX_BLOCKS];
+    struct arcade_full_run runs[MAX_BLOCKS][MAX_RUNS];
+    struct arcade_full_step outside[MAX_OUTSIDE];
+    char file[64], source[64];
+};
+
+static int read_spec(const char *path, struct arcade_full_set *s, struct spec_store *st)
 {
     FILE *f = fopen(path, "r");
-    unsigned long v[21];
-    unsigned k;
+    unsigned long v[15], w[10];
+    unsigned k, b;
     if (!f) return -1;
-    if (fscanf(f, "%63s %63s", file, source) != 2) goto bad;
-    for (k = 0; k < 21; k++)
+    memset(s, 0, sizeof *s);
+    if (fscanf(f, "%63s %63s", st->file, st->source) != 2) goto bad;
+    for (k = 0; k < 15; k++)
         if (fscanf(f, "%lu", &v[k]) != 1) goto bad;
-    if (v[19] > MAX_RUNS || v[20] > MAX_OUTSIDE) goto bad;
-    for (k = 0; k < v[19]; k++) {
-        unsigned long a, b, c;
-        if (fscanf(f, "%lu %lu %lu", &a, &b, &c) != 3) goto bad;
-        runs[k].first = (uint16_t)a;
-        runs[k].count = (uint16_t)b;
-        runs[k].source_first = (uint16_t)c;
+    if (v[13] > MAX_BLOCKS || v[14] > MAX_OUTSIDE) goto bad;
+    for (b = 0; b < v[13]; b++) {
+        struct arcade_full_block *u = &st->blocks[b];
+        for (k = 0; k < 10; k++)
+            if (fscanf(f, "%lu", &w[k]) != 1) goto bad;
+        if (w[9] > MAX_RUNS) goto bad;
+        for (k = 0; k < w[9]; k++) {
+            unsigned long x, y, z;
+            if (fscanf(f, "%lu %lu %lu", &x, &y, &z) != 3) goto bad;
+            st->runs[b][k].first = (uint16_t)x;
+            st->runs[b][k].count = (uint16_t)y;
+            st->runs[b][k].source_first = (uint16_t)z;
+        }
+        u->source_steps = (uint32_t)w[0]; u->step_count = (uint16_t)w[1]; u->source_table_entries = (uint16_t)w[2]; u->steps = (uint32_t)w[3];
+        u->table = (uint32_t)w[4]; u->table_entries = (uint16_t)w[5]; u->source_frames = (uint32_t)w[6]; u->frames = (uint32_t)w[7];
+        u->frame_count = (uint16_t)w[8];
+        u->runs = st->runs[b];
+        u->run_count = (unsigned)w[9];
     }
-    for (k = 0; k < v[20]; k++) {
-        unsigned long a, b;
-        if (fscanf(f, "%lu %lu", &a, &b) != 2) goto bad;
-        outside[k].target = (uint32_t)a;
-        outside[k].source = (uint32_t)b;
+    for (k = 0; k < v[14]; k++) {
+        unsigned long a, b2;
+        if (fscanf(f, "%lu %lu", &a, &b2) != 2) goto bad;
+        st->outside[k].target = (uint32_t)a;
+        st->outside[k].source = (uint32_t)b2;
     }
     fclose(f);
-    memset(s, 0, sizeof *s);
-    s->file = file;
-    s->source = source;
+    s->file = st->file;
+    s->source = st->source;
     s->slot = (uint16_t)v[0]; s->source_slot = (uint16_t)v[1]; s->tiles_slot = (uint16_t)v[2]; s->source_tiles_slot = (uint16_t)v[3];
     s->kind = (uint16_t)v[4]; s->load = (uint32_t)v[5]; s->source_load = (uint32_t)v[6];
     s->source_positions = (uint32_t)v[7]; s->positions_size = (uint32_t)v[8]; s->source_lists = (uint32_t)v[9]; s->lists_size = (uint32_t)v[10];
-    s->source_steps = (uint32_t)v[11]; s->step_count = (uint16_t)v[12]; s->source_table_entries = (uint16_t)v[13];
-    s->positions = (uint32_t)v[14]; s->lists = (uint32_t)v[15]; s->steps = (uint32_t)v[16]; s->table = (uint32_t)v[17];
-    s->table_entries = (uint16_t)v[18];
-    s->runs = runs;
-    s->run_count = (unsigned)v[19];
-    s->outside = outside;
-    s->outside_count = (unsigned)v[20];
+    s->positions = (uint32_t)v[11]; s->lists = (uint32_t)v[12];
+    s->blocks = st->blocks;
+    s->block_count = (unsigned)v[13];
+    s->outside = st->outside;
+    s->outside_count = (unsigned)v[14];
     return 0;
 bad:
     fclose(f);
@@ -115,9 +136,7 @@ int main(int argc, char **argv)
     }
     if (argc == 8 && (!strcmp(argv[1], "row") || !strcmp(argv[1], "spec"))) {
         struct arcade_full_set spec;
-        struct arcade_full_run runs[MAX_RUNS];
-        struct arcade_full_step outside[MAX_OUTSIDE];
-        char file[64], source[64];
+        static struct spec_store store;
         const struct arcade_full_set *s = NULL;
         uint32_t size = 0, source_size = 0;
         uint8_t *module = NULL, *src = NULL, *out = NULL, *changed = NULL;
@@ -125,7 +144,7 @@ int main(int argc, char **argv)
         if (!strcmp(argv[1], "row")) {
             unsigned long i = num(argv[2]);
             if (i < arcade_full_set_count) s = &arcade_full_sets[i];
-        } else if (!read_spec(argv[2], &spec, runs, outside, file, source)) {
+        } else if (!read_spec(argv[2], &spec, &store)) {
             s = &spec;
         }
         module = s ? slurp(argv[3], &size) : NULL;

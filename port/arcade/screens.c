@@ -628,6 +628,25 @@ int arcade_screens_build_region(const uint8_t *program, size_t program_size, con
     return 0;
 }
 
+int arcade_screens_window_tiles(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size, const uint32_t *w, unsigned n,
+                                uint8_t (*out)[128], char *err, size_t errsize)
+{
+    struct ctx c;
+    struct tables t;
+    unsigned i;
+    int rc = 0;
+    memset(&c, 0, sizeof c);
+    memset(&t, 0, sizeof t);
+    c.prog = program; c.tiles = tiles; c.psize = program_size; c.tsize = tiles_size; c.err = err; c.errsize = errsize; c.canvas_source = -1;
+    t.sources = arcade_screens_sources; t.source_count = arcade_screens_source_count; t.windows = arcade_screens_windows; t.window_count = arcade_screens_window_count;
+    if (err && errsize)
+        err[0] = 0;
+    for (i = 0; i < n && !rc; i++)
+        rc = window_tile(&c, &t, w[i], out[i]);
+    arcade_compose_free(&c.canvas);
+    return rc;
+}
+
 int arcade_screens_build(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size,
                          const struct arcade_screens_recipe *r, const uint8_t *disc, size_t disc_size,
                          struct arcade_screens_out *out, char *err, size_t errsize)

@@ -329,9 +329,35 @@ static uint32_t optimal_parse(const uint8_t best[TILE_WORDS], uint8_t take[TILE_
     return cost[0];
 }
 
+/* dup[u]: the first tile with the same 64 words as tile u (u itself when it is the first). Such a tile needs no block of its own. */
+static void find_copies(const uint16_t *words, uint32_t count, uint32_t *dup) {
+    uint32_t size = 1, u, k, i;
+    uint32_t *table;
+    while (size < 2u * count)
+        size <<= 1;
+    table = (uint32_t *)calloc(size, sizeof *table);   /* tile index + 1; 0 is empty */
+    for (u = 0; u < count; u++) {
+        const uint16_t *tile = words + (size_t)u * TILE_WORDS;
+        uint32_t h = 2166136261u;
+        for (i = 0; i < TILE_WORDS; i++)
+            h = (h ^ tile[i]) * 16777619u;
+        dup[u] = u;
+        if (!table)
+            continue;
+        for (k = h & (size - 1u); table[k]; k = (k + 1u) & (size - 1u))
+            if (memcmp(words + (size_t)(table[k] - 1u) * TILE_WORDS, tile, TILE_WORDS * sizeof *tile) == 0) {
+                dup[u] = table[k] - 1u;
+                break;
+            }
+        if (dup[u] == u)
+            table[k] = u + 1u;
+    }
+    free(table);
+}
+
 /* Pass 1: for each tile, the number of times each of its words is copied by a later tile's optimal parse over the tiles before it
  * (as they are, every word present). cnt has 64 saturating counters a tile. */
-static void count_wants(const uint16_t *words, uint32_t count, uint8_t *cnt, struct fwd *ch) {
+static void count_wants(const uint16_t *words, uint32_t count, uint8_t *cnt, struct fwd *ch, const uint32_t *dup) {
     uint32_t u, p, i;
     memset(ch->head, 0, sizeof ch->head);
     memset(ch->tail, 0, sizeof ch->tail);
@@ -340,6 +366,8 @@ static void count_wants(const uint16_t *words, uint32_t count, uint8_t *cnt, str
         uint32_t base = u * TILE_WORDS, lo = base > RAW_WINDOW ? base - RAW_WINDOW : 0;
         uint8_t best[TILE_WORDS], take[TILE_WORDS];
         uint32_t srcs[TILE_WORDS];
+        if (dup[u] != u)   /* a copy of an earlier tile has no block of its own */
+            continue;
         if (u % WANT_STRIDE == 0) {
             for (p = 0; p < TILE_WORDS; p++) {
                 best[p] = 0;
@@ -374,7 +402,7 @@ struct blocks {
 /* Pass 2: the stream of blocks with every word whose bit is set in pins[tile] kept literal (pins may be NULL). stream has room
  * for 65 words a tile; offs[i] gets the word offset of block i. Returns the number of words of the stream. */
 static uint32_t encode_pass(const uint16_t *words, uint32_t count, const uint64_t *pins, uint16_t *stream, uint32_t *offs,
-                            struct back *ch, struct blocks *bl) {
+                            struct back *ch, struct blocks *bl, const uint32_t *dup) {
     uint32_t total = 0, u, p, i, base;
     memset(ch->head, 0, sizeof ch->head);
     for (u = 0; u < count; u++) {
@@ -384,6 +412,10 @@ static uint32_t encode_pass(const uint16_t *words, uint32_t count, const uint64_
         uint32_t srcs[TILE_WORDS], lo = total > MAX_BACK ? total - MAX_BACK : 0, k, nw, nz = 0, flags_lo = 0, flags_hi = 0;
         uint16_t *dst;
         uint32_t want;
+        if (dup[u] != u) {   /* the same words as an earlier tile: the offset table points at that tile's block (the reader follows the table only) */
+            offs[u] = offs[dup[u]];
+            continue;
+        }
         for (p = 0; p < TILE_WORDS; p++) {
             best[p] = 0;
             if (p + 1u < TILE_WORDS && !(pin >> p & 1u)) {
@@ -463,6 +495,7 @@ int arcade_tilepack(const uint8_t (*tiles)[128], uint32_t count, uint8_t *out, u
     uint32_t *offs = NULL, *best_offs = NULL, *prev[2] = {NULL, NULL}, *next[2] = {NULL, NULL}, *t32;
     uint32_t best_total = 0, i, j, a, total;
     uint64_t *pins = NULL;
+    uint32_t *dup = NULL;
     uint8_t *cnt = NULL;
     struct back *back = NULL;
     struct fwd *fwd = NULL;
@@ -488,10 +521,11 @@ int arcade_tilepack(const uint8_t (*tiles)[128], uint32_t count, uint8_t *out, u
     next[1] = malloc(nw * sizeof *next[1]);
     pins = malloc((size_t)count * sizeof *pins);
     cnt = calloc(nw, 1);
+    dup = malloc((size_t)count * sizeof *dup);
     back = malloc(sizeof *back);
     fwd = malloc(sizeof *fwd);
     bl = malloc(sizeof *bl);
-    if (!words || !stream || !best_stream || !offs || !best_offs || !prev[0] || !prev[1] || !next[0] || !next[1] || !pins || !cnt || !back || !fwd || !bl) {
+    if (!words || !stream || !best_stream || !offs || !best_offs || !prev[0] || !prev[1] || !next[0] || !next[1] || !pins || !cnt || !dup || !back || !fwd || !bl) {
         say(err, errsize, "out of memory");
         goto done;
     }
@@ -502,7 +536,8 @@ int arcade_tilepack(const uint8_t (*tiles)[128], uint32_t count, uint8_t *out, u
     back->prev[1] = prev[1];
     fwd->next[0] = next[0];
     fwd->next[1] = next[1];
-    count_wants(words, count, cnt, fwd);
+    find_copies(words, count, dup);
+    count_wants(words, count, cnt, fwd, dup);
     for (a = 0; a < sizeof thresholds / sizeof thresholds[0]; a++) {
         if (thresholds[a]) {
             for (i = 0; i < count; i++) {
@@ -512,7 +547,7 @@ int arcade_tilepack(const uint8_t (*tiles)[128], uint32_t count, uint8_t *out, u
                         pins[i] |= (uint64_t)1 << j;
             }
         }
-        total = encode_pass(words, count, thresholds[a] ? pins : NULL, stream, offs, back, bl);
+        total = encode_pass(words, count, thresholds[a] ? pins : NULL, stream, offs, back, bl, dup);
         if (!best_total || total < best_total) {
             t16 = best_stream;
             best_stream = stream;
@@ -552,6 +587,7 @@ done:
     free(next[1]);
     free(pins);
     free(cnt);
+    free(dup);
     free(back);
     free(fwd);
     free(bl);

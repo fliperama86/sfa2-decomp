@@ -191,6 +191,17 @@ class Pure(unittest.TestCase):
         self.assertEqual((base, count), (64, 3))
         self.assertEqual(end, 64 + len(runs))
 
+    def test_the_position_base_nearest_the_chain_is_taken(self):
+        # a one-cell list fits any three words, so lower bases fit as well as the real one; the runs that end at the chain are the chain's
+        stream = struct.pack('<hhH', 0, 0, 0)
+        lst = F.encode_list([(1, 0)], 0)
+        for lead in (40, 100, 3000):
+            mod = bytes(lead) + stream + lst + bytes(40)
+            start = lead + len(stream)
+            lists = F.chain_from(mod, start)
+            self.assertEqual(len(lists), 1)
+            self.assertEqual(S.position_base(mod, start, lists), (lead, start))
+
     def test_streams_and_encoding(self):
         cells = [(1, 0, 0, 0), (2, 16, 0, 0), (3, 48, 0, 0), (4, 0, 16, 0)]
         s = S.position_stream_of(cells)

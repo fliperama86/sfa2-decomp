@@ -91,7 +91,7 @@ NAME_RE = re.compile(r'^(SELECTA|CDEMO|CONT|DEMO|END)([0-9A-F]{2}X?)?\.PAC$')
 BANKS = (0, 0x10000, 0x20000, 0x30000)
 PAL_SPLIT = 1                 # rule: a change of palette between blocks starts a part (SELECTA)
 RULE_NAMES = ((PAL_SPLIT, 'PAL_SPLIT'),)
-REC, EMPTY, OWN, WIN = 0, 1, 2, 3     # item kinds
+REC, EMPTY, OWN, WIN, GRID = 0, 1, 2, 3, 4     # item kinds
 DROP = 0x100                  # an exception's value that removes the cell instead (a cell the PS1 left out of its list)
 OWN_TILE = 0x200              # an exception's flag: the cell shows a tile of the PS1's own (the arcade's, cleaned): bits 0-4 the palette, bits 10-11 the
                               # flip bits, bits 16 and up the tile's number in the segment (0: the next of the PS1's own numbers after the
@@ -261,19 +261,34 @@ def window_cells(data, win, blank):
     return out
 
 
+class WinTile:
+    """A tile of a segment that the screens table cuts from a frame of the arcade (a WINDOW item): the lists number it by its pixels, so a cell that is
+    the same picture finds it; `index` is the window's row in the screens table."""
+
+    def __init__(self, index):
+        self.index = index
+
+
 class Pool:
     """The numbers of a tile segment: tiles [(arcade code, stored flip) or 'zero' or None], number k being tiles[k]. lookup() finds a cell's number.
 
     cls(code) gives (key, d) of an arcade tile; zero_key is the key of the blank tile (value 0 everywhere); a tile of None (the PS1's own) has no class."""
 
-    def __init__(self, tiles, cls, zero_key):
+    def __init__(self, tiles, cls, zero_key, pixels=None):
         self.zero_key = zero_key
         self.of = {}
         self.tiles = tiles
-        self.kind2 = [k for k, t in enumerate(tiles) if k and t is None]     # the numbers of the PS1's own tiles, in order
+        self.canvas = None       # the arcade frame's canvas for a GRID list: canvas(address, bank) (the analysis sets it)
+        self.kind2 = [k for k, t in enumerate(tiles) if k and (t is None or isinstance(t, WinTile))]     # the numbers of the PS1's own tiles, in order
         self.kind2_set = set(self.kind2)
         for k, t in enumerate(tiles):
             if k == 0 or t is None:
+                continue
+            if isinstance(t, WinTile):          # a window: its class is its pixels', stored as they are (the stored flip is in them)
+                px = pixels(t.index) if pixels else None
+                if px is not None:
+                    key, d = pixel_class(px)
+                    self.of.setdefault(key, (k, d))
                 continue
             if t == 'zero':
                 key, e = zero_key, 0
@@ -292,6 +307,14 @@ class Pool:
             return None
         n, e = self.of[c[0]]
         return n, u ^ c[1] ^ e
+
+    def lookup_pixels(self, px):
+        """(number, flip bits g) of a window's 256 pixels (g turns the stored tile into it), or None when the segment lacks the tile."""
+        key, d = pixel_class(px)
+        if key not in self.of:
+            return None
+        n, e = self.of[key]
+        return n, d ^ e
 
     def is_blank(self, code):
         """True when arcade tile `code` (with its bank) has no opaque pixel."""
@@ -320,6 +343,28 @@ class Pool:
         return out
 
 
+def nibbles(tile):
+    """The 256 pixels of a 128-byte PS1 tile (8 bytes a row, the left pixel of a pair in the low nibble)."""
+    out = bytearray(256)
+    for i, b in enumerate(tile):
+        out[2 * i], out[2 * i + 1] = b & 15, b >> 4
+    return bytes(out)
+
+
+def grid_cells(canvas, qx=0, qy=0):
+    """[(x, y, 128 bytes)] of the windows of the 16-pixel grid of phase (qx, qy) over a compose.py canvas (x0, y0, w, h, pixels) that have a non-zero pixel, in
+    row order (y, then x): the PS1 cut a frame of the arcade into the 16 x 16 tiles of its lists on such a grid."""
+    import compose
+    x0, y0, w, h, _px = canvas
+    out = []
+    for gy in range(y0 - (y0 - qy) % 16, y0 + h, 16):
+        for gx in range(x0 - (x0 - qx) % 16, x0 + w, 16):
+            t = compose.cut(canvas, gx, gy)
+            if any(t):
+                out.append((gx, gy, t))
+    return out
+
+
 def position_stream_of(cells):
     """The position runs of a list's cells: fighters.py's runs of horizontally adjacent tiles, three 16-bit values each."""
     return fighters.position_stream(fighters.position_runs(cells))
@@ -335,10 +380,12 @@ class Built:
         self.problems = []           # (list index, why) for a record or tile that cannot be used
 
 
-def model_chain(prog, pool, items, rules, maps, exceptions, windows=()):
+def model_chain(prog, pool, items, rules, maps, exceptions, windows=(), grids=()):
     """The specification of screen_lists.c: build a chain from the arcade program `prog` (68000 view), the segment `pool`, and
     items [(REC, address, count, bank, map) | (WIN, window, 1, 0x10000, map) | (EMPTY, count) | (OWN, list_bytes, stream_bytes)], the chain's rule flags, the maps [[(arcade palette, PS1 palette)]] (items refer to index + 1; 0 is no map), the
-    exceptions {(list index, cell index): palette or DROP} and the windows [(x0, y0, c0, r0, w, h, {(rx, ry): block})]."""
+    exceptions {(list index, cell index): palette or DROP} and the windows [(x0, y0, c0, r0, w, h, {(rx, ry): block})]. A (GRID, grid, 1, 0, 0) item is one
+    list cut from the arcade frame grids[grid] = (record address, bank, ox, oy, qx, qy, palette): the frame drawn, moved by (ox, oy), cut on the 16-pixel grid
+    of phase (qx, qy), the numbers found by the pixels of each window in the segment (pool.canvas draws a record)."""
     out = Built()
     seen = {}
     index = 0
@@ -357,6 +404,26 @@ def model_chain(prog, pool, items, rules, maps, exceptions, windows=()):
             out.lists_known += bytes(item[1])
             out.positions += bytes(item[2])
             out.pos_known += bytes(item[2])
+            index += 1
+        elif item[0] == GRID:
+            address, bank, ox, oy, qx, qy, pal = grids[item[1]]
+            canvas = pool.canvas(address, bank) if pool.canvas else None
+            if canvas is None:
+                out.problems.append((index, f'no frame at {address:#x}'))
+                return out
+            cells = grid_cells((canvas[0] + ox, canvas[1] + oy) + tuple(canvas[2:]), qx, qy)
+            numbered = []
+            for _x, _y, t in cells:
+                found = pool.lookup_pixels(nibbles(t))
+                if found is None:
+                    out.problems.append((index, 'a window of the frame is not in the segment'))
+                    return out
+                numbered.append((found[0], pal | found[1] << 5))
+            stream = fighters.position_stream(fighters.position_runs([(n, x, y) for (x, y, _t), (n, _f) in zip(cells, numbered)]))
+            data = fighters.encode_list(numbered, put_stream(stream))
+            out.list_at.append(len(out.lists))
+            out.lists += data
+            out.lists_known += b'\x01' * len(data)
             index += 1
         elif item[0] == EMPTY:
             for _ in range(item[1]):
@@ -491,7 +558,7 @@ class ScreensTable:
 
     def __init__(self, path=HERE / 'screens_table.c'):
         text = path.read_text()
-        names = {'Z': Z, 'D': D, 'P': P, 'W': 0xfffffffc, 'BD': 0x80000000, 'OT': 1, 'OP': 2, 'OF': 3, 'OD': 4, 'OB': 5, 'SEG': 1, 'RAW': 2, 'PALS': 3, 'PIC': 4}
+        names = {'Z': Z, 'D': D, 'P': P, 'W': 0xfffffffc, 'ARCADE_SCREENS_SRC_RECORD': 1, 'ARCADE_SCREENS_SRC_SCROLL2': 2, 'BD': 0x80000000, 'OT': 1, 'OP': 2, 'OF': 3, 'OD': 4, 'OB': 5, 'SEG': 1, 'RAW': 2, 'PALS': 3, 'PIC': 4}
 
         def array(name):
             m = re.search(r'\b' + name + r'\[\]\s*=\s*\{(.*?)\n\};', text, re.S)
@@ -500,6 +567,8 @@ class ScreensTable:
         def row(s):
             return [names[t] if t in names else int(t, 0) for t in (x.strip() for x in s.split(',')) if t]
         self.items = [row(s) for s in array('arcade_screens_items')]
+        self.sources = [row(s) for s in array('arcade_screens_sources')]      # [address, bank, blocks, kind]
+        self.windows = [row(s) for s in array('arcade_screens_windows')]      # [source, x, y, flip, rows]
         self.regions = [row(s) for s in array('arcade_screens_regions')]
         self.recipes = [row(s) for s in array('arcade_screens_recipes')]
         self.uses = [row(s) for s in array('arcade_screens_uses')]
@@ -536,7 +605,9 @@ class ScreensTable:
                 for code, n, flip in self.items[ifirst:ifirst + icount]:
                     if code == Z and not flip & 0x80000000:
                         tiles += ['zero'] * n
-                    elif code in (Z, D, P, 0xfffffffc) or flip & 0x80000000:      # a by-design tile, a window: still the PS1's own tile for the lists' numbering
+                    elif code == 0xfffffffc and not flip & 0x80000000:         # a window: a tile of the PS1's own that the lists find by its pixels
+                        tiles += [WinTile(flip)] * n
+                    elif code in (Z, D, P, 0xfffffffc) or flip & 0x80000000:      # a by-design tile: still the PS1's own tile for the lists' numbering
                         tiles += [None] * n
                     else:
                         tiles += [(code + j, flip & 3) for j in range(n)]
@@ -630,7 +701,9 @@ class Env:
     indexed by tile class."""
 
     def __init__(self, prog, gfx, tmp):
-        self.prog = prog
+        self.prog, self.gfx = prog, gfx
+        self.canvases, self.wpx = {}, {}
+        self.frames_index = None
         self.classes = Classes(tmp, gfx)
         self.by_xy = collections.defaultdict(list)
         self.cache = {}
@@ -665,6 +738,40 @@ class Env:
     def blank(self, tile):
         c = self.classes.cls(tile)
         return c is not None and c[0] == self.classes.zero_key
+
+    def record_canvas(self, address, bank):
+        """The arcade record drawn (compose.py's canvas), kept."""
+        import compose
+        key = (1, address, bank, 0)
+        if key not in self.canvases:
+            self.canvases[key] = compose.record_canvas(self.prog, self.gfx, address, bank)
+        return self.canvases[key]
+
+    def window_pixels(self, table, index):
+        """The 256 pixels of the tile that the screens table's window `index` stores: the frame drawn, the 16 x 16 cut, the rows kept, the stored flip."""
+        import compose
+        if (id(table), index) in self.wpx:
+            return self.wpx[id(table), index]
+        source, x, y, flip, rows = table.windows[index]
+        address, bank, blocks, kind = table.sources[source]
+        key = (kind, address, bank, blocks)
+        if key not in self.canvases:
+            self.canvases[key] = (compose.record_canvas(self.prog, self.gfx, address, bank) if kind == 1 else
+                                  compose.scroll2_canvas(self.prog, self.gfx, address, blocks))
+        canvas = self.canvases[key]
+        px = None if canvas is None else flip_pixels(nibbles(compose.cut(canvas, x, y, rows)), flip & 3)
+        self.wpx[id(table), index] = px
+        return px
+
+    def frames(self):
+        """pose_chains.Frames over every record: the index that finds the frame a list's pixels are (built once, about half a minute)."""
+        if self.frames_index is None:
+            import pose_chains
+            records = set()
+            for v in self.by_xy.values():
+                records.update(v)
+            self.frames_index = pose_chains.Frames(self.prog, self.gfx, records)
+        return self.frames_index
 
     def record(self, a):
         """(blocks, end, {(x, y): (code, flags)} of the record's cells) or None."""
@@ -705,14 +812,16 @@ def stream_ends(mod, base, lists):
 
 
 def position_base(mod, start, lists):
-    """(offset of the chain's position runs, end of the last stream): the lowest offset below `start` from which every list's stream fits and the
-    last ends at or before the chain (the runs lie right in front of it). None when there is none."""
+    """(offset of the chain's position runs, end of the last stream): the offset NEAREST below `start` from which every list's stream fits and the
+    last ends at or before the chain (the runs lie right in front of it). None when there is none. Where several offsets fit, a lower one is another
+    run of data that parses as the same streams; the runs of the chain end within a few bytes of it, which only the nearest does."""
     maxpos = max(l['pos'] for l in lists)
+    best = None
     for base in range(max(0, start - maxpos - 6 - 0x2000) & ~1, start - maxpos - 5, 2):
         ends = stream_ends(mod, base, lists)
         if ends is not False and max((e for e in ends if e), default=base) <= start:
-            return base, max((e for e in ends if e), default=base)
-    return None
+            best = base, max((e for e in ends if e), default=base)
+    return best
 
 
 def position_base_prefix(mod, start, lists):
@@ -731,7 +840,7 @@ def position_base_prefix(mod, start, lists):
                 break
             end = max(end, e)
             n += 1
-        if n >= 2 and 2 * n >= len(lists) and (best is None or n > best[2]):
+        if n >= 2 and 2 * n >= len(lists) and (best is None or n >= best[2]):   # equal counts: the nearer base
             best = (base, end, n)
     return best
 
@@ -877,6 +986,8 @@ def classify_lists(env, pool, mod, base, lists, rules):
             out.append((kind, src, {a: c.most_common(1)[0][0] for a, c in seen.items()}, disc, fit, mcells))
             if kind == 'rec':
                 prev, prev_bank = env.record(src[0])[1], src[1]
+        elif cells and (spec := grid_source(env, pool, cells)):
+            out.append(('grid', spec))
         else:
             out.append(('own',))
         if e is not None:
@@ -889,7 +1000,7 @@ def assemble(env, pool, mod, base, lists, info, rules):
     of the PS1's own make one item; a list from a window is an item of its own; an own list is one item with its byte length and the
     position bytes it adds; the cells whose disc palette is not their item's map's, and the cells the PS1 left out, are the exceptions."""
     ends = stream_ends(mod, base, lists)
-    items, maps, exceptions, windows = [], [], {}, []
+    items, maps, exceptions, windows, grids = [], [], {}, [], []
     run = None            # [address, count, bank, merged map dict, next address]
     plen = 0
     groups = []           # (first list index, last list index, map dict) of each REC/WIN item, in the order of the items
@@ -932,6 +1043,11 @@ def assemble(env, pool, mod, base, lists, info, rules):
             groups.append([i, i])
         elif inf[0] == 'win':
             single(i, inf)
+        elif inf[0] == 'grid':
+            close()
+            if inf[1] not in grids:
+                grids.append(inf[1])
+            items.append((GRID, grids.index(inf[1]), 1, 0, 0))
         else:
             close()
             if inf[0] == 'empty':
@@ -964,7 +1080,7 @@ def assemble(env, pool, mod, base, lists, info, rules):
                 elif disc[(x, y)] != palmap.get(flags & 0x1f, flags & 0x1f):
                     exceptions[(i, ci)] = disc[(x, y)]
                 kept_index += 1
-    return items, maps, exceptions, windows
+    return items, maps, exceptions, windows, grids
 
 
 def analyse_chain(env, pool, mod, start, lists, base, rules):
@@ -973,8 +1089,8 @@ def analyse_chain(env, pool, mod, start, lists, base, rules):
     info = classify_lists(env, pool, mod, base, lists, rules)
     first = sum(1 for inf in info if inf[0] != 'own')
     for _round in range(12):
-        items, maps, exceptions, windows = assemble(env, pool, mod, base, lists, info, rules)
-        built = model_chain(env.prog, pool, items, rules, maps, exceptions, windows)
+        items, maps, exceptions, windows, grids = assemble(env, pool, mod, base, lists, info, rules)
+        built = model_chain(env.prog, pool, items, rules, maps, exceptions, windows, grids)
         if built.problems:
             bad = {i for i, _why in built.problems}
         else:
@@ -985,14 +1101,14 @@ def analyse_chain(env, pool, mod, start, lists, base, rules):
         for i in bad:
             info[i] = ('own',)
     equal = sum(1 for inf in info if inf[0] != 'own')
-    return dict(items=items, maps=maps, exceptions=exceptions, windows=windows, info=info, built=built, equal=equal, rules=rules,
+    return dict(items=items, maps=maps, exceptions=exceptions, windows=windows, grids=grids, info=info, built=built, equal=equal, rules=rules,
                 demoted=first - equal)
 
 
 def own_tiles_arcade(pool, lst):
     """True when every tile number of the list is an arcade tile (or blank) of the pool: such a list is text or a picture laid out from the
     arcade's tiles with no art record behind it."""
-    return all((t & 0x3fff) < len(pool.tiles) and pool.tiles[t & 0x3fff] is not None for t, _f in lst['cells'])
+    return all((t & 0x3fff) < len(pool.tiles) and pool.tiles[t & 0x3fff] is not None and not isinstance(pool.tiles[t & 0x3fff], WinTile) for t, _f in lst['cells'])
 
 
 def choose_pool(env, pools, mod, base, lists):
@@ -1023,6 +1139,61 @@ def choose_pool(env, pools, mod, base, lists):
     return None if arc is None else arc[1]
 
 
+def make_pool(env, table, tiles):
+    """The numbers of a segment of the screens table: its tiles' classes, with the pixels of its windows, and the frames a GRID list is cut from."""
+    pool = Pool(tiles, env.classes.cls, env.classes.zero_key, lambda i: env.window_pixels(table, i))
+    pool.canvas = env.record_canvas
+
+    def pixels(n):
+        t = tiles[n] if 0 <= n < len(tiles) else None
+        if t == 'zero':
+            return bytes(256)
+        if isinstance(t, WinTile):
+            return env.window_pixels(table, t.index)
+        if t is None:
+            return None
+        return flip_pixels(arcade_pixels(env.gfx[t[0] * 128:t[0] * 128 + 128]), t[1]) if (t[0] + 1) * 128 <= len(env.gfx) else None
+    pool.pixels = pixels
+    return pool
+
+
+def grid_source(env, pool, cells):
+    """(record address, bank, ox, oy, qx, qy, palette) when the list (cells [(number, flags, x, y)] of the disc) is an arcade frame cut on a 16-pixel grid and
+    the model's cut of that frame gives the same cells, numbers and flips; else None. The frame is found by the pixel values (pose_chains.Frames)."""
+    points = {}
+    for n, f, x, y in cells:
+        px = pool.pixels(n)
+        if px is None:
+            return None
+        t = flip_pixels(px, (f >> 5) & 3)
+        for i, v in enumerate(t):
+            if v:
+                points[(x + i % 16, y + i // 16)] = v
+    if len(points) < 200:
+        return None
+    pals = collections.Counter(f & 0x1f for _n, f, _x, _y in cells)
+    if len(pals) != 1:
+        return None
+    palette = pals.most_common(1)[0][0]
+    want = [(n, (f >> 5) & 3, x, y) for n, f, x, y in cells]
+    for address, bank, ox, oy in env.frames().find(points):
+        canvas = env.record_canvas(address, bank)
+        if canvas is None:
+            continue
+        moved = (canvas[0] + ox, canvas[1] + oy) + tuple(canvas[2:])
+        for qx, qy in dict.fromkeys(((0, 0), (ox % 16, oy % 16), (cells[0][2] % 16, cells[0][3] % 16))):
+            got = []
+            for x, y, t in grid_cells(moved, qx, qy):
+                r = pool.lookup_pixels(nibbles(t))
+                if r is None:
+                    break
+                got.append((r[0], r[1], x, y))
+            else:
+                if got == want:
+                    return address, bank, ox, oy, qx, qy, palette
+    return None
+
+
 def analyse_file(env, table, name, data):
     """The chains of one disc file: a list of dicts (see chain rows), or an error string. pools: the file's tile segments from the screens table."""
     kind = NAME_RE.match(name).group(1)
@@ -1037,7 +1208,7 @@ def analyse_file(env, table, name, data):
     if len(mods) != 1:
         return f'{len(mods)} module chunks'
     mod = data[mods[0]['offset']:mods[0]['offset'] + mods[0]['size']]
-    pools = [(t, s, o, k, tiles, Pool(tiles, env.classes.cls, env.classes.zero_key)) for t, s, o, k, tiles in table.segments(name)]
+    pools = [(t, s, o, k, tiles, make_pool(env, table, tiles)) for t, s, o, k, tiles in table.segments(name)]
     rows = []
     for start, lists in chains_of(mod):
         pb = position_base(mod, start, lists)
@@ -1080,7 +1251,7 @@ def descriptor_key(row):
 def line(name, rows):
     if isinstance(rows, str):
         return f'{name}: {rows}'
-    nl = rec = emp = own = win = 0
+    nl = rec = emp = own = win = grid = 0
     kinds = collections.Counter()
     for r in rows:
         nl += r['nlists']
@@ -1093,6 +1264,8 @@ def line(name, rows):
                 rec += 1
             elif inf[0] == 'win':
                 win += 1
+            elif inf[0] == 'grid':
+                grid += 1
             elif inf[0] == 'empty':
                 emp += 1
             else:
@@ -1105,7 +1278,7 @@ def line(name, rows):
     maps = sum(1 for r in built for it in r['items'] if it[0] in (REC, WIN) and it[4])
     bad = sum(1 for r in built if not r['sizes_ok'])
     demoted = sum(r['demoted'] for r in built)
-    s = (f'{name}: {len(rows)} chains ({len(built)} with records), {nl} lists: {rec} from records, {win} from scroll windows, {emp} empty, {own} own ({own_arc} of them in chains with a tile segment and only arcade tiles); positions {pos_known} of {pos} B built; '
+    s = (f'{name}: {len(rows)} chains ({len(built)} with records), {nl} lists: {rec} from records, {win} from scroll windows, {grid} cut from frames, {emp} empty, {own} own ({own_arc} of them in chains with a tile segment and only arcade tiles); positions {pos_known} of {pos} B built; '
          f'{maps} record runs with a palette map, {exc} palette exceptions')
     if kinds:
         s += '; chains left out: ' + ', '.join(f'{v} {k}' for k, v in sorted(kinds.items()))
@@ -1118,7 +1291,7 @@ def line(name, rows):
 
 def c_table(files, picture_offsets=None):
     """The text of screen_lists_table.c for {file name: rows}; picture_offsets {file name: offset of the backdrop's picture in its chunk}."""
-    items, wins, win_at, win_blocks = [], [], {}, []
+    items, wins, win_at, win_blocks, grids, grid_at = [], [], {}, [], [], {}
     excs, pals, pal_at, maps_c, chains, chain_at, uses = [], [], {}, [], [], {}, []
     for name, rows in sorted(files.items()):
         if isinstance(rows, str):
@@ -1151,6 +1324,12 @@ def c_table(files, picture_offsets=None):
                         win_blocks += [(rx, ry, b) for (rx, ry), b in w[6]]
                     it_c.append((WIN, 1, win_at[w], it[3], mp[k], 0, 0))
                     k += 1
+                elif it[0] == GRID:
+                    g = r['grids'][it[1]]
+                    if g not in grid_at:
+                        grid_at[g] = len(grids)
+                        grids.append(g)
+                    it_c.append((GRID, 1, grid_at[g], 0, 0, 0, 0))
                 elif it[0] == EMPTY:
                     it_c.append((EMPTY, it[1], 0, 0, 0, 0, 0))
                 else:
@@ -1171,13 +1350,16 @@ def c_table(files, picture_offsets=None):
            ' * PS1\'s own; per file where each chain lies in its module and which tile segment of the screens table it numbers into. Only addresses,',
            ' * counts, offsets and numbers of tiles: no byte of either game. */',
            '#include "screen_lists.h"', '']
-    out.append('/* {kind, count, address (REC) or window (WIN), bank, map (index + 1, 0: none), list bytes, stream bytes} */')
+    out.append('/* {kind, count, address (REC), window (WIN) or grid (GRID), bank, map (index + 1, 0: none), list bytes, stream bytes} */')
     out.append('const struct arcade_screen_lists_item arcade_screen_lists_items[] = {')
     for kind, count, a, bank, m, lb, sb in items:
         out.append(f'    {{{kind}, {count}u, {a:#x}u, {bank:#x}u, {m}u, {lb}u, {sb}u}},')
     out += ['};', '', '/* {x, y, first column, first row, columns, rows, first block, blocks}: the cell (i, j) of a window is at (x + 16 i, y + 16 j) */',
             'const struct arcade_screen_lists_window arcade_screen_lists_windows[] = {']
     out += [f'    {{{x}, {y}, {c}u, {r}u, {w}u, {h}u, {fb}u, {nb}u}},' for x, y, c, r, w, h, fb, nb in wins] or ['    {0, 0, 0u, 0u, 0u, 0u, 0u, 0u},']
+    out += ['};', '', '/* {record address, bank, origin x, origin y, grid phase x, grid phase y, palette}: a frame of the arcade cut on the 16-pixel grid (GRID items) */',
+            'const struct arcade_screen_lists_grid arcade_screen_lists_grids[] = {']
+    out += [f'    {{{a:#x}u, {bk:#x}u, {ox}, {oy}, {qx}u, {qy}u, {pl}u}},' for a, bk, ox, oy, qx, qy, pl in grids] or ['    {0u, 0u, 0, 0, 0u, 0u, 0u},']
     out += ['};', '', '/* {region column, region row, scroll 2 block} */', 'const struct arcade_screen_lists_win_block arcade_screen_lists_win_blocks[] = {']
     out += [f'    {{{rx}u, {ry}u, {b}u}},' for rx, ry, b in win_blocks] or ['    {0u, 0u, 0u},']
     out += ['};', '', '/* {list, cell, value}: a palette, or DROP, or OWN_TILE with flip bits, number and palette (screen_lists.h) */',
@@ -1208,6 +1390,7 @@ def c_table(files, picture_offsets=None):
     out += ['};', f'const unsigned arcade_screen_lists_backdrop_count = {len(bds)}u;',
             f'const unsigned arcade_screen_lists_item_count = {len(items)}u;',
             f'const unsigned arcade_screen_lists_window_count = {len(wins)}u;',
+            f'const unsigned arcade_screen_lists_grid_count = {len(grids)}u;',
             f'const unsigned arcade_screen_lists_win_block_count = {len(win_blocks)}u;',
             f'const unsigned arcade_screen_lists_map_count = {len(maps_c)}u;',
             f'const unsigned arcade_screen_lists_chain_count = {len(chains)}u;',

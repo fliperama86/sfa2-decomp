@@ -304,6 +304,16 @@ the new build (`--arcade-import`) keeps 5.62 MB of the disc's files where the on
 (NDEMO slot 0x11, 164 KB, the stage strips of the select backdrop), two continue segments that do not pack into the disc's room (CONT10, CONT10X, slot 0x13),
 the Japanese glyph tiles, the own cell lists.
 
+## Name plates (2026-10-24)
+
+After a fight the win screen shows a name plate: the winner's stage as a thumbnail with a ribbon beside it (`NDEMOnn.PAC`, table 0 slot 0x11: a map of 64 x 32
+cells, 32 palettes and one page of 8 x 8 units; the page and palettes are built by the screens table). The map is a window of the strips that the select screen's
+backdrop shows: 8 rows of the arcade's scroll 1 block sets, columns 0 to 6 from set 0, 7 to 31 from set 64 + the stage's number and 32 to 63 from set 84
+(`plates.py`, the model; `plates.c`, `plates_table.c`: each file's band). A cell's piece is looked up among the page's units; a piece that the page lacks (30 cells in
+4 files, 22 of them in Zangief's) is written into a free unit of the page (not named by a cell, blank) and served over it, so the plate shows the arcade's piece where
+the disc's map shows the PS1's own. 21 maps, 42,978 of 43,008 cells equal to the disc's, served owned (a pack keeps none; the chunk is not a code-pinned module).
+`arcade_compose_scroll1_cell` and `arcade_compose_piece` (compose.c) give the scroll 1 cells and pieces.
+
 ## What the game reads, in order
 
 A run of 150 seconds on 2026-10-23 (title, menus, a fight of Ryu against

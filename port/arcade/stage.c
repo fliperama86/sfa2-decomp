@@ -7,6 +7,7 @@
 #include "stage.h"
 #include "quarter.h"
 #include "stage_objects.h"
+#include "stage_steps.h"
 
 #define FIRST_PAGE 22u
 #define PAGE_BYTES 32768u
@@ -1325,6 +1326,8 @@ int arcade_stage_build(const uint8_t *program, size_t program_size, const uint8_
     if (arcade_stage_objects_build(program, program_size, tiles, tiles_size, s->objects, s->object_count, arcade_stage_shared, arcade_stage_shared_count,
                                    arcade_stage_objects_find(s->file), out->module.data, out->module.known, out->module.size, err, errsize))
         goto bad;                       /* the object grids of the module that equal the disc's (stage_objects.h) */
+    if (arcade_stage_steps_build(program, program_size, arcade_stage_steps_find(s->file), out->module.data, out->module.known, out->module.size, err, errsize))
+        goto bad;                       /* the animation steps that point at them (stage_steps.h) */
     for (e = 0; e < s->hole_count; e++) {
         for (k = 0; k < s->holes[e].count && s->holes[e].slot < 0x10000u; k++) {
             int64_t at = slot_place(s->holes[e].slot + k, 16, out->pages.size);

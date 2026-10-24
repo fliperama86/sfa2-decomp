@@ -107,7 +107,9 @@ class Encoder(unittest.TestCase):
     def test_layout_and_forms(self):
         rng = random.Random(2)
         a, b = distinct(rng), distinct(rng, 30)
-        tiles = [bytes(128), a, b, a]
+        again = bytearray(a)
+        again[10] ^= 0xff                                              # the tile again but for one word: references (an exact copy has no block, see below)
+        tiles = [bytes(128), a, b, bytes(again)]
         chunk, _ = pack(tiles)
         sizes = T.block_sizes(chunk)
         self.assertEqual(sizes[0], (16, 10))                           # the all-zero tile: a zero block of no words
@@ -122,10 +124,33 @@ class Encoder(unittest.TestCase):
         rng = random.Random(3)
         a = distinct(rng)
         filler = [distinct(rng) for _ in range(260)]                   # 260 literal blocks: more than 16,383 words
-        chunk, _ = pack([a] + filler + [a])
+        near = bytearray(a)
+        near[0] ^= 1                                                   # a near copy: not an exact one, which shares the first one's block at any distance
+        near = bytes(near)
+        chunk, _ = pack([a] + filler + [near])
         self.assertEqual(T.form_name(chunk, len(filler) + 1), 'lit')    # the first copy is out of reach
-        chunk, _ = pack([a] + filler[:200] + [a])
+        chunk, _ = pack([a] + filler[:200] + [near])
         self.assertEqual(T.form_name(chunk, 201), 'lz')                 # 200 blocks of 65 words: in reach
+
+    def test_an_exact_copy_of_an_earlier_tile_shares_its_block(self):
+        rng = random.Random(11)
+        a, b, c = distinct(rng), distinct(rng, 12), distinct(rng, 40)
+        tiles = [a, b, bytes(128), a, c, b, bytes(128), a, c]
+        chunk, err = pack(tiles)
+        self.assertIsNone(err)
+        offs = struct.unpack_from('<%dI' % len(tiles), chunk, 0)
+        self.assertEqual([offs[i] for i in (3, 7)], [offs[0]] * 2)                 # the copies of the first tile point at its block
+        self.assertEqual(offs[5], offs[1])
+        self.assertEqual(offs[6], offs[2])
+        self.assertEqual(offs[8], offs[4])
+        self.assertEqual(len(set(offs)), 4)
+        for i, t in enumerate(tiles):
+            self.assertEqual(unpack(chunk, i), (t, None), i)
+        no_copies, _ = pack([a, b, bytes(128), c])
+        self.assertEqual(len(chunk) - 4 * (len(tiles) - 4), len(no_copies))         # the copies cost their offsets and nothing else
+        # a chunk of copies fits a room that its distinct tiles alone need
+        chunk2, err2 = pack(tiles, room=len(no_copies) + 4 * (len(tiles) - 4))
+        self.assertIsNone(err2)
 
     def test_smaller_than_the_plain_optimal_parse_or_equal_on_a_family(self):
         rng = random.Random(4)

@@ -17,6 +17,8 @@ stage.c
 stages_table.c
 stage_objects.c
 stage_objects_table.c
+stage_steps.c
+stage_steps_table.c
 tilepack.c
 vag.c
 vag_table.c

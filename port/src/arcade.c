@@ -1716,7 +1716,7 @@ static unsigned full_sets(struct port_disc *d, int check)
         }
         done_rows++;
         printf("arcade%s: full animation sets: %s plays the %u steps, %u bytes of cell lists and %u sprite tiles of %s\n", check ? " check" : "",
-               s->file, s->step_count, s->lists_size, row.tile_count, s->source);
+               s->file, arcade_full_step_total(s), s->lists_size, row.tile_count, s->source);
         if (check) {
             free(row.module); free(row.changed); free(row.table);
             continue;
@@ -2346,10 +2346,8 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
     unsigned char raw[PORT_SECTOR];
     if (!enabled || !ex) { snprintf(err, size, "arcade: import: %s", ex ? "the arcade set is not open" : "out of memory"); free(ex); return -1; }
     find_code_spans(d);   /* the modules' functions: no byte of them goes into the pack */
-    for (i = 0; i <= file_count; i++) {   /* files in sector order, the sectors between them as raw extents */
-        unsigned first = i < file_count ? files[i].sector : total, count = i < file_count ? (files[i].size + PORT_DATA - 1u) / PORT_DATA : 0;
-        if (first > next) { ex[n].first = next; ex[n].count = first - next; ex[n].kind = 1; ex[n].file = ~0u; n++; }
-        if (i == file_count) break;
+    for (i = 0; i < file_count; i++) {   /* files in sector order; the sectors between them are the layout's (port.h), not the pack's */
+        unsigned first = files[i].sector, count = (files[i].size + PORT_DATA - 1u) / PORT_DATA;
         if (count && first >= next) {
             ex[n].first = first; ex[n].count = count; ex[n].file = i; ex[n].file_size = files[i].size;
             ex[n].kind = is_named(files[i].name, left_out) ? 9u : strstr(files[i].name, ".xa") ? 2u : is_named(files[i].name, raw_files) ? 1u : 0u;
@@ -2386,6 +2384,17 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
                 if (port_disc_raw(d, e->first + k, raw) != 0) { fclose(o); free(ex); snprintf(err, size, "arcade: import: cannot read sector %u", e->first + k); return -1; }
                 e->kept[k] = (unsigned char)stream_sector_kept((int)e->file, raw);
             }
+            {   /* the runs of sectors kept whole: the pack holds these and nothing else of the stream (the subheaders are the layout's) */
+                unsigned runs = 0, w = 0;
+                for (k = 0; k < e->count; k++) runs += e->kept[k] && (k == 0 || !e->kept[k - 1]);
+                if (!(e->spans = malloc((runs ? runs : 1) * sizeof *e->spans))) { fclose(o); free(ex); snprintf(err, size, "arcade: import: out of memory"); return -1; }
+                for (k = 0; k < e->count; k++) {
+                    if (!e->kept[k]) continue;
+                    if (w && e->spans[w - 1][0] + e->spans[w - 1][1] == k) e->spans[w - 1][1]++;
+                    else { e->spans[w][0] = k; e->spans[w][1] = 1; w++; }
+                }
+                e->nspans = w;
+            }
         }
     }
     {
@@ -2394,7 +2403,7 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
         k = 0;
         for (i = 0; i < n; i++) k += ex[i].kind != 9;
         at = 20ull + 2ull * nc + 64ull * k;
-        if (fwrite("SFA2PK02", 1, 8, o) != 8 || le_put(o, total, 4) || le_put(o, k, 4) || le_put(o, nc, 4)) goto bad;
+        if (fwrite("SFA2PK03", 1, 8, o) != 8 || le_put(o, total, 4) || le_put(o, k, 4) || le_put(o, nc, 4)) goto bad;
         for (i = 0; i < nc; i++)
             if (le_put(o, codes[i], 2)) goto bad;
     }
@@ -2404,8 +2413,8 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
         e->at = at;
         if (e->kind == 1) at += (unsigned long long)e->count * PORT_SECTOR;
         else if (e->kind == 2) {
-            at += e->count;
-            for (k = 0; k < e->count; k++) at += e->kept[k] ? PORT_SECTOR : 8u;
+            at += 8ull * e->nspans;
+            for (k = 0; k < e->count; k++) at += e->kept[k] ? PORT_SECTOR : 0u;
         }
         else {
             unsigned built_n = built_pairs((int)e->file, NULL), data_n;
@@ -2425,6 +2434,8 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
             built_n = built_pairs((int)e->file, NULL);
             data_n = e->nspans;
             built_digest((int)e->file, digest);
+        } else if (e->kind == 2) {
+            data_n = e->nspans;
         }
         if (le_put(o, e->first, 4) || le_put(o, e->count, 4) || le_put(o, e->kind, 4) || le_put(o, e->kind == 0 ? e->file_size : 0, 4) ||
             le_put(o, data_n, 4) || le_put(o, built_n, 4) || fwrite(digest, 1, 32, o) != 32 || le_put(o, e->at, 8)) goto bad;
@@ -2433,11 +2444,12 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
         struct extent *e = &ex[i];
         if (e->kind == 9) continue;
         if (e->kind == 2) {
-            if (fwrite(e->kept, 1, e->count, o) != e->count) goto bad;
+            for (k = 0; k < e->nspans; k++)
+                if (le_put(o, e->spans[k][0], 4) || le_put(o, e->spans[k][1], 4)) goto bad;
             for (k = 0; k < e->count; k++) {
-                if (port_disc_raw(d, e->first + k, raw) != 0) goto bad;
-                if (e->kept[k] ? fwrite(raw, 1, PORT_SECTOR, o) != PORT_SECTOR : fwrite(raw + 16, 1, 8, o) != 8) goto bad;
-                if (e->kept[k]) sectors_raw++;
+                if (!e->kept[k]) continue;
+                if (port_disc_raw(d, e->first + k, raw) != 0 || fwrite(raw, 1, PORT_SECTOR, o) != PORT_SECTOR) goto bad;
+                sectors_raw++;
             }
             continue;
         }

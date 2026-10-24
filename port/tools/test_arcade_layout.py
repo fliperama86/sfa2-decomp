@@ -3,10 +3,10 @@
 
 layout.py: the name rule, the stream model (the subheader of every sector from a count and 8 channel ends, and the ends back from the sectors), the
 refusal of a stream the model does not reproduce, the filler runs, and the table's text. The backend (tests/layout_test.c with the real disc.c, in a
-temporary folder, with the sanitizers): a made-up 40-sector disc and a made-up pack of it (raw extents full of junk, a file, a music stream with one
-sector kept whole, a file the pack leaves out). With the layout, find and list are the table's with no sector read (without it the same pack cannot list:
-it holds no volume descriptor), a sector outside the files is made from the layout whatever the pack's raw extents hold, a filler run has its own
-submode, a silent stream sector has the model's subheader (the pack's own is not read), a kept one stays the pack's, a sector of a left-out file is still
+temporary folder, with the sanitizers): a made-up 40-sector disc and a made-up pack of it in format 03 (a file, a music stream with one sector kept whole, a file the pack leaves out; no raw
+extent, no subheader). With the layout, find and list are the table's with no sector read (without it the same pack cannot list: it holds no volume
+descriptor), a sector outside the files is made from the layout (the pack cannot serve it without), a filler run has its own submode, a silent stream
+sector has the model's subheader, a kept one stays the pack's, a pack of format 02 is refused with a line, a sector of a left-out file is still
 refused, and a layout that is not the pack's disc (another length, a missing file, another size, overlapping files) is refused with a line.
 """
 import struct
@@ -28,23 +28,16 @@ SECTOR = 2352
 ENDS = [8, 9, 10, 11, 12, 3, 14, 15]            # the made-up stream's channel ends (the driver's table)
 
 
-def pack_bytes():
-    """A made-up pack of the 40-sector disc (the format is in port/src/disc.c)."""
+def pack_bytes(magic=b'SFA2PK03'):
+    """A made-up pack of the 40-sector disc (the format is in port/src/disc.c): a file, and a music stream with one sector kept whole. No raw
+    extents and no subheaders: the sectors outside the files and the silent stream sectors are the layout's."""
     pattern = bytes(i % 251 for i in range(5000))
-    raw_junk = bytes([0xab]) * SECTOR * 2
-    raw_fill = bytes([0x77]) * SECTOR * 3
-    kept = bytearray(16)
-    kept[4] = 1
-    stream = bytes(kept)
-    for i in range(16):
-        stream += bytes([0xcd]) * SECTOR if kept[i] else bytes([0xee]) * 8
+    stream = struct.pack('<II', 4, 1) + bytes([0xcd]) * SECTOR      # one run: sector 4 of the stream, kept whole
     parts = [
-        (0, 2, 1, 0, 0, 0, raw_junk),
         (2, 3, 0, 5000, 1, 0, struct.pack('<II', 0, 5000) + pattern),
-        (5, 16, 2, 0, 0, 0, stream),
-        (24, 3, 1, 0, 0, 0, raw_fill),
+        (5, 16, 2, 0, 1, 0, stream),
     ]
-    head = b'SFA2PK02' + struct.pack('<III', 40, len(parts), 0)
+    head = magic + struct.pack('<III', 40, len(parts), 0)
     at = len(head) + 64 * len(parts)
     table = b''
     for first, count, kind, size, rc, bc, data in parts:
@@ -135,14 +128,11 @@ class Backend(unittest.TestCase):
     def test_sectors_outside_the_files_are_made_from_the_layout(self):
         head = '00ffffffffffffffffffff00' + '000200' + '02'            # sync, the address of sector 0 (150), mode 2
         r = self.run_exe('raw', 0)
-        self.assertEqual(r.stdout.strip(), head + '00000800' + '00000800' + ' 0')   # a form 1 data sector of zeros, not the pack's junk
-        r = self.run_exe('raw', 0, layout=False)
-        self.assertEqual(r.stdout.strip(), 'ab' * 24 + ' %d' % (0xab * 2048))      # without it the junk of the pack's raw extent
+        self.assertEqual(r.stdout.strip(), head + '00000800' + '00000800' + ' 0')   # a form 1 data sector of zeros: the pack holds no raw extent
+        self.assertEqual(self.run_exe('raw', 0, layout=False).returncode, 1)         # without the layout the pack cannot serve it
         r = self.run_exe('raw', 24)                                      # a filler run: its own submode
         self.assertTrue(r.stdout.startswith('00ffffffffffffffffffff00' + '000224' + '02' + '00002000' + '00002000'), r.stdout)   # address 174 is 00:02:24
-        r = self.run_exe('raw', 30)                                      # in no extent, in no file: made
-        self.assertEqual(r.returncode, 0)
-        self.assertEqual(self.run_exe('raw', 30, layout=False).returncode, 1)   # the pack does not hold it
+        self.assertEqual(self.run_exe('raw', 30).returncode, 0)
         self.assertEqual(self.run_exe('raw', 40).returncode, 1)         # past the end
         self.assertEqual(self.run_exe('raw', 21).returncode, 1)         # a sector of a file the pack leaves out is still refused
 
@@ -152,13 +142,25 @@ class Backend(unittest.TestCase):
             r = self.run_exe('raw', 5 + i)
             self.assertEqual(r.stdout[32:48], want, (i, r.stdout))
             self.assertEqual(self.run_exe('sub', 5 + i).stdout.strip(), want)
-        r = self.run_exe('raw', 5)
-        self.assertEqual(r.stdout[32:48], '0100640101006401')
-        self.assertEqual(self.run_exe('raw', 5, layout=False).stdout[32:48], 'ee' * 8)   # the pack's own subheader when there is no layout
+        self.assertEqual(self.run_exe('raw', 5).stdout[32:48], '0100640101006401')
+        self.assertEqual(self.run_exe('raw', 5, layout=False).returncode, 1)         # the pack holds no subheader: it is not read without the layout
         r = self.run_exe('raw', 9)                                       # the sector the pack keeps whole stays the pack's
         self.assertEqual(r.stdout[:48], 'cd' * 24)
+        self.assertEqual(self.run_exe('raw', 9, layout=False).stdout[:48], 'cd' * 24)
         self.assertEqual(self.run_exe('sub', 4).returncode, 1)          # outside the stream
         self.assertEqual(self.run_exe('sub', 21).returncode, 1)
+
+    def test_a_pack_of_the_earlier_format_is_refused(self):
+        old = Path(self.dir.name) / 'old.pack'
+        old.write_bytes(pack_bytes(b'SFA2PK02'))
+        r = subprocess.run([str(self.exe), str(old), 'list'], capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 2)
+        self.assertIn('earlier format', r.stdout)
+        self.assertIn('--arcade-import', r.stdout)
+        junk = Path(self.dir.name) / 'junk.pack'
+        junk.write_bytes(b'not a pack at all, not at all')
+        r = subprocess.run([str(self.exe), str(junk), 'list'], capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 2)
 
     def test_file_bytes_come_from_the_pack(self):
         pattern = bytes(i % 251 for i in range(5000))

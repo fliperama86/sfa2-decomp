@@ -3,26 +3,32 @@
 
 What it does. On the PS1, a fighter's module against another fighter holds a cut animation set (Zangief's PL10.PAC and PL10X.PAC: 890 steps,
 272 cell lists); the mirror module PL16.PAC (both players Zangief) holds a fuller one (993 steps, 376 lists) and runs the same code. The
-runtime writes PL16's set into PL10's and PL10X's module chunk (full_sets.c; the contract is full_sets.h). This tool finds, for each pair in
-TARGETS, every number that code needs, from the bytes of the disc and the other generated tables, and fails loudly where the data is not what
-the rules below expect:
+same goes for Gen: PL11, PL11X, PL13 and PL13X hold two blocks of steps (1849 steps, 351 lists), the mirror module PL17.PAC two fuller ones
+(2095 steps, 613 lists). The runtime writes the mirror module's set into the module chunk (full_sets.c; the contract is full_sets.h). This
+tool finds, for each pair in TARGETS, every number that code needs, from the bytes of the disc and the other generated tables, and fails
+loudly where the data is not what the rules below expect:
 
   Blocks. Each module's blocks are found by their structure (the chain of cell lists after the code, the position runs in front of it, the
-          step run after the lists, the pointer table after the steps and the frame records after that), as module_data.py does. The source's
-          blocks are checked against port/arcade/fighters_table.c's and sequences_table.c's rows of the source (they must agree).
-  Frames. The frame records of the target and of the source are byte for byte the same, and so is every word of the data after them, except:
-          the module addresses (which differ by where each module's blocks lie), 16 zero bytes more in the source, and the words below.
+          step run after the lists, the pointer table after the steps and the frame records after that, and, when valid steps follow the
+          frame records, a second block of steps with its own table and frame records), as module_data.py does. The source's blocks are
+          checked against port/arcade/fighters_table.c's and sequences_table.c's rows of the source (they must agree).
+  Frames. The frame records of the target and of the source are the same up to the source's count, except the records the C overwrites
+          (Gen's differ in one record); the target has the same number or more (its extra records are the PS1's own and
+          no step of the source uses them).
   Table.  The target's step table entry i is the source's entry i + d. Each target sequence (its steps from the entry up to the step with flags
           bit 15, at most 200) is, for the mapped source sequence, the same in duration, flags and frame field ("same"), or its frames (the
           non-jump steps' frame numbers) are a subsequence of the source's ("sub": the source has steps more), or it is one of the EXCEPTIONS (a
           fuller variant of the same sequence that is neither: the sequence differs in a step or two, as the owner established). The offset d is
           the one that gives the fewest runs (dynamic programming over the entries, preferring "same"); the runs are the stretches of constant
           d. Every entry must map; the exceptions must be exactly the entries that do not map by content; two entries never share a source entry.
-  Outside steps. 11 steps of the target (and of the source) lie in the data after the frames, outside the step block: the only words there
-          that differ and are not module addresses. Each is the list offset (word 1) of a 12-byte step whose other words are equal, and a
-          list offset of the module's own lists; found by a word-aligned diff of the two regions.
-  Place. The source's position runs go at the target's position runs (where its code reads them), the source's steps right after them,
-          rounded up to 4, and must end before the target's step table.
+  Outside steps. Steps of the target (and of the source) lie in the data after the frames, outside the step blocks, each with a list offset
+          of the module's own lists (word 1). Zangief's 11 are found by a word-aligned diff of the data after the frames (the only words there
+          that differ and are not module addresses). Gen's 8 are found by their form (a hold of 4095 ticks with flags 0x8000, no loop or
+          frame) in the data after the step blocks and paired in order; each pair's lists have the same size.
+  Place. The source's position runs go at the target's position runs (where its code reads them); the steps of each block go into the
+          room the module has free: the room after the position runs up to the first step table (where the target's cell lists and first
+          step block were, which the full set moves or replaces), and the room of the target's other step blocks, first fit by size.
+          No written region may overlap another (the C checks it).
 
 Inputs: the disc image (--disc, raw 2352-byte sectors) and the arcade set's ZIP (--arcade, accepted for the same command line as the folder's
 other tools; this tool does not read it). The repository's two generated tables (fighters_table.c, sequences_table.c) are read. It writes
@@ -35,7 +41,7 @@ full_sets_table.c and tests/full_sets_test.c into a temporary folder, runs the C
 LISTS_ADDRESS) and checks the result by resolution: for every target table entry it walks the steps in the output chunk and the mapped
 entry's steps in the source, step by step (duration, flags, loop/frame field equal, the cell list read in the placed lists equal to the
 source's), checks the outside steps resolve the same way and that the bytes the C wrote are exactly the ones the model says, then prints one
-line per row; it ends with exit status 0 when every row is equal. A report on the other mirror pairs (OTHERS: Sakura and Gen) is printed with
+line per row; it ends with exit status 0 when every row is equal. A report on the other mirror pairs (OTHERS: Sakura) is printed with
 either option, as a finding only: no row is made for them.
 """
 import argparse
@@ -58,11 +64,20 @@ import module_data as M     # noqa: E402  read only: the generated tables' parse
 import sequences as S       # noqa: E402  read only: the step finder
 import pac                  # noqa: E402  read only: the chunk table
 
-TARGETS = [("PL10.PAC", "PL16.PAC"), ("PL10X.PAC", "PL16.PAC")]
-OTHERS = [("PL0D.PAC", "PL15.PAC"), ("PL0DX.PAC", "PL15.PAC"),     # Sakura
-          ("PL11.PAC", "PL17.PAC"), ("PL11X.PAC", "PL17.PAC"), ("PL13.PAC", "PL17.PAC"), ("PL13X.PAC", "PL17.PAC")]   # Gen
-KIND = 0x10                         # the player kind that loads the targets (Zangief)
-EXCEPTIONS = (34, 37, 38, 66, 102, 119)   # target entries that are fuller variants, not sequences the source's has with extra steps
+TARGETS = [("PL10.PAC", "PL16.PAC"), ("PL10X.PAC", "PL16.PAC"),                                      # Zangief
+           ("PL11.PAC", "PL17.PAC"), ("PL11X.PAC", "PL17.PAC"), ("PL13.PAC", "PL17.PAC"), ("PL13X.PAC", "PL17.PAC")]   # Gen
+OTHERS = [("PL0D.PAC", "PL15.PAC"), ("PL0DX.PAC", "PL15.PAC")]     # Sakura
+KINDS = {"PL10": 0x10, "PL11": 0x11, "PL13": 0x13}   # the player kind that loads the target (its file is entry 2 * kind or 2 * kind + 1)
+FAMILY = {"PL13": "PL11"}           # PL13 is Gen's other version: its module is PL11's byte for byte
+# Per fighter, per block of steps: the target table entries that are fuller variants, not sequences the source's has with extra steps.
+# Zangief's: one block. Gen's: the first block (PL11's entries 36 and 38 are shorter variants of the same arcade sequences, and 56, 57, 61 and 64
+# have other frames in the middle) and the second (the same kinds of variants, and entries that point into the first block's steps in the PS1,
+# where the arcade has sequences of its own).
+EXCEPTIONS = {"PL10": [(34, 37, 38, 66, 102, 119)],
+              "PL11": [(36, 38, 56, 57, 61, 64),
+                       (2, 3, 30, 31, 32, 34, 36, 38, 63, 64, 188, 191, 195, 196, 197, 227, 230, 234, 235)]}
+# How the steps outside the blocks are found: 'diff' (the words after the frames differ) or 'holds' (steps of the form of a hold)
+OUTSIDE = {"PL10": "diff", "PL11": "holds"}
 LISTS_ADDRESS = 0x80200000          # where --compare-c places the source's cell lists
 TILES_ADDRESS = 0x80206000          # ... and the source's whole sprite chunk
 TILES_BASE = {4: 0x80010000, 5: 0x8007f200}   # where the code of the first-side and second-side module reads its sprite chunk (the second is a placeholder)
@@ -92,9 +107,39 @@ def round4(n):
     return (n + 3) & ~3
 
 
+def pointing_table(mod, load, at, blocks):
+    """The module offsets of the pointer table at `at`: words that point to a step of one of `blocks` (dicts with 'steps' (start, count)),
+    up to the first word that does not."""
+    out, o = [], at
+    while o + 4 <= len(mod):
+        v = u32(mod, o) - load
+        if not any(b0 <= v < b0 + STEP * n and (v - b0) % STEP == 0 for b0, n in (b['steps'] for b in blocks)):
+            break
+        out.append(v)
+        o += 4
+    return out
+
+
+def next_block(mod, load, blocks, list_size):
+    """The block of steps that follows the frame records of the last of `blocks` (a run of steps, a pointer table after it and its frame
+    records), or None. A few frame records may lie unused between the two."""
+    fstart, fcount = blocks[-1]['frames']
+    for gap in range(9):
+        at, steps = S.run_of_steps(mod, fstart + FRAME * (fcount + gap), list_size)
+        if len(steps) < S.MIN_RUN:
+            continue
+        end = at + STEP * len(steps)
+        table = pointing_table(mod, load, end, blocks + [dict(steps=(at, len(steps)))])
+        if table:
+            return dict(steps=(at, len(steps)), table=(end, len(table)), frames=(end + 4 * len(table), max(p['fi'] for p in steps) + 1), step_list=steps)
+    return None
+
+
 def find_blocks(mod, load):
     """The blocks of a fighter module found by structure: dict(positions (start of the runs, where the code ends), lists (start, end, count),
-    steps (start, count), table (start, entries), frames (start, count), step list (the dicts of sequences.step_at)); Fail when not found."""
+    steps (start, count), table (start, entries), frames (start, count), step list (the dicts of sequences.step_at), blocks (a list of
+    dicts(steps, table, frames, step_list), the first one the one above and, when steps follow its frame records, the later ones)); Fail when
+    not found."""
     ce = F.code_end(mod)
     if ce is None:
         raise Fail('no code end')
@@ -111,13 +156,20 @@ def find_blocks(mod, load):
         raise Fail('no step table')
     fb = st + STEP * len(steps) + 4 * len(table)
     frames = max(p['fi'] for p in steps) + 1
-    return dict(positions=ce, positions_end=min(l0, ce + lists[-1]['pos']), lists=(l0, lend, len(lists)), steps=(st, len(steps)),
-                table=(st + STEP * len(steps), len(table)), frames=(fb, frames), step_list=steps)
+    first = dict(steps=(st, len(steps)), table=(st + STEP * len(steps), len(table)), frames=(fb, frames), step_list=steps)
+    blocks = [first]
+    while True:
+        more = next_block(mod, load, blocks, lend - l0)
+        if more is None:
+            break
+        blocks.append(more)
+    return dict(positions=ce, positions_end=min(l0, ce + lists[-1]['pos']), lists=(l0, lend, len(lists)), steps=first['steps'], table=first['table'],
+                frames=first['frames'], step_list=steps, blocks=blocks)
 
 
-def table_offsets(mod, load, blocks):
-    """The module offsets of the steps the step table's entries point to."""
-    t, n = blocks['table']
+def table_offsets(mod, load, block):
+    """The module offsets of the steps the step table of `block` (or of the dict find_blocks returns, for its first block) points to."""
+    t, n = block['table']
     return [u32(mod, t + 4 * i) - load for i in range(n)]
 
 
@@ -264,64 +316,149 @@ def outside_steps(tmod, tload, tstart, tlists_size, smod, sload, sstart, slists_
     return out, extra
 
 
-def pointers_into(mod, load, start, lo, hi):
-    """Module addresses among the words from `start` that point into the module offsets [lo, hi)."""
-    return [start + 4 * k for k, w in enumerate(tail_words(mod, start)) if load + lo <= w < load + hi]
+def pointers_into(mod, load, start, lo, hi, skip=()):
+    """Module addresses among the words from `start` that point into the module offsets [lo, hi), but for the words that lie in a range of
+    `skip` ((start, end) module offsets)."""
+    return [start + 4 * k for k, w in enumerate(tail_words(mod, start))
+            if load + lo <= w < load + hi and not any(a <= start + 4 * k < b for a, b in skip)]
+
+
+def list_extent(mod, lists, off):
+    """The size in bytes of the cell list the list offset word `off` names (lists: the module offset of the lists block), or None."""
+    lst = F.parse_list(mod, lists + (off & ~1))
+    return None if lst is None else lst['end'] - (lists + (off & ~1))
+
+
+def hold_steps(mod, lists, lists_size, skip):
+    """[(module offset, list offset word)] of the steps of the form of a hold (4095 ticks, flags 0x8000, no loop or frame) whose list offset
+    names a cell list of the module's lists, at 4-aligned offsets outside the ranges `skip` ((start, end))."""
+    out = []
+    for o in range(0, len(mod) - STEP + 1, 4):
+        if any(a <= o < b for a, b in skip):
+            continue
+        dur, fl, ptr, fr = struct.unpack_from('<HHII', mod, o)
+        if dur == 4095 and fl == JUMP and fr == 0 and (ptr & ~1) < lists_size and list_extent(mod, lists, ptr) is not None:
+            out.append((o, ptr))
+    return out
+
+
+def outside_holds(tmod, tlists, tlists_size, tskip, smod, slists, slists_size, sskip):
+    """[(target offset, source offset)] of the hold steps outside the step blocks, paired in order. Fail when the numbers differ or a pair's
+    lists are not of the same size."""
+    t, s = hold_steps(tmod, tlists, tlists_size, tskip), hold_steps(smod, slists, slists_size, sskip)
+    if len(t) != len(s) or not t:
+        raise Fail(f'{len(t)} steps of the form of a hold outside the blocks in the target, {len(s)} in the source')
+    for (to, tp), (so, sp) in zip(t, s):
+        if list_extent(tmod, tlists, tp) != list_extent(smod, slists, sp):
+            raise Fail(f'the hold steps at target offset {to:#x} and source offset {so:#x} name lists of another size')
+    return [(to, so) for (to, _tp), (so, _sp) in zip(t, s)]
+
+
+def place_blocks(sizes, regions):
+    """[start of each block] for blocks of the given sizes in bytes, put first fit in decreasing size into the free `regions` ((start, end)),
+    each block at the region's next free 4-aligned address. Fail when one does not fit."""
+    free = [[a, b] for a, b in regions]
+    out = [None] * len(sizes)
+    for k in sorted(range(len(sizes)), key=lambda k: (-sizes[k], k)):
+        for r in free:
+            at = round4(r[0])
+            if at + sizes[k] <= r[1]:
+                out[k] = at
+                r[0] = at + sizes[k]
+                break
+        else:
+            raise Fail(f'a block of {sizes[k]} bytes does not fit in the free room {regions}')
+    return out
 
 
 def plan(target, source, ftable, stable):
     """The table row of a pair (dict) and the facts for the report. `target` and `source` are dicts(name, mod, load, slot, tiles_slot);
     ftable/stable the parsed fighters_table.c and sequences_table.c. Fail when the data is not what the rules expect."""
     tb, sb = find_blocks(target['mod'], target['load']), find_blocks(source['mod'], source['load'])
+    fam = family(target['name'])
     fr, sq = ftable.get(source['name']), stable.get(source['name'])
     if not fr or not sq:
         raise Fail(f"{source['name']} is not in fighters_table.c and sequences_table.c")
     sp_start, sp_size = fr['positions'], fr['positions_room']
     sl_start, sl_size = fr['lists'], fr['lists_room']
-    found = dict(positions=(sb['positions'], sb['positions_end'] - sb['positions']), lists=(sb['lists'][0], sb['lists'][1] - sb['lists'][0]),
-                 steps=(sb['steps'][0], sb['steps'][1]), table=sb['table'][1])
-    given = dict(positions=(sp_start, sp_size), lists=(sl_start, sl_size), steps=(sq['steps'], sq['step_count']), table=sq['table_entries'])
-    if found != given or not fr['same_chunk'] or sq['load'] != source['load'] or sq['frames'] != sb['frames'][0]:
-        raise Fail(f"{source['name']}: the blocks found {found} are not the generated tables' {given}")
-    s_steps, s_count = sb['steps']
-    t_steps_old, t_count_old = tb['steps']
-    # frames: the same records
+    srows = [sq] + sq.get('more', [])
+    found = dict(positions=sb['positions'], lists=(sb['lists'][0], sb['lists'][1] - sb['lists'][0]),
+                 blocks=[(b['steps'], b['table'][1], b['frames'][0]) for b in sb['blocks']])
+    given = dict(positions=sp_start, lists=(sl_start, sl_size),
+                 blocks=[((r['steps'], r['step_count']), r['table_entries'], r['frames']) for r in srows])
+    # the position runs end at the last stream the last list names (the structure's end of them) or later, before the lists
+    if found != given or not fr['same_chunk'] or any(r['load'] != source['load'] for r in srows) or \
+            not sb['positions_end'] - sb['positions'] <= sp_size <= sb['lists'][0] - sb['positions']:
+        raise Fail(f"{source['name']}: the blocks found {found} (positions end {sb['positions_end']:#x}) are not the generated tables' {given} "
+                   f"(positions room {sp_size})")
+    if len(tb['blocks']) != len(sb['blocks']):
+        raise Fail(f"{target['name']} has {len(tb['blocks'])} blocks of steps, {source['name']} {len(sb['blocks'])}")
+    exceptions = EXCEPTIONS.get(fam)
+    if exceptions is None or len(exceptions) != len(tb['blocks']):
+        raise Fail(f'{fam}: no exceptions listed for its {len(tb["blocks"])} blocks')
+    blocks, rels_all, mappings = [], [], []
+    for k, (tk, sk) in enumerate(zip(tb['blocks'], sb['blocks'])):
+        # frames: the source's records over the target's where they differ; the target has no fewer records
+        tf, nf = tk['frames']
+        sf, nsf = sk['frames']
+        if nf < nsf:
+            raise Fail(f'block {k}: the target has {nf} frame records, the source {nsf}')
+        differing = [i for i in range(nsf) if target['mod'][tf + FRAME * i:tf + FRAME * (i + 1)] != source['mod'][sf + FRAME * i:sf + FRAME * (i + 1)]]
+        copy = differing[-1] + 1 if differing else 0
+        # sequences
+        tt, st = table_offsets(target['mod'], target['load'], tk), table_offsets(source['mod'], source['load'], sk)
+        tseq = [walk(target['mod'], o) for o in tt]
+        sseq = [walk(source['mod'], o) for o in st]
+        js, rels = map_entries(tseq, sseq, exceptions=exceptions[k])
+        rels_all.append(rels)
+        mappings.append(js)
+        blocks.append(dict(source_steps=sk['steps'][0], step_count=sk['steps'][1], source_table_entries=sk['table'][1], steps=None, table=tk['table'][0],
+                           table_entries=tk['table'][1], source_frames=sf if copy else 0, frames=tf if copy else 0, frame_count=copy, runs=to_runs(js)))
+    # outside steps
+    method = OUTSIDE[fam]
+    t_all = [(b['steps'][0], b['steps'][0] + STEP * b['steps'][1]) for b in tb['blocks']]
+    s_all = [(b['steps'][0], b['steps'][0] + STEP * b['steps'][1]) for b in sb['blocks']]
     tf, nf = tb['frames']
     sf, nsf = sb['frames']
-    if nf != nsf or target['mod'][tf:tf + FRAME * nf] != source['mod'][sf:sf + FRAME * nf]:
-        raise Fail('the frame records of the target and the source are not the same')
-    # sequences
-    tt, st = table_offsets(target['mod'], target['load'], tb), table_offsets(source['mod'], source['load'], sb)
-    tseq = [walk(target['mod'], o) for o in tt]
-    sseq = [walk(source['mod'], o) for o in st]
-    js, rels = map_entries(tseq, sseq)
-    runs = to_runs(js)
-    # outside steps
-    outside, extra = outside_steps(target['mod'], target['load'], tf + FRAME * nf, tb['lists'][1] - tb['lists'][0],
-                                   source['mod'], source['load'], sf + FRAME * nf, sb['lists'][1] - sb['lists'][0])
-    # the place
+    if method == 'diff':
+        outside, extra = outside_steps(target['mod'], target['load'], tf + FRAME * nf, tb['lists'][1] - tb['lists'][0],
+                                       source['mod'], source['load'], sf + FRAME * nsf, sb['lists'][1] - sb['lists'][0])
+    else:
+        outside = outside_holds(target['mod'], tb['lists'][0], tb['lists'][1] - tb['lists'][0], t_all,
+                                source['mod'], sb['lists'][0], sb['lists'][1] - sb['lists'][0], s_all)
+        extra = 0
+    # the place: the position runs where the target's code reads them; each block of steps in the free room
     positions = tb['positions']
-    steps = round4(positions + sp_size)
-    steps_end = steps + STEP * s_count
-    table = tb['table'][0]
-    if steps_end > table:
-        raise Fail(f'the source steps end at {steps_end:#x}, after the target step table at {table:#x}')
-    if positions + sp_size > steps:
-        raise Fail('the positions overlap the steps')
+    table0 = tb['blocks'][0]['table'][0]
+    room = [(positions + sp_size, table0)] + [(b['steps'][0], b['table'][0]) for b in tb['blocks'][1:]]
+    sizes = [STEP * b['step_count'] for b in blocks]
+    for b, at in zip(blocks, place_blocks(sizes, room)):
+        b['steps'] = at
+    if positions + sp_size > table0:
+        raise Fail('the positions overlap the first step table')
     lists = tb['lists'][0]
-    overwritten = pointers_into(target['mod'], target['load'], tf + FRAME * nf, positions, table)
+    rewritten = [(positions, table0)] + [(b['steps'][0], b['table'][0]) for b in tb['blocks'][1:]]
+    skip = [(b['table'][0], b['table'][0] + 4 * b['table'][1]) for b in tb['blocks']] + t_all[1:]
+    overwritten = []
+    for lo, hi in rewritten:
+        overwritten += pointers_into(target['mod'], target['load'], tf, lo, hi, skip)
     if overwritten:
-        raise Fail(f'module addresses in the data after the frames point into the rewritten range: {[hex(o) for o in overwritten]}')
+        raise Fail(f'module addresses in the data after the first frames point into the rewritten range: {[hex(o) for o in overwritten]}')
     if (target['load'] + lists) & 1:
         raise Fail('the target lists base is odd')
     row = dict(file=target['name'], source=source['name'], slot=target['slot'], source_slot=source['slot'], tiles_slot=target['tiles_slot'],
-               source_tiles_slot=source['tiles_slot'], kind=KIND, load=target['load'], source_load=source['load'],
-               source_positions=sp_start, positions_size=sp_size, source_lists=sl_start, lists_size=sl_size, source_steps=s_steps,
-               step_count=s_count, source_table_entries=sb['table'][1], positions=positions, lists=lists, steps=steps, table=table,
-               table_entries=tb['table'][1], runs=runs, outside=outside)
-    facts = dict(relations=rels, target_steps=t_count_old, target_lists=tb['lists'][2], source_lists=sb['lists'][2], steps_end=steps_end,
-                 positions_end=positions + sp_size, extra_zero_words=extra, mapping=js, target_blocks=tb, source_blocks=sb)
+               source_tiles_slot=source['tiles_slot'], kind=KINDS[target['name'].removesuffix('.PAC').removesuffix('X')], load=target['load'],
+               source_load=source['load'], source_positions=sp_start, positions_size=sp_size, source_lists=sl_start, lists_size=sl_size,
+               positions=positions, lists=lists, blocks=blocks, outside=outside)
+    facts = dict(relations=rels_all, mappings=mappings, target_steps=sum(b['steps'][1] for b in tb['blocks']), target_lists=tb['lists'][2],
+                 source_lists=sb['lists'][2], extra_zero_words=extra, target_blocks=tb, source_blocks=sb)
     return row, facts
+
+
+def family(name):
+    """The fighter of a target file: 'PL10' for PL10.PAC and PL10X.PAC, 'PL11' for the files of PL11 and of its twin PL13."""
+    f = name.removesuffix('.PAC').removesuffix('X')
+    return FAMILY.get(f, f)
 
 
 def stem(name):
@@ -331,15 +468,21 @@ def stem(name):
 def c_table(rows):
     """The text of port/arcade/full_sets_table.c."""
     lines = ['/* GENERATED by `python3 port/arcade/full_sets.py --disc DISC --arcade SET --c-table FILE` (FILE = port/arcade/full_sets_table.c); do not edit.',
-             ' * For each fighter module whose animation set the PS1 cut (Zangief\'s PL10 and PL10X), the numbers full_sets.c needs to write the',
-             " * fuller set of the mirror module (PL16) into it: the blocks of both modules (module offsets), the runs of the step table (target entries",
-             ' * first .. first + count - 1 are the source\'s entries source_first ..) and the steps outside the step block. Only offsets, counts and',
-             ' * indices: no byte of either game. */',
+             " * For each fighter module whose animation set the PS1 cut (Zangief's PL10 and PL10X, Gen's PL11, PL11X, PL13 and PL13X), the numbers",
+             " * full_sets.c needs to write the fuller set of the mirror module (PL16, PL17) into it: the blocks of both modules (module offsets), for each",
+             " * block of steps the runs of its step table (target entries first .. first + count - 1 are the source's entries source_first ..) and the",
+             ' * frame records to replace, and the steps outside the blocks. Only offsets, counts and indices: no byte of either game. */',
              '#include "full_sets.h"', '']
     for r in rows:
         s = stem(r['file'])
-        lines.append(f'static const struct arcade_full_run runs_{s}[] = {{')
-        lines += [f'    {{{a}u, {b}u, {c}u}},' for a, b, c in r['runs']]
+        for k, b in enumerate(r['blocks']):
+            lines.append(f'static const struct arcade_full_run runs_{s}_{k}[] = {{')
+            lines += [f'    {{{a}u, {n}u, {c}u}},' for a, n, c in b['runs']]
+            lines.append('};')
+        lines.append(f'static const struct arcade_full_block blocks_{s}[] = {{')
+        for k, b in enumerate(r['blocks']):
+            lines.append(f'    {{{b["source_steps"]:#x}u, {b["step_count"]}u, {b["source_table_entries"]}u, {b["steps"]:#x}u, {b["table"]:#x}u, '
+                         f'{b["table_entries"]}u, {b["source_frames"]:#x}u, {b["frames"]:#x}u, {b["frame_count"]}u, runs_{s}_{k}, {len(b["runs"])}u}},')
         lines.append('};')
         if r['outside']:
             lines.append(f'static const struct arcade_full_step outside_{s}[] = {{')
@@ -352,44 +495,72 @@ def c_table(rows):
         out = f'outside_{s}, {len(r["outside"])}u' if r['outside'] else 'NULL, 0u'
         lines.append(f'    {{"{r["file"]}", "{r["source"]}", {r["slot"]}u, {r["source_slot"]}u, {r["tiles_slot"]}u, {r["source_tiles_slot"]}u, {r["kind"]:#x}u, '
                      f'{r["load"]:#x}u, {r["source_load"]:#x}u, {r["source_positions"]:#x}u, {r["positions_size"]}u, {r["source_lists"]:#x}u, '
-                     f'{r["lists_size"]}u, {r["source_steps"]:#x}u, {r["step_count"]}u, {r["source_table_entries"]}u, {r["positions"]:#x}u, '
-                     f'{r["lists"]:#x}u, {r["steps"]:#x}u, {r["table"]:#x}u, {r["table_entries"]}u, runs_{s}, {len(r["runs"])}u, {out}}},')
+                     f'{r["lists_size"]}u, {r["positions"]:#x}u, {r["lists"]:#x}u, blocks_{s}, {len(r["blocks"])}u, {out}}},')
     lines.append('};')
     lines.append('const unsigned arcade_full_set_count = sizeof arcade_full_sets / sizeof arcade_full_sets[0];')
     return '\n'.join(lines) + '\n'
 
 
 SPEC_FIELDS = ('slot', 'source_slot', 'tiles_slot', 'source_tiles_slot', 'kind', 'load', 'source_load', 'source_positions', 'positions_size',
-               'source_lists', 'lists_size', 'source_steps', 'step_count', 'source_table_entries', 'positions', 'lists', 'steps', 'table',
-               'table_entries')
+               'source_lists', 'lists_size', 'positions', 'lists')
+BLOCK_FIELDS = ('source_steps', 'step_count', 'source_table_entries', 'steps', 'table', 'table_entries', 'source_frames', 'frames', 'frame_count')
 
 
 def spec_text(r):
-    """A row in the text form tests/full_sets_test.c reads and prints: `file source` and the SPEC_FIELDS, the run and outside counts, a line per run
-    and per outside step."""
-    head = [r['file'], r['source']] + [str(r[k]) for k in SPEC_FIELDS] + [str(len(r['runs'])), str(len(r['outside']))]
-    return '\n'.join([' '.join(head)] + [' '.join(map(str, x)) for x in r['runs']] + [' '.join(map(str, x)) for x in r['outside']]) + '\n'
+    """A row in the text form tests/full_sets_test.c reads and prints: a line `file source` and the SPEC_FIELDS, the block and outside counts;
+    then for each block a line of the BLOCK_FIELDS and its run count with a line `first count source_first` per run; then a line
+    `target source` per outside step."""
+    lines = [' '.join([r['file'], r['source']] + [str(r[k]) for k in SPEC_FIELDS] + [str(len(r['blocks'])), str(len(r['outside']))])]
+    for b in r['blocks']:
+        lines.append(' '.join([str(b[k]) for k in BLOCK_FIELDS] + [str(len(b['runs']))]))
+        lines += [' '.join(map(str, x)) for x in b['runs']]
+    lines += [' '.join(map(str, x)) for x in r['outside']]
+    return '\n'.join(lines) + '\n'
+
+
+def parse_specs(text):
+    """The rows (dicts) of spec_text's text, one after another."""
+    lines = [l for l in text.split('\n') if l]
+    rows, i = [], 0
+    while i < len(lines):
+        h = lines[i].split()
+        r = dict(file=h[0], source=h[1])
+        r.update({k: int(v, 0) for k, v in zip(SPEC_FIELDS, h[2:2 + len(SPEC_FIELDS)])})
+        nb, no = int(h[2 + len(SPEC_FIELDS)]), int(h[3 + len(SPEC_FIELDS)])
+        i += 1
+        r['blocks'] = []
+        for _ in range(nb):
+            v = [int(x, 0) for x in lines[i].split()]
+            b = dict(zip(BLOCK_FIELDS, v))
+            i += 1
+            b['runs'] = [tuple(int(x, 0) for x in lines[i + k].split()) for k in range(v[len(BLOCK_FIELDS)])]
+            i += v[len(BLOCK_FIELDS)]
+            r['blocks'].append(b)
+        r['outside'] = [tuple(int(x, 0) for x in lines[i + k].split()) for k in range(no)]
+        i += no
+        rows.append(r)
+    return rows
 
 
 def parse_spec(text):
     """The row (dict) of spec_text's text."""
-    lines = text.split('\n')
-    h = lines[0].split()
-    r = dict(file=h[0], source=h[1])
-    r.update({k: int(v, 0) for k, v in zip(SPEC_FIELDS, h[2:2 + len(SPEC_FIELDS)])})
-    nr, no = int(h[2 + len(SPEC_FIELDS)]), int(h[3 + len(SPEC_FIELDS)])
-    r['runs'] = [tuple(int(x, 0) for x in lines[1 + k].split()) for k in range(nr)]
-    r['outside'] = [tuple(int(x, 0) for x in lines[1 + nr + k].split()) for k in range(no)]
-    return r
+    rows = parse_specs(text)
+    if len(rows) != 1:
+        raise Fail(f'{len(rows)} rows in a spec')
+    return rows[0]
 
 
 def expected_changed(r, size):
     """The mask (bytearray of 0/1 per byte) of the bytes arcade_full_build must write for the row."""
     m = bytearray(size)
-    for a, n in ((r['positions'], r['positions_size']), (r['steps'], STEP * r['step_count'])):
-        m[a:a + n] = b'\1' * n
-    for first, count, _src in r['runs']:
-        m[r['table'] + 4 * first:r['table'] + 4 * (first + count)] = b'\1' * (4 * count)
+    m[r['positions']:r['positions'] + r['positions_size']] = b'\1' * r['positions_size']
+    for b in r['blocks']:
+        n = STEP * b['step_count']
+        m[b['steps']:b['steps'] + n] = b'\1' * n
+        for first, count, _src in b['runs']:
+            m[b['table'] + 4 * first:b['table'] + 4 * (first + count)] = b'\1' * (4 * count)
+        n = FRAME * b['frame_count']
+        m[b['frames']:b['frames'] + n] = b'\1' * n
     for t, _s in r['outside']:
         m[t + 4:t + 8] = b'\1' * 4
     return m
@@ -420,37 +591,43 @@ def compare_row(r, module, source, out, changed, lists_address=LISTS_ADDRESS):
         problems.append('the bytes written are not the model\'s')
     if any(a != b for k, (a, b, c) in enumerate(zip(out, module, changed)) if not c and a != b):
         problems.append('a byte outside the written ones changed')
-    covered = [None] * r['table_entries']
-    for first, count, src in r['runs']:
-        for k in range(count):
-            covered[first + k] = src + k
-    counts = dict(entries=0, steps=0, lists=0, outside=0)
-    sblocks = dict(steps=r['source_steps'], table=r['source_steps'] + STEP * r['step_count'])
-    for i, j in enumerate(covered):
-        if j is None:
-            problems.append(f'entry {i} is in no run')
-            continue
-        try:
-            a = walk(out, u32(out, r['table'] + 4 * i) - load)
-            b = walk(source, u32(source, sblocks['table'] + 4 * j) - sload)
-        except Fail as e:
-            problems.append(f'entry {i}: {e}')
-            continue
-        counts['entries'] += 1
-        if len(a) != len(b):
-            problems.append(f'entry {i}: {len(a)} steps against {len(b)}')
-            continue
-        for k, (x, y) in enumerate(zip(a, b)):
-            if (x[0], x[1], x[3]) != (y[0], y[1], y[3]):
-                problems.append(f'entry {i} step {k}: duration, flags or loop/frame differ')
-                continue
+    if out[r['positions']:r['positions'] + r['positions_size']] != source[r['source_positions']:r['source_positions'] + r['positions_size']]:
+        problems.append('the position runs are not the source\'s')
+    counts = dict(entries=0, steps=0, lists=0, outside=0, frames=0)
+    for n, b in enumerate(r['blocks']):
+        covered = [None] * b['table_entries']
+        for first, count, src in b['runs']:
+            for k in range(count):
+                covered[first + k] = src + k
+        stable = b['source_steps'] + STEP * b['step_count']
+        for k in range(b['step_count']):    # every step written: the same but for the list offset, which names the same list
+            x, y = struct.unpack_from('<HHII', out, b['steps'] + STEP * k), struct.unpack_from('<HHII', source, b['source_steps'] + STEP * k)
             la = resolve_lists(out, load + r['lists'], x[2], placed, lists_address)
             lb = resolve_lists(source, r['source_lists'], y[2], None, 0)
-            if la is None or la != lb or (x[2] & 1) != (y[2] & 1):
-                problems.append(f'entry {i} step {k}: the cell list differs')
+            if (x[0], x[1], x[3]) != (y[0], y[1], y[3]) or la is None or la != lb or (x[2] & 1) != (y[2] & 1):
+                problems.append(f'block {n} step {k}: not the source\'s or its cell list differs')
+            else:
+                counts['steps'] += 1
+        for i, j in enumerate(covered):
+            if j is None:
+                problems.append(f'block {n} entry {i} is in no run')
                 continue
-            counts['steps'] += 1
-            counts['lists'] += 1
+            try:
+                a = walk(out, u32(out, b['table'] + 4 * i) - load)
+                c = walk(source, u32(source, stable + 4 * j) - sload)
+            except Fail as e:
+                problems.append(f'block {n} entry {i}: {e}')
+                continue
+            if len(a) != len(c) or any(x[:2] != y[:2] or x[3] != y[3] for x, y in zip(a, c)):
+                problems.append(f'block {n} entry {i}: not the source\'s sequence')
+                continue
+            counts['entries'] += 1
+            counts['lists'] += len(a)
+        if b['frame_count']:
+            if out[b['frames']:b['frames'] + FRAME * b['frame_count']] != source[b['source_frames']:b['source_frames'] + FRAME * b['frame_count']]:
+                problems.append(f'block {n}: the frame records are not the source\'s')
+            else:
+                counts['frames'] += b['frame_count']
     for t, s in r['outside']:
         x, y = struct.unpack_from('<HHII', out, t), struct.unpack_from('<HHII', source, s)
         la = resolve_lists(out, load + r['lists'], x[2], placed, lists_address)
@@ -507,13 +684,14 @@ def read_files(disc, names):
 
 
 def report_row(r, facts):
-    rel = facts['relations']
-    print(f"{r['file']} <- {r['source']}: {len(rel)} table entries ({rel.count('same')} same, {rel.count('sub')} subsequence, "
-          f"{rel.count('variant')} variant), runs {r['runs']}")
-    print(f"    target {facts['target_steps']} steps, {facts['target_lists']} lists; source {r['step_count']} steps, {facts['source_lists']} lists; "
-          f"positions {r['positions']:#x}..{facts['positions_end']:#x}, steps {r['steps']:#x}..{facts['steps_end']:#x}, table {r['table']:#x}; "
-          f"{len(r['outside'])} outside steps at {[hex(t) for t, _s in r['outside']]} (source {[hex(s) for _t, s in r['outside']]}); "
-          f"{facts['extra_zero_words']} zero words more in the source")
+    print(f"{r['file']} <- {r['source']}: {len(r['blocks'])} block(s) of steps, {len(r['outside'])} outside steps at {[hex(t) for t, _s in r['outside']]} "
+          f"(source {[hex(s) for _t, s in r['outside']]}); {facts['extra_zero_words']} zero words more in the source")
+    print(f"    target {facts['target_steps']} steps, {facts['target_lists']} lists; source {sum(b['step_count'] for b in r['blocks'])} steps, "
+          f"{facts['source_lists']} lists; positions {r['positions']:#x}..{r['positions'] + r['positions_size']:#x}")
+    for k, (b, rel) in enumerate(zip(r['blocks'], facts['relations'])):
+        print(f"    block {k}: {len(rel)} table entries ({rel.count('same')} same, {rel.count('sub')} subsequence, {rel.count('variant')} variant), "
+              f"runs {b['runs']}; {b['step_count']} steps at {b['steps']:#x}..{b['steps'] + STEP * b['step_count']:#x}, table {b['table']:#x}, "
+              f"{b['frame_count']} frame records replaced at {b['frames']:#x}")
 
 
 def report_other(files, ftable, stable):
@@ -528,7 +706,7 @@ def report_other(files, ftable, stable):
             continue
         tseq = [walk(t['mod'], o) for o in table_offsets(t['mod'], t['load'], tb)]
         sseq = [walk(s['mod'], o) for o in table_offsets(s['mod'], s['load'], sb)]
-        text = f'  {tn} <- {sn}: steps {tb["steps"][1]} / {sb["steps"][1]}, lists {tb["lists"][2]} / {sb["lists"][2]}, table entries {tb["table"][1]} / {sb["table"][1]}'
+        text = f'  {tn} <- {sn}: {len(tb["blocks"])} / {len(sb["blocks"])} blocks, first block steps {tb["steps"][1]} / {sb["steps"][1]}, lists {tb["lists"][2]} / {sb["lists"][2]}, table entries {tb["table"][1]} / {sb["table"][1]}'
         try:
             js, rels = map_entries(tseq, sseq, exceptions=(), unmatched_cost=50)
         except Fail as e:
@@ -566,13 +744,7 @@ def compare_c(rows, files, text, tmp):
     if not table_file.exists() or table_file.read_text() != text:
         status = 1
     exe = build_driver(tmp)
-    dumped = subprocess.run([exe, 'table'], check=True, capture_output=True, text=True, timeout=60).stdout.split('\n')
-    c_rows, k = [], 0
-    while k < len(dumped) and dumped[k]:
-        h = dumped[k].split()
-        n = int(h[-2]) + int(h[-1])
-        c_rows.append(parse_spec('\n'.join(dumped[k:k + 1 + n]) + '\n'))
-        k += 1 + n
+    c_rows = parse_specs(subprocess.run([exe, 'table'], check=True, capture_output=True, text=True, timeout=60).stdout)
     if len(c_rows) != len(rows):
         print(f'the C table has {len(c_rows)} rows, the tool derived {len(rows)}')
         return 1
@@ -592,8 +764,9 @@ def compare_c(rows, files, text, tmp):
             continue
         out, changed = Path(paths['out']).read_bytes(), Path(paths['changed']).read_bytes()
         counts, problems = compare_row(r, module, source, out, changed)
-        print(f"{r['file']}: {counts['entries']} of {r['table_entries']} entries, {counts['steps']} steps and cell lists, {counts['outside']} of "
-              f"{len(r['outside'])} outside steps resolve equal to {r['source']}; {sum(changed)} bytes written; "
+        print(f"{r['file']}: {counts['entries']} of {sum(b['table_entries'] for b in r['blocks'])} entries, {counts['steps']} steps (with their cell lists), "
+              f"{counts['frames']} frame records and {counts['outside']} of {len(r['outside'])} outside steps resolve equal to {r['source']}; "
+              f"{sum(changed)} bytes written; "
               + ('EQUAL' if not problems else f'{len(problems)} PROBLEMS: ' + '; '.join(problems[:5])))
         if problems:
             status = 1

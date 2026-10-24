@@ -20,6 +20,7 @@
 #define ARCADE_SCREEN_LISTS_EMPTY 1u
 #define ARCADE_SCREEN_LISTS_OWN 2u
 #define ARCADE_SCREEN_LISTS_WIN 3u
+#define ARCADE_SCREEN_LISTS_GRID 4u
 
 /* REC: `count` lists from the records one after another from `address` (art records of mode 0, 2, 4 or 10; the cells of the grids of mode 10 and
  * of the portraits of mode 4 that the PS1 leaves out of its lists are left out here too), tile codes plus `bank`, palettes through map `map`
@@ -33,6 +34,12 @@ struct arcade_screen_lists_item {
     uint16_t map;
     uint32_t list_bytes, stream_bytes;
 };
+
+/* GRID: one list cut from a frame of the arcade: the art record at `address` with `bank` added drawn (compose.h), moved by (ox, oy), cut into the 16 x 16
+ * windows of the grid x = qx + 16 k, y = qy + 16 j that have a pixel, in row order; each window is found in the segment by its pixels (one number a picture
+ * up to a flip), and the cells all take `palette`. The PS1 drew its poses and pictures this way: the tiles are not the arcade's but every pixel is (the
+ * screens table's WINDOW items build them). `address` of the item indexes arcade_screen_lists_grids. */
+struct arcade_screen_lists_grid { uint32_t address, bank; int16_t ox, oy; uint8_t qx, qy, palette; };
 
 /* A cell of a REC or WIN item's list that differs from what the rules give: the list's index in the chain, the cell's index in the PS1's order
  * (before the cells that are dropped) and the value: a palette (0 to 31) that the cell keeps against the map; or DROP (the cell is left out); or
@@ -70,16 +77,17 @@ struct arcade_screen_lists_use {
 
 extern const struct arcade_screen_lists_item arcade_screen_lists_items[];
 extern const struct arcade_screen_lists_window arcade_screen_lists_windows[];
+extern const struct arcade_screen_lists_grid arcade_screen_lists_grids[];
 extern const struct arcade_screen_lists_win_block arcade_screen_lists_win_blocks[];
 extern const struct arcade_screen_lists_exception arcade_screen_lists_exceptions[];
 extern const struct arcade_screen_lists_pal arcade_screen_lists_pals[];
 extern const struct arcade_screen_lists_map arcade_screen_lists_maps[];
 extern const struct arcade_screen_lists_chain arcade_screen_lists_chains[];
 extern const struct arcade_screen_lists_use arcade_screen_lists_uses[];
-extern const unsigned arcade_screen_lists_item_count, arcade_screen_lists_window_count, arcade_screen_lists_win_block_count, arcade_screen_lists_map_count, arcade_screen_lists_chain_count, arcade_screen_lists_use_count;
+extern const unsigned arcade_screen_lists_item_count, arcade_screen_lists_window_count, arcade_screen_lists_grid_count, arcade_screen_lists_win_block_count, arcade_screen_lists_map_count, arcade_screen_lists_chain_count, arcade_screen_lists_use_count;
 
 /* A tile of a segment, number k being pool[k]. kind 0: arcade tile `code` stored with `flip` (bit 0 across, bit 1 down); 1: a blank tile;
- * 2: not the arcade's (the PS1's own; never matched). */
+ * 2: not the arcade's (the PS1's own; never matched); 3: window `code` of the screens table (a tile cut from a frame of the arcade, matched by its pixels). */
 struct arcade_screen_lists_tile { uint32_t code; uint8_t flip, kind; };
 
 /* Everything a chain needs but the program and the graphics. */
@@ -89,6 +97,7 @@ struct arcade_screen_lists_spec {
     const struct arcade_screen_lists_item *items; unsigned item_count;
     const struct arcade_screen_lists_exception *exceptions; unsigned exception_count;
     const struct arcade_screen_lists_window *windows; unsigned window_count;
+    const struct arcade_screen_lists_grid *grids; unsigned grid_count;
     const struct arcade_screen_lists_win_block *win_blocks; unsigned win_block_count;
     const struct arcade_screen_lists_pal *pals;
     const struct arcade_screen_lists_map *maps; unsigned map_count;
