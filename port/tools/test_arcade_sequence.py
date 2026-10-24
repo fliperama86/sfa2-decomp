@@ -27,7 +27,7 @@ LOAD, STEPS = 0x801b0000, 0x400
 
 def row_of(**kw):
     row = dict(file='TEST.PAC', load=LOAD, steps=STEPS, frames=0x40, step_count=8, frame_count=6, table_entries=4, rules=[],
-               scale=(0, 0), groups=[(G1, 5)], runs=[(0, 0, 5)], own=[(5, 3)], tables=[], slices=[], frame_overrides=[])
+               scale=(0, 0), groups=[(G1, 5)], runs=[(0, 0, 5)], own=[(5, 3)], tables=[], slices=[], frame_overrides=[], block=0, aliases=[])
     row.update(kw)
     return row
 
@@ -40,6 +40,8 @@ def spec_text(row, offsets):
         out += [' '.join(map(str, x)) for x in row[key]]
     out.append(str(len(offsets)))
     out += [f'{a} {o}' for a, o in sorted(offsets.items())]
+    out.append(str(len(row['aliases'])))
+    out += [f'{a} {o}' for a, o in sorted(row['aliases'])]
     return '\n'.join(out) + '\n'
 
 
@@ -128,6 +130,19 @@ class SequenceC(unittest.TestCase):
         self.assertEqual(struct.unpack_from('<hhIhH', steps, 12 * 6)[4], 0)                  # an all-zero frame is number 0
         self.assertEqual(struct.unpack_from('<I', m['table'], 0)[0], LOAD + STEPS)          # entry 0: record 0, step 0
         self.assertEqual(m['table_built'], [1, 1, 1, 0, 1, 1])                               # slot 3 is in no slice: the PS1's own
+
+    def test_a_copy_of_an_art_record_has_the_originals_list(self):
+        data, offsets, row, recs = self.world()
+        arts = sorted(offsets)
+        # the art of the last record (no list in the world) is a copy of the second art
+        copy = ART + 2 * 5
+        row['aliases'] = [(copy, arts[1])]
+        m = self.same(data, row, offsets)
+        self.assertEqual(m['steps_built'][8], 1)                                         # step 8 is made from record 7, whose art is the copy
+        self.assertEqual(struct.unpack_from('<hhIhH', m['steps'], 12 * 8)[2], offsets[arts[1]])   # the copy has the original's list
+        row['aliases'] = [(copy, ART + 0x7777)]                                          # an original without a list: still not built
+        m = self.same(data, row, offsets)
+        self.assertEqual(m['steps_built'][8], 0)
 
     def test_frame_overrides_and_a_second_use_of_a_frame(self):
         data, offsets, row, recs = self.world()
@@ -334,9 +349,16 @@ class SequenceC(unittest.TestCase):
         self.assertEqual(text.count('runs_pl99[] = {'), 1)                  # identical arrays are written once
         self.assertEqual(text.count('own_pl99[] = {'), 1)
         self.assertIn('{"PL99X.PAC", 0x801c8000u, 0x400u, 0x40u, 8u, 6u, 4u, ARCADE_SEQUENCE_JUMP_WITHOUT_BIT15, 1u, 2u, groups_pl99, 1u, runs_pl99, 1u, '
-                      'own_pl99, 1u, tables_pl99, 1u, slices_pl99, 1u, frames_pl99, 1u},', text)
+                      'own_pl99, 1u, tables_pl99, 1u, slices_pl99, 1u, frames_pl99, 1u, NULL, 0u},', text)
         self.assertIn('{"PL98.PAC", 0x801b0000u, 0x400u, 0x40u, 8u, 6u, 4u, 0u, 0u, 0u, groups_pl99, 1u, runs_pl99, 1u, NULL, 0u,', text)
         self.assertIn('PL04.PAC: not in fighters_table.c: x', text)
+        # a second block of a file is a second row of its name, with arrays of its own
+        second = dict(row, block=1, steps=0x800, groups=[(0x2000, 5)], aliases=[(0x3000, 0x1000), (0x3010, 0x1010)])
+        text2 = Q.c_table([row, second], [])
+        self.assertIn('static const struct arcade_sequence_group groups_pl99_b[] = {', text2)
+        self.assertIn('static const struct arcade_sequence_alias aliases_pl99_b[] = {\n    {0x3000u, 0x1000u},\n    {0x3010u, 0x1010u},\n};', text2)
+        self.assertEqual(text2.count('{"PL99.PAC", '), 2)
+        self.assertIn('frames_pl99, 1u, aliases_pl99_b, 2u},', text2)
         self.assertNotIn(chr(0x2014), text)
 
 

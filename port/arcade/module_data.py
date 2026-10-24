@@ -119,11 +119,16 @@ def parse_fighters_table(text):
 
 
 def parse_sequences_table(text):
-    """{file: dict(load, steps, frames, step_count, frame_count, table_entries)} from port/arcade/sequences_table.c."""
+    """{file: dict(load, steps, frames, step_count, frame_count, table_entries)} from port/arcade/sequences_table.c; a file with a second block
+    of steps (a second row of its name) has the later rows in the list under 'more'."""
     out = {}
     for m in re.finditer(r'\{"(PL\w+\.PAC)",\s*(0x[0-9a-f]+)u,\s*(0x[0-9a-f]+)u,\s*(0x[0-9a-f]+)u,\s*(\d+)u,\s*(\d+)u,\s*(\d+)u', text):
-        out[m.group(1)] = dict(load=int(m.group(2), 16), steps=int(m.group(3), 16), frames=int(m.group(4), 16),
-                               step_count=int(m.group(5)), frame_count=int(m.group(6)), table_entries=int(m.group(7)))
+        row = dict(load=int(m.group(2), 16), steps=int(m.group(3), 16), frames=int(m.group(4), 16),
+                   step_count=int(m.group(5)), frame_count=int(m.group(6)), table_entries=int(m.group(7)))
+        if m.group(1) in out:
+            out[m.group(1)].setdefault('more', []).append(row)
+        else:
+            out[m.group(1)] = row
     return out
 
 
@@ -138,6 +143,10 @@ def spans_from_tables(fr, sq, size):
     out.append((sq['steps'], steps_end, 'steps'))
     out.append((steps_end, steps_end + 4 * sq['table_entries'], 'steptable'))
     out.append((sq['frames'], sq['frames'] + FRAME * sq['frame_count'], 'frames'))
+    for more in sq.get('more', ()):   # a second block of steps: its own steps, pointer table and frame records
+        end = more['steps'] + STEP * more['step_count']
+        out += [(more['steps'], end, 'steps'), (end, end + 4 * more['table_entries'], 'steptable'),
+                (more['frames'], more['frames'] + FRAME * more['frame_count'], 'frames')]
     out.sort()
     for (a, b, _c), (c, _d, _e) in zip(out, out[1:]):
         if b > c:

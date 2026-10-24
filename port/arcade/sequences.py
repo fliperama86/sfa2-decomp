@@ -488,6 +488,8 @@ def model_build(prog, offsets, row):
                 fl = scale_flags(fl) if scale_flags(fl) is not None else fl
             dp = offsets.get(rec['art'])
             if dp is None:
+                dp = offsets.get(dict(row.get('aliases', ())).get(rec['art']))
+            if dp is None:
                 continue
             lo = 0
             if rec['fl'] & JUMP:
@@ -540,14 +542,56 @@ def model_offsets(lists, segments, view, pads=None):
 
 # ---------------------------------------------------------------- the analysis of one file
 
-def analyse(mod, r, prog, view, load=0x801b0000, min_run=MIN_RUN):
+# A second block of steps that some modules keep after the frame records of the first: its own steps, pointer table and frame records (their
+# own numbering from 1), made from a second group of the arcade's sequence records. {character: module offset of the block's first step}.
+# Evidence (measured 2026-10-24): PL17's steps at 0x14010 (1146 of them) follow 16 zero bytes after the frames of the first block; all 1146
+# pair with the arcade's records from 0x1f97b0; the pointer table (272 entries) follows the steps and the 293 frame records follow the table.
+SECOND_BLOCKS = {'PL17': 0x14010}
+
+
+def second_block(name):
+    """The module offset of the second block of steps of a file ('PL17.PAC'), or None."""
+    return SECOND_BLOCKS.get(name.removesuffix('.PAC').removesuffix('X'))
+
+
+def find_aliases(view, amap, arc):
+    """{art record address: the address of a record that has the same cells and a list in amap} for the art records of the arcade's records `arc` that
+    amap lacks: the arcade keeps copies of some art records (another group's sequences point at the copy), and the PS1 gave the copy the list of the
+    original."""
+    key = lambda a: (lambda rec: None if rec is None else tuple((c[0], c[1], c[2], c[3]) for c in rec[1]))(read_any(view, a))
+    by_cells = {}
+    for a in sorted(amap):
+        k = key(a)
+        if k is not None:
+            by_cells.setdefault(k, a)
+    out = {}
+    for rec in arc:
+        art = rec['art']
+        if art not in amap and art not in out:
+            k = key(art)
+            if k is not None and k in by_cells:
+                out[art] = by_cells[k]
+    return out
+
+
+def run_of_steps(mod, at, lsize):
+    """(at, steps) of the steps that follow one another from `at` while they can be steps (valid_step)."""
+    out, o = [], at
+    while valid_step(mod, o, lsize):
+        out.append(step_at(mod, o))
+        o += STEP
+    return at, out
+
+
+def analyse(mod, r, prog, view, load=0x801b0000, min_run=MIN_RUN, block=None):
     """Everything the line and the detail need, as a dict. The key 'error' when the file cannot be read.
 
-    r is fighters.analyse's result for the module (lists, list base and end, segments)."""
+    r is fighters.analyse's result for the module (lists, list base and end, segments). block: the module offset of a second block of steps
+    (SECOND_BLOCKS), whose steps, table, frames and arcade group are analysed in place of the first block's."""
     amap = list_offsets(r, view)
     inverse = {v: k for k, v in amap.items()}
     lsize = r['listsend'] - r['lbase']
-    start, steps = find_steps(mod, r['listsend'], lsize, min_run)
+    start, steps = run_of_steps(mod, block, lsize) if block is not None else find_steps(mod, r['listsend'], lsize, min_run)
     if not steps:
         return dict(error='no step run after the lists')
     a0 = find_run(prog, steps, inverse)
@@ -562,6 +606,8 @@ def analyse(mod, r, prog, view, load=0x801b0000, min_run=MIN_RUN):
             break
         groups.append((nxt[0], len(nxt[1])))
         arc += nxt[1]
+    aliases = find_aliases(view, amap, arc)
+    amap = {**amap, **{art: amap[orig] for art, orig in aliases.items()}}
     pairs = pair_records(arc, steps, amap)
     # the frame table, from the frames of the paired steps; then the pairing again, with the PS1's frames as a key
     wanted = {}
@@ -656,7 +702,7 @@ def analyse(mod, r, prog, view, load=0x801b0000, min_run=MIN_RUN):
     tab_match = sum(n for _e, _s, n in slices)
     only_arc = [i for i in range(len(arc)) if i not in pi]
     only_ps1 = [j for j in range(len(steps)) if j not in pj]
-    return dict(start=start, steps=steps, a0=a0, groups=groups, arc=arc, pairs=pairs, exact=len(exact_steps), scaled=len(scaled_steps), counts=c, first=first,
+    return dict(start=start, aliases=sorted(aliases.items()), steps=steps, a0=a0, groups=groups, arc=arc, pairs=pairs, exact=len(exact_steps), scaled=len(scaled_steps), counts=c, first=first,
                 base=base, nframes=nframes, fr_exact=fr_exact, fr_diff=fr_diff, fr_own=nframes - len(set(ref) | {0}),
                 tables=[len(e) for _q, e in tabs], table_arcade=len(flat), table_ps1=len(mine), table_match=tab_match,
                 table_at=[(q, len(e)) for q, e in tabs], slices=slices,
@@ -664,7 +710,7 @@ def analyse(mod, r, prog, view, load=0x801b0000, min_run=MIN_RUN):
                 odd=sum(1 for p in steps if p['odd']))
 
 
-def make_row(name, side, r):
+def make_row(name, side, r, block=0):
     """(row for sequences_table.c, None) for a file's analysis r, else (None, why not).
 
     The runs are the paired records that follow one another in both lists. The frame overrides are the paired steps
@@ -695,7 +741,7 @@ def make_row(name, side, r):
             seen[conv] = got
     scaled = [i for i, j in pairs if arc[i]['fl'] != steps[j]['fl'] and scale_flags(arc[i]['fl']) == steps[j]['fl']]
     paired = {j for _i, j in pairs}
-    row = dict(file=name, load=LOAD[side], steps=r['start'], step_count=len(steps), frames=r['base'], frame_count=r['nframes'],
+    row = dict(file=name, block=block, aliases=r['aliases'], load=LOAD[side], steps=r['start'], step_count=len(steps), frames=r['base'], frame_count=r['nframes'],
                groups=r['groups'], rules=[JUMP_WITHOUT_BIT15] if r['quirks'] else [],
                scale=(min(scaled), max(scaled) - min(scaled) + 1) if scaled else (0, 0),
                runs=[tuple(x) for x in runs], own=spans([j for j in range(len(steps)) if j not in paired]),
@@ -779,7 +825,7 @@ def c_table(rows, omitted):
            " * (runs of records and steps), which steps the PS1 added itself (own spans, step indices only), the arcade's",
            ' * sequence tables, which PS1 table slots are which arcade table entries, the steps whose frame number is not the order of first use, the',
            ' * records whose flags the PS1 scaled, and the one rule flag. Only addresses, counts and indices: no byte of',
-           ' * either game.']
+           ' * either game. A file with a second block of steps has a second row of its name (its own steps, pointer table and frame records).']
     if omitted:
         out += [' *', ' * Left out:']
         out += [f' *   {name}: {why}' for name, why in omitted]
@@ -789,14 +835,15 @@ def c_table(rows, omitted):
              ('own', 'struct arcade_sequence_span', lambda x: f'{{{x[0]}u, {x[1]}u}}'),
              ('tables', 'struct arcade_sequence_table', lambda x: f'{{{x[0]:#x}u, {x[1]}u}}'),
              ('slices', 'struct arcade_sequence_slice', lambda x: f'{{{x[0]}u, {x[1]}u, {x[2]}u}}'),
-             ('frame_overrides', 'struct arcade_sequence_frame', lambda x: f'{{{x[0]}u, {x[1]}u}}'))
-    short = {'groups': 'groups', 'runs': 'runs', 'own': 'own', 'tables': 'tables', 'slices': 'slices', 'frame_overrides': 'frames'}
+             ('frame_overrides', 'struct arcade_sequence_frame', lambda x: f'{{{x[0]}u, {x[1]}u}}'),
+             ('aliases', 'struct arcade_sequence_alias', lambda x: f'{{{x[0]:#x}u, {x[1]:#x}u}}'))
+    short = {'groups': 'groups', 'runs': 'runs', 'own': 'own', 'tables': 'tables', 'slices': 'slices', 'frame_overrides': 'frames', 'aliases': 'aliases'}
     names = {}
     for key, ctype, fmt in kinds:
         for row in rows:
             data = tuple(tuple(x) for x in row[key])
             if data and (key, data) not in names:
-                names[(key, data)] = f'{short[key]}_{row["file"].removesuffix(".PAC").lower()}'
+                names[(key, data)] = f'{short[key]}_{row["file"].removesuffix(".PAC").lower()}{"_b" if row["block"] else ""}'
                 out.append(f'static const {ctype} {names[(key, data)]}[] = {{')
                 out += [f'    {fmt(x)},' for x in data]
                 out += ['};', '']
@@ -917,10 +964,26 @@ def main(argv=None):
                     print(f'{name}: {fr["error"]}')
                     continue
                 r = analyse(mod, fr, prog_be, view, LOAD[_side])
+                blocks = [(0, name, r)]
+                if second_block(name) is not None and 'error' not in r:
+                    blocks.append((1, name + ' (second block)', analyse(mod, fr, prog_be, view, LOAD[_side], block=second_block(name))))
                 if args.c_table or args.compare_c:
-                    found.append((name, _side, mod, fr, r))
+                    found += [(name, _side, mod, fr, rb, blk) for blk, _label, rb in blocks]
                     continue
-                print(line(name, r))
+                for blk, label, r in blocks:
+                    print(line(label, r))
+                    if 'error' not in r and blk:
+                        tot['steps'] += len(r['steps'])
+                        tot['exact'] += r['exact']
+                        tot['scaled'] += r['scaled']
+                        tot['tables'] += r['table_ps1']
+                        tot['tables equal'] += r['table_match']
+                        tot['frames'] += r['nframes']
+                        tot['frames exact'] += r['fr_exact']
+                        if args.detail:
+                            for d in details(label, r):
+                                print(d)
+                r = blocks[0][2]
                 if 'error' not in r:
                     tot['steps'] += len(r['steps'])
                     tot['exact'] += r['exact']
@@ -934,17 +997,17 @@ def main(argv=None):
                         print(d)
         if args.c_table or args.compare_c:
             rows, omitted, context = [], [], {}
-            for name, side, mod, fr, r in found:
+            for name, side, mod, fr, r, blk in found:
                 drow, why = F.descriptor(name, side, fr)
                 if drow is None:
                     omitted.append((name, f'not in fighters_table.c: {why}'))
                     continue
-                row, why = make_row(name, side, r)
+                row, why = make_row(name, side, r, blk)
                 if row is None:
-                    omitted.append((name, why))
+                    omitted.append((name + (' (second block)' if blk else ''), why))
                     continue
                 rows.append(row)
-                context[name] = (drow, mod)
+                context[(name, blk)] = (drow, mod)
             text = c_table(rows, omitted)
             if args.c_table:
                 sys.stdout.write(text)
@@ -971,9 +1034,9 @@ def compare_c(args, rows, context, text, prog_be, view, tmp):
     model_lists = {}
     tot = collections.Counter()
     for row in rows:
-        drow, mod = context[row['file']]
+        drow, mod = context[(row['file'], row['block'])]
         rules = drow['rules']
-        key = (tuple(drow['segments']), tuple(rules), tuple(drow['pads']), tuple(drow['extras']))
+        key = (tuple(drow['segments']), tuple(rules), tuple(drow['pads']), tuple(drow['extras']))   # the second block of a file shares its lists
         if key not in model_lists:
             pads = {k: n for k, n in drow['pads']}
             extras = {a: (more, stream) for a, more, stream in drow['extras']}
@@ -983,12 +1046,13 @@ def compare_c(args, rows, context, text, prog_be, view, tmp):
         model = model_build(prog_be, offsets, row)
         # the C's list offsets are sorted by record; the model's dict has the same content
         model['offsets'] = dict(sorted(offsets.items()))
-        got = run_c(exe, prog_path, row['file'], tmp)
+        label = row['file'] + ('#%d' % row['block'] if row['block'] else '')
+        got = run_c(exe, prog_path, label, tmp)
         if isinstance(got, str):
-            print(compare_line(row['file'], row, got, 0, model, mod))
+            print(compare_line(label, row, got, 0, model, mod))
             continue
         out, ms = got
-        print(compare_line(row['file'], row, out, ms, model, mod))
+        print(compare_line(label, row, out, ms, model, mod))
         for what, size, base in (('steps', STEP, row['steps']), ('frames', FRAME, row['frames']), ('table', 4, row['steps'] + STEP * row['step_count'])):
             n, eq = disc_equal(out[what + '_built'], out[what], mod, base, size)
             tot[what + ' built'] += n * size

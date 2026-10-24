@@ -80,6 +80,14 @@ const struct arcade_sequence *arcade_sequence_find(const char *file)
     return NULL;
 }
 
+const struct arcade_sequence *arcade_sequence_find_nth(const char *file, unsigned n)
+{
+    unsigned i;
+    for (i = 0; i < arcade_sequence_count; i++)
+        if (!strcmp(arcade_sequences[i].file, file) && !n--) return &arcade_sequences[i];
+    return NULL;
+}
+
 /* ---- list offsets from the fighter's output */
 
 /* The end of the list at offset o of the lists block, or 0 when it is not a list (the reader of the PS1 module's lists, as
@@ -435,7 +443,15 @@ int arcade_sequence_build(const uint8_t *program, size_t program_size, const str
             int32_t lo = 0;
             uint8_t *st;
             if (run->record + k >= s->scale_first && run->record + k < (unsigned)s->scale_first + s->scale_count) fl = scale_flags((uint16_t)fl);
-            if (!list_offset(lists, rec->art, &dp)) continue;
+            if (!list_offset(lists, rec->art, &dp)) {   /* a copy of an art record has the original's list */
+                unsigned lo2 = 0, hi2 = s->alias_count;
+                while (lo2 < hi2) {
+                    unsigned mid = (lo2 + hi2) / 2;
+                    if (s->aliases[mid].alias < rec->art) lo2 = mid + 1;
+                    else hi2 = mid;
+                }
+                if (lo2 == s->alias_count || s->aliases[lo2].alias != rec->art || !list_offset(lists, s->aliases[lo2].record, &dp)) continue;
+            }
             if (rec->flags & JUMP) {
                 long ti = rec->has_target ? record_index(recs, nrec, rec->target) : -1;
                 int64_t d;

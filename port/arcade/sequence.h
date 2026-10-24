@@ -54,6 +54,12 @@ struct arcade_sequence_frame {
     uint16_t step, number;
 };
 
+/* The arcade keeps a copy of some art records (a second group's sequences point at the copy), and the PS1 gave the copy the list of the
+ * original: the art record `alias` has the list of the art record `record`. */
+struct arcade_sequence_alias {
+    uint32_t alias, record;
+};
+
 struct arcade_sequence {
     const char *file;                   /* "PL00.PAC": the same files as arcade_fighters */
     uint32_t load;                      /* link address of the module (its pointers are load + module offset) */
@@ -74,13 +80,17 @@ struct arcade_sequence {
     unsigned slice_count;
     const struct arcade_sequence_frame *overrides;
     unsigned override_count;
+    const struct arcade_sequence_alias *aliases;   /* sorted by alias; NULL, 0 for most files */
+    unsigned alias_count;
 };
 
 extern const struct arcade_sequence arcade_sequences[];
 extern const unsigned arcade_sequence_count;
 
-/* The row for a fighter file name ("PL00.PAC"), or NULL. */
+/* The row for a fighter file name ("PL00.PAC"), or NULL. A file whose module keeps a second block of steps (its own steps, pointer table
+ * and frame records, with their own frame numbering) has a second row of the same name: arcade_sequence_find_nth gives the nth (from 0). */
 const struct arcade_sequence *arcade_sequence_find(const char *file);
+const struct arcade_sequence *arcade_sequence_find_nth(const char *file, unsigned n);
 
 /* The cell list offset of each art record a fighter's lists were made from (offsets from the start of the lists block). */
 struct arcade_sequence_list {

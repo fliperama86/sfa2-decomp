@@ -234,8 +234,7 @@ static int tables(void)
         const struct arcade_module_data *d = &arcade_module_data[i];
         const struct arcade_module_data *again = arcade_module_data_find(d->file, d->slot);
         const struct arcade_fighter *f = NULL;
-        const struct arcade_sequence *q = NULL;
-        struct span s[5];
+        struct span s[12];
         unsigned ns = 0;
         int fighter = !strncmp(d->file, "PL", 2);
         assert(arcade_module_data_valid(d) == 0);
@@ -260,8 +259,6 @@ static int tables(void)
         if (i) assert(strcmp(d->file, arcade_module_data[i - 1].file) >= 0);
         for (j = 0; j < arcade_fighter_count; j++)
             if (!strcmp(arcade_fighters[j].file, d->file)) f = &arcade_fighters[j];
-        for (j = 0; j < arcade_sequence_count; j++)
-            if (!strcmp(arcade_sequences[j].file, d->file)) q = &arcade_sequences[j];
         if (d->slot == 4 || d->slot == 5) {
             mains++;
             assert(d->load == (d->slot == 4 ? 0x801b0000u : 0x801c8000u));
@@ -274,7 +271,9 @@ static int tables(void)
         }
         if (f && f->positions_slot == d->slot) { s[ns].a = f->positions; s[ns].b = f->positions + f->positions_room; ns++; }
         if (f && (d->slot == 4 || d->slot == 5)) { s[ns].a = f->lists; s[ns].b = f->lists + f->lists_room; ns++; }
-        if (q && (d->slot == 4 || d->slot == 5)) {
+        for (j = 0; j < arcade_sequence_count && (d->slot == 4 || d->slot == 5); j++) {   /* a file's second block of steps has a row of its own */
+            const struct arcade_sequence *q = &arcade_sequences[j];
+            if (strcmp(q->file, d->file)) continue;
             s[ns].a = q->steps; s[ns].b = q->steps + 12u * q->step_count + 4u * q->table_entries; ns++;
             s[ns].a = q->frames; s[ns].b = q->frames + 16u * q->frame_count; ns++;
         }

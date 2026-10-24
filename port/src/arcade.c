@@ -556,22 +556,24 @@ static void program_ranges(struct port_disc *d, int check)
 static void steps_of(struct port_disc *d, int f, const struct arcade_fighter *a, const struct arcade_fighter_out *fo, unsigned moff,
                      int check, struct step_stats *st)
 {
-    const struct arcade_sequence *s = arcade_sequence_find(a->file);
-    struct arcade_sequence_lists lists;
-    struct arcade_sequence_out so;
-    char err[PORT_ERR];
-    unsigned n;
-    if (!s) return;
-    if (arcade_sequence_lists(rom.program, ARCADE_PROGRAM_SIZE, a, fo, &lists, err, sizeof err) != 0 ||
-        arcade_sequence_build(rom.program, ARCADE_PROGRAM_SIZE, s, &lists, &so, err, sizeof err) != 0)
-        port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
-    arcade_sequence_lists_free(&lists);
-    n = serve_units(d, f, moff + s->steps, so.steps, so.steps_built, so.step_count, 12, check);
-    st->steps += n;
-    st->other += so.step_count - n;
-    st->frames += serve_units(d, f, moff + s->frames, so.frames, so.frames_built, so.frame_count, 16, check);
-    st->entries += serve_units(d, f, moff + s->steps + 12u * so.step_count, so.table, so.table_built, so.table_entries, 4, check);
-    if (check) arcade_sequence_free(&so);   /* else the ranges point into it */
+    const struct arcade_sequence *s;
+    unsigned block;
+    for (block = 0; (s = arcade_sequence_find_nth(a->file, block)) != NULL; block++) {   /* a file's second block of steps is a second row */
+        struct arcade_sequence_lists lists;
+        struct arcade_sequence_out so;
+        char err[PORT_ERR];
+        unsigned n;
+        if (arcade_sequence_lists(rom.program, ARCADE_PROGRAM_SIZE, a, fo, &lists, err, sizeof err) != 0 ||
+            arcade_sequence_build(rom.program, ARCADE_PROGRAM_SIZE, s, &lists, &so, err, sizeof err) != 0)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
+        arcade_sequence_lists_free(&lists);
+        n = serve_units(d, f, moff + s->steps, so.steps, so.steps_built, so.step_count, 12, check);
+        st->steps += n;
+        st->other += so.step_count - n;
+        st->frames += serve_units(d, f, moff + s->frames, so.frames, so.frames_built, so.frame_count, 16, check);
+        st->entries += serve_units(d, f, moff + s->steps + 12u * so.step_count, so.table, so.table_built, so.table_entries, 4, check);
+        if (check) arcade_sequence_free(&so);   /* else the ranges point into it */
+    }
 }
 
 static void add_game_range(int f, unsigned offset, unsigned char *bytes, unsigned size);

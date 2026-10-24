@@ -63,6 +63,7 @@ static int build(const char *prog_path, const char *spec_path, const char *dir)
     struct arcade_sequence_table *tables = NULL;
     struct arcade_sequence_slice *slices = NULL;
     struct arcade_sequence_frame *over = NULL;
+    struct arcade_sequence_alias *aliases = NULL;
     struct arcade_sequence_lists lists;
     struct arcade_sequence_out out;
     unsigned long v[9], a, b, c;
@@ -149,6 +150,16 @@ static int build(const char *prog_path, const char *spec_path, const char *dir)
         lists.item[i].record = (uint32_t)a;
         lists.item[i].offset = (uint32_t)b;
     }
+    if (fscanf(sp, "%u", &n) == 1) {   /* the aliases (optional, last), sorted by alias */
+        aliases = calloc(n ? n : 1, sizeof *aliases);
+        for (i = 0; i < n; i++) {
+            if (fscanf(sp, "%lu %lu", &a, &b) != 2) return 3;
+            aliases[i].alias = (uint32_t)a;
+            aliases[i].record = (uint32_t)b;
+        }
+        s.aliases = aliases;
+        s.alias_count = n;
+    }
     /* the lists must be sorted by record for the C; the spec gives them so */
     if (arcade_sequence_build(prog, size, &s, &lists, &out, err, sizeof err) != 0) {
         printf("error: %s\n", err);
@@ -167,6 +178,7 @@ static int build(const char *prog_path, const char *spec_path, const char *dir)
     free(tables);
     free(slices);
     free(over);
+    free(aliases);
     free(lists.item);
     free(prog);
     fclose(sp);
@@ -250,12 +262,16 @@ static int file_mode(const char *prog_path, const char *name, const char *dir)
 {
     size_t size = 0, i;
     uint8_t *prog = slurp(prog_path, &size);
-    const struct arcade_sequence *s = arcade_sequence_find(name);
+    char file[64];
+    const char *hash = strchr(name, '#');   /* "PL17.PAC#1": the second row of the file */
+    const struct arcade_sequence *s;
     const struct arcade_fighter *f = NULL;
     struct arcade_fighter_out fo;
     struct arcade_sequence_lists lists;
     struct arcade_sequence_out out;
     char err[256], path[1024];
+    snprintf(file, sizeof file, "%.*s", hash ? (int)(hash - name) : (int)strlen(name), name);
+    s = arcade_sequence_find_nth(file, hash ? (unsigned)atoi(hash + 1) : 0u);
     clock_t t0, t1;
     FILE *t;
 
@@ -264,7 +280,7 @@ static int file_mode(const char *prog_path, const char *name, const char *dir)
         return 2;
     }
     for (i = 0; i < arcade_fighter_count; i++)
-        if (!strcmp(arcade_fighters[i].file, name)) f = &arcade_fighters[i];
+        if (!strcmp(arcade_fighters[i].file, file)) f = &arcade_fighters[i];
     if (!f) {
         printf("error: no fighter row for %s\n", name);
         return 2;
@@ -302,7 +318,11 @@ static int table(void)
         unsigned covered = 0, end = 0, records = 0;
         if (!s->file || strncmp(s->file, "PL", 2) || !arcade_fighter_count) return 1;
         for (j = 0; j < i; j++)
-            if (!strcmp(arcade_sequences[j].file, s->file)) return 1;
+            if (!strcmp(arcade_sequences[j].file, s->file)) {          /* a second row of a file (its second block) follows the first and lies after its frames */
+                if (j != i - 1 || s->steps < arcade_sequences[j].frames + 16u * arcade_sequences[j].frame_count) return 1;
+            }
+        for (k = 0; k < s->alias_count; k++)
+            if (!s->aliases || (k && s->aliases[k].alias <= s->aliases[k - 1].alias)) return 1;
         for (j = 0; j < arcade_fighter_count && strcmp(arcade_fighters[j].file, s->file); j++) {}
         if (j == arcade_fighter_count) return 1;                          /* every file has its fighter row */
         if (s->load != 0x801b0000u && s->load != 0x801c8000u) return 1;

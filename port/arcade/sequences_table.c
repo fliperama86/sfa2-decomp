@@ -4,7 +4,7 @@
  * (runs of records and steps), which steps the PS1 added itself (own spans, step indices only), the arcade's
  * sequence tables, which PS1 table slots are which arcade table entries, the steps whose frame number is not the order of first use, the
  * records whose flags the PS1 scaled, and the one rule flag. Only addresses, counts and indices: no byte of
- * either game.
+ * either game. A file with a second block of steps has a second row of its name (its own steps, pointer table and frame records).
  *
  * Left out:
  *   PL10.PAC: not in fighters_table.c: PS1-only art (the model keeps disc bytes)
@@ -92,6 +92,10 @@ static const struct arcade_sequence_group groups_pl16[] = {
 
 static const struct arcade_sequence_group groups_pl17[] = {
     {0x1e6ab8u, 949u},
+};
+
+static const struct arcade_sequence_group groups_pl17_b[] = {
+    {0x1f97b0u, 1146u},
 };
 
 static const struct arcade_sequence_run runs_pl00[] = {
@@ -250,6 +254,10 @@ static const struct arcade_sequence_run runs_pl16[] = {
 
 static const struct arcade_sequence_run runs_pl17[] = {
     {0u, 0u, 949u},
+};
+
+static const struct arcade_sequence_run runs_pl17_b[] = {
+    {0u, 0u, 1146u},
 };
 
 static const struct arcade_sequence_span own_pl00[] = {
@@ -481,6 +489,13 @@ static const struct arcade_sequence_table tables_pl17[] = {
     {0x1e6a56u, 48u},
 };
 
+static const struct arcade_sequence_table tables_pl17_b[] = {
+    {0x1f9588u, 64u},
+    {0x1f960au, 112u},
+    {0x1f96ecu, 48u},
+    {0x1f974eu, 48u},
+};
+
 static const struct arcade_sequence_slice slices_pl00[] = {
     {0u, 0u, 48u},
     {49u, 49u, 84u},
@@ -582,6 +597,10 @@ static const struct arcade_sequence_slice slices_pl16[] = {
     {223u, 135u, 1u},
     {136u, 136u, 16u},
     {233u, 152u, 96u},
+};
+
+static const struct arcade_sequence_slice slices_pl17_b[] = {
+    {0u, 0u, 272u},
 };
 
 static const struct arcade_sequence_frame frames_pl02[] = {
@@ -723,45 +742,134 @@ static const struct arcade_sequence_frame frames_pl16[] = {
     {585u, 26u},
 };
 
+static const struct arcade_sequence_frame frames_pl17_b[] = {
+    {287u, 81u},
+    {288u, 81u},
+};
+
+static const struct arcade_sequence_alias aliases_pl03[] = {
+    {0x1683aeu, 0x168376u},
+};
+
+static const struct arcade_sequence_alias aliases_pl08[] = {
+    {0x19315eu, 0x19310au},
+    {0x193a22u, 0x193766u},
+    {0x19465eu, 0x1936fau},
+    {0x1946cau, 0x193766u},
+    {0x194b46u, 0x1949b2u},
+    {0x1951f2u, 0x1950d6u},
+    {0x195dd2u, 0x19537au},
+    {0x195e8eu, 0x194d76u},
+};
+
+static const struct arcade_sequence_alias aliases_pl09[] = {
+    {0x19f6deu, 0x19f66au},
+};
+
+static const struct arcade_sequence_alias aliases_pl0b[] = {
+    {0x1b0238u, 0x1b00d8u},
+    {0x1b0254u, 0x1b00b4u},
+    {0x1b0a74u, 0x1b09f4u},
+    {0x1b1194u, 0x1b115cu},
+};
+
+static const struct arcade_sequence_alias aliases_pl0c[] = {
+    {0x1b77bcu, 0x1b7590u},
+    {0x1b7a24u, 0x1b70dcu},
+};
+
+static const struct arcade_sequence_alias aliases_pl0e[] = {
+    {0x1ce628u, 0x1ce534u},
+};
+
+static const struct arcade_sequence_alias aliases_pl0f[] = {
+    {0x1d84e0u, 0x1d82e4u},
+};
+
+static const struct arcade_sequence_alias aliases_pl17[] = {
+    {0x1ed8d4u, 0x1ed8a8u},
+    {0x1eed44u, 0x1eeaf8u},
+};
+
+static const struct arcade_sequence_alias aliases_pl17_b[] = {
+    {0x200cdcu, 0x1ecd4cu},
+    {0x201530u, 0x1ed5b4u},
+    {0x201544u, 0x1ed5c8u},
+    {0x201560u, 0x1ed5e4u},
+    {0x201580u, 0x1ed604u},
+    {0x2015a4u, 0x1ed628u},
+    {0x2015b4u, 0x1ed638u},
+    {0x2015d0u, 0x1ed654u},
+    {0x2015e4u, 0x1ed668u},
+    {0x201600u, 0x1ed684u},
+    {0x201610u, 0x1ed694u},
+    {0x20162cu, 0x1ed6b0u},
+    {0x20164cu, 0x1ed6d0u},
+    {0x201668u, 0x1ed6ecu},
+    {0x201684u, 0x1ed708u},
+    {0x2016a0u, 0x1ed724u},
+    {0x2016c4u, 0x1ed748u},
+    {0x2016d4u, 0x1ed758u},
+    {0x2016f0u, 0x1ed774u},
+    {0x201704u, 0x1ed788u},
+    {0x201720u, 0x1ed7a4u},
+    {0x201730u, 0x1ed7b4u},
+    {0x20174cu, 0x1ed7d0u},
+    {0x20176cu, 0x1ed7f0u},
+    {0x201788u, 0x1ed80cu},
+    {0x2017a4u, 0x1ed828u},
+    {0x2017c0u, 0x1ed844u},
+    {0x2017e4u, 0x1ed868u},
+    {0x2017f4u, 0x1ed878u},
+    {0x201810u, 0x1ed894u},
+    {0x201824u, 0x1ed8a8u},
+    {0x201840u, 0x1ed8c4u},
+    {0x201850u, 0x1ed8a8u},
+    {0x2027ccu, 0x1ee4d4u},
+    {0x2027fcu, 0x1edaccu},
+    {0x202828u, 0x1eda34u},
+};
+
 const struct arcade_sequence arcade_sequences[] = {
-    {"PL00.PAC", 0x801b0000u, 0x7fe0u, 0xab9cu, 853u, 212u, 240u, 0u, 0u, 0u, groups_pl00, 1u, runs_pl00, 1u, own_pl00, 1u, tables_pl00, 4u, slices_pl00, 3u, NULL, 0u},
-    {"PL00X.PAC", 0x801c8000u, 0x7fe0u, 0xab9cu, 853u, 212u, 240u, 0u, 0u, 0u, groups_pl00, 1u, runs_pl00, 1u, own_pl00, 1u, tables_pl00, 4u, slices_pl00, 3u, NULL, 0u},
-    {"PL01.PAC", 0x801b0000u, 0x81b4u, 0xad94u, 844u, 257u, 244u, 0u, 0u, 0u, groups_pl01, 1u, runs_pl01, 1u, own_pl01, 1u, tables_pl01, 5u, slices_pl01, 1u, NULL, 0u},
-    {"PL01X.PAC", 0x801c8000u, 0x81b4u, 0xad94u, 844u, 257u, 244u, 0u, 0u, 0u, groups_pl01, 1u, runs_pl01, 1u, own_pl01, 1u, tables_pl01, 5u, slices_pl01, 1u, NULL, 0u},
-    {"PL02.PAC", 0x801b0000u, 0xc52cu, 0xfc60u, 1086u, 338u, 275u, 0u, 0u, 0u, groups_pl02, 2u, runs_pl02, 1u, NULL, 0u, tables_pl02, 6u, slices_pl02, 5u, frames_pl02, 1u},
-    {"PL02X.PAC", 0x801c8000u, 0xc52cu, 0xfc60u, 1086u, 338u, 275u, 0u, 0u, 0u, groups_pl02, 2u, runs_pl02, 1u, NULL, 0u, tables_pl02, 6u, slices_pl02, 5u, frames_pl02, 1u},
-    {"PL03.PAC", 0x801b0000u, 0x83c8u, 0xb888u, 1047u, 364u, 235u, 0u, 0u, 0u, groups_pl03, 1u, runs_pl03, 2u, own_pl03, 1u, tables_pl03, 4u, slices_pl03, 2u, NULL, 0u},
-    {"PL03X.PAC", 0x801c8000u, 0x83c8u, 0xb888u, 1047u, 364u, 235u, 0u, 0u, 0u, groups_pl03, 1u, runs_pl03, 2u, own_pl03, 1u, tables_pl03, 4u, slices_pl03, 2u, NULL, 0u},
-    {"PL04.PAC", 0x801b0000u, 0x9670u, 0xd358u, 1214u, 375u, 256u, 0u, 480u, 67u, groups_pl04, 1u, runs_pl04, 2u, own_pl04, 1u, tables_pl04, 4u, slices_pl04, 2u, NULL, 0u},
-    {"PL04X.PAC", 0x801c8000u, 0x9670u, 0xd358u, 1214u, 375u, 256u, 0u, 480u, 67u, groups_pl04, 1u, runs_pl04, 2u, own_pl04, 1u, tables_pl04, 4u, slices_pl04, 2u, NULL, 0u},
-    {"PL05.PAC", 0x801b0000u, 0x93d4u, 0xc980u, 1070u, 304u, 225u, 0u, 0u, 0u, groups_pl05, 1u, runs_pl05, 1u, NULL, 0u, tables_pl05, 4u, slices_pl05, 1u, NULL, 0u},
-    {"PL05X.PAC", 0x801c8000u, 0x93d4u, 0xc980u, 1070u, 304u, 225u, 0u, 0u, 0u, groups_pl05, 1u, runs_pl05, 1u, NULL, 0u, tables_pl05, 4u, slices_pl05, 1u, NULL, 0u},
-    {"PL06.PAC", 0x801b0000u, 0xbde0u, 0xe62cu, 781u, 267u, 236u, 0u, 0u, 0u, groups_pl06, 1u, runs_pl06, 1u, NULL, 0u, tables_pl06, 4u, slices_pl06, 1u, NULL, 0u},
-    {"PL06X.PAC", 0x801c8000u, 0xbddcu, 0xe628u, 781u, 267u, 236u, 0u, 0u, 0u, groups_pl06, 1u, runs_pl06, 1u, NULL, 0u, tables_pl06, 4u, slices_pl06, 1u, NULL, 0u},
-    {"PL07.PAC", 0x801b0000u, 0x9868u, 0xc968u, 958u, 318u, 262u, 0u, 0u, 0u, groups_pl07, 1u, runs_pl07, 1u, NULL, 0u, tables_pl07, 4u, slices_pl07, 1u, NULL, 0u},
-    {"PL07X.PAC", 0x801c8000u, 0x9868u, 0xc968u, 958u, 318u, 262u, 0u, 0u, 0u, groups_pl07, 1u, runs_pl07, 1u, NULL, 0u, tables_pl07, 4u, slices_pl07, 1u, NULL, 0u},
-    {"PL08.PAC", 0x801b0000u, 0xb294u, 0xede8u, 1172u, 306u, 281u, 0u, 0u, 0u, groups_pl08, 1u, runs_pl08, 2u, NULL, 0u, tables_pl08, 4u, slices_pl08, 1u, NULL, 0u},
-    {"PL08X.PAC", 0x801c8000u, 0xb294u, 0xede8u, 1172u, 306u, 281u, 0u, 0u, 0u, groups_pl08, 1u, runs_pl08, 2u, NULL, 0u, tables_pl08, 4u, slices_pl08, 1u, NULL, 0u},
-    {"PL09.PAC", 0x801b0000u, 0xed68u, 0x125b0u, 1120u, 310u, 242u, 0u, 0u, 0u, groups_pl09, 1u, runs_pl09, 3u, NULL, 0u, tables_pl09, 5u, slices_pl09, 5u, NULL, 0u},
-    {"PL09X.PAC", 0x801c8000u, 0xed68u, 0x125b0u, 1120u, 310u, 242u, 0u, 0u, 0u, groups_pl09, 1u, runs_pl09, 3u, NULL, 0u, tables_pl09, 5u, slices_pl09, 5u, NULL, 0u},
-    {"PL0A.PAC", 0x801b0000u, 0x9a68u, 0xc8d0u, 908u, 235u, 246u, 0u, 0u, 0u, groups_pl0a, 1u, runs_pl0a, 1u, NULL, 0u, tables_pl0a, 4u, slices_pl0a, 1u, NULL, 0u},
-    {"PL0AX.PAC", 0x801c8000u, 0x9a68u, 0xc8d0u, 908u, 235u, 246u, 0u, 0u, 0u, groups_pl0a, 1u, runs_pl0a, 1u, NULL, 0u, tables_pl0a, 4u, slices_pl0a, 1u, NULL, 0u},
-    {"PL0B.PAC", 0x801b0000u, 0x9c9cu, 0xcc90u, 945u, 328u, 234u, 0u, 0u, 0u, groups_pl0b, 1u, runs_pl0b, 3u, own_pl0b, 1u, tables_pl0b, 4u, slices_pl0b, 1u, frames_pl0b, 3u},
-    {"PL0BX.PAC", 0x801c8000u, 0x9c9cu, 0xcc90u, 945u, 328u, 234u, 0u, 0u, 0u, groups_pl0b, 1u, runs_pl0b, 3u, own_pl0b, 1u, tables_pl0b, 4u, slices_pl0b, 1u, frames_pl0b, 3u},
-    {"PL0C.PAC", 0x801b0000u, 0x714cu, 0x9f34u, 889u, 316u, 235u, 0u, 0u, 0u, groups_pl0c, 1u, runs_pl0c, 1u, own_pl0c, 1u, tables_pl0c, 4u, slices_pl0c, 1u, NULL, 0u},
-    {"PL0CX.PAC", 0x801c8000u, 0x714cu, 0x9f34u, 889u, 316u, 235u, 0u, 0u, 0u, groups_pl0c, 1u, runs_pl0c, 1u, own_pl0c, 1u, tables_pl0c, 4u, slices_pl0c, 1u, NULL, 0u},
-    {"PL0D.PAC", 0x801b0000u, 0xcfa8u, 0x10a68u, 1174u, 313u, 238u, 0u, 0u, 0u, groups_pl0d, 1u, runs_pl0d, 17u, own_pl0d, 13u, tables_pl0d, 4u, slices_pl0d, 2u, frames_pl0d, 2u},
-    {"PL0DX.PAC", 0x801c8000u, 0xcfa8u, 0x10a68u, 1174u, 313u, 238u, 0u, 0u, 0u, groups_pl0d, 1u, runs_pl0d, 17u, own_pl0d, 13u, tables_pl0d, 4u, slices_pl0d, 2u, frames_pl0d, 2u},
-    {"PL0E.PAC", 0x801b0000u, 0xd0e8u, 0x11c70u, 1522u, 328u, 268u, ARCADE_SEQUENCE_JUMP_WITHOUT_BIT15, 0u, 0u, groups_pl0e, 2u, runs_pl0e, 2u, own_pl0e, 1u, tables_pl0e, 4u, slices_pl0e, 4u, NULL, 0u},
-    {"PL0EX.PAC", 0x801c8000u, 0xd0e8u, 0x11c70u, 1522u, 328u, 268u, ARCADE_SEQUENCE_JUMP_WITHOUT_BIT15, 0u, 0u, groups_pl0e, 2u, runs_pl0e, 2u, own_pl0e, 1u, tables_pl0e, 4u, slices_pl0e, 4u, NULL, 0u},
-    {"PL0F.PAC", 0x801b0000u, 0xca2cu, 0x1062cu, 1193u, 303u, 261u, 0u, 0u, 0u, groups_pl0f, 1u, runs_pl0f, 24u, own_pl0f, 23u, tables_pl0f, 4u, slices_pl0f, 2u, NULL, 0u},
-    {"PL0FX.PAC", 0x801c8000u, 0xca2cu, 0x1062cu, 1193u, 303u, 261u, 0u, 0u, 0u, groups_pl0f, 1u, runs_pl0f, 24u, own_pl0f, 23u, tables_pl0f, 4u, slices_pl0f, 2u, NULL, 0u},
-    {"PL12.PAC", 0x801b0000u, 0x9dbcu, 0xdcc0u, 1259u, 362u, 256u, 0u, 487u, 67u, groups_pl12, 1u, runs_pl12, 1u, NULL, 0u, tables_pl12, 4u, slices_pl12, 1u, NULL, 0u},
-    {"PL12X.PAC", 0x801c8000u, 0x9dbcu, 0xdcc0u, 1259u, 362u, 256u, 0u, 487u, 67u, groups_pl12, 1u, runs_pl12, 1u, NULL, 0u, tables_pl12, 4u, slices_pl12, 1u, NULL, 0u},
-    {"PL14.PAC", 0x801b0000u, 0xcb28u, 0xff60u, 1036u, 351u, 234u, 0u, 0u, 0u, groups_pl02, 2u, runs_pl14, 13u, own_pl14, 2u, tables_pl02, 6u, slices_pl14, 8u, frames_pl14, 113u},
-    {"PL14X.PAC", 0x801c8000u, 0xcb28u, 0xff60u, 1036u, 351u, 234u, 0u, 0u, 0u, groups_pl02, 2u, runs_pl14, 13u, own_pl14, 2u, tables_pl02, 6u, slices_pl14, 8u, frames_pl14, 113u},
-    {"PL15.PAC", 0x801b0000u, 0xd410u, 0x10fccu, 1195u, 313u, 238u, 0u, 0u, 0u, groups_pl0d, 1u, runs_pl15, 14u, own_pl15, 13u, tables_pl0d, 4u, slices_pl0d, 2u, frames_pl15, 1u},
-    {"PL16.PAC", 0x801b0000u, 0x114d0u, 0x1473cu, 993u, 343u, 248u, 0u, 0u, 0u, groups_pl16, 1u, runs_pl16, 3u, NULL, 0u, tables_pl16, 5u, slices_pl16, 4u, frames_pl16, 1u},
-    {"PL17.PAC", 0x801b0000u, 0xfeb4u, 0x12f30u, 949u, 269u, 256u, 0u, 452u, 59u, groups_pl17, 1u, runs_pl17, 1u, NULL, 0u, tables_pl17, 4u, slices_pl12, 1u, NULL, 0u},
+    {"PL00.PAC", 0x801b0000u, 0x7fe0u, 0xab9cu, 853u, 212u, 240u, 0u, 0u, 0u, groups_pl00, 1u, runs_pl00, 1u, own_pl00, 1u, tables_pl00, 4u, slices_pl00, 3u, NULL, 0u, NULL, 0u},
+    {"PL00X.PAC", 0x801c8000u, 0x7fe0u, 0xab9cu, 853u, 212u, 240u, 0u, 0u, 0u, groups_pl00, 1u, runs_pl00, 1u, own_pl00, 1u, tables_pl00, 4u, slices_pl00, 3u, NULL, 0u, NULL, 0u},
+    {"PL01.PAC", 0x801b0000u, 0x81b4u, 0xad94u, 844u, 257u, 244u, 0u, 0u, 0u, groups_pl01, 1u, runs_pl01, 1u, own_pl01, 1u, tables_pl01, 5u, slices_pl01, 1u, NULL, 0u, NULL, 0u},
+    {"PL01X.PAC", 0x801c8000u, 0x81b4u, 0xad94u, 844u, 257u, 244u, 0u, 0u, 0u, groups_pl01, 1u, runs_pl01, 1u, own_pl01, 1u, tables_pl01, 5u, slices_pl01, 1u, NULL, 0u, NULL, 0u},
+    {"PL02.PAC", 0x801b0000u, 0xc52cu, 0xfc60u, 1086u, 338u, 275u, 0u, 0u, 0u, groups_pl02, 2u, runs_pl02, 1u, NULL, 0u, tables_pl02, 6u, slices_pl02, 5u, frames_pl02, 1u, NULL, 0u},
+    {"PL02X.PAC", 0x801c8000u, 0xc52cu, 0xfc60u, 1086u, 338u, 275u, 0u, 0u, 0u, groups_pl02, 2u, runs_pl02, 1u, NULL, 0u, tables_pl02, 6u, slices_pl02, 5u, frames_pl02, 1u, NULL, 0u},
+    {"PL03.PAC", 0x801b0000u, 0x83c8u, 0xb888u, 1047u, 364u, 235u, 0u, 0u, 0u, groups_pl03, 1u, runs_pl03, 2u, own_pl03, 1u, tables_pl03, 4u, slices_pl03, 2u, NULL, 0u, aliases_pl03, 1u},
+    {"PL03X.PAC", 0x801c8000u, 0x83c8u, 0xb888u, 1047u, 364u, 235u, 0u, 0u, 0u, groups_pl03, 1u, runs_pl03, 2u, own_pl03, 1u, tables_pl03, 4u, slices_pl03, 2u, NULL, 0u, aliases_pl03, 1u},
+    {"PL04.PAC", 0x801b0000u, 0x9670u, 0xd358u, 1214u, 375u, 256u, 0u, 480u, 67u, groups_pl04, 1u, runs_pl04, 2u, own_pl04, 1u, tables_pl04, 4u, slices_pl04, 2u, NULL, 0u, NULL, 0u},
+    {"PL04X.PAC", 0x801c8000u, 0x9670u, 0xd358u, 1214u, 375u, 256u, 0u, 480u, 67u, groups_pl04, 1u, runs_pl04, 2u, own_pl04, 1u, tables_pl04, 4u, slices_pl04, 2u, NULL, 0u, NULL, 0u},
+    {"PL05.PAC", 0x801b0000u, 0x93d4u, 0xc980u, 1070u, 304u, 225u, 0u, 0u, 0u, groups_pl05, 1u, runs_pl05, 1u, NULL, 0u, tables_pl05, 4u, slices_pl05, 1u, NULL, 0u, NULL, 0u},
+    {"PL05X.PAC", 0x801c8000u, 0x93d4u, 0xc980u, 1070u, 304u, 225u, 0u, 0u, 0u, groups_pl05, 1u, runs_pl05, 1u, NULL, 0u, tables_pl05, 4u, slices_pl05, 1u, NULL, 0u, NULL, 0u},
+    {"PL06.PAC", 0x801b0000u, 0xbde0u, 0xe62cu, 781u, 267u, 236u, 0u, 0u, 0u, groups_pl06, 1u, runs_pl06, 1u, NULL, 0u, tables_pl06, 4u, slices_pl06, 1u, NULL, 0u, NULL, 0u},
+    {"PL06X.PAC", 0x801c8000u, 0xbddcu, 0xe628u, 781u, 267u, 236u, 0u, 0u, 0u, groups_pl06, 1u, runs_pl06, 1u, NULL, 0u, tables_pl06, 4u, slices_pl06, 1u, NULL, 0u, NULL, 0u},
+    {"PL07.PAC", 0x801b0000u, 0x9868u, 0xc968u, 958u, 318u, 262u, 0u, 0u, 0u, groups_pl07, 1u, runs_pl07, 1u, NULL, 0u, tables_pl07, 4u, slices_pl07, 1u, NULL, 0u, NULL, 0u},
+    {"PL07X.PAC", 0x801c8000u, 0x9868u, 0xc968u, 958u, 318u, 262u, 0u, 0u, 0u, groups_pl07, 1u, runs_pl07, 1u, NULL, 0u, tables_pl07, 4u, slices_pl07, 1u, NULL, 0u, NULL, 0u},
+    {"PL08.PAC", 0x801b0000u, 0xb294u, 0xede8u, 1172u, 306u, 281u, 0u, 0u, 0u, groups_pl08, 1u, runs_pl08, 2u, NULL, 0u, tables_pl08, 4u, slices_pl08, 1u, NULL, 0u, aliases_pl08, 8u},
+    {"PL08X.PAC", 0x801c8000u, 0xb294u, 0xede8u, 1172u, 306u, 281u, 0u, 0u, 0u, groups_pl08, 1u, runs_pl08, 2u, NULL, 0u, tables_pl08, 4u, slices_pl08, 1u, NULL, 0u, aliases_pl08, 8u},
+    {"PL09.PAC", 0x801b0000u, 0xed68u, 0x125b0u, 1120u, 310u, 242u, 0u, 0u, 0u, groups_pl09, 1u, runs_pl09, 3u, NULL, 0u, tables_pl09, 5u, slices_pl09, 5u, NULL, 0u, aliases_pl09, 1u},
+    {"PL09X.PAC", 0x801c8000u, 0xed68u, 0x125b0u, 1120u, 310u, 242u, 0u, 0u, 0u, groups_pl09, 1u, runs_pl09, 3u, NULL, 0u, tables_pl09, 5u, slices_pl09, 5u, NULL, 0u, aliases_pl09, 1u},
+    {"PL0A.PAC", 0x801b0000u, 0x9a68u, 0xc8d0u, 908u, 235u, 246u, 0u, 0u, 0u, groups_pl0a, 1u, runs_pl0a, 1u, NULL, 0u, tables_pl0a, 4u, slices_pl0a, 1u, NULL, 0u, NULL, 0u},
+    {"PL0AX.PAC", 0x801c8000u, 0x9a68u, 0xc8d0u, 908u, 235u, 246u, 0u, 0u, 0u, groups_pl0a, 1u, runs_pl0a, 1u, NULL, 0u, tables_pl0a, 4u, slices_pl0a, 1u, NULL, 0u, NULL, 0u},
+    {"PL0B.PAC", 0x801b0000u, 0x9c9cu, 0xcc90u, 945u, 328u, 234u, 0u, 0u, 0u, groups_pl0b, 1u, runs_pl0b, 3u, own_pl0b, 1u, tables_pl0b, 4u, slices_pl0b, 1u, frames_pl0b, 3u, aliases_pl0b, 4u},
+    {"PL0BX.PAC", 0x801c8000u, 0x9c9cu, 0xcc90u, 945u, 328u, 234u, 0u, 0u, 0u, groups_pl0b, 1u, runs_pl0b, 3u, own_pl0b, 1u, tables_pl0b, 4u, slices_pl0b, 1u, frames_pl0b, 3u, aliases_pl0b, 4u},
+    {"PL0C.PAC", 0x801b0000u, 0x714cu, 0x9f34u, 889u, 316u, 235u, 0u, 0u, 0u, groups_pl0c, 1u, runs_pl0c, 1u, own_pl0c, 1u, tables_pl0c, 4u, slices_pl0c, 1u, NULL, 0u, aliases_pl0c, 2u},
+    {"PL0CX.PAC", 0x801c8000u, 0x714cu, 0x9f34u, 889u, 316u, 235u, 0u, 0u, 0u, groups_pl0c, 1u, runs_pl0c, 1u, own_pl0c, 1u, tables_pl0c, 4u, slices_pl0c, 1u, NULL, 0u, aliases_pl0c, 2u},
+    {"PL0D.PAC", 0x801b0000u, 0xcfa8u, 0x10a68u, 1174u, 313u, 238u, 0u, 0u, 0u, groups_pl0d, 1u, runs_pl0d, 17u, own_pl0d, 13u, tables_pl0d, 4u, slices_pl0d, 2u, frames_pl0d, 2u, NULL, 0u},
+    {"PL0DX.PAC", 0x801c8000u, 0xcfa8u, 0x10a68u, 1174u, 313u, 238u, 0u, 0u, 0u, groups_pl0d, 1u, runs_pl0d, 17u, own_pl0d, 13u, tables_pl0d, 4u, slices_pl0d, 2u, frames_pl0d, 2u, NULL, 0u},
+    {"PL0E.PAC", 0x801b0000u, 0xd0e8u, 0x11c70u, 1522u, 328u, 268u, ARCADE_SEQUENCE_JUMP_WITHOUT_BIT15, 0u, 0u, groups_pl0e, 2u, runs_pl0e, 2u, own_pl0e, 1u, tables_pl0e, 4u, slices_pl0e, 4u, NULL, 0u, aliases_pl0e, 1u},
+    {"PL0EX.PAC", 0x801c8000u, 0xd0e8u, 0x11c70u, 1522u, 328u, 268u, ARCADE_SEQUENCE_JUMP_WITHOUT_BIT15, 0u, 0u, groups_pl0e, 2u, runs_pl0e, 2u, own_pl0e, 1u, tables_pl0e, 4u, slices_pl0e, 4u, NULL, 0u, aliases_pl0e, 1u},
+    {"PL0F.PAC", 0x801b0000u, 0xca2cu, 0x1062cu, 1193u, 303u, 261u, 0u, 0u, 0u, groups_pl0f, 1u, runs_pl0f, 24u, own_pl0f, 23u, tables_pl0f, 4u, slices_pl0f, 2u, NULL, 0u, aliases_pl0f, 1u},
+    {"PL0FX.PAC", 0x801c8000u, 0xca2cu, 0x1062cu, 1193u, 303u, 261u, 0u, 0u, 0u, groups_pl0f, 1u, runs_pl0f, 24u, own_pl0f, 23u, tables_pl0f, 4u, slices_pl0f, 2u, NULL, 0u, aliases_pl0f, 1u},
+    {"PL12.PAC", 0x801b0000u, 0x9dbcu, 0xdcc0u, 1259u, 362u, 256u, 0u, 487u, 67u, groups_pl12, 1u, runs_pl12, 1u, NULL, 0u, tables_pl12, 4u, slices_pl12, 1u, NULL, 0u, NULL, 0u},
+    {"PL12X.PAC", 0x801c8000u, 0x9dbcu, 0xdcc0u, 1259u, 362u, 256u, 0u, 487u, 67u, groups_pl12, 1u, runs_pl12, 1u, NULL, 0u, tables_pl12, 4u, slices_pl12, 1u, NULL, 0u, NULL, 0u},
+    {"PL14.PAC", 0x801b0000u, 0xcb28u, 0xff60u, 1036u, 351u, 234u, 0u, 0u, 0u, groups_pl02, 2u, runs_pl14, 13u, own_pl14, 2u, tables_pl02, 6u, slices_pl14, 8u, frames_pl14, 113u, NULL, 0u},
+    {"PL14X.PAC", 0x801c8000u, 0xcb28u, 0xff60u, 1036u, 351u, 234u, 0u, 0u, 0u, groups_pl02, 2u, runs_pl14, 13u, own_pl14, 2u, tables_pl02, 6u, slices_pl14, 8u, frames_pl14, 113u, NULL, 0u},
+    {"PL15.PAC", 0x801b0000u, 0xd410u, 0x10fccu, 1195u, 313u, 238u, 0u, 0u, 0u, groups_pl0d, 1u, runs_pl15, 14u, own_pl15, 13u, tables_pl0d, 4u, slices_pl0d, 2u, frames_pl15, 1u, NULL, 0u},
+    {"PL16.PAC", 0x801b0000u, 0x114d0u, 0x1473cu, 993u, 343u, 248u, 0u, 0u, 0u, groups_pl16, 1u, runs_pl16, 3u, NULL, 0u, tables_pl16, 5u, slices_pl16, 4u, frames_pl16, 1u, NULL, 0u},
+    {"PL17.PAC", 0x801b0000u, 0xfeb4u, 0x12f30u, 949u, 269u, 256u, 0u, 452u, 59u, groups_pl17, 1u, runs_pl17, 1u, NULL, 0u, tables_pl17, 4u, slices_pl12, 1u, NULL, 0u, aliases_pl17, 2u},
+    {"PL17.PAC", 0x801b0000u, 0x14010u, 0x17a08u, 1146u, 293u, 272u, 0u, 0u, 0u, groups_pl17_b, 1u, runs_pl17_b, 1u, NULL, 0u, tables_pl17_b, 4u, slices_pl17_b, 1u, frames_pl17_b, 2u, aliases_pl17_b, 36u},
 };
 const unsigned arcade_sequence_count = sizeof arcade_sequences / sizeof arcade_sequences[0];
