@@ -31,6 +31,17 @@
 int  port_map(char *err, size_t errsize);
 void port_unmap(void);
 
+/* The port's extra memory: PORT_EXTRA_SIZE bytes after the RAM, which the console does not have and the game's code knows
+ * nothing of. The arcade loader puts there what is larger than the room the PS1 gives it (port/arcade/README.md, "Full
+ * animation sets") and the game reaches it through the 32-bit offsets of its own data. port_map_extra maps it readable and
+ * writable (0, or -1 with a line: taken, or not written for this system yet); port_seal_extra makes it read-only, so that a
+ * write of the game there is the crash line rather than a silent change. Both are called by the loader only, and unmapped by
+ * port_unmap. */
+#define PORT_EXTRA_BASE 0x80200000u
+#define PORT_EXTRA_SIZE 0x00100000u
+int  port_map_extra(char *err, size_t errsize);
+void port_seal_extra(void);
+
 /* The memory that is the game's on this machine, for every layer that takes a pointer from the game (a structure to
  * read or write, a buffer to copy from or to). 1 when the whole span [p, p + n) lies in ONE of:
  *  - the mapped PS1 RAM;

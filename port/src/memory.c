@@ -42,10 +42,31 @@ int port_map(char *err, size_t errsize)
     return 0;
 }
 
+static int mapped_extra;
+
+int port_map_extra(char *err, size_t errsize)
+{
+    if (mapped_extra) return 0;
+    if (!VirtualAlloc((void *)(size_t)PORT_EXTRA_BASE, PORT_EXTRA_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE)) {
+        snprintf(err, errsize, "memory: cannot map the extra memory at 0x%08x (system error %lu)", PORT_EXTRA_BASE, (unsigned long)GetLastError());
+        return -1;
+    }
+    mapped_extra = 1;
+    return 0;
+}
+
+void port_seal_extra(void)
+{
+    DWORD old;
+    if (mapped_extra) VirtualProtect((void *)(size_t)PORT_EXTRA_BASE, PORT_EXTRA_SIZE, PAGE_READONLY, &old);
+}
+
 void port_unmap(void)
 {
     VirtualFree((void *)(size_t)PORT_RAM_BASE, 0, MEM_RELEASE);
     VirtualFree((void *)(size_t)PORT_SCRATCH, 0, MEM_RELEASE);
+    if (mapped_extra) VirtualFree((void *)(size_t)PORT_EXTRA_BASE, 0, MEM_RELEASE);
+    mapped_extra = 0;
 }
 
 #elif defined(PORT_LINUX)
@@ -125,12 +146,28 @@ int port_map(char *err, size_t errsize)
     return 0;
 }
 
+static int mapped_extra;
+
+int port_map_extra(char *err, size_t errsize)
+{
+    if (mapped_extra) return 0;
+    if (map_at(PORT_EXTRA_BASE, PORT_EXTRA_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0, "the extra memory", err, errsize) != 0) return -1;
+    mapped_extra = 1;
+    return 0;
+}
+
+void port_seal_extra(void)
+{
+    if (mapped_extra) mprotect((void *)(uintptr_t)PORT_EXTRA_BASE, PORT_EXTRA_SIZE, PROT_READ);
+}
+
 void port_unmap(void)
 {
     if (mapped_ram) munmap((void *)(uintptr_t)PORT_RAM_BASE, PORT_RAM_SIZE);
     if (mapped_low) munmap((void *)(uintptr_t)LOW_VIEW, PORT_RAM_SIZE - LOW_VIEW);
     if (mapped_scratch) munmap((void *)(uintptr_t)PORT_SCRATCH, PORT_SCRATCH_ALLOC);
-    mapped_ram = mapped_low = mapped_scratch = 0;
+    if (mapped_extra) munmap((void *)(uintptr_t)PORT_EXTRA_BASE, PORT_EXTRA_SIZE);
+    mapped_ram = mapped_low = mapped_scratch = mapped_extra = 0;
 }
 
 #elif !defined(PORT_GUEST_VM)   /* the macOS build has its own, in port/mac/platform.c */
@@ -150,6 +187,16 @@ int port_map(char *err, size_t errsize)
 }
 
 void port_unmap(void)
+{
+}
+
+int port_map_extra(char *err, size_t errsize)
+{
+    snprintf(err, errsize, "memory: the extra memory is not written for this system yet");
+    return -1;
+}
+
+void port_seal_extra(void)
 {
 }
 

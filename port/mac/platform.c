@@ -270,4 +270,15 @@ void port_unmap(void)
     vm_destroy();
 }
 
+/* Not in the machine yet (port/src/port.h): the loader then plays the PS1's own data where it would need it. */
+int port_map_extra(char *err, size_t errsize)
+{
+    snprintf(err, errsize, "memory: the extra memory is not in the macOS machine yet");
+    return -1;
+}
+
+void port_seal_extra(void)
+{
+}
+
 static void task_exit(void) {}

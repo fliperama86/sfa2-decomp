@@ -10,6 +10,7 @@
 #include "../arcade/module_data.h"
 #include "../arcade/screen_lists.h"
 #include "../arcade/sounds.h"
+#include "../arcade/full_sets.h"
 #include "settings.h"
 #include "port_tables.h"
 #include "parallel.h"
@@ -37,6 +38,8 @@ struct range {
     unsigned offset, size;  /* in the file */
     unsigned char *bytes;
     int equal;              /* 1: equal to the disc's bytes (a pack leaves them out); 0: decoding to the same (a pack keeps the disc's) */
+    int game_only;          /* 1: served to the game's reads only, not to the runtime's own (a full animation set: the module checks of
+                             * modules.c read the disc's data); never equal */
 };
 static struct port_disc *pack_disc;   /* the disc when it is a pack: what to serve is what was served when the pack was made */
 static struct range *ranges;   /* grown as needed */
@@ -178,18 +181,20 @@ static int file_of(unsigned sector)
     return (int)lo;
 }
 
-/* The built bytes over the n data bytes of `sector`. */
+/* The built bytes over the n data bytes of `sector`: for the game's reads (game) also the ranges served to it only, over
+ * the others. */
 static int file_of(unsigned sector);
-static void patch(unsigned sector, unsigned char *data, unsigned n)
+static void patch_for(unsigned sector, unsigned char *data, unsigned n, int game)
 {
-    unsigned i, end;
+    unsigned i, end, pass;
     int f = file_of(sector);
     if (f < 0 || !built[f]) return;
     end = file_first[f] + file_ranges[f];
+    for (pass = 0; pass < (game ? 2u : 1u); pass++)
     for (i = file_first[f]; i < end; i++) {
         const struct range *r = &ranges[i];
         unsigned long long at, lo, hi;
-        if (sector < r->sector) continue;
+        if (sector < r->sector || r->game_only != (int)pass) continue;
         at = (unsigned long long)(sector - r->sector) * PORT_DATA;   /* the sector's place in the file */
         lo = at > r->offset ? at : r->offset;
         hi = at + n < (unsigned long long)r->offset + r->size ? at + n : (unsigned long long)r->offset + r->size;
@@ -197,11 +202,17 @@ static void patch(unsigned sector, unsigned char *data, unsigned n)
     }
 }
 
+/* The runtime's own reads (port_disc_patch_hook). */
+static void patch(unsigned sector, unsigned char *data, unsigned n)
+{
+    patch_for(sector, data, n, 0);
+}
+
 static void read_hook(unsigned sector, unsigned char *raw)
 {
     int f = file_of(sector);
     if (f < 0) return;
-    if (built[f] && !(raw[18] & 0x20)) patch(sector, raw + PORT_DATA_OFFSET, PORT_DATA);   /* a data sector (form 1) */
+    if (built[f] && !(raw[18] & 0x20)) patch_for(sector, raw + PORT_DATA_OFFSET, PORT_DATA, 1);   /* a data sector (form 1) */
     if (told[f]) return;
     told[f] = 1;
     if (built[f]) printf("arcade: %s: built in part from the arcade set, the rest from the %s (first read at frame %u)\n", files[f].name, pack_disc ? "pack" : "disc", port_frames());
@@ -211,7 +222,16 @@ static void read_hook(unsigned sector, unsigned char *raw)
 
 /* Where the nth chunk (from 0) of `type` (table << 16 | slot) lies in the PAC file f: its offset in the file and its size.
  * -1 if there is none. */
+static int pac_chunk_entry(struct port_disc *d, const struct port_disc_file *f, unsigned type, unsigned nth, unsigned *offset, unsigned *size,
+                           unsigned *entry);
 static int pac_chunk_nth(struct port_disc *d, const struct port_disc_file *f, unsigned type, unsigned nth, unsigned *offset, unsigned *size)
+{
+    return pac_chunk_entry(d, f, type, nth, offset, size, NULL);
+}
+
+/* The same, and where the chunk's entry of the archive's header lies in the file (its type, size and first word). */
+static int pac_chunk_entry(struct port_disc *d, const struct port_disc_file *f, unsigned type, unsigned nth, unsigned *offset, unsigned *size,
+                           unsigned *entry)
 {
     unsigned char head[PORT_DATA];
     char err[PORT_ERR];
@@ -227,6 +247,7 @@ static int pac_chunk_nth(struct port_disc *d, const struct port_disc_file *f, un
         if (e_type == type && nth-- == 0) {
             *offset = at;
             *size = n;
+            if (entry) *entry = 0x20u + 32u * i;
             return 0;
         }
         at += (n + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
@@ -321,6 +342,7 @@ static void add_range_kind(int f, unsigned offset, unsigned char *bytes, unsigne
     ranges[range_count].size = size;
     ranges[range_count].bytes = bytes;
     ranges[range_count].equal = equal;
+    ranges[range_count].game_only = 0;
     range_count++;
     built[f] = 1;
 }
@@ -883,6 +905,170 @@ static void backdrops(struct port_disc *d, int check)
     fflush(stdout);
 }
 
+/* ---- full animation sets (port/arcade/README.md, "Full animation sets") */
+
+#define LEFT_TILES_BASE  0x80010000u   /* where the first side's module reads its sprite chunk (start_cd_track_pair_set_load_addresses.c) */
+#define RIGHT_TILES_END  0x800fb100u   /* the second side's: this less data_8017d918[kind] (the same function) */
+#define RIGHT_TILES_ROOM 0x8017d918u   /* data_8017d918: the room of each kind's second-side sprite chunk */
+
+/* The bytes of file f the runtime is served (the disc's or the pack's, with the built ranges over them), after index_ranges. */
+static unsigned char *served_bytes(struct port_disc *d, int f, unsigned at, unsigned size)
+{
+    void (*hook)(unsigned, unsigned char *, unsigned) = port_disc_patch_hook;
+    unsigned first = at / PORT_DATA, skip = at % PORT_DATA, span = (skip + size + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
+    unsigned char *buf = malloc(span ? span : 1), *out = malloc(size ? size : 1);
+    char err[PORT_ERR];
+    int ok;
+    if (!buf || !out) { free(buf); free(out); return NULL; }
+    port_disc_patch_hook = patch;
+    ok = port_disc_read(d, files[f].sector + first, span, buf, err, sizeof err) == 0;
+    port_disc_patch_hook = hook;
+    if (ok) memcpy(out, buf + skip, size);
+    free(buf);
+    if (!ok) { free(out); return NULL; }
+    return out;
+}
+
+static void add_game_range(int f, unsigned offset, unsigned char *bytes, unsigned size)
+{
+    add_range_kind(f, offset, bytes, size, 0);
+    ranges[range_count - 1].game_only = 1;
+}
+
+/* A source's set in the extra memory: its cell lists and its whole sprite chunk. */
+struct placed { const char *source; unsigned lists, tiles, tiles_size; };
+
+/* What one row writes: built in full before any of it is served. */
+struct full_row {
+    unsigned char *module, *changed, *table, entry_word[4];
+    unsigned module_at, module_size, tiles_at, table_size, entry_at, tile_count;
+};
+
+static int full_row(struct port_disc *d, const struct arcade_full_set *s, struct placed *place, unsigned *next, int check,
+                    struct full_row *out, char *err, size_t size)
+{
+    int ft = file_index(d, s->file), fs = file_index(d, s->source);
+    unsigned sat, sn, tsat, tsn, ttat, ttn, entry, base;
+    unsigned char *source = NULL, *tiles = NULL;
+    int rc = -1;
+    memset(out, 0, sizeof *out);
+    if (pac_chunk(d, &files[fs], s->source_slot, &sat, &sn) != 0 || pac_chunk(d, &files[ft], s->slot, &out->module_at, &out->module_size) != 0 ||
+        pac_chunk(d, &files[fs], s->source_tiles_slot, &tsat, &tsn) != 0 || pac_chunk_entry(d, &files[ft], s->tiles_slot, 0, &ttat, &ttn, &entry) != 0) {
+        snprintf(err, size, "%s: the chunks are not where the table says", s->file);
+        return -1;
+    }
+    if (!(source = served_bytes(d, fs, sat, sn)) || !(tiles = served_bytes(d, fs, tsat, tsn)) ||
+        !(out->module = served_bytes(d, ft, out->module_at, out->module_size))) {
+        snprintf(err, size, "%s: cannot read the chunks", s->file);
+        goto done;
+    }
+    if (!place->source) {   /* the source's lists and sprite chunk go to the extra memory once */
+        unsigned lists = *next, at = (lists + s->lists_size + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
+        if ((unsigned long long)at + tsn > PORT_EXTRA_BASE + (unsigned long long)PORT_EXTRA_SIZE) {
+            snprintf(err, size, "%s: %u bytes do not fit in the extra memory", s->source, at + tsn - PORT_EXTRA_BASE);
+            goto done;
+        }
+        if (s->source_lists > sn || s->lists_size > sn - s->source_lists) {
+            snprintf(err, size, "%s: the lists lie outside its chunk", s->source);
+            goto done;
+        }
+        if (!check) {
+            memcpy((unsigned char *)(uintptr_t)lists, source + s->source_lists, s->lists_size);
+            memcpy((unsigned char *)(uintptr_t)at, tiles, tsn);
+        }
+        place->source = s->source;
+        place->lists = lists;
+        place->tiles = at;
+        place->tiles_size = tsn;
+        *next = (at + tsn + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
+    }
+    {
+        unsigned char *served = out->module;   /* the target's chunk as served; the build's copy of it replaces it */
+        out->module = malloc(out->module_size ? out->module_size : 1);
+        out->changed = malloc(out->module_size ? out->module_size : 1);
+        out->table = malloc(ttn ? ttn : 1);
+        if (!out->module || !out->changed || !out->table) { free(served); snprintf(err, size, "out of memory"); goto done; }
+        rc = arcade_full_build(s, served, out->module_size, source, sn, place->lists, out->module, out->changed, err, size);
+        free(served);
+        if (rc != 0) goto done;
+        rc = -1;
+    }
+    if (s->tiles_slot == 1) {
+        base = LEFT_TILES_BASE;
+    } else {
+        const unsigned char *room = port_gs((const void *)(uintptr_t)(RIGHT_TILES_ROOM + 4u * s->kind), 4);
+        if (!room) { snprintf(err, size, "%s: the sprite room table is not in memory", s->file); goto done; }
+        base = RIGHT_TILES_END - (unsigned)(room[0] | room[1] << 8 | (unsigned)room[2] << 16 | (unsigned)room[3] << 24);
+    }
+    if (arcade_full_tiles(tiles, tsn, place->tiles, base, out->table, ttn, &out->tile_count, err, size) != 0) goto done;
+    out->tiles_at = ttat;
+    out->table_size = 4u * out->tile_count;
+    out->entry_at = entry + 8u;   /* the entry's first word, which the stream checks the chunk's against */
+    memcpy(out->entry_word, out->table, 4);
+    rc = 0;
+done:
+    free(source);
+    free(tiles);
+    if (rc) { free(out->module); free(out->changed); free(out->table); memset(out, 0, sizeof *out); }
+    return rc;
+}
+
+/* Write the fuller sets of the table into the modules that the PS1 cut, the lists and tiles in the extra memory; with check,
+ * build them only. A row that cannot be built leaves its module the PS1's (a line says why). Returns the rows built. */
+static unsigned full_sets(struct port_disc *d, int check)
+{
+    struct placed place[8];
+    unsigned i, k, next = PORT_EXTRA_BASE, done_rows = 0;
+    char err[PORT_ERR];
+    if (!arcade_full_set_count) return 0;
+    if (!check && port_map_extra(err, sizeof err) != 0) {
+        printf("arcade: full animation sets: %s; the PS1's cut sets play\n", err);
+        fflush(stdout);
+        return 0;
+    }
+    memset(place, 0, sizeof place);
+    for (i = 0; i < arcade_full_set_count; i++) {
+        const struct arcade_full_set *s = &arcade_full_sets[i];
+        struct full_row row;
+        unsigned p;
+        int ft;
+        for (p = 0; p < sizeof place / sizeof place[0] && place[p].source && strcmp(place[p].source, s->source); p++) {}
+        if (p == sizeof place / sizeof place[0] || full_row(d, s, &place[p], &next, check, &row, err, sizeof err) != 0) {
+            printf("arcade%s: full animation sets: %s; it plays the PS1's cut set\n", check ? " check" : "", p == sizeof place / sizeof place[0] ? "too many sources" : err);
+            continue;
+        }
+        done_rows++;
+        printf("arcade%s: full animation sets: %s plays the %u steps, %u bytes of cell lists and %u sprite tiles of %s\n", check ? " check" : "",
+               s->file, s->step_count, s->lists_size, row.tile_count, s->source);
+        if (check) {
+            free(row.module); free(row.changed); free(row.table);
+            continue;
+        }
+        ft = file_index(d, s->file);
+        for (k = 0; k < row.module_size;) {   /* the written runs */
+            unsigned e = k;
+            while (e < row.module_size && row.changed[e]) e++;
+            if (e > k) add_game_range(ft, row.module_at + k, row.module + k, e - k);
+            k = e + 1;
+        }
+        add_game_range(ft, row.tiles_at, row.table, row.table_size);
+        {
+            unsigned char *word = malloc(4);
+            if (!word) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+            memcpy(word, row.entry_word, 4);
+            add_game_range(ft, row.entry_at, word, 4);
+        }
+        free(row.changed);   /* the module and the table stay: the ranges point into them */
+    }
+    if (!check) {
+        port_seal_extra();
+        printf("arcade: full animation sets: %u of %u modules, %u KB of the extra memory at 0x%08x, read-only\n", done_rows, arcade_full_set_count,
+               (next - PORT_EXTRA_BASE) >> 10, PORT_EXTRA_BASE);
+    }
+    fflush(stdout);
+    return done_rows;
+}
+
 /* ---- music: the arcade's songs in place of the disc's recorded streams (port/arcade/music.md, section 11) */
 
 /* The PS1's music code (file * 256 + channel of ZERO2_XA/ZERO20N.XA) and the arcade song that is the same music, for all 57 codes,
@@ -1402,6 +1588,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     screen_lists(d, check);
     backdrops(d, check);
     arcade_screen_lists_end();
+    if (check) full_sets(d, 1);
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
@@ -1432,6 +1619,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
         }
         printf("arcade: the pack's files and the loader's build agree\n");
     }
+    if (full_sets(d, 0)) index_ranges();
     music_attach();
     port_disc_patch_hook = patch;
     port_cd_read_hook = read_hook;
