@@ -45,6 +45,16 @@ int arcade_compose_record(const uint8_t *prog, size_t psize, uint32_t address, u
  * Returns -1 when the block does not exist or lies outside the program. */
 int arcade_compose_scroll2_cell(const uint8_t *prog, size_t psize, unsigned block, unsigned c, unsigned r, uint32_t *tile, uint16_t *attr);
 
+/* The arcade's scroll 1 layer (8 x 8 cells): block sets of 32 x 32 cells (128 bytes each: 8 x 8 ids of 4 x 4 cell groups, at SETS1) and the groups (64 bytes each,
+ * 4 x 4 cells of code and attribute column by column, at GROUPS1). Cell (x, y) of `set`: its code and attribute. -1 outside the program or the set. */
+#define ARCADE_COMPOSE_SETS1 0x2ad300u
+#define ARCADE_COMPOSE_GROUPS1 0x2b1a80u
+int arcade_compose_scroll1_cell(const uint8_t *prog, size_t psize, unsigned set, unsigned x, unsigned y, unsigned *code, unsigned *attr);
+
+/* The 32 bytes (4 a row, the left pixel of a pair in the low nibble) of the 8 x 8 piece that a scroll 1 cell draws: the left half of the top (even code) or bottom (odd
+ * code) eight rows of graphics tile 0x10000 + code / 2, colour plus one, flipped by attribute bits 5 (across) and 6 (down). -1 when the tile lies outside the graphics. */
+int arcade_compose_piece(const uint8_t *tiles, size_t tsize, unsigned code, unsigned attr, uint8_t out[32]);
+
 /* The 256 PS1 pixels of the 128 bytes of an arcade tile (value plus one, modulo 16; four planes, 8 pixels to a byte, 4 bytes to 8 pixels). */
 void arcade_compose_tile_pixels(const uint8_t *t, uint8_t px[256]);
 

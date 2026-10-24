@@ -9,6 +9,7 @@
 #include "../arcade/music.h"
 #include "../arcade/module_data.h"
 #include "../arcade/screen_lists.h"
+#include "../arcade/plates.h"
 #include "../arcade/sounds.h"
 #include "../arcade/full_sets.h"
 #include "../arcade/texts.h"
@@ -1438,6 +1439,67 @@ static void backdrops(struct port_disc *d, int check)
     fflush(stdout);
 }
 
+/* The name plates' cell maps (plates.c): each NDEMO file's map built from the arcade's scroll 1 strip of its stage over the page that the screens table builds, served
+ * owned in place of the disc's: a few cells whose piece the page lacks are the constant cell where the disc has other bytes. With check, how many cells equal the disc's. */
+static void plates(struct port_disc *d, int check)
+{
+    unsigned i, u, k, at, n, cells = 0, equal = 0, filled = 0, written = 0;
+    unsigned char units[1024];
+    char err[PORT_ERR];
+    for (i = 0; i < arcade_plate_count; i++) {
+        const struct arcade_plate *p = &arcade_plates[i];
+        const struct arcade_screens_file *sf = arcade_screens_find(p->file);
+        const struct arcade_screens_recipe *r = NULL;
+        struct arcade_screens_out pic;
+        unsigned char *disc, *map;
+        unsigned f_filled = 0;
+        int f = file_index(d, p->file);
+        for (u = sf ? sf->first : 0; sf && u < (unsigned)sf->first + sf->count; u++)
+            if (arcade_screens_uses[u].table == 0 && arcade_screens_uses[u].slot == ARCADE_PLATE_SLOT && arcade_screens_uses[u].ordinal == 0)
+                r = &arcade_screens_recipes[arcade_screens_uses[u].recipe];
+        if (!r || f == file_count || pac_chunk(d, &files[f], ARCADE_PLATE_SLOT, &at, &n) != 0 || n != r->size || n < ARCADE_PLATE_PAGE_AT + ARCADE_PLATE_PAGE_BYTES)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: the name plate is not laid out as the table says", p->file);
+        if (!(disc = disc_bytes(d, &files[f], at, n))) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", p->file);
+        if (arcade_screens_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, r, disc, n, &pic, err, sizeof err) != 0)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", p->file, err);
+        if (!(map = malloc(ARCADE_PLATE_MAP_BYTES))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+        if (arcade_plate_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, p->band, pic.data + ARCADE_PLATE_PAGE_AT, pic.known + ARCADE_PLATE_PAGE_AT, map,
+                               units, &f_filled, err, sizeof err) != 0)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", p->file, err);
+        for (k = 0; k < 1024; k++) {   /* the units written into the page (a piece the page lacked): served over the page, row by row */
+            unsigned char *piece;
+            unsigned y, base = at + ARCADE_PLATE_PAGE_AT + (k >> 5) * 8u * 128u + (k & 31u) * 4u;
+            if (!units[k]) continue;
+            written++;
+            if (check) continue;
+            if (!(piece = malloc(32))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+            for (y = 0; y < 8; y++) memcpy(piece + 4u * y, pic.data + ARCADE_PLATE_PAGE_AT + ((k >> 5) * 8u + y) * 128u + (k & 31u) * 4u, 4);
+            for (y = 0; y < 8; y++) {
+                add_range_kind(f, base + y * 128u, piece + 4u * y, 4, 0);
+                ranges[range_count - 1].owned = 1;
+            }
+        }
+        free(pic.data); free(pic.known);
+        filled += f_filled;
+        if (check) {
+            built_bytes[f] += ARCADE_PLATE_MAP_BYTES;   /* built from the arcade alone, equal to the disc's but for the cells that name a unit the page lacks */
+            for (k = 0; k < ARCADE_PLATE_MAP_BYTES; k += 4) {
+                cells++;
+                equal += memcmp(map + k, disc + k, 4) == 0;
+            }
+            free(map);
+        } else {
+            add_range_kind(f, at, map, ARCADE_PLATE_MAP_BYTES, 0);   /* the range points into the map, which stays */
+            ranges[range_count - 1].owned = 1;
+        }
+        free(disc);
+    }
+    printf("arcade%s: screens: %u name plate maps of %u cells built from the arcade's scroll 1 (%u of the cells %s the disc's, %u pieces that the page lacks written into its free units, %u of the strips' cells "
+           "left the constant cell)\n", check ? " check" : "", arcade_plate_count, ARCADE_PLATE_MAP_BYTES / 4, check ? equal : arcade_plate_count * ARCADE_PLATE_MAP_BYTES / 4,
+           check ? "equal" : "used in place of", written, filled);
+    fflush(stdout);
+}
+
 /* ---- full animation sets (port/arcade/README.md, "Full animation sets") */
 
 #define LEFT_TILES_BASE  0x80010000u   /* where the first side's module reads its sprite chunk (start_cd_track_pair_set_load_addresses.c) */
@@ -2445,6 +2507,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     arcade_screen_lists_begin(rom.tiles, ARCADE_TILES_SIZE);   /* the tiles' classes kept from one build to the next (or not, without memory) */
     screen_lists(d, check);
     backdrops(d, check);
+    plates(d, check);
     arcade_screen_lists_end();
     texts(d, check);
     quote_segments(d, check);

@@ -194,6 +194,40 @@ int arcade_compose_scroll2_cell(const uint8_t *prog, size_t psize, unsigned bloc
     return 0;
 }
 
+int arcade_compose_scroll1_cell(const uint8_t *prog, size_t psize, unsigned set, unsigned x, unsigned y, unsigned *code, unsigned *attr)
+{
+    struct reader rd;
+    size_t at, g;
+    unsigned id;
+    if (x > 31 || y > 31)
+        return -1;
+    rd.prog = prog;
+    rd.psize = psize;
+    rd.bad = 0;
+    at = ARCADE_COMPOSE_SETS1 + 128u * (size_t)set + ((x / 4) * 8u + y / 4) * 2u;
+    id = rd16(&rd, at);
+    g = ARCADE_COMPOSE_GROUPS1 + 64u * (size_t)id + 4u * ((x % 4) * 4u + y % 4);
+    *code = rd16(&rd, g);
+    *attr = rd16(&rd, g + 2);
+    return rd.bad ? -1 : 0;
+}
+
+int arcade_compose_piece(const uint8_t *tiles, size_t tsize, unsigned code, unsigned attr, uint8_t out[32])
+{
+    uint8_t px[256], rows[8][8];
+    unsigned tile = 0x10000u + (code >> 1), x, y;
+    if (((uint64_t)tile + 1) * TILE_BYTES > tsize)
+        return -1;
+    arcade_compose_tile_pixels(tiles + (size_t)tile * TILE_BYTES, px);
+    for (y = 0; y < 8; y++)
+        for (x = 0; x < 8; x++)
+            rows[(attr & 0x40u) ? 7u - y : y][(attr & 0x20u) ? 7u - x : x] = px[(y + (code & 1u) * 8u) * 16u + x];
+    for (y = 0; y < 8; y++)
+        for (x = 0; x < 8; x += 2)
+            out[y * 4u + x / 2] = (uint8_t)(rows[y][x] | rows[y][x + 1] << 4);
+    return 0;
+}
+
 void arcade_compose_tile_pixels(const uint8_t *t, uint8_t px[256])
 {
     unsigned x, y;

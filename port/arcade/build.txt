@@ -25,6 +25,8 @@ music.c
 compose.c
 screen_lists.c
 screen_lists_table.c
+plates.c
+plates_table.c
 module_data.c
 module_data_table.c
 sounds.c
