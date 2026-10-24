@@ -98,6 +98,22 @@ static struct queued { int entry; unsigned len; uint32_t w[12]; } queued[MAX_QUE
 static unsigned queued_count;
 static int queue_refuse_after = -1;   /* refuse every packet after this many (-1: never) */
 
+static struct view_call { uint32_t layer, lo, hi; int entry, art_lo, art_hi; } view_calls[8];
+static unsigned view_count;
+
+void port_gpu_layer_view(uint32_t layer, uint32_t pool_lo, uint32_t pool_hi, int entry, int art_lo, int art_hi)
+{
+    if (view_count < 8) {
+        view_calls[view_count].layer = layer;
+        view_calls[view_count].lo = pool_lo;
+        view_calls[view_count].hi = pool_hi;
+        view_calls[view_count].entry = entry;
+        view_calls[view_count].art_lo = art_lo;
+        view_calls[view_count].art_hi = art_hi;
+    }
+    view_count++;
+}
+
 int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len)
 {
     if (entry < 0 || entry >= 30 || len > 12) return -1;
@@ -204,9 +220,17 @@ static uint32_t mix(uint32_t a, uint32_t b) { uint32_t h = a * 2654435761u ^ (b 
 static int blank2_value = -1;      /* the second blank of the forms that skip one (-1: none) */
 static unsigned cells_across, cells_down, blank_value, density;   /* one cell in `density` is not the blank cell: the stage's pool holds fewer records than it has cells */
 
+/* The extent test's maps: whole columns blank outside a window of the map (wrapping) and in fixed gaps of two and three columns inside it. */
+static int ext_mode;
+static int ext_scan;         /* the expectation is for the extent: cells past the map's own rows are blank, not the zero padding */
+static unsigned ext_start, ext_len;
+
 static unsigned logical_tile(unsigned col, unsigned row)
 {
     uint32_t h = mix(col, row);
+    if (ext_mode && (((col + cells_across - ext_start) % cells_across) >= ext_len || col % 17 == 5 || col % 17 == 6 ||
+                     (col % 29 >= 10 && col % 29 <= 12)))
+        return blank_value;
     if (h % density != 0) return blank_value;
     if (blank2_value >= 0 && (h >> 4) % 5 == 0) return (unsigned)blank2_value;   /* some of the drawn cells are the other blank */
     return (h >> 8) & 0xffffu;
@@ -578,6 +602,7 @@ static void expect_flat(const struct form *f, const struct fixture *x, int k0, i
             lrow = row;
             if (row < 0 || row > (int)cells_down || (row == (int)cells_down && !f->shape->row_inclusive)) continue;   /* only the 32 px C also takes the row after the last */
         }
+        if (ext_scan && lrow >= (int)cells_down) continue;
         for (k = k0; k < k1; k++) {
             unsigned col = (unsigned)floormod(col0 + k, (int)cells_across);
             unsigned tile = lrow < (int)cells_down ? logical_tile(col, (unsigned)lrow) : 0;   /* past the map: the zero padding */
@@ -632,6 +657,7 @@ static void expect_sprites(const struct form *f, const struct fixture *x, int k0
     for (i = i0; i <= i_end; i++) {
         int row = row0 + (i - i0), partial = i == i_end;
         if (partial ? !(f4c & 15) : (row < 0 || row > (int)cells_down)) continue;       /* the C's rows; the partial row has no bounds */
+        if (ext_scan && row >= (int)cells_down) continue;
         for (k = k0; k < k1; k++) {
             unsigned col = (unsigned)floormod(col0 + k, (int)cells_across);
             unsigned tile = row < (int)cells_down ? logical_tile(col, (unsigned)row) : 0;
@@ -862,6 +888,181 @@ static int case_expect_in_c_range(const struct form *f)
         d = compare(&from_c, &expected, (unsigned)f->shape->words);
         if (d) return BAD("fixture %u: packet %u differs (C %u, expected %u)", i, d - 1, from_c.n, expected.n);
     }
+    return 1;
+}
+
+/* ---- the painted extent (step 5) ---- */
+static int exp_x12(const struct fixture *x)
+{
+    int64_t diff = (int32_t)((uint32_t)x->v[1] - (uint32_t)x->v[0]);
+    int64_t q = diff * (int64_t)(x->v[5] - x->v[3]) / (int64_t)(x->v[4] - x->v[3]);
+    return (int)floordiv((int)(q + (int64_t)x->v[0]), 65536);
+}
+
+static struct packets ext_tmp;
+
+/* The extent by the packets of the expectation's own cells over a wide range of columns: a slot is painted when a cell overlaps it;
+ * from the view's edges outward, slot by slot, `gap` blank slots in a row end it. The grid is the cells' own columns for the forms with one
+ * offset, the screen's slots (0 on an edge) for the skewed form and chunli_alt's. */
+static void expected_extent(const struct form *f, const struct fixture *x, int gap, int *lo, int *hi)
+{
+    const int size = 1 << f->shape->shift, wide = size == 16 ? 40 : 20;
+    int off = 0, i, s, blank, left_stop, right_stop;
+    if (KIND(f) == PORT_WIDE_SPRITES) off = floormod(exp_x12(x), size);
+    else if (KIND(f) != PORT_WIDE_SKEWED && KIND(f) != PORT_WIDE_SCROLLC) off = x->scroll_x & (size - 1);
+    ext_scan = 1;
+    expect_columns(f, x, C_LO(f) - wide, C_HI(f) + wide, 0, &ext_tmp);
+    ext_scan = 0;
+    #define SLOT(px) floordiv((px) + off, size)
+    #define XMIN(p) (f->shape->words == 9 ? ((int16_t)(p)->w[1] < (int16_t)(p)->w[3] ? ((int16_t)(p)->w[1] < (int16_t)(p)->w[5] ? ((int16_t)(p)->w[1] < (int16_t)(p)->w[7] ? (int16_t)(p)->w[1] : (int16_t)(p)->w[7]) : ((int16_t)(p)->w[5] < (int16_t)(p)->w[7] ? (int16_t)(p)->w[5] : (int16_t)(p)->w[7])) : ((int16_t)(p)->w[3] < (int16_t)(p)->w[5] ? ((int16_t)(p)->w[3] < (int16_t)(p)->w[7] ? (int16_t)(p)->w[3] : (int16_t)(p)->w[7]) : ((int16_t)(p)->w[5] < (int16_t)(p)->w[7] ? (int16_t)(p)->w[5] : (int16_t)(p)->w[7]))) : (int16_t)(p)->w[4])
+    #define XMAX(p) (f->shape->words == 9 ? ((int16_t)(p)->w[1] > (int16_t)(p)->w[3] ? ((int16_t)(p)->w[1] > (int16_t)(p)->w[5] ? ((int16_t)(p)->w[1] > (int16_t)(p)->w[7] ? (int16_t)(p)->w[1] : (int16_t)(p)->w[7]) : ((int16_t)(p)->w[5] > (int16_t)(p)->w[7] ? (int16_t)(p)->w[5] : (int16_t)(p)->w[7])) : ((int16_t)(p)->w[3] > (int16_t)(p)->w[5] ? ((int16_t)(p)->w[3] > (int16_t)(p)->w[7] ? (int16_t)(p)->w[3] : (int16_t)(p)->w[7]) : ((int16_t)(p)->w[5] > (int16_t)(p)->w[7] ? (int16_t)(p)->w[5] : (int16_t)(p)->w[7]))) : (int16_t)(p)->w[4] + size)
+    /* slots wholly left of 0 are s <= -1; those wholly right of 384 start at view_right; the limits keep the cells' edges inside -256 and 640 */
+    left_stop = 0;
+    for (s = -1, blank = 0; s >= floordiv(-256 + off + size - 1, size); s--) {
+        int hit = 0;
+        for (i = 0; i < (int)ext_tmp.n && !hit; i++) hit = SLOT(XMIN(&ext_tmp.p[i])) <= s && SLOT(XMAX(&ext_tmp.p[i]) - 1) >= s;
+        if (hit) { left_stop = s; blank = 0; } else if (++blank > gap) break;
+    }
+    right_stop = floordiv(384 + off + size - 1, size) - 1;
+    for (s = right_stop + 1, blank = 0; s <= floordiv(640 + off, size) - 1; s++) {
+        int hit = 0;
+        for (i = 0; i < (int)ext_tmp.n && !hit; i++) hit = SLOT(XMIN(&ext_tmp.p[i])) <= s && SLOT(XMAX(&ext_tmp.p[i]) - 1) >= s;
+        if (hit) { right_stop = s; blank = 0; } else if (++blank > gap) break;
+    }
+    *lo = 0;
+    *hi = 384;
+    for (i = 0; i < (int)ext_tmp.n; i++) {
+        const struct packet *p = &ext_tmp.p[i];
+        if (left_stop < 0 && SLOT(XMAX(p) - 1) >= left_stop && XMIN(p) < *lo) *lo = XMIN(p);
+        if (SLOT(XMIN(p)) <= right_stop && XMAX(p) > *hi) *hi = XMAX(p);
+    }
+    if (*lo < -256) *lo = -256;
+    if (*hi > 640) *hi = 640;
+    #undef XMIN
+    #undef XMAX
+    #undef SLOT
+}
+
+static int extent_of(const struct form *f, const struct fixture *x, int *lo, int *hi)
+{
+    uint32_t preferred, minimum;
+    port_wide_map_bytes(f->shape, layer_of(f), x->game_scroll_y, &preferred, &minimum);
+    return port_wide_extent(f->shape, layer_of(f), map_of(), minimum, x->game_scroll_y, first_record(f, x->buffer), lo, hi);
+}
+
+/* every form, every fixture: the maker's extent is the expectation's; and the fixtures reach into the sides, so that it is not always 0 and 384 */
+static unsigned differs_gap1, differs_gap3;     /* fixtures on which another gap rule gives another extent (the negative control) */
+
+static int case_extent_forms(void)
+{
+    unsigned fi, i, wide = 0, narrow = 0, total = 0;
+    ext_mode = 1;
+    for (fi = 0; fi < NFORMS; fi++) {
+        const struct form *f = &forms[fi];
+        for (i = 0; i < fixture_count; i++) {
+            const struct fixture *x = fix(f, i);
+            int lo, hi, elo, ehi, glo, ghi;
+            ext_start = (i * 13 + fi * 7) % 64;                          /* the painted window: where it starts and how long it is */
+            ext_len = 20 + (i * 5 + fi) % 40;
+            init_pool(f, 0x00808080u | (f->code << 24));
+            set_layer(f, x);
+            if (extent_of(f, x, &lo, &hi)) { ext_mode = 0; return BAD("%s fixture %u: no extent", f->tag, i); }
+            expected_extent(f, x, 2, &elo, &ehi);
+            if (lo != elo || hi != ehi) { ext_mode = 0; return BAD("%s fixture %u: extent %d..%d, expected %d..%d", f->tag, i, lo, hi, elo, ehi); }
+            if (lo > 0 || hi < 384 || lo < -256 || hi > 640) { ext_mode = 0; return BAD("%s fixture %u: extent %d..%d out of its bounds", f->tag, i, lo, hi); }
+            expected_extent(f, x, 1, &glo, &ghi);
+            if (glo != lo || ghi != hi) differs_gap1++;
+            expected_extent(f, x, 3, &glo, &ghi);
+            if (glo != lo || ghi != hi) differs_gap3++;
+            total++;
+            if (lo < 0 || hi > 384) wide++;
+            if (lo > -256 || hi < 640) narrow++;
+        }
+    }
+    ext_mode = 0;
+    if (wide * 4 < total) return BAD("only %u of %u extents go past the view", wide, total);
+    return narrow * 4 >= total ? 1 : BAD("only %u of %u extents end before the scan limits", narrow, total);
+}
+
+/* a map painted by whole columns: tile 5 where painted[col], the blank cell elsewhere, in every row */
+static void paint_columns(const struct form *f, const unsigned char *painted)
+{
+    unsigned bc = f->shape->shift == 4 ? 32 : 16, br = f->shape->shift == 4 ? 16 : 8, col, row, blocks_across = cells_across / bc;
+    for (row = 0; row < cells_down; row++)
+        for (col = 0; col < cells_across; col++) {
+            unsigned index = ((row / br) * blocks_across + col / bc) * bc * br + (row % br) * bc + col % bc;
+            wr16(ADDR_MAP + index * 4, painted[col] ? 5u : blank_value);
+            wr16(ADDR_MAP + index * 4 + 2, 0);
+        }
+}
+
+static void columns(unsigned char *painted, int a, int b)
+{
+    int c;
+    for (c = a; c <= b; c++) painted[c] = 1;
+}
+
+/* the scan on made-up maps: layer 1's 64 x 32 cells of 16 px with the view at column 32, and the 32 px layer's 32 columns with it at 16 */
+static int check_extent(const struct form *f, unsigned scroll_x, const unsigned char *painted, int elo, int ehi, const char *what)
+{
+    struct fixture x = { scroll_x, 0x00100000, 0, 1, 3, 0, { 0 } };
+    int lo, hi;
+    init_pool(f, 0x00808080u | (f->code << 24));
+    set_layer(f, &x);
+    paint_columns(f, painted);
+    if (extent_of(f, &x, &lo, &hi)) return BAD("%s: no extent", what);
+    return lo == elo && hi == ehi ? 1 : BAD("%s: extent %d..%d, expected %d..%d", what, lo, hi, elo, ehi);
+}
+
+static int case_extent_hand(void)
+{
+    const struct form *f = &forms[1], *g = &forms[2];     /* layer 1 (16 px), the 32 px layer */
+    unsigned char m[64];
+    int sx;
+    for (sx = 0; sx <= 5; sx += 5) {
+        char what[96];
+        unsigned scroll = 0x200u + (unsigned)sx;
+        memset(m, 0, sizeof m); columns(m, 20, 58);
+        snprintf(what, sizeof what, "sx %d painted span", sx);
+        if (!check_extent(f, scroll, m, -192 - sx, 432 - sx, what)) return 0;
+        memset(m, 0, sizeof m); columns(m, 20, 26); columns(m, 29, 58);                   /* a gap of two columns: it goes on */
+        snprintf(what, sizeof what, "sx %d left gap of two", sx);
+        if (!check_extent(f, scroll, m, -192 - sx, 432 - sx, what)) return 0;
+        memset(m, 0, sizeof m); columns(m, 20, 27); columns(m, 31, 58);                   /* a gap of three: it ends there */
+        snprintf(what, sizeof what, "sx %d left gap of three", sx);
+        if (!check_extent(f, scroll, m, -16 - sx, 432 - sx, what)) return 0;
+        memset(m, 0, sizeof m); columns(m, 20, 58); columns(m, 61, 63);                   /* right: two blank columns, then more */
+        snprintf(what, sizeof what, "sx %d right gap of two", sx);
+        if (!check_extent(f, scroll, m, -192 - sx, 512 - sx, what)) return 0;
+        memset(m, 0, sizeof m); columns(m, 20, 58); columns(m, 62, 63);                   /* three: the painting ends at column 58 */
+        snprintf(what, sizeof what, "sx %d right gap of three", sx);
+        if (!check_extent(f, scroll, m, -192 - sx, 432 - sx, what)) return 0;
+        memset(m, 1, sizeof m);                                                           /* everything painted: the scan limits (a cell's edges stay inside) */
+        snprintf(what, sizeof what, "sx %d everything painted", sx);
+        if (!check_extent(f, scroll, m, sx ? -245 : -256, sx ? 635 : 640, what)) return 0;
+        memset(m, 0, sizeof m); columns(m, 32, 55);                                       /* only the view */
+        snprintf(what, sizeof what, "sx %d only the view", sx);
+        if (!check_extent(f, scroll, m, 0, 384, what)) return 0;                  /* the view's own edges */
+        memset(m, 0, sizeof m); columns(m, 32, 56);                                       /* the C's last column is cut by the view's edge */
+        snprintf(what, sizeof what, "sx %d the straddling column", sx);
+        if (!check_extent(f, scroll, m, 0, 400 - sx, what)) return 0;
+    }
+    memset(m, 0, sizeof m); columns(m, 10, 30);                                             /* the 32 px layer: view at column 16, 13 columns */
+    if (!check_extent(g, 0x200, m, -192, 480, "32 px span")) return 0;
+    memset(m, 0, sizeof m); columns(m, 8, 8); columns(m, 11, 30);                           /* two blank columns, then the column at -256 */
+    if (!check_extent(g, 0x200, m, -256, 480, "32 px gap of two")) return 0;
+    memset(m, 0, sizeof m); columns(m, 8, 8); columns(m, 12, 30);
+    if (!check_extent(g, 0x200, m, -128, 480, "32 px gap of three")) return 0;
+    memset(m, 1, sizeof m);
+    return check_extent(g, 0x200, m, -256, 640, "32 px everything painted");
+}
+
+/* a negative control: another gap rule (one blank column, or three) gives other extents on the maps of case_extent_forms, so that comparison
+ * can tell the rules apart */
+static int case_extent_negative(void)
+{
+    if (!differs_gap1) return BAD("a gap rule of one gave the same extents everywhere");
+    if (!differs_gap3) return BAD("a gap rule of three gave the same extents everywhere");
     return 1;
 }
 
@@ -1105,12 +1306,26 @@ static int case_override_wiring(void)
             init_pool(f, 0x00808080u | (f->code << 24));
             set_layer(f, x);
             queued_count = 0;
+            view_count = 0;
             run();
             harvest(f, entry_of(f, x), &from_c);
             if (from_c.n == 0) return BAD("%s: the game's C was not run (settings %u)", name, s);
             if (!settings[s][2]) {
                 if (queued_count) return BAD("%s: %u packets queued with widescreen %d, arcade_video %d", name, queued_count, settings[s][0], settings[s][1]);
+                if (view_count) return BAD("%s: a plane view with widescreen %d, arcade_video %d", name, settings[s][0], settings[s][1]);
                 continue;
+            }
+            {   /* the plane's view: its pool of both buffers, the entry of its side cells and the extent that the maker finds */
+                int lo, hi, elo, ehi;
+                if (view_count != 1) return BAD("%s: %u plane views, expected 1", name, view_count);
+                extent_of(f, x, &lo, &hi);
+                expected_extent(f, x, 2, &elo, &ehi);
+                if (view_calls[0].layer != f->layer) return BAD("%s: plane view for the record %08x, expected %08x", name, view_calls[0].layer, f->layer);
+                if (view_calls[0].lo != f->pool || view_calls[0].hi != f->pool + 2 * f->count * record_words(f) * 4 ||
+                    view_calls[0].entry != (int)entry_of(f, x) || view_calls[0].art_lo != lo || view_calls[0].art_hi != hi || lo != elo || hi != ehi)
+                    return BAD("%s: plane view %08x..%08x entry %d art %d..%d, expected %08x..%08x entry %u art %d..%d", name, view_calls[0].lo, view_calls[0].hi,
+                               view_calls[0].entry, view_calls[0].art_lo, view_calls[0].art_hi, f->pool, f->pool + 2 * f->count * record_words(f) * 4,
+                               entry_of(f, x), elo, ehi);
             }
             sink = &from_maker;
             from_maker.n = 0;
@@ -1184,6 +1399,9 @@ int main(int argc, char **argv)
         snprintf(name, sizeof name, "negative_control_%s", forms[fi].tag);
         report(name, case_negative_control(&forms[fi]) ? NULL : why);
     }
+    report("extent_hand_made_maps", case_extent_hand() ? NULL : why);
+    report("extent_every_form", case_extent_forms() ? NULL : why);
+    report("extent_negative_control", case_extent_negative() ? NULL : why);
     report("override_wiring", case_override_wiring() ? NULL : why);
     report("override_without_c", case_override_without_c() ? NULL : why);
     printf("%d cases, %d failed\n", cases, failures);

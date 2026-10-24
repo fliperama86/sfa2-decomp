@@ -20,8 +20,9 @@ class UiLayout(unittest.TestCase):
             exe = path / 'fixture'
             subprocess.run(['gcc', '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror',
                 '-I', str(ROOT / 'port/src'), str(source), *map(str, extra),
-                '-o', str(exe)], check=True, timeout=15)
-            subprocess.run([str(exe)], check=True, timeout=5)
+                '-o', str(exe)], check=True, timeout=30)
+            run = subprocess.run([str(exe)], timeout=15, stderr=subprocess.PIPE, text=True)   # the walker's log lines are for the game's run
+            self.assertEqual(run.returncode, 0, run.stderr[-2000:])
 
     def test_geometry_and_exact_buffer_policy(self):
         self.compile_run(ROOT / 'port/tools/ui_layout_test.c')

@@ -68,6 +68,20 @@ unsigned port_wide_sides(const struct port_wide_shape *shape, const uint8_t *lay
  * block row more) and *minimum (what is needed); 0 in *minimum when the layer cannot be drawn. The caller maps that much of the game's
  * memory and gives it as map_bytes. */
 void port_wide_map_bytes(const struct port_wide_shape *shape, const uint8_t *layer, unsigned game, uint32_t *preferred, uint32_t *minimum);
+/* The entry of the ordering table that the layer's side cells (and the C's own packets) go to. */
+int port_wide_entry(const struct port_wide_shape *shape, const uint8_t *layer);
+
+/* The painted extent of the layer around its view (port/widescreen.md, step 5), in screen x relative to the layer's scroll, as the C
+ * positions the cells: the view is 0..384; leftward from 0 down to -256 and rightward from 384 up to 640 the columns that have a cell
+ * that is not blank in the rows the C draws (the maker's own cells), a gap of at most two blank columns not ending the painting.
+ * A column is a slot of the cell's width (16 or 32 px) on the grid that has 0, 384, -256 and 640 on its edges; a cell marks the slots
+ * that its x range (for a quad: all four corners, with the row's own offset) overlaps. *art_lo (-256..0) is the left edge of the leftmost
+ * painted cell of the chain, *art_hi (384..640) the right edge of the rightmost. 0, or -1 when the layer cannot be scanned (the
+ * same conditions as for the cells; nothing is drawn). `map_bytes` is the map's own size (port_wide_map_bytes's minimum): a cell past it is
+ * blank, so the row that some forms' C reads past the map does not count as painting. */
+int port_wide_extent(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
+                     unsigned game, const uint32_t *record, int *art_lo, int *art_hi);
+
 /* The game's global that PORT_WIDE_SCROLLC reads (an s16), packed into the high half of the `game` word. */
 #define PORT_WIDE_SCROLL_GLOBAL 0x8019054eu
 

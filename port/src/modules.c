@@ -600,7 +600,11 @@ static int locate(unsigned address, int quiet, struct chunk *c, const struct por
 
 /* Before the pages of an image become executable: a page that holds the function start of ANOTHER image, written
  * from that image's chunk, which is not placed, would no longer fault on its first call (the page is executable
- * now, and the bytes there are not jumped). Refuse that, naming both images and the page. */
+ * now, and the bytes there are not jumped). That entry gets its own jump (or stop call) written there, as its
+ * placement would write it, with one line: a call to it then runs its C. Seen on 2026-10-24: Zangief's alternate
+ * module (slot04_16, both fighters of his mirror match) is loaded over the second fighter's place and ends inside a
+ * page whose rest still holds the previous opponent's module (slot05_03, slot05_09), which the game no longer
+ * calls; the program used to stop there. */
 static void check_shared(int index, const struct chunk *c)
 {
     const struct port_image *im = &port_images[index];
@@ -631,9 +635,14 @@ static void check_shared(int index, const struct chunk *c)
         }
         found = locate(a, 1, &oc, &of, &osrc);
         if (found != other) continue;   /* the bytes there are some other content: this start belongs to an image that is not loaded */
-        printf("refused: images %s and %s share the page 0x%08x: the function of %s at 0x%08x lies in it, %s is not placed, and its first call would no longer fault once the page is executable\n",
-               im->name, port_images[other].name, a & ~(PAGE - 1), port_images[other].name, a, port_images[other].name);
-        finish(PORT_EXIT_REFUSED);
+#ifdef PORT_GUEST_VM
+        jump_site_row(a, i);
+#else
+        jump_site(a, row_opcode(i), row_target(i));
+#endif
+        printf("modules: images %s and %s share the page 0x%08x; %s's %s at 0x%08x, left from its last load, gets its own jump\n",
+               im->name, port_images[other].name, a & ~(PAGE - 1), port_images[other].name, row_name(i), a);
+        fflush(stdout);
     }
 }
 

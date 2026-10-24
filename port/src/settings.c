@@ -29,7 +29,7 @@ const char *port_settings_path = "settings.ini";
 
 /* The defaults, by the owner's decisions of 2026-10-23 and 2026-10-24 ("turn the arcade intro and pc settings default on"): every
  * setting on but the arcade assets (arcade_assets), which need the player's arcade set and are work in progress, and widescreen
- * (widescreen.md), which is work in progress. The arcade intro needs a pack that the player makes; without one the PS1 opening
+ * (widescreen.md), which is work in progress; its wide_ends is narrowed, by the owner's word of 2026-10-24 (widescreen.md). The arcade intro needs a pack that the player makes; without one the PS1 opening
  * plays, with a line (main.c).
  * The graphics settings need PsyZ's patched backend: a build without PsyZ (the controls, which open no window) keeps them off, and
  * its filter is nearest, so that its defaults never ask for what it cannot do. The build tools compile this file with PORT_HAVE_PSYZ
@@ -44,14 +44,17 @@ const char *port_settings_path = "settings.ini";
 void port_settings_defaults(struct port_settings *out)
 {
     out->pixel_perfect_ui=GRAPHICS_DEFAULT;out->arcade_video=GRAPHICS_DEFAULT;out->center_ui=GRAPHICS_DEFAULT;
-    out->fast_loads=1;out->memory_card=1;out->arcade_intro=GRAPHICS_DEFAULT;out->arcade_assets=0;out->settings_menu=GRAPHICS_DEFAULT;out->widescreen=0;
+    out->fast_loads=1;out->memory_card=1;out->arcade_intro=GRAPHICS_DEFAULT;out->arcade_assets=0;out->settings_menu=GRAPHICS_DEFAULT;out->widescreen=0;out->wide_ends=PORT_WIDE_NARROWED;
     out->screen=PORT_SCREEN_WINDOW;out->window_w=PORT_WINDOW_DEFAULT_W;out->window_h=PORT_WINDOW_DEFAULT_H;
     out->fullscreen_w=0;out->fullscreen_h=0;out->filter=FILTER_DEFAULT;
 }
 
 static const char *const screen_names[]={"window","fullscreen","borderless"};
 static const char *const filter_names[]={"nearest","bilinear","sharp_bilinear"};
+static const char *const wide_ends_names[]={"centred","anchored","narrowed"};
 const char *port_screen_name(int screen){ return screen>=0 && screen<(int)(sizeof screen_names/sizeof *screen_names)?screen_names[screen]:NULL; }
+const char *port_wide_ends_name(int wide_ends){ return wide_ends>=0 && wide_ends<(int)(sizeof wide_ends_names/sizeof *wide_ends_names)?wide_ends_names[wide_ends]:NULL; }
+int port_wide_ends_value(const char *name){ int i;for(i=0;name && i<(int)(sizeof wide_ends_names/sizeof *wide_ends_names);i++)if(!strcmp(name,wide_ends_names[i]))return i;return -1; }
 const char *port_filter_name(int filter){ return filter>=0 && filter<(int)(sizeof filter_names/sizeof *filter_names)?filter_names[filter]:NULL; }
 
 static int failure(char *err,size_t size,unsigned line,const char *why)
@@ -72,13 +75,13 @@ static char *trim(char *s)
 /* The keys: where each belongs and how its value reads. The id is also the key's bit in `seen`. */
 enum { SECTION_NONE, SECTION_EXPERIMENTAL, SECTION_DISPLAY };
 enum { K_PIXEL_PERFECT_UI, K_ARCADE_VIDEO, K_CENTER_UI, K_FAST_LOADS, K_MEMORY_CARD, K_ARCADE_INTRO, K_ARCADE_ASSETS, K_SETTINGS_MENU, K_WIDESCREEN,
-       K_SHARP_BILINEAR /* the legacy spelling of filter, read only */, K_SCREEN, K_WINDOW_SIZE, K_FULLSCREEN_SIZE, K_FILTER };
+       K_SHARP_BILINEAR /* the legacy spelling of filter, read only */, K_SCREEN, K_WINDOW_SIZE, K_FULLSCREEN_SIZE, K_FILTER, K_WIDE_ENDS };
 static const struct { const char *name; int section, id; } keys[]={
     {"pixel_perfect_ui",SECTION_EXPERIMENTAL,K_PIXEL_PERFECT_UI},{"arcade_video",SECTION_EXPERIMENTAL,K_ARCADE_VIDEO},
     {"center_ui",SECTION_EXPERIMENTAL,K_CENTER_UI},{"fast_loads",SECTION_EXPERIMENTAL,K_FAST_LOADS},
     {"memory_card",SECTION_EXPERIMENTAL,K_MEMORY_CARD},{"arcade_intro",SECTION_EXPERIMENTAL,K_ARCADE_INTRO},
     {"arcade_assets",SECTION_EXPERIMENTAL,K_ARCADE_ASSETS},{"settings_menu",SECTION_EXPERIMENTAL,K_SETTINGS_MENU},
-    {"widescreen",SECTION_EXPERIMENTAL,K_WIDESCREEN},
+    {"widescreen",SECTION_EXPERIMENTAL,K_WIDESCREEN},{"wide_ends",SECTION_EXPERIMENTAL,K_WIDE_ENDS},
     {"sharp_bilinear",SECTION_EXPERIMENTAL,K_SHARP_BILINEAR},
     {"screen",SECTION_DISPLAY,K_SCREEN},{"window_size",SECTION_DISPLAY,K_WINDOW_SIZE},
     {"fullscreen_size",SECTION_DISPLAY,K_FULLSCREEN_SIZE},{"filter",SECTION_DISPLAY,K_FILTER}};
@@ -155,6 +158,10 @@ static int line_read(char *text,unsigned row,int *section,unsigned *seen,
         v=name_index(screen_names,(int)(sizeof screen_names/sizeof *screen_names),value);
         if(v<0)return failure(err,size,row,"expected window, fullscreen or borderless");
         next->screen=v;
+    } else if(id==K_WIDE_ENDS) {
+        v=port_wide_ends_value(value);
+        if(v<0)return failure(err,size,row,"expected centred, anchored or narrowed");
+        next->wide_ends=v;
     } else if(id==K_FILTER) {
         v=name_index(filter_names,(int)(sizeof filter_names/sizeof *filter_names),value);
         if(v<0)return failure(err,size,row,"expected nearest, bilinear or sharp_bilinear");
@@ -205,7 +212,7 @@ static int flag_ok(int v){ return v==0 || v==1; }
 static int valid(const struct port_settings *v)
 {
     return flag_ok(v->pixel_perfect_ui) && flag_ok(v->arcade_video) && flag_ok(v->center_ui) && flag_ok(v->fast_loads) &&
-           flag_ok(v->memory_card) && flag_ok(v->arcade_intro) && flag_ok(v->arcade_assets) && flag_ok(v->settings_menu) && flag_ok(v->widescreen) &&
+           flag_ok(v->memory_card) && flag_ok(v->arcade_intro) && flag_ok(v->arcade_assets) && flag_ok(v->settings_menu) && flag_ok(v->widescreen) && port_wide_ends_name(v->wide_ends) &&
            port_screen_name(v->screen) && port_filter_name(v->filter) && size_ok(v->window_w,v->window_h) &&
            ((v->fullscreen_w==0 && v->fullscreen_h==0) || size_ok(v->fullscreen_w,v->fullscreen_h));
 }
@@ -215,9 +222,9 @@ int port_settings_write(FILE *file,const struct port_settings *value)
 {
 #define TF(x) ((x)?"true":"false")
     if(fprintf(file,"[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = %s\nmemory_card = %s\n"
-                    "arcade_intro = %s\narcade_assets = %s\nsettings_menu = %s\nwidescreen = %s\n\n[display]\nscreen = %s\nwindow_size = %dx%d\n",
+                    "arcade_intro = %s\narcade_assets = %s\nsettings_menu = %s\nwidescreen = %s\nwide_ends = %s\n\n[display]\nscreen = %s\nwindow_size = %dx%d\n",
        TF(value->pixel_perfect_ui),TF(value->arcade_video),TF(value->center_ui),TF(value->fast_loads),TF(value->memory_card),
-       TF(value->arcade_intro),TF(value->arcade_assets),TF(value->settings_menu),TF(value->widescreen),port_screen_name(value->screen),value->window_w,value->window_h)<0)return -1;
+       TF(value->arcade_intro),TF(value->arcade_assets),TF(value->settings_menu),TF(value->widescreen),port_wide_ends_name(value->wide_ends),port_screen_name(value->screen),value->window_w,value->window_h)<0)return -1;
 #undef TF
     if((value->fullscreen_w?fprintf(file,"fullscreen_size = %dx%d\n",value->fullscreen_w,value->fullscreen_h):fprintf(file,"fullscreen_size = desktop\n"))<0)return -1;
     if(fprintf(file,"filter = %s\n",port_filter_name(value->filter))<0)return -1;

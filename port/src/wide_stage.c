@@ -535,6 +535,95 @@ unsigned port_wide_sides(const struct port_wide_shape *shape, const uint8_t *lay
     return made + port_wide_columns(shape, layer, map, map_bytes, game, record, shape->cols, right, emit);
 }
 
+int port_wide_entry(const struct port_wide_shape *shape, const uint8_t *layer)
+{
+    if (shape->fixed_entry) return shape->fixed_entry - 1;
+    return shape->kind == PORT_WIDE_SKEWED ? layer[CHAN_OT_INDEX] - 1 : layer[CHAN_OT_INDEX];
+}
+
+/* The cells of a scan: the x range of each packet. */
+#define EXTENT_MAX 4096
+static struct { int xmin, xmax; } extent_cell[EXTENT_MAX];
+static unsigned extent_n;
+static int extent_size, extent_quad;
+
+static int extent_emit(int entry, const uint32_t *w, unsigned len)
+{
+    int xmin, xmax;
+    (void)entry; (void)len;
+    if (extent_n >= EXTENT_MAX) return -1;
+    if (extent_quad) {                                   /* the four corners, each with the row's own offset */
+        int x0 = (int16_t)w[PW_XY0], x1 = (int16_t)w[PW_XY1], x2 = (int16_t)w[PW_XY2], x3 = (int16_t)w[PW_XY3];
+        xmin = x0 < x1 ? x0 : x1; if (x2 < xmin) xmin = x2; if (x3 < xmin) xmin = x3;
+        xmax = x0 > x1 ? x0 : x1; if (x2 > xmax) xmax = x2; if (x3 > xmax) xmax = x3;
+        if (xmax <= xmin) xmax = xmin + 1;               /* x + 16 is the cell's right edge */
+    } else {
+        xmin = (int16_t)w[WORD_XY];
+        xmax = xmin + extent_size;
+    }
+    extent_cell[extent_n].xmin = xmin;
+    extent_cell[extent_n].xmax = xmax;
+    extent_n++;
+    return 0;
+}
+
+static int floor_div(int a, int b) { int q = a / b; return (a % b && ((a < 0) != (b < 0))) ? q - 1 : q; }
+
+/* The grid of the scan's columns: for the forms with one horizontal offset (the plain grids, the sprite forms, the quads) the cells' own
+ * columns, k = floor((x + sx) / size); for the skewed form (each row has its own offset) and chunli_alt's (two) the columns are slots of the
+ * cell's width on the screen grid with 0 on an edge. */
+static int extent_offset(const struct port_wide_shape *shape, const uint8_t *layer)
+{
+    int ok, size = 1 << shape->shift;
+    if (shape->kind == PORT_WIDE_SKEWED || shape->kind == PORT_WIDE_SCROLLC) return 0;
+    if (shape->kind == PORT_WIDE_SPRITES) return sprites_x12(layer, &ok) & (size - 1);
+    return (int)(rd16(layer, CHAN_SCROLL_X) & (unsigned)(size - 1));
+}
+
+int port_wide_extent(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
+                     unsigned game, const uint32_t *record, int *art_lo, int *art_hi)
+{
+    const int size = 1 << shape->shift, off = extent_offset(shape, layer);
+    const int first = shape->k_first - (size == 16 ? 40 : 20), end = shape->k_first + shape->cols + (size == 16 ? 40 : 20);
+    unsigned char painted[80];
+    const int base = -(256 / size) - 2, count = (640 + 256) / size + 6;     /* the slots from base on */
+    const int s_min = floor_div(-256 + off + size - 1, size);                /* the leftmost slot whose left edge is at -256 or more */
+    const int s_max = floor_div(640 + off, size) - 1;                        /* the rightmost whose right edge is at 640 or less */
+    const int view_left = -1, view_right = floor_div(384 + off + size - 1, size);   /* the slots wholly left of 0 start at this and below; wholly right of 384 start here */
+    int s, blank, last_left, last_right, lo = 0, hi = 384;
+    unsigned i;
+
+    extent_n = 0;
+    extent_size = size;
+    extent_quad = shape->words == 9;
+    port_wide_columns(shape, layer, map, map_bytes, game, record, first, end, extent_emit);
+    if (extent_n >= EXTENT_MAX) return -1;             /* the scan was cut: no view is better than a wrong one */
+    memset(painted, 0, sizeof painted);
+    for (i = 0; i < extent_n; i++) {
+        int a = floor_div(extent_cell[i].xmin + off, size), b = floor_div(extent_cell[i].xmax - 1 + off, size);
+        for (s = a; s <= b; s++)
+            if (s >= base && s < base + count) painted[s - base] = 1;
+    }
+    last_left = 0;                                      /* 0: nothing painted left of the view */
+    for (s = view_left, blank = 0; s >= s_min; s--) {
+        if (painted[s - base]) { last_left = s; blank = 0; }
+        else if (++blank > 2) break;
+    }
+    last_right = view_right - 1;
+    for (s = view_right, blank = 0; s <= s_max; s++) {
+        if (painted[s - base]) { last_right = s; blank = 0; }
+        else if (++blank > 2) break;
+    }
+    for (i = 0; i < extent_n; i++) {
+        int a = floor_div(extent_cell[i].xmin + off, size), b = floor_div(extent_cell[i].xmax - 1 + off, size);
+        if (last_left < 0 && b >= last_left && extent_cell[i].xmin < lo) lo = extent_cell[i].xmin;
+        if (a <= last_right && extent_cell[i].xmax > hi) hi = extent_cell[i].xmax;   /* a cell that straddles 384 counts */
+    }
+    *art_lo = lo < -256 ? -256 : lo;
+    *art_hi = hi > 640 ? 640 : hi;
+    return 0;
+}
+
 void port_wide_map_bytes(const struct port_wide_shape *shape, const uint8_t *layer, unsigned game, uint32_t *preferred, uint32_t *minimum)
 {
     uint32_t width = rd32(layer, CHAN_MAP_WIDTH), height = rd32(layer, CHAN_MAP_HEIGHT);
@@ -666,7 +755,7 @@ static void side_tiles(const struct port_wide_copy *c)
     const int *buffer;
     uint32_t preferred, minimum, map_data;
     unsigned game;
-    int buf;
+    int buf, art_lo, art_hi;
 
     layer = (const uint8_t *)port_gs((const void *)(uintptr_t)c->layer, shape->second_blank ? 2 * PORT_WIDE_CHAN_SIZE : PORT_WIDE_CHAN_SIZE);
     scroll_y = (const uint16_t *)port_gs((const void *)(uintptr_t)GAME_STATE_SCROLL_Y, sizeof *scroll_y);
@@ -694,6 +783,10 @@ static void side_tiles(const struct port_wide_copy *c)
     }
     if (!map) return;
     port_wide_sides(shape, layer, map, preferred, game, record, port_gpu_queue_packet);
+    /* the plane's painting, for the bridge to keep its wide view inside it (the map's own bytes: the row past its end, which the C of some
+     * forms reads, is not painting): the pool of both buffers and the entry of its side cells */
+    if (port_wide_extent(shape, layer, map, minimum, game, record, &art_lo, &art_hi) == 0)
+        port_gpu_layer_view(c->layer, c->pool, c->pool + 2u * c->count * record_bytes(shape), port_wide_entry(shape, layer), art_lo, art_hi);
 }
 
 static void run(unsigned index)

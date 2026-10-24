@@ -254,7 +254,7 @@ void mq_f(void) {{ SAY("Q ran\\n"); }}
 void g_shared(void)
 {{
     load({FILE_SECTOR['MODP.PAC'] + 1}, 1, 0x{PBASE:08x}u); load({FILE_SECTOR['MODQ.PAC'] + 1}, 1, 0x{QBASE:08x}u);
-    SAY("loaded P and Q\\n"); CALL(0x{PF:08x}u); SAY("not reached\\n");
+    SAY("loaded P and Q\\n"); CALL(0x{PF:08x}u); SAY("after P\\n"); CALL(0x{QF:08x}u); SAY("after Q\\n");
 }}
 void g_shared_one(void)
 {{
@@ -633,8 +633,9 @@ def cases(rig: ModRig):
 
     # ---- where each word came from ----
     status, lines = rig.go("shared", G["g_shared"])
-    want = ["loaded P and Q", f"refused: images mp and mq share the page 0x{PBASE & ~0xfff:08x}: the function of mq at 0x{QF:08x} lies in it, mq is not placed, and its first call would no longer fault once the page is executable"]
-    yield "two-images-sharing-a-page-the-second-not-placed-is-refused-naming-both-and-the-page", verdict((status, lines), (2, want))
+    want = ["loaded P and Q", f"modules: images mp and mq share the page 0x{PBASE & ~0xfff:08x}; mq's mq_f at 0x{QF:08x}, left from its last load, gets its own jump",
+            mline("mp", PBASE, 1, 0), "P ran", "after P", "Q ran", "after Q", "stop: main returned"]
+    yield "two-images-sharing-a-page-the-second-not-placed-gets-its-own-jump-there-and-runs-its-c", verdict((status, lines), (0, want))
     status, lines = rig.go("shared-one", G["g_shared_one"])
     yield "an-image-beginning-in-the-middle-of-a-page-with-nothing-else-of-the-disc-in-it-is-placed", verdict(
         (status, lines), (0, ["loaded P", mline("mp", PBASE, 1, 0), "P ran", "after P", "stop: main returned"]))

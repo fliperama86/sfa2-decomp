@@ -67,7 +67,7 @@ return 2;
                 return result.stdout
             # The defaults of a build without PsyZ, in the file's own form (what port_settings_save writes), then the volume line.
             self.assertEqual(shows([]), '[experimental]\npixel_perfect_ui = false\narcade_video = false\ncenter_ui = false\nfast_loads = true\n'
-                'memory_card = true\narcade_intro = false\narcade_assets = false\nsettings_menu = false\nwidescreen = false\n\n[display]\nscreen = window\n'
+                'memory_card = true\narcade_intro = false\narcade_assets = false\nsettings_menu = false\nwidescreen = false\nwide_ends = narrowed\n\n[display]\nscreen = window\n'
                 'window_size = 1280x960\nfullscreen_size = desktop\nfilter = nearest\nvolume = 100\n')
             def volume(args, expected, line=None):
                 result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
@@ -97,6 +97,12 @@ return 2;
             volume(['--widescreen', '--no-widescreen'], 0, 'widescreen = false')
             volume(['--no-widescreen', '--widescreen'], 0, 'widescreen = true')
             volume(['--widescreen=1'], 2)
+            volume([], 0, 'wide_ends = narrowed')
+            volume(['--wide-ends', 'centred'], 0, 'wide_ends = centred')
+            volume(['--wide-ends', 'narrowed'], 0, 'wide_ends = narrowed')
+            volume(['--wide-ends', 'narrowed', '--wide-ends', 'anchored'], 0, 'wide_ends = anchored')
+            volume(['--wide-ends', 'wide'], 2)
+            volume(['--wide-ends'], 2)
             volume(['--no-widescreen=1'], 2)
             volume([], 0, 'settings_menu = false')   # a build without PsyZ
             volume(['--no-settings-menu'], 0, 'settings_menu = false')

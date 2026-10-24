@@ -7,6 +7,9 @@
 enum port_screen { PORT_SCREEN_WINDOW, PORT_SCREEN_FULLSCREEN, PORT_SCREEN_BORDERLESS };
 /* [display] filter: how the finished picture is stretched to the window. */
 enum port_filter { PORT_FILTER_NEAREST, PORT_FILTER_BILINEAR, PORT_FILTER_SHARP_BILINEAR };
+/* [experimental] wide_ends, with widescreen on (port/widescreen.md): at a stage's ends the wide view stays centred and shows past the
+ * stage's art, is shifted toward the stage's inside, or the camera's range is narrowed by 64 at each end, which moves the walls in. */
+enum port_wide_ends { PORT_WIDE_CENTRED, PORT_WIDE_ANCHORED, PORT_WIDE_NARROWED };
 #define PORT_WINDOW_DEFAULT_W 1280   /* PsyZ's own first window size */
 #define PORT_WINDOW_DEFAULT_H 960
 #define PORT_SIZE_MIN 320            /* a window or fullscreen size, each side, inclusive */
@@ -14,6 +17,7 @@ enum port_filter { PORT_FILTER_NEAREST, PORT_FILTER_BILINEAR, PORT_FILTER_SHARP_
 struct port_settings {
     /* [experimental], each 0 or 1 */
     int pixel_perfect_ui, arcade_video, center_ui, fast_loads, memory_card, arcade_intro, arcade_assets, settings_menu, widescreen;
+    int wide_ends;                  /* enum port_wide_ends */
     /* [display] */
     int screen;                     /* enum port_screen */
     int window_w, window_h;         /* the window's inner size in pixels, for PORT_SCREEN_WINDOW */
@@ -32,4 +36,6 @@ int port_settings_write(FILE *file,const struct port_settings *value);
 /* The names the file uses ("window", "sharp_bilinear", ...); NULL for a value out of range. */
 const char *port_screen_name(int screen);
 const char *port_filter_name(int filter);
+const char *port_wide_ends_name(int wide_ends);
+int port_wide_ends_value(const char *name);   /* -1 for a name that is not one */
 #endif

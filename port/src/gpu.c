@@ -109,6 +109,7 @@ int port_gpu_set_filter(int filter) { return filter == PORT_FILTER_NEAREST ? 0 :
 int port_gpu_set_widescreen(int on) { return on ? -1 : 0; }
 int port_gpu_read_wide(uint16_t *pixels, int *w, int *h) { (void)pixels; (void)w; (void)h; return -1; }
 int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len) { (void)entry; (void)words; (void)len; return -1; }
+void port_gpu_layer_view(uint32_t layer, uint32_t pool_lo, uint32_t pool_hi, int entry, int art_lo, int art_hi) { (void)layer; (void)pool_lo; (void)pool_hi; (void)entry; (void)art_lo; (void)art_hi; }
 int port_gpu_set_screen(int screen, int w, int h) { return screen == PORT_SCREEN_WINDOW && w == PORT_WINDOW_DEFAULT_W && h == PORT_WINDOW_DEFAULT_H ? 0 : -1; }
 int port_gpu_screen(void) { return PORT_SCREEN_WINDOW; }
 int port_gpu_desktop_size(int *w, int *h) { (void)w; (void)h; return -1; }
@@ -652,11 +653,12 @@ static void send_single(const uint32_t *packet)
     chunk_flush();
 }
 
-/* ---- widescreen: the anchor of the world and the host's packet queue (port/widescreen.md, steps 2 and 3) ---- */
+/* ---- widescreen: the anchor of the world, the host's packet queue and the planes' views (port/widescreen.md, steps 2, 3 and 5) ---- */
 
 #define MAIN_LAYER 0x801aa5d4u   /* the main layer: u8 active at +0, s16 cam at +0x12, s16 min at +0x44, s16 max at +0x46 */
 #define QUEUE_WORDS 0x10000u
 #define QUEUE_ENTRIES 30
+#define LAYER_VIEWS 8
 
 static int16_t layer_s16(const uint8_t *layer, unsigned offset)
 {
@@ -665,25 +667,68 @@ static int16_t layer_s16(const uint8_t *layer, unsigned offset)
     return v;
 }
 
+/* A line of the layers' places with the camera at an end of its range (end 1 left, 2 right), when it arrives there and again two
+ * seconds on, for the measure of each plane's painting (port/widescreen.md): the stage (game_state.kind_index, the u16 at
+ * 0x80190148), and of each of the three layers (records of 0x90 at 0x801aa544) its scroll (s16 at +0x12) and ordering-table
+ * entry (+0x8a). */
+static void wide_layers_seen(int end, int min, int max)
+{
+    static int last_end;
+    static unsigned arrived;
+    static unsigned char printed[64];   /* per stage, a bit per end and phase: each line once a run */
+    const uint8_t *kind = (const uint8_t *)port_gs((const void *)(uintptr_t)0x80190148u, 2);
+    const uint8_t *layers = (const uint8_t *)port_gs((const void *)(uintptr_t)0x801aa544u, 3 * 0x90);
+    unsigned now = port_frames();
+    int i;
+    if (end != last_end) {
+        last_end = end;
+        arrived = now;
+        if (!end) return;
+    } else if (!end || now - arrived != 120) return;
+    if (!kind || !layers) return;
+    {
+        unsigned k = (unsigned)(kind[0] | kind[1] << 8) & 63u, bit = 1u << ((end - 1) * 2 + (now != arrived));
+        if (printed[k] & bit) return;
+        printed[k] |= (unsigned char)bit;
+    }
+    fprintf(stderr, "wide-video: stage %u, camera at its %s end (%d of %d..%d)%s:", (unsigned)(kind[0] | kind[1] << 8),
+            end == 1 ? "left" : "right", end == 1 ? min : max, min, max, now == arrived ? "" : ", two seconds on");
+    for (i = 0; i < 3; i++)
+        fprintf(stderr, " layer %d %s scroll %d entry %u;", i, layers[i * 0x90] ? "on" : "off", layer_s16(layers + i * 0x90, 0x12),
+                (unsigned)layers[i * 0x90 + 0x8a]);
+    fprintf(stderr, "\n");
+}
+
 /* The shift of the world's packets (not the HUD's) with widescreen on during a fight: the wide view's left edge is
  * clamp(cam - 64, min, max - 128) (the middle of the two when max - min < 128), the anchor is cam - 64 - left, from -64 at the
- * left end to +64 at the right end. 0 outside a fight, with widescreen off, or without the arcade canvas. An anchor outside
+ * left end to +64 at the right end. 0 outside a fight, with widescreen off, without the arcade canvas, or with wide_ends other than
+ * anchored (centred, the default since 2026-10-24 by the owner's word, or narrowed): the view centred, the planes as the game scrolls
+ * them. An anchor outside
  * -64..64 (a camera outside its range) is cut to it. */
+static int wide_fight;   /* the last wide_anchor was computed in a fight (the planes' views apply only then) */
+static void plane_reset(void);
+static void plane_stage_seen(void);
+
 static int wide_anchor(void)
 {
     static int said;
     const uint8_t *layer;
     int cam, min, max, left, a;
-    if (!wide_on || !ui_canvas_active) return 0;
+    wide_fight = 0;
+    if (!wide_on || !ui_canvas_active) { plane_reset(); return 0; }
     layer = (const uint8_t *)port_gs((const void *)(uintptr_t)MAIN_LAYER, 0x48);
-    if (!layer || !layer[0]) return 0;
+    if (!layer || !layer[0]) { plane_reset(); return 0; }
+    plane_stage_seen();
     cam = layer_s16(layer, 0x12);
     min = layer_s16(layer, 0x44);
     max = layer_s16(layer, 0x46);
-    if (min >= max) return 0;
+    if (min >= max) { plane_reset(); return 0; }
     left = max - min < 128 ? (min + max - 128) / 2 : cam - 64 < min ? min : cam - 64 > max - 128 ? max - 128 : cam - 64;
     a = cam - 64 - left;
     a = a < -64 ? -64 : a > 64 ? 64 : a;
+    wide_layers_seen(cam == min ? 1 : cam == max ? 2 : 0, min, max);
+    wide_fight = 1;
+    if (port_settings.wide_ends != PORT_WIDE_ANCHORED) return 0;   /* centred on the game's view: every plane at the game's own scroll */
     if (a && !said) {
         said = 1;
         fprintf(stderr, "wide-video: the stage view is anchored (camera %d, range %d to %d, shift %d)\n", cam, min, max, a);
@@ -717,16 +762,205 @@ int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len)
     return 0;
 }
 
-/* The walk is at the tag of entry `entry` (at `here`): its queued packets go first, once, with the anchor like the world's. */
+/* The planes' views of this frame (port_gpu_layer_view): the layers that the stage's overrides found painted from art_lo to art_hi
+ * (relative to the layer's scroll), by the record of the layer, the pool range of their packets and the entry of their side cells.
+ * Reset after each walk. `own` is the layer's ot_index (its record's +0x8a), `f_q` its speed against the camera's (16.16, set by
+ * plane_prepare at the start of the walk). */
+static struct { uint32_t layer, lo, hi; int entry, own, art_lo, art_hi, f_q; } layer_view[LAYER_VIEWS];
+static unsigned layer_views;
+
+void port_gpu_layer_view(uint32_t layer, uint32_t pool_lo, uint32_t pool_hi, int entry, int art_lo, int art_hi)
+{
+    static int said;
+    const uint8_t *record;
+    if (pool_lo >= pool_hi || entry < 0 || entry >= QUEUE_ENTRIES || art_lo > 0 || art_hi < 384) return;
+    if (layer_views >= LAYER_VIEWS) {
+        if (!said) {
+            said = 1;
+            fprintf(stderr, "wide-video: more than %d plane views in a frame; the others are ignored\n", LAYER_VIEWS);
+        }
+        return;
+    }
+    record = (const uint8_t *)port_gs((const void *)(uintptr_t)layer, 0x90);
+    layer_view[layer_views].layer = layer;
+    layer_view[layer_views].lo = pool_lo;
+    layer_view[layer_views].hi = pool_hi;
+    layer_view[layer_views].entry = entry;
+    layer_view[layer_views].own = record ? record[0x8a] : -1;
+    layer_view[layer_views].art_lo = art_lo;
+    layer_view[layer_views].art_hi = art_hi;
+    layer_view[layer_views].f_q = 1 << 16;
+    layer_views++;
+}
+
+/* ---- each plane's speed against the camera's (port/widescreen.md, step 6) ----
+ * The estimator, per layer record (at most LAYER_VIEWS): from walk to walk the camera (the main layer's s16 at +0x12) moved by dc and the
+ * layer's scroll (s16 at +0x12) by ds, wrapped into -256..255. r is the layer's own drift, its average step while the camera stands
+ * still; f is the least-squares ratio of (ds - r) to dc over the recent samples, each older one counting 0.98 of the next. A sample with
+ * |dc| or |ds - r| over 64 is left out. f is 1 until the sums hold 64 (px squared), and kept inside 0..3. Fixed point (16.16 in 64
+ * bits), so that it is the same on every machine. */
+#define PLANE_DECAY 64225      /* 0.98 of 65536 */
+static struct { uint32_t layer; int valid, known, cam, scroll; unsigned stamp; int64_t r, sxx, sxy; } plane_est[LAYER_VIEWS];
+static unsigned plane_ests, plane_walk;
+static unsigned plane_stage;
+static int plane_stage_valid;
+
+static void plane_reset(void)
+{
+    plane_ests = 0;
+    plane_stage_valid = 0;
+}
+
+/* A new stage (game_state.kind_index, the u16 at 0x80190148) starts the estimates over. */
+static void plane_stage_seen(void)
+{
+    const uint8_t *kind = (const uint8_t *)port_gs((const void *)(uintptr_t)0x80190148u, 2);
+    unsigned stage;
+    if (!kind) return;
+    stage = (unsigned)(kind[0] | kind[1] << 8);
+    if (plane_stage_valid && stage == plane_stage) return;
+    plane_reset();
+    plane_stage = stage;
+    plane_stage_valid = 1;
+}
+
+/* One line per stage and layer and run, when the layer's speed is first known (for the record). */
+static void plane_said(uint32_t layer, int f_q, int64_t r)
+{
+    static struct { unsigned stage; uint32_t layer; } said[64];
+    static unsigned said_count;
+    unsigned i;
+    for (i = 0; i < said_count; i++)
+        if (said[i].stage == plane_stage && said[i].layer == layer) return;
+    if (said_count < 64) { said[said_count].stage = plane_stage; said[said_count].layer = layer; said_count++; }
+    int64_t r_abs = r < 0 ? -r : r;
+    fprintf(stderr, "wide-video: stage %u, the layer at 0x%08x moves at %d.%02d of the camera's speed (its own drift %s%d.%02d a frame)\n", plane_stage,
+            (unsigned)layer, (f_q + 328) >> 16, (int)((((int64_t)((f_q + 328) & 0xffff)) * 100) >> 16), r < 0 ? "-" : "", (int)(r_abs >> 16), (int)(((r_abs & 0xffff) * 100) >> 16));
+}
+
+/* The layer's f (16.16) for this walk, sampling it once per walk. */
+static int plane_factor(uint32_t layer)
+{
+    const uint8_t *main_layer_rec = (const uint8_t *)port_gs((const void *)(uintptr_t)MAIN_LAYER, 0x48);
+    const uint8_t *record = (const uint8_t *)port_gs((const void *)(uintptr_t)layer, 0x90);
+    unsigned i;
+    int f;
+    if (!main_layer_rec || !record) return 1 << 16;
+    for (i = 0; i < plane_ests && plane_est[i].layer != layer; i++) {}
+    if (i == plane_ests) {
+        if (plane_ests >= LAYER_VIEWS) return 1 << 16;
+        memset(&plane_est[i], 0, sizeof plane_est[i]);
+        plane_est[i].layer = layer;
+        plane_ests++;
+    }
+    if (plane_est[i].stamp != plane_walk) {
+        int cam = layer_s16(main_layer_rec, 0x12), scroll = layer_s16(record, 0x12);
+        plane_est[i].stamp = plane_walk;
+        if (!plane_est[i].valid) {
+            plane_est[i].valid = 1;
+        } else {
+            int dc = cam - plane_est[i].cam, ds = scroll - plane_est[i].scroll;
+            int64_t dsr;
+            ds = ((ds + 256) & 511) - 256;
+            dsr = ((int64_t)ds << 16) - plane_est[i].r;
+            if (dc >= -64 && dc <= 64 && dsr >= -((int64_t)64 << 16) && dsr <= ((int64_t)64 << 16)) {
+                if (!dc)
+                    plane_est[i].r = (plane_est[i].r * PLANE_DECAY + ((int64_t)ds << 16) * (65536 - PLANE_DECAY)) / 65536;
+                else {
+                    plane_est[i].sxx = plane_est[i].sxx * PLANE_DECAY / 65536 + ((int64_t)dc * dc << 16);
+                    plane_est[i].sxy = plane_est[i].sxy * PLANE_DECAY / 65536 + (int64_t)dc * dsr;
+                }
+            }
+        }
+        plane_est[i].cam = cam;
+        plane_est[i].scroll = scroll;
+    }
+    if (plane_est[i].sxx < ((int64_t)64 << 16)) return 1 << 16;
+    f = (int)((plane_est[i].sxy * 65536) / plane_est[i].sxx);
+    f = f < 0 ? 0 : f > (3 << 16) ? 3 << 16 : f;
+    if (!plane_est[i].known) {
+        plane_est[i].known = 1;
+        plane_said(layer, f, plane_est[i].r);
+    }
+    return f;
+}
+
+/* At the start of a walk in a fight: the speed of each registered layer. */
+static void plane_prepare(void)
+{
+    unsigned v;
+    plane_walk++;
+    if (!wide_fight) return;
+    for (v = 0; v < layer_views; v++) layer_view[v].f_q = plane_factor(layer_view[v].layer);
+}
+
+/* round(f * a), half away from zero */
+static int plane_scaled(int f_q, int a)
+{
+    int64_t p = (int64_t)f_q * a;
+    return (int)((p + (p >= 0 ? 32768 : -32768)) / 65536);
+}
+
+/* A registered layer's shift: round(f * a). The plane furthest back (the highest entry of this frame's views) is then kept inside its
+ * painting: its wide view, -64 - shift to 448 - shift, inside art_lo..art_hi where it can be (448 - art_hi <= shift <= -64 - art_lo),
+ * moving only toward 0 from the shift, and then inside the span between 0 and a, so that in the middle of a stage nothing moves and at
+ * the ends it moves no further than the anchor. A blank column of a plane in front shows the planes behind it, not black, so only the
+ * one furthest back is corrected (the owner saw the correction of the others move Zangief's lamps against the rest, 2026-10-24). */
+static int layer_shift(unsigned v, int a)
+{
+    int lo = 448 - layer_view[v].art_hi, hi = -64 - layer_view[v].art_lo, back = 1, s = plane_scaled(layer_view[v].f_q, a);
+    unsigned w;
+    for (w = 0; w < layer_views; w++)
+        if (layer_view[w].entry > layer_view[v].entry) back = 0;
+    if (!back || !a) return s;
+    if (s > 0) s = s < (hi > 0 ? hi : 0) ? s : (hi > 0 ? hi : 0);
+    else if (s < 0) s = s > (lo < 0 ? lo : 0) ? s : (lo < 0 ? lo : 0);
+    return a > 0 ? (s < 0 ? 0 : s > a ? a : s) : (s > 0 ? 0 : s < a ? a : s);
+}
+
+/* The view whose pool holds the packet at `address`, or -1 (also outside a fight, where the views do not apply). */
+static int layer_view_of_address(uint32_t address)
+{
+    unsigned v;
+    if (!wide_fight) return -1;
+    for (v = 0; v < layer_views; v++)
+        if (address >= layer_view[v].lo && address < layer_view[v].hi) return (int)v;
+    return -1;
+}
+
+/* The view of a layer behind the camera's plane (f < 1) whose own entry (ot_index) is `entry`: the other packets drawn there are its props. */
+static int layer_view_of_own(int entry)
+{
+    unsigned v;
+    if (!wide_fight) return -1;
+    for (v = 0; v < layer_views; v++)
+        if (layer_view[v].own == entry && layer_view[v].f_q < (1 << 16)) return (int)v;
+    return -1;
+}
+
+static int layer_view_of_entry(int entry)
+{
+    unsigned v;
+    if (!wide_fight) return -1;
+    for (v = 0; v < layer_views; v++)
+        if (layer_view[v].entry == entry) return (int)v;
+    return -1;
+}
+
+/* The walk is at the tag of entry `entry` (at `here`): its queued packets go first, once, with the anchor like the world's (the shift of the
+ * plane that the entry belongs to, when there is one). */
 static void queue_send(int entry, uint32_t here, int anchor)
 {
     unsigned i;
+    int v, shift = anchor;
     if (entry < 0 || entry >= QUEUE_ENTRIES || !queue_per_entry[entry]) return;
+    v = layer_view_of_entry(entry);
+    if (v >= 0) shift = layer_shift((unsigned)v, anchor);
     for (i = 0; i < queue_recs; i++) {
         unsigned effective = 0;
         if (queue_rec[i].entry != entry) continue;
         walk_payload(here, &queue_pool[queue_rec[i].offset], queue_rec[i].len, &effective);
-        if (effective) chunk_add(&queue_pool[queue_rec[i].offset], queue_rec[i].len, effective, anchor, 0, 0, 1);
+        if (effective) chunk_add(&queue_pool[queue_rec[i].offset], queue_rec[i].len, effective, shift, 0, 0, 1);
     }
     queue_per_entry[entry] = 0;
 }
@@ -736,6 +970,7 @@ static void queue_clear(void)
     queue_recs = 0;
     queue_used = 0;
     memset(queue_per_entry, 0, sizeof queue_per_entry);
+    layer_views = 0;      /* the planes' views are for one walk too */
 }
 
 static void send_list(uint32_t *first)
@@ -746,6 +981,7 @@ static void send_list(uint32_t *first)
     int list_index=-1;
     int dx=port_ui_center_offset(center_ui,ui_canvas_active,PORT_ARCADE_W);
     int anchor=wide_anchor();
+    plane_prepare();
     chunk_used = 0;
     chunk_last = NULL;
     if (!((start >= PORT_RAM_BASE && start < PORT_RAM_BASE + PORT_RAM_SIZE) || (start >= 0xa0000000u && start < 0xa0000000u + PORT_RAM_SIZE)))
@@ -765,8 +1001,14 @@ static void send_list(uint32_t *first)
         }
         if (len) {
             unsigned effective = 0;
-            int kind=dx||anchor?port_ui_packet_kind(here,node+1,len,list_index):0;
+            int plane=layer_views?layer_view_of_address(here):-1;
+            int kind=plane<0&&(dx||anchor)?port_ui_packet_kind(here,node+1,len,list_index):0;
             int shift=kind?dx:anchor;
+            if (plane>=0) shift=layer_shift((unsigned)plane,anchor);
+            else if (!kind && layer_views) {
+                int own=layer_view_of_own(list_index);
+                if (own>=0) shift=layer_shift((unsigned)own,anchor);
+            }
             /* The meter's fills follow its one-to-one frame, with or without the centred layout. */
             int level=pixel_perfect_ui?port_ui_super_fill_level(here,node+1,len,list_index):0;
             uint32_t halves[18];

@@ -40,6 +40,7 @@ arcade_intro = false
 arcade_assets = false
 settings_menu = false
 widescreen = false        # the wide canvas, port/widescreen.md
+wide_ends = narrowed      # centred | anchored | narrowed, port/widescreen.md
 
 [display]
 screen = window            # window | fullscreen | borderless

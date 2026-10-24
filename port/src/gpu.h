@@ -48,6 +48,11 @@ int port_gpu_read_wide(uint16_t *pixels, int *w, int *h);
  * words) sent when the next DrawOTag's walk reaches entry `entry` (0..29) of the game's ordering table, before the game's packets
  * there. 0, or -1 when the entry is out of range or the frame's queue is full (one line per run). */
 int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len);
+/* Widescreen's planes (port/widescreen.md, steps 5 and 6): for this frame, the layer whose record (struct Chan; its scroll is the s16 at +0x12, its
+ * entry the u8 at +0x8a) is at `layer`, whose packets lie at [pool_lo, pool_hi) of the game's memory and whose side cells are queued for entry `entry`,
+ * is painted from art_lo to art_hi pixels relative to its scroll (art_lo <= 0, art_hi >= 384). The bridge moves its packets by the anchor times the
+ * layer's speed against the camera's (measured from the layer's scroll) and keeps the plane furthest back inside that painting. */
+void port_gpu_layer_view(uint32_t layer, uint32_t pool_lo, uint32_t pool_hi, int entry, int art_lo, int art_hi);   /* layer: its Chan record (step 6) */
 /* The screen ([display] screen, enum port_screen): w, h the window's inner size for PORT_SCREEN_WINDOW, the mode's size for
  * PORT_SCREEN_FULLSCREEN (0, 0 the desktop's), ignored for PORT_SCREEN_BORDERLESS. Kept before the window exists and applied
  * when it opens; applied at once after. -1 without the patched SDL_GPU backend for anything but the default window, or when

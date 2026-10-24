@@ -16,7 +16,7 @@
 static struct port_settings sentinel(void)
 {
     struct port_settings s;
-    s.pixel_perfect_ui=7;s.arcade_video=9;s.center_ui=11;s.fast_loads=13;s.memory_card=15;s.arcade_intro=17;s.arcade_assets=19;s.settings_menu=21;s.widescreen=35;
+    s.pixel_perfect_ui=7;s.arcade_video=9;s.center_ui=11;s.fast_loads=13;s.memory_card=15;s.arcade_intro=17;s.arcade_assets=19;s.settings_menu=21;s.widescreen=35;s.wide_ends=37;
     s.screen=23;s.window_w=25;s.window_h=27;s.fullscreen_w=29;s.fullscreen_h=31;s.filter=33;
     return s;
 }
@@ -85,7 +85,7 @@ int main(int argc,char **argv)
     assert(argc>=2);
     /* defaults */
     d=dflt();
-    assert(d.pixel_perfect_ui==G && d.arcade_video==G && d.center_ui==G && d.fast_loads==1 && d.memory_card==1 && d.arcade_intro==G && d.arcade_assets==0 && d.settings_menu==G && d.widescreen==0);
+    assert(d.pixel_perfect_ui==G && d.arcade_video==G && d.center_ui==G && d.fast_loads==1 && d.memory_card==1 && d.arcade_intro==G && d.arcade_assets==0 && d.settings_menu==G && d.widescreen==0 && d.wide_ends==PORT_WIDE_NARROWED);
     assert(d.screen==PORT_SCREEN_WINDOW && d.window_w==1280 && d.window_h==960 && d.fullscreen_w==0 && d.fullscreen_h==0 && d.filter==FILTER);
     assert(PORT_WINDOW_DEFAULT_W==1280 && PORT_WINDOW_DEFAULT_H==960 && PORT_SIZE_MIN==320 && PORT_SIZE_MAX==16384);
     /* names */
@@ -122,6 +122,13 @@ int main(int argc,char **argv)
     { struct port_settings x=d;x.settings_menu=1;OK("[experimental]\nsettings_menu=true",x);OK("[experimental]\nsettings_menu = true # on",x); }
     { struct port_settings x=d;x.widescreen=1;OK("[experimental]\nwidescreen=true",x);OK("[experimental]\nwidescreen = true # on",x);
       x.widescreen=0;OK("[experimental]\nwidescreen=false",x); }
+    { struct port_settings x=d;x.wide_ends=PORT_WIDE_ANCHORED;OK("[experimental]\nwide_ends=anchored",x);
+      x.wide_ends=PORT_WIDE_NARROWED;OK("[experimental]\nwide_ends = narrowed # walls",x);x.wide_ends=PORT_WIDE_CENTRED;OK("[experimental]\nwide_ends=centred",x); }
+    BAD("[experimental]\nwide_ends=true","centred, anchored or narrowed");
+    BAD("[experimental]\nwide_ends=Centred","centred, anchored or narrowed");
+    BAD("[display]\nwide_ends=centred","wrong section");
+    BAD("[experimental]\nwide_ends=centred\nwide_ends=narrowed","duplicate");
+    assert(port_wide_ends_value("narrowed")==PORT_WIDE_NARROWED && port_wide_ends_value("")==-1 && port_wide_ends_value(NULL)==-1 && !port_wide_ends_name(3));
     { struct port_settings x=d;x.settings_menu=1;x.widescreen=1;OK("[experimental]\nwidescreen=true\nsettings_menu=true",x); }
     BAD("[experimental]\nwidescreen=on","true or false");
     BAD("[display]\nwidescreen=true","wrong section");
@@ -175,13 +182,13 @@ int main(int argc,char **argv)
     assert(!port_settings_save(argv[1],&d,err,sizeof err));
     slurp(argv[1],text,sizeof text);
     snprintf(golden,sizeof golden,"[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = true\nmemory_card = true\narcade_intro = %s\n"
-        "arcade_assets = false\nsettings_menu = %s\nwidescreen = false\n\n[display]\nscreen = window\nwindow_size = 1280x960\nfullscreen_size = desktop\nfilter = %s\n",
+        "arcade_assets = false\nsettings_menu = %s\nwidescreen = false\nwide_ends = narrowed\n\n[display]\nscreen = window\nwindow_size = 1280x960\nfullscreen_size = desktop\nfilter = %s\n",
         G?"true":"false",G?"true":"false",G?"true":"false",G?"true":"false",G?"true":"false",G?"sharp_bilinear":"nearest");
     if(strcmp(text,golden)) { fprintf(stderr,"saved:\n%s\nwanted:\n%s\n",text,golden);abort(); }
     assert(!strstr(text,"sharp_bilinear =") );
     for(a=0;a<256;a++) {
         s=dflt();
-        s.pixel_perfect_ui=a&1;s.arcade_video=a>>1&1;s.center_ui=a>>2&1;s.fast_loads=a>>3&1;s.memory_card=a>>4&1;s.arcade_intro=a>>5&1;s.arcade_assets=a>>6&1;s.settings_menu=a>>7&1;s.widescreen=(a*5>>3)&1;
+        s.pixel_perfect_ui=a&1;s.arcade_video=a>>1&1;s.center_ui=a>>2&1;s.fast_loads=a>>3&1;s.memory_card=a>>4&1;s.arcade_intro=a>>5&1;s.arcade_assets=a>>6&1;s.settings_menu=a>>7&1;s.widescreen=(a*5>>3)&1;s.wide_ends=(a*3>>2)%3;
         s.screen=a%3;s.filter=(a/3)%3;
         if(a&1) { s.window_w=320+a*61;s.window_h=PORT_SIZE_MAX-a; }
         if(a&2) { s.fullscreen_w=PORT_SIZE_MAX-a*7;s.fullscreen_h=320+a; }

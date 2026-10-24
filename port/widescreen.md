@@ -14,6 +14,15 @@ perspective floor and ceiling, one-stage forms, still end where the game's do.
 Fourteen of the fifteen stages of the select screen's rows were seen wide
 (scripted training fights, 2026-10-24), most over the whole picture.
 
+**State, later on 2026-10-24: the stage's ends are a setting, `wide_ends`,
+narrowed by default** (below, "The stage's ends"): the game's screen is taken
+as 512 wide, the camera stops 64 short of each end and the fighters reach the
+wide picture's edges, so the walls stay where they are and the stage's own
+art fills the picture. The owner on it: "it looks really good in many stages,
+in fact they look perfect". Open: Birdie's stage (black edges as the camera
+moves), the right end of Rolento's outdoor stage (no art there in the PS1's
+data), Gouki's haze (drawn over the 384 only).
+
 ## The owner's decisions (2026-10-23)
 
 - **Gameplay stays the original's.** The fighters' walls, the camera and the
@@ -22,6 +31,16 @@ Fourteen of the fifteen stages of the select screen's rows were seen wide
   fighters stop 64 pixels short of a screen edge.
 - **The HUD stays centred**, where it is now. Spreading it to the edges may
   come later as an option.
+- **2026-10-24, the walls of the wide view.** After the anchored ends moved
+  the slower planes against the rest ("messing with paralax isn't working"),
+  the owner asked for the view simply centred ("don't touch any of the
+  paralax code and just remove any clipping"), then for the walls limited
+  ("can't we limit how far the player can go on each side?"), and then for
+  the game's own rules to use the wide screen ("the internal code should also
+  consider the new proportion and not 4:3"). That is `wide_ends = narrowed`,
+  the default: the first decision's play area of 384 is replaced by the
+  wide picture's 512, the stage's walls unchanged. The anchored view stays as
+  `wide_ends = anchored`, the board's rules exactly.
 
 ## What the game assumes
 
@@ -206,6 +225,65 @@ the edges of Birdie's perspective floor and ceiling. Seen in scripted training
 fights at both walls of the fifteen stages (2026-10-24). The arcade's layers
 may hold more of that art, for the arcade assets.
 
+**Each plane kept inside its painting (step 5, contract).** The arcade's port
+(CPS-2 Recomp) draws each background plane moved by as much as its wide view
+would reach past its painting, a picture-only change. Measured here on
+2026-10-24 (scripted training fights at both walls of the fifteen stages, the
+bridge's `wide-video: stage K, camera at its ... end` lines): the main layer
+follows the camera; the others move at other speeds (Sagat's far layer 306 to
+334 over the camera's 256 to 640), and some move by themselves (Ken's, Chun-Li's,
+Adon's and Rose's: their scroll differs two seconds on at the same camera).
+The black at Sagat's ends puts its far layer's painting at about 256 to 768,
+more than its board view (306 to 718), so a table of board views would clamp
+too much; the painting is read from the map instead:
+
+- In each layer override of `wide_stage.c`, after the game's C and the side
+  cells: the layer's painted extent around its view, in layer pixels relative
+  to its scroll: from the view's left edge leftward the columns that have a
+  cell that is not blank in the rows the C draws, down to -256 at most, a gap
+  of at most two blank columns not ending it; the same rightward from 384 up
+  to 640. Given to the bridge with the layer's pool range and entry:
+  `port_gpu_layer_view(pool_lo, pool_hi, entry, art_lo, art_hi)` (gpu.h).
+- The bridge (`gpu.c`), each frame: only the plane furthest back (the
+  highest entry among the layers given) is corrected, only at the stage ends
+  (`a`, the world's anchor, not 0), toward 0 from `a` and only as far as its
+  wide view, -64 - shift to 448 - shift, needs to stay inside its painting.
+  The game's packets inside that layer's pool and the side cells queued for it
+  get that shift; every other packet gets `a` as before (the HUD its own).
+- The first form of this (2026-10-24) corrected every plane, in the middle of
+  the stage too, and split a short painting between the sides. The owner saw
+  Zangief's lamps and pillars move against the rest: a plane in front has
+  blank columns where the planes behind show, and gaps between its pieces, so
+  its "painting" read short and it was moved where nothing was missing. Only
+  the plane furthest back can show black, and only at the ends.
+
+**Each plane anchored at its own speed (step 6, contract).** The owner saw,
+on Zangief's stage near the right end, the lamps, the pillars and the big
+screen drift right while the floor and the cage held still (2026-10-24, two
+screenshots): over the camera's last 64 pixels the view stops, and the one
+anchor `a` moved every plane as the main layer, but a plane that scrolls at a
+fraction f of the camera's speed moved only f of the camera's step, so it went
+the other way by (1 - f) of it. A plane is moved by f * a instead: as if the
+camera stood where the view stopped.
+
+- The bridge measures each layer's f during the fight, from frame to frame:
+  with the camera moved by dc and the layer's scroll by ds (wrapped into
+  -256..255), less the layer's own drift r (its average step while the camera
+  stands still: clouds, water), f is the least-squares ratio of (ds - r) to dc
+  over the recent frames (a forgetting factor), 1 until enough motion is seen,
+  kept inside 0..3. Steps over 64 are left out. A new stage, or the main
+  layer off, starts over.
+- `port_gpu_layer_view` names the layer's record too (its address, so that
+  the bridge reads its scroll at +0x12 and its entry at +0x8a). For a
+  registered layer: its pool's packets and its queued side cells get
+  round(f * a). For a layer behind the camera's plane (f < 1), every other
+  packet of its own entry (its ot_index) gets it too: the objects drawn at its
+  depth are its props (Zangief's big screen); a plane in front (f >= 1) shares
+  its entry with nothing else for that.
+- The plane furthest back is then kept inside its painting as in step 5, now
+  from f * a, and only within the span from 0 to a (in the middle of a stage
+  nothing moves).
+
 Checking a stage in the game: training mode reaches the fifteen stages of
 the select screen's three rows by an input script (down to TRAINING MODE,
 square on Ryu, the dummy by the cursor, square, circle at the training menu);
@@ -215,6 +293,42 @@ need their codes.
 Not yet: the forms of one stage, objects in
 the sides (step 4), banners and other screen-space objects at the stage ends
 (they move with the world there; they are told apart later).
+
+## The stage's ends (`wide_ends`, contract)
+
+`[experimental] wide_ends = centred | anchored | narrowed` (default
+`narrowed`; `--wide-ends MODE`), read only with widescreen on.
+
+- **centred**: the wide view is the game's view with 64 columns at each side,
+  everywhere; no plane is moved (the anchor is 0), so each scrolls as the game
+  scrolls it. At the camera's ends the outer columns show past the stage's art
+  (black, or the map's wrapped cells).
+- **anchored**: steps 3, 5 and 6 above (the view shifted toward the stage's
+  inside at its ends, each plane by its own speed).
+- **narrowed** (`port/src/wide_walls.c`): the view is centred as above, and
+  the game's rules take the screen as the wide view's 512 columns:
+  - every stage's camera range is 256..640 (the 384 view's left edge,
+    `init_sprite_position_wide`); main_layer's is cut by 64 at each end,
+    320..576, so the wide view ends where the stage does, and the walls of the
+    world stay at 256 and 1024;
+  - the fighters are held inside the wide view (its left edge, 512 wide) in
+    place of the 384 (`clamp_pos_x_to_bounds_and_push_other`,
+    `push_both_objects_inside_bounds`), so they reach the picture's edges and
+    can stand up to 512 apart;
+  - the camera follows them with the game's margins of 96 from the wide
+    view's edges, and centres them from a span of 320 (512 less both margins)
+    in place of 192 (`update_camera_x_from_player_span`).
+
+  The four are overrides of the game's functions, the game's C with those
+  numbers; with any other setting they run the game's C.
+  `port/tools/test_wide_walls.py` compares each with the game's C at an
+  extra of 0 over 4000 fixtures, checks the contract at 64, and checks that
+  every other setting calls through. This is the design of CPS-2 Recomp's
+  widescreen (its default; its "Invisible walls" is `anchored`).
+
+Not yet in narrowed: moves and objects that test the screen's edge in the
+characters' own code (Vega's wall climb, the wall jumps, objects placed at
+a margin) still use the 384; the sound's stereo place too.
 
 ## References
 

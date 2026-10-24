@@ -504,7 +504,7 @@ released with the other textures. The OpenGL backend has no-ops (ReadWide return
      MarkVramDirty((SDL_Rect){rect->x, rect->y, rect->w, rect->h});
 +    if (sfa2_batch_uploads) sfa2_upload_used += sfa2_bytes;
 +    Sfa2StaleCanvases(rect->x, rect->y, rect->w, rect->h);
-@@ -1,1 +1,26 @@
+@@ -1,1 +1,27 @@
  static SDL_Rect scissor_rect = {0, 0, VRAM_W, VRAM_H};
 +/* SFA2 port, Psyz_Sfa2SetWide (port/widescreen.md, step 1): the canvases of the frame areas. A frame area is a draw area of exactly
 +   PORT_ARCADE_W x PORT_ARCADE_H; its canvas is (PORT_ARCADE_W + 2 * extra) x PORT_ARCADE_H, at the internal resolution, and receives what the
@@ -522,6 +522,7 @@ released with the other textures. The OpenGL backend has no-ops (ReadWide return
 +static Sfa2Canvas sfa2_canvas[SFA2_CANVASES];
 +static unsigned long sfa2_canvas_clock;
 +static int sfa2_wide_shown = -1; /* the canvas presented last, or -1 */
++static int sfa2_wide_ready = -1; /* the good canvas of the frame presented last, shown wide or not (a small window), or -1 */
 +static int sfa2_wide_printed;
 +static void Sfa2NoteScissor(void);
 +static Sfa2Canvas* Sfa2FlushCanvas(void);
@@ -535,10 +536,11 @@ released with the other textures. The OpenGL backend has no-ops (ReadWide return
      scissor_rect.w = width;
      scissor_rect.h = height;
 +    Sfa2NoteScissor();
-@@ -1,2 +1,3 @@
+@@ -1,2 +1,4 @@
      SDL_GPUTexture* rgb24_source =
          display_rgb24 && !debug_show_vram && disp_on ? PrepareRgb24() : NULL;
 +    Sfa2Canvas* sfa2_wide = Sfa2PresentCanvas();
++    sfa2_wide_ready = sfa2_wide ? (int)(sfa2_wide - sfa2_canvas) : -1;
 @@ -1,2 +1,3 @@
      finish_time = SDL_GetPerformanceCounter();
 +    Sfa2WideShown(sfa2_wide);
@@ -805,7 +807,7 @@ released with the other textures. The OpenGL backend has no-ops (ReadWide return
 +// left sample of the n x n block it covers.
 +int Psyz_Sfa2ReadWide(uint16_t* pixels, int max_w, int max_h, int* w, int* h) {
 +    const int cw = PORT_ARCADE_W + 2 * sfa2_wide_extra;
-+    const Sfa2Canvas* c = sfa2_wide_shown >= 0 ? &sfa2_canvas[sfa2_wide_shown] : NULL;
++    const Sfa2Canvas* c = sfa2_wide_ready >= 0 ? &sfa2_canvas[sfa2_wide_ready] : NULL;
 +    if (!c || !c->tex || !device || !tex_download_transfer || !pixels ||
 +        max_w < cw || max_h < PORT_ARCADE_H) {
 +        return -1;
