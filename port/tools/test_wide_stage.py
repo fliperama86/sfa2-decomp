@@ -4,7 +4,7 @@ No game, disc or window. Two parts:
  * a 32-bit program (the game's C holds 32-bit pointers) that links the game's own C of the stage ryu for the three plain forms and of chunli for the other two with the
    maker and compares their packets (built here with gcc -m32; the structs come from ps1/src/types.fields through structgen);
  * the table of stage copies in wide_stage.c against ps1/src: every copy exists with the declared pool, count and layer, no copy of
-   the five forms is missing, and the C of the copies of a form is the same up to names and addresses.
+   the forms is missing, and the C of the copies of a form is the same up to names and addresses.
 
 Prints `ok   NAME` or `FAIL NAME: why` per case, then the summary line that the review reads.
 """
@@ -22,12 +22,20 @@ FORMS = {  # form tag -> (function prefix, layer expression in the C, record typ
     'T32': ('draw_tilemap_layer_32px_9x13', '&background_layers[2]', 'Slot06TileW', 2),
     'SPR': ('draw_tile_layer_sprites_with_partial_row', '(Slot06Draw *)main_layer', 'Slot06Tile', 1),     # main_layer is background_layers[1]
     'SKEW': ('draw_skewed_tile_layer_quads', '(Slot06Layer *)main_layer', 'Poly28', 1),
+    'T32_7': ('draw_tilemap_layer_32px_7x13', '&background_layers[2]', 'Slot06TileW', 2),
+    'T16H': ('draw_tile_map_layer_16px_half_scroll', 'background_layers', 'Slot06Tile', 0),
+    # draw_tile_map_layer_32px has two bodies: the half-speed scroll of sakura and vega, and gouki's (full speed, 13 records at most)
+    'T32H': ('draw_tile_map_layer_32px', '&background_layers[2]', 'Slot06TileW', 2),
+    'T32G': ('draw_tile_map_layer_32px', '&background_layers[2]', 'Slot06TileW', 2),
 }
+HALF_SCROLL = 'scroll_y >> 1'     # the text that tells the half-speed body from the other
 # the stage whose C is compiled for the comparison: ryu for the plain forms, chunli for the other two
 GAME_C = [('ryu', 'draw_tile_layer_0_16px_slot06_00'), ('ryu', 'draw_tile_layer_1_16px_slot06_00'),
           ('ryu', 'draw_tilemap_layer_32px_9x13_slot06_00'), ('chunli', 'draw_tile_layer_sprites_with_partial_row_slot06_04'),
-          ('chunli', 'draw_skewed_tile_layer_quads_slot06_04')]
-COPIES = 13 + 6 + 13 + 10 + 10
+          ('chunli', 'draw_skewed_tile_layer_quads_slot06_04'), ('ken', 'draw_tilemap_layer_32px_7x13_slot06_01'),
+          ('sakura', 'draw_tile_map_layer_16px_half_scroll_slot06_0d'), ('sakura', 'draw_tile_map_layer_32px_slot06_0d'),
+          ('gouki', 'draw_tile_map_layer_32px_slot06_02')]
+COPIES = 13 + 6 + 13 + 10 + 10 + 3 + 2 + 3
 LAYERS = 0x801aa544
 CHAN_SIZE = 0x90
 CFLAGS = ['-m32', '-fno-pie', '-D_GNU_SOURCE', '-O1', '-Wall', '-Wextra', '-Werror']
@@ -61,7 +69,8 @@ def build_and_run(folder: Path) -> tuple[list[str], str]:
     game_c = [str(STAGES / stage / f'{name}.c') for stage, name in GAME_C]
     defsyms = ['game_state', 'background_layers', 'main_layer', 'current_ordering_table', 'draw_buffer_index',
                'data_801ec390_slot06_00', 'data_801edc80_slot06_00', 'data_801f1790_slot06_00',
-               'data_801f03c8_slot06_04', 'data_801f4ae0_slot06_04']
+               'data_801f03c8_slot06_04', 'data_801f4ae0_slot06_04', 'data_801f94bc_slot06_01', 'data_801ed5e4_slot06_0d',
+               'data_801f51dc_slot06_0d', 'data_801f8638_slot06_02', 'data_801f8978_slot06_02']
     link = [f'-Wl,--defsym={name}=0x{sym[name]:08x}' for name in defsyms]
     exe = folder / 'wide_stage_test'
     cmd = ['gcc', *CFLAGS, '-no-pie', '-I', str(folder), '-I', str(ROOT / 'port/src'),
@@ -91,11 +100,13 @@ def normalised(path: Path, stage: str) -> str:
 
 
 def source_copies() -> dict[str, dict]:
-    """Every copy of the five forms under ps1/src, from the C: name -> form, layer, pool, count, path."""
+    """Every copy of the forms under ps1/src, from the C: name -> form, layer, pool, count, path."""
     found = {}
     for form, (prefix, chan, record, index) in FORMS.items():
         for path in sorted(STAGES.glob(f'*/{prefix}_slot06_??.c')):
             text = strip_c(path.read_text())
+            if (form == 'T32H' and HALF_SCROLL not in text) or (form == 'T32G' and HALF_SCROLL in text):
+                continue                                           # the other body of the same function name
             pool = re.search(r'extern ' + record + r' data_([0-9a-f]{8})_slot06_([0-9a-f]{2})\[2\]\[(\w+)\];', text)
             layer = re.search(r'\w+ \*c = ([^;]+);', text)
             found[path.stem] = {'form': form, 'path': path, 'pool': int(pool.group(1), 16) if pool else None,

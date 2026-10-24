@@ -6,11 +6,13 @@
 
 #include <stdint.h>
 
-/* The five forms of the stages' layer functions (the C is the same in every copy of a form; the copies differ in the pool). Three are
+/* The nine forms of the stages' layer functions (the C is the same in every copy of a form; the copies differ in the pool). Three are
  * plain tile grids from a layer record (struct Chan): draw_tile_layer_0_16px, draw_tile_layer_1_16px, draw_tilemap_layer_32px_9x13.
  * PORT_WIDE_SPRITES is draw_tile_layer_sprites_with_partial_row (sprites of 16 px cells, the second layer, a row count from the camera
  * and a last partial row); PORT_WIDE_SKEWED is draw_skewed_tile_layer_quads (the second layer in perspective: 44 cells a row from
- * k = -11, each a quad whose x is moved by an offset that depends on the row only). */
+ * k = -11, each a quad whose x is moved by an offset that depends on the row only). The plain kind also has the 32 px grid of 7 rows
+ * (T32_7), the two that scroll at half speed (T16H, T32H) and gouki's copy of the 32 px grid (T32G: full speed, and its C stops at 13
+ * records, which the maker does not need). */
 enum { PORT_WIDE_FLAT = 0, PORT_WIDE_SPRITES, PORT_WIDE_SKEWED };
 struct port_wide_shape {
     int shift;           /* the cell is 1 << shift pixels: 4 or 5 */
@@ -20,8 +22,10 @@ struct port_wide_shape {
     int row_inclusive;   /* the C skips a row when `rows < row` (the 32 px form), not `row >= rows` */
     int kind;            /* PORT_WIDE_FLAT, PORT_WIDE_SPRITES or PORT_WIDE_SKEWED */
     int k_first;         /* the C's first column: 0, or -11 for the skewed form (its cols = 44 columns run from there) */
+    int half_scroll;     /* the C subtracts (s16)game_state.scroll_y >> 1 (a layer that scrolls at half speed), not scroll_y */
 };
-extern const struct port_wide_shape port_wide_shape_L0, port_wide_shape_L1, port_wide_shape_T32, port_wide_shape_SPR, port_wide_shape_SKEW;
+extern const struct port_wide_shape port_wide_shape_L0, port_wide_shape_L1, port_wide_shape_T32, port_wide_shape_SPR, port_wide_shape_SKEW,
+                                    port_wide_shape_T32_7, port_wide_shape_T16H, port_wide_shape_T32H, port_wide_shape_T32G;
 
 /* The layer record (struct Chan, 0x90 bytes) in the game's order; the maker reads these fields of it. */
 #define PORT_WIDE_CHAN_SIZE 0x90u

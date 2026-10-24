@@ -39,9 +39,17 @@ void draw_tile_layer_1_16px_slot06_00(void);
 void draw_tilemap_layer_32px_9x13_slot06_00(void);
 void draw_tile_layer_sprites_with_partial_row_slot06_04(void);
 void draw_skewed_tile_layer_quads_slot06_04(void);
+void draw_tilemap_layer_32px_7x13_slot06_01(void);
+void draw_tile_map_layer_16px_half_scroll_slot06_0d(void);
+void draw_tile_map_layer_32px_slot06_0d(void);
+void draw_tile_map_layer_32px_slot06_02(void);
 
 #define POOL_SPR  0x801f03c8u   /* chunli: data_801f03c8_slot06_04[2][0x145] */
 #define POOL_SKEW 0x801f4ae0u   /* data_801f4ae0_slot06_04[2][0x58] */
+#define POOL_T32_7 0x801f94bcu  /* ken: data_801f94bc_slot06_01[2][0x43] */
+#define POOL_T16H 0x801ed5e4u   /* sakura: data_801ed5e4_slot06_0d[2][0x74] */
+#define POOL_T32H 0x801f51dcu   /* sakura: data_801f51dc_slot06_0d[2][0x5a] */
+#define POOL_T32G 0x801f8638u   /* gouki: data_801f8638_slot06_02[2][13] */
 
 struct port_settings port_settings;
 struct port_settings port_settings_file;
@@ -54,6 +62,10 @@ port_fn port_function_impl(const char *name)
     if (!strcmp(name, "draw_tilemap_layer_32px_9x13_slot06_00")) return draw_tilemap_layer_32px_9x13_slot06_00;
     if (!strcmp(name, "draw_tile_layer_sprites_with_partial_row_slot06_04")) return draw_tile_layer_sprites_with_partial_row_slot06_04;
     if (!strcmp(name, "draw_skewed_tile_layer_quads_slot06_04")) return draw_skewed_tile_layer_quads_slot06_04;
+    if (!strcmp(name, "draw_tilemap_layer_32px_7x13_slot06_01")) return draw_tilemap_layer_32px_7x13_slot06_01;
+    if (!strcmp(name, "draw_tile_map_layer_16px_half_scroll_slot06_0d")) return draw_tile_map_layer_16px_half_scroll_slot06_0d;
+    if (!strcmp(name, "draw_tile_map_layer_32px_slot06_0d")) return draw_tile_map_layer_32px_slot06_0d;
+    if (!strcmp(name, "draw_tile_map_layer_32px_slot06_02")) return draw_tile_map_layer_32px_slot06_02;
     return PORT_FN_NULL;
 }
 
@@ -104,14 +116,20 @@ struct form {
     void (*game_c)(void);
     uint32_t width, height;      /* the made-up map */
     unsigned code;               /* the sprite's code byte that the init gives (0x7c Sprt16, 0x64 Sprt, 0x2c POLY_FT4) */
+    unsigned density;            /* one cell in `density` is not blank, when the default for the form does not fit the pool */
 };
-#define NFORMS 5
+#define NFORMS 9
 static const struct form forms[NFORMS] = {
-    { "L0",  &port_wide_shape_L0,  ADDR_LAYER0,        POOL_L0,  0x72, draw_tile_layer_0_16px_slot06_00,           0x400, 0x200, 0x7c },
-    { "L1",  &port_wide_shape_L1,  ADDR_LAYER0 + 0x90, POOL_L1,  270,  draw_tile_layer_1_16px_slot06_00,           0x400, 0x200, 0x7c },
-    { "T32", &port_wide_shape_T32, ADDR_LAYER0 + 0x120, POOL_T32, 98,  draw_tilemap_layer_32px_9x13_slot06_00,     0x400, 0x100, 0x64 },
-    { "SPR", &port_wide_shape_SPR, ADDR_LAYER0 + 0x90, POOL_SPR, 0x145, draw_tile_layer_sprites_with_partial_row_slot06_04, 0x400, 0x200, 0x7c },
-    { "SKEW", &port_wide_shape_SKEW, ADDR_LAYER0 + 0x90, POOL_SKEW, 0x58, draw_skewed_tile_layer_quads_slot06_04,  0x400, 0x200, 0x2c },
+    { "L0",  &port_wide_shape_L0,  ADDR_LAYER0,        POOL_L0,  0x72, draw_tile_layer_0_16px_slot06_00,           0x400, 0x200, 0x7c, 0 },
+    { "L1",  &port_wide_shape_L1,  ADDR_LAYER0 + 0x90, POOL_L1,  270,  draw_tile_layer_1_16px_slot06_00,           0x400, 0x200, 0x7c, 0 },
+    { "T32", &port_wide_shape_T32, ADDR_LAYER0 + 0x120, POOL_T32, 98,  draw_tilemap_layer_32px_9x13_slot06_00,     0x400, 0x100, 0x64, 0 },
+    { "SPR", &port_wide_shape_SPR, ADDR_LAYER0 + 0x90, POOL_SPR, 0x145, draw_tile_layer_sprites_with_partial_row_slot06_04, 0x400, 0x200, 0x7c, 0 },
+    { "SKEW", &port_wide_shape_SKEW, ADDR_LAYER0 + 0x90, POOL_SKEW, 0x58, draw_skewed_tile_layer_quads_slot06_04,  0x400, 0x200, 0x2c, 0 },
+    { "T32_7", &port_wide_shape_T32_7, ADDR_LAYER0 + 0x120, POOL_T32_7, 0x43, draw_tilemap_layer_32px_7x13_slot06_01, 0x400, 0x100, 0x64, 0 },
+    { "T16H", &port_wide_shape_T16H, ADDR_LAYER0,        POOL_T16H, 0x74, draw_tile_map_layer_16px_half_scroll_slot06_0d, 0x400, 0x200, 0x7c, 0 },
+    { "T32H", &port_wide_shape_T32H, ADDR_LAYER0 + 0x120, POOL_T32H, 0x5a, draw_tile_map_layer_32px_slot06_0d,       0x400, 0x100, 0x64, 0 },
+    /* gouki's C stops at 13 records: a sparse map keeps it under that */
+    { "T32G", &port_wide_shape_T32G, ADDR_LAYER0 + 0x120, POOL_T32G, 13,   draw_tile_map_layer_32px_slot06_02,       0x400, 0x100, 0x64, 60 },
 };
 #define KIND(f) ((f)->shape->kind)
 /* the columns the game's C draws, and the ordering table entry its packets go to */
@@ -160,7 +178,7 @@ static void build_map(const struct form *f)
 {
     unsigned bc = f->shape->shift == 4 ? 32 : 16, br = f->shape->shift == 4 ? 16 : 8, col, row;
     unsigned blocks_across;
-    density = KIND(f) == PORT_WIDE_SKEWED ? 12 : f->shape->shift == 4 ? (f->shape == &port_wide_shape_L0 ? 5 : 2) : 2;   /* L0 pool: 114 records for 400 cells; L1 270; T32 98 for 117; SKEW 88 for about 500 */
+    density = f->density ? f->density : KIND(f) == PORT_WIDE_SKEWED ? 12 : f->shape->shift == 4 ? (f->shape->unsigned_blank ? 5 : 2) : 2;   /* L0 pool: 114 records for 400 cells; L1 270; T32 98 for 117; SKEW 88 for about 500 */
     cells_across = f->width >> f->shape->shift;
     cells_down = f->height >> f->shape->shift;
     blocks_across = cells_across / bc;
@@ -373,6 +391,7 @@ static void make_fixtures(void)
     }
     memcpy(fixtures[1], fixtures[0], sizeof fixtures[0]);
     memcpy(fixtures[2], fixtures[0], sizeof fixtures[0]);
+    for (i = 5; i < NFORMS; i++) memcpy(fixtures[i], fixtures[0], sizeof fixtures[0]);   /* the other plain forms: the same layers */
     for (i = 0; i < NFIX; i++) {
         make_sprites_fixture(&fixtures[3][i], i);
         make_skewed_fixture(&fixtures[4][i], i);
@@ -391,6 +410,7 @@ static int case_matches_c(const struct form *f, unsigned *packets)
         f->game_c();
         harvest(f, entry_of(f, x), &from_c);
         run_maker(f, x, C_LO(f), C_HI(f), &from_maker);
+        if (f->count < 20 && from_c.n >= f->count && from_maker.n > f->count) from_maker.n = f->count;   /* gouki's C stops at its 13 records: the first 13 are the same */
         d = compare(&from_c, &from_maker, (unsigned)f->shape->words);
         if (d) return BAD("fixture %u: packet %u differs (C made %u, the maker %u)", i, d - 1, from_c.n, from_maker.n);
         total += from_c.n;
@@ -413,7 +433,8 @@ static void expect_flat(const struct form *f, const struct fixture *x, int k0, i
     const int b = (int16_t)x->blank;
     int64_t s = (int64_t)(int32_t)x->scroll_y;
     int64_t above = ((int64_t)0x100000 - s);                           /* -(scroll_y - 0x100000) */
-    int y = (int16_t)(uint16_t)(floordiv((int)(int32_t)above, 65536) - (int)x->game_scroll_y);
+    int gs = f->shape->half_scroll ? floordiv((int16_t)x->game_scroll_y, 2) : (int)x->game_scroll_y;   /* the half-speed layers subtract half of it */
+    int y = (int16_t)(uint16_t)(floordiv((int)(int32_t)above, 65536) - gs);
     int sx = x->scroll_x & (size - 1), sy = floormod(y, size), row0 = floordiv(y, size);
     int col0 = floordiv((int)(int16_t)x->scroll_x, size);
     int i, k;
@@ -428,7 +449,7 @@ static void expect_flat(const struct form *f, const struct fixture *x, int k0, i
             unsigned clut = row < (int)cells_down ? logical_clut(col, (unsigned)row) : 0;
             int tile_s = (int16_t)tile, skip;
             struct packet *p;
-            if (f->shape == &port_wide_shape_L0) skip = (b >= 0 && (int)tile == b);   /* u16 against s16 as ints: a blank with the high bit matches nothing */
+            if (f->shape->unsigned_blank) skip = (b >= 0 && (int)tile == b);   /* u16 against s16 as ints: a blank with the high bit matches nothing */
             else skip = (tile_s == b);
             if (skip) continue;
             p = &out->p[out->n++];
@@ -596,6 +617,7 @@ static int case_expect_in_c_range(const struct form *f)
         f->game_c();
         harvest(f, entry_of(f, x), &from_c);
         expect_columns(f, x, C_LO(f), C_HI(f), 0, &expected);
+        if (f->count < 20 && from_c.n >= f->count && expected.n > f->count) expected.n = f->count;   /* the C stopped at its record limit */
         d = compare(&from_c, &expected, (unsigned)f->shape->words);
         if (d) return BAD("fixture %u: packet %u differs (C %u, expected %u)", i, d - 1, from_c.n, expected.n);
     }
@@ -651,8 +673,8 @@ static int case_static_words(void)
         init_pool(f, 0x00808080u | (f->code << 24));
         set_layer(f, &x);
         for (j = 0; j < (unsigned)f->shape->words; j++) wr32(a + 4 + 4 * j, 0x5a000000u + (j + 1) * 0x010101u);   /* packet word j of pool[1][0] */
-        k0 = skewed ? C_LO(f) : C_LO(f) - 3;
-        k1 = skewed ? C_LO(f) + 8 : C_LO(f);
+        k0 = skewed ? C_LO(f) : f->density ? C_LO(f) - 13 : C_LO(f) - 3;      /* a sparse map needs more columns to have a cell */
+        k1 = skewed ? C_LO(f) + 8 : f->density ? C_HI(f) + 13 : C_LO(f);
         run_maker(f, &x, k0, k1, &from_maker);
         if (!from_maker.n) return BAD("%s: nothing made", f->tag);
         for (i = 0; i < from_maker.n; i++) {
@@ -705,7 +727,12 @@ static int case_emit_refused(void)
     for (fi = 1; fi < NFORMS; fi += 3) {       /* the 16 px layer 1 and the skewed form */
         const struct form *f = &forms[fi];
         const struct fixture *x = fix(f, 20);
-        unsigned made;
+        unsigned made, i;
+        for (i = 20; i < fixture_count; i++) {                 /* a fixture with at least 3 cells in the C's columns */
+            init_pool(f, 0x00808080u | (f->code << 24));
+            set_layer(f, fix(f, i));
+            if (run_maker(f, fix(f, i), C_LO(f), C_HI(f), &from_maker) >= 3) { x = fix(f, i); break; }
+        }
         init_pool(f, 0x00808080u | (f->code << 24));
         set_layer(f, x);
         refused_seen = 0;
@@ -728,7 +755,7 @@ static int case_negative_control(const struct form *f)
         set_layer(f, fix(f, i));
         f->game_c();
         harvest(f, entry_of(f, fix(f, i)), &from_c);
-        if (from_c.n >= 20) x = fix(f, i);
+        if (from_c.n >= (f->count < 20 ? 4u : 20u)) x = fix(f, i);   /* gouki's pool holds 13 */
     }
     if (!x) return BAD("%s: the C never drew enough to test", f->tag);
     /* a column off by one */
@@ -742,7 +769,7 @@ static int case_negative_control(const struct form *f)
         if (d != from_maker.n / 2 + 1) return BAD("%s: a changed word %u was not found at its packet (%u)", f->tag, words[k], d);
     }
     /* a wrong shape: the 32 px maker on a 16 px layer, the plain maker on the sprite and skewed layers */
-    if (f->shape != &port_wide_shape_T32) {
+    if (KIND(f) != PORT_WIDE_FLAT || f->shape->shift == 4) {
         struct port_wide_shape wrong = *f->shape;
         if (KIND(f) == PORT_WIDE_FLAT) wrong.shift = 5; else wrong.kind = PORT_WIDE_FLAT;
         sink = &from_maker;
@@ -775,6 +802,18 @@ static int case_blank_forms(void)
     }
     if (counts[0] != 16u * 25u) return BAD("layer 0 drew %u cells, expected all %u", counts[0], 16u * 25u);
     if (counts[1] >= 16u * 25u || counts[1] < 16u * 25u / 2) return BAD("layer 1 drew %u of %u cells", counts[1], 16u * 25u);
+    /* the other plain forms: the half-speed 16 px layer compares as layer 0 does, the 32 px ones skip the blank cells */
+    for (fi = 5; fi < NFORMS; fi++) {
+        const struct form *f = &forms[fi];
+        unsigned total = (unsigned)(f->shape->rows * f->shape->cols), n;
+        init_pool(f, 0x00808080u | (f->code << 24));
+        set_layer(f, &x);
+        f->game_c();
+        harvest(f, 4, &from_c);
+        n = from_c.n;
+        if (f->shape->unsigned_blank ? n != total : (n >= total || n == 0))
+            return BAD("%s drew %u of %u cells", f->tag, n, total);
+    }
     return 1;
 }
 
@@ -792,7 +831,9 @@ static int case_override_wiring(void)
     /* widescreen, arcade_video, whether packets are expected: the side tiles need both settings */
     static const int settings[4][3] = { { 0, 0, 0 }, { 0, 1, 0 }, { 1, 0, 0 }, { 1, 1, 1 } };
     static const char *const names[NFORMS] = { "draw_tile_layer_0_16px_slot06_00", "draw_tile_layer_1_16px_slot06_00", "draw_tilemap_layer_32px_9x13_slot06_00",
-                                               "draw_tile_layer_sprites_with_partial_row_slot06_04", "draw_skewed_tile_layer_quads_slot06_04" };
+                                               "draw_tile_layer_sprites_with_partial_row_slot06_04", "draw_skewed_tile_layer_quads_slot06_04",
+                                               "draw_tilemap_layer_32px_7x13_slot06_01", "draw_tile_map_layer_16px_half_scroll_slot06_0d",
+                                               "draw_tile_map_layer_32px_slot06_0d", "draw_tile_map_layer_32px_slot06_02" };
     unsigned fi, s, j;
     for (fi = 0; fi < NFORMS; fi++) {
         const struct form *f = &forms[fi];
@@ -847,8 +888,9 @@ static void print_table(void)
     unsigned i;
     for (i = 0; i < port_wide_copy_count; i++) {
         const struct port_wide_copy *c = &port_wide_copies[i];
-        const char *form = c->shape == &port_wide_shape_L0 ? "L0" : c->shape == &port_wide_shape_L1 ? "L1" : c->shape == &port_wide_shape_T32 ? "T32" :
-                           c->shape == &port_wide_shape_SPR ? "SPR" : "SKEW";
+        const char *form = "?";
+        unsigned j;
+        for (j = 0; j < NFORMS; j++) if (forms[j].shape == c->shape) form = forms[j].tag;
         printf("%s %s 0x%08x 0x%08x %u\n", c->name, form, c->layer, c->pool, c->count);
     }
 }

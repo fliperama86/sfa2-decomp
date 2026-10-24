@@ -11,8 +11,8 @@ The three layer forms most shared are drawn over the whole width, and the
 view is anchored at the stage ends with the HUD centred. On Birdie's stage
 (seen in a run) the walls and back of the stage fill the width; its
 perspective floor and ceiling, one-stage forms, still end where the game's do.
-Adon's stage is wide all over; Rolento's and Rose's are, but for parts of
-layers drawn by forms not yet done.
+Fourteen of the fifteen stages of the select screen's rows were seen wide
+(scripted training fights, 2026-10-24), most over the whole picture.
 
 ## The owner's decisions (2026-10-23)
 
@@ -164,7 +164,27 @@ Second increment (2026-10-24): `draw_skewed_tile_layer_quads` and
 `draw_tile_layer_sprites_with_partial_row`, ten stages each, the same way (the
 skewed form's quads that reach into -128..512 beyond the C's own -11..32).
 
-Not yet: the forms of two or three stages and those of one stage, objects in
+Third increment (2026-10-24): `draw_tilemap_layer_32px_7x13` (Ken, Nash,
+Rose), `draw_tile_map_layer_16px_half_scroll` (Sakura, Vega) and
+`draw_tile_map_layer_32px` (Gouki, Sakura, Vega; Gouki's copy scrolls at
+full speed and draws 13 records, a shape of its own). The map layers of
+twelve stages are then all done (Adon, Chun-Li, Dan, Dhalsim, Gen, Gen's
+other, Guy, Ryu, Sagat, Sakura, Vega, Zangief). `draw_object_tile_grid_sprites`
+and its kin draw an object's own grid of cells, not a map: they have no side
+cells, and widening them is step 4's (the objects alive in the sides).
+
+Map layers still to do, one stage each: Birdie's and Chun-Li's other's
+`draw_scrolling_tile_map_layer`, Gouki's `draw_tile_map_layer_16px`, Ken's
+`draw_tilemap_layer_16px_12x25`, Nash's three, Rolento's three, Rose's
+`draw_tile_map_layer_16px`, Sodom's `draw_tile_map_layer_sprites_interpolated`.
+
+Checking a stage in the game: training mode reaches the fifteen stages of
+the select screen's three rows by an input script (down to TRAINING MODE,
+square on Ryu, the dummy by the cursor, square, circle at the training menu);
+the stage is the dummy's. The hidden characters' stages (Gouki, Dan, Vega)
+need their codes.
+
+Not yet: the forms of one stage, objects in
 the sides (step 4), banners and other screen-space objects at the stage ends
 (they move with the world there; they are told apart later).
 

@@ -1,10 +1,12 @@
 /* Widescreen's side tiles (port/widescreen.md, "The side tiles"): the stages' tile layers drawn past the columns that the game's own C
- * draws. Three forms of layer function are shared by many stages (the C is the same in every copy; only the pool differs):
- * draw_tile_layer_0_16px (13 stages), draw_tile_layer_1_16px (6) and draw_tilemap_layer_32px_9x13 (13). Each copy gets an override
- * that runs the game's own C and then, with widescreen on, makes the packets of the columns left of the C's first and right of its
- * last that the wide view can show, with the C's arithmetic for each column and row, and queues them for the layer's entry of the
- * ordering table (port_gpu_queue_packet). With widescreen off it only runs the C. The maker (port_wide_columns) is pure and is
- * compared with the C in port/tools/wide_stage_test.c. */
+ * draws. Nine forms of layer function are shared by several stages (the C is the same in every copy of a form; only the pool differs):
+ * the plain tile grids draw_tile_layer_0_16px, draw_tile_layer_1_16px, draw_tilemap_layer_32px_9x13 and _7x13,
+ * draw_tile_map_layer_16px_half_scroll and draw_tile_map_layer_32px (half speed, and gouki's copy), and the second layer's
+ * draw_tile_layer_sprites_with_partial_row and draw_skewed_tile_layer_quads. Each copy gets an override that runs the game's own C and
+ * then, with widescreen on, makes the packets of the columns beside the C's that the wide view can show, with the C's arithmetic for
+ * each column and row, and queues them for the layer's entry of the ordering table (port_gpu_queue_packet). With widescreen off it only
+ * runs the C. The maker (port_wide_columns) is pure and is compared with the C in port/tools/wide_stage_test.c. The per-object grids
+ * (draw_object_tile_grid_sprites and its kin, which take an Object) are not here: they draw one object's cells, not a map. */
 #include "port.h"
 #include "gpu.h"
 #include "settings.h"
@@ -46,11 +48,16 @@
 #define WORD_XY   4
 #define WORD_UV   5
 
-const struct port_wide_shape port_wide_shape_L0   = { 4, 16, 25, 6, 1, 0, PORT_WIDE_FLAT, 0 };
-const struct port_wide_shape port_wide_shape_L1   = { 4, 16, 25, 6, 0, 0, PORT_WIDE_FLAT, 0 };
-const struct port_wide_shape port_wide_shape_T32  = { 5, 9, 13, 7, 0, 1, PORT_WIDE_FLAT, 0 };
-const struct port_wide_shape port_wide_shape_SPR  = { 4, 0, 25, 6, 0, 0, PORT_WIDE_SPRITES, 0 };    /* the row count comes from the camera */
-const struct port_wide_shape port_wide_shape_SKEW = { 4, 0, 44, 9, 0, 0, PORT_WIDE_SKEWED, -11 };   /* a POLY_FT4 a cell: 9 words */
+const struct port_wide_shape port_wide_shape_L0   = { 4, 16, 25, 6, 1, 0, PORT_WIDE_FLAT, 0, 0 };
+const struct port_wide_shape port_wide_shape_L1   = { 4, 16, 25, 6, 0, 0, PORT_WIDE_FLAT, 0, 0 };
+const struct port_wide_shape port_wide_shape_T32  = { 5, 9, 13, 7, 0, 1, PORT_WIDE_FLAT, 0, 0 };
+const struct port_wide_shape port_wide_shape_SPR  = { 4, 0, 25, 6, 0, 0, PORT_WIDE_SPRITES, 0, 0 };    /* the row count comes from the camera */
+const struct port_wide_shape port_wide_shape_SKEW = { 4, 0, 44, 9, 0, 0, PORT_WIDE_SKEWED, -11, 0 };   /* a POLY_FT4 a cell: 9 words */
+/* the same arithmetic with other counts or the half-speed scroll */
+const struct port_wide_shape port_wide_shape_T32_7 = { 5, 7, 13, 7, 0, 1, PORT_WIDE_FLAT, 0, 0 };      /* draw_tilemap_layer_32px_7x13 */
+const struct port_wide_shape port_wide_shape_T16H  = { 4, 16, 25, 6, 1, 0, PORT_WIDE_FLAT, 0, 1 };     /* draw_tile_map_layer_16px_half_scroll: layer 0's compare */
+const struct port_wide_shape port_wide_shape_T32H  = { 5, 9, 13, 7, 0, 1, PORT_WIDE_FLAT, 0, 1 };     /* draw_tile_map_layer_32px (sakura, vega) */
+const struct port_wide_shape port_wide_shape_T32G  = { 5, 9, 13, 7, 0, 1, PORT_WIDE_FLAT, 0, 0 };     /* draw_tile_map_layer_32px of gouki: full speed, stops at 13 records */
 
 /* The words of a POLY_FT4 record after its tag (Poly28): colour and code, then x y / u v clut / x y / u v tpage / x y / u v / x y / u v
  * for the four corners. */
@@ -112,7 +119,7 @@ static unsigned flat_columns(const struct port_wide_shape *shape, const uint8_t 
     x_before = rd32(layer, CHAN_SCROLL_Y) - 0x100000u;                 /* x = scroll_y - 0x100000 */
     pos_neg = 0u - x_before;                                           /* pos = -x */
     pos = (int)pos_neg;
-    y = (int16_t)(uint16_t)((pos >> 16) - (int)(game_scroll_y & 0xffffu));   /* t = (pos >> 16) - game_state.scroll_y, 16 bits; y = t */
+    y = (int16_t)(uint16_t)((pos >> 16) - (shape->half_scroll ? ((int16_t)game_scroll_y >> 1) : (int)(game_scroll_y & 0xffffu)));   /* t = (pos >> 16) - game_state.scroll_y (or its half), 16 bits; y = t */
     sx = (int)(scroll_x & (unsigned)(size - 1));
     sy = y & (size - 1);
     rows = (int16_t)(height >> shape->shift);
@@ -411,7 +418,15 @@ void port_wide_map_bytes(const struct port_wide_shape *shape, const uint8_t *lay
     X(48, draw_tile_layer_sprites_with_partial_row_slot06_0c, SPR, 0x801aa5d4, 0x801eef88, 265) \
     X(49, draw_tile_layer_sprites_with_partial_row_slot06_0d, SPR, 0x801aa5d4, 0x801eef44, 325) \
     X(50, draw_tile_layer_sprites_with_partial_row_slot06_0e, SPR, 0x801aa5d4, 0x801f22d4, 124) \
-    X(51, draw_tile_layer_sprites_with_partial_row_slot06_0f, SPR, 0x801aa5d4, 0x801f1bfc, 195)
+    X(51, draw_tile_layer_sprites_with_partial_row_slot06_0f, SPR, 0x801aa5d4, 0x801f1bfc, 195) \
+    X(52, draw_tilemap_layer_32px_7x13_slot06_01, T32_7, 0x801aa664, 0x801f94bc, 67) \
+    X(53, draw_tilemap_layer_32px_7x13_slot06_03, T32_7, 0x801aa664, 0x801f62c0, 117) \
+    X(54, draw_tilemap_layer_32px_7x13_slot06_09, T32_7, 0x801aa664, 0x801f5064, 91) \
+    X(55, draw_tile_map_layer_16px_half_scroll_slot06_0a, T16H, 0x801aa544, 0x801ed498, 193) \
+    X(56, draw_tile_map_layer_16px_half_scroll_slot06_0d, T16H, 0x801aa544, 0x801ed5e4, 116) \
+    X(57, draw_tile_map_layer_32px_slot06_02, T32G, 0x801aa664, 0x801f8638, 13) \
+    X(58, draw_tile_map_layer_32px_slot06_0a, T32H, 0x801aa664, 0x801f3eb0, 61) \
+    X(59, draw_tile_map_layer_32px_slot06_0d, T32H, 0x801aa664, 0x801f51dc, 90)
 
 #define AS_COPY(n, name, form, layer, pool, count) { #name, &port_wide_shape_##form, layer, pool, count },
 const struct port_wide_copy port_wide_copies[] = { STAGE_COPIES(AS_COPY) };
