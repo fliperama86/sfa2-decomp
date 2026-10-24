@@ -129,6 +129,7 @@ test_arcade_full_sets = ["port/arcade/full_sets.c", "port/arcade/full_sets.h", "
 test_arcade_texts = ["port/arcade/texts.c", "port/arcade/texts.h", "port/arcade/texts_table.c", "port/arcade/tests/texts_test.c", "port/arcade/texts.py"]
 test_arcade_quotes = ["port/arcade/quotes.c", "port/arcade/quotes.h", "port/arcade/quotes_table.c", "port/arcade/tests/quotes_test.c", "port/arcade/quotes.py", "port/arcade/tilepack.c"]
 test_arcade_talk = ["port/arcade/talk.c", "port/arcade/talk.h", "port/arcade/talk_table.c", "port/arcade/tests/talk_test.c", "port/arcade/talk.py", "port/arcade/quotes.py"]
+test_arcade_program_unread = ["port/arcade/program_unread.py", "port/arcade/code_pins.py"]
 test_arcade_code_pins = ["port/arcade/code_pins.c", "port/arcade/code_pins.h", "port/arcade/code_pins_table.c", "port/arcade/tests/code_pins_test.c", "port/arcade/code_pins.py"]
 test_arcade_sprite_tiles = ["port/arcade/sprite_tiles.c", "port/arcade/sprite_tiles.h", "port/arcade/sprite_tiles_table.c", "port/arcade/tests/sprite_tiles_test.c", "port/arcade/sprite_tiles.py", "port/arcade/tilepack.c", "port/arcade/quarter.h"]
 test_arcade_compose = ["port/arcade/compose.c", "port/arcade/compose.h", "port/arcade/compose.py", "port/arcade/tests/compose_test.c", "port/arcade/screen_lists.py"]

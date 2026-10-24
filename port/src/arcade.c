@@ -135,6 +135,49 @@ static unsigned program_more(unsigned char *ram, int check)
     return differ;
 }
 
+/* The PS1 program's data as the loader builds it: the pieces, the pointer words and the effects' cell lists over zeros, with the bytes it
+ * built marked (the same order and bytes as port_arcade_program writes into memory). Built once. They are the disc's bytes, by
+ * --arcade-check: a pack keeps none of them, and the program file's identity check (data_pin) puts them back before it hashes. */
+static unsigned char *program_data, *program_known;
+
+static void program_build(void)
+{
+    const unsigned span = ARCADE_PS1_DATA_END - ARCADE_PS1_DATA_START;
+    unsigned char *piece, *words;
+    struct arcade_effects_out e;
+    unsigned i;
+    char err[PORT_ERR];
+    if (program_data) return;
+    program_data = calloc(span, 1);
+    program_known = calloc(span, 1);
+    piece = malloc(span);
+    words = calloc(span, 1);
+    if (!program_data || !program_known || !piece || !words) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+    for (i = 0; i < arcade_program_piece_count; i++) {
+        const struct arcade_piece *p = &arcade_program_pieces[i];
+        if (arcade_piece_build(rom.program, ARCADE_PROGRAM_SIZE, p, piece) != 0)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: the piece %s does not fit the arcade program", p->name);
+        memcpy(program_data + (p->address - ARCADE_PS1_DATA_START), piece, p->size);
+        memset(program_known + (p->address - ARCADE_PS1_DATA_START), 1, p->size);
+    }
+    if (arcade_relocs_apply(arcade_relocs, arcade_reloc_count, words, span) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: a pointer word lies outside the program's data");
+    for (i = 0; i < arcade_reloc_count; i++) {
+        unsigned at = arcade_relocs[i].location - ARCADE_PS1_DATA_START;
+        memcpy(program_data + at, words + at, 4);
+        memset(program_known + at, 1, 4);
+    }
+    if (arcade_effects_build(rom.program, ARCADE_PROGRAM_SIZE, &arcade_effects, &e, err, sizeof err) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: effects: %s", err);
+    for (i = 0; i < e.size; i++) {
+        unsigned at = arcade_effects.address - ARCADE_PS1_DATA_START + i;
+        if (!e.known[i] || at >= span) continue;
+        program_data[at] = e.data[i];
+        program_known[at] = 1;
+    }
+    arcade_effects_free(&e);
+    free(piece);
+    free(words);
+}
+
 unsigned port_arcade_program(unsigned char *ram, int check)
 {
     unsigned i, differ = 0;
@@ -485,6 +528,28 @@ static unsigned serve_units(struct port_disc *d, int f, unsigned at, unsigned ch
     }
     free(disc);
     return served;
+}
+
+/* The PS1 program's data that the loader builds (program_build), served as ranges of SLPS_004.15 where it equals the disc's, so that a pack
+ * keeps none of those bytes. The file's identity (data_pin) is checked on the file as read, with these bytes put back. */
+static int same_name(const char *a, const char *b);
+static void program_ranges(struct port_disc *d, int check)
+{
+    const unsigned span = ARCADE_PS1_DATA_END - ARCADE_PS1_DATA_START;
+    unsigned i, f = file_count, served;
+    unsigned char *head;
+    for (i = 0; i < file_count; i++)
+        if (same_name("SLPS_004.15", files[i].name)) f = i;
+    if (f == file_count || !(head = disc_bytes(d, &files[f], 0, 0x800))) return;
+    {
+        unsigned t_addr = head[0x18] | head[0x19] << 8 | (unsigned)head[0x1a] << 16 | (unsigned)head[0x1b] << 24;
+        free(head);
+        if (t_addr > ARCADE_PS1_DATA_START || 0x800u + (ARCADE_PS1_DATA_START - t_addr) + span > files[f].size) return;
+        program_build();
+        served = serve_units(d, (int)f, 0x800u + (ARCADE_PS1_DATA_START - t_addr), program_data, program_known, span, 1, check);
+    }
+    printf("arcade%s: the PS1 program's data: %u bytes served as built (equal to the disc's), none kept by a pack\n", check ? " check" : "", served);
+    fflush(stdout);
 }
 
 /* The fighter's animation steps, frame records and step tables (sequence.c), served where built and equal to the disc's. */
@@ -2070,6 +2135,14 @@ static int data_pin(const char *image, const unsigned char *bytes, size_t size)
     int ok;
     if (!p || size != p->size || !(copy = malloc(size ? size : 1))) return 0;
     memcpy(copy, bytes, size);
+    if (!strcmp(image, "SLPS_004.15") && size > 0x800) {   /* the program's data that the loader builds is not in a pack: the disc's bytes go back first */
+        const unsigned span = ARCADE_PS1_DATA_END - ARCADE_PS1_DATA_START;
+        unsigned t_addr = copy[0x18] | copy[0x19] << 8 | (unsigned)copy[0x1a] << 16 | (unsigned)copy[0x1b] << 24, i, at;
+        program_build();
+        if (ARCADE_PS1_DATA_START >= t_addr && (at = 0x800u + (ARCADE_PS1_DATA_START - t_addr)) <= size && span <= size - at)
+            for (i = 0; i < span; i++)
+                if (program_known[i]) copy[at + i] = program_data[i];
+    }
     ok = arcade_code_zero(p, copy, size) == 0;
     if (ok) port_sha256(copy, size, digest);
     free(copy);
@@ -2265,6 +2338,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     wrong = fighters(d, check);
     wrong += sprite_chunks(d, check);
     synth_files(d, check);
+    program_ranges(d, check);
     blank_pictures(d, check);
     synthetic_banks(d, check);
     wrong += parts(d, check);

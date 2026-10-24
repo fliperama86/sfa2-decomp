@@ -379,10 +379,20 @@ def resident_finding(disc, images, funcs):
     return total(d['ranges']), lines
 
 
+# Data of the resident program that nothing in the port reads (port/arcade/program_unread.py: symbol ranges of the program's data block that no
+# object of the build, no runtime constant and no pointer word of a read range refers to): (address, size). The pin of the program zeroes them as
+# it zeroes its functions, so a pack keeps none of their bytes and its file is accepted by the data pin of the file with those bytes zeroed.
+# `program_unread.py --check` fails when the build refers to a symbol in one of them.
+RESIDENT_UNREAD = (
+    (0x8016d91c, 136), (0x8016db54, 408), (0x8016de24, 1856), (0x8018192c, 312), (0x80181a68, 208),
+    (0x80181b44, 16), (0x80181df8, 20), (0x80181e11, 4335), (0x80182f04, 112), (0x801831a4, 16),
+)
+
+
 def program_result(disc, images, funcs, baseline):
     """The row of the resident program (SLPS_004.15, the whole file): its established functions (build.toml's units without an image)
     inside the text, as file offsets (0x800 + address - text address), but the function that holds the entry (pc0: the runtime scans its
-    code for the jal to main) and the file's header; the pin is the build's baseline."""
+    code for the jal to main) and the file's header, and the data that nothing reads (RESIDENT_UNREAD); the pin is the build's baseline."""
     data = disc.read('SLPS_004.15')
     if data[:8] != b'PS-X EXE':
         raise Fail('SLPS_004.15 is not a PS-X EXE')
@@ -391,7 +401,7 @@ def program_result(disc, images, funcs, baseline):
     if sha(data) != baseline:
         raise Fail('SLPS_004.15 does not have the build\'s baseline SHA-256')
     est = [(a, s) for _, _, a, s in funcs.get(None, []) if addr <= a and a - addr + s <= size and not (a <= pc0 < a + s)]
-    ranges = merge([(0x800 + a - addr, s) for a, s in est])
+    ranges = merge([(0x800 + a - addr, s) for a, s in est] + [(0x800 + a - addr, s) for a, s in RESIDENT_UNREAD])
     return dict(name='SLPS_004.15', archive='SLPS_004.15', slot=None, size=len(data), pin=sha(data), data_pin=sha(zeroed(data, ranges)),
                 ranges=ranges, est_bytes=total(ranges), added_bytes=0, checked=0, covered=0, skipped=[], copies=1, cls='program', like=None, first=0)
 
