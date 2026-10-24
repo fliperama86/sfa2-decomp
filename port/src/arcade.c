@@ -1503,7 +1503,7 @@ static void arcade_mix(short *out, int frames)
 #define COMMAND_LISTS 0x8016e6e0u   /* table_8016e6e0[slot]: the bank slot's command list (8-byte entries) */
 #define CAMERA_X 0x801aa5e6u        /* box_margin[0] */
 #define OBJECT_X 0x12u              /* Object.pos_x */
-static unsigned sounds_arcade, sounds_ps1;
+static unsigned sounds_arcade, sounds_ps1, sounds_silent;
 
 /* The disc's VAB headers (the chunks of table 3, slots 0 to 3, of every archive), each with its key (the table's key_vab). The
  * game's sound library writes into a header once it has opened it, so a slot's header in memory is known by the disc header it is
@@ -1623,7 +1623,11 @@ static int arcade_effect(unsigned slot, int alt, unsigned start, int pos)
                     lo < arcade_sound_count && arcade_sounds[lo].key_vab == key_vab && arcade_sounds[lo].key_run == key_run ? "known" : "not known");
     if (lo == arcade_sound_count || arcade_sounds[lo].key_vab != key_vab || arcade_sounds[lo].key_run != key_run) return 0;
     code = alt ? arcade_sounds[lo].code1 : arcade_sounds[lo].code0;
-    if (code == 0xffffu) return 0;
+    if (code == ARCADE_SOUND_NONE) return 0;
+    if (code == ARCADE_SOUND_SILENT) {   /* the arcade plays nothing at this moment (sounds.py's decisions): handled, no PS1 sound */
+        sounds_silent++;
+        return 1;
+    }
     dx = pos < 0 ? 0u : pos > 0x17f ? 0x17fu : (unsigned)pos;
     for (k = 0, pan = 0; k < 15; k++) pan += arcade_sound_pan_edges[k] <= dx;
     pan = arcade_sound_pan_first + pan - 1u;
@@ -1699,7 +1703,8 @@ void port_arcade_sound_stop(void)
 
 static void sound_counts(void)
 {
-    printf("arcade: sound: %u requests played as the arcade's effects, %u as the PS1's own sounds\n", sounds_arcade, sounds_ps1);
+    printf("arcade: sound: %u requests played as the arcade's effects, %u silent as the arcade, %u as the PS1's own sounds\n", sounds_arcade, sounds_silent,
+           sounds_ps1);
     fflush(stdout);
 }
 

@@ -4,7 +4,9 @@
 The pure functions (list entries and sounds, hashes, header length, pitch, key-range tones, SEP files, pan, timeline fit, effect
 classes and side codes, the choice among classes) run on made-up inputs, and a small made-up bank, list and set of effects go through
 the whole resolution: an exact sound with a side pair, a sound with two effects to choose from, one with no arcade source, one with no
-effect, a stop, a sequence of echoes that the arcade plays one note longer, and the C table.
+effect, a stop, a sequence of echoes that the arcade plays one note longer, and the C table. Also: the slack before an arcade record,
+the run rule (sounds between two certain sounds whose codes differ by the number of sounds take the codes in between), the hand table
+and the silent outcome (code 0xfffe).
 """
 import hashlib
 import math
@@ -153,6 +155,18 @@ class Pure(unittest.TestCase):
         self.assertEqual(K.side_codes([0x300, 0x301], voices), (0x300, 0x300))   # no twin on other voices: the same code for both sides
         self.assertEqual(K.side_codes([0x300], voices), (0x300, 0x300))
 
+    def test_contain_slack(self):
+        recs = [dict(index=0, start=0x1000, end=0x1fff, root=72), dict(index=1, start=0x2000, end=0x2fff, root=72)]
+        self.assertEqual(K.contain(recs, 0x1500), [0])
+        self.assertEqual(K.contain(recs, 0x1fff), [0])
+        self.assertEqual(K.contain(recs, 0x2000 - 2), [0])                  # inside record 0: never takes record 1
+        self.assertEqual(K.contain(recs, 0x2000 + 0x10), [1])
+        recs2 = [dict(index=0, start=0x1000, end=0x17ff, root=72), dict(index=1, start=0x2000, end=0x2fff, root=72)]
+        self.assertEqual(K.contain(recs2, 0x2000 - 2), [1])               # in no record, 2 bytes before record 1
+        self.assertEqual(K.contain(recs2, 0x2000 - K.RECORD_SLACK), [1])
+        self.assertEqual(K.contain(recs2, 0x2000 - K.RECORD_SLACK - 1), [])
+        self.assertEqual(K.contain(recs2, 0x2000 + 0x3000), [])
+
     def test_choice(self):
         self.assertEqual(K.nearest_choice([0x155, 0x126], [0x11a, 0x11d]), 0x126)
         self.assertEqual(K.nearest_choice([0x155, 0x126], []), 0x126)
@@ -228,6 +242,82 @@ class Resolution(unittest.TestCase):
         self.assertEqual((r['kind'], r['reason']), ('stop', 'stop'))
         r = rows[6]                                                         # three SEP notes against the arcade's four
         self.assertEqual((r['kind'], r['method'], r['code0']), ('sequence', 'prefix', 0x1a0))
+
+    def test_run_rule(self):
+        """Two certain sounds a and b with codes 0x180 and 0x183 and two sounds without a source between them: they take 0x181 and 0x182."""
+        tones = [dict(program=0, tone=i, center=72, shift=0, low=0, high=127, vag=i + 1) for i in range(4)]
+        vags = [hashlib.md5(bytes([i + 20])).hexdigest() for i in range(4)]
+        entries = [entry(tone=0), entry(tone=1), entry(tone=1, note=62), entry(tone=2)]
+        ctx = dict(names=[('PL98', 4)], slot=4, role='fighter', vh=b'pBAV' + bytes(50), info=dict(tones=tones, sizes=[]), vags=vags,
+                   entries=entries, sep=[])
+        matches = {vags[0]: dict(rate=44100, address=0x1100, cover=100, exact=True), vags[1]: dict(rate=None),
+                   vags[2]: dict(rate=44100, address=0x2100, cover=100, exact=True), vags[3]: dict(rate=None)}
+        instruments = [dict(index=i, start=0x1000 * (i + 1), end=0x1000 * (i + 1) + 0xfff, root=72) for i in range(6)]
+
+        def ev(tick, inst, voice, volume):
+            return dict(tick=tick, instrument=inst, key=61, pitch=61 << 8, length=48, volume=volume, echo=0, voice=voice)
+        effects = {0x180: dict(prio=16, events=[ev(3, 0, 12, 100)], voices=[12]), 0x280: dict(prio=16, events=[ev(3, 0, 14, 100)], voices=[14]),
+                   0x181: dict(prio=16, events=[ev(3, 5, 12, 100)], voices=[12]), 0x281: dict(prio=16, events=[ev(3, 5, 14, 100)], voices=[14]),
+                   0x182: dict(prio=16, events=[ev(3, 5, 12, 200)], voices=[12]), 0x282: dict(prio=16, events=[ev(3, 5, 14, 200)], voices=[14]),
+                   0x183: dict(prio=16, events=[ev(3, 1, 12, 100)], voices=[12]), 0x283: dict(prio=16, events=[ev(3, 1, 14, 100)], voices=[14])}
+        rows = {r['start']: r for r in K.resolve_rows([ctx], matches, instruments, effects)}
+        self.assertEqual([(rows[i]['method'], rows[i]['code0'], rows[i]['code1']) for i in range(4)],
+                         [('exact', 0x180, 0x280), ('inferred', 0x181, 0x281), ('inferred', 0x182, 0x282), ('exact', 0x183, 0x283)])
+        effects2 = {c: e for c, e in effects.items() if c not in (0x182, 0x282)}          # no effect 0x182: nothing is guessed
+        rows = {r['start']: r for r in K.resolve_rows([ctx], matches, instruments, effects2)}
+        self.assertEqual((rows[1]['method'], rows[2]['method']), ('none', 'none'))
+
+    def test_decisions(self):
+        def row(name, start, code0=None, reason=None, method='none'):
+            return dict(contexts=[(name, 4, start)], code0=code0, code1=code0, reason=reason, method=method, key=(1, start), weak=False)
+        rows = [row('SELECT', 0, reason='no-source'), row('SELECT', 1, reason='no-source'), row('SELECT', 2, reason='no-source'),
+                row('PL99', 5, reason='stop'), row('PL99', 6, reason='no-source'), row('PL99', 7, reason='no-effect'),
+                row('PL99', 8, reason='no-record'), row('SELECT', 3, 0x190, method='exact')]
+        hand = (('SELECT', 4, (0,), 0x82, 0x83, 'cursor'), ('SELECT', 4, (2,), K.SILENT, K.SILENT, 'voice'), ('SELECT', 4, (3,), 0x82, 0x83, 'ignored'),
+                ('GONE', 4, (0,), 0x82, 0x83, 'no such row'))
+        K.apply_decisions(rows, hand)
+        r = rows
+        self.assertEqual((r[0]['code0'], r[0]['code1'], r[0]['method'], r[0]['reason']), (0x82, 0x83, 'hand', None))
+        self.assertEqual((r[1]['code0'], r[1]['silent']), (None, 'no-source'))                 # no hand row: silent by the default
+        self.assertEqual((r[2]['code0'], r[2]['silent']), (None, 'hand'))
+        self.assertEqual(r[3]['silent'], 'stop')
+        self.assertEqual(r[4]['silent'], 'no-source')
+        self.assertEqual((r[5]['silent'], r[6]['silent']), ('no-effect', 'no-record'))          # nothing falls back to the PS1's sound
+        self.assertEqual((r[7]['code0'], r[7]['method']), (0x190, 'exact'))                    # a measured row is left alone
+        effects = {}
+        text = K.c_table(rows, effects)
+        self.assertEqual(text.count('0xfffe, 0xfffe, 8,'), 1)
+        self.assertEqual(text.count('0xfffe, 0xfffe, 9,'), 2)
+        self.assertEqual(text.count('0xfffe, 0xfffe, 12,'), 1)
+        self.assertEqual(text.count('0x082, 0x083, 7,'), 1)
+        self.assertEqual(text.count('0xfffe, 0xfffe, 11,'), 1)
+        self.assertEqual(text.count('0xfffe, 0xfffe, 10,'), 1)
+        self.assertNotIn('0xffff, 0xffff', text)
+        over = (('SELECT', 4, (3,), 0x82, 0x83, 'replaces the measured row'),)
+        K.apply_decisions(rows, hand, over)
+        self.assertEqual((rows[7]['code0'], rows[7]['code1'], rows[7]['method']), (0x82, 0x83, 'hand'))
+
+    def test_hand_table(self):
+        seen = set()
+        for archive, slot, entries, code0, code1, evidence in K.HAND:
+            self.assertTrue(entries and slot in K.LIST_SLOTS)
+            self.assertTrue(evidence and chr(0x2014) not in evidence)
+            for e in entries:
+                self.assertNotIn((archive, slot, e), seen)               # one decision for a sound
+                seen.add((archive, slot, e))
+            self.assertEqual(code0 == K.SILENT, code1 == K.SILENT)
+            if code0 != K.SILENT:
+                self.assertTrue(0 < code0 < 0x400 and 0 < code1 < 0x400)
+
+    def test_override_table(self):
+        places = set()
+        for archive, slot, entries, code0, code1, evidence in K.HAND_OVERRIDE:
+            self.assertTrue(entries and slot in K.LIST_SLOTS and evidence and chr(0x2014) not in evidence)
+            self.assertTrue(0 < code0 < 0x400 and 0 < code1 < 0x400)
+            for e in entries:
+                places.add((archive, slot, e))
+        self.assertEqual(len(places), sum(len(o[2]) for o in K.HAND_OVERRIDE))
+        self.assertFalse(places & {(a, sl, e) for a, sl, es, *_ in K.HAND for e in es})   # a place is decided once
 
     def test_keys_are_unique_and_stable(self):
         rows = self.rows()

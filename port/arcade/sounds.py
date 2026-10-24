@@ -37,6 +37,15 @@ note's effect is used), inferred (a neighbor sound in the list is the arcade's c
 no arcade source), or none with the reason: no-source (the sample has no arcade source: the PS1's own), no-effect (an
 arcade sample that no effect plays at this pitch), stop (a list entry that only stops or sets volume).
 
+Three further steps give every sound its final outcome (apply_decisions). A sound whose sample matches an arcade record that starts up to 64
+bytes after its own start counts as inside it (the PS1 sample begins with a warm-up block). Sounds without an arcade source that sit between
+two certain sounds of a fighter's list whose codes differ by exactly the number of sounds take the codes in between ('inferred': the arcade
+numbers a fighter's sounds in list order). The HAND table places the sounds that the measurement cannot (the PS1's own recordings of menu
+and HUD sounds) by the arcade's 68000 program: the arcade function that does the same at the same moment calls the effect; its rows carry
+their evidence; HAND_OVERRIDE rows replace a measured code where the arcade's own code shows another effect. Every other sound without a code
+(a stop, no arcade source, no effect, no record) is silent (code 0xfffe in the table, ARCADE_SOUND_SILENT): the arcade
+plays nothing there. No row keeps 0xffff, so no request with a row falls back to the PS1's sound banks.
+
 A row is keyed by (hash of the VAB header, hash of the run of entries): the same pair is the same sound in every file that
 has it (25 different banks and lists on the disc). Reads the disc image and the arcade set (both only read); writes
 nothing. It prints numbers and codes, never game bytes. An analysis and reference tool; the runtime table is
@@ -79,6 +88,10 @@ EFFECT_TICKS = 2500                # 10 s of interrupts are run for each effect
 # pan 9 .. 23 in the table at 0x13ccc of the 68000 program (music.md section 10; read from the decrypted analysis copy).
 PAN_EDGES = (0, 6, 20, 40, 66, 97, 132, 171, 213, 252, 287, 318, 344, 364, 378)
 PAN_FIRST = 9
+# A PS1 sample made from an arcade record starts a few bytes before the record (the PS1's warm-up block): 2, 24 and 37 bytes were
+# measured, so an address up to this many bytes below a record's start counts as inside it.
+RECORD_SLACK = 64
+SILENT = 0xfffe                    # the table's code for a request that plays nothing on purpose (ARCADE_SOUND_SILENT in sounds.h)
 
 
 # ---------------------------------------------------------------- pure functions (tested without game data)
@@ -389,7 +402,12 @@ def arcade_timeline(effect, instruments):
 # ---------------------------------------------------------------- resolving the PS1 sounds
 
 def contain(instruments, address):
-    return [r['index'] for r in instruments if r['start'] <= address <= r['end']]
+    """Indexes of the arcade instrument records that hold `address`. An address in no record is looked up again from RECORD_SLACK
+    bytes before each record's start (an address inside a record never takes the next one)."""
+    inside = [r['index'] for r in instruments if r['start'] <= address <= r['end']]
+    if inside:
+        return inside
+    return [r['index'] for r in instruments if r['start'] - RECORD_SLACK <= address < r['start']]
 
 
 def ps1_event(ctx, matches, instruments, tone, note, when):
@@ -534,25 +552,142 @@ def resolve_rows(ctxs, matches, instruments, effects):
                         certain = [x['classes'][0] for x in rows if x['ctx'] == r['ctx'] and len(x['classes']) == 1 and x['method'] == 'exact']
                         finish(r, nearest_choice(one, certain), 'seq-first')
                         break
-    # pass 4: neighbors
+    # pass 4: runs. The arcade numbers a fighter's sounds one after the other in the order of the list, so when two certain sounds
+    # a and b of a list have codes that differ by exactly the number of sounds between them, the sounds between them that have no
+    # arcade source take the codes in between (the sample is the PS1's own, the arcade's effect is in the same place).
     for ci in range(len(ctxs)):
         mine = sorted((r for r in rows if r['ctx'] == ci), key=lambda r: r['group'])
-        for i in range(1, len(mine) - 1):
-            r, a, b = mine[i], mine[i - 1], mine[i + 1]
-            if r['method'] == 'none' and r['reason'] == 'no-source' and r['kind'] == 'note' and a['method'] == b['method'] == 'exact' \
-                    and b['code0'] - a['code0'] == 2 and (a['code0'] + 1) in effects:
-                finish(r, cls[a['code0'] + 1], 'inferred')
+        i = 1
+        while i < len(mine) - 1:
+            a = mine[i - 1]
+            j = i
+            while j < len(mine) and mine[j]['method'] == 'none' and mine[j]['reason'] == 'no-source' and mine[j]['kind'] == 'note':
+                j += 1
+            if j > i and j < len(mine):
+                b = mine[j]
+                if a['method'] == b['method'] == 'exact' and b['code0'] - a['code0'] == j - i + 1 \
+                        and all(a['code0'] + k in effects for k in range(1, j - i + 1)):
+                    for k in range(i, j):
+                        finish(mine[k], cls[a['code0'] + k - i + 1], 'inferred')
+            i = max(j, i + 1)
     return rows
+
+
+# ---------------------------------------------------------------- decisions: the hand table and the silent sounds
+
+# Sounds that the measurement cannot place (the PS1 has its own recording, or no arcade effect plays the sample) but whose moment the
+# arcade's 68000 program shows: the PS1 game logic comes from the arcade's, so the arcade function that does the same thing at the same
+# moment calls the effect. Each row is (archive, list slot, entries, code for side 0, code for side 1, evidence); the evidence names
+# addresses of the decrypted 68000 program (music.md section 10) and what the code there does. The sound wrappers are 0x13c5e and
+# 0x13c64; the small routines that call them from 0x13e4c on are named below by their address. A row applies to a sound that the
+# measurement left without a code; SILENT rows say that the arcade has no such moment. Numbers and addresses only.
+HAND = (
+    ('SELECT', 4, (0,), 0x82, 0x83,
+     'select screen, cursor moved to another fighter: 0x627c8 (and twins 0x62bd0, 0x62f04) compares the player cursor (+0x82 of the player) with'
+     ' the selector object and calls 0x13e8c, which sends 0x82 plus the player bit (+0x81); the PS1 does the same compare and plays entry 0'),
+    ('SELECT', 4, (1,), 0x84, 0x85,
+     'select screen, fighter picked: 0x628a0 adds 2 to the state (+6) then 0x628a4 calls 0x13eb0, which sends 0x84 plus the player bit;'
+     ' the PS1 advances its state (+1) and plays entry 1; the same three twins as entry 0'),
+    ('CONT00', 4, (6,), 0x91, 0x91,
+     'results screen, count 0x1f then next step: 0x7052 subtracts 1 from the timer (a5+0xa), adds 2 to the step, sets the flag 0x161 and'
+     ' jumps to 0x13f7c, which sends 0x91 (an echo of four notes of one instrument); the PS1 sound is an echo of five notes'
+     ' (counter 0x1f, flag set, entry 6)'),
+    ('CONT00', 4, (7,), 0x8a, 0x8a,
+     'results screen, voice of the count: 0x85a38 tests the timer of the player object for 0x5f, sends the voice 0xb0 + value (0x15732) and'
+     ' jumps to 0x13f2e, which sends 0x8a; the PS1 plays the voice at timer 0x5f and entry 7 one frame later'),
+    ('CONT00', 4, (8,), 0x84, 0x84,
+     'results screen, step with the 0x3c timer: 0x6db6 adds 2 to the step, stores 0x3c in a5+0xe, sets the flag 0x161 and jumps to 0x13ed4,'
+     ' which sends 0x84; the PS1 sets its timer to 0x3c and the flag 0xff and plays entry 8 (the same recording as select entry 1)'),
+    ('FIRSTSND', 7, (34,), 0x12f, 0x22f,
+     'dizzy: 0x5da44 spawns three star objects (random side, 1 in 256 the third kind, flag a6+0x296 set) and jumps to 0x1484a, which sends'
+     ' 0x12f plus the player bit; the PS1 spawn_three_effect_objects_with_sound is the same routine (health test, random 0x25, three objects,'
+     ' flag set) and plays 0x322'),
+    ('FIRSTSND', 7, (76,), 0x86, 0x87,
+     'win marker: 0x82fa4 puts the marker of win number (+0xa6 of the player) minus one into the strip table of the team (+0x59) and'
+     ' 0x82ffa jumps to 0x13eee, which sends 0x86 plus the team; the PS1 update_win_marker_strips plays 0x34c for the same marker'),
+    ('FIRSTSND', 7, (77,), 0x88, 0x89,
+     'score count-up tick: 0x5c12 transfers the bonus into the score with sbcd/abcd and, when the frame counter and 3 is zero (0x5c66), jumps'
+     ' to 0x5c70 -> 0x13f0e, which sends 0x88 plus the player bit (+0x81); at the end 0x5c98 sends it once more; the PS1'
+     ' transfer_bcd_amount_to_score plays 0x34d at both places'),
+    ('FIRSTSND', 7, (0, 48), 0x100, 0x200,
+     'hit sounds: the PS1 picks the hit sound from a table of eight strengths (0x300, 0x302, 0x304, 0x306, 0x309, 0x30b, 0x30d, 0x30f)'
+     ' and eight for a knock-out (0x330, 0x333, ...); the measured rows of the ladder are the arcade codes 0x101, 0x102, 0x104, 0x105, 0x106'
+     ' at ladder places 1, 2, 4, 5, 6, so place 0 is 0x100 (5 of 5 places agree, none disagrees)'),
+    ('PL03', 4, (6,), 0x1a6, 0x2a6,
+     'BY POSITION, not by sample (the arcade plays no effect with this sample): the list neighbors entries 5 and 7 have the codes 0x1a5 and 0x1a7,'
+     ' and the arcade numbers a fighter\'s sounds in list order'),
+    ('PL06', 4, (15,), 0x116, 0x216,
+     'BY POSITION, not by sample (the arcade plays no effect with this sample): the list neighbors entries 13 and 16 have the codes 0x114 and 0x117,'
+     ' three apart for three places, and the arcade numbers a fighter\'s sounds in list order'),
+    ('FIRSTSND', 7, (39,), SILENT, SILENT,
+     'dizzy star hops (the PS1 plays 0x327 on each step flag of a star): the arcade 0x5da44 plays only the one sound at the spawn'),
+    ('SELECT', 4, tuple(range(2, 25)), SILENT, SILENT,
+     'the 23 recordings of fighter names: the PS1 plays them from a table of its select screen (21 fighter places, entry place + 2); the arcade'
+     ' select code (0x627c8 to 0x63082) calls no other sound than the cursor and the pick, and the fighter voice routine 0x157a4'
+     ' is called only from a fighter state (0x228c8, flag a6+0x29b), not from the select screen'),
+    ('DEMO', 6, (2, 3, 4, 5), SILENT, SILENT,
+     'the PS1 menus (mode, options, button configuration, memory card) that play these entries have no arcade screen; the arcade'
+     ' boot code plays only the coin sounds 0x80 and 0x81 (0x1726, 0x1738)'),
+)
+
+# Rows that replace what the measurement found, where the arcade's own code shows another effect at that moment. Same shape as HAND.
+HAND_OVERRIDE = (
+    ('CONT00', 4, (5,), 0xae, 0xae,
+     'results screen, count 0x2f then spawn three blocks: 0x7006 subtracts 1 from the timer (a5+0xa), adds 2 to the step, stores 0x2f in the'
+     ' timer, calls 0x15718 (the constant 0xae) and, from the fourth rank on (a5+0x6116 >= 4), pops three pool blocks with the handler words'
+     ' 0x2601, 0x7e00 and 0x7e01. The PS1 update_countdown_and_spawn_blocks is that routine (counter 0x2f, entry 5, blocks 0x26 mode 1,'
+     ' 0x7e mode 0 and 1). The measurement matched the PS1 sample to 0x34b, an effect of a fighter block that this arcade routine does not call'),
+    ('FIRSTSND', 7, (6,), 0x103, 0x203,
+     'hit ladder by position: the PS1 picks the hit sound from eight strengths (0x300, 0x302, 0x304, 0x306, 0x309, 0x30b, 0x30d, 0x30f) and'
+     ' five of them measured as the arcade codes 0x101, 0x102, 0x104, 0x105 and 0x106 at places 1, 2, 4, 5, 6; place 3 is 0x103 (the'
+     ' arcade routine 0x14078 sends 0x103 or 0x203 by player). 0x306 plays a louder second note than 0x304, as 0x103 does against 0x102'),
+    ('FIRSTSND', 7, (15,), 0x107, 0x207,
+     'hit ladder by position: place 7 is 0x107 (routine 0x14136 sends 0x107 or 0x207 by player); the measurement took 0x106 because both'
+     ' effects use the same two instruments'),
+    ('FIRSTSND', 7, (57,), 0x103, 0x203,
+     'knock-out hit ladder by position: 0x333, 0x336, 0x33c, 0x340 and 0x343 measured as 0x101, 0x102, 0x104, 0x105 and 0x106, so 0x339 is'
+     ' place 3, 0x103'),
+    ('FIRSTSND', 7, (70,), 0x107, 0x207,
+     'knock-out hit ladder by position: 0x346 is place 7, 0x107'),
+)
+
+
+def apply_decisions(rows, hand=HAND, override=HAND_OVERRIDE):
+    """Give every row its final outcome. The override table replaces what the measurement found; the hand table gives codes to rows without
+    one (a row of the hand table that the measurement mapped is left alone). Every row still without a code is silent (row['silent'] = 'stop'
+    (the arcade has no PS1 channel to stop), 'no-source', 'no-effect', 'no-record', or 'hand' for a silent hand row): no row falls back to
+    the PS1's own sound banks."""
+    by_place = {}
+    for r in rows:
+        for name, slot, start in r['contexts']:
+            by_place.setdefault((name, slot, start), r)
+    for table, force in ((override, True), (hand, False)):
+        for archive, slot, entries, code0, code1, _ in table:
+            for start in entries:
+                r = by_place.get((archive, slot, start))
+                if r is None or (r['code0'] is not None and not force):
+                    continue
+                if code0 == SILENT:
+                    r['silent'] = 'hand'
+                else:
+                    r['code0'], r['code1'], r['method'], r['reason'], r['alt'] = code0, code1, 'hand', None, []
+    for r in rows:
+        if r['code0'] is None and not r.get('silent') and r['reason'] in ('stop', 'no-source', 'no-effect', 'no-record'):
+            r['silent'] = r['reason']
+    return rows
+
 
 
 # ---------------------------------------------------------------- reports
 
 KIND_ORDER = ('note', 'sequence', 'note+sequence', 'stop')
 ROLE_ORDER = ('fighter', 'title bank', 'shared bank 2', 'shared bank 3', 'continue', 'ending', 'select', 'demo', 'other')
-METHODS = ('exact', 'block', 'prefix', 'partial', 'instrument', 'seq-first', 'inferred')
+METHODS = ('exact', 'block', 'prefix', 'partial', 'instrument', 'seq-first', 'inferred', 'hand')
 
 
 def row_status(r):
+    if r.get('silent'):
+        return 'silent:' + r['silent']
     return r['method'] if r['method'] != 'none' else 'none:' + r['reason']
 
 
@@ -561,6 +696,10 @@ def report(rows, ctxs):
     mapped = [r for r in rows if r['code0'] is not None]
     print(f'mapped {len(mapped)} of {len(rows)}: ' + ', '.join(f'{m} {sum(1 for r in rows if r["method"] == m)}' for m in METHODS))
     print('not mapped: ' + ', '.join(f'{k} {v}' for k, v in sorted(collections.Counter(row_status(r) for r in rows if r['code0'] is None).items())))
+    silent = collections.Counter(r['silent'] for r in rows if r.get('silent'))
+    left = [r for r in rows if r['code0'] is None and not r.get('silent')]
+    print(f'silent on purpose: {sum(silent.values())} (' + ', '.join(f'{k} {v}' for k, v in sorted(silent.items())) + f'); still the PS1\'s own sound: {len(left)} (' +
+          ', '.join(f'{k} {v}' for k, v in sorted(collections.Counter(row_status(r) for r in left).items())) + ')')
     print('by kind of sound:')
     for k in KIND_ORDER:
         sub = [r for r in rows if r['kind'] == k]
@@ -593,7 +732,7 @@ def list_rows(rows, ctxs, only=None):
         if only and not any(only.upper() in n.upper() for n in names):
             continue
         first = r['contexts'][0]
-        code = '-' if r['code0'] is None else (f'{r["code0"]:03x}' + (f'/{r["code1"]:03x}' if r['code1'] != r['code0'] else ''))
+        code = ('silent' if r.get('silent') else '-') if r['code0'] is None else (f'{r["code0"]:03x}' + (f'/{r["code1"]:03x}' if r['code1'] != r['code0'] else ''))
         alt = ' alt ' + ','.join(f'{c:03x}' for c in r['alt']) if r['alt'] else ''
         print(f'{first[0]:9} slot {first[1]} entry {first[2]:3} x{len(r["contexts"]):<3} {r["kind"]:13} {row_status(r):18} {code}{alt}')
 
@@ -602,12 +741,13 @@ def c_table(rows, effects):
     """port/arcade/sounds_table.c: every sound as numbers, sorted by (header hash, run hash), so that a binary search finds it."""
     ordered = sorted(rows, key=lambda r: r['key'])
     method_no = {m: i for i, m in enumerate(METHODS)}
-    reason_no = {'stop': 8, 'no-source': 9, 'no-record': 10, 'no-effect': 11}
+    reason_no = {'stop': 8, 'no-source': 9, 'no-record': 10, 'no-effect': 11, 'hand': 12}
     out = ['/* Generated by port/arcade/sounds.py --c-table; numbers only. The PS1 sound requests as the arcade\'s effect codes (music.md 12b).',
            ' * key_vab: FNV-1a 32 of the VAB header (3104 bytes, 512 more for each program above one; the program count is at offset 0x12).',
            ' * key_run: FNV-1a 32 of the 8-byte entries of the sound, from `start` to the first entry without bit 23 of word 1.',
-           ' * code0 / code1: the arcade effect for side 0 and side 1 (0xffff: none). method: 0 exact, 1 block, 2 prefix, 3 partial, 4 instrument,',
-           ' * 5 seq-first, 6 inferred (mapped); 8 stop only, 9 no arcade source for the sample, 10 no instrument record, 11 no arcade effect (not mapped).',
+           ' * code0 / code1: the arcade effect for side 0 and side 1 (0xffff: none, the PS1 sound plays; 0xfffe: silent, nothing plays).',
+           ' * method: 0 exact, 1 block, 2 prefix, 3 partial, 4 instrument, 5 seq-first, 6 inferred, 7 hand table (mapped); 8 stop only,',
+           ' * 9 no arcade source for the sample, 10 no instrument record, 11 no arcade effect, 12 silent by the hand table (all silent, 0xfffe).',
            ' * flags: bit 0 the sample match is weak (under 50 percent). */',
            '#include "sounds.h"', '',
            '/* The arcade\'s pan (68000 program, table at 0x13ccc) for an object dx pixels (0 .. 0x17f) right of the camera: pan_first + the number of',
@@ -620,6 +760,9 @@ def c_table(rows, effects):
         first = r['contexts'][0]
         if r['code0'] is not None:
             c0, c1, m = r['code0'], r['code1'], method_no[r['method']]
+        elif r.get('silent'):
+            c0 = c1 = SILENT
+            m = reason_no[r['silent']]
         else:
             c0 = c1 = 0xffff
             m = reason_no[r['reason']]
@@ -702,7 +845,7 @@ def load(a):
     instruments = samples.parse_instruments(sound)
     rom = music.Rom.from_zip(a.arcade)
     effects = arcade_effects(rom)
-    return ctxs, resolve_rows(ctxs, matches, instruments, effects), effects
+    return ctxs, apply_decisions(resolve_rows(ctxs, matches, instruments, effects)), effects
 
 
 def main(argv=None):

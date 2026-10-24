@@ -6,9 +6,16 @@
 
 #include <stdint.h>
 
+/* A request that plays nothing on purpose, as code0 and code1 of a row (sounds.py: a stop, which the arcade's player has no PS1 channel
+ * for; a sound the PS1 added to a screen or a moment where the arcade has no sound). The runtime plays nothing and counts it as handled. */
+#define ARCADE_SOUND_SILENT 0xfffeu
+
+/* A request without a row, or a row with this code0, falls back to the PS1's own sound. */
+#define ARCADE_SOUND_NONE 0xffffu
+
 struct arcade_sound {
     uint32_t key_vab, key_run;   /* sorted by these, for a binary search */
-    uint16_t code0, code1;       /* the arcade effect for side 0 and side 1; 0xffff: none (the PS1's own sound plays) */
+    uint16_t code0, code1;       /* the arcade effect for side 0 and side 1; ARCADE_SOUND_NONE: the PS1's own sound plays; ARCADE_SOUND_SILENT: nothing plays */
     uint8_t method, flags;       /* how the mapping was found (sounds.py); bit 0 of flags: a weak sample match */
 };
 

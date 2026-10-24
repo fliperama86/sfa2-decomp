@@ -423,6 +423,19 @@ the PS1 C's 815 calls with a constant request, 345 + 95 name a shared sound that
 does not (0x34c and 0x34d, samples with no arcade source, are 34 of them), and 330 are own-bank sounds that map for 93 percent of the fighters (weighted by the calls).
 642 of the 868 arcade codes (332 of 451 effects) are the target of some PS1 sound; 28 mapped sounds rest on a sample match that covers under 50 percent.
 
+**Decisions** (2026-10-24, `apply_decisions` in `sounds.py`; the numbers are of the tool, the rows are in `sounds_table.c`). Three changes to the
+measurement and one table. (1) A sample that starts up to 64 bytes before an arcade record counts as inside it (the PS1 sample begins with a
+warm-up block; 2, 24 and 37 bytes were measured): the four rows without a record map, `FIRSTSND` entry 2 becomes exact `0xa3` (its second
+note is the instrument of `0xa3`, not of `0xa1`) and one fighter sound that had matched a menu code (`0xa5`) is exact in its own block. (2) The
+run rule: sounds without an arcade source between two certain sounds whose codes differ by exactly the number of sounds between them take the
+codes in between (the arcade numbers a fighter's sounds in list order; 7 sounds, 3 fighters). (3) The hand table (`HAND`): the sounds that the
+measurement cannot place, placed by the 68000 program: select cursor `0x82`, pick `0x84` (code at `0x627c8`, `0x628a4` and two twins), the
+results screen's `0x91`, `0x8a`, `0x84` (`0x7052`, `0x85a38`, `0x6db6`), the dizzy sound `0x12f` (`0x5da44`, the same routine as the PS1's
+`spawn_three_effect_objects_with_sound`), the win marker `0x86` (`0x82ffa`), the score tick `0x88` (`0x5c70`, `0x5c98`) and the lightest hit
+`0x100` (place 0 of the hit ladder). Each carries its evidence in `sounds.py`. (4) Silence: a stop, and a sound with no arcade source that no
+hand row places, are code `0xfffe` (`ARCADE_SOUND_SILENT`): the arcade plays nothing there (it has no per-effect stop; its effects end by
+themselves, and its select screen plays no fighter voice), and so is a sound whose sample no effect plays (6 sounds; two more are placed by list position, `0x1a6` and `0x116`). `HAND_OVERRIDE` replaces five measured rows by the arcade's own code: the results screen's count (`0xae`, routine `0x7006`) and four places of the hit ladder (`0x103`, `0x107` for both strengths and knock-outs). No row of the table is `0xffff` any more.
+
 **Runtime key.** The row is found by the FNV-1a 32 of the VAB header (the port sees it in `SsVabOpenHeadSticky(addr, vab_id)`: 3104 bytes for one program,
 512 more for each further one; remember it per `vab_id`) and of the entries of the run from `start` (the list memory at
 `table_8016e6e0[song] + 8 * start`). The generated `arcade_sounds[]` is sorted by that pair for a binary search; the same pair in two archives is the
@@ -432,7 +445,7 @@ same sound (no key had differing banks). Stops: command 11 and `stop_all_keys_cl
 **Uncertain.** (1) Sample matches: a weak match can name the wrong instrument (28 mapped sounds); the pitch and time check makes a chance agreement
 unlikely but not impossible. (2) *seq-first*, *instrument* and *partial* (39 sounds, mostly the menu bleeps and the fighters' first echo) play the
 arcade effect that is nearest, not necessarily the one the arcade plays. (3) Side 0 is the lower code; in 51 of the 369 pairs the arcade's
-voices are not two higher, only different (27 sounds have no twin and use one code for both sides). (4) Unmapped sounds are silent; the arcade has no effect for the 25 select-screen recordings. (5) The pan
+voices are not two higher, only different (27 sounds have no twin and use one code for both sides). (4) Silent sounds (code `0xfffe`) are a decision, not a measurement. (5) The pan
 table numbers come from the decrypted analysis copy, as section 10's. (6) Time zero of an effect is the first pass (12 ms); not measured against the PS1.
 (7) Which of two identical fighter blocks a shared code belongs to is by nearness only.
 
