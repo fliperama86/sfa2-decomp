@@ -1403,6 +1403,47 @@ static unsigned full_sets(struct port_disc *d, int check)
 /* The win quotes in the arcade's English (quotes.c): for each winner's file, its glyph segment and its quotes' cell lists, position
  * streams and offset table, served to the game's reads only (the module's chunk is pinned by modules.c). With check, build only.
  * Returns the files built. */
+/* Each winner's glyph segment (quotes.c), whole: the English quotes' glyphs from the arcade's font, the rest of its room zero (the PS1's
+ * Japanese glyphs are no longer drawn). Built from the arcade alone and served to every read, so a pack keeps none of it; built before the
+ * pack's check, which covers it. The module's tables are written later by win_quotes(). With check, build only. */
+static unsigned char quote_segment_owned[64];   /* by fighter: 1 when its segment is served here */
+static void quote_segments(struct port_disc *d, int check)
+{
+    unsigned i, built_files = 0, bytes = 0;
+    char err[PORT_ERR];
+    memset(quote_segment_owned, 0, sizeof quote_segment_owned);
+    for (i = 0; i < arcade_quotes.count && i < sizeof quote_segment_owned; i++) {
+        const struct arcade_quote_fighter *q = &arcade_quotes.fighters[i];
+        int f = file_index(d, q->file);
+        unsigned mat, mn, bat, bn;
+        uint32_t seg_size = 0;
+        unsigned char *module, *changed, *segment;
+        if (pac_chunk(d, &files[f], arcade_quotes.module_slot, &mat, &mn) != 0 || pac_chunk(d, &files[f], arcade_quotes.blob_slot, &bat, &bn) != 0 ||
+            q->segment > bn || q->segment_room > bn - q->segment)
+            continue;   /* win_quotes() says so */
+        if (!(module = calloc(mn ? mn : 1, 1)) || !(changed = malloc(mn ? mn : 1)) || !(segment = calloc(q->segment_room ? q->segment_room : 1, 1)))
+            port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+        /* the segment depends on the quotes' text and the font only, so the module's bytes are not read here */
+        if (arcade_quotes_build(&arcade_quotes, q, rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, module, changed, mn, segment,
+                                &seg_size, err, sizeof err) != 0 || seg_size > q->segment_room) {
+            free(module); free(changed); free(segment);
+            continue;   /* win_quotes() says so */
+        }
+        free(module);
+        free(changed);
+        built_files++;
+        bytes += q->segment_room;
+        if (check) { free(segment); continue; }
+        memset(segment + seg_size, 0, q->segment_room - seg_size);
+        add_range_kind(f, bat + q->segment, segment, q->segment_room, 0);
+        ranges[range_count - 1].owned = 1;
+        quote_segment_owned[i] = 1;
+    }
+    printf("arcade%s: win quotes: %u winners' glyph segments (%u bytes) built from the arcade's font%s\n", check ? " check" : "", built_files, bytes,
+           check ? "" : " and used");
+    fflush(stdout);
+}
+
 static unsigned win_quotes(struct port_disc *d, int check)
 {
     unsigned i, built_files = 0;
@@ -1437,7 +1478,8 @@ static unsigned win_quotes(struct port_disc *d, int check)
             if (e > k) add_game_range(f, mat + k, module + k, e - k);
             k = e + 1;
         }
-        add_game_range(f, bat + q->segment, segment, seg_size);
+        if (i < sizeof quote_segment_owned && quote_segment_owned[i]) free(segment);   /* served by quote_segments() */
+        else add_game_range(f, bat + q->segment, segment, seg_size);
         free(changed);   /* the module and the segment stay: the ranges point into them */
     }
     printf("arcade%s: win quotes: %u of %u winners' files say the arcade's English quotes\n", check ? " check" : "", built_files, arcade_quotes.count);
@@ -2200,6 +2242,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     backdrops(d, check);
     arcade_screen_lists_end();
     texts(d, check);
+    quote_segments(d, check);
     if (check) full_sets(d, 1);
     if (check) win_quotes(d, 1);
     if (check) talks(d, 1);
