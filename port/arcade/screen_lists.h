@@ -116,6 +116,12 @@ struct arcade_screen_lists_tile *arcade_screen_lists_pool(const char *file, unsi
 
 void arcade_screen_lists_free(struct arcade_screen_lists_out *out);
 
+/* For speed, optional: from begin to end the builds of these tiles keep each tile's class (its pixels up to a flip) for the next build, so
+ * the caller must not change the tiles meanwhile, nor run builds on other threads. -1 when out of memory (the builds then work it out each
+ * time). */
+int arcade_screen_lists_begin(const uint8_t *tiles, size_t tiles_size);
+void arcade_screen_lists_end(void);
+
 /* The cell map of a screen module's backdrop (SELECTA's chunk 0x26: 10,240 cells of a texture word and a palette word), a window of the arcade's
  * scroll 1 block sets: `rows` rows of `columns` cells; row r is row y0 + r % band of band r / band, where the band's columns come from runs: a run of
  * `columns` cells from the set `set + step * band` (32 x 32 cells) starting at its column x. A cell's piece (8 x 8 pixels of the graphics) is looked up

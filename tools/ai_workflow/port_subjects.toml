@@ -133,4 +133,4 @@ test_arcade_tilepack_c = ["port/arcade/tilepack.c", "port/arcade/tilepack.h", "p
 # is not a control file gets): no control file reads the tree's own copy of them. The overrides have their own checks
 # besides (the differential test of each, selected elsewhere in review.py).
 [build]
-only = ["port/overrides/", "port/sweep_rows.toml", "port/src/arcade.c", "port/src/arcade.h"]   # arcade.c: also the private --arcade-check run (port/arcade/README.md)
+only = ["port/overrides/", "port/sweep_rows.toml", "port/src/arcade.c", "port/src/arcade.h", "port/src/parallel.c", "port/src/parallel.h"]   # arcade.c: also the private --arcade-check run (port/arcade/README.md); parallel.c: the arcade loader's threads

@@ -120,14 +120,55 @@ static void pixel_class(const uint8_t px[256], uint64_t *key, unsigned *d)
     *d = best;
 }
 
+/* The classes worked out so far, from arcade_screen_lists_begin to arcade_screen_lists_end (the caller keeps the tiles unchanged meanwhile):
+ * known[code] is 1 + d once key[code] is set. */
+static struct {
+    const uint8_t *tiles;
+    size_t tsize;
+    uint64_t *key;
+    uint8_t *known;
+} classes;
+
+int arcade_screen_lists_begin(const uint8_t *tiles, size_t tiles_size)
+{
+    size_t n = tiles_size / TILE_BYTES;
+    arcade_screen_lists_end();
+    classes.key = malloc(n * sizeof *classes.key);
+    classes.known = calloc(n, 1);
+    if (!classes.key || !classes.known) {
+        arcade_screen_lists_end();
+        return -1;
+    }
+    classes.tiles = tiles;
+    classes.tsize = tiles_size;
+    return 0;
+}
+
+void arcade_screen_lists_end(void)
+{
+    free(classes.key);
+    free(classes.known);
+    memset(&classes, 0, sizeof classes);
+}
+
 static int tile_class(const struct builder *b, uint32_t code, uint64_t *key, unsigned *d)
 {
     uint8_t px[256];
     uint64_t at = (uint64_t)code * TILE_BYTES;
+    int kept = classes.tiles && classes.tiles == b->tiles && classes.tsize == b->tsize;
     if (at + TILE_BYTES > b->tsize)
         return -1;
+    if (kept && classes.known[code]) {
+        *key = classes.key[code];
+        *d = classes.known[code] - 1u;
+        return 0;
+    }
     tile_pixels(b->tiles + at, px);
     pixel_class(px, key, d);
+    if (kept) {
+        classes.key[code] = *key;
+        classes.known[code] = (uint8_t)(*d + 1u);
+    }
     return 0;
 }
 

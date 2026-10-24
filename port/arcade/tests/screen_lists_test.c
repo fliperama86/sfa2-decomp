@@ -137,6 +137,24 @@ static int build(const char *prog_path, const char *tiles_path, const char *spec
     spec.maps = maps;
     spec.map_count = nm;
     rc = arcade_screen_lists_build_with(prog, psize, tiles, tsize, pool, np, &spec, &out, err, sizeof err);
+    if (!rc) {   /* the same with the tiles' classes kept from build to build: twice, the first fills them and the second uses them */
+        unsigned pass;
+        int same = arcade_screen_lists_begin(tiles, tsize) == 0;
+        for (pass = 0; same && pass < 2; pass++) {
+            struct arcade_screen_lists_out again;
+            char err2[256];
+            same = arcade_screen_lists_build_with(prog, psize, tiles, tsize, pool, np, &spec, &again, err2, sizeof err2) == 0 &&
+                   again.lists_size == out.lists_size && again.positions_size == out.positions_size &&
+                   !memcmp(again.lists, out.lists, out.lists_size) && !memcmp(again.lists_known, out.lists_known, out.lists_size) &&
+                   !memcmp(again.positions, out.positions, out.positions_size) && !memcmp(again.positions_known, out.positions_known, out.positions_size);
+            arcade_screen_lists_free(&again);
+        }
+        arcade_screen_lists_end();
+        if (!same) {
+            printf("the build with the tiles' classes kept differs\n");
+            return 5;
+        }
+    }
     free(pool); free(items); free(exc); free(pals); free(maps); free(wins); free(wbs); free(prog); free(tiles); fclose(sf);
     if (rc) {
         printf("refused: %s\n", err);
