@@ -383,7 +383,8 @@ int main(int argc, char **argv)
 
     if (port_program_load(&disc, ram, port_program_sha256, &prog, err, sizeof err) != 0) return refuse(err);
     printf("program: %s at sector %u, %u bytes to 0x%08x, entry 0x%08x\n", prog.name, prog.sector, prog.t_size, prog.t_addr, prog.pc0);
-    printf("identity: SHA-256 matches the build's baseline\n");
+    printf(prog.by_data_pin ? "identity: the file holds no code bytes and matches the build's data pin (port/arcade/code_pins.h)\n"
+                            : "identity: SHA-256 matches the build's baseline\n");
     fflush(stdout);
     if (arcade_check) {
         unsigned differ = port_arcade_program(ram, 1);

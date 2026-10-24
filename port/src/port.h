@@ -112,6 +112,7 @@ struct port_program {
     unsigned sector;    /* of the file on the disc */
     unsigned t_addr, t_size, pc0;
     unsigned b_addr, b_size;
+    int by_data_pin;    /* 1: the file holds no code bytes and matched the build's data pin (a pack: port/arcade/code_pins.h) */
 };
 /* Parse and load a PS-X EXE image of `size` bytes. `ram` points at the memory
  * that stands for PORT_RAM_BASE (the runtime passes the real address). */

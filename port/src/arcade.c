@@ -67,6 +67,8 @@ static unsigned piece_bytes(void)
     return n;
 }
 
+static int data_pin(const char *image, const unsigned char *bytes, size_t size);
+
 int port_arcade_configure(int on, const char *path, char *err, size_t size)
 {
     if (enabled) arcade_rom_close(&rom);
@@ -78,6 +80,7 @@ int port_arcade_configure(int on, const char *path, char *err, size_t size)
     }
     if (arcade_rom_open(path, &rom, err, size) != 0) return -1;
     enabled = 1;
+    port_module_data_pin_hook = data_pin;   /* before the program loads: a pack's program and modules hold no code bytes */
     printf("arcade: %s, the examined sfa2u set: program, graphics, samples and sound program verified\n", path);
     fflush(stdout);
     return 0;
@@ -1664,6 +1667,14 @@ static int stream_sector_kept(int f, const unsigned char *raw)
 static unsigned (*code_spans[MAX_FILES])[2];
 static unsigned code_span_count[MAX_FILES];
 
+/* Whether two file names are the same, case aside. */
+static int same_name(const char *a, const char *b)
+{
+    for (; *a && *b; a++, b++)
+        if ((*a >= 'A' && *a <= 'Z' ? *a + 32 : *a) != (*b >= 'A' && *b <= 'Z' ? *b + 32 : *b)) return 0;
+    return *a == *b;
+}
+
 static void find_code_spans(struct port_disc *d)
 {
     unsigned i, k;
@@ -1672,6 +1683,26 @@ static void find_code_spans(struct port_disc *d)
         char err[PORT_ERR];
         unsigned count, at = PORT_DATA, c;
         code_span_count[i] = 0;
+        {   /* a whole file that is a row (the resident program, SLPS_004.15) */
+            const struct arcade_code_pin *p = NULL;
+            for (k = 0; k < arcade_code_pin_count && !p; k++)
+                if (same_name(arcade_code_pins[k].image, files[i].name) && arcade_code_pins[k].size == files[i].size) p = &arcade_code_pins[k];
+            if (p) {
+                unsigned char *bytes = disc_bytes(d, &files[i], 0, p->size), digest[32];
+                unsigned r;
+                if (bytes) port_sha256(bytes, p->size, digest);
+                if (bytes && !memcmp(digest, p->pin, 32)) {
+                    if (!(code_spans[i] = malloc((p->count + 1u) * sizeof *code_spans[i]))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+                    for (r = 0; r < p->count; r++) {
+                        code_spans[i][r][0] = p->ranges[r].offset;
+                        code_spans[i][r][1] = p->ranges[r].size;
+                    }
+                    code_span_count[i] = p->count;
+                }
+                free(bytes);
+                continue;
+            }
+        }
         if (!strstr(files[i].name, ".pac") || files[i].size < PORT_DATA || port_disc_read(d, files[i].sector, PORT_DATA, head, err, sizeof err) != 0) continue;
         count = head[0] | head[1] << 8 | (unsigned)head[2] << 16 | (unsigned)head[3] << 24;
         if (count > (PORT_DATA - 0x20) / 32) continue;
@@ -1942,7 +1973,6 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
         if (more) index_ranges();
     }
     music_attach();
-    port_module_data_pin_hook = data_pin;
     port_disc_patch_hook = patch;
     port_cd_read_hook = read_hook;
     return 0;

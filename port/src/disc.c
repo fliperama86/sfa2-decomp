@@ -312,6 +312,7 @@ void port_disc_close(struct port_disc *d)
 }
 
 void (*port_disc_patch_hook)(unsigned sector, unsigned char *data, unsigned n);
+int (*port_module_data_pin_hook)(const char *image, const unsigned char *bytes, size_t size);
 
 int port_disc_read(struct port_disc *d, unsigned sector, unsigned size, unsigned char *out, char *err, size_t errsize)
 {
@@ -584,7 +585,13 @@ int port_program_load(struct port_disc *d, unsigned char *ram, const unsigned ch
     if (status == 0) {
         unsigned char got[32];
         port_sha256(file, size, got);
-        if (memcmp(got, sha256, 32) != 0) status = fail(err, errsize, "the disc's program is not the one this build is for");
+        /* A pack holds no code bytes (port/arcade/code_pins.h): its program is the build's with the functions zeroed, checked by the data
+         * pin the hook knows; the functions are this program's C either way. */
+        p->by_data_pin = 0;
+        if (memcmp(got, sha256, 32) != 0) {
+            if (port_module_data_pin_hook && port_module_data_pin_hook(p->name, file, size)) p->by_data_pin = 1;
+            else status = fail(err, errsize, "the disc's program is not the one this build is for");
+        }
     }
     if (status == 0) status = port_exe_load(file, size, ram, p, err, errsize);
     free(file);

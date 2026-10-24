@@ -320,7 +320,6 @@ static int unplaced(int quiet, unsigned address, unsigned extent, int sector, co
 /* Read the chunk from the user's image and compare its SHA-256 with the one pinned for the image. Returns the
  * chunk's bytes (the caller frees them); a chunk that is not the pinned one ends the program, and so does an
  * image the build pinned nothing for. */
-int (*port_module_data_pin_hook)(const char *image, const unsigned char *bytes, size_t size);
 static unsigned char im_told[1024];   /* a line once per image whose chunk was checked by its data pin */
 
 static unsigned char *verified_chunk(int index, const struct chunk *c, const struct port_disc_file *f)
