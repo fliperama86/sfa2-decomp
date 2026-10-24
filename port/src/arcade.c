@@ -15,6 +15,7 @@
 #include "../arcade/quotes.h"
 #include "../arcade/talk.h"
 #include "../arcade/code_pins.h"
+#include "../arcade/sprite_tiles.h"
 #include "settings.h"
 #include "port_tables.h"
 #include "parallel.h"
@@ -44,6 +45,8 @@ struct range {
     int equal;              /* 1: equal to the disc's bytes (a pack leaves them out); 0: decoding to the same (a pack keeps the disc's) */
     int game_only;          /* 1: served to the game's reads only, not to the runtime's own (a full animation set: the module checks of
                              * modules.c read the disc's data); never equal */
+    int owned;              /* 1: built from the arcade set alone, whatever the disc holds there (a sprite chunk from sprite_tiles.c):
+                             * served to every read, and a pack keeps none of its bytes (its digest covers them); never equal */
 };
 static struct port_disc *pack_disc;   /* the disc when it is a pack: what to serve is what was served when the pack was made */
 static struct range *ranges;   /* grown as needed */
@@ -347,6 +350,7 @@ static void add_range_kind(int f, unsigned offset, unsigned char *bytes, unsigne
     ranges[range_count].bytes = bytes;
     ranges[range_count].equal = equal;
     ranges[range_count].game_only = 0;
+    ranges[range_count].owned = 0;
     range_count++;
     built[f] = 1;
 }
@@ -536,7 +540,8 @@ static unsigned fighters(struct port_disc *d, int check)
             bytes += out.lists_size + out.positions_size;
             j->f = f;
             j->name = a->file;
-            if (pac_chunk(d, &files[f], 1, &j->at, &j->size) == 0 || pac_chunk(d, &files[f], 2, &j->at, &j->size) == 0)
+            if (arcade_sprite_chunk_find(a->file)) nsprites--;   /* built whole from the arcade by sprite_chunks() */
+            else if (pac_chunk(d, &files[f], 1, &j->at, &j->size) == 0 || pac_chunk(d, &files[f], 2, &j->at, &j->size) == 0)
                 j->tiles = sprite_tiles(d, &files[f], &out, j->at, j->size, &j->count, &j->same, &j->numbered);
             built_bytes[f] += out.lists_size + out.positions_size;
             if (!check) {
@@ -576,6 +581,86 @@ static unsigned fighters(struct port_disc *d, int check)
            check ? "each tile the disc's" : "used");
     fflush(stdout);
     return wrong + tile_wrong;
+}
+
+static int file_index(struct port_disc *d, const char *name);
+
+/* Every fighter file's sprite chunk, whole, from the arcade graphics (sprite_tiles.c: each tile's arcade tile and flip), packed no larger
+ * than the disc's chunk and served as built from the arcade alone (a pack keeps none of it). With check, also compare each tile with the
+ * disc's. Returns the chunks that differ (check) or do not build. */
+static unsigned sprite_chunks(struct port_disc *d, int check)
+{
+    unsigned i, n = 0, bad = 0, tiles_total = 0;
+    unsigned long long bytes = 0;
+    struct sprite_job *jobs = calloc(arcade_sprite_chunk_count ? arcade_sprite_chunk_count : 1, sizeof *jobs);
+    char err[PORT_ERR];
+    if (!jobs) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+    for (i = 0; i < arcade_sprite_chunk_count; i++) {
+        const struct arcade_sprite_chunk *c = &arcade_sprite_chunks[i];
+        struct sprite_job *j = &jobs[n];
+        int f = file_index(d, c->file);
+        if (pac_chunk(d, &files[f], c->slot, &j->at, &j->size) != 0 || j->size != c->size) {
+            printf("arcade%s: sprites: %s: no chunk of slot %u of %u bytes as the table says; it stays the %s's\n", check ? " check" : "", c->file, c->slot,
+                   c->size, pack_disc ? "pack" : "disc");
+            bad++;
+            continue;
+        }
+        {
+            unsigned r, own = 0;
+            for (r = 0; r < c->run_count; r++)
+                if (c->runs[r].code == ARCADE_SPRITE_RUN_OWN) own += c->runs[r].count;
+            if (own) {   /* the PS1's own art (Zangief's and Gen's poses the arcade lacks): known, the chunk stays the disc's */
+                printf("arcade%s: sprites: %s: %u tiles are the PS1's own art; the chunk stays the %s's\n", check ? " check" : "", c->file, own,
+                       pack_disc ? "pack" : "disc");
+                continue;
+            }
+        }
+        if (!(j->tiles = malloc((size_t)c->tiles * 128u))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+        if (arcade_sprite_tiles_build(c, rom.tiles, ARCADE_TILES_SIZE, j->tiles, err, sizeof err) != 0) {
+            printf("arcade%s: sprites: %s; the chunk stays the %s's\n", check ? " check" : "", err, pack_disc ? "pack" : "disc");
+            free(j->tiles);
+            j->tiles = NULL;
+            bad++;
+            continue;
+        }
+        if (check) {   /* each tile the disc's */
+            unsigned char *disc = disc_bytes(d, &files[f], j->at, j->size), t[128];
+            uint32_t k, differ = 0;
+            if (!disc || arcade_tilepack_count(disc, j->size) != c->tiles) differ = c->tiles;
+            for (k = 0; disc && !differ && k < c->tiles; k++)
+                if (arcade_tilepack_decode(disc, j->size, k, t, err, sizeof err) != 0 || memcmp(t, j->tiles[k], 128)) differ++;
+            free(disc);
+            if (differ) {
+                printf("arcade check: sprites: %s: %u of %u tiles differ from the disc's\n", c->file, differ, c->tiles);
+                bad++;
+            }
+        }
+        j->f = f;
+        j->name = c->file;
+        j->count = c->tiles;
+        tiles_total += c->tiles;
+        n++;
+    }
+    port_parallel(n, sprite_job, jobs);
+    for (i = 0; i < n; i++) {
+        struct sprite_job *j = &jobs[i];
+        if (!j->out) {
+            printf("arcade%s: sprites: %s: the tiles do not pack in the disc's %u bytes; it stays the %s's\n", check ? " check" : "", j->name, j->size,
+                   pack_disc ? "pack" : "disc");
+            bad++;
+            continue;
+        }
+        bytes += j->size;
+        built_bytes[j->f] += j->size;
+        if (check) { free(j->out); continue; }
+        add_range_kind(j->f, j->at, j->out, j->size, 0);
+        ranges[range_count - 1].owned = 1;
+    }
+    free(jobs);
+    printf("arcade%s: sprites: %u fighter files' sprite chunks (%u tiles, %llu bytes) built whole from the arcade graphics%s\n", check ? " check" : "",
+           n, tiles_total, bytes, check ? ", each tile the disc's" : " and used");
+    fflush(stdout);
+    return bad;
 }
 
 /* The index of the disc's file `name`; halts if there is none. */
@@ -1521,10 +1606,10 @@ static void built_digest(int f, unsigned char out[32])
     size_t total = 0, at = 0;
     unsigned char *all;
     for (i = file_first[f]; i < end; i++)
-        if (ranges[i].equal) total += ranges[i].size;
+        if (ranges[i].equal || ranges[i].owned) total += ranges[i].size;
     if (!(all = malloc(total ? total : 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
     for (i = file_first[f]; i < end; i++)
-        if (ranges[i].equal) { memcpy(all + at, ranges[i].bytes, ranges[i].size); at += ranges[i].size; }
+        if (ranges[i].equal || ranges[i].owned) { memcpy(all + at, ranges[i].bytes, ranges[i].size); at += ranges[i].size; }
     port_sha256(all, total, out);
     free(all);
 }
@@ -1614,7 +1699,7 @@ static unsigned kept_spans(int f, unsigned (*out)[2], unsigned long long *bytes)
     unsigned r = file_first[f], end = file_first[f] + file_ranges[f], c = 0, n = 0, cur = 0;
     for (;;) {
         unsigned a, b;
-        while (r < end && !ranges[r].equal) r++;
+        while (r < end && !ranges[r].equal && !ranges[r].owned) r++;
         if (r < end && (c >= code_span_count[f] || ranges[r].offset <= code_spans[f][c][0])) { a = ranges[r].offset; b = a + ranges[r].size; r++; }
         else if (c < code_span_count[f]) { a = code_spans[f][c][0]; b = a + code_spans[f][c][1]; c++; }
         else break;
@@ -1794,6 +1879,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     memset(built, 0, sizeof built);
     memset(built_bytes, 0, sizeof built_bytes);
     wrong = fighters(d, check);
+    wrong += sprite_chunks(d, check);
     wrong += parts(d, check);
     module_data(d, check);
     stages(d, check);

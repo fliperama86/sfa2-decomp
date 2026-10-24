@@ -130,6 +130,7 @@ test_arcade_texts = ["port/arcade/texts.c", "port/arcade/texts.h", "port/arcade/
 test_arcade_quotes = ["port/arcade/quotes.c", "port/arcade/quotes.h", "port/arcade/quotes_table.c", "port/arcade/tests/quotes_test.c", "port/arcade/quotes.py", "port/arcade/tilepack.c"]
 test_arcade_talk = ["port/arcade/talk.c", "port/arcade/talk.h", "port/arcade/talk_table.c", "port/arcade/tests/talk_test.c", "port/arcade/talk.py", "port/arcade/quotes.py"]
 test_arcade_code_pins = ["port/arcade/code_pins.c", "port/arcade/code_pins.h", "port/arcade/code_pins_table.c", "port/arcade/tests/code_pins_test.c", "port/arcade/code_pins.py"]
+test_arcade_sprite_tiles = ["port/arcade/sprite_tiles.c", "port/arcade/sprite_tiles.h", "port/arcade/sprite_tiles_table.c", "port/arcade/tests/sprite_tiles_test.c", "port/arcade/sprite_tiles.py", "port/arcade/tilepack.c"]
 test_arcade_screen_lists = ["port/arcade/screen_lists.c", "port/arcade/screen_lists.h", "port/arcade/screen_lists_table.c", "port/arcade/tests/screen_lists_test.c", "port/arcade/screen_lists.py", "port/arcade/screens_table.c"]
 test_arcade_fighter = ["port/arcade/fighter.c", "port/arcade/fighter.h", "port/arcade/fighters_table.c", "port/arcade/tests/fighter_test.c", "port/arcade/fighters.py"]
 test_arcade_tilepack = ["port/arcade/tilepack.py", "port/arcade/fighters.py"]
