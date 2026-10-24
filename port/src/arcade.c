@@ -588,6 +588,17 @@ static unsigned fighters(struct port_disc *d, int check)
 
 static int file_index(struct port_disc *d, const char *name);
 
+/* Whether tile k of chunk c is the PS1's own art (an OWN run). */
+static int sprite_tile_own(const struct arcade_sprite_chunk *c, uint32_t k)
+{
+    unsigned r;
+    for (r = 0; r < c->run_count; r++) {
+        if (k < c->runs[r].count) return c->runs[r].code == ARCADE_SPRITE_RUN_OWN;
+        k -= c->runs[r].count;
+    }
+    return 0;
+}
+
 /* Every fighter file's sprite chunk, whole, from the arcade graphics (sprite_tiles.c: each tile's arcade tile and flip), packed no larger
  * than the disc's chunk and served as built from the arcade alone (a pack keeps none of it). With check, also compare each tile with the
  * disc's. Returns the chunks that differ (check) or do not build. */
@@ -608,14 +619,32 @@ static unsigned sprite_chunks(struct port_disc *d, int check)
             bad++;
             continue;
         }
+        struct arcade_sprite_chunk blanked;
+        struct arcade_sprite_run *runs = NULL;
+        const struct arcade_sprite_chunk *orig = c;
+        unsigned own = 0;
         {
-            unsigned r, own = 0;
+            unsigned r, full = 0;
             for (r = 0; r < c->run_count; r++)
                 if (c->runs[r].code == ARCADE_SPRITE_RUN_OWN) own += c->runs[r].count;
-            if (own) {   /* the PS1's own art (Zangief's and Gen's poses the arcade lacks): known, the chunk stays the disc's */
+            for (r = 0; r < arcade_full_set_count; r++) full |= !strcmp(arcade_full_sets[r].file, c->file);
+            if (full && !check) {   /* the full set needs the extra memory (not on every system): without it the module shows its own art */
+                char e2[PORT_ERR];
+                full = port_map_extra(e2, sizeof e2) == 0;
+            }
+            if (own && !full) {   /* the PS1's own art (Gen's poses the arcade draws its own way): the chunk stays the disc's for now */
                 printf("arcade%s: sprites: %s: %u tiles are the PS1's own art; the chunk stays the %s's\n", check ? " check" : "", c->file, own,
                        pack_disc ? "pack" : "disc");
                 continue;
+            }
+            if (own) {   /* a module whose full set (full_sets.c) draws the arcade's poses: its own art is never shown, so it is blank */
+                if (!(runs = malloc(c->run_count * sizeof *runs))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+                memcpy(runs, c->runs, c->run_count * sizeof *runs);
+                for (r = 0; r < c->run_count; r++)
+                    if (runs[r].code == ARCADE_SPRITE_RUN_OWN) { runs[r].code = ARCADE_SPRITE_RUN_BLANK; runs[r].step = 0; runs[r].flip = 0; }
+                blanked = *c;
+                blanked.runs = runs;
+                c = &blanked;
             }
         }
         if (!(j->tiles = malloc((size_t)c->tiles * 128u))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
@@ -631,18 +660,20 @@ static unsigned sprite_chunks(struct port_disc *d, int check)
             uint32_t k, differ = 0;
             if (!disc || arcade_tilepack_count(disc, j->size) != c->tiles) differ = c->tiles;
             for (k = 0; disc && !differ && k < c->tiles; k++)
-                if (arcade_tilepack_decode(disc, j->size, k, t, err, sizeof err) != 0 || memcmp(t, j->tiles[k], 128)) differ++;
+                if (!sprite_tile_own(orig, k) && (arcade_tilepack_decode(disc, j->size, k, t, err, sizeof err) != 0 || memcmp(t, j->tiles[k], 128))) differ++;
             free(disc);
             if (differ) {
                 printf("arcade check: sprites: %s: %u of %u tiles differ from the disc's\n", c->file, differ, c->tiles);
                 bad++;
             }
         }
+        if (own && check) printf("arcade check: sprites: %s: its %u tiles of the PS1's own art are blank (the full set draws the arcade's poses)\n", c->file, own);
         j->f = f;
         j->name = c->file;
         j->count = c->tiles;
         tiles_total += c->tiles;
         n++;
+        free(runs);
     }
     port_parallel(n, sprite_job, jobs);
     for (i = 0; i < n; i++) {
