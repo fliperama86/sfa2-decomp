@@ -316,6 +316,12 @@ static int clamp16(int v)
  * clamped to 16 bits, and no sum when the volumes are 127 or 128 straight through. */
 size_t (*port_cd_audio_override)(short *,size_t);
 void (*port_cd_stream_hook)(unsigned sector, unsigned channel);
+/* The music's volume the game set with CdMix: the left output's share of both inputs, 0 to 256 (128 the console's full volume). The
+ * caller holds the audio lock. */
+unsigned port_xa_music_volume(void)
+{
+    return xa.vol[0] + xa.vol[3];
+}
 size_t (*port_cd_audio_replace)(short *out, size_t frames);
 size_t port_xa_pull(short *out, size_t num_frames)
 {

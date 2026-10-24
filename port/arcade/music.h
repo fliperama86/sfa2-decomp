@@ -68,6 +68,9 @@ void arcade_music_chip_write(struct arcade_music *m, unsigned reg, unsigned valu
 /* Make `frames` frames of 44,100 Hz stereo, 16-bit, interleaved left then right, into out (2 * frames values), running the driver. Returns the
  * number of frames made (= frames), or -1 on a bad argument. */
 int arcade_music_render(struct arcade_music *m, int16_t *out, size_t frames);
+/* The host's volume of the music (0 to 1, 1 at the start): the mixer multiplies by it the voices that no effect is running on, so a
+ * game's music volume and its fades reach the songs and not the effects. It changes no register the driver writes. */
+void arcade_music_set_song_gain(struct arcade_music *m, float gain);
 
 /* Number of tracks running (songs' and effects'), for the caller to know when a sound has ended. */
 unsigned arcade_music_tracks(const struct arcade_music *m);

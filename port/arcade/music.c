@@ -99,6 +99,7 @@ struct arcade_music {
     float echo_l[ECHO_MAX], echo_r[ECHO_MAX];
     unsigned echo_pos;
     uint32_t tick_acc;
+    float song_gain;   /* the host's gain of the music's voices (a voice no effect runs on), 1 for none; not the driver's */
 };
 
 /* ---- the chip ---- */
@@ -1146,8 +1147,10 @@ void arcade_music_reset(struct arcade_music *m) {
     int stereo;
     struct arcade_music_write *log;
     size_t cap;
+    float gain;
     if (!m)
         return;
+    gain = m->song_gain;
     d = m->d;
     smp = m->smp;
     stereo = m->stereo;
@@ -1158,6 +1161,7 @@ void arcade_music_reset(struct arcade_music *m) {
     m->smp = smp;
     m->stereo = stereo;
     m->log = log;
+    m->song_gain = gain;   /* the host's, kept */
     m->log_cap = cap;
     m->vol_scale = tab(m, T_LEVEL, m->d[CMD_TABLE + 2]);
     m->master_scale = tab(m, T_LEVEL, m->d[CMD_TABLE + 3]);
@@ -1174,6 +1178,7 @@ struct arcade_music *arcade_music_open(const struct arcade_rom *rom, int stereo)
     m->d = rom->sound;
     m->smp = rom->samples;
     m->stereo = stereo != 0;
+    m->song_gain = 1.0f;   /* kept by the reset */
     arcade_music_reset(m);
     return m;
 }
@@ -1245,6 +1250,8 @@ static void mix_frame(struct arcade_music *m, float *left, float *right) {
             s1 = (float)(int8_t)bank[nx & 0xffffu];
             f = (float)((c->pos & 0xffffffffu) >> 16) * (1.0f / 65536.0f);
             s = (s0 + (s1 - s0) * f) * (SAMPLE_SCALE * (float)c->volume * (1.0f / VOLUME_UNITY));
+            if (!m->sfx[i][RUNNING])
+                s *= m->song_gain;   /* the music's voice: the host's music volume */
             gl = pan_sin[32 - c->pan];
             gr = pan_sin[c->pan];
             l += s * gl;
@@ -1279,6 +1286,11 @@ static void mix_frame(struct arcade_music *m, float *left, float *right) {
     }
     *left = clip16(l * OUTPUT_GAIN);
     *right = clip16(r * OUTPUT_GAIN);
+}
+
+void arcade_music_set_song_gain(struct arcade_music *m, float gain) {
+    if (m)
+        m->song_gain = gain < 0.0f ? 0.0f : gain > 1.0f ? 1.0f : gain;
 }
 
 int arcade_music_render(struct arcade_music *m, int16_t *out, size_t frames) {

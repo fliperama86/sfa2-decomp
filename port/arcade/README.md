@@ -129,8 +129,9 @@ file, a pack, as the arcade intro's pack does: nothing of it enters Git.
   `port/psyz.patch`), so they do not wait in the disc audio's buffer; the
   recorded tracks it replaces are read and consumed in silence. In a fight
   344 requests played as the arcade's, 14 as the PS1's (sounds the arcade
-  does not have). The game's own fades of the music do not reach the
-  arcade's songs yet.
+  does not have). The game's music volume (its CdMix, which its option and
+  its fades set) scales the player's music voices, not the effects
+  (`arcade_music_set_song_gain`).
 
 ## What the game reads, in order
 

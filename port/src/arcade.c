@@ -856,6 +856,7 @@ static void arcade_mix(short *out, int frames)
 {
     static int16_t buf[2 * 2048];
     int done = 0, i;
+    arcade_music_set_song_gain(player, (float)port_xa_music_volume() / 128.0f);   /* the game's music volume and its fades */
     while (done < frames) {
         int n = frames - done > 2048 ? 2048 : frames - done;
         if (arcade_music_render(player, buf, (size_t)n) != n) return;

@@ -92,6 +92,7 @@ extern size_t (*port_cd_audio_override)(short *,size_t);
  * did, and the stream's frames are then consumed all the same and the CdMix volumes applied to its frames; 0 leaves the
  * stream's own. Both are null otherwise. */
 extern void (*port_cd_stream_hook)(unsigned sector, unsigned channel);
+unsigned port_xa_music_volume(void);
 extern size_t (*port_cd_audio_replace)(short *out, size_t frames);
 void   port_xa_set_sink(int on);
 size_t port_xa_pull(short *out, size_t num_frames);
