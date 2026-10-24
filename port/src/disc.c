@@ -250,22 +250,83 @@ static struct pack_extent *pack_extent(struct port_pack *p, unsigned sector)
 
 static unsigned char bcd(unsigned v) { return (unsigned char)((v / 10u) << 4 | v % 10u); }
 
-static int pack_raw(struct port_pack *p, unsigned sector, unsigned char *raw)
+/* ---- the layout (port.h, port/arcade/layout.py) */
+
+/* The file of the layout that holds `sector`, or NULL. */
+static const struct port_layout_file *layout_file_at(const struct port_layout *l, unsigned sector)
+{
+    unsigned lo = 0, hi = l->file_count;
+    while (lo < hi) {   /* the last file that starts at or before the sector */
+        unsigned mid = (lo + hi) / 2;
+        if (l->files[mid].sector <= sector) lo = mid + 1;
+        else hi = mid;
+    }
+    if (lo == 0) return NULL;
+    lo--;
+    return sector < l->files[lo].sector + (l->files[lo].size + PORT_DATA - 1u) / PORT_DATA ? &l->files[lo] : NULL;
+}
+
+int port_layout_subheader(const struct port_layout *l, unsigned sector, unsigned char sub[8])
+{
+    unsigned lo = 0, hi = l->stream_count, i, channel, submode, coding;
+    const struct port_layout_stream *s;
+    while (lo < hi) {
+        unsigned mid = (lo + hi) / 2;
+        if (l->streams[mid].first <= sector) lo = mid + 1;
+        else hi = mid;
+    }
+    if (lo == 0) return 0;
+    s = &l->streams[lo - 1];
+    if (sector >= s->first + s->count) return 0;
+    i = sector - s->first;
+    if (i == s->count - 1u) { channel = 0; submode = 0x80; coding = 0; }                       /* the last sector of the file */
+    else if (i <= s->end[i % 8u]) { channel = i % 8u; submode = i == s->end[channel] ? 0xe4u : 0x64u; coding = 1; }   /* sound; 0xe4: the channel's last */
+    else { channel = 0; submode = 0; coding = 0; }                                            /* a place of a channel that has ended */
+    sub[0] = sub[4] = 1;
+    sub[1] = sub[5] = (unsigned char)channel;
+    sub[2] = sub[6] = (unsigned char)submode;
+    sub[3] = sub[7] = (unsigned char)coding;
+    return 1;
+}
+
+static void sector_header(unsigned sector, unsigned submode, unsigned char *raw)
+{
+    unsigned lba = sector + 150u;
+    memset(raw, 0, PORT_SECTOR);   /* sync, the sector's address, mode 2, the subheader */
+    memset(raw + 1, 0xff, 10);
+    raw[12] = bcd(lba / 4500u); raw[13] = bcd(lba / 75u % 60u); raw[14] = bcd(lba % 75u); raw[15] = 2;
+    raw[18] = raw[22] = (unsigned char)submode;
+}
+
+int port_layout_raw(const struct port_layout *l, unsigned sector, unsigned char *raw)
+{
+    unsigned k, submode = 8;
+    if (sector >= l->sectors || layout_file_at(l, sector)) return -1;
+    for (k = 0; k < l->fill_count; k++)
+        if (sector >= l->fills[k].first && sector - l->fills[k].first < l->fills[k].count) submode = l->fills[k].submode;
+    sector_header(sector, submode, raw);
+    return 0;
+}
+
+
+static int pack_raw(struct port_pack *p, const struct port_layout *l, unsigned sector, unsigned char *raw)
 {
     struct pack_extent *e = pack_extent(p, sector);
-    unsigned lba = sector + 150u, from, to, k;
+    unsigned from, to, k;
+    unsigned char sub[8];
+    if (l && (!e || e->kind == 1) && port_layout_raw(l, sector, raw) == 0) return 0;   /* outside the files: made from the layout */
     if (!e) return -1;
     if (e->kind == 1)
         return fseek(p->f, (long)(e->at + (unsigned long long)(sector - e->first) * PORT_SECTOR), SEEK_SET) == 0 &&
                fread(raw, 1, PORT_SECTOR, p->f) == PORT_SECTOR ? 0 : -1;
     if (e->kind == 2 && e->kept[sector - e->first])
         return fseek(p->f, (long)e->sector_at[sector - e->first], SEEK_SET) == 0 && fread(raw, 1, PORT_SECTOR, p->f) == PORT_SECTOR ? 0 : -1;
-    memset(raw, 0, PORT_SECTOR);   /* sync, the sector's address, mode 2 */
-    memset(raw + 1, 0xff, 10);
-    raw[12] = bcd(lba / 4500u); raw[13] = bcd(lba / 75u % 60u); raw[14] = bcd(lba % 75u); raw[15] = 2;
-    if (e->kind == 2)   /* a silent sector of a stream: its own subheader, its sound all zero */
+    sector_header(sector, 8, raw);   /* sync, the sector's address, mode 2, a form 1 data sector's subheader */
+    if (e->kind == 2) {   /* a silent sector of a stream: its own subheader, its sound all zero */
+        raw[18] = raw[22] = 0;
+        if (l && port_layout_subheader(l, sector, sub)) { memcpy(raw + 16, sub, 8); return 0; }
         return fseek(p->f, (long)e->sector_at[sector - e->first], SEEK_SET) == 0 && fread(raw + 16, 1, 8, p->f) == 8 ? 0 : -1;
-    raw[18] = raw[22] = 8;   /* a form 1 data sector: the subheader of data */
+    }
     from = (sector - e->first) * PORT_DATA;
     to = from + PORT_DATA;
     for (k = 0; k < e->range_count; k++) {   /* the bytes the pack holds; the rest are the loader's (zero until it patches them) */
@@ -280,7 +341,7 @@ static int pack_raw(struct port_pack *p, unsigned sector, unsigned char *raw)
 int port_disc_raw(struct port_disc *d, unsigned sector, unsigned char *raw)
 {
     unsigned long long at = (unsigned long long)sector * PORT_SECTOR;
-    if (d->pack) return pack_raw(d->pack, sector, raw);
+    if (d->pack) return pack_raw(d->pack, d->layout, sector, raw);
     if (at + PORT_SECTOR > d->length || at > 0x7fffffffu || fseek(d->f, (long)at, SEEK_SET) != 0 || fread(raw, 1, PORT_SECTOR, d->f) != PORT_SECTOR) return -1;
     return 0;
 }
@@ -303,6 +364,33 @@ int port_disc_pack_built(struct port_disc *d, unsigned sector, const unsigned (*
     return 0;
 }
 
+int port_disc_use_layout(struct port_disc *d, const struct port_layout *l, char *err, size_t errsize)
+{
+    unsigned i, k;
+    if (!l || !l->files || !l->file_count) return fail(err, errsize, "layout: the build has no layout of the disc");
+    for (i = 1; i < l->file_count; i++)
+        if (l->files[i].sector < l->files[i - 1].sector + (l->files[i - 1].size + PORT_DATA - 1u) / PORT_DATA) return fail(err, errsize, "layout: the files overlap or are out of order");
+    if (d->pack) {   /* the pack and the layout are of the same disc: the length, and every file of the pack is a file of the layout */
+        struct port_pack *p = d->pack;
+        if (p->sectors != l->sectors) return fail(err, errsize, "layout: the pack is of a disc of another length");
+        for (i = 0; i < p->count; i++) {
+            const struct pack_extent *e = &p->e[i];
+            const struct port_layout_file *f;
+            if (e->kind == 1) continue;
+            f = layout_file_at(l, e->first);
+            if (!f || f->sector != e->first || (e->kind == 0 && f->size != e->file_size) ||
+                (e->kind == 2 && (f->size + PORT_DATA - 1u) / PORT_DATA != e->count))
+                return fail(err, errsize, "layout: a file of the pack is not a file of the layout (make the pack again with --arcade-import)");
+            if (e->kind == 2) {
+                for (k = 0; k < l->stream_count && l->streams[k].first != e->first; k++) {}
+                if (k == l->stream_count || l->streams[k].count != e->count) return fail(err, errsize, "layout: a music stream of the pack has no description in the layout");
+            }
+        }
+    }
+    d->layout = l;
+    return 0;
+}
+
 void port_disc_close(struct port_disc *d)
 {
     if (d->f) fclose(d->f);
@@ -322,7 +410,7 @@ int port_disc_read(struct port_disc *d, unsigned sector, unsigned size, unsigned
         unsigned chunk = size - done < PORT_DATA ? size - done : PORT_DATA;
         if (d->pack) {
             unsigned char raw[PORT_SECTOR];
-            if (pack_raw(d->pack, sector + done / PORT_DATA, raw) != 0) {
+            if (pack_raw(d->pack, d->layout, sector + done / PORT_DATA, raw) != 0) {
                 snprintf(err, errsize, "disc: sector %u is not in the pack", sector + done / PORT_DATA);
                 return -1;
             }
@@ -437,6 +525,19 @@ static int scan_dir(struct port_disc *d, unsigned extent, unsigned size, const c
 
 int port_disc_find(struct port_disc *d, const char *name, unsigned *sector, unsigned *size, char *err, size_t errsize)
 {
+    if (d->layout) {   /* the layout's table: no sector is read */
+        char want[256];
+        unsigned i;
+        clean_name((const unsigned char *)name, strlen(name), want, sizeof want);
+        for (i = 0; i < d->layout->file_count; i++)
+            if (!strcmp(d->layout->files[i].name, want)) {
+                *sector = d->layout->files[i].sector;
+                *size = d->layout->files[i].size;
+                return 0;
+            }
+        snprintf(err, errsize, "disc: file %s is not in the layout", name);
+        return -1;
+    }
     unsigned char pvd[PORT_DATA];
     struct subdir subs[SUBDIRS];
     unsigned nsubs = 0, i, root, rootsize;
@@ -502,6 +603,19 @@ static int list_dir(struct port_disc *d, unsigned extent, unsigned size, struct 
 
 int port_disc_list(struct port_disc *d, struct port_disc_file *out, unsigned max, unsigned *count, char *err, size_t errsize)
 {
+    if (d->layout) {
+        unsigned i;
+        *count = 0;
+        if (d->layout->file_count > max) return fail(err, errsize, "disc: more files than the listing holds");
+        for (i = 0; i < d->layout->file_count; i++) {
+            if (strlen(d->layout->files[i].name) >= sizeof out[i].name) return fail(err, errsize, "layout: a file name is too long");
+            strcpy(out[i].name, d->layout->files[i].name);
+            out[i].sector = d->layout->files[i].sector;
+            out[i].size = d->layout->files[i].size;
+        }
+        *count = d->layout->file_count;
+        return 0;
+    }
     unsigned char pvd[PORT_DATA];
     struct subdir subs[SUBDIRS];
     unsigned nsubs = 0, i;

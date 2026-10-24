@@ -2484,6 +2484,42 @@ bad:
     return -1;
 }
 
+/* The disc's layout of the build (layout_table.c, from layout.py) against the disc: the length, the files (name, first sector, length), the
+ * streams' subheaders and the filler runs' sector headers. Returns the number of differences, each printed (the first ones). */
+static unsigned layout_check(struct port_disc *d)
+{
+    const struct port_layout *l = port_arcade_layout();
+    unsigned i, k, differ = 0, streams = 0, fills = 0;
+    unsigned char raw[PORT_SECTOR], mine[PORT_SECTOR], sub[8];
+    if (l->sectors != d->length / PORT_SECTOR) { printf("arcade check: layout: %u sectors, the disc has %u\n", l->sectors, (unsigned)(d->length / PORT_SECTOR)); differ++; }
+    if (l->file_count != file_count) { printf("arcade check: layout: %u files, the disc has %u\n", l->file_count, file_count); differ++; }
+    else
+        for (i = 0; i < file_count; i++)
+            if (strcmp(l->files[i].name, files[i].name) || l->files[i].sector != files[i].sector || l->files[i].size != files[i].size) {
+                if (differ++ < 8) printf("arcade check: layout: file %s (%u, %u) is %s (%u, %u) on the disc\n", l->files[i].name, l->files[i].sector, l->files[i].size,
+                                         files[i].name, files[i].sector, files[i].size);
+            }
+    for (i = 0; i < l->stream_count; i++)
+        for (k = 0; k < l->streams[i].count; k++) {
+            unsigned sector = l->streams[i].first + k;
+            streams++;
+            if (port_disc_raw(d, sector, raw) != 0 || !port_layout_subheader(l, sector, sub) || memcmp(raw + 16, sub, 8) != 0) {
+                if (differ++ < 8) printf("arcade check: layout: the subheader of sector %u is not the disc's\n", sector);
+            }
+        }
+    for (i = 0; i < l->fill_count; i++)
+        for (k = 0; k < l->fills[i].count; k++) {
+            unsigned sector = l->fills[i].first + k;
+            fills++;
+            if (port_disc_raw(d, sector, raw) != 0 || port_layout_raw(l, sector, mine) != 0 || memcmp(raw, mine, 24) != 0) {
+                if (differ++ < 8) printf("arcade check: layout: the header of filler sector %u is not the disc's\n", sector);
+            }
+        }
+    printf("arcade check: layout: %u files, %u stream sectors and %u filler sectors of the build's table against the disc: %u differ\n", l->file_count, streams, fills, differ);
+    fflush(stdout);
+    return differ;
+}
+
 int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
 {
     unsigned wrong;
@@ -2515,6 +2551,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     if (check) win_quotes(d, 1);
     if (check) talks(d, 1);
     if (check) coverage(check);
+    if (check) wrong += layout_check(d);
     if (check) return wrong ? 1 : 0;
     index_ranges();
     if (pack_disc) {   /* what is served now must be what was served when the pack was made */

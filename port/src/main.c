@@ -379,6 +379,10 @@ int main(int argc, char **argv)
 
     if (pack_path ? port_disc_open_pack(&disc, pack_path, err, sizeof err) : port_disc_open(&disc, disc_path, err, sizeof err)) return refuse(err);
     printf("%s: %s, %u-byte sectors\n", pack_path ? "pack" : "disc", disc.path, PORT_SECTOR);
+    if (pack_path) {   /* the disc's layout is numbers and names in the build: no volume descriptor, directory or filler sector is read from the pack */
+        if (port_disc_use_layout(&disc, port_arcade_layout(), err, sizeof err) != 0) return refuse(err);
+        printf("layout: %u files and %u music streams of the build's table are the pack's directory\n", port_arcade_layout()->file_count, port_arcade_layout()->stream_count);
+    }
     fflush(stdout);
 
     if (port_program_load(&disc, ram, port_program_sha256, &prog, err, sizeof err) != 0) return refuse(err);

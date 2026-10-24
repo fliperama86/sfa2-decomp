@@ -43,3 +43,4 @@ code_pins.c
 code_pins_table.c
 sprite_tiles.c
 sprite_tiles_table.c
+layout_table.c

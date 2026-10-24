@@ -8,6 +8,7 @@
 #include <stddef.h>
 
 struct port_disc;
+struct port_layout;
 
 /* With enabled, open the arcade set at path and check it against the examined
  * one, with a line. Without, nothing. -1 with err when the set is refused. */
@@ -34,5 +35,9 @@ int port_arcade_sound(unsigned code);
 void port_arcade_sound_stop(void);
 /* After port_arcade_attach without check: write the pack of the disc (port/arcade/README.md, "Playing without the disc"). */
 int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t size);
+
+/* The disc's layout as numbers and names (port/arcade/layout_table.c, written by layout.py): main.c presents it with a pack
+ * (port_disc_use_layout). */
+const struct port_layout *port_arcade_layout(void);
 
 #endif

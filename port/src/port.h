@@ -57,11 +57,13 @@ int  port_game_span(const void *p, size_t n);
 
 /* disc.c */
 struct port_pack;
+struct port_layout;
 struct port_disc {
     FILE *f;
     char path[1024];           /* the image file actually read (the .bin), or the pack */
     unsigned long long length; /* its size in bytes (of the disc it stands for, with a pack) */
     struct port_pack *pack;    /* a pack of the arcade loader in place of the image (port/arcade/README.md), or null */
+    const struct port_layout *layout;   /* the disc's layout as numbers and names (port_disc_use_layout), or null */
 };
 
 #define PORT_SECTOR 2352u
@@ -74,6 +76,39 @@ int  port_disc_open(struct port_disc *d, const char *path, char *err, size_t err
 void port_disc_close(struct port_disc *d);
 /* Open a pack of the arcade loader as the disc: its sectors are the image's but for the bytes the loader builds. */
 int  port_disc_open_pack(struct port_disc *d, const char *path, char *err, size_t errsize);
+/* The disc's layout as numbers and names (port/arcade/layout.py writes the table): the files (name, first sector, size), the music streams
+ * (XA files: their sector count and, for each of the 8 channels, the last sector of its sound) and the runs of filler sectors that are not
+ * data sectors. With a layout the disc layer needs no sector of the image to answer port_disc_find and port_disc_list (no volume descriptor,
+ * no directory is read), and the pack's raw extents (the sectors outside the files) and its streams' subheaders are not read: a sector
+ * outside the files is made from the layout (a form 1 data sector of zeros, or the filler run's own submode), a silent stream sector's
+ * subheader likewise. What the files hold still comes from the pack (and the arcade loader's builds over it). */
+struct port_layout_file {
+    const char *name;        /* lower case, no folder, no version suffix */
+    unsigned sector, size;   /* the first sector and the length in bytes */
+};
+struct port_layout_stream {
+    unsigned first, count;   /* the file's sectors */
+    unsigned end[8];         /* channel c: the last sector (counted from the file's first) that holds its sound; the 8 channels interleave from sector 0 */
+};
+struct port_layout_fill {
+    unsigned first, count, submode;   /* a run of sectors outside the files whose submode is not the data sectors' (8) */
+};
+struct port_layout {
+    unsigned sectors;                           /* the disc's length in sectors */
+    const struct port_layout_file *files;       /* sorted by first sector */
+    unsigned file_count;
+    const struct port_layout_stream *streams;   /* sorted by first sector */
+    unsigned stream_count;
+    const struct port_layout_fill *fills;
+    unsigned fill_count;
+};
+/* Present the layout with the pack: find and list come from the table, sectors outside the files and the silent streams' subheaders are made
+ * from it, and the pack must agree with it (each file of the pack is a file of the layout, the length is the same): -1 with a line when not. */
+int  port_disc_use_layout(struct port_disc *d, const struct port_layout *layout, char *err, size_t errsize);
+/* The raw sector `sector` made from the layout when no file holds it: 0, or -1 when a file does (or it is past the end). */
+int  port_layout_raw(const struct port_layout *l, unsigned sector, unsigned char *raw);
+/* The 8 bytes (file, channel, submode, coding, twice) of the subheader of a stream's sector made from the layout: 1, or 0 when `sector` is in no stream. */
+int  port_layout_subheader(const struct port_layout *l, unsigned sector, unsigned char sub[8]);
 /* The whole raw sector (2352 bytes) of the image, or of the pack (its sectors' headers made anew for the data files). -1 past the
  * end or for a sector the pack does not hold. */
 int  port_disc_raw(struct port_disc *d, unsigned sector, unsigned char *raw);
