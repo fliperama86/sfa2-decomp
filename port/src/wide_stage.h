@@ -15,8 +15,11 @@
  *                     moved by an offset that depends on the row only);
  *  PORT_WIDE_QUADS    draw_tile_map_layer_polys of nash: 24 unskewed quads a row, in a fixed entry of the ordering table;
  *  PORT_WIDE_SCROLLC  draw_scrolling_tile_map_layer of chunli_alt: 16 rows of 25 cells, the first eight with the horizontal scroll from a
- *                     global and the last eight with the layer's own. */
-enum { PORT_WIDE_FLAT = 0, PORT_WIDE_SPRITES, PORT_WIDE_SKEWED, PORT_WIDE_QUADS, PORT_WIDE_SCROLLC };
+ *                     global and the last eight with the layer's own;
+ *  PORT_WIDE_PERSP    build_perspective_layer_tile_quads of birdie: the perspective floor and ceiling, two passes of rows (3 to 6 rows from
+ *                     signed_param with a ramp, then rows from the camera), each row 33 cells from k = -6, each a quad whose left and right
+ *                     edges are moved by two offsets that depend on the row only. */
+enum { PORT_WIDE_FLAT = 0, PORT_WIDE_SPRITES, PORT_WIDE_SKEWED, PORT_WIDE_QUADS, PORT_WIDE_SCROLLC, PORT_WIDE_PERSP };
 /* variants of the kinds above */
 enum { PORT_WIDE_V_NONE = 0, PORT_WIDE_V_ROLENTO16, PORT_WIDE_V_ROLENTO32, PORT_WIDE_V_BIRDIE };
 struct port_wide_shape {
@@ -25,8 +28,8 @@ struct port_wide_shape {
     int words;           /* the packet's words after the tag (the record's tag length): 6, or 7 with the sprite's width and height, 9 for a quad */
     int unsigned_blank;  /* the C compares the u16 cell with the s16 blank as ints (draw_tile_layer_0_16px); else both as s16 */
     int row_inclusive;   /* the C skips a row when `rows < row` (the 32 px form), not `row >= rows` */
-    int kind;            /* PORT_WIDE_FLAT ... PORT_WIDE_SCROLLC */
-    int k_first;         /* the C's first column: 0, or -11 for the skewed form (its cols = 44 columns run from there) */
+    int kind;            /* PORT_WIDE_FLAT ... PORT_WIDE_PERSP */
+    int k_first;         /* the C's first column: 0, -11 for the skewed form (its cols = 44 columns run from there), -6 for the perspective form (33) */
     int half_scroll;     /* the C subtracts (s16)game_state.scroll_y >> 1 (a layer that scrolls at half speed), not scroll_y */
     int variant;         /* PORT_WIDE_V_*: the rows and the map's lines are not the plain ones (rolento's two grids, birdie's rows) */
     int second_blank;    /* the C also skips the cell that equals the next layer's blank (the layer record is then 0x120 bytes: both layers) */
@@ -38,7 +41,8 @@ extern const struct port_wide_shape
     port_wide_shape_L0, port_wide_shape_L1, port_wide_shape_T32, port_wide_shape_SPR, port_wide_shape_SKEW,
     port_wide_shape_T32_7, port_wide_shape_T16H, port_wide_shape_T32H, port_wide_shape_T32G,
     port_wide_shape_L0K, port_wide_shape_L0R, port_wide_shape_L0G, port_wide_shape_L0N, port_wide_shape_SAVE, port_wide_shape_POLY,
-    port_wide_shape_SKEWP, port_wide_shape_R16, port_wide_shape_R32, port_wide_shape_SPRI, port_wide_shape_SCRB, port_wide_shape_SCRC;
+    port_wide_shape_SKEWP, port_wide_shape_R16, port_wide_shape_R32, port_wide_shape_SPRI, port_wide_shape_SCRB, port_wide_shape_SCRC,
+    port_wide_shape_PERSP;
 
 /* The layer record (struct Chan, 0x90 bytes) in the game's order; the maker reads these fields of it. With shape->second_blank the
  * record of the next layer follows it (0x120 bytes). */
@@ -49,7 +53,7 @@ extern const struct port_wide_shape
 typedef int (*port_wide_emit)(int entry, const uint32_t *words, unsigned len);
 
 /* The packets of the columns k0 <= k < k1 (k = shape->k_first is the C's first column, smaller k left of it, k >= k_first + cols right of the
- * last; for the skewed form every column asked for is made, visible or not), in the
+ * last; for the skewed and perspective forms every column asked for is made, visible or not), in the
  * C's order (row by row, then column), for the layer record `layer` (host pointer, PORT_WIDE_CHAN_SIZE bytes), its map `map` (the
  * bytes the layer's map_data points to, `map_bytes` of them; a cell past them is taken as blank), the game's scroll_y
  * (game_state.scroll_y in the low 16 bits; for PORT_WIDE_SCROLLC the s16 global at 0x8019054e in the high 16) and the pool's first record `record` (shape->words + 1 words: the tag, whose length byte must equal
@@ -59,8 +63,10 @@ unsigned port_wide_columns(const struct port_wide_shape *shape, const uint8_t *l
 
 /* The packets of the columns beside the C's that the wide view can show (what the override queues): for the plain and sprite forms the
  * columns of port_wide_side_range; for the skewed form, per row, the cells outside k = -11..32 (at most PORT_WIDE_SKEW_EXTRA more each
- * side) whose quad reaches into screen x -128..512. Returns the number of packets made. */
+ * side) whose quad reaches into screen x -128..512; the perspective form the same, per row, outside k = -6..26 (at most
+ * PORT_WIDE_PERSP_EXTRA more each side). Returns the number of packets made. */
 #define PORT_WIDE_SKEW_EXTRA 24
+#define PORT_WIDE_PERSP_EXTRA 64
 unsigned port_wide_sides(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
                          unsigned game, const uint32_t *record, port_wide_emit emit);
 

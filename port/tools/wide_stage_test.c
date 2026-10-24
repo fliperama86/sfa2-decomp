@@ -55,6 +55,7 @@ void draw_perspective_skewed_tile_map_slot06_0e(void);
 void draw_tile_map_16px_tiles_slot06_0e(void);
 void draw_tile_map_layer_sprites_32px_slot06_0e(void);
 void draw_tile_map_layer_sprites_interpolated_slot06_06(void);
+void build_perspective_layer_tile_quads_slot06_08(void);
 
 #define POOL_SPR  0x801f03c8u   /* chunli: data_801f03c8_slot06_04[2][0x145] */
 #define POOL_SKEW 0x801f4ae0u   /* data_801f4ae0_slot06_04[2][0x58] */
@@ -90,6 +91,7 @@ port_fn port_function_impl(const char *name)
     if (!strcmp(name, "draw_tile_map_16px_tiles_slot06_0e")) return draw_tile_map_16px_tiles_slot06_0e;
     if (!strcmp(name, "draw_tile_map_layer_sprites_32px_slot06_0e")) return draw_tile_map_layer_sprites_32px_slot06_0e;
     if (!strcmp(name, "draw_tile_map_layer_sprites_interpolated_slot06_06")) return draw_tile_map_layer_sprites_interpolated_slot06_06;
+    if (!strcmp(name, "build_perspective_layer_tile_quads_slot06_08")) return build_perspective_layer_tile_quads_slot06_08;
     return PORT_FN_NULL;
 }
 
@@ -170,7 +172,7 @@ struct form {
     unsigned density;            /* one cell in `density` is not blank, when the default for the form does not fit the pool */
     unsigned cap;                /* the C returns after this many records (gouki's and nash's grids), else 0 */
 };
-#define NFORMS 21
+#define NFORMS 22
 static const struct form forms[NFORMS] = {
     { "L0",  &port_wide_shape_L0,  ADDR_LAYER0,        POOL_L0,  0x72, draw_tile_layer_0_16px_slot06_00,           0x400, 0x200, 0x7c, 0, 0 },
     { "L1",  &port_wide_shape_L1,  ADDR_LAYER0 + 0x90, POOL_L1,  270,  draw_tile_layer_1_16px_slot06_00,           0x400, 0x200, 0x7c, 0, 0 },
@@ -194,6 +196,8 @@ static const struct form forms[NFORMS] = {
     { "R16", &port_wide_shape_R16, ADDR_LAYER0, 0x801ef554u, 0xd0, draw_tile_map_16px_tiles_slot06_0e, 0x400, 0x200, 0x7c, 0, 0x0 },
     { "R32", &port_wide_shape_R32, ADDR_LAYER0 + 0x120, 0x801f6734u, 0x75, draw_tile_map_layer_sprites_32px_slot06_0e, 0x400, 0x200, 0x64, 0, 0x0 },
     { "SPRI", &port_wide_shape_SPRI, ADDR_LAYER0 + 0x90, 0x801f25b0u, 0x4b, draw_tile_map_layer_sprites_interpolated_slot06_06, 0x400, 0x200, 0x7c, 0, 0x0 },
+    /* birdie's perspective floor and ceiling: 33 quads a row, up to about 16 rows; a quarter of the cells drawn keeps the made-up maps near the 264 records of the pool */
+    { "PERSP", &port_wide_shape_PERSP, ADDR_LAYER0 + 0x90, 0x801f2504u, 0x108, build_perspective_layer_tile_quads_slot06_08, 0x400, 0x200, 0x2c, 4, 0x0 },
 };
 #define KIND(f) ((f)->shape->kind)
 /* the columns the game's C draws, and the ordering table entry its packets go to */
@@ -266,10 +270,11 @@ static void build_map(const struct form *f)
         }
 }
 
-/* v[] is for the sprite and skewed forms. SPR: v[0] start_x_fixed, v[1] end_x_fixed, v[3] range_start, v[4] range_end, v[5] field_4c
+/* PERSP: the same v[] as SKEW, and the low half of scroll_y is the layer's own scroll_y (at 0x16, which the C adds to game_state.scroll_y);
+ * v[6] is the layer's scale (0: 0x100, 16 rows). v[] is for the sprite and skewed forms. SPR: v[0] start_x_fixed, v[1] end_x_fixed, v[3] range_start, v[4] range_end, v[5] field_4c
  * (scroll_y is its base_x_fixed, the same word). SKEW: v[0] bound_x_a, v[1] the low half of bound_x_b (scroll_x is its high half),
  * v[2] signed_param, v[3] field_1c, v[4] rect_right, v[5] field_4c. */
-struct fixture { unsigned scroll_x; int32_t scroll_y; unsigned game_scroll_y; unsigned blank; unsigned ot_index; unsigned buffer; int32_t v[6]; };
+struct fixture { unsigned scroll_x; int32_t scroll_y; unsigned game_scroll_y; unsigned blank; unsigned ot_index; unsigned buffer; int32_t v[7]; };
 
 /* the ordering table entry that the game's C links its packets into */
 static unsigned entry_of(const struct form *f, const struct fixture *x)
@@ -303,6 +308,16 @@ static void set_layer(const struct form *f, const struct fixture *x)
         wr16(a + 0x4e, (unsigned)x->v[4]);
         wr16(a + 0x4c, (unsigned)x->v[5]);
         wr32(a + 0x5c, 0x100);                     /* Slot06Layer.scale: the layer has no height */
+        break;
+    case PORT_WIDE_PERSP:
+        wr32(a + 0x08, (uint32_t)x->v[0]);
+        wr32(a + 0x10, ((uint32_t)(x->scroll_x & 0xffffu) << 16) | ((uint32_t)x->v[1] & 0xffffu));
+        wr16(a + 0x16, (unsigned)x->scroll_y & 0xffffu);
+        wr16(a + 0x3e, (unsigned)x->v[2]);
+        wr16(a + 0x1c, (unsigned)x->v[3]);
+        wr16(a + 0x4e, (unsigned)x->v[4]);
+        wr16(a + 0x4c, (unsigned)x->v[5]);
+        wr32(a + 0x5c, x->v[6] ? (uint32_t)x->v[6] : 0x100u);
         break;
     case PORT_WIDE_QUADS:
         wr16(a + 0x12, x->scroll_x);
@@ -405,6 +420,7 @@ static int floordiv(int a, int b);
 static int floormod(int a, int b);
 static void make_scrb_fixture(struct fixture *x, unsigned variant);
 static void make_poly_fixture(struct fixture *x, unsigned variant);
+static void make_persp_fixture(struct fixture *x, unsigned variant);
 static void make_r32_fixture(struct fixture *x, unsigned variant);
 
 /* the sprite form: a camera and a range made so that the layer's y is y0 and the C draws a few rows */
@@ -497,6 +513,7 @@ static void make_fixtures(void)
             else if (!strcmp(tag, "SKEWP")) make_skewed_fixture(x, i);
             else if (!strcmp(tag, "SAVE")) { make_sprites_fixture(x, i); x->scroll_x = lcg() & 0xffffu; }
             else if (!strcmp(tag, "POLY")) make_poly_fixture(x, i);
+            else if (!strcmp(tag, "PERSP")) make_persp_fixture(x, i);
             else if (!strcmp(tag, "R32")) make_r32_fixture(x, i);
             else if (!strcmp(tag, "SCRC")) x->game_scroll_y |= (lcg() & 0xffffu) << 16;           /* the global at 0x8019054e */
             else if (!strcmp(tag, "L0G") || !strcmp(tag, "L0N")) {                              /* the next layer's blank */
@@ -522,6 +539,62 @@ static void make_scrb_fixture(struct fixture *x, unsigned variant)
     x->v[3] = f4c - (int)(lcg() % 100);
     x->v[4] = x->v[3] + 1 + (int)(lcg() % 300);
     x->v[5] = f4c;
+}
+
+/* birdie's perspective floor and ceiling. Coverage by independent moduli of the variant: i % 5 the band of sum = (s16)layer scroll_y +
+ * (s16)game scroll_y (0, 1..15, 16..31, 32 and over, negative: 3, 4, 5, 6, 4 rows), i % 7 where the first pass's rows start (n = signed_param:
+ * rows 0..3, negative n, rows -3..-1, rows 12..14 that run past the 16 rows of the map, rows 16 and later, free, whole rows), i % 2 the size
+ * of the offsets, i % 9 == 8 offsets so large that the products wrap, i % 4 == 0 a scroll_x whose sx is 0, i % 6 == 4 a negative rect_right span, and a scale whose s16 of scale >> 4 is
+ * negative (i % 13 == 12) or is 16 after the cut to 16 bits (i % 13 == 5), or 32 rows (i % 13 == 9). The camera's y keeps the second pass's y above -16, where the
+ * offsets stay within a few hundred pixels (the sides' reach of 64 columns is for that); y is 240 and over when the first pass starts at
+ * row 16 or later, and the second pass has no rows. */
+static void make_persp_fixture(struct fixture *x, unsigned i)
+{
+    uint32_t bound_b;
+    int delta, n, f4c, band = (int)(i % 5), target, gs = (int)(lcg() % 0x30);
+    memset(x, 0, sizeof *x);
+    x->scroll_x = i % 4 == 0 ? (lcg() & 0xfff0u) : lcg() & 0xffffu;
+    switch (i % 7) {
+    case 0: n = 0x40 + 16 * (int)(lcg() % 4) + (int)(lcg() % 16); break;
+    case 1: n = -1 - (int)(lcg() % 100); break;
+    case 2: n = 0x10 + (int)(lcg() % 0x30); break;
+    case 3: n = 0x40 + 16 * (12 + (int)(lcg() % 3)) + (int)(lcg() % 16); break;
+    case 4: n = 0x40 + 16 * (16 + (int)(lcg() % 5)) + (int)(lcg() % 16); break;
+    case 5: n = (int)(lcg() % 176) - 16; break;
+    default: n = 0x40 + 16 * (int)(lcg() % 8); break;
+    }
+    if (i % 13 == 9) n = 0x40 + 16 * (12 + (int)(lcg() % 3)) + (int)(lcg() % 16);      /* with 32 rows (scale 0x200): the first pass reaches rows 16 to 19, in the map's second block row */
+    if (i % 7 == 4) f4c = 240 + (int)(lcg() % 16);
+    else {
+        f4c = (int)(lcg() % 100);
+        if (n > f4c + 60) f4c = n - 64 + (int)(lcg() % 40);
+        if (f4c < 0) f4c = 0;
+        if (f4c > 239) f4c = 239;
+        if (f4c - n + 64 < 0) n = f4c + 64;
+    }
+    {   /* a third of the fixtures of a band sit on its low edge, a third on its high edge (the bands break at 0, 1, 16 and 32, and below 0) */
+        static const int low[5] = { 0, 1, 16, 32, -1 }, high[5] = { 0, 15, 31, 33, -1 };
+        static const int span[5] = { 1, 15, 16, 60, 30 };
+        const int pick = (int)(i / 5 % 3);
+        target = pick == 0 ? low[band] : pick == 1 ? high[band] : band == 4 ? -1 - (int)(lcg() % span[band]) : low[band] + (int)(lcg() % (unsigned)span[band]);
+    }
+    x->game_scroll_y = (unsigned)gs;
+    x->scroll_y = target - gs;                              /* only the low 16 bits are the layer's (an s16: negative as well) */
+    bound_b = ((uint32_t)x->scroll_x << 16) | (lcg() & 0xffffu);
+    delta = i % 2 ? (int)(((lcg() % 0xa0) - 0x50) << 16) + (int)(lcg() & 0xffff)
+                  : (int)(((lcg() % 0x30) - 0x10) << 16) + (int)(lcg() & 0xffff);
+    if (i % 9 == 8)             /* offsets of 260 to 330 pixels either way: a * (t - 0x80) and a * (ya - d1) wrap in 32 bits (the C's int products) */
+        delta = (i % 2 ? 1 : -1) * (int)(((260 + lcg() % 70) << 16) + (lcg() & 0xffff));
+    x->v[1] = (int32_t)(bound_b & 0xffffu);
+    x->v[0] = (int32_t)(bound_b - (uint32_t)delta);
+    x->v[2] = n;
+    x->v[3] = (int)(lcg() % 100);
+    x->v[4] = x->v[3] + (i % 6 == 4 ? -(60 + (int)(lcg() % 200)) : 60 + (int)(lcg() % 200));
+    x->v[5] = f4c;
+    x->blank = i % 4 == 1 ? (lcg() & 0xffffu) : lcg() % 6;
+    x->ot_index = 1 + lcg() % 28;
+    x->buffer = lcg() & 1;
+    x->v[6] = i % 13 == 12 ? 0x80100 : i % 13 == 5 ? 0x1000100 : i % 13 == 9 ? 0x200 : 0;
 }
 
 /* nash's draw_tile_map_layer_polys: unskewed quads from the camera's y (8..100) */
@@ -803,12 +876,77 @@ static void expect_skewed(const struct form *f, const struct fixture *x, int k0,
     }
 }
 
+/* birdie's build_perspective_layer_tile_quads: two passes of rows of 33 cells from k = -6, the quads' edges moved by the row's offsets L (top
+ * edge) and R (bottom); `visible`: only the quads that reach into x -128..512. */
+static void expect_persp(const struct form *f, const struct fixture *x, int k0, int k1, int visible, struct packets *out)
+{
+    const int b = (int16_t)x->blank, n = x->v[2], v1c = x->v[3], f4c = x->v[5], f12 = (int16_t)x->scroll_x;
+    const int y = (uint16_t)(f4c - n + 0x40), sy = y & 15, nlow = n & 15, sx = floormod(f12 - 0x60, 16);
+    const int d1 = (int16_t)(v1c - n + 0x40), d2 = (int16_t)(x->v[4] - v1c), e1 = d1 - 16;
+    const uint32_t bound_b = ((uint32_t)(x->scroll_x & 0xffffu) << 16) | ((uint32_t)x->v[1] & 0xffffu);
+    const int64_t a = (int32_t)(bound_b - (uint32_t)x->v[0]);
+    const int col0 = floormod(floordiv(f12 - 0x60, 16), (int)cells_across);
+    const int sum = (int16_t)(x->scroll_y & 0xffff) + (int16_t)x->game_scroll_y;
+    const int count = sum == 0 ? 3 : sum < 16 ? 4 : sum < 32 ? 5 : 6;
+    const int rowsx = (int16_t)((x->v[6] ? (uint32_t)x->v[6] : 0x100u) >> 4);
+    const uint32_t *rec = first_record(f, x->buffer);
+    int pass, i, k, i_end;
+    out->n = 0;
+    for (pass = 0; pass < 2; pass++) {
+        int i0 = pass ? (int16_t)y / 16 : 0;
+        i_end = pass ? i0 + 15 - f4c / 16 : count;
+        for (i = i0; i < i_end; i++) {
+            const int row = pass ? f4c / 16 + (i - i0) : floordiv(n - 0x40, 16) + i;
+            const int ya = pass ? (uint16_t)(sy + 16 * i) : (uint16_t)(16 * i - nlow);
+            int32_t m1, m0, s1, s0;
+            if (!pass && (row < 0 || row >= rowsx)) continue;
+            if (pass) {
+                m1 = (int32_t)(a * (ya - d1));                                  /* wrapped to 32 bits */
+                m0 = (int32_t)(a * (ya - e1));
+                s1 = (int32_t)(a - m1 / d2);
+                s0 = (int32_t)(a - m0 / d2);
+            } else {
+                const int t = (uint16_t)(16 * (16 - row));
+                m1 = (int32_t)(a * (t - 0x80));
+                m0 = (int32_t)(a * (t - 0x90));
+                s1 = (int32_t)(a - m1 / 88);
+                s0 = (int32_t)(a - m0 / 88);
+            }
+            for (k = k0; k < k1; k++) {
+                unsigned col = (unsigned)floormod(col0 + (k + 6), (int)cells_across);
+                unsigned tile = row < (int)cells_down ? logical_tile(col, (unsigned)row) : 0;
+                unsigned clut = row < (int)cells_down ? logical_clut(col, (unsigned)row) : 0;
+                int tile_s = (int16_t)tile, u = (int)tile * 8, v = (tile_s >> 2) & -16;
+                int x0 = (int16_t)(k * 16 - sx + floordiv(s1, 65536)), x2 = (int16_t)(k * 16 - sx + floordiv(s0, 65536));
+                int x1 = (int16_t)(x0 + 16), x3 = (int16_t)(x2 + 16), y0 = (int16_t)ya, y2 = (int16_t)(ya + 16);
+                struct packet *p;
+                if (ext_scan && row >= (int)cells_down) continue;
+                if (tile_s == b) continue;
+                if (visible && !((x1 > x3 ? x1 : x3) > -128 && (x0 < x2 ? x0 : x2) < 512)) continue;
+                p = &out->p[out->n++];
+                memset(p, 0, sizeof *p);
+                p->entry = (int)entry_of(f, x);
+                memcpy(p->w, rec + 1, (unsigned)f->shape->words * 4);
+                p->w[1] = pack_xy(x0, y0);
+                p->w[2] = (uint32_t)(u & 0xff) | (uint32_t)(v & 0xff) << 8 | (uint32_t)clut << 16;
+                p->w[3] = pack_xy(x1, y0);
+                p->w[4] = (uint32_t)((u + 15) & 0xff) | (uint32_t)(v & 0xff) << 8 | (uint32_t)(uint16_t)floordiv(tile_s, 1024) << 16;
+                p->w[5] = pack_xy(x2, y2);
+                p->w[6] = (rec[7] & 0xffff0000u) | (uint32_t)(u & 0xff) | (uint32_t)((v | 15) & 0xff) << 8;
+                p->w[7] = pack_xy(x3, y2);
+                p->w[8] = (rec[9] & 0xffff0000u) | (uint32_t)((u + 15) & 0xff) | (uint32_t)((v | 15) & 0xff) << 8;
+            }
+        }
+    }
+}
+
 static void expect_columns(const struct form *f, const struct fixture *x, int k0, int k1, int visible, struct packets *out)
 {
     switch (KIND(f)) {
     case PORT_WIDE_SPRITES: expect_sprites(f, x, k0, k1, out); break;
     case PORT_WIDE_SKEWED: expect_skewed(f, x, k0, k1, visible, out); break;
     case PORT_WIDE_QUADS: expect_quads(f, x, k0, k1, out); break;
+    case PORT_WIDE_PERSP: expect_persp(f, x, k0, k1, visible, out); break;
     case PORT_WIDE_SCROLLC: expect_scrollc(f, x, k0, k1, visible ? visible : 3, out); break;
     default: expect_flat(f, x, k0, k1, out);
     }
@@ -825,7 +963,8 @@ static struct packets whole_maker, whole_expected, side_a;
 static int case_sides(const struct form *f, unsigned *packets)
 {
     unsigned i, total = 0;
-    const int skewed = KIND(f) == PORT_WIDE_SKEWED;
+    const int skewed = KIND(f) == PORT_WIDE_SKEWED || KIND(f) == PORT_WIDE_PERSP;     /* per row, the quads that reach into the view */
+    const int extra = KIND(f) == PORT_WIDE_PERSP ? PORT_WIDE_PERSP_EXTRA : PORT_WIDE_SKEW_EXTRA;
     for (i = 0; i < fixture_count; i++) {
         const struct fixture *x = fix(f, i);
         int kl, kr, side;
@@ -834,8 +973,8 @@ static int case_sides(const struct form *f, unsigned *packets)
         set_layer(f, x);
         f->game_c();
         if (skewed) {
-            kl = C_LO(f) - PORT_WIDE_SKEW_EXTRA;
-            kr = C_HI(f) + PORT_WIDE_SKEW_EXTRA;
+            kl = C_LO(f) - extra;
+            kr = C_HI(f) + extra;
             /* the extra columns reach far enough: no quad of the next eight columns is in the view */
             expect_columns(f, x, kl - 8, kl, 1, &expected);
             if (expected.n) return BAD("fixture %u: %u visible quads left of the extra columns", i, expected.n);
@@ -920,7 +1059,7 @@ static void expected_extent(const struct form *f, const struct fixture *x, int g
     const int size = 1 << f->shape->shift, wide = size == 16 ? 40 : 20;
     int off = 0, i, s, blank, left_stop, right_stop;
     if (KIND(f) == PORT_WIDE_SPRITES) off = floormod(exp_x12(x), size);
-    else if (KIND(f) != PORT_WIDE_SKEWED && KIND(f) != PORT_WIDE_SCROLLC) off = x->scroll_x & (size - 1);
+    else if (KIND(f) != PORT_WIDE_SKEWED && KIND(f) != PORT_WIDE_SCROLLC && KIND(f) != PORT_WIDE_PERSP) off = x->scroll_x & (size - 1);
     ext_scan = 1;
     expect_columns(f, x, C_LO(f) - wide, C_HI(f) + wide, 0, &ext_tmp);
     ext_scan = 0;
@@ -1085,7 +1224,7 @@ static int case_range(void)
     for (fi = 0; fi < NFORMS; fi++) {
         const struct form *f = &forms[fi];
         int size = 1 << f->shape->shift;
-        if (KIND(f) == PORT_WIDE_SKEWED || KIND(f) == PORT_WIDE_SCROLLC) continue;   /* their sides are per row or per half (case_sides) */
+        if (KIND(f) == PORT_WIDE_SKEWED || KIND(f) == PORT_WIDE_SCROLLC || KIND(f) == PORT_WIDE_PERSP) continue;   /* their sides are per row or per half (case_sides) */
         for (sx = 0; sx < size; sx++) {
             struct fixture x = { (unsigned)sx + 0x40u, 0x00100000, 0, 1, 3, 0, { 0 } };
             int kl, kr;
@@ -1174,28 +1313,53 @@ static int refuse_third(int entry, const uint32_t *words, unsigned len)
     return ++refused_seen >= 3 ? -1 : 0;
 }
 
+static int refused_for(const struct form *f)
+{
+    const struct fixture *x = fix(f, 20);
+    unsigned made, i;
+    for (i = 20; i < fixture_count; i++) {                 /* a fixture with at least 3 cells in the C's columns */
+        init_pool(f, 0x00808080u | (f->code << 24));
+        set_layer(f, fix(f, i));
+        if (run_maker(f, fix(f, i), C_LO(f), C_HI(f), &from_maker) >= 3) { x = fix(f, i); break; }
+    }
+    init_pool(f, 0x00808080u | (f->code << 24));
+    set_layer(f, x);
+    refused_seen = 0;
+    made = port_wide_columns(f->shape, layer_of(f), map_of(), MAP_BYTES, x->game_scroll_y, first_record(f, x->buffer), C_LO(f), C_HI(f), refuse_third);
+    return made == 2 ? 1 : BAD("%s: expected 2 packets before the refusal, got %u", f->tag, made);
+}
+
 static int case_emit_refused(void)
 {
     unsigned fi;
-    for (fi = 1; fi < NFORMS; fi += 3) {       /* the 16 px layer 1 and the skewed form */
-        const struct form *f = &forms[fi];
-        const struct fixture *x = fix(f, 20);
-        unsigned made, i;
-        for (i = 20; i < fixture_count; i++) {                 /* a fixture with at least 3 cells in the C's columns */
-            init_pool(f, 0x00808080u | (f->code << 24));
-            set_layer(f, fix(f, i));
-            if (run_maker(f, fix(f, i), C_LO(f), C_HI(f), &from_maker) >= 3) { x = fix(f, i); break; }
-        }
-        init_pool(f, 0x00808080u | (f->code << 24));
-        set_layer(f, x);
-        refused_seen = 0;
-        made = port_wide_columns(f->shape, layer_of(f), map_of(), MAP_BYTES, x->game_scroll_y, first_record(f, x->buffer), C_LO(f), C_HI(f), refuse_third);
-        if (made != 2) return BAD("%s: expected 2 packets before the refusal, got %u", f->tag, made);
-    }
-    return 1;
+    for (fi = 1; fi < NFORMS; fi += 3)       /* the 16 px layer 1 and the skewed form */
+        if (!refused_for(&forms[fi])) return 0;
+    return refused_for(&forms[NFORMS - 1]);  /* the last form (the perspective quads), across the first pass's rows and the second's */
 }
 
 /* ---- negative controls: the comparison must fail for a wrong column and for a wrong word ---- */
+/* The game_state.scroll_y that is wrong for the fixture: +16 moves the rows of most forms; the perspective form counts its rows by the sum with
+ * the layer's own scroll_y, so the sum goes from below 32 to above or the other way. */
+static unsigned wrong_scroll_of(const struct form *f, const struct fixture *x)
+{
+    if (KIND(f) == PORT_WIDE_PERSP) {
+        int sum = (int16_t)(x->scroll_y & 0xffff) + (int16_t)x->game_scroll_y;
+        return x->game_scroll_y + (sum < 32 ? 0x100u : (unsigned)-0x100);
+    }
+    return x->game_scroll_y + 16;
+}
+
+/* 1 when the maker, given the wrong scroll_y, makes other packets than the C (set_layer has run and from_c holds the C's); the skewed form and
+ * nash's quads never read game_state.scroll_y, so there is nothing to show */
+static int scroll_shows(const struct form *f, const struct fixture *x)
+{
+    if (KIND(f) == PORT_WIDE_SKEWED || KIND(f) == PORT_WIDE_QUADS) return 1;
+    sink = &from_maker;
+    from_maker.n = 0;
+    port_wide_columns(f->shape, layer_of(f), map_of(), MAP_BYTES, wrong_scroll_of(f, x), first_record(f, x->buffer), C_LO(f), C_HI(f), sink_emit);
+    return compare(&from_c, &from_maker, (unsigned)f->shape->words) != 0;
+}
+
 static int case_negative_control(const struct form *f)
 {
     const struct fixture *x = NULL;
@@ -1208,7 +1372,11 @@ static int case_negative_control(const struct form *f)
         set_layer(f, fix(f, i));
         f->game_c();
         harvest(f, entry_of(f, fix(f, i)), &from_c);
-        if (from_c.n >= (f->cap && f->cap < 20 ? 4u : 20u)) x = fix(f, i);   /* gouki's pool holds 13 */
+        if (from_c.n >= (f->cap && f->cap < 20 ? 4u : 20u)) {                  /* gouki's pool holds 13 */
+            /* and one in which the wrong columns and the wrong scroll_y show: a few rows can leave both edge columns blank, or the same rows drawn */
+            run_maker(f, fix(f, i), C_LO(f) + 1, C_HI(f) + 1, &from_maker);
+            if (compare(&from_c, &from_maker, (unsigned)f->shape->words) && scroll_shows(f, fix(f, i))) x = fix(f, i);
+        }
     }
     if (!x) return BAD("%s: the C never drew enough to test", f->tag);
     /* a column off by one */
@@ -1224,19 +1392,16 @@ static int case_negative_control(const struct form *f)
     /* a wrong shape: the 32 px maker on a 16 px layer, the plain maker on the sprite and skewed layers */
     if (KIND(f) != PORT_WIDE_FLAT || f->shape->shift == 4) {
         struct port_wide_shape wrong = *f->shape;
-        if (KIND(f) == PORT_WIDE_FLAT) wrong.shift = 5; else wrong.kind = PORT_WIDE_FLAT;
+        if (KIND(f) == PORT_WIDE_FLAT) wrong.shift = 5;
+        else if (KIND(f) == PORT_WIDE_PERSP) wrong.kind = PORT_WIDE_SKEWED;      /* the other quad form (the plain maker's buffer holds 8 words, not 9) */
+        else wrong.kind = PORT_WIDE_FLAT;
         sink = &from_maker;
         from_maker.n = 0;
         port_wide_columns(&wrong, layer_of(f), map_of(), MAP_BYTES, x->game_scroll_y, first_record(f, x->buffer), C_LO(f), C_HI(f), sink_emit);
         if (!compare(&from_c, &from_maker, (unsigned)f->shape->words)) return BAD("%s: a wrong shape was accepted", f->tag);
     }
     /* a wrong game scroll_y moves the rows */
-    if (KIND(f) != PORT_WIDE_SKEWED && KIND(f) != PORT_WIDE_QUADS) {      /* these two never read game_state.scroll_y */
-        sink = &from_maker;
-        from_maker.n = 0;
-        port_wide_columns(f->shape, layer_of(f), map_of(), MAP_BYTES, x->game_scroll_y + 16, first_record(f, x->buffer), C_LO(f), C_HI(f), sink_emit);
-        if (!compare(&from_c, &from_maker, (unsigned)f->shape->words)) return BAD("%s: a wrong scroll_y was accepted", f->tag);
-    }
+    if (!scroll_shows(f, x)) return BAD("%s: a wrong scroll_y was accepted", f->tag);
     return 1;
 }
 
@@ -1292,7 +1457,7 @@ static int case_override_wiring(void)
                                                "draw_tilemap_layer_16px_12x25_slot06_01", "draw_tile_layer_sprites_saving_pos_slot06_03",
                                                "draw_tile_map_layer_polys_slot06_03", "draw_perspective_skewed_tile_map_slot06_0e",
                                                "draw_tile_map_16px_tiles_slot06_0e", "draw_tile_map_layer_sprites_32px_slot06_0e",
-                                               "draw_tile_map_layer_sprites_interpolated_slot06_06" };
+                                               "draw_tile_map_layer_sprites_interpolated_slot06_06", "build_perspective_layer_tile_quads_slot06_08" };
     unsigned fi, s, j;
     for (fi = 0; fi < NFORMS; fi++) {
         const struct form *f = &forms[fi];

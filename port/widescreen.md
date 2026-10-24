@@ -19,10 +19,12 @@ narrowed by default** (below, "The stage's ends"): the game's screen is taken
 as 512 wide, the camera stops 64 short of each end and the fighters reach the
 wide picture's edges, so the walls stay where they are and the stage's own
 art fills the picture. The owner on it: "it looks really good in many stages,
-in fact they look perfect". Open: Birdie's stage (black edges as the camera
-moves), the right end of Rolento's outdoor stage (no art there in the PS1's
-data). Gouki's haze, drawn over the 384 only, is fixed (the order of the side
-cells in an entry, below).
+in fact they look perfect". Gouki's haze, drawn over the 384 only, and the
+black wedges of Birdie's perspective ceiling and floor are fixed (the order
+of the side cells in an entry, below; Birdie's form, `PORT_WIDE_PERSP`).
+Open: a strip of about 12 pixels at both walls where a back plane's art in
+the PS1's data ends short of the wide view (Rolento's sky and poster,
+Birdie's back wall).
 
 ## The owner's decisions (2026-10-23)
 

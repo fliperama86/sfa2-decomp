@@ -2,7 +2,8 @@
  * draws. Nine forms of layer function are shared by several stages (the C is the same in every copy of a form; only the pool differs):
  * the plain tile grids draw_tile_layer_0_16px, draw_tile_layer_1_16px, draw_tilemap_layer_32px_9x13 and _7x13,
  * draw_tile_map_layer_16px_half_scroll and draw_tile_map_layer_32px (half speed, and gouki's copy), and the second layer's
- * draw_tile_layer_sprites_with_partial_row and draw_skewed_tile_layer_quads. Each copy gets an override that runs the game's own C and
+ * draw_tile_layer_sprites_with_partial_row and draw_skewed_tile_layer_quads (and the forms of one stage each, up to birdie's
+ * build_perspective_layer_tile_quads). Each copy gets an override that runs the game's own C and
  * then, with widescreen on, makes the packets of the columns beside the C's that the wide view can show, with the C's arithmetic for
  * each column and row, and queues them for the layer's entry of the ordering table (port_gpu_queue_packet). With widescreen off it only
  * runs the C. The maker (port_wide_columns) is pure and is compared with the C in port/tools/wide_stage_test.c. The per-object grids
@@ -33,9 +34,11 @@
 #define SL_BOUND_X_B        0x10u
 #define SL_BASE_X_FIXED     0x14u   /* Slot06Draw.base_x_fixed, s32 */
 #define SL_RANGE_START      0x1cu   /* Slot06Draw.range_start s16; Slot06Layer.field_1c u16 */
+#define SL_SCROLL_Y16       0x16u   /* Slot06Layer.scroll_y u16 (the perspective form adds it to game_state.scroll_y) */
 #define SL_SIGNED_PARAM     0x3eu   /* Slot06Layer.signed_param s16 */
 #define SL_FIELD_4C         0x4cu   /* u16 / s16: the camera's y */
 #define SL_RECT_RIGHT       0x4eu   /* Slot06Layer.rect_right u16; Slot06Draw.range_end s16 */
+#define SL_SCALE            0x5cu   /* Slot06Layer.scale u32 (the map's height in pixels) */
 
 /* What the anchored wide view can show, in the game's screen x: the canvas is 64 pixels wider on each side and the view slides by up to 64. */
 #define VIEW_LEFT  (-128)
@@ -75,6 +78,8 @@ const struct port_wide_shape port_wide_shape_R16  = { .shift = 4, .rows = 16, .c
 const struct port_wide_shape port_wide_shape_R32  = { .shift = 5, .rows = 9, .cols = 13, .words = 7, .kind = PORT_WIDE_FLAT, .variant = PORT_WIDE_V_ROLENTO32 };
 const struct port_wide_shape port_wide_shape_SPRI = { .shift = 4, .cols = 25, .words = 6, .kind = PORT_WIDE_SPRITES };
 const struct port_wide_shape port_wide_shape_SCRB = { .shift = 4, .cols = 25, .words = 6, .kind = PORT_WIDE_SPRITES, .variant = PORT_WIDE_V_BIRDIE };
+/* birdie's build_perspective_layer_tile_quads: 33 quads a row from k = -6 (a POLY_FT4 a cell) */
+const struct port_wide_shape port_wide_shape_PERSP = { .shift = 4, .cols = 33, .words = 9, .kind = PORT_WIDE_PERSP, .k_first = -6 };
 const struct port_wide_shape port_wide_shape_SCRC = { .shift = 4, .rows = 16, .cols = 25, .words = 6, .kind = PORT_WIDE_SCROLLC };
 
 /* The words of a POLY_FT4 record after its tag (Poly28): colour and code, then x y / u v clut / x y / u v tpage / x y / u v / x y / u v
@@ -498,6 +503,139 @@ static unsigned skew_make(const struct port_wide_shape *shape, const uint8_t *la
     return made;
 }
 
+/* build_perspective_layer_tile_quads of birdie (Slot06Layer): the perspective floor and ceiling. Two passes of rows, each row the cells
+ * k = -6 .. 26 as quads with x0 = 16 k - sx + (L >> 16) and x2 = 16 k - sx + (R >> 16), L and R the row's two offsets. The first pass
+ * takes 3 to 6 rows (by scroll_y + game_state.scroll_y) from the row of signed_param, those in 0 .. (s16)(scale >> 4) - 1, with the ramp
+ * t = (16 - row) * 16 (16 bits); the second takes the rows from the camera's field_4c as the skewed form does (without bounds), with the
+ * offsets interpolated by field_1c and rect_right. All the C's locals keep their types (ya is u16, the divisions are signed). */
+struct persp_view {
+    uint32_t width;
+    int32_t a;
+    unsigned col;
+    int blank, entry, sx, sy, nlow, count, row1, rowsx, mask, d1s, d2s, e1, i0, lim, row2;
+};
+
+/* The C's set-up from the layer and game_state.scroll_y (low 16 bits of `game`); 0 when the layer cannot be drawn (no map width). */
+static int persp_setup(struct persp_view *p, const uint8_t *layer, unsigned game)
+{
+    const uint32_t width = rd32(layer, CHAN_MAP_WIDTH);
+    const int n = (int16_t)rd16(layer, SL_SIGNED_PARAM), v = rd16(layer, SL_RANGE_START);
+    const int f4c = (int16_t)rd16(layer, SL_FIELD_4C), scroll_x = (int16_t)rd16(layer, CHAN_SCROLL_X);
+    const int y = (uint16_t)(rd16(layer, SL_FIELD_4C) - n + 0x40);
+    int xx, sum;
+    if (!width) return 0;
+    p->width = width;
+    p->nlow = n & 0xf;
+    p->sx = (scroll_x - 0x60) & 0xf;
+    p->sy = y & 0xf;
+    p->blank = (int16_t)rd16(layer, CHAN_BLANK);
+    p->col = ((((uint32_t)(scroll_x - 0x60)) & (width - 1)) >> 4) & 0xffffu;
+    p->d1s = (int16_t)(uint16_t)(v - n + 0x40);
+    p->d2s = (int16_t)(uint16_t)(rd16(layer, SL_RECT_RIGHT) - v);
+    p->e1 = p->d1s - 16;
+    xx = n - 0x40;
+    p->row1 = (int16_t)(xx >> 4);       /* the C's hand-written signed division: for xx < 0 it ends as xx >> 4 as well */
+    sum = (int16_t)rd16(layer, SL_SCROLL_Y16) + (int16_t)(game & 0xffffu);
+    p->count = sum == 0 ? 3 : sum < 0x10 ? 4 : sum < 0x20 ? 5 : 6;
+    p->rowsx = (int16_t)(rd32(layer, SL_SCALE) >> 4);
+    p->mask = (uint16_t)((width >> 4) - 1);
+    p->a = (int32_t)(rd32(layer, SL_BOUND_X_B) - rd32(layer, SL_BOUND_X_A));
+    p->entry = layer[CHAN_OT_INDEX];
+    p->row2 = (int16_t)(f4c / 16);
+    p->i0 = (int16_t)y / 16;
+    p->lim = (int16_t)y / 16 + 15 - f4c / 16;
+    return 1;
+}
+
+struct persp_ctx {
+    const struct persp_view *p;
+    const uint8_t *map;
+    uint32_t map_bytes;
+    const uint32_t *record;
+    unsigned len, made;
+    int visible_only, stopped;
+    port_wide_emit emit;
+};
+
+/* One row: the cells k0 <= k < k1 of map row `row` at y `ya` (u16), the left edge moved by L and the right by R (16.16). */
+static void persp_cells(struct persp_ctx *c, int row, int ya, int32_t L, int32_t R, int k0, int k1)
+{
+    const struct persp_view *p = c->p;
+    const uint32_t line = line16(p->width, row);
+    uint32_t words[12];
+    int k;
+    for (k = k0; k < k1; k++) {
+        unsigned cc = (unsigned)(p->mask & (int)(p->col + (unsigned)(k + 6))) & 0xffffu;
+        uint16_t raw, clut;
+        int tile, u, v, x0, x1, x2, x3, y0, y2;
+        if (!read_cell(c->map, c->map_bytes, line + cell16(cc), &raw, &clut)) continue;
+        tile = (int16_t)raw;
+        if (tile == p->blank) continue;
+        u = raw << 3;
+        v = (tile >> 2) & -16;
+        x0 = (int16_t)(k * 16 - p->sx + (L >> 16));
+        x1 = (int16_t)(x0 + 16);
+        x2 = (int16_t)(k * 16 - p->sx + (R >> 16));
+        x3 = (int16_t)(x2 + 16);
+        if (c->visible_only) {
+            int lo = x0 < x2 ? x0 : x2, hi = x1 > x3 ? x1 : x3;
+            if (!(hi > VIEW_LEFT && lo < VIEW_RIGHT)) continue;
+        }
+        y0 = (int16_t)ya;
+        y2 = (int16_t)(ya + 16);
+        memcpy(words, c->record + 1, c->len * sizeof words[0]);
+        words[PW_XY0] = (uint32_t)(uint16_t)x0 | ((uint32_t)(uint16_t)y0 << 16);
+        words[PW_UV0] = (uint32_t)(uint8_t)u | ((uint32_t)(uint8_t)v << 8) | ((uint32_t)clut << 16);
+        words[PW_XY1] = (uint32_t)(uint16_t)x1 | ((uint32_t)(uint16_t)y0 << 16);
+        words[PW_UV1] = (uint32_t)(uint8_t)(u + 15) | ((uint32_t)(uint8_t)v << 8) | ((uint32_t)(uint16_t)(tile >> 10) << 16);
+        words[PW_XY2] = (uint32_t)(uint16_t)x2 | ((uint32_t)(uint16_t)y2 << 16);
+        words[PW_UV2] = (words[PW_UV2] & 0xffff0000u) | (uint32_t)(uint8_t)u | ((uint32_t)(uint8_t)(v | 15) << 8);
+        words[PW_XY3] = (uint32_t)(uint16_t)x3 | ((uint32_t)(uint16_t)y2 << 16);
+        words[PW_UV3] = (words[PW_UV3] & 0xffff0000u) | (uint32_t)(uint8_t)(u + 15) | ((uint32_t)(uint8_t)(v | 15) << 8);
+        if (c->emit(c->p->entry, words, c->len)) { c->stopped = 1; return; }
+        c->made++;
+    }
+}
+
+static unsigned persp_make(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes, unsigned game,
+                           const uint32_t *record, int k0, int k1, int visible_only, port_wide_emit emit)
+{
+    struct persp_view p;
+    struct persp_ctx c;
+    int i, row;
+
+    if (!map || (record[0] >> 24) != (unsigned)shape->words || !persp_setup(&p, layer, game)) return 0;
+    c.p = &p;
+    c.map = map;
+    c.map_bytes = map_bytes;
+    c.record = record;
+    c.len = (unsigned)shape->words;
+    c.made = 0;
+    c.visible_only = visible_only;
+    c.stopped = 0;
+    c.emit = emit;
+    row = p.row1;
+    for (i = 0; i < p.count; i++, row = (int16_t)(row + 1)) {                          /* the first pass */
+        const int t = (uint16_t)((uint32_t)(0x10 - row) << 4), ya = (uint16_t)(i * 16 - p.nlow);
+        int32_t L, R;
+        if (row < 0 || row >= p.rowsx) continue;
+        L = p.a - wrap_div(wrap_mul(p.a, t - 0x80), 88);
+        R = p.a - wrap_div(wrap_mul(p.a, t - 0x90), 88);
+        persp_cells(&c, row, ya, L, R, k0, k1);
+        if (c.stopped) return c.made;
+    }
+    if (!p.d2s) return c.made;                                                         /* the C would divide by zero */
+    row = p.row2;
+    for (i = p.i0; i < p.lim && i - p.i0 < MAX_ROWS; i++, row = (int16_t)(row + 1)) {   /* the second pass */
+        const int ya = (uint16_t)(p.sy + i * 16);
+        const int32_t L = p.a - wrap_div(wrap_mul(p.a, ya - p.d1s), p.d2s);
+        const int32_t R = p.a - wrap_div(wrap_mul(p.a, ya - p.e1), p.d2s);
+        persp_cells(&c, row, ya, L, R, k0, k1);
+        if (c.stopped) return c.made;
+    }
+    return c.made;
+}
+
 unsigned port_wide_columns(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
                            unsigned game, const uint32_t *record, int k0, int k1, port_wide_emit emit)
 {
@@ -506,6 +644,7 @@ unsigned port_wide_columns(const struct port_wide_shape *shape, const uint8_t *l
     case PORT_WIDE_SKEWED:  return skew_make(shape, layer, map, map_bytes, record, k0, k1, 0, emit);
     case PORT_WIDE_QUADS:   return quads_make(shape, layer, map, map_bytes, record, k0, k1, emit);
     case PORT_WIDE_SCROLLC: return scrollc_make(shape, layer, map, map_bytes, game, record, k0, k1, 3, emit);
+    case PORT_WIDE_PERSP:   return persp_make(shape, layer, map, map_bytes, game, record, k0, k1, 0, emit);
     default:                return flat_columns(shape, layer, map, map_bytes, game, record, k0, k1, emit);
     }
 }
@@ -519,6 +658,11 @@ unsigned port_wide_sides(const struct port_wide_shape *shape, const uint8_t *lay
         int first = shape->k_first, end = shape->k_first + shape->cols;
         made = skew_make(shape, layer, map, map_bytes, record, first - PORT_WIDE_SKEW_EXTRA, first, 1, emit);
         return made + skew_make(shape, layer, map, map_bytes, record, end, end + PORT_WIDE_SKEW_EXTRA, 1, emit);
+    }
+    if (shape->kind == PORT_WIDE_PERSP) {            /* per row, the quads that reach into the view beyond the C's 33 columns */
+        int first = shape->k_first, end = shape->k_first + shape->cols;
+        made = persp_make(shape, layer, map, map_bytes, game, record, first - PORT_WIDE_PERSP_EXTRA, first, 1, emit);
+        return made + persp_make(shape, layer, map, map_bytes, game, record, end, end + PORT_WIDE_PERSP_EXTRA, 1, emit);
     }
     if (shape->kind == PORT_WIDE_SCROLLC) {          /* each half has its own offset, so its own columns */
         int half;
@@ -570,12 +714,12 @@ static int extent_emit(int entry, const uint32_t *w, unsigned len)
 static int floor_div(int a, int b) { int q = a / b; return (a % b && ((a < 0) != (b < 0))) ? q - 1 : q; }
 
 /* The grid of the scan's columns: for the forms with one horizontal offset (the plain grids, the sprite forms, the quads) the cells' own
- * columns, k = floor((x + sx) / size); for the skewed form (each row has its own offset) and chunli_alt's (two) the columns are slots of the
+ * columns, k = floor((x + sx) / size); for the skewed and perspective forms (each row has its own offset) and chunli_alt's (two) the columns are slots of the
  * cell's width on the screen grid with 0 on an edge. */
 static int extent_offset(const struct port_wide_shape *shape, const uint8_t *layer)
 {
     int ok, size = 1 << shape->shift;
-    if (shape->kind == PORT_WIDE_SKEWED || shape->kind == PORT_WIDE_SCROLLC) return 0;
+    if (shape->kind == PORT_WIDE_SKEWED || shape->kind == PORT_WIDE_SCROLLC || shape->kind == PORT_WIDE_PERSP) return 0;
     if (shape->kind == PORT_WIDE_SPRITES) return sprites_x12(layer, &ok) & (size - 1);
     return (int)(rd16(layer, CHAN_SCROLL_X) & (unsigned)(size - 1));
 }
@@ -628,9 +772,22 @@ void port_wide_map_bytes(const struct port_wide_shape *shape, const uint8_t *lay
 {
     uint32_t width = rd32(layer, CHAN_MAP_WIDTH), height = rd32(layer, CHAN_MAP_HEIGHT);
     uint32_t block_row = ((width >> 9) << (shape->shift == 4 ? 10 : 8)) * 2u;   /* the bytes of one row of blocks */
-    (void)game;
     *preferred = *minimum = 0;
     if (!width) return;
+    if (shape->kind == PORT_WIDE_PERSP) {                /* the block rows of the rows that either pass reads */
+        struct persp_view p;
+        unsigned top = 0;
+        int i, row;
+        if (!persp_setup(&p, layer, game)) return;
+        row = p.row1;
+        for (i = 0; i < p.count; i++, row = (int16_t)(row + 1))
+            if (row >= 0 && row < p.rowsx && ((unsigned)(uint16_t)row >> 4) > top) top = (unsigned)(uint16_t)row >> 4;
+        row = p.row2;
+        for (i = p.i0; i < p.lim && i - p.i0 < MAX_ROWS; i++, row = (int16_t)(row + 1))
+            if (((unsigned)(uint16_t)row >> 4) > top) top = (unsigned)(uint16_t)row >> 4;
+        *preferred = *minimum = (top + 1) * block_row;
+        return;
+    }
     if (shape->kind == PORT_WIDE_SKEWED || shape->kind == PORT_WIDE_QUADS) {
         /* no height in this layer (Slot06Layer has none): the rows that the C reads, up to the last one's block row */
         const int f4c = (int16_t)rd16(layer, SL_FIELD_4C), cut = shape->kind == PORT_WIDE_QUADS ? 5 : 0;
@@ -730,7 +887,8 @@ void port_wide_map_bytes(const struct port_wide_shape *shape, const uint8_t *lay
     X(68, draw_perspective_skewed_tile_map_slot06_0e, SKEWP, 0x801aa5d4, 0x801f3df4, 132) \
     X(69, draw_tile_map_16px_tiles_slot06_0e, R16, 0x801aa544, 0x801ef554, 208) \
     X(70, draw_tile_map_layer_sprites_32px_slot06_0e, R32, 0x801aa664, 0x801f6734, 117) \
-    X(71, draw_tile_map_layer_sprites_interpolated_slot06_06, SPRI, 0x801aa5d4, 0x801f25b0, 75)
+    X(71, draw_tile_map_layer_sprites_interpolated_slot06_06, SPRI, 0x801aa5d4, 0x801f25b0, 75) \
+    X(72, build_perspective_layer_tile_quads_slot06_08, PERSP, 0x801aa5d4, 0x801f2504, 264)
 
 #define AS_COPY(n, name, form, layer, pool, count) { #name, &port_wide_shape_##form, layer, pool, count },
 const struct port_wide_copy port_wide_copies[] = { STAGE_COPIES(AS_COPY) };

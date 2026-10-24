@@ -42,6 +42,7 @@ FORMS = {  # form tag -> (function prefix, layer expression in the C, record typ
     'R16': ('draw_tile_map_16px_tiles', 'background_layers', 'Slot06Tile', 0),
     'R32': ('draw_tile_map_layer_sprites_32px', '&background_layers[2]', 'Slot06TileW', 2),
     'SPRI': ('draw_tile_map_layer_sprites_interpolated', '(Slot06Draw *)main_layer', 'Slot06Tile', 1),
+    'PERSP': ('build_perspective_layer_tile_quads', '(Slot06Layer *)main_layer', 'Poly28', 1),   # birdie's perspective floor and ceiling: one copy
 }
 HALF_SCROLL = 'scroll_y >> 1'     # the text that tells the half-speed body from the other
 # forms that share a function name with another form tell their bodies apart by a text of the C
@@ -61,8 +62,8 @@ GAME_C = [('ryu', 'draw_tile_layer_0_16px_slot06_00'), ('ryu', 'draw_tile_layer_
           ('ken', 'draw_tilemap_layer_16px_12x25_slot06_01'), ('nash', 'draw_tile_layer_sprites_saving_pos_slot06_03'),
           ('nash', 'draw_tile_map_layer_polys_slot06_03'), ('rolento', 'draw_perspective_skewed_tile_map_slot06_0e'),
           ('rolento', 'draw_tile_map_16px_tiles_slot06_0e'), ('rolento', 'draw_tile_map_layer_sprites_32px_slot06_0e'),
-          ('sodom', 'draw_tile_map_layer_sprites_interpolated_slot06_06')]
-COPIES = 13 + 6 + 13 + 10 + 10 + 3 + 2 + 3 + 12
+          ('sodom', 'draw_tile_map_layer_sprites_interpolated_slot06_06'), ('birdie', 'build_perspective_layer_tile_quads_slot06_08')]
+COPIES = 13 + 6 + 13 + 10 + 10 + 3 + 2 + 3 + 12 + 1
 LAYERS = 0x801aa544
 CHAN_SIZE = 0x90
 CFLAGS = ['-m32', '-fno-pie', '-D_GNU_SOURCE', '-O1', '-Wall', '-Wextra', '-Werror']
@@ -101,7 +102,7 @@ def build_and_run(folder: Path) -> tuple[list[str], str]:
                'data_801f085c_slot06_08', 'data_801f11e0_slot06_12', 'data_801ef0e8_slot06_02', 'data_801ee810_slot06_03',
                'data_801f8000_slot06_03', 'data_801eca24_slot06_09', 'data_801eedb4_slot06_01', 'data_801f0d40_slot06_03',
                'data_801f4c40_slot06_03', 'data_801f3df4_slot06_0e', 'data_801ef554_slot06_0e', 'data_801f6734_slot06_0e',
-               'data_801f25b0_slot06_06']
+               'data_801f25b0_slot06_06', 'data_801f2504_slot06_08']
     link = [f'-Wl,--defsym={name}=0x{sym[name]:08x}' for name in defsyms]
     exe = folder / 'wide_stage_test'
     objects = []
