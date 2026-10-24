@@ -818,7 +818,8 @@ struct screens_job {
     const struct arcade_screens_recipe *r;
     unsigned char *disc;
     struct arcade_screens_out o;
-    unsigned long long alone;   /* with check: the bytes the arcade builds alone */
+    struct arcade_screens_out a;  /* the build of the arcade alone (no disc): its known bytes need no disc */
+    unsigned long long alone;   /* the bytes the arcade builds alone */
     int rc;
     char err[PORT_ERR];
 };
@@ -828,17 +829,16 @@ static void screens_job(void *context, unsigned i)
 {
     struct screens_work *w = context;
     struct screens_job *j = &w->jobs[i];
-    struct arcade_screens_out alone;
     unsigned k;
+    (void)w;
     j->rc = arcade_screens_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, j->r, j->disc, j->n, &j->o, j->err, sizeof j->err);
-    if (j->rc != 0 || !w->check) return;
-    /* the coverage: what the arcade builds alone */
-    if ((j->rc = arcade_screens_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, j->r, NULL, 0, &alone, j->err, sizeof j->err)) != 0) {
+    if (j->rc != 0) return;
+    /* what the arcade builds alone: the coverage, and the packed segments that need no disc (a pack keeps none of them) */
+    if ((j->rc = arcade_screens_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, j->r, NULL, 0, &j->a, j->err, sizeof j->err)) != 0) {
         free(j->o.data); free(j->o.known);
         return;
     }
-    for (k = 0; k < alone.size; k++) j->alone += alone.known[k] != 0;
-    free(alone.data); free(alone.known);
+    for (k = 0; k < j->a.size; k++) j->alone += j->a.known[k] != 0;
 }
 
 /* The other screens' files (select, continue, endings, demos, boss, HUD): their tiles, palettes and pictures by the recipes of
@@ -873,8 +873,10 @@ static unsigned screens(struct port_disc *d, int check)
         int f = j->f;
         char err[PORT_ERR];
         if (j->rc != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", j->name, j->err);
-        arcade_only += j->alone;
-        built_bytes[f] += j->alone;
+        if (check) {
+            arcade_only += j->alone;
+            built_bytes[f] += j->alone;
+        }
         chunks++;
         /* With a pack its chunk lacks the bytes built equal to the disc's: the pack's digests check them instead. */
         if (!pack_disc && arcade_screens_verify(j->r, o, j->disc, j->n, err, sizeof err) != 0) {
@@ -885,7 +887,17 @@ static unsigned screens(struct port_disc *d, int check)
                 unsigned e = k;
                 while (e < o->size && o->known[e] == o->known[k]) e++;
                 if (o->known[k] == 2) {
-                    if (!check) add_range_kind(f, j->at + k, o->data + k, e - k, 0);
+                    unsigned q = k;
+                    while (q < e) {   /* runs the arcade builds alone (no tile from the disc) are owned: a pack keeps none of them */
+                        unsigned t = q;
+                        int own = j->a.size == o->size && j->a.known[q] == 2 && j->a.data[q] == o->data[q];
+                        while (t < e && (j->a.size == o->size && j->a.known[t] == 2 && j->a.data[t] == o->data[t]) == own) t++;
+                        if (!check) {
+                            add_range_kind(f, j->at + q, o->data + q, t - q, 0);
+                            ranges[range_count - 1].owned = own;
+                        }
+                        q = t;
+                    }
                     served += e - k;
                 } else if (o->known[k] == 1) {
                     unsigned long long before = built_bytes[f];
@@ -896,6 +908,7 @@ static unsigned screens(struct port_disc *d, int check)
             }
         }
         free(j->disc);
+        free(j->a.data); free(j->a.known);
         if (check) { free(o->data); free(o->known); }   /* else the ranges point into it */
     }
     free(w.jobs);
