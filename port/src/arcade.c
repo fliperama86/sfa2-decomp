@@ -755,6 +755,43 @@ static void blank_pictures(struct port_disc *d, int check)
     fflush(stdout);
 }
 
+/* The PS1's sound banks' samples (table 4 chunks, the VAB bodies): no request plays the PS1's sounds any more (sounds.py: every row is
+ * the arcade's effect or silent), so the samples the game sends to the sound chip are zeros, built here (a pack keeps none of them). The
+ * chunk's first word stays the disc's: the disc stream compares it with the archive header's copy. The banks' headers (table 3) and
+ * sequences (table 5) stay: the sound library parses them. */
+static void silent_banks(struct port_disc *d, int check)
+{
+    unsigned i, n = 0;
+    unsigned long long bytes = 0;
+    for (i = 0; i < file_count; i++) {
+        unsigned char head[PORT_DATA];
+        char err[PORT_ERR];
+        unsigned count, at = PORT_DATA, c;
+        if (!strstr(files[i].name, ".pac") || files[i].size < PORT_DATA || port_disc_read(d, files[i].sector, PORT_DATA, head, err, sizeof err) != 0) continue;
+        count = head[0] | head[1] << 8 | (unsigned)head[2] << 16 | (unsigned)head[3] << 24;
+        if (count > (PORT_DATA - 0x20) / 32) continue;
+        for (c = 0; c < count; c++) {
+            const unsigned char *e = head + 0x20 + 32 * c;
+            unsigned table = e[2] | e[3] << 8, size = e[4] | e[5] << 8 | (unsigned)e[6] << 16 | (unsigned)e[7] << 24;
+            if (size > files[i].size || at > files[i].size - size) break;
+            if (table == 4 && size > 4) {
+                if (!check) {
+                    unsigned char *z = calloc(size - 4u, 1);
+                    if (!z) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+                    add_range_kind((int)i, at + 4u, z, size - 4u, 0);
+                    ranges[range_count - 1].owned = 1;
+                }
+                n++;
+                bytes += size - 4u;
+            }
+            at += (size + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
+        }
+    }
+    printf("arcade%s: sound: %u banks' samples (%llu bytes) are silence: every request plays the arcade's effect or nothing\n", check ? " check" : "",
+           n, bytes);
+    fflush(stdout);
+}
+
 /* The index of the disc's file `name`; halts if there is none. */
 static int file_index(struct port_disc *d, const char *name)
 {
@@ -2118,6 +2155,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     wrong += sprite_chunks(d, check);
     synth_files(d, check);
     blank_pictures(d, check);
+    silent_banks(d, check);
     wrong += parts(d, check);
     module_data(d, check);
     stages(d, check);

@@ -1,9 +1,12 @@
-/* The rest of a fighter module's data (after the code and the blocks that fighter.c and sequence.c build): tables that are runs
- * of the arcade program, tables that are the arcade's records with their fields narrowed, and the pointer words, built from the
- * arcade program alone. The model is module_data.py (its model_build is the specification; tools/test_arcade_module_data.py and
+/* The rest of a module's data (after the code, and for a fighter module the blocks that fighter.c and sequence.c build; for a screen
+ * or stage module the blocks that screen_lists.c, texts.c, quotes.c, talk.c and stage.c build): tables that are runs of the arcade
+ * program, tables that are the arcade's records with their fields narrowed, the PS1 palette rows of the arcade's palettes, and the
+ * pointer words, built from the arcade program alone. The model is module_data.py (its model_build is the specification; tools/test_arcade_module_data.py and
  * `module_data.py --compare-c` check this code against it). The generated table (module_data_table.c) has, per fighter file,
  * the pieces (module offset, size, arcade address, layout) and the pointer words (module offset, target): only offsets,
- * addresses and layouts, no byte of either game.
+ * addresses and layouts, no byte of either game. The same table has a row for each file of the screen modules (END, CDEMO, CONT, DEMO,
+ * SELECT, SELECTA, BOSS, RDM, GDEMO, STAGE) and its slot, with the link address of the image, which this code does not care about
+ * except for the pointer words that name the module itself; rows of files that carry one module share their arrays.
  *
  * A piece's layout is text. A token is a letter and a field count, 'b16w4'; a group is tokens in parentheses and a repeat count,
  * '(w2n2)410' (a record repeated; no group inside a group). The letters, with the PS1 bytes a field makes and the arcade bytes
@@ -13,6 +16,12 @@
  *   f  1 from 2   a flags byte: bit 15 becomes bit 7, bits 0 to 6 stay, no other bit may be set
  *   q  1 from 2   a byte that is the 16-bit value divided by 0x18 (it has to be a multiple, at most 255 times that)
  *   e  4 from 1   a 32-bit little-endian value from a byte
+ *   k z K Z  32 from 32   a PS1 palette row from an arcade palette (15 big-endian words at the field's start; the 32 bytes of the field
+ *                 are the arcade palette's stride, its last word is not read). Colour 0 is 0x0000 (transparent); colours 1 to 15 are
+ *                 the words 0 to 14: brightness nibble (bits 12 to 15) ignored, R bits 8 to 11, G bits 4 to 7, B bits 0 to 3, the PS1
+ *                 colour R * 2 | (G * 2) << 5 | (B * 2) << 10. k: a black colour becomes 0x8000; z: a black colour stays 0; K and Z:
+ *                 the same with bit 15 set on all of colours 1 to 15 (screens.py's PAL_BIT15; a black colour is then 0x8000 either
+ *                 way, so K and Z build the same bytes). Consecutive rows of an arcade run are a count: 'K17' is 17 palettes.
  * The first five are the letters of program.h's pieces (the walker here is equal to arcade_piece_build for them). */
 #ifndef ARCADE_MODULE_DATA_H
 #define ARCADE_MODULE_DATA_H

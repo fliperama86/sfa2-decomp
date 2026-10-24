@@ -19,7 +19,25 @@ static int field_sizes(char c, unsigned *ps1, unsigned *arc)
     case 'l': *ps1 = 4; *arc = 4; return 1;
     case 'n': case 'f': case 'q': *ps1 = 1; *arc = 2; return 1;
     case 'e': *ps1 = 4; *arc = 1; return 1;
+    case 'k': case 'z': case 'K': case 'Z': *ps1 = 32; *arc = 32; return 1;
     default: return 0;
+    }
+}
+
+/* A palette row (letters k, z, K, Z; the rule of screens.py's palette_bytes): colour 0 is 0, colours 1 to 15 are the first 15 big-endian words
+ * of a (the brightness nibble ignored) as R * 2 | (G * 2) << 5 | (B * 2) << 10; a black result is 0x8000 unless black_zero; bit 15 is set on
+ * colours 1 to 15 with bit15. */
+static void palette_build(const uint8_t *a, int black_zero, int bit15, uint8_t *o)
+{
+    unsigned k;
+    o[0] = o[1] = 0;
+    for (k = 0; k < 15; k++) {
+        unsigned w = ((unsigned)a[2 * k] << 8) | a[2 * k + 1];
+        unsigned c = (w >> 8 & 15u) << 1 | (w >> 4 & 15u) << 6 | (w & 15u) << 11;
+        if (!c && !black_zero) c = 0x8000u;
+        if (bit15) c |= 0x8000u;
+        o[2 + 2 * k] = (uint8_t)c;
+        o[3 + 2 * k] = (uint8_t)(c >> 8);
     }
 }
 
@@ -32,6 +50,10 @@ static int field_build(char c, const uint8_t *a, uint8_t *o)
     case 'w': o[0] = a[1]; o[1] = a[0]; return 0;
     case 'l': o[0] = a[3]; o[1] = a[2]; o[2] = a[1]; o[3] = a[0]; return 0;
     case 'e': o[0] = a[0]; o[1] = o[2] = o[3] = 0; return 0;
+    case 'k': palette_build(a, 0, 0, o); return 0;
+    case 'z': palette_build(a, 1, 0, o); return 0;
+    case 'K': palette_build(a, 0, 1, o); return 0;
+    case 'Z': palette_build(a, 1, 1, o); return 0;
     case 'n': if (v > 255u) return -1; o[0] = (uint8_t)v; return 0;
     case 'f': if (v & 0x7f80u) return -1; o[0] = (uint8_t)(((v >> 8) & 0x80u) | (v & 0x7fu)); return 0;
     case 'q': if (v % 24u || v / 24u > 255u) return -1; o[0] = (uint8_t)(v / 24u); return 0;

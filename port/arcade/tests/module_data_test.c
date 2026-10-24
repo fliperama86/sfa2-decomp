@@ -4,7 +4,7 @@
  *                                                           arcade_piece_build (UNITS is its layout letters): prints equal or differ
  *   module_data_test row PROGRAM SPEC OUTDIR                build a made-up row (OUTDIR gets module.bin and known.bin)
  *   module_data_test valid SPEC                             arcade_module_data_valid of a made-up row: prints 0 or -1
- *   module_data_test tables                                 sanity of the checked-in table against fighters_table.c and sequences_table.c
+ *   module_data_test tables                                 sanity of the checked-in table (the fighter rows against fighters_table.c and sequences_table.c)
  * SPEC is text: "load size piece_count reloc_count", then per piece "offset size source layout", then per relocation "offset target". */
 #include "../module_data.h"
 #include "../program.h"
@@ -191,7 +191,7 @@ static int hits(const struct arcade_module_data *d, const struct span *s, unsign
 
 static int tables(void)
 {
-    unsigned i, j, mains = 0, extras = 0;
+    unsigned i, j, mains = 0, extras = 0, screens = 0;
     assert(arcade_module_data_count >= 77);
     for (i = 0; i < arcade_module_data_count; i++) {
         const struct arcade_module_data *d = &arcade_module_data[i];
@@ -200,10 +200,26 @@ static int tables(void)
         const struct arcade_sequence *q = NULL;
         struct span s[5];
         unsigned ns = 0;
+        int fighter = !strncmp(d->file, "PL", 2);
         assert(arcade_module_data_valid(d) == 0);
         assert(again == d);
-        assert(d->load >= 0x80070000u && !(d->load & 3u));
+        assert(!(d->load & 3u));
+        assert(d->piece_count > 0 || d->reloc_count > 0);
+        if (!fighter) {   /* the screen and stage rows follow the fighter rows, sorted by file and slot among themselves */
+            screens++;
+            assert(d->load >= 0x80010000u && d->load < 0x80200000u);
+            assert(i);
+            if (strncmp(arcade_module_data[i - 1].file, "PL", 2)) assert(strcmp(d->file, arcade_module_data[i - 1].file) >= 0);
+            for (j = 0; j < d->reloc_count; j++) {
+                uint32_t t = d->relocs[j].target;
+                if (t < ARCADE_MODULE_RELATIVE) assert(t < d->size);
+                else assert(t < d->load || t >= d->load + d->size);
+            }
+            continue;
+        }
+        assert(d->load >= 0x80070000u);
         assert(d->piece_count > 0 && d->reloc_count > 0);
+        assert(!screens);
         if (i) assert(strcmp(d->file, arcade_module_data[i - 1].file) >= 0);
         for (j = 0; j < arcade_fighter_count; j++)
             if (!strcmp(arcade_fighters[j].file, d->file)) f = &arcade_fighters[j];
@@ -235,6 +251,7 @@ static int tables(void)
     }
     assert(mains == 45);
     assert(extras >= 30);
+    assert(screens >= 100);
     return 0;
 }
 
