@@ -113,6 +113,7 @@ test_arcade_fighter_parts = ["port/arcade/fighter_parts.py", "port/arcade/fighte
 test_arcade_fighter_parts_c = ["port/arcade/fighter_parts.c", "port/arcade/fighter_parts.h", "port/arcade/fighter_parts_table.c", "port/arcade/tests/fighter_parts_test.c", "port/arcade/fighter_parts.py"]
 test_arcade_fighters = ["port/arcade/fighters.py"]
 test_arcade_stages = ["port/arcade/stages.py", "port/arcade/stage.c"]
+test_arcade_stage_objects = ["port/arcade/stage_objects.c", "port/arcade/stage_objects.h", "port/arcade/stage_objects_table.c", "port/arcade/tests/stage_objects_test.c", "port/arcade/stage_objects.py", "port/arcade/stages.py"]
 test_arcade_stage = ["port/arcade/stage.c", "port/arcade/stage.h", "port/arcade/stages_table.c", "port/arcade/tests/stage_test.c", "port/arcade/stages.py", "port/arcade/quarter.h"]
 test_arcade_samples = ["port/arcade/samples.py"]
 test_arcade_sequences = ["port/arcade/sequences.py", "port/arcade/fighters.py"]
