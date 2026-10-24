@@ -1548,11 +1548,15 @@ static int song_of(unsigned code);
 static unsigned song_codes(unsigned short *out, unsigned max);
 
 /* Whether a sector of the music stream file f (ZERO20N.XA) is kept whole in a pack: not when it is sound of a track the loader plays
- * as an arcade song. */
+ * as an arcade song, and not when it is no sound at all (the submode's audio bit clear: the places of a channel whose track is shorter
+ * than its file, and the end of the file). The game reads the music files only as streams of sound (ReadS with the mode's XA bit,
+ * never polled: cd.c, "A stream of audio that no one polls"), so the data of such a sector is never read; its subheader is kept. */
 static int stream_sector_kept(int f, const unsigned char *raw)
 {
     const char *n = files[f].name;
-    if (!(raw[18] & 0x04) || strncmp(n, "zero20", 6) || n[6] < '0' || n[6] > '7' || raw[17] >= 8) return 1;
+    if (strncmp(n, "zero20", 6) || n[6] < '0' || n[6] > '7') return 1;
+    if (!(raw[18] & 0x04)) return 0;
+    if (raw[17] >= 8) return 1;
     return song_of((unsigned)(n[6] - '0') * 256u + raw[17]) < 0;
 }
 
