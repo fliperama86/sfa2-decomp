@@ -336,15 +336,21 @@ class CTable(unittest.TestCase):
     def test_text(self):
         d1 = dict(layout='flat', split=16, base=0x29c300, keep=0, ramps=None)
         d2 = dict(layout='fives', split=14, base=0x29ae20, keep=1 << 40 | 1, ramps=[None] * 12 + [0x38, 0x30, 0x38, 0x40, None, None])
-        rows = [dict(file='PL00.PAC', fighter=0, desc=d1, palette_chunks=1, pages='PV', shadow=0x41, drop=None, page_disc=False),
-                dict(file='PL02X.PAC', fighter=2, desc=d2, palette_chunks=1, pages='P', shadow=0xfff, drop=(0, 7), page_disc=False),
-                dict(file='PL14.PAC', fighter=2, desc=d2, palette_chunks=2, pages='PVP', shadow=0, drop=None, page_disc=True)]
+        rows = [dict(file='PL00.PAC', fighter=0, desc=d1, palette_chunks=1, pages='PV', shadow=0x41, drop=None, page_disc=False, extras=[], owned=False),
+                dict(file='PL02X.PAC', fighter=2, desc=d2, palette_chunks=1, pages='P', shadow=0xfff, drop=(0, 7), page_disc=False, extras=[], owned=False),
+                dict(file='PL14.PAC', fighter=2, desc=d2, palette_chunks=2, pages='PVP', shadow=0, drop=None, page_disc=True, extras=[], owned=False),
+                dict(file='PL15.PAC', fighter=2, desc=d2, palette_chunks=1, pages='PV', shadow=0xfff, drop=None, page_disc=False, extras=[(4, 10, 4, 0), (5, 10, 5, 0)], owned=True),
+                dict(file='PL15X.PAC', fighter=2, desc=d2, palette_chunks=1, pages='P', shadow=0xfff, drop=None, page_disc=False, extras=[(4, 10, 4, 0), (5, 10, 5, 0)], owned=True)]
         text = fp.c_table(rows)
         self.assertNotIn(chr(0x2014), text)
         self.assertEqual(text.count('static const uint16_t ramps_'), 1)             # equal lists are written once
-        self.assertIn('{"PL00.PAC", 0u, ARCADE_PARTS_FLAT, 16u, 1u, 0x29c300u, 0x0ull, NULL, "PV", 0x41u, 0u, -1, -1},', text)
-        self.assertIn('{"PL02X.PAC", 2u, ARCADE_PARTS_FIVES, 14u, 1u, 0x29ae20u, 0x10000000001ull, ramps_0, "P", 0xfffu, 0u, 0, 7},', text)
-        self.assertIn('"PVP", 0x0u, ARCADE_PARTS_PAGE_DISC, -1, -1}', text)
+        self.assertIn('{"PL00.PAC", 0u, ARCADE_PARTS_FLAT, 16u, 1u, 0x29c300u, 0x0ull, NULL, "PV", 0x41u, 0u, -1, -1, NULL, 0u},', text)
+        self.assertIn('{"PL02X.PAC", 2u, ARCADE_PARTS_FIVES, 14u, 1u, 0x29ae20u, 0x10000000001ull, ramps_0, "P", 0xfffu, 0u, 0, 7, NULL, 0u},', text)
+        self.assertIn('"PVP", 0x0u, ARCADE_PARTS_PAGE_DISC, -1, -1, NULL, 0u}', text)
+        self.assertEqual(text.count('static const struct arcade_parts_cell '), 1)          # equal cells are written once
+        self.assertIn('{4u, 10u, 4u, 0u},', text)
+        self.assertIn('"PV", 0xfffu, ARCADE_PARTS_PAGE_OWNED, -1, -1, cells_pl15, 2u},', text)
+        self.assertIn('"P", 0xfffu, ARCADE_PARTS_PAGE_OWNED, -1, -1, cells_pl15, 2u},', text)
         self.assertIn('NR, NR, NR', text)
 
 

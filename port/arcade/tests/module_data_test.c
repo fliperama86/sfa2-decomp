@@ -5,7 +5,9 @@
  *   module_data_test row PROGRAM SPEC OUTDIR                build a made-up row (OUTDIR gets module.bin and known.bin)
  *   module_data_test valid SPEC                             arcade_module_data_valid of a made-up row: prints 0 or -1
  *   module_data_test tables                                 sanity of the checked-in table (the fighter rows against fighters_table.c and sequences_table.c)
- * SPEC is text: "load size piece_count reloc_count", then per piece "offset size source layout", then per relocation "offset target". */
+ * SPEC is text: "load size piece_count reloc_count", then per piece "offset size source layout", then per relocation "offset target", then
+ * (optional) "N n" and n lines "offset size source count stride reverse" (names) and "S n" and n lines "steps stride list_at data_at coords_at
+ * count" (shapes). */
 #include "../module_data.h"
 #include "../program.h"
 #include "../fighter.h"
@@ -102,11 +104,16 @@ static int same(const char *prog_path, unsigned long source, unsigned long size,
     return 0;
 }
 
+static struct arcade_module_names *spec_names;
+static struct arcade_module_shapes *spec_shapes;
+
 static int load_spec(const char *spec_path, struct arcade_module_data *d, struct arcade_module_piece **pieces, struct arcade_module_reloc **relocs,
                      char (**layouts)[256])
 {
+    unsigned nn = 0, ns = 0;
+    char tag[8];
     FILE *f = fopen(spec_path, "r");
-    unsigned long load, size, np, nr, i;
+    unsigned long load, size, np, nr, i, cnt;
     if (!f || fscanf(f, "%lu %lu %lu %lu", &load, &size, &np, &nr) != 4) { if (f) fclose(f); return -1; }
     *pieces = calloc(np ? np : 1, sizeof **pieces);
     *relocs = calloc(nr ? nr : 1, sizeof **relocs);
@@ -126,8 +133,36 @@ static int load_spec(const char *spec_path, struct arcade_module_data *d, struct
         (*relocs)[i].offset = (uint32_t)o;
         (*relocs)[i].target = (uint32_t)t;
     }
+    while (fscanf(f, "%7s %lu", tag, &cnt) == 2) {
+        if (!strcmp(tag, "N")) {
+            spec_names = calloc(cnt ? cnt : 1, sizeof *spec_names);
+            for (i = 0; i < cnt; i++) {
+                unsigned long a, b, c, e, g, h;
+                if (fscanf(f, "%lu %lu %lu %lu %lu %lu", &a, &b, &c, &e, &g, &h) != 6) { fclose(f); return -1; }
+                spec_names[i].offset = (uint32_t)a; spec_names[i].size = (uint32_t)b; spec_names[i].source = (uint32_t)c;
+                spec_names[i].count = (uint16_t)e; spec_names[i].stride = (uint16_t)g; spec_names[i].reverse = (uint16_t)h;
+            }
+            nn = (unsigned)cnt;
+        } else if (!strcmp(tag, "S")) {
+            spec_shapes = calloc(cnt ? cnt : 1, sizeof *spec_shapes);
+            for (i = 0; i < cnt; i++) {
+                unsigned long a, b, c, e, g, h;
+                if (fscanf(f, "%lu %lu %lu %lu %lu %lu", &a, &b, &c, &e, &g, &h) != 6) { fclose(f); return -1; }
+                spec_shapes[i].steps = (uint32_t)a; spec_shapes[i].stride = (uint32_t)b; spec_shapes[i].list_at = (uint32_t)c;
+                spec_shapes[i].data_at = (uint32_t)e; spec_shapes[i].coords_at = (uint32_t)g; spec_shapes[i].count = (uint16_t)h;
+            }
+            ns = (unsigned)cnt;
+        } else {
+            fclose(f);
+            return -1;
+        }
+    }
     fclose(f);
     memset(d, 0, sizeof *d);
+    d->names = spec_names;
+    d->name_count = nn;
+    d->shapes = spec_shapes;
+    d->shape_count = ns;
     d->file = "TEST.PAC";
     d->slot = 4;
     d->load = (uint32_t)load;
@@ -159,7 +194,8 @@ static int row(const char *prog_path, const char *spec_path, const char *dir)
         /* a module of another size is refused and nothing is written */
         if (d.size && arcade_module_data_build(prog, psize, &d, module, known, d.size - 1) == 0) rc = 3;
     }
-    free(prog); free(pieces); free(relocs); free(layouts); free(module); free(known);
+    free(prog); free(pieces); free(relocs); free(layouts); free(module); free(known); free(spec_names); free(spec_shapes);
+    spec_names = NULL; spec_shapes = NULL;
     return rc;
 }
 
@@ -171,7 +207,8 @@ static int valid(const char *spec_path)
     char (*layouts)[256];
     if (load_spec(spec_path, &d, &pieces, &relocs, &layouts)) return 3;
     printf("%d\n", arcade_module_data_valid(&d));
-    free(pieces); free(relocs); free(layouts);
+    free(pieces); free(relocs); free(layouts); free(spec_names); free(spec_shapes);
+    spec_names = NULL; spec_shapes = NULL;
     return 0;
 }
 

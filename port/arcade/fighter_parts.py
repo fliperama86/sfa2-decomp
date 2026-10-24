@@ -331,8 +331,9 @@ def shared_page(prog, gfx):
     return bytes(page)
 
 
-def portrait_page(prog, gfx, k, shadow=0, drop=None):
+def portrait_page(prog, gfx, k, shadow=0, drop=None, extras=()):
     """The portrait page of arcade fighter k, 0x8000 bytes: the record's tiles (minus the cell `drop`), the backdrop, the
+    cells of the shared page that `extras` [(cx, cy, vx, vy)] place (the tile at cell (vx, vy) of the shared page at (cx, cy)), the
     shadow cells whose bit is set in `shadow` (bit i: the i-th shadow cell of shared_tiles), and the 18 palettes at rows 160 to 177."""
     page = bytearray(PAGE_BYTES)
     for (cx, cy), code in portrait_tiles(prog, k).items():
@@ -343,6 +344,10 @@ def portrait_page(prog, gfx, k, shadow=0, drop=None):
     for cy in range(by, by + bh):
         for cx in range(bx, bx + bw):
             put_cell(page, cx, cy, back)
+    if extras:
+        shared = shared_tiles(prog)[0]
+        for cx, cy, vx, vy in extras:
+            put_cell(page, cx, cy, cell_pixels(gfx, shared[(vx, vy)]))
     cells = shared_tiles(prog)[1] if shadow else []
     if shadow >> len(cells):
         raise ValueError(f'shadow cell {len(cells)} does not exist')
@@ -372,6 +377,37 @@ def derive_portrait(prog, gfx, k, disc_page):
         return dict(mask=mask, drop=drop, equal=portrait_page(prog, gfx, k, mask, drop) == disc_page)
     except ValueError:
         return dict(mask=0, drop=None, equal=False)
+
+
+# Files whose portrait page the PS1 made its own in a way the arcade explains but for the palettes: the page is built the arcade's way and
+# differs from the disc's in the cells that hold the 18 portrait palettes (the PS1's own colours there), served owned. PL14 (the alternate
+# Gouki): its page is Gouki's portrait (arcade fighter 2), the backdrop, all 12 shadow cells and 28 cells of the shared (VS) page at three
+# cell offsets (the VS letters), measured 2026-10-24: against the page built for fighter 2 with all the shadow cells, the disc's differs in 8
+# cells, which are the palette rows' (cells 0 to 3, rows 10 and 11), and in 28 cells that are tiles of the shared records.
+OWNED_PAGES = {'PL14'}
+PALETTE_CELLS = {(cx, cy) for cx in range(4) for cy in (10, 11)}
+
+
+def derive_extras(prog, gfx, k, disc_page, shadow, drop):
+    """The cells [(cx, cy, vx, vy)] that the disc's portrait page holds besides the record, the backdrop and the shadow cells of `shadow`, each a tile
+    of the shared page's cell (vx, vy) (the last cell of the shared page with those pixels), or None when a cell is neither that nor a palette
+    cell."""
+    base = portrait_page(prog, gfx, k, shadow, drop)
+    shared = shared_tiles(prog)[0]
+    by_pixels = {}
+    for cell, code in shared.items():
+        by_pixels[bytes(cell_pixels(gfx, code))] = cell
+    out = []
+    for cy in range(16):
+        for cx in range(16):
+            mine, theirs = page_cell(base, cx, cy), page_cell(disc_page, cx, cy)
+            if mine == theirs or (cx, cy) in PALETTE_CELLS:
+                continue
+            v = by_pixels.get(bytes(theirs))
+            if v is None:
+                return None
+            out.append((cx, cy, v[0], v[1]))
+    return out
 
 
 def planar(pixels):
@@ -594,9 +630,14 @@ def parts_row(name, chunks, prog, gfx, shared):
     row['desc'] = derive_palettes(pl, t1[0], prog) if t1 else None
     row['pages'] = ''.join('V' if d == shared else 'P' for d in t2)
     portraits = [d for d, kind in zip(t2, row['pages']) if kind == 'P']
+    row.update(extras=[], owned=False)
     if portraits:
         r = derive_portrait(prog, gfx, k, portraits[0])
         row.update(shadow=r['mask'], drop=r['drop'], page_disc=not r['equal'] or any(d != portraits[0] for d in portraits))
+        if row['page_disc'] and name.removesuffix('.PAC').removesuffix('X') in OWNED_PAGES and all(d == portraits[0] for d in portraits):
+            extras = derive_extras(prog, gfx, k, portraits[0], r['mask'], r['drop'])
+            if extras is not None:
+                row.update(extras=extras, owned=True, page_disc=False)
         if row['page_disc']:
             row.update(shadow=0, drop=None)
     return row
@@ -622,8 +663,13 @@ def chunk_report(row, prog, gfx, shared):
         elif row['page_disc']:
             out.append(('portrait', False, True, len(d)))
         else:
-            out.append(('portrait', True, portrait_page(prog, gfx, row['fighter'], row['shadow'], row['drop']) == d, len(d)))
+            out.append(('portrait', True, portrait_page(prog, gfx, row['fighter'], row['shadow'], row['drop'], row['extras']) == d or row['owned'], len(d)))
     return out, counts
+
+
+def flags_text(row):
+    parts = (['ARCADE_PARTS_PAGE_DISC'] if row['page_disc'] else []) + (['ARCADE_PARTS_PAGE_OWNED'] if row['owned'] else [])
+    return ' | '.join(parts) or '0u'
 
 
 def c_table(rows):
@@ -632,7 +678,8 @@ def c_table(rows):
            ' * For each of the 45 fighter files: the arcade fighter whose palettes and portrait it holds, where the second block of',
            " * odd palettes lies and how it is laid out, the palettes that stay the disc's (a bit each) and the start words of the",
            " * PS1's own filler ramps, the file's table 2 chunks in order (P portrait, V shared), which of the 12 shadow cells the",
-           ' * portrait page holds, whether the page stays the disc\'s, and the one cell it leaves blank. Only addresses, counts',
+           ' * portrait page holds, whether the page stays the disc\'s or is built the arcade\'s way (owned), the one cell it leaves blank and the',
+           ' * cells of the shared page it holds besides (cell, source cell). Only addresses, counts',
            ' * and bits: no byte of either game. */',
            '#include "fighter_parts.h"', '', '#define NR ARCADE_PARTS_NO_RAMP', '']
     ramp_names, order = {}, []
@@ -647,14 +694,23 @@ def c_table(rows):
         out += ['    ' + ', '.join(cells[i:i + 9]) + ',' for i in range(0, len(cells), 9)]
         out.append('};')
         out.append('')
+    cell_names = {}
+    for row in rows:
+        key = tuple(row['extras'])
+        if key and key not in cell_names:
+            cell_names[key] = 'cells_' + row['file'].removesuffix('.PAC').lower()
+            out.append(f'static const struct arcade_parts_cell {cell_names[key]}[] = {{')
+            out += [f'    {{{cx}u, {cy}u, {vx}u, {vy}u}},' for cx, cy, vx, vy in key]
+            out += ['};', '']
     out.append('const struct arcade_parts_file arcade_parts_files[] = {')
     for row in rows:
         d = row['desc']
+        cells_ref = f'{cell_names[tuple(row["extras"])]}, {len(row["extras"])}u' if row['extras'] else 'NULL, 0u'
         ramps = 'NULL' if not (d and d['ramps']) else ramp_names[tuple(d['ramps'])]
         dx, dy = row['drop'] if row['drop'] else (-1, -1)
         out.append(f'    {{"{row["file"]}", {row["fighter"]}u, ARCADE_PARTS_{"FIVES" if d and d["layout"] == "fives" else "FLAT"}, '
                    f'{d["split"] if d else 16}u, {row["palette_chunks"]}u, {d["base"] if d else 0:#x}u, {d["keep"] if d else 0:#x}ull, {ramps}, '
-                   f'"{row["pages"]}", {row["shadow"]:#x}u, {"ARCADE_PARTS_PAGE_DISC" if row["page_disc"] else "0u"}, {dx}, {dy}}},')
+                   f'"{row["pages"]}", {row["shadow"]:#x}u, {flags_text(row)}, {dx}, {dy}, {cells_ref}}},')
     out += ['};', 'const unsigned arcade_parts_count = sizeof arcade_parts_files / sizeof arcade_parts_files[0];', '', '#undef NR', '']
     return '\n'.join(out)
 
@@ -674,7 +730,8 @@ class CLib:
         self.File._fields_ = [('file', ctypes.c_char_p), ('fighter', ctypes.c_uint8), ('layout', ctypes.c_uint8), ('split', ctypes.c_uint8),
                               ('palette_chunks', ctypes.c_uint8), ('base', ctypes.c_uint32), ('keep', ctypes.c_uint64),
                               ('ramps', ctypes.POINTER(ctypes.c_uint16)), ('pages', ctypes.c_char_p), ('shadow', ctypes.c_uint16),
-                              ('flags', ctypes.c_uint8), ('drop_x', ctypes.c_int8), ('drop_y', ctypes.c_int8)]
+                              ('flags', ctypes.c_uint8), ('drop_x', ctypes.c_int8), ('drop_y', ctypes.c_int8), ('cells', ctypes.c_void_p),
+                              ('cell_count', ctypes.c_uint)]
         count = ctypes.c_uint.in_dll(self.lib, 'arcade_parts_count').value
         self.rows = (self.File * count).in_dll(self.lib, 'arcade_parts_files')
         fp, cp = ctypes.POINTER(self.File), ctypes.c_char_p
@@ -731,13 +788,15 @@ def compare_line(name, row, clib, prog, gfx, shared):
             model = shared_page(prog, gfx)
         else:
             got = clib.portrait(prog, gfx, crow)
-            model = None if row['page_disc'] else portrait_page(prog, gfx, row['fighter'], row['shadow'], row['drop'])
+            model = None if row['page_disc'] else portrait_page(prog, gfx, row['fighter'], row['shadow'], row['drop'], row['extras'])
         if isinstance(got, str):
             pages.append(f'{kind} C refused: {got}')
         elif got is None:
             pages.append(f"{kind} stays the disc's" + (' (model agrees)' if model is None else ' (model builds it!)'))
         else:
-            pages.append(f'{kind} C {"=" if got == model else "!="} model, C {"=" if got == d else "!="} disc')
+            by_design = row['owned'] and got != d
+            pages.append(f'{kind} C {"=" if got == model else "!="} model, C ' + (f'differs from the disc by design ({sum(1 for cx in range(16) for cy in range(16) if page_cell(got, cx, cy) != page_cell(d, cx, cy))} cells)'
+                                                                                 if by_design else f'{"=" if got == d else "!="} disc'))
     if pages:
         parts.append('pages ' + '; '.join(pages))
     return f'{name}: ' + '; '.join(parts) + f'; {(time.perf_counter() - t) * 1000:.1f} ms'

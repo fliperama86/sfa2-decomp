@@ -1,4 +1,5 @@
 #include "module_data.h"
+#include <stdlib.h>
 #include <string.h>
 
 const struct arcade_module_data *arcade_module_data_find(const char *file, unsigned slot)
@@ -19,6 +20,7 @@ static int field_sizes(char c, unsigned *ps1, unsigned *arc)
     case 'l': *ps1 = 4; *arc = 4; return 1;
     case 'n': case 'f': case 'q': *ps1 = 1; *arc = 2; return 1;
     case 'e': *ps1 = 4; *arc = 1; return 1;
+    case 'j': *ps1 = 4; *arc = 8; return 1;
     case 'k': case 'z': case 'K': case 'Z': *ps1 = 32; *arc = 32; return 1;
     default: return 0;
     }
@@ -44,12 +46,13 @@ static void palette_build(const uint8_t *a, int black_zero, int bit15, uint8_t *
 /* One field: the PS1 bytes into o from the arcade bytes a. -1 when the value does not fit the letter. */
 static int field_build(char c, const uint8_t *a, uint8_t *o)
 {
-    unsigned v = c == 'e' ? 0u : ((unsigned)a[0] << 8) | a[1];
+    unsigned v = c == 'e' || c == 'j' ? 0u : ((unsigned)a[0] << 8) | a[1];
     switch (c) {
     case 'b': o[0] = a[0]; o[1] = a[1]; return 0;
     case 'w': o[0] = a[1]; o[1] = a[0]; return 0;
     case 'l': o[0] = a[3]; o[1] = a[2]; o[2] = a[1]; o[3] = a[0]; return 0;
     case 'e': o[0] = a[0]; o[1] = o[2] = o[3] = 0; return 0;
+    case 'j': o[0] = a[5]; o[1] = a[4]; o[2] = a[1]; o[3] = a[0]; return 0;
     case 'k': palette_build(a, 0, 0, o); return 0;
     case 'z': palette_build(a, 1, 0, o); return 0;
     case 'K': palette_build(a, 0, 1, o); return 0;
@@ -166,11 +169,137 @@ int arcade_module_data_valid(const struct arcade_module_data *d)
         if ((r->offset & 3u) || r->offset > d->size || d->size - r->offset < 4u) return -1;
         if (i && r->offset < d->relocs[i - 1].offset + 4u) return -1;
     }
+    if ((d->name_count && !d->names) || (d->shape_count && !d->shapes)) return -1;
+    for (i = 0; i < d->name_count; i++) {
+        const struct arcade_module_names *n = &d->names[i];
+        if (!n->count || !n->size || n->offset > d->size || n->size > d->size - n->offset || n->stride < 8u) return -1;
+    }
+    for (i = 0; i < d->shape_count; i++) {
+        const struct arcade_module_shapes *s = &d->shapes[i];
+        if (!s->count || (s->steps & 1u) || (s->list_at & 3u) || (s->data_at & 3u) || (s->coords_at & 1u)) return -1;
+        if (s->list_at > d->size || 12ull * s->count > d->size - s->list_at || s->data_at > d->size || s->coords_at > d->size) return -1;
+    }
     for (i = 0, j = 0; i < d->piece_count && j < d->reloc_count;) {   /* a word inside a piece */
         uint32_t pa = d->pieces[i].offset, pb = pa + d->pieces[i].size, ra = d->relocs[j].offset;
         if (ra + 4u <= pa) j++;
         else if (ra >= pb) i++;
         else return -1;
+    }
+    return 0;
+}
+
+/* The names' records into module[offset ..) (known set for the bytes written). -1 when the names do not fit the program or the room. */
+static int names_build(const uint8_t *program, size_t program_size, const struct arcade_module_names *n, uint8_t *module, uint8_t *known, size_t module_size)
+{
+    uint32_t at = 0;
+    unsigned i;
+    if (n->offset > module_size || n->size > module_size - n->offset) return -1;
+    memset(module + n->offset, 0, n->size);
+    for (i = 0; i < n->count; i++) {
+        unsigned k = n->reverse ? n->count - 1u - i : i, len = 8, left, free_, w;
+        uint64_t a = (uint64_t)n->source + (uint64_t)n->stride * k;
+        const uint8_t *t;
+        if (a > program_size || program_size - a < 8) return -1;
+        t = program + a;
+        while (len && t[len - 1] == ' ') len--;
+        if (!len || len > 7) return -1;
+        free_ = 7 - len;
+        left = (free_ + 1) / 2;
+        w = left + len + 2;
+        if (at + w > n->size) return -1;
+        memset(module + n->offset + at, ' ', left);
+        memcpy(module + n->offset + at + left, t, len);
+        module[n->offset + at + left + len] = '@';
+        module[n->offset + at + left + len + 1] = '@';
+        at += (w + 4u) & ~3u;
+        if (at > n->size) return -1;
+    }
+    if (at != n->size) return -1;
+    if (known) memset(known + n->offset, 1, n->size);
+    return 0;
+}
+
+/* The cells of a portrait record (a mode 4 art record): cell k of the result is (x, y, attribute), in order of y, then x, a later block over an
+ * earlier at the same place. Returns the count, or -1. */
+#define SHAPE_CELLS 512
+struct shape_cell { int16_t x, y; uint16_t attr; };
+
+static int cmp_cell(const void *pa, const void *pb)
+{
+    const struct shape_cell *a = pa, *b = pb;
+    if (a->y != b->y) return a->y < b->y ? -1 : 1;
+    return a->x < b->x ? -1 : a->x > b->x;
+}
+
+static int shape_cells(const uint8_t *prog, size_t size, uint32_t a, struct shape_cell *out)
+{
+    unsigned nb, b, n = 0, i, j, w, h, k, m;
+    if ((a & 1u) || a > size || size - a < 6 || (((unsigned)prog[a] << 8) | prog[a + 1]) != 4u) return -1;
+    nb = (((unsigned)prog[a + 4] << 8) | prog[a + 5]) + 1u;
+    if (size - a < 6u + 8u * nb) return -1;
+    for (b = 0; b < nb; b++) {
+        const uint8_t *r = prog + a + 6 + 8 * (size_t)b;
+        unsigned attr = ((unsigned)r[2] << 8) | r[3];
+        int x = (int16_t)(((unsigned)r[4] << 8) | r[5]), y = (int16_t)(((unsigned)r[6] << 8) | r[7]);
+        w = ((attr >> 8) & 15u) + 1u;
+        h = (attr >> 12) + 1u;
+        for (j = 0; j < h; j++)
+            for (i = 0; i < w; i++) {
+                int cx = x + 16 * (int)i, cy = y + 16 * (int)j;
+                for (k = 0; k < n; k++)
+                    if (out[k].x == cx && out[k].y == cy) break;
+                if (k == n) {
+                    if (n >= SHAPE_CELLS || cx < -32768 || cx > 32767 || cy < -32768 || cy > 32767) return -1;
+                    n++;
+                }
+                out[k].x = (int16_t)cx;
+                out[k].y = (int16_t)cy;
+                out[k].attr = (uint16_t)attr;
+            }
+    }
+    for (m = 0; m < n; m++)
+        if ((out[m].attr & 0x1fu) < 2u) return -1;   /* the palettes of a portrait are 2 and up: the shape's byte is the palette less 2 */
+    qsort(out, n, sizeof *out, cmp_cell);
+    return (int)n;
+}
+
+static int shapes_build(const uint8_t *program, size_t program_size, const struct arcade_module_shapes *s, uint8_t *module, uint8_t *known, size_t module_size)
+{
+    uint32_t data = s->data_at, coords = s->coords_at;
+    unsigned i, k;
+    for (i = 0; i < s->count; i++) {
+        struct shape_cell cells[SHAPE_CELLS];
+        uint64_t sp = (uint64_t)s->steps + (uint64_t)s->stride * i;
+        uint32_t a, list = s->list_at + 12u * i;
+        int n;
+        if (sp > program_size || program_size - sp < 4) return -1;
+        a = ((uint32_t)program[sp] << 24) | ((uint32_t)program[sp + 1] << 16) | ((uint32_t)program[sp + 2] << 8) | program[sp + 3];
+        n = shape_cells(program, program_size, a, cells);
+        if (n < 1) return -1;
+        if (list > module_size || module_size - list < 4u || data > module_size || (uint32_t)n > module_size - data ||
+            coords > module_size || 4ull * (unsigned)n > module_size - coords)
+            return -1;
+        module[list] = (uint8_t)n;
+        module[list + 1] = (uint8_t)((unsigned)n >> 8);
+        module[list + 2] = module[list + 3] = 0;
+        if (known) memset(known + list, 1, 4);
+        for (k = 0; k < (unsigned)n; k++) module[data + k] = (uint8_t)((cells[k].attr & 0x1fu) - 2u);
+        if (known) memset(known + data, 1, (size_t)n);
+        {   /* the pad to the next multiple of 4 is zero */
+            uint32_t end = (data + (uint32_t)n + 3u) & ~3u;
+            if (end > module_size) return -1;
+            memset(module + data + n, 0, end - data - (uint32_t)n);
+            if (known) memset(known + data + n, 1, end - data - (uint32_t)n);
+            data = end;
+        }
+        for (k = 0; k < (unsigned)n; k++) {
+            module[coords + 4 * k] = (uint8_t)cells[k].x;
+            module[coords + 4 * k + 1] = (uint8_t)((uint16_t)cells[k].x >> 8);
+            module[coords + 4 * k + 2] = (uint8_t)cells[k].y;
+            module[coords + 4 * k + 3] = (uint8_t)((uint16_t)cells[k].y >> 8);
+        }
+        if (known) memset(known + coords, 1, 4u * (unsigned)n);
+        coords += 4u * (unsigned)n;
     }
     return 0;
 }
@@ -191,6 +320,10 @@ int arcade_module_data_build(const uint8_t *program, size_t program_size, const 
         }
         if (known) memset(known + p->offset, 1, p->size);
     }
+    for (i = 0; i < d->name_count; i++)
+        if (names_build(program, program_size, &d->names[i], module, known, module_size)) rc = -1;
+    for (i = 0; i < d->shape_count; i++)
+        if (shapes_build(program, program_size, &d->shapes[i], module, known, module_size)) rc = -1;
     for (i = 0; i < d->reloc_count; i++) {
         const struct arcade_module_reloc *r = &d->relocs[i];
         uint32_t w = r->target < ARCADE_MODULE_RELATIVE ? d->load + r->target : r->target;

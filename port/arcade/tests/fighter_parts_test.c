@@ -4,7 +4,8 @@
  *   fighter_parts_test shared PROG TILES OUT         build the shared page
  *   fighter_parts_test table                         sanity of the checked-in descriptor table
  * SPEC (palettes) is text: "fighter layout split keep_hex ramp_count" then base_hex and ramp_count start words in hex.
- * SPEC (portrait) is text: "fighter shadow_hex flags drop_x drop_y".
+ * SPEC (portrait) is text: "fighter shadow_hex flags drop_x drop_y", then (optional) four numbers "cx cy vx vy" for each cell of the shared page
+ * placed besides.
  * Exit status: 0 built, 1 refused (a line "error: ..." on stdout), 2 the page stays the disc's, 3 a setup failure. */
 #include "../fighter_parts.h"
 #include <stdio.h>
@@ -85,11 +86,18 @@ static int portrait(const char *prog_path, const char *tiles_path, const char *s
     uint8_t *prog = slurp(prog_path, &size), *tiles = slurp(tiles_path, &tsize), *out = malloc(ARCADE_PARTS_PAGE_BYTES);
     FILE *spec = fopen(spec_path, "r");
     struct arcade_parts_file f;
-    unsigned fighter, shadow, flags;
+    unsigned fighter, shadow, flags, n = 0, cx, cy, vx, vy;
+    struct arcade_parts_cell cells[64];
     int dx, dy, rc = 3, got;
     char err[256];
     if (!prog || !tiles || !spec || !out || fscanf(spec, "%u %x %u %d %d", &fighter, &shadow, &flags, &dx, &dy) != 5) goto done;
+    while (n < 64 && fscanf(spec, "%u %u %u %u", &cx, &cy, &vx, &vy) == 4) {
+        cells[n].cx = (uint8_t)cx; cells[n].cy = (uint8_t)cy; cells[n].vx = (uint8_t)vx; cells[n].vy = (uint8_t)vy;
+        n++;
+    }
     memset(&f, 0, sizeof f);
+    f.cells = cells;
+    f.cell_count = n;
     f.file = "TEST.PAC";
     f.fighter = (uint8_t)fighter;
     f.shadow = (uint16_t)shadow;
@@ -163,7 +171,10 @@ static int table(void)
         }
         CHECK(ps >= 1, "%s: no portrait page", f->file);
         CHECK(f->shadow < 0x1000u, "%s: shadow %#x", f->file, f->shadow);
-        CHECK(f->flags <= ARCADE_PARTS_PAGE_DISC, "%s: flags", f->file);
+        CHECK(f->flags <= (ARCADE_PARTS_PAGE_DISC | ARCADE_PARTS_PAGE_OWNED) && f->flags != (ARCADE_PARTS_PAGE_DISC | ARCADE_PARTS_PAGE_OWNED), "%s: flags", f->file);
+        CHECK(!f->cell_count || (f->cells && !(f->flags & ARCADE_PARTS_PAGE_DISC)), "%s: cells", f->file);
+        for (j = 0; j < f->cell_count; j++)
+            CHECK(f->cells[j].cx < 16 && f->cells[j].cy < 16 && f->cells[j].vx < 16 && f->cells[j].vy < 16, "%s: cell %u", f->file, j);
         CHECK((f->drop_x == -1) == (f->drop_y == -1) && f->drop_x >= -1 && f->drop_x < 16 && f->drop_y >= -1 && f->drop_y < 16,
               "%s: dropped cell", f->file);
         if (f->ramps)

@@ -974,6 +974,14 @@ static unsigned parts(struct port_disc *d, int check)
                                    : arcade_parts_portrait(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, a, b, err, sizeof err);
             if (r < 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
             if (r == 1) { free(b); continue; }   /* the PS1's own page */
+            if (a->flags & ARCADE_PARTS_PAGE_OWNED) {   /* built whole the arcade's way, differing from the disc's by design (the portrait palettes): served owned, a pack keeps none (a picture page is no module chunk) */
+                if (!check) { add_range_kind(f, at, b, n, 0); ranges[range_count - 1].owned = 1; }
+                else free(b);
+                built_bytes[f] += n;
+                page_used++;
+                page_bytes += n;
+                continue;
+            }
             if (serve_if_same(d, f, at, b, n, check)) { page_used++; page_bytes += n; }
             else { differ++; if (check) printf("arcade check: %s: picture chunk %u differs\n", a->file, c); }
         }

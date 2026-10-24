@@ -155,10 +155,10 @@ class FighterPartsC(unittest.TestCase):
 
     # ------------------------------------------------------------ pages
 
-    def portrait(self, prog, fighter, shadow=0, flags=0, drop=(-1, -1)):
+    def portrait(self, prog, fighter, shadow=0, flags=0, drop=(-1, -1), cells=()):
         """(status, text, bytes)."""
         d, p = self.case(prog, 'portrait')
-        (d / 'gspec.txt').write_text(f'{fighter} {shadow:x} {flags} {drop[0]} {drop[1]}\n')
+        (d / 'gspec.txt').write_text(f'{fighter} {shadow:x} {flags} {drop[0]} {drop[1]}\n' + ''.join(f'{cx} {cy} {vx} {vy}\n' for cx, cy, vx, vy in cells))
         status, text = self.run_c('portrait', p, d / 'tiles.bin', d / 'gspec.txt', d / 'page.bin')
         return status, text, (d / 'page.bin').read_bytes() if status == 0 else None
 
@@ -189,6 +189,19 @@ class FighterPartsC(unittest.TestCase):
         a = self.standard(22)
         status, text, _ = self.portrait(a.prog, 5, 3, 1)
         self.assertEqual((status, text), (2, ''))                # status 2 and nothing written
+
+    def test_cells_of_the_shared_page_placed_besides(self):
+        a = self.standard(26)
+        shared = fp.shared_tiles(a.prog)[0]
+        some = sorted(shared)[:3]
+        cells = [(c[0], 15 - c[1] if c[1] < 8 else c[1] - 1, c[0], c[1]) for c in some] + [(15, 15, some[0][0], some[0][1])]
+        status, text, page = self.portrait(a.prog, 5, 3, 2, cells=cells)                    # flag 2: owned
+        self.assertEqual(status, 0, text)
+        self.assertEqual(page, fp.portrait_page(a.prog, a.gfx, 5, 3, None, cells))
+        self.assertNotEqual(page, fp.portrait_page(a.prog, a.gfx, 5, 3, None))
+        status, text, _ = self.portrait(a.prog, 5, 0, 2, cells=[(1, 1, 15, 15)])             # the shared page has no cell there
+        self.assertEqual(status, 1)
+        self.assertIn('no cell', text)
 
     def test_the_shared_page_equals_the_model(self):
         a = self.standard(23)

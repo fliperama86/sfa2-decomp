@@ -20,6 +20,13 @@
 #define ARCADE_PARTS_FIVES 1u              /* runs of 5 palettes (one per button) of which a run's first 2 are used */
 
 #define ARCADE_PARTS_PAGE_DISC 1u          /* flags: the file's portrait page is the PS1's own, it stays the disc's */
+#define ARCADE_PARTS_PAGE_OWNED 2u         /* flags: the portrait page is built whole the arcade's way and differs from the disc's by design (the
+                                            * 18 portrait palettes are the fighter's arcade ones where the PS1 has its own colours): served owned */
+
+/* A cell of the shared (VS) page that a portrait page holds besides its own: the tile at cell (vx, vy) of the shared page, placed at (cx, cy). */
+struct arcade_parts_cell {
+    uint8_t cx, cy, vx, vy;
+};
 
 struct arcade_parts_file {
     const char *file;          /* "PL00.PAC" */
@@ -34,6 +41,8 @@ struct arcade_parts_file {
     uint16_t shadow;           /* bit i: the portrait page holds shadow cell i (the PS1's own choice, 12 cells) */
     uint8_t flags;             /* ARCADE_PARTS_* */
     int8_t drop_x, drop_y;     /* the one cell of the portrait the PS1 left blank, or -1 */
+    const struct arcade_parts_cell *cells;   /* cells of the shared page the portrait page holds besides its shadow cells (NULL, 0 for most) */
+    unsigned cell_count;
 };
 
 extern const struct arcade_parts_file arcade_parts_files[];

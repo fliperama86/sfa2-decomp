@@ -367,8 +367,18 @@ int arcade_parts_portrait(const uint8_t *program, size_t program_size, const uin
     for (y = BACKDROP_Y; y < BACKDROP_Y + BACKDROP_H; y++)
         for (x = BACKDROP_X; x < BACKDROP_X + BACKDROP_W; x++)
             if (put_cell(out, tiles, tiles_size, (int32_t)x, (int32_t)y, BACKDROP_TILE, err, errsize)) return -1;
-    if (f->shadow) {
+    if (f->shadow || f->cell_count) {
         if (shared_cells(program, program_size, all, &nall, shadow, &nshadow, err, errsize)) return -1;
+        for (i = 0; i < f->cell_count; i++) {   /* cells of the shared page placed elsewhere: the last of the page's cells at the source place */
+            const struct arcade_parts_cell *e = &f->cells[i];
+            unsigned k, found = 0, at = 0;
+            for (k = 0; k < nall; k++)
+                if (all[k].cx == e->vx && all[k].cy == e->vy) { found = 1; at = k; }
+            if (!found || put_cell(out, tiles, tiles_size, e->cx, e->cy, all[at].code, err, errsize)) {
+                if (!found) fail(err, errsize, "%s: the shared page has no cell (%u, %u)", f->file, e->vx, e->vy);
+                return -1;
+            }
+        }
         for (i = 0; i < nshadow && i < 16; i++)
             if (((f->shadow >> i) & 1u) && put_cell(out, tiles, tiles_size, shadow[i].cx, shadow[i].cy, shadow[i].code, err, errsize)) return -1;
         if (nshadow < 16 && (f->shadow >> nshadow)) {

@@ -93,7 +93,7 @@ CLASSES = ['code', 'positions', 'lists', 'steps', 'steptable', 'frames', 'arcade
            'ptr_self_data', 'ptr_prog_code', 'ptr_prog_data', 'ptr_prog_other', 'ptr_overlay', 'celllist', 'text', 'zero', 'other']
 BUILT_ELSEWHERE = ('positions', 'lists', 'steps', 'steptable', 'frames')
 MINE = ('arcade', 'arcade_conv', 'zero') + tuple(c for c in CLASSES if c.startswith('ptr_'))   # classes this tool's table builds
-LAYOUT_SIZES = {'b': (2, 2), 'w': (2, 2), 'l': (4, 4), 'n': (1, 2), 'e': (4, 1), 'f': (1, 2), 'q': (1, 2),   # letter -> (PS1 bytes, arcade bytes)
+LAYOUT_SIZES = {'b': (2, 2), 'w': (2, 2), 'l': (4, 4), 'n': (1, 2), 'e': (4, 1), 'f': (1, 2), 'q': (1, 2), 'j': (4, 8),   # letter -> (PS1 bytes, arcade bytes)
                 'k': (32, 32), 'z': (32, 32), 'K': (32, 32), 'Z': (32, 32)}   # a palette row: 15 arcade words read, 16 words (32 bytes) of stride
 PAL_BLACK_ZERO, PAL_BIT15 = 1, 2             # screens.py's palette flags
 PALETTE_FLAGS = {'k': 0, 'z': PAL_BLACK_ZERO, 'K': PAL_BIT15, 'Z': PAL_BIT15 | PAL_BLACK_ZERO}   # the palette letters
@@ -402,6 +402,8 @@ def field_bytes(letter, arc):
         return bytes(arc[::-1])
     if letter == 'e':
         return bytes([arc[0], 0, 0, 0])
+    if letter == 'j':      # the high halves of two big-endian longs, cosine (the second) first, each little-endian
+        return bytes([arc[5], arc[4], arc[1], arc[0]])
     if letter in PALETTE_FLAGS:
         if len(arc) < 30:
             raise ValueError('a palette row needs 30 bytes')
@@ -434,6 +436,128 @@ def build_piece(m, source, text):
                     out += field_bytes(x, m[at:at + n])
                     at += n
     return bytes(out)
+
+
+# ---------------------------------------------------------------- the shared module's recipes (slot 0xb)
+#
+# Three things the PS1 keeps in the module shared by the fighter files (slot 0xb, linked at 0x801e0000, the same 31,436 bytes in 24 files)
+# that the arcade has in another form (measured 2026-10-24 against the disc and the US set: every byte equal but for the one named):
+#   - the rotation table (symbol table_801e1fec_slot0b, 256 entries of cosine and sine times 256, 16-bit): the arcade's table of 256 entries
+#     of two longs (sine, cosine, times 2^24) at 0x13124; the PS1's values are the longs' high halves: layout 'j256'. 256 of 256 equal.
+#   - the 18 fighters' names in 7 characters (offset 0, to the first function at 0xc4): the arcade's list of 8-character names, 12 bytes
+#     each, from 0x9547d (the first, Ryu's, at an odd address), in the PS1 in the reverse order. One byte differs: the arcade spells one name with
+#     a space where the PS1 has a hyphen; that byte is built as the arcade has it and stays the disc's (it is not served: only equal bytes are).
+#   - the 19 portrait shapes (the 12-byte records at 0x444c with a cell count and two pointers, the palette byte arrays from 0x23ec and the cell
+#     coordinates from 0x2a7c): the arcade's portrait records (mode 4, the long at 0x5e6c0 + 0x14 * fighter), as cells of 16 x 16 in order of
+#     y then x, the byte of a cell being its attribute's palette less 2. 19 of 19 shapes equal, counts included.
+SHARED_SINE = (0x1fec, 0x13124, 256)
+SHARED_NAMES = dict(offset=0, size=0xc4, source=0x9547d, count=18, stride=12, reverse=1)
+SHARED_SHAPES = dict(steps=0x5e6c0, stride=0x14, list_at=0x444c, data_at=0x23ec, coords_at=0x2a7c, count=19)
+SHARED_SLOT = 0xb
+
+
+def name_records(m, r):
+    """The bytes of the names' records (see SHARED_NAMES; arcade_module_names in module_data.h): ValueError when a name does not fit."""
+    out = bytearray()
+    for i in range(r['count']):
+        k = r['count'] - 1 - i if r['reverse'] else i
+        a = r['source'] + r['stride'] * k
+        t = bytes(m[a:a + 8]).rstrip(b' ')
+        if not 1 <= len(t) <= 7 or a + 8 > len(m):
+            raise ValueError('a name does not fit')
+        rec = b' ' * ((7 - len(t) + 1) // 2) + t + b'@@'
+        out += rec + bytes(4 - len(rec) % 4)      # a zero ends the text, then zeros to a multiple of 4
+    if len(out) != r['size']:
+        raise ValueError('the names do not fill their room')
+    return bytes(out)
+
+
+def shape_cells(m, a):
+    """[(x, y, attribute)] of the portrait record (mode 4) at a as cells, in order of y then x, a later block over an earlier at one place."""
+    if a & 1 or a + 6 > len(m) or struct.unpack_from('>H', m, a)[0] != 4:
+        raise ValueError('not a portrait record')
+    nb = struct.unpack_from('>H', m, a + 4)[0] + 1
+    if a + 6 + 8 * nb > len(m):
+        raise ValueError('the record runs past the program')
+    cells = {}
+    for b in range(nb):
+        _code, attr, x, y = struct.unpack_from('>HHhh', m, a + 6 + 8 * b)
+        for j in range((attr >> 12) + 1):
+            for i in range(((attr >> 8) & 15) + 1):
+                cells[(x + 16 * i, y + 16 * j)] = attr
+    out = [(x, y, attr) for (x, y), attr in sorted(cells.items(), key=lambda c: (c[0][1], c[0][0]))]
+    if not out or len(out) > 512 or any(attr & 31 < 2 for _x, _y, attr in out):
+        raise ValueError('a portrait outside the shape rules')
+    return out
+
+
+def shape_segments(m, r):
+    """[(module offset, bytes)] of the portrait shapes (see SHARED_SHAPES; arcade_module_shapes in module_data.h)."""
+    out, data, coords = [], r['data_at'], r['coords_at']
+    for i in range(r['count']):
+        a = struct.unpack_from('>I', m, r['steps'] + r['stride'] * i)[0]
+        cells = shape_cells(m, a)
+        n = len(cells)
+        out.append((r['list_at'] + 12 * i, struct.pack('<HH', n, 0)))
+        pad = -n % 4
+        out.append((data, bytes((attr & 31) - 2 for _x, _y, attr in cells) + bytes(pad)))
+        data += n + pad
+        out.append((coords, b''.join(struct.pack('<hh', x, y) for x, y, _a in cells)))
+        coords += 4 * n
+    return out
+
+
+def recipe_segments(m, recipes):
+    """[(offset, bytes)] of the names and shapes recipes of a module ({'names': [dict], 'shapes': [dict]})."""
+    out = []
+    for r in recipes.get('names', ()):
+        out.append((r['offset'], name_records(m, r)))
+    for r in recipes.get('shapes', ()):
+        out += shape_segments(m, r)
+    return out
+
+
+def apply_shared_recipes(i, m):
+    """Add the shared module's recipes (SHARED_*) to the module `i` of analyse_all when they build its bytes: the rotation table as a piece
+    ('j256'), the names and the shapes as recipes. Pieces the shapes' arrays contain are dropped (the recipe builds them), the classes of the
+    bytes the recipes build become 'arcade', and `design` lists the bytes that differ by design (the names' spelling)."""
+    mod, cls = i['mod'], i['cls']
+    off, src, n = SHARED_SINE
+    sine = build_piece(m, src, f'j{n}')
+    if mod[off:off + len(sine)] != sine:
+        raise SystemExit('the shared module: the rotation table is not the arcade\'s')
+    pieces = [p for p in i['pieces'] if not (off <= p[0] < off + len(sine))] + [(off, len(sine), src, f'j{n}', 0.0)]
+    recipes = dict(names=[dict(SHARED_NAMES)], shapes=[dict(SHARED_SHAPES)])
+    design = []
+    covered = []
+    for o, b in recipe_segments(m, recipes):
+        covered.append((o, o + len(b)))
+        for k, x in enumerate(b):
+            if mod[o + k] != x:
+                design.append(o + k)
+            if cls[o + k] not in ('arcade', 'arcade_conv') and not cls[o + k].startswith('ptr_'):
+                cls[o + k] = 'arcade'
+    if len(design) > 2:
+        raise SystemExit(f'the shared module: {len(design)} bytes of the recipes differ from the disc')
+    covered.sort()
+    merged = []
+    for o, e in covered:   # the arrays that touch are one stretch
+        if merged and o <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], e)
+        else:
+            merged.append([o, e])
+    covered = merged
+    inside = lambda p: any(o <= p[0] and p[0] + p[1] <= e for o, e in covered)
+    straddle = [p for p in pieces if not inside(p) and any(p[0] < e and o < p[0] + p[1] for o, e in covered)]
+    if straddle:
+        raise SystemExit('the shared module: a piece straddles a recipe')
+    pieces = [p for p in pieces if not inside(p)]
+    for k in range(off, off + len(sine)):
+        if cls[k] not in ('arcade', 'arcade_conv'):
+            cls[k] = 'arcade'
+    i['pieces'] = sorted(pieces)
+    i['recipes'] = recipes
+    i['design'] = sorted(design)
 
 
 def run_evidence(m, source, size, stats):
@@ -675,10 +799,16 @@ def reloc_rows(pointers, load, size):
     return [(o, w - load if load <= w < load + size else w) for o, w, _c in pointers]
 
 
-def model_build(m, size, load, pieces, relocs):
-    """What module_data.c builds for one file, as (bytes, known): the pieces from the arcade program, then the pointer words. The
-    module is `size` zero bytes first; known is 1 for every byte a piece or a word wrote. ValueError when a piece does not fit."""
+def model_build(m, size, load, pieces, relocs, recipes=None):
+    """What module_data.c builds for one file, as (bytes, known): the pieces from the arcade program, the recipes (names and shapes), then
+    the pointer words. The module is `size` zero bytes first; known is 1 for every byte a piece, a recipe or a word wrote. ValueError
+    when a piece does not fit."""
     img, known = bytearray(size), bytearray(size)
+    for off, b in recipe_segments(m, recipes or {}):
+        if off < 0 or off + len(b) > size:
+            raise ValueError('malformed recipe')
+        img[off:off + len(b)] = b
+        known[off:off + len(b)] = b'\1' * len(b)
     for off, n, src, text, *_ in pieces:
         if layout_sizes(text) is None or layout_sizes(text)[0] != n or off < 0 or off + n > size:
             raise ValueError('malformed piece')
@@ -743,7 +873,9 @@ def cid(name, slot):
 def descriptor(i):
     """What the C table holds for one module (an entry of analyse_all's result)."""
     return dict(file=i['name'], slot=i['slot'], load=i['load'], size=len(i['mod']),
-                pieces=[(o, n, s, t) for o, n, s, t, *_ in i['pieces']], relocs=list(i['relocs']))
+                pieces=[(o, n, s, t) for o, n, s, t, *_ in i['pieces']], relocs=list(i['relocs']),
+                names=[tuple(r[k] for k in ('offset', 'size', 'source', 'count', 'stride', 'reverse')) for r in i['recipes'].get('names', ())],
+                shapes=[tuple(r[k] for k in ('steps', 'stride', 'list_at', 'data_at', 'coords_at', 'count')) for r in i['recipes'].get('shapes', ())])
 
 
 def c_table(descs):
@@ -753,13 +885,16 @@ def c_table(descs):
            ' * For each fighter file (the code module of table 0, slot 4 or 5) and each file of the screen and stage modules (END, CDEMO, CONT, DEMO,',
            ' * SELECT, SELECTA, BOSS, RDM, GDEMO, STAGE: their slots), the pieces of the module that are an exact run of the arcade',
            ' * program (module offset, size, arcade address, layout: a letter and a field count each, b = 16-bit as it is, w = 16-bit turned,',
-           ' * l = 32-bit turned, k z K Z = palette rows), and the pointer words (module offset, target: below 0x80000000 an offset in the module, to which the',
+           ' * l = 32-bit turned, j = a cosine and sine pair of 8 arcade bytes, k z K Z = palette rows), the names and portrait shapes of the shared',
+           ' * module (names, shapes: see module_data.h) and the pointer words (module offset, target: below 0x80000000 an offset in the module, to which the',
            ' * link address is added, else an address). Only offsets, addresses and layouts: no byte of either game. */',
            '#include "module_data.h"', '']
-    owner_p, owner_r = {}, {}
+    owner_p, owner_r, owner_n, owner_s = {}, {}, {}, {}
     names = []
     for d in descs:
         names.append(d['file'])
+        d.setdefault('names', [])
+        d.setdefault('shapes', [])
         key_p, key_r = tuple(d['pieces']), tuple(d['relocs'])
         if key_p in owner_p:
             d['_pieces'] = owner_p[key_p]
@@ -777,10 +912,23 @@ def c_table(descs):
                 out.append(f'static const struct arcade_module_reloc {d["_relocs"]}[] = {{')
                 out += [f'    {{0x{o:x}u, 0x{t:x}u}},' for o, t in d['relocs']]
                 out += ['};', '']
+        key_n, key_s = tuple(d['names']), tuple(d['shapes'])
+        d['_names'] = owner_n.get(key_n) or ('NULL' if not key_n else None)
+        if d['_names'] is None:
+            d['_names'] = owner_n[key_n] = f'names_{cid(d["file"], d["slot"])}'
+            out.append(f'static const struct arcade_module_names {d["_names"]}[] = {{')
+            out += [f'    {{0x{o:x}u, {n}u, 0x{src:x}u, {c}u, {st}u, {rv}u}},' for o, n, src, c, st, rv in d['names']]
+            out += ['};', '']
+        d['_shapes'] = owner_s.get(key_s) or ('NULL' if not key_s else None)
+        if d['_shapes'] is None:
+            d['_shapes'] = owner_s[key_s] = f'shapes_{cid(d["file"], d["slot"])}'
+            out.append(f'static const struct arcade_module_shapes {d["_shapes"]}[] = {{')
+            out += [f'    {{0x{a:x}u, 0x{st:x}u, 0x{la:x}u, 0x{da:x}u, 0x{ca:x}u, {c}u}},' for a, st, la, da, ca, c in d['shapes']]
+            out += ['};', '']
     out.append('const struct arcade_module_data arcade_module_data[] = {')
     for d in descs:
         out.append(f'    {{"{d["file"]}", {d["slot"]}u, 0x{d["load"]:x}u, {d["size"]}u, {d["_pieces"]}, {len(d["pieces"])}u, '
-                   f'{d["_relocs"]}, {len(d["relocs"])}u}},')
+                   f'{d["_relocs"]}, {len(d["relocs"])}u, {d["_names"]}, {len(d["names"])}u, {d["_shapes"]}, {len(d["shapes"])}u}},')
     out += ['};', 'const unsigned arcade_module_data_count = sizeof arcade_module_data / sizeof arcade_module_data[0];', '']
     return '\n'.join(out)
 
@@ -912,7 +1060,9 @@ def analyse_all(entries, m, fr_table, sq_table, inventory_text, prog, symbols, l
         pointers = find_pointers(mod, free, i['load'], ce, funcs, prog, symbols)
         relocs = reloc_rows(pointers, i['load'], len(mod))
         cls = classify(mod, i['load'], ce, i['spans'], exact[k], conv, cands[k], pointers)
-        i.update(cands=cands[k], pieces=pieces, pointers=pointers, relocs=relocs, cls=cls, same=[])
+        i.update(cands=cands[k], pieces=pieces, pointers=pointers, relocs=relocs, cls=cls, same=[], recipes={}, design=[])
+        if i['extra'] and i['slot'] == SHARED_SLOT:
+            apply_shared_recipes(i, m)
         if log:
             log(k)
     for k, g in same.items():
@@ -1352,6 +1502,14 @@ class CLib:
     class Reloc(ctypes.Structure):
         _fields_ = [('offset', ctypes.c_uint32), ('target', ctypes.c_uint32)]
 
+    class Names(ctypes.Structure):
+        _fields_ = [('offset', ctypes.c_uint32), ('size', ctypes.c_uint32), ('source', ctypes.c_uint32), ('count', ctypes.c_uint16),
+                    ('stride', ctypes.c_uint16), ('reverse', ctypes.c_uint16)]
+
+    class Shapes(ctypes.Structure):
+        _fields_ = [('steps', ctypes.c_uint32), ('stride', ctypes.c_uint32), ('list_at', ctypes.c_uint32), ('data_at', ctypes.c_uint32),
+                    ('coords_at', ctypes.c_uint32), ('count', ctypes.c_uint16)]
+
     class Row(ctypes.Structure):
         pass
 
@@ -1364,7 +1522,8 @@ class CLib:
         self.lib = ctypes.CDLL(str(lib))
         self.Row._fields_ = [('file', ctypes.c_char_p), ('slot', ctypes.c_uint16), ('load', ctypes.c_uint32), ('size', ctypes.c_uint32),
                              ('pieces', ctypes.POINTER(self.Piece)), ('piece_count', ctypes.c_uint), ('relocs', ctypes.POINTER(self.Reloc)),
-                             ('reloc_count', ctypes.c_uint)]
+                             ('reloc_count', ctypes.c_uint), ('names', ctypes.POINTER(self.Names)), ('name_count', ctypes.c_uint),
+                             ('shapes', ctypes.POINTER(self.Shapes)), ('shape_count', ctypes.c_uint)]
         n = ctypes.c_uint.in_dll(self.lib, 'arcade_module_data_count').value
         self.rows = (self.Row * n).in_dll(self.lib, 'arcade_module_data')
         self.lib.arcade_module_data_build.argtypes = [ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(self.Row), ctypes.c_void_p, ctypes.c_void_p,
@@ -1460,11 +1619,12 @@ def compare_c(info, m, text, sinfo=None, log=print):
                 status = 1
                 continue
             img, known, took = built
-            mimg, mknown = model_build(m, len(i['mod']), i['load'], i['pieces'], i['relocs'])
+            mimg, mknown = model_build(m, len(i['mod']), i['load'], i['pieces'], i['relocs'], i['recipes'])
             disc = i['mod']
             eq_model = img == mimg and known == mknown
             built_n = sum(known)
-            eq_disc = sum(1 for k, (a, b) in enumerate(zip(img, disc)) if known[k] and a == b)
+            design = set(i['design'])   # bytes a recipe builds as the arcade has them where the PS1 has other ones: not served, never wrong
+            eq_disc = sum(1 for k, (a, b) in enumerate(zip(img, disc)) if known[k] and (a == b or k in design))
             c = class_counts(i['cls'])
             by = collections.Counter()
             for k, cl in enumerate(i['cls']):

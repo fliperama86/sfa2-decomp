@@ -76,6 +76,71 @@ def random_layout(r):
 
 # ---------------------------------------------------------------- Python side
 
+def shared_program(names, portraits):
+    """A made-up arcade program with a list of 8-character names (12 bytes each from 0x1001, an odd address) and the portrait records (mode 4)
+    of fighters 0.. at 0x2000 + 0x80 * k, their pointers at 0x3000 + 0x14 * k. portraits: per fighter [(code, attr, x, y)]."""
+    prog = bytearray(0x4000)
+    for k, name in enumerate(names):
+        prog[0x1001 + 12 * k:0x1001 + 12 * k + 8] = name.ljust(8).encode()
+    for k, blocks in enumerate(portraits):
+        a = 0x2000 + 0x80 * k
+        struct.pack_into('>I', prog, 0x3000 + 0x14 * k, a)
+        struct.pack_into('>HHH', prog, a, 4, 0, len(blocks) - 1)
+        for b, (code, attr, x, y) in enumerate(blocks):
+            struct.pack_into('>HHhh', prog, a + 6 + 8 * b, code, attr, x, y)
+    return bytes(prog)
+
+
+class Shared(unittest.TestCase):
+    NAMES = ['RYU', 'KEN', 'SAKURA', 'CHUN LI', 'GEN']
+    PORTRAITS = [[(0x10, 0x0102, -16, 0), (0x20, 0x1003, 0, 16)],                        # 2 x 1 and 1 x 2 cells; palettes 2 and 3
+                 [(0x30, 0x0002, 0, 0), (0x31, 0x0003, 16, 0), (0x32, 0x0102, 16, 0)]]   # the third block lies over the second at (16, 0)
+
+    def test_the_names(self):
+        prog = shared_program(self.NAMES, [])
+        r = dict(offset=0, size=0, source=0x1001, count=5, stride=12, reverse=1)
+        want = b'  GEN@@\0' + b'CHUN LI@@\0\0\0' + b' SAKURA@@\0\0\0' + b'  KEN@@\0' + b'  RYU@@\0'
+        r['size'] = len(want)
+        self.assertEqual(M.name_records(prog, r), want)
+        self.assertEqual(M.name_records(prog, dict(r, reverse=0, count=1, size=8)), b'  RYU@@\0')
+        with self.assertRaises(ValueError):
+            M.name_records(prog, dict(r, size=len(want) + 4))                       # the names must fill the room
+        with self.assertRaises(ValueError):
+            M.name_records(shared_program(['TOOLONGNAME'], []), dict(r, count=1, reverse=0, size=12))
+
+    def test_the_shapes(self):
+        prog = shared_program([], self.PORTRAITS)
+        cells = M.shape_cells(prog, 0x2000)
+        # the cells go by y then x; each block makes its attribute's width x height cells
+        self.assertEqual(cells, [(-16, 0, 0x102), (0, 0, 0x102), (0, 16, 0x1003), (0, 32, 0x1003)])
+        # the second portrait's later block lies over the earlier one at (16, 0)
+        self.assertEqual(M.shape_cells(prog, 0x2080), [(0, 0, 0x2), (16, 0, 0x102), (32, 0, 0x102)])
+        r = dict(steps=0x3000, stride=0x14, list_at=0x100, data_at=0x20, coords_at=0x40, count=2)
+        segs = M.shape_segments(prog, r)
+        self.assertEqual(segs[0], (0x100, struct.pack('<HH', 4, 0)))
+        self.assertEqual(segs[1], (0x20, bytes([0, 0, 1, 1])))                          # the palettes less 2
+        self.assertEqual(segs[2], (0x40, struct.pack('<8h', -16, 0, 0, 0, 0, 16, 0, 32)))
+        self.assertEqual(segs[3], (0x10c, struct.pack('<HH', 3, 0)))                    # the next list record is 12 bytes on
+        self.assertEqual(segs[4], (0x24, bytes([0, 0, 0, 0])))                          # an array starts on a multiple of 4; 3 cells and a zero pad
+        self.assertEqual(segs[5], (0x50, struct.pack('<6h', 0, 0, 16, 0, 32, 0)))       # the coordinates follow one another
+        with self.assertRaises(ValueError):
+            M.shape_cells(shared_program([], [[(1, 0x0101, 0, 0)]]), 0x2000)            # a palette below 2
+        with self.assertRaises(ValueError):
+            M.shape_cells(prog, 0x2001)                                                 # an odd address
+        with self.assertRaises(ValueError):
+            M.shape_cells(prog, 0x1000)                                                 # not a mode 4 record
+
+    def test_model_build_with_recipes(self):
+        prog = shared_program(self.NAMES, self.PORTRAITS)
+        recipes = dict(names=[dict(offset=0, size=8, source=0x1001, count=1, stride=12, reverse=0)],
+                       shapes=[dict(steps=0x3000, stride=0x14, list_at=0x100, data_at=0x20, coords_at=0x40, count=2)])
+        img, known = M.model_build(prog, 0x200, 0x801e0000, [], [], recipes)
+        self.assertEqual(img[:8], b'  RYU@@\0')
+        self.assertEqual(sum(known), 8 + (4 + 4 + 16) + (4 + 4 + 12))
+        with self.assertRaises(ValueError):
+            M.model_build(prog, 0x40, 0x801e0000, [], [], recipes)                      # a recipe outside the module
+
+
 class Tables(unittest.TestCase):
     def test_parse_fighters_and_sequences_rows(self):
         text = ('{"PL00.PAC", 4u, ARCADE_FIGHTER_SAME_CHUNK, 0x3df0u, 0x5db8u, 8130u, 8742u, ARCADE_FIGHTER_TERMINATOR, segments_pl00, 2u, NULL, 0u},\n'
@@ -172,6 +237,7 @@ class Layout(unittest.TestCase):
         self.assertEqual(M.field_bytes('w', b[:2]), bytes([0x34, 0x12]))
         self.assertEqual(M.field_bytes('l', b), bytes([0x78, 0x56, 0x34, 0x12]))
         self.assertEqual(M.field_bytes('e', b[:1]), bytes([0x12, 0, 0, 0]))
+        self.assertEqual(M.field_bytes('j', bytes([0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0])), bytes([0xbc, 0x9a, 0x34, 0x12]))   # cosine (second long), sine
         self.assertEqual(M.field_bytes('n', bytes([0, 200])), bytes([200]))
         self.assertEqual(M.field_bytes('f', bytes([0x80, 0x05])), bytes([0x85]))
         self.assertEqual(M.field_bytes('f', bytes([0x00, 0x7f])), bytes([0x7f]))
@@ -547,7 +613,7 @@ class Model(unittest.TestCase):
         d1 = dict(file='PL00.PAC', slot=4, load=0x801b0000, size=100, pieces=[(0x10, 8, 0x100, 'w4')], relocs=[(0x20, 0x40), (0x24, 0x80118900)])
         d2 = dict(d1, file='PL00X.PAC', slot=5, load=0x801c8000)
         d3 = dict(d1, file='PL01.PAC', pieces=[(0x10, 8, 0x102, 'w4')])
-        d4 = dict(d1, file='PL00X.PAC', slot=0xb, load=0x801e0000)
+        d4 = dict(d1, file='PL00X.PAC', slot=0xb, load=0x801e0000, names=[(0, 196, 0x9547d, 18, 12, 1)], shapes=[(0x5e6c0, 0x14, 0x444c, 0x23ec, 0x2a7c, 19)])
         text = M.c_table([d1, d2, d3, d4])
         self.assertTrue(text.startswith('/* GENERATED by'))
         self.assertNotIn('\N{EM DASH}', text)
@@ -555,8 +621,11 @@ class Model(unittest.TestCase):
         self.assertEqual(text.count('static const struct arcade_module_reloc '), 1)
         self.assertIn('{0x10u, 8u, 0x100u, "w4"},', text)
         self.assertIn('{0x20u, 0x40u},', text)
-        self.assertIn('{"PL00X.PAC", 5u, 0x801c8000u, 100u, pieces_pl00, 1u, relocs_pl00, 2u},', text)
-        self.assertIn('{"PL00X.PAC", 11u, 0x801e0000u, 100u, pieces_pl00, 1u, relocs_pl00, 2u},', text)
+        self.assertIn('{"PL00X.PAC", 5u, 0x801c8000u, 100u, pieces_pl00, 1u, relocs_pl00, 2u, NULL, 0u, NULL, 0u},', text)
+        self.assertIn('{"PL00X.PAC", 11u, 0x801e0000u, 100u, pieces_pl00, 1u, relocs_pl00, 2u, names_pl00x_sb, 1u, shapes_pl00x_sb, 1u},', text)
+        self.assertIn('{0x0u, 196u, 0x9547du, 18u, 12u, 1u},', text)
+        self.assertIn('{0x5e6c0u, 0x14u, 0x444cu, 0x23ecu, 0x2a7cu, 19u},', text)
+        self.assertEqual(text.count('static const struct arcade_module_names '), 1)
         self.assertIn('arcade_module_data_count', text)
 
     def test_the_checked_in_table(self):
@@ -578,7 +647,7 @@ class Model(unittest.TestCase):
         self.assertEqual({s for _n, s in snames}, {1, 4, 6, 0xf, 0x12, 0x27, 0x28, 0x2a})
         for l in text.splitlines():
             if l.startswith('    {0x'):
-                self.assertRegex(l, r'^    \{0x[0-9a-f]+u, (0x[0-9a-f]+u\},|\d+u, 0x[0-9a-f]+u, "[a-zA-Z0-9()]+"\},)$')
+                self.assertRegex(l, r'^    \{0x[0-9a-f]+u, (0x[0-9a-f]+u\}|\d+u, 0x[0-9a-f]+u, ("[a-zA-Z0-9()]+"|\d+u, \d+u, \d+u)\}|0x[0-9a-f]+u, 0x[0-9a-f]+u, 0x[0-9a-f]+u, 0x[0-9a-f]+u, \d+u\}),$')
 
 
 # ---------------------------------------------------------------- C side
@@ -696,15 +765,17 @@ class C(unittest.TestCase):
             res = subprocess.run([str(self.exe), 'same', str(self.prog), str(source), str(ps1), text, units], capture_output=True, text=True, timeout=60)
             self.assertEqual((res.returncode, res.stdout.strip()), (0, 'equal'), (text, units))
 
-    def spec(self, load, size, pieces, relocs):
-        return f'{load} {size} {len(pieces)} {len(relocs)}\n' + ''.join(f'{o} {n} {s} {t}\n' for o, n, s, t in pieces) + ''.join(f'{o} {t}\n' for o, t in relocs)
+    def spec(self, load, size, pieces, relocs, names=(), shapes=()):
+        return (f'{load} {size} {len(pieces)} {len(relocs)}\n' + ''.join(f'{o} {n} {s} {t}\n' for o, n, s, t in pieces) + ''.join(f'{o} {t}\n' for o, t in relocs)
+                + (f'N {len(names)}\n' + ''.join(' '.join(map(str, n)) + '\n' for n in names) if names else '')
+                + (f'S {len(shapes)}\n' + ''.join(' '.join(map(str, s)) + '\n' for s in shapes) if shapes else ''))
 
-    def run_row(self, prog, load, size, pieces, relocs):
+    def run_row(self, prog, load, size, pieces, relocs, names=(), shapes=()):
         d = Path(self.dir.name) / 'row'
         shutil.rmtree(d, ignore_errors=True)
         d.mkdir()
         self.prog.write_bytes(prog)
-        (d / 'spec.txt').write_text(self.spec(load, size, pieces, relocs))
+        (d / 'spec.txt').write_text(self.spec(load, size, pieces, relocs, names, shapes))
         r = subprocess.run([str(self.exe), 'row', str(self.prog), str(d / 'spec.txt'), str(d)], capture_output=True, text=True, timeout=60)
         self.assertIn(r.returncode, (0, 1), r.stdout + r.stderr)
         return r.returncode, (d / 'module.bin').read_bytes(), (d / 'known.bin').read_bytes()
@@ -727,9 +798,37 @@ class C(unittest.TestCase):
         mimg, mknown = M.model_build(bytes(m2), 0x80, 0x801b0000, [(o, n, s, t, 0.0) for o, n, s, t in pieces], relocs)
         self.assertEqual((rc, img, known), (1, mimg, mknown))
 
-    def valid(self, load, size, pieces, relocs):
+    def test_j_names_and_shapes_equal_the_model(self):
+        r = random.Random(23)
+        # the rotation letter: 8 arcade bytes make 4
+        prog = bytes(r.randrange(256) for _ in range(0x400))
+        self.assertEqual(self.piece(prog, 16, 12, 'j3'), (0, M.build_piece(prog, 16, 'j3')))
+        self.assertEqual(self.piece(prog, 16, 8, 'j3')[0], 1)                                  # the wrong size
+        self.assertEqual(self.piece(prog, 1020, 4, 'j1')[0], 1)                                # runs off the program
+        self.assertEqual(self.piece(prog, 1016, 4, 'j1')[0], 0)                                # ends at its last byte
+        self.assertEqual(self.piece(prog, 17, 4, 'j1')[0], 1)                                  # an odd source
+        # a row with the names and the shapes: bytes and known flags equal the model's
+        prog = shared_program(Shared.NAMES, Shared.PORTRAITS)
+        names = [(0, 48, 0x1001, 5, 12, 1)]
+        want = M.name_records(prog, dict(offset=0, size=48, source=0x1001, count=5, stride=12, reverse=1))
+        shapes = [(0x3000, 0x14, 0x100, 0x80, 0xc0, 2)]
+        recipes = dict(names=[dict(zip(('offset', 'size', 'source', 'count', 'stride', 'reverse'), names[0]))],
+                       shapes=[dict(zip(('steps', 'stride', 'list_at', 'data_at', 'coords_at', 'count'), shapes[0]))])
+        rc, img, known = self.run_row(prog, 0x801e0000, 0x200, [], [], names, shapes)
+        mimg, mknown = M.model_build(prog, 0x200, 0x801e0000, [], [], recipes)
+        self.assertEqual((rc, img, known), (0, mimg, mknown))
+        self.assertEqual(img[:48], want)
+        # a name that does not fit, a portrait that is not a record: the row is built as far as it goes and the status says so
+        rc, img, known = self.run_row(prog, 0x801e0000, 0x200, [], [], [(0, 48, 0x1001, 6, 12, 1)], shapes)
+        self.assertEqual(rc, 1)
+        rc, img, known = self.run_row(prog, 0x801e0000, 0x200, [], [], names, [(0x3000, 0x14, 0x100, 0x80, 0xc0, 3)])
+        self.assertEqual(rc, 1)
+        rc, img, known = self.run_row(prog, 0x801e0000, 0x20, [], [], names, [])
+        self.assertEqual(rc, 1)                                                                 # the names do not fit a module of 0x20
+
+    def valid(self, load, size, pieces, relocs, names=(), shapes=()):
         path = Path(self.dir.name) / 'valid.txt'
-        path.write_text(self.spec(load, size, pieces, relocs))
+        path.write_text(self.spec(load, size, pieces, relocs, names, shapes))
         r = subprocess.run([str(self.exe), 'valid', str(path)], capture_output=True, text=True, timeout=60)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         return int(r.stdout)
@@ -755,6 +854,14 @@ class C(unittest.TestCase):
         for what, (pieces, relocs) in cases.items():
             self.assertEqual(self.valid(0x801b0000, 0x80, pieces, relocs), -1, what)
         self.assertEqual(self.valid(0x801b0002, 0x80, ok, []), -1)          # the link address is not 4-aligned
+        n_ok, s_ok = [(0, 16, 0x1001, 2, 12, 0)], [(0x3000, 0x14, 0x40, 0x20, 0x60, 2)]
+        self.assertEqual(self.valid(0x801e0000, 0x80, ok, [], n_ok, s_ok), 0)
+        bad = {'names with no count': ([(0, 16, 0x1001, 0, 12, 0)], s_ok), 'names off the end': ([(0x78, 16, 0x1001, 2, 12, 0)], s_ok),
+               'a stride below 8': ([(0, 16, 0x1001, 2, 4, 0)], s_ok), 'shapes with no count': (n_ok, [(0x3000, 0x14, 0x40, 0x20, 0x60, 0)]),
+               'shapes odd steps': (n_ok, [(0x3001, 0x14, 0x40, 0x20, 0x60, 2)]), 'shapes unaligned list': (n_ok, [(0x3000, 0x14, 0x42, 0x20, 0x60, 2)]),
+               'shapes unaligned data': (n_ok, [(0x3000, 0x14, 0x40, 0x22, 0x60, 2)]), 'shape records off the end': (n_ok, [(0x3000, 0x14, 0x70, 0x20, 0x60, 2)])}
+        for what, (names, shapes) in bad.items():
+            self.assertEqual(self.valid(0x801e0000, 0x80, ok, [], names, shapes), -1, what)
 
     def test_the_checked_in_table(self):
         r = subprocess.run([str(self.exe), 'tables'], capture_output=True, text=True, timeout=120)
