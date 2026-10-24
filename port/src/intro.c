@@ -31,6 +31,11 @@ int port_intro_configure(int enabled,const char *path,char *err,size_t size)
     }
     free(pack);pack=next;resources=parsed;return 0;
 }
+int port_intro_available(void)
+{
+    return pack != NULL;
+}
+
 int port_intro_program(const char *name)
 {
     struct intro_player *player;uint16_t *pixels;unsigned char pad[PORT_PAD_FRAME];char error[256];int ended=0,skipped=0,arcade;

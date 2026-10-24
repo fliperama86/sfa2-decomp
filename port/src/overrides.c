@@ -3,6 +3,7 @@
 #include "port.h"
 #include "cd.h"
 #include "programs.h"
+#include "arcade.h"
 
 /* init_snd_voices (resident/sound/init_snd_voices.c): initialises the game's three task slots (table at 0x801fc200, 0x80 bytes each:
  * a u16 state at offset 0, the u32 stack pointer for OpenTh at offset 8) and, as its C does through the
@@ -47,7 +48,7 @@ int port_h_Exec(void *header, int argc, char **argv)
                 file_size = files[i].size;
             }
     if (port_program_exec(name, file_sector, file_size, header)) return 1;
-    if (!port_skip_programs) port_halt(PORT_EXIT_PROGRAM, "no C yet for the program %s (disc sector %d)", name, sector);
+    if (!port_skip_programs && !port_arcade_enabled()) port_halt(PORT_EXIT_PROGRAM, "no C yet for the program %s (disc sector %d)", name, sector);
     printf("skipped: Exec of %s (disc sector %d): a program of its own for which no C exists yet; it returns at once\n", name, sector);
     fflush(stdout);
     return 1;

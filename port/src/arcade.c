@@ -1543,7 +1543,7 @@ static int le_put(FILE *o, unsigned long long v, unsigned bytes)
     return fwrite(b, 1, bytes, o) == bytes ? 0 : -1;
 }
 
-struct extent { unsigned first, count, kind, file_size, file; unsigned long long at; unsigned char *kept; };
+struct extent { unsigned first, count, kind, file_size, file, empty; unsigned long long at; unsigned char *kept; };
 static int song_of(unsigned code);
 static unsigned song_codes(unsigned short *out, unsigned max);
 
@@ -1565,8 +1565,11 @@ static int stream_sector_kept(int f, const unsigned char *raw)
  * the programs it skips and the padding file are left out. Called after port_arcade_attach without check, with the disc. */
 int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t size)
 {
-    static const char *const raw_files[] = {"capcom.str", "z2o.str", NULL};
-    static const char *const left_out[] = {"a2o.str", "bf3.str", "znull.dat", NULL};
+    /* The movies are not played with the arcade assets (programs.c), so they are left out. The stand-alone programs stay: the game reads
+     * and parses their headers before the port skips them (or plays the arcade intro); a file of zeros stops it there. */
+    static const char *const raw_files[] = {NULL};
+    static const char *const left_out[] = {"a2o.str", "bf3.str", "capcom.str", "z2o.str", "znull.dat", NULL};
+    static const char *const empty_files[] = {NULL};
     unsigned total = (unsigned)(d->length / PORT_SECTOR), i, n = 0, next = 0, k;
     struct extent *ex = calloc(2u * file_count + 2u, sizeof *ex);
     unsigned long long at, bytes_kept = 0, sectors_raw = 0;
@@ -1580,6 +1583,7 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
         if (count && first >= next) {
             ex[n].first = first; ex[n].count = count; ex[n].file = i; ex[n].file_size = files[i].size;
             ex[n].kind = is_named(files[i].name, left_out) ? 9u : strstr(files[i].name, ".xa") ? 2u : is_named(files[i].name, raw_files) ? 1u : 0u;
+            ex[n].empty = ex[n].kind == 0 && is_named(files[i].name, empty_files);
             n++;
             next = first + count;
         }
@@ -1625,6 +1629,7 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
                     cur = ranges[r].offset + ranges[r].size;
                 }
             if (e->file_size > cur) { data_n++; data_bytes += e->file_size - cur; }
+            if (e->empty) data_n = 0, data_bytes = 0;   /* a file of zeros: no byte of it is kept */
             at += 8ull * (built_n + data_n) + data_bytes;
         }
     }
@@ -1639,6 +1644,7 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
             for (r = file_first[e->file]; r < end; r++)
                 if (ranges[r].equal) { built_n++; if (ranges[r].offset > cur) data_n++; cur = ranges[r].offset + ranges[r].size; }
             if (e->file_size > cur) data_n++;
+            if (e->empty) data_n = 0;
             built_digest((int)e->file, digest);
         }
         if (le_put(o, e->first, 4) || le_put(o, e->count, 4) || le_put(o, e->kind, 4) || le_put(o, e->kind == 0 ? e->file_size : 0, 4) ||
@@ -1672,7 +1678,7 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
                     if (r < end && !ranges[r].equal) continue;
                     if (pass == 1) {
                         if (r < end && (le_put(o, ranges[r].offset, 4) || le_put(o, ranges[r].size, 4))) { free(disc); goto bad; }
-                    } else if (start > cur) {
+                    } else if (start > cur && !e->empty) {
                         if (pass == 0 ? (le_put(o, cur, 4) || le_put(o, start - cur, 4)) : fwrite(disc + cur, 1, start - cur, o) != start - cur) { free(disc); goto bad; }
                         if (pass == 2) bytes_kept += start - cur;
                     }

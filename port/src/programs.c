@@ -3,6 +3,7 @@
 #include "port_tables.h"
 #include "programs.h"
 #include "intro.h"
+#include "arcade.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,6 +56,21 @@ int port_program_exec(const char *disc_name, unsigned sector, unsigned size, voi
             break;
         }
     if (!row) return 0;
+
+    /* With the arcade assets the PS1's movies are not played (the owner, 2026-10-23: "the CPS2 realtime ones are better"; the pack leaves
+     * them out): the opening is the native arcade intro when its data is there, and the Capcom logo movie is left out. Neither program's
+     * file is read (the pack holds none of it), and neither program's C runs. */
+    if (port_arcade_enabled() && (!strcmp(row->name, "logo") || !strcmp(row->name, "z2o"))) {
+        if (!strcmp(row->name, "z2o") && port_intro_available()) {
+            port_callbacks_program_start();
+            if (port_intro_program(row->name)) return 1;
+        }
+        printf("arcade: program %s: the PS1's %s movie is not played with the arcade assets%s\n", row->name,
+               strcmp(row->name, "logo") ? "opening" : "Capcom logo",
+               strcmp(row->name, "logo") ? " (the arcade intro needs its data: port/intro/README.md)" : "");
+        fflush(stdout);
+        return 1;
+    }
 
     /* the file */
     if (!port_disc_handle) port_halt(PORT_EXIT_PROGRAM, "program %s (%s): no disc is open", row->name, disc_name);
