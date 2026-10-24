@@ -578,10 +578,11 @@ static const uint32_t ids_02_1[] = {
 static const uint32_t ids_02_2[] = {
     0x1d384u, 0x1d385u,
 };
-static const struct arcade_stage_hole holes_02[] = {
-    {906u, 6u},
-    {922u, 104u},
-    {1040u, 2u},
+static const uint8_t xids_02_2_0[] = {
+    48u, 48u, 49u, 49u, 50u, 50u, 55u, 55u, 56u, 56u, 70u, 70u, 71u, 71u,
+};
+static const struct arcade_stage_xmap xmaps_02_2[] = {
+    {24856u, 14u, xids_02_2_0},
 };
 static const struct arcade_stage_run objects_02[] = {
     {ARCADE_STAGE_ZERO, 1u, 0u},
@@ -1047,91 +1048,15 @@ static const uint32_t ids_04_1[] = {
 static const uint32_t ids_04_2[] = {
     0x1d404u, 0x1d405u, 0x1d406u, 0x1d407u,
 };
+static const uint8_t xids_04_2_0[] = {
+    9u, 9u, 9u, 9u, 25u, 25u, 25u, 25u, 43u, 43u, 43u, 43u, 67u, 67u, 67u, 67u,
+    68u, 68u, 68u, 68u,
+};
+static const struct arcade_stage_xmap xmaps_04_2[] = {
+    {22344u, 20u, xids_04_2_0},
+};
 static const struct arcade_stage_slots extras_04[] = {
     {855u, 2u, 130652u, 0u},
-};
-static const struct arcade_stage_hole holes_04[] = {
-    {931u, 1u},
-    {933u, 1u},
-    {935u, 1u},
-    {937u, 1u},
-    {939u, 1u},
-    {941u, 1u},
-    {943u, 1u},
-    {947u, 1u},
-    {949u, 1u},
-    {951u, 1u},
-    {953u, 1u},
-    {955u, 1u},
-    {957u, 1u},
-    {959u, 1u},
-    {961u, 15u},
-    {978u, 16u},
-    {995u, 1u},
-    {997u, 1u},
-    {999u, 1u},
-    {1001u, 1u},
-    {1003u, 1u},
-    {1005u, 1u},
-    {1007u, 3u},
-    {1011u, 1u},
-    {1013u, 1u},
-    {1015u, 1u},
-    {1017u, 1u},
-    {1019u, 1u},
-    {1021u, 1u},
-    {1023u, 1u},
-    {1025u, 15u},
-    {1042u, 16u},
-    {1059u, 1u},
-    {1061u, 1u},
-    {1063u, 1u},
-    {1065u, 1u},
-    {1067u, 1u},
-    {1069u, 1u},
-    {1071u, 3u},
-    {1075u, 1u},
-    {1077u, 1u},
-    {1079u, 1u},
-    {1081u, 1u},
-    {1083u, 1u},
-    {1085u, 1u},
-    {1087u, 1u},
-    {1089u, 15u},
-    {1106u, 16u},
-    {1123u, 1u},
-    {1125u, 1u},
-    {1127u, 1u},
-    {1129u, 1u},
-    {1131u, 1u},
-    {1133u, 1u},
-    {1135u, 3u},
-    {1139u, 1u},
-    {1141u, 1u},
-    {1143u, 1u},
-    {1145u, 1u},
-    {1147u, 1u},
-    {1149u, 1u},
-    {1151u, 1u},
-    {1153u, 15u},
-    {1170u, 16u},
-    {1187u, 1u},
-    {1189u, 1u},
-    {1191u, 1u},
-    {1193u, 1u},
-    {1195u, 1u},
-    {1197u, 1u},
-    {1199u, 3u},
-    {1203u, 1u},
-    {1205u, 1u},
-    {1207u, 1u},
-    {1209u, 1u},
-    {1211u, 1u},
-    {1213u, 1u},
-    {1215u, 1u},
-    {1217u, 15u},
-    {1234u, 16u},
-    {1264u, 2u},
 };
 static const struct arcade_stage_run objects_04[] = {
     {ARCADE_STAGE_ZERO, 1u, 0u},
@@ -2336,9 +2261,11 @@ static const uint32_t ids_0a_1[] = {
 static const uint32_t ids_0a_2[] = {
     0x1d584u, 0x1d585u, 0x1d586u, 0x1d587u,
 };
-static const struct arcade_stage_hole holes_0a[] = {
-    {996u, 2u},
-    {1013u, 1u},
+static const uint8_t xids_0a_2_0[] = {
+    0u, 65u, 77u, 24u,
+};
+static const struct arcade_stage_xmap xmaps_0a_2[] = {
+    {17692u, 4u, xids_0a_2_0},
 };
 static const struct arcade_stage_run objects_0a[] = {
     {ARCADE_STAGE_ZERO, 1u, 0u},
@@ -3466,6 +3393,12 @@ static const uint32_t ids_0e_1[] = {
 static const uint32_t ids_0e_2[] = {
     0x1d684u, 0x1d685u, 0x1d686u, 0x1d687u,
 };
+static const uint8_t xids_0e_2_0[] = {
+    0u, 16u, 17u, 18u,
+};
+static const struct arcade_stage_xmap xmaps_0e_2[] = {
+    {23788u, 4u, xids_0e_2_0},
+};
 static const struct arcade_stage_slots extras_0e[] = {
     {510u, 104u, 130263u, 0u},
     {614u, 1u, 130284u, 1u},
@@ -3521,51 +3454,6 @@ static const struct arcade_stage_slots extras_0e[] = {
     {680u, 1u, 130394u, 0u},
     {681u, 1u, 130270u, 1u},
     {682u, 10u, 130272u, 1u},
-    {1422u, 1u, 127685u, 0u},
-    {1423u, 1u, 127685u, 0u},
-    {1448u, 1u, 127685u, 0u},
-    {1449u, 1u, 127685u, 0u},
-    {1550u, 1u, 74780u, 0u},
-    {1551u, 1u, 74780u, 0u},
-    {1566u, 1u, 74780u, 0u},
-    {1569u, 1u, 74780u, 0u},
-    {1570u, 1u, 74780u, 0u},
-    {1572u, 1u, 74780u, 0u},
-    {1574u, 1u, 74780u, 0u},
-    {1576u, 1u, 74780u, 0u},
-    {1577u, 1u, 74780u, 0u},
-    {1581u, 1u, 74780u, 0u},
-    {1583u, 1u, 74780u, 0u},
-    {1586u, 1u, 74780u, 0u},
-    {1588u, 1u, 74780u, 0u},
-    {1592u, 1u, 74780u, 0u},
-    {1593u, 1u, 74780u, 0u},
-    {1597u, 1u, 74780u, 0u},
-    {1599u, 1u, 74780u, 0u},
-};
-static const struct arcade_stage_hole holes_0e[] = {
-    {1280u, 138u},
-    {1420u, 2u},
-    {1424u, 8u},
-    {1434u, 14u},
-    {1450u, 36u},
-    {1488u, 54u},
-    {1544u, 6u},
-    {1552u, 6u},
-    {1559u, 7u},
-    {1567u, 2u},
-    {1571u, 1u},
-    {1573u, 1u},
-    {1575u, 1u},
-    {1578u, 3u},
-    {1582u, 1u},
-    {1584u, 2u},
-    {1587u, 1u},
-    {1589u, 3u},
-    {1594u, 3u},
-    {1598u, 1u},
-    {1600u, 74u},
-    {1680u, 10u},
 };
 static const struct arcade_stage_run objects_0e[] = {
     {ARCADE_STAGE_ZERO, 1u, 0u},
@@ -4051,6 +3939,12 @@ static const uint64_t tk_10_1[] = {
 static const uint32_t ids_10_2[] = {
     0x1d704u, 0x1d705u, 0x1d706u, 0x1d707u,
 };
+static const uint8_t xids_10_2_0[] = {
+    0u, 84u, 85u, 86u, 0u, 87u, 88u, 89u, 0u, 90u, 91u, 92u,
+};
+static const struct arcade_stage_xmap xmaps_10_2[] = {
+    {24592u, 12u, xids_10_2_0},
+};
 static const struct arcade_stage_slots extras_10[] = {
     {763u, 2u, 130654u, 0u},
     {765u, 1u, 118614u, 1u},
@@ -4074,11 +3968,6 @@ static const struct arcade_stage_slots extras_10[] = {
     {796u, 1u, 130668u, 1u},
     {797u, 2u, 118621u, 0u},
     {799u, 5u, 130670u, 0u},
-};
-static const struct arcade_stage_hole holes_10[] = {
-    {1384u, 8u},
-    {1400u, 272u},
-    {1680u, 8u},
 };
 static const struct arcade_stage_run objects_10[] = {
     {ARCADE_STAGE_ZERO, 1u, 0u},
@@ -4337,17 +4226,11 @@ static const uint32_t ids_11_1[] = {
 static const uint32_t ids_11_2[] = {
     0x1d744u, 0x1d745u, 0x1d746u, 0x1d747u,
 };
-static const struct arcade_stage_hole holes_11[] = {
-    {1217u, 1u},
-    {1219u, 1u},
-    {1221u, 1u},
-    {1223u, 1u},
-    {1225u, 7u},
-    {1233u, 1u},
-    {1235u, 1u},
-    {1237u, 1u},
-    {1239u, 1u},
-    {1241u, 7u},
+static const uint8_t xids_11_2_0[] = {
+    0u, 54u, 11u, 12u,
+};
+static const struct arcade_stage_xmap xmaps_11_2[] = {
+    {20928u, 4u, xids_11_2_0},
 };
 static const struct arcade_stage_run objects_11[] = {
     {ARCADE_STAGE_ZERO, 1u, 0u},
@@ -4531,20 +4414,16 @@ static const uint32_t ids_12_0[] = {
 static const uint32_t ids_12_1[] = {
     0x1d250u, 0x1d251u, 0x1d24eu, 0x1d24fu, 0x1d24au, 0x1d24bu, 0x1d246u, 0x1d247u,
 };
+static const uint8_t xids_12_1_0[] = {
+    86u, 86u,
+};
+static const struct arcade_stage_xmap xmaps_12_1[] = {
+    {21804u, 2u, xids_12_1_0},
+};
 static const uint32_t ids_12_2[] = {
     0x1d783u, 0x1d784u, 0x1d785u, 0x1d786u,
 };
 static const struct arcade_stage_slots extras_12[] = {
-    {281u, 5u, 124861u, 0u},
-    {286u, 1u, 91105u, 0u},
-    {287u, 1u, 124867u, 0u},
-    {288u, 1u, 91100u, 0u},
-    {289u, 1u, 124869u, 0u},
-    {290u, 1u, 91121u, 0u},
-    {291u, 1u, 91127u, 0u},
-    {292u, 1u, 91116u, 0u},
-    {293u, 1u, 91120u, 0u},
-    {294u, 3u, 124874u, 0u},
     {522u, 1u, 74812u, 0u},
     {523u, 1u, 121725u, 1u},
     {538u, 1u, 74812u, 0u},
@@ -4792,61 +4671,11 @@ static const uint32_t ids_13_1[] = {
 static const uint32_t ids_13_2[] = {
     0x1d7c4u, 0x1d7c5u, 0x1d7c6u, 0x1d7c7u,
 };
-static const struct arcade_stage_slots extras_13[] = {
-    {989u, 1u, 16948u, 0u},
-    {1001u, 1u, 74768u, 0u},
-    {1014u, 1u, 16948u, 0u},
-    {1015u, 1u, 16948u, 0u},
-    {1017u, 1u, 74768u, 0u},
-    {1034u, 1u, 111320u, 0u},
-    {1065u, 1u, 16948u, 0u},
-    {1094u, 1u, 16948u, 0u},
-    {1095u, 1u, 16948u, 0u},
-    {1151u, 1u, 74768u, 0u},
-    {1211u, 1u, 128981u, 2u},
-    {1223u, 1u, 74768u, 0u},
-    {1236u, 1u, 16948u, 0u},
-    {1237u, 1u, 16948u, 0u},
-    {1239u, 1u, 74768u, 0u},
-    {1287u, 1u, 16948u, 0u},
-    {1289u, 1u, 16948u, 0u},
-    {1303u, 1u, 16948u, 0u},
-    {1314u, 1u, 16948u, 0u},
-    {1315u, 1u, 16948u, 0u},
-    {1371u, 1u, 74768u, 0u},
-    {1439u, 1u, 111714u, 2u},
-    {1441u, 1u, 74768u, 0u},
-    {1457u, 1u, 74768u, 0u},
-    {1505u, 1u, 16948u, 0u},
-    {1517u, 1u, 111714u, 3u},
-    {1521u, 1u, 16948u, 0u},
+static const uint8_t xids_13_2_0[] = {
+    0u, 76u, 93u, 0u, 0u, 94u, 95u, 0u, 0u, 96u, 97u, 0u,
 };
-static const struct arcade_stage_hole holes_13[] = {
-    {896u, 93u},
-    {990u, 11u},
-    {1002u, 12u},
-    {1016u, 1u},
-    {1018u, 16u},
-    {1035u, 30u},
-    {1066u, 28u},
-    {1096u, 55u},
-    {1152u, 59u},
-    {1212u, 11u},
-    {1224u, 12u},
-    {1238u, 1u},
-    {1240u, 47u},
-    {1288u, 1u},
-    {1290u, 13u},
-    {1304u, 10u},
-    {1316u, 55u},
-    {1372u, 67u},
-    {1440u, 1u},
-    {1442u, 15u},
-    {1458u, 47u},
-    {1506u, 11u},
-    {1518u, 3u},
-    {1522u, 18u},
-    {1552u, 4u},
+static const struct arcade_stage_xmap xmaps_13_2[] = {
+    {10680u, 12u, xids_13_2_0},
 };
 
 static const struct arcade_stage_run shared_runs[] = {
@@ -5513,16 +5342,30 @@ static const struct arcade_stage_run shared_runs[] = {
     {94112u, 1u, 3u},
 };
 
+static const struct arcade_stage_more shared_pal_more[] = {
+    {0u, 5u, 2u, ARCADE_STAGE_MORE_ROW, 0x2775c0u},
+    {1u, 32u, 2u, ARCADE_STAGE_MORE_ROW, 0x2ab6e0u},
+    {12u, 26u, 2u, ARCADE_STAGE_MORE_ROW, 0x277680u},
+    {64u, 32u, 2u, ARCADE_STAGE_MORE_ROW, 0x2abae0u},
+    {91u, 1u, 1u, ARCADE_STAGE_MORE_ROW, 0x275be0u},
+    {95u, 1u, 1u, ARCADE_STAGE_MORE_ROW, 0x2a1ba0u},
+    {97u, 6u, 2u, ARCADE_STAGE_MORE_ROW, 0x275ae0u},
+    {109u, 7u, 2u, ARCADE_STAGE_MORE_ROW, 0x2abee0u},
+};
+
 const struct arcade_stage_run *const arcade_stage_shared = shared_runs;
 const unsigned arcade_stage_shared_count = 661u;
+const struct arcade_stage_more *const arcade_stage_shared_pal = shared_pal_more;
+const unsigned arcade_stage_shared_pal_count = 8u;
+const unsigned arcade_stage_shared_pal_bytes = 4096u;
 
 const struct arcade_stage arcade_stages[] = {
     {"STAGE00.PAC", 0u, {49896u, 98304u, 3072u, 18944u},
      {0xffffffffffffffffull, 0xffffffffull},
      {
-         {8080u, 64u, 16u, 4u, 0u, 2u, ids_00_0, 0, 0u, ck_00_0, 0},
-         {12176u, 64u, 16u, 4u, 0u, 7u, ids_00_1, 0, 0u, 0, 0},
-         {16272u, 32u, 8u, 4u, 0u, 7u, ids_00_2, 0, 0u, 0, 0},
+         {8080u, 64u, 16u, 4u, 0u, 2u, ids_00_0, 0, 0u, ck_00_0, 0, 0, 0u},
+         {12176u, 64u, 16u, 4u, 0u, 7u, ids_00_1, 0, 0u, 0, 0, 0, 0u},
+         {16272u, 32u, 8u, 4u, 0u, 7u, ids_00_2, 0, 0u, 0, 0, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_00, 29u,
@@ -5530,9 +5373,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE01.PAC", 1u, {81180u, 229376u, 4096u, 80128u},
      {0xfffeaaaaaaaaaaabull, 0x5555555555555555ull},
      {
-         {14772u, 64u, 32u, 8u, 0u, 0u, ids_01_0, exc_01_0, 100u, ck_01_0, tk_01_0},
-         {22964u, 64u, 16u, 4u, 0u, 7u, ids_01_1, 0, 0u, 0, 0},
-         {27060u, 32u, 8u, 4u, 0u, 7u, ids_01_2, 0, 0u, 0, 0},
+         {14772u, 64u, 32u, 8u, 0u, 0u, ids_01_0, exc_01_0, 100u, ck_01_0, tk_01_0, 0, 0u},
+         {22964u, 64u, 16u, 4u, 0u, 7u, ids_01_1, 0, 0u, 0, 0, 0, 0u},
+         {27060u, 32u, 8u, 4u, 0u, 7u, ids_01_2, 0, 0u, 0, 0, 0, 0u},
      },
      extras_01, 2u, holes_01, 8u,
      objects_01, 331u,
@@ -5540,19 +5383,19 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE02.PAC", 2u, {73620u, 163840u, 3072u, 12032u},
      {0xffffffffeaaabfffull, 0xffffffffull},
      {
-         {7960u, 64u, 16u, 4u, 0u, 0u, ids_02_0, exc_02_0, 14u, ck_02_0, tk_02_0},
-         {12056u, 64u, 48u, 12u, 0u, 7u, ids_02_1, 0, 0u, 0, 0},
-         {24344u, 16u, 8u, 2u, 0u, 7u, ids_02_2, 0, 0u, 0, 0},
+         {7960u, 64u, 16u, 4u, 0u, 0u, ids_02_0, exc_02_0, 14u, ck_02_0, tk_02_0, 0, 0u},
+         {12056u, 64u, 48u, 12u, 0u, 7u, ids_02_1, 0, 0u, 0, 0, 0, 0u},
+         {24344u, 16u, 8u, 2u, 0u, 7u, ids_02_2, 0, 0u, 0, 0, xmaps_02_2, 1u},
      },
-     0, 0u, holes_02, 3u,
+     0, 0u, 0, 0u,
      objects_02, 37u,
      0, 0u},
     {"STAGE03.PAC", 3u, {68228u, 196608u, 6144u, 39936u},
      {0xffabfffffffffbfeull, 0x5555555555555555ull},
      {
-         {13328u, 64u, 16u, 4u, 0u, 0u, ids_03_0, 0, 0u, ck_03_0, tk_03_0},
-         {17424u, 64u, 32u, 8u, 0u, 4u, ids_03_1, exc_03_1, 192u, ck_03_1, tk_03_1},
-         {25616u, 32u, 8u, 4u, 0u, 5u, ids_03_2, 0, 0u, 0, tk_03_2},
+         {13328u, 64u, 16u, 4u, 0u, 0u, ids_03_0, 0, 0u, ck_03_0, tk_03_0, 0, 0u},
+         {17424u, 64u, 32u, 8u, 0u, 4u, ids_03_1, exc_03_1, 192u, ck_03_1, tk_03_1, 0, 0u},
+         {25616u, 32u, 8u, 4u, 0u, 5u, ids_03_2, 0, 0u, 0, tk_03_2, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_03, 148u,
@@ -5560,19 +5403,19 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE04.PAC", 4u, {77664u, 196608u, 3072u, 122880u},
      {0xeaaaaaafffaffbbbull, 0xffffffffull},
      {
-         {13128u, 64u, 16u, 4u, 0u, 0u, ids_04_0, 0, 0u, ck_04_0, tk_04_0},
-         {17224u, 64u, 16u, 4u, 112u, 3u, ids_04_1, 0, 0u, 0, 0},
-         {21320u, 32u, 8u, 4u, 0u, 7u, ids_04_2, 0, 0u, 0, 0},
+         {13128u, 64u, 16u, 4u, 0u, 0u, ids_04_0, 0, 0u, ck_04_0, tk_04_0, 0, 0u},
+         {17224u, 64u, 16u, 4u, 112u, 3u, ids_04_1, 0, 0u, 0, 0, 0, 0u},
+         {21320u, 32u, 8u, 4u, 0u, 7u, ids_04_2, 0, 0u, 0, 0, xmaps_04_2, 1u},
      },
-     extras_04, 1u, holes_04, 81u,
+     extras_04, 1u, 0, 0u,
      objects_04, 16u,
      0, 0u},
     {"STAGE05.PAC", 5u, {58148u, 131072u, 3072u, 21632u},
      {0xffffffffffffffffull, 0xffffffffull},
      {
-         {6456u, 64u, 16u, 4u, 0u, 3u, ids_05_0, exc_05_0, 2u, 0, 0},
-         {10552u, 64u, 16u, 4u, 0u, 7u, ids_05_1, 0, 0u, 0, 0},
-         {14648u, 32u, 8u, 4u, 0u, 7u, ids_05_2, 0, 0u, 0, 0},
+         {6456u, 64u, 16u, 4u, 0u, 3u, ids_05_0, exc_05_0, 2u, 0, 0, 0, 0u},
+         {10552u, 64u, 16u, 4u, 0u, 7u, ids_05_1, 0, 0u, 0, 0, 0, 0u},
+         {14648u, 32u, 8u, 4u, 0u, 7u, ids_05_2, 0, 0u, 0, 0, 0, 0u},
      },
      extras_05, 1u, 0, 0u,
      objects_05, 64u,
@@ -5580,9 +5423,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE06.PAC", 6u, {78296u, 131072u, 5120u, 52352u},
      {0xeefbaafabffaeaaaull, 0x5555555555555555ull},
      {
-         {13208u, 64u, 16u, 4u, 0u, 0u, ids_06_0, exc_06_0, 309u, ck_06_0, tk_06_0},
-         {17304u, 64u, 16u, 4u, 512u, 3u, ids_06_1, 0, 0u, 0, 0},
-         {21400u, 32u, 8u, 4u, 192u, 3u, ids_06_2, 0, 0u, 0, 0},
+         {13208u, 64u, 16u, 4u, 0u, 0u, ids_06_0, exc_06_0, 309u, ck_06_0, tk_06_0, 0, 0u},
+         {17304u, 64u, 16u, 4u, 512u, 3u, ids_06_1, 0, 0u, 0, 0, 0, 0u},
+         {21400u, 32u, 8u, 4u, 192u, 3u, ids_06_2, 0, 0u, 0, 0, 0, 0u},
      },
      extras_06, 4u, holes_06, 5u,
      objects_06, 128u,
@@ -5590,9 +5433,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE07.PAC", 7u, {66756u, 196608u, 3072u, 55296u},
      {0x7ff7ffe8bb7ffffdull, 0xffffffffull},
      {
-         {11984u, 64u, 16u, 4u, 0u, 0u, ids_07_0, 0, 0u, ck_07_0, tk_07_0},
-         {16080u, 64u, 16u, 4u, 0u, 7u, ids_07_1, 0, 0u, 0, 0},
-         {20176u, 32u, 8u, 4u, 0u, 7u, ids_07_2, 0, 0u, 0, 0},
+         {11984u, 64u, 16u, 4u, 0u, 0u, ids_07_0, 0, 0u, ck_07_0, tk_07_0, 0, 0u},
+         {16080u, 64u, 16u, 4u, 0u, 7u, ids_07_1, 0, 0u, 0, 0, 0, 0u},
+         {20176u, 32u, 8u, 4u, 0u, 7u, ids_07_2, 0, 0u, 0, 0, 0, 0u},
      },
      extras_07, 3u, 0, 0u,
      objects_07, 246u,
@@ -5600,9 +5443,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE08.PAC", 8u, {74436u, 163840u, 4096u, 42880u},
      {0xffbaeeaaefbefaaaull, 0x5555555555555555ull},
      {
-         {9944u, 64u, 16u, 4u, 0u, 0u, ids_08_0, exc_08_0, 4u, ck_08_0, tk_08_0},
-         {14040u, 64u, 16u, 4u, 0u, 7u, ids_08_1, 0, 0u, 0, 0},
-         {18136u, 32u, 8u, 4u, 0u, 7u, ids_08_2, 0, 0u, 0, 0},
+         {9944u, 64u, 16u, 4u, 0u, 0u, ids_08_0, exc_08_0, 4u, ck_08_0, tk_08_0, 0, 0u},
+         {14040u, 64u, 16u, 4u, 0u, 7u, ids_08_1, 0, 0u, 0, 0, 0, 0u},
+         {18136u, 32u, 8u, 4u, 0u, 7u, ids_08_2, 0, 0u, 0, 0, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_08, 190u,
@@ -5610,9 +5453,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE09.PAC", 9u, {67236u, 196608u, 4096u, 32640u},
      {0xfeabffeeebbeffffull, 0x5555555555555555ull},
      {
-         {8484u, 64u, 16u, 4u, 0u, 0u, ids_09_0, 0, 0u, ck_09_0, tk_09_0},
-         {12580u, 64u, 16u, 4u, 0u, 7u, ids_09_1, 0, 0u, 0, 0},
-         {16676u, 32u, 8u, 4u, 0u, 7u, ids_09_2, 0, 0u, 0, 0},
+         {8484u, 64u, 16u, 4u, 0u, 0u, ids_09_0, 0, 0u, ck_09_0, tk_09_0, 0, 0u},
+         {12580u, 64u, 16u, 4u, 0u, 7u, ids_09_1, 0, 0u, 0, 0, 0, 0u},
+         {16676u, 32u, 8u, 4u, 0u, 7u, ids_09_2, 0, 0u, 0, 0, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_09, 69u,
@@ -5620,19 +5463,19 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE0A.PAC", 10u, {58544u, 163840u, 3072u, 52096u},
      {0xffffffffffffffffull, 0xffffffffull},
      {
-         {6428u, 64u, 16u, 4u, 0u, 2u, ids_0a_0, 0, 0u, ck_0a_0, 0},
-         {8476u, 64u, 32u, 8u, 0u, 7u, ids_0a_1, 0, 0u, 0, 0},
-         {16668u, 32u, 8u, 4u, 0u, 7u, ids_0a_2, 0, 0u, 0, 0},
+         {6428u, 64u, 16u, 4u, 0u, 2u, ids_0a_0, 0, 0u, ck_0a_0, 0, 0, 0u},
+         {8476u, 64u, 32u, 8u, 0u, 7u, ids_0a_1, 0, 0u, 0, 0, 0, 0u},
+         {16668u, 32u, 8u, 4u, 0u, 7u, ids_0a_2, 0, 0u, 0, 0, xmaps_0a_2, 1u},
      },
-     0, 0u, holes_0a, 2u,
+     0, 0u, 0, 0u,
      objects_0a, 244u,
      0, 0u},
     {"STAGE0B.PAC", 11u, {61072u, 131072u, 3072u, 13056u},
      {0xffffffffffffffffull, 0xffffffffull},
      {
-         {7036u, 64u, 16u, 4u, 0u, 2u, ids_0b_0, 0, 0u, ck_0b_0, 0},
-         {11132u, 64u, 16u, 4u, 0u, 7u, ids_0b_1, 0, 0u, 0, 0},
-         {15228u, 32u, 8u, 4u, 0u, 7u, ids_0b_2, 0, 0u, 0, 0},
+         {7036u, 64u, 16u, 4u, 0u, 2u, ids_0b_0, 0, 0u, ck_0b_0, 0, 0, 0u},
+         {11132u, 64u, 16u, 4u, 0u, 7u, ids_0b_1, 0, 0u, 0, 0, 0, 0u},
+         {15228u, 32u, 8u, 4u, 0u, 7u, ids_0b_2, 0, 0u, 0, 0, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_0b, 44u,
@@ -5640,9 +5483,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE0C.PAC", 12u, {67456u, 163840u, 4096u, 126848u},
      {0xaaaafeaaaffffffbull, 0x5555555555555555ull},
      {
-         {15472u, 64u, 16u, 4u, 0u, 0u, ids_0c_0, 0, 0u, ck_0c_0, tk_0c_0},
-         {19568u, 64u, 16u, 4u, 0u, 7u, ids_0c_1, 0, 0u, 0, 0},
-         {23664u, 32u, 8u, 4u, 0u, 7u, ids_0c_2, 0, 0u, 0, 0},
+         {15472u, 64u, 16u, 4u, 0u, 0u, ids_0c_0, 0, 0u, ck_0c_0, tk_0c_0, 0, 0u},
+         {19568u, 64u, 16u, 4u, 0u, 7u, ids_0c_1, 0, 0u, 0, 0, 0, 0u},
+         {23664u, 32u, 8u, 4u, 0u, 7u, ids_0c_2, 0, 0u, 0, 0, 0, 0u},
      },
      extras_0c, 1u, 0, 0u,
      objects_0c, 614u,
@@ -5650,9 +5493,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE0D.PAC", 13u, {66204u, 163840u, 4096u, 26240u},
      {0xaabeabaaaeebefaaull, 0x5555555555555555ull},
      {
-         {12772u, 64u, 16u, 4u, 0u, 0u, ids_0d_0, 0, 0u, ck_0d_0, tk_0d_0},
-         {16868u, 64u, 16u, 4u, 0u, 7u, ids_0d_1, 0, 0u, 0, 0},
-         {20964u, 32u, 8u, 4u, 0u, 7u, ids_0d_2, 0, 0u, 0, 0},
+         {12772u, 64u, 16u, 4u, 0u, 0u, ids_0d_0, 0, 0u, ck_0d_0, tk_0d_0, 0, 0u},
+         {16868u, 64u, 16u, 4u, 0u, 7u, ids_0d_1, 0, 0u, 0, 0, 0, 0u},
+         {20964u, 32u, 8u, 4u, 0u, 7u, ids_0d_2, 0, 0u, 0, 0, 0, 0u},
      },
      extras_0d, 1u, holes_0d, 1u,
      objects_0d, 92u,
@@ -5660,19 +5503,19 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE0E.PAC", 14u, {78336u, 229376u, 3072u, 22528u},
      {0xffffeeaffeabeeaeull, 0xffffffffull},
      {
-         {14572u, 64u, 16u, 4u, 0u, 1u, ids_0e_0, exc_0e_0, 25u, 0, tk_0e_0},
-         {18668u, 64u, 16u, 4u, 0u, 7u, ids_0e_1, 0, 0u, 0, 0},
-         {22764u, 32u, 8u, 4u, 0u, 7u, ids_0e_2, 0, 0u, 0, 0},
+         {14572u, 64u, 16u, 4u, 0u, 1u, ids_0e_0, exc_0e_0, 25u, 0, tk_0e_0, 0, 0u},
+         {18668u, 64u, 16u, 4u, 0u, 7u, ids_0e_1, 0, 0u, 0, 0, 0, 0u},
+         {22764u, 32u, 8u, 4u, 0u, 7u, ids_0e_2, 0, 0u, 0, 0, xmaps_0e_2, 1u},
      },
-     extras_0e, 75u, holes_0e, 22u,
+     extras_0e, 54u, 0, 0u,
      objects_0e, 101u,
      0, 0u},
     {"STAGE0F.PAC", 15u, {75364u, 196608u, 3072u, 71936u},
      {0xfffffffffffeafffull, 0xffffffffull},
      {
-         {19396u, 64u, 16u, 4u, 0u, 0u, ids_0f_0, 0, 0u, ck_0f_0, tk_0f_0},
-         {23492u, 64u, 16u, 4u, 0u, 7u, ids_0f_1, 0, 0u, 0, 0},
-         {27588u, 32u, 8u, 4u, 0u, 7u, ids_0f_2, 0, 0u, 0, 0},
+         {19396u, 64u, 16u, 4u, 0u, 0u, ids_0f_0, 0, 0u, ck_0f_0, tk_0f_0, 0, 0u},
+         {23492u, 64u, 16u, 4u, 0u, 7u, ids_0f_1, 0, 0u, 0, 0, 0, 0u},
+         {27588u, 32u, 8u, 4u, 0u, 7u, ids_0f_2, 0, 0u, 0, 0, 0, 0u},
      },
      extras_0f, 17u, holes_0f, 10u,
      objects_0f, 289u,
@@ -5680,41 +5523,41 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE10.PAC", 16u, {70592u, 262144u, 6144u, 64896u},
      {0xaaaaaffdffffffffull, 0x5555555555555555ull},
      {
-         {15376u, 64u, 16u, 4u, 0u, 0u, ids_10_0, 0, 0u, ck_10_0, tk_10_0},
-         {19472u, 64u, 16u, 4u, 224u, 0u, ids_10_1, 0, 0u, ck_10_1, tk_10_1},
-         {23568u, 32u, 8u, 4u, 0u, 7u, ids_10_2, 0, 0u, 0, 0},
+         {15376u, 64u, 16u, 4u, 0u, 0u, ids_10_0, 0, 0u, ck_10_0, tk_10_0, 0, 0u},
+         {19472u, 64u, 16u, 4u, 224u, 0u, ids_10_1, 0, 0u, ck_10_1, tk_10_1, 0, 0u},
+         {23568u, 32u, 8u, 4u, 0u, 7u, ids_10_2, 0, 0u, 0, 0, xmaps_10_2, 1u},
      },
-     extras_10, 22u, holes_10, 3u,
+     extras_10, 22u, 0, 0u,
      objects_10, 230u,
      more_10, 7u},
     {"STAGE11.PAC", 17u, {72204u, 196608u, 4096u, 31232u},
      {0xffebffffffffffffull, 0x5555555555555555ull},
      {
-         {7616u, 64u, 16u, 4u, 0u, 2u, ids_11_0, 0, 0u, ck_11_0, 0},
-         {11712u, 64u, 32u, 8u, 0u, 7u, ids_11_1, 0, 0u, 0, 0},
-         {19904u, 32u, 8u, 4u, 0u, 7u, ids_11_2, 0, 0u, 0, 0},
+         {7616u, 64u, 16u, 4u, 0u, 2u, ids_11_0, 0, 0u, ck_11_0, 0, 0, 0u},
+         {11712u, 64u, 32u, 8u, 0u, 7u, ids_11_1, 0, 0u, 0, 0, 0, 0u},
+         {19904u, 32u, 8u, 4u, 0u, 7u, ids_11_2, 0, 0u, 0, 0, xmaps_11_2, 1u},
      },
-     0, 0u, holes_11, 10u,
+     0, 0u, 0, 0u,
      objects_11, 169u,
      more_11, 2u},
     {"STAGE12.PAC", 18u, {71792u, 131072u, 5120u, 45568u},
      {0xffffffffffffffffull, 0x5555555555555555ull},
      {
-         {9516u, 64u, 16u, 4u, 0u, 3u, ids_12_0, 0, 0u, 0, 0},
-         {13612u, 32u, 64u, 8u, 0u, 7u, ids_12_1, 0, 0u, 0, 0},
-         {23852u, 32u, 8u, 4u, 0u, 7u, ids_12_2, 0, 0u, 0, 0},
+         {9516u, 64u, 16u, 4u, 0u, 3u, ids_12_0, 0, 0u, 0, 0, 0, 0u},
+         {13612u, 32u, 64u, 8u, 0u, 7u, ids_12_1, 0, 0u, 0, 0, xmaps_12_1, 1u},
+         {23852u, 32u, 8u, 4u, 0u, 7u, ids_12_2, 0, 0u, 0, 0, 0, 0u},
      },
-     extras_12, 20u, holes_12, 9u,
+     extras_12, 10u, holes_12, 9u,
      objects_12, 185u,
      more_12, 20u},
     {"STAGE13.PAC", 19u, {43664u, 229376u, 3072u, 0u},
      {0xffffffffffffffffull, 0xffffffffull},
      {
-         {3512u, 64u, 16u, 4u, 0u, 2u, ids_13_0, 0, 0u, ck_13_0, 0},
-         {5560u, 64u, 16u, 4u, 0u, 7u, ids_13_1, 0, 0u, 0, 0},
-         {9656u, 32u, 8u, 4u, 0u, 7u, ids_13_2, 0, 0u, 0, 0},
+         {3512u, 64u, 16u, 4u, 0u, 2u, ids_13_0, 0, 0u, ck_13_0, 0, 0, 0u},
+         {5560u, 64u, 16u, 4u, 0u, 7u, ids_13_1, 0, 0u, 0, 0, 0, 0u},
+         {9656u, 32u, 8u, 4u, 0u, 7u, ids_13_2, 0, 0u, 0, 0, xmaps_13_2, 1u},
      },
-     extras_13, 27u, holes_13, 25u,
+     0, 0u, 0, 0u,
      0, 0u,
      0, 0u},
 };

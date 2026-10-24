@@ -1,6 +1,7 @@
 /* Driver of test_arcade_stage.py: made-up arcade programs and graphics, and the generated descriptor table only.
  *   stage_test build PROGRAM TILES SPEC OUTDIR   build one stage from a descriptor in text
  *   stage_test runs TILES SPEC OUTDIR            build a tile run list (shared tiles style)
+ *   stage_test pal PROGRAM SPEC OUTDIR           build a palette chunk from runs (the second palette chunk's way)
  *   stage_test table                             sanity of the checked-in descriptor table
  * SPEC (build) is text, one item a line:
  *   stage N | size MODULE PAGES PALETTES OBJECTS | pal LO HI
@@ -8,7 +9,8 @@
  *   extra SLOT COUNT FIRST FLIP | hole SLOT COUNT | object FIRST COUNT FLIP   (FIRST may be ZERO or DISC)
  *   exc LAYER CELL SLOT   (SLOT may be NEW) | cknown LAYER WORD... | tknown LAYER WORD...   (64-bit words)
  *   more K COUNT STEP KIND ARG   (KIND 0 rows from ARG, 1 filler)
- * SPEC (runs) is "TOTAL" then "object" lines. OUTDIR gets module.bin pages.bin palettes.bin objects.bin objpal.bin and a
+ *   xmap LAYER MAP BLOCKS ID...   (an extra map of layer 1 or 2: BLOCKS arcade block numbers, two to a page)
+ * SPEC (runs) is "TOTAL" then "object" lines; SPEC (pal) is "total BYTES" then "more" lines (the chunk is palettes.bin). OUTDIR gets module.bin pages.bin palettes.bin objects.bin objpal.bin and a
  * .known file for each; a line "error: ..." on stdout and status 1 when the build refuses. */
 #include "../stage.h"
 #include <stdio.h>
@@ -67,6 +69,9 @@ struct spec {
     unsigned nexc[3];
     uint64_t *known[3][2];
     struct arcade_stage_more *more;
+    struct arcade_stage_xmap xm[3][4];
+    uint8_t *xids[3][4];
+    unsigned nxm[3];
     uint32_t total;
 };
 
@@ -125,6 +130,16 @@ static int read_spec(const char *path, struct spec *sp)
         } else if (!strcmp(word, "more")) {
             if (nm >= 256 || fscanf(f, "%lu %lu %lu %lu %lu", &a, &b, &c, &d, &e) != 5) return -3;
             sp->more[nm].k = (uint16_t)a; sp->more[nm].count = (uint16_t)b; sp->more[nm].step = (uint8_t)c; sp->more[nm].kind = (uint8_t)d; sp->more[nm].arg = (uint32_t)e; nm++;
+        } else if (!strcmp(word, "xmap")) {
+            if (fscanf(f, "%lu %lu %lu", &a, &b, &c) != 3 || a > 2 || sp->nxm[a] >= 4) return -3;
+            sp->xids[a][sp->nxm[a]] = calloc(c ? c : 1, 1);
+            for (i = 0; i < c; i++) {
+                unsigned long v;
+                if (fscanf(f, "%lu", &v) != 1) return -3;
+                sp->xids[a][sp->nxm[a]][i] = (uint8_t)v;
+            }
+            sp->xm[a][sp->nxm[a]].map = (uint32_t)b; sp->xm[a][sp->nxm[a]].blocks = (uint16_t)c; sp->xm[a][sp->nxm[a]].ids = sp->xids[a][sp->nxm[a]];
+            sp->nxm[a]++;
         } else if (!strcmp(word, "object")) {
             if (no >= 4096 || fscanf(f, "%63s %lu %lu", first, &b, &c) != 3) return -3;
             sp->objects[no].first = first_word(first); sp->objects[no].count = (uint32_t)b; sp->objects[no].flip = (uint32_t)c; no++;
@@ -139,14 +154,18 @@ static int read_spec(const char *path, struct spec *sp)
     for (a = 0; a < 3; a++) {
         sp->s.layer[a].exc = sp->exc[a]; sp->s.layer[a].exc_count = sp->nexc[a];
         sp->s.layer[a].cell_known = sp->known[a][0]; sp->s.layer[a].tile_known = sp->known[a][1];
+        sp->s.layer[a].xmaps = sp->nxm[a] ? sp->xm[a] : NULL; sp->s.layer[a].xmap_count = sp->nxm[a];
     }
     return 0;
 }
 
 static void free_spec(struct spec *sp)
 {
-    unsigned n;
-    for (n = 0; n < 3; n++) { free(sp->ids[n]); free(sp->exc[n]); free(sp->known[n][0]); free(sp->known[n][1]); }
+    unsigned n, k;
+    for (n = 0; n < 3; n++) {
+        free(sp->ids[n]); free(sp->exc[n]); free(sp->known[n][0]); free(sp->known[n][1]);
+        for (k = 0; k < 4; k++) free(sp->xids[n][k]);
+    }
     free(sp->more);
     free(sp->extras);
     free(sp->holes);
@@ -205,6 +224,30 @@ static int runs(const char *tiles_path, const char *spec_path, const char *dir)
     return rc;
 }
 
+static int pal(const char *prog_path, const char *spec_path, const char *dir)
+{
+    size_t psize = 0;
+    uint8_t *prog = slurp(prog_path, &psize);
+    struct spec sp;
+    struct arcade_stage_piece p;
+    char err[256];
+    int rc = 0;
+    if (!prog || read_spec(spec_path, &sp)) {
+        free(prog);
+        return 3;
+    }
+    if (arcade_stage_build_palette_runs(prog, psize, sp.s.more, sp.s.more_count, sp.total, &p, err, sizeof err)) {
+        printf("error: %s\n", err);
+        rc = 1;
+    } else {
+        if (dump_piece(dir, "palettes", &p)) rc = 4;
+        arcade_stage_piece_free(&p);
+    }
+    free_spec(&sp);
+    free(prog);
+    return rc;
+}
+
 /* Sanity of the checked-in table: every row has three layers whose ids lie in the program, the sizes are whole tiles and
  * palettes, the layer starts lie on the page grid, and the shared runs add up to a whole number of tiles. */
 static int table(void)
@@ -222,6 +265,13 @@ static int table(void)
             for (k = 0; k < l->ids; k++)
                 if (l->id_at[k] && (l->id_at[k] < 0x1d000u || l->id_at[k] > 0x1e000u)) { printf("id address %#x out of range at %u\n", l->id_at[k], i); return 1; }
             if (l->flags > 7u || ((l->flags & ARCADE_STAGE_START_RULE) && (n == 0 || l->start))) { printf("bad flags at %u\n", i); return 1; }
+            if (l->xmap_count && (n == 0 || !l->xmaps)) { printf("bad extra maps at %u\n", i); return 1; }
+            for (k = 0; k < l->xmap_count; k++) {
+                unsigned h;
+                if (!l->xmaps[k].blocks || (l->xmaps[k].blocks & 1u) || !l->xmaps[k].ids) { printf("bad extra map %u at %u\n", k, i); return 1; }
+                for (h = 0; h < l->xmaps[k].blocks; h++)
+                    if (l->xmaps[k].ids[h] >= (n == 1 ? 154u : 101u)) { printf("extra block out of range at %u\n", i); return 1; }
+            }
             for (k = 0; k < l->exc_count; k++)
                 if (l->exc[k].cell >= (uint32_t)l->across * l->down || (k && l->exc[k].cell <= l->exc[k - 1].cell)) { printf("bad exception at %u\n", i); return 1; }
         }
@@ -233,6 +283,9 @@ static int table(void)
     }
     for (k = 0; k < arcade_stage_shared_count; k++) shared += arcade_stage_shared[k].count;
     if (!arcade_stage_count || !shared) { printf("empty table\n"); return 1; }
+    if (arcade_stage_shared_pal_bytes % 32u || (arcade_stage_shared_pal_count && !arcade_stage_shared_pal)) { printf("bad shared palettes\n"); return 1; }
+    for (k = 0; k < arcade_stage_shared_pal_count; k++)
+        if (!arcade_stage_shared_pal[k].count || !arcade_stage_shared_pal[k].step || arcade_stage_shared_pal[k].k >= arcade_stage_shared_pal_bytes / 32u) { printf("bad shared palette run %u\n", k); return 1; }
     if (!arcade_stage_find("STAGE00.PAC") || arcade_stage_find("NOPE.PAC")) { printf("find fails\n"); return 1; }
     printf("%u stages, %u shared runs of %llu tiles\n", arcade_stage_count, arcade_stage_shared_count, (unsigned long long)shared);
     return 0;
@@ -242,6 +295,7 @@ int main(int argc, char **argv)
 {
     if (argc == 6 && !strcmp(argv[1], "build")) return build(argv[2], argv[3], argv[4], argv[5]);
     if (argc == 5 && !strcmp(argv[1], "runs")) return runs(argv[2], argv[3], argv[4]);
+    if (argc == 5 && !strcmp(argv[1], "pal")) return pal(argv[2], argv[3], argv[4]);
     if (argc == 2 && !strcmp(argv[1], "table")) return table();
     return 2;
 }

@@ -42,6 +42,16 @@ struct arcade_stage_exc { uint32_t cell, slot; };
 /* Palettes k, k + step, ... of the palette chunk (the ones no layer table names) are arcade rows or filler rows. */
 struct arcade_stage_more { uint16_t k, count; uint8_t step, kind; uint32_t arg; };
 
+/* An extra map of a layer (1 or 2): the arcade's animation frames of the layer, kept by the PS1 as further maps in the stage module. It is
+ * a stack of pages of two blocks side by side (block h is page h / 2, left or right half; 32 x 16 cells of 16 pixels or 16 x 8 of
+ * 32 pixels a page), each block one of the arcade's. The cells follow the layer's own in the packing scan (a block's cells row by row,
+ * the blocks in order), so they share the layer's tiles; the layer's cell_known and tile_known bits go on counting through them. */
+struct arcade_stage_xmap {
+    uint32_t map;                /* byte offset of the extra map in the module chunk */
+    uint16_t blocks;             /* number of blocks (an even number: whole pages) */
+    const uint8_t *ids;          /* the arcade block numbers */
+};
+
 struct arcade_stage_layer {
     uint32_t map;                /* byte offset of the layer's map in the module chunk */
     uint16_t across, down;       /* cells */
@@ -50,8 +60,9 @@ struct arcade_stage_layer {
     unsigned flags;              /* ARCADE_STAGE_MAP_EXACT, ARCADE_STAGE_TILES_EXACT, ARCADE_STAGE_START_RULE */
     const uint32_t *id_at;       /* for each id the arcade program address of the byte that holds it (0: the constant 0) */
     const struct arcade_stage_exc *exc; unsigned exc_count;
-    const uint64_t *cell_known;  /* bit i: cell i (scan order) equals the disc's; (across * down + 63) / 64 words, or NULL: none */
-    const uint64_t *tile_known;  /* bit j: the layer's tile j equals the disc's; (across * down + 64) / 64 words, or NULL: none */
+    const uint64_t *cell_known;  /* bit i: cell i (scan order) equals the disc's; (cells + 63) / 64 words, or NULL: none */
+    const uint64_t *tile_known;  /* bit j: the layer's tile j equals the disc's; (cells + 64) / 64 words, or NULL: none */
+    const struct arcade_stage_xmap *xmaps; unsigned xmap_count;   /* layers 1 and 2 only; `cells` above counts them (across * down plus theirs) */
 };
 
 struct arcade_stage {
@@ -70,6 +81,11 @@ extern const struct arcade_stage arcade_stages[];
 extern const unsigned arcade_stage_count;
 extern const struct arcade_stage_run *const arcade_stage_shared;     /* the shared effect tiles (the same in every stage file) */
 extern const unsigned arcade_stage_shared_count;
+/* The second palette chunk of a stage file (the same in every one): runs of palettes that are arcade rows or filler rows; the other
+ * palettes of the chunk are not built. arcade_stage_shared_pal_bytes is the chunk's size (0 and no runs: not described). */
+extern const struct arcade_stage_more *const arcade_stage_shared_pal;
+extern const unsigned arcade_stage_shared_pal_count;
+extern const unsigned arcade_stage_shared_pal_bytes;
 
 const struct arcade_stage *arcade_stage_find(const char *file);
 
@@ -92,6 +108,11 @@ void arcade_stage_free(struct arcade_stage_out *out);
 
 /* The shared effect tile chunk (slot 7 of every stage file), from arcade_stage_shared. Free it with arcade_stage_piece_free. */
 int arcade_stage_build_shared(const uint8_t *tiles, size_t tiles_size, struct arcade_stage_piece *out, char *err, size_t errsize);
+/* The second palette chunk of every stage file, from arcade_stage_shared_pal: only the program is read. known marks the palettes built. */
+int arcade_stage_build_shared_palettes(const uint8_t *program, size_t program_size, struct arcade_stage_piece *out, char *err, size_t errsize);
+/* The same for any list of palette runs, into a chunk of `total` bytes (tests). */
+int arcade_stage_build_palette_runs(const uint8_t *program, size_t program_size, const struct arcade_stage_more *runs, unsigned count,
+                                    uint32_t total, struct arcade_stage_piece *out, char *err, size_t errsize);
 /* The same for any list of runs (tests). */
 int arcade_stage_build_runs(const uint8_t *tiles, size_t tiles_size, const struct arcade_stage_run *runs, unsigned count,
                             uint32_t total, struct arcade_stage_piece *out, char *err, size_t errsize);

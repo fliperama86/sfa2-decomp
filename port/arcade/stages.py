@@ -701,6 +701,7 @@ SET_COUNT, BLOCK16_COUNT, BLOCK32_COUNT = 143, 154, 101
 RUN_ZERO, RUN_DISC = 0xfffffffe, 0xffffffff   # a run of tiles: transparent ones, or ones the arcade does not have
 MAP_EXACT, TILES_EXACT, START_RULE = 1, 2, 4   # flags of a layer: its map, its tiles in the pages, equal the disc's; its start is the packing rule's
 FORCE_NEW = 0xffffffff                      # an exception slot: the cell takes a new slot though an equal tile exists
+XKEY = 1 << 20                              # cells of the extra maps of a layer have x = XKEY * (map number + 1) + x of the map, so keys never meet a layer cell's
 MORE_ROW, MORE_FILL = 0, 1                  # kinds of run of the 'more' palettes: arcade rows from an address, or filler rows
 FILL_COLOUR = 0x322                         # the colour of a filler palette (all 15 entries), as an arcade word
 OBJECT_PALETTES_BYTES = 224
@@ -905,6 +906,58 @@ def layer_cells(arc, n, ids, across, down, stage=0):
     return out
 
 
+def xmap_across(side):
+    """The width in cells that the page layout of an extra map is addressed with (map_word_index): two blocks side by side a page."""
+    return 32 if side == 16 else 16
+
+
+def xmap_cells(arc, n, xi, ids):
+    """[(x, y, tile bytes, palette row)] of extra map `xi` of layer n (1 or 2), in the order the PS1's packing scans them: the
+    map is a stack of pages of two blocks side by side (block h is page h // 2, the left or right half), and a block's cells row
+    by row. x carries XKEY * (xi + 1); y counts down the stack. The blocks are the arcade's, the same as the layer's own cells
+    (arcade animation frames of the layer: the PS1 keeps them as further maps the stage module switches to)."""
+    if n not in (1, 2):
+        raise ValueError(f'layer {n} has no extra maps')
+    side, bc = (16, 16, 32)[n], (16, 16, 8)[n]
+    table, stride, nblocks = ((TABLE16, 1024, BLOCK16_COUNT), (TABLE32, 256, BLOCK32_COUNT))[n - 1]
+    out = []
+    for h, b in enumerate(ids):
+        if b >= nblocks:
+            raise ValueError(f'layer {n} extra block {b} does not exist')
+        page, half = divmod(h, 2)
+        for y in range(bc):
+            for x in range(bc):
+                code, attr = struct.unpack_from('>HH', arc.prog, table + b * stride + (x * bc + y) * 4)
+                index, fx, fy, row = arcade_cell_tile(code, attr, side)
+                out.append((XKEY * (xi + 1) + half * bc + x, page * bc + y, arc.tile(index, side, fx, fy), row))
+    return out
+
+
+def layer_cells_all(arc, d, n):
+    """The cells of layer n of descriptor d in scan order: its own (layer_cells), then those of its extra maps (layer['xmaps'],
+    each {'map': byte offset in the module, 'ids': arcade block numbers, two to a page})."""
+    layer = d['layers'][n]
+    cells = layer_cells(arc, n, ids_of(arc, layer), layer['across'], layer['down'], d['stage'])
+    for xi, xm in enumerate(layer.get('xmaps', ())):
+        cells += xmap_cells(arc, n, xi, xm['ids'])
+    return cells
+
+
+def layer_cell_total(layer, n):
+    """Cells of a layer counting its extra maps (the domain of its cell_known and tile_known bits)."""
+    bc = (16, 16, 8)[n]
+    return layer['across'] * layer['down'] + sum(len(xm['ids']) * bc * bc for xm in layer.get('xmaps', ()))
+
+
+def cell_offset(layer, n, cx, cy):
+    """The byte offset in the module of the cell with key (cx, cy) of layer n (a layer cell or one of its extra maps')."""
+    side = (16, 16, 32)[n]
+    if cx < XKEY:
+        return layer['map'] + 2 * map_word_index(cx, cy, layer['across'], side)
+    xi = cx // XKEY - 1
+    return layer['xmaps'][xi]['map'] + 2 * map_word_index(cx - XKEY * (xi + 1), cy, xmap_across(side), side)
+
+
 def place_layer(cells, n, start, exc=None):
     """({(cx, cy): (tile code, palette word)}, [tile bytes]) of a layer's cells whose tiles take page slots from `start`: the blank
     tile first, then each different tile in the order the cells first use it. A blank cell has palette row 0.
@@ -967,19 +1020,9 @@ def tile_run_bytes(arc, runs, total):
     return out, known
 
 
-def model_palettes(prog, stage, count, exact, more=()):
-    """(bytes, known) of the layer palettes of a stage's palette chunk (count palettes of 16 words): the rows of the three layer
-    tables where palette_group names them, converted. Palette k is known when bit k of `exact` is set. more: runs (k, step, count,
-    kind, arg) of the other palettes: palettes k, k + step, ... are arcade rows from address arg on (0x20 apart, MORE_ROW) or filler
-    rows (MORE_FILL); they are known. A run that leaves the chunk raises ValueError."""
-    out, known = bytearray(count * 32), bytearray(count * 32)
-    for k in range(min(count, 128)):
-        layer, row = palette_group(k, count)
-        if layer == 'more':
-            continue
-        struct.pack_into('<16H', out, 32 * k, *predicted_palette(prog, stage, layer, row))
-        if (exact >> k) & 1:
-            known[32 * k:32 * k + 32] = b'\1' * 32
+def model_more(prog, out, known, count, more):
+    """Write into `out` (and mark in `known`) the runs (k, step, count, kind, arg) of palettes that are arcade rows from address arg
+    on (0x20 apart, MORE_ROW) or filler rows (MORE_FILL); a run that leaves the chunk of `count` palettes raises ValueError."""
     for k0, step, n, kind, arg in more:
         for i in range(n):
             k = k0 + step * i
@@ -993,6 +1036,30 @@ def model_palettes(prog, stage, count, exact, more=()):
                 words = struct.unpack_from('>15H', prog, arg + 0x20 * i)
             struct.pack_into('<16H', out, 32 * k, 0, *[arcade_color_to_ps1(w) or 0x8000 for w in words])
             known[32 * k:32 * k + 32] = b'\1' * 32
+
+
+def model_shared_palettes(prog, size, more):
+    """(bytes, known) of the second palette chunk of a stage file (the same in every stage file): `size` bytes of palettes that are
+    all the runs `more` (arcade rows or filler rows); the others are zero and not known."""
+    out, known = bytearray(size), bytearray(size)
+    model_more(prog, out, known, size // 32, more)
+    return out, known
+
+
+def model_palettes(prog, stage, count, exact, more=()):
+    """(bytes, known) of the layer palettes of a stage's palette chunk (count palettes of 16 words): the rows of the three layer
+    tables where palette_group names them, converted. Palette k is known when bit k of `exact` is set. more: runs (k, step, count,
+    kind, arg) of the other palettes: palettes k, k + step, ... are arcade rows from address arg on (0x20 apart, MORE_ROW) or filler
+    rows (MORE_FILL); they are known. A run that leaves the chunk raises ValueError."""
+    out, known = bytearray(count * 32), bytearray(count * 32)
+    for k in range(min(count, 128)):
+        layer, row = palette_group(k, count)
+        if layer == 'more':
+            continue
+        struct.pack_into('<16H', out, 32 * k, *predicted_palette(prog, stage, layer, row))
+        if (exact >> k) & 1:
+            known[32 * k:32 * k + 32] = b'\1' * 32
+    model_more(prog, out, known, count, more)
     return out, known
 
 
@@ -1080,6 +1147,21 @@ def known_cell_set(layer, cells):
     return {(cx, cy) for i, (cx, cy, _t, _r) in enumerate(cells) if (mask >> i) & 1}
 
 
+def write_layer_maps(module, known, layer, side, words, cs):
+    """Write the cells of a layer and of its extra maps into the module (the extra maps' cells have x from XKEY on, see xmap_cells),
+    marking them known as map_bytes does: all when `cs` is None and the layer's map flag is set, else the cells in `cs`.
+    False when a cell lies outside the module."""
+    all_known = bool(layer['flags'] & MAP_EXACT or cs)
+    parts = [(layer['map'], layer['across'], 0)] + [(xm['map'], xmap_across(side), XKEY * (xi + 1)) for xi, xm in enumerate(layer.get('xmaps', ()))]
+    for offset, across, lo in parts:
+        hi = lo + XKEY if lo else XKEY
+        mine = {(cx - lo, cy): v for (cx, cy), v in words.items() if lo <= cx < hi}
+        mine_cs = None if cs is None else {(cx - lo, cy) for cx, cy in cs if lo <= cx < hi}
+        if not map_bytes(module, offset, across, side, mine, known if all_known else None, mine_cs):
+            return False
+    return True
+
+
 def model_stage_pieces(arc, d):
     sizes = d['sizes']
     module, module_known = bytearray(sizes['module']), bytearray(sizes['module'])
@@ -1087,14 +1169,14 @@ def model_stage_pieces(arc, d):
     counts = [0, 0, 0, 0]               # tiles of the layers; counts[3] the start of layer 1 (for layer 2's rule)
     for n, layer in enumerate(d['layers']):
         side = (16, 16, 32)[n]
-        cells = layer_cells(arc, n, ids_of(arc, layer), layer['across'], layer['down'], d['stage'])
+        cells = layer_cells_all(arc, d, n)
         start = layer_start(d, n, counts) if n else layer['start']
         if n == 1:
             counts[3] = start
         words, tiles = place_layer(cells, n, start, dict(layer.get('exc', ())))
         counts[n] = len(tiles)
         cs = known_cell_set(layer, cells)
-        if not map_bytes(module, layer['map'], layer['across'], side, words, module_known if (layer['flags'] & MAP_EXACT or cs) else None, cs):
+        if not write_layer_maps(module, module_known, layer, side, words, cs):
             raise ValueError(f'layer {n} map does not fit the module')
         tmask = layer.get('tile_known', 0)
         for j, tile in enumerate(tiles):
@@ -1221,16 +1303,17 @@ def row_index(arc):
     return arc._row_index
 
 
-def more_runs(arc, chunk):
+def more_runs(arc, chunk, all_more=False):
     """Runs (k, step, count, kind, arg) that make the palettes of a chunk that no layer table names ('more') from the arcade: palettes
     k, k + step, ... are the arcade rows at arg, arg + 0x20, ... (MORE_ROW), or filler rows (MORE_FILL). Only palettes that equal the
-    build byte for byte are covered; the others (the PS1's mixes of rows) are left out. Longest runs first."""
+    build byte for byte are covered; the others (the PS1's mixes of rows) are left out. Longest runs first. With all_more every palette
+    of the chunk is looked at, not only those that no layer table names (the second palette chunk of a stage file has no layer tables)."""
     count = len(chunk) // 32
     cands = {}
     fill = (0,) + (arcade_color_to_ps1(FILL_COLOUR) or 0x8000,) * 15
     index = row_index(arc)
     for k in range(count):
-        if palette_group(k, count)[0] != 'more':
+        if not all_more and palette_group(k, count)[0] != 'more':
             continue
         have = struct.unpack_from('<16H', chunk, 32 * k)
         found = [(MORE_ROW, a) for a in index.get(tuple(have), [])]
@@ -1280,6 +1363,80 @@ def find_exceptions(cells, side, wants):
             index[tile] = wants[i]
             count = wants[i] + 1
     return exc
+
+
+def cell_like(module, at, npages):
+    """True when the four bytes at `at` look like a layer 1 or layer 2 cell: a tile code on one of the stage's pages, a palette word
+    0x7800 + layer + 64 * row."""
+    code, clut = struct.unpack_from('<HH', module, at)
+    return 0x7800 <= clut < 0x8000 and (clut & 63) in (1, 2) and FIRST_PAGE <= code >> 10 < FIRST_PAGE + npages
+
+
+def identify_block(arc, parts, start, n, page, half):
+    """The arcade block (of the tables of layer n: 16 pixel blocks of 16 x 16 cells or 32 pixel blocks of 8 x 8) that the half `half`
+    of page `page` of the extra map at byte `start` of the module is, or None: every cell must show the pixels of the arcade
+    cell (flips applied) and, but for a blank one, its palette row. The lowest block that does so, so a blank half is block 0."""
+    module, pages = parts['module'], parts['pages']
+    side, bc = (16, 16, 32)[n], (16, 16, 8)[n]
+    table, stride, nblocks = ((TABLE16, 1024, BLOCK16_COUNT), (TABLE32, 256, BLOCK32_COUNT))[n - 1]
+    have = []
+    for k in range(bc * bc):
+        x, y = divmod(k, bc)
+        at = start + 2 * map_word_index(half * bc + x, page * bc + y, xmap_across(side), side)
+        code, clut = struct.unpack_from('<HH', module, at)
+        slot = slot_of_code(code, side)
+        if slot is None or not slot_ok(pages, slot, side):
+            return None
+        have.append((get_slot(pages, slot, side), (clut - 0x7800) >> 6))
+    for b in range(nblocks):
+        for k in range(bc * bc):
+            x, y = divmod(k, bc)
+            code, attr = struct.unpack_from('>HH', arc.prog, table + b * stride + (x * bc + y) * 4)
+            index, fx, fy, row = arcade_cell_tile(code, attr, side)
+            tile = arc.tile(index, side, fx, fy)
+            if tile != have[k][0] or (any(tile) and row != have[k][1]):
+                break
+        else:
+            return b
+    return None
+
+
+def find_xmaps(arc, parts, d):
+    """[(layer, {'map': byte offset in the module, 'ids': [block numbers]})]: the maps in the stage module, outside the three layer
+    maps, that are runs of whole pages of layer 1 or layer 2 cells (two blocks side by side a page: 32 x 16 cells of 16 pixels, or
+    16 x 8 of 32 pixels) all of whose halves are blocks of the arcade (identify_block). They are the arcade's animation frames of the
+    layer (a waterfall, cyclists, waves): the PS1 keeps each frame as a further map. A run (cells of one layer: the palette word's
+    column) with a half that is no block is left out."""
+    module, pages = parts['module'], parts['pages']
+    npages = len(pages) // PAGE_BYTES
+    taken = bytearray(len(module))
+    for n, layer in enumerate(d['layers']):
+        side = (16, 16, 32)[n]
+        for cy in range(layer['down']):
+            for cx in range(layer['across']):
+                at = layer['map'] + 2 * map_word_index(cx, cy, layer['across'], side)
+                taken[at:at + 4] = b'\1\1\1\1'
+    out, at = [], 0
+    while at + 4 <= len(module):
+        if taken[at] or not cell_like(module, at, npages):
+            at += 4
+            continue
+        col = struct.unpack_from('<H', module, at + 2)[0] & 63
+        end = at
+        while end + 4 <= len(module) and not taken[end] and cell_like(module, end, npages) and struct.unpack_from('<H', module, end + 2)[0] & 63 == col:
+            end += 4
+        page_bytes = (2048, 512)[col - 1]
+        ids = []
+        for page in range((end - at) // page_bytes):
+            pair = [identify_block(arc, parts, at, col, page, half) for half in (0, 1)]
+            if None in pair:
+                ids = None
+                break
+            ids += pair
+        if ids:
+            out.append((col, {'map': at, 'ids': ids}))
+        at = end
+    return out
 
 
 def describe(name, stage, parts, arc, helper, r):
@@ -1334,26 +1491,35 @@ def describe(name, stage, parts, arc, helper, r):
             slot = slot_of_code(code, side)
             wants.append(None if slot is None or slot < layer['start'] else slot - layer['start'])
         layer['exc'] = find_exceptions(cells, side, wants)
-    first = model_stage_raw(arc, d)       # the layers' tiles and maps, to compare
-    if isinstance(first, str):
-        return first
-    maps, tiles = first
-    for n, layer in enumerate(d['layers']):
-        side = (16, 16, 32)[n]
-        cells = layer_cells(arc, n, ids_of(arc, layer), layer['across'], layer['down'], stage)
-        bits = 0
-        for i, (cx, cy, _t, _r) in enumerate(cells):
-            at = layer['map'] + 2 * map_word_index(cx, cy, layer['across'], side)
-            if struct.unpack_from('<HH', module, at) == maps[n][(cx, cy)]:
-                bits |= 1 << i
-        tbits = 0
-        for j, t in enumerate(tiles[n]):
-            if t is not None and j <= len(cells) and slot_ok(pages, layer['start'] + j, side) and get_slot(pages, layer['start'] + j, side) == t:
-                tbits |= 1 << j
-        every = sum(1 << j for j, t in enumerate(tiles[n]) if t is not None)
-        layer['flags'] = (MAP_EXACT if bits == 2 ** len(cells) - 1 else 0) | (TILES_EXACT if tbits == every else 0)
-        layer['cell_known'] = 0 if layer['flags'] & MAP_EXACT else bits
-        layer['tile_known'] = 0 if layer['flags'] & TILES_EXACT else tbits
+    for n, xm in find_xmaps(arc, parts, d):
+        d['layers'][n].setdefault('xmaps', []).append(xm)
+    while True:                           # the layers' tiles and maps, to compare; an extra map with a cell that differs is left out
+        first = model_stage_raw(arc, d)
+        if isinstance(first, str):
+            return first
+        maps, tiles = first
+        bad = []
+        for n, layer in enumerate(d['layers']):
+            side = (16, 16, 32)[n]
+            cells = layer_cells_all(arc, d, n)
+            bits = 0
+            for i, (cx, cy, _t, _r) in enumerate(cells):
+                if struct.unpack_from('<HH', module, cell_offset(layer, n, cx, cy)) == maps[n][(cx, cy)]:
+                    bits |= 1 << i
+                elif cx >= XKEY:
+                    bad.append((n, cx // XKEY - 1))
+            tbits = 0
+            for j, t in enumerate(tiles[n]):
+                if t is not None and j <= len(cells) and slot_ok(pages, layer['start'] + j, side) and get_slot(pages, layer['start'] + j, side) == t:
+                    tbits |= 1 << j
+            every = sum(1 << j for j, t in enumerate(tiles[n]) if t is not None)
+            layer['flags'] = (MAP_EXACT if bits == 2 ** len(cells) - 1 else 0) | (TILES_EXACT if tbits == every else 0)
+            layer['cell_known'] = 0 if layer['flags'] & MAP_EXACT else bits
+            layer['tile_known'] = 0 if layer['flags'] & TILES_EXACT else tbits
+        if not bad:
+            break
+        for n, xi in sorted(set(bad), reverse=True):
+            del d['layers'][n]['xmaps'][xi]
     # page slots outside the model's layers that hold arcade tiles
     covered = set()
     for n, layer in enumerate(d['layers']):
@@ -1405,7 +1571,7 @@ def model_stage_raw(arc, d):
     counts = [0, 0, 0, 0]
     try:
         for n, layer in enumerate(d['layers']):
-            cells = layer_cells(arc, n, ids_of(arc, layer), layer['across'], layer['down'], d['stage'])
+            cells = layer_cells_all(arc, d, n)
             start = layer_start(d, n, counts) if n else layer['start']
             if n == 1:
                 counts[3] = start
@@ -1456,10 +1622,11 @@ def mask_words(mask, bits):
     return [(mask >> (64 * i)) & (2 ** 64 - 1) for i in range((bits + 63) // 64)]
 
 
-def c_table(descs, shared, omitted):
+def c_table(descs, shared, omitted, shared_pal=None):
     """The text of stages_table.c: for each described stage its layers' map offsets, sizes and lists of arcade addresses, the exceptions
     of the packing and the known cells and tiles, the page slots of arcade tiles, the object tile runs, the runs of palettes and the
-    flags; then the shared tile runs. No byte of either game."""
+    flags; then the shared tile runs and the runs of palettes of the second palette chunk, which every stage file holds alike
+    (shared_pal: (bytes of the chunk, runs as more_runs makes them), or None). No byte of either game."""
     out = ['/* GENERATED by `python3 port/arcade/stages.py --disc DISC --arcade SET --c-table`; do not edit.',
            ' * For each stage file: where the three layer maps lie in the module chunk, the arcade program addresses of the bytes that',
            ' * name each layer\'s block sets, the page slot each layer starts at (unless the packing rule gives it), the cells where the',
@@ -1478,7 +1645,13 @@ def c_table(descs, shared, omitted):
                 out.append(f'static const struct arcade_stage_exc exc_{s}_{n}[] = {{')
                 out += [f'    {{{c}u, {"ARCADE_STAGE_FORCE_NEW" if sl == FORCE_NEW else str(sl) + "u"}}},' for c, sl in layer['exc']]
                 out.append('};')
-            cells = layer['across'] * layer['down']
+            cells = layer_cell_total(layer, n)
+            if layer.get('xmaps'):
+                for xi, xm in enumerate(layer['xmaps']):
+                    out += c_array(f'xids_{s}_{n}_{xi}', xm['ids'], 16, '{}u', 'uint8_t')
+                out.append(f'static const struct arcade_stage_xmap xmaps_{s}_{n}[] = {{')
+                out += [f'    {{{xm["map"]}u, {len(xm["ids"])}u, xids_{s}_{n}_{xi}}},' for xi, xm in enumerate(layer['xmaps'])]
+                out.append('};')
             if layer.get('cell_known'):
                 out += c_array(f'ck_{s}_{n}', mask_words(layer['cell_known'], cells), 4, '{:#x}ull', 'uint64_t')
             if layer.get('tile_known'):
@@ -1502,8 +1675,15 @@ def c_table(descs, shared, omitted):
         out.append('')
     out.append('static const struct arcade_stage_run shared_runs[] = {')
     out += [f'    {{{c_first(f)}, {c}u, {fl}u}},' for f, c, fl in shared]
+    pal_size, pal_runs = shared_pal or (0, [])
+    if pal_runs:
+        out += ['};', '', 'static const struct arcade_stage_more shared_pal_more[] = {']
+        out += [f'    {{{k}u, {c}u, {st}u, {"ARCADE_STAGE_MORE_FILL" if kind == MORE_FILL else "ARCADE_STAGE_MORE_ROW"}, {arg:#x}u}},' for k, st, c, kind, arg in pal_runs]
     out += ['};', '', 'const struct arcade_stage_run *const arcade_stage_shared = shared_runs;',
-            f'const unsigned arcade_stage_shared_count = {len(shared)}u;', '',
+            f'const unsigned arcade_stage_shared_count = {len(shared)}u;',
+            f'const struct arcade_stage_more *const arcade_stage_shared_pal = {"shared_pal_more" if pal_runs else "0"};',
+            f'const unsigned arcade_stage_shared_pal_count = {len(pal_runs)}u;',
+            f'const unsigned arcade_stage_shared_pal_bytes = {pal_size}u;', '',
             'const struct arcade_stage arcade_stages[] = {']
     for d in descs:
         s = f'{d["stage"]:02x}'
@@ -1514,8 +1694,10 @@ def c_table(descs, shared, omitted):
         for n, layer in enumerate(d['layers']):
             exc, ck, tk = layer.get('exc'), layer.get('cell_known'), layer.get('tile_known')
             start = 0 if layer['flags'] & START_RULE else layer['start']
+            xms = layer.get('xmaps') or []
             out.append(f'         {{{layer["map"]}u, {layer["across"]}u, {layer["down"]}u, {len(layer["ids"])}u, {start}u, {layer["flags"]}u, ids_{s}_{n},'
-                       f' {f"exc_{s}_{n}" if exc else "0"}, {len(exc or [])}u, {f"ck_{s}_{n}" if ck else "0"}, {f"tk_{s}_{n}" if tk else "0"}}},')
+                       f' {f"exc_{s}_{n}" if exc else "0"}, {len(exc or [])}u, {f"ck_{s}_{n}" if ck else "0"}, {f"tk_{s}_{n}" if tk else "0"},'
+                       f' {f"xmaps_{s}_{n}" if xms else "0"}, {len(xms)}u}},')
         out.append('     },')
         out.append(f'     {"extras_" + s if d["extras"] else "0"}, {len(d["extras"])}u, {"holes_" + s if d["holes"] else "0"}, {len(d["holes"])}u,')
         out.append(f'     {"objects_" + s if d["object_runs"] else "0"}, {len(d["object_runs"])}u,')
@@ -1557,6 +1739,7 @@ class CLib:
         self.lib.arcade_stage_free.argtypes = [c.c_void_p]
         self.lib.arcade_stage_build_shared.argtypes = [c.c_char_p, c.c_size_t, c.c_void_p, c.c_char_p, c.c_size_t]
         self.lib.arcade_stage_piece_free.argtypes = [c.c_void_p]
+        self.lib.arcade_stage_build_shared_palettes.argtypes = [c.c_char_p, c.c_size_t, c.c_void_p, c.c_char_p, c.c_size_t]
 
     @staticmethod
     def take(piece):
@@ -1579,6 +1762,17 @@ class CLib:
         finally:
             self.lib.arcade_stage_free(ctypes.byref(out))
 
+    def shared_palettes(self):
+        """((data, known), seconds) of the second palette chunk the C builds, or a message."""
+        out, err = CPiece(), ctypes.create_string_buffer(256)
+        t0 = time.perf_counter()
+        if self.lib.arcade_stage_build_shared_palettes(self.prog, len(self.prog), ctypes.byref(out), err, len(err)):
+            return err.value.decode()
+        try:
+            return self.take(out), time.perf_counter() - t0
+        finally:
+            self.lib.arcade_stage_piece_free(ctypes.byref(out))
+
     def shared(self):
         out, err = CPiece(), ctypes.create_string_buffer(256)
         t0 = time.perf_counter()
@@ -1598,7 +1792,44 @@ def known_equal(piece, disc):
     return sum(known), all(a == b for a, b, k in zip(data, disc, known) if k)
 
 
-def model_line(name, built, parts, rule=None):
+def xmap_report(d, built, parts):
+    """(cells, cells the build marks known and equal to the disc's, the different page tiles those cells use, of them known and equal
+    to the disc's) over the extra maps of all of a descriptor's layers, for a build's pieces and the disc's."""
+    data, known = built['module']
+    pdata, pknown = built['pages']
+    disc, dpages = parts['module'], parts['pages']
+    cells = equal = 0
+    slots = {}
+    for n, layer in enumerate(d['layers']):
+        side, bc = (16, 16, 32)[n], (16, 16, 8)[n]
+        for xi, xm in enumerate(layer.get('xmaps', ())):
+            for h in range(len(xm['ids'])):
+                page, half = divmod(h, 2)
+                for y in range(bc):
+                    for x in range(bc):
+                        at = cell_offset(layer, n, XKEY * (xi + 1) + half * bc + x, page * bc + y)
+                        cells += 1
+                        if all(known[at:at + 4]) and data[at:at + 4] == disc[at:at + 4]:
+                            equal += 1
+                            slot = slot_of_code(struct.unpack_from('<H', data, at)[0], side)
+                            if slot is not None and slot_ok(pdata, slot, side):
+                                slots[(slot, side)] = 1
+    good = 0
+    for slot, side in slots:
+        at, per = slot_place(slot, side), side // 2
+        good += all(pknown[at + y * 128 + k] and pdata[at + y * 128 + k] == dpages[at + y * 128 + k] for y in range(side) for k in range(per))
+    return cells, equal, len(slots), good
+
+
+def xmap_text(d, built, parts):
+    cells, equal, slots, good = xmap_report(d, built, parts)
+    if not cells:
+        return ''
+    ids = '; '.join(f'layer {n} map {xm["map"]} blocks {xm["ids"]}' for n, layer in enumerate(d['layers']) for xm in layer.get('xmaps', ()))
+    return f'; extra maps: {equal}/{cells} cells known and equal to the disc\'s, {good}/{slots} of their page slots ({ids})'
+
+
+def model_line(name, built, parts, rule=None, d=None):
     """One line: for each piece how many bytes the model builds and knows to be the disc's, and whether those bytes are."""
     items, ok = [], True
     for label, _field in PIECE_NAMES:
@@ -1607,10 +1838,11 @@ def model_line(name, built, parts, rule=None):
         ok &= same
         items.append(f'{label} {k}/{len(disc)}')
     return (f'{name} model: ' + ', '.join(items) + ('; the known bytes equal the disc' if ok else '; KNOWN BYTES DIFFER from the disc') +
-            (f'; layer starts by the packing rule: layer 1 {"yes" if rule[0] else "no"}, layer 2 {"yes" if rule[1] else "no"}' if rule else ''))
+            (f'; layer starts by the packing rule: layer 1 {"yes" if rule[0] else "no"}, layer 2 {"yes" if rule[1] else "no"}' if rule else '') +
+            (xmap_text(d, built, parts) if d else ''))
 
 
-def compare_line(name, built, model, parts, took):
+def compare_line(name, built, model, parts, took, d=None):
     """One line: the C build against the model (data and known, every piece) and, at the known bytes, against the disc."""
     if isinstance(built, str):
         return f'{name}: C refused: {built}'
@@ -1622,7 +1854,7 @@ def compare_line(name, built, model, parts, took):
         ok &= same
         items.append(f'{label} {k}/{len(disc)}' + ('' if same else ' DIFFERS'))
     return (f'{name} C: ' + ('= model (all pieces, bytes and known)' if not same_model else 'DIFFERS from the model in ' + ', '.join(same_model)) +
-            '; = disc at the known bytes: ' + ', '.join(items) + f'; {took * 1000:.1f} ms')
+            '; = disc at the known bytes: ' + ', '.join(items) + (xmap_text(d, built, parts) if d else '') + f'; {took * 1000:.1f} ms')
 
 
 def main(argv=None):
@@ -1644,7 +1876,7 @@ def main(argv=None):
         prog, gfx = arcade_views(args.arcade)
         helper = Helper(tmp, gfx, prog)
         arc = Arc(prog, gfx)
-        rows, omitted, shared_parts = [], [], []
+        rows, omitted, shared_parts, pal_parts = [], [], [], []
         with open(args.disc, 'rb') as f:
             files, sec = iso_files(f)
             names = sorted(p for p in files if p.startswith('/PAC/STAGE') and p.endswith('.PAC'))
@@ -1666,6 +1898,7 @@ def main(argv=None):
                 if build:
                     d = describe(name + '.PAC', int(name[5:], 16), parts, arc, helper, r)
                     shared_parts.append(parts['effect tiles'])
+                    pal_parts.append(parts['shared palettes'])
                     if isinstance(d, str):
                         omitted.append((name + '.PAC', d))
                         print(f'{name}: not described: {d}', file=sys.stderr if args.c_table else sys.stdout)
@@ -1681,7 +1914,11 @@ def main(argv=None):
             if isinstance(shared, str):
                 print(shared, file=sys.stderr)
                 return 1
-            text = c_table([d for d, _p in rows], shared, omitted)
+            pal_chunk = pal_parts[0] if pal_parts and all(p == pal_parts[0] for p in pal_parts) else None
+            pal_runs = more_runs(arc, pal_chunk, all_more=True) if pal_chunk else []
+            if pal_parts and pal_chunk is None:
+                omitted.append(('the second palette chunk', "the stage files' chunks differ"))
+            text = c_table([d for d, _p in rows], shared, omitted, (len(pal_chunk), pal_runs) if pal_chunk else None)
             if args.c_table:
                 sys.stdout.write(text)
             else:
@@ -1690,6 +1927,10 @@ def main(argv=None):
                 shared_disc = shared_parts[0] if shared_parts else b''
                 k, same = known_equal(shared_model, shared_disc)
                 print(f'shared tiles model: {k}/{len(shared_disc)} bytes from the arcade' + ('' if same else '; DIFFERS from the disc'))
+                if pal_chunk:
+                    pal_model = model_shared_palettes(prog, len(pal_chunk), pal_runs)
+                    k, same = known_equal(pal_model, pal_chunk)
+                    print(f'shared palettes model: {k}/{len(pal_chunk)} bytes from the arcade ({k // 32} of {len(pal_chunk) // 32} palettes)' + ('' if same else '; DIFFERS from the disc'))
                 clib = None
                 if args.compare_c:
                     here = Path(__file__).resolve().parent / 'stages_table.c'
@@ -1700,12 +1941,12 @@ def main(argv=None):
                     model = model_stage(arc, d)
                     if not args.compare_c:
                         rs = starts_by_rule(arc, d)
-                        print(model_line(d['file'][:-4], model, parts, (rs[0] == d['layers'][1]['start'], rs[1] == d['layers'][2]['start'])))
+                        print(model_line(d['file'][:-4], model, parts, (rs[0] == d['layers'][1]['start'], rs[1] == d['layers'][2]['start']), d))
                         continue
                     built = clib.build(d['file'])
                     if not isinstance(built, str):
                         total += built[1]
-                    print(compare_line(d['file'][:-4], built if isinstance(built, str) else built[0], model, parts, 0 if isinstance(built, str) else built[1]))
+                    print(compare_line(d['file'][:-4], built if isinstance(built, str) else built[0], model, parts, 0 if isinstance(built, str) else built[1], d))
                 if args.compare_c:
                     c_shared = clib.shared()
                     if isinstance(c_shared, str):
@@ -1714,6 +1955,14 @@ def main(argv=None):
                         k, same = known_equal(c_shared[0], shared_disc)
                         print(f'shared tiles C: ' + ('= model' if c_shared[0] == shared_model else 'DIFFERS from the model') +
                               f'; = disc at the known bytes: {k}/{len(shared_disc)}' + ('' if same else ' DIFFERS') + f'; {c_shared[1] * 1000:.1f} ms')
+                    if pal_chunk:
+                        c_pal = clib.shared_palettes()
+                        if isinstance(c_pal, str):
+                            print(f'shared palettes: C refused: {c_pal}')
+                        else:
+                            k, same = known_equal(c_pal[0], pal_chunk)
+                            print('shared palettes C: ' + ('= model' if c_pal[0] == pal_model else 'DIFFERS from the model') +
+                                  f'; = disc at the known bytes: {k}/{len(pal_chunk)}' + ('' if same else ' DIFFERS') + f'; {c_pal[1] * 1000:.1f} ms')
                     print(f'C time for {len(rows)} stages: {total * 1000:.1f} ms')
         print(f'{len(names)} files in {time.monotonic() - started:.1f} s', file=sys.stderr if args.c_table else sys.stdout)
     finally:

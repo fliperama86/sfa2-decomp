@@ -330,6 +330,56 @@ class Model(unittest.TestCase):
         with self.assertRaises(ValueError):
             stages.layer_cells(arc, 1, [0, 0, 0], 64, 16)                              # three ids for four blocks
 
+    def test_extra_maps_are_pages_of_two_blocks_and_continue_the_scan(self):
+        w = World(21)
+        arc = w.arc
+        cells = stages.xmap_cells(arc, 1, 0, [1, 2])
+        self.assertEqual(len(cells), 512)
+        self.assertEqual([c[:2] for c in cells[:3]], [(stages.XKEY, 0), (stages.XKEY + 1, 0), (stages.XKEY + 2, 0)])    # a block's cells row by row
+        self.assertEqual(cells[16][:2], (stages.XKEY, 1))
+        self.assertEqual(cells[256][:2], (stages.XKEY + 16, 0))                         # the second block is the right half of the first page
+        cells2 = stages.xmap_cells(arc, 1, 1, [0, 1, 2, 0])
+        self.assertEqual(cells2[512][:2], (2 * stages.XKEY, 16))                        # the second page is 16 cells down
+        self.assertEqual(stages.xmap_cells(arc, 2, 0, [2, 1])[64][:2], (stages.XKEY + 8, 0))
+        own = stages.layer_cells(arc, 1, [1, 0, 2, 0], 64, 16)
+        self.assertEqual([c[2:] for c in cells[:256]], [c[2:] for c in stages.layer_cells(arc, 1, [1, 0, 0, 0], 64, 16)[:256]])     # block 1 as in a layer
+        self.assertEqual(len(own), 1024)
+        d = {'stage': 3, 'layers': [{'across': 64, 'down': 16, 'ids': [0x1d020, 0x1d021, 0x1d022, 0x1d023], 'flags': 0}, {'across': 64, 'down': 16, 'ids': [0x1d120, 0x1d121, 0x1d122, 0x1d123], 'flags': 0, 'map': 0x1200, 'xmaps': [{'map': 0x3000, 'ids': [1, 2]}]},
+                                                    {'across': 32, 'down': 8, 'ids': [0x1d304 + k for k in range(4)], 'flags': 0}]}
+        all_ = stages.layer_cells_all(arc, d, 1)
+        self.assertEqual(len(all_), 1024 + 512)
+        self.assertEqual(all_[:1024], stages.layer_cells(arc, 1, stages.ids_of(arc, d['layers'][1]), 64, 16, 3))
+        self.assertEqual(all_[1024:], cells)
+        self.assertEqual(stages.layer_cell_total(d['layers'][1], 1), 1536)
+        self.assertEqual(stages.layer_cell_total(d['layers'][2], 2), 256)
+        # a cell's place in the module: the layer's own, or the extra map's page layout
+        self.assertEqual(stages.cell_offset(d['layers'][1], 1, 33, 2), 0x1200 + 2 * stages.map_word_index(33, 2, 64, 16))
+        self.assertEqual(stages.cell_offset(d['layers'][1], 1, stages.XKEY + 17, 3), 0x3000 + 2 * stages.map_word_index(17, 3, 32, 16))
+        # the tiles are packed in first-use order through the extra map: those it adds that the layer has already take the layer's slots
+        words, tiles = stages.place_layer(all_, 1, 40)
+        words0, tiles0 = stages.place_layer(all_[:1024], 1, 40)
+        self.assertEqual(tiles, tiles0)                                                 # the extra blocks 1 and 2 are the layer's own blocks 1 and 2
+        for cx, cy, _t, _r in cells:
+            self.assertIn(words[(cx, cy)][0], [v[0] for v in words0.values()])
+        # writing: the extra cells go to the extra map, marked known with the layer's
+        module, known = bytearray(0x4000), bytearray(0x4000)
+        self.assertTrue(stages.write_layer_maps(module, known, dict(d['layers'][1], flags=stages.MAP_EXACT), 16, words, None))
+        at = 0x3000 + 2 * stages.map_word_index(17, 3, 32, 16)
+        self.assertEqual(struct.unpack_from('<HH', module, at), words[(stages.XKEY + 17, 3)])
+        self.assertEqual(known[at:at + 4], b'\1' * 4)
+        self.assertEqual(sum(known) // 4, 1536)
+        only = {(stages.XKEY + 17, 3)}                                                  # known cells named singly, among the extra map's
+        module2, known2 = bytearray(0x4000), bytearray(0x4000)
+        self.assertTrue(stages.write_layer_maps(module2, known2, d['layers'][1], 16, words, only))
+        self.assertEqual(sum(known2) // 4, 1)
+        self.assertEqual(known2[at:at + 4], b'\1' * 4)
+        self.assertFalse(stages.write_layer_maps(bytearray(0x2800), bytearray(0x2800), d['layers'][1], 16, words, None))         # the extra map does not fit
+        for bad_layer, ids in ((1, [154, 0]), (2, [101, 0])):
+            with self.assertRaises(ValueError):
+                stages.xmap_cells(arc, bad_layer, 0, ids)
+        with self.assertRaises(ValueError):
+            stages.xmap_cells(arc, 0, 0, [0, 1])
+
     def test_a_layer_zero_cell_asks_for_colours_and_rows(self):
         w = World(21)
         arc = w.arc
@@ -452,6 +502,30 @@ class Model(unittest.TestCase):
             self.assertEqual(data[32 * k:32 * k + 32], bytes(chunk[32 * k:32 * k + 32]))
             self.assertEqual(known[32 * k:32 * k + 32], b'\1' * 32)
         self.assertEqual(known[129 * 32:130 * 32], bytes(32))
+
+    def test_the_second_palette_chunk_has_no_layer_tables(self):
+        w = World(7)
+        arc = stages.Arc(bytearray(w.arc.prog), w.arc.gfx)
+        prog = arc.prog
+        for row in range(8):
+            struct.pack_into('>16H', prog, 0x2a9000 + 0x20 * row, *[0x100 + 16 * row + c for c in range(16)])
+        chunk = bytearray(128 * 32)
+        for k, row in ((0, 2), (1, 3), (64, 4), (65, 5)):                           # palettes that a layer chunk would give to the layer tables
+            struct.pack_into('<16H', chunk, 32 * k, 0, *[stages.arcade_color_to_ps1(x) or 0x8000 for x in struct.unpack_from('>15H', prog, 0x2a9000 + 0x20 * row)])
+        struct.pack_into('<16H', chunk, 32 * 10, 0, *[7] * 15)                      # no arcade row
+        arc._row_index = {}
+        for at in range(0x2a9000, 0x2a9000 + 0x20 * 8, 0x20):
+            arc._row_index.setdefault((0,) + tuple(stages.arcade_color_to_ps1(x) or 0x8000 for x in struct.unpack_from('>15H', prog, at)), []).append(at)
+        self.assertEqual(stages.more_runs(arc, bytes(chunk)), [(65, 1, 1, stages.MORE_ROW, 0x2a9000 + 0x20 * 5)])    # a chunk of 128 palettes names 0, 1 and 64 as layer rows
+        runs = stages.more_runs(arc, bytes(chunk), all_more=True)
+        self.assertEqual(sorted((k, c) for k, st, c, kind, a in runs), [(0, 2), (64, 2)])
+        data, known = stages.model_shared_palettes(bytes(prog), len(chunk), runs)
+        for k in (0, 1, 64, 65):
+            self.assertEqual(data[32 * k:32 * k + 32], bytes(chunk[32 * k:32 * k + 32]))
+            self.assertEqual(known[32 * k:32 * k + 32], b'\1' * 32)
+        self.assertEqual(sum(known), 4 * 32)
+        with self.assertRaises(ValueError):
+            stages.model_shared_palettes(bytes(prog), 64, [(0, 1, 3, stages.MORE_FILL, 0)])
 
     def test_locating_ids(self):
         prog = bytearray(0x100)
@@ -587,6 +661,38 @@ class Describe(unittest.TestCase):
         data, known = model['pages']
         self.assertTrue(all(a == b for a, b, k in zip(data, parts['pages'], known) if k))
         self.assertEqual(len(known) - sum(known), 2 * 128)
+
+    def test_extra_maps_are_found_and_checked(self):
+        w = self.world
+        xm = ((), ({'map': 0x3400, 'ids': [2, 0]},), ({'map': 0x3c00, 'ids': [1, 2, 0, 1]},))
+        d0 = w.descriptor(xmaps=xm, objects=[(0x10003, 2, 0)], count=96)
+        d0['sizes']['module'] = 0x4000
+        parts = make_stage_file(w, d0)
+        r = stages.analyse(parts, self.helper, 3, w.arc.prog)
+        d = stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r)
+        self.assertIsInstance(d, dict, d)
+        self.assertEqual([l.get('xmaps') for l in d['layers']], [None, [{'map': 0x3400, 'ids': [2, 0]}], [{'map': 0x3c00, 'ids': [1, 2, 0, 1]}]])
+        self.assertEqual([l['flags'] & 3 for l in d['layers']], [3, 3, 3])              # the extra maps' cells and tiles are exact
+        model = stages.model_stage(w.arc, d)
+        data, known = model['module']
+        self.assertTrue(all(a == b for a, b, k in zip(data, parts['module'], known) if k))
+        self.assertGreaterEqual(sum(known), 4 * (1024 + 1024 + 256 + 512 + 256))
+        # a cell of the extra map that is not the arcade's block's: the map is not found (no block fits), the rest is described as before
+        module = bytearray(parts['module'])
+        struct.pack_into('<H', module, 0x3c00 + 8, struct.unpack_from('<H', module, 0x3c00 + 8)[0] ^ 0x40)
+        bad = dict(parts, module=bytes(module))
+        d2 = stages.describe('TEST.PAC', 3, bad, w.arc, self.helper, stages.analyse(bad, self.helper, 3, w.arc.prog))
+        self.assertIsInstance(d2, dict, d2)
+        self.assertEqual([l.get('xmaps') for l in d2['layers']], [None, [{'map': 0x3400, 'ids': [2, 0]}], None])
+        # the C table text carries the extra maps and the sizes of the known masks count them
+        text = stages.c_table([dict(d, file='STAGE03.PAC')], [(0x10002, 1, 0)], [], (4096, [(0, 2, 5, stages.MORE_ROW, 0x275c40), (1, 1, 2, stages.MORE_FILL, 0)]))
+        self.assertIn('static const uint8_t xids_03_2_0[]', text)
+        self.assertIn('{15360u, 4u, xids_03_2_0}', text)
+        self.assertIn('static const struct arcade_stage_xmap xmaps_03_1[]', text)
+        self.assertIn('static const struct arcade_stage_more shared_pal_more[]', text)
+        self.assertIn('{0u, 5u, 2u, ARCADE_STAGE_MORE_ROW, 0x275c40u}', text)
+        self.assertIn('arcade_stage_shared_pal_bytes = 4096u;', text)
+        self.assertNotIn(chr(0x2014), text)
 
     def test_a_layer_that_differs_loses_its_flags_and_a_palette_row_its_bit(self):
         w = self.world

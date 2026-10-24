@@ -59,7 +59,7 @@ class World:
         self.arc = S.Arc(bytes(prog), bytes(self.gfx))
 
     def descriptor(self, flags=(3, 3, 3), pal_exact=0, extras=(), holes=(), objects=None, count=96, module=0x3000, pages=3 * 32768,
-                   exc=((), (), ()), cell_known=(0, 0, 0), tile_known=(0, 0, 0), more=(), start_rule=(False, False)):
+                   exc=((), (), ()), cell_known=(0, 0, 0), tile_known=(0, 0, 0), more=(), start_rule=(False, False), xmaps=((), (), ())):
         d = {'file': 'TEST.PAC', 'stage': 3, 'extras': list(extras), 'holes': list(holes), 'pal_exact': pal_exact, 'more': list(more),
              'object_runs': [(S.RUN_ZERO, 2, 0), (0x10003, 4, 0), (0x10009, 2, 3), (S.RUN_DISC, 1, 0)] if objects is None else objects,
              'layers': [{'map': 0x100, 'across': 64, 'down': 16, 'ids': [0x1d020, 0x1d021, 0x1d022, 0x1d023], 'start': 0, 'flags': flags[0]},
@@ -67,6 +67,8 @@ class World:
                         {'map': 0x2400, 'across': 32, 'down': 8, 'ids': [0x1d304 + k for k in range(4)], 'start': 0, 'flags': flags[2]}]}
         for n, layer in enumerate(d['layers']):
             layer.update({'exc': list(exc[n]), 'cell_known': cell_known[n], 'tile_known': tile_known[n]})
+            if xmaps[n]:
+                layer['xmaps'] = [dict(m) for m in xmaps[n]]
         d['sizes'] = {'module': module, 'pages': pages, 'palettes': count * 32,
                       'object tiles': 128 * sum(c for _f, c, _fl in d['object_runs']), 'object palettes': 224}
         maps, tiles = S.model_stage_raw(self.arc, d)
@@ -86,7 +88,8 @@ def spec_text(d):
     for n, l in enumerate(d['layers']):
         start = 0 if l['flags'] & S.START_RULE else l['start']            # the C must not read it when the rule gives the start
         lines.append(f'layer {n} {l["map"]} {l["across"]} {l["down"]} {start} {l["flags"]} {len(l["ids"])} ' + ' '.join(map(str, l['ids'])))
-        cells = l['across'] * l['down']
+        cells = S.layer_cell_total(l, n)
+        lines += [f'xmap {n} {m["map"]} {len(m["ids"])} ' + ' '.join(map(str, m['ids'])) for m in l.get('xmaps', ())]
         lines += [f'exc {n} {c} {"NEW" if sl == S.FORCE_NEW else sl}' for c, sl in l.get('exc', ())]
         if l.get('cell_known'):
             lines.append(f'cknown {n} ' + ' '.join(map(str, S.mask_words(l['cell_known'], cells))))
@@ -266,7 +269,7 @@ class StageC(unittest.TestCase):
 
     def test_random_descriptors(self):
         rnd = random.Random(5)
-        for seed in range(12):
+        for seed in range(16):
             world = World(100 + seed)
             flags = tuple(rnd.randrange(4) for _ in range(3))
             extras = [(300 + 10 * k, rnd.randrange(1, 4), 0x10000 + rnd.randrange(100), rnd.randrange(4)) for k in range(rnd.randrange(3))]
@@ -277,15 +280,102 @@ class StageC(unittest.TestCase):
             count = rnd.choice([96, 127, 128, 160])
             more = [(rnd.randrange(64, min(count, 100)), rnd.choice([1, 2]), rnd.randrange(1, 4), S.MORE_FILL, 0) for _ in range(rnd.randrange(3))]
             more += [(rnd.randrange(64, min(count, 100)), rnd.choice([1, 2]), rnd.randrange(1, 4), S.MORE_ROW, 0x275c40 + 0x20 * rnd.randrange(60)) for _ in range(rnd.randrange(3))]
+            xm = ((), (), ())
+            if rnd.random() < 0.5:
+                xm = ((), ({'map': 0x3000, 'ids': [rnd.randrange(3) for _ in range(rnd.choice([2, 4]))]},), ({'map': 0x4100, 'ids': [rnd.randrange(3) for _ in range(rnd.choice([2, 4]))]},))
+            total = (cells[0], cells[1] + 256 * len(xm[1][0]['ids']) if xm[1] else cells[1], cells[2] + 64 * len(xm[2][0]['ids']) if xm[2] else cells[2])
             d = world.descriptor(flags=flags, extras=extras, holes=holes, objects=objects, pal_exact=rnd.getrandbits(96), count=count, exc=exc,
-                                 cell_known=tuple(rnd.getrandbits(cells[n]) for n in range(3)), tile_known=tuple(rnd.getrandbits(cells[n] + 1) for n in range(3)),
-                                 more=[m for m in more if m[0] + m[1] * (m[2] - 1) < count], start_rule=(rnd.random() < 0.5, rnd.random() < 0.5))
+                                 cell_known=tuple(rnd.getrandbits(total[n]) for n in range(3)), tile_known=tuple(rnd.getrandbits(total[n] + 1) for n in range(3)),
+                                 more=[m for m in more if m[0] + m[1] * (m[2] - 1) < count], start_rule=(rnd.random() < 0.5, rnd.random() < 0.5),
+                                 xmaps=xm, module=0x6000)
             try:
                 S.model_stage(world.arc, d)
             except ValueError:
                 self.assertIsInstance(self.run_c(world, d), str)          # a descriptor the model refuses is refused by the C too
                 continue
             self.same(world, d)
+
+    def test_extra_maps_continue_the_layer_scan(self):
+        w = self.world
+        xm = ((), ({'map': 0x3000, 'ids': [2, 0, 1, 2]},), ({'map': 0x4100, 'ids': [1, 2, 0, 1]},))
+        d = w.descriptor(xmaps=xm, module=0x6000)
+        built, model = self.same(w, d)
+        module = built['module'][0]
+        # with the flags set every cell known: the layers' own and the extra maps' (4 + 4 blocks of 256 and 64 cells... )
+        self.assertEqual(sum(built['module'][1]), 4 * (1024 + 1024 + 256 + 4 * 256 + 4 * 64))
+        # layer 2's own blocks are 2, 0, 1, 2 across; extra block 1 (page 0, left) is the same arcade block as the own block 1 (third), so the
+        # cells carry the same words: the extra maps share the layer's tiles
+        for x in range(8):
+            for y in range(8):
+                own = 0x2400 + 2 * S.map_word_index(16 + x, y, 32, 32)
+                extra = 0x4100 + 2 * S.map_word_index(x, y, 16, 32)
+                self.assertEqual(module[own:own + 4], module[extra:extra + 4], (x, y))
+        # layer 1's extra block 2 (page 0, left) is the arcade block 2: layer 1's own ids are 1, 0, 2, 0: block 2 is the third
+        for x in range(16):
+            for y in range(16):
+                own = 0x1200 + 2 * S.map_word_index(32 + x, y, 64, 16)
+                extra = 0x3000 + 2 * S.map_word_index(x, y, 32, 16)
+                self.assertEqual(module[own:own + 4], module[extra:extra + 4], (x, y))
+        # the same descriptor without the extra maps builds the same pages (all their tiles are among the layer's own)
+        plain, _m = self.same(w, w.descriptor(module=0x6000))
+        self.assertEqual(built['pages'][0], plain['pages'][0])
+
+    def test_the_known_bits_run_through_the_extra_maps(self):
+        w = self.world
+        xm = ((), ({'map': 0x3000, 'ids': [2, 0]},), ({'map': 0x4100, 'ids': [1, 2]},))
+        d = w.descriptor(flags=(0, 0, 0), xmaps=xm, module=0x6000, cell_known=(0, 1 << 1024 | 1 << 1030, 1 << 256 | 1 << 259 | 1 << 300),
+                         tile_known=(0, 1 << 3, 1 << 2))
+        built, _model = self.same(w, d)
+        self.assertEqual(sum(built['module'][1]) // 4, 2 + 3)
+        d = w.descriptor(flags=(3, 3, 3), xmaps=xm, module=0x6000, start_rule=(True, True))
+        self.same(w, d)
+
+    def test_extra_maps_refused_by_both(self):
+        w = self.world
+        good = ((), ({'map': 0x3000, 'ids': [2, 0]},), ())
+        cases = {'a block that does not exist': (((), ({'map': 0x3000, 'ids': [2, 200]},), ()), 0x6000),
+                 'a map that does not fit the module': (((), ({'map': 0x3000, 'ids': [2, 0]},), ()), 0x3400),
+                 'a map on layer 0': ((({'map': 0x3000, 'ids': [0, 1]},), (), ()), 0x6000)}
+        for name, (xm, module) in cases.items():
+            with self.subTest(name):
+                d = w.descriptor(xmaps=good, module=0x6000)
+                for n in range(3):
+                    if xm[n]:
+                        d['layers'][n]['xmaps'] = [dict(m) for m in xm[n]]
+                d['sizes']['module'] = module
+                with self.assertRaises(ValueError):
+                    S.model_stage(w.arc, d)
+                self.assertTrue(self.run_c(w, d), name)
+                self.assertIsInstance(self.run_c(w, d), str)
+        self.same(w, w.descriptor(xmaps=good, module=0x6000))
+
+    def run_pal(self, prog, total, more):
+        base = Path(self.dir.name)
+        out = base / f'pal{self.n}'
+        StageC.n += 1
+        out.mkdir()
+        (base / 'palspec.txt').write_text(f'total {total}\n' + ''.join(f'more {k} {c} {st} {kind} {arg}\n' for k, st, c, kind, arg in more))
+        (base / 'palprog.bin').write_bytes(prog)
+        r = subprocess.run([str(self.exe), 'pal', str(base / 'palprog.bin'), str(base / 'palspec.txt'), str(out)], capture_output=True, text=True, timeout=60)
+        if r.returncode == 1 and r.stdout.startswith('error: '):
+            return r.stdout[7:].strip()
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        return (out / 'palettes.bin').read_bytes(), (out / 'palettes.known').read_bytes()
+
+    def test_the_second_palette_chunk_is_runs_of_arcade_rows_and_filler(self):
+        prog = self.world.arc.prog
+        more = [(0, 2, 5, S.MORE_ROW, 0x275c40), (1, 2, 3, S.MORE_FILL, 0), (64, 1, 4, S.MORE_ROW, S.PALETTE_TABLES[1] + 0x400 * 3), (127, 1, 1, S.MORE_ROW, 0x275c40)]
+        got = self.run_pal(prog, 4096, more)
+        data, known = S.model_shared_palettes(prog, 4096, more)
+        self.assertEqual((got[0], got[1]), (bytes(data), bytes(known)))
+        self.assertEqual(sum(1 for k in range(128) if known[32 * k]), 5 + 3 + 4 + 1)
+        want = [0] + [S.arcade_color_to_ps1(x) or 0x8000 for x in struct.unpack_from('>15H', prog, 0x275c40 + 0x40)]
+        self.assertEqual(list(struct.unpack_from('<16H', got[0], 2 * 32)), want)
+        for bad in ([(126, 2, 2, S.MORE_FILL, 0)], [(0, 1, 1, S.MORE_ROW, 0x2fffe1)], [(0, 1, 1, S.MORE_ROW, 0x400000)]):
+            with self.assertRaises(ValueError):
+                S.model_shared_palettes(prog, 4096, bad)
+            self.assertIsInstance(self.run_pal(prog, 4096, bad), str, bad)
+        self.assertEqual(self.run_pal(prog, 0, []), (b'', b''))
 
     def test_the_layer_sizes_the_ps1_has(self):
         d = self.world.descriptor()
@@ -402,6 +492,26 @@ class TableText(unittest.TestCase):
             self.assertEqual(r.returncode, 0, r.stderr)
         finally:
             shutil.rmtree(d_)
+
+    def test_table_text_with_extra_maps_and_shared_palettes_compiles(self):
+        w = World(3)
+        d = w.descriptor(xmaps=((), ({'map': 0x3000, 'ids': [2, 0]},), ({'map': 0x4100, 'ids': [1, 2, 0, 1]},)), module=0x6000, flags=(3, 0, 0),
+                         cell_known=(0, 1 << 1030, 1 << 259), tile_known=(0, 1 << 3, 0))
+        d['file'] = 'STAGE03.PAC'
+        text = S.c_table([d], [(0x10002, 1, 0)], [], (4096, [(0, 2, 5, S.MORE_ROW, 0x275c40), (1, 2, 3, S.MORE_FILL, 0)]))
+        self.assertIn('{12288u, 2u, xids_03_1_0}', text)
+        self.assertIn('xmaps_03_2, 1u}', text)
+        self.assertIn('const unsigned arcade_stage_shared_pal_count = 2u;', text)
+        d_ = tempfile.mkdtemp(prefix='arcade-stage-table-')
+        try:
+            (Path(d_) / 't.c').write_text(text)
+            r = subprocess.run(['gcc', *FLAGS, '-c', '-I', str(ROOT / 'port/arcade'), str(Path(d_) / 't.c'), '-o', str(Path(d_) / 't.o')], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stderr)
+        finally:
+            shutil.rmtree(d_)
+        none = S.c_table([d], [(0x10002, 1, 0)], [])             # no second palette chunk described
+        self.assertIn('arcade_stage_shared_pal_bytes = 0u;', none)
+        self.assertIn('arcade_stage_shared_pal = 0;', none)
 
 
 if __name__ == '__main__':
