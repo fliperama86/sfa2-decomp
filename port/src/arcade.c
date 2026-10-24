@@ -617,6 +617,11 @@ static unsigned le16_at(const unsigned char *p)
     return (unsigned)p[0] | (unsigned)p[1] << 8;
 }
 
+static unsigned le32_at(const unsigned char *p)
+{
+    return le16_at(p) | le16_at(p + 2) << 16;
+}
+
 static int cmp_unsigned(const void *a, const void *b)
 {
     unsigned x = *(const unsigned *)a, y = *(const unsigned *)b;
@@ -1445,6 +1450,88 @@ static unsigned char *served_bytes(struct port_disc *d, int f, unsigned at, unsi
     free(buf);
     if (!ok) { free(out); return NULL; }
     return out;
+}
+
+/* The game's reads (the ranges served to it only over the others). */
+static void patch_game(unsigned sector, unsigned char *data, unsigned n)
+{
+    patch_for(sector, data, n, 1);
+}
+
+/* The disc stream compares the first word of an archive chunk with the word its header record holds, and reads the file again when they
+ * differ (with a zeroed word, again and again until the sound slots run out). This compares, for every archive the loader builds in,
+ * what the game reads at each chunk's start with the header record as the game reads it, for the chunks the game checks. The rule, from
+ * the game's C (ps1/src/resident/disc/):
+ *  - advance_stream_record walks the header's records 1..record_limit (the header's first byte) and loads expected_word from the record's
+ *    record_param (word at +8) and source_index from its field_02 (the table, 0..5); the handler of update_stream_control_by_mode is
+ *    data_8017ec44[source_index] (state_index and source_index are one byte): 0 read_stream_sector_for_record_kind, 1
+ *    queue_stream_image_rect_row, 2 queue_stream_rect_entry_grid, 3 read_stream_sector_for_vab, 4 open_vab_and_queue_body_transfer,
+ *    5 read_stream_sequence_and_open. Each reads the chunk's first sector (step_count 0) through read_stream_sector_to_source_ptr (0, 3, 5)
+ *    or read_stream_sector_to_write_slot (1, 2, 4), and those call check_stream_word on it: expected_word != the sector's first word
+ *    sets error_code 3, and dispatch_pending_stream_entries then calls close_slots_and_seek_cd_position, the file is read again. The
+ *    check has no exception: a record_param of 0 is compared like any other (the disc's own chunk starts with 0 there), error_code is
+ *    only cleared by the seek, so a mismatch repeats and is always fatal.
+ *  - A record of table 0 with kind 0xffff is not read at all (read_stream_sector_for_record_kind drops its sectors): not checked.
+ *  - A record of table 0 with kind 2 is not read when the two fighters are one kind (the mirror match, same function): checked
+ *    otherwise, so it is reported here (it matters whenever the fighters differ).
+ *  - The header record itself is checked against the file's first word (read_stream_header_record, error 1): not a chunk, not here.
+ *  - The loaders of other files (read_cd_file_by_index_into_memory: programs, "PS-X") and the entry handlers (load_stream_image etc.,
+ *    which only copy a slot to the video memory) do not check chunks.
+ * The header is read as the game reads it (patch_game): the archive-header words that the loader rewrites (the full animation sets')
+ * count as what the game compares with. With fix, where a built chunk's word differs, the record's word is made the chunk's for the game's
+ * reads (a game-only range: the runtime's own reads keep the disc's header), as the full animation sets and the talk pages did for theirs;
+ * without fix, each difference is named on a line. Returns the chunks that differ. */
+static void add_game_range(int f, unsigned offset, unsigned char *bytes, unsigned size);
+static unsigned first_words(struct port_disc *d, int fix)
+{
+    void (*hook)(unsigned, unsigned char *, unsigned) = port_disc_patch_hook;
+    unsigned i, bad = 0, checked = 0;
+    char err[PORT_ERR];
+    for (i = 0; i < file_count; i++) {
+        unsigned char head[PORT_DATA], buf[PORT_DATA];
+        unsigned count, c, at = PORT_DATA;
+        const char *dot = strrchr(files[i].name, '.');
+        if (!built[i] || !dot || strcmp(dot, ".pac") || files[i].size < PORT_DATA) continue;
+        port_disc_patch_hook = patch_game;
+        if (port_disc_read(d, files[i].sector, PORT_DATA, head, err, sizeof err) != 0) { port_disc_patch_hook = hook; continue; }
+        count = head[0];   /* record_limit: read_stream_header_record takes the header's first byte */
+        if (count > (PORT_DATA - 0x20) / 32) { port_disc_patch_hook = hook; continue; }
+        for (c = 0; c < count; c++) {
+            const unsigned char *e = head + 0x20 + 32 * c;
+            unsigned table = le32_at(e) >> 16, kind = le32_at(e) & 0xffffu, n = le32_at(e + 4), want = le32_at(e + 8), got;
+            if (n > files[i].size || at > files[i].size - n) break;
+            if (n >= 4 && table <= 5 && !(table == 0 && kind == 0xffffu)) {
+                unsigned own = 0;
+                port_disc_patch_hook = NULL;
+                if (port_disc_read(d, files[i].sector + at / PORT_DATA, PORT_DATA, buf, err, sizeof err) == 0) own = le32_at(buf);
+                port_disc_patch_hook = patch_game;
+                if (port_disc_read(d, files[i].sector + at / PORT_DATA, PORT_DATA, buf, err, sizeof err) == 0) {
+                    got = le32_at(buf);
+                    checked++;
+                    if (got != want && fix) {   /* the header's word made the built chunk's, for the game's reads (its word, 8 bytes into the record) */
+                        unsigned char *w = malloc(4);
+                        if (!w) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+                        memcpy(w, buf, 4);
+                        add_game_range((int)i, 0x20u + 32u * c + 8u, w, 4);
+                        bad++;
+                    } else if (got != want) {
+                        bad++;
+                        printf("arcade: %s: chunk %u (table %u slot 0x%x) starts with 0x%08x where its header says 0x%08x (the %s's own 0x%08x)%s: the "
+                               "disc stream would read the file again\n", files[i].name, c, table, kind, got, want, pack_disc ? "pack" : "disc", own,
+                               table == 0 && kind == 2 ? ", unless both fighters are one kind" : "");
+                    }
+                }
+            }
+            at += (n + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
+        }
+        port_disc_patch_hook = hook;
+    }
+    port_disc_patch_hook = hook;
+    if (fix) printf("arcade: first words: %u chunks of the archives the loader builds in checked against their headers; %u headers' words made the built "
+                    "chunks' for the game's reads\n", checked, bad);
+    else if (bad) printf("arcade: first words: %u chunks checked, %u still differ\n", checked, bad);
+    fflush(stdout);
+    return bad;
 }
 
 static void add_game_range(int f, unsigned offset, unsigned char *bytes, unsigned size)
@@ -2388,6 +2475,13 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
         more += win_quotes(d, 0);
         more += talks(d, 0);
         if (more) index_ranges();
+    }
+    if (first_words(d, 1)) {   /* every streamed chunk must start with its header's word: where a built one does not, the header's word follows it */
+        index_ranges();
+        if (first_words(d, 0)) {
+            snprintf(err, size, "arcade: built chunks do not start with their archive header's word (listed above)");
+            return -1;
+        }
     }
     music_attach();
     port_disc_patch_hook = patch;
