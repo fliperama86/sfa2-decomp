@@ -27,6 +27,10 @@ void port_clock_frame_drawn(unsigned n) {(void)n;}
 unsigned port_frames(void) {return frames;}
 void port_tick(void) {frames++;}
 int port_intro_audio_prepare(char *err,size_t size) {(void)err;(void)size;prepared++;return 0;}
+int port_arcade_enabled(void) {return 0;}   /* the arcade loader is off here: the PS1 soundtrack's path */
+int port_arcade_sound(unsigned code) {(void)code;return 0;}
+void port_arcade_sound_stop(void) {}
+unsigned port_alive(void) {return 1;}   /* main.c: the game is running */
 void port_intro_audio_start(void) {audio_starts++;}
 void port_intro_audio_stop(void) {audio_stops++;}
 void port_intro_audio_gain(unsigned gain) {assert(gain<=65536);fade++;}

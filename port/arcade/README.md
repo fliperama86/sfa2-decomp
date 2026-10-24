@@ -345,7 +345,9 @@ scripts (nothing of it is in the tree):
   57 paired state by state through the two games' own music requests, two by
   elimination), the stream still read and consumed so the game's timing
   holds. The arcade's jingles are shorter than the PS1's recordings; the
-  rest of such a track is silent.
+  rest of such a track is silent. With the arcade intro (`arcade_intro`) as well, the intro's own
+  sound commands play the arcade opening's song (19) and the title's cue
+  (effect `0xbd`) in place of the PS1 opening's soundtrack.
 - **Samples** (`samples.py`, all banks). 355 of the 409 distinct PS1
   samples are arcade samples: the chip's sample taken as 24,000 Hz,
   resampled to a rate the bank's tone gives (44100 times 2 to the power of

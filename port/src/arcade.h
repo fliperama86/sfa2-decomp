@@ -28,6 +28,10 @@ unsigned port_arcade_program(unsigned char *ram, int check);
  * 1 if a file differs from the disc but for the PS1's known changes, else 0.
  * -1 with err if the disc's files cannot be listed. */
 int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size);
+/* Play the arcade's song or effect `code` through the loader's player (the arcade intro: its music and cue). 1 when it started, 0
+ * without the player (arcade_assets off). */
+int port_arcade_sound(unsigned code);
+void port_arcade_sound_stop(void);
 /* After port_arcade_attach without check: write the pack of the disc (port/arcade/README.md, "Playing without the disc"). */
 int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t size);
 

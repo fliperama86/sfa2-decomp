@@ -1049,6 +1049,25 @@ const struct port_override port_arcade_overrides[] = {
     { NULL, NULL, NULL, NULL }
 };
 
+int port_arcade_sound(unsigned code)
+{
+    int r;
+    if (!player) return 0;
+    port_audio_lock();
+    r = arcade_music_command(player, code) == 0;
+    port_audio_unlock();
+    return r;
+}
+
+void port_arcade_sound_stop(void)
+{
+    if (!player) return;
+    port_audio_lock();
+    arcade_music_stop(player);
+    playing = -1;
+    port_audio_unlock();
+}
+
 static void sound_counts(void)
 {
     printf("arcade: sound: %u requests played as the arcade's effects, %u as the PS1's own sounds\n", sounds_arcade, sounds_ps1);
