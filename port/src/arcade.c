@@ -718,6 +718,43 @@ static void synth_files(struct port_disc *d, int check)
     fflush(stdout);
 }
 
+/* The four full-colour illustrations of the endings' grade screen (ENDnn.PAC slots 0x2e to 0x31): the PS1's own pictures, which the arcade
+ * does not have and the owner does not need ("I dont care about the assets"). Each is built as a black picture of the same layout (a TIM of
+ * 8 bits a pixel: its CLUT at (384,255), 256 opaque black colours, and a 384 x 240 image at (384,0) of colour 0), served as built from the
+ * arcade alone, so a pack keeps none of them. */
+static void blank_pictures(struct port_disc *d, int check)
+{
+    unsigned i, slot, n = 0;
+    for (i = 0; i < file_count; i++) {
+        if (strncmp(files[i].name, "end", 3) || !strstr(files[i].name, ".pac")) continue;
+        for (slot = 0x2e; slot <= 0x31; slot++) {
+            unsigned at, size, k;
+            unsigned char *t;
+            if (pac_chunk(d, &files[i], slot, &at, &size) != 0 || size != 92704u) continue;
+            if (!(t = calloc(size, 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+            put_le32(t, 0x10u);                 /* a TIM */
+            put_le32(t + 4, 9u);                /* 8 bits a pixel, with a CLUT */
+            put_le32(t + 8, 524u);              /* the CLUT block: its size, then x, y, w, h */
+            t[12] = 0x80; t[13] = 0x01; t[14] = 0xff; t[15] = 0x00; t[16] = 0x00; t[17] = 0x01; t[18] = 0x01; t[19] = 0x00;
+            for (k = 0; k < 256; k++) { t[20 + 2 * k] = 0x00; t[21 + 2 * k] = 0x80; }   /* opaque black */
+            put_le32(t + 532, 92172u);          /* the image block: its size, then x, y, w (in 16-bit units), h */
+            t[536] = 0x80; t[537] = 0x01; t[538] = 0x00; t[539] = 0x00; t[540] = 0xc0; t[541] = 0x00; t[542] = 0xf0; t[543] = 0x00;
+            if (check) {   /* the layout is the disc's */
+                unsigned char *disc = disc_bytes(d, &files[i], at, 20);
+                unsigned char *img = disc_bytes(d, &files[i], at + 532, 12);
+                if (!disc || !img || memcmp(disc, t, 20) || memcmp(img, t + 532, 12)) printf("arcade check: %s: picture 0x%x is not laid out as the loader builds it\n", files[i].name, slot);
+                free(disc); free(img); free(t);
+            } else {
+                add_range_kind((int)i, at, t, size, 0);
+                ranges[range_count - 1].owned = 1;
+            }
+            n++;
+        }
+    }
+    printf("arcade%s: endings: %u of the PS1's own illustrations built as black pictures\n", check ? " check" : "", n);
+    fflush(stdout);
+}
+
 /* The index of the disc's file `name`; halts if there is none. */
 static int file_index(struct port_disc *d, const char *name)
 {
@@ -1977,6 +2014,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     wrong = fighters(d, check);
     wrong += sprite_chunks(d, check);
     synth_files(d, check);
+    blank_pictures(d, check);
     wrong += parts(d, check);
     module_data(d, check);
     stages(d, check);
