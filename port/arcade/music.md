@@ -436,10 +436,12 @@ results screen's `0x91`, `0x8a`, `0x84` (`0x7052`, `0x85a38`, `0x6db6`), the diz
 hand row places, are code `0xfffe` (`ARCADE_SOUND_SILENT`): the arcade plays nothing there (it has no per-effect stop; its effects end by
 themselves, and its select screen plays no fighter voice), and so is a sound whose sample no effect plays (6 sounds; two more are placed by list position, `0x1a6` and `0x116`). `HAND_OVERRIDE` replaces five measured rows by the arcade's own code: the results screen's count (`0xae`, routine `0x7006`) and four places of the hit ladder (`0x103`, `0x107` for both strengths and knock-outs). No row of the table is `0xffff` any more.
 
-**Runtime key.** The row is found by the FNV-1a 32 of the VAB header (the port sees it in `SsVabOpenHeadSticky(addr, vab_id)`: 3104 bytes for one program,
-512 more for each further one; remember it per `vab_id`) and of the entries of the run from `start` (the list memory at
-`table_8016e6e0[song] + 8 * start`). The generated `arcade_sounds[]` is sorted by that pair for a binary search; the same pair in two archives is the
-same sound (no key had differing banks). Stops: command 11 and `stop_all_keys_clear_table` become special command 1 (stop every effect, music kept),
+**Runtime key.** The runtime reads no part of the disc's sound data. `sounds.c` builds the sound chunks of every archive from its header sector alone
+(a VAB header the library can open, one minimal sequence for each of a sequence file's count, zeros for command lists and sample bodies; each chunk
+begins with the first word of its header record, which the disc stream compares), and each VAB header carries its bank's id in the id field (offset 8;
+a bank is a file and a slot, numbered from 1 by its place in `arcade_sound_banks[]`). A request finds its cell by the id of the header in its
+slot (`data_8017eb1c` table 3) and its start; `arcade_sounds[]` is sorted by that pair for a binary search (1654 cells). A request with no cell plays
+nothing and prints a trace line. Stops: command 11 and `stop_all_keys_clear_table` become special command 1 (stop every effect, music kept),
 `stop_sep_by_*` the same or command 2 on the voices of the side.
 
 **Uncertain.** (1) Sample matches: a weak match can name the wrong instrument (28 mapped sounds); the pitch and time check makes a chance agreement

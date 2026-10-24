@@ -879,40 +879,38 @@ static void blank_pictures(struct port_disc *d, int check)
     fflush(stdout);
 }
 
-/* The PS1's sound banks' samples (table 4 chunks, the VAB bodies): no request plays the PS1's sounds any more (sounds.py: every row is
- * the arcade's effect or silent), so the samples the game sends to the sound chip are zeros, built here (a pack keeps none of them). The
- * chunk's first word stays the disc's: the disc stream compares it with the archive header's copy. The banks' headers (table 3) and
- * sequences (table 5) stay: the sound library parses them. */
-static void silent_banks(struct port_disc *d, int check)
+/* The sound parts of the archives (tables 3 to 5: VAB headers, command lists, sequence files, sample bodies): no request plays the PS1's
+ * sounds any more (sounds.py: every row is the arcade's effect or silent), so none of it is read from the disc. The game's sound library
+ * and its disc stream still open and walk these chunks, so they are built from the archive's header sector alone (sounds.c: a header
+ * the library opens, one minimal sequence for each of a sequence file's count, zeros, each chunk starting with the first word of its
+ * record, which the stream compares). Each VAB header carries its bank's id (the table's bank for the file and slot), by which a
+ * request finds its cell. Served owned: a pack keeps none of it. */
+static void synthetic_banks(struct port_disc *d, int check)
 {
-    unsigned i, n = 0;
+    unsigned i, n[3] = {0, 0, 0}, skipped_all = 0;
     unsigned long long bytes = 0;
     for (i = 0; i < file_count; i++) {
         unsigned char head[PORT_DATA];
         char err[PORT_ERR];
-        unsigned count, at = PORT_DATA, c;
+        struct arcade_sound_chunk chunk[ARCADE_SOUND_CHUNKS];
+        unsigned count, c, skipped;
         if (!strstr(files[i].name, ".pac") || files[i].size < PORT_DATA || port_disc_read(d, files[i].sector, PORT_DATA, head, err, sizeof err) != 0) continue;
-        count = head[0] | head[1] << 8 | (unsigned)head[2] << 16 | (unsigned)head[3] << 24;
-        if (count > (PORT_DATA - 0x20) / 32) continue;
+        count = arcade_sound_plan(head, PORT_DATA, files[i].size, files[i].name, chunk, ARCADE_SOUND_CHUNKS, &skipped);
+        skipped_all += skipped;
         for (c = 0; c < count; c++) {
-            const unsigned char *e = head + 0x20 + 32 * c;
-            unsigned table = e[2] | e[3] << 8, size = e[4] | e[5] << 8 | (unsigned)e[6] << 16 | (unsigned)e[7] << 24;
-            if (size > files[i].size || at > files[i].size - size) break;
-            if (table == 4 && size > 4) {
-                if (!check) {
-                    unsigned char *z = calloc(size - 4u, 1);
-                    if (!z) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
-                    add_range_kind((int)i, at + 4u, z, size - 4u, 0);
-                    ranges[range_count - 1].owned = 1;
-                }
-                n++;
-                bytes += size - 4u;
+            n[chunk[c].kind]++;
+            bytes += chunk[c].size;
+            if (!check) {
+                unsigned char *z = malloc(chunk[c].size);
+                if (!z) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+                arcade_sound_write(&chunk[c], z);
+                add_range_kind((int)i, chunk[c].at, z, chunk[c].size, 0);
+                ranges[range_count - 1].owned = 1;
             }
-            at += (size + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
         }
     }
-    printf("arcade%s: sound: %u banks' samples (%llu bytes) are silence: every request plays the arcade's effect or nothing\n", check ? " check" : "",
-           n, bytes);
+    printf("arcade%s: sound: %u banks' samples and command lists, %u VAB headers and %u sequence files (%llu bytes) are built, none read from the disc;"
+           " %u chunks left the disc's\n", check ? " check" : "", n[ARCADE_SOUND_ZEROS], n[ARCADE_SOUND_VAB], n[ARCADE_SOUND_SEP], bytes, skipped_all);
     fflush(stdout);
 }
 
@@ -1727,85 +1725,12 @@ static void arcade_mix(short *out, int frames)
 }
 
 /* ---- sound effects: the game's sound requests as the arcade's effects (music.md section 12b), by the owner's word: "Just use
- * the arcade. It should sound as good as the arcade version". A request whose sound the arcade has plays as its effect; the
- * others play as on the PS1. */
+ * the arcade. It should sound as good as the arcade version". A request plays as the arcade's effect or, where the arcade has no
+ * such moment, nothing. */
 #define CHUNK_TABLES 0x8017eb1cu    /* data_8017eb1c: the chunk loader's six tables of destinations; table 3 slot s: bank slot s's VAB header */
-#define COMMAND_LISTS 0x8016e6e0u   /* table_8016e6e0[slot]: the bank slot's command list (8-byte entries) */
 #define CAMERA_X 0x801aa5e6u        /* box_margin[0] */
 #define OBJECT_X 0x12u              /* Object.pos_x */
-static unsigned sounds_arcade, sounds_ps1, sounds_silent;
-
-/* The disc's VAB headers (the chunks of table 3, slots 0 to 3, of every archive), each with its key (the table's key_vab). The
- * game's sound library writes into a header once it has opened it, so a slot's header in memory is known by the disc header it is
- * most like (sound_bank), not by its own key. */
-static uint32_t fnv(const unsigned char *p, size_t n, uint32_t h);
-static const unsigned char *game(unsigned address, size_t n);
-struct bank { uint32_t key; unsigned size; unsigned char *bytes; };
-static struct bank *banks;
-static unsigned bank_count;
-static struct { unsigned address, programs; unsigned char head[32]; uint32_t key; int known; } slot_bank[4];
-
-static void read_banks(struct port_disc *d)
-{
-    unsigned i, slot, nth, at, n, room = 0;
-    char err[PORT_ERR];
-    for (i = 0; i < file_count; i++) {
-        if (!strstr(files[i].name, ".pac")) continue;
-        for (slot = 0; slot < 4; slot++)
-            for (nth = 0; pac_chunk_nth(d, &files[i], 0x30000u | slot, nth, &at, &n) == 0; nth++) {
-                unsigned char *b;
-                if (n < 32 || n > 0x10000u || !(b = malloc(n))) continue;
-                if (port_disc_read(d, files[i].sector + at / PORT_DATA, n, b, err, sizeof err) != 0 || memcmp(b, "pBAV", 4) != 0) { free(b); continue; }
-                if (bank_count == room) {
-                    struct bank *more = realloc(banks, (room = room ? room * 2 : 64) * sizeof *more);
-                    if (!more) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
-                    banks = more;
-                }
-                banks[bank_count].key = fnv(b, n, 0x811c9dc5u);
-                banks[bank_count].size = n;
-                banks[bank_count].bytes = b;
-                bank_count++;
-            }
-    }
-}
-
-/* The key of the disc header that the header of `slot` in memory is. Once it has opened a header the library rewrites its last 512
- * bytes (the samples' sizes become their places in the sound chip's memory) and bytes 8 to 15 of each of the 128 program records
- * (0xff on the disc); the rest is compared: equal to one disc header, or 0 when none is (or several that differ are). */
-static int same_header(const unsigned char *disc, const unsigned char *memory, unsigned len)
-{
-    unsigned k;
-    for (k = 0; k < len - 512u; k++)
-        if (disc[k] != memory[k] && !(k >= 0x20u && k < 0x820u && (k - 0x20u) % 16u >= 8u)) return 0;
-    return 1;
-}
-
-static int sound_bank(unsigned slot, unsigned vh, unsigned programs, uint32_t *key)
-{
-    const unsigned char *h = game(vh, 32);
-    unsigned len = 3104u + 512u * (programs > 1 ? programs - 1 : 0), i, k, best = 0, best_same = 0;
-    if (!h) return 0;
-    if (slot_bank[slot].address == vh && slot_bank[slot].programs == programs && !memcmp(slot_bank[slot].head, h, 32)) {
-        *key = slot_bank[slot].key;
-        return slot_bank[slot].known;
-    }
-    if (!(h = game(vh, len))) return 0;
-    for (i = 0, k = 0; i < bank_count; i++) {
-        if (banks[i].size != len || !same_header(banks[i].bytes, h, len)) continue;
-        if (best_same && banks[i].key != banks[best].key) k = 1;   /* two disc headers of other keys fit */
-        best_same = len - 512u;
-        best = i;
-    }
-    slot_bank[slot].address = vh;
-    slot_bank[slot].programs = programs;
-    memcpy(slot_bank[slot].head, h, 32);
-    slot_bank[slot].known = best_same && !k;
-    slot_bank[slot].key = slot_bank[slot].known ? banks[best].key : 0;
-    port_trace_line("arcade: sound slot %u: the header at 0x%08x (%u bytes) %s 0x%08x", slot, vh, len,
-                    slot_bank[slot].known ? "is the disc's header of key" : k ? "fits disc headers of several keys:" : "is no disc header:", slot_bank[slot].key);
-    *key = slot_bank[slot].key;
-    return slot_bank[slot].known;
-}
+static unsigned sounds_arcade, sounds_ps1, sounds_silent, sounds_nocell;
 
 static const unsigned char *game(unsigned address, size_t n)
 {
@@ -1818,41 +1743,26 @@ static unsigned word_at(unsigned address)
     return p ? (unsigned)p[0] | (unsigned)p[1] << 8 | (unsigned)p[2] << 16 | (unsigned)p[3] << 24 : 0;
 }
 
-static uint32_t fnv(const unsigned char *p, size_t n, uint32_t h)
-{
-    size_t i;
-    for (i = 0; i < n; i++) h = (h ^ p[i]) * 0x01000193u;
-    return h;
-}
-
-/* Play the request as the arcade's effect: 1, or 0 when the arcade has no effect for it. */
+/* Play the request as the arcade's effect: 1 when it is handled (played, silent on purpose, or a request with no cell, which plays
+ * nothing), 0 when the PS1's own sound is to play (no player). The bank in the slot is known by the id in the VAB header that
+ * synthetic_banks built (the id field, offset 8); the cell is the bank's and the start's. */
 static int arcade_effect(unsigned slot, int alt, unsigned start, int pos)
 {
-    const unsigned char *h, *e;
-    unsigned vh, list, programs, k, lo = 0, hi = arcade_sound_count, code, dx, pan;
-    uint32_t key_vab, key_run = 0x811c9dc5u;
+    const unsigned char *h;
+    const struct arcade_sound *cell;
+    unsigned vh, bank, k, code, dx, pan;
     unsigned char packet[16];
     if (!player || slot > 3) return 0;
     vh = word_at(word_at(CHUNK_TABLES + 12u) + 4u * slot);
-    if (!(h = game(vh, 0x14))) return 0;
-    programs = h[0x12] | h[0x13] << 8;
-    if (!sound_bank(slot, vh, programs, &key_vab)) return 0;
-    list = word_at(COMMAND_LISTS + 4u * slot);
-    for (k = start; k < start + 80u; k++) {   /* the sound's entries: up to the first without bit 23 of word 1 */
-        if (!(e = game(list + 8u * k, 8))) return 0;
-        key_run = fnv(e, 8, key_run);
-        if (!(e[6] & 0x80)) break;
+    h = game(vh, 0x20);
+    bank = h && !memcmp(h, "pBAV", 4) ? (unsigned)h[8] | (unsigned)h[9] << 8 : 0;
+    cell = bank ? arcade_sound_find(bank, start) : NULL;
+    port_trace_line("arcade: sound slot %u start %u: header 0x%08x bank %u: %s", slot, start, vh, bank, cell ? "known" : "not known");
+    if (!cell) {   /* no cell: nothing plays (the PS1's sound path is silent, its samples are zeros) */
+        sounds_nocell++;
+        return 1;
     }
-    while (lo < hi) {
-        unsigned mid = (lo + hi) / 2;
-        const struct arcade_sound *a = &arcade_sounds[mid];
-        if (a->key_vab < key_vab || (a->key_vab == key_vab && a->key_run < key_run)) lo = mid + 1;
-        else hi = mid;
-    }
-    port_trace_line("arcade: sound slot %u start %u: header 0x%08x programs %u key 0x%08x, run key 0x%08x: %s", slot, start, vh, programs, key_vab, key_run,
-                    lo < arcade_sound_count && arcade_sounds[lo].key_vab == key_vab && arcade_sounds[lo].key_run == key_run ? "known" : "not known");
-    if (lo == arcade_sound_count || arcade_sounds[lo].key_vab != key_vab || arcade_sounds[lo].key_run != key_run) return 0;
-    code = alt ? arcade_sounds[lo].code1 : arcade_sounds[lo].code0;
+    code = alt ? cell->code1 : cell->code0;
     if (code == ARCADE_SOUND_NONE) return 0;
     if (code == ARCADE_SOUND_SILENT) {   /* the arcade plays nothing at this moment (sounds.py's decisions): handled, no PS1 sound */
         sounds_silent++;
@@ -1933,8 +1843,8 @@ void port_arcade_sound_stop(void)
 
 static void sound_counts(void)
 {
-    printf("arcade: sound: %u requests played as the arcade's effects, %u silent as the arcade, %u as the PS1's own sounds\n", sounds_arcade, sounds_silent,
-           sounds_ps1);
+    printf("arcade: sound: %u requests played as the arcade's effects, %u silent as the arcade, %u with no cell in the table, %u as the PS1's own sounds\n",
+           sounds_arcade, sounds_silent, sounds_nocell, sounds_ps1);
     fflush(stdout);
 }
 
@@ -2348,7 +2258,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     wrong += sprite_chunks(d, check);
     synth_files(d, check);
     blank_pictures(d, check);
-    silent_banks(d, check);
+    synthetic_banks(d, check);
     wrong += parts(d, check);
     module_data(d, check);
     stages(d, check);
@@ -2365,7 +2275,6 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
-    read_banks(d);
     if (pack_disc) {   /* what is served now must be what was served when the pack was made */
         unsigned i;
         for (i = 0; i < file_count; i++) {

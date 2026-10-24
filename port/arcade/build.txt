@@ -25,6 +25,7 @@ screen_lists.c
 screen_lists_table.c
 module_data.c
 module_data_table.c
+sounds.c
 sounds_table.c
 full_sets.c
 full_sets_table.c

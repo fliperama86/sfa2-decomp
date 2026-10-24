@@ -11,6 +11,7 @@ and the silent outcome (code 0xfffe).
 import hashlib
 import math
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -19,6 +20,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'port/arcade'))
 import sounds as K   # noqa: E402
+
+ARC = ROOT / 'port/arcade'
+FLAGS = ('-std=c99', '-O1', '-Wall', '-Wextra', '-Werror')
+SAN = ('-fsanitize=address,undefined', '-fno-sanitize-recover=undefined', '-g')
 
 
 def entry(cmd=0, low=0, pan=0xff, prog=0, tone=0, chan=16, prio=10, vol=100, note=60, more=0):
@@ -185,6 +190,143 @@ class Pure(unittest.TestCase):
         self.assertEqual(variable['play_sound_at'], 1)
 
 
+VAB_MAGIC, SEP_MAGIC = 0x56414270, 0x53455170
+
+
+def archive_header(chunks):
+    """The header sector of an archive: count, then 32-byte records (type = table << 16 | slot, size, first word, count)."""
+    head = bytearray(2048)
+    struct.pack_into('<I', head, 0, len(chunks))
+    for i, (table, slot, size, param, count) in enumerate(chunks):
+        struct.pack_into('<IIIh', head, 0x20 + 32 * i, table << 16 | slot, size, param, count)
+    return bytes(head)
+
+
+class Chunks(unittest.TestCase):
+    """sounds.c with the generated table: the plan of an archive's sound chunks, the bytes written, and the library's and the stream's
+    comparisons (models in tests/sounds_test.c of sdk/libsnd/vs_vh.c and sepinit.c) on them."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.dir = tempfile.TemporaryDirectory()
+        cls.exe = Path(cls.dir.name) / 'sounds_test'
+        subprocess.run(['gcc', *FLAGS, *SAN, '-I', str(ARC), str(ARC / 'sounds.c'), str(ARC / 'sounds_table.c'), str(ARC / 'tests/sounds_test.c'), '-o', str(cls.exe)],
+                       check=True, timeout=240)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.dir.cleanup()
+
+    def run_exe(self, *args):
+        return subprocess.run([str(self.exe), *map(str, args)], capture_output=True, text=True, timeout=60)
+
+    def plan(self, chunks, file_size, name='pl00.pac'):
+        head = Path(self.dir.name) / 'head'
+        head.write_bytes(archive_header(chunks))
+        r = self.run_exe('plan', head, file_size, name)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        lines = [ln.split() for ln in r.stdout.splitlines()]
+        return [[int(x, 0) for x in ln] for ln in lines[:-1]], int(lines[-1][1])
+
+    def test_table_is_sorted_and_banks_numbered(self):
+        r = self.run_exe('count')
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertRegex(r.stdout, r'banks \d+ sounds \d+')
+        first = self.run_exe('bank', 'cont00.pac', 0).stdout.strip()
+        self.assertEqual(first, '1')
+        self.assertEqual(self.run_exe('bank', 'nofile.pac', 0).stdout.strip(), '0')
+        self.assertEqual(self.run_exe('bank', 'cont00.pac', 3).stdout.strip(), '0')
+        self.assertEqual(self.run_exe('find', 0, 0).returncode, 1)               # bank 0 is none
+        self.assertEqual(self.run_exe('find', 1, 9999).returncode, 1)
+
+    def test_every_hand_row_is_reachable_by_bank_and_start(self):
+        # CONT00 slot 0, the list entries 7 and 8 are the hand rows 0x8a and 0x84
+        bank = int(self.run_exe('bank', 'cont00.pac', 0).stdout)
+        r = self.run_exe('find', bank, 7)
+        self.assertEqual(r.stdout.split()[:2], [str(0x8a), str(0x8a)])
+        r = self.run_exe('find', bank, 8)
+        self.assertEqual(r.stdout.split()[:2], [str(0x84), str(0x84)])
+
+    def test_plan_and_bytes(self):
+        body, vab, lst, sep = 96800, 3104, 80, 17 * 4 + 6
+        chunks = [(3, 0, vab, VAB_MAGIC, 0), (3, 4, lst, 0x12345678, 0), (4, 0, body, 0xdeadbeef, 0), (5, 0x100, sep, SEP_MAGIC, 4)]
+        size = 2048 + 4096 + 2048 + (body + 2047) // 2048 * 2048 + 2048
+        plan, skipped = self.plan(chunks, size)
+        self.assertEqual(skipped, 0)
+        self.assertEqual([p[0] for p in plan], [1, 0, 0, 2])                      # vab, zeros, zeros, sep
+        self.assertEqual([p[1] for p in plan], [2048, 6144, 8192, 8192 + (body + 2047) // 2048 * 2048])
+        bank = int(self.run_exe('bank', 'pl00.pac', 0).stdout)
+        self.assertEqual(plan[0][5], bank)
+        self.assertEqual(plan[0][4], body)
+        self.assertEqual(plan[3][6], 4)
+        head = Path(self.dir.name) / 'head'
+        head.write_bytes(archive_header(chunks))
+        out = Path(self.dir.name) / 'out'
+        out.mkdir(exist_ok=True)
+        r = self.run_exe('write', head, size, 'pl00.pac', out)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        v = (out / '2048').read_bytes()
+        self.assertEqual((len(v), struct.unpack_from('<I', v)[0]), (vab, VAB_MAGIC))      # the first word is the record's
+        self.assertEqual(struct.unpack_from('<H', v, 8)[0], bank)                         # the id field
+        r = self.run_exe('vab', out / '2048', body)
+        self.assertEqual(r.stdout.split(), ['ok', str(bank), '1', str(body), 'sum-equals-body'])
+        for at, word, n in ((6144, 0x12345678, lst), (8192, 0xdeadbeef, body)):
+            z = (out / str(at)).read_bytes()
+            self.assertEqual((len(z), struct.unpack_from('<I', z)[0], any(z[4:])), (n, word, False))
+        r = self.run_exe('sep', out / str(plan[3][1]), 4)
+        self.assertEqual(r.stdout.split(), ['ok', str(sep)])                              # four sequences take exactly the chunk's bytes
+
+    def test_programs_and_sizes(self):
+        for ps in (1, 2, 3, 4):
+            vab = 2592 + 512 * ps
+            body = 8 * 1234
+            chunks = [(3, 1, vab, VAB_MAGIC, 0), (4, 1, body, 1, 0)]
+            fsize = 2048 + (vab + 2047) // 2048 * 2048 + (body + 2047) // 2048 * 2048
+            plan, skipped = self.plan(chunks, fsize, 'pl01x.pac')
+            self.assertEqual((len(plan), skipped), (2, 0))
+            head = Path(self.dir.name) / 'head'
+            head.write_bytes(archive_header(chunks))
+            out = Path(self.dir.name) / 'out'
+            out.mkdir(exist_ok=True)
+            self.run_exe('write', head, fsize, 'pl01x.pac', out)
+            r = self.run_exe('vab', out / '2048', body)
+            self.assertEqual(r.stdout.split()[2:5], [str(ps), str(body), 'sum-equals-body'])
+
+    def test_largest_sequence_file_fits_and_is_walked(self):
+        for count in (1, 2, 14):
+            size = 17 * count + 6
+            chunks = [(5, 0x101, size, SEP_MAGIC, count)]
+            plan, skipped = self.plan(chunks, 2048 + size)
+            self.assertEqual((len(plan), skipped), (1, 0))
+            head = Path(self.dir.name) / 'head'
+            head.write_bytes(archive_header(chunks))
+            out = Path(self.dir.name) / 'out'
+            out.mkdir(exist_ok=True)
+            self.run_exe('write', head, 2048 + size, 'pl00.pac', out)
+            self.assertEqual(self.run_exe('sep', out / '2048', count).stdout.split(), ['ok', str(size)])
+
+    def test_chunks_it_cannot_write_are_left_out(self):
+        body = 800
+        bad = [(3, 0, 3104, 0x11111111, 0),            # not the magic
+               (3, 1, 3105, VAB_MAGIC, 0),             # not a header size
+               (3, 2, 3104, VAB_MAGIC, 0),             # no body for the slot
+               (3, 3, 3104, VAB_MAGIC, 0), (4, 3, 801, 1, 0),   # a body that is not a multiple of 8
+               (4, 0, 2, 1, 0),                        # too short for a first word
+               (5, 0x100, 5, SEP_MAGIC, 1),            # too small for its sequence
+               (5, 0x101, 40, SEP_MAGIC, 0),           # no sequence
+               (5, 0x102, 100, 0x10101010, 3),         # not a sequence file
+               (5, 0x005, 100, SEP_MAGIC, 1)]          # a SEQ slot
+        size = 2048 * 12 + 4 * 3104
+        plan, skipped = self.plan(bad, size)
+        self.assertEqual([p for p in plan if p[0] != 0 or p[2] != 801], [])      # the one body that is a plain chunk of zeros
+        self.assertEqual(skipped, 9)
+
+    def test_a_table_that_runs_past_the_file_stops(self):
+        chunks = [(4, 0, 4096, 1, 0), (4, 1, 4096, 1, 0)]
+        plan, skipped = self.plan(chunks, 2048 + 4096)
+        self.assertEqual(len(plan), 1)
+
+
 class Resolution(unittest.TestCase):
     """A made-up bank: sample 1 (root 72, natural rate 44100) plays instrument 0, sample 2 plays instrument 1, sample 3 has no source."""
 
@@ -285,7 +427,7 @@ class Resolution(unittest.TestCase):
         self.assertEqual((r[5]['silent'], r[6]['silent']), ('no-effect', 'no-record'))          # nothing falls back to the PS1's sound
         self.assertEqual((r[7]['code0'], r[7]['method']), (0x190, 'exact'))                    # a measured row is left alone
         effects = {}
-        text = K.c_table(rows, effects)
+        text = K.c_table(rows, effects, [('SELECT', 0), ('PL99', 0)])
         self.assertEqual(text.count('0xfffe, 0xfffe, 8,'), 1)
         self.assertEqual(text.count('0xfffe, 0xfffe, 9,'), 2)
         self.assertEqual(text.count('0xfffe, 0xfffe, 12,'), 1)
@@ -332,16 +474,17 @@ class Resolution(unittest.TestCase):
         self.assertFalse(any(r['conflict'] for r in again))
 
     def test_table(self):
-        text = K.c_table(self.rows(), self.effects)
+        text = K.c_table(self.rows(), self.effects, [('PL99', 0)])
         self.assertIn('const struct arcade_sound arcade_sounds[] = {', text)
         self.assertIn('arcade_sound_count = 6;', text)
         self.assertEqual(text.count('0x180, 0x280, 0,'), 1)
         self.assertEqual(text.count('0xffff, 0xffff, 9,'), 1)                 # no source
         self.assertEqual(text.count('0xffff, 0xffff, 11,'), 1)                # no effect
         self.assertEqual(text.count('0xffff, 0xffff, 8,'), 1)                 # stop
-        lines = [ln for ln in text.splitlines() if ln.startswith('    {0x')]
-        hashes = [ln.split(',')[0:2] for ln in lines]
-        self.assertEqual(hashes, sorted(hashes))                            # sorted by key for a binary search
+        self.assertIn('{"pl99.pac", 0}', text)
+        cells = [tuple(int(x) for x in ln.strip().strip('{},').split(',')[:2]) for ln in text.splitlines() if ln.startswith('    {') and '"' not in ln]
+        self.assertEqual(cells, sorted(cells))                              # sorted by (bank id, start) for a binary search
+        self.assertEqual(cells[0][0], 1)                                    # the first bank's id is 1
         self.assertNotIn(chr(0x2014), text)
 
 
