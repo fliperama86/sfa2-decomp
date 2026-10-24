@@ -98,7 +98,7 @@ def spec_text(d):
     lines += [f'extra {a} {c} {f} {fl}' for a, c, f, fl in d['extras']]
     lines += [f'hole {a} {c}' for a, c in d['holes']]
     lines += [f'more {k} {c} {st} {kind} {arg}' for k, st, c, kind, arg in d.get('more', ())]
-    lines += [f'object {"ZERO" if f == S.RUN_ZERO else "DISC" if f == S.RUN_DISC else f} {c} {fl}' for f, c, fl in d['object_runs']]
+    lines += [f'object {"ZERO" if f == S.RUN_ZERO else "DISC" if f == S.RUN_DISC else "BLANK" if f == S.RUN_BLANK else f} {c} {fl}' for f, c, fl in d['object_runs']]
     return '\n'.join(lines) + '\n'
 
 
@@ -136,7 +136,11 @@ class StageC(unittest.TestCase):
         if r.returncode == 1 and r.stdout.startswith('error: '):
             return r.stdout[7:].strip()
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        return {label: ((out / f'{name}.bin').read_bytes(), (out / f'{name}.known').read_bytes()) for label, name in PIECES}
+        got = {label: ((out / f'{name}.bin').read_bytes(), (out / f'{name}.known').read_bytes()) for label, name in PIECES}
+        names = dict(PIECES)
+        got['owned'] = {label for label, name in PIECES if name in (out / 'owned.txt').read_text().split()}
+        got['own'] = {'palettes': (out / 'palettes.own').read_bytes()}
+        return got
 
     def same(self, world, d):
         built = self.run_c(world, d)
@@ -145,6 +149,8 @@ class StageC(unittest.TestCase):
         for label, _name in PIECES:
             self.assertEqual(built[label][0], bytes(model[label][0]), f'{label} data')
             self.assertEqual(built[label][1], bytes(model[label][1]), f'{label} known')
+        self.assertEqual(built['owned'], model['owned'])
+        self.assertEqual(built['own'], {k: bytes(v) for k, v in model['own'].items()})
         return built, model
 
     def test_all_pieces_equal_the_model(self):
@@ -245,6 +251,41 @@ class StageC(unittest.TestCase):
         self.assertEqual(data[640:768], self.world.arc.tile(0x10004, 16, False, True))
         self.assertEqual(data[768:896], self.world.arc.tile(0x10004, 16, True, True))
 
+    def test_palettes_by_design_are_own_not_known(self):
+        w = self.world
+        more = [(65, 2, 1, S.MORE_ROW, 0x275c40), (67, 2, 2, S.MORE_APPROX, 0x275c60), (71, 1, 1, S.MORE_BLANK, 0), (73, 2, 2, S.MORE_FILL, 0)]
+        d = w.descriptor(count=160, pal_exact=(1 << 3), more=more)
+        built, model = self.same(w, d)
+        data, known = built['palettes']
+        own = built['own']['palettes']
+        for k, kn, ow in ((65, 1, 0), (67, 0, 1), (69, 0, 1), (71, 0, 1), (73, 1, 0), (75, 1, 0), (3, 1, 0), (66, 0, 0)):
+            self.assertEqual((known[32 * k], own[32 * k]), (kn, ow), k)
+            self.assertEqual(known[32 * k:32 * k + 32], bytes([kn]) * 32)
+            self.assertEqual(own[32 * k:32 * k + 32], bytes([ow]) * 32)
+        want = [0] + [S.arcade_color_to_ps1(x) or 0x8000 for x in struct.unpack_from('>15H', w.arc.prog, 0x275c60 + 0x20)]
+        self.assertEqual(list(struct.unpack_from('<16H', data, 69 * 32)), want)        # the approximating row is the arcade's, entry 0 transparent
+        self.assertEqual(data[71 * 32:72 * 32], bytes(32))
+        self.assertFalse(any(k and o for k, o in zip(known, own)))
+        d = w.descriptor(count=160, more=[(65, 1, 1, 4, 0)])
+        with self.assertRaises(ValueError):
+            S.model_stage(w.arc, d)
+        self.assertIsInstance(self.run_c(w, d), str)
+
+    def test_object_tiles_blank_by_design_are_owned_only_without_disc_runs(self):
+        w = self.world
+        runs = [(S.RUN_ZERO, 1, 0), (0x10002, 2, 1), (S.RUN_BLANK, 3, 0), (0x10004, 1, 2)]
+        built, model = self.same(w, w.descriptor(objects=runs))
+        data, known = built['object tiles']
+        self.assertEqual(built['owned'], {'object tiles'})
+        self.assertEqual(known, b'\1' * 128 * 3 + b'\0' * 128 * 3 + b'\1' * 128)       # the blank ones are not known: they differ from the disc's by design
+        self.assertEqual(data[384:768], bytes(384))
+        # a disc run beside them: the chunk is not built whole, so nothing is owned
+        built2, _m = self.same(w, w.descriptor(objects=runs + [(S.RUN_DISC, 1, 0)]))
+        self.assertEqual(built2['owned'], set())
+        # blank runs only, and no blank run: the same rule
+        self.assertEqual(self.same(w, w.descriptor(objects=[(S.RUN_BLANK, 2, 0)]))[0]['owned'], {'object tiles'})
+        self.assertEqual(self.same(w, w.descriptor(objects=[(S.RUN_ZERO, 2, 0)]))[0]['owned'], set())
+
     def test_palettes_and_object_palettes(self):
         d = self.world.descriptor(count=128, pal_exact=(1 << 0) | (1 << 1) | (1 << 64) | (1 << 66) | (1 << 101))
         built, _model = self.same(self.world, d)
@@ -320,6 +361,24 @@ class StageC(unittest.TestCase):
         plain, _m = self.same(w, w.descriptor(module=0x6000))
         self.assertEqual(built['pages'][0], plain['pages'][0])
 
+    def test_extras_of_quarters_of_32_pixel_tiles(self):
+        w = self.world
+        f = lambda q, fl=0: S.SCROLL3_FLIP | q << S.QUARTER_SHIFT | fl
+        extras = [(400, 3, 5, f(2)), (410, 1, 6, f(1, 1)), (411, 1, 6, f(3, 2)), (412, 2, 8, f(0, 3)), (420, 1, 0x4000 + 3, f(1)), (430, 1, 0x10000 + 3, 1)]
+        built, model = self.same(w, w.descriptor(extras=extras))
+        pages = built['pages'][0]
+        self.assertEqual(S.get_slot(pages, 400, 16), w.arc.quarter(5, 2, False, False))
+        self.assertEqual(S.get_slot(pages, 402, 16), w.arc.quarter(7, 2, False, False))
+        self.assertEqual(S.get_slot(pages, 410, 16), w.arc.quarter(6, 1, True, False))
+        self.assertEqual(S.get_slot(pages, 413, 16), w.arc.quarter(9, 0, True, True))
+        self.assertEqual(S.get_slot(pages, 430, 16), w.arc.tile(0x10000 + 3, 16, True, False))
+        for name, bad in (('quarter bits without the scroll 3 flag', 16), ('an undefined bit', 64), ('a 32 pixel tile outside the graphics', None)):
+            run = (400, 1, len(w.gfx) // 512 + 3, f(1)) if bad is None else (400, 1, 5, bad)
+            d = w.descriptor(extras=[run])
+            with self.assertRaises(ValueError, msg=name):
+                S.model_stage(w.arc, d)
+            self.assertIsInstance(self.run_c(w, d), str, name)
+
     def test_the_known_bits_run_through_the_extra_maps(self):
         w = self.world
         xm = ((), ({'map': 0x3000, 'ids': [2, 0]},), ({'map': 0x4100, 'ids': [1, 2]},))
@@ -360,14 +419,15 @@ class StageC(unittest.TestCase):
         if r.returncode == 1 and r.stdout.startswith('error: '):
             return r.stdout[7:].strip()
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        return (out / 'palettes.bin').read_bytes(), (out / 'palettes.known').read_bytes()
+        return (out / 'palettes.bin').read_bytes(), (out / 'palettes.known').read_bytes(), (out / 'palettes.own').read_bytes()
 
     def test_the_second_palette_chunk_is_runs_of_arcade_rows_and_filler(self):
         prog = self.world.arc.prog
         more = [(0, 2, 5, S.MORE_ROW, 0x275c40), (1, 2, 3, S.MORE_FILL, 0), (64, 1, 4, S.MORE_ROW, S.PALETTE_TABLES[1] + 0x400 * 3), (127, 1, 1, S.MORE_ROW, 0x275c40)]
         got = self.run_pal(prog, 4096, more)
-        data, known = S.model_shared_palettes(prog, 4096, more)
-        self.assertEqual((got[0], got[1]), (bytes(data), bytes(known)))
+        own = bytearray(4096)
+        data, known = S.model_shared_palettes(prog, 4096, more, own)
+        self.assertEqual(got, (bytes(data), bytes(known), bytes(own)))
         self.assertEqual(sum(1 for k in range(128) if known[32 * k]), 5 + 3 + 4 + 1)
         want = [0] + [S.arcade_color_to_ps1(x) or 0x8000 for x in struct.unpack_from('>15H', prog, 0x275c40 + 0x40)]
         self.assertEqual(list(struct.unpack_from('<16H', got[0], 2 * 32)), want)
@@ -375,7 +435,7 @@ class StageC(unittest.TestCase):
             with self.assertRaises(ValueError):
                 S.model_shared_palettes(prog, 4096, bad)
             self.assertIsInstance(self.run_pal(prog, 4096, bad), str, bad)
-        self.assertEqual(self.run_pal(prog, 0, []), (b'', b''))
+        self.assertEqual(self.run_pal(prog, 0, []), (b'', b'', b''))
 
     def test_the_layer_sizes_the_ps1_has(self):
         d = self.world.descriptor()

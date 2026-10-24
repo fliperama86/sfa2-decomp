@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "stage.h"
+#include "quarter.h"
 
 #define FIRST_PAGE 22u
 #define PAGE_BYTES 32768u
@@ -555,6 +556,13 @@ static int build_more(struct ctx *c, const struct arcade_stage_more *more, unsig
             k = (unsigned)m->k + (unsigned)m->step * i;
             if (k >= count)
                 return fail(c, "a palette run leaves the chunk (palette %u)", k, 0);
+            if (m->kind == ARCADE_STAGE_MORE_BLANK) {
+                memset(p->data + 32u * k, 0, 32);
+                memset(p->own + 32u * k, 1, 32);
+                continue;
+            }
+            if (m->kind > ARCADE_STAGE_MORE_BLANK)
+                return fail(c, "a palette run has an unknown kind (%u)", m->kind, 0);
             if (m->kind == ARCADE_STAGE_MORE_FILL) {
                 unsigned j;
                 for (j = 0; j < 16; j++)
@@ -563,7 +571,7 @@ static int build_more(struct ctx *c, const struct arcade_stage_more *more, unsig
                 return -1;
             }
             put_palette(p, k, w);
-            memset(p->known + 32u * k, 1, 32);
+            memset(m->kind == ARCADE_STAGE_MORE_APPROX ? p->own + 32u * k : p->known + 32u * k, 1, 32);
         }
     }
     return 0;
@@ -605,12 +613,14 @@ static int build_object_palettes(struct ctx *c, const struct arcade_stage *s, st
 static int build_runs(struct ctx *c, const struct arcade_stage_run *runs, unsigned count, struct arcade_stage_piece *p)
 {
     uint64_t at = 0;
-    unsigned r;
+    unsigned r, blank = 0, disc = 0;
     uint32_t k;
     for (r = 0; r < count; r++) {
         if (at + 128ull * runs[r].count > p->size)
             return fail(c, "tile runs are longer than the chunk (%u bytes)", p->size, 0);
-        if (runs[r].first == ARCADE_STAGE_DISC) {
+        if (runs[r].first == ARCADE_STAGE_DISC || runs[r].first == ARCADE_STAGE_BLANK) {
+            blank |= runs[r].first == ARCADE_STAGE_BLANK;     /* zeros, not known: the disc has the PS1's own art here */
+            disc |= runs[r].first == ARCADE_STAGE_DISC;
             at += 128ull * runs[r].count;
             continue;
         }
@@ -627,6 +637,7 @@ static int build_runs(struct ctx *c, const struct arcade_stage_run *runs, unsign
     }
     if (at != p->size)
         return fail(c, "tile runs are shorter than the chunk (%u of %u bytes)", (unsigned)at, p->size);
+    p->owned = blank && !disc;
     return 0;
 }
 
@@ -637,13 +648,15 @@ static int piece_open(struct arcade_stage_piece *p, uint32_t size)
     p->size = size;
     p->data = calloc(size ? size : 1u, 1);
     p->known = calloc(size ? size : 1u, 1);
-    return p->data && p->known ? 0 : -1;
+    p->own = calloc(size ? size : 1u, 1);
+    return p->data && p->known && p->own ? 0 : -1;
 }
 
 void arcade_stage_piece_free(struct arcade_stage_piece *p)
 {
     free(p->data);
     free(p->known);
+    free(p->own);
     memset(p, 0, sizeof *p);
 }
 
@@ -746,14 +759,27 @@ int arcade_stage_build(const uint8_t *program, size_t program_size, const uint8_
             goto bad;
         }
         for (k = 0; k < s->extras[e].count; k++) {
-            uint8_t tile[128];
+            uint8_t tile[128], quarter[128];
+            unsigned flip = s->extras[e].flip;
             int64_t at = slot_place(s->extras[e].slot + k, 16, out->pages.size);
-            const uint8_t *t = tile_ptr(&c, s->extras[e].first + k, 128);
+            const uint8_t *t;
+            if (flip & ~(3u | ARCADE_STAGE_SCROLL3 | 3u << ARCADE_STAGE_QUARTER_SHIFT) || (!(flip & ARCADE_STAGE_SCROLL3) && flip >> ARCADE_STAGE_QUARTER_SHIFT)) {
+                fail(&c, "an extra run %u has a bad flip (%u)", e, flip);
+                goto bad;
+            }
+            if (flip & ARCADE_STAGE_SCROLL3) {
+                const uint8_t *t32 = tile_ptr(&c, s->extras[e].first + k, 512);
+                if (t32)
+                    arcade_quarter(t32, (flip >> ARCADE_STAGE_QUARTER_SHIFT) & 3u, quarter);
+                t = t32 ? quarter : NULL;
+            } else {
+                t = tile_ptr(&c, s->extras[e].first + k, 128);
+            }
             if (at < 0 || !t) {
                 fail(&c, "an extra tile %u does not fit (%u)", e, k);
                 goto bad;
             }
-            ps1_tile(t, 16, (int)(s->extras[e].flip & 1u), (int)((s->extras[e].flip >> 1) & 1u), tile);
+            ps1_tile(t, 16, (int)(flip & 1u), (int)((flip >> 1) & 1u), tile);
             put_slot(out->pages.data, at, 16, tile);
         }
     }

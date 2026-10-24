@@ -1,6 +1,7 @@
 /* Every tile of a fighter file's sprite chunk, built from the arcade graphics (sprite_tiles.h has the contract). Project-authored,
  * plain C99; the table that drives it (sprite_tiles_table.c) holds codes, flips and counts only. */
 #include "sprite_tiles.h"
+#include "quarter.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -32,14 +33,6 @@ static void convert(const uint8_t *t, unsigned flip, uint8_t out[128])
             for (plane = 0; plane < 4; plane++) v |= ((t[sy * 8u + (sx / 8u) * 4u + plane] >> (7u - sx % 8u)) & 1u) << plane;
             out[y * 8u + x / 2u] |= (uint8_t)(((v + 1u) & 15u) << (x & 1u ? 4 : 0));
         }
-}
-
-/* Quarter q (0 top left, 1 top right, 2 bottom left, 3 bottom right) of a 32 x 32 pixel arcade tile (rows of 16 bytes: four groups of
- * four planes) as a 16 x 16 tile's bytes (rows of 8 bytes). */
-static void quarter(const uint8_t *t32, unsigned q, uint8_t out[128])
-{
-    unsigned y;
-    for (y = 0; y < 16; y++) memcpy(out + y * 8u, t32 + (y + 16u * (q >> 1)) * 16u + 8u * (q & 1u), 8);
 }
 
 int arcade_sprite_tiles_build(const struct arcade_sprite_chunk *c, const uint8_t *tiles, size_t tiles_size, uint8_t (*out)[128],
@@ -83,7 +76,7 @@ int arcade_sprite_tiles_build(const struct arcade_sprite_chunk *c, const uint8_t
             }
             if (run->flip & ARCADE_SPRITE_SCROLL3) {
                 uint8_t q[128];
-                quarter(tiles + (size_t)code * 512u, (run->flip >> ARCADE_SPRITE_QUARTER_SHIFT) & 3u, q);
+                arcade_quarter(tiles + (size_t)code * 512u, (run->flip >> ARCADE_SPRITE_QUARTER_SHIFT) & 3u, q);
                 convert(q, run->flip & 3u, out[at + i]);
             } else {
                 convert(tiles + (size_t)code * 128u, run->flip, out[at + i]);

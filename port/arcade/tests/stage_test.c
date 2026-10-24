@@ -6,12 +6,12 @@
  * SPEC (build) is text, one item a line:
  *   stage N | size MODULE PAGES PALETTES OBJECTS | pal LO HI
  *   layer N MAP ACROSS DOWN START FLAGS ID_COUNT ADDRESS...
- *   extra SLOT COUNT FIRST FLIP | hole SLOT COUNT | object FIRST COUNT FLIP   (FIRST may be ZERO or DISC)
+ *   extra SLOT COUNT FIRST FLIP | hole SLOT COUNT | object FIRST COUNT FLIP   (FIRST may be ZERO, DISC or BLANK)
  *   exc LAYER CELL SLOT   (SLOT may be NEW) | cknown LAYER WORD... | tknown LAYER WORD...   (64-bit words)
- *   more K COUNT STEP KIND ARG   (KIND 0 rows from ARG, 1 filler)
+ *   more K COUNT STEP KIND ARG   (KIND 0 rows from ARG, 1 filler, 2 the row from ARG by design, 3 blank by design)
  *   xmap LAYER MAP BLOCKS ID...   (an extra map of layer 1 or 2: BLOCKS arcade block numbers, two to a page)
  * SPEC (runs) is "TOTAL" then "object" lines; SPEC (pal) is "total BYTES" then "more" lines (the chunk is palettes.bin). OUTDIR gets module.bin pages.bin palettes.bin objects.bin objpal.bin and a
- * .known file for each; a line "error: ..." on stdout and status 1 when the build refuses. */
+ * .known and .own file for each, and owned.txt (the names of the pieces that are owned); a line "error: ..." on stdout and status 1 when the build refuses. */
 #include "../stage.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,13 +49,14 @@ static int dump(const char *dir, const char *name, const char *ext, const void *
 
 static int dump_piece(const char *dir, const char *name, const struct arcade_stage_piece *p)
 {
-    return dump(dir, name, ".bin", p->data, p->size) || dump(dir, name, ".known", p->known, p->size);
+    return dump(dir, name, ".bin", p->data, p->size) || dump(dir, name, ".known", p->known, p->size) || dump(dir, name, ".own", p->own, p->size);
 }
 
 static uint32_t first_word(const char *w)
 {
     if (!strcmp(w, "ZERO")) return ARCADE_STAGE_ZERO;
     if (!strcmp(w, "DISC")) return ARCADE_STAGE_DISC;
+    if (!strcmp(w, "BLANK")) return ARCADE_STAGE_BLANK;
     return (uint32_t)strtoul(w, NULL, 0);
 }
 
@@ -192,6 +193,12 @@ static int build(const char *prog_path, const char *tiles_path, const char *spec
         if (dump_piece(dir, "module", &out.module) || dump_piece(dir, "pages", &out.pages) || dump_piece(dir, "palettes", &out.palettes) ||
             dump_piece(dir, "objects", &out.object_tiles) || dump_piece(dir, "objpal", &out.object_palettes))
             rc = 4;
+        {
+            char text[64];
+            snprintf(text, sizeof text, "%s%s%s%s%s", out.module.owned ? "module " : "", out.pages.owned ? "pages " : "", out.palettes.owned ? "palettes " : "",
+                     out.object_tiles.owned ? "objects " : "", out.object_palettes.owned ? "objpal " : "");
+            if (dump(dir, "owned", ".txt", text, strlen(text))) rc = 4;
+        }
         arcade_stage_free(&out);
     }
     free_spec(&sp);
@@ -277,7 +284,7 @@ static int table(void)
         }
         if (!(s->layer[1].flags & ARCADE_STAGE_START_RULE) && s->layer[1].start < s->layer[0].start) { printf("layers out of order at %u\n", i); return 1; }
         for (k = 0; k < s->more_count; k++)
-            if (!s->more[k].count || !s->more[k].step || s->more[k].kind > ARCADE_STAGE_MORE_FILL) { printf("bad palette run at %u\n", i); return 1; }
+            if (!s->more[k].count || !s->more[k].step || s->more[k].kind > ARCADE_STAGE_MORE_BLANK) { printf("bad palette run at %u\n", i); return 1; }
         for (k = 0; k < s->extra_count; k++)
             if (!s->extras[k].count) { printf("empty extra run at %u\n", i); return 1; }
     }

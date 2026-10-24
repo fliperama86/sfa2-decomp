@@ -698,11 +698,29 @@ LIST_REGION = ((0x1d000, 0x1d0c0), (0x1d0f8, 0x1d2a0), (0x1d2cc, 0x1d7cc))   # w
 LIST_TABLES = (0x1cff4, 0x1d0ec)           # u16 offsets a stage, from the table + 4 (layer 0) and + 0xc (layer 1)
 LIST2_ROW = (0x1d2cc, 0x40, 14)            # layer 2: 16 rows of 4 ids a stage, 0x40 bytes apart; the stage's row is 14
 SET_COUNT, BLOCK16_COUNT, BLOCK32_COUNT = 143, 154, 101
-RUN_ZERO, RUN_DISC = 0xfffffffe, 0xffffffff   # a run of tiles: transparent ones, or ones the arcade does not have
+RUN_ZERO, RUN_DISC, RUN_BLANK = 0xfffffffe, 0xffffffff, 0xfffffffd   # a run of tiles: transparent ones, ones the arcade does not have (the disc's), or those blank by design
+
+# Object tiles (table 0 slot 9) that no arcade tile makes, blank by the owner's rule ("rebuild arcade-style": blank what the arcade does
+# not show). {file: (tiles, evidence)}; describe turns exactly that many tiles of RUN_DISC into RUN_BLANK and refuses a stage whose count
+# differs, so nothing is blanked silently. The chunk is then built whole from the arcade and served to every read (owned).
+BLANK_BY_DESIGN = {
+    # STAGE04 (Chun-Li's stage): 937 of the chunk's 960 tiles, three runs (418, 360 and 159) of bicycle riders drawn with hats, wheels and
+    # spokes. None is an arcade tile: not under the 4 flips, not under any relabelling of colour indexes, not a quarter of a 32 x 32 scroll 3
+    # tile, and only 6 % of their 8 x 8 pieces occur at any offset inside an arcade 16 x 16 tile (measured 2026-10-24). The arcade's own
+    # riders are the animation frames of its layer 2 (blocks 9, 25, 43, 67 and 68, built as the extra map of the stage), which show
+    # (inferred) the same scene; these sprites are the PS1's own redrawn ones, so the arcade shows nothing in their place.
+    'STAGE04.PAC': (937, 'bicycle riders, no arcade tile; the arcade has its riders in the layer 2 animation blocks'),
+    # STAGE01: tile 275, one corner of a gradient (colours 11 to 14) that is no arcade tile under any flip or relabelling.
+    'STAGE01.PAC': (1, 'one gradient corner tile, no arcade tile'),
+}
+
 MAP_EXACT, TILES_EXACT, START_RULE = 1, 2, 4   # flags of a layer: its map, its tiles in the pages, equal the disc's; its start is the packing rule's
 FORCE_NEW = 0xffffffff                      # an exception slot: the cell takes a new slot though an equal tile exists
+SCROLL3_FLIP, QUARTER_SHIFT = 8, 4          # flip bits of an extras run beyond the flips: its codes are 32 pixel tiles, a quarter (bits 4 and 5) each (sprite_tiles.py's rule)
 XKEY = 1 << 20                              # cells of the extra maps of a layer have x = XKEY * (map number + 1) + x of the map, so keys never meet a layer cell's
-MORE_ROW, MORE_FILL = 0, 1                  # kinds of run of the 'more' palettes: arcade rows from an address, or filler rows
+MORE_ROW, MORE_FILL, MORE_APPROX, MORE_BLANK = 0, 1, 2, 3   # kinds of run of the 'more' palettes: arcade rows from an address, filler rows; by design (not the disc's,
+                                            # `own`): the arcade row that stands for a row of the disc that differs from it, or a transparent row
+APPROX_MAX_DIFF = 6                         # a 'more' palette of a stage's first chunk is the nearest arcade row when at most this many of its 15 entries differ, else blank
 FILL_COLOUR = 0x322                         # the colour of a filler palette (all 15 entries), as an arcade word
 OBJECT_PALETTES_BYTES = 224
 
@@ -746,6 +764,19 @@ class Arc:
         key = (index, side, bool(flip_x), bool(flip_y))
         if key not in self._tiles:
             rows = self.rows(index, side)
+            if flip_y:
+                rows = rows[::-1]
+            if flip_x:
+                rows = [r[::-1] for r in rows]
+            self._tiles[key] = pack_rows(rows)
+        return self._tiles[key]
+
+    def quarter(self, index, q, flip_x=False, flip_y=False):
+        """The PS1 bytes of quarter q (0 top left, 1 top right, 2 bottom left, 3 bottom right) of the 32 x 32 pixel graphics tile `index`
+        (512 bytes), taken first and then flipped: a 16 x 16 tile (sprite_tiles.py's quarter_raw is the same rule on the bytes)."""
+        key = (index, 'q', q, bool(flip_x), bool(flip_y))
+        if key not in self._tiles:
+            rows = [r[(q & 1) * 16:(q & 1) * 16 + 16] for r in self.rows(index, 32)[(q >> 1) * 16:(q >> 1) * 16 + 16]]
             if flip_y:
                 rows = rows[::-1]
             if flip_x:
@@ -1000,12 +1031,12 @@ def ids_of(arc, layer):
 
 def tile_run_bytes(arc, runs, total):
     """(bytes, known) of a list of tile runs (first, count, flip) as the PS1's tile list of `total` bytes. A run of transparent tiles
-    is zeros (known), a run of RUN_DISC tiles is zeros (not known); a run of arcade tiles is those tiles, flipped."""
+    is zeros (known), a run of RUN_DISC or RUN_BLANK tiles is zeros (not known); a run of arcade tiles is those tiles, flipped."""
     out, known, at = bytearray(total), bytearray(total), 0
     for first, count, flip in runs:
         if at + 128 * count > total:
             raise ValueError('tile runs longer than the chunk')
-        if first == RUN_DISC:
+        if first in (RUN_DISC, RUN_BLANK):
             at += 128 * count
             continue
         for k in range(count):
@@ -1020,14 +1051,57 @@ def tile_run_bytes(arc, runs, total):
     return out, known
 
 
-def model_more(prog, out, known, count, more):
-    """Write into `out` (and mark in `known`) the runs (k, step, count, kind, arg) of palettes that are arcade rows from address arg
-    on (0x20 apart, MORE_ROW) or filler rows (MORE_FILL); a run that leaves the chunk of `count` palettes raises ValueError."""
+def runs_owned(runs):
+    """True when a tile run list is built whole from the arcade (stage.c sets `owned`): some run is blank by design and none is the disc's."""
+    return any(f == RUN_BLANK for f, _c, _fl in runs) and not any(f == RUN_DISC for f, _c, _fl in runs)
+
+
+# Page slots that no arcade tile makes (16 x 16 nor a quarter of a 32 x 32 pixel one) and that are blank by the same rule, as the object
+# tiles above. {file: (slots, evidence)}; describe refuses a file whose holes (slots with art no arcade tile makes, outside the layers) do not
+# add up to the count, and the table text says so. The slots stay zero in the build and unknown (`holes`) until the pages chunk is served whole.
+# Stage 06's holes are not in this table: they are layer 0 tiles of its extra sets, which the own layer 0 packing makes.
+HOLES_BLANK_BY_DESIGN = {
+    # STAGE0D: slots 207 to 222, one column of the first page: four frames of four tiles (a figure at a window, in all 15 colours); no
+    # arcade tile at 16 or 32 pixels (measured 2026-10-24: none under 4 flips, none as a quarter of a 32 x 32 tile).
+    'STAGE0D.PAC': (16, 'four 4-tile frames of a figure at a window, no arcade tile'),
+}
+
+
+def holes_by_design(name, holes):
+    """None when the holes (runs (slot, count)) are as HOLES_BLANK_BY_DESIGN says for the file (no entry: any holes are accepted, as the
+    ones of stage 06), else the refusal's text."""
+    if name not in HOLES_BLANK_BY_DESIGN:
+        return None
+    have, want = sum(c for _s, c in holes), HOLES_BLANK_BY_DESIGN[name][0]
+    return None if have == want else f'{name}: {have} page slots have no arcade source, the blank-by-design table says {want}'
+
+
+def blank_by_design(name, runs):
+    """The runs with the RUN_DISC ones made RUN_BLANK, as BLANK_BY_DESIGN says for the file; the string of a refusal when the count of tiles
+    the arcade does not have differs from the table's (a table entry for a file with none, or none for a file with some, is no match
+    either), so a stage that gains or loses own tiles is never blanked unseen."""
+    have = sum(c for f, c, _fl in runs if f == RUN_DISC)
+    want = BLANK_BY_DESIGN.get(name, (0, ''))[0]
+    if have != want:
+        return f'{name}: {have} object tiles have no arcade source, the blank-by-design table says {want}'
+    return [(RUN_BLANK if f == RUN_DISC else f, c, fl) for f, c, fl in runs]
+
+
+def model_more(prog, out, known, count, more, own=None):
+    """Write into `out` the runs (k, step, count, kind, arg) of palettes: arcade rows from address arg on (0x20 apart, MORE_ROW) or filler
+    rows (MORE_FILL), marked in `known`; or by design, marked in `own` instead: MORE_APPROX arcade rows that stand for rows of the disc that
+    differ, MORE_BLANK transparent rows. A run that leaves the chunk of `count` palettes raises ValueError."""
     for k0, step, n, kind, arg in more:
+        if kind not in (MORE_ROW, MORE_FILL, MORE_APPROX, MORE_BLANK):
+            raise ValueError('a palette run has an unknown kind')
         for i in range(n):
             k = k0 + step * i
             if k >= count:
                 raise ValueError('a palette run leaves the chunk')
+            if kind == MORE_BLANK:
+                out[32 * k:32 * k + 32] = bytes(32)
+                own[32 * k:32 * k + 32] = b'\1' * 32
+                continue
             if kind == MORE_FILL:
                 words = [FILL_COLOUR] * 15
             else:
@@ -1035,18 +1109,18 @@ def model_more(prog, out, known, count, more):
                     raise ValueError('a palette row lies outside the arcade program')
                 words = struct.unpack_from('>15H', prog, arg + 0x20 * i)
             struct.pack_into('<16H', out, 32 * k, 0, *[arcade_color_to_ps1(w) or 0x8000 for w in words])
-            known[32 * k:32 * k + 32] = b'\1' * 32
+            (own if kind == MORE_APPROX else known)[32 * k:32 * k + 32] = b'\1' * 32
 
 
-def model_shared_palettes(prog, size, more):
+def model_shared_palettes(prog, size, more, own=None):
     """(bytes, known) of the second palette chunk of a stage file (the same in every stage file): `size` bytes of palettes that are
-    all the runs `more` (arcade rows or filler rows); the others are zero and not known."""
+    all the runs `more`; the others are zero and not known. `own` (a bytearray of `size`) gets the palettes built by design."""
     out, known = bytearray(size), bytearray(size)
-    model_more(prog, out, known, size // 32, more)
+    model_more(prog, out, known, size // 32, more, own if own is not None else bytearray(size))
     return out, known
 
 
-def model_palettes(prog, stage, count, exact, more=()):
+def model_palettes(prog, stage, count, exact, more=(), own=None):
     """(bytes, known) of the layer palettes of a stage's palette chunk (count palettes of 16 words): the rows of the three layer
     tables where palette_group names them, converted. Palette k is known when bit k of `exact` is set. more: runs (k, step, count,
     kind, arg) of the other palettes: palettes k, k + step, ... are arcade rows from address arg on (0x20 apart, MORE_ROW) or filler
@@ -1059,7 +1133,7 @@ def model_palettes(prog, stage, count, exact, more=()):
         struct.pack_into('<16H', out, 32 * k, *predicted_palette(prog, stage, layer, row))
         if (exact >> k) & 1:
             known[32 * k:32 * k + 32] = b'\1' * 32
-    model_more(prog, out, known, count, more)
+    model_more(prog, out, known, count, more, own if own is not None else bytearray(count * 32))
     return out, known
 
 
@@ -1188,17 +1262,26 @@ def model_stage_pieces(arc, d):
                 mark_slot(pages_known, start + j, side, 0)
     for slot, count, first, flip in d['extras']:
         for k in range(count):
-            if not arc.has_tile(first + k) or not put_slot(pages, slot + k, 16, arc.tile(first + k, 16, flip & 1, flip & 2)):
+            if flip & ~(3 | SCROLL3_FLIP | 3 << QUARTER_SHIFT) or (not flip & SCROLL3_FLIP and flip >> QUARTER_SHIFT):
+                raise ValueError('an extra run has a bad flip')
+            if flip & SCROLL3_FLIP:
+                tile = arc.quarter(first + k, (flip >> QUARTER_SHIFT) & 3, flip & 1, flip & 2) if arc.has_tile(first + k, 32) else None
+            else:
+                tile = arc.tile(first + k, 16, flip & 1, flip & 2) if arc.has_tile(first + k) else None
+            if tile is None or not put_slot(pages, slot + k, 16, tile):
                 raise ValueError('an extra tile does not fit the pages or the arcade graphics')
     for slot, count in d['holes']:
         for k in range(count):
             if slot_ok(pages, slot + k, 16):
                 mark_slot(pages_known, slot + k, 16, 0)
     objects = tile_run_bytes(arc, d['object_runs'], sizes['object tiles'])
+    pal_own = bytearray(sizes['palettes'])
     return {'module': (module, module_known), 'pages': (pages, pages_known),
-            'palettes': model_palettes(arc.prog, d['stage'], sizes['palettes'] // 32, d['pal_exact'], d.get('more', ())),
+            'palettes': model_palettes(arc.prog, d['stage'], sizes['palettes'] // 32, d['pal_exact'], d.get('more', ()), pal_own),
             'object tiles': objects,
-            'object palettes': (model_object_palettes(arc.prog, d['stage']), b'\1' * OBJECT_PALETTES_BYTES)}
+            'object palettes': (model_object_palettes(arc.prog, d['stage']), b'\1' * OBJECT_PALETTES_BYTES),
+            'owned': {'object tiles'} if runs_owned(d['object_runs']) else set(),
+            'own': {'palettes': pal_own}}
 
 
 def mark_slot(known, slot, side, value=1):
@@ -1339,6 +1422,57 @@ def more_runs(arc, chunk, all_more=False):
     return sorted(runs)
 
 
+# The second palette chunk's 18 palettes that no arcade row makes (the other 110 are arcade rows). {palette: (arcade row address or None, why)}:
+# built by design, not equal to the disc's (MORE_APPROX, or MORE_BLANK for None); describe_shared_palettes refuses a chunk whose palettes
+# that are no arcade row are not exactly these. Measured 2026-10-24 on all 20 files (the chunk is the same in each).
+SHARED_PALETTES_BY_DESIGN = {
+    # 10 and 93: an arcade row but for one entry (the PS1 changed an entry: a flash colour).
+    10: (0x277040, 'one entry differs'), 93: (0x275be0, 'one entry differs'),
+    # 65 to 89 (odd): thirteen rows of four groups, each group the same fifteen colours as one of four consecutive arcade rows (0x29c240 to
+    # 0x29c2a0) laid out on other indexes, one entry a ramp of colours over the rows of a group (a fade of the PS1's making); the arcade tiles
+    # that use them are the arcade's own, so the arcade's row is the one that shows them as the arcade does (the ramp is not the arcade's).
+    65: (0x29c240, 'group 1'),
+    67: (0x29c260, 'group 2'), 69: (0x29c260, 'group 2'), 71: (0x29c260, 'group 2'), 73: (0x29c260, 'group 2'),
+    75: (0x29c280, 'group 3'), 77: (0x29c280, 'group 3'), 79: (0x29c280, 'group 3'), 81: (0x29c280, 'group 3'),
+    83: (0x29c2a0, 'group 4'), 85: (0x29c2a0, 'group 4'), 87: (0x29c2a0, 'group 4'), 89: (0x29c2a0, 'group 4'),
+    # 123, 125, 127: rows of two near-black tints (translucent shading of the PS1's own): no arcade row is near (7 or more entries differ),
+    # the arcade shows nothing like it: blank.
+    123: (None, 'near-black tint, no arcade row'), 125: (None, 'near-black tint, no arcade row'), 127: (None, 'near-black tint, no arcade row'),
+}
+
+
+def rows_list(arc):
+    """[(address, the 16 PS1 colours)] of the arcade's palette rows (0x20 apart in the palette region), cached."""
+    if not hasattr(arc, '_rows_list'):
+        arc._rows_list = [(at, (0,) + tuple(arcade_color_to_ps1(w) or 0x8000 for w in struct.unpack_from('>15H', arc.prog, at)))
+                          for at in range(MORE_ROWS_FROM, min(MORE_ROWS_TO, len(arc.prog) - 30), 0x20)]
+    return arc._rows_list
+
+
+def nearest_row(arc, have):
+    """(entries that differ, address) of the arcade row nearest to a palette of 16 colours (the lowest address among equals)."""
+    return min((sum(1 for a, b in zip(have, row) if a != b), at) for at, row in rows_list(arc))
+
+
+def design_runs(arc, chunk, runs, all_more=False, explicit=None):
+    """(runs by design, counts) for the palettes the exact runs leave out among those that no layer table names (all of them with all_more):
+    each is MORE_APPROX of the nearest arcade row when at most APPROX_MAX_DIFF entries differ, else MORE_BLANK. With `explicit` ({k: (address or
+    None, why)}) the palettes are exactly its keys and take its rows; otherwise the string of a refusal. counts: (approximated, blank)."""
+    count = len(chunk) // 32
+    done = {k + st * i for k, st, n, _kind, _arg in runs for i in range(n)}
+    left = [k for k in range(count) if k not in done and (all_more or palette_group(k, count)[0] == 'more')]
+    if explicit is not None:
+        if set(left) != set(explicit):
+            return f'the palettes no arcade row makes are {sorted(left)}, the table says {sorted(explicit)}'
+        out = [(k, 1, 1, MORE_BLANK if explicit[k][0] is None else MORE_APPROX, explicit[k][0] or 0) for k in left]
+    else:
+        out = []
+        for k in left:
+            diff, at = nearest_row(arc, struct.unpack_from('<16H', chunk, 32 * k))
+            out.append((k, 1, 1, MORE_APPROX, at) if diff <= APPROX_MAX_DIFF else (k, 1, 1, MORE_BLANK, 0))
+    return out, (sum(1 for r in out if r[3] == MORE_APPROX), sum(1 for r in out if r[3] == MORE_BLANK))
+
+
 def find_exceptions(cells, side, wants):
     """[(cell index, slot offset)] where the disc's cells differ from the first-use packing of place_layer: wants[i] is the slot offset
     (slot minus the layer's start) the disc gives cell i, or None when it is not on the pages. A cell whose tile the packing would put
@@ -1439,6 +1573,23 @@ def find_xmaps(arc, parts, d):
     return out
 
 
+def quarter_extras(arc, slots):
+    """[(slot, 1, 32 pixel tile, flip)] for the page slots [(slot, tile bytes)] whose tile is a quarter of one of the arcade's 32 x 32 pixel
+    tiles (sprite_tiles.py's index; the lowest tile, then quarter, then flip that makes it): the flip carries SCROLL3_FLIP and the quarter."""
+    if not slots:
+        return []
+    import sprite_tiles as X
+    if not hasattr(arc, '_index32'):
+        arc._index32 = X.tile_index32(arc.gfx)
+    out = []
+    for slot, tile in slots:
+        keys = X.candidates(tile, {}, None, arc._index32)
+        if keys:
+            k = keys[0] - X.BASE32
+            out.append((slot, 1, k >> 4, (k & 3) | SCROLL3_FLIP | (k >> 2 & 3) << QUARTER_SHIFT))
+    return out
+
+
 def describe(name, stage, parts, arc, helper, r):
     """The descriptor of one stage file: `parts` from split_stage, `r` from analyse (which blocks the layers are). Flags are set
     where the model equals the disc. Returns a dict, or a string when the file cannot be described."""
@@ -1476,7 +1627,9 @@ def describe(name, stage, parts, arc, helper, r):
     d['object_runs'] = []
     if 'object tiles' in parts:
         n, found_n, idx = helper.tiles(parts['object tiles'])
-        d['object_runs'] = tile_runs(parts['object tiles'], idx)
+        d['object_runs'] = blank_by_design(name, tile_runs(parts['object tiles'], idx))
+        if isinstance(d['object_runs'], str):
+            return d['object_runs']
     d['pal_exact'] = 0
     # where the disc's cells differ from the first-use packing, per layer: exceptions; then what the model builds equals the disc's
     for n, layer in enumerate(d['layers']):
@@ -1540,7 +1693,13 @@ def describe(name, stage, parts, arc, helper, r):
         chunk = b''.join(get_slot(pages, s, 16) for s in slots)
         matches = helper.tiles(chunk)[2]
         d['extras'] = slot_runs(slots, matches)
-        d['holes'] = hole_runs([s for s, m in zip(slots, matches) if m < 0])
+        left = [s for s, m in zip(slots, matches) if m < 0]
+        quarters = quarter_extras(arc, [(s, get_slot(pages, s, 16)) for s in left])
+        d['extras'] = sorted(d['extras'] + quarters)
+        d['holes'] = hole_runs([s for s in left if s not in {a for a, _c, _f, _fl in quarters}])
+    refusal = holes_by_design(name, d['holes'])
+    if refusal:
+        return refusal
     # palettes
     chunk = parts['palettes']
     count = len(chunk) // 32
@@ -1549,6 +1708,9 @@ def describe(name, stage, parts, arc, helper, r):
         if layer != 'more' and list(struct.unpack_from('<16H', chunk, 32 * k)) == predicted_palette(arc.prog, stage, layer, row):
             d['pal_exact'] |= 1 << k
     d['more'] = more_runs(arc, chunk)
+    design = design_runs(arc, chunk, d['more'])
+    d['more'] = sorted(d['more'] + design[0])
+    d['more_design'] = design[1]
     # the packing rule for the starts of layers 1 and 2
     s1, s2 = starts_by_rule(arc, d)
     if s1 == d['layers'][1]['start']:
@@ -1661,24 +1823,41 @@ def c_table(descs, shared, omitted, shared_pal=None):
             out += [f'    {{{a}u, {c}u, {f}u, {fl}u}},' for a, c, f, fl in d['extras']]
             out.append('};')
         if d['holes']:
+            if d['file'] in HOLES_BLANK_BY_DESIGN:
+                out.append(f'/* {d["file"]}: {sum(c for _s, c in d["holes"])} page slots are blank by design, the owner\'s rule "rebuild arcade-style": '
+                           f'{HOLES_BLANK_BY_DESIGN[d["file"]][1]} (stages.py HOLES_BLANK_BY_DESIGN has the evidence). */')
             out.append(f'static const struct arcade_stage_hole holes_{s}[] = {{')
             out += [f'    {{{a}u, {c}u}},' for a, c in d['holes']]
             out.append('};')
         if d['object_runs']:
+            blank = sum(c for f, c, _fl in d['object_runs'] if f == RUN_BLANK)
+            if blank:
+                out.append(f'/* {d["file"]}: {blank} of the {sum(c for _f, c, _fl in d["object_runs"])} object tiles are blank by design, the owner\'s rule "rebuild arcade-style":')
+                out.append(f' * {BLANK_BY_DESIGN[d["file"]][1]} (stages.py BLANK_BY_DESIGN has the evidence). The chunk is served whole, built from the arcade alone. */')
             out.append(f'static const struct arcade_stage_run objects_{s}[] = {{')
             out += [f'    {{{c_first(f)}, {c}u, {fl}u}},' for f, c, fl in d['object_runs']]
             out.append('};')
         if d.get('more'):
+            if d.get('more_design') and sum(d['more_design']):
+                out.append(f'/* {d["file"]}: {d["more_design"][0]} of the extra palettes are the nearest arcade row (at most {APPROX_MAX_DIFF} of 15 entries differ from the disc\'s row) and '
+                           f'{d["more_design"][1]} are blank (no arcade row is that near), by design, the owner\'s rule "rebuild arcade-style"; those are served owned. */')
             out.append(f'static const struct arcade_stage_more more_{s}[] = {{')
-            out += [f'    {{{k}u, {c}u, {st}u, {"ARCADE_STAGE_MORE_FILL" if kind == MORE_FILL else "ARCADE_STAGE_MORE_ROW"}, {arg:#x}u}},' for k, st, c, kind, arg in d['more']]
+            out += [f'    {{{k}u, {c}u, {st}u, {MORE_NAMES[kind]}, {arg:#x}u}},' for k, st, c, kind, arg in d['more']]
             out.append('};')
         out.append('')
     out.append('static const struct arcade_stage_run shared_runs[] = {')
     out += [f'    {{{c_first(f)}, {c}u, {fl}u}},' for f, c, fl in shared]
-    pal_size, pal_runs = shared_pal or (0, [])
+    sp = shared_pal or (0, [], (0, 0))
+    pal_size, pal_runs, pal_design = sp if len(sp) == 3 else (sp[0], sp[1], (0, 0))
     if pal_runs:
-        out += ['};', '', 'static const struct arcade_stage_more shared_pal_more[] = {']
-        out += [f'    {{{k}u, {c}u, {st}u, {"ARCADE_STAGE_MORE_FILL" if kind == MORE_FILL else "ARCADE_STAGE_MORE_ROW"}, {arg:#x}u}},' for k, st, c, kind, arg in pal_runs]
+        if any(r[3] in (MORE_APPROX, MORE_BLANK) for r in pal_runs):
+            out += ['};', '', f'/* The second palette chunk ({pal_size // 32} palettes, the same in every stage file): {sum(r[2] for r in pal_runs if r[3] in (MORE_ROW, MORE_FILL))} are arcade rows or filler rows, equal to the disc\'s;',
+                    f' * {pal_design[0]} are the arcade row that stands for a row of the disc that differs from it and {pal_design[1]} are blank, by design, the owner\'s rule "rebuild arcade-style"',
+                    ' * (stages.py SHARED_PALETTES_BY_DESIGN has the rows and the evidence); those are served owned, the rest equal. */']
+            out.append('static const struct arcade_stage_more shared_pal_more[] = {')
+        else:
+            out += ['};', '', 'static const struct arcade_stage_more shared_pal_more[] = {']
+        out += [f'    {{{k}u, {c}u, {st}u, {MORE_NAMES[kind]}, {arg:#x}u}},' for k, st, c, kind, arg in pal_runs]
     out += ['};', '', 'const struct arcade_stage_run *const arcade_stage_shared = shared_runs;',
             f'const unsigned arcade_stage_shared_count = {len(shared)}u;',
             f'const struct arcade_stage_more *const arcade_stage_shared_pal = {"shared_pal_more" if pal_runs else "0"};',
@@ -1706,14 +1885,17 @@ def c_table(descs, shared, omitted, shared_pal=None):
     return '\n'.join(out)
 
 
+MORE_NAMES = {MORE_ROW: 'ARCADE_STAGE_MORE_ROW', MORE_FILL: 'ARCADE_STAGE_MORE_FILL', MORE_APPROX: 'ARCADE_STAGE_MORE_APPROX', MORE_BLANK: 'ARCADE_STAGE_MORE_BLANK'}
+
+
 def c_first(f):
-    return {RUN_ZERO: 'ARCADE_STAGE_ZERO', RUN_DISC: 'ARCADE_STAGE_DISC'}.get(f, f'{f}u')
+    return {RUN_ZERO: 'ARCADE_STAGE_ZERO', RUN_DISC: 'ARCADE_STAGE_DISC', RUN_BLANK: 'ARCADE_STAGE_BLANK'}.get(f, f'{f}u')
 
 
 # ---------------------------------------------------------------- the C build, compared (--compare-c)
 
 class CPiece(ctypes.Structure):
-    _fields_ = [('data', ctypes.POINTER(ctypes.c_uint8)), ('known', ctypes.POINTER(ctypes.c_uint8)), ('size', ctypes.c_uint32)]
+    _fields_ = [('data', ctypes.POINTER(ctypes.c_uint8)), ('known', ctypes.POINTER(ctypes.c_uint8)), ('size', ctypes.c_uint32), ('owned', ctypes.c_int), ('own', ctypes.POINTER(ctypes.c_uint8))]
 
 
 class COut(ctypes.Structure):
@@ -1758,7 +1940,10 @@ class CLib:
         if rc:
             return err.value.decode()
         try:
-            return {label: self.take(getattr(out, field)) for label, field in PIECE_NAMES}, took
+            res = {label: self.take(getattr(out, field)) for label, field in PIECE_NAMES}
+            res['owned'] = {label for label, field in PIECE_NAMES if getattr(out, field).owned}
+            res['own'] = {label: ctypes.string_at(getattr(out, field).own, getattr(out, field).size) for label, field in PIECE_NAMES if label == 'palettes'}
+            return res, took
         finally:
             self.lib.arcade_stage_free(ctypes.byref(out))
 
@@ -1769,7 +1954,7 @@ class CLib:
         if self.lib.arcade_stage_build_shared_palettes(self.prog, len(self.prog), ctypes.byref(out), err, len(err)):
             return err.value.decode()
         try:
-            return self.take(out), time.perf_counter() - t0
+            return self.take(out), time.perf_counter() - t0, ctypes.string_at(out.own, out.size)
         finally:
             self.lib.arcade_stage_piece_free(ctypes.byref(out))
 
@@ -1829,6 +2014,19 @@ def xmap_text(d, built, parts):
     return f'; extra maps: {equal}/{cells} cells known and equal to the disc\'s, {good}/{slots} of their page slots ({ids})'
 
 
+def owned_text(built, parts, d):
+    """What is served whole as the loader's own: the pieces in built['owned'], with how many of their bytes are blank by design."""
+    text = ''
+    if built['owned']:
+        blank = 128 * sum(c for f, c, _fl in d['object_runs'] if f == RUN_BLANK) if d else 0
+        text += '; owned (built whole from the arcade, served to every read): ' + ', '.join(
+            f'{label} {len(parts[label])} bytes, {blank} of them blank by design' for label in sorted(built['owned']))
+    own = sum(1 for b in built['own']['palettes'] if b)
+    if own:
+        text += f'; palettes by design (the nearest arcade row or blank, served owned): {own} bytes'
+    return text
+
+
 def model_line(name, built, parts, rule=None, d=None):
     """One line: for each piece how many bytes the model builds and knows to be the disc's, and whether those bytes are."""
     items, ok = [], True
@@ -1839,14 +2037,14 @@ def model_line(name, built, parts, rule=None, d=None):
         items.append(f'{label} {k}/{len(disc)}')
     return (f'{name} model: ' + ', '.join(items) + ('; the known bytes equal the disc' if ok else '; KNOWN BYTES DIFFER from the disc') +
             (f'; layer starts by the packing rule: layer 1 {"yes" if rule[0] else "no"}, layer 2 {"yes" if rule[1] else "no"}' if rule else '') +
-            (xmap_text(d, built, parts) if d else ''))
+            (xmap_text(d, built, parts) if d else '') + owned_text(built, parts, d))
 
 
 def compare_line(name, built, model, parts, took, d=None):
     """One line: the C build against the model (data and known, every piece) and, at the known bytes, against the disc."""
     if isinstance(built, str):
         return f'{name}: C refused: {built}'
-    same_model = [label for label, _f in PIECE_NAMES if built[label] != model[label]]
+    same_model = [label for label, _f in PIECE_NAMES if built[label] != model[label]] + (['owned'] if built['owned'] != model['owned'] else []) + (['own'] if {k: bytes(v) for k, v in built['own'].items()} != {k: bytes(v) for k, v in model['own'].items()} else [])
     items, ok = [], True
     for label, _field in PIECE_NAMES:
         disc = parts.get(label, b'')
@@ -1854,7 +2052,7 @@ def compare_line(name, built, model, parts, took, d=None):
         ok &= same
         items.append(f'{label} {k}/{len(disc)}' + ('' if same else ' DIFFERS'))
     return (f'{name} C: ' + ('= model (all pieces, bytes and known)' if not same_model else 'DIFFERS from the model in ' + ', '.join(same_model)) +
-            '; = disc at the known bytes: ' + ', '.join(items) + (xmap_text(d, built, parts) if d else '') + f'; {took * 1000:.1f} ms')
+            '; = disc at the known bytes: ' + ', '.join(items) + (xmap_text(d, built, parts) if d else '') + owned_text(built, parts, d) + f'; {took * 1000:.1f} ms')
 
 
 def main(argv=None):
@@ -1915,10 +2113,18 @@ def main(argv=None):
                 print(shared, file=sys.stderr)
                 return 1
             pal_chunk = pal_parts[0] if pal_parts and all(p == pal_parts[0] for p in pal_parts) else None
-            pal_runs = more_runs(arc, pal_chunk, all_more=True) if pal_chunk else []
+            pal_runs, pal_design = [], (0, 0)
+            if pal_chunk:
+                pal_runs = more_runs(arc, pal_chunk, all_more=True)
+                design = design_runs(arc, pal_chunk, pal_runs, True, SHARED_PALETTES_BY_DESIGN)
+                if isinstance(design, str):
+                    omitted.append(('the second palette chunk', design))
+                    pal_chunk = None
+                else:
+                    pal_runs, pal_design = sorted(pal_runs + design[0]), design[1]
             if pal_parts and pal_chunk is None:
                 omitted.append(('the second palette chunk', "the stage files' chunks differ"))
-            text = c_table([d for d, _p in rows], shared, omitted, (len(pal_chunk), pal_runs) if pal_chunk else None)
+            text = c_table([d for d, _p in rows], shared, omitted, (len(pal_chunk), pal_runs, pal_design) if pal_chunk else None)
             if args.c_table:
                 sys.stdout.write(text)
             else:
@@ -1928,9 +2134,11 @@ def main(argv=None):
                 k, same = known_equal(shared_model, shared_disc)
                 print(f'shared tiles model: {k}/{len(shared_disc)} bytes from the arcade' + ('' if same else '; DIFFERS from the disc'))
                 if pal_chunk:
-                    pal_model = model_shared_palettes(prog, len(pal_chunk), pal_runs)
+                    pal_own = bytearray(len(pal_chunk))
+                    pal_model = model_shared_palettes(prog, len(pal_chunk), pal_runs, pal_own)
                     k, same = known_equal(pal_model, pal_chunk)
-                    print(f'shared palettes model: {k}/{len(pal_chunk)} bytes from the arcade ({k // 32} of {len(pal_chunk) // 32} palettes)' + ('' if same else '; DIFFERS from the disc'))
+                    print(f'shared palettes model: {k}/{len(pal_chunk)} bytes from the arcade ({k // 32} of {len(pal_chunk) // 32} palettes), '
+                          f'{sum(pal_own)} bytes by design ({pal_design[0]} the nearest arcade row, {pal_design[1]} blank), served owned' + ('' if same else '; DIFFERS from the disc'))
                 clib = None
                 if args.compare_c:
                     here = Path(__file__).resolve().parent / 'stages_table.c'
@@ -1961,7 +2169,7 @@ def main(argv=None):
                             print(f'shared palettes: C refused: {c_pal}')
                         else:
                             k, same = known_equal(c_pal[0], pal_chunk)
-                            print('shared palettes C: ' + ('= model' if c_pal[0] == pal_model else 'DIFFERS from the model') +
+                            print('shared palettes C: ' + ('= model' if c_pal[0] == pal_model and c_pal[2] == bytes(pal_own) else 'DIFFERS from the model') +
                                   f'; = disc at the known bytes: {k}/{len(pal_chunk)}' + ('' if same else ' DIFFERS') + f'; {c_pal[1] * 1000:.1f} ms')
                     print(f'C time for {len(rows)} stages: {total * 1000:.1f} ms')
         print(f'{len(names)} files in {time.monotonic() - started:.1f} s', file=sys.stderr if args.c_table else sys.stdout)

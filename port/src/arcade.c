@@ -900,7 +900,28 @@ static unsigned stage_piece(struct port_disc *d, int f, unsigned type, unsigned 
     if (!pc->data || !pc->size) return 0;
     if (pac_chunk_nth(d, &files[f], type, nth, &at, &n) != 0 || pc->size > n)
         port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no chunk 0x%x as the stage table says", files[f].name, type);
-    return serve_units(d, f, at, pc->data, pc->known, pc->size, 1, check);
+    if (pc->owned) {   /* built whole from the arcade (blank by design where it shows nothing): served to every read, a pack keeps none */
+        unsigned equal = pack_disc ? 0 : serve_units(d, f, at, pc->data, pc->known, pc->size, 1, 1);   /* counts the known bytes equal to the disc's */
+        if (!check) { add_range_kind(f, at, pc->data, pc->size, 0); ranges[range_count - 1].owned = 1; }
+        built_bytes[f] += pc->size - equal;
+        return pc->size;
+    }
+    {
+        unsigned served = serve_units(d, f, at, pc->data, pc->known, pc->size, 1, check), i = 0;
+        while (pc->own && i < pc->size) {   /* bytes built by design (the nearest arcade row, or blank): served owned, a pack keeps none */
+            unsigned j = i;
+            while (j < pc->size && pc->own[j]) j++;
+            if (j > i) {
+                if (!check) { add_range_kind(f, at + i, pc->data + i, j - i, 0); ranges[range_count - 1].owned = 1; }
+                built_bytes[f] += j - i;
+                served += j - i;
+                i = j;
+            } else {
+                i++;
+            }
+        }
+        return served;
+    }
 }
 
 /* The stage files: layer maps and their extra maps (in the stage module), texture pages, layer palettes, object tiles and palettes,

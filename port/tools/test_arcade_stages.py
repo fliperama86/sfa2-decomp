@@ -527,6 +527,61 @@ class Model(unittest.TestCase):
         with self.assertRaises(ValueError):
             stages.model_shared_palettes(bytes(prog), 64, [(0, 1, 3, stages.MORE_FILL, 0)])
 
+    def test_palettes_by_design(self):
+        w = World(7)
+        arc = stages.Arc(bytearray(w.arc.prog), w.arc.gfx)
+        prog = arc.prog
+        for row in range(8):
+            struct.pack_into('>16H', prog, 0x2a9000 + 0x20 * row, *[0x100 + 16 * row + c for c in range(16)])
+        for at in range(stages.MORE_ROWS_FROM, stages.MORE_ROWS_TO, 0x20):               # rows outside the made-up ones: far from anything
+            if not 0x2a9000 <= at < 0x2a9100:
+                struct.pack_into('>16H', prog, at, *[0xf00 + (at >> 5) % 7] * 16)
+        want = lambda row: [0] + [stages.arcade_color_to_ps1(x) or 0x8000 for x in struct.unpack_from('>15H', prog, 0x2a9000 + 0x20 * row)]
+        chunk = bytearray(160 * 32)
+        struct.pack_into('<16H', chunk, 32 * 65, *want(2))                           # exact: not by design
+        near = want(3)
+        near[4] ^= 1; near[9] ^= 1                                                  # 2 entries differ
+        struct.pack_into('<16H', chunk, 32 * 67, *near)
+        edge = want(4)
+        for i in range(1, 7): edge[i] ^= 1                                          # 6 entries differ: still near
+        struct.pack_into('<16H', chunk, 32 * 69, *edge)
+        far = want(5)
+        for i in range(1, 8): far[i] ^= 1                                           # 7 entries differ: blank
+        struct.pack_into('<16H', chunk, 32 * 71, *far)
+        chunk = bytes(chunk)
+        arc._row_index = None
+        arc._row_index = {}
+        for row in range(8):
+            arc._row_index.setdefault(tuple(want(row)), []).append(0x2a9000 + 0x20 * row)
+        runs = stages.more_runs(arc, chunk)
+        self.assertEqual(runs, [(65, 1, 1, stages.MORE_ROW, 0x2a9040)])
+        design, counts = stages.design_runs(arc, chunk, runs)
+        by_k = {r[0]: r for r in design}
+        self.assertEqual(by_k[67], (67, 1, 1, stages.MORE_APPROX, 0x2a9060))
+        self.assertEqual(by_k[69], (69, 1, 1, stages.MORE_APPROX, 0x2a9080))
+        self.assertEqual(by_k[71][3], stages.MORE_BLANK)
+        self.assertEqual(counts, (sum(1 for r in design if r[3] == stages.MORE_APPROX), sum(1 for r in design if r[3] == stages.MORE_BLANK)))
+        self.assertNotIn(65, by_k)
+        self.assertTrue(all(palette % 2 == 1 or palette >= 128 for palette in by_k))    # only palettes that no layer table names
+        # every palette is then built: rows, approximations (own) and blanks (own)
+        own = bytearray(len(chunk))
+        data, known = stages.model_palettes(bytes(prog), 3, 160, 0, sorted(runs + design), own)
+        self.assertEqual(list(struct.unpack_from('<16H', data, 32 * 67)), want(3))      # the arcade row, not the disc's two-entry variant
+        self.assertEqual(data[32 * 71:32 * 72], bytes(32))
+        self.assertEqual([k for k in range(160) if own[32 * k]], sorted(by_k))
+        self.assertEqual(known[32 * 65:32 * 66], b'\1' * 32)
+        # explicit rows (the second chunk's table): the palettes that no run makes are exactly the keys
+        small = chunk[32 * 65:32 * 65 + 32] + chunk[32 * 67:32 * 67 + 32] + chunk[32 * 71:32 * 71 + 32]
+        runs3 = stages.more_runs(arc, small, all_more=True)
+        self.assertEqual(runs3, [(0, 1, 1, stages.MORE_ROW, 0x2a9040)])
+        d2, counts2 = stages.design_runs(arc, small, runs3, True, {1: (0x2a9060, 'x'), 2: (None, 'y')})
+        self.assertEqual(d2, [(1, 1, 1, stages.MORE_APPROX, 0x2a9060), (2, 1, 1, stages.MORE_BLANK, 0)])
+        self.assertEqual(counts2, (1, 1))
+        self.assertIn('the table says [1]', stages.design_runs(arc, small, runs3, True, {1: (0x2a9060, 'x')}))
+        self.assertIn('the table says [1, 2, 0]'.replace('[1, 2, 0]', '[0, 1, 2]'), stages.design_runs(arc, small, runs3, True, {0: (None, ''), 1: (None, ''), 2: (None, '')}))
+        self.assertNotIn(chr(0x2014), ''.join(v[1] for v in stages.SHARED_PALETTES_BY_DESIGN.values()))
+        self.assertEqual(len(stages.SHARED_PALETTES_BY_DESIGN), 18)
+
     def test_locating_ids(self):
         prog = bytearray(0x100)
         prog[0x20:0x28] = bytes([0, 5, 6, 7, 0, 0, 9, 9])
@@ -583,6 +638,35 @@ class Model(unittest.TestCase):
         self.assertEqual(len(obj), 224)
         self.assertEqual(struct.unpack_from('<H', obj, 0)[0], 0)
 
+    def test_blank_by_design_object_tiles(self):
+        arc = stages.Arc(b'', bytes(0x10000 * 128 + 8 * 128))
+        runs = [(stages.RUN_ZERO, 1, 0), (0x10002, 2, 0), (stages.RUN_DISC, 4, 0)]
+        self.assertFalse(stages.runs_owned(runs))
+        # the table says how many tiles may be blanked: exactly that many, else a refusal that names both counts
+        saved = dict(stages.BLANK_BY_DESIGN)
+        try:
+            stages.BLANK_BY_DESIGN['T.PAC'] = (4, 'made up')
+            got = stages.blank_by_design('T.PAC', runs)
+            self.assertEqual(got, [(stages.RUN_ZERO, 1, 0), (0x10002, 2, 0), (stages.RUN_BLANK, 4, 0)])
+            self.assertTrue(stages.runs_owned(got))
+            self.assertIn('3 object tiles have no arcade source', stages.blank_by_design('T.PAC', runs[:2] + [(stages.RUN_DISC, 3, 0)]))
+            self.assertIn('the blank-by-design table says 0', stages.blank_by_design('U.PAC', runs))
+            self.assertEqual(stages.blank_by_design('U.PAC', runs[:2]), runs[:2])        # a file with none and no entry is unchanged
+            self.assertIn('the blank-by-design table says 4', stages.blank_by_design('T.PAC', runs[:2]))
+        finally:
+            stages.BLANK_BY_DESIGN.clear()
+            stages.BLANK_BY_DESIGN.update(saved)
+        data, known = stages.tile_run_bytes(arc, got, 7 * 128)
+        self.assertEqual(known, b'\1' * 384 + b'\0' * 512)
+        self.assertEqual(data[384:], bytes(512))
+        self.assertTrue(all(isinstance(v[0], int) and v[0] > 0 and v[1] for v in stages.BLANK_BY_DESIGN.values()))
+        self.assertNotIn(chr(0x2014), ''.join(v[1] for v in stages.BLANK_BY_DESIGN.values()))
+        # the generated table says so, with its comment
+        text = stages.c_table([dict(World(3).descriptor(objects=[(stages.RUN_ZERO, 1, 0), (stages.RUN_BLANK, 2, 0)]), file='STAGE04.PAC', stage=4)],
+                              [(0x10002, 1, 0)], [])
+        self.assertIn('{ARCADE_STAGE_BLANK, 2u, 0u},', text)
+        self.assertIn('2 of the 3 object tiles are blank by design', text)
+
     def test_run_bytes(self):
         gfx = bytearray(0x10000 * 128 + 8 * 128)
         for k in range(8):
@@ -601,7 +685,7 @@ class Model(unittest.TestCase):
             stages.tile_run_bytes(arc, [(0x20000, 1, 0)], 128)
 
 
-def make_stage_file(world, d, extra_tile_slots=(), hole_slots=()):
+def make_stage_file(world, d, extra_tile_slots=(), hole_slots=(), quarter_slots=()):
     """The parts of a made-up stage file as a disc would hold it: the model's own maps, pages and palettes, plus extra arcade tiles
     and tiles that are no arcade tile at some page slots; the module has layer setup functions find_layers can read."""
     built = stages.model_stage(world.arc, d)
@@ -612,6 +696,8 @@ def make_stage_file(world, d, extra_tile_slots=(), hole_slots=()):
     pages = bytearray(built['pages'][0])
     for slot, index, fx, fy in extra_tile_slots:
         stages.put_slot(pages, slot, 16, world.arc.tile(index, 16, fx, fy))
+    for slot, index, q, fx, fy in quarter_slots:
+        stages.put_slot(pages, slot, 16, world.arc.quarter(index, q, fx, fy))
     for slot in hole_slots:
         stages.put_slot(pages, slot, 16, bytes((slot * 7 + k * 13) % 251 | 1 for k in range(128)))
     palettes = bytearray(built['palettes'][0])
@@ -661,6 +747,44 @@ class Describe(unittest.TestCase):
         data, known = model['pages']
         self.assertTrue(all(a == b for a, b, k in zip(data, parts['pages'], known) if k))
         self.assertEqual(len(known) - sum(known), 2 * 128)
+
+    def test_page_slots_of_quarters_are_found_and_holes_counted(self):
+        w = self.world
+        d0 = w.descriptor(objects=[(0x10003, 2, 0)], count=96)
+        d0['sizes']['module'] = 0x4000
+        parts = make_stage_file(w, d0, extra_tile_slots=[(300, 0x1000a, False, False)], hole_slots=[310, 311],
+                                quarter_slots=[(302, 7, 1, False, False), (303, 7, 2, True, False), (304, 9, 3, False, True), (306, 9, 0, True, True)])
+        r = stages.analyse(parts, self.helper, 3, w.arc.prog)
+        d = stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r)
+        self.assertIsInstance(d, dict, d)
+        f = lambda q, fl: stages.SCROLL3_FLIP | q << stages.QUARTER_SHIFT | fl
+        self.assertEqual(d['extras'], [(300, 1, 0x1000a, 0), (302, 1, 7, f(1, 0)), (303, 1, 7, f(2, 1)), (304, 1, 9, f(3, 2)), (306, 1, 9, f(0, 3))])
+        self.assertEqual(d['holes'], [(310, 2)])
+        data, known = stages.model_stage(w.arc, d)['pages']
+        self.assertTrue(all(a == b for a, b, k in zip(data, parts['pages'], known) if k))
+        self.assertEqual(len(known) - sum(known), 2 * 128)             # only the holes are unknown
+        # a file whose holes the table counts: the count must match
+        stages.HOLES_BLANK_BY_DESIGN['TEST.PAC'] = (3, 'made up')
+        try:
+            self.assertIn('2 page slots have no arcade source, the blank-by-design table says 3', stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r))
+            stages.HOLES_BLANK_BY_DESIGN['TEST.PAC'] = (2, 'made up')
+            self.assertIsInstance(stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r), dict)
+            text = stages.c_table([dict(d, file='TEST.PAC')], [(0x10002, 1, 0)], [])
+            self.assertIn('2 page slots are blank by design', text)
+        finally:
+            del stages.HOLES_BLANK_BY_DESIGN['TEST.PAC']
+        self.assertIsNone(stages.holes_by_design('NOPE.PAC', [(1, 5)]))
+        self.assertIsNone(stages.holes_by_design('STAGE0D.PAC', [(207, 16)]))
+        self.assertIn('15 page slots', stages.holes_by_design('STAGE0D.PAC', [(207, 15)]))
+
+    def test_the_quarter_of_a_32_pixel_tile_is_the_rule_of_sprite_tiles(self):
+        import sprite_tiles as X
+        w = self.world
+        for t, q in ((5, 0), (5, 1), (9, 2), (11, 3)):
+            for fx in (False, True):
+                for fy in (False, True):
+                    want = X.flip_bytes(X.T.arcade_tile(X.quarter_raw(bytes(w.arc.gfx), t, q), 0), (1 if fx else 0) | (2 if fy else 0))
+                    self.assertEqual(w.arc.quarter(t, q, fx, fy), want, (t, q, fx, fy))
 
     def test_extra_maps_are_found_and_checked(self):
         w = self.world
@@ -714,6 +838,24 @@ class Describe(unittest.TestCase):
         self.assertEqual(bin(d['layers'][2]['tile_known']).count('1'), len(stages.model_stage_raw(w.arc, d)[1][2]) - 1)     # but one of its tiles is gone
         self.assertEqual((d['pal_exact'] >> 5) & 1, 0)
         self.assertEqual(bin(d['pal_exact']).count('1'), 95)
+
+    def test_own_object_tiles_are_refused_unless_the_table_blanks_them(self):
+        w = self.world
+        d0 = w.descriptor(objects=[(0x10003, 2, 0)], count=96)
+        d0['sizes']['module'] = 0x4000
+        parts = make_stage_file(w, d0)
+        own = dict(parts, **{'object tiles': parts['object tiles'] + bytes([0x37]) * 128})
+        r = stages.analyse(own, self.helper, 3, w.arc.prog)
+        refusal = stages.describe('TEST.PAC', 3, own, w.arc, self.helper, r)
+        self.assertIn('1 object tiles have no arcade source, the blank-by-design table says 0', refusal)
+        stages.BLANK_BY_DESIGN['TEST.PAC'] = (1, 'made up')
+        try:
+            d = stages.describe('TEST.PAC', 3, own, w.arc, self.helper, r)
+        finally:
+            del stages.BLANK_BY_DESIGN['TEST.PAC']
+        self.assertIsInstance(d, dict, d)
+        self.assertEqual(d['object_runs'][-1], (stages.RUN_BLANK, 1, 0))
+        self.assertEqual(stages.model_stage(w.arc, d)['owned'], {'object tiles'})
 
     def test_an_unreadable_module_is_reported(self):
         w = self.world

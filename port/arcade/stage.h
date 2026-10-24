@@ -15,6 +15,9 @@
 /* struct arcade_stage_run.first: the arcade graphics tile (128 bytes) the run starts at, or one of these. */
 #define ARCADE_STAGE_ZERO 0xfffffffeu   /* count transparent tiles (all zero) */
 #define ARCADE_STAGE_DISC 0xffffffffu   /* count tiles the arcade does not have: the disc's */
+#define ARCADE_STAGE_BLANK 0xfffffffdu  /* count tiles the arcade does not have and does not show: blank by the owner's rule ("rebuild
+                                         * arcade-style"), by design not equal to the disc's. A chunk whose runs have BLANK ones and no DISC
+                                         * one is built whole and `owned` (see arcade_stage_piece). */
 
 /* Flags of a layer. Without MAP_EXACT / TILES_EXACT the layer's cell_known / tile_known bits say which cells and tiles are known. */
 #define ARCADE_STAGE_MAP_EXACT 1u       /* the layer's cells in the module equal the disc's */
@@ -27,12 +30,20 @@
 /* Kinds of run of struct arcade_stage_more. */
 #define ARCADE_STAGE_MORE_ROW 0u        /* arcade palette rows from the program address `arg` on, 0x20 apart */
 #define ARCADE_STAGE_MORE_FILL 1u       /* filler rows: all fifteen colours the same fixed colour */
+#define ARCADE_STAGE_MORE_APPROX 2u     /* the arcade row at `arg` standing for a row of the disc that differs from it: built, not equal to the disc's, `own` */
+#define ARCADE_STAGE_MORE_BLANK 3u      /* a transparent row (all zero): the disc's row has no arcade source and the arcade shows nothing like it, `own` */
 
 /* Consecutive arcade tiles first, first + 1, ...; flip bit 0 mirrors across, bit 1 down (the PS1 stores each flip as a tile). */
 struct arcade_stage_run { uint32_t first, count, flip; };
+/* Bits of an extras run's flip beyond the flips (bit 0 across, bit 1 down): the run's codes are tiles of the arcade's 32 x 32 pixel
+ * scroll 3 graphics (512 bytes each) and each page slot holds one quarter of such a tile, as sprite_tiles.h ARCADE_SPRITE_SCROLL3. */
+#define ARCADE_STAGE_SCROLL3 8u
+#define ARCADE_STAGE_QUARTER_SHIFT 4u      /* bits 4 and 5: the quarter, 0 top left, 1 top right, 2 bottom left, 3 bottom right (taken, then flipped) */
+
 /* Page slots (16 pixel tiles of the pages, column by column) the disc fills with tiles the arcade does not have. */
 struct arcade_stage_hole { uint32_t slot, count; };
-/* The same at page slots (16 pixel slots of the pages, column by column) from `slot`. */
+/* The same at page slots (16 pixel slots of the pages, column by column) from `slot`; first is an arcade tile (16 pixel), or with
+ * ARCADE_STAGE_SCROLL3 in flip a 32 pixel one, consecutive tiles to consecutive slots. */
 struct arcade_stage_slots { uint32_t slot, count, first, flip; };
 
 /* Where the disc's cell (counted in the scan order: blocks row by row, the cells of a block row by row) differs from the first-use
@@ -89,7 +100,12 @@ extern const unsigned arcade_stage_shared_pal_bytes;
 
 const struct arcade_stage *arcade_stage_find(const char *file);
 
-struct arcade_stage_piece { uint8_t *data, *known; uint32_t size; };   /* known[i] = 1: data[i] equals the disc's */
+/* known[i] = 1: data[i] equals the disc's. owned = 1: every byte of data is built from the arcade alone and is to be served to every
+ * read, whether or not it equals the disc's (known still marks the bytes that do, which a check compares). owned is set only by the
+ * object tile chunk, when its runs have BLANK ones and no DISC one. */
+struct arcade_stage_piece { uint8_t *data, *known; uint32_t size; int owned; uint8_t *own; };
+/* own[i] = 1: data[i] is built from the arcade alone by design (an APPROX or BLANK palette run), differs from the disc's and is to be served to
+ * every read, as a whole piece that is `owned` is; the palette pieces have them. known and own are never both set. */
 
 struct arcade_stage_out {
     struct arcade_stage_piece module;          /* only the three layer maps are built */
