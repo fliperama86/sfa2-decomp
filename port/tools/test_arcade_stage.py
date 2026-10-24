@@ -59,7 +59,7 @@ class World:
         self.arc = S.Arc(bytes(prog), bytes(self.gfx))
 
     def descriptor(self, flags=(3, 3, 3), pal_exact=0, extras=(), holes=(), objects=None, count=96, module=0x3000, pages=3 * 32768,
-                   exc=((), (), ()), cell_known=(0, 0, 0), tile_known=(0, 0, 0), more=(), start_rule=(False, False), xmaps=((), (), ())):
+                   exc=((), (), ()), cell_known=(0, 0, 0), tile_known=(0, 0, 0), more=(), start_rule=(False, False), xmaps=((), (), ()), own_cells=((), (), ()), own_tiles=((), (), ())):
         d = {'file': 'TEST.PAC', 'stage': 3, 'extras': list(extras), 'holes': list(holes), 'pal_exact': pal_exact, 'more': list(more),
              'object_runs': [(S.RUN_ZERO, 2, 0), (0x10003, 4, 0), (0x10009, 2, 3), (S.RUN_DISC, 1, 0)] if objects is None else objects,
              'layers': [{'map': 0x100, 'across': 64, 'down': 16, 'ids': [0x1d020, 0x1d021, 0x1d022, 0x1d023], 'start': 0, 'flags': flags[0]},
@@ -69,6 +69,10 @@ class World:
             layer.update({'exc': list(exc[n]), 'cell_known': cell_known[n], 'tile_known': tile_known[n]})
             if xmaps[n]:
                 layer['xmaps'] = [dict(m) for m in xmaps[n]]
+            if own_cells[n]:
+                layer['own_cells'] = list(own_cells[n])
+            if own_tiles[n]:
+                layer['own_tiles'] = list(own_tiles[n])
         d['sizes'] = {'module': module, 'pages': pages, 'palettes': count * 32,
                       'object tiles': 128 * sum(c for _f, c, _fl in d['object_runs']), 'object palettes': 224}
         maps, tiles = S.model_stage_raw(self.arc, d)
@@ -95,6 +99,9 @@ def spec_text(d):
             lines.append(f'cknown {n} ' + ' '.join(map(str, S.mask_words(l['cell_known'], cells))))
         if l.get('tile_known'):
             lines.append(f'tknown {n} ' + ' '.join(map(str, S.mask_words(l['tile_known'], cells + 1))))
+    for n, l in enumerate(d['layers']):
+        lines += [f'ocell {n} {a} {c}' for a, c in S.index_spans(l.get('own_cells', []))]
+        lines += [f'otile {n} {a} {c}' for a, c in S.index_spans(l.get('own_tiles', []))]
     lines += [f'extra {a} {c} {f} {fl}' for a, c, f, fl in d['extras']]
     lines += [f'hole {a} {c}' for a, c in d['holes']]
     lines += [f'more {k} {c} {st} {kind} {arg}' for k, st, c, kind, arg in d.get('more', ())]
@@ -139,7 +146,7 @@ class StageC(unittest.TestCase):
         got = {label: ((out / f'{name}.bin').read_bytes(), (out / f'{name}.known').read_bytes()) for label, name in PIECES}
         names = dict(PIECES)
         got['owned'] = {label for label, name in PIECES if name in (out / 'owned.txt').read_text().split()}
-        got['own'] = {'palettes': (out / 'palettes.own').read_bytes()}
+        got['own'] = {label: (out / f'{name}.own').read_bytes() for label, name in PIECES if label in ('palettes', 'module', 'pages')}
         return got
 
     def same(self, world, d):
@@ -270,6 +277,32 @@ class StageC(unittest.TestCase):
         with self.assertRaises(ValueError):
             S.model_stage(w.arc, d)
         self.assertIsInstance(self.run_c(w, d), str)
+
+    def test_cells_and_tiles_by_design_are_own_not_known(self):
+        w = self.world
+        d = w.descriptor(flags=(3, 3, 3), own_cells=((), [3, 4, 5, 100, 700], [7]), own_tiles=((), [2, 3], [1]))
+        built, model = self.same(w, d)
+        data, known = built['module']
+        own = built['own']['module']
+        # layer 1's cells 3, 4, 5, 100 and 700 and layer 2's cell 7: four bytes each in the module, own and not known, the others known
+        for n, i in ((1, 3), (1, 4), (1, 5), (1, 100), (1, 700), (2, 7)):
+            cx, cy = [(c[0], c[1]) for c in S.layer_cells(w.arc, n, S.ids_of(w.arc, d['layers'][n]), d['layers'][n]['across'], d['layers'][n]['down'], 3)][i]
+            at = d['layers'][n]['map'] + 2 * S.map_word_index(cx, cy, d['layers'][n]['across'], (16, 16, 32)[n])
+            self.assertEqual((known[at:at + 4], own[at:at + 4]), (bytes(4), b'\1' * 4), (n, i))
+        self.assertEqual(sum(own) // 4, 6)
+        self.assertEqual(sum(known) // 4, 1024 + 1024 + 256 - 6)
+        pages_known, pages_own = built['pages'][1], built['own']['pages']
+        self.assertEqual(sum(pages_own), 128 * 2 + 512 * 1)                         # two 16 pixel tiles and one 32 pixel tile
+        self.assertFalse(any(k and o for k, o in zip(pages_known, pages_own)))
+        # a tile that is not one of the layer's, and one that does not fit the pages
+        for n, tiles in ((1, [9999]), (2, [5000])):
+            bad = w.descriptor(own_tiles=tuple(tiles if m == n else () for m in range(3)))
+            with self.assertRaises(ValueError):
+                S.model_stage(w.arc, bad)
+            self.assertIsInstance(self.run_c(w, bad), str)
+        # the table sanity of the real table and a build with neither is unchanged
+        plain, _m = self.same(w, w.descriptor(flags=(3, 3, 3)))
+        self.assertEqual(sum(plain['own']['module']), 0)
 
     def test_object_tiles_blank_by_design_are_owned_only_without_disc_runs(self):
         w = self.world
@@ -560,7 +593,7 @@ class TableText(unittest.TestCase):
         d['file'] = 'STAGE03.PAC'
         text = S.c_table([d], [(0x10002, 1, 0)], [], (4096, [(0, 2, 5, S.MORE_ROW, 0x275c40), (1, 2, 3, S.MORE_FILL, 0)]))
         self.assertIn('{12288u, 2u, xids_03_1_0}', text)
-        self.assertIn('xmaps_03_2, 1u}', text)
+        self.assertIn('xmaps_03_2, 1u, 0, 0u, 0, 0u}', text)
         self.assertIn('const unsigned arcade_stage_shared_pal_count = 2u;', text)
         d_ = tempfile.mkdtemp(prefix='arcade-stage-table-')
         try:

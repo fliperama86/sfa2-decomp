@@ -1064,6 +1064,9 @@ HOLES_BLANK_BY_DESIGN = {
     # STAGE0D: slots 207 to 222, one column of the first page: four frames of four tiles (a figure at a window, in all 15 colours); no
     # arcade tile at 16 or 32 pixels (measured 2026-10-24: none under 4 flips, none as a quarter of a 32 x 32 tile).
     'STAGE0D.PAC': (16, 'four 4-tile frames of a figure at a window, no arcade tile'),
+    # STAGE03: slots 749 to 752, four tiles of the strip the PS1 added to layer 1 (DESIGN_BY_DESIGN) that no arcade tile makes (the other 184 of the
+    # strip's 188 distinct tiles are arcade tiles); the strip itself is built blank.
+    'STAGE03.PAC': (4, 'four tiles of the road strip the PS1 added to layer 1, no arcade tile'),
 }
 
 
@@ -1074,6 +1077,53 @@ def holes_by_design(name, holes):
         return None
     have, want = sum(c for _s, c in holes), HOLES_BLANK_BY_DESIGN[name][0]
     return None if have == want else f'{name}: {have} page slots have no arcade source, the blank-by-design table says {want}'
+
+
+# Cells and tiles of layers 1 and 2 where the PS1 differs from the arcade and the arcade's version is built (served owned, not equal to the
+# disc's), by the owner's rule ("rebuild arcade-style"). {(file, layer): (blank cells, row cells, retouched tiles, evidence)}; describe
+# finds them (see design_of) and refuses a layer whose counts differ from the table's, so none is taken unseen:
+#   blank cells: cells where the arcade's tile is blank and the PS1's is art (the PS1 filled a blank part of the layer): built blank;
+#   row cells: cells at the arcade's tile (the same slot) but in another palette row: built with the arcade's row;
+#   retouched tiles: tiles of cells that equal the disc's where the PS1's pixels differ from the arcade's tile: built as the arcade's tile.
+DESIGN_BY_DESIGN = {
+    # STAGE03 layer 1: the arcade's blocks leave rows 20 to 31 of x 16 to 63 blank; the PS1 fills rows 28 to 31 there (192 cells) with
+    # cells copied from 16 rows above (159 of the 192 are the same word as the cell 16 rows up; the others point at tiles of their own, 184 of
+    # the 188 distinct tiles being arcade tiles). The arcade shows nothing there. Measured 2026-10-24.
+    ('STAGE03.PAC', 1): (192, 0, 0, 'the PS1 filled the blank bottom rows of layer 1 with copies of the rows 16 above'),
+    # STAGE03 layer 2: six 32 x 32 pixel tiles (cells 14 and 15 of rows 0 to 2) where the PS1's pixels differ from the arcade's in 4 to
+    # 663 of 1,024 pixels: retouched by the PS1's art tool.
+    ('STAGE03.PAC', 2): (0, 0, 6, 'six tiles of the top of layer 2 retouched'),
+    # STAGE10 layer 1: seventeen tiles of cells 16 to 63 of rows 6 to 11 (the fence, a sign and the foreground fist) where 2 to 9 of 256 pixels
+    # differ from the arcade's (retouched), and three cells whose tile is the arcade's but that use another palette row (16, not 8).
+    ('STAGE10.PAC', 1): (0, 3, 17, 'seventeen tiles retouched by a few pixels, three cells in another row'),
+}
+
+
+def design_of(arc, d, module, pages, n, start, tiles, words):
+    """(blank cells, row cells, retouched tiles) of layer n of descriptor d, each a list of indices (own cells in scan order; tiles of the
+    layer), found as DESIGN_BY_DESIGN says, from the model's `words` ({(cx, cy): (code, clut)}), `tiles` and `start` against the disc's
+    `module` and `pages`. Only the layer's own cells count, not its extra maps'."""
+    layer, side = d['layers'][n], (16, 16, 32)[n]
+    blank, row, retouched = [], [], []
+    for i, (cx, cy, tile, _r) in enumerate(layer_cells(arc, n, ids_of(arc, layer), layer['across'], layer['down'], d['stage'])):
+        have = struct.unpack_from('<HH', module, layer['map'] + 2 * map_word_index(cx, cy, layer['across'], side))
+        want = words[(cx, cy)]
+        if have == want:
+            continue
+        slot = slot_of_code(have[0], side)
+        ps1 = get_slot(pages, slot, side) if slot is not None and slot_ok(pages, slot, side) else None
+        if ps1 is None:
+            continue
+        if not any(tile) and any(ps1):
+            blank.append(i)
+        elif have[0] == want[0] and (have[1] - 0x7800) >> 6 != (want[1] - 0x7800) >> 6:
+            row.append(i)
+    for j, t in enumerate(tiles):
+        if t is not None and slot_ok(pages, start + j, side):
+            ps1 = get_slot(pages, start + j, side)
+            if ps1 != t and any(ps1) and any(t):
+                retouched.append(j)
+    return blank, row, retouched
 
 
 def blank_by_design(name, runs):
@@ -1241,6 +1291,7 @@ def model_stage_pieces(arc, d):
     module, module_known = bytearray(sizes['module']), bytearray(sizes['module'])
     pages, pages_known = bytearray(sizes['pages']), bytearray(b'\1' * sizes['pages'])   # known, but for the holes and the tiles that differ
     counts = [0, 0, 0, 0]               # tiles of the layers; counts[3] the start of layer 1 (for layer 2's rule)
+    module_own, pages_own = bytearray(sizes['module']), bytearray(sizes['pages'])
     for n, layer in enumerate(d['layers']):
         side = (16, 16, 32)[n]
         cells = layer_cells_all(arc, d, n)
@@ -1252,6 +1303,10 @@ def model_stage_pieces(arc, d):
         cs = known_cell_set(layer, cells)
         if not write_layer_maps(module, module_known, layer, side, words, cs):
             raise ValueError(f'layer {n} map does not fit the module')
+        for i in layer.get('own_cells', ()):     # cells built by design: served owned, never known
+            at = cell_offset(layer, n, cells[i][0], cells[i][1])
+            module_own[at:at + 4] = b'\1\1\1\1'
+            module_known[at:at + 4] = bytes(4)
         tmask = layer.get('tile_known', 0)
         for j, tile in enumerate(tiles):
             if tile is None:
@@ -1260,6 +1315,11 @@ def model_stage_pieces(arc, d):
                 raise ValueError(f'layer {n} tile {j} does not fit the pages')
             if not layer['flags'] & TILES_EXACT and not (j <= len(cells) and (tmask >> j) & 1):
                 mark_slot(pages_known, start + j, side, 0)
+        for j in layer.get('own_tiles', ()):     # tiles the PS1 retouched, built as the arcade's: served owned, never known
+            if j >= len(tiles) or tiles[j] is None:
+                raise ValueError(f'layer {n} retouched tile {j} is not a tile')
+            mark_slot(pages_known, start + j, side, 0)
+            mark_slot(pages_own, start + j, side, 1)
     for slot, count, first, flip in d['extras']:
         for k in range(count):
             if flip & ~(3 | SCROLL3_FLIP | 3 << QUARTER_SHIFT) or (not flip & SCROLL3_FLIP and flip >> QUARTER_SHIFT):
@@ -1281,7 +1341,7 @@ def model_stage_pieces(arc, d):
             'object tiles': objects,
             'object palettes': (model_object_palettes(arc.prog, d['stage']), b'\1' * OBJECT_PALETTES_BYTES),
             'owned': {'object tiles'} if runs_owned(d['object_runs']) else set(),
-            'own': {'palettes': pal_own}}
+            'own': {'palettes': pal_own, 'module': module_own, 'pages': pages_own}}
 
 
 def mark_slot(known, slot, side, value=1):
@@ -1590,6 +1650,19 @@ def quarter_extras(arc, slots):
     return out
 
 
+def exceptions_of(arc, d, n, module, skip=()):
+    """The packing exceptions of layer n (find_exceptions) against the disc's module; the cells in `skip` (scan indices) are taken as not on the
+    pages, so that the PS1's slots for them are not followed (cells built by design)."""
+    layer, side = d['layers'][n], (16, 16, 32)[n]
+    cells = layer_cells(arc, n, ids_of(arc, layer), layer['across'], layer['down'], d['stage'])
+    wants = []
+    for i, (cx, cy, _t, _r) in enumerate(cells):
+        code = struct.unpack_from('<H', module, layer['map'] + 2 * map_word_index(cx, cy, layer['across'], side))[0]
+        slot = slot_of_code(code, side)
+        wants.append(None if i in skip or slot is None or slot < layer['start'] else slot - layer['start'])
+    return find_exceptions(cells, side, wants)
+
+
 def describe(name, stage, parts, arc, helper, r):
     """The descriptor of one stage file: `parts` from split_stage, `r` from analyse (which blocks the layers are). Flags are set
     where the model equals the disc. Returns a dict, or a string when the file cannot be described."""
@@ -1633,20 +1706,14 @@ def describe(name, stage, parts, arc, helper, r):
     d['pal_exact'] = 0
     # where the disc's cells differ from the first-use packing, per layer: exceptions; then what the model builds equals the disc's
     for n, layer in enumerate(d['layers']):
-        side = (16, 16, 32)[n]
         try:
-            cells = layer_cells(arc, n, ids_of(arc, layer), layer['across'], layer['down'], stage)
+            layer['exc'] = exceptions_of(arc, d, n, module)
         except ValueError as exc:
             return str(exc)
-        wants = []
-        for cx, cy, _t, _r in cells:
-            code = struct.unpack_from('<H', module, layer['map'] + 2 * map_word_index(cx, cy, layer['across'], side))[0]
-            slot = slot_of_code(code, side)
-            wants.append(None if slot is None or slot < layer['start'] else slot - layer['start'])
-        layer['exc'] = find_exceptions(cells, side, wants)
     for n, xm in find_xmaps(arc, parts, d):
         d['layers'][n].setdefault('xmaps', []).append(xm)
-    while True:                           # the layers' tiles and maps, to compare; an extra map with a cell that differs is left out
+    def measure():
+        """The model's maps and tiles against the disc's: sets each layer's flags and known bits; (maps, tiles, extra maps with a cell that differs)."""
         first = model_stage_raw(arc, d)
         if isinstance(first, str):
             return first
@@ -1669,10 +1736,46 @@ def describe(name, stage, parts, arc, helper, r):
             layer['flags'] = (MAP_EXACT if bits == 2 ** len(cells) - 1 else 0) | (TILES_EXACT if tbits == every else 0)
             layer['cell_known'] = 0 if layer['flags'] & MAP_EXACT else bits
             layer['tile_known'] = 0 if layer['flags'] & TILES_EXACT else tbits
+        return maps, tiles, bad
+
+    while True:                           # an extra map with a cell that differs is left out
+        got = measure()
+        if isinstance(got, str):
+            return got
+        maps, tiles, bad = got
         if not bad:
             break
         for n, xi in sorted(set(bad), reverse=True):
             del d['layers'][n]['xmaps'][xi]
+    # cells and tiles of layers 1 and 2 built as the arcade has them where the PS1 differs (DESIGN_BY_DESIGN): found, counted against the table
+    starts = [d['layers'][0]['start'], layer_start(d, 1, [len(tiles[0]), 0, 0, 0]), None]
+    starts[2] = layer_start(d, 2, [len(tiles[0]), len(tiles[1]), 0, starts[1]])
+    found_design = False
+    for n in (1, 2):
+        blank, row, _ret = design_of(arc, d, module, pages, n, starts[n], tiles[n], maps[n])
+        if blank:
+            d['layers'][n]['exc'] = exceptions_of(arc, d, n, module, set(blank))
+            found_design = True
+    if found_design:
+        got = measure()
+        if isinstance(got, str):
+            return got
+        maps, tiles, bad = got
+        starts = [d['layers'][0]['start'], layer_start(d, 1, [len(tiles[0]), 0, 0, 0]), None]
+        starts[2] = layer_start(d, 2, [len(tiles[0]), len(tiles[1]), 0, starts[1]])
+    for n in (1, 2):
+        layer = d['layers'][n]
+        blank, row, ret = design_of(arc, d, module, pages, n, starts[n], tiles[n], maps[n])
+        want = DESIGN_BY_DESIGN.get((name, n), (0, 0, 0, ''))
+        if (len(blank), len(row), len(ret)) != want[:3]:
+            return f'{name} layer {n}: {len(blank)} blank cells, {len(row)} cells in another row, {len(ret)} retouched tiles; the by-design table says {want[:3]}'
+        if blank or row or ret:
+            layer['own_cells'] = sorted(blank + row)
+            layer['own_tiles'] = ret
+            for i in layer['own_cells']:            # built by design: not known (they differ from the disc's by what the table counts)
+                layer['cell_known'] &= ~(1 << i)
+            for j in ret:
+                layer['tile_known'] &= ~(1 << j)
     # page slots outside the model's layers that hold arcade tiles
     covered = set()
     for n, layer in enumerate(d['layers']):
@@ -1771,6 +1874,17 @@ def shared_runs(parts_list, helper):
 
 # ---------------------------------------------------------------- the C table
 
+def index_spans(indexes):
+    """[(first, count)] of the runs of consecutive numbers in a sorted list of indexes."""
+    out = []
+    for i in indexes:
+        if out and out[-1][0] + out[-1][1] == i:
+            out[-1] = (out[-1][0], out[-1][1] + 1)
+        else:
+            out.append((i, 1))
+    return out
+
+
 def c_array(name, values, per_line=8, fmt='{:#x}u', ctype='uint32_t'):
     out = [f'static const {ctype} {name}[] = {{']
     for i in range(0, len(values), per_line):
@@ -1808,6 +1922,17 @@ def c_table(descs, shared, omitted, shared_pal=None):
                 out += [f'    {{{c}u, {"ARCADE_STAGE_FORCE_NEW" if sl == FORCE_NEW else str(sl) + "u"}}},' for c, sl in layer['exc']]
                 out.append('};')
             cells = layer_cell_total(layer, n)
+            for what, key in (('oc', 'own_cells'), ('ot', 'own_tiles')):
+                if layer.get(key):
+                    if what == 'oc':
+                        out.append(f'/* {d["file"]} layer {n}: {len(layer[key])} cells are built as the arcade has them, not as the disc (by design, the owner\'s rule "rebuild arcade-style"; stages.py DESIGN_BY_DESIGN: '
+                                   f'{DESIGN_BY_DESIGN[(d["file"], n)][3]}); served owned. */')
+                    else:
+                        out.append(f'/* {d["file"]} layer {n}: {len(layer[key])} tiles the PS1 retouched are built as the arcade has them (by design; stages.py DESIGN_BY_DESIGN); served owned. */')
+                    spans = index_spans(layer[key])
+                    out.append(f'static const struct arcade_stage_span {what}_{s}_{n}[] = {{')
+                    out += [f'    {{{a}u, {c}u}},' for a, c in spans]
+                    out.append('};')
             if layer.get('xmaps'):
                 for xi, xm in enumerate(layer['xmaps']):
                     out += c_array(f'xids_{s}_{n}_{xi}', xm['ids'], 16, '{}u', 'uint8_t')
@@ -1876,7 +2001,9 @@ def c_table(descs, shared, omitted, shared_pal=None):
             xms = layer.get('xmaps') or []
             out.append(f'         {{{layer["map"]}u, {layer["across"]}u, {layer["down"]}u, {len(layer["ids"])}u, {start}u, {layer["flags"]}u, ids_{s}_{n},'
                        f' {f"exc_{s}_{n}" if exc else "0"}, {len(exc or [])}u, {f"ck_{s}_{n}" if ck else "0"}, {f"tk_{s}_{n}" if tk else "0"},'
-                       f' {f"xmaps_{s}_{n}" if xms else "0"}, {len(xms)}u}},')
+                       f' {f"xmaps_{s}_{n}" if xms else "0"}, {len(xms)}u,'
+                       f' {f"oc_{s}_{n}" if layer.get("own_cells") else "0"}, {len(index_spans(layer.get("own_cells", [])))}u,'
+                       f' {f"ot_{s}_{n}" if layer.get("own_tiles") else "0"}, {len(index_spans(layer.get("own_tiles", [])))}u}},')
         out.append('     },')
         out.append(f'     {"extras_" + s if d["extras"] else "0"}, {len(d["extras"])}u, {"holes_" + s if d["holes"] else "0"}, {len(d["holes"])}u,')
         out.append(f'     {"objects_" + s if d["object_runs"] else "0"}, {len(d["object_runs"])}u,')
@@ -1942,7 +2069,7 @@ class CLib:
         try:
             res = {label: self.take(getattr(out, field)) for label, field in PIECE_NAMES}
             res['owned'] = {label for label, field in PIECE_NAMES if getattr(out, field).owned}
-            res['own'] = {label: ctypes.string_at(getattr(out, field).own, getattr(out, field).size) for label, field in PIECE_NAMES if label == 'palettes'}
+            res['own'] = {label: ctypes.string_at(getattr(out, field).own, getattr(out, field).size) for label, field in PIECE_NAMES if label in ('palettes', 'module', 'pages')}
             return res, took
         finally:
             self.lib.arcade_stage_free(ctypes.byref(out))
@@ -2021,9 +2148,10 @@ def owned_text(built, parts, d):
         blank = 128 * sum(c for f, c, _fl in d['object_runs'] if f == RUN_BLANK) if d else 0
         text += '; owned (built whole from the arcade, served to every read): ' + ', '.join(
             f'{label} {len(parts[label])} bytes, {blank} of them blank by design' for label in sorted(built['owned']))
-    own = sum(1 for b in built['own']['palettes'] if b)
-    if own:
-        text += f'; palettes by design (the nearest arcade row or blank, served owned): {own} bytes'
+    for label, what in (('palettes', 'the nearest arcade row or blank'), ('module', 'cells as the arcade has them'), ('pages', 'tiles as the arcade has them')):
+        own = sum(1 for b in built['own'][label] if b)
+        if own:
+            text += f'; {label} by design ({what}, served owned): {own} bytes'
     return text
 
 

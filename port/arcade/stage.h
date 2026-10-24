@@ -63,6 +63,9 @@ struct arcade_stage_xmap {
     const uint8_t *ids;          /* the arcade block numbers */
 };
 
+/* Runs of consecutive indexes (cells in scan order, or tiles of the layer). */
+struct arcade_stage_span { uint32_t first, count; };
+
 struct arcade_stage_layer {
     uint32_t map;                /* byte offset of the layer's map in the module chunk */
     uint16_t across, down;       /* cells */
@@ -74,6 +77,10 @@ struct arcade_stage_layer {
     const uint64_t *cell_known;  /* bit i: cell i (scan order) equals the disc's; (cells + 63) / 64 words, or NULL: none */
     const uint64_t *tile_known;  /* bit j: the layer's tile j equals the disc's; (cells + 64) / 64 words, or NULL: none */
     const struct arcade_stage_xmap *xmaps; unsigned xmap_count;   /* layers 1 and 2 only; `cells` above counts them (across * down plus theirs) */
+    /* By design (the owner's rule "rebuild arcade-style"), built as the arcade has them where the PS1 differs, served owned: `own` is set for
+     * the cells' four bytes in the module and the tiles' slots in the pages, `known` is not. Cells are scan indexes of the layer's own cells. */
+    const struct arcade_stage_span *own_cells; unsigned own_cell_count;
+    const struct arcade_stage_span *own_tiles; unsigned own_tile_count;   /* tiles of the layer (the packing's order) */
 };
 
 struct arcade_stage {

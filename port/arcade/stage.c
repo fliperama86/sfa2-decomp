@@ -340,6 +340,15 @@ static int block_cell(struct ctx *c, unsigned n, unsigned b, unsigned x, unsigne
     return 0;
 }
 
+static int in_spans(const struct arcade_stage_span *spans, unsigned count, uint32_t i)
+{
+    unsigned k;
+    for (k = 0; k < count; k++)
+        if (i >= spans[k].first && i - spans[k].first < spans[k].count)
+            return 1;
+    return 0;
+}
+
 /* Put one cell of layer n: its tile takes its slot in the layer (first use, or the descriptor's exception), and the cell's two words go
  * to byte `at` of the module. `cell` counts the layer's cells in scan order (the own ones, then the extra maps'). */
 static int emit_cell(struct ctx *c, const struct arcade_stage_layer *l, unsigned n, uint32_t start, struct layer_set *ls,
@@ -370,7 +379,9 @@ static int emit_cell(struct ctx *c, const struct arcade_stage_layer *l, unsigned
     clut = 0x7800u + n + 64u * (k == 0 ? 0u : row);
     module->data[at + 2] = (uint8_t)clut;
     module->data[at + 3] = (uint8_t)(clut >> 8);
-    if ((l->flags & ARCADE_STAGE_MAP_EXACT) || (l->cell_known && (l->cell_known[cell >> 6] >> (cell & 63u) & 1u)))
+    if (in_spans(l->own_cells, l->own_cell_count, cell))
+        memset(module->own + at, 1, 4);
+    else if ((l->flags & ARCADE_STAGE_MAP_EXACT) || (l->cell_known && (l->cell_known[cell >> 6] >> (cell & 63u) & 1u)))
         memset(module->known + at, 1, 4);
     return 0;
 }
@@ -747,6 +758,26 @@ int arcade_stage_build(const uint8_t *program, size_t program_size, const uint8_
             if (!(l->flags & ARCADE_STAGE_TILES_EXACT) &&
                 !(l->tile_known && off <= cells && (l->tile_known[off >> 6] >> (off & 63u) & 1u)))
                 mark_known(out->pages.known, at, side, 0);
+        }
+        for (e = 0; e < l->own_tile_count; e++) {      /* the PS1 retouched these: the arcade's tile, served owned, never known */
+            for (k = 0; k < l->own_tiles[e].count; k++) {
+                uint32_t tile = l->own_tiles[e].first + k, found = 0;
+                for (j = 0; j < ls.count; j++)
+                    if (ls.slot[j] == tile) { found = 1; break; }
+                if (!found) {
+                    fail(&c, "layer %u retouched tile %u is not a tile", n, tile);
+                    goto bad;
+                }
+                {
+                    int64_t at = slot_place(start + tile, side, out->pages.size);
+                    if (at < 0) {
+                        fail(&c, "layer %u retouched tile %u does not fit the pages", n, tile);
+                        goto bad;
+                    }
+                    mark_known(out->pages.known, at, side, 0);
+                    mark_known(out->pages.own, at, side, 1);
+                }
+            }
         }
         if (n == 1)
             start1 = start;

@@ -857,6 +857,55 @@ class Describe(unittest.TestCase):
         self.assertEqual(d['object_runs'][-1], (stages.RUN_BLANK, 1, 0))
         self.assertEqual(stages.model_stage(w.arc, d)['owned'], {'object tiles'})
 
+    def test_cells_and_tiles_the_ps1_changed_are_found_and_counted(self):
+        w = self.world
+        d0 = w.descriptor(objects=[(0x10003, 2, 0)], count=96)
+        d0['sizes']['module'] = 0x4000
+        parts = make_stage_file(w, d0)
+        layer = d0['layers'][1]
+        cells = stages.layer_cells(w.arc, 1, stages.ids_of(w.arc, layer), 64, 16, 3)
+        blank = [i for i, c in enumerate(cells) if not any(c[2])][:2]
+        solid = [i for i, c in enumerate(cells) if any(c[2])]
+        module, pages = bytearray(parts['module']), bytearray(parts['pages'])
+        start = layer['start']
+
+        def at(i):
+            return layer['map'] + 2 * stages.map_word_index(cells[i][0], cells[i][1], 64, 16)
+        other = struct.unpack_from('<H', module, at(solid[0]))[0]
+        for i in blank:                                                        # the PS1 filled two blank cells with art
+            struct.pack_into('<H', module, at(i), other)
+        code, clut = struct.unpack_from('<HH', module, at(solid[1]))           # one cell in another palette row
+        struct.pack_into('<HH', module, at(solid[1]), code, clut ^ (3 << 6))
+        j = stages.slot_of_code(struct.unpack_from('<H', module, at(solid[2]))[0], 16) - start
+        stages.put_slot(pages, start + j, 16, bytes(b ^ 0x11 for b in stages.get_slot(pages, start + j, 16)))      # one tile retouched
+        bad = dict(parts, module=bytes(module), pages=bytes(pages))
+        r = stages.analyse(bad, self.helper, 3, w.arc.prog)
+        refusal = stages.describe('TEST.PAC', 3, bad, w.arc, self.helper, r)
+        self.assertIn('layer 1: 2 blank cells, 1 cells in another row, 1 retouched tiles; the by-design table says (0, 0, 0)', refusal)
+        stages.DESIGN_BY_DESIGN[('TEST.PAC', 1)] = (2, 1, 1, 'made up')
+        try:
+            d = stages.describe('TEST.PAC', 3, bad, w.arc, self.helper, r)
+            self.assertIsInstance(d, dict, d)
+            l1 = d['layers'][1]
+            self.assertEqual((l1['own_cells'], l1['own_tiles']), (sorted(blank + [solid[1]]), [j]))
+            # the model builds the arcade's cells there, owned, and none of them known; the rest of the layer equals the disc's
+            model = stages.model_stage(w.arc, d)
+            data, known = model['module']
+            own = model['own']['module']
+            for i in blank + [solid[1]]:
+                self.assertEqual((known[at(i):at(i) + 4], own[at(i):at(i) + 4]), (bytes(4), b'\1' * 4))
+            self.assertTrue(all(a == b for a, b, k in zip(data, bad['module'], known) if k))
+            self.assertEqual(sum(model['own']['pages']), 128)
+            self.assertEqual(sum(model['own']['pages']), sum(1 for o in model['own']['pages'] if o))
+            text = stages.c_table([dict(d, file='TEST.PAC')], [(0x10002, 1, 0)], [])
+            self.assertIn('3 cells are built as the arcade has them, not as the disc', text)
+            self.assertIn('1 tiles the PS1 retouched are built as the arcade has them', text)
+            self.assertIn('static const struct arcade_stage_span oc_', text)
+        finally:
+            del stages.DESIGN_BY_DESIGN[('TEST.PAC', 1)]
+        self.assertEqual(stages.index_spans([1, 2, 3, 7, 9, 10]), [(1, 3), (7, 1), (9, 2)])
+        self.assertTrue(all(len(v) == 4 and v[3] and chr(0x2014) not in v[3] for v in stages.DESIGN_BY_DESIGN.values()))
+
     def test_an_unreadable_module_is_reported(self):
         w = self.world
         d0 = w.descriptor(count=96)

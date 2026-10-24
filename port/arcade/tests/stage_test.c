@@ -10,6 +10,7 @@
  *   exc LAYER CELL SLOT   (SLOT may be NEW) | cknown LAYER WORD... | tknown LAYER WORD...   (64-bit words)
  *   more K COUNT STEP KIND ARG   (KIND 0 rows from ARG, 1 filler, 2 the row from ARG by design, 3 blank by design)
  *   xmap LAYER MAP BLOCKS ID...   (an extra map of layer 1 or 2: BLOCKS arcade block numbers, two to a page)
+ *   ocell LAYER FIRST COUNT | otile LAYER FIRST COUNT   (a run of cells built by design, or of retouched tiles)
  * SPEC (runs) is "TOTAL" then "object" lines; SPEC (pal) is "total BYTES" then "more" lines (the chunk is palettes.bin). OUTDIR gets module.bin pages.bin palettes.bin objects.bin objpal.bin and a
  * .known and .own file for each, and owned.txt (the names of the pieces that are owned); a line "error: ..." on stdout and status 1 when the build refuses. */
 #include "../stage.h"
@@ -70,6 +71,8 @@ struct spec {
     unsigned nexc[3];
     uint64_t *known[3][2];
     struct arcade_stage_more *more;
+    struct arcade_stage_span oc[3][8], ot[3][8];
+    unsigned noc[3], not_[3];
     struct arcade_stage_xmap xm[3][4];
     uint8_t *xids[3][4];
     unsigned nxm[3];
@@ -131,6 +134,14 @@ static int read_spec(const char *path, struct spec *sp)
         } else if (!strcmp(word, "more")) {
             if (nm >= 256 || fscanf(f, "%lu %lu %lu %lu %lu", &a, &b, &c, &d, &e) != 5) return -3;
             sp->more[nm].k = (uint16_t)a; sp->more[nm].count = (uint16_t)b; sp->more[nm].step = (uint8_t)c; sp->more[nm].kind = (uint8_t)d; sp->more[nm].arg = (uint32_t)e; nm++;
+        } else if (!strcmp(word, "ocell") || !strcmp(word, "otile")) {
+            int tiles = word[1] == 't';
+            unsigned *n = tiles ? sp->not_ : sp->noc;
+            struct arcade_stage_span *dst;
+            if (fscanf(f, "%lu %lu %lu", &a, &b, &c) != 3 || a > 2 || n[a] >= 8) return -3;
+            dst = tiles ? sp->ot[a] : sp->oc[a];
+            dst[n[a]].first = (uint32_t)b; dst[n[a]].count = (uint32_t)c;
+            n[a]++;
         } else if (!strcmp(word, "xmap")) {
             if (fscanf(f, "%lu %lu %lu", &a, &b, &c) != 3 || a > 2 || sp->nxm[a] >= 4) return -3;
             sp->xids[a][sp->nxm[a]] = calloc(c ? c : 1, 1);
@@ -156,6 +167,8 @@ static int read_spec(const char *path, struct spec *sp)
         sp->s.layer[a].exc = sp->exc[a]; sp->s.layer[a].exc_count = sp->nexc[a];
         sp->s.layer[a].cell_known = sp->known[a][0]; sp->s.layer[a].tile_known = sp->known[a][1];
         sp->s.layer[a].xmaps = sp->nxm[a] ? sp->xm[a] : NULL; sp->s.layer[a].xmap_count = sp->nxm[a];
+        sp->s.layer[a].own_cells = sp->noc[a] ? sp->oc[a] : NULL; sp->s.layer[a].own_cell_count = sp->noc[a];
+        sp->s.layer[a].own_tiles = sp->not_[a] ? sp->ot[a] : NULL; sp->s.layer[a].own_tile_count = sp->not_[a];
     }
     return 0;
 }
