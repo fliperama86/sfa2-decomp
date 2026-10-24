@@ -774,7 +774,7 @@ class Describe(unittest.TestCase):
         finally:
             del stages.HOLES_BLANK_BY_DESIGN['TEST.PAC']
         self.assertIsNone(stages.holes_by_design('NOPE.PAC', [(1, 5)]))
-        self.assertIsNone(stages.holes_by_design('STAGE0D.PAC', [(207, 16)]))
+        self.assertIsNone(stages.holes_by_design('STAGE0D.PAC', [(207, 16), (130, 2), (140, 2)]))
         self.assertIn('15 page slots', stages.holes_by_design('STAGE0D.PAC', [(207, 15)]))
 
     def test_the_quarter_of_a_32_pixel_tile_is_the_rule_of_sprite_tiles(self):
@@ -905,6 +905,49 @@ class Describe(unittest.TestCase):
             del stages.DESIGN_BY_DESIGN[('TEST.PAC', 1)]
         self.assertEqual(stages.index_spans([1, 2, 3, 7, 9, 10]), [(1, 3), (7, 1), (9, 2)])
         self.assertTrue(all(len(v) == 4 and v[3] and chr(0x2014) not in v[3] for v in stages.DESIGN_BY_DESIGN.values()))
+
+    def test_layer_zero_is_built_by_the_own_rule_where_the_disc_differs(self):
+        w = self.world
+        d0 = w.descriptor(objects=[(0x10003, 2, 0)], count=96)
+        d0['sizes']['module'] = 0x4000
+        parts = make_stage_file(w, d0)
+        r = stages.analyse(parts, self.helper, 3, w.arc.prog)
+        exact = stages.describe('TEST.PAC', 3, parts, w.arc, self.helper, r)
+        self.assertEqual(exact['layers'][0]['flags'] & stages.L0_OWN, 0)               # a layer 0 the model builds equal is left as it is
+        module = bytearray(parts['module'])
+        cells = stages.layer_cells(w.arc, 0, stages.ids_of(w.arc, d0['layers'][0]), 64, 16, 3)
+        at = d0['layers'][0]['map'] + 2 * stages.map_word_index(cells[5][0], cells[5][1], 64, 16)
+        struct.pack_into('<HH', module, at, 0x5c00, 0x7840)                          # a cell the PS1 drew another way
+        bad = dict(parts, module=bytes(module))
+        d = stages.describe('TEST.PAC', 3, bad, w.arc, self.helper, stages.analyse(bad, self.helper, 3, w.arc.prog))
+        self.assertIsInstance(d, dict, d)
+        l0 = d['layers'][0]
+        self.assertEqual(l0['flags'], stages.L0_OWN)
+        self.assertEqual((l0['cell_known'] >> 5) & 1, 0)
+        self.assertEqual(l0['cell_known'] & ~(1 << 5), (2 ** 1024 - 1) & ~(1 << 5) & l0['cell_known'])     # the other cells that equal the disc's are known
+        self.assertEqual(d['layers'][1]['flags'] & stages.START_RULE, 0)                # layer 1 starts where the descriptor says, not by the rule
+        self.assertEqual(l0['l0own'], {'skip': stages.l0_skip_cells(d), 'reserved': stages.l0_list_slots(bad, d)})
+        model = stages.model_stage(w.arc, d)
+        data, known = model['module']
+        own = model['own']['module']
+        self.assertTrue(all(a == b for a, b, k in zip(data, bad['module'], known) if k))          # what is known equals the disc
+        self.assertEqual(own[at:at + 4], b'\1' * 4)
+        self.assertEqual(known[at:at + 4], bytes(4))
+        self.assertTrue(all(not (k and o) for k, o in zip(known, own)))
+        # the pure parts of the rule
+        self.assertEqual(stages.l0_cdist(0, 0), 0)
+        self.assertEqual(stages.l0_cdist(0, 5), 60)
+        self.assertEqual(stages.l0_cdist(0x0001, 0x0022), 2)
+        self.assertEqual(stages.l0_cdist(0x8001, 0x0001), 0)                         # the opaque bit does not count
+        cols = [0x8000, 0x0001, 0x7c00]
+        px = [0, 0x0001, 0x7c00, 0x8000] + [0] * 252
+        tile = stages.l0_tile(px, cols)
+        self.assertEqual(tile[:2], bytes([0x20, 0x13]))
+        self.assertEqual(stages.l0_draw(tile, cols)[:4], px[:4])
+        self.assertIsNone(stages.l0_tile([0x1234] + [0] * 255, cols))
+        err, near = stages.l0_near([0x0003] + [0] * 255, cols)
+        self.assertEqual((err, near[0] & 15), (stages.l0_cdist(0x0003, 0x0001), 2))
+        self.assertEqual(stages.index_spans([]), [])
 
     def test_an_unreadable_module_is_reported(self):
         w = self.world

@@ -11,6 +11,7 @@
  *   more K COUNT STEP KIND ARG   (KIND 0 rows from ARG, 1 filler, 2 the row from ARG by design, 3 blank by design)
  *   xmap LAYER MAP BLOCKS ID...   (an extra map of layer 1 or 2: BLOCKS arcade block numbers, two to a page)
  *   ocell LAYER FIRST COUNT | otile LAYER FIRST COUNT   (a run of cells built by design, or of retouched tiles)
+ *   l0skip FIRST COUNT | l0res FIRST COUNT   (layer 0 own rule: cells not built, slots the disc keeps)
  * SPEC (runs) is "TOTAL" then "object" lines; SPEC (pal) is "total BYTES" then "more" lines (the chunk is palettes.bin). OUTDIR gets module.bin pages.bin palettes.bin objects.bin objpal.bin and a
  * .known and .own file for each, and owned.txt (the names of the pieces that are owned); a line "error: ..." on stdout and status 1 when the build refuses. */
 #include "../stage.h"
@@ -71,6 +72,8 @@ struct spec {
     unsigned nexc[3];
     uint64_t *known[3][2];
     struct arcade_stage_more *more;
+    struct arcade_stage_span l0s[8], l0r[8];
+    unsigned nl0s, nl0r;
     struct arcade_stage_span oc[3][8], ot[3][8];
     unsigned noc[3], not_[3];
     struct arcade_stage_xmap xm[3][4];
@@ -134,6 +137,13 @@ static int read_spec(const char *path, struct spec *sp)
         } else if (!strcmp(word, "more")) {
             if (nm >= 256 || fscanf(f, "%lu %lu %lu %lu %lu", &a, &b, &c, &d, &e) != 5) return -3;
             sp->more[nm].k = (uint16_t)a; sp->more[nm].count = (uint16_t)b; sp->more[nm].step = (uint8_t)c; sp->more[nm].kind = (uint8_t)d; sp->more[nm].arg = (uint32_t)e; nm++;
+        } else if (!strcmp(word, "l0skip") || !strcmp(word, "l0res")) {
+            int res = word[2] == 'r';
+            struct arcade_stage_span *dst = res ? sp->l0r : sp->l0s;
+            unsigned *n = res ? &sp->nl0r : &sp->nl0s;
+            if (fscanf(f, "%lu %lu", &b, &c) != 2 || *n >= 8) return -3;
+            dst[*n].first = (uint32_t)b; dst[*n].count = (uint32_t)c;
+            (*n)++;
         } else if (!strcmp(word, "ocell") || !strcmp(word, "otile")) {
             int tiles = word[1] == 't';
             unsigned *n = tiles ? sp->not_ : sp->noc;
@@ -169,6 +179,10 @@ static int read_spec(const char *path, struct spec *sp)
         sp->s.layer[a].xmaps = sp->nxm[a] ? sp->xm[a] : NULL; sp->s.layer[a].xmap_count = sp->nxm[a];
         sp->s.layer[a].own_cells = sp->noc[a] ? sp->oc[a] : NULL; sp->s.layer[a].own_cell_count = sp->noc[a];
         sp->s.layer[a].own_tiles = sp->not_[a] ? sp->ot[a] : NULL; sp->s.layer[a].own_tile_count = sp->not_[a];
+        if (a == 0) {
+            sp->s.layer[0].l0_skip = sp->nl0s ? sp->l0s : NULL; sp->s.layer[0].l0_skip_count = sp->nl0s;
+            sp->s.layer[0].l0_reserved = sp->nl0r ? sp->l0r : NULL; sp->s.layer[0].l0_reserved_count = sp->nl0r;
+        }
     }
     return 0;
 }
@@ -284,13 +298,17 @@ static int table(void)
             if (!l->ids || l->ids != (l->across / bc) * (l->down / bc) || !l->id_at) { printf("bad layer %u at %u\n", n, i); return 1; }
             for (k = 0; k < l->ids; k++)
                 if (l->id_at[k] && (l->id_at[k] < 0x1d000u || l->id_at[k] > 0x1e000u)) { printf("id address %#x out of range at %u\n", l->id_at[k], i); return 1; }
-            if (l->flags > 7u || ((l->flags & ARCADE_STAGE_START_RULE) && (n == 0 || l->start))) { printf("bad flags at %u\n", i); return 1; }
-            if (l->xmap_count && (n == 0 || !l->xmaps)) { printf("bad extra maps at %u\n", i); return 1; }
+            if (l->flags > 15u || ((l->flags & ARCADE_STAGE_START_RULE) && (n == 0 || l->start)) ||
+                ((l->flags & ARCADE_STAGE_L0_OWN) && (n != 0 || (l->flags & 7u) || l->own_cell_count || l->own_tile_count))) { printf("bad flags at %u\n", i); return 1; }
+            if (!(l->flags & ARCADE_STAGE_L0_OWN) && (l->l0_skip_count || l->l0_reserved_count)) { printf("layer 0 spans without the flag at %u\n", i); return 1; }
+            for (k = 0; k < l->l0_reserved_count; k++)
+                if (l->l0_reserved[k].first + l->l0_reserved[k].count > s->layer[1].start || !l->l0_reserved[k].first) { printf("bad reserved slots at %u\n", i); return 1; }
+            if (l->xmap_count && ((n == 0 && !(l->flags & ARCADE_STAGE_L0_OWN)) || !l->xmaps)) { printf("bad extra maps at %u\n", i); return 1; }
             for (k = 0; k < l->xmap_count; k++) {
                 unsigned h;
                 if (!l->xmaps[k].blocks || (l->xmaps[k].blocks & 1u) || !l->xmaps[k].ids) { printf("bad extra map %u at %u\n", k, i); return 1; }
                 for (h = 0; h < l->xmaps[k].blocks; h++)
-                    if (l->xmaps[k].ids[h] >= (n == 1 ? 154u : 101u)) { printf("extra block out of range at %u\n", i); return 1; }
+                    if (l->xmaps[k].ids[h] >= (n == 0 ? 143u : n == 1 ? 154u : 101u)) { printf("extra block out of range at %u\n", i); return 1; }
             }
             for (k = 0; k < l->exc_count; k++)
                 if (l->exc[k].cell >= (uint32_t)l->across * l->down || (k && l->exc[k].cell <= l->exc[k - 1].cell)) { printf("bad exception at %u\n", i); return 1; }

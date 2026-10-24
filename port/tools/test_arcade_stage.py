@@ -12,7 +12,7 @@ not fit the pages, runs that do not add up, a run of palettes that leaves the ch
 compiles warning-free for 32 bits, and the helpers that write the table.
 """
 from pathlib import Path
-import random, shutil, struct, subprocess, sys, tempfile, unittest
+import collections, random, shutil, struct, subprocess, sys, tempfile, unittest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'port/arcade'))
 import stages as S
@@ -59,7 +59,7 @@ class World:
         self.arc = S.Arc(bytes(prog), bytes(self.gfx))
 
     def descriptor(self, flags=(3, 3, 3), pal_exact=0, extras=(), holes=(), objects=None, count=96, module=0x3000, pages=3 * 32768,
-                   exc=((), (), ()), cell_known=(0, 0, 0), tile_known=(0, 0, 0), more=(), start_rule=(False, False), xmaps=((), (), ()), own_cells=((), (), ()), own_tiles=((), (), ())):
+                   exc=((), (), ()), cell_known=(0, 0, 0), tile_known=(0, 0, 0), more=(), start_rule=(False, False), xmaps=((), (), ()), own_cells=((), (), ()), own_tiles=((), (), ()), l0own=None, region=None):
         d = {'file': 'TEST.PAC', 'stage': 3, 'extras': list(extras), 'holes': list(holes), 'pal_exact': pal_exact, 'more': list(more),
              'object_runs': [(S.RUN_ZERO, 2, 0), (0x10003, 4, 0), (0x10009, 2, 3), (S.RUN_DISC, 1, 0)] if objects is None else objects,
              'layers': [{'map': 0x100, 'across': 64, 'down': 16, 'ids': [0x1d020, 0x1d021, 0x1d022, 0x1d023], 'start': 0, 'flags': flags[0]},
@@ -75,8 +75,16 @@ class World:
                 layer['own_tiles'] = list(own_tiles[n])
         d['sizes'] = {'module': module, 'pages': pages, 'palettes': count * 32,
                       'object tiles': 128 * sum(c for _f, c, _fl in d['object_runs']), 'object palettes': 224}
-        maps, tiles = S.model_stage_raw(self.arc, d)
-        l1 = S.l1_start_rule(len(tiles[0]), d['extras'], d['holes'])
+        if l0own is not None:                  # layer 0 by the own rule: layer 1 starts where the region ends
+            d['layers'][0]['flags'] = S.L0_OWN
+            d['layers'][0]['l0own'] = {'skip': list(l0own.get('skip', ())), 'reserved': list(l0own.get('reserved', ()))}
+            d['layers'][1]['start'] = region
+        got = S.model_stage_raw(self.arc, d)
+        if isinstance(got, str):               # a layer 0 the rule refuses: the caller wants the descriptor to see both sides refuse it
+            d['layers'][2]['start'] = 0
+            return d
+        maps, tiles = got
+        l1 = region if l0own is not None else S.l1_start_rule(len(tiles[0]), d['extras'], d['holes'])
         d['layers'][1]['start'] = l1
         maps, tiles = S.model_stage_raw(self.arc, d)
         d['layers'][2]['start'] = S.l2_start_rule(l1 + len(tiles[1]), d['extras'], d['holes'])
@@ -84,6 +92,45 @@ class World:
             if start_rule[n - 1]:
                 d['layers'][n]['flags'] |= S.START_RULE
         return d
+
+
+def plane_bytes(values):
+    """128 bytes of the arcade layout (planes, 8 pixels to a byte) of 256 arcade colour values (15: transparent)."""
+    out = bytearray(128)
+    for y in range(16):
+        for x in range(16):
+            for pl in range(4):
+                out[y * 8 + x // 8 * 4 + pl] |= ((values[y * 16 + x] >> pl) & 1) << (7 - x % 8)
+    return bytes(out)
+
+
+FAST = [(200, 824)]                       # the own layer 0 tests build 200 of the layer's 1,024 cells (the rest is skipped), to stay quick
+
+
+class L0World(World):
+    """World whose scroll 1 pieces use few colours of rows that are random subsets of a pool, so that the own layer 0 rule meets every case:
+    cells in one row, cells that fit another row, cells that need a merged row, cells with too many colours, and rows that run out."""
+
+    def __init__(self, seed, rows_used=32, spread=8):
+        World.__init__(self, seed)
+        rnd = self.rnd
+        gfx = bytearray(self.gfx)
+        for k in range(12):
+            if k in (0, 4, 5):
+                continue
+            top = rnd.choice([3, 3, spread])
+            vals = [rnd.choice([15, 15, 15] + list(range(top))) for _ in range(256)]
+            gfx[(0x10000 + k) * 128:(0x10000 + k + 1) * 128] = plane_bytes(vals)
+        prog = bytearray(self.prog)
+        for g in range(4):
+            for c in range(16):
+                code, attr = struct.unpack_from('>HH', prog, S.GROUPS1 + 64 * g + 4 * c)
+                struct.pack_into('>HH', prog, S.GROUPS1 + 64 * g + 4 * c, code, (attr & 0x60) | rnd.randrange(rows_used))
+        pool = [rnd.randrange(1, 0x1000) for _ in range(30)]
+        for row in range(32):
+            struct.pack_into('>16H', prog, S.PALETTE_TABLES[0] + 0x400 * 3 + 0x20 * row, *rnd.sample(pool, 15), 0)
+        self.prog, self.gfx = prog, gfx
+        self.arc = S.Arc(bytes(prog), bytes(gfx))
 
 
 def spec_text(d):
@@ -102,6 +149,9 @@ def spec_text(d):
     for n, l in enumerate(d['layers']):
         lines += [f'ocell {n} {a} {c}' for a, c in S.index_spans(l.get('own_cells', []))]
         lines += [f'otile {n} {a} {c}' for a, c in S.index_spans(l.get('own_tiles', []))]
+    lo = d['layers'][0].get('l0own')
+    if lo:
+        lines += [f'l0skip {a} {c}' for a, c in lo['skip']] + [f'l0res {a} {c}' for a, c in lo['reserved']]
     lines += [f'extra {a} {c} {f} {fl}' for a, c, f, fl in d['extras']]
     lines += [f'hole {a} {c}' for a, c in d['holes']]
     lines += [f'more {k} {c} {st} {kind} {arg}' for k, st, c, kind, arg in d.get('more', ())]
@@ -369,6 +419,98 @@ class StageC(unittest.TestCase):
                 continue
             self.same(world, d)
 
+    def test_layer_zero_own_rule_is_built_by_c_as_the_model_says(self):
+        seen = collections.Counter()
+        for seed, rows_used, spread in ((1, 32, 12), (2, 6, 4), (3, 32, 3), (4, 12, 12), (5, 3, 12), (6, 32, 12)):
+            w = L0World(seed, rows_used, spread)
+            wide = w.descriptor(l0own={'skip': FAST, 'reserved': []}, region=900, pages=6 * 32768)
+            res = S.l0_own_build(w.arc, wide)
+            seen.update(res['stats'])
+            need = len(res['tiles'])
+            for region, reserved, skip in ((300, [], FAST), (need + 3, [(5, 2)], FAST), (max(need - 3, 4), [(3, 1)], FAST), (300, [], [(100, 70), (300, 724)])):
+                d = w.descriptor(l0own={'skip': skip, 'reserved': reserved}, region=region, module=0x6000, pages=6 * 32768)
+                try:
+                    S.model_stage(w.arc, d)
+                except ValueError:
+                    self.assertIsInstance(self.run_c(w, d), str)
+                    continue
+                built, model = self.same(w, d)
+                # everything of layer 0 is owned (nothing known by the flag alone): cells, the region's slots, the 32 palette rows
+                own_slots = sum(1 for slot in range(region) if built['own']['pages'][S.slot_place(slot, 16) + 4])
+                self.assertEqual(own_slots, region - sum(1 for a, c in reserved for x in range(a, a + c) if x < region))
+                self.assertEqual(sum(1 for r in range(32) if built['own']['palettes'][64 * r + 4]), 32)
+                r2 = S.l0_own_build(w.arc, d)
+                seen.update(r2['stats'])
+        for tier in ('blank', 'one row', 're-indexed', 'merged', 'nearest', 'folded', 'merged rows'):
+            self.assertGreater(seen[tier], 0, tier)
+
+    def test_the_first_word_of_a_chunk_is_never_owned(self):
+        # the game's disc stream compares each chunk's first word with the archive header's (the disc's) and reads again on a mismatch:
+        # the first four bytes of the module, the pages and the palettes are never owned, so they stay the disc's
+        w = L0World(2, 6, 4)
+        d = w.descriptor(l0own={'skip': FAST, 'reserved': []}, region=300, module=0x6000, pages=6 * 32768,
+                         own_cells=((), [0], ()), own_tiles=((), [0], ()))
+        d['layers'][1]['own_cells'] = [0]
+        built, model = self.same(w, d)
+        own = built['own']
+        self.assertEqual(own['palettes'][:4], bytes(4))                     # row 0 of layer 0 is owned, but for its first two entries
+        self.assertEqual(own['palettes'][4:32], b'\1' * 28)
+        self.assertEqual(own['pages'][:4], bytes(4))                        # slot 0's blank tile is owned, but for its first word
+        self.assertEqual(own['pages'][4:8], b'\1' * 4)
+        self.assertEqual(own['module'][:4], bytes(4))
+        self.assertEqual(model['own']['palettes'][:4], bytes(4))
+        # a palette row 0 by design in the ordinary descriptor too
+        more = [(0, 2, 1, S.MORE_APPROX, 0x275c40)]
+        d2 = self.world.descriptor(count=96, more=[(2, 1, 1, S.MORE_APPROX, 0x275c40)])
+        b2, _m = self.same(self.world, d2)
+        self.assertEqual(b2['own']['palettes'][:4], bytes(4))
+        # and the second palette chunk: the same
+        prog = self.world.arc.prog
+        got = self.run_pal(prog, 4096, [(0, 1, 2, S.MORE_APPROX, 0x275c40), (1, 1, 1, S.MORE_BLANK, 0)])
+        self.assertEqual(got[2][:4], bytes(4))
+        self.assertEqual(got[2][4:32], b'\1' * 28)
+        own = bytearray(4096)
+        S.model_shared_palettes(prog, 4096, [(0, 1, 2, S.MORE_APPROX, 0x275c40), (1, 1, 1, S.MORE_BLANK, 0)], own)
+        self.assertEqual(bytes(own), got[2])
+
+    def test_layer_zero_own_known_bits_serve_what_equals_the_disc(self):
+        w = L0World(2, 6, 4)
+        d = w.descriptor(l0own={'skip': FAST, 'reserved': []}, region=300, module=0x6000, pages=6 * 32768)
+        res = S.l0_own_build(w.arc, d)
+        keys = sorted(res['words'], key=lambda k: res['index'][k])
+        ck = sum(1 << res['index'][k] for k in keys[:50])                          # cells 0.. named equal
+        tk = sum(1 << slot for slot in sorted(res['tiles'])[:5]) | 1 << res['zero_slots'][0]
+        d['layers'][0]['cell_known'], d['layers'][0]['tile_known'] = ck, tk
+        d['pal_exact'] = (1 << 4) | (1 << 10)                                      # layer 0 rows 2 and 5
+        built, _model = self.same(w, d)
+        module_known, module_own = built['module'][1], built['own']['module']
+        known_cells = sum(1 for k in keys if module_known[S.cell_offset(d['layers'][0], 0, *k)])
+        self.assertEqual(known_cells, 50)
+        self.assertEqual(sum(1 for k in keys if module_own[S.cell_offset(d['layers'][0], 0, *k)]), len(keys) - 50)
+        pk, po = built['pages'][1], built['own']['pages']
+        self.assertEqual(sum(1 for slot in range(300) if pk[S.slot_place(slot, 16)]), min(5, len(res['tiles'])) + 1)
+        self.assertFalse(any(a and b for a, b in zip(pk, po)))
+        self.assertEqual([r for r in range(32) if built['palettes'][1][64 * r]], [2, 5])
+        self.assertEqual([r for r in range(32) if built['own']['palettes'][64 * r + 4]], [r for r in range(32) if r not in (2, 5)])
+
+    def test_layer_zero_own_extra_map_is_a_list_of_sets_and_refusals(self):
+        w = L0World(3, 20, 4)
+        d = w.descriptor(l0own={'skip': [(100, 924)], 'reserved': []}, region=300, module=0x8000, pages=6 * 32768, xmaps=([{'map': 0x4000, 'ids': [0, 2, 1, 0]}], (), ()))
+        built, _model = self.same(w, d)
+        self.assertEqual(sum(built['own']['module']) // 4, 100 + 1024)                  # the layer's own cells (100 not skipped) and the extra map's
+        # the extra map's cells are those of sets 0, 2, 1, 0 in pages of two blocks
+        res = S.l0_own_build(w.arc, d)
+        self.assertEqual(len(res['words']), 100 + 1024)
+        # refusals both sides: no room (slot 0 reserved, no slot at all), a set that does not exist, a map outside the module
+        for what, bad in (('slot 0 reserved', w.descriptor(l0own={'skip': [], 'reserved': [(0, 1)]}, region=300, module=0x6000, pages=6 * 32768)),
+                          ('module too small', w.descriptor(l0own={'skip': [], 'reserved': []}, region=300, module=0x1800, pages=6 * 32768))):
+            if what == 'slot 0 reserved':
+                bad['layers'][0]['l0own']['reserved'] = [(0, 1)]
+            with self.subTest(what):
+                with self.assertRaises(ValueError):
+                    S.model_stage(w.arc, bad)
+                self.assertIsInstance(self.run_c(w, bad), str)
+
     def test_extra_maps_continue_the_layer_scan(self):
         w = self.world
         xm = ((), ({'map': 0x3000, 'ids': [2, 0, 1, 2]},), ({'map': 0x4100, 'ids': [1, 2, 0, 1]},))
@@ -593,7 +735,7 @@ class TableText(unittest.TestCase):
         d['file'] = 'STAGE03.PAC'
         text = S.c_table([d], [(0x10002, 1, 0)], [], (4096, [(0, 2, 5, S.MORE_ROW, 0x275c40), (1, 2, 3, S.MORE_FILL, 0)]))
         self.assertIn('{12288u, 2u, xids_03_1_0}', text)
-        self.assertIn('xmaps_03_2, 1u, 0, 0u, 0, 0u}', text)
+        self.assertIn('xmaps_03_2, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u}', text)
         self.assertIn('const unsigned arcade_stage_shared_pal_count = 2u;', text)
         d_ = tempfile.mkdtemp(prefix='arcade-stage-table-')
         try:

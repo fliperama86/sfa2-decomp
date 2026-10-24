@@ -81,6 +81,7 @@ Options: --model reports, per stage and piece, how many bytes the model proves e
 stages_table.c; --compare-c builds stage.c with the checked-in table and compares it with the model and the disc.
 """
 import argparse
+import collections
 import ctypes
 import shutil
 import struct
@@ -964,6 +965,319 @@ def xmap_cells(arc, n, xi, ids):
     return out
 
 
+# ---------------------------------------------------------------- our own layer 0 (E2, E3)
+#
+# The PS1 draws layer 0 as 16 x 16 sprites, one palette word (a row of the layer's palette column) a cell; the arcade's cells are 8 x 8 pieces
+# with a row each. Where the PS1's tool merged the rows of a cell's pieces it changed tiles and palette rows (which stages.py cannot rebuild:
+# l0_row), and the result differs from what the arcade draws. With the layer's flag L0_OWN the loader builds the layer's map cells, its
+# tiles (in the pages' first slots) and its 32 palette rows itself, by this rule, and serves them owned (a pack keeps none):
+#   a blank cell is the blank tile (slot 0, code 0x5800, which the drawing code skips);
+#   a cell whose pieces share one arcade row keeps that row and the arcade's indexes (the tile is the arcade's);
+#   a cell with pieces in several rows (the `colours` set C of its opaque pixels) takes, in the order of these steps:
+#     1. the first row (the rows of its own pieces in piece order, then rows 0 to 31) that holds all of C: its pixels are re-indexed to that
+#        row (an unused arcade row taken this way is claimed: no merged row is made on it);
+#     2. else, if C has at most 15 colours, a merged row: the existing merged row with room (at most 15 colours with C) that shares most colours
+#        with C (the lowest row among equals), else a new one on the lowest unclaimed row that no piece of the stage uses; the colours are
+#        added in ascending value, and kept in place, so tiles made earlier stay valid;
+#     3. else the nearest colour: the row (0 to 31, arcade, claimed or merged, that has a colour) whose nearest colours, pixel by pixel, differ
+#        least from the cell's (the sum of the channel differences of 5 bits; a transparent pixel against an opaque one counts 60); the lowest
+#        row among equals;
+#   when the different tiles are more than the slots the layer has (the pages' first slots up to layer 1's start, less those a list of the
+#   module points at), the least used tile (fewest cells, then fewest opaque pixels, then the latest in first use) is folded into the tile
+#   (another or the blank) that its cells draw nearest to the arcade's, until they fit.
+# The row numbers of the arcade's pieces are kept (the stage's code and lists name rows of layer 0 by their arcade numbers); only rows no
+# piece uses become merged rows.
+
+L0_OWN = 8                               # flag of layer 0: built by the rule above
+
+
+def l0_cdist(a, b):
+    """Difference of two PS1 colours (0: transparent) as the sum of the differences of their 5-bit channels; transparent against opaque is 60."""
+    if not a and not b:
+        return 0
+    if not a or not b:
+        return 60
+    return abs((a & 31) - (b & 31)) + abs(((a >> 5) & 31) - ((b >> 5) & 31)) + abs(((a >> 10) & 31) - ((b >> 10) & 31))
+
+
+def l0_scan(arc, d):
+    """[((cx, cy), quad)] of layer 0's cells in scan order: its own blocks (sets of 32 x 32 scroll 1 cells, row by row of blocks, then of cells) then
+    those of its extra maps (layer['xmaps']: sets, two to a page of 32 x 16 cells, the keys carrying XKEY * (map number + 1))."""
+    layer = d['layers'][0]
+    ids = ids_of(arc, layer)
+    out = []
+    across = layer['across'] // 16
+    for by in range(layer['down'] // 16):
+        for bx in range(across):
+            b = ids[by * across + bx]
+            if b >= SET_COUNT:
+                raise ValueError(f'layer 0 block {b} does not exist')
+            cs = arc.scroll1_set(b)
+            for y in range(16):
+                for x in range(16):
+                    out.append(((bx * 16 + x, by * 16 + y), [cs[(2 * x + q % 2, 2 * y + q // 2)] for q in range(4)]))
+    for xi, xm in enumerate(layer.get('xmaps', ())):
+        for h, b in enumerate(xm['ids']):
+            if b >= SET_COUNT:
+                raise ValueError(f'layer 0 extra block {b} does not exist')
+            cs = arc.scroll1_set(b)
+            page, half = divmod(h, 2)
+            for y in range(16):
+                for x in range(16):
+                    out.append(((XKEY * (xi + 1) + half * 16 + x, page * 16 + y), [cs[(2 * x + q % 2, 2 * y + q // 2)] for q in range(4)]))
+    return out
+
+
+def l0_pixels(arc, stage, quad):
+    """(colours of the cell's 256 pixels (0 transparent), the cell's rows in piece order): each piece's pixels in its own arcade row."""
+    px, rows_ = [0] * 256, []
+    for q, (code, attr) in enumerate(quad):
+        pc, row = arc.piece(code, attr), attr & 31
+        pal = arc.palette(stage, 0, row)
+        used = False
+        for yy in range(8):
+            for xx in range(8):
+                v = pc[yy][xx]
+                if v:
+                    px[((q >> 1) * 8 + yy) * 16 + (q & 1) * 8 + xx] = pal[v]
+                    used = True
+        if used and row not in rows_:
+            rows_.append(row)
+    return px, rows_
+
+
+def l0_tile(px, colours):
+    """The tile bytes of 256 colours against a row's colours (entries 1 to 15 in `colours`: the first entry with the colour; 0 transparent), or None
+    when a colour is not there."""
+    index = {}
+    for i, c in enumerate(colours):
+        index.setdefault(c, i + 1)
+    out = bytearray(128)
+    for i, c in enumerate(px):
+        if c:
+            v = index.get(c)
+            if v is None:
+                return None
+            out[i >> 1] |= v << (4 * (i & 1))
+    return bytes(out)
+
+
+def l0_near(px, colours):
+    """(error, tile bytes) of 256 colours drawn with the nearest colour of a row's colours (the lowest entry among equals)."""
+    out, err = bytearray(128), 0
+    for i, c in enumerate(px):
+        if c:
+            best = None
+            for k, e in enumerate(colours):
+                dist = l0_cdist(c, e)
+                if best is None or dist < best[0]:
+                    best = (dist, k + 1)
+            err += best[0]
+            out[i >> 1] |= best[1] << (4 * (i & 1))
+    return err, bytes(out)
+
+
+def l0_draw(tile, colours):
+    """The 256 colours a tile draws in a row (0: transparent, or an entry the row does not have)."""
+    return [(colours[v - 1] if 0 < v <= len(colours) else 0) for v in (((tile[i >> 1] >> (4 * (i & 1))) & 15) for i in range(256))]
+
+
+def l0_own_build(arc, d):
+    """What the loader builds of layer 0 by the rule above: a dict with
+       words {key: (code, clut)} of the cells that are built (not those in layer['l0own']['skip']),
+       tiles {slot: 128 bytes} of the slots used, zero_slots [slots made blank], rows {row: 16 PS1 colours} of the 32 palette rows,
+       stats {tier: cells} and the counts folded. layer['l0own'] = {'skip': [(first, count)] of cell scan indexes, 'reserved': [(slot, count)]
+       of the slots of the region [0, layer 1's start) that stay the disc's}. ValueError when the layer's tiles cannot fit or an input is bad."""
+    stage, layer = d['stage'], d['layers'][0]
+    own = layer['l0own']
+    region = d['layers'][1]['start']
+    skip = {i for a, c in own['skip'] for i in range(a, a + c)}
+    reserved = {s for a, c in own['reserved'] for s in range(a, a + c)}
+    if 0 in reserved or region > 0xffff:
+        raise ValueError('layer 0 has no slot 0 for its blank tile')
+    free_slots = [s for s in range(region) if s not in reserved]
+    scan_all = [(i, x) for i, x in enumerate(l0_scan(arc, d)) if i not in skip]
+    scan = [x for _i, x in scan_all]
+    cells = []                                   # (key, px, rows_, arcade tile bytes of a single-row cell)
+    used = set()
+    for key, quad in scan:
+        px, rows_ = l0_pixels(arc, stage, quad)
+        cells.append((key, px, rows_, quad))
+        used.update(rows_)
+    arcade = [list(arc.palette(stage, 0, r)[1:]) for r in range(32)]
+    mixed, claimed, stats = {}, set(used), collections.Counter()
+    def colours(r):
+        return mixed[r] if r in mixed else arcade[r]
+    chosen = []                                  # (row, tile bytes) per cell
+    for key, px, rows_, quad in cells:
+        C = {c for c in px if c}
+        if not C:
+            chosen.append((0, bytes(128)))
+            stats['blank'] += 1
+            continue
+        if len(rows_) == 1:
+            chosen.append((rows_[0], l0_tile(px, colours(rows_[0]))))
+            stats['one row'] += 1
+            continue
+        found = None
+        for r in rows_ + [r for r in range(32) if r not in rows_]:
+            cols = colours(r)
+            if cols and C <= set(cols):
+                found = r
+                break
+        if found is not None:
+            claimed.add(found)
+            chosen.append((found, l0_tile(px, colours(found))))
+            stats['re-indexed'] += 1
+            continue
+        if len(C) <= 15:
+            best = None
+            for r in sorted(mixed):
+                if len(set(mixed[r]) | C) <= 15:
+                    score = len(C & set(mixed[r]))
+                    if best is None or score > best[0]:
+                        best = (score, r)
+            if best is None:
+                fresh = [r for r in range(32) if r not in claimed]
+                if fresh:
+                    mixed[fresh[0]] = []
+                    claimed.add(fresh[0])
+                    best = (0, fresh[0])
+            if best is not None:
+                r = best[1]
+                mixed[r] += sorted(C - set(mixed[r]))
+                chosen.append((r, l0_tile(px, mixed[r])))
+                stats['merged'] += 1
+                continue
+        best = None
+        for r in range(32):
+            cols = colours(r)
+            if not cols:
+                continue
+            err, t = l0_near(px, cols)
+            if best is None or err < best[0]:
+                best = (err, r, t)
+        claimed.add(best[1])
+        chosen.append((best[1], best[2]))
+        stats['nearest'] += 1
+        stats['nearest error'] += best[0]
+    # the different tiles, then folding to the room the region has
+    room = len(free_slots)
+    order, cellsof = [], collections.defaultdict(list)
+    for i, (row, t) in enumerate(chosen):
+        if t not in cellsof:
+            order.append(t)
+        cellsof[t].append(i)
+    if bytes(128) not in cellsof:
+        order.insert(0, bytes(128))
+    elif order[0] != bytes(128):
+        order.remove(bytes(128))
+        order.insert(0, bytes(128))
+    folded = 0
+    while len(order) > room:
+        if room < 1 or len(order) < 2:
+            raise ValueError('layer 0 has no room for its tiles')
+        def weight(t):
+            return (len(cellsof.get(t, ())), sum(1 for i in range(256) if (t[i >> 1] >> (4 * (i & 1))) & 15), -order.index(t))
+        victims = [t for t in order[1:]] or []
+        a = min(victims, key=weight)
+        best = None
+        for bi, b in enumerate(order):
+            if b == a:
+                continue
+            err = 0
+            for i in cellsof[a]:
+                row = chosen[i][0]
+                err += sum(l0_cdist(x, y) for x, y in zip(cells[i][1], l0_draw(b, colours(row))))
+            if best is None or err < best[0]:
+                best = (err, b)
+        stats['folding error'] += best[0]
+        b = best[1]
+        for i in cellsof[a]:
+            chosen[i] = (chosen[i][0], b)
+        cellsof[b] = cellsof.get(b, []) + cellsof.pop(a)
+        order.remove(a)
+        folded += 1
+    slot_of = {t: free_slots[k] for k, t in enumerate(order)}
+    words = {}
+    for (key, _px, _r, _q), (row, t) in zip(cells, chosen):
+        slot = slot_of[t]
+        words[key] = (slot_code(slot, 16), 0x7800 + 64 * (0 if slot == 0 else row))
+    rows = {}
+    for r in range(32):
+        if r in mixed:
+            rows[r] = [0] + mixed[r] + [0] * (15 - len(mixed[r]))
+        else:
+            rows[r] = predicted_palette(arc.prog, stage, 0, r)
+    stats['folded'] = folded
+    stats['merged rows'] = len(mixed)
+    return {'words': words, 'tiles': {slot_of[t]: t for t in order}, 'zero_slots': free_slots[len(order):], 'rows': rows, 'stats': dict(stats),
+            'index': {key: i for (i, _x), (key, _q) in zip(scan_all, scan)}}
+
+
+def l0_skip_cells(d):
+    """[(first, count)] of the scan indexes of layer 0's own cells whose four bytes lie in another layer's map (a stage whose layer 0 map is
+    longer than the room before layer 1's: those bytes are layer 1's, built with it)."""
+    layer = d['layers'][0]
+    ranges = []
+    for n in (1, 2):
+        other, side = d['layers'][n], (16, 16, 32)[n]
+        ranges.append((other['map'], other['map'] + 4 * other['across'] * other['down']))
+    bad = []
+    across = layer['across'] // 16
+    for i in range((layer['across'] // 16) * (layer['down'] // 16) * 256):
+        blk, k = divmod(i, 256)
+        bx, by = blk % across, blk // across
+        y, x = divmod(k, 16)
+        at = layer['map'] + 2 * map_word_index(bx * 16 + x, by * 16 + y, layer['across'], 16)
+        if any(a < at + 4 and at < b for a, b in ranges):
+            bad.append(i)
+    return index_spans(bad)
+
+
+def l0_list_slots(parts, d):
+    """[(slot, count)] of the page slots before layer 1's start that cells in the stage module outside the layers' maps point at (lists of the
+    module's own: they name these slots by code and keep doing so): the layer 0 packing leaves them alone."""
+    module, pages = parts['module'], parts['pages']
+    npages = len(pages) // PAGE_BYTES
+    taken = bytearray(len(module))
+    for n, layer in enumerate(d['layers']):
+        side = (16, 16, 32)[n]
+        for cy in range(layer['down']):
+            for cx in range(layer['across']):
+                at = layer['map'] + 2 * map_word_index(cx, cy, layer['across'], side)
+                taken[at:at + 4] = b'\1\1\1\1'
+        for xm in layer.get('xmaps', ()):
+            pages_n = len(xm['ids']) // 2
+            for page in range(pages_n):
+                for y in range(16 if n < 2 else 8):
+                    for x in range(32 if n < 2 else 16):
+                        at = xm['map'] + 2 * map_word_index(x, page * (16 if n < 2 else 8) + y, xmap_across(side), side)
+                        taken[at:at + 4] = b'\1\1\1\1'
+    region = d['layers'][1]['start']
+    slots = set()
+    for at in range(0, len(module) - 3, 4):
+        if taken[at] or not cell_like_any(module, at, npages):
+            continue
+        slot = slot_of_code(struct.unpack_from('<H', module, at)[0], 16)
+        if slot is not None and slot < region:
+            slots.add(slot)
+    return index_spans(sorted(slots))
+
+
+def cell_like_any(module, at, npages):
+    """True when the four bytes at `at` look like a cell of one of the layers (a tile code on the stage's pages, a palette word 0x7800 + column + 64 * row, column 0 to 3)."""
+    code, clut = struct.unpack_from('<HH', module, at)
+    return 0x7800 <= clut < 0x8000 and (clut & 63) < 4 and FIRST_PAGE <= code >> 10 < FIRST_PAGE + npages
+
+
+def l0_result(arc, d):
+    """l0_own_build for a descriptor, kept in the descriptor (it takes a moment on a stage with many cells)."""
+    if '_l0' not in d:
+        d['_l0'] = l0_own_build(arc, d)
+    return d['_l0']
+
+
 def layer_cells_all(arc, d, n):
     """The cells of layer n of descriptor d in scan order: its own (layer_cells), then those of its extra maps (layer['xmaps'],
     each {'map': byte offset in the module, 'ids': arcade block numbers, two to a page})."""
@@ -1062,8 +1376,9 @@ def runs_owned(runs):
 # Stage 06's holes are not in this table: they are layer 0 tiles of its extra sets, which the own layer 0 packing makes.
 HOLES_BLANK_BY_DESIGN = {
     # STAGE0D: slots 207 to 222, one column of the first page: four frames of four tiles (a figure at a window, in all 15 colours); no
-    # arcade tile at 16 or 32 pixels (measured 2026-10-24: none under 4 flips, none as a quarter of a 32 x 32 tile).
-    'STAGE0D.PAC': (16, 'four 4-tile frames of a figure at a window, no arcade tile'),
+    # arcade tile at 16 or 32 pixels (measured 2026-10-24: none under 4 flips, none as a quarter of a 32 x 32 tile). With layer 0 built by the own
+    # rule the four slots 130, 131, 140 and 141 that the same list names (layer 0 tiles the PS1 merged) are held too: 20 slots in all.
+    'STAGE0D.PAC': (20, 'four 4-tile frames of a figure at a window (slots 207 to 222) and the four layer 0 slots (130, 131, 140, 141) its list names, no arcade tile'),
     # STAGE03: slots 749 to 752, four tiles of the strip the PS1 added to layer 1 (DESIGN_BY_DESIGN) that no arcade tile makes (the other 184 of the
     # strip's 188 distinct tiles are arcade tiles); the strip itself is built blank.
     'STAGE03.PAC': (4, 'four tiles of the road strip the PS1 added to layer 1, no arcade tile'),
@@ -1166,7 +1481,9 @@ def model_shared_palettes(prog, size, more, own=None):
     """(bytes, known) of the second palette chunk of a stage file (the same in every stage file): `size` bytes of palettes that are
     all the runs `more`; the others are zero and not known. `own` (a bytearray of `size`) gets the palettes built by design."""
     out, known = bytearray(size), bytearray(size)
-    model_more(prog, out, known, size // 32, more, own if own is not None else bytearray(size))
+    own = own if own is not None else bytearray(size)
+    model_more(prog, out, known, size // 32, more, own)
+    own[0:4] = bytes(4)                                   # the chunk's first word stays the disc's (stage.c first_words_left_alone)
     return out, known
 
 
@@ -1294,6 +1611,28 @@ def model_stage_pieces(arc, d):
     module_own, pages_own = bytearray(sizes['module']), bytearray(sizes['pages'])
     for n, layer in enumerate(d['layers']):
         side = (16, 16, 32)[n]
+        if n == 0 and layer['flags'] & L0_OWN:           # built by the own rule: all owned, nothing known
+            r = l0_result(arc, d)
+            ck, tk = layer.get('cell_known', 0), layer.get('tile_known', 0)       # what equals the disc's: known; the rest owned
+            for (cx, cy), (code, clut) in r['words'].items():
+                at = cell_offset(layer, 0, cx, cy)
+                if at + 4 > len(module):
+                    raise ValueError('layer 0 map does not fit the module')
+                struct.pack_into('<HH', module, at, code, clut)
+                if (ck >> r['index'][(cx, cy)]) & 1:
+                    module_known[at:at + 4] = b'\1\1\1\1'
+                else:
+                    module_own[at:at + 4] = b'\1\1\1\1'
+            for slot, tile in list(r['tiles'].items()) + [(x, None) for x in r['zero_slots']]:
+                if tile is not None and not put_slot(pages, slot, 16, tile):
+                    raise ValueError('a layer 0 tile does not fit the pages')
+                if not slot_ok(pages, slot, 16):
+                    continue
+                equal = (tk >> slot) & 1
+                mark_slot(pages_known, slot, 16, 1 if equal else 0)
+                mark_slot(pages_own, slot, 16, 0 if equal else 1)
+            counts[0] = len(r['tiles'])
+            continue
         cells = layer_cells_all(arc, d, n)
         start = layer_start(d, n, counts) if n else layer['start']
         if n == 1:
@@ -1336,12 +1675,22 @@ def model_stage_pieces(arc, d):
                 mark_slot(pages_known, slot + k, 16, 0)
     objects = tile_run_bytes(arc, d['object_runs'], sizes['object tiles'])
     pal_own = bytearray(sizes['palettes'])
-    return {'module': (module, module_known), 'pages': (pages, pages_known),
-            'palettes': model_palettes(arc.prog, d['stage'], sizes['palettes'] // 32, d['pal_exact'], d.get('more', ()), pal_own),
+    palettes = model_palettes(arc.prog, d['stage'], sizes['palettes'] // 32, d['pal_exact'], d.get('more', ()), pal_own)
+    if d['layers'][0]['flags'] & L0_OWN:                 # the layer's 32 rows by the own rule (arcade rows and merged ones), served owned
+        for r, words in l0_result(arc, d)['rows'].items():
+            struct.pack_into('<16H', palettes[0], 64 * r, *words)
+            equal = (d['pal_exact'] >> (2 * r)) & 1
+            palettes[1][64 * r:64 * r + 32] = (b'\1' if equal else b'\0') * 32
+            pal_own[64 * r:64 * r + 32] = (b'\0' if equal else b'\1') * 32
+    result = {'module': (module, module_known), 'pages': (pages, pages_known),
+            'palettes': palettes,
             'object tiles': objects,
             'object palettes': (model_object_palettes(arc.prog, d['stage']), b'\1' * OBJECT_PALETTES_BYTES),
             'owned': {'object tiles'} if runs_owned(d['object_runs']) else set(),
             'own': {'palettes': pal_own, 'module': module_own, 'pages': pages_own}}
+    for label in ('module', 'pages', 'palettes'):         # the first word of a chunk stays the disc's (stage.c first_words_left_alone)
+        result['own'][label][0:4] = bytes(4)
+    return result
 
 
 def mark_slot(known, slot, side, value=1):
@@ -1663,6 +2012,61 @@ def exceptions_of(arc, d, n, module, skip=()):
     return find_exceptions(cells, side, wants)
 
 
+# Layer 0's extra maps (the layer's animation frames, scroll 1 sets) that the PS1 keeps in the stage module like the animation blocks of layers 1 and
+# 2 (xmaps), found by hand because the PS1's merged tiles are not the arcade's. {file: (map offset, sets)}, checked against the disc by
+# describe (the sets must be the ones the best match names for each block, and most of their pieces must agree). STAGE06: 4 blocks of 16 x 16 cells
+# at 9112: a blank set and the arcade's sets 49, 50 and 51 (measured 2026-10-24: 907, 676 and 918 of 1,024 pieces equal in pixels and row).
+L0_EXTRA_MAPS = {'STAGE06.PAC': (9112, [0, 49, 50, 51])}
+
+
+def decide_l0_own(arc, d, parts, helper):
+    """Make layer 0 of descriptor d built by the own rule (L0_OWN) when the model's does not equal the disc's: some cell outside the bytes
+    of the other layers' maps is not known, or its tiles or its palette rows are not exact. True when it is (the layer's flags, extra map, skip
+    and reserved spans and the palette bits are set), False when not, or the text of a refusal."""
+    layer, name = d['layers'][0], d['file']
+    skip = l0_skip_cells(d)
+    skipped = {i for a, c in skip for i in range(a, a + c)}
+    unknown = any(not (layer['flags'] & MAP_EXACT or (layer['cell_known'] >> i) & 1) for i in range(layer['across'] // 16 * (layer['down'] // 16) * 256) if i not in skipped)
+    rows_exact = all((d['pal_exact'] >> (2 * r)) & 1 for r in range(32))
+    if name in L0_EXTRA_MAPS:
+        off, sets = L0_EXTRA_MAPS[name]
+        found = helper.match_layer0(parts['pages'], parts['module'], off, 32, 32)
+        if [b[1] for b in found[1:]] != sets[1:] or any(b[2] * 2 < b[0] for b in found):
+            return f'{name}: the extra layer 0 map at {off} is not the sets {sets}'
+        layer['xmaps'] = [{'map': off, 'ids': sets}]
+    elif not unknown and layer['flags'] & TILES_EXACT and rows_exact:
+        return False
+    layer['l0own'] = {'skip': skip, 'reserved': []}
+    layer['flags'] = L0_OWN
+    layer['cell_known'] = layer['tile_known'] = 0
+    layer.pop('own_cells', None)
+    layer.pop('own_tiles', None)
+    layer['l0own']['reserved'] = l0_list_slots(parts, d)
+    d['layers'][1]['flags'] &= ~START_RULE
+    d.pop('_l0', None)
+    try:
+        res = l0_result(arc, d)
+    except ValueError as exc:
+        return f'{name}: {exc}'
+    module, pages, chunk = parts['module'], parts['pages'], parts['palettes']
+    ck = tk = 0
+    for key, (code, clut) in res['words'].items():           # what the rule builds equal to the disc's: known, the rest is owned
+        if struct.unpack_from('<HH', module, cell_offset(layer, 0, *key)) == (code, clut):
+            ck |= 1 << res['index'][key]
+    for slot, tile in res['tiles'].items():
+        if slot_ok(pages, slot, 16) and get_slot(pages, slot, 16) == tile:
+            tk |= 1 << slot
+    for slot in res['zero_slots']:
+        if slot_ok(pages, slot, 16) and not any(get_slot(pages, slot, 16)):
+            tk |= 1 << slot
+    layer['cell_known'], layer['tile_known'] = ck, tk
+    for r in range(32):
+        d['pal_exact'] &= ~(1 << (2 * r))
+        if list(struct.unpack_from('<16H', chunk, 64 * r)) == res['rows'][r]:
+            d['pal_exact'] |= 1 << (2 * r)
+    return True
+
+
 def describe(name, stage, parts, arc, helper, r):
     """The descriptor of one stage file: `parts` from split_stage, `r` from analyse (which blocks the layers are). Flags are set
     where the model equals the disc. Returns a dict, or a string when the file cannot be described."""
@@ -1721,6 +2125,8 @@ def describe(name, stage, parts, arc, helper, r):
         bad = []
         for n, layer in enumerate(d['layers']):
             side = (16, 16, 32)[n]
+            if n == 0 and layer['flags'] & L0_OWN:
+                continue
             cells = layer_cells_all(arc, d, n)
             bits = 0
             for i, (cx, cy, _t, _r) in enumerate(cells):
@@ -1776,10 +2182,31 @@ def describe(name, stage, parts, arc, helper, r):
                 layer['cell_known'] &= ~(1 << i)
             for j in ret:
                 layer['tile_known'] &= ~(1 << j)
+    # palettes
+    chunk = parts['palettes']
+    count = len(chunk) // 32
+    for k in range(min(count, 128)):
+        layer, row = palette_group(k, count)
+        if layer != 'more' and list(struct.unpack_from('<16H', chunk, 32 * k)) == predicted_palette(arc.prog, stage, layer, row):
+            d['pal_exact'] |= 1 << k
+    d['more'] = more_runs(arc, chunk)
+    design = design_runs(arc, chunk, d['more'])
+    d['more'] = sorted(d['more'] + design[0])
+    d['more_design'] = design[1]
+    # layer 0 by the own rule where the PS1's differs from what the model builds (E2, E3)
+    own0 = decide_l0_own(arc, d, parts, helper)
+    if isinstance(own0, str):
+        return own0
+    if own0:
+        maps, tiles, _bad = measure()                 # the new layer 0 tiles for the outside slots below
     # page slots outside the model's layers that hold arcade tiles
     covered = set()
     for n, layer in enumerate(d['layers']):
         side = (16, 16, 32)[n]
+        if n == 0 and own0:                            # the region before layer 1 is layer 0's, but for the slots a list of the module names
+            reserved = {x for a, c in layer['l0own']['reserved'] for x in range(a, a + c)}
+            covered.update(x for x in range(d['layers'][1]['start']) if x not in reserved)
+            continue
         for j, t in enumerate(tiles[n]):
             if t is None:
                 continue
@@ -1803,20 +2230,9 @@ def describe(name, stage, parts, arc, helper, r):
     refusal = holes_by_design(name, d['holes'])
     if refusal:
         return refusal
-    # palettes
-    chunk = parts['palettes']
-    count = len(chunk) // 32
-    for k in range(min(count, 128)):
-        layer, row = palette_group(k, count)
-        if layer != 'more' and list(struct.unpack_from('<16H', chunk, 32 * k)) == predicted_palette(arc.prog, stage, layer, row):
-            d['pal_exact'] |= 1 << k
-    d['more'] = more_runs(arc, chunk)
-    design = design_runs(arc, chunk, d['more'])
-    d['more'] = sorted(d['more'] + design[0])
-    d['more_design'] = design[1]
     # the packing rule for the starts of layers 1 and 2
     s1, s2 = starts_by_rule(arc, d)
-    if s1 == d['layers'][1]['start']:
+    if s1 == d['layers'][1]['start'] and not own0:
         d['layers'][1]['flags'] |= START_RULE
     if s2 == d['layers'][2]['start']:
         d['layers'][2]['flags'] |= START_RULE
@@ -1836,11 +2252,15 @@ def model_stage_raw(arc, d):
     counts = [0, 0, 0, 0]
     try:
         for n, layer in enumerate(d['layers']):
-            cells = layer_cells_all(arc, d, n)
-            start = layer_start(d, n, counts) if n else layer['start']
-            if n == 1:
-                counts[3] = start
-            words, t = place_layer(cells, n, start, dict(layer.get('exc', ())))
+            if n == 0 and layer['flags'] & L0_OWN:
+                r = l0_result(arc, d)
+                words, t = r['words'], [r['tiles'].get(j) for j in range(max(r['tiles']) + 1)]
+            else:
+                cells = layer_cells_all(arc, d, n)
+                start = layer_start(d, n, counts) if n else layer['start']
+                if n == 1:
+                    counts[3] = start
+                words, t = place_layer(cells, n, start, dict(layer.get('exc', ())))
             counts[n] = len(t)
             maps.append(words)
             tiles.append(t)
@@ -1933,6 +2353,16 @@ def c_table(descs, shared, omitted, shared_pal=None):
                     out.append(f'static const struct arcade_stage_span {what}_{s}_{n}[] = {{')
                     out += [f'    {{{a}u, {c}u}},' for a, c in spans]
                     out.append('};')
+            if layer.get('l0own'):
+                lo = layer['l0own']
+                out.append(f'/* {d["file"]} layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader\'s, served owned; '
+                           f'{sum(c for _a, c in lo["skip"])} cells lie in other layers\' maps and are not built, {sum(c for _a, c in lo["reserved"])} slots of the region stay the disc\'s '
+                           f'(lists of the module name them). */')
+                for what, key in (('ls', 'skip'), ('lr', 'reserved')):
+                    if lo[key]:
+                        out.append(f'static const struct arcade_stage_span {what}_{s}[] = {{')
+                        out += [f'    {{{a}u, {c}u}},' for a, c in lo[key]]
+                        out.append('};')
             if layer.get('xmaps'):
                 for xi, xm in enumerate(layer['xmaps']):
                     out += c_array(f'xids_{s}_{n}_{xi}', xm['ids'], 16, '{}u', 'uint8_t')
@@ -2003,7 +2433,9 @@ def c_table(descs, shared, omitted, shared_pal=None):
                        f' {f"exc_{s}_{n}" if exc else "0"}, {len(exc or [])}u, {f"ck_{s}_{n}" if ck else "0"}, {f"tk_{s}_{n}" if tk else "0"},'
                        f' {f"xmaps_{s}_{n}" if xms else "0"}, {len(xms)}u,'
                        f' {f"oc_{s}_{n}" if layer.get("own_cells") else "0"}, {len(index_spans(layer.get("own_cells", [])))}u,'
-                       f' {f"ot_{s}_{n}" if layer.get("own_tiles") else "0"}, {len(index_spans(layer.get("own_tiles", [])))}u}},')
+                       f' {f"ot_{s}_{n}" if layer.get("own_tiles") else "0"}, {len(index_spans(layer.get("own_tiles", [])))}u,'
+                       f' {f"ls_{s}" if n == 0 and layer.get("l0own", {}).get("skip") else "0"}, {len(layer.get("l0own", {}).get("skip", [])) if n == 0 else 0}u,'
+                       f' {f"lr_{s}" if n == 0 and layer.get("l0own", {}).get("reserved") else "0"}, {len(layer.get("l0own", {}).get("reserved", [])) if n == 0 else 0}u}},')
         out.append('     },')
         out.append(f'     {"extras_" + s if d["extras"] else "0"}, {len(d["extras"])}u, {"holes_" + s if d["holes"] else "0"}, {len(d["holes"])}u,')
         out.append(f'     {"objects_" + s if d["object_runs"] else "0"}, {len(d["object_runs"])}u,')

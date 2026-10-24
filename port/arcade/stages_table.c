@@ -11,11 +11,19 @@
 static const uint32_t ids_00_0[] = {
     0x1d020u, 0x1d021u, 0x1d022u, 0x1d023u,
 };
+/* STAGE00.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_00_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
     0xffffffffffffffffull, 0xffffffbfffe3ffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffefffffffffffull, 0xffffffffffffbfffull,
-    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffefffffffffffull, 0xffffffff00000fffull,
+    0xffffffffffffffffull, 0xc0ffcfffffffffffull, 0xfff0ff80f801c00full, 0xfffffffffffcfffcull,
+};
+static const uint64_t tk_00_0[] = {
+    0xffffffffffff8e01ull, 0x3f007f1ull, 0xe000ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull,
 };
 static const uint32_t ids_00_1[] = {
     0x1d120u, 0x1d121u, 0x1d122u, 0x1d123u,
@@ -160,19 +168,20 @@ static const struct arcade_stage_exc exc_01_0[] = {
     {1918u, 229u},
     {1919u, 230u},
 };
+/* STAGE01.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_01_0[] = {
-    0xf01ff007f801f800ull, 0xf1f788f40c0c3e3ull, 0xffffffffffff0e98ull, 0xffffffffffffffffull,
-    0xffbfffbfffffffffull, 0xfb9e8f9a0004ffecull, 0xffffffffffff0fdeull, 0xffffffffffffffffull,
-    0xffcfffffffffffffull, 0xff1f708f00c0e7c3ull, 0xffffffffffff7e98ull, 0xffffffffffffffffull,
-    0xffbfffbfffffffffull, 0xfbbd8f860000ffefull, 0xffffffffffff0ffdull, 0xffffffffffffffffull,
-    0xffbfffffffffffffull, 0xff1f008f00c0ffe3ull, 0xfffffffffffffe98ull, 0xffffffffffffffffull,
-    0xffbfffbfffffffffull, 0xfb9e8f9a0004ffecull, 0xffffffffffff0fdeull, 0xffffffffffffffffull,
-    0xffcfffffffffffffull, 0xff1f708f00c0e7c3ull, 0xffffffffffff7e98ull, 0xffffffffffffffffull,
-    0xffbfffbfffffffffull, 0xfbbd8f860000ffefull, 0xffffffffffff0ffdull, 0xffffffffffffffffull,
+    0xf039f007f001f800ull, 0xff1c78477800ddefull, 0xffffc0ffffff7e98ull, 0xffffffffffffffffull,
+    0x9d8b718edbf3fff7ull, 0x1880ull, 0xffffffff3fc00000ull, 0xffffffffffffffffull,
+    0x9dcfebd3ddbfffddull, 0x71c00470000c78full, 0xffffffff3fc00698ull, 0xffffffffffffffffull,
+    0x1b8c718f5ff3ffffull, 0x3f00000000188cull, 0xffffffff00c80000ull, 0xffffffffffffffffull,
+    0xe19fa6fbfde3f6ddull, 0x71c00470000e38full, 0xffffffff1ec00698ull, 0xffffffffffffffffull,
+    0x9d8b718edbf3fff7ull, 0x1880ull, 0xffffffff3fc00000ull, 0xffffffffffffffffull,
+    0x9dcfebd3ddbfffddull, 0x71c00470000c78full, 0xffffffff3fc00698ull, 0xffffffffffffffffull,
+    0x1b8c718f5ff3ffffull, 0x3f00000000188cull, 0xffffffff00c80000ull, 0xffffffffffffffffull,
 };
 static const uint64_t tk_01_0[] = {
-    0x1c13c7cf8f1f9ull, 0x5c001c000e0007ull, 0x800fffffffdeull, 0x7f80000080000000ull,
-    0x7c0000000ull, 0x7f0000103fffull, 0x0ull, 0x0ull,
+    0x8010f007e61fcc1ull, 0x10010000ull, 0x3fffc0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -594,14 +603,15 @@ static const struct arcade_stage_exc exc_02_0[] = {
     {894u, 11u},
     {895u, 12u},
 };
+/* STAGE02.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_02_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0x7fff7fff7f7f7f7full, 0x1ff01ff01ff7fffull, 0x3ef97c077dff7dffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0x7fff7fff7f7f7f7full, 0x1fffdff01ff7fffull, 0x3ef97c077dff7dffull, 0xffffffffffffffffull,
+    0x8138c07fff7fff7full, 0xcc03fc03fe018301ull, 0x800180018401ull, 0xffffffffffff7fffull,
+    0xffffffff7fff7fffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0x8138c07cff7eff7full, 0x3fc03fe018301ull, 0x800180018401ull, 0xffffffffffff7fffull,
 };
 static const uint64_t tk_02_0[] = {
-    0xffffffffffffffffull, 0xbe7f59ffefffffffull, 0xfffffffcfull, 0x0ull,
+    0x3222bdull, 0x0ull, 0xf00000000000ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -663,14 +673,15 @@ static const struct arcade_stage_run objects_02[] = {
 static const uint32_t ids_03_0[] = {
     0x1d03cu, 0x1d03du, 0x1d03eu, 0x1d03fu,
 };
+/* STAGE03.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_03_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xf9ff0fff7fffffffull, 0xfaffffff7fe73f3full, 0xfffffefffefffeffull,
-    0xffffffffffffffffull, 0xcfeefcbfffdfffffull, 0xffffffffffaedfe4ull, 0xfffffff7ffff9fafull,
-    0xffffffffffffffffull, 0xffffffffffffffffull, 0xfffdfff7ffbffffcull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xd9ffcfff7fffffffull, 0xb8ffcfbffbc73fffull, 0xfffffefffeff7effull,
+    0xffffffffffffffffull, 0xcb6efcbfffdfffffull, 0xffeffefdfffd9ffcull, 0xffffffffffff9ffdull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xfffdfff7fffdfffcull, 0xffffffffffffffffull,
 };
 static const uint64_t tk_03_0[] = {
-    0xffffffffffffffffull, 0xfffffdfff77fffffull, 0xfffffe7ffbfffdffull, 0x1ffull,
+    0xdeefe71fd1b378ffull, 0xfb3ff9d3777ffffeull, 0xefdc5e07fbcefd9full, 0xffffull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -888,14 +899,15 @@ static const struct arcade_stage_more more_03[] = {
 static const uint32_t ids_04_0[] = {
     0x1d044u, 0x1d045u, 0x1d046u, 0x1d047u,
 };
+/* STAGE04.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_04_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xfd87fd99fd9ff9efull, 0xffbfffbfffffffcfull, 0xfff9fff7ffffffffull, 0xfffffffffffffcffull,
+    0xf881f881f081f0dfull, 0xfc81fc01fc01f801ull, 0xfc01fc01fcf1fcf1ull, 0xfffffffffff9fc01ull,
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
 };
 static const uint64_t tk_04_0[] = {
-    0x9ff0e0e8760d9f6full, 0xdfff9fbfff7full, 0x0ull, 0x0ull,
+    0x1full, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -1335,15 +1347,30 @@ static const struct arcade_stage_exc exc_06_0[] = {
     {967u, 379u},
     {968u, 380u},
 };
+/* STAGE06.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
+static const uint8_t xids_06_0_0[] = {
+    0u, 49u, 50u, 51u,
+};
+static const struct arcade_stage_xmap xmaps_06_0[] = {
+    {9112u, 4u, xids_06_0_0},
+};
 static const uint64_t ck_06_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xffff9bffffffc7ffull, 0xffff7ffffbff7fffull, 0xffffffffffffffffull,
-    0xdf7d6dfbbafffdffull, 0xef47ff5ffe5fcf7full, 0xdffd3fbd87ef4f45ull, 0xffffffffffff9dfbull,
-    0xfffffffeffffffffull, 0xfefffdffffffffdfull, 0xfffeffd4ff9fffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xc3ffc3ffffffe7ffull, 0x41ffffff83ff26ffull, 0xffffffffffffffffull,
+    0xfff6ffb7fffffffull, 0x2c633c5f0e7f5ffdull, 0xffeabfbe803f0fc9ull, 0xfffffffffe3f803bull,
+    0xfff8fff8fffeffffull, 0xffe0ffe0ffbeffdcull, 0xffb3ffd3ff9fffe0ull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xc3ffc3ffffffe7ffull, 0x41ffffffe3ff22ffull, 0xffffffffffffffffull,
+    0xffb6ffb3fffffffull, 0x28631c5f0e7f5e7dull, 0xffeabfbe803f0fc9ull, 0xfffffffffe3f803bull,
+    0xffccfffcfffeffffull, 0xffe0ffe0ffbeffdcull, 0xffb3ffd3ff9bffe0ull, 0xffffffffffffffffull,
 };
 static const uint64_t tk_06_0[] = {
-    0x4c1bull, 0x0ull, 0x0ull, 0x0ull,
-    0x0ull, 0x0ull, 0x1fffc01f9c62080ull, 0x0ull,
+    0xe02fe02000604c0bull, 0x40df21805fffcfffull, 0x340c390dcull, 0xdff8002f000600c0ull,
+    0xc18f77206587f886ull, 0x1df84a118d601f06ull, 0x0ull, 0xffffffffffffffffull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull,
@@ -1353,19 +1380,6 @@ static const uint32_t ids_06_1[] = {
 };
 static const uint32_t ids_06_2[] = {
     0x1d484u, 0x1d485u, 0x1d486u, 0x1d487u,
-};
-static const struct arcade_stage_slots extras_06[] = {
-    {91u, 1u, 5509u, 0u},
-    {280u, 1u, 24258u, 1u},
-    {293u, 1u, 966u, 0u},
-    {298u, 1u, 24565u, 0u},
-};
-static const struct arcade_stage_hole holes_06[] = {
-    {15u, 76u},
-    {92u, 188u},
-    {281u, 12u},
-    {294u, 4u},
-    {299u, 82u},
 };
 static const struct arcade_stage_run objects_06[] = {
     {ARCADE_STAGE_ZERO, 1u, 0u},
@@ -1532,14 +1546,15 @@ static const struct arcade_stage_more more_06[] = {
 static const uint32_t ids_07_0[] = {
     0x1d058u, 0x1d059u, 0x1d05au, 0x1d05bu,
 };
+/* STAGE07.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_07_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xf7ffe7ffffffffffull,
-    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffcffcfffeffffffull,
-    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffc7fc7fffffffffull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xfff9ffffffffffffull,
 };
 static const uint64_t tk_07_0[] = {
-    0xfef9ffffffee0f7full, 0x7fffffffffull, 0x0ull, 0x0ull,
+    0xf8f8efffffefcfffull, 0xfffffcffffffull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -1814,15 +1829,16 @@ static const struct arcade_stage_exc exc_08_0[] = {
     {815u, 0u},
     {831u, 0u},
 };
+/* STAGE08.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_08_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xfffffcffffffffffull, 0x87f7ffff7f0fff07ull, 0xfefffafff7ffe7ffull, 0xfffffffffffffdffull,
-    0xfffffffdffffffffull, 0xffffffffffffffffull, 0xff9fffbeffbeffffull, 0xffffffffffffffcfull,
-    0xffffffffffffffffull, 0xfbffefffffffffffull, 0xfffdfffdffe7fbffull, 0xffffffffffbff78full,
+    0xff6ffc7fffffffffull, 0xffbffffffe2fff3full, 0xfcfffeffbfffffffull, 0xffffffffafffffffull,
+    0xffffffffffffffffull, 0xffbfffffffffffffull, 0xfe00ff80ff80ff80ull, 0xfffffffffffefc00ull,
+    0x7f7f60076007e0ffull, 0xfbffffffffffefdfull, 0xe000e001e003fb8full, 0xffffffffffbfe001ull,
 };
 static const uint64_t tk_08_0[] = {
-    0x1ee0fb03c1be0fbfull, 0xe711206b3061e3ceull, 0xfffffffc19927cf3ull, 0xffdffffdfefdfb37ull,
-    0xefffffaffa63f1ffull, 0xf307f0ff87b8f900ull, 0x0ull, 0x0ull,
+    0x12e0b70c01be0fbfull, 0xe611206b3061830cull, 0x33e1c39419907cc3ull, 0x0ull,
+    0xec9d83383a01f000ull, 0x1000000000000100ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull,
@@ -2058,15 +2074,16 @@ static const struct arcade_stage_more more_08[] = {
 static const uint32_t ids_09_0[] = {
     0x1d06cu, 0x1d06du, 0x1d06eu, 0x1d06fu,
 };
+/* STAGE09.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_09_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xfbffbffff3bffe7full, 0x7fffffffffff67ffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xffefffcffffdefffull, 0xffff7ff117fbdf9full, 0xffffffffffff7fcfull, 0xffffffffffffffffull,
-    0xfffffffffffffff7ull, 0xffcfff86fff9ff8full, 0xfffffffffffffffeull, 0xffffffffffffffffull,
+    0xabff9ffff3bffe7full, 0x7fff7fffbfff67ffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xfbe3ffcefffde7ffull, 0xdfebf73197e9df91ull, 0xffffffffffffff0bull, 0xffffffffffffffffull,
+    0xfffafffffff7ffffull, 0xffcfffe7ff79ffeeull, 0xffffffffffffffe0ull, 0xffffffffffffffffull,
 };
 static const uint64_t tk_09_0[] = {
-    0xfff7fcffffffffffull, 0x5f67ff43ffffffffull, 0xfbfff00afec3de02ull, 0x9c13f3f79efffecfull,
-    0x1full, 0x0ull, 0x0ull, 0x0ull,
+    0xfff3fc9e1cfffff7ull, 0x5f27ef03ef87ff6full, 0xfbfff00a7e23dc00ull, 0x9c13e3f09c3bd6cbull,
+    0xffffull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull,
@@ -2161,11 +2178,22 @@ static const struct arcade_stage_more more_09[] = {
 static const uint32_t ids_0a_0[] = {
     0x1d076u, 0x1d077u, 0x1d078u, 0x1d079u,
 };
+/* STAGE0A.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 512 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
+static const struct arcade_stage_span ls_0a[] = {
+    {512u, 512u},
+};
 static const uint64_t ck_0a_0[] = {
-    0xdfffdfffdfffffffull, 0xffffffffffffddffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
+};
+static const uint64_t tk_0a_0[] = {
+    0xf8861c19d87c1ff9ull, 0x63fffffffff9full, 0xffffffff7fc01f44ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull,
 };
 static const uint32_t ids_0a_1[] = {
     0x1d1d0u, 0x1d1d1u, 0x1d1d2u, 0x1d1d3u, 0x1d1ccu, 0x1d1cdu, 0x1d1ceu, 0x1d1cfu,
@@ -2429,11 +2457,19 @@ static const struct arcade_stage_run objects_0a[] = {
 static const uint32_t ids_0b_0[] = {
     0x1d07cu, 0x1d07du, 0x1d07eu, 0x1d07fu,
 };
+/* STAGE0B.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_0b_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xfffffffffe7fffffull, 0xfffffdffff7fffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xfefffffffd7fffffull, 0xffffffffff7fff7full, 0xffffffffffffffffull, 0xffffffffffffffffull,
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xfffffffffe7fffffull, 0xfdffff7fffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffffff7fffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+};
+static const uint64_t tk_0b_0[] = {
+    0xffffffffffffb7afull, 0xffffffffffffull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull,
 };
 static const uint32_t ids_0b_1[] = {
     0x1d1e0u, 0x1d1e1u, 0x1d1e2u, 0x1d1e3u,
@@ -2491,14 +2527,15 @@ static const struct arcade_stage_run objects_0b[] = {
 static const uint32_t ids_0c_0[] = {
     0x1d084u, 0x1d085u, 0x1d086u, 0x1d087u,
 };
+/* STAGE0C.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_0c_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xcfffffffffffffffull, 0xfffff3efee7fbfffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xffff1fffffffffffull, 0xffff5fffdfffdfffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xffdffff0ffffffffull, 0xfffcfffeffcbffcfull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xcfffffffffffffffull, 0xf7f3f3ffee7fbfffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffff1fffffffffffull, 0xffff5fff3fffdfffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffdffff9ffffffffull, 0xfffffffefff9fff5ull, 0xffffffffffffffffull,
 };
 static const uint64_t tk_0c_0[] = {
-    0xffffffffdfffffffull, 0x79e73bfffee7full, 0x0ull, 0x0ull,
+    0xffbe7dffdfffffffull, 0xfffa1861affe2237ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -3137,14 +3174,20 @@ static const struct arcade_stage_more more_0c[] = {
 static const uint32_t ids_0d_0[] = {
     0x1d08cu, 0x1d08du, 0x1d08eu, 0x1d08fu,
 };
+/* STAGE0D.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 20 slots of the region stay the disc's (lists of the module name them). */
+static const struct arcade_stage_span lr_0d[] = {
+    {130u, 2u},
+    {140u, 2u},
+    {207u, 16u},
+};
 static const uint64_t ck_0d_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xf9ffcfbffeffff3full, 0xefffebffedffffffull, 0xffffffffefffefffull, 0xfffffffffffffe3full,
+    0xc03fcf3ffe7fff3full, 0x3f003f003f803full, 0xfe3ffe3fe03f803full, 0xfffffffffe3ffe3full,
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xfffbff3fffefffffull, 0xffdeffdffff9ffffull, 0xffefffdfffdfffdfull, 0xfffffffffffffc0full,
+    0xfc00fc01fc03fcc7ull, 0xfc00fc00fc00fc00ull, 0xfc0ffc0ffc00fc00ull, 0xfffffffffc0ffc0full,
 };
 static const uint64_t tk_0d_0[] = {
-    0x9e59fe70febce639ull, 0x3d0781d1ce0d2b00ull, 0x1efbfe7f1dc7f130ull, 0x4205ull,
+    0xe639ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -3159,8 +3202,10 @@ static const uint32_t ids_0d_2[] = {
 static const struct arcade_stage_slots extras_0d[] = {
     {888u, 14u, 130603u, 0u},
 };
-/* STAGE0D.PAC: 16 page slots are blank by design, the owner's rule "rebuild arcade-style": four 4-tile frames of a figure at a window, no arcade tile (stages.py HOLES_BLANK_BY_DESIGN has the evidence). */
+/* STAGE0D.PAC: 20 page slots are blank by design, the owner's rule "rebuild arcade-style": four 4-tile frames of a figure at a window (slots 207 to 222) and the four layer 0 slots (130, 131, 140, 141) its list names, no arcade tile (stages.py HOLES_BLANK_BY_DESIGN has the evidence). */
 static const struct arcade_stage_hole holes_0d[] = {
+    {130u, 2u},
+    {140u, 2u},
     {207u, 16u},
 };
 static const struct arcade_stage_run objects_0d[] = {
@@ -3293,8 +3338,15 @@ static const struct arcade_stage_exc exc_0e_0[] = {
     {754u, 103u},
     {758u, 38u},
 };
+/* STAGE0E.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
+static const uint64_t ck_0e_0[] = {
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0x1fff1fff3fffffffull,
+    0xfc00fc00fc00fc00ull, 0xfc00fc00fc00fc00ull, 0xfc00fc00fc00fc00ull, 0xfc00fc00fc00fc00ull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+};
 static const uint64_t tk_0e_0[] = {
-    0xd272e4321cffffffull, 0x6ee3634c1dbddull, 0x0ull, 0x0ull,
+    0x1ull, 0xfff8000000000000ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -3475,14 +3527,15 @@ static const struct arcade_stage_run objects_0e[] = {
 static const uint32_t ids_0f_0[] = {
     0x1d0a0u, 0x1d0a1u, 0x1d0a2u, 0x1d0a3u,
 };
+/* STAGE0F.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_0f_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xffffffffffffffffull, 0xfffffffff0ffffffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xfffeffffffffffffull, 0xff8fffffffc0fffeull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xfffeffffffffffffull, 0xffffffffffc0fffeull, 0xffffffffffffffffull,
 };
 static const uint64_t tk_0f_0[] = {
-    0xffffffffffffffffull, 0xffffffffffffffffull, 0x7fffdffull, 0x0ull,
+    0xffffffffffffffe1ull, 0xfffffffffffffffeull, 0xffff81ffull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -3818,14 +3871,15 @@ static const struct arcade_stage_run objects_0f[] = {
 static const uint32_t ids_10_0[] = {
     0x1d0a8u, 0x1d0a9u, 0x1d0aau, 0x1d0abu,
 };
+/* STAGE10.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_10_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xffffffff0ffffe7full, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0x8007bfff7fffffffull, 0xdfffffff9ff9500eull, 0xfffedffedfffdfffull, 0xffffffffffffffffull,
-    0xfffefffaffe0fe7aull, 0xfffffffffffffffcull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xfc001bf07ff167full, 0xfff8fff8fff03fe0ull, 0xfffffffefffefffcull, 0xffffffffffffffffull,
+    0x0ull, 0x9ff99ff980010000ull, 0x3ffc1ff89ff99ff9ull, 0xffffffffffffffffull,
+    0xfff0ff80fe00fe00ull, 0xfffffffffffffffcull, 0xffffffffffffffffull, 0xffffffffffffffffull,
 };
 static const uint64_t tk_10_0[] = {
-    0xdf8fe8ff83ff833full, 0x13ffc7ffefffffffull, 0xffffff3fc781e000ull, 0x462f0183ull,
+    0x1f83ff833full, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
@@ -4144,11 +4198,19 @@ static const struct arcade_stage_more more_10[] = {
 static const uint32_t ids_11_0[] = {
     0x1d0b0u, 0x1d0b1u, 0x1d0b2u, 0x1d0b3u,
 };
+/* STAGE11.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 0 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
 static const uint64_t ck_11_0[] = {
     0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0xe7fffffffeffe9ffull, 0xffffbfffffffefffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
-    0x37ffdfffffffffffull, 0xffffffffffffffffull, 0xfffffffffffffaffull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0xffffffbffffeffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffeefff77full, 0xffffffffeffff7ffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0x7fffdffffbffffffull, 0xffffffffffffdfffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+};
+static const uint64_t tk_11_0[] = {
+    0xf0f7fffffec3c3f9ull, 0x7e7fffffffff8f83ull, 0xfce3ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull,
 };
 static const uint32_t ids_11_1[] = {
     0x1d240u, 0x1d241u, 0x1d242u, 0x1d243u, 0x1d23cu, 0x1d23du, 0x1d23eu, 0x1d23fu,
@@ -4732,11 +4794,22 @@ static const struct arcade_stage_more more_12[] = {
 static const uint32_t ids_13_0[] = {
     0x1d0bau, 0x1d0bbu, 0x1d0bcu, 0x1d0bdu,
 };
+/* STAGE13.PAC layer 0: built by the own rule (stages.py "our own layer 0"): the cells, tiles and 32 palette rows are the loader's, served owned; 512 cells lie in other layers' maps and are not built, 0 slots of the region stay the disc's (lists of the module name them). */
+static const struct arcade_stage_span ls_13[] = {
+    {512u, 512u},
+};
 static const uint64_t ck_13_0[] = {
-    0xffffffffffffffffull, 0xe007e00ffffffffull, 0xffffffff00000000ull, 0xffffffffffffffffull,
-    0xffffffffffffffffull, 0x3fffffffffull, 0xffffffff00000000ull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xfffff1ffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
+    0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull, 0xffffffffffffffffull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
     0x0ull, 0x0ull, 0x0ull, 0x0ull,
+};
+static const uint64_t tk_13_0[] = {
+    0xffffffffffffffffull, 0xfffff87003f9ffffull, 0xffffffffffffffffull, 0x80060fbfull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull,
+    0x0ull,
 };
 static const uint32_t ids_13_1[] = {
     0x1d270u, 0x1d271u, 0x1d272u, 0x1d273u,
@@ -5457,49 +5530,49 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE00.PAC", 0u, {49896u, 98304u, 3072u, 18944u},
      {0xffffffffffffffffull, 0xffffffffull},
      {
-         {8080u, 64u, 16u, 4u, 0u, 2u, ids_00_0, 0, 0u, ck_00_0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {12176u, 64u, 16u, 4u, 0u, 7u, ids_00_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {16272u, 32u, 8u, 4u, 0u, 7u, ids_00_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {8080u, 64u, 16u, 4u, 0u, 8u, ids_00_0, 0, 0u, ck_00_0, tk_00_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {12176u, 64u, 16u, 4u, 144u, 3u, ids_00_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {16272u, 32u, 8u, 4u, 0u, 7u, ids_00_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_00, 29u,
      0, 0u},
     {"STAGE01.PAC", 1u, {81180u, 229376u, 4096u, 80128u},
-     {0xfffeaaaaaaaaaaabull, 0x5555555555555555ull},
+     {0xaaaaaaaaaaaaaaabull, 0x5555555555555555ull},
      {
-         {14772u, 64u, 32u, 8u, 0u, 0u, ids_01_0, exc_01_0, 100u, ck_01_0, tk_01_0, 0, 0u, 0, 0u, 0, 0u},
-         {22964u, 64u, 16u, 4u, 0u, 7u, ids_01_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {27060u, 32u, 8u, 4u, 0u, 7u, ids_01_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {14772u, 64u, 32u, 8u, 0u, 8u, ids_01_0, exc_01_0, 100u, ck_01_0, tk_01_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {22964u, 64u, 16u, 4u, 368u, 3u, ids_01_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {27060u, 32u, 8u, 4u, 0u, 7u, ids_01_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      extras_01, 38u, 0, 0u,
      objects_01, 331u,
      more_01, 9u},
     {"STAGE02.PAC", 2u, {73620u, 163840u, 3072u, 12032u},
-     {0xffffffffeaaabfffull, 0xffffffffull},
+     {0xffffffffeaaabfefull, 0xffffffffull},
      {
-         {7960u, 64u, 16u, 4u, 0u, 0u, ids_02_0, exc_02_0, 14u, ck_02_0, tk_02_0, 0, 0u, 0, 0u, 0, 0u},
-         {12056u, 64u, 48u, 12u, 0u, 7u, ids_02_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {24344u, 16u, 8u, 2u, 0u, 7u, ids_02_2, 0, 0u, 0, 0, xmaps_02_2, 1u, 0, 0u, 0, 0u},
+         {7960u, 64u, 16u, 4u, 0u, 8u, ids_02_0, exc_02_0, 14u, ck_02_0, tk_02_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {12056u, 64u, 48u, 12u, 176u, 3u, ids_02_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {24344u, 16u, 8u, 2u, 0u, 7u, ids_02_2, 0, 0u, 0, 0, xmaps_02_2, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_02, 37u,
      0, 0u},
     {"STAGE03.PAC", 3u, {68228u, 196608u, 6144u, 39936u},
-     {0xffabfffffffffbfeull, 0x5555555555555555ull},
+     {0xfaabbffbfbbafbfeull, 0x5555555555555555ull},
      {
-         {13328u, 64u, 16u, 4u, 0u, 0u, ids_03_0, 0, 0u, ck_03_0, tk_03_0, 0, 0u, 0, 0u, 0, 0u},
-         {17424u, 64u, 32u, 8u, 0u, 6u, ids_03_1, 0, 0u, ck_03_1, 0, 0, 0u, oc_03_1, 3u, 0, 0u},
-         {25616u, 32u, 8u, 4u, 0u, 5u, ids_03_2, 0, 0u, 0, tk_03_2, 0, 0u, 0, 0u, ot_03_2, 3u},
+         {13328u, 64u, 16u, 4u, 0u, 8u, ids_03_0, 0, 0u, ck_03_0, tk_03_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {17424u, 64u, 32u, 8u, 208u, 2u, ids_03_1, 0, 0u, ck_03_1, 0, 0, 0u, oc_03_1, 3u, 0, 0u, 0, 0u, 0, 0u},
+         {25616u, 32u, 8u, 4u, 0u, 5u, ids_03_2, 0, 0u, 0, tk_03_2, 0, 0u, 0, 0u, ot_03_2, 3u, 0, 0u, 0, 0u},
      },
      extras_03, 4u, holes_03, 1u,
      objects_03, 148u,
      more_03, 13u},
     {"STAGE04.PAC", 4u, {77664u, 196608u, 3072u, 122880u},
-     {0xeaaaaaafffaffbbbull, 0xffffffffull},
+     {0xeaaaaaaefbafebbbull, 0xffffffffull},
      {
-         {13128u, 64u, 16u, 4u, 0u, 0u, ids_04_0, 0, 0u, ck_04_0, tk_04_0, 0, 0u, 0, 0u, 0, 0u},
-         {17224u, 64u, 16u, 4u, 112u, 3u, ids_04_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {21320u, 32u, 8u, 4u, 0u, 7u, ids_04_2, 0, 0u, 0, 0, xmaps_04_2, 1u, 0, 0u, 0, 0u},
+         {13128u, 64u, 16u, 4u, 0u, 8u, ids_04_0, 0, 0u, ck_04_0, tk_04_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {17224u, 64u, 16u, 4u, 112u, 3u, ids_04_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {21320u, 32u, 8u, 4u, 0u, 7u, ids_04_2, 0, 0u, 0, 0, xmaps_04_2, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      extras_04, 1u, 0, 0u,
      objects_04, 16u,
@@ -5507,49 +5580,49 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE05.PAC", 5u, {58148u, 131072u, 3072u, 21632u},
      {0xffffffffffffffffull, 0xffffffffull},
      {
-         {6456u, 64u, 16u, 4u, 0u, 3u, ids_05_0, exc_05_0, 2u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {10552u, 64u, 16u, 4u, 0u, 7u, ids_05_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {14648u, 32u, 8u, 4u, 0u, 7u, ids_05_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {6456u, 64u, 16u, 4u, 0u, 3u, ids_05_0, exc_05_0, 2u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {10552u, 64u, 16u, 4u, 0u, 7u, ids_05_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {14648u, 32u, 8u, 4u, 0u, 7u, ids_05_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      extras_05, 1u, 0, 0u,
      objects_05, 64u,
      0, 0u},
     {"STAGE06.PAC", 6u, {78296u, 131072u, 5120u, 52352u},
-     {0xeefbaafabffaeaaaull, 0x5555555555555555ull},
+     {0xaefbaafabffaeaaaull, 0x5555555555555555ull},
      {
-         {13208u, 64u, 16u, 4u, 0u, 0u, ids_06_0, exc_06_0, 309u, ck_06_0, tk_06_0, 0, 0u, 0, 0u, 0, 0u},
-         {17304u, 64u, 16u, 4u, 512u, 3u, ids_06_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {21400u, 32u, 8u, 4u, 192u, 3u, ids_06_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {13208u, 64u, 16u, 4u, 0u, 8u, ids_06_0, exc_06_0, 309u, ck_06_0, tk_06_0, xmaps_06_0, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {17304u, 64u, 16u, 4u, 512u, 3u, ids_06_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {21400u, 32u, 8u, 4u, 192u, 3u, ids_06_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
-     extras_06, 4u, holes_06, 5u,
+     0, 0u, 0, 0u,
      objects_06, 128u,
      more_06, 28u},
     {"STAGE07.PAC", 7u, {66756u, 196608u, 3072u, 55296u},
-     {0x7ff7ffe8bb7ffffdull, 0xffffffffull},
+     {0x7ff7ffe8bb7ffffcull, 0xffffffffull},
      {
-         {11984u, 64u, 16u, 4u, 0u, 0u, ids_07_0, 0, 0u, ck_07_0, tk_07_0, 0, 0u, 0, 0u, 0, 0u},
-         {16080u, 64u, 16u, 4u, 0u, 7u, ids_07_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {20176u, 32u, 8u, 4u, 0u, 7u, ids_07_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {11984u, 64u, 16u, 4u, 0u, 8u, ids_07_0, 0, 0u, ck_07_0, tk_07_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {16080u, 64u, 16u, 4u, 112u, 3u, ids_07_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {20176u, 32u, 8u, 4u, 0u, 7u, ids_07_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      extras_07, 3u, 0, 0u,
      objects_07, 246u,
      0, 0u},
     {"STAGE08.PAC", 8u, {74436u, 163840u, 4096u, 42880u},
-     {0xffbaeeaaefbefaaaull, 0x5555555555555555ull},
+     {0xafbaeeaaefbefaaaull, 0x5555555555555555ull},
      {
-         {9944u, 64u, 16u, 4u, 0u, 0u, ids_08_0, exc_08_0, 4u, ck_08_0, tk_08_0, 0, 0u, 0, 0u, 0, 0u},
-         {14040u, 64u, 16u, 4u, 0u, 7u, ids_08_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {18136u, 32u, 8u, 4u, 0u, 7u, ids_08_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {9944u, 64u, 16u, 4u, 0u, 8u, ids_08_0, exc_08_0, 4u, ck_08_0, tk_08_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {14040u, 64u, 16u, 4u, 384u, 3u, ids_08_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {18136u, 32u, 8u, 4u, 0u, 7u, ids_08_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_08, 190u,
      more_08, 26u},
     {"STAGE09.PAC", 9u, {67236u, 196608u, 4096u, 32640u},
-     {0xfeabffeeebbeffffull, 0x5555555555555555ull},
+     {0xaaabffeeebbeffffull, 0x5555555555555555ull},
      {
-         {8484u, 64u, 16u, 4u, 0u, 0u, ids_09_0, 0, 0u, ck_09_0, tk_09_0, 0, 0u, 0, 0u, 0, 0u},
-         {12580u, 64u, 16u, 4u, 0u, 7u, ids_09_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {16676u, 32u, 8u, 4u, 0u, 7u, ids_09_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {8484u, 64u, 16u, 4u, 0u, 8u, ids_09_0, 0, 0u, ck_09_0, tk_09_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {12580u, 64u, 16u, 4u, 272u, 3u, ids_09_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {16676u, 32u, 8u, 4u, 0u, 7u, ids_09_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_09, 69u,
@@ -5557,19 +5630,19 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE0A.PAC", 10u, {58544u, 163840u, 3072u, 52096u},
      {0xffffffffffffffffull, 0xffffffffull},
      {
-         {6428u, 64u, 16u, 4u, 0u, 2u, ids_0a_0, 0, 0u, ck_0a_0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {8476u, 64u, 32u, 8u, 0u, 7u, ids_0a_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {16668u, 32u, 8u, 4u, 0u, 7u, ids_0a_2, 0, 0u, 0, 0, xmaps_0a_2, 1u, 0, 0u, 0, 0u},
+         {6428u, 64u, 16u, 4u, 0u, 8u, ids_0a_0, 0, 0u, ck_0a_0, tk_0a_0, 0, 0u, 0, 0u, 0, 0u, ls_0a, 1u, 0, 0u},
+         {8476u, 64u, 32u, 8u, 192u, 3u, ids_0a_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {16668u, 32u, 8u, 4u, 0u, 7u, ids_0a_2, 0, 0u, 0, 0, xmaps_0a_2, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_0a, 244u,
      0, 0u},
     {"STAGE0B.PAC", 11u, {61072u, 131072u, 3072u, 13056u},
-     {0xffffffffffffffffull, 0xffffffffull},
+     {0xfffffffffffffbffull, 0xffffffffull},
      {
-         {7036u, 64u, 16u, 4u, 0u, 2u, ids_0b_0, 0, 0u, ck_0b_0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {11132u, 64u, 16u, 4u, 0u, 7u, ids_0b_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {15228u, 32u, 8u, 4u, 0u, 7u, ids_0b_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {7036u, 64u, 16u, 4u, 0u, 8u, ids_0b_0, 0, 0u, ck_0b_0, tk_0b_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {11132u, 64u, 16u, 4u, 112u, 3u, ids_0b_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {15228u, 32u, 8u, 4u, 0u, 7u, ids_0b_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_0b, 44u,
@@ -5577,9 +5650,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE0C.PAC", 12u, {67456u, 163840u, 4096u, 126848u},
      {0xaaaafeaaaffffffbull, 0x5555555555555555ull},
      {
-         {15472u, 64u, 16u, 4u, 0u, 0u, ids_0c_0, 0, 0u, ck_0c_0, tk_0c_0, 0, 0u, 0, 0u, 0, 0u},
-         {19568u, 64u, 16u, 4u, 0u, 7u, ids_0c_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {23664u, 32u, 8u, 4u, 0u, 7u, ids_0c_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {15472u, 64u, 16u, 4u, 0u, 8u, ids_0c_0, 0, 0u, ck_0c_0, tk_0c_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {19568u, 64u, 16u, 4u, 128u, 3u, ids_0c_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {23664u, 32u, 8u, 4u, 0u, 7u, ids_0c_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      extras_0c, 1u, 0, 0u,
      objects_0c, 614u,
@@ -5587,19 +5660,19 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE0D.PAC", 13u, {66204u, 163840u, 4096u, 26240u},
      {0xaabeabaaaeebefaaull, 0x5555555555555555ull},
      {
-         {12772u, 64u, 16u, 4u, 0u, 0u, ids_0d_0, 0, 0u, ck_0d_0, tk_0d_0, 0, 0u, 0, 0u, 0, 0u},
-         {16868u, 64u, 16u, 4u, 0u, 7u, ids_0d_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {20964u, 32u, 8u, 4u, 0u, 7u, ids_0d_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {12772u, 64u, 16u, 4u, 0u, 8u, ids_0d_0, 0, 0u, ck_0d_0, tk_0d_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, lr_0d, 3u},
+         {16868u, 64u, 16u, 4u, 224u, 3u, ids_0d_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {20964u, 32u, 8u, 4u, 0u, 7u, ids_0d_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
-     extras_0d, 1u, holes_0d, 1u,
+     extras_0d, 1u, holes_0d, 3u,
      objects_0d, 92u,
      more_0d, 3u},
     {"STAGE0E.PAC", 14u, {78336u, 229376u, 3072u, 22528u},
      {0xffffeeaffeabeeaeull, 0xffffffffull},
      {
-         {14572u, 64u, 16u, 4u, 0u, 1u, ids_0e_0, exc_0e_0, 25u, 0, tk_0e_0, 0, 0u, 0, 0u, 0, 0u},
-         {18668u, 64u, 16u, 4u, 0u, 7u, ids_0e_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {22764u, 32u, 8u, 4u, 0u, 7u, ids_0e_2, 0, 0u, 0, 0, xmaps_0e_2, 1u, 0, 0u, 0, 0u},
+         {14572u, 64u, 16u, 4u, 0u, 8u, ids_0e_0, exc_0e_0, 25u, ck_0e_0, tk_0e_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {18668u, 64u, 16u, 4u, 128u, 3u, ids_0e_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {22764u, 32u, 8u, 4u, 0u, 7u, ids_0e_2, 0, 0u, 0, 0, xmaps_0e_2, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      extras_0e, 54u, 0, 0u,
      objects_0e, 101u,
@@ -5607,19 +5680,19 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE0F.PAC", 15u, {75364u, 196608u, 3072u, 71936u},
      {0xfffffffffffeafffull, 0xffffffffull},
      {
-         {19396u, 64u, 16u, 4u, 0u, 0u, ids_0f_0, 0, 0u, ck_0f_0, tk_0f_0, 0, 0u, 0, 0u, 0, 0u},
-         {23492u, 64u, 16u, 4u, 0u, 7u, ids_0f_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {27588u, 32u, 8u, 4u, 0u, 7u, ids_0f_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {19396u, 64u, 16u, 4u, 0u, 8u, ids_0f_0, 0, 0u, ck_0f_0, tk_0f_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {23492u, 64u, 16u, 4u, 160u, 3u, ids_0f_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {27588u, 32u, 8u, 4u, 0u, 7u, ids_0f_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      extras_0f, 27u, 0, 0u,
      objects_0f, 289u,
      0, 0u},
     {"STAGE10.PAC", 16u, {70592u, 262144u, 6144u, 64896u},
-     {0xaaaaaffdffffffffull, 0x5555555555555555ull},
+     {0xaaaaaaa9fffffeffull, 0x5555555555555555ull},
      {
-         {15376u, 64u, 16u, 4u, 0u, 0u, ids_10_0, 0, 0u, ck_10_0, tk_10_0, 0, 0u, 0, 0u, 0, 0u},
-         {19472u, 64u, 16u, 4u, 224u, 0u, ids_10_1, 0, 0u, ck_10_1, tk_10_1, 0, 0u, oc_10_1, 2u, ot_10_1, 7u},
-         {23568u, 32u, 8u, 4u, 0u, 7u, ids_10_2, 0, 0u, 0, 0, xmaps_10_2, 1u, 0, 0u, 0, 0u},
+         {15376u, 64u, 16u, 4u, 0u, 8u, ids_10_0, 0, 0u, ck_10_0, tk_10_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {19472u, 64u, 16u, 4u, 224u, 0u, ids_10_1, 0, 0u, ck_10_1, tk_10_1, 0, 0u, oc_10_1, 2u, ot_10_1, 7u, 0, 0u, 0, 0u},
+         {23568u, 32u, 8u, 4u, 0u, 7u, ids_10_2, 0, 0u, 0, 0, xmaps_10_2, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      extras_10, 22u, 0, 0u,
      objects_10, 230u,
@@ -5627,9 +5700,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE11.PAC", 17u, {72204u, 196608u, 4096u, 31232u},
      {0xffebffffffffffffull, 0x5555555555555555ull},
      {
-         {7616u, 64u, 16u, 4u, 0u, 2u, ids_11_0, 0, 0u, ck_11_0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {11712u, 64u, 32u, 8u, 0u, 7u, ids_11_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {19904u, 32u, 8u, 4u, 0u, 7u, ids_11_2, 0, 0u, 0, 0, xmaps_11_2, 1u, 0, 0u, 0, 0u},
+         {7616u, 64u, 16u, 4u, 0u, 8u, ids_11_0, 0, 0u, ck_11_0, tk_11_0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {11712u, 64u, 32u, 8u, 144u, 3u, ids_11_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {19904u, 32u, 8u, 4u, 0u, 7u, ids_11_2, 0, 0u, 0, 0, xmaps_11_2, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      0, 0u, 0, 0u,
      objects_11, 169u,
@@ -5637,9 +5710,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE12.PAC", 18u, {71792u, 131072u, 5120u, 45568u},
      {0xffffffffffffffffull, 0x5555555555555555ull},
      {
-         {9516u, 64u, 16u, 4u, 0u, 3u, ids_12_0, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {13612u, 32u, 64u, 8u, 0u, 7u, ids_12_1, 0, 0u, 0, 0, xmaps_12_1, 1u, 0, 0u, 0, 0u},
-         {23852u, 32u, 8u, 4u, 0u, 7u, ids_12_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
+         {9516u, 64u, 16u, 4u, 0u, 3u, ids_12_0, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {13612u, 32u, 64u, 8u, 0u, 7u, ids_12_1, 0, 0u, 0, 0, xmaps_12_1, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {23852u, 32u, 8u, 4u, 0u, 7u, ids_12_2, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      extras_12, 164u, 0, 0u,
      objects_12, 185u,
@@ -5647,9 +5720,9 @@ const struct arcade_stage arcade_stages[] = {
     {"STAGE13.PAC", 19u, {43664u, 229376u, 3072u, 0u},
      {0xffffffffffffffffull, 0xffffffffull},
      {
-         {3512u, 64u, 16u, 4u, 0u, 2u, ids_13_0, 0, 0u, ck_13_0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {5560u, 64u, 16u, 4u, 0u, 7u, ids_13_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u},
-         {9656u, 32u, 8u, 4u, 0u, 7u, ids_13_2, 0, 0u, 0, 0, xmaps_13_2, 1u, 0, 0u, 0, 0u},
+         {3512u, 64u, 16u, 4u, 0u, 8u, ids_13_0, 0, 0u, ck_13_0, tk_13_0, 0, 0u, 0, 0u, 0, 0u, ls_13, 1u, 0, 0u},
+         {5560u, 64u, 16u, 4u, 224u, 3u, ids_13_1, 0, 0u, 0, 0, 0, 0u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
+         {9656u, 32u, 8u, 4u, 0u, 7u, ids_13_2, 0, 0u, 0, 0, xmaps_13_2, 1u, 0, 0u, 0, 0u, 0, 0u, 0, 0u},
      },
      0, 0u, 0, 0u,
      0, 0u,

@@ -23,6 +23,8 @@
 #define ARCADE_STAGE_MAP_EXACT 1u       /* the layer's cells in the module equal the disc's */
 #define ARCADE_STAGE_TILES_EXACT 2u     /* the layer's tiles in the pages equal the disc's */
 #define ARCADE_STAGE_START_RULE 4u      /* the layer (1 or 2) starts where the packing rule puts it: its start field is not used */
+#define ARCADE_STAGE_L0_OWN 8u          /* layer 0 only: built by the own layer 0 rule (stages.py, "our own layer 0"), nothing of it known: its cells,
+                                         * tiles (the pages' first slots up to layer 1's start, but for l0_reserved) and 32 palette rows are owned */
 
 /* struct arcade_stage_exc.slot: the cell takes a new slot though an equal tile exists. */
 #define ARCADE_STAGE_FORCE_NEW 0xffffffffu
@@ -81,6 +83,10 @@ struct arcade_stage_layer {
      * the cells' four bytes in the module and the tiles' slots in the pages, `known` is not. Cells are scan indexes of the layer's own cells. */
     const struct arcade_stage_span *own_cells; unsigned own_cell_count;
     const struct arcade_stage_span *own_tiles; unsigned own_tile_count;   /* tiles of the layer (the packing's order) */
+    /* Layer 0 with ARCADE_STAGE_L0_OWN: cells of the layer's own blocks (scan indexes) that lie in another layer's map and are not built, and the
+     * page slots before layer 1's start that lists of the module name and that stay the disc's. xmaps of layer 0 are lists of scroll 1 set numbers. */
+    const struct arcade_stage_span *l0_skip; unsigned l0_skip_count;
+    const struct arcade_stage_span *l0_reserved; unsigned l0_reserved_count;
 };
 
 struct arcade_stage {

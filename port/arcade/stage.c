@@ -717,12 +717,513 @@ static uint32_t l2_start_after(uint32_t end16)
     return page * 64u + (((rest + 15u) / 16u + 1u) / 2u) * 8u;
 }
 
+/* ---- our own layer 0 (the rule is stages.py's "our own layer 0"; l0_own_build is the specification) */
+
+struct l0cell {
+    uint16_t px[256];          /* the cell's colours: each piece in its own row; 0 transparent */
+    uint8_t rows[4], nrows;    /* rows of the pieces that have an opaque pixel, in piece order, each once */
+    uint8_t row;               /* the row the cell is drawn in */
+    uint32_t tile;             /* id of its tile */
+    uint32_t at;               /* byte offset of its words in the module */
+    uint32_t scan;             /* its place in the scan (the bit of cell_known) */
+};
+
+struct l0rows {
+    uint16_t arcade[32][15];   /* colours of rows 0 to 31 as the arcade has them (entries 1 to 15) */
+    uint16_t mixed[32][15];    /* colours of the merged rows */
+    uint8_t mixed_n[32], is_mixed[32], claimed[32];
+};
+
+static unsigned l0_cdist(unsigned a, unsigned b)
+{
+    int r, g, bl;
+    if (!a && !b)
+        return 0;
+    if (!a || !b)
+        return 60;
+    r = (int)(a & 31u) - (int)(b & 31u);
+    g = (int)((a >> 5) & 31u) - (int)((b >> 5) & 31u);
+    bl = (int)((a >> 10) & 31u) - (int)((b >> 10) & 31u);
+    return (unsigned)((r < 0 ? -r : r) + (g < 0 ? -g : g) + (bl < 0 ? -bl : bl));
+}
+
+static const uint16_t *l0_cols(const struct l0rows *R, unsigned r, unsigned *n)
+{
+    if (R->is_mixed[r]) {
+        *n = R->mixed_n[r];
+        return R->mixed[r];
+    }
+    *n = 15;
+    return R->arcade[r];
+}
+
+/* The tile of 256 colours against a row's colours (the first entry that has the colour); -1 when a colour is not there. */
+static int l0_tile(const uint16_t *px, const uint16_t *cols, unsigned n, uint8_t out[128])
+{
+    unsigned i, k;
+    memset(out, 0, 128);
+    for (i = 0; i < 256; i++) {
+        unsigned v = 0;
+        if (!px[i])
+            continue;
+        for (k = 0; k < n; k++)
+            if (cols[k] == px[i]) { v = k + 1; break; }
+        if (!v)
+            return -1;
+        out[i >> 1] |= (uint8_t)(v << (4 * (i & 1u)));
+    }
+    return 0;
+}
+
+/* (error) and the tile of 256 colours drawn with the nearest colour of a row's (the lowest entry among equals). */
+static unsigned long l0_near(const uint16_t *px, const uint16_t *cols, unsigned n, uint8_t out[128])
+{
+    unsigned i, k;
+    unsigned long err = 0;
+    memset(out, 0, 128);
+    for (i = 0; i < 256; i++) {
+        unsigned bestd = 0, besti = 0;
+        if (!px[i])
+            continue;
+        for (k = 0; k < n; k++) {
+            unsigned dist = l0_cdist(px[i], cols[k]);
+            if (!besti || dist < bestd) { bestd = dist; besti = k + 1; }
+        }
+        err += bestd;
+        out[i >> 1] |= (uint8_t)(besti << (4 * (i & 1u)));
+    }
+    return err;
+}
+
+static unsigned l0_colour_of(const uint8_t *tile, unsigned i, const uint16_t *cols, unsigned n)
+{
+    unsigned v = (tile[i >> 1] >> (4 * (i & 1u))) & 15u;
+    return v && v <= n ? cols[v - 1u] : 0u;
+}
+
+/* Does value c occur in cols[0..n)? */
+static int l0_has(const uint16_t *cols, unsigned n, unsigned c)
+{
+    unsigned k;
+    for (k = 0; k < n; k++)
+        if (cols[k] == c)
+            return 1;
+    return 0;
+}
+
+static int l0_cmp_u16(const void *a, const void *b)
+{
+    unsigned x = *(const uint16_t *)a, y = *(const uint16_t *)b;
+    return x < y ? -1 : x > y;
+}
+
+struct l0own {
+    uint16_t rows[32][16];     /* the 32 palette rows built */
+};
+
+/* A layer 0 slot is known when the descriptor says its bytes equal the disc's (tile_known, by slot), else owned. */
+static void mark_slot_state(struct arcade_stage_out *out, const struct arcade_stage_layer *l, int64_t at, uint32_t slot)
+{
+    int equal = l->tile_known && (l->tile_known[slot >> 6] >> (slot & 63u) & 1u);
+    mark_known(out->pages.known, at, 16, equal);
+    mark_known(out->pages.own, at, 16, !equal);
+}
+
+/* Build layer 0 (flag ARCADE_STAGE_L0_OWN): cells into the module, tiles and own zero slots into the pages, the rows into res. */
+static int build_l0_own(struct ctx *c, const struct arcade_stage *s, struct arcade_stage_out *out, struct l0own *res)
+{
+    const struct arcade_stage_layer *l = &s->layer[0];
+    uint32_t region = s->layer[1].start, ncells = 0, cap, i, k, nfree = 0, nused;
+    unsigned x, y, bx, by, h, xi, q, r;
+    uint16_t pal[32][16];
+    struct l0cell *cells = NULL;
+    struct l0rows *R = NULL;
+    uint8_t (*tiles)[128] = NULL;
+    uint32_t *order = NULL, *table = NULL, *free_slots = NULL, ntiles = 0, norder = 0, tsize = 16;
+    uint8_t *reserved = NULL, used_rows[32];
+    int rc = -1;
+    unsigned nblocks = (l->across / 16u) * (l->down / 16u), extra_blocks = 0;
+    if (region > 0xffffu || !l->across || !l->down || l->across % 16u || l->down % 16u || l->ids != nblocks || !l->id_at)
+        return fail(c, "layer 0 has a bad size (%u)", l->across, 0);
+    for (xi = 0; xi < l->xmap_count; xi++)
+        extra_blocks += l->xmaps[xi].blocks;
+    cap = (nblocks + extra_blocks) * 256u;
+    cells = calloc(cap ? cap : 1u, sizeof *cells);
+    R = calloc(1, sizeof *R);
+    tiles = malloc((size_t)(cap + 2u) * 128u);
+    order = malloc((size_t)(cap + 2u) * sizeof *order);
+    while (tsize < 2u * (cap + 2u))
+        tsize <<= 1;
+    table = calloc(tsize, sizeof *table);
+    reserved = calloc(region + 1u, 1);
+    free_slots = malloc((size_t)(region + 1u) * sizeof *free_slots);
+    if (!cells || !R || !tiles || !order || !table || !reserved || !free_slots) {
+        rc = fail(c, "out of memory in layer 0 (%u)", 0, 0);
+        goto done;
+    }
+    if (layer0_palettes(c, s, pal))
+        goto done;
+    for (r = 0; r < 32; r++)
+        for (i = 0; i < 15; i++)
+            R->arcade[r][i] = pal[r][i + 1u];
+    for (i = 0; i < l->l0_reserved_count; i++)
+        for (k = 0; k < l->l0_reserved[i].count; k++)
+            if (l->l0_reserved[i].first + k < region)
+                reserved[l->l0_reserved[i].first + k] = 1;
+    if (reserved[0]) {
+        rc = fail(c, "layer 0 has no slot 0 for its blank tile (%u)", 0, 0);
+        goto done;
+    }
+    for (i = 0; i < region; i++)
+        if (!reserved[i])
+            free_slots[nfree++] = i;
+    /* the cells in scan order: the layer's own blocks, then its extra maps' */
+    for (i = 0; i < nblocks + extra_blocks; i++) {
+        unsigned set, page = 0, half = 0;
+        const struct arcade_stage_xmap *xm = NULL;
+        uint32_t mapat = l->map;
+        unsigned across = l->across;
+        if (i < nblocks) {
+            uint32_t a = l->id_at[i];
+            bx = i % (l->across / 16u);
+            by = i / (l->across / 16u);
+            if (a >= c->psize) {
+                rc = fail(c, "layer 0 id address %#x is outside the program", a, 0);
+                goto done;
+            }
+            set = a ? c->prog[a] : 0u;
+        } else {
+            uint32_t e = i - nblocks;
+            for (xi = 0; xi < l->xmap_count && e >= l->xmaps[xi].blocks; xi++)
+                e -= l->xmaps[xi].blocks;
+            xm = &l->xmaps[xi];
+            h = e;
+            page = h / 2u;
+            half = h % 2u;
+            bx = half;
+            by = page;
+            set = xm->ids[h];
+            mapat = xm->map;
+            across = 32;
+        }
+        if (set >= SET_COUNT) {
+            rc = fail(c, "layer 0 block %u does not exist", set, 0);
+            goto done;
+        }
+        for (y = 0; y < 16; y++)
+            for (x = 0; x < 16; x++) {
+                struct l0cell *cell;
+                uint32_t scan = i * 256u + y * 16u + x;
+                int skipped = 0;
+                for (k = 0; k < l->l0_skip_count; k++)
+                    if (scan >= l->l0_skip[k].first && scan - l->l0_skip[k].first < l->l0_skip[k].count)
+                        skipped = 1;
+                if (skipped)
+                    continue;
+                cell = &cells[ncells++];
+                cell->at = mapat + 2u * map_word_index(bx * 16u + x, by * 16u + y, across, 16);
+                cell->scan = scan;
+                for (q = 0; q < 4; q++) {
+                    unsigned code, attr, px, py, row, used = 0;
+                    if (set_cell(c, set, 2u * x + (q & 1u), 2u * y + (q >> 1), &code, &attr)) {
+                        goto done;
+                    }
+                    row = attr & 31u;
+                    for (py = 0; py < 8; py++)
+                        for (px = 0; px < 8; px++) {
+                            unsigned v = piece_px(c, code, attr, px, py);
+                            if (v) {
+                                cell->px[((q >> 1) * 8u + py) * 16u + (q & 1u) * 8u + px] = pal[row][v];
+                                used = 1;
+                            }
+                        }
+                    if (used) {
+                        unsigned t;
+                        for (t = 0; t < cell->nrows && cell->rows[t] != row; t++)
+                            ;
+                        if (t == cell->nrows)
+                            cell->rows[cell->nrows++] = (uint8_t)row;
+                    }
+                }
+            }
+    }
+    memset(used_rows, 0, sizeof used_rows);
+    for (i = 0; i < ncells; i++)
+        for (k = 0; k < cells[i].nrows; k++)
+            used_rows[cells[i].rows[k]] = 1;
+    for (r = 0; r < 32; r++)
+        R->claimed[r] = used_rows[r];
+    /* tiles: id 0 is the blank tile; a hash table of ids by bytes */
+    memset(tiles[0], 0, 128);
+    ntiles = 1;
+    order[norder++] = 0;
+    table[(unsigned)(hash_bytes(tiles[0], 128) & (tsize - 1u))] = 1;
+    for (i = 0; i < ncells; i++) {
+        struct l0cell *cell = &cells[i];
+        uint16_t cu[256];
+        unsigned ncu = 0, nc, found = 0, t;
+        uint8_t tile[128];
+        int have = 0;
+        for (t = 0; t < 256; t++)
+            if (cell->px[t])
+                cu[ncu++] = cell->px[t];
+        if (!ncu) {
+            cell->row = 0;
+            cell->tile = 0;
+            continue;
+        }
+        qsort(cu, ncu, sizeof cu[0], l0_cmp_u16);
+        {   /* distinct colours */
+            unsigned w = 0;
+            for (t = 0; t < ncu; t++)
+                if (!w || cu[w - 1u] != cu[t])
+                    cu[w++] = cu[t];
+            ncu = w;
+        }
+        if (cell->nrows == 1) {
+            const uint16_t *cols = l0_cols(R, cell->rows[0], &nc);
+            if (l0_tile(cell->px, cols, nc, tile)) {
+                rc = fail(c, "layer 0 cell %u: a colour is not in its row", i, 0);
+                goto done;
+            }
+            cell->row = cell->rows[0];
+            have = 1;
+        }
+        if (!have) {   /* 1: a row that holds every colour: the cell's own rows first, then 0 to 31 */
+            unsigned cand[36], ncand = 0, ci;
+            for (t = 0; t < cell->nrows; t++)
+                cand[ncand++] = cell->rows[t];
+            for (r = 0; r < 32; r++) {
+                for (t = 0; t < cell->nrows && cell->rows[t] != r; t++)
+                    ;
+                if (t == cell->nrows)
+                    cand[ncand++] = r;
+            }
+            for (ci = 0; ci < ncand && !have; ci++) {
+                const uint16_t *cols = l0_cols(R, cand[ci], &nc);
+                unsigned m;
+                if (!nc)
+                    continue;
+                for (m = 0; m < ncu && l0_has(cols, nc, cu[m]); m++)
+                    ;
+                if (m == ncu) {
+                    R->claimed[cand[ci]] = 1;
+                    l0_tile(cell->px, cols, nc, tile);
+                    cell->row = (uint8_t)cand[ci];
+                    have = 1;
+                }
+            }
+        }
+        if (!have && ncu <= 15) {   /* 2: a merged row */
+            int best = -1;
+            unsigned bestscore = 0;
+            for (r = 0; r < 32; r++) {
+                unsigned inter = 0, m;
+                if (!R->is_mixed[r])
+                    continue;
+                for (m = 0; m < ncu; m++)
+                    inter += (unsigned)l0_has(R->mixed[r], R->mixed_n[r], cu[m]);
+                if (R->mixed_n[r] + (ncu - inter) <= 15u && (best < 0 || inter > bestscore)) {
+                    best = (int)r;
+                    bestscore = inter;
+                }
+            }
+            if (best < 0)
+                for (r = 0; r < 32; r++)
+                    if (!R->claimed[r]) {
+                        R->is_mixed[r] = 1;
+                        R->mixed_n[r] = 0;
+                        R->claimed[r] = 1;
+                        best = (int)r;
+                        break;
+                    }
+            if (best >= 0) {
+                unsigned m;
+                for (m = 0; m < ncu; m++)   /* ascending value */
+                    if (!l0_has(R->mixed[best], R->mixed_n[best], cu[m]))
+                        R->mixed[best][R->mixed_n[best]++] = cu[m];
+                l0_tile(cell->px, R->mixed[best], R->mixed_n[best], tile);
+                cell->row = (uint8_t)best;
+                have = 1;
+            }
+        }
+        if (!have) {   /* 3: the nearest colour in the best row */
+            unsigned long beste = 0;
+            int bestr = -1;
+            uint8_t besttile[128];
+            for (r = 0; r < 32; r++) {
+                const uint16_t *cols = l0_cols(R, r, &nc);
+                unsigned long e;
+                if (!nc)
+                    continue;
+                e = l0_near(cell->px, cols, nc, tile);
+                if (bestr < 0 || e < beste) {
+                    beste = e;
+                    bestr = (int)r;
+                    memcpy(besttile, tile, 128);
+                }
+            }
+            if (bestr < 0) {
+                rc = fail(c, "layer 0 cell %u has no row (%u)", i, 0);
+                goto done;
+            }
+            R->claimed[bestr] = 1;
+            cell->row = (uint8_t)bestr;
+            memcpy(tile, besttile, 128);
+        }
+        /* the tile's id */
+        {
+            unsigned pos = (unsigned)(hash_bytes(tile, 128) & (tsize - 1u));
+            while (table[pos] && memcmp(tiles[table[pos] - 1u], tile, 128))
+                pos = (pos + 1u) & (tsize - 1u);
+            if (!table[pos]) {
+                memcpy(tiles[ntiles], tile, 128);
+                order[norder++] = ntiles;
+                table[pos] = ++ntiles;
+            }
+            cell->tile = table[pos] - 1u;
+        }
+        (void)found;
+    }
+    /* fold the least used tile into its nearest until the tiles fit the slots */
+    while (norder > nfree) {
+        uint32_t victim = 0, vcount = 0, vpix = 0, a, b, bestb = 0;
+        unsigned long beste = 0;
+        int have_v = 0, have_b = 0;
+        unsigned oi, bi;
+        if (nfree < 1 || norder < 2) {
+            rc = fail(c, "layer 0 has no room for its tiles (%u)", nfree, 0);
+            goto done;
+        }
+        for (oi = 1; oi < norder; oi++) {
+            uint32_t id = order[oi], cnt = 0, pix = 0;
+            unsigned t;
+            for (i = 0; i < ncells; i++)
+                cnt += cells[i].tile == id;
+            for (t = 0; t < 256; t++)
+                pix += ((tiles[id][t >> 1] >> (4 * (t & 1u))) & 15u) != 0;
+            if (!have_v || cnt < vcount || (cnt == vcount && (pix < vpix || (pix == vpix)))) {
+                victim = id;       /* a later tile of equal count and pixels wins: the latest in first use */
+                vcount = cnt;
+                vpix = pix;
+                have_v = 1;
+            }
+        }
+        a = victim;
+        for (bi = 0; bi < norder; bi++) {
+            unsigned long err = 0;
+            b = order[bi];
+            if (b == a)
+                continue;
+            for (i = 0; i < ncells; i++)
+                if (cells[i].tile == a) {
+                    unsigned nc, t;
+                    const uint16_t *cols = l0_cols(R, cells[i].row, &nc);
+                    for (t = 0; t < 256; t++)
+                        err += l0_cdist(cells[i].px[t], l0_colour_of(tiles[b], t, cols, nc));
+                }
+            if (!have_b || err < beste) {
+                beste = err;
+                bestb = b;
+                have_b = 1;
+            }
+        }
+        for (i = 0; i < ncells; i++)
+            if (cells[i].tile == a)
+                cells[i].tile = bestb;
+        for (oi = 0; oi < norder && order[oi] != a; oi++)
+            ;
+        for (; oi + 1u < norder; oi++)
+            order[oi] = order[oi + 1u];
+        norder--;
+    }
+    /* slots: the tiles in first-use order on the free slots */
+    {
+        uint32_t *slot_of = calloc(ntiles + 1u, sizeof *slot_of);
+        if (!slot_of) {
+            rc = fail(c, "out of memory in layer 0 (%u)", 0, 0);
+            goto done;
+        }
+        for (i = 0; i < norder; i++)
+            slot_of[order[i]] = free_slots[i];
+        nused = norder;
+        for (i = 0; i < norder; i++) {
+            int64_t at = slot_place(free_slots[i], 16, out->pages.size);
+            if (at < 0) {
+                free(slot_of);
+                rc = fail(c, "a layer 0 tile does not fit the pages (%u)", free_slots[i], 0);
+                goto done;
+            }
+            put_slot(out->pages.data, at, 16, tiles[order[i]]);
+            mark_slot_state(out, l, at, free_slots[i]);
+        }
+        for (i = nused; i < nfree; i++) {
+            int64_t at = slot_place(free_slots[i], 16, out->pages.size);
+            if (at < 0)
+                break;
+            mark_slot_state(out, l, at, free_slots[i]);
+        }
+        for (i = 0; i < ncells; i++) {
+            uint32_t slot = slot_of[cells[i].tile], code;
+            unsigned clut = 0x7800u + 64u * (slot == 0 ? 0u : cells[i].row);
+            if (slot_code(slot, 16, &code) || (size_t)cells[i].at + 4 > out->module.size) {
+                free(slot_of);
+                rc = fail(c, "layer 0 cell %u does not fit (%u)", i, 0);
+                goto done;
+            }
+            out->module.data[cells[i].at] = (uint8_t)code;
+            out->module.data[cells[i].at + 1] = (uint8_t)(code >> 8);
+            out->module.data[cells[i].at + 2] = (uint8_t)clut;
+            out->module.data[cells[i].at + 3] = (uint8_t)(clut >> 8);
+            if (l->cell_known && (l->cell_known[cells[i].scan >> 6] >> (cells[i].scan & 63u) & 1u))
+                memset(out->module.known + cells[i].at, 1, 4);
+            else
+                memset(out->module.own + cells[i].at, 1, 4);
+        }
+        free(slot_of);
+    }
+    for (r = 0; r < 32; r++) {
+        if (R->is_mixed[r]) {
+            memset(res->rows[r], 0, 32);
+            for (i = 0; i < R->mixed_n[r]; i++)
+                res->rows[r][i + 1u] = R->mixed[r][i];
+        } else {
+            memcpy(res->rows[r], pal[r], 32);
+        }
+    }
+    rc = 0;
+done:
+    free(cells);
+    free(R);
+    free(tiles);
+    free(order);
+    free(table);
+    free(reserved);
+    free(free_slots);
+    return rc;
+}
+
+
+/* The game's disc stream compares the first word of every chunk it streams with the one in the archive's header record (the chunk's own
+ * first word on the disc) and reads the file again on a mismatch. A word built by design is not the disc's, so the first four bytes of a piece
+ * are never owned: they stay the disc's (a pack keeps them), and the build's own copy is left as it is. Bytes known to equal the disc's stay known. */
+static void first_words_left_alone(struct arcade_stage_out *out)
+{
+    struct arcade_stage_piece *pieces[5];
+    unsigned i;
+    pieces[0] = &out->module; pieces[1] = &out->pages; pieces[2] = &out->palettes; pieces[3] = &out->object_tiles; pieces[4] = &out->object_palettes;
+    for (i = 0; i < 5; i++)
+        if (pieces[i]->size >= 4 && pieces[i]->own)
+            memset(pieces[i]->own, 0, 4);
+}
+
 int arcade_stage_build(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size,
                        const struct arcade_stage *s, struct arcade_stage_out *out, char *err, size_t errsize)
 {
     struct ctx c;
     struct layer_set ls;
-    unsigned n, e;
+    struct l0own l0rows;
+    unsigned n, e, have_l0 = 0;
     uint32_t j, k, start = 0, start1 = 0, count1 = 0;
     c.prog = program; c.tiles = tiles; c.psize = program_size; c.tsize = tiles_size; c.err = err; c.errsize = errsize;
     memset(out, 0, sizeof *out);
@@ -740,6 +1241,12 @@ int arcade_stage_build(const uint8_t *program, size_t program_size, const uint8_
         const struct arcade_stage_layer *l = &s->layer[n];
         unsigned side = n < 2 ? 16u : 32u;
         uint32_t cells = layer_cells_total(l, n);
+        if (n == 0 && (l->flags & ARCADE_STAGE_L0_OWN)) {        /* built by the own rule: cells, tiles and rows, all owned */
+            if (build_l0_own(&c, s, out, &l0rows))
+                goto bad;
+            have_l0 = 1;
+            continue;
+        }
         start = l->start;
         if (n == 1 && (l->flags & ARCADE_STAGE_START_RULE))
             start = (chain_end(count1, s) + 15u) / 16u * 16u;                  /* count1 holds layer 0's tile count here */
@@ -825,6 +1332,21 @@ int arcade_stage_build(const uint8_t *program, size_t program_size, const uint8_
     if (build_palettes(&c, s, &out->palettes) || build_object_palettes(&c, s, &out->object_palettes) ||
         build_runs(&c, s->objects, s->object_count, &out->object_tiles))
         goto bad;
+    if (have_l0) {                      /* layer 0's 32 rows (the layer's even palettes of the chunk), by the own rule: owned, not known */
+        unsigned r;
+        for (r = 0; r < 32 && 64u * r + 32u <= out->palettes.size; r++) {
+            for (j = 0; j < 16; j++) {
+                out->palettes.data[64u * r + 2u * j] = (uint8_t)l0rows.rows[r][j];
+                out->palettes.data[64u * r + 2u * j + 1u] = (uint8_t)(l0rows.rows[r][j] >> 8);
+            }
+            {
+                int equal = (int)((s->pal_exact[(2u * r) >> 6] >> ((2u * r) & 63u)) & 1u);
+                memset(out->palettes.known + 64u * r, equal, 32);
+                memset(out->palettes.own + 64u * r, !equal, 32);
+            }
+        }
+    }
+    first_words_left_alone(out);
     return 0;
 bad:
     set_close(&ls);
@@ -874,6 +1396,8 @@ int arcade_stage_build_palette_runs(const uint8_t *program, size_t program_size,
         arcade_stage_piece_free(out);
         return -1;
     }
+    if (out->size >= 4)
+        memset(out->own, 0, 4);                  /* the chunk's first word stays the disc's (first_words_left_alone) */
     return 0;
 }
 
