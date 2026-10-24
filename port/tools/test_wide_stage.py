@@ -27,15 +27,42 @@ FORMS = {  # form tag -> (function prefix, layer expression in the C, record typ
     # draw_tile_map_layer_32px has two bodies: the half-speed scroll of sakura and vega, and gouki's (full speed, 13 records at most)
     'T32H': ('draw_tile_map_layer_32px', '&background_layers[2]', 'Slot06TileW', 2),
     'T32G': ('draw_tile_map_layer_32px', '&background_layers[2]', 'Slot06TileW', 2),
+    # the layer functions of one stage each (or two stages that differ): the second layer's scrolling rows (birdie's and chunli_alt's are two
+    # bodies), the first layer's 16 px grids (rose; gouki, which also skips the next layer's blank; nash's likewise; ken's), nash's rows from
+    # the camera and quads, rolento's perspective, 16 px and 32 px, and sodom's interpolated rows
+    'SCRB': ('draw_scrolling_tile_map_layer', '(Slot06Draw *)main_layer', 'Slot06Tile', 1),
+    'SCRC': ('draw_scrolling_tile_map_layer', '(Slot06Draw *)main_layer', 'Slot06Tile', 1),
+    'L0G': ('draw_tile_map_layer_16px', 'background_layers', 'Slot06Tile', 0),
+    'L0R': ('draw_tile_map_layer_16px', 'background_layers', 'Slot06Tile', 0),
+    'L0N': ('draw_tile_map_layer_16px_slot03', 'background_layers', 'Slot06Tile', 0),
+    'L0K': ('draw_tilemap_layer_16px_12x25', 'background_layers', 'Slot06Tile', 0),
+    'SAVE': ('draw_tile_layer_sprites_saving_pos', '&background_layers[1]', 'Slot06Tile', 1),
+    'POLY': ('draw_tile_map_layer_polys', None, 'Poly28', 1),            # reads main_layer without a local
+    'SKEWP': ('draw_perspective_skewed_tile_map', '(Slot06Layer *)main_layer', 'Poly28', 1),
+    'R16': ('draw_tile_map_16px_tiles', 'background_layers', 'Slot06Tile', 0),
+    'R32': ('draw_tile_map_layer_sprites_32px', '&background_layers[2]', 'Slot06TileW', 2),
+    'SPRI': ('draw_tile_map_layer_sprites_interpolated', '(Slot06Draw *)main_layer', 'Slot06Tile', 1),
 }
 HALF_SCROLL = 'scroll_y >> 1'     # the text that tells the half-speed body from the other
+# forms that share a function name with another form tell their bodies apart by a text of the C
+BODY_IS = {
+    'T32H': lambda text: HALF_SCROLL in text, 'T32G': lambda text: HALF_SCROLL not in text,
+    'SCRC': lambda text: 'data_8019054e' in text, 'SCRB': lambda text: 'data_8019054e' not in text,
+    'L0G': lambda text: 'blank2' in text, 'L0R': lambda text: 'blank2' not in text,
+}
 # the stage whose C is compiled for the comparison: ryu for the plain forms, chunli for the other two
 GAME_C = [('ryu', 'draw_tile_layer_0_16px_slot06_00'), ('ryu', 'draw_tile_layer_1_16px_slot06_00'),
           ('ryu', 'draw_tilemap_layer_32px_9x13_slot06_00'), ('chunli', 'draw_tile_layer_sprites_with_partial_row_slot06_04'),
           ('chunli', 'draw_skewed_tile_layer_quads_slot06_04'), ('ken', 'draw_tilemap_layer_32px_7x13_slot06_01'),
           ('sakura', 'draw_tile_map_layer_16px_half_scroll_slot06_0d'), ('sakura', 'draw_tile_map_layer_32px_slot06_0d'),
-          ('gouki', 'draw_tile_map_layer_32px_slot06_02')]
-COPIES = 13 + 6 + 13 + 10 + 10 + 3 + 2 + 3
+          ('gouki', 'draw_tile_map_layer_32px_slot06_02'), ('birdie', 'draw_scrolling_tile_map_layer_slot06_08'),
+          ('chunli_alt', 'draw_scrolling_tile_map_layer_slot06_12'), ('gouki', 'draw_tile_map_layer_16px_slot06_02'),
+          ('nash', 'draw_tile_map_layer_16px_slot03_slot06_03'), ('rose', 'draw_tile_map_layer_16px_slot06_09'),
+          ('ken', 'draw_tilemap_layer_16px_12x25_slot06_01'), ('nash', 'draw_tile_layer_sprites_saving_pos_slot06_03'),
+          ('nash', 'draw_tile_map_layer_polys_slot06_03'), ('rolento', 'draw_perspective_skewed_tile_map_slot06_0e'),
+          ('rolento', 'draw_tile_map_16px_tiles_slot06_0e'), ('rolento', 'draw_tile_map_layer_sprites_32px_slot06_0e'),
+          ('sodom', 'draw_tile_map_layer_sprites_interpolated_slot06_06')]
+COPIES = 13 + 6 + 13 + 10 + 10 + 3 + 2 + 3 + 12
 LAYERS = 0x801aa544
 CHAN_SIZE = 0x90
 CFLAGS = ['-m32', '-fno-pie', '-D_GNU_SOURCE', '-O1', '-Wall', '-Wextra', '-Werror']
@@ -70,11 +97,23 @@ def build_and_run(folder: Path) -> tuple[list[str], str]:
     defsyms = ['game_state', 'background_layers', 'main_layer', 'current_ordering_table', 'draw_buffer_index',
                'data_801ec390_slot06_00', 'data_801edc80_slot06_00', 'data_801f1790_slot06_00',
                'data_801f03c8_slot06_04', 'data_801f4ae0_slot06_04', 'data_801f94bc_slot06_01', 'data_801ed5e4_slot06_0d',
-               'data_801f51dc_slot06_0d', 'data_801f8638_slot06_02', 'data_801f8978_slot06_02']
+               'data_801f51dc_slot06_0d', 'data_801f8638_slot06_02', 'data_801f8978_slot06_02', 'data_8019054e',
+               'data_801f085c_slot06_08', 'data_801f11e0_slot06_12', 'data_801ef0e8_slot06_02', 'data_801ee810_slot06_03',
+               'data_801f8000_slot06_03', 'data_801eca24_slot06_09', 'data_801eedb4_slot06_01', 'data_801f0d40_slot06_03',
+               'data_801f4c40_slot06_03', 'data_801f3df4_slot06_0e', 'data_801ef554_slot06_0e', 'data_801f6734_slot06_0e',
+               'data_801f25b0_slot06_06']
     link = [f'-Wl,--defsym={name}=0x{sym[name]:08x}' for name in defsyms]
     exe = folder / 'wide_stage_test'
+    objects = []
+    for i, source in enumerate(game_c):                  # the game's C as it is (its own warnings are not ours to fix)
+        obj = folder / f'game_{i}.o'
+        done = subprocess.run(['gcc', '-m32', '-fno-pie', '-O1', '-w', '-I', str(folder), '-c', source, '-o', str(obj)],
+                              capture_output=True, text=True, timeout=120)
+        if done.returncode != 0:
+            raise RuntimeError('the game\'s C did not build:\n' + done.stdout + done.stderr)
+        objects.append(str(obj))
     cmd = ['gcc', *CFLAGS, '-no-pie', '-I', str(folder), '-I', str(ROOT / 'port/src'),
-           str(ROOT / 'port/src/wide_stage.c'), str(ROOT / 'port/tools/wide_stage_test.c'), *game_c, *link, '-o', str(exe)]
+           str(ROOT / 'port/src/wide_stage.c'), str(ROOT / 'port/tools/wide_stage_test.c'), *objects, *link, '-o', str(exe)]
     done = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
     if done.returncode != 0:
         raise RuntimeError('build failed:\n' + done.stdout + done.stderr)
@@ -105,10 +144,10 @@ def source_copies() -> dict[str, dict]:
     for form, (prefix, chan, record, index) in FORMS.items():
         for path in sorted(STAGES.glob(f'*/{prefix}_slot06_??.c')):
             text = strip_c(path.read_text())
-            if (form == 'T32H' and HALF_SCROLL not in text) or (form == 'T32G' and HALF_SCROLL in text):
+            if form in BODY_IS and not BODY_IS[form](text):
                 continue                                           # the other body of the same function name
             pool = re.search(r'extern ' + record + r' data_([0-9a-f]{8})_slot06_([0-9a-f]{2})\[2\]\[(\w+)\];', text)
-            layer = re.search(r'\w+ \*c = ([^;]+);', text)
+            layer = re.search(r'\bc = ([^;]+);', text)
             found[path.stem] = {'form': form, 'path': path, 'pool': int(pool.group(1), 16) if pool else None,
                                 'stage': pool.group(2) if pool else None, 'count': int(pool.group(3), 0) if pool else None,
                                 'chan': layer.group(1) if layer else None}

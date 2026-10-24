@@ -173,10 +173,17 @@ other, Guy, Ryu, Sagat, Sakura, Vega, Zangief). `draw_object_tile_grid_sprites`
 and its kin draw an object's own grid of cells, not a map: they have no side
 cells, and widening them is step 4's (the objects alive in the sides).
 
-Map layers still to do, one stage each: Birdie's and Chun-Li's other's
-`draw_scrolling_tile_map_layer`, Gouki's `draw_tile_map_layer_16px`, Ken's
-`draw_tilemap_layer_16px_12x25`, Nash's three, Rolento's three, Rose's
-`draw_tile_map_layer_16px`, Sodom's `draw_tile_map_layer_sprites_interpolated`.
+Fourth increment (2026-10-24): the map layers of one stage each (Birdie's and
+Chun-Li's other's `draw_scrolling_tile_map_layer` are two different
+functions; Gouki's, Nash's, Ken's, Rose's, Rolento's and Sodom's), most of
+them a known shape with other counts or a flag. Every stage's map layers are
+then done (72 copies in the table). What is left of the stages are the
+per-object grids (`draw_object_tile_grid_sprites` and kin): an object's own
+cells at its position, drawn when the object is alive and in its margin; in
+the sides of the wide view they are taken out by the game's margin test
+(step 4). Seen at the stage ends: black where such objects stand (Sagat's
+pillars, Dhalsim's and Ryu's upper left, a pole of Guy's), and the edges of
+Birdie's perspective floor and ceiling.
 
 Checking a stage in the game: training mode reaches the fifteen stages of
 the select screen's three rows by an input script (down to TRAINING MODE,
