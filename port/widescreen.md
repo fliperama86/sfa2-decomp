@@ -11,6 +11,8 @@ The three layer forms most shared are drawn over the whole width, and the
 view is anchored at the stage ends with the HUD centred. On Birdie's stage
 (seen in a run) the walls and back of the stage fill the width; its
 perspective floor and ceiling, one-stage forms, still end where the game's do.
+Adon's stage is wide all over; Rolento's and Rose's are, but for parts of
+layers drawn by forms not yet done.
 
 ## The owner's decisions (2026-10-23)
 
@@ -158,8 +160,11 @@ without the stage ends would show past the playfield there.
 - The maker is checked against the game's C: for k = 0..24 (0..12) on a made
   -up layer and map it gives the packets the C writes into its pool.
 
-Not in this increment: the other layer forms (`draw_skewed_tile_layer_quads`,
-`draw_tile_layer_sprites_with_partial_row`, the one-stage forms), objects in
+Second increment (2026-10-24): `draw_skewed_tile_layer_quads` and
+`draw_tile_layer_sprites_with_partial_row`, ten stages each, the same way (the
+skewed form's quads that reach into -128..512 beyond the C's own -11..32).
+
+Not yet: the forms of two or three stages and those of one stage, objects in
 the sides (step 4), banners and other screen-space objects at the stage ends
 (they move with the world there; they are told apart later).
 

@@ -26,6 +26,14 @@
 #define CHAN_MAP_WIDTH      0x58u
 #define CHAN_MAP_HEIGHT     0x5cu
 #define CHAN_OT_INDEX       0x8au
+/* The second layer (main_layer, background_layers[1]) as the two other forms' C reads it (Slot06Layer, Slot06Draw in types.fields). */
+#define SL_BOUND_X_A        0x08u   /* s32 at 0x08 and at 0x10 (bound_x_a, bound_x_b read as words); Slot06Draw: start_x_fixed, end_x_fixed */
+#define SL_BOUND_X_B        0x10u
+#define SL_BASE_X_FIXED     0x14u   /* Slot06Draw.base_x_fixed, s32 */
+#define SL_RANGE_START      0x1cu   /* Slot06Draw.range_start s16; Slot06Layer.field_1c u16 */
+#define SL_SIGNED_PARAM     0x3eu   /* Slot06Layer.signed_param s16 */
+#define SL_FIELD_4C         0x4cu   /* u16 / s16: the camera's y */
+#define SL_RECT_RIGHT       0x4eu   /* Slot06Layer.rect_right u16; Slot06Draw.range_end s16 */
 
 /* What the anchored wide view can show, in the game's screen x: the canvas is 64 pixels wider on each side and the view slides by up to 64. */
 #define VIEW_LEFT  (-128)
@@ -38,16 +46,45 @@
 #define WORD_XY   4
 #define WORD_UV   5
 
-const struct port_wide_shape port_wide_shape_L0  = { 4, 16, 25, 6, 1, 0 };
-const struct port_wide_shape port_wide_shape_L1  = { 4, 16, 25, 6, 0, 0 };
-const struct port_wide_shape port_wide_shape_T32 = { 5, 9, 13, 7, 0, 1 };
+const struct port_wide_shape port_wide_shape_L0   = { 4, 16, 25, 6, 1, 0, PORT_WIDE_FLAT, 0 };
+const struct port_wide_shape port_wide_shape_L1   = { 4, 16, 25, 6, 0, 0, PORT_WIDE_FLAT, 0 };
+const struct port_wide_shape port_wide_shape_T32  = { 5, 9, 13, 7, 0, 1, PORT_WIDE_FLAT, 0 };
+const struct port_wide_shape port_wide_shape_SPR  = { 4, 0, 25, 6, 0, 0, PORT_WIDE_SPRITES, 0 };    /* the row count comes from the camera */
+const struct port_wide_shape port_wide_shape_SKEW = { 4, 0, 44, 9, 0, 0, PORT_WIDE_SKEWED, -11 };   /* a POLY_FT4 a cell: 9 words */
+
+/* The words of a POLY_FT4 record after its tag (Poly28): colour and code, then x y / u v clut / x y / u v tpage / x y / u v / x y / u v
+ * for the four corners. */
+#define PW_XY0 1
+#define PW_UV0 2
+#define PW_XY1 3
+#define PW_UV1 4
+#define PW_XY2 5
+#define PW_UV2 6
+#define PW_XY3 7
+#define PW_UV3 8
 
 static uint16_t rd16(const uint8_t *p, unsigned off) { uint16_t v; memcpy(&v, p + off, sizeof v); return v; }
 static uint32_t rd32(const uint8_t *p, unsigned off) { uint32_t v; memcpy(&v, p + off, sizeof v); return v; }
 
+/* The sprite form's x position: x12 = (q + start_x_fixed) >> 16 with q = (end - start) * (camera y - range_start) / (range_end - range_start),
+ * all in 32-bit ints. 0 in *ok when the range is empty (the C would divide by zero). */
+static int sprites_x12(const uint8_t *layer, int *ok)
+{
+    uint32_t start = rd32(layer, SL_BOUND_X_A), end = rd32(layer, SL_BOUND_X_B);
+    int32_t dy = (int16_t)rd16(layer, SL_FIELD_4C) - (int16_t)rd16(layer, SL_RANGE_START);
+    int32_t span = (int16_t)rd16(layer, SL_RECT_RIGHT) - (int16_t)rd16(layer, SL_RANGE_START);
+    int32_t q;
+    *ok = span != 0;
+    if (!span) return 0;
+    q = (int32_t)((uint32_t)(int32_t)(end - start) * (uint32_t)dy);
+    q = (span == -1) ? (int32_t)(0u - (uint32_t)q) : q / span;
+    return ((int32_t)((uint32_t)q + start)) >> 16;
+}
+
 void port_wide_side_range(const struct port_wide_shape *shape, const uint8_t *layer, int *k_left, int *k_right)
 {
-    int size = 1 << shape->shift, sx = (int)(rd16(layer, CHAN_SCROLL_X) & (unsigned)(size - 1));
+    int ok = 1, size = 1 << shape->shift;
+    int sx = shape->kind == PORT_WIDE_SPRITES ? (sprites_x12(layer, &ok) & (size - 1)) : (int)(rd16(layer, CHAN_SCROLL_X) & (unsigned)(size - 1));
     int kl = 0, kr = shape->cols;
     while ((kl - 1) * size - sx + size > VIEW_LEFT && kl > -64) kl--;   /* the cell kl - 1 reaches into the view */
     while (kr * size - sx < VIEW_RIGHT && kr < 64) kr++;
@@ -55,8 +92,8 @@ void port_wide_side_range(const struct port_wide_shape *shape, const uint8_t *la
     *k_right = kr;
 }
 
-unsigned port_wide_columns(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
-                           unsigned game_scroll_y, const uint32_t *record, int k0, int k1, port_wide_emit emit)
+static unsigned flat_columns(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
+                             unsigned game_scroll_y, const uint32_t *record, int k0, int k1, port_wide_emit emit)
 {
     /* The C's own arithmetic (the three functions under ps1/src/overlays/stages, any copy), step by step. */
     const int size = 1 << shape->shift;
@@ -115,9 +152,213 @@ unsigned port_wide_columns(const struct port_wide_shape *shape, const uint8_t *l
     return made;
 }
 
+/* The 16 px forms' map: blocks of 32 x 16 cells, two halfwords a cell. */
+static uint32_t line16(uint32_t width, int row)
+{
+    return ((uint32_t)((uint16_t)row >> 4)) * ((width >> 9) << 10) + (((unsigned)row & 0xf) << 6);
+}
+
+static uint32_t cell16(unsigned cc) { return ((cc >> 5) << 10) + ((cc & 0x1f) << 1); }
+
+/* The cell at halfword index `cell` of the map: 0 when it lies past the map's bytes. */
+static int read_cell(const uint8_t *map, uint32_t map_bytes, uint32_t cell, uint16_t *tile, uint16_t *clut)
+{
+    if ((uint64_t)cell * 2 + 4 > map_bytes) return 0;
+    *tile = rd16(map, cell * 2);
+    *clut = rd16(map, cell * 2 + 2);
+    return 1;
+}
+
+#define MAX_ROWS 64   /* a bound on the rows made up from a camera (the C's own count is 15 or fewer) */
+
+/* draw_tile_layer_sprites_with_partial_row: n rows of 25 cells from the camera, then one partial row when the camera's y is not a multiple of
+ * 16. The C's arithmetic, in its order; the layer is Slot06Draw. */
+static unsigned sprites_columns(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
+                                unsigned game_scroll_y, const uint32_t *record, int k0, int k1, port_wide_emit emit)
+{
+    const uint32_t width = rd32(layer, CHAN_MAP_WIDTH), height = rd32(layer, CHAN_MAP_HEIGHT);
+    const int blank = (int16_t)rd16(layer, CHAN_BLANK), entry = layer[CHAN_OT_INDEX];
+    const int f4c = (int16_t)rd16(layer, SL_FIELD_4C);
+    const unsigned len = shape->words;
+    int ok, x12, sx, sy, y, row, rows, mask, n, i, k, pos;
+    unsigned col, made = 0;
+    uint32_t words[8];
+
+    x12 = sprites_x12(layer, &ok);
+    if (!ok || !width || !height || !map || (record[0] >> 24) != len) return 0;
+    pos = (int)(0u - (rd32(layer, SL_BASE_X_FIXED) - 0x100000u));                     /* x = base_x_fixed - 0x100000; pos = -x */
+    y = (int16_t)(uint16_t)((pos >> 16) - (int)(game_scroll_y & 0xffffu));            /* t = (pos >> 16) - game_state.scroll_y; pos = low | t << 16 */
+    sy = y & 0xf;
+    sx = x12 & 0xf;
+    col = (((uint32_t)x12) & (width - 1)) >> 4;
+    col &= 0xffffu;
+    row = y >= 0 ? y >> 4 : (y - 15) / 16;
+    rows = (int16_t)(height >> 4);
+    mask = (uint16_t)((width >> 4) - 1);
+    n = (int16_t)((uint32_t)(f4c - (y & -16)) >> 4);                                  /* pos >> 16 is y again */
+
+    for (i = 0; i <= (n > 0 ? n : 0) && i <= MAX_ROWS; i++, row = (int16_t)(row + 1)) {   /* with n <= 0 the partial row is made at i = 0 */
+        uint32_t line;
+        int yy;
+        if (i < n) {
+            if (row < 0 || row > rows) continue;                                       /* the C's rows */
+        } else {
+            if (!(f4c & 0xf)) break;                                                   /* the partial row */
+            if (!(row > 0 || row <= rows)) break;
+        }
+        line = line16(width, row);
+        yy = (int16_t)((i << 4) - sy);
+        for (k = k0; k < k1; k++) {
+            unsigned cc = (unsigned)(mask & (int)(col + (unsigned)k)) & 0xffffu;
+            uint16_t raw, clut;
+            int tile;
+            if (!read_cell(map, map_bytes, line + cell16(cc), &raw, &clut)) continue;
+            tile = (int16_t)raw;
+            if (tile == blank) continue;
+            memcpy(words, record + 1, len * sizeof words[0]);
+            words[WORD_MODE] = 0xe1000000u + (uint32_t)(tile >> 10);
+            words[WORD_XY] = (uint32_t)(uint16_t)(int16_t)(k * 16 - sx) | ((uint32_t)(uint16_t)yy << 16);
+            words[WORD_UV] = (uint32_t)(uint8_t)((tile * 8) & -8) | ((uint32_t)(uint8_t)((tile >> 2) & -8) << 8) | ((uint32_t)clut << 16);
+            if (emit(entry, words, len)) return made;
+            made++;
+        }
+    }
+    return made;
+}
+
+static int32_t wrap_mul(int32_t a, int32_t b) { return (int32_t)((uint32_t)a * (uint32_t)b); }
+static int32_t wrap_div(int32_t a, int32_t b) { return b == -1 ? (int32_t)(0u - (uint32_t)a) : a / b; }
+
+/* draw_skewed_tile_layer_quads: rows of 44 cells from k = -11, each cell (that is not blank) a quad whose four x are moved by an offset that
+ * the row sets (s1 for the top edge, s0 for the bottom) and does not depend on the cell. `visible_only`: a cell is made only when its quad
+ * reaches into screen x -128..512 (the sides); else every cell of k0..k1. The layer is Slot06Layer. */
+static unsigned skew_make(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
+                          const uint32_t *record, int k0, int k1, int visible_only, port_wide_emit emit)
+{
+    const uint32_t width = rd32(layer, CHAN_MAP_WIDTH);
+    const int blank = (int16_t)rd16(layer, CHAN_BLANK), entry = layer[CHAN_OT_INDEX] - 1;
+    const int n = (int16_t)rd16(layer, SL_SIGNED_PARAM), f4c = (int16_t)rd16(layer, SL_FIELD_4C);
+    const int f12 = (int16_t)rd16(layer, CHAN_SCROLL_X);
+    const int y = (uint16_t)(rd16(layer, SL_FIELD_4C) - n);
+    const int d1x = (int16_t)(rd16(layer, SL_RANGE_START) - n);
+    const int d2x = (int16_t)(rd16(layer, SL_RECT_RIGHT) - rd16(layer, SL_RANGE_START));
+    const int sx = (f12 - 0xb0) & 0xf, sy = y & 0xf;
+    const int32_t a = (int32_t)(rd32(layer, SL_BOUND_X_B) - rd32(layer, SL_BOUND_X_A));
+    const unsigned len = shape->words;
+    int row = (int16_t)(f4c / 16), t, sy2, sy2s, m16, i, i0, lim, mask, k;
+    unsigned col, made = 0;
+    uint32_t words[12];
+
+    if (!width || !d2x || !map || (record[0] >> 24) != len || entry < 0) return 0;
+    col = (((uint32_t)(f12 - 0xb0)) & (width - 1)) >> 4;
+    col &= 0xffffu;
+    mask = (uint16_t)((width >> 4) - 1);
+    t = f4c - (row * 16);
+    sy2 = (uint16_t)t;
+    sy2s = (int16_t)sy2;
+    m16 = sy2s - 16;
+    i0 = (int16_t)y / 16;
+    lim = (int16_t)y / 16 + 15 - f4c / 16;
+
+    for (i = i0; i < lim && i - i0 < MAX_ROWS; i++, row = (int16_t)(row + 1)) {
+        const int first = i == i0, ya = sy + (i << 4), yu = (uint16_t)ya;
+        const uint32_t line = line16(width, row);
+        /* the top edge's offset: the first row uses the row's own y, the others y less the crop sy2 */
+        const int32_t s1 = a - wrap_div(wrap_mul(a, first ? yu - d1x : yu - sy2s - d1x), d2x);
+        const int32_t s0 = a - wrap_div(wrap_mul(a, yu - m16 - d1x), d2x);
+        for (k = k0; k < k1; k++) {
+            unsigned cc = (unsigned)(mask & (int)(col + (unsigned)(k + 11))) & 0xffffu;
+            uint16_t raw, clut;
+            int tile, u, v, x0, x1, x2, x3, y0, y2, v0;
+            if (!read_cell(map, map_bytes, line + cell16(cc), &raw, &clut)) continue;
+            tile = (int16_t)raw;
+            if (tile == blank) continue;
+            u = raw << 3;
+            v = (tile >> 2) & -16;
+            x0 = (int16_t)(k * 16 - sx + (s1 >> 16));
+            x1 = (int16_t)(x0 + 16);
+            x2 = (int16_t)(k * 16 - sx + (s0 >> 16));
+            x3 = (int16_t)(x2 + 16);
+            if (visible_only) {
+                int lo = x0 < x2 ? x0 : x2, hi = x1 > x3 ? x1 : x3;
+                if (!(hi > VIEW_LEFT && lo < VIEW_RIGHT)) continue;
+            }
+            if (first) {
+                y0 = (int16_t)yu;
+                y2 = (int16_t)(ya + 16 - sy2);
+                v0 = (uint8_t)(sy2 + v);
+            } else {
+                y0 = (int16_t)(ya - sy2);
+                y2 = (int16_t)(y0 + 16);
+                v0 = (uint8_t)v;
+            }
+            memcpy(words, record + 1, len * sizeof words[0]);
+            words[PW_XY0] = (uint32_t)(uint16_t)x0 | ((uint32_t)(uint16_t)y0 << 16);
+            words[PW_UV0] = (uint32_t)(uint8_t)u | ((uint32_t)(uint8_t)v0 << 8) | ((uint32_t)clut << 16);
+            words[PW_XY1] = (uint32_t)(uint16_t)x1 | ((uint32_t)(uint16_t)y0 << 16);
+            words[PW_UV1] = (uint32_t)(uint8_t)(u + 15) | ((uint32_t)(uint8_t)v0 << 8) | ((uint32_t)(uint16_t)(tile >> 10) << 16);
+            words[PW_XY2] = (uint32_t)(uint16_t)x2 | ((uint32_t)(uint16_t)y2 << 16);
+            words[PW_UV2] = (words[PW_UV2] & 0xffff0000u) | (uint32_t)(uint8_t)u | ((uint32_t)(uint8_t)(v | 15) << 8);
+            words[PW_XY3] = (uint32_t)(uint16_t)x3 | ((uint32_t)(uint16_t)y2 << 16);
+            words[PW_UV3] = (words[PW_UV3] & 0xffff0000u) | (uint32_t)(uint8_t)(u + 15) | ((uint32_t)(uint8_t)(v | 15) << 8);
+            if (emit(entry, words, len)) return made;
+            made++;
+        }
+    }
+    return made;
+}
+
+unsigned port_wide_columns(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
+                           unsigned game_scroll_y, const uint32_t *record, int k0, int k1, port_wide_emit emit)
+{
+    switch (shape->kind) {
+    case PORT_WIDE_SPRITES: return sprites_columns(shape, layer, map, map_bytes, game_scroll_y, record, k0, k1, emit);
+    case PORT_WIDE_SKEWED:  return skew_make(shape, layer, map, map_bytes, record, k0, k1, 0, emit);
+    default:                return flat_columns(shape, layer, map, map_bytes, game_scroll_y, record, k0, k1, emit);
+    }
+}
+
+unsigned port_wide_sides(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
+                         unsigned game_scroll_y, const uint32_t *record, port_wide_emit emit)
+{
+    int left, right;
+    unsigned made;
+    if (shape->kind == PORT_WIDE_SKEWED) {
+        int first = shape->k_first, end = shape->k_first + shape->cols;
+        made = skew_make(shape, layer, map, map_bytes, record, first - PORT_WIDE_SKEW_EXTRA, first, 1, emit);
+        return made + skew_make(shape, layer, map, map_bytes, record, end, end + PORT_WIDE_SKEW_EXTRA, 1, emit);
+    }
+    port_wide_side_range(shape, layer, &left, &right);
+    made = port_wide_columns(shape, layer, map, map_bytes, game_scroll_y, record, left, 0, emit);
+    return made + port_wide_columns(shape, layer, map, map_bytes, game_scroll_y, record, shape->cols, right, emit);
+}
+
+void port_wide_map_bytes(const struct port_wide_shape *shape, const uint8_t *layer, unsigned game_scroll_y, uint32_t *preferred, uint32_t *minimum)
+{
+    uint32_t width = rd32(layer, CHAN_MAP_WIDTH), height = rd32(layer, CHAN_MAP_HEIGHT);
+    uint32_t block_row = ((width >> 9) << (shape->shift == 4 ? 10 : 8)) * 2u;   /* the bytes of one row of blocks */
+    (void)game_scroll_y;
+    *preferred = *minimum = 0;
+    if (!width) return;
+    if (shape->kind == PORT_WIDE_SKEWED) {
+        /* no height in this layer (Slot06Layer has none): the rows that the C reads, up to the last one's block row */
+        const int f4c = (int16_t)rd16(layer, SL_FIELD_4C);
+        int row = (int16_t)(f4c / 16), i, count = 15 - f4c / 16;
+        unsigned top = 0;
+        for (i = 0; i < count && i < MAX_ROWS; i++, row = (int16_t)(row + 1))
+            if (((unsigned)(uint16_t)row >> 4) > top) top = (unsigned)(uint16_t)row >> 4;
+        *preferred = *minimum = (top + 1) * block_row;
+        return;
+    }
+    if (!height) return;
+    *minimum = (width >> shape->shift) * (height >> shape->shift) * 4u;
+    *preferred = *minimum + block_row;     /* the C of the 32 px form (and the sprite form) also reads the row after the last */
+}
+
 /* ---- the stages' copies. Read from ps1/src/overlays/stages/NAME/FUNCTION.c (port/tools/test_wide_stage.py checks every line against
- * the sources, and that no copy is missing): the layer is background_layers[0], [1] or [2] (0x801aa544, 0x90 apart), the pool the
- * `extern Slot06Tile data_ADDRESS_slot06_XX[2][count]` of the function, and the form follows from the name. ---- */
+ * the sources, and that no copy is missing): the layer is background_layers[0], [1] or [2] (0x801aa544, 0x90 apart; the last two forms
+ * read [1] as main_layer, 0x801aa5d4), the pool the `extern Slot06Tile data_ADDRESS_slot06_XX[2][count]` of the function (Poly28 for the
+ * skewed form), and the form follows from the name. ---- */
 #define STAGE_COPIES(X) \
     X( 0, draw_tile_layer_0_16px_slot06_00, L0, 0x801aa544, 0x801ec390, 114) \
     X( 1, draw_tile_layer_0_16px_slot06_04, L0, 0x801aa544, 0x801eeb48, 112) \
@@ -150,7 +391,27 @@ unsigned port_wide_columns(const struct port_wide_shape *shape, const uint8_t *l
     X(28, draw_tilemap_layer_32px_9x13_slot06_10, T32, 0x801aa664, 0x801f50b0, 93) \
     X(29, draw_tilemap_layer_32px_9x13_slot06_11, T32, 0x801aa664, 0x801f5600, 48) \
     X(30, draw_tilemap_layer_32px_9x13_slot06_12, T32, 0x801aa664, 0x801f4cf0, 78) \
-    X(31, draw_tilemap_layer_32px_9x13_slot06_13, T32, 0x801aa664, 0x801f1710, 78)
+    X(31, draw_tilemap_layer_32px_9x13_slot06_13, T32, 0x801aa664, 0x801f1710, 78) \
+    X(32, draw_skewed_tile_layer_quads_slot06_01, SKEW, 0x801aa5d4, 0x801f6b7c, 132) \
+    X(33, draw_skewed_tile_layer_quads_slot06_02, SKEW, 0x801aa5d4, 0x801f5cf8, 132) \
+    X(34, draw_skewed_tile_layer_quads_slot06_04, SKEW, 0x801aa5d4, 0x801f4ae0, 88) \
+    X(35, draw_skewed_tile_layer_quads_slot06_06, SKEW, 0x801aa5d4, 0x801f3618, 176) \
+    X(36, draw_skewed_tile_layer_quads_slot06_07, SKEW, 0x801aa5d4, 0x801f33c4, 88) \
+    X(37, draw_skewed_tile_layer_quads_slot06_09, SKEW, 0x801aa5d4, 0x801f34e4, 88) \
+    X(38, draw_skewed_tile_layer_quads_slot06_0b, SKEW, 0x801aa5d4, 0x801f04d0, 176) \
+    X(39, draw_skewed_tile_layer_quads_slot06_0c, SKEW, 0x801aa5d4, 0x801f2980, 88) \
+    X(40, draw_skewed_tile_layer_quads_slot06_0d, SKEW, 0x801aa5d4, 0x801f365c, 88) \
+    X(41, draw_skewed_tile_layer_quads_slot06_0f, SKEW, 0x801aa5d4, 0x801f46a4, 132) \
+    X(42, draw_tile_layer_sprites_with_partial_row_slot06_01, SPR, 0x801aa5d4, 0x801f29dc, 300) \
+    X(43, draw_tile_layer_sprites_with_partial_row_slot06_02, SPR, 0x801aa5d4, 0x801f1f48, 282) \
+    X(44, draw_tile_layer_sprites_with_partial_row_slot06_04, SPR, 0x801aa5d4, 0x801f03c8, 325) \
+    X(45, draw_tile_layer_sprites_with_partial_row_slot06_07, SPR, 0x801aa5d4, 0x801ef09c, 307) \
+    X(46, draw_tile_layer_sprites_with_partial_row_slot06_09, SPR, 0x801aa5d4, 0x801efaec, 265) \
+    X(47, draw_tile_layer_sprites_with_partial_row_slot06_0b, SPR, 0x801aa5d4, 0x801ecc98, 257) \
+    X(48, draw_tile_layer_sprites_with_partial_row_slot06_0c, SPR, 0x801aa5d4, 0x801eef88, 265) \
+    X(49, draw_tile_layer_sprites_with_partial_row_slot06_0d, SPR, 0x801aa5d4, 0x801eef44, 325) \
+    X(50, draw_tile_layer_sprites_with_partial_row_slot06_0e, SPR, 0x801aa5d4, 0x801f22d4, 124) \
+    X(51, draw_tile_layer_sprites_with_partial_row_slot06_0f, SPR, 0x801aa5d4, 0x801f1bfc, 195)
 
 #define AS_COPY(n, name, form, layer, pool, count) { #name, &port_wide_shape_##form, layer, pool, count },
 const struct port_wide_copy port_wide_copies[] = { STAGE_COPIES(AS_COPY) };
@@ -172,8 +433,8 @@ static void side_tiles(const struct port_wide_copy *c)
     const uint32_t *record;
     const uint16_t *scroll_y;
     const int *buffer;
-    uint32_t width, height, exact, block_row;
-    int left, right, buf;
+    uint32_t preferred, minimum;
+    int buf;
 
     layer = (const uint8_t *)port_gs((const void *)(uintptr_t)c->layer, PORT_WIDE_CHAN_SIZE);
     scroll_y = (const uint16_t *)port_gs((const void *)(uintptr_t)GAME_STATE_SCROLL_Y, sizeof *scroll_y);
@@ -183,20 +444,17 @@ static void side_tiles(const struct port_wide_copy *c)
     if (buf < 0 || buf > 1) return;
     record = (const uint32_t *)port_gs((const void *)(uintptr_t)(c->pool + (unsigned)buf * c->count * record_bytes(shape)),
                                        record_bytes(shape));
-    width = rd32(layer, CHAN_MAP_WIDTH);
-    height = rd32(layer, CHAN_MAP_HEIGHT);
-    if (!record || !width || !height) return;
-    /* the map: (width / cell) x (height / cell) cells of two halfwords; the 32 px form's C also reads the row after the last (`rows < row`),
-     * so one more row of blocks is asked for when the memory has it */
-    exact = (width >> shape->shift) * (height >> shape->shift) * 4u;
-    block_row = ((width >> 9) << (shape->shift == 4 ? 10 : 8)) * 2u;
-    map = (const uint8_t *)port_gs((const void *)(uintptr_t)rd32(layer, CHAN_MAP_DATA), exact + block_row);
-    if (map) exact += block_row;
-    else map = (const uint8_t *)port_gs((const void *)(uintptr_t)rd32(layer, CHAN_MAP_DATA), exact);
+    if (!record) return;
+    /* the map: preferred bytes when the game's memory has them (the C of some forms reads one row past the map), else the minimum */
+    port_wide_map_bytes(shape, layer, *scroll_y, &preferred, &minimum);
+    if (!minimum) return;
+    map = (const uint8_t *)port_gs((const void *)(uintptr_t)rd32(layer, CHAN_MAP_DATA), preferred);
+    if (!map) {
+        preferred = minimum;
+        map = (const uint8_t *)port_gs((const void *)(uintptr_t)rd32(layer, CHAN_MAP_DATA), minimum);
+    }
     if (!map) return;
-    port_wide_side_range(shape, layer, &left, &right);
-    port_wide_columns(shape, layer, map, exact, *scroll_y, record, left, 0, port_gpu_queue_packet);
-    port_wide_columns(shape, layer, map, exact, *scroll_y, record, shape->cols, right, port_gpu_queue_packet);
+    port_wide_sides(shape, layer, map, preferred, *scroll_y, record, port_gpu_queue_packet);
 }
 
 static void run(unsigned index)

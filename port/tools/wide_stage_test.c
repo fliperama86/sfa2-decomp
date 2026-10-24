@@ -1,7 +1,8 @@
 /* Native fixtures of widescreen's side tiles (port/src/wide_stage.c, port/widescreen.md "The side tiles"). No game, disc or window.
  *
- * The game's own C of the stage "ryu" for the three forms (draw_tile_layer_0_16px_slot06_00, draw_tile_layer_1_16px_slot06_00,
- * draw_tilemap_layer_32px_9x13_slot06_00) is compiled as it is and linked with its globals at the game's addresses (the linker's
+ * The game's own C of the stage "ryu" for the three plain forms (draw_tile_layer_0_16px_slot06_00, draw_tile_layer_1_16px_slot06_00,
+ * draw_tilemap_layer_32px_9x13_slot06_00) and of the stage "chunli" for the sprite and skewed forms
+ * (draw_tile_layer_sprites_with_partial_row_slot06_04, draw_skewed_tile_layer_quads_slot06_04) is compiled as it is and linked with its globals at the game's addresses (the linker's
  * --defsym, from ps1/src/symbols.ld), over a block of memory mapped at those addresses. It runs on made-up layers and maps; the
  * packets it writes into its pool are compared with the maker's for the same columns. The side columns are compared with an
  * expectation computed here from a logical map, by other formulas. The overrides run end to end with a stand-in for
@@ -36,6 +37,11 @@
 void draw_tile_layer_0_16px_slot06_00(void);
 void draw_tile_layer_1_16px_slot06_00(void);
 void draw_tilemap_layer_32px_9x13_slot06_00(void);
+void draw_tile_layer_sprites_with_partial_row_slot06_04(void);
+void draw_skewed_tile_layer_quads_slot06_04(void);
+
+#define POOL_SPR  0x801f03c8u   /* chunli: data_801f03c8_slot06_04[2][0x145] */
+#define POOL_SKEW 0x801f4ae0u   /* data_801f4ae0_slot06_04[2][0x58] */
 
 struct port_settings port_settings;
 struct port_settings port_settings_file;
@@ -46,17 +52,19 @@ port_fn port_function_impl(const char *name)
     if (!strcmp(name, "draw_tile_layer_0_16px_slot06_00")) return draw_tile_layer_0_16px_slot06_00;
     if (!strcmp(name, "draw_tile_layer_1_16px_slot06_00")) return draw_tile_layer_1_16px_slot06_00;
     if (!strcmp(name, "draw_tilemap_layer_32px_9x13_slot06_00")) return draw_tilemap_layer_32px_9x13_slot06_00;
+    if (!strcmp(name, "draw_tile_layer_sprites_with_partial_row_slot06_04")) return draw_tile_layer_sprites_with_partial_row_slot06_04;
+    if (!strcmp(name, "draw_skewed_tile_layer_quads_slot06_04")) return draw_skewed_tile_layer_quads_slot06_04;
     return PORT_FN_NULL;
 }
 
 #define MAX_QUEUED 8192
-static struct queued { int entry; unsigned len; uint32_t w[8]; } queued[MAX_QUEUED];
+static struct queued { int entry; unsigned len; uint32_t w[12]; } queued[MAX_QUEUED];
 static unsigned queued_count;
 static int queue_refuse_after = -1;   /* refuse every packet after this many (-1: never) */
 
 int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len)
 {
-    if (entry < 0 || entry >= 30 || len > 8) return -1;
+    if (entry < 0 || entry >= 30 || len > 12) return -1;
     if (queue_refuse_after >= 0 && queued_count >= (unsigned)queue_refuse_after) return -1;
     if (queued_count >= MAX_QUEUED) return -1;
     queued[queued_count].entry = entry;
@@ -95,13 +103,20 @@ struct form {
     unsigned layer, pool, count;
     void (*game_c)(void);
     uint32_t width, height;      /* the made-up map */
-    unsigned code;               /* the sprite's code byte that the init gives (0x7c Sprt16, 0x64 Sprt) */
+    unsigned code;               /* the sprite's code byte that the init gives (0x7c Sprt16, 0x64 Sprt, 0x2c POLY_FT4) */
 };
-static const struct form forms[3] = {
+#define NFORMS 5
+static const struct form forms[NFORMS] = {
     { "L0",  &port_wide_shape_L0,  ADDR_LAYER0,        POOL_L0,  0x72, draw_tile_layer_0_16px_slot06_00,           0x400, 0x200, 0x7c },
     { "L1",  &port_wide_shape_L1,  ADDR_LAYER0 + 0x90, POOL_L1,  270,  draw_tile_layer_1_16px_slot06_00,           0x400, 0x200, 0x7c },
     { "T32", &port_wide_shape_T32, ADDR_LAYER0 + 0x120, POOL_T32, 98,  draw_tilemap_layer_32px_9x13_slot06_00,     0x400, 0x100, 0x64 },
+    { "SPR", &port_wide_shape_SPR, ADDR_LAYER0 + 0x90, POOL_SPR, 0x145, draw_tile_layer_sprites_with_partial_row_slot06_04, 0x400, 0x200, 0x7c },
+    { "SKEW", &port_wide_shape_SKEW, ADDR_LAYER0 + 0x90, POOL_SKEW, 0x58, draw_skewed_tile_layer_quads_slot06_04,  0x400, 0x200, 0x2c },
 };
+#define KIND(f) ((f)->shape->kind)
+/* the columns the game's C draws, and the ordering table entry its packets go to */
+#define C_LO(f) ((f)->shape->k_first)
+#define C_HI(f) ((f)->shape->k_first + (f)->shape->cols)
 
 static unsigned record_words(const struct form *f) { return (unsigned)f->shape->words + 1; }   /* the tag and the packet */
 
@@ -118,6 +133,10 @@ static void init_pool(const struct form *f, uint32_t colour_word)
         unsigned j;
         for (j = 0; j < n; j++) wr32(a + j * 4, 0);
         wr32(a, (uint32_t)f->shape->words << 24);
+        if (KIND(f) == PORT_WIDE_SKEWED) {        /* SetPolyFT4: tag length 9, colour and code 0x2c; the init sets the grey */
+            wr32(a + 4, colour_word);
+            continue;
+        }
         wr32(a + 4, 0xe1000000u);
         wr32(a + 12, f->shape->words == 6 ? 0x03000000u : 0x04000000u);
         wr32(a + 16, colour_word);
@@ -141,7 +160,7 @@ static void build_map(const struct form *f)
 {
     unsigned bc = f->shape->shift == 4 ? 32 : 16, br = f->shape->shift == 4 ? 16 : 8, col, row;
     unsigned blocks_across;
-    density = f->shape->shift == 4 ? (f->shape == &port_wide_shape_L0 ? 5 : 2) : 2;   /* L0 pool: 114 records for 400 cells; L1 270; T32 98 for 117 */
+    density = KIND(f) == PORT_WIDE_SKEWED ? 12 : f->shape->shift == 4 ? (f->shape == &port_wide_shape_L0 ? 5 : 2) : 2;   /* L0 pool: 114 records for 400 cells; L1 270; T32 98 for 117; SKEW 88 for about 500 */
     cells_across = f->width >> f->shape->shift;
     cells_down = f->height >> f->shape->shift;
     blocks_across = cells_across / bc;
@@ -155,18 +174,45 @@ static void build_map(const struct form *f)
         }
 }
 
-struct fixture { unsigned scroll_x; int32_t scroll_y; unsigned game_scroll_y; unsigned blank; unsigned ot_index; unsigned buffer; };
+/* v[] is for the sprite and skewed forms. SPR: v[0] start_x_fixed, v[1] end_x_fixed, v[3] range_start, v[4] range_end, v[5] field_4c
+ * (scroll_y is its base_x_fixed, the same word). SKEW: v[0] bound_x_a, v[1] the low half of bound_x_b (scroll_x is its high half),
+ * v[2] signed_param, v[3] field_1c, v[4] rect_right, v[5] field_4c. */
+struct fixture { unsigned scroll_x; int32_t scroll_y; unsigned game_scroll_y; unsigned blank; unsigned ot_index; unsigned buffer; int32_t v[6]; };
+
+/* the ordering table entry that the game's C links its packets into */
+static unsigned entry_of(const struct form *f, const struct fixture *x) { return KIND(f) == PORT_WIDE_SKEWED ? x->ot_index - 1 : x->ot_index; }
 
 static void set_layer(const struct form *f, const struct fixture *x)
 {
     uint32_t a = f->layer;
     memset((void *)(uintptr_t)a, 0, 0x90);
-    wr16(a + 0x12, x->scroll_x);
-    wr32(a + 0x14, (uint32_t)x->scroll_y);
     wr16(a + 0x1e, x->blank);
     wr32(a + 0x50, ADDR_MAP);
     wr32(a + 0x58, f->width);
-    wr32(a + 0x5c, f->height);
+    switch (KIND(f)) {
+    case PORT_WIDE_SPRITES:
+        wr32(a + 0x14, (uint32_t)x->scroll_y);
+        wr32(a + 0x08, (uint32_t)x->v[0]);
+        wr32(a + 0x10, (uint32_t)x->v[1]);
+        wr16(a + 0x1c, (unsigned)x->v[3]);
+        wr16(a + 0x4e, (unsigned)x->v[4]);
+        wr16(a + 0x4c, (unsigned)x->v[5]);
+        wr32(a + 0x5c, f->height);
+        break;
+    case PORT_WIDE_SKEWED:
+        wr32(a + 0x08, (uint32_t)x->v[0]);
+        wr32(a + 0x10, ((uint32_t)(x->scroll_x & 0xffffu) << 16) | ((uint32_t)x->v[1] & 0xffffu));
+        wr16(a + 0x3e, (unsigned)x->v[2]);
+        wr16(a + 0x1c, (unsigned)x->v[3]);
+        wr16(a + 0x4e, (unsigned)x->v[4]);
+        wr16(a + 0x4c, (unsigned)x->v[5]);
+        wr32(a + 0x5c, 0x100);                     /* Slot06Layer.scale: the layer has no height */
+        break;
+    default:
+        wr16(a + 0x12, x->scroll_x);
+        wr32(a + 0x14, (uint32_t)x->scroll_y);
+        wr32(a + 0x5c, f->height);
+    }
     ((uint8_t *)(uintptr_t)a)[0x8a] = (uint8_t)x->ot_index;
     wr16(ADDR_GAME_STATE_SCROLL_Y, x->game_scroll_y);
     wr32(ADDR_DRAW_BUFFER_INDEX, x->buffer);
@@ -177,7 +223,7 @@ static void set_layer(const struct form *f, const struct fixture *x)
 }
 
 /* ---- the packets, as arrays ---- */
-struct packet { int entry; uint32_t w[8]; };
+struct packet { int entry; uint32_t w[12]; };
 #define MAX_PACKETS 4096
 struct packets { struct packet p[MAX_PACKETS]; unsigned n; };
 static struct packets from_c, from_maker, expected;
@@ -245,36 +291,91 @@ static uint32_t lcg_state = 12345;
 static uint32_t lcg(void) { lcg_state = lcg_state * 1664525u + 1013904223u; return lcg_state >> 8; }
 
 #define NFIX 64
-static struct fixture fixtures[NFIX];
+static struct fixture fixtures[NFORMS][NFIX];
 static unsigned fixture_count;
+static const struct fixture *fix(const struct form *f, unsigned i) { return &fixtures[f - forms][i]; }
+
+static int floordiv(int a, int b);
+static int floormod(int a, int b);
+
+/* the sprite form: a camera and a range made so that the layer's y is y0 and the C draws a few rows */
+static void make_sprites_fixture(struct fixture *x, unsigned variant)
+{
+    int gs = (int)(lcg() % 0x30), y0 = variant % 7 == 3 ? -(int)(lcg() % 20) : (int)(lcg() % 400);
+    int rest = variant % 5 == 2 ? 16 * (int)(lcg() % 14) : (int)(lcg() % 224);   /* the camera above the first row: no partial row when a multiple of 16 */
+    int32_t start = (int32_t)(((lcg() % 0x300) << 16) | (lcg() & 0xffff)), diff = (int32_t)(((lcg() % 0x30) << 16) | (lcg() & 0xffff));
+    int f4c;
+    memset(x, 0, sizeof *x);
+    if (y0 < 0 && rest < 32) rest += 32;                                            /* keep the partial row inside the map's memory */
+    f4c = floordiv(y0, 16) * 16 + rest;
+    x->game_scroll_y = (unsigned)gs;
+    x->scroll_y = (int32_t)(0x100000 - ((y0 + gs) << 16) - (int)(lcg() & 0xffff));  /* pos >> 16 is y0 + gs */
+    x->blank = variant % 4 == 1 ? (lcg() & 0xffffu) : lcg() % 6;
+    x->ot_index = 1 + lcg() % 28;
+    x->buffer = lcg() & 1;
+    x->v[0] = start;
+    x->v[1] = variant % 6 == 4 ? start - diff : start + diff;
+    x->v[3] = f4c - (int)(lcg() % 100);
+    x->v[4] = x->v[3] + 1 + (int)(lcg() % 300);
+    x->v[5] = f4c;
+}
+
+/* the skewed form: the camera's y in 0..99 (the C draws 15 less its sixteenth rows, from the map's first rows), offsets of up to
+ * a few hundred pixels from the row's perspective */
+static void make_skewed_fixture(struct fixture *x, unsigned variant)
+{
+    uint32_t bound_b;
+    int delta;
+    memset(x, 0, sizeof *x);
+    x->scroll_x = lcg() & 0xffffu;
+    bound_b = (x->scroll_x << 16) | (lcg() & 0xffffu);
+    delta = variant % 2 ? (int)(((lcg() % 0xa0) - 0x50) << 16) + (int)(lcg() & 0xffff)      /* offsets of hundreds of pixels: quads reach past the 44 cells */
+                         : (int)(((lcg() % 0x30) - 0x10) << 16) + (int)(lcg() & 0xffff);
+    x->v[1] = (int32_t)(bound_b & 0xffffu);
+    x->v[0] = (int32_t)(bound_b - (uint32_t)delta);
+    x->v[2] = (int)(lcg() % 13) - 6;
+    x->v[3] = (int)(lcg() % 100);
+    x->v[4] = x->v[3] + (variant % 5 == 3 ? -(60 + (int)(lcg() % 200)) : 60 + (int)(lcg() % 200));
+    x->v[5] = (int)(lcg() % 100);
+    x->blank = variant % 4 == 1 ? (lcg() & 0xffffu) : lcg() % 6;
+    x->ot_index = 1 + lcg() % 28;
+    x->buffer = lcg() & 1;
+}
 
 static void make_fixtures(void)
 {
     unsigned i;
     /* by hand: the edges of the arithmetic. scroll_y 0x100000 and game scroll_y 0 put the layer's row 0 at the top. */
     static const struct fixture edge[] = {
-        { 0x0000, 0x00100000, 0,    0x0000, 3, 0 },   /* origin, blank 0 */
-        { 0x0003, 0x00100000, 0,    0x0001, 5, 1 },   /* a few pixels in */
-        { 0x03f5, 0x00100000, 0,    0x0002, 7, 0 },   /* the map wraps to the left inside the 25 columns */
-        { 0xfff5, 0x000f8000, 0x10, 0x0003, 9, 1 },   /* negative scroll_x as a s16; y above the map */
-        { 0x01ff, 0x00080000, 0x00, 0x8123, 11, 0 },  /* a blank with the high bit: the 16 px layer 0 compares the u16 cell with the s16 blank */
-        { 0x0080, 0x00300000, 0x08, 0x0004, 13, 1 },  /* rows near the bottom of the map */
-        { 0x0100, 0x000c0000, 0x40, 0x0005, 15, 0 },  /* rows partly above, partly in the map (y negative) */
-        { 0x0213, 0x7fff0000, 0x00, 0x0006, 17, 1 },  /* a big scroll_y */
-        { 0x000f, 0xfff00000u, 0xff, 0xffff, 19, 0 }, /* negative scroll_y; blank 0xffff */
-        { 0x03ff, 0x00104000, 0x01, 0x0007, 21, 1 },
+        { 0x0000, 0x00100000, 0,    0x0000, 3, 0, { 0 } },   /* origin, blank 0 */
+        { 0x0003, 0x00100000, 0,    0x0001, 5, 1, { 0 } },   /* a few pixels in */
+        { 0x03f5, 0x00100000, 0,    0x0002, 7, 0, { 0 } },   /* the map wraps to the left inside the 25 columns */
+        { 0xfff5, 0x000f8000, 0x10, 0x0003, 9, 1, { 0 } },   /* negative scroll_x as a s16; y above the map */
+        { 0x01ff, 0x00080000, 0x00, 0x8123, 11, 0, { 0 } },  /* a blank with the high bit: the 16 px layer 0 compares the u16 cell with the s16 blank */
+        { 0x0080, 0x00300000, 0x08, 0x0004, 13, 1, { 0 } },  /* rows near the bottom of the map */
+        { 0x0100, 0x000c0000, 0x40, 0x0005, 15, 0, { 0 } },  /* rows partly above, partly in the map (y negative) */
+        { 0x0213, 0x7fff0000, 0x00, 0x0006, 17, 1, { 0 } },  /* a big scroll_y */
+        { 0x000f, 0xfff00000u, 0xff, 0xffff, 19, 0, { 0 } }, /* negative scroll_y; blank 0xffff */
+        { 0x03ff, 0x00104000, 0x01, 0x0007, 21, 1, { 0 } },
     };
     fixture_count = 0;
-    for (i = 0; i < sizeof edge / sizeof edge[0]; i++) fixtures[fixture_count++] = edge[i];
+    for (i = 0; i < sizeof edge / sizeof edge[0]; i++) fixtures[0][fixture_count++] = edge[i];
     while (fixture_count < NFIX) {
         struct fixture x;
+        memset(&x, 0, sizeof x);
         x.scroll_x = lcg() & 0xffffu;
         x.scroll_y = (int32_t)(0x100000 - (int32_t)(lcg() % 0x300) * 0x10000 + (int32_t)(lcg() & 0xffff));
         x.game_scroll_y = lcg() % 0x30;
         x.blank = (lcg() % 3) ? 1 + lcg() % 9 : (lcg() & 0xffffu);
         x.ot_index = lcg() % 30;
         x.buffer = lcg() & 1;
-        fixtures[fixture_count++] = x;
+        fixtures[0][fixture_count++] = x;
+    }
+    memcpy(fixtures[1], fixtures[0], sizeof fixtures[0]);
+    memcpy(fixtures[2], fixtures[0], sizeof fixtures[0]);
+    for (i = 0; i < NFIX; i++) {
+        make_sprites_fixture(&fixtures[3][i], i);
+        make_skewed_fixture(&fixtures[4][i], i);
     }
 }
 
@@ -283,13 +384,13 @@ static int case_matches_c(const struct form *f, unsigned *packets)
 {
     unsigned i, total = 0;
     for (i = 0; i < fixture_count; i++) {
-        const struct fixture *x = &fixtures[i];
+        const struct fixture *x = fix(f, i);
         unsigned d;
         init_pool(f, 0x00808080u | (f->code << 24));
         set_layer(f, x);
         f->game_c();
-        harvest(f, x->ot_index, &from_c);
-        run_maker(f, x, 0, f->shape->cols, &from_maker);
+        harvest(f, entry_of(f, x), &from_c);
+        run_maker(f, x, C_LO(f), C_HI(f), &from_maker);
         d = compare(&from_c, &from_maker, (unsigned)f->shape->words);
         if (d) return BAD("fixture %u: packet %u differs (C made %u, the maker %u)", i, d - 1, from_c.n, from_maker.n);
         total += from_c.n;
@@ -302,7 +403,11 @@ static int case_matches_c(const struct form *f, unsigned *packets)
 static int floordiv(int a, int b) { int q = a / b; return (a % b != 0 && ((a < 0) != (b < 0))) ? q - 1 : q; }
 static int floormod(int a, int b) { return a - floordiv(a, b) * b; }
 
-static void expect_columns(const struct form *f, const struct fixture *x, int k0, int k1, struct packets *out)
+/* One cell of the logical map as the packet words: the packet starts as the pool's first record. */
+static uint32_t pack_xy(int x, int y) { return (uint32_t)(uint16_t)x | ((uint32_t)(uint16_t)y << 16); }
+
+/* The plain forms' cells: rows of the C's own count from the layer's scroll. */
+static void expect_flat(const struct form *f, const struct fixture *x, int k0, int k1, struct packets *out)
 {
     const int size = 1 << f->shape->shift, rows_c = f->shape->rows;
     const int b = (int16_t)x->blank;
@@ -328,35 +433,152 @@ static void expect_columns(const struct form *f, const struct fixture *x, int k0
             if (skip) continue;
             p = &out->p[out->n++];
             memset(p, 0, sizeof *p);
-            p->entry = (int)x->ot_index;
+            p->entry = (int)entry_of(f, x);
             memcpy(p->w, rec + 1, (unsigned)f->shape->words * 4);
             p->w[0] = 0xe1000000u + (uint32_t)floordiv(tile_s, 1024);
-            p->w[4] = (uint32_t)(uint16_t)(k * size - sx) | ((uint32_t)(uint16_t)(i * size - sy) << 16);
+            p->w[4] = pack_xy(k * size - sx, i * size - sy);
             p->w[5] = (uint32_t)((tile & 31) * 8) | (uint32_t)(((tile >> 5) & 31) * 8) << 8 | (uint32_t)clut << 16;
         }
     }
 }
 
+/* The sprite form: the x position and the row count come from the camera (a position between two ends), then one partial row. */
+static void expect_sprites(const struct form *f, const struct fixture *x, int k0, int k1, struct packets *out)
+{
+    const int b = (int16_t)x->blank, f4c = x->v[5];
+    int64_t diff = (int32_t)((uint32_t)x->v[1] - (uint32_t)x->v[0]);
+    int64_t q = diff * (int64_t)(f4c - x->v[3]) / (int64_t)(x->v[4] - x->v[3]);
+    int x12 = (int)floordiv((int)(q + (int64_t)x->v[0]), 65536);
+    int32_t pos = (int32_t)(0x100000u - (uint32_t)x->scroll_y);
+    int y = (int16_t)(floordiv(pos, 65536) - (int)x->game_scroll_y);
+    int sx = floormod(x12, 16), sy = floormod(y, 16), row0 = floordiv(y, 16), col0 = floordiv(x12, 16);
+    int n = (int16_t)((uint32_t)(f4c - 16 * floordiv(y, 16)) >> 4), i, k;
+    const uint32_t *rec = first_record(f, x->buffer);
+    out->n = 0;
+    for (i = 0; i <= (n > 0 ? n : 0); i++) {
+        int row = row0 + i;
+        if (i < n ? (row < 0 || row > (int)cells_down) : !(f4c & 15)) continue;       /* the C's rows; the partial row has no bounds */
+        for (k = k0; k < k1; k++) {
+            unsigned col = (unsigned)floormod(col0 + k, (int)cells_across);
+            unsigned tile = row < (int)cells_down ? logical_tile(col, (unsigned)row) : 0;
+            unsigned clut = row < (int)cells_down ? logical_clut(col, (unsigned)row) : 0;
+            int tile_s = (int16_t)tile;
+            struct packet *p;
+            if (tile_s == b) continue;
+            p = &out->p[out->n++];
+            memset(p, 0, sizeof *p);
+            p->entry = (int)entry_of(f, x);
+            memcpy(p->w, rec + 1, (unsigned)f->shape->words * 4);
+            p->w[0] = 0xe1000000u + (uint32_t)floordiv(tile_s, 1024);
+            p->w[4] = pack_xy(k * 16 - sx, i * 16 - sy);
+            p->w[5] = (uint32_t)((tile & 31) * 8) | (uint32_t)(((tile >> 5) & 31) * 8) << 8 | (uint32_t)clut << 16;
+        }
+    }
+}
+
+/* The skewed form: 44 cells a row from k = -11, each a quad with the row's x offsets; `visible`: only the quads that reach into x -128..512. */
+static void expect_skewed(const struct form *f, const struct fixture *x, int k0, int k1, int visible, struct packets *out)
+{
+    const int b = (int16_t)x->blank, n = x->v[2], f4c = x->v[5];
+    const int y = (uint16_t)(f4c - n), d1 = (int16_t)(x->v[3] - n), d2 = (int16_t)(x->v[4] - x->v[3]);
+    const int f12 = (int16_t)x->scroll_x, sx = floormod(f12 - 0xb0, 16), sy = y & 15;
+    const uint32_t bound_b = ((uint32_t)(x->scroll_x & 0xffffu) << 16) | ((uint32_t)x->v[1] & 0xffffu);
+    const int64_t a = (int32_t)(bound_b - (uint32_t)x->v[0]);
+    const int col0 = floormod(floordiv(f12 - 0xb0, 16), (int)cells_across);
+    const int row0 = f4c / 16, sy2 = (uint16_t)(f4c - row0 * 16), i0 = (int16_t)y / 16, lim = i0 + 15 - f4c / 16;
+    const uint32_t *rec = first_record(f, x->buffer);
+    int i, k;
+    out->n = 0;
+    for (i = i0; i < lim; i++) {
+        const int first = i == i0, ya = sy + 16 * i, yu = (uint16_t)ya, row = row0 + (i - i0);
+        const int32_t m1 = (int32_t)(a * (first ? yu - d1 : yu - (int16_t)sy2 - d1));    /* wrapped to 32 bits */
+        const int32_t m0 = (int32_t)(a * (yu - ((int16_t)sy2 - 16) - d1));
+        const int s1 = (int32_t)(a - m1 / d2), s0 = (int32_t)(a - m0 / d2);
+        for (k = k0; k < k1; k++) {
+            unsigned col = (unsigned)floormod(col0 + (k + 11), (int)cells_across);
+            unsigned tile = row < (int)cells_down ? logical_tile(col, (unsigned)row) : 0;
+            unsigned clut = row < (int)cells_down ? logical_clut(col, (unsigned)row) : 0;
+            int tile_s = (int16_t)tile, u = (int)tile * 8, v = (tile_s >> 2) & -16;
+            int x0 = (int16_t)(k * 16 - sx + floordiv(s1, 65536)), x2 = (int16_t)(k * 16 - sx + floordiv(s0, 65536));
+            int x1 = (int16_t)(x0 + 16), x3 = (int16_t)(x2 + 16), y0, y2, v0;
+            struct packet *p;
+            if (tile_s == b) continue;
+            if (visible && !((x1 > x3 ? x1 : x3) > -128 && (x0 < x2 ? x0 : x2) < 512)) continue;
+            if (first) { y0 = (int16_t)yu; y2 = (int16_t)(ya + 16 - sy2); v0 = (sy2 + v) & 0xff; }
+            else { y0 = (int16_t)(ya - sy2); y2 = (int16_t)(y0 + 16); v0 = v & 0xff; }
+            p = &out->p[out->n++];
+            memset(p, 0, sizeof *p);
+            p->entry = (int)entry_of(f, x);
+            memcpy(p->w, rec + 1, (unsigned)f->shape->words * 4);
+            p->w[1] = pack_xy(x0, y0);
+            p->w[2] = (uint32_t)(u & 0xff) | (uint32_t)v0 << 8 | (uint32_t)clut << 16;
+            p->w[3] = pack_xy(x1, y0);
+            p->w[4] = (uint32_t)((u + 15) & 0xff) | (uint32_t)v0 << 8 | (uint32_t)(uint16_t)floordiv(tile_s, 1024) << 16;
+            p->w[5] = pack_xy(x2, y2);
+            p->w[6] = (rec[7] & 0xffff0000u) | (uint32_t)(u & 0xff) | (uint32_t)((v | 15) & 0xff) << 8;
+            p->w[7] = pack_xy(x3, y2);
+            p->w[8] = (rec[9] & 0xffff0000u) | (uint32_t)((u + 15) & 0xff) | (uint32_t)((v | 15) & 0xff) << 8;
+        }
+    }
+}
+
+static void expect_columns(const struct form *f, const struct fixture *x, int k0, int k1, int visible, struct packets *out)
+{
+    switch (KIND(f)) {
+    case PORT_WIDE_SPRITES: expect_sprites(f, x, k0, k1, out); break;
+    case PORT_WIDE_SKEWED: expect_skewed(f, x, k0, k1, visible, out); break;
+    default: expect_flat(f, x, k0, k1, out);
+    }
+}
+
+static void append(struct packets *dst, const struct packets *src)
+{
+    unsigned i;
+    for (i = 0; i < src->n && dst->n < MAX_PACKETS; i++) dst->p[dst->n++] = src->p[i];
+}
+
+static struct packets whole_maker, whole_expected, side_a;
+
 static int case_sides(const struct form *f, unsigned *packets)
 {
     unsigned i, total = 0;
+    const int skewed = KIND(f) == PORT_WIDE_SKEWED;
     for (i = 0; i < fixture_count; i++) {
-        const struct fixture *x = &fixtures[i];
+        const struct fixture *x = fix(f, i);
         int kl, kr, side;
+        unsigned d;
         init_pool(f, 0x00808080u | (f->code << 24));
         set_layer(f, x);
         f->game_c();
-        port_wide_side_range(f->shape, layer_of(f), &kl, &kr);
-        if (kl >= 0 || kr <= f->shape->cols) return BAD("fixture %u: side range %d..%d", i, kl, kr);
-        for (side = 0; side < 2; side++) {
-            int k0 = side ? f->shape->cols : kl, k1 = side ? kr : 0;
-            unsigned d;
-            run_maker(f, x, k0, k1, &from_maker);
-            expect_columns(f, x, k0, k1, &expected);
-            d = compare(&from_maker, &expected, (unsigned)f->shape->words);
-            if (d) return BAD("fixture %u, k %d..%d: packet %u differs (maker %u, expected %u)", i, k0, k1 - 1, d - 1, from_maker.n, expected.n);
-            total += from_maker.n;
+        if (skewed) {
+            kl = C_LO(f) - PORT_WIDE_SKEW_EXTRA;
+            kr = C_HI(f) + PORT_WIDE_SKEW_EXTRA;
+            /* the extra columns reach far enough: no quad of the next eight columns is in the view */
+            expect_columns(f, x, kl - 8, kl, 1, &expected);
+            if (expected.n) return BAD("fixture %u: %u visible quads left of the extra columns", i, expected.n);
+            expect_columns(f, x, kr, kr + 8, 1, &expected);
+            if (expected.n) return BAD("fixture %u: %u visible quads right of the extra columns", i, expected.n);
+        } else {
+            port_wide_side_range(f->shape, layer_of(f), &kl, &kr);
+            if (kl >= C_LO(f) || kr <= C_HI(f)) return BAD("fixture %u: side range %d..%d", i, kl, kr);
+            for (side = 0; side < 2; side++) {
+                int k0 = side ? C_HI(f) : kl, k1 = side ? kr : C_LO(f);
+                run_maker(f, x, k0, k1, &from_maker);
+                expect_columns(f, x, k0, k1, 0, &expected);
+                d = compare(&from_maker, &expected, (unsigned)f->shape->words);
+                if (d) return BAD("fixture %u, k %d..%d: packet %u differs (maker %u, expected %u)", i, k0, k1 - 1, d - 1, from_maker.n, expected.n);
+            }
         }
+        /* what the override queues, port_wide_sides: the left columns, then the right ones */
+        expect_columns(f, x, kl, C_LO(f), skewed, &whole_expected);
+        expect_columns(f, x, C_HI(f), kr, skewed, &side_a);
+        append(&whole_expected, &side_a);
+        sink = &whole_maker;
+        whole_maker.n = 0;
+        port_wide_sides(f->shape, layer_of(f), map_of(), MAP_BYTES, x->game_scroll_y, first_record(f, x->buffer), sink_emit);
+        d = compare(&whole_maker, &whole_expected, (unsigned)f->shape->words);
+        if (d) return BAD("fixture %u: port_wide_sides packet %u differs (maker %u, expected %u)", i, d - 1, whole_maker.n, whole_expected.n);
+        total += whole_maker.n;
     }
     *packets = total;
     return total != 0 ? 1 : BAD("no side tiles in any fixture");
@@ -367,13 +589,13 @@ static int case_expect_in_c_range(const struct form *f)
 {
     unsigned i;
     for (i = 0; i < fixture_count; i++) {
-        const struct fixture *x = &fixtures[i];
+        const struct fixture *x = fix(f, i);
         unsigned d;
         init_pool(f, 0x00808080u | (f->code << 24));
         set_layer(f, x);
         f->game_c();
-        harvest(f, x->ot_index, &from_c);
-        expect_columns(f, x, 0, f->shape->cols, &expected);
+        harvest(f, entry_of(f, x), &from_c);
+        expect_columns(f, x, C_LO(f), C_HI(f), 0, &expected);
         d = compare(&from_c, &expected, (unsigned)f->shape->words);
         if (d) return BAD("fixture %u: packet %u differs (C %u, expected %u)", i, d - 1, from_c.n, expected.n);
     }
@@ -385,12 +607,19 @@ static int case_range(void)
 {
     unsigned fi;
     int sx;
-    for (fi = 0; fi < 3; fi++) {
+    for (fi = 0; fi < NFORMS; fi++) {
         const struct form *f = &forms[fi];
         int size = 1 << f->shape->shift;
+        if (KIND(f) == PORT_WIDE_SKEWED) continue;          /* its sides are per row (case_sides) */
         for (sx = 0; sx < size; sx++) {
-            struct fixture x = { (unsigned)sx + 0x40u, 0x00100000, 0, 1, 3, 0 };
+            struct fixture x = { (unsigned)sx + 0x40u, 0x00100000, 0, 1, 3, 0, { 0 } };
             int kl, kr;
+            if (KIND(f) == PORT_WIDE_SPRITES) {              /* x12 = start >> 16 when the camera is at the range's start */
+                memset(&x, 0, sizeof x);
+                x.scroll_y = 0x00100000; x.blank = 1; x.ot_index = 3;
+                x.v[0] = x.v[1] = (int32_t)((sx + 0x40) << 16);
+                x.v[4] = 1;
+            }
             set_layer(f, &x);
             port_wide_side_range(f->shape, layer_of(f), &kl, &kr);
             /* the first column kept reaches into the view, the one beyond does not */
@@ -407,33 +636,42 @@ static int case_range(void)
 static int case_static_words(void)
 {
     unsigned fi;
-    for (fi = 0; fi < 3; fi++) {
+    for (fi = 0; fi < NFORMS; fi++) {
         const struct form *f = &forms[fi];
-        struct fixture x = { 0x0123, 0x00100000, 0, 1, 12, 1 };
+        struct fixture x = *fix(f, 0);
         uint32_t a = f->pool + 1 * f->count * record_words(f) * 4;   /* pool[1][0] */
-        unsigned i;
+        /* the packet words the C never writes: whole words, or the half of a word that the C leaves */
+        int skewed = KIND(f) == PORT_WIDE_SKEWED;
+        unsigned words[4] = { 1, 2, 3, 6 }, count = f->shape->words == 7 ? 4 : 3, i, j;
+        uint32_t masks[4] = { 0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu };
+        int k0, k1;
+        if (skewed) { words[0] = 0; words[1] = 6; words[2] = 8; masks[1] = masks[2] = 0xffff0000u; count = 3; }
+        x.buffer = 1;
+        x.ot_index = 12;
         init_pool(f, 0x00808080u | (f->code << 24));
         set_layer(f, &x);
-        wr32(a + 8, 0xe2000abcu);                                     /* the texture window word */
-        wr32(a + 16, (f->code << 24) | 0x00112233u);                  /* colour and code */
-        if (f->shape->words == 7) wr32(a + 28, 0x00400040u);          /* the wide record's size */
-        run_maker(f, &x, -3, 0, &from_maker);
+        for (j = 0; j < (unsigned)f->shape->words; j++) wr32(a + 4 + 4 * j, 0x5a000000u + (j + 1) * 0x010101u);   /* packet word j of pool[1][0] */
+        k0 = skewed ? C_LO(f) : C_LO(f) - 3;
+        k1 = skewed ? C_LO(f) + 8 : C_LO(f);
+        run_maker(f, &x, k0, k1, &from_maker);
         if (!from_maker.n) return BAD("%s: nothing made", f->tag);
         for (i = 0; i < from_maker.n; i++) {
-            const uint32_t *w = from_maker.p[i].w;
-            if (w[1] != 0xe2000abcu || w[2] != (f->shape->words == 6 ? 0x03000000u : 0x04000000u) || w[3] != ((f->code << 24) | 0x00112233u))
-                return BAD("%s: packet %u does not carry the first record's words (%08x %08x %08x)", f->tag, i, w[1], w[2], w[3]);
-            if (f->shape->words == 7 && w[6] != 0x00400040u) return BAD("%s: packet %u lost the sprite's size", f->tag, i);
-            if (from_maker.p[i].entry != 12) return BAD("%s: packet %u for entry %d", f->tag, i, from_maker.p[i].entry);
+            for (j = 0; j < count; j++) {
+                uint32_t want = rd32a(a + 4 + 4 * words[j]);
+                if ((from_maker.p[i].w[words[j]] & masks[j]) != (want & masks[j]))
+                    return BAD("%s: packet %u word %u is %08x, the first record has %08x", f->tag, i, words[j], from_maker.p[i].w[words[j]], want);
+            }
+            if (from_maker.p[i].entry != (int)entry_of(f, &x)) return BAD("%s: packet %u for entry %d", f->tag, i, from_maker.p[i].entry);
         }
         /* the buffer 0 record is not the template when the draw buffer is 1 */
         x.buffer = 0;
-        run_maker(f, &x, -3, 0, &from_maker);
-        if (from_maker.n && from_maker.p[0].w[1] == 0xe2000abcu) return BAD("%s: took the other buffer's record", f->tag);
+        run_maker(f, &x, k0, k1, &from_maker);
+        if (from_maker.n && from_maker.p[0].w[words[0]] == rd32a(a + 4 + 4 * words[0]))
+            return BAD("%s: took the other buffer's record", f->tag);
         /* a pool the init has not filled (tag length 0) gives nothing */
         wr32(f->pool, 0);
         x.buffer = 0;
-        if (run_maker(f, &x, -3, 0, &from_maker) != 0) return BAD("%s: made packets from an empty pool", f->tag);
+        if (run_maker(f, &x, k0, k1, &from_maker) != 0) return BAD("%s: made packets from an empty pool", f->tag);
     }
     return 1;
 }
@@ -442,7 +680,7 @@ static int case_static_words(void)
 static int case_limits(void)
 {
     const struct form *f = &forms[1];
-    struct fixture x = { 0x0100, 0x00100000, 0, 1, 4, 0 };
+    struct fixture x = { 0x0100, 0x00100000, 0, 1, 4, 0, { 0 } };
     unsigned all, some;
     init_pool(f, 0x00808080u | (f->code << 24));
     set_layer(f, &x);
@@ -454,53 +692,70 @@ static int case_limits(void)
     return 1;
 }
 
+static unsigned refused_seen;
 static int refuse_third(int entry, const uint32_t *words, unsigned len)
 {
-    static unsigned n;
     (void)entry; (void)words; (void)len;
-    return ++n >= 3 ? -1 : 0;
+    return ++refused_seen >= 3 ? -1 : 0;
 }
 
 static int case_emit_refused(void)
 {
-    const struct form *f = &forms[1];
-    struct fixture x = { 0x0100, 0x00100000, 0, 1, 4, 0 };
-    unsigned made;
-    init_pool(f, 0x00808080u | (f->code << 24));
-    set_layer(f, &x);
-    made = port_wide_columns(f->shape, layer_of(f), map_of(), MAP_BYTES, 0, first_record(f, 0), 25, 33, refuse_third);
-    return made == 2 ? 1 : BAD("expected 2 packets before the refusal, got %u", made);
+    unsigned fi;
+    for (fi = 1; fi < NFORMS; fi += 3) {       /* the 16 px layer 1 and the skewed form */
+        const struct form *f = &forms[fi];
+        const struct fixture *x = fix(f, 20);
+        unsigned made;
+        init_pool(f, 0x00808080u | (f->code << 24));
+        set_layer(f, x);
+        refused_seen = 0;
+        made = port_wide_columns(f->shape, layer_of(f), map_of(), MAP_BYTES, x->game_scroll_y, first_record(f, x->buffer), C_LO(f), C_HI(f), refuse_third);
+        if (made != 2) return BAD("%s: expected 2 packets before the refusal, got %u", f->tag, made);
+    }
+    return 1;
 }
 
 /* ---- negative controls: the comparison must fail for a wrong column and for a wrong word ---- */
 static int case_negative_control(const struct form *f)
 {
-    struct fixture x = { 0x0123, 0x00100000, 0x03, 5, 4, 0 };
-    unsigned d, k;
-    init_pool(f, 0x00808080u | (f->code << 24));
-    set_layer(f, &x);
-    f->game_c();
-    harvest(f, x.ot_index, &from_c);
-    if (from_c.n < 20) return BAD("%s: too little drawn to test (%u)", f->tag, from_c.n);
+    const struct fixture *x = NULL;
+    unsigned d, k, i;
+    static const unsigned flat_words[3] = { 0, 4, 5 }, skew_words[4] = { 1, 2, 4, 5 };
+    const unsigned *words = KIND(f) == PORT_WIDE_SKEWED ? skew_words : flat_words;
+    const unsigned nwords = KIND(f) == PORT_WIDE_SKEWED ? 4 : 3;
+    for (i = 10; i < fixture_count && !x; i++) {          /* the first fixture in which the C draws something worth comparing */
+        init_pool(f, 0x00808080u | (f->code << 24));
+        set_layer(f, fix(f, i));
+        f->game_c();
+        harvest(f, entry_of(f, fix(f, i)), &from_c);
+        if (from_c.n >= 20) x = fix(f, i);
+    }
+    if (!x) return BAD("%s: the C never drew enough to test", f->tag);
     /* a column off by one */
-    run_maker(f, &x, 1, f->shape->cols + 1, &from_maker);
+    run_maker(f, x, C_LO(f) + 1, C_HI(f) + 1, &from_maker);
     if (!compare(&from_c, &from_maker, (unsigned)f->shape->words)) return BAD("%s: the shifted columns were accepted", f->tag);
     /* the C's own columns but one packet with a wrong word, each word that varies */
-    for (k = 0; k < 3; k++) {
-        static const unsigned word[3] = { 0, 4, 5 };
-        run_maker(f, &x, 0, f->shape->cols, &from_maker);
-        from_maker.p[from_maker.n / 2].w[word[k]] ^= 0x10u;
+    for (k = 0; k < nwords; k++) {
+        run_maker(f, x, C_LO(f), C_HI(f), &from_maker);
+        from_maker.p[from_maker.n / 2].w[words[k]] ^= 0x10u;
         d = compare(&from_c, &from_maker, (unsigned)f->shape->words);
-        if (d != from_maker.n / 2 + 1) return BAD("%s: a changed word %u was not found at its packet (%u)", f->tag, word[k], d);
+        if (d != from_maker.n / 2 + 1) return BAD("%s: a changed word %u was not found at its packet (%u)", f->tag, words[k], d);
     }
-    /* the other layers' record geometry: a wrong shape (the 32 px maker on the 16 px layer) differs */
+    /* a wrong shape: the 32 px maker on a 16 px layer, the plain maker on the sprite and skewed layers */
     if (f->shape != &port_wide_shape_T32) {
         struct port_wide_shape wrong = *f->shape;
-        wrong.shift = 5;
+        if (KIND(f) == PORT_WIDE_FLAT) wrong.shift = 5; else wrong.kind = PORT_WIDE_FLAT;
         sink = &from_maker;
         from_maker.n = 0;
-        port_wide_columns(&wrong, layer_of(f), map_of(), MAP_BYTES, x.game_scroll_y, first_record(f, 0), 0, f->shape->cols, sink_emit);
+        port_wide_columns(&wrong, layer_of(f), map_of(), MAP_BYTES, x->game_scroll_y, first_record(f, x->buffer), C_LO(f), C_HI(f), sink_emit);
         if (!compare(&from_c, &from_maker, (unsigned)f->shape->words)) return BAD("%s: a wrong shape was accepted", f->tag);
+    }
+    /* a wrong game scroll_y moves the rows */
+    if (KIND(f) != PORT_WIDE_SKEWED) {
+        sink = &from_maker;
+        from_maker.n = 0;
+        port_wide_columns(f->shape, layer_of(f), map_of(), MAP_BYTES, x->game_scroll_y + 16, first_record(f, x->buffer), C_LO(f), C_HI(f), sink_emit);
+        if (!compare(&from_c, &from_maker, (unsigned)f->shape->words)) return BAD("%s: a wrong scroll_y was accepted", f->tag);
     }
     return 1;
 }
@@ -508,7 +763,7 @@ static int case_negative_control(const struct form *f)
 /* the blank with the high bit: layer 0 draws every cell, the other two skip the blank cells */
 static int case_blank_forms(void)
 {
-    struct fixture x = { 0x0000, 0x00100000, 0, 0x8123, 4, 0 };
+    struct fixture x = { 0x0000, 0x00100000, 0, 0x8123, 4, 0, { 0 } };
     unsigned counts[3], fi;
     for (fi = 0; fi < 3; fi++) {
         const struct form *f = &forms[fi];
@@ -536,35 +791,40 @@ static int case_override_wiring(void)
 {
     /* widescreen, arcade_video, whether packets are expected: the side tiles need both settings */
     static const int settings[4][3] = { { 0, 0, 0 }, { 0, 1, 0 }, { 1, 0, 0 }, { 1, 1, 1 } };
-    unsigned fi, s;
-    for (fi = 0; fi < 3; fi++) {
+    static const char *const names[NFORMS] = { "draw_tile_layer_0_16px_slot06_00", "draw_tile_layer_1_16px_slot06_00", "draw_tilemap_layer_32px_9x13_slot06_00",
+                                               "draw_tile_layer_sprites_with_partial_row_slot06_04", "draw_skewed_tile_layer_quads_slot06_04" };
+    unsigned fi, s, j;
+    for (fi = 0; fi < NFORMS; fi++) {
         const struct form *f = &forms[fi];
-        const char *name = fi == 0 ? "draw_tile_layer_0_16px_slot06_00" : fi == 1 ? "draw_tile_layer_1_16px_slot06_00" : "draw_tilemap_layer_32px_9x13_slot06_00";
+        const char *name = names[fi];
         void (*run)(void) = override_of(name);
-        struct fixture x = { 0x0153, 0x00108000, 0x02, 3, 6, 1 };
+        const struct fixture *x = fix(f, 12);
         if (!run) return BAD("%s: no override", name);
         for (s = 0; s < 4; s++) {
-            int kl, kr;
-            unsigned n;
+            unsigned d;
             port_settings.widescreen = settings[s][0];
             port_settings.arcade_video = settings[s][1];
             init_pool(f, 0x00808080u | (f->code << 24));
-            set_layer(f, &x);
+            set_layer(f, x);
             queued_count = 0;
             run();
-            harvest(f, x.ot_index, &from_c);
+            harvest(f, entry_of(f, x), &from_c);
             if (from_c.n == 0) return BAD("%s: the game's C was not run (settings %u)", name, s);
             if (!settings[s][2]) {
                 if (queued_count) return BAD("%s: %u packets queued with widescreen %d, arcade_video %d", name, queued_count, settings[s][0], settings[s][1]);
                 continue;
             }
-            port_wide_side_range(f->shape, layer_of(f), &kl, &kr);
-            run_maker(f, &x, kl, 0, &from_maker);
-            n = from_maker.n;
-            run_maker(f, &x, f->shape->cols, kr, &from_maker);
-            if (n + from_maker.n == 0) return BAD("%s: the fixture has no side tiles", name);
-            if (queued_count != n + from_maker.n) return BAD("%s: %u packets queued, expected %u", name, queued_count, n + from_maker.n);
-            if (queued[0].entry != 6 || queued[0].len != (unsigned)f->shape->words) return BAD("%s: first packet for entry %d, %u words", name, queued[0].entry, queued[0].len);
+            sink = &from_maker;
+            from_maker.n = 0;
+            port_wide_sides(f->shape, layer_of(f), map_of(), MAP_BYTES, x->game_scroll_y, first_record(f, x->buffer), sink_emit);
+            if (from_maker.n == 0) return BAD("%s: the fixture has no side tiles", name);
+            if (queued_count != from_maker.n) return BAD("%s: %u packets queued, expected %u", name, queued_count, from_maker.n);
+            for (j = 0; j < queued_count; j++) {
+                if (queued[j].entry != from_maker.p[j].entry || queued[j].len != (unsigned)f->shape->words ||
+                    memcmp(queued[j].w, from_maker.p[j].w, queued[j].len * sizeof(uint32_t)))
+                    return BAD("%s: queued packet %u differs from the maker's", name, j);
+            }
+            (void)d;
         }
     }
     return 1;
@@ -587,7 +847,8 @@ static void print_table(void)
     unsigned i;
     for (i = 0; i < port_wide_copy_count; i++) {
         const struct port_wide_copy *c = &port_wide_copies[i];
-        const char *form = c->shape == &port_wide_shape_L0 ? "L0" : c->shape == &port_wide_shape_L1 ? "L1" : "T32";
+        const char *form = c->shape == &port_wide_shape_L0 ? "L0" : c->shape == &port_wide_shape_L1 ? "L1" : c->shape == &port_wide_shape_T32 ? "T32" :
+                           c->shape == &port_wide_shape_SPR ? "SPR" : "SKEW";
         printf("%s %s 0x%08x 0x%08x %u\n", c->name, form, c->layer, c->pool, c->count);
     }
 }
@@ -599,17 +860,17 @@ int main(int argc, char **argv)
     if (argc > 1 && !strcmp(argv[1], "table")) { print_table(); return 0; }
     if (!map_region()) { printf("FAIL setup: could not map the game's address range\n"); return 2; }
     make_fixtures();
-    for (fi = 0; fi < 3; fi++) {
+    for (fi = 0; fi < NFORMS; fi++) {
         snprintf(name, sizeof name, "maker_reproduces_c_%s", forms[fi].tag);
         packets = 0;
         report(name, case_matches_c(&forms[fi], &packets) ? NULL : why);
         if (!failures) printf("     (%u fixtures, %u packets of the game's C compared)\n", fixture_count, packets);
     }
-    for (fi = 0; fi < 3; fi++) {
+    for (fi = 0; fi < NFORMS; fi++) {
         snprintf(name, sizeof name, "expectation_reproduces_c_%s", forms[fi].tag);
         report(name, case_expect_in_c_range(&forms[fi]) ? NULL : why);
     }
-    for (fi = 0; fi < 3; fi++) {
+    for (fi = 0; fi < NFORMS; fi++) {
         snprintf(name, sizeof name, "side_columns_%s", forms[fi].tag);
         packets = 0;
         report(name, case_sides(&forms[fi], &packets) ? NULL : why);
@@ -620,7 +881,7 @@ int main(int argc, char **argv)
     report("blank_compare_per_form", case_blank_forms() ? NULL : why);
     report("map_limits", case_limits() ? NULL : why);
     report("emit_refused_stops_the_maker", case_emit_refused() ? NULL : why);
-    for (fi = 0; fi < 3; fi++) {
+    for (fi = 0; fi < NFORMS; fi++) {
         snprintf(name, sizeof name, "negative_control_%s", forms[fi].tag);
         report(name, case_negative_control(&forms[fi]) ? NULL : why);
     }

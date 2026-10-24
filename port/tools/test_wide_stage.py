@@ -1,10 +1,10 @@
 """Fast fixtures of widescreen's side tiles (port/src/wide_stage.c, port/tools/wide_stage_test.c; port/widescreen.md "The side tiles").
 No game, disc or window. Two parts:
 
- * a 32-bit program (the game's C holds 32-bit pointers) that links the game's own C of the stage ryu for the three forms with the
+ * a 32-bit program (the game's C holds 32-bit pointers) that links the game's own C of the stage ryu for the three plain forms and of chunli for the other two with the
    maker and compares their packets (built here with gcc -m32; the structs come from ps1/src/types.fields through structgen);
  * the table of stage copies in wide_stage.c against ps1/src: every copy exists with the declared pool, count and layer, no copy of
-   the three forms is missing, and the C of the copies of a form is the same up to names and addresses.
+   the five forms is missing, and the C of the copies of a form is the same up to names and addresses.
 
 Prints `ok   NAME` or `FAIL NAME: why` per case, then the summary line that the review reads.
 """
@@ -16,12 +16,18 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 STAGES = ROOT / 'ps1/src/overlays/stages'
-FORMS = {  # form tag -> (function prefix, Chan expression in the C, record type, layer index)
+FORMS = {  # form tag -> (function prefix, layer expression in the C, record type, layer index)
     'L0': ('draw_tile_layer_0_16px', 'background_layers', 'Slot06Tile', 0),
     'L1': ('draw_tile_layer_1_16px', '&background_layers[1]', 'Slot06Tile', 1),
     'T32': ('draw_tilemap_layer_32px_9x13', '&background_layers[2]', 'Slot06TileW', 2),
+    'SPR': ('draw_tile_layer_sprites_with_partial_row', '(Slot06Draw *)main_layer', 'Slot06Tile', 1),     # main_layer is background_layers[1]
+    'SKEW': ('draw_skewed_tile_layer_quads', '(Slot06Layer *)main_layer', 'Poly28', 1),
 }
-RYU = ['draw_tile_layer_0_16px_slot06_00', 'draw_tile_layer_1_16px_slot06_00', 'draw_tilemap_layer_32px_9x13_slot06_00']
+# the stage whose C is compiled for the comparison: ryu for the plain forms, chunli for the other two
+GAME_C = [('ryu', 'draw_tile_layer_0_16px_slot06_00'), ('ryu', 'draw_tile_layer_1_16px_slot06_00'),
+          ('ryu', 'draw_tilemap_layer_32px_9x13_slot06_00'), ('chunli', 'draw_tile_layer_sprites_with_partial_row_slot06_04'),
+          ('chunli', 'draw_skewed_tile_layer_quads_slot06_04')]
+COPIES = 13 + 6 + 13 + 10 + 10
 LAYERS = 0x801aa544
 CHAN_SIZE = 0x90
 CFLAGS = ['-m32', '-fno-pie', '-D_GNU_SOURCE', '-O1', '-Wall', '-Wextra', '-Werror']
@@ -52,9 +58,10 @@ def build_and_run(folder: Path) -> tuple[list[str], str]:
     header = folder / 'types.gen.h'
     subprocess.run([sys.executable, '-I', str(ROOT / 'ps1/tools/structgen.py'), 'generate', str(ROOT / 'ps1/src/types.fields'),
                     '-o', str(header)], check=True, timeout=60, capture_output=True)
-    game_c = [str(STAGES / 'ryu' / f'{name}.c') for name in RYU]
-    defsyms = ['game_state', 'background_layers', 'current_ordering_table', 'draw_buffer_index',
-               'data_801ec390_slot06_00', 'data_801edc80_slot06_00', 'data_801f1790_slot06_00']
+    game_c = [str(STAGES / stage / f'{name}.c') for stage, name in GAME_C]
+    defsyms = ['game_state', 'background_layers', 'main_layer', 'current_ordering_table', 'draw_buffer_index',
+               'data_801ec390_slot06_00', 'data_801edc80_slot06_00', 'data_801f1790_slot06_00',
+               'data_801f03c8_slot06_04', 'data_801f4ae0_slot06_04']
     link = [f'-Wl,--defsym={name}=0x{sym[name]:08x}' for name in defsyms]
     exe = folder / 'wide_stage_test'
     cmd = ['gcc', *CFLAGS, '-no-pie', '-I', str(folder), '-I', str(ROOT / 'port/src'),
@@ -84,13 +91,13 @@ def normalised(path: Path, stage: str) -> str:
 
 
 def source_copies() -> dict[str, dict]:
-    """Every copy of the three forms under ps1/src, from the C: name -> form, layer, pool, count, path."""
+    """Every copy of the five forms under ps1/src, from the C: name -> form, layer, pool, count, path."""
     found = {}
     for form, (prefix, chan, record, index) in FORMS.items():
         for path in sorted(STAGES.glob(f'*/{prefix}_slot06_??.c')):
             text = strip_c(path.read_text())
             pool = re.search(r'extern ' + record + r' data_([0-9a-f]{8})_slot06_([0-9a-f]{2})\[2\]\[(\w+)\];', text)
-            layer = re.search(r'Chan \*c = ([^;]+);', text)
+            layer = re.search(r'\w+ \*c = ([^;]+);', text)
             found[path.stem] = {'form': form, 'path': path, 'pool': int(pool.group(1), 16) if pool else None,
                                 'stage': pool.group(2) if pool else None, 'count': int(pool.group(3), 0) if pool else None,
                                 'chan': layer.group(1) if layer else None}
@@ -161,7 +168,7 @@ def main() -> int:
             print(line)
     table = parse_table(table_text)
     results.append(('table_matches_ps1_src', check_table(table)))
-    results.append(('table_has_every_copy', None if len(table) == 32 else f'{len(table)} copies in the table, 32 expected'))
+    results.append(('table_has_every_copy', None if len(table) == COPIES else f'{len(table)} copies in the table, {COPIES} expected'))
     results.append(('copies_of_a_form_are_the_same_c', check_identical()))
     bad = 0
     for name, why in results:

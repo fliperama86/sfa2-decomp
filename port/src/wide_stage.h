@@ -6,15 +6,22 @@
 
 #include <stdint.h>
 
-/* One of the three forms of the stages' layer functions (the C is the same in every copy of a form; the copies differ in the pool). */
+/* The five forms of the stages' layer functions (the C is the same in every copy of a form; the copies differ in the pool). Three are
+ * plain tile grids from a layer record (struct Chan): draw_tile_layer_0_16px, draw_tile_layer_1_16px, draw_tilemap_layer_32px_9x13.
+ * PORT_WIDE_SPRITES is draw_tile_layer_sprites_with_partial_row (sprites of 16 px cells, the second layer, a row count from the camera
+ * and a last partial row); PORT_WIDE_SKEWED is draw_skewed_tile_layer_quads (the second layer in perspective: 44 cells a row from
+ * k = -11, each a quad whose x is moved by an offset that depends on the row only). */
+enum { PORT_WIDE_FLAT = 0, PORT_WIDE_SPRITES, PORT_WIDE_SKEWED };
 struct port_wide_shape {
     int shift;           /* the cell is 1 << shift pixels: 4 or 5 */
     int rows, cols;      /* the cells the C draws: 16 x 25, or 9 x 13 */
     int words;           /* the packet's words after the tag (the record's tag length): 6, or 7 with the sprite's width and height */
     int unsigned_blank;  /* the C compares the u16 cell with the s16 blank as ints (draw_tile_layer_0_16px); else both as s16 */
     int row_inclusive;   /* the C skips a row when `rows < row` (the 32 px form), not `row >= rows` */
+    int kind;            /* PORT_WIDE_FLAT, PORT_WIDE_SPRITES or PORT_WIDE_SKEWED */
+    int k_first;         /* the C's first column: 0, or -11 for the skewed form (its cols = 44 columns run from there) */
 };
-extern const struct port_wide_shape port_wide_shape_L0, port_wide_shape_L1, port_wide_shape_T32;
+extern const struct port_wide_shape port_wide_shape_L0, port_wide_shape_L1, port_wide_shape_T32, port_wide_shape_SPR, port_wide_shape_SKEW;
 
 /* The layer record (struct Chan, 0x90 bytes) in the game's order; the maker reads these fields of it. */
 #define PORT_WIDE_CHAN_SIZE 0x90u
@@ -23,7 +30,8 @@ extern const struct port_wide_shape port_wide_shape_L0, port_wide_shape_L1, port
  * signature of port_gpu_queue_packet. */
 typedef int (*port_wide_emit)(int entry, const uint32_t *words, unsigned len);
 
-/* The packets of the columns k0 <= k < k1 (k = 0 is the C's first column, k < 0 left of it, k >= shape->cols right of the last), in the
+/* The packets of the columns k0 <= k < k1 (k = shape->k_first is the C's first column, smaller k left of it, k >= k_first + cols right of the
+ * last; for the skewed form every column asked for is made, visible or not), in the
  * C's order (row by row, then column), for the layer record `layer` (host pointer, PORT_WIDE_CHAN_SIZE bytes), its map `map` (the
  * bytes the layer's map_data points to, `map_bytes` of them; a cell past them is taken as blank), the game's scroll_y
  * (game_state.scroll_y) and the pool's first record `record` (shape->words + 1 words: the tag, whose length byte must equal
@@ -31,7 +39,19 @@ typedef int (*port_wide_emit)(int entry, const uint32_t *words, unsigned len);
 unsigned port_wide_columns(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
                            unsigned game_scroll_y, const uint32_t *record, int k0, int k1, port_wide_emit emit);
 
-/* The columns of the sides: k_left (<= -1) is the first column left of the C's that is visible in the wide view (screen x from -128 to
+/* The packets of the columns beside the C's that the wide view can show (what the override queues): for the plain and sprite forms the
+ * columns of port_wide_side_range; for the skewed form, per row, the cells outside k = -11..32 (at most PORT_WIDE_SKEW_EXTRA more each
+ * side) whose quad reaches into screen x -128..512. Returns the number of packets made. */
+#define PORT_WIDE_SKEW_EXTRA 24
+unsigned port_wide_sides(const struct port_wide_shape *shape, const uint8_t *layer, const uint8_t *map, uint32_t map_bytes,
+                         unsigned game_scroll_y, const uint32_t *record, port_wide_emit emit);
+
+/* How much of the map the maker reads for this layer: *preferred bytes (the whole map and, for the forms whose C reads one row past it, a
+ * block row more) and *minimum (what is needed); 0 in *minimum when the layer cannot be drawn. The caller maps that much of the game's
+ * memory and gives it as map_bytes. */
+void port_wide_map_bytes(const struct port_wide_shape *shape, const uint8_t *layer, unsigned game_scroll_y, uint32_t *preferred, uint32_t *minimum);
+
+/* The columns of the sides (plain and sprite forms): k_left (<= -1) is the first column left of the C's that is visible in the wide view (screen x from -128 to
  * 512 when the packet's cell reaches into it), k_right the first column right of the C's last that is not. */
 void port_wide_side_range(const struct port_wide_shape *shape, const uint8_t *layer, int *k_left, int *k_right);
 
