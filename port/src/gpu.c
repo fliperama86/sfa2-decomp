@@ -109,6 +109,7 @@ int port_gpu_set_filter(int filter) { return filter == PORT_FILTER_NEAREST ? 0 :
 int port_gpu_set_widescreen(int on) { return on ? -1 : 0; }
 int port_gpu_read_wide(uint16_t *pixels, int *w, int *h) { (void)pixels; (void)w; (void)h; return -1; }
 int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len) { (void)entry; (void)words; (void)len; return -1; }
+void port_gpu_queue_owner(uint32_t pool_lo, uint32_t pool_hi) { (void)pool_lo; (void)pool_hi; }
 void port_gpu_layer_view(uint32_t layer, uint32_t pool_lo, uint32_t pool_hi, int entry, int art_lo, int art_hi) { (void)layer; (void)pool_lo; (void)pool_hi; (void)entry; (void)art_lo; (void)art_hi; }
 int port_gpu_set_screen(int screen, int w, int h) { return screen == PORT_SCREEN_WINDOW && w == PORT_WINDOW_DEFAULT_W && h == PORT_WINDOW_DEFAULT_H ? 0 : -1; }
 int port_gpu_screen(void) { return PORT_SCREEN_WINDOW; }
@@ -736,10 +737,23 @@ static int wide_anchor(void)
     return a;
 }
 
-/* The host's packets, per entry of the ordering table, in the order they were queued; the words are copied. */
-static struct { uint32_t offset; uint16_t len; uint8_t entry; } queue_rec[QUEUE_WORDS];
+/* The host's packets, per entry of the ordering table, in the order they were queued; the words are copied. `owner` is 0 or the number
+ * (from 1) of the owner (port_gpu_queue_owner) they were queued under; `sent` is set when the walk has sent one. */
+#define QUEUE_OWNERS 64u
+static struct { uint32_t offset; uint16_t len; uint8_t entry, owner, sent; } queue_rec[QUEUE_WORDS];
 static uint32_t queue_pool[QUEUE_WORDS];
-static unsigned queue_recs, queue_used, queue_per_entry[QUEUE_ENTRIES];
+static unsigned queue_recs, queue_used, queue_per_entry[QUEUE_ENTRIES], queue_owned[QUEUE_ENTRIES];
+static struct { uint32_t lo, hi; } queue_owner_pool[QUEUE_OWNERS];
+static unsigned queue_owners, queue_owner_now;
+
+void port_gpu_queue_owner(uint32_t pool_lo, uint32_t pool_hi)
+{
+    queue_owner_now = 0;
+    if (pool_lo >= pool_hi || queue_owners >= QUEUE_OWNERS) return;   /* past 64 owners a frame: packets of no owner, at the tag */
+    queue_owner_pool[queue_owners].lo = pool_lo;
+    queue_owner_pool[queue_owners].hi = pool_hi;
+    queue_owner_now = ++queue_owners;
+}
 
 int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len)
 {
@@ -756,9 +770,12 @@ int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len)
     queue_rec[queue_recs].offset = queue_used;
     queue_rec[queue_recs].len = (uint16_t)len;
     queue_rec[queue_recs].entry = (uint8_t)entry;
+    queue_rec[queue_recs].owner = (uint8_t)queue_owner_now;
+    queue_rec[queue_recs].sent = 0;
     queue_recs++;
     queue_used += len;
-    queue_per_entry[entry]++;
+    if (queue_owner_now) queue_owned[entry]++;
+    else queue_per_entry[entry]++;
     return 0;
 }
 
@@ -947,22 +964,52 @@ static int layer_view_of_entry(int entry)
     return -1;
 }
 
-/* The walk is at the tag of entry `entry` (at `here`): its queued packets go first, once, with the anchor like the world's (the shift of the
- * plane that the entry belongs to, when there is one). */
+/* One queued packet sent, with the anchor like the world's (the shift of the plane that the entry belongs to, when there is one). */
+static void queue_send_one(unsigned i, uint32_t here, int anchor)
+{
+    unsigned effective = 0;
+    int v = layer_view_of_entry(queue_rec[i].entry), shift = anchor;
+    if (v >= 0) shift = layer_shift((unsigned)v, anchor);
+    queue_rec[i].sent = 1;
+    walk_payload(here, &queue_pool[queue_rec[i].offset], queue_rec[i].len, &effective);
+    if (effective) chunk_add(&queue_pool[queue_rec[i].offset], queue_rec[i].len, effective, shift, 0, 0, 1);
+}
+
+/* The walk is at the tag of entry `entry` (at `here`): its packets of no owner go first, once, in the order queued. */
 static void queue_send(int entry, uint32_t here, int anchor)
 {
     unsigned i;
-    int v, shift = anchor;
     if (entry < 0 || entry >= QUEUE_ENTRIES || !queue_per_entry[entry]) return;
-    v = layer_view_of_entry(entry);
-    if (v >= 0) shift = layer_shift((unsigned)v, anchor);
-    for (i = 0; i < queue_recs; i++) {
-        unsigned effective = 0;
-        if (queue_rec[i].entry != entry) continue;
-        walk_payload(here, &queue_pool[queue_rec[i].offset], queue_rec[i].len, &effective);
-        if (effective) chunk_add(&queue_pool[queue_rec[i].offset], queue_rec[i].len, effective, shift, 0, 0, 1);
-    }
+    for (i = 0; i < queue_recs; i++)
+        if (queue_rec[i].entry == entry && !queue_rec[i].owner && !queue_rec[i].sent) queue_send_one(i, here, anchor);
     queue_per_entry[entry] = 0;
+}
+
+/* The owned packets of entry `entry` not sent yet whose owner is `from` or newer, newest owner first and each owner's newest first: as
+ * the game's list has a layer linked later (port_gpu_queue_owner). */
+static void queue_send_owned(int entry, unsigned from, uint32_t here, int anchor)
+{
+    unsigned o, i;
+    if (entry < 0 || entry >= QUEUE_ENTRIES || !queue_owned[entry]) return;
+    for (o = queue_owners; o >= from && o >= 1; o--)
+        for (i = queue_recs; i-- > 0;)
+            if (queue_rec[i].owner == o && queue_rec[i].entry == entry && !queue_rec[i].sent) {
+                queue_send_one(i, here, anchor);
+                queue_owned[entry]--;
+            }
+}
+
+/* The walk is at a game packet at `here` of entry `entry`: when it lies in the pool of an owner that has packets left there, that owner's
+ * and every newer owner's go first. */
+static void queue_before_packet(int entry, uint32_t here, int anchor)
+{
+    unsigned o;
+    if (entry < 0 || entry >= QUEUE_ENTRIES || !queue_owned[entry]) return;
+    for (o = 1; o <= queue_owners; o++)
+        if (here >= queue_owner_pool[o - 1].lo && here < queue_owner_pool[o - 1].hi) {
+            queue_send_owned(entry, o, here, anchor);
+            return;
+        }
 }
 
 static void queue_clear(void)
@@ -970,6 +1017,9 @@ static void queue_clear(void)
     queue_recs = 0;
     queue_used = 0;
     memset(queue_per_entry, 0, sizeof queue_per_entry);
+    memset(queue_owned, 0, sizeof queue_owned);
+    queue_owners = 0;
+    queue_owner_now = 0;
     layer_views = 0;      /* the planes' views are for one walk too */
 }
 
@@ -996,11 +1046,13 @@ static void send_list(uint32_t *first)
         if (here + 4u + 4u * len > PORT_RAM_BASE + PORT_RAM_SIZE)
             stop("gpu: the packet at 0x%08x is %u words long and runs past the end of RAM", here, len);
         if (!len && port_video_ot_index(here)>=0) {
+            queue_send_owned(list_index, 1, here, anchor);   /* the end of the entry before: its owned packets left */
             list_index=port_video_ot_index(here);
             queue_send(list_index, here, anchor);
         }
         if (len) {
             unsigned effective = 0;
+            queue_before_packet(list_index, here, anchor);
             int plane=layer_views?layer_view_of_address(here):-1;
             int kind=plane<0&&(dx||anchor)?port_ui_packet_kind(here,node+1,len,list_index):0;
             int shift=kind?dx:anchor;
@@ -1018,7 +1070,10 @@ static void send_list(uint32_t *first)
                 chunk_add(halves, 18, 18, shift, 0, 0, !kind);
             else if (effective) chunk_add(node + 1, len, effective, shift, kind==2 && pixel_perfect_ui, level, !kind);
         }
-        if ((head & LINK_END) == LINK_END) break;
+        if ((head & LINK_END) == LINK_END) {
+            queue_send_owned(list_index, 1, here, anchor);
+            break;
+        }
         node = ram_at(head & LINK_END, here);
     }
     chunk_flush();

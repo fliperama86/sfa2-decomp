@@ -97,6 +97,46 @@ static void wide_cases(void)
         }
     }
     port_settings.wide_ends=PORT_WIDE_ANCHORED;   /* the rest of the cases are of the anchored view */
+    /* Owned packets (port_gpu_queue_owner) go where the game's list would have them had their layer linked them after its own: layer A
+     * linked its packet first and B after it (so B's is walked first); A queued two side cells, B one, C (no packet in the entry) one, and
+     * one of no owner. The walk: the ownerless at the tag, then C's and B's before B's packet (newest owner first), then A's newest first
+     * before A's packet. */
+    {
+        uint32_t ga[]={0x60aa00ff,1u<<16|10,8u<<16|8},gb[]={0x60bb00ff,2u<<16|10,8u<<16|8};
+        uint32_t sa[]={0x60a100ff,3u<<16|10,8u<<16|8},sa2[]={0x60a200ff,4u<<16|10,8u<<16|8},sb[]={0x60b100ff,5u<<16|10,8u<<16|8},sc[]={0x60c100ff,6u<<16|10,8u<<16|8};
+        static const uint32_t order[]={0x601111ff,0x60c100ff,0x60b100ff,0x60bb00ff,0x60a200ff,0x60a100ff,0x60aa00ff,0x603333ff};
+        wide_on=1;ui_canvas_active=1;center_ui=0;
+        clear_ot(base);fight_layer(0,0,0,512);
+        append(base,14,0x80100400,ga,3);
+        append(base,14,0x80100600,gb,3);
+        port_gpu_queue_owner(0x80100400,0x80100500);assert(!port_gpu_queue_packet(14,sa,3));assert(!port_gpu_queue_packet(14,sa2,3));
+        port_gpu_queue_owner(0x80100600,0x80100700);assert(!port_gpu_queue_packet(14,sb,3));
+        port_gpu_queue_owner(0x80100800,0x80100900);assert(!port_gpu_queue_packet(14,sc,3));
+        port_gpu_queue_owner(0,0);assert(!port_gpu_queue_packet(14,qa,3));assert(!port_gpu_queue_packet(13,qc,3));
+        captured_count=0;send_list(at(base+29*4));
+        assert(captured_count==8);
+        for(i=0;i<8;i++)assert(captured[i].words[0]==order[i]);
+        /* An owner whose pool has no packet in its entry: its cells at the entry's end, before the next entry's. */
+        clear_ot(base);
+        append(base,14,0x80100200,world,3);
+        append(base,13,0x80100240,qb,3);
+        port_gpu_queue_owner(0x80100400,0x80100500);assert(!port_gpu_queue_packet(14,sa,3));
+        port_gpu_queue_owner(0,0);
+        captured_count=0;send_list(at(base+29*4));
+        assert(captured_count==3 && captured[0].words[0]==world[0] && captured[1].words[0]==sa[0] && captured[2].words[0]==qb[0]);
+        /* ... and at the list's end, for the last entry (0). */
+        clear_ot(base);
+        port_gpu_queue_owner(0x80100400,0x80100500);assert(!port_gpu_queue_packet(0,sa,3));
+        port_gpu_queue_owner(0,0);
+        captured_count=0;send_list(at(base+29*4));
+        assert(captured_count==1 && captured[0].words[0]==sa[0]);
+        /* The owners are for one walk: a packet queued after it has none. */
+        assert(!port_gpu_queue_packet(14,sa,3));
+        clear_ot(base);append(base,14,0x80100400,ga,3);
+        captured_count=0;send_list(at(base+29*4));
+        assert(captured_count==2 && captured[0].words[0]==sa[0] && captured[1].words[0]==ga[0]);
+        center_ui=1;
+    }
     /* An entry that the walk does not reach drops its packets at the end of that walk; they do not reach a later one. */
     wide_on=1;ui_canvas_active=1;center_ui=1;
     clear_ot(base);fight_layer(1,0,0,512);

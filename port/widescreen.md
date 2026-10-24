@@ -21,7 +21,8 @@ wide picture's edges, so the walls stay where they are and the stage's own
 art fills the picture. The owner on it: "it looks really good in many stages,
 in fact they look perfect". Open: Birdie's stage (black edges as the camera
 moves), the right end of Rolento's outdoor stage (no art there in the PS1's
-data), Gouki's haze (drawn over the 384 only).
+data). Gouki's haze, drawn over the 384 only, is fixed (the order of the side
+cells in an entry, below).
 
 ## The owner's decisions (2026-10-23)
 
@@ -149,6 +150,17 @@ without the stage ends would show past the playfield there.
   commands as the game's. The queue empties at the end of that DrawOTag;
   queued packets are kept in host memory (at most 0x10000 words a frame; a
   packet past that is dropped with one line per run).
+- `port_gpu_queue_owner(pool_lo, pool_hi)` (2026-10-24): the packets queued
+  after it belong to the layer whose own packets lie in that pool, and are
+  sent where the game's list would have them had the layer linked them after
+  its own: just before the first packet of its pool in the entry (with those
+  of layers drawn later in the frame first, the newest owner first, each
+  owner's newest first), or at the entry's end. The side cells are owned by
+  their layer's pool. Found on Gouki's stage: the haze and the floor's
+  skewed quads share an entry, and the floor's side cells, sent after the
+  haze's, covered them, so the haze ended at the 384 ("Akuma's stage haze
+  only covers the area corresponding to the 4:3 AR"; its map row repeats
+  four tiles over the whole width).
 - **The stage ends.** During a fight (the main layer's active flag, at
   `main_layer` 0x801aa5d4, is set and its range is valid) with widescreen on,
   the walk moves every packet that is not the HUD's by the anchor `a`:

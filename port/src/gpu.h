@@ -48,6 +48,11 @@ int port_gpu_read_wide(uint16_t *pixels, int *w, int *h);
  * words) sent when the next DrawOTag's walk reaches entry `entry` (0..29) of the game's ordering table, before the game's packets
  * there. 0, or -1 when the entry is out of range or the frame's queue is full (one line per run). */
 int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len);
+/* The packets queued from now on belong to the layer whose own packets lie at [pool_lo, pool_hi) (0, 0: to none). An owned packet is
+ * sent where the game's list would have it had the layer linked it after its own: just before the first packet of its pool in the
+ * entry, after those of layers drawn later in the frame (newest owner first, each owner's packets newest first), or at the entry's end
+ * when no packet of its pool is there. A packet of no owner goes at the entry's tag, in the order queued. */
+void port_gpu_queue_owner(uint32_t pool_lo, uint32_t pool_hi);
 /* Widescreen's planes (port/widescreen.md, steps 5 and 6): for this frame, the layer whose record (struct Chan; its scroll is the s16 at +0x12, its
  * entry the u8 at +0x8a) is at `layer`, whose packets lie at [pool_lo, pool_hi) of the game's memory and whose side cells are queued for entry `entry`,
  * is painted from art_lo to art_hi pixels relative to its scroll (art_lo <= 0, art_hi >= 384). The bridge moves its packets by the anchor times the

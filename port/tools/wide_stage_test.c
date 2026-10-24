@@ -98,6 +98,7 @@ static struct queued { int entry; unsigned len; uint32_t w[12]; } queued[MAX_QUE
 static unsigned queued_count;
 static int queue_refuse_after = -1;   /* refuse every packet after this many (-1: never) */
 
+static uint32_t expect_owner_lo, expect_owner_hi;   /* the pool that each queued packet must be owned by (0, 0: not checked) */
 static struct view_call { uint32_t layer, lo, hi; int entry, art_lo, art_hi; } view_calls[8];
 static unsigned view_count;
 
@@ -114,8 +115,18 @@ void port_gpu_layer_view(uint32_t layer, uint32_t pool_lo, uint32_t pool_hi, int
     view_count++;
 }
 
+/* The owner in effect at each queued packet (port_gpu_queue_owner), and whether it was cleared after. */
+static uint32_t owner_lo, owner_hi;
+static int owner_bad;
+void port_gpu_queue_owner(uint32_t pool_lo, uint32_t pool_hi)
+{
+    owner_lo = pool_lo;
+    owner_hi = pool_hi;
+}
+
 int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len)
 {
+    if (expect_owner_hi && (owner_lo != expect_owner_lo || owner_hi != expect_owner_hi)) owner_bad = 1;
     if (entry < 0 || entry >= 30 || len > 12) return -1;
     if (queue_refuse_after >= 0 && queued_count >= (unsigned)queue_refuse_after) return -1;
     if (queued_count >= MAX_QUEUED) return -1;
@@ -1307,7 +1318,14 @@ static int case_override_wiring(void)
             set_layer(f, x);
             queued_count = 0;
             view_count = 0;
+            owner_bad = 0;
+            owner_lo = owner_hi = 0xdeadu;
+            expect_owner_lo = f->pool;
+            expect_owner_hi = f->pool + 2 * f->count * record_words(f) * 4;
             run();
+            expect_owner_lo = expect_owner_hi = 0;
+            if (owner_bad) return BAD("%s: a side cell queued without its layer's pool as the owner", name);
+            if (queued_count && (owner_lo || owner_hi)) return BAD("%s: the owner is left set after the side cells", name);
             harvest(f, entry_of(f, x), &from_c);
             if (from_c.n == 0) return BAD("%s: the game's C was not run (settings %u)", name, s);
             if (!settings[s][2]) {

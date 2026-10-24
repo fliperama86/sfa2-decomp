@@ -782,7 +782,10 @@ static void side_tiles(const struct port_wide_copy *c)
         map = (const uint8_t *)port_gs((const void *)(uintptr_t)map_data, minimum);
     }
     if (!map) return;
+    /* owned by the layer's pool, so that they are drawn where its own packets are among the entry's (Gouki's haze and floor share one) */
+    port_gpu_queue_owner(c->pool, c->pool + 2u * c->count * record_bytes(shape));
     port_wide_sides(shape, layer, map, preferred, game, record, port_gpu_queue_packet);
+    port_gpu_queue_owner(0, 0);
     /* the plane's painting, for the bridge to keep its wide view inside it (the map's own bytes: the row past its end, which the C of some
      * forms reads, is not painting): the pool of both buffers and the entry of its side cells */
     if (port_wide_extent(shape, layer, map, minimum, game, record, &art_lo, &art_hi) == 0)
