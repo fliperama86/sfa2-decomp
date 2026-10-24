@@ -1170,6 +1170,7 @@ struct screens_job {
     int f;
     const char *name;   /* as the table names the file */
     unsigned at, n;
+    unsigned head;      /* the first word of the chunk's record in the archive header: the disc stream checks the chunk's own against it */
     const struct arcade_screens_use *us;
     const struct arcade_screens_recipe *r;
     unsigned char *disc;
@@ -1189,11 +1190,13 @@ static void screens_job(void *context, unsigned i)
     (void)w;
     j->rc = arcade_screens_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, j->r, j->disc, j->n, &j->o, j->err, sizeof j->err);
     if (j->rc != 0) return;
+    arcade_screens_head_word(j->r, &j->o, j->head);
     /* what the arcade builds alone: the coverage, and the packed segments that need no disc (a pack keeps none of them) */
     if ((j->rc = arcade_screens_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, j->r, NULL, 0, &j->a, j->err, sizeof j->err)) != 0) {
         free(j->o.data); free(j->o.known);
         return;
     }
+    arcade_screens_head_word(j->r, &j->a, j->head);
     for (k = 0; k < j->a.size; k++) j->alone += j->a.known[k] != 0;
 }
 
@@ -1213,13 +1216,18 @@ static unsigned screens(struct port_disc *d, int check)
         int f = file_index(d, sf->file);
         for (u = sf->first; u < (unsigned)sf->first + sf->count; u++) {
             struct screens_job *j = &w.jobs[count++];
+            unsigned entry = 0;
+            unsigned char *hw;
             j->f = f;
             j->name = sf->file;
             j->us = &arcade_screens_uses[u];
             j->r = &arcade_screens_recipes[j->us->recipe];
-            if (pac_chunk_nth(d, &files[f], (unsigned)j->us->table << 16 | j->us->slot, j->us->ordinal, &j->at, &j->n) != 0 || j->n != j->r->size)
+            if (pac_chunk_entry(d, &files[f], (unsigned)j->us->table << 16 | j->us->slot, j->us->ordinal, &j->at, &j->n, &entry) != 0 || j->n != j->r->size)
                 port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no chunk %u/0x%x as the screens table says", sf->file, j->us->table, j->us->slot);
             if (!(j->disc = disc_bytes(d, &files[f], j->at, j->n))) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", sf->file);
+            if (!(hw = disc_bytes(d, &files[f], entry + 8u, 4))) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the archive header", sf->file);
+            j->head = hw[0] | hw[1] << 8 | hw[2] << 16 | (unsigned)hw[3] << 24;   /* what the chunk's own first word is checked against */
+            free(hw);
         }
     }
     port_parallel(count, screens_job, &w);

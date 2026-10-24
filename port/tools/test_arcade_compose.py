@@ -363,4 +363,13 @@ class Builds(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    # The line the review reads (tools/ai_workflow/review.py): the last line, on a pass only.
+    import time
+    started = time.monotonic()
+    result = unittest.main(exit=False).result
+    took = time.monotonic() - started
+    bad, ran = len(result.failures) + len(result.errors), result.testsRun
+    if bad or not ran:
+        print(f"{bad} of {ran} tests FAILED in {took:.1f} seconds")
+        sys.exit(1)
+    print(f"all {ran} tests passed in {took:.1f} seconds")

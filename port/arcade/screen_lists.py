@@ -491,7 +491,7 @@ class ScreensTable:
 
     def __init__(self, path=HERE / 'screens_table.c'):
         text = path.read_text()
-        names = {'Z': Z, 'D': D, 'P': P, 'BD': 0x80000000, 'OT': 1, 'OP': 2, 'OF': 3, 'OD': 4, 'OB': 5, 'SEG': 1, 'RAW': 2, 'PALS': 3, 'PIC': 4}
+        names = {'Z': Z, 'D': D, 'P': P, 'W': 0xfffffffc, 'BD': 0x80000000, 'OT': 1, 'OP': 2, 'OF': 3, 'OD': 4, 'OB': 5, 'SEG': 1, 'RAW': 2, 'PALS': 3, 'PIC': 4}
 
         def array(name):
             m = re.search(r'\b' + name + r'\[\]\s*=\s*\{(.*?)\n\};', text, re.S)
@@ -536,7 +536,7 @@ class ScreensTable:
                 for code, n, flip in self.items[ifirst:ifirst + icount]:
                     if code == Z and not flip & 0x80000000:
                         tiles += ['zero'] * n
-                    elif code in (Z, D, P):      # a by-design blank tile (BY_DESIGN) is still the PS1's own tile for the lists' numbering
+                    elif code in (Z, D, P, 0xfffffffc) or flip & 0x80000000:      # a by-design tile, a window: still the PS1's own tile for the lists' numbering
                         tiles += [None] * n
                     else:
                         tiles += [(code + j, flip & 3) for j in range(n)]

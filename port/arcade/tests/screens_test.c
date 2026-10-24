@@ -7,6 +7,7 @@
  *   item FIRST COUNT FLIP              (FIRST may be ZERO, DISC or PIECES; FLIP 2147483648 on a ZERO item is by design)
  *   op KIND X Y W H FIRST STEPX STEPY FLIP   (KIND is TILE, PIECE, FLAT, DISC or BLANK)
  *   piece A B C D
+ *   head WORD                          (the archive header's first word of the chunk: bytes 0 to 3 built by design take it, known 1)
  * OUTDIR gets out.bin and out.known; stdout gets "unbuilt N design M" on success, or "error: ..." and status 1 when the build refuses. */
 #include "../screens.h"
 #include <stdio.h>
@@ -48,6 +49,7 @@ static uint32_t word(const char *w)
     if (!strcmp(w, "ZERO")) return ARCADE_SCREENS_ZERO;
     if (!strcmp(w, "DISC")) return ARCADE_SCREENS_DISC;
     if (!strcmp(w, "PIECES")) return ARCADE_SCREENS_PIECES;
+    if (!strcmp(w, "WINDOW")) return ARCADE_SCREENS_WINDOW;
     return (uint32_t)strtoul(w, NULL, 0);
 }
 
@@ -78,12 +80,15 @@ static int build(int argc, char **argv)
     struct arcade_screens_item *items = calloc(8192, sizeof *items);
     struct arcade_screens_op *ops = calloc(8192, sizeof *ops);
     uint32_t (*pieces)[4] = calloc(1024, sizeof *pieces);
-    unsigned ni = 0, no = 0, np = 0, rc = 0;
+    struct arcade_screens_source *sources = calloc(256, sizeof *sources);
+    struct arcade_screens_window *windows = calloc(1024, sizeof *windows);
+    unsigned ni = 0, no = 0, np = 0, ns = 0, nw = 0, rc = 0, has_head = 0;
+    uint32_t head = 0;
     char w[64], w2[64];
     unsigned long a, b, c, d, e;
     struct arcade_screens_out out;
     char err[256];
-    if (!prog || !tiles || !f || !items || !ops || !pieces) return 3;
+    if (!prog || !tiles || !f || !items || !ops || !pieces || !sources || !windows) return 3;
     memset(&g, 0, sizeof g);
     while (fscanf(f, "%63s", w) == 1) {
         if (!strcmp(w, "region")) {
@@ -100,15 +105,27 @@ static int build(int argc, char **argv)
         } else if (!strcmp(w, "piece")) {
             if (np >= 1024 || fscanf(f, "%lu %lu %lu %lu", &a, &b, &c, &d) != 4) return 3;
             pieces[np][0] = (uint32_t)a; pieces[np][1] = (uint32_t)b; pieces[np][2] = (uint32_t)c; pieces[np][3] = (uint32_t)d; np++;
+        } else if (!strcmp(w, "head")) {
+            if (fscanf(f, "%lu", &a) != 1) return 3;
+            head = (uint32_t)a; has_head = 1;
+        } else if (!strcmp(w, "source")) {
+            if (ns >= 256 || fscanf(f, "%63s %lu %lu %lu", w2, &a, &b, &c) != 4) return 3;
+            sources[ns].kind = !strcmp(w2, "RECORD") ? ARCADE_SCREENS_SRC_RECORD : !strcmp(w2, "SCROLL2") ? ARCADE_SCREENS_SRC_SCROLL2 : 9;
+            sources[ns].address = (uint32_t)a; sources[ns].bank = (uint32_t)b; sources[ns].blocks = (uint16_t)c; ns++;
+        } else if (!strcmp(w, "window")) {
+            long x, y;
+            if (nw >= 1024 || fscanf(f, "%lu %ld %ld %lu %lu", &a, &x, &y, &b, &c) != 5) return 3;
+            windows[nw].source = (uint16_t)a; windows[nw].x = (int16_t)x; windows[nw].y = (int16_t)y; windows[nw].flip = (uint8_t)b; windows[nw].rows = (uint8_t)c; nw++;
         } else return 3;
     }
     fclose(f);
     g.first = 0;
     g.count = g.kind == ARCADE_SCREENS_PIC ? no : ni;
-    if (arcade_screens_build_region(prog, psize, tiles, tsize, &g, items, ops, (const uint32_t (*)[4])pieces, np, disc, dsize, &out, err, sizeof err) != 0) {
+    if (arcade_screens_build_region(prog, psize, tiles, tsize, &g, items, ops, (const uint32_t (*)[4])pieces, np, sources, ns, windows, nw, disc, dsize, &out, err, sizeof err) != 0) {
         printf("error: %s\n", err);
         rc = 1;
     } else {
+        if (has_head) arcade_screens_head_word_regions(&g, 1, &out, head);
         printf("unbuilt %u design %u\n", out.unbuilt, out.design);
         if (disc) {
             struct arcade_screens_out o2 = out;
@@ -121,7 +138,7 @@ static int build(int argc, char **argv)
         if (dump(argv[5], "out.bin", out.data, out.size) || dump(argv[5], "out.known", out.known, out.size)) rc = 3;
         arcade_screens_free(&out);
     }
-    free(prog); free(tiles); free(disc); free(items); free(ops); free(pieces);
+    free(prog); free(tiles); free(disc); free(items); free(ops); free(pieces); free(sources); free(windows);
     return (int)rc;
 }
 
@@ -152,7 +169,10 @@ static int table(void)
         }
     }
     if (arcade_screens_find("NO-SUCH-FILE.PAC")) bad++;
-    printf("%u files, %u chunks, %u recipes, %u pieces: %s\n", arcade_screens_file_count, chunks, arcade_screens_recipe_count, arcade_screens_piece_count, bad ? "BAD" : "ok");
+    for (i = 0; i < arcade_screens_window_count; i++)
+        if (arcade_screens_windows[i].source >= arcade_screens_source_count || arcade_screens_windows[i].rows > 2) { printf("window %u\n", i); bad++; }
+    printf("%u files, %u chunks, %u recipes, %u pieces, %u windows of %u sources: %s\n", arcade_screens_file_count, chunks, arcade_screens_recipe_count, arcade_screens_piece_count,
+           arcade_screens_window_count, arcade_screens_source_count, bad ? "BAD" : "ok");
     return bad ? 1 : 0;
 }
 
@@ -164,6 +184,14 @@ static int all(void)
     unsigned i, j, built = 0, unbuilt = 0, bad = 0;
     char err[256];
     if (!prog || !tiles) return 3;
+    /* a record source of the table is a made-up record of one cell of tile code 0 at (0, 0): mode 0, 1 cell, coordinates at 0x1000 */
+    for (i = 0; i < arcade_screens_source_count; i++) {
+        const struct arcade_screens_source *s = &arcade_screens_sources[i];
+        if (s->kind == ARCADE_SCREENS_SRC_RECORD && (uint64_t)s->address + 10 < PROGRAM) {
+            prog[s->address + 3] = 1;
+            prog[0x9f260 + 2] = 0x10;
+        }
+    }
     for (i = 0; i < arcade_screens_file_count; i++) {
         const struct arcade_screens_file *f = &arcade_screens_files[i];
         for (j = 0; j < f->count; j++) {

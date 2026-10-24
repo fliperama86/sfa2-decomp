@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "compose.h"
 #include "screens.h"
 #include "tilepack.h"
 
@@ -16,6 +17,8 @@ struct ctx {
     size_t psize, tsize;
     char *err;
     size_t errsize;
+    struct arcade_canvas canvas;     /* the frame of the source last cut from (windows of one source come together) */
+    int canvas_source;               /* its source's index, or -1 */
 };
 
 static int fail(struct ctx *c, const char *what, unsigned a, unsigned b)
@@ -124,6 +127,9 @@ struct tables {
     const struct arcade_screens_op *ops;
     const uint32_t (*pieces)[4];
     unsigned piece_count;
+    const struct arcade_screens_source *sources;
+    const struct arcade_screens_window *windows;
+    unsigned source_count, window_count;
 };
 
 static int in_chunk(const struct arcade_screens_out *o, const struct arcade_screens_region *g)
@@ -131,11 +137,66 @@ static int in_chunk(const struct arcade_screens_out *o, const struct arcade_scre
     return (uint64_t)g->offset + g->size <= o->size;
 }
 
-/* The by-design mark is for ZERO items only: on any other item the build is refused. */
-static int design_item(struct ctx *c, const struct arcade_screens_item *it)
+/* The by-design mark is for ZERO, run and WINDOW items of a tile list and for ZERO items of a palette list: on any other item the build is refused. */
+static int design_item(struct ctx *c, const struct arcade_screens_item *it, int palettes)
 {
-    if ((it->flip & ARCADE_SCREENS_BY_DESIGN) && it->first != ARCADE_SCREENS_ZERO)
-        return fail(c, "the by-design mark is on an item that is not blank (%#x)", it->first, 0);
+    if (!(it->flip & ARCADE_SCREENS_BY_DESIGN))
+        return 0;
+    if (it->first == ARCADE_SCREENS_DISC || it->first == ARCADE_SCREENS_PIECES || (palettes && it->first != ARCADE_SCREENS_ZERO))
+        return fail(c, "the by-design mark is on an item that is not blank or an arcade tile (%#x)", it->first, 0);
+    return 0;
+}
+
+/* The PS1 tile (128 bytes, 8 a row, the left pixel of a pair in the low nibble) flipped across (bit 0) and/or down (bit 1). */
+static void flip_bytes(const uint8_t *in, unsigned flip, uint8_t out[TILE_BYTES])
+{
+    unsigned x, y;
+    for (y = 0; y < 16; y++)
+        for (x = 0; x < 16; x++) {
+            unsigned sx = (flip & 1u) ? 15u - x : x, sy = (flip & 2u) ? 15u - y : y;
+            unsigned v = (in[sy * 8u + sx / 2u] >> ((sx & 1u) * 4u)) & 15u;
+            if (x & 1u)
+                out[y * 8u + x / 2u] |= (uint8_t)(v << 4);
+            else
+                out[y * 8u + x / 2u] = (uint8_t)v;
+        }
+}
+
+/* The tile of window `w` (an index): the source drawn once and kept, the 16 x 16 cut, the stored flip. */
+static int window_tile(struct ctx *c, const struct tables *t, uint32_t w, uint8_t out[TILE_BYTES])
+{
+    const struct arcade_screens_window *win;
+    const struct arcade_screens_source *src;
+    uint8_t cut[TILE_BYTES];
+    char e[160];
+    if (w >= t->window_count)
+        return fail(c, "window %u is not in the table (%u)", w, 0);
+    win = &t->windows[w];
+    if (win->source >= t->source_count)
+        return fail(c, "source %u of a window is not in the table (%u)", win->source, 0);
+    if (win->rows > 2u)
+        return fail(c, "window %u keeps rows %u", w, win->rows);
+    src = &t->sources[win->source];
+    if (c->canvas_source != (int)win->source) {
+        int rc;
+        arcade_compose_free(&c->canvas);
+        c->canvas_source = -1;
+        e[0] = 0;
+        if (src->kind == ARCADE_SCREENS_SRC_RECORD)
+            rc = arcade_compose_record_canvas(c->prog, c->psize, c->tiles, c->tsize, src->address, src->bank, &c->canvas, e, sizeof e);
+        else if (src->kind == ARCADE_SCREENS_SRC_SCROLL2)
+            rc = arcade_compose_scroll2(c->prog, c->psize, c->tiles, c->tsize, src->address, src->blocks, &c->canvas, e, sizeof e);
+        else
+            return fail(c, "source %u has kind %u", win->source, src->kind);
+        if (rc) {
+            if (c->err && c->errsize && !c->err[0])
+                snprintf(c->err, c->errsize, "source %u: %s", win->source, e);
+            return -1;
+        }
+        c->canvas_source = (int)win->source;
+    }
+    arcade_compose_cut(&c->canvas, win->x, win->y, win->rows, cut);
+    flip_bytes(cut, win->flip & 3u, out);
     return 0;
 }
 
@@ -147,12 +208,13 @@ static int tile_list(struct ctx *c, const struct tables *t, const struct arcade_
     uint32_t n = 0, i, j;
     for (i = 0; i < g->count; i++) {
         const struct arcade_screens_item *it = &t->items[g->first + i];
-        if (design_item(c, it))
+        int by_design = (it->flip & ARCADE_SCREENS_BY_DESIGN) != 0;
+        if (design_item(c, it, 0))
             return -1;
         if (it->first == ARCADE_SCREENS_DISC || it->first == ARCADE_SCREENS_ZERO) {
             for (j = 0; j < it->count; j++, n++) {
                 have[n] = it->first == ARCADE_SCREENS_ZERO;
-                design[n] = it->first == ARCADE_SCREENS_ZERO && (it->flip & ARCADE_SCREENS_BY_DESIGN) != 0;
+                design[n] = it->first == ARCADE_SCREENS_ZERO && by_design;
                 memset(tiles[n], 0, TILE_BYTES);
             }
         } else if (it->first == ARCADE_SCREENS_PIECES) {
@@ -165,10 +227,18 @@ static int tile_list(struct ctx *c, const struct tables *t, const struct arcade_
                     return fail(c, "piece %#x lies outside the graphics (%u)", t->pieces[it->flip][q], 0);
             tile_of_pieces((const uint8_t (*)[PIECE_BYTES])p, tiles[n]);
             have[n++] = 1;
+        } else if (it->first == ARCADE_SCREENS_WINDOW) {
+            if (it->count != 1 || n >= total)
+                return fail(c, "a window item holds %u tiles (%u)", it->count, 0);
+            if (window_tile(c, t, it->flip & ~ARCADE_SCREENS_BY_DESIGN, tiles[n]))
+                return -1;
+            design[n] = (uint8_t)by_design;
+            have[n++] = 1;
         } else {
             for (j = 0; j < it->count; j++, n++) {
                 if (n >= total || tile_ps1(c, it->first + j, it->flip & 3u, tiles[n]))
                     return fail(c, "tile %#x lies outside the graphics (%u)", it->first + j, 0);
+                design[n] = (uint8_t)by_design;
                 have[n] = 1;
             }
         }
@@ -275,7 +345,7 @@ static int build_palettes(struct ctx *c, const struct tables *t, const struct ar
     memset(out->known + g->offset, 1, g->size);
     for (i = 0; i < g->count; i++) {
         const struct arcade_screens_item *it = &t->items[g->first + i];
-        if (design_item(c, it))
+        if (design_item(c, it, 1))
             return -1;
         for (j = 0; j < it->count; j++, n++) {
             uint64_t at = (uint64_t)n * stride * PAL_BYTES;
@@ -384,6 +454,17 @@ void arcade_screens_free(struct arcade_screens_out *out)
     memset(out, 0, sizeof *out);
 }
 
+int arcade_screens_source_index(unsigned kind, uint32_t address, uint32_t bank, unsigned blocks)
+{
+    unsigned i;
+    for (i = 0; i < arcade_screens_source_count; i++) {
+        const struct arcade_screens_source *s = &arcade_screens_sources[i];
+        if (s->kind == kind && s->address == address && s->bank == bank && s->blocks == blocks)
+            return (int)i;
+    }
+    return -1;
+}
+
 const struct arcade_screens_file *arcade_screens_find(const char *file)
 {
     unsigned i;
@@ -404,7 +485,41 @@ const struct arcade_screens_recipe *arcade_screens_recipe_of(const struct arcade
     return NULL;
 }
 
-/* The tiles of the SEG region g that are blank by design: 1 for each (a zeroed array of its tile count), or NULL when none or no memory. */
+void arcade_screens_head_word_regions(const struct arcade_screens_region *regions, unsigned count, struct arcade_screens_out *out, uint32_t word)
+{
+    unsigned i, k;
+    if (out->size < 4)
+        return;
+    for (i = 0; i < count; i++) {   /* a packed segment that starts the chunk keeps the offset table's first word, which is the disc's: if it is not the header's the segment is the disc's */
+        const struct arcade_screens_region *g = &regions[i];
+        if (g->kind == ARCADE_SCREENS_SEG && g->offset == 0 && (uint64_t)g->size <= out->size && out->known[0] == 2 &&
+            (out->data[0] | out->data[1] << 8 | out->data[2] << 16 | (uint32_t)out->data[3] << 24) != word) {
+            memset(out->data, 0, g->size);
+            memset(out->known, 0, g->size);
+            out->unbuilt++;
+        }
+    }
+    for (k = 0; k < 4; k++) {
+        int in_segment = 0;
+        if (out->known[k] != 2)
+            continue;
+        for (i = 0; i < count; i++)
+            if (regions[i].kind == ARCADE_SCREENS_SEG && regions[i].offset <= k && k < (uint64_t)regions[i].offset + regions[i].size)
+                in_segment = 1;
+        if (in_segment)
+            continue;
+        out->data[k] = (uint8_t)(word >> (8 * k));
+        out->known[k] = 1;
+    }
+}
+
+void arcade_screens_head_word(const struct arcade_screens_recipe *r, struct arcade_screens_out *out, uint32_t word)
+{
+    arcade_screens_head_word_regions(arcade_screens_regions + r->first, r->count, out, word);
+}
+
+/* The tiles of the SEG region g that are by design: 1 for a blank tile (it must be blank), 2 for an arcade tile (not compared), in a zeroed array of
+ * its tile count; NULL when no items or no memory. */
 static uint8_t *design_tiles(const struct arcade_screens_region *g, const struct arcade_screens_item *items, uint32_t n)
 {
     uint8_t *mark;
@@ -414,7 +529,7 @@ static uint8_t *design_tiles(const struct arcade_screens_region *g, const struct
     for (i = 0; i < g->count; i++) {
         const struct arcade_screens_item *it = &items[g->first + i];
         for (j = 0; j < it->count && at < n; j++, at++)
-            mark[at] = it->first == ARCADE_SCREENS_ZERO && (it->flip & ARCADE_SCREENS_BY_DESIGN) != 0;
+            mark[at] = (it->flip & ARCADE_SCREENS_BY_DESIGN) ? (it->first == ARCADE_SCREENS_ZERO ? 1 : 2) : 0;
     }
     return mark;
 }
@@ -453,6 +568,8 @@ int arcade_screens_verify_regions(const struct arcade_screens_region *regions, u
         for (k = 0; k < n; k++) {
             uint8_t a[TILE_BYTES], b[TILE_BYTES];
             char e2[64];
+            if (mark && mark[k] == 2)   /* an arcade tile by design: the disc's is not compared */
+                continue;
             if (mark && mark[k]) {   /* blank by design: it must be blank, and the disc's is not compared */
                 if (arcade_tilepack_decode(out->data + g->offset, g->size, k, a, e2, sizeof e2) || memcmp(a, blank, TILE_BYTES)) {
                     if (err && errsize)
@@ -489,20 +606,25 @@ int arcade_screens_verify(const struct arcade_screens_recipe *r, const struct ar
 int arcade_screens_build_region(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size,
                                 const struct arcade_screens_region *g, const struct arcade_screens_item *items,
                                 const struct arcade_screens_op *ops, const uint32_t (*pieces)[4], unsigned piece_count,
+                                const struct arcade_screens_source *sources, unsigned source_count, const struct arcade_screens_window *windows, unsigned window_count,
                                 const uint8_t *disc, size_t disc_size, struct arcade_screens_out *out, char *err, size_t errsize)
 {
     struct ctx c;
     struct tables t;
-    c.prog = program; c.tiles = tiles; c.psize = program_size; c.tsize = tiles_size; c.err = err; c.errsize = errsize;
+    memset(&c, 0, sizeof c);
+    c.prog = program; c.tiles = tiles; c.psize = program_size; c.tsize = tiles_size; c.err = err; c.errsize = errsize; c.canvas_source = -1;
     t.items = items; t.ops = ops; t.pieces = pieces; t.piece_count = piece_count;
+    t.sources = sources; t.source_count = source_count; t.windows = windows; t.window_count = window_count;
     if (err && errsize)
         err[0] = 0;
     if (out_open(out, g->offset + g->size) || build_one(&c, &t, g, disc, disc_size, out)) {
         if (out->data && err && errsize && !err[0])
             snprintf(err, errsize, "out of memory");
+        arcade_compose_free(&c.canvas);
         arcade_screens_free(out);
         return -1;
     }
+    arcade_compose_free(&c.canvas);
     return 0;
 }
 
@@ -513,8 +635,10 @@ int arcade_screens_build(const uint8_t *program, size_t program_size, const uint
     struct ctx c;
     struct tables t;
     unsigned i;
-    c.prog = program; c.tiles = tiles; c.psize = program_size; c.tsize = tiles_size; c.err = err; c.errsize = errsize;
+    memset(&c, 0, sizeof c);
+    c.prog = program; c.tiles = tiles; c.psize = program_size; c.tsize = tiles_size; c.err = err; c.errsize = errsize; c.canvas_source = -1;
     t.items = arcade_screens_items; t.ops = arcade_screens_ops; t.pieces = arcade_screens_pieces; t.piece_count = arcade_screens_piece_count;
+    t.sources = arcade_screens_sources; t.source_count = arcade_screens_source_count; t.windows = arcade_screens_windows; t.window_count = arcade_screens_window_count;
     if (err && errsize)
         err[0] = 0;
     if (out_open(out, r->size)) {
@@ -524,8 +648,10 @@ int arcade_screens_build(const uint8_t *program, size_t program_size, const uint
     }
     for (i = 0; i < r->count; i++)
         if (build_one(&c, &t, &arcade_screens_regions[r->first + i], disc, disc_size, out)) {
+            arcade_compose_free(&c.canvas);
             arcade_screens_free(out);
             return -1;
         }
+    arcade_compose_free(&c.canvas);
     return 0;
 }

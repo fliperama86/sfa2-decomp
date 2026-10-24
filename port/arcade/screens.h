@@ -28,11 +28,25 @@
 /* Tile items: count consecutive arcade tiles first, first + 1, ... with the flip (bit 0 across, bit 1 down) of every one.
  * Palette items: count arcade palettes at address first, first + 32, ... with the flags as `flip`.
  *
- * By design: a ZERO item whose flip carries this bit is blank on purpose, not because the disc is blank there: the tiles or palettes of the
- * item differ from the disc's and the build does not take them from it. No other use of the flip reaches this bit (the tile flip is 2 bits,
- * the palette flags 2, a PIECES index is below the piece count); the bit on any other item is refused. */
+ * By design: an item whose flip carries this bit differs from the disc's on purpose, and verify does not compare it with the disc. A ZERO item is
+ * blank on purpose, not because the disc is blank there. A tile item (a run of arcade tiles, a WINDOW) is the arcade's tile where the PS1 edited its
+ * own (the arcade's art unclipped, say). The build takes none of these tiles from the disc. No other use of the flip reaches this bit (the tile flip
+ * is 2 bits, the palette flags 2, a PIECES index is below the piece count, a WINDOW index below the window count); the bit on a DISC or PIECES item,
+ * and on a palette item that is not ZERO, is refused.
+ *
+ * WINDOW: one tile (count 1) cut from a frame of the arcade: flip (without the by-design bit) indexes arcade_screens_windows. */
 #define ARCADE_SCREENS_BY_DESIGN 0x80000000u
+#define ARCADE_SCREENS_WINDOW 0xfffffffcu   /* a tile item: one tile cut from a drawn arcade frame */
 struct arcade_screens_item { uint32_t first, count, flip; };
+
+/* A frame of the arcade drawn into a canvas (compose.h): an art record (mode 0, 2, 4 or 10) at `address` with `bank` added to its tile codes, or
+ * `blocks` (1 or 2) scroll 2 blocks from block `address` side by side. The PS1 cut some frames on its own 16-pixel grid: a window is the tile with
+ * its top left at (x, y) of the canvas's coordinates (a record's, or the blocks' from the first one's top left), the rows of it kept (0 all, 1 odd,
+ * 2 even), and the stored flip (bit 0 across, bit 1 down) the PS1 keeps the tile in. */
+#define ARCADE_SCREENS_SRC_RECORD 1u
+#define ARCADE_SCREENS_SRC_SCROLL2 2u
+struct arcade_screens_source { uint32_t address, bank; uint16_t blocks; uint8_t kind; };
+struct arcade_screens_window { uint16_t source; int16_t x, y; uint8_t flip, rows; };
 
 /* Picture ops (x, y in units of 8 pixels; w, h in tiles or pieces; the unit at (i, j) of a rect is first + i * stepx + j * stepy). */
 #define ARCADE_SCREENS_OP_TILE 1u    /* 16 x 16 arcade tiles; (x, y) is a multiple of 2 for a cell grid but need not be */
@@ -60,11 +74,17 @@ struct arcade_screens_file { const char *file; uint16_t first, count; };    /* t
 extern const struct arcade_screens_item arcade_screens_items[];
 extern const struct arcade_screens_op arcade_screens_ops[];
 extern const uint32_t arcade_screens_pieces[][4];
+extern const struct arcade_screens_source arcade_screens_sources[];
+extern const struct arcade_screens_window arcade_screens_windows[];
 extern const struct arcade_screens_region arcade_screens_regions[];
 extern const struct arcade_screens_recipe arcade_screens_recipes[];
 extern const struct arcade_screens_use arcade_screens_uses[];
 extern const struct arcade_screens_file arcade_screens_files[];
-extern const unsigned arcade_screens_file_count, arcade_screens_recipe_count, arcade_screens_piece_count;
+extern const unsigned arcade_screens_file_count, arcade_screens_recipe_count, arcade_screens_piece_count, arcade_screens_source_count, arcade_screens_window_count;
+
+/* The index in arcade_screens_sources of the frame (kind, address, bank, blocks), or -1: for a builder that needs the frame that the tiles of a window were cut
+ * from (the sources are keyed by what they draw, not by a number that a regeneration of the table may change). */
+int arcade_screens_source_index(unsigned kind, uint32_t address, uint32_t bank, unsigned blocks);
 
 const struct arcade_screens_file *arcade_screens_find(const char *file);
 /* The recipe of a chunk of a file (NULL when it has none). */
@@ -87,6 +107,15 @@ int arcade_screens_build(const uint8_t *program, size_t program_size, const uint
                          struct arcade_screens_out *out, char *err, size_t errsize);
 void arcade_screens_free(struct arcade_screens_out *out);
 
+/* The first word of a chunk. The game's disc stream compares the first word of each chunk it loads with the first word of the chunk's record in the archive
+ * header and reads the file again when they differ, so a built chunk must start with the header's word (the chunk's first word on the disc). A chunk whose first
+ * bytes are built by design (blank, or an arcade tile in place of the PS1's) takes `word` (little-endian) there: the bytes 0 to 3 that are marked 2 and are not in
+ * a packed segment (whose first word, the offset table's, is the disc's) get the word and the mark 1. The caller reads the word from the archive header
+ * (the entry's first word, 8 bytes into the record) when it builds. A packed segment at the chunk's start keeps its offset table's first word; if that is not
+ * the header's word the segment is left to the disc (nothing built, `unbuilt` counts it): the stream would otherwise read the file again. */
+void arcade_screens_head_word_regions(const struct arcade_screens_region *regions, unsigned count, struct arcade_screens_out *out, uint32_t word);
+void arcade_screens_head_word(const struct arcade_screens_recipe *r, struct arcade_screens_out *out, uint32_t word);
+
 /* Check a built chunk against the disc's: every byte marked 1 must equal the disc's, and every packed segment (marked 2) must decode to the
  * disc's tiles, the by-design tiles excepted (bytes marked 2 outside a segment are by design and not compared). Returns 0 when they agree; else -1 with a message in err that names the first region or byte that differs (a disc that is
  * not the examined one). `r` and `out` come from arcade_screens_build for the same chunk. */
@@ -97,10 +126,12 @@ int arcade_screens_verify(const struct arcade_screens_recipe *r, const struct ar
 int arcade_screens_verify_regions(const struct arcade_screens_region *regions, unsigned count, const struct arcade_screens_item *items,
                                   const struct arcade_screens_out *out, const uint8_t *disc, size_t disc_size, char *err, size_t errsize);
 
-/* The same for one made-up region (tests): the region's items and ops are the caller's, `pieces` the quads its PIECES items index. */
+/* The same for one made-up region (tests): the region's items and ops are the caller's, `pieces` the quads its PIECES items index, `sources` and
+ * `windows` what its WINDOW items index. */
 int arcade_screens_build_region(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size,
                                 const struct arcade_screens_region *g, const struct arcade_screens_item *items,
                                 const struct arcade_screens_op *ops, const uint32_t (*pieces)[4], unsigned piece_count,
+                                const struct arcade_screens_source *sources, unsigned source_count, const struct arcade_screens_window *windows, unsigned window_count,
                                 const uint8_t *disc, size_t disc_size, struct arcade_screens_out *out, char *err, size_t errsize);
 
 #endif

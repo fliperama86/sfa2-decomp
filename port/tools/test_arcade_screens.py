@@ -17,13 +17,14 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'port/arcade'))
 import screens as S
 import tilepack as T
+import test_arcade_screen_lists as L
 
 FLAGS = ('-std=c99', '-O1', '-Wall', '-Wextra', '-Werror', '-pedantic')
-SOURCES = [ROOT / 'port/arcade' / n for n in ('screens.c', 'screens_table.c', 'tilepack.c')]
+SOURCES = [ROOT / 'port/arcade' / n for n in ('compose.c', 'screens.c', 'screens_table.c', 'tilepack.c')]
 TILES = 48                  # tiles of the made-up graphics
 KINDS = {S.SEG: 'SEG', S.RAW: 'RAW', S.PALS: 'PALS', S.PIC: 'PIC'}
 OPS = {S.OP_TILE: 'TILE', S.OP_PIECE: 'PIECE', S.OP_FLAT: 'FLAT', S.OP_DISC: 'DISC', S.OP_BLANK: 'BLANK'}
-NAMES = {S.ZERO: 'ZERO', S.DISC: 'DISC', S.PIECES: 'PIECES'}
+NAMES = {S.ZERO: 'ZERO', S.DISC: 'DISC', S.PIECES: 'PIECES', S.WINDOW: 'WINDOW'}
 
 
 def arcade_bytes_of(pixels):
@@ -40,6 +41,39 @@ def arcade_bytes_of(pixels):
 def ps1_bytes_of(pixels):
     """The PS1 form of a 16 x 16 tile of arcade values: colour plus one modulo 16, low nibble first."""
     return bytes(((pixels[y][x] + 1) & 15) | (((pixels[y][x + 1] + 1) & 15) << 4) for y in range(16) for x in range(0, 16, 2))
+
+
+HI = L.HI
+
+
+class FrameWorld:
+    """A made-up arcade with art records of the four modes, scroll 2 blocks and the graphics' tiles at two banks, for the windows' frames."""
+
+    def __init__(self, seed):
+        rng = random.Random(seed)
+        self.rng = rng
+        pix, self.gfx = L.made_up_graphics(rng)
+        prog = L.Prog()
+        mapcode = lambda t: (t - 0xa400) & 0xffff
+        self.rec2 = prog.record(prog.random_record(rng))
+        self.rec2b = prog.record(prog.random_record(rng))
+        self.rec0 = prog.record([(rng.randrange(0, 20), 16 * rng.randrange(-3, 4) + rng.choice((0, 5)), 16 * rng.randrange(-3, 4)) for _ in range(4)], shared=rng.randrange(4) << 5)
+        self.rec4 = prog.record4([(mapcode(rng.randrange(L.NT - 18)), 0x0100 | 0x1000 | rng.randrange(4) << 5, 16 * rng.randrange(-3, 3), 16 * rng.randrange(-2, 5)) for _ in range(3)])
+        self.grid = prog.record10(2, 3, [(mapcode(rng.randrange(L.NT)), rng.randrange(4) << 5) for _ in range(6)])
+        self.wide = prog.record([(1, 0x0000, 0, 0, ), (2, 0x0000, 600, 0)])
+        self.empty = 0x3000                                      # zeros: mode 0 with no cells
+        for n in (3, 4):
+            prog.block(n, {(c, r): (mapcode(rng.randrange(L.NT)), rng.randrange(4) << 5) for c in range(16) for r in range(16)})
+        self.prog = bytes(prog.data)
+        self.arc = S.Arc(self.gfx, self.prog)
+        self.sources = [(S.SRC_RECORD, self.rec2, 0, 0), (S.SRC_RECORD, self.rec2b, HI, 0), (S.SRC_RECORD, self.rec0, 0, 0), (S.SRC_RECORD, self.rec4, HI, 0),
+                        (S.SRC_RECORD, self.grid, HI, 0), (S.SRC_SCROLL2, 3, 0, 1), (S.SRC_SCROLL2, 3, 0, 2)]
+
+    def window(self, rng=None):
+        rng = rng or self.rng
+        src = rng.choice(self.sources)
+        wide = src[0] == S.SRC_SCROLL2 and src[3] == 2
+        return src + (rng.randrange(-32, 540 if wide else 300, 4), rng.randrange(-32, 280, 4), rng.randrange(4), rng.randrange(3))
 
 
 class World:
@@ -79,11 +113,28 @@ def spec_text(region, extra_pieces=()):
         for k, x, y, w, h, first, sx, sy, flip in region[4]:
             lines.append('op %s %d %d %d %d %d %d %d %d' % (OPS[k], x, y, w, h, first, sx, sy, flip))
     else:
+        sources, windows = [], []
+        known = getattr(region[4], 'windows', ()) if kind in (S.SEG, S.RAW) else ()
         for first, count, flip in region[3]:
+            if first == S.WINDOW:                                       # a window tuple (or the index of one of the table's) is a window of the spec
+                idx = flip & ~S.BY_DESIGN if not isinstance(flip, tuple) else 0
+                win = flip if isinstance(flip, tuple) else (known[idx] if idx < len(known) else None)
+                if win is None:                                         # an index the table does not have: the spec keeps it, the C refuses it
+                    lines.append('item %s %d %d' % (NAMES.get(first, first), count, flip))
+                    continue
+                if win[:4] not in sources:
+                    sources.append(win[:4])
+                if win not in windows:
+                    windows.append(win)
+                flip = windows.index(win) | (0 if isinstance(flip, tuple) else flip & S.BY_DESIGN)
             lines.append('item %s %d %d' % (NAMES.get(first, first), count, flip))
         if kind in (S.SEG, S.RAW):
             for q in region[4]:
                 lines.append('piece ' + ' '.join(str(v) for v in q))
+        for k, a, b, n in sources:
+            lines.append('source %s %d %d %d' % ({S.SRC_RECORD: 'RECORD', S.SRC_SCROLL2: 'SCROLL2'}.get(k, 'BAD'), a, b, n))
+        for w in windows:
+            lines.append('window %d %d %d %d %d' % (sources.index(w[:4]), w[4], w[5], w[6], w[7]))
     return '\n'.join(lines) + '\n'
 
 
@@ -96,6 +147,7 @@ class ScreensC(unittest.TestCase):
         subprocess.run(['gcc', *FLAGS, '-fsanitize=address,undefined', '-fno-sanitize-recover=undefined', *map(str, SOURCES),
                         str(ROOT / 'port/arcade/tests/screens_test.c'), '-o', str(cls.exe)], check=True, timeout=180)
         cls.world = World(7)
+        cls.frames = [FrameWorld(k) for k in range(6)]
         (d / 'prog.bin').write_bytes(cls.world.prog)
         (d / 'tiles.bin').write_bytes(cls.world.gfx)
         cls.n = 0
@@ -104,14 +156,19 @@ class ScreensC(unittest.TestCase):
     def tearDownClass(cls):
         cls.dir.cleanup()
 
-    def run_c(self, region, disc=None, world=None):
+    def run_c(self, region, disc=None, world=None, head=None):
         """(data, known, unbuilt) of the C (self.design: the units it counts blank by design), or the refusal message."""
         base = Path(self.dir.name)
         out = base / f'out{self.n}'
         ScreensC.n += 1
         out.mkdir()
-        (base / 'spec.txt').write_text(spec_text(region))
-        args = [str(self.exe), 'build', str(base / 'prog.bin'), str(base / 'tiles.bin'), str(base / 'spec.txt'), str(out)]
+        (base / 'spec.txt').write_text(spec_text(region) + ('' if head is None else 'head %d\n' % head))
+        prog, tiles = base / 'prog.bin', base / 'tiles.bin'
+        if world is not None:                                            # another made-up arcade (frames for the windows)
+            (out / 'prog.bin').write_bytes(world.prog)
+            (out / 'tiles.bin').write_bytes(world.gfx)
+            prog, tiles = out / 'prog.bin', out / 'tiles.bin'
+        args = [str(self.exe), 'build', str(prog), str(tiles), str(base / 'spec.txt'), str(out)]
         if disc is not None:
             (base / 'disc.bin').write_bytes(disc)
             args.append(str(base / 'disc.bin'))
@@ -124,13 +181,14 @@ class ScreensC(unittest.TestCase):
         self.design = int(lines[0].split()[3])
         return (out / 'out.bin').read_bytes(), (out / 'out.known').read_bytes(), int(lines[0].split()[1])
 
-    def model(self, region, disc=None):
-        return S.model_chunk(self.world.arc, self.world.prog, (0, 0, 0, region[1] + region[2], [region]), disc)
+    def model(self, region, disc=None, world=None, head=None):
+        world = world or self.world
+        return S.model_chunk(world.arc, world.prog, (0, 0, 0, region[1] + region[2], [region]), disc, head)
 
-    def same(self, region, disc=None):
+    def same(self, region, disc=None, world=None, head=None):
         """The C equals the model on a region (a segment as the tiles it decodes to); returns (C result, model result)."""
-        got = self.run_c(region, disc)
-        want = self.model(region, disc)
+        got = self.run_c(region, disc, world, head)
+        want = self.model(region, disc, world, head)
         self.assertIsInstance(got, tuple, got)
         self.assertEqual(self.design, S.units_of([region]), 'the units blank by design')
         data, known, unbuilt = got
@@ -416,8 +474,8 @@ class ScreensC(unittest.TestCase):
         self.run_c(self.pic([(S.OP_BLANK, 0, 0, 8, 8, 0, 0, 0, 0)]), disc)
         self.assertEqual(self.verify, 'verify ok')
 
-    def test_the_by_design_mark_is_for_blank_items_only(self):
-        for first in (3, S.DISC, S.PIECES):
+    def test_the_by_design_mark_is_for_blank_and_arcade_tile_items_only(self):
+        for first in (S.DISC, S.PIECES):
             region = (S.RAW, 0, 128, [(first, 1, S.BY_DESIGN | (0 if first != S.PIECES else 0))], [(14 << 2,) * 4])
             with self.subTest(first=first):
                 with self.assertRaises(S.ModelError):
@@ -427,6 +485,175 @@ class ScreensC(unittest.TestCase):
         with self.assertRaises(S.ModelError):
             self.model(pal)
         self.assertIsInstance(self.run_c(pal), str)
+
+    # ---- windows: tiles cut from the frames of the arcade
+
+    def window_region(self, fw, kind=S.RAW, n=12, extra=True):
+        rnd = random.Random(fw.rng.random())
+        items = []
+        for i in range(n):
+            r = rnd.randrange(6) if extra else 9
+            if r == 0:
+                items.append((S.ZERO, 1, 0))
+            elif r == 1:
+                items.append((rnd.randrange(TILES - 3), 2, rnd.randrange(4)))
+            else:
+                items.append((S.WINDOW, 1, fw.window(rnd)))
+        total = sum(c for _f, c, _fl in items)
+        size = total * 128 if kind == S.RAW else 140 * total + 200
+        return (kind, 0x20, size, items, S.Pieces())
+
+    def test_windows_equal_the_model(self):
+        cuts = nonblank = 0
+        for fw in self.frames:
+            for _ in range(3):
+                region = self.window_region(fw)
+                got, want = self.same(region, world=fw)
+                self.assertEqual(self.design, 0)
+                tiles = [got[0][0x20 + 128 * i:0x20 + 128 * i + 128] for i in range(sum(c for _f, c, _fl in region[3]))]
+                cuts += sum(1 for it in region[3] if it[0] == S.WINDOW)
+                nonblank += sum(1 for t in tiles if any(t))
+        self.assertGreater(cuts, 100)
+        self.assertGreater(nonblank, 80)           # the windows land on the frames, not only beside them
+
+    def test_a_window_cuts_with_rows_flips_and_edges(self):
+        fw = self.frames[1]
+        sc = (S.SRC_SCROLL2, 3, 0, 2)
+        whole = self.run_c((S.RAW, 0, 3 * 128, [(S.WINDOW, 1, sc + (200, 40, 0, 0)), (S.WINDOW, 1, sc + (200, 40, 0, 1)), (S.WINDOW, 1, sc + (200, 40, 0, 2))], S.Pieces()), world=fw)[0]
+        a, odd, even = whole[:128], whole[128:256], whole[256:]
+        self.assertTrue(any(a))
+        self.assertEqual(bytes(x | y for x, y in zip(odd, even)), a)                      # the two fields rebuild the tile
+        self.assertTrue(all(not any(odd[r * 8:r * 8 + 8]) for r in range(0, 16, 2)))
+        self.assertTrue(all(not any(even[r * 8:r * 8 + 8]) for r in range(1, 16, 2)))
+        flipped = self.run_c((S.RAW, 0, 128, [(S.WINDOW, 1, sc + (200, 40, 3, 0))], S.Pieces()), world=fw)[0]
+        self.assertEqual(flipped, S.flip_pixels(a, 16, 3))                                # the stored flip
+        far = self.run_c((S.RAW, 0, 128, [(S.WINDOW, 1, sc + (-4000, 9000, 0, 0))], S.Pieces()), world=fw)[0]
+        self.assertEqual(far, bytes(128))                                                 # outside the frame: blank
+
+    def test_windows_in_a_segment_pack_and_verify_against_the_disc(self):
+        fw = self.frames[2]
+        region = self.window_region(fw, S.SEG, n=14)
+        got, want = self.same(region, world=fw)
+        tiles = want[2][0x20]
+        packed = T.encode_chunk_small([T.tile_words(t) for t in tiles])[0]
+        disc = bytes(0x20) + packed + bytes(64)
+        region = (S.SEG, 0x20, len(packed) + 64, region[3], region[4])
+        got, want = self.same(region, disc, fw)
+        self.assertEqual(self.verify, 'verify ok')
+        self.assertEqual(S.segment_tiles_of(got[0][0x20:0x20 + region[2]]), tiles)
+        tiles = list(tiles)
+        k = next(i for i, it in enumerate(region[3]) if it[0] == S.WINDOW)             # a disc whose window tile is not the frame's
+        tiles[k] = bytes(range(128))
+        other = T.encode_chunk_small([T.tile_words(t) for t in tiles])[0]
+        self.run_c(region, bytes(0x20) + other + bytes(64 + len(packed) - len(other)), fw)
+        self.assertTrue(self.verify.startswith('verify: tile %d of the segment' % k), self.verify)
+
+    def test_by_design_runs_and_windows_are_not_compared_with_the_disc(self):
+        fw = self.frames[3]
+        w = fw.window()
+        pieces = S.Pieces()
+        pieces.windows = [w]
+        items = [(S.ZERO, 1, 0), (3, 2, S.BY_DESIGN | 1), (S.WINDOW, 1, S.BY_DESIGN | 0), (5, 1, 2), (S.ZERO, 1, S.BY_DESIGN)]
+        region = (S.SEG, 0x20, 4000, items, pieces)
+        got, want = self.same(region, world=fw)
+        self.assertEqual(self.design, 4)                                               # 2 runs, the window, the blank tile
+        self.assertEqual(S.units_of([region]), 4)
+        tiles = list(want[2][0x20])
+        self.assertEqual(tiles[1], fw.arc.tile(3, 1))                                    # the arcade's tile, flipped by the low bits
+        self.assertEqual(tiles[0], bytes(128))
+        # the disc's tiles at the by-design places are not the arcade's, and verify skips them; a blank by design must be blank
+        disc_tiles = [bytes(128), bytes(range(128)), bytes(range(1, 129)), bytes(range(2, 130)), fw.arc.tile(5, 2), bytes(range(3, 131))]
+        disc_tiles[3] = tiles[3]
+        disc_tiles = [disc_tiles[0], bytes(range(128)), bytes(range(1, 129)), tiles[3], tiles[4], bytes(range(3, 131))]
+        packed = T.encode_chunk_small([T.tile_words(t) for t in disc_tiles])[0]
+        region = (S.SEG, 0x20, len(packed) + 64, items, pieces)
+        disc = bytes(0x20) + packed + bytes(64)
+        self.run_c(region, disc, fw)
+        self.assertEqual(self.verify, 'verify ok')
+        # the same tile a run, not by design: the disc's must be the arcade's
+        plain = (S.SEG, 0x20, len(packed) + 64, [items[0], (3, 2, 1)] + items[2:], pieces)
+        self.run_c(plain, disc, fw)
+        self.assertTrue(self.verify.startswith('verify: tile 1 of the segment'), self.verify)
+        # a raw list marks them known 2, others 1
+        raw = (S.RAW, 0, 6 * 128, items, pieces)
+        data, known, _u = self.run_c(raw, world=fw)
+        self.assertEqual([known[i * 128] for i in range(6)], [1, 2, 2, 2, 1, 2])
+        self.assertEqual(self.run_c(raw, world=fw)[0], self.model(raw, world=fw)[0])
+
+    def test_malformed_windows_are_refused_by_both(self):
+        fw = self.frames[0]
+        good = fw.sources[0] + (0, 0, 0, 0)
+        pieces = S.Pieces()
+        cases = {
+            'a source kind that does not exist': (S.RAW, 0, 128, [(S.WINDOW, 1, (9, 0, 0, 0, 0, 0, 0, 0))], S.Pieces()),
+            'rows 3': (S.RAW, 0, 128, [(S.WINDOW, 1, fw.sources[0] + (0, 0, 0, 3))], S.Pieces()),
+            'two tiles in a window item': (S.RAW, 0, 256, [(S.WINDOW, 2, good)], S.Pieces()),
+            'a record that is not one': (S.RAW, 0, 128, [(S.WINDOW, 1, (S.SRC_RECORD, fw.empty, 0, 0, 0, 0, 0, 0))], S.Pieces()),
+            'a record too wide to draw': (S.RAW, 0, 128, [(S.WINDOW, 1, (S.SRC_RECORD, fw.wide, 0, 0, 0, 0, 0, 0))], S.Pieces()),
+            'a tile outside the graphics': (S.RAW, 0, 128, [(S.WINDOW, 1, (S.SRC_RECORD, fw.rec2, 8 * HI, 0, 0, 0, 0, 0))], S.Pieces()),
+            'a scroll 2 block that does not exist': (S.RAW, 0, 128, [(S.WINDOW, 1, (S.SRC_SCROLL2, 222, 0, 1, 0, 0, 0, 0))], S.Pieces()),
+            'three blocks side by side': (S.RAW, 0, 128, [(S.WINDOW, 1, (S.SRC_SCROLL2, 3, 0, 3, 0, 0, 0, 0))], S.Pieces()),
+            'a window that is not in the table': (S.RAW, 0, 128, [(S.WINDOW, 1, 5)], pieces),
+        }
+        for name, region in cases.items():
+            with self.subTest(name):
+                with self.assertRaises(S.ModelError):
+                    self.model(region, world=fw)
+                self.assertIsInstance(self.run_c(region, world=fw), str)
+
+    # ---- the first word of a chunk (the game's disc stream compares it with the archive header's)
+
+    def test_by_design_bytes_at_a_chunks_start_take_the_headers_first_word(self):
+        word = 0x44332211
+        blank = (S.RAW, 0, 3 * 128, [(S.ZERO, 1, S.BY_DESIGN), (3, 1, 0), (S.ZERO, 1, 0)], [])
+        got, want = self.same(blank, head=word)
+        data, known, _u = got
+        self.assertEqual(data[:4], bytes([0x11, 0x22, 0x33, 0x44]))
+        self.assertEqual(known[:4], b'\1\1\1\1')                                  # equal to the disc's chunk, whose first word the header holds
+        self.assertEqual(known[4:128], b'\2' * 124)                                # the rest of the blank tile stays by design
+        self.assertEqual(data[4:128], bytes(124))
+        self.assertEqual(known[128:], b'\1' * 256)
+        plain = self.run_c(blank)
+        self.assertEqual((plain[0][:4], plain[1][:4]), (bytes(4), b'\2\2\2\2'))      # without a word nothing changes
+        # a picture whose first rows are blank by design, and a palette list
+        pic = (S.PIC, 0, 32 * 64, 64, [(S.OP_BLANK, 0, 0, 8, 8, 0, 0, 0, 0)])
+        got, _ = self.same(pic, head=word)
+        self.assertEqual((got[0][:4], got[1][:4], got[1][4:8]), (bytes([0x11, 0x22, 0x33, 0x44]), b'\1\1\1\1', b'\2\2\2\2'))
+        pal = (S.PALS, 0, 64, [(S.ZERO, 1, S.BY_DESIGN), (0x100, 1, 0)], 1)
+        got, _ = self.same(pal, head=word)
+        self.assertEqual((got[0][:4], got[1][:4], got[1][4:32]), (bytes([0x11, 0x22, 0x33, 0x44]), b'\1\1\1\1', b'\2' * 28))
+
+    def test_the_headers_word_is_left_where_the_first_bytes_are_not_by_design(self):
+        word = 0x44332211
+        # the first tile is the arcade's (known 1), or the disc's (known 0), or the region starts later: nothing is written
+        for region in ((S.RAW, 0, 256, [(3, 1, 0), (S.ZERO, 1, S.BY_DESIGN)], []), (S.RAW, 0, 256, [(S.DISC, 1, 0), (S.ZERO, 1, S.BY_DESIGN)], []),
+                       (S.RAW, 16, 128, [(S.ZERO, 1, S.BY_DESIGN)], [])):
+            with self.subTest(region=region[:3]):
+                got, _ = self.same(region, head=word)
+                plain = self.run_c(region)
+                self.assertEqual(got[0][:4], plain[0][:4])
+                self.assertEqual(got[1][:4], plain[1][:4])
+        # a packed segment at the start: its first word is the offset table's, which is the disc's: it is not touched
+        seg = self.seg_region([(S.ZERO, 1, 0), (3, 3, 0), (S.ZERO, 1, S.BY_DESIGN)], offset=0)
+        got, _ = self.same(seg, head=20)                                     # 5 tiles: the offset table is 20 bytes, its first word
+        self.assertEqual(got[1][:4], b'\2\2\2\2')
+        self.assertEqual(got[0][:4], self.run_c(seg)[0][:4])
+        got, _ = self.same(seg, head=word)                                   # a header word that is not the table's: the segment is the disc's, not built
+        self.assertEqual((got[2], got[1], got[0]), (1, bytes(len(got[1])), bytes(len(got[0]))))
+        # bytes 0 to 3 that are by design, bytes after them that are not: only the first four are written
+        mixed = (S.RAW, 0, 2 * 128, [(S.ZERO, 1, S.BY_DESIGN), (S.ZERO, 1, 0)], [])
+        got, _ = self.same(mixed, head=0xdeadbeef)
+        self.assertEqual(got[0][:5], bytes([0xef, 0xbe, 0xad, 0xde, 0]))
+
+    def test_the_head_word_survives_verify(self):
+        w = self.world
+        word = 0x01020304
+        region = (S.RAW, 0, 2 * 128, [(S.ZERO, 1, S.BY_DESIGN), (3, 1, 0)], [])
+        disc = struct.pack('<I', word) + bytes(124) + w.arc.tile(3)
+        self.run_c(region, disc, head=word)
+        self.assertEqual(self.verify, 'verify ok')                                    # the four bytes are marked 1 and equal the disc's
+        self.run_c(region, disc, head=word ^ 1)
+        self.assertTrue(self.verify.startswith('verify: byte'), self.verify)       # a word that is not the disc's is a mistake: verify says so
 
     # ---- malformed input
 
@@ -510,6 +737,26 @@ class Finders(unittest.TestCase):
         self.assertEqual(len(pieces), 1)
         self.assertEqual(pieces[0][2], S.FLAT_BASE | 4)
 
+    def test_windows_and_the_edge_before_disc(self):
+        arc = self.world.arc
+        own = bytes(random.Random(1).randrange(1, 256) for _ in range(128))
+        cut = bytes(random.Random(2).randrange(1, 256) for _ in range(128))
+        clipped = bytes(random.Random(3).randrange(1, 256) for _ in range(128))
+        win = (S.SRC_RECORD, 0x1000, 0, 0, 16, -32, 1, 2)
+
+        class Stub:
+            def find(self, tile):
+                return win if tile == cut else None
+
+            def edge(self, tile):
+                return (7, 3) if tile == clipped else None
+        items, _pieces = S.describe_tiles([own, cut, clipped, own, own], arc, self.cand, Stub(), True)
+        self.assertEqual(items, [(S.DISC, 1, 0), (S.WINDOW, 1, win), (7, 1, 3 | S.BY_DESIGN), (S.DISC, 2, 0)])
+        items, _pieces = S.describe_tiles([own, cut, clipped, own, own], arc, self.cand, Stub(), False)     # no portrait row: the clipped tile is the disc's
+        self.assertEqual(items, [(S.DISC, 1, 0), (S.WINDOW, 1, win), (S.DISC, 3, 0)])
+        items, _pieces = S.describe_tiles([own, cut], arc, self.cand)                                       # no finder: as before
+        self.assertEqual(items, [(S.DISC, 2, 0)])
+
     def test_palettes_become_runs_with_flags(self):
         w = self.world
         index = S.PaletteIndex(w.prog)
@@ -587,6 +834,34 @@ class TableText(unittest.TestCase):
         size, regions = t.model_regions(r2)
         self.assertEqual(regions[0][3:], (64, [(S.OP_TILE, 0, 0, 2, 1, 3, 1, 16, 0), (S.OP_DISC, 4, 0, 2, 1, 0, 0, 0, 0)]))
 
+    def test_windows_are_interned_and_written(self):
+        t = S.Table()
+        w1, w2 = (S.SRC_RECORD, 0x1000, 0x10000, 0, -16, 32, 1, 0), (S.SRC_SCROLL2, 158, 0, 2, 160, 96, 0, 1)
+        r1 = t.add_recipe(1000, [(S.RAW, 0, 640, [(S.WINDOW, 1, w1), (S.WINDOW, 1, w2), (S.WINDOW, 1, w1), (5, 1, 2 | S.BY_DESIGN), (S.ZERO, 1, S.BY_DESIGN)], [])])
+        t.add_use('A00.PAC', 0, 0x18, 0, r1)
+        self.assertEqual(t.windows, [w1, w2])
+        size, regions = t.model_regions(r1)
+        self.assertEqual(regions[0][3], [(S.WINDOW, 1, 0), (S.WINDOW, 1, 1), (S.WINDOW, 1, 0), (5, 1, 2 | S.BY_DESIGN), (S.ZERO, 1, S.BY_DESIGN)])
+        self.assertEqual(regions[0][4].windows, [w1, w2])
+        text = S.c_table(t, 'cmd')
+        self.assertIn('{W, 1, 0}', text)
+        self.assertIn('{0x5, 1, 0x80000002}', text)
+        self.assertIn('{Z, 1, BD}', text)
+        self.assertNotIn(chr(0x2014), text)
+        d = Path(tempfile.mkdtemp(prefix='arcade-screens-table-'))
+        try:
+            (d / 't.c').write_text(text)
+            (d / 'main.c').write_text('#include "screens.h"\n#include <stdio.h>\nint main(void){const struct arcade_screens_window*w=&arcade_screens_windows[1];'
+                                      'printf("%u %u %u %d %d %d %d %u %#x %u\\n",arcade_screens_source_count,arcade_screens_window_count,w->source,w->x,w->y,w->flip,w->rows,'
+                                      'arcade_screens_sources[1].kind,arcade_screens_sources[0].bank,arcade_screens_sources[1].blocks);'
+                                      'printf("%d %d %d\\n",arcade_screens_source_index(2,158,0,2),arcade_screens_source_index(1,0x1000,0x10000,0),arcade_screens_source_index(1,0x1000,0,0));return 0;}\n')
+            r = subprocess.run(['gcc', *FLAGS, '-I', str(ROOT / 'port/arcade'), str(d / 't.c'), str(d / 'main.c'), str(ROOT / 'port/arcade/screens.c'), str(ROOT / 'port/arcade/compose.c'),
+                                str(ROOT / 'port/arcade/tilepack.c'), '-o', str(d / 't')], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertEqual(subprocess.run([str(d / 't')], capture_output=True, text=True).stdout.split(), ['2', '2', '1', '160', '96', '0', '1', '2', '0x10000', '2', '1', '0', '-1'])
+        finally:
+            shutil.rmtree(d)
+
     def test_table_text_compiles_and_looks_up(self):
         t, _ = self.table()
         text = S.c_table(t, 'python3 port/arcade/other_files.py --c-table')
@@ -601,7 +876,7 @@ class TableText(unittest.TestCase):
                                       'const struct arcade_screens_recipe*r=arcade_screens_recipe_of(f,0,0x18,0);'
                                       'printf("%u %u %u %d\\n",r->size,r->count,arcade_screens_piece_count,arcade_screens_recipe_of(f,2,0,0)==0);return 0;}\n')
             r = subprocess.run(['gcc', *FLAGS, '-I', str(ROOT / 'port/arcade'), str(d / 't.c'), str(d / 'main.c'), str(ROOT / 'port/arcade/screens.c'),
-                                str(ROOT / 'port/arcade/tilepack.c'), '-o', str(d / 't')], capture_output=True, text=True)
+                                str(ROOT / 'port/arcade/compose.c'), str(ROOT / 'port/arcade/tilepack.c'), '-o', str(d / 't')], capture_output=True, text=True)
             self.assertEqual(r.returncode, 0, r.stderr)
             self.assertEqual(subprocess.run([str(d / 't')], capture_output=True, text=True).stdout.split(), ['1000', '2', '1', '1'])
         finally:
@@ -655,10 +930,19 @@ class DesignRows(unittest.TestCase):
         with self.assertRaises(S.ModelError):
             self.run_rows((dict(row, offset=0, units='all'),))                   # 'all' is for a picture
 
+    def test_a_portrait_row_counts_the_marked_runs_and_is_for_tile_lists(self):
+        regions = [(S.SEG, 0, 600, [(S.ZERO, 1, 0), (3, 1, 1 | S.BY_DESIGN), (S.WINDOW, 1, (1, 0x1000, 0, 0, 0, 0, 0, 0)), (4, 2, 2 | S.BY_DESIGN)], [])]
+        row = dict(kind='SELECTA', table=0, slot=0x18, ordinal=0, offset=0, units='portrait')
+        out, used = self.run_rows((row,), 'SELECTA', 0x18, regions)
+        self.assertEqual(out, regions)
+        self.assertEqual(used, [(0, 3)])
+        with self.assertRaises(S.ModelError):
+            self.run_rows((dict(row, offset=600),), 'SELECTA', 0x18, self.regions()[1:])
+
     def test_the_checked_in_rows_are_explicit(self):
         for row in S.DESIGN_ROWS:
             self.assertEqual(set(row) - {'rows'}, {'kind', 'table', 'slot', 'ordinal', 'offset', 'units', 'expect', 'why'})
-            self.assertIn(row['units'], ('disc', 'all'))
+            self.assertIn(row['units'], ('disc', 'all', 'portrait'))
             self.assertGreater(row['expect'], 0)
             self.assertGreater(len(row['why']), 40)
             self.assertNotIn(chr(0x2014), row['why'])

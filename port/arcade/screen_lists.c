@@ -650,8 +650,9 @@ struct arcade_screen_lists_tile *arcade_screen_lists_pool(const char *file, unsi
         for (j = 0; j < it->count; j++, n++) {
             if (it->first == ARCADE_SCREENS_ZERO && !(it->flip & ARCADE_SCREENS_BY_DESIGN)) {
                 pool[n].kind = 1;
-            } else if (it->first == ARCADE_SCREENS_ZERO || it->first == ARCADE_SCREENS_DISC || it->first == ARCADE_SCREENS_PIECES) {
-                pool[n].kind = 2;   /* a by-design blank tile is still the PS1's own tile for the lists' numbering */
+            } else if (it->first == ARCADE_SCREENS_ZERO || it->first == ARCADE_SCREENS_DISC || it->first == ARCADE_SCREENS_PIECES || it->first == ARCADE_SCREENS_WINDOW ||
+                       (it->flip & ARCADE_SCREENS_BY_DESIGN)) {
+                pool[n].kind = 2;   /* a by-design tile and a window are still the PS1's own tiles for the lists' numbering */
             } else {
                 pool[n].code = it->first + j;
                 pool[n].flip = (uint8_t)(it->flip & 3u);

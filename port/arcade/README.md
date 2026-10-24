@@ -268,6 +268,42 @@ file is inferred from the content (the anchors are in `talk.py`; Gouki's by
 elimination). BOSS0D's fifth English box (one line) does not fit the
 four-box page and is not shown.
 
+## Poses and pictures cut from the arcade's frames (2026-10-24)
+
+The PS1's select, continue and win screens show fighters in poses that are frames of the arcade (art records of the fighters' sprites, or blocks of
+the scroll 2 layer), but the PS1 drew each frame and cut it again on a 16-pixel grid of its own, sometimes in two interlaced fields (the odd rows in
+one list, the even rows in another). Its tiles were not the arcade's, so the arcade-tile finder left them to the disc: 2,300 distinct tiles, the 19
+fighters' pose library that DEMO, SELECT and every CONT file carry (350 KB each), the select screen's poses, grid and "NEXT" arrow, the win screens'
+pose segments, and the continue screens' own art. Every one of these is the arcade's pixels at some place of a frame.
+
+- **WINDOW item** (`screens.h`, `screens.c`; model `screens.py`, `compose.py`): one tile, `flip` indexing `arcade_screens_windows`: a source (an art
+  record with a bank, or one or two scroll 2 blocks side by side: `arcade_screens_sources`), the position of the tile's top left in the frame's coordinates,
+  the rows kept (all, odd, even) and the flip the PS1 stores it with. The frame is drawn by `compose.c` (the one parser of the records, also the code of
+  `screen_lists.c`), kept for the windows of one source that come together. Other builders find a window's frame through
+  `arcade_screens_source_index(kind, address, bank, blocks)`: the sources are keyed by what they draw.
+- **Finder** (`screen_windows.py`): `Windows.find(tile)` looks a disc tile up in the frames of `SOURCES` at any place and flip and returns the window whose cut
+  is exactly the tile. `--find` makes `SOURCES` (`--write` puts it in the file): it takes the tiles that no run or piece of the arcade gives, finds the
+  frames where they lie (the graphics as one picture, then the records and blocks that draw those tiles, then the records near a chosen one, since a pose's
+  frames lie one after another), and chooses frames by the tiles each adds: 157 frames hold 2,526 of 3,900 distinct tiles (the rest are the PS1's own text and
+  art, the Japanese quotes' glyphs that `quotes.c` rewrites, and the ASCII file's 59 tiles).
+- **By design on arcade tiles.** `ARCADE_SCREENS_BY_DESIGN` is allowed on tile runs and windows: the select screen's 19 big portraits are clipped by the
+  PS1 along a curve at their lower right; the build takes the arcade's whole tile (170 tiles, one DESIGN_ROWS row of units `portrait`, found by
+  `Windows.edge`: the arcade portrait tile that holds the clipped tile's pixels with the fewest more). Verify skips them. The dithered gradient page that
+  every select and win screen carries (the PS1's own noise, no arcade source) is blank by design (rows of units `all`).
+- **The first word of a chunk.** The game's disc stream compares each chunk's first word with the first word of its record in the archive header
+  (`record_param`) and reads the file again when they differ; a chunk that starts with bytes built by design (the gradient page's first sector, blanked, made
+  the select screen's loader read three times and then fail in the sound library) must keep the header's word. `arcade_screens_head_word` writes it over
+  the bytes 0 to 3 that are marked by design and not in a packed segment, and marks them equal to the disc's; `arcade.c` reads the word from the archive header
+  sector when it builds (`pac_chunk_entry`, 8 bytes into the record), never from a table, and the model and the unit tests have the same rule.
+- **Served owned.** Every segment that had only these tiles missing is now built from the arcade alone (a packed segment equal to the disc's tiles but
+  for the by-design ones): the pack keeps none of it.
+
+Checked on 2026-10-24: the unit tests (compose 12, screens 47, windows 8, screen lists 14, module data 33), `other_files.py --compare-c` (0 problems, 68,959 units by design), `screen_lists.py --compare-c` (unchanged against the commit before), `--arcade-check` status 0. Screens built from the arcade alone: 23.83 to
+32.82 MB; of the disc's files the arcade builds 53% to 61% (cdemo 35% to 51%, cont 53% to 72%, demo 41% to 60%, select 49%, selecta 69%). A pack made with
+the new build (`--arcade-import`) keeps 5.62 MB of the disc's files where the one before kept 14.21 MB (the file 18.79 to 10.13 MB). Left: the name plates' map
+(NDEMO slot 0x11, 164 KB, the stage strips of the select backdrop), two continue segments that do not pack into the disc's room (CONT10, CONT10X, slot 0x13),
+the Japanese glyph tiles, the own cell lists.
+
 ## What the game reads, in order
 
 A run of 150 seconds on 2026-10-23 (title, menus, a fight of Ryu against
