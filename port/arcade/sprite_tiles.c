@@ -61,7 +61,7 @@ int arcade_sprite_tiles_build(const struct arcade_sprite_chunk *c, const uint8_t
             at += run->count;
             continue;
         }
-        if (run->step < -1 || run->step > 1 || run->flip > 3) {
+        if (run->step < -1 || run->step > 1 || (run->flip & ~(3u | ARCADE_SPRITE_REDRAWN))) {
             fail(err, errsize, c->file, "bad step or flip in run", r, at);
             return -1;
         }

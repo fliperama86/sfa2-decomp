@@ -588,12 +588,12 @@ static unsigned fighters(struct port_disc *d, int check)
 
 static int file_index(struct port_disc *d, const char *name);
 
-/* Whether tile k of chunk c is the PS1's own art (an OWN run). */
+/* Whether tile k of chunk c is not the disc's by design: the PS1's own art (an OWN run) or a tile of it redrawn as the arcade draws it. */
 static int sprite_tile_own(const struct arcade_sprite_chunk *c, uint32_t k)
 {
     unsigned r;
     for (r = 0; r < c->run_count; r++) {
-        if (k < c->runs[r].count) return c->runs[r].code == ARCADE_SPRITE_RUN_OWN;
+        if (k < c->runs[r].count) return c->runs[r].code == ARCADE_SPRITE_RUN_OWN || (c->runs[r].flip & ARCADE_SPRITE_REDRAWN);
         k -= c->runs[r].count;
     }
     return 0;
@@ -632,7 +632,7 @@ static unsigned sprite_chunks(struct port_disc *d, int check)
                 char e2[PORT_ERR];
                 full = port_map_extra(e2, sizeof e2) == 0;
             }
-            if (own && !full) {   /* the PS1's own art (Gen's poses the arcade draws its own way): the chunk stays the disc's for now */
+            if (own && !full) {   /* the PS1's own art the table does not redraw (none is expected): the chunk stays the disc's */
                 printf("arcade%s: sprites: %s: %u tiles are the PS1's own art; the chunk stays the %s's\n", check ? " check" : "", c->file, own,
                        pack_disc ? "pack" : "disc");
                 continue;

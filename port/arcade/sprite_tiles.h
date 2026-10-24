@@ -14,8 +14,12 @@
 #define ARCADE_SPRITE_RUN_BLANK 0xfffffffeu   /* code of a run of blank tiles (all pixels 0) */
 #define ARCADE_SPRITE_RUN_OWN 0xffffffffu     /* code of a run of tiles the arcade does not have */
 
+/* Bit 2 of a run's flip: tiles where the disc has the PS1's own art (poses the arcade draws its own way), drawn as the arcade draws the
+ * same cells (by the owner's rule "rebuild arcade-style"). They differ from the disc's tiles by design; the loader's check skips them. */
+#define ARCADE_SPRITE_REDRAWN 4u
+
 /* Tiles `count` from the run's place on: arcade codes code, code + step, code + 2 * step, ... each stored with flip (bit 0 across,
- * bit 1 down); step is 1, 0 (the same tile again) or -1. */
+ * bit 1 down; bit 2 ARCADE_SPRITE_REDRAWN); step is 1, 0 (the same tile again) or -1. */
 struct arcade_sprite_run {
     uint32_t code;
     uint16_t count;

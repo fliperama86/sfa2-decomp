@@ -128,6 +128,42 @@ class Python(unittest.TestCase):
         with self.assertRaises(ValueError):
             X.expand_runs([(0, 2, -1, 0)], GFX)
 
+    def test_redraw_and_own_numbers(self):
+        tiles = [X.BLANK_TILE, tile(3), tile(4), tile(5)]
+        runs = X.make_runs([tiles[0], tile(3), bytes([0x37]) * 128, bytes([0x38]) * 128], self.index)
+        self.assertEqual(X.own_numbers(runs), {2, 3})
+        saved = X.REDRAWN
+        try:
+            X.REDRAWN = ((2, 7, 1), (3, None, 0))
+            out, changed = X.redraw(tiles, {2, 3}, GFX)
+            self.assertEqual(changed, {2, 3})
+            self.assertEqual(out, [tiles[0], tiles[1], tile(7, 1), X.BLANK_TILE])
+            with self.assertRaises(ValueError):    # the numbers must be exactly the chunk's own tiles
+                X.redraw(tiles, {2}, GFX)
+            X.REDRAWN = ((2, N, 0), (3, None, 0))
+            with self.assertRaises(ValueError):    # a code outside the graphics
+                X.redraw(tiles, {2, 3}, GFX)
+        finally:
+            X.REDRAWN = saved
+
+    def test_mark_splits_the_redrawn_tiles(self):
+        runs = [(10, 4, 1, 1), (X.BLANK, 2, 0, 0), (20, 3, -1, 0)]
+        self.assertEqual(X.mark(runs, set()), runs)
+        self.assertEqual(X.mark(runs, {1, 2, 4, 8}), [
+            (10, 1, 0, 1), (11, 2, 1, 1 | X.REDRAWN_FLIP), (13, 1, 0, 1),
+            (X.BLANK, 1, 0, X.REDRAWN_FLIP), (X.BLANK, 1, 0, 0),
+            (20, 2, -1, 0), (18, 1, 0, X.REDRAWN_FLIP)])
+        self.assertEqual(X.expand_runs(X.mark(runs, {1, 2, 4, 8}), GFX), X.expand_runs(runs, GFX))
+
+    def test_redrawn_table_is_the_gen_files(self):
+        numbers = [t for t, _c, _f in X.REDRAWN]
+        self.assertEqual(len(numbers), 62)
+        self.assertEqual(len(set(numbers)), 62)
+        self.assertEqual(numbers, sorted(numbers))
+        self.assertEqual(numbers[:32], list(range(3180, 3212)))
+        self.assertTrue(all(f in range(4) for _t, _c, f in X.REDRAWN))
+        self.assertEqual(X.REDRAWN_FILES, {'PL11.PAC', 'PL11X.PAC', 'PL13.PAC', 'PL13X.PAC'})
+
     def test_compare_numbering(self):
         tiles = [X.BLANK_TILE, tile(3), tile(4, 1), tile(5)]
         runs = self.runs(tiles)
@@ -162,7 +198,7 @@ def rows_for_c():
         dict(file='more', slot=1, size=20000, tiles=3, runs=[(1, 2, 1, 0), (5, 2, 1, 0)]),
         dict(file='fewer', slot=1, size=20000, tiles=5, runs=[(1, 2, 1, 0), (5, 2, 1, 0)]),
         dict(file='step', slot=1, size=20000, tiles=2, runs=[(1, 2, 2, 0)]),
-        dict(file='flip', slot=1, size=20000, tiles=2, runs=[(1, 2, 1, 4)]),
+        dict(file='flip', slot=1, size=20000, tiles=2, runs=[(1, 2, 1, 8)]),
         dict(file='huge', slot=1, size=20000, tiles=2, runs=[(0xfffffff0, 2, 1, 0)]),
         dict(file='empty', slot=1, size=20000, tiles=0, runs=[]),
         dict(file='tight', slot=1, size=60, tiles=n, runs=good),

@@ -48,6 +48,42 @@ MAX_COUNT = 0xffff
 SWAP = bytes((b >> 4 | b << 4) & 0xff for b in range(256))   # swaps the nibbles of a byte (the pixels of a pair)
 BLANK_TILE = bytes(128)
 
+# Gen's PL11, PL11X, PL13 and PL13X (the four files are one chunk twice) hold 62 tiles of the PS1's own art, in four poses the arcade draws
+# its own way. By the owner's rule ("rebuild arcade-style") each such tile number is given the arcade tile the arcade draws in the same
+# cell, so the chunk builds whole from the arcade graphics and the cell lists stay the PS1's, byte for byte. Evidence (measured on
+# 2026-10-24 against the disc and the arcade set): the poses are the cell lists 186, 284, 285 and 287
+# of PL11; the arcade's lists of the same poses are lists 260, 515, 516 and 520 of PL17 (the arcade's mirror module, whose lists are the
+# converter's output for the arcade's records at 0x1eec78, 0x202440, 0x202458 and 0x202500). In each, every cell of the arcade's
+# list lies at a cell position of the PS1's list, with the same palette (list 186: the arcade's 28 cells are 28 of the PS1's 32; the other
+# four PS1 cells, tile numbers 3180 to 3182 and 3204, are blank). Each entry is (PS1 tile number, arcade tile code, flip as the PS1 stores
+# it, bit 0 across, bit 1 down; code None: blank); the flip is PL17's tile flip combined with the flip flags of the arcade's cell and of the
+# PS1's, so that the cell shows the arcade's pixels (the codes are those PL17's own rows of this table give for the arcade's cells).
+REDRAWN = (
+    (3180, None, 0), (3181, None, 0), (3182, None, 0),
+    (3183, 153068, 0), (3184, 153069, 0), (3185, 153070, 0),
+    (3186, 153071, 0), (3187, 153035, 0), (3188, 153037, 0),
+    (3189, 153038, 0), (3190, 153084, 0), (3191, 153085, 0),
+    (3192, 153086, 0), (3193, 153087, 0), (3194, 153053, 0),
+    (3195, 153054, 0), (3196, 153100, 0), (3197, 153101, 0),
+    (3198, 153102, 0), (3199, 153103, 0), (3200, 152880, 0),
+    (3201, 152881, 0), (3202, 152882, 0), (3203, 152879, 0),
+    (3204, None, 0), (3205, 152896, 0), (3206, 152897, 0),
+    (3207, 152898, 0), (3208, 152895, 0), (3209, 152912, 0),
+    (3210, 152913, 0), (3211, 152914, 0), (5374, 156089, 0),
+    (5379, 156105, 0), (5380, 156106, 0), (5381, 156107, 0),
+    (5386, 156122, 0), (5387, 156123, 0), (5390, 156080, 0),
+    (5392, 156082, 0), (5393, 156083, 0), (5394, 156084, 0),
+    (5396, 156096, 0), (5399, 156099, 0), (5400, 156100, 0),
+    (5401, 156101, 0), (5406, 156113, 0), (5407, 156114, 0),
+    (5408, 156115, 0), (5409, 156116, 0), (5410, 156117, 0),
+    (5415, 156092, 0), (5416, 156093, 0), (5422, 156153, 0),
+    (5423, 156154, 0), (5424, 156155, 0), (5425, 156142, 0),
+    (5426, 156144, 0), (5427, 156145, 0), (5429, 156169, 0),
+    (5431, 156171, 0), (5432, 156158, 0),
+)
+REDRAWN_FILES = {'PL11.PAC', 'PL11X.PAC', 'PL13.PAC', 'PL13X.PAC'}
+REDRAWN_FLIP = 4   # bit 2 of a run's flip: the run's tiles are REDRAWN ones (sprite_tiles.h ARCADE_SPRITE_REDRAWN)
+
 
 # ---------------------------------------------------------------- pure functions (tested without game data)
 
@@ -137,6 +173,49 @@ def own_tiles(runs):
     return sum(count for code, count, _s, _f in runs if code == OWN)
 
 
+def redraw(tiles, own, gfx):
+    """(the chunk's tiles with each REDRAWN tile number made from the arcade's tile, the set of numbers changed); ValueError when the numbers
+    are not exactly the tiles the arcade does not have (`own`: their numbers) or a code lies outside the graphics."""
+    if {t for t, _c, _f in REDRAWN} != set(own):
+        raise ValueError('the redrawn tile numbers are not the chunk\'s own tiles')
+    out = list(tiles)
+    for t, code, flip in REDRAWN:
+        if code is None:
+            out[t] = BLANK_TILE
+        elif code * 128 + 128 > len(gfx):
+            raise ValueError('a code lies outside the graphics')
+        else:
+            out[t] = flip_bytes(T.arcade_tile(gfx, code), flip)
+    return out, {t for t, _c, _f in REDRAWN}
+
+
+def mark(runs, numbers):
+    """The runs split so that the tiles numbered in `numbers` are runs of their own with REDRAWN_FLIP in their flip."""
+    out, at = [], 0
+    for code, count, step, flip in runs:
+        k = 0
+        while k < count:
+            red = at + k in numbers
+            j = k
+            while j < count and (at + j in numbers) == red:
+                j += 1
+            n = j - k
+            out.append((code if code in (BLANK, OWN) else code + step * k, n, step if n > 1 else 0, flip | (REDRAWN_FLIP if red else 0)))
+            k = j
+        at += count
+    return out
+
+
+def own_numbers(runs):
+    """The numbers of the tiles the runs mark OWN."""
+    out, at = set(), 0
+    for code, count, _s, _f in runs:
+        if code == OWN:
+            out |= set(range(at, at + count))
+        at += count
+    return out
+
+
 def tiles_of(runs):
     return sum(r[1] for r in runs)
 
@@ -208,7 +287,7 @@ def compare_numbering(tiles, runs, numbers, flips, gfx):
     at = 0
     for code, count, step, flip in runs:
         for k in range(count):
-            ours[at + k] = None if code in (BLANK, OWN) else (code + step * k, flip)
+            ours[at + k] = None if code in (BLANK, OWN) else (code + step * k, flip & 3)
         at += count
     same = alike = wrong = 0
     for n, code in numbers.items():
@@ -272,7 +351,11 @@ def compare_c(rows, gfx, text):
                 size = int(packed)
                 if worst is None or size - row['size'] > worst[0] - worst[1]:
                     worst = (size, row['size'], row['file'])
-        print(f'{len(rows) - bad_rows} of {len(rows)} rows: every tile built from the arcade equals the disc\'s decoded tile'
+        redrawn = [(r['file'], r['by_design']) for r in rows if r['by_design']]
+        if redrawn:
+            print('tiles that differ from the disc by design (REDRAWN: the PS1\'s own poses drawn as the arcade draws them; the C is checked against '
+                  'them as redrawn): ' + ', '.join(f'{n} {c}' for n, c in redrawn))
+        print(f'{len(rows) - bad_rows} of {len(rows)} rows: every tile built from the arcade equals the disc\'s decoded tile (REDRAWN tiles: the redrawn one)'
               + (f' (OWN tiles, which the C refuses and which are checked as the disc\'s, in {len(owned)} rows: ' + ', '.join(f'{n} {c}' for n, c in owned) + ')' if owned else ''))
         if worst:
             print(f'largest packed size against its room: {worst[2]} {worst[0]} B of {worst[1]} B (margin {worst[1] - worst[0]})')
@@ -308,10 +391,17 @@ def main(argv=None):
         clib = F.CLib(tmp)
         for row in rows:
             row['runs'] = make_runs(row['data'], index, cache)
+            row['by_design'] = 0
+            if row['file'] in REDRAWN_FILES:   # the PS1's own poses drawn as the arcade draws them (REDRAWN); the tiles then differ from the disc's by design
+                row['data'], changed = redraw(row['data'], own_numbers(row['runs']), gfx)
+                row['by_design'] = len(changed)
+                row['runs'] = mark(make_runs(row['data'], index, cache), changed)
             assert tiles_of(row['runs']) == row['tiles']
             own = own_tiles(row['runs'])
             blank = sum(c for code, c, _s, _f in row['runs'] if code == BLANK)
             s = f'{row["file"]} slot {row["slot"]}: {row["tiles"]} tiles, {len(row["runs"])} runs, {blank} blank, OWN {own}'
+            if row['by_design']:
+                s += f', {row["by_design"]} redrawn from the arcade (differ from the disc by design)'
             built = clib.build(prog, row['file'])
             if isinstance(built, str):
                 s += f'; fighter.c refused: {built}'
