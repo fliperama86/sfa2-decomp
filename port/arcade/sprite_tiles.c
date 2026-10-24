@@ -34,6 +34,14 @@ static void convert(const uint8_t *t, unsigned flip, uint8_t out[128])
         }
 }
 
+/* Quarter q (0 top left, 1 top right, 2 bottom left, 3 bottom right) of a 32 x 32 pixel arcade tile (rows of 16 bytes: four groups of
+ * four planes) as a 16 x 16 tile's bytes (rows of 8 bytes). */
+static void quarter(const uint8_t *t32, unsigned q, uint8_t out[128])
+{
+    unsigned y;
+    for (y = 0; y < 16; y++) memcpy(out + y * 8u, t32 + (y + 16u * (q >> 1)) * 16u + 8u * (q & 1u), 8);
+}
+
 int arcade_sprite_tiles_build(const struct arcade_sprite_chunk *c, const uint8_t *tiles, size_t tiles_size, uint8_t (*out)[128],
                               char *err, size_t errsize)
 {
@@ -61,17 +69,25 @@ int arcade_sprite_tiles_build(const struct arcade_sprite_chunk *c, const uint8_t
             at += run->count;
             continue;
         }
-        if (run->step < -1 || run->step > 1 || (run->flip & ~(3u | ARCADE_SPRITE_REDRAWN))) {
+        if (run->step < -1 || run->step > 1 || (run->flip & ~(3u | ARCADE_SPRITE_REDRAWN | ARCADE_SPRITE_SCROLL3 | 3u << ARCADE_SPRITE_QUARTER_SHIFT)) ||
+            (!(run->flip & ARCADE_SPRITE_SCROLL3) && (run->flip >> ARCADE_SPRITE_QUARTER_SHIFT))) {
             fail(err, errsize, c->file, "bad step or flip in run", r, at);
             return -1;
         }
         for (i = 0; i < run->count; i++) {
             long long code = (long long)run->code + (long long)run->step * (long long)i;
-            if (code < 0 || (unsigned long long)code >= graphics) {
-                fail(err, errsize, c->file, "a code lies outside the graphics", (unsigned long)(code < 0 ? 0 : code), (unsigned long)graphics);
+            const size_t limit = run->flip & ARCADE_SPRITE_SCROLL3 ? tiles_size / 512u : graphics;
+            if (code < 0 || (unsigned long long)code >= limit) {
+                fail(err, errsize, c->file, "a code lies outside the graphics", (unsigned long)(code < 0 ? 0 : code), (unsigned long)limit);
                 return -1;
             }
-            convert(tiles + (size_t)code * 128u, run->flip, out[at + i]);
+            if (run->flip & ARCADE_SPRITE_SCROLL3) {
+                uint8_t q[128];
+                quarter(tiles + (size_t)code * 512u, (run->flip >> ARCADE_SPRITE_QUARTER_SHIFT) & 3u, q);
+                convert(q, run->flip & 3u, out[at + i]);
+            } else {
+                convert(tiles + (size_t)code * 128u, run->flip, out[at + i]);
+            }
         }
         at += run->count;
     }

@@ -9,6 +9,8 @@ C side: sprite_tiles.c, built with the address and undefined-behavior sanitizers
 the generator writes for made-up rows: arcade_sprite_chunk_find, arcade_sprite_tiles_build (agrees with the Python expansion for every step,
 flip and BLANK; refuses an OWN run, a code outside the graphics, a run list that adds up to more or fewer tiles than the chunk has, a bad
 step or flip), the packing check of the driver, and that the generated table and the checked-in one compile with sprite_tiles.c.
+The quarters of 32 x 32 pixel scroll 3 tiles (the effect sprites of the stage files) are covered on both sides: the index, the candidates,
+the runs, the expansion, the C build and its refusals (a quarter number without the flag, a 32 pixel code outside the graphics).
 """
 from pathlib import Path
 import random, subprocess, sys, tempfile, time, unittest
@@ -128,6 +130,48 @@ class Python(unittest.TestCase):
         with self.assertRaises(ValueError):
             X.expand_runs([(0, 2, -1, 0)], GFX)
 
+    def test_quarters_of_32_pixel_tiles(self):
+        # GFX holds 10 tiles of 32 x 32 pixels (512 bytes each) as well as 40 of 16 x 16: a quarter is 16 rows of 8 bytes of the 32 pixel rows of 16
+        for t, q in ((0, 0), (3, 1), (9, 2), (4, 3)):
+            raw = X.quarter_raw(GFX, t, q)
+            self.assertEqual(len(raw), 128)
+            first = 512 * t + (16 * 16 if q >> 1 else 0) + (8 if q & 1 else 0)
+            self.assertEqual(raw[:8], GFX[first:first + 8])
+            self.assertEqual(raw[8:16], GFX[first + 16:first + 24])
+            self.assertEqual(raw[120:], GFX[first + 15 * 16:first + 15 * 16 + 8])
+        index32 = X.tile_index32(GFX)
+        self.assertEqual(sum(len(v) for v in index32.values()), 40)
+        quart = lambda t, q, f=0: X.flip_bytes(X.T.arcade_tile(X.quarter_raw(GFX, t, q), 0), f)
+        self.assertEqual(X.candidates(quart(3, 1, 2), {}, None, index32), [X.BASE32 + (3 * 4 + 1) * 4 + 2])
+        self.assertEqual(X.candidates(quart(3, 1, 2), self.index), [])
+        # runs of quarters: the same quarter and flip of consecutive 32 pixel tiles, either way, or one tile again
+        runs = X.make_runs([quart(2, 1, 2), quart(3, 1, 2), quart(4, 1, 2)], self.index, None, index32)
+        self.assertEqual(runs, [(2, 3, 1, 2 | X.SCROLL3_FLIP | 1 << 4)])
+        self.assertEqual(X.make_runs([quart(5, 3), quart(4, 3), quart(3, 3)], self.index, None, index32), [(5, 3, -1, X.SCROLL3_FLIP | 3 << 4)])
+        self.assertEqual(X.make_runs([quart(5, 2)] * 2, self.index, None, index32), [(5, 2, 0, X.SCROLL3_FLIP | 2 << 4)])
+        self.assertEqual(X.make_runs([quart(5, 2), quart(5, 3)], self.index, None, index32), [(5, 1, 0, X.SCROLL3_FLIP | 2 << 4), (5, 1, 0, X.SCROLL3_FLIP | 3 << 4)])
+        # without index32 such a tile has no source; a 16 pixel tile is found as before, and mixed lists work
+        self.assertEqual(X.make_runs([quart(5, 2)], self.index), [(X.OWN, 1, 0, 0)])
+        mixed = [tile(3), quart(2, 0), quart(2, 1), X.BLANK_TILE, tile(4, 1)]
+        runs = X.make_runs(mixed, self.index, None, index32)
+        self.assertEqual(X.expand_runs(runs, GFX), mixed)
+        # a tile that is a 16 pixel tile and a quarter takes the 16 pixel tile
+        gfx = bytearray(GFX)
+        gfx[20 * 128:21 * 128] = X.quarter_raw(bytes(gfx), 1, 0)
+        t20 = X.T.arcade_tile(bytes(gfx), 20)
+        self.assertEqual(X.make_runs([t20], X.tile_index(bytes(gfx)), None, X.tile_index32(bytes(gfx))), [(20, 1, 0, 0)])
+        with self.assertRaises(ValueError):
+            X.expand_runs([(10, 1, 0, X.SCROLL3_FLIP)], GFX)            # only 10 tiles of 32 pixels: codes 0 to 9
+
+    def test_own_tiles_become_blank_marked_by_design(self):
+        own = bytes([0x37]) * 128
+        data = [X.BLANK_TILE, tile(1), own, own, tile(2)]
+        runs, tiles, n = X.blank_own(X.make_runs(data, self.index), data)
+        self.assertEqual(runs, [(X.BLANK, 1, 0, 0), (1, 1, 0, 0), (X.BLANK, 2, 0, X.REDRAWN_FLIP), (2, 1, 0, 0)])
+        self.assertEqual((tiles, n), ([X.BLANK_TILE, tile(1), X.BLANK_TILE, X.BLANK_TILE, tile(2)], 2))
+        self.assertEqual(X.expand_runs(runs, GFX), tiles)
+        self.assertEqual(X.own_tiles(runs), 0)
+
     def test_redraw_and_own_numbers(self):
         tiles = [X.BLANK_TILE, tile(3), tile(4), tile(5)]
         runs = X.make_runs([tiles[0], tile(3), bytes([0x37]) * 128, bytes([0x38]) * 128], self.index)
@@ -185,6 +229,14 @@ class Python(unittest.TestCase):
         self.assertNotIn(chr(0x2014), text)
 
 
+def quart(t, q, f=0):
+    return X.flip_bytes(X.T.arcade_tile(X.quarter_raw(GFX, t, q), 0), f)
+
+
+Q_TILES = [X.BLANK_TILE, tile(3), quart(0, 0), quart(1, 0), quart(2, 0), quart(7, 3, 1), quart(7, 2, 3), quart(6, 1, 2), quart(6, 1, 2), X.BLANK_TILE, tile(9, 1)]
+Q_RUNS = X.make_runs(Q_TILES, X.tile_index(GFX), None, X.tile_index32(GFX))
+
+
 def rows_for_c():
     tiles = [X.BLANK_TILE, tile(3), tile(4), tile(5), tile(5), tile(9, 1), tile(8, 1), tile(7, 2), tile(39, 3), X.BLANK_TILE]
     good = X.make_runs(tiles, X.tile_index(GFX))
@@ -198,7 +250,11 @@ def rows_for_c():
         dict(file='more', slot=1, size=20000, tiles=3, runs=[(1, 2, 1, 0), (5, 2, 1, 0)]),
         dict(file='fewer', slot=1, size=20000, tiles=5, runs=[(1, 2, 1, 0), (5, 2, 1, 0)]),
         dict(file='step', slot=1, size=20000, tiles=2, runs=[(1, 2, 2, 0)]),
-        dict(file='flip', slot=1, size=20000, tiles=2, runs=[(1, 2, 1, 8)]),
+        dict(file='flip', slot=1, size=20000, tiles=2, runs=[(1, 2, 1, 64)]),
+        dict(file='quarter', slot=1, size=20000, tiles=2, runs=[(1, 2, 1, 16)]),
+        dict(file='scroll3', slot=3, size=20000, tiles=len(Q_TILES), runs=Q_RUNS),
+        dict(file='q3out', slot=3, size=20000, tiles=2, runs=[(9, 2, 1, X.SCROLL3_FLIP)]),
+        dict(file='q3below', slot=3, size=20000, tiles=2, runs=[(0, 2, -1, X.SCROLL3_FLIP | 2 << 4)]),
         dict(file='huge', slot=1, size=20000, tiles=2, runs=[(0xfffffff0, 2, 1, 0)]),
         dict(file='empty', slot=1, size=20000, tiles=0, runs=[]),
         dict(file='tight', slot=1, size=60, tiles=n, runs=good),
@@ -248,6 +304,14 @@ class C(unittest.TestCase):
         run, got = self.build('good')
         self.assertEqual(got, b''.join(X.expand_runs(self.rows[0]['runs'], GFX)))
 
+    def test_quarters_of_32_pixel_tiles_build_as_python_expands_them(self):
+        self.assertTrue(any(r[3] & X.SCROLL3_FLIP for r in Q_RUNS))
+        self.assertEqual({(r[3] >> 4) & 3 for r in Q_RUNS if r[3] & X.SCROLL3_FLIP}, {0, 1, 2, 3})
+        run, got = self.build('scroll3')
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(got, b''.join(Q_TILES))
+        self.assertEqual(got, b''.join(X.expand_runs(Q_RUNS, GFX)))
+
     def test_the_runs_of_each_step_and_flip(self):
         # one row per step and flip is not in the table; the good row has steps 1, 0 and -1 and flips 0 to 3 (checked above), and an empty row builds nothing
         run, got = self.build('empty')
@@ -260,7 +324,8 @@ class C(unittest.TestCase):
 
     def test_refusals(self):
         for name, what in (('own', 'does not have'), ('outside', 'outside the graphics'), ('below', 'outside the graphics'), ('huge', 'outside the graphics'),
-                           ('more', 'more tiles'), ('fewer', 'fewer tiles'), ('step', 'bad step'), ('flip', 'bad step or flip')):
+                           ('more', 'more tiles'), ('fewer', 'fewer tiles'), ('step', 'bad step'), ('flip', 'bad step or flip'),
+                           ('quarter', 'bad step or flip'), ('q3out', 'outside the graphics'), ('q3below', 'outside the graphics')):
             run, got = self.build(name)
             self.assertEqual(run.returncode, 3, name)
             self.assertIn(what, run.stderr, name)

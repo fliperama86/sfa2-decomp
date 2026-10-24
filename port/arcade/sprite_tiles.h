@@ -18,8 +18,16 @@
  * same cells (by the owner's rule "rebuild arcade-style"). They differ from the disc's tiles by design; the loader's check skips them. */
 #define ARCADE_SPRITE_REDRAWN 4u
 
+/* Bit 3 of a run's flip: the run's codes are tiles of the arcade's 32 x 32 pixel scroll 3 graphics (512 bytes each, numbered from the first
+ * of the graphics), and each PS1 tile is one quarter of such a tile: bits 4 and 5 of the flip number the quarter (0 top left, 1 top right,
+ * 2 bottom left, 3 bottom right). The quarter is taken first, then flipped as bits 0 and 1 say. The effect sprites of a stage file
+ * (slot 3 of STAGEnn.PAC) are partly the arcade's scroll 3 pictures cut into 16 x 16 tiles. */
+#define ARCADE_SPRITE_SCROLL3 8u
+#define ARCADE_SPRITE_QUARTER_SHIFT 4u
+
 /* Tiles `count` from the run's place on: arcade codes code, code + step, code + 2 * step, ... each stored with flip (bit 0 across,
- * bit 1 down; bit 2 ARCADE_SPRITE_REDRAWN); step is 1, 0 (the same tile again) or -1. */
+ * bit 1 down; bit 2 ARCADE_SPRITE_REDRAWN; bit 3 and bits 4 and 5 ARCADE_SPRITE_SCROLL3, see there); step is 1, 0 (the same tile
+ * again) or -1. A BLANK run with REDRAWN set is a tile the disc has the PS1's own art in and the arcade does not show: blank. */
 struct arcade_sprite_run {
     uint32_t code;
     uint16_t count;

@@ -691,7 +691,7 @@ static unsigned sprite_chunks(struct port_disc *d, int check)
         ranges[range_count - 1].owned = 1;
     }
     free(jobs);
-    printf("arcade%s: sprites: %u fighter files' sprite chunks (%u tiles, %llu bytes) built whole from the arcade graphics%s\n", check ? " check" : "",
+    printf("arcade%s: sprites: %u sprite chunks of the fighter and stage files (%u tiles, %llu bytes) built whole from the arcade graphics%s\n", check ? " check" : "",
            n, tiles_total, bytes, check ? ", each tile the disc's" : " and used");
     fflush(stdout);
     return bad;
