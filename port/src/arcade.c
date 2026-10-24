@@ -750,6 +750,44 @@ static void screen_lists(struct port_disc *d, int check)
     fflush(stdout);
 }
 
+/* The screens' backdrop maps (screen_lists.c): the cell map built from the arcade's scroll-1 sets over the picture the screens table
+ * builds, served where built and equal to the disc's. */
+static void backdrops(struct port_disc *d, int check)
+{
+    unsigned i, u, at, n, map_at, map_n;
+    unsigned long long served = 0;
+    char err[PORT_ERR];
+    for (i = 0; i < arcade_screen_lists_backdrop_count; i++) {
+        const struct arcade_screen_lists_backdrop *bd = &arcade_screen_lists_backdrops[i];
+        const struct arcade_screens_file *sf = arcade_screens_find(bd->file);
+        const struct arcade_screens_recipe *r = NULL;
+        struct arcade_screens_out pic;
+        unsigned char *disc, *map, *known;
+        int f = file_index(d, bd->file);
+        for (u = sf ? sf->first : 0; sf && u < (unsigned)sf->first + sf->count; u++)
+            if (arcade_screens_uses[u].table == 0 && arcade_screens_uses[u].slot == bd->picture_slot && arcade_screens_uses[u].ordinal == 0)
+                r = &arcade_screens_recipes[arcade_screens_uses[u].recipe];
+        if (!r || pac_chunk(d, &files[f], bd->picture_slot, &at, &n) != 0 || n != r->size || bd->picture_offset > n ||
+            pac_chunk(d, &files[f], bd->slot, &map_at, &map_n) != 0 || (size_t)bd->columns * bd->rows * 4u > map_n)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: the backdrop is not laid out as the table says", bd->file);
+        if (!(disc = disc_bytes(d, &files[f], at, n))) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", bd->file);
+        if (arcade_screens_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, r, disc, n, &pic, err, sizeof err) != 0)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", bd->file, err);
+        free(disc);
+        map_n = (unsigned)bd->columns * bd->rows * 4u;
+        if (!(map = calloc(map_n, 1)) || !(known = calloc(map_n, 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+        if (arcade_screen_lists_backdrop_build(rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, bd, pic.data + bd->picture_offset,
+                                               pic.known + bd->picture_offset, pic.size - bd->picture_offset, map, known, map_n, err, sizeof err) != 0)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", bd->file, err);
+        free(pic.data); free(pic.known);
+        served += serve_units(d, f, map_at, map, known, map_n, 1, check);
+        free(known);
+        if (check) free(map);   /* else the ranges point into it */
+    }
+    printf("arcade%s: screens: %llu bytes of backdrop maps built from the arcade set and %s\n", check ? " check" : "", served, check ? "equal to the disc's" : "used");
+    fflush(stdout);
+}
+
 /* ---- music: the arcade's songs in place of the disc's recorded streams (port/arcade/music.md, section 11) */
 
 /* The PS1's music code (file * 256 + channel of ZERO2_XA/ZERO20N.XA) and the arcade song that is the same music: the fighters'
@@ -1242,6 +1280,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     stages(d, check);
     wrong += screens(d, check);
     screen_lists(d, check);
+    backdrops(d, check);
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();

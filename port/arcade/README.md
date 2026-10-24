@@ -273,8 +273,15 @@ scripts (nothing of it is in the tree):
   the fighters' rules but for the numbering, which looks each tile up in the
   chain's tile segment (the lowest number with the same pixels, either flip),
   a part per change of x by other than 16, and a palette map per run of
-  records: 1.16 MB of their lists and positions are built and served. Not
-  built: pictures the PS1 cut from scroll data and the text lines.
+  records. Also from the arcade: the select screen's portraits (mode-4
+  records), its grids (a record of mode 10: height, width, then codes
+  column by column), pictures that are windows of the scroll-2 blocks at
+  `0x2c0300`, the character intros' illustrations, and the select screen's
+  backdrop map (160 rows of 64 scroll-1 cells from sets 64 and on, 84 and
+  0). 1.74 MB of the lists and positions and the 40 KB map are built and
+  served. Not built: the dialogue text, and pictures the PS1 re-flowed or
+  composed from several frames (the arcade has their cells, not their
+  places).
   The PS1's own: the movies (4 STR), the recorded music (8 XA files), the
   four full-color ending illustrations, the title picture, the layout of the
   dialogue text, the select screen's 27 voice samples, `CAPCOM.BIN`.
