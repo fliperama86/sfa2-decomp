@@ -491,7 +491,7 @@ class ScreensTable:
 
     def __init__(self, path=HERE / 'screens_table.c'):
         text = path.read_text()
-        names = {'Z': Z, 'D': D, 'P': P, 'SEG': 1, 'RAW': 2, 'PALS': 3, 'PIC': 4}
+        names = {'Z': Z, 'D': D, 'P': P, 'BD': 0x80000000, 'OT': 1, 'OP': 2, 'OF': 3, 'OD': 4, 'OB': 5, 'SEG': 1, 'RAW': 2, 'PALS': 3, 'PIC': 4}
 
         def array(name):
             m = re.search(r'\b' + name + r'\[\]\s*=\s*\{(.*?)\n\};', text, re.S)
@@ -534,9 +534,9 @@ class ScreensTable:
                     continue
                 tiles = []
                 for code, n, flip in self.items[ifirst:ifirst + icount]:
-                    if code == Z:
+                    if code == Z and not flip & 0x80000000:
                         tiles += ['zero'] * n
-                    elif code in (D, P):
+                    elif code in (Z, D, P):      # a by-design blank tile (BY_DESIGN) is still the PS1's own tile for the lists' numbering
                         tiles += [None] * n
                     else:
                         tiles += [(code + j, flip & 3) for j in range(n)]
@@ -1311,7 +1311,7 @@ class CLib:
     def __init__(self, tmp):
         lib = Path(tmp) / 'screen_lists.so'
         subprocess.run(['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-shared', '-fPIC', '-o', str(lib)] + [str(HERE / n) for n in
-                       ('screen_lists.c', 'screen_lists_table.c', 'screens.c', 'screens_table.c', 'tilepack.c')], check=True, capture_output=True, timeout=120)
+                       ('compose.c', 'screen_lists.c', 'screen_lists_table.c', 'screens.c', 'screens_table.c', 'tilepack.c')], check=True, capture_output=True, timeout=120)
         self.lib = ctypes.CDLL(str(lib))
         count = ctypes.c_uint.in_dll(self.lib, 'arcade_screen_lists_use_count').value
         self.uses = (self.Use * count).in_dll(self.lib, 'arcade_screen_lists_uses')

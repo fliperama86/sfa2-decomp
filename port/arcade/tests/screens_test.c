@@ -4,10 +4,10 @@
  *   screens_test all                                      build every recipe of the table with a blank arcade of the real sizes
  * SPEC is text, one item a line:
  *   region KIND OFFSET SIZE WIDTH      (KIND is SEG, RAW, PALS or PIC; the chunk is OFFSET + SIZE bytes)
- *   item FIRST COUNT FLIP              (FIRST may be ZERO, DISC or PIECES)
- *   op KIND X Y W H FIRST STEPX STEPY FLIP   (KIND is TILE, PIECE, FLAT or DISC)
+ *   item FIRST COUNT FLIP              (FIRST may be ZERO, DISC or PIECES; FLIP 2147483648 on a ZERO item is by design)
+ *   op KIND X Y W H FIRST STEPX STEPY FLIP   (KIND is TILE, PIECE, FLAT, DISC or BLANK)
  *   piece A B C D
- * OUTDIR gets out.bin and out.known; stdout gets "unbuilt N" on success, or "error: ..." and status 1 when the build refuses. */
+ * OUTDIR gets out.bin and out.known; stdout gets "unbuilt N design M" on success, or "error: ..." and status 1 when the build refuses. */
 #include "../screens.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,9 +62,9 @@ static unsigned kind_of(const char *w)
 
 static unsigned op_of(const char *w)
 {
-    static const char *const names[] = {"TILE", "PIECE", "FLAT", "DISC"};
+    static const char *const names[] = {"TILE", "PIECE", "FLAT", "DISC", "BLANK"};
     unsigned i;
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < 5; i++)
         if (!strcmp(w, names[i])) return i + 1;
     return 99;
 }
@@ -109,11 +109,11 @@ static int build(int argc, char **argv)
         printf("error: %s\n", err);
         rc = 1;
     } else {
-        printf("unbuilt %u\n", out.unbuilt);
+        printf("unbuilt %u design %u\n", out.unbuilt, out.design);
         if (disc) {
             struct arcade_screens_out o2 = out;
             char e2[256];
-            if (arcade_screens_verify_regions(&g, 1, &o2, disc, dsize, e2, sizeof e2) == 0)
+            if (arcade_screens_verify_regions(&g, 1, items, &o2, disc, dsize, e2, sizeof e2) == 0)
                 printf("verify ok\n");
             else
                 printf("verify: %s\n", e2);

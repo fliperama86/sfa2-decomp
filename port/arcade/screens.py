@@ -15,7 +15,11 @@ A chunk's recipe is a list of REGIONS (byte ranges of the chunk); what lies outs
         each channel doubled; black is 0x8000 unless flag 1; flag 2 sets bit 15 of every colour), ZERO palettes, DISC palettes.
   pic   a picture of 4 bits a pixel, `width` pixels wide, in rows: blank unless drawn by OPS: tile rects (16 x 16 arcade tiles a cell, the code
         stepping by stepx across and stepy down), piece rects (8 x 8 pieces of scroll 1: piece k is the left half of arcade tile k >> 1, the top
-        rows for an even k, the bottom for an odd one), flat rects, and DISC rects (stay the disc's, unknown).
+        rows for an even k, the bottom for an odd one), flat rects, DISC rects (stay the disc's, unknown) and BLANK rects (zero by design).
+
+BY DESIGN. A ZERO item whose flip carries BY_DESIGN, and a BLANK op, are blank on purpose where the disc is not: the units differ from the disc's and are
+        taken from nothing. They are listed in BY_DESIGN below, one explicit row each (what, where, how many units, why), never found by a heuristic. Their bytes are
+        known 2 (served as built, not compared with the disc) outside segments, and a segment that has no DISC tile left is built whole; the C counts them.
 
 Colour index: the PS1's is the arcade's plus one (the arcade's 15, transparent, is 0). Flip bit 0 mirrors across, bit 1 down.
 
@@ -44,7 +48,8 @@ PAL_BLACK_ZERO = 1         # palette flag: a black colour stays 0
 PAL_BIT15 = 2              # palette flag: bit 15 of colours 1 to 15 is set
 FLAT_BASE = 0xfffffff0     # a piece id (k << 2 | flip) at or above this is a flat piece of value id & 15
 
-OP_TILE, OP_PIECE, OP_FLAT, OP_DISC = 1, 2, 3, 4
+BY_DESIGN = 0x80000000     # a flip bit of a ZERO item: blank on purpose, not because the disc is blank there
+OP_TILE, OP_PIECE, OP_FLAT, OP_DISC, OP_BLANK = 1, 2, 3, 4, 5
 SEG, RAW, PALS, PIC = 1, 2, 3, 4
 KIND_NAMES = {SEG: 'seg', RAW: 'raw', PALS: 'pals', PIC: 'pic'}
 
@@ -128,8 +133,21 @@ class ModelError(ValueError):
     pass
 
 
+def check_design(items):
+    """Refuse the by-design mark on an item that is not a ZERO item."""
+    for first, _count, flip in items:
+        if flip & BY_DESIGN and first != ZERO:
+            raise ModelError('the by-design mark is on an item that is not blank')
+
+
+def design_flags(items):
+    """[bool] for each tile or palette of a list of items: blank by design."""
+    return [first == ZERO and bool(flip & BY_DESIGN) for first, count, flip in items for _ in range(count)]
+
+
 def tile_items(arc, items, pieces):
     """[(128 bytes or None for a DISC tile)] of a list of items (first, count, flip)."""
+    check_design(items)
     out = []
     for first, count, flip in items:
         if first == DISC:
@@ -154,6 +172,7 @@ def tile_items(arc, items, pieces):
 
 def palette_items(prog, items):
     """[(32 bytes or None for a DISC palette)] of palette items (address, count, flags)."""
+    check_design(items)
     out = []
     for first, count, flags in items:
         if first == DISC:
@@ -185,15 +204,17 @@ def picture_ops(arc, ops, width, size):
         raise ModelError('picture width %d does not fit %d bytes' % (width, size))
     rows = size // row
     data, known = bytearray(size), bytearray(b'\x01') * size
-    disc_rects = []
     for kind, x, y, w, h, first, sx, sy, flip in ops:
         unit = 16 if kind == OP_TILE else 8
-        if kind == OP_DISC:
-            unit = 8
+        if kind not in (OP_TILE, OP_PIECE, OP_FLAT, OP_DISC, OP_BLANK):
+            raise ModelError('picture op kind %d' % kind)
         if (x * 8 + unit * w > width) or (y * 8 + unit * h > rows):
             raise ModelError('picture op outside the picture')
-        if kind == OP_DISC:
-            disc_rects.append((x, y, w, h))
+        if kind in (OP_DISC, OP_BLANK):     # in order, as the C does: zero, and unknown (DISC) or by design (BLANK, known 2)
+            for yy in range(y * 8, (y + h) * 8):
+                a = yy * row + x * 4
+                data[a:a + w * 4] = bytes(w * 4)
+                known[a:a + w * 4] = bytes([2 if kind == OP_BLANK else 0]) * (w * 4)
             continue
         for j in range(h):
             for i in range(w):
@@ -207,11 +228,6 @@ def picture_ops(arc, ops, width, size):
                     if p is None:
                         raise ModelError('piece outside the graphics')
                     blit(data, row, x * 8 + 8 * i, y * 8 + 8 * j, p, 8)
-    for x, y, w, h in disc_rects:
-        for yy in range(y * 8, (y + h) * 8):
-            a = yy * row + x * 4
-            data[a:a + w * 4] = bytes(w * 4)
-            known[a:a + w * 4] = bytes(w * 4)
     return bytes(data), bytes(known)
 
 
@@ -222,7 +238,7 @@ def picture_ops(arc, ops, width, size):
 def model_chunk(arc, prog, recipe, disc=None):
     """(data, known, segments) of a chunk recipe. data and known are the chunk's size; a seg region's data is zero (the packer is the C's) and
     its entry in `segments` {offset: tiles} holds the tiles (a DISC tile taken from the disc's segment, None without a disc). known is 1 for
-    bytes built equal to the disc's, 2 over a seg region whose tiles are all given, 0 elsewhere."""
+    bytes built equal to the disc's, 2 over a seg region whose tiles are all given and over bytes blank by design, 0 elsewhere."""
     table, slot, ordinal, size, regions = recipe
     data, known, segments = bytearray(size), bytearray(size), {}
     for region in regions:
@@ -246,22 +262,26 @@ def model_chunk(arc, prog, recipe, disc=None):
                 continue
             if len(tiles) * TILE_BYTES > rsize:
                 raise ModelError('raw tiles longer than the region')
+            by_design = design_flags(region[3])
             for i, t in enumerate(tiles):
                 if t is not None:
                     data[offset + 128 * i:offset + 128 * i + 128] = t
-                    known[offset + 128 * i:offset + 128 * i + 128] = b'\x01' * 128
+                    known[offset + 128 * i:offset + 128 * i + 128] = bytes([2 if by_design[i] else 1]) * 128
         elif kind == PALS:
             stride = region[4]
             pals = palette_items(prog, region[3])
             if stride < 1 or (len(pals) - 1) * stride * PALETTE_BYTES + PALETTE_BYTES > rsize and pals:
                 raise ModelError('palettes longer than the region')
             known[offset:offset + rsize] = b'\x01' * rsize
+            by_design = design_flags(region[3])
             for i, p in enumerate(pals):
                 a = offset + 32 * stride * i
                 if p is None:
                     known[a:a + 32] = bytes(32)
                 else:
                     data[a:a + 32] = p
+                    if by_design[i]:
+                        known[a:a + 32] = b'\x02' * 32
         elif kind == PIC:
             d, k = picture_ops(arc, region[4], region[3], rsize)
             data[offset:offset + rsize] = d
@@ -755,6 +775,7 @@ class Table:
         self.regions = []                  # (kind, offset, size, width, first, count)
         self.recipes, self.recipe_idx = [], {}     # (size, first, count)
         self.files = collections.OrderedDict()     # name -> [(table, slot, ordinal, recipe)]
+        self.design = {}                           # name -> units blank by design in the file, as DESIGN_ROWS give them
 
     def _seq(self, seq, store, index):
         key = tuple(seq)
@@ -819,7 +840,8 @@ def c_rows(rows, fmt, per_line=2):
 
 SPECIAL = {ZERO: 'ARCADE_SCREENS_ZERO', DISC: 'ARCADE_SCREENS_DISC', PIECES: 'ARCADE_SCREENS_PIECES'}
 KIND_C = {SEG: 'ARCADE_SCREENS_SEG', RAW: 'ARCADE_SCREENS_RAW', PALS: 'ARCADE_SCREENS_PALS', PIC: 'ARCADE_SCREENS_PIC'}
-OP_C = {OP_TILE: 'ARCADE_SCREENS_OP_TILE', OP_PIECE: 'ARCADE_SCREENS_OP_PIECE', OP_FLAT: 'ARCADE_SCREENS_OP_FLAT', OP_DISC: 'ARCADE_SCREENS_OP_DISC'}
+OP_C = {OP_TILE: 'ARCADE_SCREENS_OP_TILE', OP_PIECE: 'ARCADE_SCREENS_OP_PIECE', OP_FLAT: 'ARCADE_SCREENS_OP_FLAT', OP_DISC: 'ARCADE_SCREENS_OP_DISC',
+        OP_BLANK: 'ARCADE_SCREENS_OP_BLANK'}
 
 
 def c_table(t, command):
@@ -834,15 +856,17 @@ def c_table(t, command):
            ' * (rects of tiles or pieces by arcade code). Only addresses, counts and layouts: no byte of either game. */',
            '#include "screens.h"', '',
            '#define Z ARCADE_SCREENS_ZERO', '#define D ARCADE_SCREENS_DISC', '#define P ARCADE_SCREENS_PIECES',
+           '#define BD ARCADE_SCREENS_BY_DESIGN',
            '#define OT ARCADE_SCREENS_OP_TILE', '#define OP ARCADE_SCREENS_OP_PIECE', '#define OF ARCADE_SCREENS_OP_FLAT', '#define OD ARCADE_SCREENS_OP_DISC',
+           '#define OB ARCADE_SCREENS_OP_BLANK',
            '#define SEG ARCADE_SCREENS_SEG', '#define RAW ARCADE_SCREENS_RAW', '#define PALS ARCADE_SCREENS_PALS', '#define PIC ARCADE_SCREENS_PIC', '',
            '/* {first, count, flip}: a tile or palette item */',
            'const struct arcade_screens_item arcade_screens_items[] = {']
-    out.append(c_rows(t.items, lambda i: '{%s, %d, %d}' % (num(i[0]), i[1], i[2]), 5))
+    out.append(c_rows(t.items, lambda i: '{%s, %d, %s}' % (num(i[0]), i[1], 'BD' if i[2] == BY_DESIGN else str(i[2])), 5))
     out.append('};\n')
     out.append('/* {first, stepx, stepy, x, y, w, h, kind, flip} */')
     out.append('const struct arcade_screens_op arcade_screens_ops[] = {')
-    out.append(c_rows(t.ops, lambda o: '{%#x, %d, %d, %d, %d, %d, %d, %s, %d}' % (o[5], o[6], o[7], o[1], o[2], o[3], o[4], {OP_TILE: 'OT', OP_PIECE: 'OP', OP_FLAT: 'OF', OP_DISC: 'OD'}[o[0]], o[8]), 3))
+    out.append(c_rows(t.ops, lambda o: '{%#x, %d, %d, %d, %d, %d, %d, %s, %d}' % (o[5], o[6], o[7], o[1], o[2], o[3], o[4], {OP_TILE: 'OT', OP_PIECE: 'OP', OP_FLAT: 'OF', OP_DISC: 'OD', OP_BLANK: 'OB'}[o[0]], o[8]), 3))
     out.append('};\n')
     out.append('const uint32_t arcade_screens_pieces[][4] = {')
     out.append(c_rows(t.pieces, lambda q: '{' + ', '.join('%#x' % v for v in q) + '}', 3))
@@ -870,8 +894,85 @@ def c_table(t, command):
     out.append(c_rows(files, lambda f: '{"%s", %d, %d}' % f, 4))
     out.append('};')
     out.append('const unsigned arcade_screens_file_count = %d;' % len(files))
-    out.append('\n' + '\n'.join('#undef ' + m for m in ('Z', 'D', 'P', 'OT', 'OP', 'OF', 'OD', 'SEG', 'RAW', 'PALS', 'PIC')) + '\n')
+    out.append('\n' + '\n'.join('#undef ' + m for m in ('Z', 'D', 'P', 'BD', 'OT', 'OP', 'OF', 'OD', 'OB', 'SEG', 'RAW', 'PALS', 'PIC')) + '\n')
     return '\n'.join(out)
+
+
+# ---------------------------------------------------------------- what is blank by design (the explicit table)
+
+# One row for each place where the build is blank on purpose (the owner's rule of 2026-10-24, "rebuild arcade-style": where the arcade shows the screen its
+# own way the screen is built from the arcade's art; the rest is blank). A row names the file kind, the chunk (table, slot, ordinal) and the region by its
+# offset, and says which units: 'disc' = every unit the arcade does not have (the DISC items of a segment, list or palettes, the DISC rects of a picture),
+# 'all' = the whole of the picture rows `rows` (pixel rows, a picture only). `expect` is the number of units over all the files of the kind that have the
+# chunk (tiles, palettes, or 8 x 8 pieces of a picture): the generator refuses a table whose count differs, so a row cannot drift over the disc's data.
+# `why` is the evidence. There is no heuristic here: a unit not named by a row is the disc's.
+DESIGN_ROWS = (
+    dict(kind='CONT', table=0, slot=0x15, ordinal=0, offset=0, units='all', rows=(0, 256), expect=43008,
+         why="the score ranking's backdrop, a dark villain bust (the PS1's own art: no 16 x 16 window of the arcade's tile mosaic and no value-permuted "
+             "arcade tile matches its own cells). The arcade has no such backdrop. The whole of page 0 (32 x 32 pieces in each of the 42 files) is "
+             "blank, since the arcade-equal cells that are left (flat fill) would be a dark blob without its outline."),
+    dict(kind='END', table=0, slot=0x2d, ordinal=0, offset=0, units='disc', expect=2646,
+         why="the last screen's Zero 2 logo: 126 of the 160 tiles in each of the 21 files are the PS1's own or only partly the arcade's. The US set's logo says Alpha 2 and has other "
+             "cells, so it is not drawn here. The arcade CAPCOM tiles and pieces stay."),
+    dict(kind='END', table=0, slot=0x29, ordinal=0, offset=0, units='disc', expect=607,
+         why="the ending art's own tiles: scene pieces that the PS1 composed (a landscape, an arena, backdrops), pixel for pixel not the arcade's (a 16 x 16 "
+             "window search over the arcade's tile mosaic covers 46 of 607 own tiles at 90%). The arcade's ending art around them stays."),
+)
+
+
+def units_of(regions):
+    """The by-design units of a list of regions: ZERO items marked BY_DESIGN (tiles, palettes), 8 x 8 pieces of BLANK ops."""
+    n = 0
+    for r in regions:
+        if r[0] == PIC:
+            n += sum(o[3] * o[4] for o in r[4] if o[0] == OP_BLANK)
+        else:
+            n += sum(c for f, c, fl in r[3] if f == ZERO and fl & BY_DESIGN)
+    return n
+
+
+def op_rows(o):
+    """(first, end) pixel rows of a picture op."""
+    return o[2] * 8, o[2] * 8 + (16 if o[0] == OP_TILE else 8) * o[4]
+
+
+def design_picture(region, row):
+    """The picture region with the row's units made blank by design (DISC rects, or every op, inside the row's pixel rows)."""
+    lo, hi = row.get('rows', (0, region[2] // (region[3] // 2)))
+    kept, first = [], None
+    for o in region[4]:
+        a, b = op_rows(o)
+        if a < hi and b > lo and not (lo <= a and b <= hi):
+            raise ModelError('a picture op crosses the rows of a by-design row')
+        if lo <= a and b <= hi and (row['units'] == 'all' or o[0] == OP_DISC):
+            if first is None:
+                first = len(kept)
+            if row['units'] == 'disc':
+                kept.append((OP_BLANK, o[1], o[2], o[3], o[4], 0, 0, 0, 0))
+            continue
+        kept.append(o)
+    if row['units'] == 'all':
+        kept.insert(len(kept) if first is None else first, (OP_BLANK, 0, lo // 8, region[3] // 8, (hi - lo) // 8, 0, 0, 0, 0))
+    return (region[0], region[1], region[2], region[3], kept)
+
+
+def apply_design(regions, kind, table, slot, ordinal, used):
+    """The regions of a chunk of a file of `kind` with the rows of DESIGN_ROWS applied; `used` collects (row index, units) of every row that matched."""
+    out = []
+    for r in regions:
+        for k, row in enumerate(DESIGN_ROWS):
+            if (row['kind'], row['table'], row['slot'], row['ordinal'], row['offset']) != (kind, table, slot, ordinal, r[1]):
+                continue
+            before = units_of([r])
+            if r[0] == PIC:
+                r = design_picture(r, row)
+            elif row['units'] == 'disc':
+                r = r[:3] + ([(ZERO, c, BY_DESIGN) if f == DISC else (f, c, fl) for f, c, fl in r[3]],) + r[4:]
+            else:
+                raise ModelError("units 'all' is for a picture")
+            used.append((k, units_of([r]) - before))
+        out.append(r)
+    return out
 
 
 # ---------------------------------------------------------------- collecting the recipes of the disc's files
@@ -884,6 +985,7 @@ def collect(files, env, of):
     ordinal, bytes)])."""
     t = Table()
     made = {}
+    totals = collections.Counter()
     for name, (kind, chunks) in sorted(files.items()):
         for table, slot, ordinal, d in chunks:
             what = of.what_of(kind, table, slot, ordinal, d)[0]
@@ -893,14 +995,24 @@ def collect(files, env, of):
             if key not in made:
                 made[key] = describe_chunk(d, table, what, env, (kind, table, slot), of)
             if made[key]:
-                t.add_use(name, table, slot, ordinal, t.add_recipe(len(d), made[key]))
+                used = []
+                regions = apply_design(made[key], kind, table, slot, ordinal, used)
+                for k, n in used:
+                    totals[k] += n
+                    t.design[name] = t.design.get(name, 0) + n
+                t.add_use(name, table, slot, ordinal, t.add_recipe(len(d), regions))
+    kinds = {kind for kind, _chunks in files.values()}
+    wrong = ['row %d (%s slot %#x) blanks %d units, the table declares %d' % (k, row['kind'], row['slot'], totals[k], row['expect'])
+             for k, row in enumerate(DESIGN_ROWS) if row['kind'] in kinds and totals[k] != row['expect']]
+    if wrong:
+        raise ModelError('by design: ' + '; '.join(wrong))
     return t
 
 
 # ---------------------------------------------------------------- the C build, compared (--compare-c)
 
 class COut(ctypes.Structure):
-    _fields_ = [('data', ctypes.POINTER(ctypes.c_uint8)), ('known', ctypes.POINTER(ctypes.c_uint8)), ('size', ctypes.c_uint32), ('unbuilt', ctypes.c_uint)]
+    _fields_ = [('data', ctypes.POINTER(ctypes.c_uint8)), ('known', ctypes.POINTER(ctypes.c_uint8)), ('size', ctypes.c_uint32), ('unbuilt', ctypes.c_uint), ('design', ctypes.c_uint)]
 
 
 class CLib:
@@ -922,7 +1034,8 @@ class CLib:
         self.lib.arcade_screens_verify.argtypes = [c.c_void_p, c.c_void_p, c.c_char_p, c.c_size_t, c.c_char_p, c.c_size_t]
 
     def build(self, name, table, slot, ordinal, disc):
-        """(data, known, unbuilt, seconds) of the chunk's recipe built by the C with the disc's chunk, or a message."""
+        """(data, known, unbuilt, seconds, verify message or None, units blank by design) of the chunk's recipe built by the C with the disc's chunk, or a
+        message."""
         f = self.lib.arcade_screens_find(name.encode())
         r = self.lib.arcade_screens_recipe_of(f, table, slot, ordinal) if f else None
         if not r:
@@ -936,7 +1049,7 @@ class CLib:
         try:
             verify = self.lib.arcade_screens_verify(r, ctypes.byref(out), disc, len(disc), err, len(err))
             return (ctypes.string_at(out.data, out.size), ctypes.string_at(out.known, out.size), out.unbuilt, took,
-                    None if verify == 0 else 'C verify: ' + err.value.decode())
+                    None if verify == 0 else 'C verify: ' + err.value.decode(), out.design)
         finally:
             self.lib.arcade_screens_free(ctypes.byref(out))
 
@@ -975,7 +1088,7 @@ def compare_chunk(recipe, model, built, disc):
     (data, known, segments), `built` = (data, known, unbuilt, seconds) of the C. Packed segments are compared as tiles. A segment the model can
     build but the C's packer cannot fit into the room stays the disc's: it is counted, not an error."""
     mdata, mknown, msegs = model
-    cdata, cknown, unbuilt, _t, verify = built
+    cdata, cknown, unbuilt, _t, verify, design = built
     notes = []
     if verify:
         notes.append(verify)
@@ -999,6 +1112,11 @@ def compare_chunk(recipe, model, built, disc):
                 same_model = False
                 notes.append('segment %#x differs from the model' % off)
             dtiles = segment_tiles_of(disc[off:off + r[2]])
+            by_design = design_flags(r[3])
+            if dtiles is not None and tiles is not None and len(dtiles) == len(tiles) == len(by_design):
+                # the tiles blank by design are not the disc's: they must be blank, and the rest must be the disc's
+                if all(t == bytes(TILE_BYTES) for t, flag in zip(tiles, by_design) if flag):
+                    dtiles = [t if flag else d for t, d, flag in zip(tiles, dtiles, by_design)]
             if dtiles is None or tiles is None or tiles != dtiles:
                 ok_disc = False
                 notes.append('segment %#x differs from the disc' % off)
@@ -1010,6 +1128,9 @@ def compare_chunk(recipe, model, built, disc):
     if skipped != unbuilt - sum(1 for off in seg_regions if mknown[off] != 2):
         same_model = False
         notes.append('unbuilt segments %d, expected %d' % (unbuilt, skipped))
+    if design != units_of(recipe[1]):
+        same_model = False
+        notes.append('the C counts %d units blank by design, the table has %d' % (design, units_of(recipe[1])))
     for i in range(len(cdata)):
         if cknown[i] == 1:
             served += 1
@@ -1030,10 +1151,12 @@ def compare_report(table, text, disc, env, ctx, tmp, started):
     totals = collections.OrderedDict()
     bad = 0
     spent = 0.0
+    design_total = 0
     for name, uses in table.files.items():
         kind, chunks = disc[name]
         by_key = {(t, s, o): d for t, s, o, d in chunks}
         parts, flags = [], []
+        file_design = [0, 0]      # units blank by design: the C's, and the generator's rows'
         for t, s, o, recipe_id in uses:
             d = by_key[t, s, o]
             key = (recipe_id, hashlib.sha1(d).digest())
@@ -1042,11 +1165,14 @@ def compare_report(table, text, disc, env, ctx, tmp, started):
                 model = model_chunk(arc, env.prog, (t, s, o, size, regions), d)
                 built = clib.build(name, t, s, o, d)
                 if isinstance(built, str):
-                    memo[key] = (built, None, 0, 0.0, 0, 0, 0.0)
+                    memo[key] = (built, None, 0, 0.0, 0, 0, 0.0, 0, 0)
                 else:
                     same_model, same_disc, got, notes, skipped = compare_chunk((size, regions), model, built, d)
-                    memo[key] = (None, (same_model, same_disc, notes), got, built[3], skipped, 0, arcade_bytes((size, regions)))
-            err, verdict, got, took, skipped, _x, arcade = memo[key]
+                    memo[key] = (None, (same_model, same_disc, notes), got, built[3], skipped, 0, arcade_bytes((size, regions)), built[5], units_of(regions))
+            err, verdict, got, took, skipped, _x, arcade, c_design, m_design = memo[key]
+            design_room = sum(r[2] for r in table.model_regions(recipe_id)[1] if r[0] == SEG and any(design_flags(r[3]))) if verdict else 0   # segments that are not wholly the disc's
+            file_design[0] += c_design
+            file_design[1] += m_design
             tot = totals.setdefault(kind, collections.Counter())
             tot['chunks'] += 1
             tot['disc_bytes'] += len(d)
@@ -1064,14 +1190,26 @@ def compare_report(table, text, disc, env, ctx, tmp, started):
             if not verdict[1]:
                 flags.append('t%d s%#x built bytes DIFFER from the disc %s' % (t, s, '; '.join(verdict[2])))
                 bad += 1
-            tot['equal'] += got if verdict[1] else 0
+            tot['equal'] += (got - design_room) if verdict[1] else 0
             parts.append('t%d s%#x %d/%d%s' % (t, s, got, len(d), ' (%d segment left to the disc: does not pack into its room)' % skipped if skipped else ''))
-        print('%s: %s%s' % (name, ', '.join(parts), ('; ' + '; '.join(flags)) if flags else '; C = model, = disc at the known bytes'))
+        declared = table.design.get(name, 0)
+        if file_design[0] != declared or file_design[1] != declared:
+            flags.append('by design: the C counts %d units, the model %d, the generator\'s rows %d' % (file_design[0], file_design[1], declared))
+            bad += 1
+        design_total += file_design[0]
+        by_design = ' (%d units blank by design)' % file_design[0] if file_design[0] else ''
+        print('%s: %s%s%s' % (name, ', '.join(parts), by_design, ('; ' + '; '.join(flags)) if flags else '; C = model, = disc at the known bytes'))
     print('--- by file kind (chunks that have a recipe): disc bytes; served = bytes the C builds that equal the disc (packed segments count as decoding to '
           'the disc\'s tiles); from the arcade alone = served minus what comes from the disc (tiles, palettes and cells the arcade lacks)')
     for kind, c in totals.items():
         print('%-9s %3d chunks %10d disc bytes, served %10d (%d%%) equal to the disc %10d, from the arcade alone %10d (%d%%), segments left %d' % (
             kind, c['chunks'], c['disc_bytes'], c['served'], round(100 * c['served'] / max(1, c['disc_bytes'])), c['equal'], c['arcade'],
             round(100 * c['arcade'] / max(1, c['disc_bytes'])), c['skipped']))
+    kinds = {k for k, _c in disc.values()}
+    declared = sum(r['expect'] for r in DESIGN_ROWS if r['kind'] in kinds)
+    print('blank by design: %d units over %d files (the rows of DESIGN_ROWS declare %d)' % (design_total, len(table.design), declared))
+    if design_total != declared:
+        print('by-design total DIFFERS from the declared one')
+        bad += 1
     print('C time %.1f ms for %d distinct builds; %d problems; %.1f s' % (spent * 1000, len(memo), bad, time.monotonic() - started))
     return 1 if bad else 0

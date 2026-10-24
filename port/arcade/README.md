@@ -209,9 +209,22 @@ full-colour PS1 illustrations (Sakura, Ryu, Chun-Li, and Sakura with
 - **Art.** The ending art (76 to 94% arcade tiles a file) and its cell lists
   are built by the screens' recipes and `screen_lists.c`; the PS1's own
   tiles in them come from the pack.
-- **Not from the arcade.** The four illustrations, most of the logo screen
-  (the US set's own logo says "Alpha 2"), and the PS1's own lines. They
+- **Not from the arcade.** The four illustrations and the PS1's own lines
   stay the pack's until something replaces them.
+- **Blank by design (the owner's rule of 2026-10-24, "rebuild arcade-style":
+  where the arcade shows the screen its own way, build it from the arcade's
+  art; blank the rest).** What the arcade has no counterpart for is built
+  blank on purpose, and differs from the disc's bytes there: the ending
+  art's own tiles (`END` slot 0x29, 607 tiles over the files), the last
+  screen's Zero 2 logo tiles (slot 0x2d; the arcade CAPCOM tiles stay; the
+  US set's logo says "Alpha 2" and has other cells) and the score ranking's
+  backdrop (`CONT` slot 0x15, page 0). One mechanism: a ZERO item with
+  `ARCADE_SCREENS_BY_DESIGN` in its flip, and the op `ARCADE_SCREENS_OP_BLANK`.
+  The units are named by explicit rows (`DESIGN_ROWS` in `screens.py`, with
+  the evidence and the declared count; no heuristic). The verify skips them,
+  `arcade_screens_out.design` counts them, and `--compare-c` fails when the
+  C, the model and the rows disagree. A segment or picture with no disc
+  unit left is built from the arcade alone, so the pack keeps none of it.
 
 ## Win quotes (the owner's ask of 2026-10-24: "I want the english text")
 

@@ -19,7 +19,7 @@ import screen_lists as S
 
 FLAGS = ('-std=c99', '-O1', '-Wall', '-Wextra', '-Werror')
 ARC = ROOT / 'port/arcade'
-SOURCES = [ARC / n for n in ('screen_lists.c', 'screen_lists_table.c', 'screens.c', 'screens_table.c', 'tilepack.c')]
+SOURCES = [ARC / n for n in ('compose.c', 'screen_lists.c', 'screen_lists_table.c', 'screens.c', 'screens_table.c', 'tilepack.c')]
 NT = 48          # tiles of the made-up graphics
 HI = 0x10000     # the scroll layers' tiles lie from here: the graphics hold the same NT tiles at 0 and at HI
 SIZE = 0x2f9000  # bytes of the made-up program: the scroll 2 blocks (0x2c0300 and on) and the scroll 1 sets and groups lie in it
@@ -451,7 +451,7 @@ class Table(unittest.TestCase):
 
     def test_32_bit_and_no_dash(self):
         with tempfile.TemporaryDirectory() as d:
-            for n in ('screen_lists.c', 'screen_lists_table.c'):
+            for n in ('compose.c', 'screen_lists.c', 'screen_lists_table.c'):
                 subprocess.run(['gcc', '-m32', *FLAGS, '-c', str(ARC / n), '-o', str(Path(d) / (n + '.o'))], check=True, timeout=120)
         for p in (ARC / 'screen_lists.c', ARC / 'screen_lists.h', ARC / 'screen_lists.py', ARC / 'tests/screen_lists_test.c', Path(__file__)):
             self.assertNotIn(chr(0x2014), p.read_text(), str(p))

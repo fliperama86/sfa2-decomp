@@ -26,7 +26,12 @@
 #define ARCADE_SCREENS_BIT15 2u             /* palette flag: bit 15 of colours 1 to 15 is set */
 
 /* Tile items: count consecutive arcade tiles first, first + 1, ... with the flip (bit 0 across, bit 1 down) of every one.
- * Palette items: count arcade palettes at address first, first + 32, ... with the flags as `flip`. */
+ * Palette items: count arcade palettes at address first, first + 32, ... with the flags as `flip`.
+ *
+ * By design: a ZERO item whose flip carries this bit is blank on purpose, not because the disc is blank there: the tiles or palettes of the
+ * item differ from the disc's and the build does not take them from it. No other use of the flip reaches this bit (the tile flip is 2 bits,
+ * the palette flags 2, a PIECES index is below the piece count); the bit on any other item is refused. */
+#define ARCADE_SCREENS_BY_DESIGN 0x80000000u
 struct arcade_screens_item { uint32_t first, count, flip; };
 
 /* Picture ops (x, y in units of 8 pixels; w, h in tiles or pieces; the unit at (i, j) of a rect is first + i * stepx + j * stepy). */
@@ -34,6 +39,7 @@ struct arcade_screens_item { uint32_t first, count, flip; };
 #define ARCADE_SCREENS_OP_PIECE 2u   /* 8 x 8 pieces of scroll 1: piece k is the left half of arcade tile k >> 1, rows 0-7 for even k, 8-15 for odd k */
 #define ARCADE_SCREENS_OP_FLAT 3u    /* pieces of the single pixel value `first` */
 #define ARCADE_SCREENS_OP_DISC 4u    /* units that stay the disc's (zero and unknown) */
+#define ARCADE_SCREENS_OP_BLANK 5u   /* units (8 x 8 pixels, w * h of them) blank by design: zero, differing from the disc's on purpose */
 struct arcade_screens_op { uint32_t first; int32_t stepx, stepy; uint16_t x, y, w, h; uint8_t kind, flip; };
 
 #define ARCADE_SCREENS_SEG 1u        /* a compressed tile segment (offset table, then a block a tile) */
@@ -65,9 +71,12 @@ const struct arcade_screens_file *arcade_screens_find(const char *file);
 const struct arcade_screens_recipe *arcade_screens_recipe_of(const struct arcade_screens_file *f, unsigned table, unsigned slot, unsigned ordinal);
 
 struct arcade_screens_out {
-    uint8_t *data, *known;           /* the chunk, and for each byte 1 (built, equal to the disc's), 2 (in a packed segment whose tiles are the disc's) or 0 */
+    uint8_t *data, *known;           /* the chunk, and for each byte 1 (built, equal to the disc's), 2 (served as built: a packed segment whose tiles
+                                      * are the disc's but for the by-design ones, or bytes blank by design in a list of tiles, palettes or picture,
+                                      * which differ from the disc's on purpose and are not compared with it) or 0 */
     uint32_t size;
     unsigned unbuilt;                /* regions left to the disc: a segment with tiles missing and no disc, or that does not pack into its room */
+    unsigned design;                 /* units blank by design: tiles and palettes of by-design items, 8 x 8 pieces of OP_BLANK ops (counted whether or not the region could be built) */
 };
 
 /* Build the regions of `r` into a zeroed chunk of r->size bytes. `program` is the arcade's 68000 view, `tiles` its graphics (128 bytes a
@@ -79,14 +88,14 @@ int arcade_screens_build(const uint8_t *program, size_t program_size, const uint
 void arcade_screens_free(struct arcade_screens_out *out);
 
 /* Check a built chunk against the disc's: every byte marked 1 must equal the disc's, and every packed segment (marked 2) must decode to the
- * disc's tiles. Returns 0 when they agree; else -1 with a message in err that names the first region or byte that differs (a disc that is
+ * disc's tiles, the by-design tiles excepted (bytes marked 2 outside a segment are by design and not compared). Returns 0 when they agree; else -1 with a message in err that names the first region or byte that differs (a disc that is
  * not the examined one). `r` and `out` come from arcade_screens_build for the same chunk. */
 int arcade_screens_verify(const struct arcade_screens_recipe *r, const struct arcade_screens_out *out, const uint8_t *disc, size_t disc_size,
                           char *err, size_t errsize);
 
-/* The same for any list of regions (tests). */
-int arcade_screens_verify_regions(const struct arcade_screens_region *regions, unsigned count, const struct arcade_screens_out *out, const uint8_t *disc,
-                                  size_t disc_size, char *err, size_t errsize);
+/* The same for any list of regions (tests); `items` is the item table their SEG regions index (NULL: no by-design tiles). */
+int arcade_screens_verify_regions(const struct arcade_screens_region *regions, unsigned count, const struct arcade_screens_item *items,
+                                  const struct arcade_screens_out *out, const uint8_t *disc, size_t disc_size, char *err, size_t errsize);
 
 /* The same for one made-up region (tests): the region's items and ops are the caller's, `pieces` the quads its PIECES items index. */
 int arcade_screens_build_region(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size,

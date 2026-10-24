@@ -11,15 +11,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "compose.h"
 #include "screens.h"
 
-#define COORD_TABLE 0x9f260u   /* arcade: table of pointers to coordinate blocks, indexed by the record's coordinate index */
 #define MAX_CELLS 512u
 #define TILE_BYTES 128u
-#define SCROLL_ADD 0xa400u     /* modes 4 and 10, scroll 2: the tile is ((code + SCROLL_ADD) & 0xffff) + 0x10000 */
-#define SCROLL_FIRST 0x2c0300u /* the arcade's scroll 2 blocks: 222 blocks of 1,024 bytes (16 x 16 cells of code and attribute, column by column) */
-#define SCROLL_BLOCK 1024u
-#define SCROLL_BLOCKS 222u
 #define SHADOW_X (-32)         /* mode 4: the cells from here on right and down are the PS1's shadow cells, not in its lists */
 #define SHADOW_Y 64
 
@@ -42,7 +38,6 @@ struct posent {
 struct builder {
     const uint8_t *prog, *tiles;
     size_t psize, tsize;
-    int bad;
     unsigned rules;
     const struct arcade_screen_lists_tile *pool;
     unsigned pool_count;
@@ -68,38 +63,7 @@ static int fail(struct builder *b, const char *fmt, ...)
     return -1;
 }
 
-static unsigned be16(const uint8_t *p)
-{
-    return (unsigned)p[0] << 8 | p[1];
-}
-
-static uint16_t rd16(struct builder *b, size_t o)
-{
-    if (o > b->psize || b->psize - o < 2) {
-        b->bad = 1;
-        return 0;
-    }
-    return (uint16_t)be16(b->prog + o);
-}
-
-static uint32_t rd32(struct builder *b, size_t o)
-{
-    return (uint32_t)rd16(b, o) << 16 | rd16(b, o + 2);
-}
-
 /* ---- tile classes */
-
-/* The PS1 pixels (the arcade value plus one, modulo 16) of the arcade tile at t: four planes, 8 pixels to a byte, 4 bytes to 8 pixels. */
-static void tile_pixels(const uint8_t *t, uint8_t px[256])
-{
-    unsigned x, y;
-    for (y = 0; y < 16; y++)
-        for (x = 0; x < 16; x++) {
-            const uint8_t *p = t + y * 8u + (x >> 3) * 4u;
-            unsigned sh = 7u - (x & 7u), v = ((p[0] >> sh) & 1u) | (((p[1] >> sh) & 1u) << 1) | (((p[2] >> sh) & 1u) << 2) | (((p[3] >> sh) & 1u) << 3);
-            px[y * 16u + x] = (uint8_t)((v + 1u) & 15u);
-        }
-}
 
 /* Key and d of 256 pixels: the hash of the lowest of the pixels, flipped across (bit 0) and down (bit 1), and the lowest flip giving it. */
 static void pixel_class(const uint8_t px[256], uint64_t *key, unsigned *d)
@@ -163,7 +127,7 @@ static int tile_class(const struct builder *b, uint32_t code, uint64_t *key, uns
         *d = classes.known[code] - 1u;
         return 0;
     }
-    tile_pixels(b->tiles + at, px);
+    arcade_compose_tile_pixels(b->tiles + at, px);
     pixel_class(px, key, d);
     if (kept) {
         classes.key[code] = *key;
@@ -254,112 +218,36 @@ static int is_blank(struct builder *b, uint32_t code)
     return tile_class(b, code, &key, &d) == 0 && key == b->zero_key;
 }
 
-/* The art record at a as cells in the PS1's order, tile codes plus `bank`: mode 2 (blocks of code and attribute, coordinates through the index),
+/* The art record at a as cells in the PS1's order, tile codes plus `bank`. The record is parsed by compose.c (the one parser: mode 2 (blocks of code and attribute, coordinates through the index),
  * mode 0 (a shared attribute, a code a cell), mode 4 (the portraits: blocks of code, attribute, x, y; tile code plus SCROLL_ADD) and mode 10 (a grid of
  * code and attribute pairs, column by column, the lower left corner at 0, 0; tile code plus SCROLL_ADD). The grids drop their blank cells, the portraits
- * their blank cells and the shadow cells. */
+ * their blank cells and the shadow cells (dropped here, after the parse); the cells are then sorted into the PS1's order. */
 static int read_record(struct builder *b, uint32_t a, uint32_t bank, struct cell *cells, unsigned *count, uint32_t *end)
 {
-    unsigned mode, declared, nb, k, n = 0, total = 0, stride = 0, part = 0, gh = 0, split;
-    uint16_t shared = 0, prev_attr = 0;
-    int32_t prev_x = 0, idx = 0;
-    uint32_t ptr = 0, first = 0;
+    struct arcade_compose_cell all[MAX_CELLS];
+    struct arcade_compose_info info;
+    char line[160];
+    unsigned i, n = 0;
 
-    b->bad = 0;
-    if ((a & 1) || a > b->psize || b->psize - a < 8) return fail(b, "record %#x: outside the program", (unsigned)a);
-    mode = rd16(b, a);
-    if (mode != 0 && mode != 2 && mode != 4 && mode != 10) return fail(b, "record %#x: not an art record (mode %u)", (unsigned)a, mode);
-    if (mode == 10) {
-        gh = rd16(b, (size_t)a + 2) + 1u;
-        nb = rd16(b, (size_t)a + 4) + 1u;
-        if (nb > 64 || gh > 64 || nb * gh > MAX_CELLS) return fail(b, "record %#x: a grid of %u x %u", (unsigned)a, nb, gh);
-        declared = nb * gh;
-        nb = declared;
-        stride = 4;
-        first = a + 6;
-    } else if (mode == 4) {
-        declared = rd16(b, (size_t)a + 2);
-        nb = rd16(b, (size_t)a + 4) + 1u;
-        stride = 8;
-        first = a + 6;
-    } else {
-        declared = rd16(b, (size_t)a + 2);
-        idx = (int16_t)rd16(b, (size_t)a + 6);
-        if (mode == 2) {
-            nb = rd16(b, (size_t)a + 4) + 1u;
-            stride = 4;
-        } else {
-            shared = (uint16_t)(rd16(b, (size_t)a + 4) & 0x7f);
-            nb = declared;
-            stride = 2;
+    if (arcade_compose_record(b->prog, b->psize, a, bank, b->rules & ARCADE_SCREEN_LISTS_PAL_SPLIT, all, MAX_CELLS, &info, line, sizeof line))
+        return fail(b, "%s", line);
+    for (i = 0; i < info.count; i++) {
+        const struct arcade_compose_cell *c = &all[i];
+        if (info.mode == 10 || info.mode == 4) {
+            int shadow = info.mode == 4 && c->x >= SHADOW_X && c->y >= SHADOW_Y;
+            if (shadow || is_blank(b, c->code)) continue;
         }
-        first = a + 8;
+        cells[n].code = c->code;
+        cells[n].x = c->x;
+        cells[n].y = c->y;
+        cells[n].flags = c->flags;
+        cells[n].part = c->part;
+        cells[n].idx = (uint16_t)n;
+        n++;
     }
-    if (declared < 1 || declared > MAX_CELLS) return fail(b, "record %#x: %u cells", (unsigned)a, declared);
-    if ((size_t)first + (size_t)stride * nb > b->psize) return fail(b, "record %#x: blocks outside the program", (unsigned)a);
-    if (mode == 0 || mode == 2) {
-        int64_t coord = (int64_t)COORD_TABLE + idx;
-        if (coord < 0 || (uint64_t)coord + 4 > b->psize) return fail(b, "record %#x: coordinate index %d outside the program", (unsigned)a, (int)idx);
-        ptr = rd32(b, (size_t)coord);
-        if ((ptr & 1) || (uint64_t)ptr + 4u * nb > b->psize) return fail(b, "record %#x: coordinates at %#x outside the program", (unsigned)a, (unsigned)ptr);
-    }
-    split = (b->rules & ARCADE_SCREEN_LISTS_PAL_SPLIT) && (mode == 0 || mode == 2);
-    for (k = 0; k < nb; k++) {
-        uint32_t code;
-        uint16_t attr;
-        int32_t x, y;
-        unsigned w, h, i, j;
-        if (mode == 2) {
-            code = rd16(b, (size_t)first + 4 * (size_t)k);
-            attr = rd16(b, (size_t)first + 4 * (size_t)k + 2);
-        } else if (mode == 0) {
-            code = rd16(b, (size_t)first + 2 * (size_t)k);
-            attr = shared;
-        } else {
-            code = ((uint32_t)rd16(b, (size_t)first + (size_t)stride * k) + SCROLL_ADD) & 0xffffu;
-            attr = rd16(b, (size_t)first + (size_t)stride * k + 2);
-        }
-        if (mode == 4) {
-            x = (int16_t)rd16(b, (size_t)first + 8 * (size_t)k + 4);
-            y = (int16_t)rd16(b, (size_t)first + 8 * (size_t)k + 6);
-        } else if (mode == 10) {
-            if (attr & 0xff80u) return fail(b, "record %#x: a block of a grid with a size", (unsigned)a);
-            x = 16 * (int32_t)(k / gh);
-            y = 16 * (int32_t)(k % gh) - 16 * (int32_t)gh;
-        } else {
-            x = (int16_t)rd16(b, (size_t)ptr + 4 * (size_t)k);
-            y = (int16_t)rd16(b, (size_t)ptr + 4 * (size_t)k + 2);
-        }
-        w = ((attr >> 8) & 15u) + 1u;
-        h = ((attr >> 12) & 15u) + 1u;
-        if (total + w * h > declared) return fail(b, "record %#x: blocks add up to more than its %u cells", (unsigned)a, declared);
-        if (k && (((x - prev_x) & 15) || (split && ((attr ^ prev_attr) & 0x1fu)))) part++;
-        for (j = 0; j < h; j++)
-            for (i = 0; i < w; i++) {
-                unsigned ci = (attr & 0x20u) ? w - 1 - i : i, cj = (attr & 0x40u) ? h - 1 - j : j;
-                int32_t cx = x + 16 * (int32_t)i, cy = y + 16 * (int32_t)j;
-                struct cell *c = &cells[n];
-                total++;
-                c->code = code + ci + 16u * cj + bank;
-                if (mode == 10 || mode == 4) {
-                    int shadow = mode == 4 && cx >= SHADOW_X && cy >= SHADOW_Y;
-                    if (shadow || is_blank(b, c->code)) continue;
-                }
-                c->x = cx;
-                c->y = cy;
-                c->flags = (uint16_t)(attr & 0x7fu);
-                c->part = (uint16_t)part;
-                c->idx = (uint16_t)n;
-                n++;
-            }
-        prev_x = x;
-        prev_attr = attr;
-    }
-    if (b->bad) return fail(b, "record %#x: read outside the program", (unsigned)a);
-    if (total != declared) return fail(b, "record %#x: blocks add up to %u of its %u cells", (unsigned)a, total, declared);
     qsort(cells, n, sizeof *cells, cmp_cell);
     *count = n;
-    *end = (uint32_t)(first + stride * nb);
+    *end = info.end;
     return 0;
 }
 
@@ -372,9 +260,9 @@ static int read_window(struct builder *b, const struct arcade_screen_lists_spec 
     if ((unsigned)w->w * w->h > MAX_CELLS * 4u) return fail(b, "window: %u x %u cells", w->w, w->h);
     for (j = 0; j < w->h; j++)
         for (i = 0; i < w->w; i++) {
-            unsigned mc = w->c0 + i, mr = w->r0 + j, blk = SCROLL_BLOCKS;
-            uint32_t at, tile;
-            uint16_t code, attr;
+            unsigned mc = w->c0 + i, mr = w->r0 + j, blk = ARCADE_COMPOSE_SCROLL_BLOCKS;
+            uint32_t tile;
+            uint16_t attr;
             for (e = 0; e < w->block_count; e++) {
                 const struct arcade_screen_lists_win_block *wb = &s->win_blocks[w->first_block + e];
                 if (wb->rx == mc / 16 && wb->ry == mr / 16) {
@@ -382,12 +270,8 @@ static int read_window(struct builder *b, const struct arcade_screen_lists_spec 
                     break;
                 }
             }
-            if (blk >= SCROLL_BLOCKS) return fail(b, "window: no block for the cell (%u, %u)", mc, mr);
-            at = SCROLL_FIRST + SCROLL_BLOCK * blk + 64u * (mc % 16) + 4u * (mr % 16);
-            code = rd16(b, at);
-            attr = rd16(b, (size_t)at + 2);
-            if (b->bad) return fail(b, "window: read outside the program");
-            tile = (((uint32_t)code + SCROLL_ADD) & 0xffffu) + 0x10000u;
+            if (blk >= ARCADE_COMPOSE_SCROLL_BLOCKS) return fail(b, "window: no block for the cell (%u, %u)", mc, mr);
+            if (arcade_compose_scroll2_cell(b->prog, b->psize, blk, mc % 16, mr % 16, &tile, &attr)) return fail(b, "window: read outside the program");
             if (is_blank(b, tile)) continue;
             if (n == MAX_CELLS) return fail(b, "window: more than %u cells", MAX_CELLS);
             cells[n].code = tile;
@@ -764,10 +648,10 @@ struct arcade_screen_lists_tile *arcade_screen_lists_pool(const char *file, unsi
     for (i = 0; i < g->count; i++) {
         const struct arcade_screens_item *it = &arcade_screens_items[g->first + i];
         for (j = 0; j < it->count; j++, n++) {
-            if (it->first == ARCADE_SCREENS_ZERO) {
+            if (it->first == ARCADE_SCREENS_ZERO && !(it->flip & ARCADE_SCREENS_BY_DESIGN)) {
                 pool[n].kind = 1;
-            } else if (it->first == ARCADE_SCREENS_DISC || it->first == ARCADE_SCREENS_PIECES) {
-                pool[n].kind = 2;
+            } else if (it->first == ARCADE_SCREENS_ZERO || it->first == ARCADE_SCREENS_DISC || it->first == ARCADE_SCREENS_PIECES) {
+                pool[n].kind = 2;   /* a by-design blank tile is still the PS1's own tile for the lists' numbering */
             } else {
                 pool[n].code = it->first + j;
                 pool[n].flip = (uint8_t)(it->flip & 3u);
@@ -829,15 +713,7 @@ static int piece_bytes(const uint8_t *tiles, size_t tsize, unsigned code, unsign
     uint8_t px[256], rows[8][8];
     unsigned tile = 0x10000u + (code >> 1), x, y;
     if (((uint64_t)tile + 1) * TILE_BYTES > tsize) return -1;
-    {
-        const uint8_t *t = tiles + (size_t)tile * TILE_BYTES;
-        for (y = 0; y < 16; y++)
-            for (x = 0; x < 16; x++) {
-                const uint8_t *p = t + y * 8u + (x >> 3) * 4u;
-                unsigned sh = 7u - (x & 7u), v = ((p[0] >> sh) & 1u) | (((p[1] >> sh) & 1u) << 1) | (((p[2] >> sh) & 1u) << 2) | (((p[3] >> sh) & 1u) << 3);
-                px[y * 16u + x] = (uint8_t)((v + 1u) & 15u);
-            }
-    }
+    arcade_compose_tile_pixels(tiles + (size_t)tile * TILE_BYTES, px);
     for (y = 0; y < 8; y++)
         for (x = 0; x < 8; x++)
             rows[(attr & 0x40u) ? 7u - y : y][(attr & 0x20u) ? 7u - x : x] = px[(y + (code & 1u) * 8u) * 16u + x];

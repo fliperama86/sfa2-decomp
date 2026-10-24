@@ -131,15 +131,28 @@ static int in_chunk(const struct arcade_screens_out *o, const struct arcade_scre
     return (uint64_t)g->offset + g->size <= o->size;
 }
 
-/* The tiles of a list of items, in `tiles` (count of them) with `have` = 1 for the ones built; DISC ones are left zero and 0. */
-static int tile_list(struct ctx *c, const struct tables *t, const struct arcade_screens_region *g, uint8_t (*tiles)[TILE_BYTES], uint8_t *have, uint32_t total)
+/* The by-design mark is for ZERO items only: on any other item the build is refused. */
+static int design_item(struct ctx *c, const struct arcade_screens_item *it)
+{
+    if ((it->flip & ARCADE_SCREENS_BY_DESIGN) && it->first != ARCADE_SCREENS_ZERO)
+        return fail(c, "the by-design mark is on an item that is not blank (%#x)", it->first, 0);
+    return 0;
+}
+
+/* The tiles of a list of items, in `tiles` (count of them) with `have` = 1 for the ones built (DISC ones are left zero and 0) and `design` = 1
+ * for the ones blank by design. */
+static int tile_list(struct ctx *c, const struct tables *t, const struct arcade_screens_region *g, uint8_t (*tiles)[TILE_BYTES], uint8_t *have, uint8_t *design,
+                     uint32_t total)
 {
     uint32_t n = 0, i, j;
     for (i = 0; i < g->count; i++) {
         const struct arcade_screens_item *it = &t->items[g->first + i];
+        if (design_item(c, it))
+            return -1;
         if (it->first == ARCADE_SCREENS_DISC || it->first == ARCADE_SCREENS_ZERO) {
             for (j = 0; j < it->count; j++, n++) {
                 have[n] = it->first == ARCADE_SCREENS_ZERO;
+                design[n] = it->first == ARCADE_SCREENS_ZERO && (it->flip & ARCADE_SCREENS_BY_DESIGN) != 0;
                 memset(tiles[n], 0, TILE_BYTES);
             }
         } else if (it->first == ARCADE_SCREENS_PIECES) {
@@ -177,7 +190,7 @@ static int build_segment(struct ctx *c, const struct tables *t, const struct arc
 {
     uint32_t total = tile_total(t, g), i;
     uint8_t (*tiles)[TILE_BYTES] = NULL;
-    uint8_t *have = NULL;
+    uint8_t *have = NULL, *design = NULL;
     int complete = 1, rc = -1;
     char perr[96];
     uint32_t packed = 0;
@@ -185,12 +198,15 @@ static int build_segment(struct ctx *c, const struct tables *t, const struct arc
         return fail(c, "a segment holds %u tiles (%u)", total, 0);
     tiles = (uint8_t (*)[TILE_BYTES])calloc(total, TILE_BYTES);
     have = (uint8_t *)calloc(total, 1);
-    if (!tiles || !have) {
+    design = (uint8_t *)calloc(total, 1);
+    if (!tiles || !have || !design) {
         fail(c, "out of memory (%u)", 0, 0);
         goto done;
     }
-    if (tile_list(c, t, g, tiles, have, total))
+    if (tile_list(c, t, g, tiles, have, design, total))
         goto done;
+    for (i = 0; i < total; i++)
+        out->design += design[i];
     for (i = 0; i < total; i++) {
         if (have[i])
             continue;
@@ -215,6 +231,7 @@ static int build_segment(struct ctx *c, const struct tables *t, const struct arc
 done:
     free(tiles);
     free(have);
+    free(design);
     return rc;
 }
 
@@ -222,7 +239,7 @@ static int build_raw(struct ctx *c, const struct tables *t, const struct arcade_
 {
     uint32_t total = tile_total(t, g), i;
     uint8_t (*tiles)[TILE_BYTES] = NULL;
-    uint8_t *have = NULL;
+    uint8_t *have = NULL, *design = NULL;
     int rc = -1;
     if ((uint64_t)total * TILE_BYTES > g->size)
         return fail(c, "raw tiles are longer than their region (%u)", g->size, 0);
@@ -230,21 +247,24 @@ static int build_raw(struct ctx *c, const struct tables *t, const struct arcade_
         return 0;
     tiles = (uint8_t (*)[TILE_BYTES])calloc(total, TILE_BYTES);
     have = (uint8_t *)calloc(total, 1);
-    if (!tiles || !have) {
+    design = (uint8_t *)calloc(total, 1);
+    if (!tiles || !have || !design) {
         fail(c, "out of memory (%u)", 0, 0);
         goto done;
     }
-    if (tile_list(c, t, g, tiles, have, total))
+    if (tile_list(c, t, g, tiles, have, design, total))
         goto done;
     for (i = 0; i < total; i++)
         if (have[i]) {
             memcpy(out->data + g->offset + (size_t)i * TILE_BYTES, tiles[i], TILE_BYTES);
-            memset(out->known + g->offset + (size_t)i * TILE_BYTES, 1, TILE_BYTES);
+            memset(out->known + g->offset + (size_t)i * TILE_BYTES, design[i] ? 2 : 1, TILE_BYTES);
+            out->design += design[i];
         }
     rc = 0;
 done:
     free(tiles);
     free(have);
+    free(design);
     return rc;
 }
 
@@ -255,13 +275,20 @@ static int build_palettes(struct ctx *c, const struct tables *t, const struct ar
     memset(out->known + g->offset, 1, g->size);
     for (i = 0; i < g->count; i++) {
         const struct arcade_screens_item *it = &t->items[g->first + i];
+        if (design_item(c, it))
+            return -1;
         for (j = 0; j < it->count; j++, n++) {
             uint64_t at = (uint64_t)n * stride * PAL_BYTES;
             if (at + PAL_BYTES > g->size)
                 return fail(c, "palettes are longer than their region (%u)", g->size, 0);
             if (it->first == ARCADE_SCREENS_DISC) {
                 memset(out->known + g->offset + at, 0, PAL_BYTES);
-            } else if (it->first != ARCADE_SCREENS_ZERO) {
+            } else if (it->first == ARCADE_SCREENS_ZERO) {
+                if (it->flip & ARCADE_SCREENS_BY_DESIGN) {
+                    memset(out->known + g->offset + at, 2, PAL_BYTES);
+                    out->design++;
+                }
+            } else {
                 if (palette_ps1(c, it->first + PAL_BYTES * j, it->flip, base + at))
                     return -1;
             }
@@ -291,16 +318,19 @@ static int build_picture(struct ctx *c, const struct tables *t, const struct arc
     for (i = 0; i < g->count; i++) {
         const struct arcade_screens_op *o = &t->ops[g->first + i];
         unsigned unit = o->kind == ARCADE_SCREENS_OP_TILE ? 16u : 8u;
-        if (o->kind < ARCADE_SCREENS_OP_TILE || o->kind > ARCADE_SCREENS_OP_DISC)
+        if (o->kind < ARCADE_SCREENS_OP_TILE || o->kind > ARCADE_SCREENS_OP_BLANK)
             return fail(c, "picture op kind %u is unknown (%u)", o->kind, 0);
         if ((uint64_t)o->x * 8u + (uint64_t)unit * o->w > g->width || (uint64_t)o->y * 8u + (uint64_t)unit * o->h > rows)
             return fail(c, "picture op %u lies outside the picture (%u)", i, 0);
-        if (o->kind == ARCADE_SCREENS_OP_DISC) {
+        if (o->kind == ARCADE_SCREENS_OP_DISC || o->kind == ARCADE_SCREENS_OP_BLANK) {
+            int by_design = o->kind == ARCADE_SCREENS_OP_BLANK;
             for (y = 0; y < (unsigned)o->h * 8u; y++) {
                 size_t at = ((size_t)o->y * 8u + y) * row + (size_t)o->x * 4u;
                 memset(base + at, 0, (size_t)o->w * 4u);
-                memset(out->known + g->offset + at, 0, (size_t)o->w * 4u);
+                memset(out->known + g->offset + at, by_design ? 2 : 0, (size_t)o->w * 4u);
             }
+            if (by_design)
+                out->design += (unsigned)o->w * o->h;
             continue;
         }
         for (y = 0; y < o->h; y++)
@@ -374,8 +404,23 @@ const struct arcade_screens_recipe *arcade_screens_recipe_of(const struct arcade
     return NULL;
 }
 
-int arcade_screens_verify_regions(const struct arcade_screens_region *regions, unsigned count, const struct arcade_screens_out *out, const uint8_t *disc,
-                                  size_t disc_size, char *err, size_t errsize)
+/* The tiles of the SEG region g that are blank by design: 1 for each (a zeroed array of its tile count), or NULL when none or no memory. */
+static uint8_t *design_tiles(const struct arcade_screens_region *g, const struct arcade_screens_item *items, uint32_t n)
+{
+    uint8_t *mark;
+    uint32_t i, j, at = 0;
+    if (!items || !(mark = (uint8_t *)calloc(n, 1)))
+        return NULL;
+    for (i = 0; i < g->count; i++) {
+        const struct arcade_screens_item *it = &items[g->first + i];
+        for (j = 0; j < it->count && at < n; j++, at++)
+            mark[at] = it->first == ARCADE_SCREENS_ZERO && (it->flip & ARCADE_SCREENS_BY_DESIGN) != 0;
+    }
+    return mark;
+}
+
+int arcade_screens_verify_regions(const struct arcade_screens_region *regions, unsigned count, const struct arcade_screens_item *items,
+                                  const struct arcade_screens_out *out, const uint8_t *disc, size_t disc_size, char *err, size_t errsize)
 {
     uint32_t i, k;
     if (err && errsize)
@@ -394,6 +439,8 @@ int arcade_screens_verify_regions(const struct arcade_screens_region *regions, u
     for (i = 0; i < count; i++) {
         const struct arcade_screens_region *g = &regions[i];
         uint32_t n;
+        uint8_t *mark, blank[TILE_BYTES];
+        memset(blank, 0, sizeof blank);
         if (g->kind != ARCADE_SCREENS_SEG || (uint64_t)g->offset + g->size > out->size || out->known[g->offset] != 2)
             continue;
         n = arcade_tilepack_count(out->data + g->offset, g->size);
@@ -402,16 +449,28 @@ int arcade_screens_verify_regions(const struct arcade_screens_region *regions, u
                 snprintf(err, errsize, "segment at %#x holds another number of tiles than the disc's", g->offset);
             return -1;
         }
+        mark = design_tiles(g, items, n);
         for (k = 0; k < n; k++) {
             uint8_t a[TILE_BYTES], b[TILE_BYTES];
             char e2[64];
+            if (mark && mark[k]) {   /* blank by design: it must be blank, and the disc's is not compared */
+                if (arcade_tilepack_decode(out->data + g->offset, g->size, k, a, e2, sizeof e2) || memcmp(a, blank, TILE_BYTES)) {
+                    if (err && errsize)
+                        snprintf(err, errsize, "tile %u of the segment at %#x is not blank as designed", k, g->offset);
+                    free(mark);
+                    return -1;
+                }
+                continue;
+            }
             if (arcade_tilepack_decode(out->data + g->offset, g->size, k, a, e2, sizeof e2) || arcade_tilepack_decode(disc + g->offset, g->size, k, b, e2, sizeof e2) ||
                 memcmp(a, b, TILE_BYTES)) {
                 if (err && errsize)
                     snprintf(err, errsize, "tile %u of the segment at %#x differs from the disc's", k, g->offset);
+                free(mark);
                 return -1;
             }
         }
+        free(mark);
     }
     return 0;
 }
@@ -424,7 +483,7 @@ int arcade_screens_verify(const struct arcade_screens_recipe *r, const struct ar
             snprintf(err, errsize, "the built chunk is not the recipe's (%u of %u bytes)", out->size, r->size);
         return -1;
     }
-    return arcade_screens_verify_regions(arcade_screens_regions + r->first, r->count, out, disc, disc_size, err, errsize);
+    return arcade_screens_verify_regions(arcade_screens_regions + r->first, r->count, arcade_screens_items, out, disc, disc_size, err, errsize);
 }
 
 int arcade_screens_build_region(const uint8_t *program, size_t program_size, const uint8_t *tiles, size_t tiles_size,

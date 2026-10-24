@@ -22,7 +22,7 @@ FLAGS = ('-std=c99', '-O1', '-Wall', '-Wextra', '-Werror', '-pedantic')
 SOURCES = [ROOT / 'port/arcade' / n for n in ('screens.c', 'screens_table.c', 'tilepack.c')]
 TILES = 48                  # tiles of the made-up graphics
 KINDS = {S.SEG: 'SEG', S.RAW: 'RAW', S.PALS: 'PALS', S.PIC: 'PIC'}
-OPS = {S.OP_TILE: 'TILE', S.OP_PIECE: 'PIECE', S.OP_FLAT: 'FLAT', S.OP_DISC: 'DISC'}
+OPS = {S.OP_TILE: 'TILE', S.OP_PIECE: 'PIECE', S.OP_FLAT: 'FLAT', S.OP_DISC: 'DISC', S.OP_BLANK: 'BLANK'}
 NAMES = {S.ZERO: 'ZERO', S.DISC: 'DISC', S.PIECES: 'PIECES'}
 
 
@@ -105,7 +105,7 @@ class ScreensC(unittest.TestCase):
         cls.dir.cleanup()
 
     def run_c(self, region, disc=None, world=None):
-        """(data, known, unbuilt) of the C, or the refusal message."""
+        """(data, known, unbuilt) of the C (self.design: the units it counts blank by design), or the refusal message."""
         base = Path(self.dir.name)
         out = base / f'out{self.n}'
         ScreensC.n += 1
@@ -121,6 +121,7 @@ class ScreensC(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         lines = r.stdout.splitlines()
         self.verify = lines[1] if len(lines) > 1 else None
+        self.design = int(lines[0].split()[3])
         return (out / 'out.bin').read_bytes(), (out / 'out.known').read_bytes(), int(lines[0].split()[1])
 
     def model(self, region, disc=None):
@@ -131,6 +132,7 @@ class ScreensC(unittest.TestCase):
         got = self.run_c(region, disc)
         want = self.model(region, disc)
         self.assertIsInstance(got, tuple, got)
+        self.assertEqual(self.design, S.units_of([region]), 'the units blank by design')
         data, known, unbuilt = got
         mdata, mknown, msegs = want
         if region[0] == S.SEG:
@@ -363,6 +365,69 @@ class ScreensC(unittest.TestCase):
                 continue
             self.same(region)
 
+    # ---- blank by design
+
+    def test_by_design_tiles_are_blank_known_2_and_counted(self):
+        w = self.world
+        items = [(3, 2, 0), (S.ZERO, 2, S.BY_DESIGN), (S.ZERO, 1, 0), (9, 1, 1), (S.ZERO, 1, S.BY_DESIGN)]
+        got, _ = self.same((S.RAW, 16, 7 * 128, items, []))
+        data, known, _u = got
+        self.assertEqual(self.design, 3)
+        for i, state in enumerate([1, 1, 2, 2, 1, 1, 2]):
+            self.assertEqual(known[16 + 128 * i:16 + 128 * i + 128], bytes([state]) * 128, i)
+        self.assertEqual(data[16 + 2 * 128:16 + 4 * 128], bytes(256))
+        # a segment with no DISC tile left is built whole with no disc, and the verify skips what is by design but not the rest
+        items = [(S.ZERO, 1, 0), (3, 3, 0), (S.ZERO, 2, S.BY_DESIGN), (9, 2, 0)]
+        region = self.seg_region(items)
+        got, want = self.same(region)
+        self.assertEqual((got[2], self.design), (0, 2))
+        tiles = [bytes(128), w.arc.tile(3), w.arc.tile(4), w.arc.tile(5), bytes(128), bytes(128), w.arc.tile(9), w.arc.tile(10)]
+        self.assertEqual(want[2][0x40], tiles)
+        own = [bytes(random.Random(i).randrange(256) for _ in range(128)) for i in range(2)]
+        on_disc = list(tiles)
+        on_disc[4:6] = own                                              # the disc has art where the build is blank by design
+        packed = T.encode_chunk_small([T.tile_words(t) for t in on_disc])[0]
+        disc = bytes(0x40) + packed + bytes(region[2] - len(packed))
+        self.run_c(region, disc)
+        self.assertEqual(self.verify, 'verify ok')
+        on_disc[6] = w.arc.tile(9, 1)                                   # and a tile that is not by design must still agree
+        packed = T.encode_chunk_small([T.tile_words(t) for t in on_disc])[0]
+        self.run_c(region, bytes(0x40) + packed + bytes(region[2] - len(packed)))
+        self.assertTrue(self.verify.startswith('verify: tile 6 of the segment'), self.verify)
+
+    def test_by_design_palettes_and_picture_rects(self):
+        items = [(0x100, 1, 0), (S.ZERO, 2, S.BY_DESIGN), (S.DISC, 1, 0), (S.ZERO, 1, 0)]
+        got, _ = self.same((S.PALS, 32, 32 * 5, items, 1))
+        known = got[1]
+        for i, state in enumerate([1, 2, 2, 0, 1]):
+            self.assertEqual(known[32 + 32 * i:64 + 32 * i], bytes([state]) * 32, i)
+        self.assertEqual(self.design, 2)
+        ops = [(S.OP_TILE, 0, 0, 2, 2, 3, 1, 4, 0), (S.OP_BLANK, 1, 1, 2, 3, 0, 0, 0, 0), (S.OP_DISC, 5, 6, 2, 1, 0, 0, 0, 0), (S.OP_FLAT, 0, 5, 2, 1, 5, 0, 0, 0)]
+        got, _ = self.same(self.pic(ops))
+        data, known, _u = got
+        row = 32
+        self.assertEqual(self.design, 6)
+        self.assertEqual(known[16 + 8 * row + 4:16 + 8 * row + 12], b'\2' * 8)           # the blank rect, over the tile that was drawn there
+        self.assertEqual(data[16 + 8 * row + 4:16 + 8 * row + 12], bytes(8))
+        self.assertEqual(known[16 + 48 * row + 20:16 + 48 * row + 28], bytes(8))        # the DISC rect stays unknown
+        self.assertEqual(known[16 + 40 * row:16 + 40 * row + 8], b'\1' * 8)
+        # verify: bytes known 2 outside a segment are not compared with the disc, bytes known 1 are
+        disc = bytes(16) + (bytes(range(1, 256)) * 9)[:32 * 64]
+        self.run_c(self.pic([(S.OP_BLANK, 0, 0, 8, 8, 0, 0, 0, 0)]), disc)
+        self.assertEqual(self.verify, 'verify ok')
+
+    def test_the_by_design_mark_is_for_blank_items_only(self):
+        for first in (3, S.DISC, S.PIECES):
+            region = (S.RAW, 0, 128, [(first, 1, S.BY_DESIGN | (0 if first != S.PIECES else 0))], [(14 << 2,) * 4])
+            with self.subTest(first=first):
+                with self.assertRaises(S.ModelError):
+                    self.model(region)
+                self.assertIsInstance(self.run_c(region), str)
+        pal = (S.PALS, 0, 32, [(0x100, 1, S.BY_DESIGN | S.PAL_BIT15)], 1)
+        with self.assertRaises(S.ModelError):
+            self.model(pal)
+        self.assertIsInstance(self.run_c(pal), str)
+
     # ---- malformed input
 
     def test_malformed_input_is_refused_by_both(self):
@@ -541,6 +606,71 @@ class TableText(unittest.TestCase):
             self.assertEqual(subprocess.run([str(d / 't')], capture_output=True, text=True).stdout.split(), ['1000', '2', '1', '1'])
         finally:
             shutil.rmtree(d)
+
+
+class DesignRows(unittest.TestCase):
+    """The explicit by-design table: what it turns into blank units, and what it refuses."""
+
+    def regions(self):
+        ops = [(S.OP_TILE, 0, 0, 2, 2, 3, 1, 4, 0), (S.OP_DISC, 5, 6, 2, 1, 0, 0, 0, 0), (S.OP_DISC, 0, 40, 1, 1, 0, 0, 0, 0), (S.OP_FLAT, 2, 4, 2, 1, 5, 0, 0, 0)]
+        return [(S.SEG, 0, 600, [(S.ZERO, 1, 0), (3, 4, 1), (S.DISC, 2, 0), (S.DISC, 3, 0)], []), (S.PIC, 600, 64 * 64, 128, ops)]
+
+    def run_rows(self, rows, kind='END', slot=0x29, regions=None):
+        old = S.DESIGN_ROWS
+        S.DESIGN_ROWS = rows
+        try:
+            used = []
+            return S.apply_design(regions or self.regions(), kind, 0, slot, 0, used), used
+        finally:
+            S.DESIGN_ROWS = old
+
+    def test_disc_units_of_a_segment_become_blank_by_design(self):
+        out, used = self.run_rows((dict(kind='END', table=0, slot=0x29, ordinal=0, offset=0, units='disc'),))
+        self.assertEqual(out[0][3], [(S.ZERO, 1, 0), (3, 4, 1), (S.ZERO, 2, S.BY_DESIGN), (S.ZERO, 3, S.BY_DESIGN)])
+        self.assertEqual(out[1], self.regions()[1])
+        self.assertEqual(used, [(0, 5)])
+        self.assertEqual(S.units_of(out), 5)
+
+    def test_a_row_names_its_kind_chunk_and_region(self):
+        for kind, slot in (('CONT', 0x29), ('END', 0x2a)):
+            out, used = self.run_rows((dict(kind='END', table=0, slot=0x29, ordinal=0, offset=0, units='disc'),), kind, slot)
+            self.assertEqual((out, used), (self.regions(), []))
+        out, used = self.run_rows((dict(kind='END', table=0, slot=0x29, ordinal=0, offset=600, units='disc', rows=(0, 128)),))
+        self.assertEqual(out[0], self.regions()[0])                  # the region at offset 600 is the picture; the segment is untouched
+
+    def test_picture_rows_blank_the_disc_rects_or_everything_inside(self):
+        row = dict(kind='END', table=0, slot=0x29, ordinal=0, offset=600, units='disc', rows=(0, 128))
+        out, used = self.run_rows((row,))
+        ops = out[1][4]
+        self.assertEqual(ops[1], (S.OP_BLANK, 5, 6, 2, 1, 0, 0, 0, 0))          # inside the rows: blanked in place
+        self.assertEqual(ops[2], (S.OP_DISC, 0, 40, 1, 1, 0, 0, 0, 0))          # below them: the disc's
+        self.assertEqual(used, [(0, 2)])
+        out, used = self.run_rows((dict(row, units='all', rows=(0, 128)),))
+        ops = out[1][4]
+        self.assertEqual([o[0] for o in ops], [S.OP_BLANK, S.OP_DISC])           # the tile, the flat and the DISC rect inside are one blank rect
+        self.assertEqual(ops[0], (S.OP_BLANK, 0, 0, 16, 16, 0, 0, 0, 0))
+        self.assertEqual(used, [(0, 256)])
+        with self.assertRaises(S.ModelError):                                    # an op that crosses the rows' edge is not guessed at
+            self.run_rows((dict(row, units='all', rows=(0, 12)),))
+        with self.assertRaises(S.ModelError):
+            self.run_rows((dict(row, offset=0, units='all'),))                   # 'all' is for a picture
+
+    def test_the_checked_in_rows_are_explicit(self):
+        for row in S.DESIGN_ROWS:
+            self.assertEqual(set(row) - {'rows'}, {'kind', 'table', 'slot', 'ordinal', 'offset', 'units', 'expect', 'why'})
+            self.assertIn(row['units'], ('disc', 'all'))
+            self.assertGreater(row['expect'], 0)
+            self.assertGreater(len(row['why']), 40)
+            self.assertNotIn(chr(0x2014), row['why'])
+
+    def test_the_table_text_writes_the_mark_and_the_op(self):
+        t = S.Table()
+        t.add_use('A00.PAC', 0, 0x29, 0, t.add_recipe(1000, [(S.SEG, 0, 600, [(S.ZERO, 3, S.BY_DESIGN), (3, 1, 0)], []),
+                                                           (S.PIC, 600, 512, 64, [(S.OP_BLANK, 0, 0, 2, 2, 0, 0, 0, 0)])]))
+        text = S.c_table(t, 'cmd')
+        self.assertIn('{Z, 3, BD}', text)
+        self.assertIn('OB, 0}', text)
+        self.assertEqual(S.units_of(t.model_regions(0)[1]), 7)
 
 
 class Small(unittest.TestCase):

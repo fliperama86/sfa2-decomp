@@ -20,6 +20,7 @@ vag.c
 vag_table.c
 zip.c
 music.c
+compose.c
 screen_lists.c
 screen_lists_table.c
 module_data.c
