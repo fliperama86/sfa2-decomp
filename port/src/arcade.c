@@ -1037,6 +1037,19 @@ static void module_data(struct port_disc *d, int check)
     fflush(stdout);
 }
 
+static int same_name(const char *a, const char *b);
+
+/* Whether the first len characters of two file names are the same, case aside. */
+static int same_prefix(const char *a, const char *b, size_t len)
+{
+    size_t i;
+    for (i = 0; i < len; i++) {
+        char x = a[i] >= 'A' && a[i] <= 'Z' ? (char)(a[i] + 32) : a[i], y = b[i] >= 'A' && b[i] <= 'Z' ? (char)(b[i] + 32) : b[i];
+        if (x != y || !x) return 0;
+    }
+    return 1;
+}
+
 /* The screen modules' cell lists and position runs (screen_lists.c), served where built and equal to the disc's. */
 static void screen_lists(struct port_disc *d, int check)
 {
@@ -1054,6 +1067,25 @@ static void screen_lists(struct port_disc *d, int check)
             port_halt(PORT_EXIT_PROGRAM, "arcade: %s: a chain does not fit its module chunk", u->file);
         served += serve_units(d, f, at + u->positions, o.positions, o.positions_known, o.positions_size, 1, check);
         served += serve_units(d, f, at + u->lists, o.lists, o.lists_known, o.lists_size, 1, check);
+        {   /* the files of the same family whose module chunk is the same size carry the same module (the 21 endings' one, the win
+             * screen's): the chain is served there too, where it equals that file's bytes */
+            size_t len = 0;
+            unsigned g, gat, gn;
+            while (u->file[len] && !(u->file[len] >= '0' && u->file[len] <= '9') && u->file[len] != '.') len++;
+            for (g = 0; g < file_count; g++) {
+                if ((int)g == f || strlen(files[g].name) < len || !same_prefix(files[g].name, u->file, len)) continue;
+                if (pac_chunk(d, &files[g], u->module_slot, &gat, &gn) != 0 || gn != n) continue;
+                {   /* a file with a row of its own for this chain builds it from its own tiles */
+                    unsigned k2, own = 0;
+                    for (k2 = 0; k2 < arcade_screen_lists_use_count && !own; k2++)
+                        own = same_name(arcade_screen_lists_uses[k2].file, files[g].name) && arcade_screen_lists_uses[k2].lists == u->lists &&
+                              arcade_screen_lists_uses[k2].module_slot == u->module_slot;
+                    if (own) continue;
+                }
+                served += serve_units(d, (int)g, gat + u->positions, o.positions, o.positions_known, o.positions_size, 1, check);
+                served += serve_units(d, (int)g, gat + u->lists, o.lists, o.lists_known, o.lists_size, 1, check);
+            }
+        }
         if (check) arcade_screen_lists_free(&o);   /* else the ranges point into it */
     }
     printf("arcade%s: screens: %llu bytes of the modules' cell lists and position runs built from the arcade set and %s\n",
