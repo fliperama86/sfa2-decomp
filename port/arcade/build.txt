@@ -29,3 +29,5 @@ full_sets.c
 full_sets_table.c
 texts.c
 texts_table.c
+quotes.c
+quotes_table.c

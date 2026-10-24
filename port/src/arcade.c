@@ -12,6 +12,7 @@
 #include "../arcade/sounds.h"
 #include "../arcade/full_sets.h"
 #include "../arcade/texts.h"
+#include "../arcade/quotes.h"
 #include "settings.h"
 #include "port_tables.h"
 #include "parallel.h"
@@ -1103,6 +1104,51 @@ static unsigned full_sets(struct port_disc *d, int check)
     return done_rows;
 }
 
+/* The win quotes in the arcade's English (quotes.c): for each winner's file, its glyph segment and its quotes' cell lists, position
+ * streams and offset table, served to the game's reads only (the module's chunk is pinned by modules.c). With check, build only.
+ * Returns the files built. */
+static unsigned win_quotes(struct port_disc *d, int check)
+{
+    unsigned i, built_files = 0;
+    char err[PORT_ERR];
+    for (i = 0; i < arcade_quotes.count; i++) {
+        const struct arcade_quote_fighter *q = &arcade_quotes.fighters[i];
+        int f = file_index(d, q->file);
+        unsigned mat, mn, bat, bn, k;
+        uint32_t seg_size = 0;
+        unsigned char *module, *changed = NULL, *segment = NULL;
+        if (pac_chunk(d, &files[f], arcade_quotes.module_slot, &mat, &mn) != 0 || pac_chunk(d, &files[f], arcade_quotes.blob_slot, &bat, &bn) != 0 ||
+            q->segment > bn || q->segment_room > bn - q->segment) {
+            printf("arcade%s: win quotes: %s: the chunks are not where the table says; its quotes stay the PS1's\n", check ? " check" : "", q->file);
+            continue;
+        }
+        if (!(module = served_bytes(d, f, mat, mn)) || !(changed = malloc(mn ? mn : 1)) || !(segment = malloc(q->segment_room ? q->segment_room : 1)))
+            port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+        if (arcade_quotes_build(&arcade_quotes, q, rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, module, changed, mn, segment,
+                                &seg_size, err, sizeof err) != 0) {
+            printf("arcade%s: win quotes: %s: %s; its quotes stay the PS1's\n", check ? " check" : "", q->file, err);
+            free(module); free(changed); free(segment);
+            continue;
+        }
+        built_files++;
+        if (check) {
+            free(module); free(changed); free(segment);
+            continue;
+        }
+        for (k = 0; k < mn;) {   /* the written runs of the module */
+            unsigned e = k;
+            while (e < mn && changed[e]) e++;
+            if (e > k) add_game_range(f, mat + k, module + k, e - k);
+            k = e + 1;
+        }
+        add_game_range(f, bat + q->segment, segment, seg_size);
+        free(changed);   /* the module and the segment stay: the ranges point into them */
+    }
+    printf("arcade%s: win quotes: %u of %u winners' files say the arcade's English quotes\n", check ? " check" : "", built_files, arcade_quotes.count);
+    fflush(stdout);
+    return built_files;
+}
+
 /* ---- music: the arcade's songs in place of the disc's recorded streams (port/arcade/music.md, section 11) */
 
 /* The PS1's music code (file * 256 + channel of ZERO2_XA/ZERO20N.XA) and the arcade song that is the same music, for all 57 codes,
@@ -1624,6 +1670,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     arcade_screen_lists_end();
     texts(d, check);
     if (check) full_sets(d, 1);
+    if (check) win_quotes(d, 1);
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
@@ -1654,7 +1701,11 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
         }
         printf("arcade: the pack's files and the loader's build agree\n");
     }
-    if (full_sets(d, 0)) index_ranges();
+    {
+        unsigned more = full_sets(d, 0);
+        more += win_quotes(d, 0);
+        if (more) index_ranges();
+    }
     music_attach();
     port_disc_patch_hook = patch;
     port_cd_read_hook = read_hook;

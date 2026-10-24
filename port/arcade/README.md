@@ -202,6 +202,31 @@ full-colour PS1 illustrations (Sakura, Ryu, Chun-Li, and Sakura with
   (the US set's own logo says "Alpha 2"), and the PS1's own lines. They
   stay the pack's until something replaces them.
 
+## Win quotes (the owner's ask of 2026-10-24: "I want the english text")
+
+The PS1 (Japanese) shows a Japanese win quote, drawn by the win screen
+(`CDEMOnn.PAC`, nn the winner) as a sprite: a cell list of 16 x 16 glyph
+tiles from a tile segment of the file's sprite blob, placed by a position
+stream; 24 to 27 quotes a fighter, one picked by the winner's health and a
+random number through the kind's quote offset table. The arcade set (US)
+has 4 English quotes a fighter, two lines of 42 characters each, in the
+16-bit text form of the endings. With `arcade_assets` the loader writes,
+with data only (`quotes.c`, table from `quotes.py --c-table`):
+
+- the glyph segment: each line's characters in pairs, a 16 x 16 tile two
+  characters of the arcade's own 8 x 16 font (scroll 1 pieces, the font the
+  PS1's text routine uses too), each distinct tile once;
+- the four quotes' cell lists and position streams, centred as the PS1's
+  own, and every entry of the offset table pointing at one of the four
+  (entry modulo 4), so the PS1's choice by health and chance picks among the
+  arcade's four.
+
+Kinds 0x12 and 0x13 (Chun-Li's and Gen's other versions) share the tables
+of kinds 4 and 0x11; kind 0x14 takes the arcade's last block (dots). The
+module's ranges are served to the game's reads only (`modules.c` pins the
+chunk). `quotes.py --compare-c` draws every built quote as the game reads it
+and compares it, glyph by glyph, with the arcade's lines.
+
 ## What the game reads, in order
 
 A run of 150 seconds on 2026-10-23 (title, menus, a fight of Ryu against
