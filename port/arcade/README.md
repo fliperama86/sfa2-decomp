@@ -115,6 +115,17 @@ file, a pack, as the arcade intro's pack does: nothing of it enters Git.
   disc the screens' own check against the disc is not made (the pack lacks
   those bytes); the digests check them. The fighters' palettes are served
   palette by palette, so that the PS1's own stay in the pack.
+- Toward no disc at all (the owner, 2026-10-24: "we need to continue until
+  we eliminate all disc dependencies"). The pack leaves out what the port
+  never reads: the music files' sectors that hold no sound (their subheaders
+  stay), the two PS1 movies (with the arcade assets the logo movie is not
+  played and the opening is the native arcade intro), and the code of every
+  module chunk the build pins (`code_pins.c`, table from `code_pins.py`: the
+  functions the matching build establishes and the inventory's other ones
+  that end in `jr ra`, never a chunk's first word, which the disc stream
+  checks). modules.c accepts such a chunk by its data pin, the SHA-256 of
+  the pinned chunk with those ranges zeroed (`port_module_data_pin_hook`).
+  The pack went from 160 MB to 86 MB on 2026-10-24.
 - Sound effects and voices: by the owner's word ("Just use the arcade. It
   should sound as good as the arcade version"), the game's sound requests
   play the arcade's effects through the port's own player (`music.c`), not

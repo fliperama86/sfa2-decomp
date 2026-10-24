@@ -85,6 +85,9 @@ int  port_disc_pack_silent(struct port_disc *d, const unsigned short **codes, un
 /* Read the data bytes of the sector range starting at `sector`, `size` bytes. With port_disc_patch_hook set (the arcade
  * loader), each sector's bytes then pass through it, which may replace them with what the loader built. */
 extern void (*port_disc_patch_hook)(unsigned sector, unsigned char *data, unsigned n);
+/* modules.c: when a module chunk's SHA-256 is not its image's pin, the hook (the arcade loader's, with a pack) may accept it: 1 when the
+ * chunk, with the image's functions zeroed, is the image's data pin (port/arcade/code_pins.h). bytes is not changed. */
+extern int (*port_module_data_pin_hook)(const char *image, const unsigned char *bytes, size_t size);
 int  port_disc_read(struct port_disc *d, unsigned sector, unsigned size, unsigned char *out, char *err, size_t errsize);
 /* Find a file by name in the root directory or one folder below it (version
  * suffix and case ignored). */

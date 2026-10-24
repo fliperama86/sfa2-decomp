@@ -14,6 +14,7 @@
 #include "../arcade/texts.h"
 #include "../arcade/quotes.h"
 #include "../arcade/talk.h"
+#include "../arcade/code_pins.h"
 #include "settings.h"
 #include "port_tables.h"
 #include "parallel.h"
@@ -1560,6 +1561,92 @@ static int stream_sector_kept(int f, const unsigned char *raw)
     return song_of((unsigned)(n[6] - '0') * 256u + raw[17]) < 0;
 }
 
+/* The code ranges of the pack's file f (the functions of each module chunk the build pins: code_pins.h), sorted: a pack keeps none of
+ * their bytes. Found at the import from the disc's own chunks (each table-0 chunk whose size and SHA-256 are an image's). */
+static unsigned (*code_spans[MAX_FILES])[2];
+static unsigned code_span_count[MAX_FILES];
+
+static void find_code_spans(struct port_disc *d)
+{
+    unsigned i, k;
+    for (i = 0; i < file_count; i++) {
+        unsigned char head[PORT_DATA];
+        char err[PORT_ERR];
+        unsigned count, at = PORT_DATA, c;
+        code_span_count[i] = 0;
+        if (!strstr(files[i].name, ".pac") || files[i].size < PORT_DATA || port_disc_read(d, files[i].sector, PORT_DATA, head, err, sizeof err) != 0) continue;
+        count = head[0] | head[1] << 8 | (unsigned)head[2] << 16 | (unsigned)head[3] << 24;
+        if (count > (PORT_DATA - 0x20) / 32) continue;
+        for (c = 0; c < count; c++) {
+            const unsigned char *e = head + 0x20 + 32 * c;
+            unsigned table = e[2] | e[3] << 8, n = e[4] | e[5] << 8 | (unsigned)e[6] << 16 | (unsigned)e[7] << 24;
+            if (n > files[i].size || at > files[i].size - n) break;
+            if (table == 0)
+                for (k = 0; k < arcade_code_pin_count; k++) {
+                    const struct arcade_code_pin *p = &arcade_code_pins[k];
+                    unsigned char *bytes, digest[32];
+                    unsigned r;
+                    if (p->size != n || !(bytes = disc_bytes(d, &files[i], at, n))) continue;
+                    port_sha256(bytes, n, digest);
+                    free(bytes);
+                    if (memcmp(digest, p->pin, 32)) continue;
+                    {
+                        unsigned (*more)[2] = realloc(code_spans[i], (code_span_count[i] + p->count + 1u) * sizeof *more);
+                        if (!more) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+                        code_spans[i] = more;
+                    }
+                    for (r = 0; r < p->count; r++) {
+                        code_spans[i][code_span_count[i]][0] = at + p->ranges[r].offset;
+                        code_spans[i][code_span_count[i]][1] = p->ranges[r].size;
+                        code_span_count[i]++;
+                    }
+                    break;
+                }
+            at += (n + PORT_DATA - 1u) / PORT_DATA * PORT_DATA;
+        }
+    }
+}
+
+/* The spans of file f a pack keeps: the file but the ranges built equal to the disc's and the code ranges, in order. With out NULL
+ * only counted; returns the count and adds the bytes to *bytes. */
+static unsigned kept_spans(int f, unsigned (*out)[2], unsigned long long *bytes)
+{
+    unsigned r = file_first[f], end = file_first[f] + file_ranges[f], c = 0, n = 0, cur = 0;
+    for (;;) {
+        unsigned a, b;
+        while (r < end && !ranges[r].equal) r++;
+        if (r < end && (c >= code_span_count[f] || ranges[r].offset <= code_spans[f][c][0])) { a = ranges[r].offset; b = a + ranges[r].size; r++; }
+        else if (c < code_span_count[f]) { a = code_spans[f][c][0]; b = a + code_spans[f][c][1]; c++; }
+        else break;
+        if (a > cur) {
+            if (out) { out[n][0] = cur; out[n][1] = a - cur; }
+            n++;
+            if (bytes) *bytes += a - cur;
+        }
+        if (b > cur) cur = b;
+    }
+    if (files[f].size > cur) {
+        if (out) { out[n][0] = cur; out[n][1] = files[f].size - cur; }
+        n++;
+        if (bytes) *bytes += files[f].size - cur;
+    }
+    return n;
+}
+
+/* modules.c's hook (port_module_data_pin_hook): a module chunk with its functions zeroed (a pack's) is the image's pinned data. */
+static int data_pin(const char *image, const unsigned char *bytes, size_t size)
+{
+    const struct arcade_code_pin *p = arcade_code_pin_find(image);
+    unsigned char *copy, digest[32];
+    int ok;
+    if (!p || size != p->size || !(copy = malloc(size ? size : 1))) return 0;
+    memcpy(copy, bytes, size);
+    ok = arcade_code_zero(p, copy, size) == 0;
+    if (ok) port_sha256(copy, size, digest);
+    free(copy);
+    return ok && !memcmp(digest, p->data_pin, 32);
+}
+
 /* Write the pack (port/arcade/README.md, "Playing without the disc"; the format is in disc.c): the disc's layout and every byte the
  * loader does not build equal to the disc's. The music streams and the two movies the port plays are whole raw sectors; the movies of
  * the programs it skips and the padding file are left out. Called after port_arcade_attach without check, with the disc. */
@@ -1576,6 +1663,7 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
     FILE *o;
     unsigned char raw[PORT_SECTOR];
     if (!enabled || !ex) { snprintf(err, size, "arcade: import: %s", ex ? "the arcade set is not open" : "out of memory"); free(ex); return -1; }
+    find_code_spans(d);   /* the modules' functions: no byte of them goes into the pack */
     for (i = 0; i <= file_count; i++) {   /* files in sector order, the sectors between them as raw extents */
         unsigned first = i < file_count ? files[i].sector : total, count = i < file_count ? (files[i].size + PORT_DATA - 1u) / PORT_DATA : 0;
         if (first > next) { ex[n].first = next; ex[n].count = first - next; ex[n].kind = 1; ex[n].file = ~0u; n++; }
@@ -1620,15 +1708,11 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
             for (k = 0; k < e->count; k++) at += e->kept[k] ? PORT_SECTOR : 8u;
         }
         else {
-            unsigned r, end = file_first[e->file] + file_ranges[e->file], built_n = 0, data_n = 0, cur = 0;
+            unsigned r, end = file_first[e->file] + file_ranges[e->file], built_n = 0, data_n;
             unsigned long long data_bytes = 0;
             for (r = file_first[e->file]; r < end; r++)
-                if (ranges[r].equal) {
-                    built_n++;
-                    if (ranges[r].offset > cur) { data_n++; data_bytes += ranges[r].offset - cur; }
-                    cur = ranges[r].offset + ranges[r].size;
-                }
-            if (e->file_size > cur) { data_n++; data_bytes += e->file_size - cur; }
+                if (ranges[r].equal) built_n++;
+            data_n = kept_spans((int)e->file, NULL, &data_bytes);
             if (e->empty) data_n = 0, data_bytes = 0;   /* a file of zeros: no byte of it is kept */
             at += 8ull * (built_n + data_n) + data_bytes;
         }
@@ -1636,15 +1720,14 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
     for (i = 0; i < n; i++) {   /* the table */
         struct extent *e = &ex[i];
         unsigned char digest[32];
-        unsigned built_n = 0, data_n = 0, r, end, cur = 0;
+        unsigned built_n = 0, data_n = 0, r, end;
         if (e->kind == 9) continue;
         memset(digest, 0, sizeof digest);
         if (e->kind == 0) {
             end = file_first[e->file] + file_ranges[e->file];
             for (r = file_first[e->file]; r < end; r++)
-                if (ranges[r].equal) { built_n++; if (ranges[r].offset > cur) data_n++; cur = ranges[r].offset + ranges[r].size; }
-            if (e->file_size > cur) data_n++;
-            if (e->empty) data_n = 0;
+                if (ranges[r].equal) built_n++;
+            data_n = e->empty ? 0 : kept_spans((int)e->file, NULL, NULL);
             built_digest((int)e->file, digest);
         }
         if (le_put(o, e->first, 4) || le_put(o, e->count, 4) || le_put(o, e->kind, 4) || le_put(o, e->kind == 0 ? e->file_size : 0, 4) ||
@@ -1668,23 +1751,20 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
             }
             sectors_raw += e->count;
         } else {
-            unsigned r, end = file_first[e->file] + file_ranges[e->file], cur = 0, pass;
+            unsigned r, end = file_first[e->file] + file_ranges[e->file], nk = e->empty ? 0 : kept_spans((int)e->file, NULL, NULL), k2;
+            unsigned (*spans)[2] = malloc((nk ? nk : 1) * sizeof *spans);
             unsigned char *disc = disc_bytes(d, &files[e->file], 0, e->file_size);
-            if (!disc) goto bad;
-            for (pass = 0; pass < 3; pass++) {   /* the data ranges, the built ranges, then the data ranges' bytes */
-                cur = 0;
-                for (r = file_first[e->file]; r <= end; r++) {
-                    unsigned start = r < end ? ranges[r].offset : e->file_size;
-                    if (r < end && !ranges[r].equal) continue;
-                    if (pass == 1) {
-                        if (r < end && (le_put(o, ranges[r].offset, 4) || le_put(o, ranges[r].size, 4))) { free(disc); goto bad; }
-                    } else if (start > cur && !e->empty) {
-                        if (pass == 0 ? (le_put(o, cur, 4) || le_put(o, start - cur, 4)) : fwrite(disc + cur, 1, start - cur, o) != start - cur) { free(disc); goto bad; }
-                        if (pass == 2) bytes_kept += start - cur;
-                    }
-                    if (r < end) cur = ranges[r].offset + ranges[r].size;
-                }
+            if (!disc || !spans) { free(disc); free(spans); goto bad; }
+            if (nk) kept_spans((int)e->file, spans, NULL);
+            for (k2 = 0; k2 < nk; k2++)   /* the data ranges */
+                if (le_put(o, spans[k2][0], 4) || le_put(o, spans[k2][1], 4)) { free(disc); free(spans); goto bad; }
+            for (r = file_first[e->file]; r < end; r++)   /* the built ranges */
+                if (ranges[r].equal && (le_put(o, ranges[r].offset, 4) || le_put(o, ranges[r].size, 4))) { free(disc); free(spans); goto bad; }
+            for (k2 = 0; k2 < nk; k2++) {   /* the data ranges' bytes */
+                if (fwrite(disc + spans[k2][0], 1, spans[k2][1], o) != spans[k2][1]) { free(disc); free(spans); goto bad; }
+                bytes_kept += spans[k2][1];
             }
+            free(spans);
             free(disc);
         }
     }
@@ -1763,6 +1843,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
         if (more) index_ranges();
     }
     music_attach();
+    port_module_data_pin_hook = data_pin;
     port_disc_patch_hook = patch;
     port_cd_read_hook = read_hook;
     return 0;

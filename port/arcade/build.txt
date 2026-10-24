@@ -33,3 +33,5 @@ quotes.c
 quotes_table.c
 talk.c
 talk_table.c
+code_pins.c
+code_pins_table.c

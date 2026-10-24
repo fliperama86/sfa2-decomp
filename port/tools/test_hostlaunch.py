@@ -825,6 +825,7 @@ int port_intro_configure(int enabled,const char *path,char *err,size_t size)
     return 0;
 }
 int port_intro_program(const char *name) { (void)name; return 0; }
+int port_intro_available(void) { return 0; }
 #include "arcade.h"
 /* The arcade loader is outside this launch fixture too (port/tools/test_arcade_*.py): the disabled path only. */
 int port_arcade_configure(int enabled,const char *path,char *err,size_t size)

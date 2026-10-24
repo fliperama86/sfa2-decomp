@@ -128,6 +128,8 @@ int port_intro_program(const char *name) {
     if (!intro_enabled) return 0;
     printf("native intro %s\n", name); return 1;
 }
+int port_intro_available(void) { return intro_enabled; }
+int port_arcade_enabled(void) { return 0; }
 void port_callbacks_program_start(void) { printf("callbacks fresh\n"); }
 void port_press_report(const char *program) { printf("decoder report %s\n", program); }
 void port_trace_line(const char *fmt, ...)

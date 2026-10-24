@@ -320,6 +320,9 @@ static int unplaced(int quiet, unsigned address, unsigned extent, int sector, co
 /* Read the chunk from the user's image and compare its SHA-256 with the one pinned for the image. Returns the
  * chunk's bytes (the caller frees them); a chunk that is not the pinned one ends the program, and so does an
  * image the build pinned nothing for. */
+int (*port_module_data_pin_hook)(const char *image, const unsigned char *bytes, size_t size);
+static unsigned char im_told[1024];   /* a line once per image whose chunk was checked by its data pin */
+
 static unsigned char *verified_chunk(int index, const struct chunk *c, const struct port_disc_file *f)
 {
     const struct port_image *im = &port_images[index];
@@ -337,6 +340,15 @@ static unsigned char *verified_chunk(int index, const struct chunk *c, const str
     }
     port_sha256(bytes, c->size, digest);
     if (memcmp(digest, im->sha256, 32) != 0) {
+        /* A pack holds no code bytes (port/arcade/code_pins.h): its chunk is the pinned one with the functions zeroed, checked by the
+         * data pin that the hook knows; the functions are this program's C either way. */
+        if (port_module_data_pin_hook && port_module_data_pin_hook(im->name, bytes, c->size)) {
+            if (!im_told[index]) {
+                im_told[index] = 1;
+                printf("module: image %s: the chunk of %s holds no code bytes and is its pinned data (code_pins.h)\n", im->name, f->name);
+            }
+            return bytes;
+        }
         printf("refused: image %s: the chunk at sector %u of %s is not the pinned content (its SHA-256 differs from the build's); no jump of it was written\n",
                im->name, c->first_sector, f->name);
         finish(PORT_EXIT_REFUSED);
