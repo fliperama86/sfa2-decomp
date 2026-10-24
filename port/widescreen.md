@@ -5,9 +5,12 @@ A 16:9 picture of the fights, behind the setting `[experimental] widescreen`
 the hard one"). This page is the plan and the contract of each step; a step's
 record goes to `docs/records/`.
 
-**State, 2026-10-23: step 1 is in.** Fights and menus are drawn on the
-512 x 224 canvas and shown at 16:9; past what the game draws (about 400 of
-the 512 columns in a fight) the canvas is black, until step 2.
+**State, 2026-10-24: step 1 and the first increment of steps 2 and 3 are
+in.** Fights and menus are drawn on the 512 x 224 canvas and shown at 16:9.
+The three layer forms most shared are drawn over the whole width, and the
+view is anchored at the stage ends with the HUD centred. On Birdie's stage
+(seen in a run) the walls and back of the stage fill the width; its
+perspective floor and ceiling, one-stage forms, still end where the game's do.
 
 ## The owner's decisions (2026-10-23)
 
@@ -108,34 +111,57 @@ port gives 64):
 Not in step 1: anything past 400 pixels of the stages (black at the far
 sides), the stage ends, the objects' margins, the HUD at the edges.
 
-## Design of steps 2 and 3 (to be pinned when step 1 is in)
+## Steps 2 and 3, first increment: the bridge and the most shared layers
 
 Port work changes nothing under `ps1/`, so the wider stages are drawn by the
-port around the game's own C, not by changing it.
+port around the game's own C. Steps 2 and 3 go in together: side tiles
+without the stage ends would show past the playfield there.
 
-- **Side tiles.** Each layer function of a stage gets an override (an override
-  may name a module function since 2026-10-23, `modules.c`) that runs the
-  game's own C and then makes the tiles of the columns it does not draw, from
-  the same layer record (`Chan`: scroll, map size, map, blank tile, list
-  index) and the same arithmetic, into host memory. The bridge (`gpu.c`)
-  sends them when its walk of the game's list reaches that layer's entry of
-  the ordering table (it already knows the entry: `list_index`), so they keep
-  the layer's depth and need no room in the game's memory or pools.
-- **Which functions.** A survey of 2026-10-23 grouped the stages' layer
-  functions by identical code: `draw_tile_layer_0_16px` (13 stages),
-  `draw_tilemap_layer_32px_9x13` (13), `draw_skewed_tile_layer_quads` (10),
-  `draw_tile_layer_sprites_with_partial_row` (10), `draw_tile_layer_1_16px`
-  (6), a few of two or three stages, and about 30 that one stage has. One
-  host maker for each shared form covers most stages; the others come one by
-  one, stage by stage, each checked on its stage.
-- **Stage ends (step 3).** The bridge moves every packet that is not the
-  HUD's (the HUD is told apart as for `center_ui`, `ui_layout.h`) by the
-  view's anchor: with the camera's left edge `cam` (`box_margin[0]`) the wide
-  view's left edge is `clamp(cam - 64, 256, 512)`, and the world goes over by
-  `cam - 64 - left`, from -64 at the stage's left end to +64 at its right
-  end, 0 in between. The side tiles cover what that view needs, -128 to +512
-  around `cam` at most. The frame is drawn right after the frame's logic, so
-  the camera read at the walk is that frame's.
+**The bridge (`gpu.c`).**
+
+- `port_gpu_queue_packet(entry, words, len)` (gpu.h) keeps a packet of the
+  port's own (Sony's layout without the tag: `len` words, the GP0 commands of
+  one packet) for entry `entry` (0..29) of the ordering table that the next
+  DrawOTag draws. The walk sends an entry's queued packets when it reaches
+  that entry's tag (a packet of length 0 that `port_video_ot_index` names),
+  before the packets the game linked there, with the same checks of their
+  commands as the game's. The queue empties at the end of that DrawOTag;
+  queued packets are kept in host memory (at most 0x10000 words a frame; a
+  packet past that is dropped with one line per run).
+- **The stage ends.** During a fight (the main layer's active flag, at
+  `main_layer` 0x801aa5d4, is set and its range is valid) with widescreen on,
+  the walk moves every packet that is not the HUD's by the anchor `a`:
+  `cam` is the s16 at `main_layer + 0x12` (the camera's left edge as the
+  game draws it, `box_margin[0]`), `min` and `max` the s16s at +0x44 and
+  +0x46; the wide view's left edge is `left = clamp(cam - 64, min, max - 128)`
+  (the middle of the two when `max - min < 128`), and `a = cam - 64 - left`,
+  from -64 at the left end to +64 at the right end. The HUD's packets are told
+  apart as for `center_ui` (`port_ui_packet_kind` in `ui_layout.h`) and keep
+  their place (centred). Outside a fight, or with widescreen off, `a` is 0.
+
+**The side tiles (`port/src/wide_stage.c`).**
+
+- For each stage function of the three forms most shared, an override
+  (`port_wide_overrides`, always placed; with widescreen off it only runs the
+  game's C) runs the game's own C (its implementation, found by name) and
+  then, with widescreen on, makes the tiles of the columns that C does not
+  draw and queues them for the layer's entry (`Chan.ot_index`):
+  `draw_tile_layer_0_16px` (13 stages), `draw_tile_layer_1_16px` (6) and
+  `draw_tilemap_layer_32px_9x13` (13).
+- The columns: the C draws k = 0..24 (16 px) or 0..12 (32 px) from the
+  layer's scroll; the maker adds the columns left of k = 0 and right of the
+  last whose screen x falls in -128..512 (what the anchored view can show),
+  with the same arithmetic per column as the C (map address, blank tile,
+  position, u, v, clut, the texture page word), and the static words of a
+  packet (the mode word, the sprite's code and colour) taken from the first
+  record of the function's own pool, which the stage's init fills.
+- The maker is checked against the game's C: for k = 0..24 (0..12) on a made
+  -up layer and map it gives the packets the C writes into its pool.
+
+Not in this increment: the other layer forms (`draw_skewed_tile_layer_quads`,
+`draw_tile_layer_sprites_with_partial_row`, the one-stage forms), objects in
+the sides (step 4), banners and other screen-space objects at the stage ends
+(they move with the world there; they are told apart later).
 
 ## References
 

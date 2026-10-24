@@ -102,6 +102,7 @@ test_video = ["port/src/video.h", "port/src/gpu.c", "port/psyz.patch", "port/too
 
 test_input_keys = ["port/src/input.c", "port/src/port.h", "port/tools/input_keys_test.c"]
 test_menu = ["port/src/menu.c", "port/src/menu.h", "port/src/menu_run.c", "port/src/settings.h", "port/tools/menu_test.c"]
+test_wide_stage = ["port/src/wide_stage.c", "port/src/wide_stage.h", "port/tools/wide_stage_test.c", "port/tools/test_wide_stage.py"]
 test_ui_layout = ["port/src/ui_layout.h", "port/src/video.h", "port/src/gpu.c", "port/src/gpu.h", "port/tools/ui_layout_test.c", "port/tools/ui_layout_seam_test.c", "port/tools/ui_layout_gpu_test.c"]
 test_arcade_zip = ["port/arcade/zip.c", "port/arcade/zip.h", "port/arcade/tests/zip_test.c"]
 test_arcade_rom = ["port/arcade/rom.c", "port/arcade/rom.h", "port/arcade/program.c", "port/arcade/program.h", "port/arcade/zip.c", "port/arcade/zip.h", "port/src/sha256.c", "port/arcade/tests/rom_test.c", "port/intro/import_scene.py"]

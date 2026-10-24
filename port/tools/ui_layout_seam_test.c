@@ -5,10 +5,11 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
-static int pixel_perfect_ui,center_ui,ui_canvas_active;
+static int pixel_perfect_ui,center_ui,ui_canvas_active,wide_on;
 typedef unsigned long OT_TYPE;
 #define LINK_END 0x00ffffffu
 static void stop(const char *fmt,...)
@@ -36,6 +37,80 @@ static void append(uint32_t base,unsigned index,uint32_t address,const uint32_t 
 {
     uint32_t *p=at(address),*ot=at(base+index*4);unsigned i;
     p[0]=len<<24|(*ot&LINK_END);for(i=0;i<len;i++)p[1+i]=words[i];*ot=address&LINK_END;
+}
+
+/* Widescreen's bridge (port/widescreen.md): the host's queue per entry and the anchor of the world's packets. */
+static int x_of(const uint32_t *w) { return (int16_t)w[1]; }
+static int y_of(const uint32_t *w) { return (int16_t)(w[1]>>16); }
+static void fight_layer(int active,int cam,int min,int max)
+{
+    unsigned char *l=(unsigned char *)(uintptr_t)0x801aa5d4u;
+    l[0]=(unsigned char)active;*(int16_t *)(l+0x12)=(int16_t)cam;*(int16_t *)(l+0x44)=(int16_t)min;*(int16_t *)(l+0x46)=(int16_t)max;
+}
+static void clear_ot(uint32_t base)
+{
+    unsigned i;
+    memset((void *)(uintptr_t)PORT_RAM_BASE,0,PORT_RAM_SIZE);
+    for(i=0;i<30;i++)*at(base+i*4)=i?(base+(i-1)*4)&LINK_END:LINK_END;
+}
+static void wide_cases(void)
+{
+    uint32_t base=0x801fc000u;
+    uint32_t world[]={0x600000ff,100u<<16|300,8u<<16|8};
+    uint32_t far_x[]={0x600000ff,100u<<16|1020,8u<<16|8};   /* +64 leaves the 11 bits: sent as it is */
+    uint32_t hud[]={0x2c808080,60u<<16|20,0x78070000,60u<<16|36,0x000d000f,76u<<16|20,0x00000f00,76u<<16|36,0x00000f0f};
+    uint32_t qa[]={0x601111ff,11u<<16|200,8u<<16|8},qb[]={0x602222ff,22u<<16|200,8u<<16|8},qc[]={0x603333ff,33u<<16|200,8u<<16|8};
+    static const int cams[3]={0,256,512};
+    static const int shift[3]={-64,0,64};
+    unsigned k,mode,i;
+    int dx;
+    ui_canvas_active=1;pixel_perfect_ui=0;
+    for(mode=0;mode<6;mode++) {
+        /* 0 centred HUD, 1 HUD in place, 2 widescreen off, 3 layer inactive, 4 no canvas, 5 empty range: nothing moves in 2..5 */
+        center_ui=mode!=1;wide_on=mode!=2;ui_canvas_active=mode!=4;
+        dx=port_ui_center_offset(center_ui,ui_canvas_active,PORT_ARCADE_W);
+        for(k=0;k<3;k++) {
+            int a=mode<2?shift[k]:0;
+            clear_ot(base);
+            fight_layer(mode!=3,cams[k],0,mode==5?0:512);
+            append(base,14,0x80100200,world,3);
+            append(base,14,0x80100240,far_x,3);
+            append(base,17,0x80186004,hud,9);
+            assert(!port_gpu_queue_packet(14,qa,3));assert(!port_gpu_queue_packet(14,qb,3));assert(!port_gpu_queue_packet(13,qc,3));
+            captured_count=0;send_list(at(base+29*4));
+            /* HUD (entry 17), then entry 14: its queued packets in the order queued, then the game's (last linked first), then 13's. */
+            assert(captured_count==6);
+            assert(captured[0].len==9 && captured[0].words[1]==(60u<<16|(unsigned)(20+dx)));
+            assert(captured[1].len==3 && y_of(captured[1].words)==11 && x_of(captured[1].words)==200+a);
+            assert(captured[2].len==3 && y_of(captured[2].words)==22 && x_of(captured[2].words)==200+a);
+            assert(x_of(captured[3].words)==(1020+a>1023?1020:1020+a));   /* past the 11 bits (a = 64): untouched, the program goes on */
+            assert(captured[4].len==3 && y_of(captured[4].words)==100 && x_of(captured[4].words)==300+a);
+            assert(captured[5].len==3 && y_of(captured[5].words)==33 && x_of(captured[5].words)==200+a);
+            for(i=0;i<3;i++)assert(captured[1].words[i]==(i==1?(qa[1]&0xffff0000u)|(uint16_t)(200+a):qa[i]));
+            /* Only once: the queue is empty after the walk. */
+            captured_count=0;send_list(at(base+29*4));assert(captured_count==3);
+            assert(x_of(captured[2].words)==300+a);
+        }
+    }
+    /* An entry that the walk does not reach drops its packets at the end of that walk; they do not reach a later one. */
+    wide_on=1;ui_canvas_active=1;center_ui=1;
+    clear_ot(base);fight_layer(1,0,0,512);
+    assert(!port_gpu_queue_packet(3,qa,3));
+    captured_count=0;send_list(at(base+2*4));assert(captured_count==0);
+    assert(!port_gpu_queue_packet(2,qb,3));
+    captured_count=0;send_list(at(base+2*4));assert(captured_count==1 && y_of(captured[0].words)==22 && x_of(captured[0].words)==200-64);
+    captured_count=0;send_list(at(base+3*4));assert(captured_count==0);
+    /* Refusals: an entry out of range, no words, no length, a packet too long, a full queue (0x10000 words a frame). */
+    assert(port_gpu_queue_packet(-1,qa,3)==-1 && port_gpu_queue_packet(30,qa,3)==-1);
+    assert(port_gpu_queue_packet(0,NULL,3)==-1 && port_gpu_queue_packet(0,qa,0)==-1 && port_gpu_queue_packet(0,qa,256)==-1);
+    for(k=0;!port_gpu_queue_packet(5,qa,3);k++)assert(k<0x10000);
+    assert(k==0x10000/3);
+    assert(port_gpu_queue_packet(5,qa,3)==-1);
+    assert(!port_gpu_queue_packet(5,qa,1) && port_gpu_queue_packet(5,qa,1)==-1);   /* the last word fits, then no more */
+    captured_count=0;send_list(at(base+2*4));assert(captured_count==0);   /* ends the frame: the queue is empty again */
+    assert(!port_gpu_queue_packet(2,qb,3));
+    captured_count=0;send_list(at(base+2*4));assert(captured_count==1);
+    wide_on=0;
 }
 int main(void)
 {
@@ -107,7 +182,8 @@ int main(void)
         { uint32_t single[]={0x03000000,0x600000ff,20u<<16|20,4u<<16|4};
           send_single(single);assert(captured_count==1 && captured[0].words[1]==single[2]); }
     }
+    wide_cases();
     free(saved);assert(!munmap(ram,PORT_RAM_SIZE));
-    puts("UI seam: real walker/copy, both frame tables, eight flag states, compound sprite, meter fills, P2 life cap, RAM/world/single-packet identity pass");
+    puts("UI seam: real walker/copy, host packet queue, stage anchor, both frame tables, eight flag states, compound sprite, meter fills, P2 life cap, RAM/world/single-packet identity pass");
     return 0;
 }

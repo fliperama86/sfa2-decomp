@@ -44,6 +44,10 @@ int port_gpu_set_widescreen(int on);
 /* The wide canvas of the frame shown last, for the picture dump: PORT_WIDE_W x PORT_ARCADE_H halfwords at most, its size in
  * *w x *h; 0, or -1 when that frame was not shown wide (or without the patched backend). */
 int port_gpu_read_wide(uint16_t *pixels, int *w, int *h);
+/* Widescreen's side tiles (port/widescreen.md, steps 2 and 3): a packet of the port's own (Sony's layout without the tag: `len` GP0
+ * words) sent when the next DrawOTag's walk reaches entry `entry` (0..29) of the game's ordering table, before the game's packets
+ * there. 0, or -1 when the entry is out of range or the frame's queue is full (one line per run). */
+int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len);
 /* The screen ([display] screen, enum port_screen): w, h the window's inner size for PORT_SCREEN_WINDOW, the mode's size for
  * PORT_SCREEN_FULLSCREEN (0, 0 the desktop's), ignored for PORT_SCREEN_BORDERLESS. Kept before the window exists and applied
  * when it opens; applied at once after. -1 without the patched SDL_GPU backend for anything but the default window, or when

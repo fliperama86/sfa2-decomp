@@ -161,6 +161,14 @@ static const struct port_function *find_override_target(const char *name)
     return NULL;
 }
 
+/* The C of a function of the build by name, resident or a module's (a resident one is preferred when both exist); the guest address
+ * on the Mac build. PORT_FN_NULL when the build has none. For an override that runs the game's own C first. */
+port_fn port_function_impl(const char *name)
+{
+    const struct port_function *f = find_override_target(name);
+    return f && f->impl ? (port_fn)(uintptr_t)f->impl : PORT_FN_NULL;
+}
+
 static unsigned override_total(void)
 {
     unsigned s, n = 0;

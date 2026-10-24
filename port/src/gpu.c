@@ -108,6 +108,7 @@ int port_gpu_set_ui_layout(int enabled) { return enabled ? -1 : 0; }
 int port_gpu_set_filter(int filter) { return filter == PORT_FILTER_NEAREST ? 0 : -1; }
 int port_gpu_set_widescreen(int on) { return on ? -1 : 0; }
 int port_gpu_read_wide(uint16_t *pixels, int *w, int *h) { (void)pixels; (void)w; (void)h; return -1; }
+int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len) { (void)entry; (void)words; (void)len; return -1; }
 int port_gpu_set_screen(int screen, int w, int h) { return screen == PORT_SCREEN_WINDOW && w == PORT_WINDOW_DEFAULT_W && h == PORT_WINDOW_DEFAULT_H ? 0 : -1; }
 int port_gpu_screen(void) { return PORT_SCREEN_WINDOW; }
 int port_gpu_desktop_size(int *w, int *h) { (void)w; (void)h; return -1; }
@@ -281,7 +282,7 @@ static void begin(void)
  * which write or read one register, are served without them (below). The game's start-up (its function at
  * 0x80118d10) calls SetDispMask(0) and then ResetGraph(0). */
 static int reset_done;
-static int pixel_perfect_ui, arcade_video, center_ui, ui_canvas_active;
+static int pixel_perfect_ui, arcade_video, center_ui, ui_canvas_active, wide_on;
 int port_gpu_set_video_options(int ui,int arcade)
 {
     if((ui || arcade) && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
@@ -309,6 +310,7 @@ int port_gpu_set_widescreen(int on)
 {
     if(on && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
     if(Psyz_Sfa2ExperimentalVideoAvailable())Psyz_Sfa2SetWide(on?PORT_WIDE_EXTRA:0);
+    wide_on=!!on;
     return 0;
 }
 int port_gpu_read_wide(uint16_t *pixels,int *w,int *h)
@@ -586,7 +588,9 @@ static void chunk_flush(void)
 }
 #endif
 
-static void chunk_add(const uint32_t *words, unsigned len, unsigned n, int dx, int fix_life, int super_level)
+/* `soft`: a shift that leaves the 11-bit range (or a geometry command that port_ui_translate does not take) sends the command as it is
+ * instead of ending the program (the widescreen anchor moves the game's world packets, which are not checked for it; the HUD's are). */
+static void chunk_add(const uint32_t *words, unsigned len, unsigned n, int dx, int fix_life, int super_level, int soft)
 {
 #ifdef PORT_GUEST_VM
     unsigned i, pos = 0;
@@ -607,8 +611,10 @@ static void chunk_add(const uint32_t *words, unsigned len, unsigned n, int dx, i
                 if (need>12) stop("gpu: UI command exceeds its bounded copy");
                 for (i=0;i<need;i++) copy[i]=words[pos+i];
                 port_ui_super_fill(copy,need,super_level);
-                if (port_ui_translate(copy,need,dx,fix_life)<0)
-                    stop("gpu: UI layout coordinate/command is out of range");
+                if (port_ui_translate(copy,need,dx,fix_life)<0) {
+                    if (!soft) stop("gpu: UI layout coordinate/command is out of range");
+                    for (i=0;i<need;i++) copy[i]=words[pos+i];
+                }
                 for (i=0;i<need;i++) CHUNK_PUT(copy[i]);
             } else for (i = 0; i < need; i++) CHUNK_PUT(words[pos + i]);
         }
@@ -641,9 +647,95 @@ static void send_single(const uint32_t *packet)
     chunk_last = NULL;
     if (len) {
         walk_payload(port_a(packet), packet + 1, len, &effective);
-        if (effective) chunk_add(packet + 1, len, effective, 0, 0, 0);
+        if (effective) chunk_add(packet + 1, len, effective, 0, 0, 0, 0);
     }
     chunk_flush();
+}
+
+/* ---- widescreen: the anchor of the world and the host's packet queue (port/widescreen.md, steps 2 and 3) ---- */
+
+#define MAIN_LAYER 0x801aa5d4u   /* the main layer: u8 active at +0, s16 cam at +0x12, s16 min at +0x44, s16 max at +0x46 */
+#define QUEUE_WORDS 0x10000u
+#define QUEUE_ENTRIES 30
+
+static int16_t layer_s16(const uint8_t *layer, unsigned offset)
+{
+    int16_t v;
+    memcpy(&v, layer + offset, sizeof v);
+    return v;
+}
+
+/* The shift of the world's packets (not the HUD's) with widescreen on during a fight: the wide view's left edge is
+ * clamp(cam - 64, min, max - 128) (the middle of the two when max - min < 128), the anchor is cam - 64 - left, from -64 at the
+ * left end to +64 at the right end. 0 outside a fight, with widescreen off, or without the arcade canvas. An anchor outside
+ * -64..64 (a camera outside its range) is cut to it. */
+static int wide_anchor(void)
+{
+    static int said;
+    const uint8_t *layer;
+    int cam, min, max, left, a;
+    if (!wide_on || !ui_canvas_active) return 0;
+    layer = (const uint8_t *)port_gs((const void *)(uintptr_t)MAIN_LAYER, 0x48);
+    if (!layer || !layer[0]) return 0;
+    cam = layer_s16(layer, 0x12);
+    min = layer_s16(layer, 0x44);
+    max = layer_s16(layer, 0x46);
+    if (min >= max) return 0;
+    left = max - min < 128 ? (min + max - 128) / 2 : cam - 64 < min ? min : cam - 64 > max - 128 ? max - 128 : cam - 64;
+    a = cam - 64 - left;
+    a = a < -64 ? -64 : a > 64 ? 64 : a;
+    if (a && !said) {
+        said = 1;
+        fprintf(stderr, "wide-video: the stage view is anchored (camera %d, range %d to %d, shift %d)\n", cam, min, max, a);
+    }
+    return a;
+}
+
+/* The host's packets, per entry of the ordering table, in the order they were queued; the words are copied. */
+static struct { uint32_t offset; uint16_t len; uint8_t entry; } queue_rec[QUEUE_WORDS];
+static uint32_t queue_pool[QUEUE_WORDS];
+static unsigned queue_recs, queue_used, queue_per_entry[QUEUE_ENTRIES];
+
+int port_gpu_queue_packet(int entry, const uint32_t *words, unsigned len)
+{
+    static int said;
+    if (entry < 0 || entry >= QUEUE_ENTRIES || !words || !len || len > 255) return -1;
+    if (queue_used + len > QUEUE_WORDS || queue_recs >= QUEUE_WORDS) {
+        if (!said) {
+            said = 1;
+            fprintf(stderr, "wide-video: the queue of the side tiles is full (%u words a frame); a packet is dropped\n", QUEUE_WORDS);
+        }
+        return -1;
+    }
+    memcpy(&queue_pool[queue_used], words, len * sizeof words[0]);
+    queue_rec[queue_recs].offset = queue_used;
+    queue_rec[queue_recs].len = (uint16_t)len;
+    queue_rec[queue_recs].entry = (uint8_t)entry;
+    queue_recs++;
+    queue_used += len;
+    queue_per_entry[entry]++;
+    return 0;
+}
+
+/* The walk is at the tag of entry `entry` (at `here`): its queued packets go first, once, with the anchor like the world's. */
+static void queue_send(int entry, uint32_t here, int anchor)
+{
+    unsigned i;
+    if (entry < 0 || entry >= QUEUE_ENTRIES || !queue_per_entry[entry]) return;
+    for (i = 0; i < queue_recs; i++) {
+        unsigned effective = 0;
+        if (queue_rec[i].entry != entry) continue;
+        walk_payload(here, &queue_pool[queue_rec[i].offset], queue_rec[i].len, &effective);
+        if (effective) chunk_add(&queue_pool[queue_rec[i].offset], queue_rec[i].len, effective, anchor, 0, 0, 1);
+    }
+    queue_per_entry[entry] = 0;
+}
+
+static void queue_clear(void)
+{
+    queue_recs = 0;
+    queue_used = 0;
+    memset(queue_per_entry, 0, sizeof queue_per_entry);
 }
 
 static void send_list(uint32_t *first)
@@ -653,6 +745,7 @@ static void send_list(uint32_t *first)
     unsigned count = 0;
     int list_index=-1;
     int dx=port_ui_center_offset(center_ui,ui_canvas_active,PORT_ARCADE_W);
+    int anchor=wide_anchor();
     chunk_used = 0;
     chunk_last = NULL;
     if (!((start >= PORT_RAM_BASE && start < PORT_RAM_BASE + PORT_RAM_SIZE) || (start >= 0xa0000000u && start < 0xa0000000u + PORT_RAM_SIZE)))
@@ -666,23 +759,28 @@ static void send_list(uint32_t *first)
             stop("gpu: the list from 0x%08x has no end within %u packets (at 0x%08x); a cycle, or a list never terminated", start, PORT_GPU_MAX_PACKETS, here);
         if (here + 4u + 4u * len > PORT_RAM_BASE + PORT_RAM_SIZE)
             stop("gpu: the packet at 0x%08x is %u words long and runs past the end of RAM", here, len);
-        if (!len) list_index=port_video_ot_index(here)>=0?port_video_ot_index(here):list_index;
+        if (!len && port_video_ot_index(here)>=0) {
+            list_index=port_video_ot_index(here);
+            queue_send(list_index, here, anchor);
+        }
         if (len) {
             unsigned effective = 0;
-            int kind=dx?port_ui_packet_kind(here,node+1,len,list_index):0;
+            int kind=dx||anchor?port_ui_packet_kind(here,node+1,len,list_index):0;
+            int shift=kind?dx:anchor;
             /* The meter's fills follow its one-to-one frame, with or without the centred layout. */
             int level=pixel_perfect_ui?port_ui_super_fill_level(here,node+1,len,list_index):0;
             uint32_t halves[18];
             walk_payload(here, node + 1, len, &effective);
             /* P2's mirrored life caps go as two halves that keep the frame's checker in phase. */
             if (effective && pixel_perfect_ui && port_ui_life_cap_halves(here,node+1,len,list_index,halves))
-                chunk_add(halves, 18, 18, kind?dx:0, 0, 0);
-            else if (effective) chunk_add(node + 1, len, effective, kind?dx:0, kind==2 && pixel_perfect_ui, level);
+                chunk_add(halves, 18, 18, shift, 0, 0, !kind);
+            else if (effective) chunk_add(node + 1, len, effective, shift, kind==2 && pixel_perfect_ui, level, !kind);
         }
         if ((head & LINK_END) == LINK_END) break;
         node = ram_at(head & LINK_END, here);
     }
     chunk_flush();
+    queue_clear();
     port_clock_frame_drawn(count);
 }
 
