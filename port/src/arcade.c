@@ -509,9 +509,11 @@ static void steps_of(struct port_disc *d, int f, const struct arcade_fighter *a,
     if (check) arcade_sequence_free(&so);   /* else the ranges point into it */
 }
 
+static void add_game_range(int f, unsigned offset, unsigned char *bytes, unsigned size);
+
 /* One block of a fighter file (its lists, or its position runs) of `size` bytes at file offset `at`, served by unit: the unit
- * [cut[k], cut[k + 1]) (the last to size) is served equal when it is the disc's, as built when owned[k] (the arcade's way where the PS1
- * changed it: a pack keeps none of it), else it stays the disc's. Units served alike and next to each other are one range, pointing
+ * [cut[k], cut[k + 1]) (the last to size) is served equal when it is the disc's, as built to the game's reads when owned[k] (the arcade's
+ * way where the PS1 changed it), else it stays the disc's. Units served alike and next to each other are one range, pointing
  * into `bytes`. n[0..2] gets the units served equal, owned and left. With check nothing is served. */
 static void serve_cuts(struct port_disc *d, int f, unsigned at, unsigned char *bytes, unsigned size, const unsigned *cut, unsigned units,
                        const unsigned char *owned, int check, unsigned n[3], unsigned long long served[2])
@@ -536,10 +538,8 @@ static void serve_cuts(struct port_disc *d, int f, unsigned at, unsigned char *b
             served[how - 1] += b - a;
             if (!check) {
                 if (how == 1) add_range(f, at + a, bytes + a, b - a);
-                else {
-                    add_range_kind(f, at + a, bytes + a, b - a, 0);
-                    ranges[range_count - 1].owned = 1;
-                }
+                else add_game_range(f, at + a, bytes + a, b - a);   /* the game's reads only: modules.c checks the module's data pin on
+                                                                    * the disc's bytes, which these differ from (a pack keeps them) */
             }
         }
         k = e;
@@ -1001,11 +1001,13 @@ static unsigned stage_piece(struct port_disc *d, int f, unsigned type, unsigned 
     }
     {
         unsigned served = serve_units(d, f, at, pc->data, pc->known, pc->size, 1, check), i = 0;
-        while (pc->own && i < pc->size) {   /* bytes built by design (the nearest arcade row, or blank): served owned, a pack keeps none */
+        while (pc->own && i < pc->size) {   /* bytes built by design (the nearest arcade row, or blank): served owned, a pack keeps none; in
+                                             * the stage module, to the game's reads only (modules.c checks its data pin on the disc's bytes) */
             unsigned j = i;
             while (j < pc->size && pc->own[j]) j++;
             if (j > i) {
-                if (!check) { add_range_kind(f, at + i, pc->data + i, j - i, 0); ranges[range_count - 1].owned = 1; }
+                if (!check && type == 6u) add_game_range(f, at + i, pc->data + i, j - i);
+                else if (!check) { add_range_kind(f, at + i, pc->data + i, j - i, 0); ranges[range_count - 1].owned = 1; }
                 built_bytes[f] += j - i;
                 served += j - i;
                 i = j;
