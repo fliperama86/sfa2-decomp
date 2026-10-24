@@ -1734,7 +1734,33 @@ static int le_put(FILE *o, unsigned long long v, unsigned bytes)
     return fwrite(b, 1, bytes, o) == bytes ? 0 : -1;
 }
 
-struct extent { unsigned first, count, kind, file_size, file, empty; unsigned long long at; unsigned char *kept; };
+#define ZERO_RUN 16u   /* a run of this many zero bytes or more is not kept in a pack: it reads back as zero */
+
+/* The pieces of [a, b) of the file's bytes between its runs of ZERO_RUN zeros or more (into out, when given), and their bytes. */
+static unsigned split_zero_runs(const unsigned char *disc, unsigned a, unsigned b, unsigned (*out)[2], unsigned long long *bytes)
+{
+    unsigned n = 0, q = a;
+    while (q < b) {
+        unsigned t = q, run_start = b, run_end = b;
+        while (t < b) {   /* the first run of ZERO_RUN zeros at q or after */
+            if (disc[t]) { t++; continue; }
+            {
+                unsigned z = t;
+                while (z < b && !disc[z]) z++;
+                if (z - t >= ZERO_RUN) { run_start = t; run_end = z; break; }
+                t = z;
+            }
+        }
+        if (run_start > q) {
+            if (out) { out[n][0] = q; out[n][1] = run_start - q; }
+            if (bytes) *bytes += run_start - q;
+            n++;
+        }
+        q = run_end;
+    }
+    return n;
+}
+struct extent { unsigned first, count, kind, file_size, file, empty, nspans; unsigned long long at, span_bytes; unsigned char *kept; unsigned (*spans)[2]; };
 static int song_of(unsigned code);
 static unsigned song_codes(unsigned short *out, unsigned max);
 
@@ -1895,6 +1921,24 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
         }
     }
     if (!(o = fopen(path, "wb"))) { free(ex); snprintf(err, size, "arcade: import: cannot create %s", path); return -1; }
+    for (i = 0; i < n; i++) {   /* the bytes of each file the pack keeps: not built, not code, and no run of zeros (a byte the pack lacks is zero) */
+        struct extent *e = &ex[i];
+        unsigned m, k2, c = 0;
+        unsigned (*raw_spans)[2];
+        unsigned char *disc;
+        if (e->kind != 0 || e->empty) continue;
+        m = kept_spans((int)e->file, NULL, NULL);
+        if (!(raw_spans = malloc((m ? m : 1) * sizeof *raw_spans)) || !(disc = disc_bytes(d, &files[e->file], 0, e->file_size))) {
+            free(raw_spans); fclose(o); free(ex); snprintf(err, size, "arcade: import: cannot read %s", files[e->file].name); return -1;
+        }
+        if (m) kept_spans((int)e->file, raw_spans, NULL);
+        for (k2 = 0; k2 < m; k2++) c += split_zero_runs(disc, raw_spans[k2][0], raw_spans[k2][0] + raw_spans[k2][1], NULL, NULL);
+        if (!(e->spans = malloc((c ? c : 1) * sizeof *e->spans))) { free(raw_spans); free(disc); fclose(o); free(ex); snprintf(err, size, "arcade: import: out of memory"); return -1; }
+        for (k2 = 0; k2 < m; k2++)
+            e->nspans += split_zero_runs(disc, raw_spans[k2][0], raw_spans[k2][0] + raw_spans[k2][1], e->spans + e->nspans, &e->span_bytes);
+        free(raw_spans);
+        free(disc);
+    }
     {   /* which sectors of the music streams are kept whole */
         for (i = 0; i < n; i++) {
             struct extent *e = &ex[i];
@@ -1930,8 +1974,8 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
             unsigned long long data_bytes = 0;
             for (r = file_first[e->file]; r < end; r++)
                 if (ranges[r].equal) built_n++;
-            data_n = kept_spans((int)e->file, NULL, &data_bytes);
-            if (e->empty) data_n = 0, data_bytes = 0;   /* a file of zeros: no byte of it is kept */
+            data_n = e->nspans;
+            data_bytes = e->span_bytes;   /* none for a file of zeros (empty) */
             at += 8ull * (built_n + data_n) + data_bytes;
         }
     }
@@ -1945,7 +1989,7 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
             end = file_first[e->file] + file_ranges[e->file];
             for (r = file_first[e->file]; r < end; r++)
                 if (ranges[r].equal) built_n++;
-            data_n = e->empty ? 0 : kept_spans((int)e->file, NULL, NULL);
+            data_n = e->nspans;
             built_digest((int)e->file, digest);
         }
         if (le_put(o, e->first, 4) || le_put(o, e->count, 4) || le_put(o, e->kind, 4) || le_put(o, e->kind == 0 ? e->file_size : 0, 4) ||
@@ -1969,20 +2013,18 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
             }
             sectors_raw += e->count;
         } else {
-            unsigned r, end = file_first[e->file] + file_ranges[e->file], nk = e->empty ? 0 : kept_spans((int)e->file, NULL, NULL), k2;
-            unsigned (*spans)[2] = malloc((nk ? nk : 1) * sizeof *spans);
+            unsigned r, end = file_first[e->file] + file_ranges[e->file], nk = e->nspans, k2;
+            unsigned (*spans)[2] = e->spans;
             unsigned char *disc = disc_bytes(d, &files[e->file], 0, e->file_size);
-            if (!disc || !spans) { free(disc); free(spans); goto bad; }
-            if (nk) kept_spans((int)e->file, spans, NULL);
+            if (!disc) goto bad;
             for (k2 = 0; k2 < nk; k2++)   /* the data ranges */
-                if (le_put(o, spans[k2][0], 4) || le_put(o, spans[k2][1], 4)) { free(disc); free(spans); goto bad; }
+                if (le_put(o, spans[k2][0], 4) || le_put(o, spans[k2][1], 4)) { free(disc); goto bad; }
             for (r = file_first[e->file]; r < end; r++)   /* the built ranges */
-                if (ranges[r].equal && (le_put(o, ranges[r].offset, 4) || le_put(o, ranges[r].size, 4))) { free(disc); free(spans); goto bad; }
+                if (ranges[r].equal && (le_put(o, ranges[r].offset, 4) || le_put(o, ranges[r].size, 4))) { free(disc); goto bad; }
             for (k2 = 0; k2 < nk; k2++) {   /* the data ranges' bytes */
-                if (fwrite(disc + spans[k2][0], 1, spans[k2][1], o) != spans[k2][1]) { free(disc); free(spans); goto bad; }
+                if (fwrite(disc + spans[k2][0], 1, spans[k2][1], o) != spans[k2][1]) { free(disc); goto bad; }
                 bytes_kept += spans[k2][1];
             }
-            free(spans);
             free(disc);
         }
     }
@@ -1990,12 +2032,12 @@ int port_arcade_import(struct port_disc *d, const char *path, char *err, size_t 
     printf("arcade: import: %s: %llu bytes of the disc's files kept (what the loader does not build) and %llu raw sectors of streams and movies; %llu MB in all\n",
            path, bytes_kept, sectors_raw, at >> 20);
     fflush(stdout);
-    for (i = 0; i < n; i++) free(ex[i].kept);
+    for (i = 0; i < n; i++) { free(ex[i].kept); free(ex[i].spans); }
     free(ex);
     return 0;
 bad:
     if (o) fclose(o);
-    for (i = 0; i < n; i++) free(ex[i].kept);
+    for (i = 0; i < n; i++) { free(ex[i].kept); free(ex[i].spans); }
     free(ex);
     snprintf(err, size, "arcade: import: cannot write %s", path);
     return -1;
