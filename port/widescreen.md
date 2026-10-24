@@ -185,6 +185,27 @@ the sides of the wide view they are taken out by the game's margin test
 pillars, Dhalsim's and Ryu's upper left, a pole of Guy's), and the edges of
 Birdie's perspective floor and ceiling.
 
+Step 4 (2026-10-24, `wide_objects.c`): the game's margin test
+(`clear_or_set_flag_by_pos_x_limit`) hides an object more than 448 pixels
+right of the camera and gives the shown ones of mode 8 a place on the frame's
+collision list; drawing reads only the hidden flag, and the object's update
+goes on either way. With widescreen on, the objects it hid that the wide view
+shows (up to 576) are marked drawn for the draw phase alone
+(`select_buffers_and_run_first_setup`) and hidden again after it, so the
+collision list and every reader of the flag in the game's logic stay as the
+game makes them. The test hides nothing on the left. Projectiles are still
+taken out where the game takes them out (state 3 at 448 or 512 right of the
+camera): near the left end, where the view reaches 512, one may vanish short
+of the picture's edge.
+
+**The art's own ends.** Some slow background layers hold art only for what the
+PS1's camera shows of them; at the stage ends the wide view goes past it, and
+the picture is black there: Sagat's sky (a block of about 50 x 170 at the far
+corner at both ends), a strip of Guy's at the right end, slivers of Ryu's, and
+the edges of Birdie's perspective floor and ceiling. Seen in scripted training
+fights at both walls of the fifteen stages (2026-10-24). The arcade's layers
+may hold more of that art, for the arcade assets.
+
 Checking a stage in the game: training mode reaches the fifteen stages of
 the select screen's three rows by an input script (down to TRAINING MODE,
 square on Ryu, the dummy by the cursor, square, circle at the training menu);
