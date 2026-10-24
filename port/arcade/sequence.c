@@ -132,7 +132,7 @@ int arcade_sequence_lists(const uint8_t *program, size_t program_size, const str
                           const struct arcade_fighter_out *fo, struct arcade_sequence_lists *out, char *err, size_t errsize)
 {
     struct arcade_sequence_list *items = NULL;
-    size_t cap = 0, n = 0, o = 0, i, w = 0;
+    size_t cap = 0, n = 0, o = 0, i, w = 0, li = 0;
     unsigned s, c;
 
     out->item = NULL;
@@ -144,7 +144,10 @@ int arcade_sequence_lists(const uint8_t *program, size_t program_size, const str
         const struct arcade_fighter_segment *seg = &f->segments[s];
         uint32_t a = seg->address;
         for (c = 0; c < seg->count; c++) {
-            size_t e = list_end(fo->lists, fo->lists_size, o);
+            size_t e;
+            if (fo->list_at && li < fo->list_count) o = fo->list_at[li];   /* the PS1's lists may be padded: the builder says where each starts */
+            e = list_end(fo->lists, fo->lists_size, o);
+            li++;
             if (!e) {
                 free(items);
                 return fail(err, errsize, "%s: no list at +%#x of the lists", f->file, (unsigned)o);

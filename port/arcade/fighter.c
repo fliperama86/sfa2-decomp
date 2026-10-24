@@ -48,6 +48,13 @@ struct builder {
     unsigned psplit, by_run;
     const struct arcade_fighter_drop *drops;
     unsigned ndrops;
+    const struct arcade_fighter_pad *pads;
+    unsigned npads;
+    const struct arcade_fighter_extra *extras;
+    unsigned nextras;
+    uint32_t *list_at;
+    size_t nlists, list_cap;
+    unsigned stream_pad;   /* zero bytes that end the position stream of the list being made */
     uint8_t *lists;
     uint32_t lists_size, lists_cap;
     uint8_t *pos;
@@ -226,6 +233,32 @@ static int lists_put(struct builder *b, const uint8_t *p, size_t n)
     return 0;
 }
 
+/* The list that is being written starts here; the zero bytes the PS1 has after it follow when it is done. */
+static int list_begin(struct builder *b)
+{
+    GROW(b, b->list_at, b->list_cap, b->nlists + 1);
+    b->list_at[b->nlists] = b->lists_size;
+    return 0;
+}
+
+static int list_done(struct builder *b)
+{
+    unsigned lo = 0, hi = b->npads;
+    while (lo < hi) {
+        unsigned mid = (lo + hi) / 2;
+        if (b->pads[mid].list < b->nlists) lo = mid + 1;
+        else hi = mid;
+    }
+    if (lo < b->npads && b->pads[lo].list == b->nlists) {
+        unsigned n = b->pads[lo].bytes;
+        if (n > b->lists_cap - b->lists_size) return fail(b, "the lists need more than their room of %u bytes", (unsigned)b->lists_cap);
+        memset(b->lists + b->lists_size, 0, n);
+        b->lists_size += n;
+    }
+    b->nlists++;
+    return 0;
+}
+
 static void put16(uint8_t *p, unsigned v)
 {
     p[0] = (uint8_t)v;
@@ -315,7 +348,8 @@ static int encode_list(struct builder *b, const uint16_t *t, const uint16_t *f, 
             put16(buf + len + 4, rr[i]);
         }
     }
-    return lists_put(b, buf, len);
+    if (list_begin(b) || lists_put(b, buf, len)) return -1;
+    return list_done(b);
 }
 
 /* ---- tiles */
@@ -356,6 +390,29 @@ static int tile_assign(struct builder *b, uint32_t code, unsigned flags)
     b->tflip[b->next] = (uint8_t)(((flags & 0x20u) ? 1 : 0) | ((flags & 0x40u) ? 2 : 0));
     b->tmap[i].code = code;
     b->tmap[i].num = b->next++;
+    return 0;
+}
+
+/* The PS1's own cells took `n` tile numbers that no arcade tile has here: skip them (their slots are zero). */
+static int take_numbers(struct builder *b, unsigned n)
+{
+    size_t need = (size_t)b->next + n + 1u, cap = b->tcap;
+    if (need > (size_t)MAX_NUMBER + 2u) return fail(b, "more than %u tiles", MAX_NUMBER);
+    if (need > cap) {
+        uint32_t *nc;
+        uint8_t *nf;
+        while (cap < need) cap *= 2;
+        nc = realloc(b->tcode, cap * sizeof *nc);
+        if (!nc) return fail(b, "out of memory");
+        b->tcode = nc;
+        nf = realloc(b->tflip, cap);
+        if (!nf) return fail(b, "out of memory");
+        b->tflip = nf;
+        b->tcap = cap;
+    }
+    memset(b->tcode + b->next, 0xff, n * sizeof *b->tcode);   /* ARCADE_FIGHTER_NO_TILE */
+    memset(b->tflip + b->next, 0, n);
+    b->next += n;
     return 0;
 }
 
@@ -401,6 +458,12 @@ static int emit(struct builder *b, const struct cell *cells, unsigned n, int fre
             have = 1;
         }
     }
+    if (b->stream_pad) {   /* the runs of the cells the PS1 added: never read, but they hold the stream's place */
+        if (b->stream_pad > sizeof stream - len) return fail(b, "a position stream of more than %u bytes", (unsigned)sizeof stream);
+        memset(stream + len, 0, b->stream_pad);
+        len += b->stream_pad;
+        b->stream_pad = 0;
+    }
     if (pos_add(b, stream, len, fresh, &off)) return -1;
     return encode_list(b, t, f, n, off);
 }
@@ -410,7 +473,8 @@ static int empty_list(struct builder *b)
     uint8_t e[12] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (b->pos_size > 0xffffu) return fail(b, "a position offset of %u does not fit 16 bits", (unsigned)b->pos_size);
     put16(e + 8, b->pos_size);
-    return lists_put(b, e, sizeof e);
+    if (list_begin(b) || lists_put(b, e, sizeof e)) return -1;
+    return list_done(b);
 }
 
 /* The tiles of the held records, unit by unit (PL0E): a unit is one part of one record; the parts of a record are ranked
@@ -483,12 +547,18 @@ static int record(struct builder *b, uint32_t at, struct cell *cells, unsigned n
     if (flush(b)) return -1;
     for (i = 0; i < n; i++)
         if (tile_assign(b, cells[i].code, cells[i].flags)) return -1;
+    for (e = 0; e < b->nextras; e++)
+        if (b->extras[e].record == at) {
+            if (take_numbers(b, b->extras[e].tiles)) return -1;
+            b->stream_pad = b->extras[e].stream;
+        }
     return emit(b, cells, n, again);
 }
 
 static void release(struct builder *b)
 {
     free(b->ents);
+    free(b->list_at);
     free(b->tmap);
     free(b->used);
     free(b->run_cells);
@@ -502,6 +572,7 @@ void arcade_fighter_free(struct arcade_fighter_out *out)
     free(out->lists);
     free(out->tile_code);
     free(out->tile_flip);
+    free(out->list_at);
     memset(out, 0, sizeof *out);
 }
 
@@ -525,6 +596,11 @@ int arcade_fighter_build(const uint8_t *program, size_t program_size, const stru
     b.ndrops = f->drop_count;
     if (f->segment_count && !f->segments) return fail(&b, "%s: segments missing", f->file);
     if (f->drop_count && !f->drops) return fail(&b, "%s: drops missing", f->file);
+    if ((f->pad_count && !f->pads) || (f->extra_count && !f->extras)) return fail(&b, "%s: pads or extras missing", f->file);
+    b.pads = f->pads;
+    b.npads = f->pad_count;
+    b.extras = f->extras;
+    b.nextras = f->extra_count;
     b.lists_cap = f->lists_room;
     b.pos_cap = f->positions_room;
     b.lists = malloc((size_t)b.lists_cap + 1);
@@ -566,6 +642,9 @@ int arcade_fighter_build(const uint8_t *program, size_t program_size, const stru
     out->tile_count = b.next;
     out->tile_code = b.tcode;
     out->tile_flip = b.tflip;
+    out->list_count = (uint32_t)b.nlists;
+    out->list_at = b.list_at;
+    b.list_at = NULL;
     b.pos = b.lists = NULL;
     b.tcode = NULL;
     b.tflip = NULL;

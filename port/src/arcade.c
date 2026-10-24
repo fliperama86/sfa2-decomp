@@ -54,11 +54,10 @@ static unsigned range_count, range_room;
 static unsigned file_first[MAX_FILES], file_ranges[MAX_FILES];   /* each file's ranges, after they are sorted */
 static unsigned long long built_bytes[MAX_FILES];                /* bytes of each file that the loader builds equal to the disc's */
 
-/* Files whose built blocks differ from the disc's where the PS1 changed the arcade's data (port/arcade/README.md):
- * palettes (PL02, PL14, PL0B), body-part tile numbering (PL08, PL0E). They stay the disc's until the files that
- * refer to their lists and tiles are built too. */
-static const char *const ps1_changed[] = {"PL02.PAC", "PL02X.PAC", "PL08.PAC", "PL08X.PAC", "PL0B.PAC", "PL0BX.PAC",
-                                          "PL0E.PAC", "PL0EX.PAC", "PL14.PAC", "PL14X.PAC"};
+/* Files with lists that stay the disc's where the PS1 changed the arcade's data (port/arcade/README.md): body-part tile numbering
+ * (PL08, PL0E), and in PL14 the one list whose changed palette is a row the PS1 colours itself. The other lists that differ (a palette
+ * the PS1 changed, a cell it added) are built the arcade's way (the table's owned lists). */
+static const char *const ps1_changed[] = {"PL08.PAC", "PL08X.PAC", "PL0E.PAC", "PL0EX.PAC", "PL14.PAC", "PL14X.PAC"};
 
 static unsigned piece_bytes(void)
 {
@@ -510,11 +509,103 @@ static void steps_of(struct port_disc *d, int f, const struct arcade_fighter *a,
     if (check) arcade_sequence_free(&so);   /* else the ranges point into it */
 }
 
-/* Build each fighter file's position runs and cell lists. Built blocks equal to the disc's are served in place of it;
- * others stay the disc's. With check, only compare, and count the files that differ but for the PS1's known changes. */
+/* One block of a fighter file (its lists, or its position runs) of `size` bytes at file offset `at`, served by unit: the unit
+ * [cut[k], cut[k + 1]) (the last to size) is served equal when it is the disc's, as built when owned[k] (the arcade's way where the PS1
+ * changed it: a pack keeps none of it), else it stays the disc's. Units served alike and next to each other are one range, pointing
+ * into `bytes`. n[0..2] gets the units served equal, owned and left. With check nothing is served. */
+static void serve_cuts(struct port_disc *d, int f, unsigned at, unsigned char *bytes, unsigned size, const unsigned *cut, unsigned units,
+                       const unsigned char *owned, int check, unsigned n[3], unsigned long long served[2])
+{
+    unsigned char *disc = pack_disc || !size ? NULL : disc_bytes(d, &files[f], at, size);   /* a pack records which bytes were equal */
+    unsigned k = 0;
+    if (!pack_disc && size && !disc) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's bytes", files[f].name);
+    while (k < units) {
+        unsigned e = k, how = 0, a = cut[k], b;
+        for (;;) {   /* the unit k and those after it that are served the same way */
+            unsigned x = cut[e], y = e + 1 < units ? cut[e + 1] : size;
+            int same = pack_disc ? recorded(&files[f], at + x, y - x) : memcmp(bytes + x, disc + x, y - x) == 0;
+            unsigned h = same ? 1u : owned[e] ? 2u : 0u;
+            if (e == k) how = h;
+            else if (h != how) break;
+            e++;
+            if (e >= units) break;
+        }
+        b = e < units ? cut[e] : size;
+        n[how ? how - 1u : 2] += e - k;
+        if (how) {
+            served[how - 1] += b - a;
+            if (!check) {
+                if (how == 1) add_range(f, at + a, bytes + a, b - a);
+                else {
+                    add_range_kind(f, at + a, bytes + a, b - a, 0);
+                    ranges[range_count - 1].owned = 1;
+                }
+            }
+        }
+        k = e;
+    }
+    free(disc);
+}
+
+static unsigned le16_at(const unsigned char *p)
+{
+    return (unsigned)p[0] | (unsigned)p[1] << 8;
+}
+
+static int cmp_unsigned(const void *a, const void *b)
+{
+    unsigned x = *(const unsigned *)a, y = *(const unsigned *)b;
+    return x < y ? -1 : x > y;
+}
+
+/* Serve a fighter file's lists and position runs by list and by stream (the lists the table owns where they differ); returns the units
+ * left the disc's. The streams are the cuts of the positions, one at each position offset a list names. */
+static unsigned fighter_blocks(struct port_disc *d, int f, const struct arcade_fighter *a, const struct arcade_fighter_out *out, unsigned moff, unsigned poff,
+                               int check, unsigned lists_n[3], unsigned pos_n[3], unsigned long long served[2])
+{
+    unsigned k, units = 0, nl = out->list_count;
+    unsigned *cut = malloc((size_t)(nl + 1) * sizeof *cut), *pcut = malloc((size_t)(nl + 1) * sizeof *pcut);
+    unsigned char *owned = calloc(nl + 1, 1), *powned = calloc(nl + 1, 1);
+    if (!cut || !pcut || !owned || !powned) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+    for (k = 0; k < nl; k++) cut[k] = out->list_at[k];
+    for (k = 0; k < a->owned_count; k++)
+        if (a->owned[k] < nl) owned[a->owned[k]] = 1;
+    serve_cuts(d, f, moff + a->lists, out->lists, out->lists_size, cut, nl, owned, check, lists_n, served);
+    /* the streams: a list's position offset is word 4 of its header; a stream runs to the next offset */
+    pcut[units++] = 0;
+    for (k = 0; k < nl; k++) {
+        unsigned p = le16_at(out->lists + out->list_at[k] + 8);
+        if (p < out->positions_size) pcut[units++] = p;
+    }
+    qsort(pcut, units, sizeof *pcut, cmp_unsigned);
+    {
+        unsigned w = 0;
+        for (k = 0; k < units; k++)
+            if (!w || pcut[k] != pcut[w - 1]) pcut[w++] = pcut[k];
+        units = w;
+    }
+    for (k = 0; k < a->owned_count && a->owned[k] < nl; k++) {
+        unsigned p = le16_at(out->lists + out->list_at[a->owned[k]] + 8), lo = 0, hi = units;
+        while (lo + 1 < hi) {   /* the last stream that starts at or before p */
+            unsigned mid = (lo + hi) / 2;
+            if (pcut[mid] <= p) lo = mid;
+            else hi = mid;
+        }
+        powned[lo] = 1;
+    }
+    serve_cuts(d, f, poff + a->positions, out->positions, out->positions_size, pcut, units, powned, check, pos_n, served);
+    free(cut); free(pcut); free(owned); free(powned);
+    return lists_n[2] + pos_n[2];
+}
+
+/* Build each fighter file's position runs and cell lists. Lists and streams built equal to the disc's are served in place of it, and
+ * the ones that differ by the table's design (the arcade's palette, the arcade's cells) as built; the others stay the disc's. With
+ * check, only compare, and count the files that keep lists or streams but for the PS1's known changes. */
 static unsigned fighters(struct port_disc *d, int check)
 {
-    unsigned i, used = 0, kept = 0, bytes = 0, wrong = 0, tiles_used = 0, tile_bytes = 0, tile_wrong = 0, nsprites = 0;
+    unsigned i, used = 0, kept = 0, wrong = 0, tiles_used = 0, tile_bytes = 0, tile_wrong = 0, nsprites = 0;
+    unsigned lists_total[3] = {0, 0, 0}, pos_total[3] = {0, 0, 0};
+    unsigned long long bytes = 0, owned_bytes = 0;
     struct step_stats st = {0, 0, 0, 0};
     struct sprite_job *sprites = calloc(arcade_fighter_count ? arcade_fighter_count : 1, sizeof *sprites);
     if (!sprites) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
@@ -522,7 +613,9 @@ static unsigned fighters(struct port_disc *d, int check)
         const struct arcade_fighter *a = &arcade_fighters[i];
         struct arcade_fighter_out out;
         unsigned sector, size, moff, msize, poff, psize, slot = a->positions_slot == ARCADE_FIGHTER_SAME_CHUNK ? a->module_slot : a->positions_slot;
-        int f = -1, same_lists, same_positions;
+        int f = -1;
+        unsigned lists_n[3] = {0, 0, 0}, pos_n[3] = {0, 0, 0};
+        unsigned long long served[2] = {0, 0};
         char err[PORT_ERR];
         unsigned k;
         if (port_disc_find(d, a->file, &sector, &size, err, sizeof err) != 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
@@ -534,30 +627,28 @@ static unsigned fighters(struct port_disc *d, int check)
         if (arcade_fighter_build(rom.program, ARCADE_PROGRAM_SIZE, a, &out, err, sizeof err) != 0)
             port_halt(PORT_EXIT_PROGRAM, "arcade: %s: %s", a->file, err);
         steps_of(d, f, a, &out, moff, check, &st);   /* before the lists may pass to the ranges */
-        same_lists = out.lists_size == a->lists_room ? same_as_disc(d, &files[f], moff + a->lists, out.lists, out.lists_size) : 0;
-        same_positions = out.positions_size == a->positions_room ? same_as_disc(d, &files[f], poff + a->positions, out.positions, out.positions_size) : 0;
-        if (same_lists < 0 || same_positions < 0) port_halt(PORT_EXIT_PROGRAM, "arcade: %s: cannot read the disc's blocks", a->file);
-        if (same_lists && same_positions) {
+        if (fighter_blocks(d, f, a, &out, moff, poff, check, lists_n, pos_n, served) == 0) {
             struct sprite_job *j = &sprites[nsprites++];   /* packed after the loop, at the same time as the others */
             used++;
-            bytes += out.lists_size + out.positions_size;
             j->f = f;
             j->name = a->file;
             if (arcade_sprite_chunk_find(a->file)) nsprites--;   /* built whole from the arcade by sprite_chunks() */
             else if (pac_chunk(d, &files[f], 1, &j->at, &j->size) == 0 || pac_chunk(d, &files[f], 2, &j->at, &j->size) == 0)
                 j->tiles = sprite_tiles(d, &files[f], &out, j->at, j->size, &j->count, &j->same, &j->numbered);
-            built_bytes[f] += out.lists_size + out.positions_size;
-            if (!check) {
-                add_range(f, moff + a->lists, out.lists, out.lists_size);
-                add_range(f, poff + a->positions, out.positions, out.positions_size);
-                out.lists = out.positions = NULL;   /* the ranges own them now */
-            }
         } else {
             kept++;
-            if (check) printf("arcade check: %s: lists %s, positions %s%s\n", a->file, same_lists ? "same" : "differ", same_positions ? "same" : "differ",
-                              changed_by_ps1(a->file) ? " (the PS1's own changes, known)" : "");
+            if (check) printf("arcade check: %s: lists %u equal, %u the arcade's, %u kept; streams %u equal, %u the arcade's, %u kept%s\n", a->file, lists_n[0],
+                              lists_n[1], lists_n[2], pos_n[0], pos_n[1], pos_n[2], changed_by_ps1(a->file) ? " (the PS1's own changes, known)" : "");
             if (!changed_by_ps1(a->file)) wrong++;
         }
+        for (k = 0; k < 3; k++) {
+            lists_total[k] += lists_n[k];
+            pos_total[k] += pos_n[k];
+        }
+        bytes += served[0];
+        owned_bytes += served[1];
+        built_bytes[f] += served[0] + served[1];
+        if (!check && served[0] + served[1]) out.lists = out.positions = NULL;   /* the ranges own them now (units left the disc's are a part of them) */
         arcade_fighter_free(&out);
     }
     port_parallel(nsprites, sprite_job, sprites);
@@ -578,8 +669,10 @@ static unsigned fighters(struct port_disc *d, int check)
     free(sprites);
     printf("arcade%s: fighters: animation: %u steps, %u frame records and %u table entries built from the arcade set and equal to the disc's%s; %u steps the PS1's own or changed stay the disc's\n",
            check ? " check" : "", st.steps, st.frames, st.entries, check ? "" : ", used", st.other);
-    printf("arcade%s: fighters: %u of %u files' cell lists and positions built from the arcade set (%u bytes)%s; %u differ from the disc's, %u of them not by the PS1's known changes\n",
-           check ? " check" : "", used, arcade_fighter_count, bytes, check ? " are equal to the disc's" : " and used", kept, wrong);
+    printf("arcade%s: fighters: %u of %u files' cell lists and positions built from the arcade set (%llu bytes equal to the disc's, %llu the arcade's way)%s; %u keep lists or streams, %u of them not by the PS1's known changes\n",
+           check ? " check" : "", used, arcade_fighter_count, bytes, owned_bytes, check ? "" : ", used", kept, wrong);
+    printf("arcade%s: fighters: lists %u equal, %u the arcade's way (differ from the disc's by design), %u stay the disc's; position streams %u, %u, %u\n",
+           check ? " check" : "", lists_total[0], lists_total[1], lists_total[2], pos_total[0], pos_total[1], pos_total[2]);
     printf("arcade%s: fighters: %u files' sprite tiles built from the arcade graphics and packed (%u bytes), %s\n", check ? " check" : "", tiles_used, tile_bytes,
            check ? "each tile the disc's" : "used");
     fflush(stdout);

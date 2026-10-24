@@ -34,6 +34,22 @@ struct arcade_fighter_drop {
     uint16_t cell;
 };
 
+/* A list the PS1 laid out larger than the model: after list `list` (its index in the file's lists, empty lists and the
+ * terminator counting) `bytes` zero bytes follow, so that the next list lies where the PS1 has it. */
+struct arcade_fighter_pad {
+    uint16_t list;
+    uint16_t bytes;
+};
+
+/* A record the PS1 drew with more cells than the arcade has: after the record's tiles are numbered, `tiles` more numbers are
+ * taken (the PS1's own cells' tiles, so that later numbers agree), and `stream` zero bytes end the record's position stream
+ * (the runs of those cells, which the list's cell count never reads). The arcade's cells alone are the list. */
+struct arcade_fighter_extra {
+    uint32_t record;
+    uint16_t tiles;
+    uint16_t stream;
+};
+
 struct arcade_fighter {
     const char *file;                   /* "PL00.PAC" */
     uint16_t module_slot;               /* table 0 slot of the chunk holding the lists (and the positions, see below) */
@@ -45,10 +61,19 @@ struct arcade_fighter {
     unsigned segment_count;
     const struct arcade_fighter_drop *drops;   /* cells of those records left out of the lists (none for a fighter file: NULL, 0) */
     unsigned drop_count;
+    const struct arcade_fighter_pad *pads;     /* sorted by list; NULL, 0 when the model's lists lie where the PS1's do */
+    unsigned pad_count;
+    const struct arcade_fighter_extra *extras; /* records the PS1 drew with more cells (NULL, 0 for most files) */
+    unsigned extra_count;
+    const uint16_t *owned;                     /* sorted indices of the lists that the loader serves as built where they differ from the PS1's
+                                                * (the arcade's way: a palette the PS1 changed, a cell it added); NULL, 0 for none */
+    unsigned owned_count;
 };
 
 extern const struct arcade_fighter arcade_fighters[];
 extern const unsigned arcade_fighter_count;
+
+#define ARCADE_FIGHTER_NO_TILE 0xffffffffu   /* tile_code of a number that the PS1's own cells took (an extra): no arcade tile */
 
 struct arcade_fighter_out {
     uint8_t *positions; uint32_t positions_size;   /* the position runs (three little-endian 16-bit values a run) */
@@ -56,6 +81,8 @@ struct arcade_fighter_out {
     uint32_t tile_count;                           /* entries of the two arrays below: index 0 is reserved, 1 .. tile_count - 1 are tiles */
     uint32_t *tile_code;                           /* the arcade tile code (bank included) that PS1 tile number i holds */
     uint8_t *tile_flip;                            /* how the PS1 stores it: bit 0 flipped across, bit 1 flipped down */
+    uint32_t list_count;                           /* the lists of the block; list_at[k] is where list k starts (its pad, if any, ends at */
+    uint32_t *list_at;                             /* list_at[k + 1], or at lists_size for the last) */
 };
 
 /* Build the blocks of `f` from the arcade program (the 68000's view: words big-endian). Fills `out` (allocated; free it

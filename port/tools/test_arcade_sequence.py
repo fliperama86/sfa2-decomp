@@ -289,6 +289,25 @@ class SequenceC(unittest.TestCase):
         lists = F.model_build(p.view(), [(a1, 1, 0), (a1, 1, 0)], False, False, False)[0]
         self.assertEqual(Q.model_offsets(lists, [(a1, 1, 0), (a1, 1, 0)], p.view()), {a1: len(lists) // 2})      # the later list is kept
 
+    def test_list_offsets_with_pads(self):
+        # the PS1's lists may lie padded (fighter.c's pads): the offsets are where the builder puts the lists, not where the lists end
+        p = Prog()
+        a0 = p.record([(1, 0x0701, 0, 0)])
+        a1 = p.record([(20, 0x0000, 0, 0), (21, 0x0000, 32, 0)])
+        a2 = p.record([(30, 0x0000, 0, 0)])
+        segs = [(a0, 1, 0), (a1, 1, 0), (a2, 1, 0)]
+        lists = F.model_build(p.view(), segs)[0]
+        base = Q.model_offsets(lists, segs, p.view())
+        d = Path(self.dir.name) / 'lists'
+        shutil.rmtree(d, ignore_errors=True)
+        d.mkdir()
+        (d / 'prog.bin').write_bytes(bytes(p.data))
+        (d / 'spec.txt').write_text(f'0 65536 65536 {len(segs)}\n' + ''.join(f'{a} {c} {b}\n' for a, c, b in segs) + 'P 2\n0 6\n1 4\n')
+        r = subprocess.run([str(self.exe), 'lists', str(d / 'prog.bin'), str(d / 'spec.txt'), str(d)], capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        got = {int(a): int(b) for a, b in (ln.split() for ln in (d / 'lists.txt').read_text().split('\n') if ln)}
+        self.assertEqual(got, {a0: base[a0], a1: base[a1] + 6, a2: base[a2] + 10})
+
     # ------------------------------------------------------------ the table, the build, the helpers
 
     def test_the_generated_table_is_sane(self):

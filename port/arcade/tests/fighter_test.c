@@ -1,8 +1,10 @@
 /* Driver of test_arcade_fighter.py: synthetic programs and the generated descriptor table only.
  *   fighter_test build PROGRAM SPEC OUTDIR   build one fighter from the made-up arcade program
  *   fighter_test table                       sanity of the checked-in descriptor table
- * SPEC is text: "rules positions_room lists_room segment_count" then "address count bank" per segment.
- * OUTDIR gets lists.bin, positions.bin and tiles.txt (a line "number code flip" per tile). */
+ * SPEC is text: "rules positions_room lists_room segment_count" then "address count bank" per segment, then (optional) "P n" and n
+ * lines "list bytes" (pads), then (optional) "E n" and n lines "record tiles stream" (extras).
+ * OUTDIR gets lists.bin, positions.bin, tiles.txt (a line "number code flip" per tile, code 4294967295 for a number the PS1's own
+ * cells took) and list_at.txt (the offset of each list). */
 #include "../fighter.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,8 +47,12 @@ static int build(const char *prog_path, const char *spec_path, const char *dir)
     FILE *spec = fopen(spec_path, "r");
     struct arcade_fighter f;
     struct arcade_fighter_segment *segs = NULL;
+    struct arcade_fighter_pad *pads = NULL;
+    struct arcade_fighter_extra *extras = NULL;
+    unsigned np = 0, ne = 0;
+    char tag[8];
     struct arcade_fighter_out out;
-    char err[256], line[64];
+    char err[256], line[512];
     unsigned rules, pr, lr, n, i;
     FILE *t;
     int rc = 2;
@@ -61,7 +67,35 @@ static int build(const char *prog_path, const char *spec_path, const char *dir)
         segs[i].count = (uint16_t)c;
         segs[i].bank = (uint32_t)b;
     }
+    while (fscanf(spec, "%7s", tag) == 1) {
+        unsigned count, j, a, b, c;
+        if (fscanf(spec, "%u", &count) != 1) return 3;
+        if (!strcmp(tag, "P")) {
+            pads = calloc(count ? count : 1, sizeof *pads);
+            for (j = 0; j < count; j++) {
+                if (fscanf(spec, "%u %u", &a, &b) != 2) return 3;
+                pads[j].list = (uint16_t)a;
+                pads[j].bytes = (uint16_t)b;
+            }
+            np = count;
+        } else if (!strcmp(tag, "E")) {
+            extras = calloc(count ? count : 1, sizeof *extras);
+            for (j = 0; j < count; j++) {
+                if (fscanf(spec, "%u %u %u", &a, &b, &c) != 3) return 3;
+                extras[j].record = a;
+                extras[j].tiles = (uint16_t)b;
+                extras[j].stream = (uint16_t)c;
+            }
+            ne = count;
+        } else {
+            return 3;
+        }
+    }
     memset(&f, 0, sizeof f);
+    f.pads = pads;
+    f.pad_count = np;
+    f.extras = extras;
+    f.extra_count = ne;
     f.file = "TEST.PAC";
     f.rules = rules;
     f.positions_room = pr;
@@ -78,12 +112,19 @@ static int build(const char *prog_path, const char *spec_path, const char *dir)
         if (dump(dir, "lists.bin", out.lists, out.lists_size) || dump(dir, "positions.bin", out.positions, out.positions_size) || !t) return 3;
         for (i = 1; i < out.tile_count; i++) fprintf(t, "%u %u %u\n", i, (unsigned)out.tile_code[i], (unsigned)out.tile_flip[i]);
         fclose(t);
+        snprintf(line, sizeof line, "%s/list_at.txt", dir);
+        t = fopen(line, "w");
+        if (!t) return 3;
+        for (i = 0; i < out.list_count; i++) fprintf(t, "%u\n", (unsigned)out.list_at[i]);
+        fclose(t);
         printf("ok\n");
         arcade_fighter_free(&out);
         if (out.lists || out.tile_code) printf("leak: free did not clear\n");
         rc = 0;
     }
     free(segs);
+    free(pads);
+    free(extras);
     free(prog);
     fclose(spec);
     return rc;
@@ -103,6 +144,11 @@ static int table(void)
             if (!strcmp(arcade_fighters[j].file, f->file)) return 1;
         for (s = 0; s < f->segment_count; s++)
             if (!f->segments[s].count || (f->segments[s].address & 1)) return 1;
+        if ((f->pad_count && !f->pads) || (f->extra_count && !f->extras) || (f->owned_count && !f->owned)) return 1;
+        for (s = 0; s < f->pad_count; s++)
+            if (!f->pads[s].bytes || (s && f->pads[s].list <= f->pads[s - 1].list)) return 1;
+        for (s = 0; s < f->owned_count; s++)
+            if (s && f->owned[s] <= f->owned[s - 1]) return 1;
     }
     printf("table: %u files\n", arcade_fighter_count);
     return 0;

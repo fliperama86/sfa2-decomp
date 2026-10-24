@@ -180,9 +180,10 @@ static int lists_mode(const char *prog_path, const char *spec_path, const char *
     FILE *sp = fopen(spec_path, "r");
     struct arcade_fighter f;
     struct arcade_fighter_segment *segs;
+    struct arcade_fighter_pad *pads = NULL;
     struct arcade_fighter_out fo;
     struct arcade_sequence_lists lists;
-    unsigned rules, pr, lr, n;
+    unsigned rules, pr, lr, n, np = 0;
     char err[256], path[1024];
     FILE *t;
     int rc = 2;
@@ -197,6 +198,19 @@ static int lists_mode(const char *prog_path, const char *spec_path, const char *
         segs[i].count = (uint16_t)c;
         segs[i].bank = (uint32_t)b;
     }
+    {   /* optional: "P n" and n lines "list bytes" (the pads of the lists) */
+        char tag[8];
+        unsigned count, j, a, b;
+        if (fscanf(sp, "%7s %u", tag, &count) == 2 && !strcmp(tag, "P")) {
+            pads = calloc(count ? count : 1, sizeof *pads);
+            for (j = 0; j < count; j++) {
+                if (fscanf(sp, "%u %u", &a, &b) != 2) return 3;
+                pads[j].list = (uint16_t)a;
+                pads[j].bytes = (uint16_t)b;
+            }
+            np = count;
+        }
+    }
     memset(&f, 0, sizeof f);
     f.file = "TEST.PAC";
     f.rules = rules;
@@ -204,6 +218,8 @@ static int lists_mode(const char *prog_path, const char *spec_path, const char *
     f.lists_room = lr;
     f.segments = segs;
     f.segment_count = n;
+    f.pads = pads;
+    f.pad_count = np;
     if (arcade_fighter_build(prog, size, &f, &fo, err, sizeof err) != 0) {
         printf("error: fighter: %s\n", err);
         rc = 1;
@@ -224,6 +240,7 @@ static int lists_mode(const char *prog_path, const char *spec_path, const char *
         rc = 0;
     }
     free(segs);
+    free(pads);
     free(prog);
     fclose(sp);
     return rc;

@@ -79,14 +79,17 @@ class FighterC(unittest.TestCase):
     def tearDownClass(cls):
         cls.dir.cleanup()
 
-    def run_c(self, prog, segs, rules=0, positions_room=1 << 16, lists_room=1 << 16):
-        """(status, text, lists, positions, tiles {number: (code, flip bits)}) of the C for the segments."""
+    def run_c(self, prog, segs, rules=0, positions_room=1 << 16, lists_room=1 << 16, pads=(), extras=()):
+        """(status, text, lists, positions, tiles {number: (code, flip bits)}) of the C for the segments; pads [(list, bytes)] and
+        extras [(record, tiles, stream)]. The offsets of the lists are left in self.list_at."""
         FighterC.cases += 1
         d = Path(self.dir.name) / 'case'
         shutil.rmtree(d, ignore_errors=True)
         d.mkdir()
         (d / 'prog.bin').write_bytes(bytes(prog.data))
-        (d / 'spec.txt').write_text(f'{rules} {positions_room} {lists_room} {len(segs)}\n' + ''.join(f'{a} {c} {b}\n' for a, c, b in segs))
+        (d / 'spec.txt').write_text(f'{rules} {positions_room} {lists_room} {len(segs)}\n' + ''.join(f'{a} {c} {b}\n' for a, c, b in segs)
+                                    + (f'P {len(pads)}\n' + ''.join(f'{k} {n}\n' for k, n in pads) if pads else '')
+                                    + (f'E {len(extras)}\n' + ''.join(f'{a} {t} {n}\n' for a, t, n in extras) if extras else ''))
         r = subprocess.run([str(self.exe), 'build', str(d / 'prog.bin'), str(d / 'spec.txt'), str(d)], capture_output=True, text=True, timeout=60)
         if r.returncode:
             return r.returncode, r.stdout + r.stderr, None, None, None
@@ -95,6 +98,7 @@ class FighterC(unittest.TestCase):
             if line:
                 n, code, flip = map(int, line.split())
                 tiles[n] = (code, flip)
+        self.list_at = [int(x) for x in (d / 'list_at.txt').read_text().split()]
         return 0, r.stdout, (d / 'lists.bin').read_bytes(), (d / 'positions.bin').read_bytes(), tiles
 
     def model(self, prog, segs, rules=0):
@@ -372,11 +376,17 @@ class FighterC(unittest.TestCase):
         del recs[4]
         self.assertIsNone(F.segments_of(lists, recs))                                    # a list with no record: the C cannot build it
         row = dict(file='PL99.PAC', module_slot=4, positions_slot=None, positions=0x10, lists=0x200, positions_room=100, lists_room=400,
-                   rules=['NUMBER_BY_RUN', 'TERMINATOR'], segments=[(0x1000, 2, 0), (0, 1, 0)])
+                   rules=['NUMBER_BY_RUN', 'TERMINATOR'], segments=[(0x1000, 2, 0), (0, 1, 0)], pads=[(1, 24)], extras=[(0x1000, 1, 6)], owned=[1, 3])
         other = dict(row, file='PL99X.PAC', module_slot=5, positions_slot=0x2b)
-        text = F.c_table([row, other], [('PL04.PAC', 'a list with no record'), ('PL10.PAC', 'PS1-only art')])
+        plain = dict(row, file='PL98.PAC', pads=[], extras=[], owned=[])
+        text = F.c_table([row, other, plain], [('PL04.PAC', 'a list with no record'), ('PL10.PAC', 'PS1-only art')])
         self.assertEqual(text.count('segments_pl99[] = {'), 1)                           # identical segments are written once
-        self.assertIn('{"PL99.PAC", 4u, ARCADE_FIGHTER_SAME_CHUNK, 0x10u, 0x200u, 100u, 400u, ARCADE_FIGHTER_NUMBER_BY_RUN | ARCADE_FIGHTER_TERMINATOR, segments_pl99, 2u, NULL, 0u},', text)
+        for kind in ('pads_pl99', 'extras_pl99', 'owned_pl99'):
+            self.assertEqual(text.count(kind + '[] = {'), 1)                             # so are identical pads, extras and owned lists
+        self.assertIn('{1u, 24u},', text)
+        self.assertIn('{0x1000u, 1u, 6u},', text)
+        self.assertIn('{"PL99.PAC", 4u, ARCADE_FIGHTER_SAME_CHUNK, 0x10u, 0x200u, 100u, 400u, ARCADE_FIGHTER_NUMBER_BY_RUN | ARCADE_FIGHTER_TERMINATOR, segments_pl99, 2u, NULL, 0u, pads_pl99, 1u, extras_pl99, 1u, owned_pl99, 2u},', text)
+        self.assertIn('{"PL98.PAC", 4u, ARCADE_FIGHTER_SAME_CHUNK, 0x10u, 0x200u, 100u, 400u, ARCADE_FIGHTER_NUMBER_BY_RUN | ARCADE_FIGHTER_TERMINATOR, segments_pl99, 2u, NULL, 0u, NULL, 0u, NULL, 0u, NULL, 0u},', text)
         self.assertIn('{"PL99X.PAC", 5u, 0x2bu,', text)
         self.assertIn('PL04.PAC: a list with no record', text)
         self.assertIn('PL10, PL11 and PL13', text)
@@ -387,6 +397,71 @@ class FighterC(unittest.TestCase):
         d, why = F.descriptor('PL04.PAC', 1, dict(unmatched=[3], posbase=0, fit={}))
         self.assertIsNone(d)
         self.assertIn('no arcade record', why)
+
+    def test_lists_by_list(self):
+        # lists the model makes shorter get a pad; a palette-only change is owned when its rows are the arcade's; a numbering change and a longer list are not
+        plain = lambda numbers, pal, pos=0: F.encode_list([(t, pal) for t in numbers], pos)
+        disc = [plain([1, 2], 0), plain([5, 6], 1), plain([7, 9], 0), plain([3, 4], 2)]
+        mixed = F.encode_list([(1, 0), (2, 1)], 0)                       # two palettes: mode 2, longer than the plain one of the same cells
+        lists = []
+        o = 0
+        for b in disc:
+            lists.append(F.parse_list(b, 0) | dict(at=o, end=o + len(b)))
+            o += len(b)
+        base = 0
+        blob = b''.join(disc)
+        rec = lambda *pals: (None, [(0, 0, 0, p) for p in pals])
+        mine = [plain([1, 2], 0), plain([5, 6], 2), plain([7, 8], 0), plain([3, 4], 2)]
+        r = dict(lists=lists, mine_lists=mine, lbase=base, disc_lists=blob, hand={}, keep=0, recs={1: (rec(2, 2), 0, 0), 2: (rec(0, 0), 0, 0)})
+        pads, owned, why = F.lists_by_list(r)
+        self.assertEqual((pads, owned, dict(why)), ({}, [1], {'palette': 1, 'numbering': 1}))
+        self.assertEqual(F.lists_by_list(dict(r, keep=1 << 4))[1], [])                      # palette 2 is rows 4 and 5: a row the PS1 colours itself
+        self.assertEqual(F.lists_by_list(dict(r, keep=1 << 1))[1], [1])                     # other rows do not matter
+        r['recs'][0] = (rec(0, 0), 0, 0)
+        mixed_disc = dict(r, disc_lists=mixed + blob[len(disc[0]):], lists=[F.parse_list(mixed, 0) | dict(at=0, end=len(mixed))] + [
+            dict(l, at=l['at'] - len(disc[0]) + len(mixed), end=l['end'] - len(disc[0]) + len(mixed)) for l in lists[1:]])
+        pads, owned, why = F.lists_by_list(mixed_disc)
+        self.assertEqual(pads, {0: len(mixed) - len(plain([1, 2], 0))})
+        longer = dict(r, mine_lists=[mixed] + mine[1:])
+        self.assertIn('longer', F.lists_by_list(longer))
+        hand = dict(r, mine_lists=[plain([1], 0)] + mine[1:], hand={0: (0x1000, 0, 1, 6)})
+        pads, owned, why = F.lists_by_list(hand)
+        self.assertEqual(owned, [0, 1])
+        self.assertEqual(why['hand'], 1)
+
+    def test_pads_and_extras(self):
+        # a pad keeps the next list where the PS1 has it; an extra takes tile numbers and keeps stream bytes, so that later numbers and offsets agree
+        p = Prog()
+        a1 = p.record([(1, 0x0101, 0, 0)])
+        a2 = p.record([(10, 0x0001, 0, 16), (11, 0x0001, 64, 16)])
+        a3 = p.record([(20, 0x0101, 0, 32)])
+        segs = [(a1, 1, 0), (a2, 1, 0), (a3, 1, 0)]
+        m_lists, m_pos, m_codes, m_bake = self.model(p, segs)
+        base = parse_lists(m_lists)
+        status, text, lists, pos, tiles = self.run_c(p, segs)
+        self.assertEqual(status, 0, text)
+        self.assertEqual(self.list_at, [0, base[0]['end'], base[1]['end']])
+        # pads: after list 0, 6 zero bytes
+        status, text, lists, pos, tiles = self.run_c(p, segs, pads=[(0, 6)])
+        self.assertEqual(status, 0, text)
+        self.assertEqual(self.list_at, [0, base[0]['end'] + 6, base[1]['end'] + 6])
+        self.assertEqual(lists[base[0]['end']:base[0]['end'] + 6], bytes(6))
+        self.assertEqual(lists, F.model_build(p.view(), segs, pads={0: 6})[0])
+        self.assertEqual(lists[:base[0]['end']] + lists[base[0]['end'] + 6:], m_lists)
+        status, text, *_ = self.run_c(p, segs, lists_room=len(m_lists) + 5, pads=[(0, 6)])
+        self.assertEqual(status, 1)
+        self.assertIn('lists need more than their room', text)
+        # extras: after record a2, 2 tile numbers are taken and 6 stream bytes follow its stream
+        status, text, lists, pos, tiles = self.run_c(p, segs, extras=[(a2, 2, 6)])
+        self.assertEqual(status, 0, text)
+        e_lists, e_pos, e_codes, e_bake = F.model_build(p.view(), segs, extras={a2: (2, 6)})
+        self.assertEqual((lists, pos), (e_lists, e_pos))
+        self.assertEqual(len(e_pos), len(m_pos) + 6)
+        self.assertEqual(e_pos, m_pos[:base[2]['pos']] + bytes(6) + m_pos[base[2]['pos']:])          # the 6 bytes end a2's stream; a3's stream moves by them
+        self.assertEqual(e_codes[7], 20)                                                     # a1 has 1 and 2, a2 3 and 4, the PS1's own cells 5 and 6, a3 7 and 8
+        self.assertEqual(tiles[7][0], 20)
+        self.assertEqual(sorted(n for n, (c, f) in tiles.items() if c == 0xffffffff), [5, 6])   # no arcade tile
+        self.assertEqual(sorted(e_codes), [1, 2, 3, 4, 7, 8])
 
 
 if __name__ == '__main__':

@@ -7,8 +7,6 @@
  * either game.
  *
  * Left out:
- *   PL04.PAC: not in fighters_table.c: 1 list(s) with no arcade record (the PS1's own poses)
- *   PL04X.PAC: not in fighters_table.c: 1 list(s) with no arcade record (the PS1's own poses)
  *   PL10.PAC: not in fighters_table.c: PS1-only art (the model keeps disc bytes)
  *   PL10X.PAC: not in fighters_table.c: PS1-only art (the model keeps disc bytes)
  *   PL11.PAC: not in fighters_table.c: PS1-only art (the model keeps disc bytes)
@@ -33,6 +31,10 @@ static const struct arcade_sequence_group groups_pl02[] = {
 
 static const struct arcade_sequence_group groups_pl03[] = {
     {0x160ca6u, 1046u},
+};
+
+static const struct arcade_sequence_group groups_pl04[] = {
+    {0x169322u, 1213u},
 };
 
 static const struct arcade_sequence_group groups_pl05[] = {
@@ -107,6 +109,11 @@ static const struct arcade_sequence_run runs_pl02[] = {
 static const struct arcade_sequence_run runs_pl03[] = {
     {0u, 0u, 300u},
     {300u, 301u, 746u},
+};
+
+static const struct arcade_sequence_run runs_pl04[] = {
+    {0u, 0u, 1051u},
+    {1051u, 1052u, 162u},
 };
 
 static const struct arcade_sequence_run runs_pl05[] = {
@@ -257,6 +264,10 @@ static const struct arcade_sequence_span own_pl03[] = {
     {300u, 1u},
 };
 
+static const struct arcade_sequence_span own_pl04[] = {
+    {1051u, 1u},
+};
+
 static const struct arcade_sequence_span own_pl0b[] = {
     {95u, 1u},
 };
@@ -361,6 +372,13 @@ static const struct arcade_sequence_table tables_pl03[] = {
     {0x160b4au, 75u},
     {0x160be2u, 48u},
     {0x160c44u, 48u},
+};
+
+static const struct arcade_sequence_table tables_pl04[] = {
+    {0x16911au, 64u},
+    {0x16919cu, 96u},
+    {0x16925eu, 48u},
+    {0x1692c0u, 48u},
 };
 
 static const struct arcade_sequence_table tables_pl05[] = {
@@ -484,6 +502,11 @@ static const struct arcade_sequence_slice slices_pl02[] = {
 static const struct arcade_sequence_slice slices_pl03[] = {
     {0u, 0u, 216u},
     {217u, 217u, 18u},
+};
+
+static const struct arcade_sequence_slice slices_pl04[] = {
+    {0u, 0u, 154u},
+    {155u, 155u, 101u},
 };
 
 static const struct arcade_sequence_slice slices_pl05[] = {
@@ -709,6 +732,8 @@ const struct arcade_sequence arcade_sequences[] = {
     {"PL02X.PAC", 0x801c8000u, 0xc52cu, 0xfc60u, 1086u, 338u, 275u, 0u, 0u, 0u, groups_pl02, 2u, runs_pl02, 1u, NULL, 0u, tables_pl02, 6u, slices_pl02, 5u, frames_pl02, 1u},
     {"PL03.PAC", 0x801b0000u, 0x83c8u, 0xb888u, 1047u, 364u, 235u, 0u, 0u, 0u, groups_pl03, 1u, runs_pl03, 2u, own_pl03, 1u, tables_pl03, 4u, slices_pl03, 2u, NULL, 0u},
     {"PL03X.PAC", 0x801c8000u, 0x83c8u, 0xb888u, 1047u, 364u, 235u, 0u, 0u, 0u, groups_pl03, 1u, runs_pl03, 2u, own_pl03, 1u, tables_pl03, 4u, slices_pl03, 2u, NULL, 0u},
+    {"PL04.PAC", 0x801b0000u, 0x9670u, 0xd358u, 1214u, 375u, 256u, 0u, 480u, 67u, groups_pl04, 1u, runs_pl04, 2u, own_pl04, 1u, tables_pl04, 4u, slices_pl04, 2u, NULL, 0u},
+    {"PL04X.PAC", 0x801c8000u, 0x9670u, 0xd358u, 1214u, 375u, 256u, 0u, 480u, 67u, groups_pl04, 1u, runs_pl04, 2u, own_pl04, 1u, tables_pl04, 4u, slices_pl04, 2u, NULL, 0u},
     {"PL05.PAC", 0x801b0000u, 0x93d4u, 0xc980u, 1070u, 304u, 225u, 0u, 0u, 0u, groups_pl05, 1u, runs_pl05, 1u, NULL, 0u, tables_pl05, 4u, slices_pl05, 1u, NULL, 0u},
     {"PL05X.PAC", 0x801c8000u, 0x93d4u, 0xc980u, 1070u, 304u, 225u, 0u, 0u, 0u, groups_pl05, 1u, runs_pl05, 1u, NULL, 0u, tables_pl05, 4u, slices_pl05, 1u, NULL, 0u},
     {"PL06.PAC", 0x801b0000u, 0xbde0u, 0xe62cu, 781u, 267u, 236u, 0u, 0u, 0u, groups_pl06, 1u, runs_pl06, 1u, NULL, 0u, tables_pl06, 4u, slices_pl06, 1u, NULL, 0u},

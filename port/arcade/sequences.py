@@ -509,17 +509,19 @@ def model_build(prog, offsets, row):
     return dict(steps=bytes(steps), steps_built=sb, frames=bytes(frames), frames_built=fb, table=bytes(table), table_built=tb)
 
 
-def model_offsets(lists, segments, view):
+def model_offsets(lists, segments, view, pads=None):
     """{art record address: cell list offset} for lists bytes (fighter.c's, or the model's) and the file's segments
     (address, count, bank): list k belongs to the k-th record of the segments, address 0 being empty lists. The last
-    list a record gets is kept. Raises ValueError when the lists and the segments disagree."""
+    list a record gets is kept. pads {list: zero bytes after it} (the lists the PS1 laid out larger). Raises ValueError
+    when the lists and the segments disagree."""
     sizes, o = [], 0
+    pads = pads or {}
     while o < len(lists):
         lst = F.parse_list(lists, o)
         if lst is None:
             raise ValueError(f'no list at {o}')
         sizes.append((o, lst['end'] - o))
-        o = lst['end']
+        o = lst['end'] + pads.get(len(sizes) - 1, 0)
     out, k = {}, 0
     for address, count, _bank in segments:
         a = address
@@ -910,7 +912,7 @@ def main(argv=None):
                     continue
                 mod, tiles, _side, others = parts
                 stem = name.removesuffix('.PAC').removesuffix('X')
-                fr = F.analyse(mod, tiles, view, index, helper, others, stem in F.PALETTE_PARTS, stem in F.NUMBER_BY_RUN)
+                fr = F.analyse(mod, tiles, view, index, helper, others, stem in F.PALETTE_PARTS, stem in F.NUMBER_BY_RUN, F.hand_of(name))
                 if 'error' in fr:
                     print(f'{name}: {fr["error"]}')
                     continue
@@ -971,10 +973,12 @@ def compare_c(args, rows, context, text, prog_be, view, tmp):
     for row in rows:
         drow, mod = context[row['file']]
         rules = drow['rules']
-        key = (tuple(drow['segments']), tuple(rules))
+        key = (tuple(drow['segments']), tuple(rules), tuple(drow['pads']), tuple(drow['extras']))
         if key not in model_lists:
-            lists = F.model_build(view, drow['segments'], 'PALETTE_PARTS' in rules, 'NUMBER_BY_RUN' in rules, 'TERMINATOR' in rules)[0]
-            model_lists[key] = model_offsets(lists, drow['segments'], view)
+            pads = {k: n for k, n in drow['pads']}
+            extras = {a: (more, stream) for a, more, stream in drow['extras']}
+            lists = F.model_build(view, drow['segments'], 'PALETTE_PARTS' in rules, 'NUMBER_BY_RUN' in rules, 'TERMINATOR' in rules, extras, pads)[0]
+            model_lists[key] = model_offsets(lists, drow['segments'], view, pads)
         offsets = model_lists[key]
         model = model_build(prog_be, offsets, row)
         # the C's list offsets are sorted by record; the model's dict has the same content

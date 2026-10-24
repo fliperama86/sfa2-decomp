@@ -57,6 +57,18 @@ builds fighter.c with the checked-in table into a temporary folder, runs it for 
 line per file: C against the model (model_build, and the analysis' own conversion) and C against the disc, for the
 lists, the positions and the tile numbering, and the C's time.
 
+The loader serves the lists and the position streams one by one (port/src/arcade.c, fighter_blocks): a list or stream that equals the disc's
+is served as built and equal; a list that differs by design, in the table's `owned` (below), is served as built (the arcade's way: a pack keeps
+none of it); the others stay the disc's. What the table holds for that:
+  - pads: a list the model makes shorter than the PS1's (a mixed-palette list the arcade has with one palette, PL02 and PL14 list 69; one of
+    PL0E's) is followed by zero bytes, so that every later list lies where the PS1 has it. A list that would be longer refuses the file.
+  - owned: a list that differs in palette only is the arcade's when the arcade's palette of each changed cell is a row (2p and 2p + 1) of the
+    file's palette chunk that the loader builds from the arcade (fighter_parts_table.c's keep does not hold it): PL02, PL0B and PL14 (PL14's
+    list 69 points at a row the PS1 colours itself, so it stays the disc's). The loader's palette chunk of these files holds those rows
+    already, equal to the disc's, so lists and palettes agree. A list that differs in numbering stays the disc's (the tiles are the PS1's
+    numbers): PL08's 2, PL0E's 100.
+  - extras (HAND_RECORDS): a list the PS1 drew with a cell more than the arcade's record (PL04's list 260) is the arcade's record alone; the
+    PS1's own cell takes a tile number and its position run stays in the stream as zeros, so that later numbers and offsets are the PS1's.
 Inputs: the disc image (raw 2352-byte sectors) and the arcade set's ZIP (MAME's sfa2u), both given as arguments
 and both read only. It writes nothing except a temporary folder (a small C helper compiled at run time for the
 tile comparison) that it removes. It prints sizes, addresses and counts, never game bytes beyond a few header
@@ -94,6 +106,12 @@ NUMBER_BY_RUN = {'PL0E'}
 # Characters left out of the C table: their PS1-only art makes the model's sizes the PS1's only by keeping disc bytes.
 PS1_ONLY_ART = {'PL10', 'PL11', 'PL13'}
 RULE_FLAGS = (('PALETTE_PARTS', PALETTE_PARTS), ('NUMBER_BY_RUN', NUMBER_BY_RUN))
+# Lists the PS1 drew with more cells than the arcade's record, by hand: {character: {list index: (record address, tile bank, cells more, stream bytes
+# more)}}. The list is made from the arcade's record alone (the arcade's way); the PS1's own cells took tile numbers, and their position runs lie
+# in the stream, which the model keeps in place (so that every later number and offset is the PS1's). Evidence (measured 2026-10-24): PL04's list
+# 260 has 16 cells, every tile an arcade tile; the arcade has a record of 15 cells with the same positions, tiles and palette at 0x206fd2 (and
+# another at 0x214c42 with other positions); the 16th cell, tile number 3737 at (-14, -14), is used by no other list and is the PS1's own.
+HAND_RECORDS = {'PL04': {260: (0x206fd2, 0, 1, 6)}}
 MODULE_SLOTS = {4, 5}      # table 0 code slots of the fighter module (first side, second side)
 TILE_SLOTS = {1, 2}        # table 0 slots of the sprite tiles (first side, second side)
 MAX_CELLS = 512            # a list longer than this is not read as a list
@@ -346,9 +364,10 @@ class Converter:
         if code not in self.bake:                      # the tile is stored with the flips of its first use
             self.bake[code] = f & FLIPS
 
-    def emit(self, cells, fresh=False):
+    def emit(self, cells, fresh=False, pad=0):
         numbered = [(self.num.of[c[0]], c[3] ^ self.bake[c[0]]) for c in cells]
-        self.mine.append((encode_list(numbered, self.pos.add(position_stream(position_runs(cells)), fresh)), [n for n, _f in numbered]))
+        stream = position_stream(position_runs(cells)) + bytes(pad)      # pad: the runs of cells the PS1 added, never read
+        self.mine.append((encode_list(numbered, self.pos.add(stream, fresh)), [n for n, _f in numbered]))
 
     def flush(self):
         # PL0E only (NUMBER_BY_RUN): a run of consecutive lists of records of several parts takes its tile
@@ -371,7 +390,8 @@ class Converter:
         self.flush()
         self.mine.append((struct.pack('<5HH', 1, 0, 0, 0, len(self.pos.data), 0), []))
 
-    def record(self, rec_cells, bank, at):
+    def record(self, rec_cells, bank, at, extra=None):
+        """extra: (cells more, stream bytes more) of a record the PS1 drew with more cells (see HAND_RECORDS)."""
         cells = order_cells([(c[0] + bank,) + c[1:] for c in rec_cells], self.psplit)
         left = min(c[1] for c in cells)
         again = at in self.used and left < -256
@@ -384,15 +404,19 @@ class Converter:
         self.flush()
         for c in cells:
             self.assign(c[0], c[3])
-        self.emit(cells, again)
+        if extra:
+            self.num.next += extra[0]
+        self.emit(cells, again, extra[1] if extra else 0)
 
 
-def model_build(view, segments, palette_splits=False, by_run=False, terminator=False):
+def model_build(view, segments, palette_splits=False, by_run=False, terminator=False, extras=None, pads=None):
     """The specification of the runtime C (fighter.c): (list bytes, position bytes, {number: code}, {code: flip bits})
     from the arcade program alone. segments are (address, count, bank): count records of mode 2 or 0 one after the
     other from address, tile codes plus bank; address 0 stands for count empty lists. terminator adds a last empty list.
-    Raises ValueError for a record that cannot be read."""
+    extras: {record address: (cells more, stream bytes more)} (HAND_RECORDS); pads: {list index: zero bytes after that list} (the lists the PS1
+    laid out larger). Raises ValueError for a record that cannot be read."""
     conv = Converter(palette_splits, by_run)
+    extras = extras or {}
     for address, count, bank in segments:
         a = address
         for _ in range(count):
@@ -402,12 +426,18 @@ def model_build(view, segments, palette_splits=False, by_run=False, terminator=F
             rec = read_any(view, a)
             if not rec or rec[0] != len(rec[1]):
                 raise ValueError(f'no record at {a:#x}')
-            conv.record(rec[1], bank, a)
+            conv.record(rec[1], bank, a, extras.get(a))
             a = rec[2]
     if terminator:
         conv.empty()
     conv.flush()
-    return b''.join(m[0] for m in conv.mine), bytes(conv.pos.data), conv.code_of_num, conv.bake
+    pads = pads or {}
+    return b''.join(m[0] + bytes(pads.get(k, 0)) for k, m in enumerate(conv.mine)), bytes(conv.pos.data), conv.code_of_num, conv.bake
+
+
+def hand_of(name):
+    """The by-hand records of a file ('PL04.PAC', 'PL04X.PAC' or 'PL04'): {list index: (address, bank, cells more, stream bytes more)}."""
+    return HAND_RECORDS.get(name.removesuffix('.PAC').removesuffix('X'), {})
 
 
 def parse_list(mod, o):
@@ -781,8 +811,10 @@ def stream_end(mod, at, n):
     return at if c == n else None
 
 
-def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_run=False):
-    """Everything the line and the detail need, as a dict. The key 'error' when the file cannot be read."""
+def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_run=False, hand=None):
+    """Everything the line and the detail need, as a dict. The key 'error' when the file cannot be read. hand: HAND_RECORDS' entry of
+    the file, the lists whose arcade record is given by hand (they stay in 'unmatched' no longer; r['hand'] holds them)."""
+    hand = hand or {}
     pend = code_end(mod)
     if pend is None:
         return dict(error='no jr ra in the module')
@@ -855,6 +887,13 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_
                 a = rec[2]
         k += count
 
+    for k, (a, bank, more, stream) in hand.items():
+        rec = index.record(a)
+        if k in unmatched and rec and not is_empty(lists[k]):
+            recs[k] = (rec, bank, a)
+            unmatched.remove(k)
+            seg.append((a, 1, k, bank))
+    seg.sort(key=lambda x: x[2])
     # the terminator is the first empty list after the last list that has a record; what follows it is not a list
     last = max(recs, default=-1)
     stop = next((k for k in range(last + 1, len(lists)) if is_empty(lists[k])), None)
@@ -864,7 +903,7 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_
         del lists[stop:]
         unmatched = [k for k in unmatched if k < stop]
     lend = lists[-1]['end'] if term is None else term['end']
-    r.update(segments=seg, unmatched=unmatched, lists=lists, term=term, listsend=lend, recs=recs)
+    r.update(segments=seg, unmatched=unmatched, lists=lists, term=term, listsend=lend, recs=recs, hand={k: v for k, v in hand.items() if k in recs})
 
     def tail(psplit, by_run):
         r2 = dict(r)
@@ -889,7 +928,7 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_
                     conv.mine.append(None)
                     continue
                 rec, bank, at = recs[k]
-                conv.record(rec[1], bank, at)
+                conv.record(rec[1], bank, at, hand[k][2:] if k in r['hand'] else None)
             conv.flush()
             return conv.mine, num, pos, conv.code_of_num, conv.bake
 
@@ -957,13 +996,15 @@ def analyse(mod, tiles, view, index, helper, others=(), palette_parts=False, by_
             if r2['first_bad'] is None:
                 r2['first_bad'] = bad
         r2['mine_count'] = sum(1 for m in mine if m is not None)
+        r2['mine_lists'] = [None if m is None else m[0] for m in mine]
         # for the comparison with the runtime C: the lists as one block (when every list was converted), the disc's blocks
         if all(m is not None for m in mine):
             r2['model_lists'] = b''.join(m[0] for m in mine) + (b'' if term is None else struct.pack('<5HH', 1, 0, 0, 0, len(pbytes), 0))
         r2['disc_lists'] = mod[lbase:lend]
 
         # fit: the bytes the lists and the positions need, against what the disc has and what is free after them
-        ours_lists = sum(len(m[0]) if m else lst['end'] - lst['at'] for m, lst in zip(mine, lists)) + (0 if term is None else term['end'] - term['at'])
+        # a list the model makes shorter than the PS1's is padded to the PS1's size (pads in the descriptor), a longer one stays longer
+        ours_lists = sum(max(len(m[0]), lst['end'] - lst['at']) if m else lst['end'] - lst['at'] for m, lst in zip(mine, lists)) + (0 if term is None else term['end'] - term['at'])
         fit = dict(lists_disc=lend - lbase, lists_ours=ours_lists, pos_disc=None, pos_ours=len(pbytes), module=len(mod), after=len(mod) - lend)
         zeros = lambda data, o: next((i for i in range(len(data) - o) if data[o + i]), len(data) - o)
         fit['lists_free'] = posbase - lend if posbase is not None and where is None and posbase >= lend else zeros(mod, lend)
@@ -1003,9 +1044,60 @@ def segments_of(lists, recs):
     return out
 
 
+PARTS_TABLE = Path(__file__).resolve().parent / 'fighter_parts_table.c'
+
+
+def parts_keep():
+    """{file: mask} of the palettes of each file's table 1 chunk that stay the disc's (fighter_parts_table.c's keep), {} when there is no table."""
+    if not PARTS_TABLE.exists():
+        return {}
+    return {m.group(1): int(m.group(2), 16) for m in re.finditer(
+        r'\{"(PL\w+\.PAC)", \d+u, \w+, \d+u, \d+u, 0x[0-9a-f]+u, (0x[0-9a-f]+)ull', PARTS_TABLE.read_text())}
+
+
+def changed_palettes(rec, lst):
+    """The arcade's palettes of the cells whose palette the PS1 changed: the arcade record's palettes (5 bits of each cell's flags) less the
+    list's, as a multiset (the order of the cells is the same, so a palette that both have is the same cell's)."""
+    return sorted((collections.Counter(c[3] & 0x1f for c in rec[1]) - collections.Counter(list_palettes(lst))).elements())
+
+
+def lists_by_list(r):
+    """Per list of the file: (pad, owned, why) from the model's lists against the disc's, or a message when a list is larger than the PS1's.
+    A list the model makes shorter than the PS1's gets a pad (zero bytes after it). A list that differs is `owned` (served as built, the
+    arcade's way) when it has a by-hand record, or differs in palette only and every palette the arcade gives its changed cells is a row of
+    the file's palette chunk that the loader builds from the arcade (not in fighter_parts_table.c's keep). Others (numbering) stay the disc's."""
+    lists, mine, base = r['lists'], r['mine_lists'], r['lbase']
+    disc, keep = r['disc_lists'], r.get('keep', 0)
+    pads, owned, why = {}, [], collections.Counter()
+    for k, lst in enumerate(lists):
+        ours, theirs = mine[k], disc[lst['at'] - base:lst['end'] - base]
+        if ours == theirs:
+            continue
+        if len(ours) > len(theirs):
+            return f'list {k} is {len(ours) - len(theirs)} bytes longer than the PS1\'s'
+        if len(ours) < len(theirs):
+            pads[k] = len(theirs) - len(ours)
+        if k in r['hand']:
+            owned.append(k)
+            why['hand'] += 1
+            continue
+        kind = diff_kind(ours, theirs + b'')
+        if kind == 'palette':
+            rec = r['recs'][k][0]
+            rows = [row for p in changed_palettes(rec, lst) for row in (2 * p, 2 * p + 1)]
+            if all(not keep >> row & 1 for row in rows):
+                owned.append(k)
+                why['palette'] += 1
+            else:
+                why['palette kept (a row the PS1 colours itself)'] += 1
+        else:
+            why[kind] += 1
+    return pads, owned, why
+
+
 def descriptor(name, side, r):
     """(row dict for the C table, None) for a file the C can build, else (None, why not). The row: file, module_slot,
-    positions_slot (None: the same chunk), positions and lists offsets, their rooms, rules (names), segments."""
+    positions_slot (None: the same chunk), positions and lists offsets, their rooms, rules (names), segments, pads, extras, owned."""
     stem = name.removesuffix('.PAC').removesuffix('X')
     if stem in PS1_ONLY_ART:
         return None, 'PS1-only art (the model keeps disc bytes)'
@@ -1023,8 +1115,14 @@ def descriptor(name, side, r):
     if segs is None:
         return None, 'a list with no record'
     rules = [n for n, chars in RULE_FLAGS if stem in chars] + (['TERMINATOR'] if r['term'] is not None else [])
+    res = lists_by_list(dict(r, keep=parts_keep().get(name, 0)))
+    if isinstance(res, str):
+        return None, res
+    pads, owned, why = res
+    extras = sorted((a, more, stream) for _k, (a, _bank, more, stream) in r['hand'].items())
     return dict(file=name, module_slot=4 if side == 1 else 5, positions_slot=r['pos_slot'], positions=r['posbase'], lists=r['lbase'],
-                positions_room=f['pos_disc'], lists_room=f['lists_disc'], rules=rules, segments=segs), None
+                positions_room=f['pos_disc'], lists_room=f['lists_disc'], rules=rules, segments=segs, pads=sorted(pads.items()), extras=extras,
+                owned=owned, why=dict(why)), None
 
 
 def c_table(rows, omitted):
@@ -1032,8 +1130,10 @@ def c_table(rows, omitted):
     out = ['/* GENERATED by `python3 port/arcade/fighters.py --disc DISC --arcade SET --c-table`; do not edit.',
            ' * For each fighter file whose model reproduces the PS1\'s room: where the position runs and the cell lists lie',
            ' * in the module chunk, how many bytes the PS1 has for each (the disc\'s sizes), the per-file rules, and the',
-           ' * arcade art records the lists are made from (address, count, tile bank; address 0 is empty lists). Only',
-           ' * addresses, counts and offsets: no byte of either game.',
+           ' * arcade art records the lists are made from (address, count, tile bank; address 0 is empty lists), the lists the',
+           ' * PS1 laid out larger than the model (pads: list, zero bytes after it), the records the PS1 drew with more cells',
+           ' * (extras: record, tile numbers, stream bytes) and the lists the loader serves as built where they differ from the',
+           ' * PS1\'s (owned: the arcade\'s palette, the arcade\'s cells). Only addresses, counts and offsets: no byte of either game.',
            ' *',
            ' * Left out: PL10, PL11 and PL13 (their PS1-only art makes the model\'s sizes the PS1\'s only by keeping disc',
            ' * bytes)' + (', and:' if [o for o in omitted if o[0].removesuffix(".PAC").removesuffix("X") not in PS1_ONLY_ART] else '.')]
@@ -1053,13 +1153,27 @@ def c_table(rows, omitted):
             out.append(f'    {{{a:#x}u, {c}u, {bank:#x}u}},')
         out.append('};')
         out.append('')
+    extra_names = {}
+    for kind, ctype, fmt in (('pads', 'struct arcade_fighter_pad', lambda v: f'{{{v[0]}u, {v[1]}u}}'),
+                             ('extras', 'struct arcade_fighter_extra', lambda v: f'{{{v[0]:#x}u, {v[1]}u, {v[2]}u}}'),
+                             ('owned', 'uint16_t', lambda v: f'{v}u')):
+        for row in rows:
+            key = tuple(row[kind])
+            if key and (kind, key) not in extra_names:
+                extra_names[(kind, key)] = f'{kind}_' + row['file'].removesuffix('.PAC').lower()
+                out.append(f'static const {ctype} {extra_names[(kind, key)]}[] = {{')
+                for v in key:
+                    out.append(f'    {fmt(v)},')
+                out.append('};')
+                out.append('')
     out.append('const struct arcade_fighter arcade_fighters[] = {')
     for row in rows:
         rules = ' | '.join('ARCADE_FIGHTER_' + n for n in row['rules']) or '0u'
         slot = 'ARCADE_FIGHTER_SAME_CHUNK' if row['positions_slot'] is None else f'{row["positions_slot"]:#x}u'
         key = tuple(row['segments'])
+        more = ', '.join(f'{extra_names[(kind, tuple(row[kind]))]}, {len(row[kind])}u' if row[kind] else f'NULL, 0u' for kind in ('pads', 'extras', 'owned'))
         out.append(f'    {{"{row["file"]}", {row["module_slot"]}u, {slot}, {row["positions"]:#x}u, {row["lists"]:#x}u, {row["positions_room"]}u, '
-                   f'{row["lists_room"]}u, {rules}, {names[key]}, {len(key)}u, NULL, 0u}},')
+                   f'{row["lists_room"]}u, {rules}, {names[key]}, {len(key)}u, NULL, 0u, {more}}},')
     out += ['};', 'const unsigned arcade_fighter_count = sizeof arcade_fighters / sizeof arcade_fighters[0];', '']
     return '\n'.join(out)
 
@@ -1075,7 +1189,8 @@ class CLib:
 
     class Out(ctypes.Structure):
         _fields_ = [('positions', ctypes.c_void_p), ('positions_size', ctypes.c_uint32), ('lists', ctypes.c_void_p), ('lists_size', ctypes.c_uint32),
-                    ('tile_count', ctypes.c_uint32), ('tile_code', ctypes.c_void_p), ('tile_flip', ctypes.c_void_p)]
+                    ('tile_count', ctypes.c_uint32), ('tile_code', ctypes.c_void_p), ('tile_flip', ctypes.c_void_p), ('list_count', ctypes.c_uint32),
+                    ('list_at', ctypes.c_void_p)]
 
     def __init__(self, tmp):
         here = Path(__file__).resolve().parent
@@ -1086,7 +1201,9 @@ class CLib:
         self.Fighter._fields_ = [('file', ctypes.c_char_p), ('module_slot', ctypes.c_uint16), ('positions_slot', ctypes.c_uint16),
                                  ('positions', ctypes.c_uint32), ('lists', ctypes.c_uint32), ('positions_room', ctypes.c_uint32),
                                  ('lists_room', ctypes.c_uint32), ('rules', ctypes.c_uint), ('segments', ctypes.POINTER(self.Seg)),
-                                 ('segment_count', ctypes.c_uint), ('drops', ctypes.c_void_p), ('drop_count', ctypes.c_uint)]
+                                 ('segment_count', ctypes.c_uint), ('drops', ctypes.c_void_p), ('drop_count', ctypes.c_uint),
+                                 ('pads', ctypes.c_void_p), ('pad_count', ctypes.c_uint), ('extras', ctypes.c_void_p), ('extra_count', ctypes.c_uint),
+                                 ('owned', ctypes.c_void_p), ('owned_count', ctypes.c_uint)]
         count = ctypes.c_uint.in_dll(self.lib, 'arcade_fighter_count').value
         self.rows = (self.Fighter * count).in_dll(self.lib, 'arcade_fighters')
         self.lib.arcade_fighter_build.argtypes = [ctypes.c_char_p, ctypes.c_size_t, ctypes.POINTER(self.Fighter), ctypes.POINTER(self.Out),
@@ -1109,35 +1226,59 @@ class CLib:
             pos = ctypes.string_at(out.positions, out.positions_size)
             codes = (ctypes.c_uint32 * out.tile_count).from_address(out.tile_code)
             flips = (ctypes.c_uint8 * out.tile_count).from_address(out.tile_flip)
-            numbers = {n: codes[n] for n in range(1, out.tile_count)}
-            flip = {n: flips[n] for n in range(1, out.tile_count)}
+            numbers = {n: codes[n] for n in range(1, out.tile_count) if codes[n] != 0xffffffff}
+            flip = {n: flips[n] for n in range(1, out.tile_count) if codes[n] != 0xffffffff}
+            list_at = list((ctypes.c_uint32 * out.list_count).from_address(out.list_at))
         finally:
             self.lib.arcade_fighter_free(ctypes.byref(out))
-        return lists, pos, numbers, flip, took
+        return lists, pos, numbers, flip, took, list_at
 
 
 def first_diff(a, b):
     return next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
 
 
+def serving(r, lists, list_at, row):
+    """How the loader serves each list of the C's block against the disc's: 'N equal' (served equal), 'N owned' (differ by design, served as built),
+    'N kept' (differ, stay the disc's), and the lists that lie elsewhere than the PS1's."""
+    disc, base = r['disc_lists'], r['lbase']
+    owned = set(row['owned'])
+    n = collections.Counter()
+    ends = list(list_at[1:]) + [len(lists)]
+    for k, lst in enumerate(r['lists']):
+        a, b = lst['at'] - base, lst['end'] - base
+        if list_at[k] != a or ends[k] - list_at[k] != (r['mine_lists'][k] and max(len(r['mine_lists'][k]), b - a)):
+            n['misplaced'] += 1
+        elif lists[list_at[k]:ends[k]] == disc[a:b]:
+            n['equal'] += 1
+        else:
+            n['owned' if k in owned else 'kept'] += 1
+    return ', '.join(f'{v} {k}' for k, v in n.items())
+
+
 def compare_line(name, r, built, view, row):
     """One line: the C's blocks against the model (model_build and the analysis' conversion) and against the disc."""
     if isinstance(built, str):
         return f'{name}: C refused: {built}'
-    lists, pos, numbers, flip, took = built
+    lists, pos, numbers, flip, took, list_at = built
     bake = {code: (0x20 if flip[n] & 1 else 0) | (0x40 if flip[n] & 2 else 0) for n, code in numbers.items()}
     parts = []
     segs = row['segments']
     rule = lambda n: n in row['rules']
-    m_lists, m_pos, m_codes, m_bake = model_build(view, segs, rule('PALETTE_PARTS'), rule('NUMBER_BY_RUN'), rule('TERMINATOR'))
+    pads = {k: n for k, n in row['pads']}
+    extras = {a: (more, stream) for a, more, stream in row['extras']}
+    m_lists, m_pos, m_codes, m_bake = model_build(view, segs, rule('PALETTE_PARTS'), rule('NUMBER_BY_RUN'), rule('TERMINATOR'), extras, pads)
     for what, mine, ref, pref in (('lists', lists, m_lists, 'model'), ('positions', pos, m_pos, 'model')):
         parts.append(f'{what} {"=" if mine == ref else "!= (from +%#x, %d B against %d)" % (first_diff(mine, ref), len(mine), len(ref))}{pref}')
     same_num = numbers == m_codes and bake == m_bake
     parts.append('numbering ' + ('=' if same_num else '!=') + 'model')
     a_lists, a_pos = r.get('model_lists'), r.get('model_positions')
+    if a_lists is not None and pads:   # the analysis' lists are the model's own sizes: the pads go where the descriptor puts them
+        mine = r['mine_lists']
+        a_lists = b''.join(m + bytes(pads.get(k, 0)) for k, m in enumerate(mine)) + a_lists[sum(map(len, mine)):]
     parts.append('analysis ' + ('=' if (lists, pos, numbers) == (a_lists, a_pos, r['code_of_num']) and bake == r['bake'] else '!='))
     d_lists, d_pos = r['disc_lists'], r['disc_positions']
-    parts.append('disc: lists ' + ('=' if lists == d_lists else f'differ from +{first_diff(lists, d_lists):#x} ({len(lists)} B against {len(d_lists)})'))
+    parts.append(f'disc: lists {serving(r, lists, list_at, row)}')
     parts.append('positions ' + ('=' if pos == d_pos else f'differ from +{first_diff(pos, d_pos):#x} ({len(pos)} B against {len(d_pos)})'))
     baked, wrong = r['check_tiles'](numbers, bake)
     parts.append(f'numbering {"=" if not wrong else f"{len(wrong)} tiles off"} ({len(numbers)} tiles, {len(baked)} baked)')
@@ -1267,7 +1408,7 @@ def main(argv=None):
                     continue
                 mod, tiles, side, others = parts
                 stem = name.removesuffix('.PAC').removesuffix('X')
-                r = analyse(mod, tiles, view, index, helper, others, stem in PALETTE_PARTS, stem in NUMBER_BY_RUN)
+                r = analyse(mod, tiles, view, index, helper, others, stem in PALETTE_PARTS, stem in NUMBER_BY_RUN, hand_of(name))
                 if args.c_table or args.compare_c:
                     rows.append((name, side, r))
                     continue
