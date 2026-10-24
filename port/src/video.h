@@ -51,6 +51,21 @@ static inline int port_video_arcade_fit(int w,int h,struct port_video_view *out)
     out->w=unit*4;out->h=unit*3;out->x=(w-out->w)/2;out->y=(h-out->h)/2;
     return 1;
 }
+/* Widescreen (setting widescreen, port/widescreen.md): the canvas adds PORT_WIDE_EXTRA columns on each side of the 384-wide
+ * frame, 512 x 224 in all, 16:9 at the arcade's pixel shape. */
+#define PORT_WIDE_EXTRA 64
+#define PORT_WIDE_W (PORT_ARCADE_W + 2 * PORT_WIDE_EXTRA)
+/* The wide canvas in a window: the largest 16:9 place (whole units of 16 x 9 pixels), centred. 0, and an empty place, when the
+ * window is smaller than 512 x 288 (blank, as port_video_arcade_fit blanks below 384 x 288). */
+static inline int port_video_wide_fit(int w,int h,struct port_video_view *out)
+{
+    int unit;
+    *out=(struct port_video_view){0,0,0,0};
+    if(w<PORT_WIDE_W || h<288)return 0;
+    unit=w/16;if(h/9<unit)unit=h/9;
+    out->w=unit*16;out->h=unit*9;out->x=(w-out->w)/2;out->y=(h-out->h)/2;
+    return 1;
+}
 /* Sharp bilinear: the size the picture is first enlarged to with nearest sampling,
  * a whole factor of each side (the largest that fits its place in the window, at
  * least 1), before one linear stretch to that place. 0, and nothing to enlarge,
@@ -137,4 +152,9 @@ int Psyz_Sfa2FullscreenModes(int *wh, int max);
 /* on: Escape, F1, F4 and a gamepad's guide button are kept for TakeKeys (bits 2, 1, 4, 8) instead of PsyZ's own handling. */
 void Psyz_Sfa2SetHostKeys(int on);
 unsigned Psyz_Sfa2TakeKeys(void);
+/* Since port_video_api 5 (port/widescreen.md, step 1): extra 0 off, else the columns the wide canvas adds on each side of a frame
+ * area (the port gives PORT_WIDE_EXTRA). ReadWide: the canvas of the frame shown last, RGB 5551 halfwords, its size in *w x *h (at
+ * most max_w x max_h); 0, or -1 when the frame shown last was not a wide canvas. */
+void Psyz_Sfa2SetWide(int extra);
+int Psyz_Sfa2ReadWide(uint16_t *pixels, int max_w, int max_h, int *w, int *h);
 #endif

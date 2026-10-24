@@ -71,7 +71,7 @@ static void host_info(struct port_menu_host *host)
     host->modes = port_gpu_fullscreen_modes(host->mode_wh, PORT_MENU_MODES_MAX);
 }
 
-/* Applies what changed of the [display] settings from `before` to *s; a screen that the system refused leaves the one in effect,
+/* Applies what changed of the [display] settings and widescreen from `before` to *s; a screen that the system refused leaves the one in effect,
  * and *s says so. */
 static void apply(const struct port_settings *before, struct port_settings *s)
 {
@@ -95,10 +95,14 @@ static void apply(const struct port_settings *before, struct port_settings *s)
         printf("settings: this build cannot use the filter %s\n", port_filter_name(s->filter));
         s->filter = before->filter;
     }
+    if (s->widescreen != before->widescreen && port_gpu_set_widescreen(s->widescreen)) {
+        printf("settings: this build cannot use widescreen\n");
+        s->widescreen = before->widescreen;
+    }
     fflush(stdout);
 }
 
-/* Copies the [display] keys that changed from `before` to `after` into the file's settings and saves those: a command
+/* Copies the [display] keys and widescreen that changed from `before` to `after` into the file's settings and saves those: a command
  * line override of another key never reaches the file. */
 static void save(const struct port_settings *before, const struct port_settings *after)
 {
@@ -114,6 +118,7 @@ static void save(const struct port_settings *before, const struct port_settings 
         f->fullscreen_h = after->fullscreen_h;
     }
     if (after->filter != before->filter) f->filter = after->filter;
+    if (after->widescreen != before->widescreen) f->widescreen = after->widescreen;
     if (port_settings_save(port_settings_path, f, err, sizeof err)) {
         printf("settings: not saved: %s\n", err);
         fflush(stdout);

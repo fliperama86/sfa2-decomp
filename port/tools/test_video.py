@@ -21,7 +21,7 @@ class Video(unittest.TestCase):
             root = Path(folder)
             self.assertEqual(psyzbuild.video_api_metadata(root), {})
             psyzbuild.install_video_header(root, PATCH.read_text())
-            self.assertEqual(psyzbuild.video_api_metadata(root), {'port_video_api': 4})
+            self.assertEqual(psyzbuild.video_api_metadata(root), {'port_video_api': 5})
             (root / 'gpu.c').write_text('void f(void) { Psyz_Sfa2SetArcadeCanvas(0); }\n')
             with self.assertRaisesRegex(hostbuild.Problem, 'rebuild'):
                 hostbuild.require_video_api({}, root)
@@ -31,7 +31,9 @@ class Video(unittest.TestCase):
                 hostbuild.require_video_api({'port_video_api': 2}, root)
             with self.assertRaisesRegex(hostbuild.Problem, 'rebuild'):
                 hostbuild.require_video_api({'port_video_api': 3}, root)
-            hostbuild.require_video_api({'port_video_api': 4}, root)
+            with self.assertRaisesRegex(hostbuild.Problem, 'rebuild'):
+                hostbuild.require_video_api({'port_video_api': 4}, root)
+            hostbuild.require_video_api({'port_video_api': 5}, root)
             (root / 'gpu.c').write_text('/* A custom legacy runtime has no extension dependency. */\n')
             hostbuild.require_video_api({}, root)
 
@@ -93,8 +95,21 @@ class Video(unittest.TestCase):
             declared = re.findall(r'^\w+ (Psyz_Sfa2\w+)\(', (ROOT / 'port/src/video.h').read_text(), re.M)
             self.assertIn('Psyz_Sfa2SetBatchedUploads', declared)
             self.assertIn('Psyz_Sfa2SetFilter', declared)
-            for name in ('SetScreen', 'GetScreen', 'DesktopSize', 'FullscreenModes', 'SetHostKeys', 'TakeKeys'):
+            for name in ('SetScreen', 'GetScreen', 'DesktopSize', 'FullscreenModes', 'SetHostKeys', 'TakeKeys', 'SetWide', 'ReadWide'):
                 self.assertIn('Psyz_Sfa2' + name, declared)
+            # Wide canvas (port_video_api 5): a draw of the batch into each frame area's canvas through the shared helper, moved by the shader offset,
+            # clears and loads that meet the area, the canvas shown in place of the frame, and the canvases released with the other textures.
+            self.assertIn('Sfa2DrawBatch(cmd, GetRenderTarget(), NULL);', gpu)
+            self.assertIn('Sfa2DrawBatch(cmd, sfa2_wide_canvas->tex, sfa2_wide_canvas);', gpu)
+            self.assertIn('static void Sfa2DrawBatch(SDL_GPUCommandBuffer* cmd, SDL_GPUTexture* texture, const Sfa2Canvas* canvas) {', gpu)
+            self.assertIn('(float)(sfa2_wide_extra - canvas->x) / GetDrawGridXScale()', gpu)
+            self.assertIn('Sfa2ClearCanvases(cmd, rect, r, g, b);', gpu)
+            self.assertIn('Sfa2StaleCanvases(rect->x, rect->y, rect->w, rect->h);', gpu)
+            self.assertIn('Sfa2StaleCanvases(dst_x, dst_y, copy_w, copy_h);', gpu)
+            self.assertIn('port_video_wide_fit(win.w,win.h,&wide_fit)', gpu)
+            self.assertIn('Sfa2WideShown(sfa2_wide);\n    SubmitFrame();', gpu)
+            self.assertIn('sfa2_sharp_texture = NULL;\n        }\n        Sfa2ReleaseCanvases();', gpu)
+            self.assertIn('Psyz_Sfa2ReadWide(uint16_t *pixels, int max_w, int max_h, int *w, int *h) { (void)pixels; (void)max_w; (void)max_h; (void)w; (void)h; return -1; }', gl)
             self.assertNotIn('Psyz_Sfa2SetSharpBilinear', declared)
             for name in declared:
                 for backend, source in (('sdl3_gpu.c', gpu), ('sdl3_gl.c', gl)):

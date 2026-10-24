@@ -9,7 +9,8 @@
  *   missing or invalid explicit one refuses the start). port_settings_file is what the file gave and port_settings what the program uses:
  *   the file, then the command line. --show-settings prints both sections in the file's form for the effective settings, then `volume = N`,
  *   and ends. The command line overrides the file's keys, the last one winning: --sharp-bilinear and --nearest-scaling set [display]
- *   filter; --settings-menu and --no-settings-menu set [experimental] settings_menu (port/settings-menu.md); the others are in
+ *   filter; --settings-menu and --no-settings-menu set [experimental] settings_menu (port/settings-menu.md); --widescreen and
+ *   --no-widescreen set [experimental] widescreen (port/widescreen.md); the others are in
  *   port/graphics.md. With the menu on, the menu's saves go to the file that was read (port_settings_path).
  * --list-library needs no disc: it prints the host routines, the ones that do
  * nothing on purpose, the library functions that still stop, and the overrides.
@@ -210,7 +211,7 @@ int main(int argc, char **argv)
     int audio_device = PORT_AUDIO_DEFAULT;
     const char *input_path = NULL;
     const char *settings_path = "settings.ini";
-    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1,filter_override=-1,menu_override=-1,intro_override=-1,assets_override=-1,arcade_check=0;
+    int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1,filter_override=-1,menu_override=-1,intro_override=-1,assets_override=-1,wide_override=-1,arcade_check=0;
     const char *intro_path="intro.dat";
     const char *arcade_path="sfa2u.zip";   /* --arcade-rom FILE: the arcade set of the setting arcade_assets */
     const char *import_path = NULL, *pack_path = NULL;   /* --arcade-import FILE (write the pack, with the disc); --arcade-pack FILE (play from it) */
@@ -251,6 +252,8 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--nearest-scaling") == 0) filter_override=PORT_FILTER_NEAREST;
         else if (strcmp(argv[i], "--settings-menu") == 0) menu_override=1;
         else if (strcmp(argv[i], "--no-settings-menu") == 0) menu_override=0;
+        else if (strcmp(argv[i], "--widescreen") == 0) wide_override=1;
+        else if (strcmp(argv[i], "--no-widescreen") == 0) wide_override=0;
         else if (strcmp(argv[i], "--volume") == 0 && i + 1 < argc) {
             char *end;
             long v = strtol(argv[++i], &end, 10);
@@ -295,6 +298,7 @@ int main(int argc, char **argv)
         if(card_override>=0)port_settings.memory_card=card_override;
         if(filter_override>=0)port_settings.filter=filter_override;
         if(menu_override>=0)port_settings.settings_menu=menu_override;
+        if(wide_override>=0)port_settings.widescreen=wide_override;
         if(intro_override>=0)port_settings.arcade_intro=intro_override;
         if(assets_override>=0)port_settings.arcade_assets=assets_override;
         if(show_settings) {
@@ -318,7 +322,7 @@ int main(int argc, char **argv)
     }
     if (bad || list || (!disc_path && !pack_path) || (disc_path && pack_path) || ((arcade_check || import_path || pack_path) && !port_settings.arcade_assets) ||
         (import_path && (!disc_path || arcade_check)) || (pack_path && arcade_check)) {
-        printf("usage: %s [--settings FILE] [--sharp-bilinear | --nearest-scaling] [--settings-menu | --no-settings-menu] [--arcade-intro --intro-data FILE] [--arcade-assets --arcade-rom FILE [--arcade-check | --arcade-import PACK | --arcade-pack PACK]] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] [--card1 FILE] [--card2 FILE] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
+        printf("usage: %s [--settings FILE] [--sharp-bilinear | --nearest-scaling] [--settings-menu | --no-settings-menu] [--widescreen | --no-widescreen] [--arcade-intro --intro-data FILE] [--arcade-assets --arcade-rom FILE [--arcade-check | --arcade-import PACK | --arcade-pack PACK]] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] [--card1 FILE] [--card2 FILE] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
         fflush(stdout);
         return 2;
     }
@@ -327,6 +331,7 @@ int main(int argc, char **argv)
     if(port_gpu_set_video_options(port_settings.pixel_perfect_ui,port_settings.arcade_video) ||
        port_gpu_set_ui_layout(port_settings.center_ui) ||
        port_gpu_set_filter(port_settings.filter) ||
+       port_gpu_set_widescreen(port_settings.widescreen) ||
        port_gpu_set_screen(port_settings.screen,
            port_settings.screen==PORT_SCREEN_WINDOW?port_settings.window_w:port_settings.screen==PORT_SCREEN_FULLSCREEN?port_settings.fullscreen_w:0,
            port_settings.screen==PORT_SCREEN_WINDOW?port_settings.window_h:port_settings.screen==PORT_SCREEN_FULLSCREEN?port_settings.fullscreen_h:0))

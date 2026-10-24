@@ -36,8 +36,8 @@ int port_skip_programs;
 static int refuse(const char *why) { puts(why);return 2; }
 static void dump(const char *tag,const struct port_settings *s)
 {
-    printf("%s %d %d %d %d %d %d %d %d %d %d %d %d %d %d\\n",tag,s->pixel_perfect_ui,s->arcade_video,s->center_ui,s->fast_loads,s->memory_card,
-        s->arcade_intro,s->arcade_assets,s->settings_menu,s->screen,s->window_w,s->window_h,s->fullscreen_w,s->fullscreen_h,s->filter);
+    printf("%s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\\n",tag,s->pixel_perfect_ui,s->arcade_video,s->center_ui,s->fast_loads,s->memory_card,
+        s->arcade_intro,s->arcade_assets,s->settings_menu,s->widescreen,s->screen,s->window_w,s->window_h,s->fullscreen_w,s->fullscreen_h,s->filter);
 }
 int main(int argc,char **argv)''' + prefix + '''
 if(!bad) { dump("file",&port_settings_file);dump("effective",&port_settings);printf("path %s\\n",port_settings_path);return 0; }
@@ -67,7 +67,7 @@ return 2;
                 return result.stdout
             # The defaults of a build without PsyZ, in the file's own form (what port_settings_save writes), then the volume line.
             self.assertEqual(shows([]), '[experimental]\npixel_perfect_ui = false\narcade_video = false\ncenter_ui = false\nfast_loads = true\n'
-                'memory_card = true\narcade_intro = false\narcade_assets = false\nsettings_menu = false\n\n[display]\nscreen = window\n'
+                'memory_card = true\narcade_intro = false\narcade_assets = false\nsettings_menu = false\nwidescreen = false\n\n[display]\nscreen = window\n'
                 'window_size = 1280x960\nfullscreen_size = desktop\nfilter = nearest\nvolume = 100\n')
             def volume(args, expected, line=None):
                 result = subprocess.run([str(exe), '--no-audio', '--show-settings', *args],
@@ -91,6 +91,12 @@ return 2;
             volume(['--sharp-bilinear'], 0, 'filter = sharp_bilinear')
             volume(['--sharp-bilinear', '--nearest-scaling'], 0, 'filter = nearest')
             volume(['--nearest-scaling', '--sharp-bilinear'], 0, 'filter = sharp_bilinear')
+            volume([], 0, 'widescreen = false')
+            volume(['--widescreen'], 0, 'widescreen = true')
+            volume(['--widescreen', '--no-widescreen'], 0, 'widescreen = false')
+            volume(['--no-widescreen', '--widescreen'], 0, 'widescreen = true')
+            volume(['--widescreen=1'], 2)
+            volume(['--no-widescreen=1'], 2)
             volume([], 0, 'settings_menu = false')
             volume(['--settings-menu'], 0, 'settings_menu = true')
             volume(['--settings-menu', '--no-settings-menu'], 0, 'settings_menu = false')
@@ -162,7 +168,7 @@ return 2;
             self.assertEqual(shows(['--settings', str(again), '--volume', '7', '--center-ui']), first)
             # The model: port_settings_file is what the file gave, port_settings the file with the command line over it.
             config.unlink()
-            fields = ('pixel_perfect_ui', 'arcade_video', 'center_ui', 'fast_loads', 'memory_card', 'arcade_intro', 'arcade_assets', 'settings_menu',
+            fields = ('pixel_perfect_ui', 'arcade_video', 'center_ui', 'fast_loads', 'memory_card', 'arcade_intro', 'arcade_assets', 'settings_menu', 'widescreen',
                       'screen', 'window_w', 'window_h', 'fullscreen_w', 'fullscreen_h', 'filter')
             def model(args):
                 result = subprocess.run([str(exe), '--no-audio', *args], cwd=path, capture_output=True, text=True, timeout=3)
@@ -179,6 +185,18 @@ return 2;
             file, effective, where = model(['--settings-menu', '--sharp-bilinear', '--fast-loads', '--arcade-video'])
             self.assertEqual((file['settings_menu'], file['filter'], file['arcade_video']), (0, 0, 0))
             self.assertEqual((effective['settings_menu'], effective['filter'], effective['arcade_video']), (1, 2, 1))
+            # the override of widescreen stays out of the file's model, and the file's value out of the other keys
+            file, effective, where = model(['--widescreen'])
+            self.assertEqual((file['widescreen'], effective['widescreen']), (0, 1))
+            config.write_text('[experimental]\nwidescreen = true\n')
+            file, effective, where = model(['--settings', str(config)])
+            self.assertEqual((file['widescreen'], effective['widescreen']), (1, 1))
+            file, effective, where = model(['--settings', str(config), '--no-widescreen'])
+            self.assertEqual((file['widescreen'], effective['widescreen']), (1, 0))
+            for key in fields:
+                if key != 'widescreen':
+                    self.assertEqual(file[key], effective[key], key)
+            config.unlink()
             config.write_text('[experimental]\nsettings_menu = true\nfast_loads = false\n[display]\nfilter = bilinear\nscreen = borderless\nwindow_size = 640x480\nfullscreen_size = 1024x768\n')
             file, effective, where = model(['--settings', str(config), '--no-settings-menu', '--nearest-scaling', '--fast-loads'])
             self.assertEqual(where, str(config))
@@ -210,7 +228,7 @@ return 2;
             shown = subprocess.run([str(psyz), '--no-audio', '--show-settings'], cwd=empty, capture_output=True, text=True, timeout=3)
             self.assertEqual(shown.returncode, 0, shown.stdout + shown.stderr)
             for line in ('pixel_perfect_ui = true', 'arcade_video = true', 'center_ui = true', 'fast_loads = true', 'memory_card = true',
-                         'arcade_intro = false', 'arcade_assets = false', 'settings_menu = false', 'screen = window', 'window_size = 1280x960',
+                         'arcade_intro = false', 'arcade_assets = false', 'settings_menu = false', 'widescreen = false', 'screen = window', 'window_size = 1280x960',
                          'fullscreen_size = desktop', 'filter = sharp_bilinear'):
                 self.assertIn(line, shown.stdout.splitlines())
             self.assertNotIn('sharp_bilinear =', shown.stdout)

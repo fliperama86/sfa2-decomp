@@ -13,7 +13,7 @@ enum port_filter { PORT_FILTER_NEAREST, PORT_FILTER_BILINEAR, PORT_FILTER_SHARP_
 #define PORT_SIZE_MAX 16384
 struct port_settings {
     /* [experimental], each 0 or 1 */
-    int pixel_perfect_ui, arcade_video, center_ui, fast_loads, memory_card, arcade_intro, arcade_assets, settings_menu;
+    int pixel_perfect_ui, arcade_video, center_ui, fast_loads, memory_card, arcade_intro, arcade_assets, settings_menu, widescreen;
     /* [display] */
     int screen;                     /* enum port_screen */
     int window_w, window_h;         /* the window's inner size in pixels, for PORT_SCREEN_WINDOW */

@@ -38,6 +38,7 @@ memory_card = true
 arcade_intro = false
 arcade_assets = false
 settings_menu = false
+widescreen = false        # the wide canvas, port/widescreen.md
 
 [display]
 screen = window            # window | fullscreen | borderless
@@ -49,7 +50,7 @@ filter = sharp_bilinear    # nearest | bilinear | sharp_bilinear
 - Defaults: as today's behaviour. `screen = window`, `window_size =
   1280x960` (PsyZ's own first size), `fullscreen_size = desktop`, `filter =
   sharp_bilinear` with PsyZ and `nearest` without it (as `sharp_bilinear`
-  was), `settings_menu = false`.
+  was), `settings_menu = false`, `widescreen = false`.
 - The parser stays as strict as it is: an unknown section or key, a key in
   the wrong section, a repeated key, a bad value, a NUL byte or an overlong
   line refuses the whole file. A size is `W` `x` `H` in decimal digits, a
@@ -64,7 +65,8 @@ filter = sharp_bilinear    # nearest | bilinear | sharp_bilinear
   working directory unless `--settings FILE`).
 
 Command line: `--sharp-bilinear` and `--nearest-scaling` stay and set
-`filter`; `--settings-menu` and `--no-settings-menu` set `settings_menu`.
+`filter`; `--settings-menu` and `--no-settings-menu` set `settings_menu`;
+`--widescreen` and `--no-widescreen` set `widescreen`.
 `--show-settings` prints both sections in the file's form, then the volume
 line.
 
@@ -160,6 +162,7 @@ Layout, in the menu's display (taken from the game's mode select screen: its
   DISPLAY             WINDOW              y 56
   RESOLUTION        1280X960              y 80
   FILTER      SHARP BILINEAR              y 104
+  WIDESCREEN             OFF              y 128
 
                RETURN TO GAME             centred, y 152
                  QUIT GAME                centred, y 176
@@ -183,6 +186,13 @@ Values:
   (after DESKTOP).
 - RESOLUTION, borderless: DESKTOP, unavailable (grey, the cursor skips it).
 - FILTER: NEAREST, BILINEAR, SHARP BILINEAR.
+- WIDESCREEN: OFF, ON (left, right, cross and start toggle it; applied at
+  once, saved like the others). With it on, RESOLUTION for the window lists
+  the 16:9 sizes 1280X720, 1600X900, 1920X1080, 2560X1440, 3840X2160 in place
+  of the 4:3 ones, with the same rules (those that fit the desktop, 1280X720
+  when none fits, the current size added in order of area when it is not one
+  of them). The fullscreen and borderless lists are as they were. Turning
+  widescreen on or off does not change the stored window size.
 
 Pad (the keyboard through PsyZ's keys: arrows, X cross, D circle, S
 triangle, Return start):
@@ -212,7 +222,7 @@ Drawing (`menu.c`, pure):
 ## Graphics side
 
 `port/src/gpu.h` has the port's calls, `port/src/video.h` PsyZ's
-(`Psyz_Sfa2*`, port_video_api 4), `port/psyz.patch` their SDL_GPU code. The
+(`Psyz_Sfa2*`, port_video_api 5), `port/psyz.patch` their SDL_GPU code. The
 OpenGL backend gets no-ops that link (SetScreen and the modes return -1 or 0,
 TakeKeys 0, SetHostKeys nothing).
 

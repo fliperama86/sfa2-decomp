@@ -106,6 +106,8 @@ int  port_gpu_display_enabled(void) { return 0; }
 int port_gpu_set_video_options(int ui,int arcade) { return ui || arcade ? -1 : 0; }
 int port_gpu_set_ui_layout(int enabled) { return enabled ? -1 : 0; }
 int port_gpu_set_filter(int filter) { return filter == PORT_FILTER_NEAREST ? 0 : -1; }
+int port_gpu_set_widescreen(int on) { return on ? -1 : 0; }
+int port_gpu_read_wide(uint16_t *pixels, int *w, int *h) { (void)pixels; (void)w; (void)h; return -1; }
 int port_gpu_set_screen(int screen, int w, int h) { return screen == PORT_SCREEN_WINDOW && w == PORT_WINDOW_DEFAULT_W && h == PORT_WINDOW_DEFAULT_H ? 0 : -1; }
 int port_gpu_screen(void) { return PORT_SCREEN_WINDOW; }
 int port_gpu_desktop_size(int *w, int *h) { (void)w; (void)h; return -1; }
@@ -302,6 +304,16 @@ int port_gpu_set_filter(int filter)
     if(filter<PORT_FILTER_NEAREST || filter>PORT_FILTER_SHARP_BILINEAR)return -1;
     if(!Psyz_Sfa2ExperimentalVideoAvailable())return filter==PORT_FILTER_NEAREST?0:-1;
     Psyz_Sfa2SetFilter(filter);return 0;
+}
+int port_gpu_set_widescreen(int on)
+{
+    if(on && !Psyz_Sfa2ExperimentalVideoAvailable())return -1;
+    if(Psyz_Sfa2ExperimentalVideoAvailable())Psyz_Sfa2SetWide(on?PORT_WIDE_EXTRA:0);
+    return 0;
+}
+int port_gpu_read_wide(uint16_t *pixels,int *w,int *h)
+{
+    return Psyz_Sfa2ExperimentalVideoAvailable()?Psyz_Sfa2ReadWide(pixels,PORT_WIDE_W,PORT_ARCADE_H,w,h):-1;
 }
 int port_gpu_set_screen(int screen,int w,int h)
 {

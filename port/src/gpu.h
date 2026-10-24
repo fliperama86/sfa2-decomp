@@ -38,6 +38,12 @@ int port_gpu_set_ui_layout(int enabled);
 /* The picture's filter ([display] filter, enum port_filter of settings.h): -1 for anything but nearest without the patched
  * SDL_GPU backend. Takes effect at the next present. */
 int port_gpu_set_filter(int filter);
+/* Widescreen ([experimental] widescreen, port/widescreen.md): the game's 384 x 224 frames drawn and shown on a 512 x 224 canvas.
+ * -1 when asked for without the patched SDL_GPU backend. Takes effect at the next frame. */
+int port_gpu_set_widescreen(int on);
+/* The wide canvas of the frame shown last, for the picture dump: PORT_WIDE_W x PORT_ARCADE_H halfwords at most, its size in
+ * *w x *h; 0, or -1 when that frame was not shown wide (or without the patched backend). */
+int port_gpu_read_wide(uint16_t *pixels, int *w, int *h);
 /* The screen ([display] screen, enum port_screen): w, h the window's inner size for PORT_SCREEN_WINDOW, the mode's size for
  * PORT_SCREEN_FULLSCREEN (0, 0 the desktop's), ignored for PORT_SCREEN_BORDERLESS. Kept before the window exists and applied
  * when it opens; applied at once after. -1 without the patched SDL_GPU backend for anything but the default window, or when

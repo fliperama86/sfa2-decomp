@@ -4,8 +4,11 @@
  * --dump-every N      also every N seconds of the run: PREFIX_00.ppm, PREFIX_01.ppm, ...
  *
  * The video memory is read back through port_gpu_read_frame (gpu.c) and written as a binary PPM
- * (1024x512, 15-bit colour widened to 8 bits). */
+ * (1024x512, 15-bit colour widened to 8 bits). With the setting widescreen (port/widescreen.md) each picture also writes
+ * PREFIX_wide_TAG.ppm, the wide canvas of the frame shown last (port_gpu_read_wide), in the same form and its own size; nothing
+ * when that frame was not shown wide. */
 #include "gpu.h"
+#include "video.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -19,23 +22,65 @@ void port_debug_set(const char *dump_prefix, unsigned dump_every)
     every_sec = dump_every;
 }
 
-/* Writes only PREFIX_TAG.ppm, the path the user's prefix makes; a path that does not fit its buffer is not
- * written (a truncated name would be a different path). */
-static void dump(const char *tag)
+/* The path PREFIX_TAG.ppm, or PREFIX_wide_TAG.ppm for the wide canvas (wide = 1): the path the user's prefix makes. A path that does
+ * not fit its buffer is not written (a truncated name would be a different path); 0 then, else 1. */
+static int make_path(char *path, size_t size, const char *kind, const char *tag)
+{
+    int n = snprintf(path, size, "%s_%s%s.ppm", prefix, kind, tag);
+    if (n < 0 || (size_t)n >= size) {
+        printf("dump: the picture path (PREFIX_%s%s.ppm) is longer than %u characters; nothing written\n", kind, tag, (unsigned)size - 1);
+        fflush(stdout);
+        return 0;
+    }
+    return 1;
+}
+
+/* Writes the w x h picture px (15-bit colour halfwords) as a binary PPM, widened to 8 bits. */
+static void write_ppm(const char *path, const unsigned short *px, unsigned w, unsigned h)
 {
     unsigned x, y;
-    unsigned short *px;
-    unsigned char row[PORT_GPU_FRAME_W * 3];
-    char path[1100];
-    int n, failed = 0;
+    unsigned char *row = malloc((size_t)w * 3);
+    int failed = 0;
     FILE *f;
 
-    n = snprintf(path, sizeof path, "%s_%s.ppm", prefix, tag);
-    if (n < 0 || (size_t)n >= sizeof path) {
-        printf("dump: the picture path (PREFIX_%s.ppm) is longer than %u characters; nothing written\n", tag, (unsigned)sizeof path - 1);
+    if (!row) {
+        printf("dump: no memory for the picture; %s not written\n", path);
         fflush(stdout);
         return;
     }
+    if (!(f = fopen(path, "wb"))) {
+        printf("dump: cannot write %s\n", path);
+        fflush(stdout);
+        free(row);
+        return;
+    }
+    if (fprintf(f, "P6\n%u %u\n255\n", w, h) < 0) failed = 1;
+    for (y = 0; y < h && !failed; y++) {
+        for (x = 0; x < w; x++) {
+            unsigned v = px[y * w + x];
+            row[3 * x] = (unsigned char)(((v & 31) * 255) / 31);
+            row[3 * x + 1] = (unsigned char)((((v >> 5) & 31) * 255) / 31);
+            row[3 * x + 2] = (unsigned char)((((v >> 10) & 31) * 255) / 31);
+        }
+        if (fwrite(row, 1, (size_t)w * 3, f) != (size_t)w * 3) failed = 1;
+    }
+    if (fclose(f) != 0) failed = 1;
+    if (failed) {
+        printf("dump: writing %s failed; the file is incomplete\n", path);
+        fflush(stdout);
+    }
+    free(row);
+}
+
+/* Writes PREFIX_TAG.ppm, the video memory, and PREFIX_wide_TAG.ppm, the wide canvas of the frame shown last when there is one
+ * (setting widescreen, port/widescreen.md): its own size, nothing when the frame was not shown wide. */
+static void dump(const char *tag)
+{
+    unsigned short *px;
+    char path[1100];
+    int w = 0, h = 0;
+
+    if (!make_path(path, sizeof path, "", tag)) return;
     px = malloc((size_t)PORT_GPU_FRAME_W * PORT_GPU_FRAME_H * sizeof *px);
     if (!px) {
         printf("dump: no memory for the picture; %s not written\n", path);
@@ -45,30 +90,14 @@ static void dump(const char *tag)
     if (port_gpu_read_frame(px) != 0) {
         printf("dump: the game has drawn nothing, or the window is gone; %s not written\n", path);
         fflush(stdout);
-        free(px);
-        return;
+    } else {
+        write_ppm(path, px, PORT_GPU_FRAME_W, PORT_GPU_FRAME_H);
     }
-    if (!(f = fopen(path, "wb"))) {
-        printf("dump: cannot write %s\n", path);
-        fflush(stdout);
-        free(px);
-        return;
-    }
-    if (fprintf(f, "P6\n%d %d\n255\n", PORT_GPU_FRAME_W, PORT_GPU_FRAME_H) < 0) failed = 1;
-    for (y = 0; y < PORT_GPU_FRAME_H && !failed; y++) {
-        for (x = 0; x < PORT_GPU_FRAME_W; x++) {
-            unsigned v = px[y * PORT_GPU_FRAME_W + x];
-            row[3 * x] = (unsigned char)(((v & 31) * 255) / 31);
-            row[3 * x + 1] = (unsigned char)((((v >> 5) & 31) * 255) / 31);
-            row[3 * x + 2] = (unsigned char)((((v >> 10) & 31) * 255) / 31);
-        }
-        if (fwrite(row, 1, sizeof row, f) != sizeof row) failed = 1;
-    }
-    if (fclose(f) != 0) failed = 1;
-    if (failed) {
-        printf("dump: writing %s failed; the file is incomplete\n", path);
-        fflush(stdout);
-    }
+    free(px);
+    px = malloc((size_t)PORT_WIDE_W * PORT_ARCADE_H * sizeof *px);
+    if (px && port_gpu_read_wide(px, &w, &h) == 0 && w > 0 && h > 0 && w <= PORT_WIDE_W && h <= PORT_ARCADE_H &&
+        make_path(path, sizeof path, "wide_", tag))
+        write_ppm(path, px, (unsigned)w, (unsigned)h);
     free(px);
 }
 

@@ -29,7 +29,7 @@ const char *port_settings_path = "settings.ini";
 
 /* The defaults, by the owner's decision of 2026-10-23: every setting on but the arcade intro, which needs a pack that the player makes,
  * and the arcade assets (arcade_assets, later that day), which need the player's arcade set and are work in progress. The settings
- * menu (settings-menu.md) is off.
+ * menu (settings-menu.md) is off, and so is widescreen (widescreen.md), which is work in progress.
  * The graphics settings need PsyZ's patched backend: a build without PsyZ (the controls, which open no window) keeps them off, and
  * its filter is nearest, so that its defaults never ask for what it cannot do. The build tools compile this file with PORT_HAVE_PSYZ
  * when they link PsyZ. */
@@ -43,7 +43,7 @@ const char *port_settings_path = "settings.ini";
 void port_settings_defaults(struct port_settings *out)
 {
     out->pixel_perfect_ui=GRAPHICS_DEFAULT;out->arcade_video=GRAPHICS_DEFAULT;out->center_ui=GRAPHICS_DEFAULT;
-    out->fast_loads=1;out->memory_card=1;out->arcade_intro=0;out->arcade_assets=0;out->settings_menu=0;
+    out->fast_loads=1;out->memory_card=1;out->arcade_intro=0;out->arcade_assets=0;out->settings_menu=0;out->widescreen=0;
     out->screen=PORT_SCREEN_WINDOW;out->window_w=PORT_WINDOW_DEFAULT_W;out->window_h=PORT_WINDOW_DEFAULT_H;
     out->fullscreen_w=0;out->fullscreen_h=0;out->filter=FILTER_DEFAULT;
 }
@@ -70,13 +70,14 @@ static char *trim(char *s)
 }
 /* The keys: where each belongs and how its value reads. The id is also the key's bit in `seen`. */
 enum { SECTION_NONE, SECTION_EXPERIMENTAL, SECTION_DISPLAY };
-enum { K_PIXEL_PERFECT_UI, K_ARCADE_VIDEO, K_CENTER_UI, K_FAST_LOADS, K_MEMORY_CARD, K_ARCADE_INTRO, K_ARCADE_ASSETS, K_SETTINGS_MENU,
+enum { K_PIXEL_PERFECT_UI, K_ARCADE_VIDEO, K_CENTER_UI, K_FAST_LOADS, K_MEMORY_CARD, K_ARCADE_INTRO, K_ARCADE_ASSETS, K_SETTINGS_MENU, K_WIDESCREEN,
        K_SHARP_BILINEAR /* the legacy spelling of filter, read only */, K_SCREEN, K_WINDOW_SIZE, K_FULLSCREEN_SIZE, K_FILTER };
 static const struct { const char *name; int section, id; } keys[]={
     {"pixel_perfect_ui",SECTION_EXPERIMENTAL,K_PIXEL_PERFECT_UI},{"arcade_video",SECTION_EXPERIMENTAL,K_ARCADE_VIDEO},
     {"center_ui",SECTION_EXPERIMENTAL,K_CENTER_UI},{"fast_loads",SECTION_EXPERIMENTAL,K_FAST_LOADS},
     {"memory_card",SECTION_EXPERIMENTAL,K_MEMORY_CARD},{"arcade_intro",SECTION_EXPERIMENTAL,K_ARCADE_INTRO},
     {"arcade_assets",SECTION_EXPERIMENTAL,K_ARCADE_ASSETS},{"settings_menu",SECTION_EXPERIMENTAL,K_SETTINGS_MENU},
+    {"widescreen",SECTION_EXPERIMENTAL,K_WIDESCREEN},
     {"sharp_bilinear",SECTION_EXPERIMENTAL,K_SHARP_BILINEAR},
     {"screen",SECTION_DISPLAY,K_SCREEN},{"window_size",SECTION_DISPLAY,K_WINDOW_SIZE},
     {"fullscreen_size",SECTION_DISPLAY,K_FULLSCREEN_SIZE},{"filter",SECTION_DISPLAY,K_FILTER}};
@@ -146,6 +147,7 @@ static int line_read(char *text,unsigned row,int *section,unsigned *seen,
         case K_ARCADE_INTRO:next->arcade_intro=b;break;
         case K_ARCADE_ASSETS:next->arcade_assets=b;break;
         case K_SETTINGS_MENU:next->settings_menu=b;break;
+        case K_WIDESCREEN:next->widescreen=b;break;
         default:next->filter=b?PORT_FILTER_SHARP_BILINEAR:PORT_FILTER_NEAREST;break;   /* sharp_bilinear, the legacy key */
         }
     } else if(id==K_SCREEN) {
@@ -202,7 +204,7 @@ static int flag_ok(int v){ return v==0 || v==1; }
 static int valid(const struct port_settings *v)
 {
     return flag_ok(v->pixel_perfect_ui) && flag_ok(v->arcade_video) && flag_ok(v->center_ui) && flag_ok(v->fast_loads) &&
-           flag_ok(v->memory_card) && flag_ok(v->arcade_intro) && flag_ok(v->arcade_assets) && flag_ok(v->settings_menu) &&
+           flag_ok(v->memory_card) && flag_ok(v->arcade_intro) && flag_ok(v->arcade_assets) && flag_ok(v->settings_menu) && flag_ok(v->widescreen) &&
            port_screen_name(v->screen) && port_filter_name(v->filter) && size_ok(v->window_w,v->window_h) &&
            ((v->fullscreen_w==0 && v->fullscreen_h==0) || size_ok(v->fullscreen_w,v->fullscreen_h));
 }
@@ -212,9 +214,9 @@ int port_settings_write(FILE *file,const struct port_settings *value)
 {
 #define TF(x) ((x)?"true":"false")
     if(fprintf(file,"[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = %s\nmemory_card = %s\n"
-                    "arcade_intro = %s\narcade_assets = %s\nsettings_menu = %s\n\n[display]\nscreen = %s\nwindow_size = %dx%d\n",
+                    "arcade_intro = %s\narcade_assets = %s\nsettings_menu = %s\nwidescreen = %s\n\n[display]\nscreen = %s\nwindow_size = %dx%d\n",
        TF(value->pixel_perfect_ui),TF(value->arcade_video),TF(value->center_ui),TF(value->fast_loads),TF(value->memory_card),
-       TF(value->arcade_intro),TF(value->arcade_assets),TF(value->settings_menu),port_screen_name(value->screen),value->window_w,value->window_h)<0)return -1;
+       TF(value->arcade_intro),TF(value->arcade_assets),TF(value->settings_menu),TF(value->widescreen),port_screen_name(value->screen),value->window_w,value->window_h)<0)return -1;
 #undef TF
     if((value->fullscreen_w?fprintf(file,"fullscreen_size = %dx%d\n",value->fullscreen_w,value->fullscreen_h):fprintf(file,"fullscreen_size = desktop\n"))<0)return -1;
     if(fprintf(file,"filter = %s\n",port_filter_name(value->filter))<0)return -1;

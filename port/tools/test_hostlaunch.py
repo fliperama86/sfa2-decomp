@@ -848,6 +848,8 @@ void port_menu_module_placed(const char *name) { (void)name; }
 int port_gpu_set_video_options(int ui,int arcade) { (void)ui;(void)arcade;return 0; }
 int port_gpu_set_ui_layout(int enabled) { (void)enabled;return 0; }
 int port_gpu_set_filter(int filter) { (void)filter;return 0; }
+int port_gpu_set_widescreen(int on) { (void)on;return 0; }
+int port_gpu_read_wide(unsigned short *pixels,int *w,int *h) { (void)pixels;(void)w;(void)h;return -1; }
 int port_gpu_set_screen(int screen,int w,int h) { (void)screen;(void)w;(void)h;return 0; }
 void port_gpu_set_host_keys(int on) { (void)on; }
 void port_gpu_set_batched_uploads(int on) { (void)on; }

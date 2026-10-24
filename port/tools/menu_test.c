@@ -112,20 +112,20 @@ static void ref_text(struct ref *r, int size, const char *s, int x, int y, int p
 
 static const char hint[] = "UP/DOWN SELECT  LEFT/RIGHT CHANGE  F1 BACK";
 
-/* the whole menu as the spec lays it out: value strings and the palette of each of the five rows are given */
-struct layout { const char *value[3]; int pal[5]; int vpal[3]; int title_dx, title_pal; };
+/* the whole menu as the spec lays it out: value strings and the palette of each of the six rows are given */
+struct layout { const char *value[4]; int pal[6]; int vpal[4]; int title_dx, title_pal; };
 
 static void ref_menu(struct ref *r, const struct layout *l)
 {
-    static const char *label[5] = { "DISPLAY", "RESOLUTION", "FILTER", "RETURN TO GAME", "QUIT GAME" };
+    static const char *label[6] = { "DISPLAY", "RESOLUTION", "FILTER", "WIDESCREEN", "RETURN TO GAME", "QUIT GAME" };
     int i, w = W;
     ref_text(r, 16, "PC OPTIONS", (w - 10 * 16) / 2 + l->title_dx, 24, l->title_pal);
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < 4; i++) {
         ref_text(r, 16, label[i], 16, 56 + 24 * i, l->pal[i]);
         ref_text(r, 16, l->value[i], w - 32 - 16 * (int)strlen(l->value[i]), 56 + 24 * i, l->vpal[i]);
     }
-    ref_text(r, 16, label[3], (w - 16 * 14) / 2, 152, l->pal[3]);
-    ref_text(r, 16, label[4], (w - 16 * 9) / 2, 176, l->pal[4]);
+    ref_text(r, 16, label[4], (w - 16 * 14) / 2, 152, l->pal[4]);
+    ref_text(r, 16, label[5], (w - 16 * 9) / 2, 176, l->pal[5]);
     ref_text(r, 8, hint, (w - 8 * (int)strlen(hint)) / 2, 216, 0x1a);
 }
 
@@ -183,7 +183,7 @@ static void test_drawing(void)
     build_vram();
     defaults(&s);
     port_menu_open(&m, 0);
-    l = (struct layout){ { "WINDOW", "1280X960", "SHARP BILINEAR" }, { 0x10, 0x1a, 0x1a, 0x1a, 0x1a }, { 0x10, 0x16, 0x16 }, 0, 0x1e };
+    l = (struct layout){ { "WINDOW", "1280X960", "SHARP BILINEAR", "OFF" }, { 0x10, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a }, { 0x10, 0x16, 0x16, 0x16 }, 0, 0x1e };
 
     /* the whole picture, at the display's corner */
     CHECK(draw_and_diff(&m, &s, 0, 0, w, h, &l) == 0);
@@ -231,7 +231,7 @@ static void test_drawing(void)
 
     /* other states: borderless with the filter selected (RESOLUTION unavailable, 0x1b) */
     s.screen = PORT_SCREEN_BORDERLESS; s.filter = PORT_FILTER_NEAREST; m.row = PORT_MENU_FILTER;
-    l = (struct layout){ { "BORDERLESS", "DESKTOP", "NEAREST" }, { 0x1a, 0x1b, 0x10, 0x1a, 0x1a }, { 0x16, 0x1b, 0x10 }, 0, 0x1e };
+    l = (struct layout){ { "BORDERLESS", "DESKTOP", "NEAREST", "OFF" }, { 0x1a, 0x1b, 0x10, 0x1a, 0x1a, 0x1a }, { 0x16, 0x1b, 0x10, 0x16 }, 0, 0x1e };
     CHECK(draw_and_diff(&m, &s, 0, 0, w, h, &l) == 0);
     port_menu_draw(&m, &s, vram, 0, 0, w, h, out);
     CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'R', 16, 80, 0x1b) == 0);
@@ -242,12 +242,12 @@ static void test_drawing(void)
     CHECK(glyph_diff(out, 0, 0, 384, 240, 16, 'D', 240, 80, 0x16) != 0);
     /* fullscreen at a listed size, QUIT GAME selected */
     s.screen = PORT_SCREEN_FULLSCREEN; s.fullscreen_w = 1920; s.fullscreen_h = 1080; s.filter = PORT_FILTER_BILINEAR; m.row = PORT_MENU_QUIT;
-    l = (struct layout){ { "FULLSCREEN", "1920X1080", "BILINEAR" }, { 0x1a, 0x1a, 0x1a, 0x1a, 0x10 }, { 0x16, 0x16, 0x16 }, 0, 0x1e };
+    l = (struct layout){ { "FULLSCREEN", "1920X1080", "BILINEAR", "OFF" }, { 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x10 }, { 0x16, 0x16, 0x16, 0x16 }, 0, 0x1e };
     CHECK(draw_and_diff(&m, &s, 0, 0, w, h, &l) == 0);
 
     /* the source is the game's display in the video memory: identity for 384 x 240, here at an offset */
     defaults(&s); m.row = PORT_MENU_RESOLUTION;
-    l = (struct layout){ { "WINDOW", "1280X960", "SHARP BILINEAR" }, { 0x1a, 0x10, 0x1a, 0x1a, 0x1a }, { 0x16, 0x10, 0x16 }, 0, 0x1e };
+    l = (struct layout){ { "WINDOW", "1280X960", "SHARP BILINEAR", "OFF" }, { 0x1a, 0x10, 0x1a, 0x1a, 0x1a, 0x1a }, { 0x16, 0x10, 0x16, 0x16 }, 0, 0x1e };
     CHECK(draw_and_diff(&m, &s, 37, 29, 384, 240, &l) == 0);
     CHECK(draw_and_diff(&m, &s, 11, 3, 384, 240, &l) == 0);
     port_menu_draw(&m, &s, vram, 37, 29, 384, 240, out);
@@ -292,8 +292,47 @@ static void test_drawing(void)
      * (draw_and_diff checks the guard words) and what is inside equals the clipped reference */
     defaults(&s); m.row = 0;
     s.window_w = -2147483647; s.window_h = -2147483647;
-    l = (struct layout){ { "WINDOW", "-2147483647X-2147483647", "SHARP BILINEAR" }, { 0x10, 0x1a, 0x1a, 0x1a, 0x1a }, { 0x10, 0x16, 0x16 }, 0, 0x1e };
+    l = (struct layout){ { "WINDOW", "-2147483647X-2147483647", "SHARP BILINEAR", "OFF" }, { 0x10, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a }, { 0x10, 0x16, 0x16, 0x16 }, 0, 0x1e };
     CHECK(draw_and_diff(&m, &s, 0, 0, 384, 240, &l) == 0);
+
+    /* WIDESCREEN (row 3, y 128): off, unselected; then on and selected; RETURN and QUIT stay at 152 and 176 */
+    defaults(&s); m.row = PORT_MENU_DISPLAY;
+    l = (struct layout){ { "WINDOW", "1280X960", "SHARP BILINEAR", "OFF" }, { 0x10, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a }, { 0x10, 0x16, 0x16, 0x16 }, 0, 0x1e };
+    CHECK(draw_and_diff(&m, &s, 0, 0, w, h, &l) == 0);
+    port_menu_draw(&m, &s, vram, 0, 0, w, h, out);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'W', 16, 128, 0x1a) == 0);            /* the label at x 16, y 128 */
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'C', 16 + 16 * 5, 128, 0x1a) == 0);   /* WIDESC: the sixth letter */
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'O', 384 - 32 - 48, 128, 0x16) == 0); /* OFF right-aligned: x 304, the value palette */
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'F', 384 - 32 - 16, 128, 0x16) == 0);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'R', 80, 152, 0x1a) == 0);            /* RETURN TO GAME and QUIT GAME did not move */
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'Q', 120, 176, 0x1a) == 0);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'W', 16, 128, 0x10) != 0);            /* negative controls: selected palette, y 127 and 129, x 15 */
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'W', 16, 127, 0x1a) != 0);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'W', 16, 129, 0x1a) != 0);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'W', 15, 128, 0x1a) != 0);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'O', 384 - 32 - 48, 128, 0x1a) != 0);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'O', 384 - 32 - 32, 128, 0x16) != 0);  /* where the value of ON would start */
+    s.widescreen = 1; m.row = PORT_MENU_WIDESCREEN;
+    l = (struct layout){ { "WINDOW", "1280X960", "SHARP BILINEAR", "ON" }, { 0x1a, 0x1a, 0x1a, 0x10, 0x1a, 0x1a }, { 0x16, 0x16, 0x16, 0x10 }, 0, 0x1e };
+    CHECK(draw_and_diff(&m, &s, 0, 0, w, h, &l) == 0);
+    port_menu_draw(&m, &s, vram, 0, 0, w, h, out);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'W', 16, 128, 0x10) == 0);            /* selected: the label and the value in 0x10 */
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'O', 384 - 32 - 32, 128, 0x10) == 0); /* ON: x 320 */
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'N', 384 - 32 - 16, 128, 0x10) == 0);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'D', 16, 56, 0x1a) == 0);             /* DISPLAY is not selected now */
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'O', 384 - 32 - 32, 128, 0x16) != 0);
+    CHECK(glyph_diff(out, 0, 0, w, h, 16, 'R', 80, 152, 0x1a) == 0 && glyph_diff(out, 0, 0, w, h, 16, 'Q', 120, 176, 0x1a) == 0);
+    {
+        struct layout bad = l;
+        bad.value[3] = "OFF";                         /* the wrong text */
+        CHECK(draw_and_diff(&m, &s, 0, 0, w, h, &bad) != 0);
+        bad = l; bad.vpal[3] = 0x16;                  /* the selected value not following its label */
+        CHECK(draw_and_diff(&m, &s, 0, 0, w, h, &bad) != 0);
+    }
+    /* RETURN selected: the cursor row below WIDESCREEN is at y 152 */
+    m.row = PORT_MENU_RETURN;
+    l = (struct layout){ { "WINDOW", "1280X960", "SHARP BILINEAR", "ON" }, { 0x1a, 0x1a, 0x1a, 0x1a, 0x10, 0x1a }, { 0x16, 0x16, 0x16, 0x16 }, 0, 0x1e };
+    CHECK(draw_and_diff(&m, &s, 0, 0, w, h, &l) == 0);
 }
 
 /* ---- value lists ---- */
@@ -348,6 +387,34 @@ static void test_sizes(void)
         s.window_w = 1280; s.window_h = 960;
     }
     host.desktop_w = 0; host.desktop_h = 0;
+    {   /* widescreen: the 16:9 sizes in place of the 4:3 ones, the stored size (1280 x 960) kept in the list by area */
+        static const int unknown[] = { 1280,720, 1280,960, 1600,900, 1920,1080, 2560,1440, 3840,2160 };
+        static const int fitting[] = { 1280,720, 1280,960, 1600,900, 1920,1080 };
+        static const int none[] = { 1280,720, 1280,960 };
+        static const int listed[] = { 1280,720, 1600,900, 1920,1080, 2560,1440, 3840,2160 };
+        s.widescreen = 1;
+        n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
+        CHECK(same(wh, n, unknown, 6));
+        CHECK(!has(wh, n, 640, 480) && !has(wh, n, 1440, 1080) && has(wh, n, 1600, 900));
+        host.desktop_w = 1920; host.desktop_h = 1080;
+        n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
+        CHECK(same(wh, n, fitting, 4));
+        host.desktop_w = 1000; host.desktop_h = 500;   /* nothing fits: 1280 x 720 and the stored size */
+        n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
+        CHECK(same(wh, n, none, 2));
+        host.desktop_w = 0; host.desktop_h = 0;
+        s.window_w = 1920; s.window_h = 1080;          /* a stored size that is in the list adds nothing */
+        n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
+        CHECK(same(wh, n, listed, 5));
+        host.desktop_w = 1920; host.desktop_h = 1080;
+        n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
+        CHECK(n == 3 && wh[0] == 1280 && wh[2] == 1600 && wh[4] == 1920 && wh[5] == 1080);
+        s.widescreen = 0;                              /* negative control: off gives the 4:3 list again */
+        n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
+        CHECK(n == 5 && has(wh, n, 640, 480) && !has(wh, n, 1600, 900) && has(wh, n, 1920, 1080));
+        s.window_w = 1280; s.window_h = 960;
+        host.desktop_w = 0; host.desktop_h = 0;
+    }
     {   /* the current size inserted in order of area: in the middle, first, last */
         static const int mid[] = { 640,480, 960,720, 1000,800, 1280,960, 1440,1080, 1600,1200, 1920,1440, 2560,1920, 2880,2160 };
         s.window_w = 1000; s.window_h = 800;
@@ -396,13 +463,26 @@ static void test_sizes(void)
         n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
         CHECK(n == 2 && has(wh, n, 4000, 3000) && !has(wh, n, 1280, 960));
     }
+    {   /* widescreen does not change the fullscreen and borderless lists */
+        int a[2 * (PORT_MENU_MODES_MAX + 16)], na;
+        s.widescreen = 0;
+        na = port_menu_sizes(&s, &host, a, PORT_MENU_MODES_MAX + 16);
+        s.widescreen = 1;
+        n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
+        CHECK(n == na && n == 2 && !memcmp(a, wh, sizeof(int) * 2 * (size_t)n));
+        s.screen = PORT_SCREEN_BORDERLESS;
+        n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
+        CHECK(n == 1 && wh[0] == 0 && wh[1] == 0);
+        s.screen = PORT_SCREEN_FULLSCREEN;
+        s.widescreen = 0;
+    }
     {   /* borderless: DESKTOP only, even with modes and a stored fullscreen size */
         s.screen = PORT_SCREEN_BORDERLESS; s.fullscreen_w = 800; s.fullscreen_h = 600;
         n = port_menu_sizes(&s, &host, wh, PORT_MENU_MODES_MAX + 16);
         CHECK(n == 1 && wh[0] == 0 && wh[1] == 0);
         CHECK(!port_menu_row_enabled(PORT_MENU_RESOLUTION, &s));
         CHECK(port_menu_row_enabled(PORT_MENU_DISPLAY, &s) && port_menu_row_enabled(PORT_MENU_FILTER, &s) &&
-              port_menu_row_enabled(PORT_MENU_RETURN, &s) && port_menu_row_enabled(PORT_MENU_QUIT, &s));
+              port_menu_row_enabled(PORT_MENU_WIDESCREEN, &s) && port_menu_row_enabled(PORT_MENU_RETURN, &s) && port_menu_row_enabled(PORT_MENU_QUIT, &s));
         s.screen = PORT_SCREEN_WINDOW;
         CHECK(port_menu_row_enabled(PORT_MENU_RESOLUTION, &s));
         s.screen = PORT_SCREEN_FULLSCREEN;
@@ -445,6 +525,10 @@ static void test_texts(void)
     text_case(PORT_MENU_DISPLAY, &s, "DISPLAY", "WINDOW");
     text_case(PORT_MENU_RESOLUTION, &s, "RESOLUTION", "1280X960");
     text_case(PORT_MENU_FILTER, &s, "FILTER", "SHARP BILINEAR");
+    text_case(PORT_MENU_WIDESCREEN, &s, "WIDESCREEN", "OFF");
+    s.widescreen = 1;
+    text_case(PORT_MENU_WIDESCREEN, &s, "WIDESCREEN", "ON");
+    s.widescreen = 0;
     text_case(PORT_MENU_RETURN, &s, "RETURN TO GAME", "");
     text_case(PORT_MENU_QUIT, &s, "QUIT GAME", "");
     s.window_w = 16384; s.window_h = 320;
@@ -511,9 +595,9 @@ static void test_input(void)
     CHECK(act(0) == PORT_MENU_NONE);
     CHECK(act(PAD_CIRCLE) == PORT_MENU_CLOSE);
 
-    /* rows: down and up wrap over the five */
+    /* rows: down and up wrap over the six */
     start(0);
-    for (i = 1; i <= 4; i++) { CHECK(tap(PAD_DOWN) == PORT_MENU_NONE); CHECK(m.row == i); }
+    for (i = 1; i <= 5; i++) { CHECK(tap(PAD_DOWN) == PORT_MENU_NONE); CHECK(m.row == i); }
     CHECK(tap(PAD_DOWN) == PORT_MENU_NONE && m.row == 0);
     CHECK(tap(PAD_UP) == PORT_MENU_NONE && m.row == PORT_MENU_QUIT);
     CHECK(tap(PAD_UP) == PORT_MENU_NONE && m.row == PORT_MENU_RETURN);
@@ -547,6 +631,46 @@ static void test_input(void)
     CHECK(tap(PAD_LEFT) == PORT_MENU_CHANGED && s.filter == PORT_FILTER_NEAREST);
     CHECK(tap(PAD_LEFT) == PORT_MENU_CHANGED && s.filter == PORT_FILTER_SHARP_BILINEAR);
     CHECK(tap(PAD_CROSS) == PORT_MENU_CHANGED && s.filter == PORT_FILTER_NEAREST);
+
+    /* WIDESCREEN: two values, either direction and both buttons toggle; nothing else changes, the stored sizes least */
+    start(0);
+    m.row = PORT_MENU_WIDESCREEN;
+    s.window_w = 1000; s.window_h = 800; s.fullscreen_w = 800; s.fullscreen_h = 600;
+    before = s;
+    CHECK(tap(PAD_RIGHT) == PORT_MENU_CHANGED && s.widescreen == 1);
+    CHECK(tap(PAD_RIGHT) == PORT_MENU_CHANGED && s.widescreen == 0);
+    CHECK(tap(PAD_LEFT) == PORT_MENU_CHANGED && s.widescreen == 1);
+    CHECK(tap(PAD_LEFT) == PORT_MENU_CHANGED && s.widescreen == 0);
+    CHECK(tap(PAD_CROSS) == PORT_MENU_CHANGED && s.widescreen == 1);
+    CHECK(tap(PAD_START) == PORT_MENU_CHANGED && s.widescreen == 0);
+    CHECK(!memcmp(&before, &s, sizeof s) && m.row == PORT_MENU_WIDESCREEN);
+    CHECK(tap(PAD_RIGHT) == PORT_MENU_CHANGED);
+    before.widescreen = 1;
+    CHECK(!memcmp(&before, &s, sizeof s));             /* only the widescreen field changed, and the window size is as stored */
+    s.screen = PORT_SCREEN_BORDERLESS;                 /* available in every screen kind */
+    CHECK(tap(PAD_CROSS) == PORT_MENU_CHANGED && s.widescreen == 0);
+    s.screen = PORT_SCREEN_FULLSCREEN;
+    CHECK(tap(PAD_CROSS) == PORT_MENU_CHANGED && s.widescreen == 1);
+    /* the cursor: FILTER, WIDESCREEN, RETURN in order */
+    start(0);
+    m.row = PORT_MENU_FILTER;
+    CHECK(tap(PAD_DOWN) == PORT_MENU_NONE && m.row == PORT_MENU_WIDESCREEN);
+    CHECK(tap(PAD_DOWN) == PORT_MENU_NONE && m.row == PORT_MENU_RETURN);
+    CHECK(tap(PAD_UP) == PORT_MENU_NONE && m.row == PORT_MENU_WIDESCREEN);
+    /* with widescreen on RESOLUTION steps through the 16:9 sizes (desktop 1920 x 1080), from the stored size by area */
+    start(0);
+    m.row = PORT_MENU_RESOLUTION;
+    s.widescreen = 1;
+    host.desktop_w = 1920; host.desktop_h = 1080;
+    CHECK(tap(PAD_RIGHT) == PORT_MENU_CHANGED && s.window_w == 1600 && s.window_h == 900);   /* 1280 x 960 is between 1280 x 720 and 1600 x 900 */
+    CHECK(tap(PAD_RIGHT) == PORT_MENU_CHANGED && s.window_w == 1920 && s.window_h == 1080);
+    CHECK(tap(PAD_RIGHT) == PORT_MENU_CHANGED && s.window_w == 1280 && s.window_h == 720);   /* wraps */
+    CHECK(tap(PAD_LEFT) == PORT_MENU_CHANGED && s.window_w == 1920 && s.window_h == 1080);
+    s.window_w = 1280; s.window_h = 960;
+    CHECK(tap(PAD_LEFT) == PORT_MENU_CHANGED && s.window_w == 1280 && s.window_h == 720);
+    s.widescreen = 0;                                  /* negative control: the same row with it off steps through the 4:3 sizes */
+    s.window_w = 1280; s.window_h = 960;
+    CHECK(tap(PAD_RIGHT) == PORT_MENU_CHANGED && s.window_w == 1440 && s.window_h == 1080);
 
     /* RESOLUTION, window, desktop 1920 x 1080: 640, 960, 1280, 1440 */
     start(0);
@@ -611,7 +735,7 @@ static void test_input(void)
     start(0);
     n = 0;
     for (i = 0; i < 30; i++) { int row = m.row; act(PAD_DOWN); if (m.row != row) steps[n++] = i; }
-    CHECK(n == 4 && steps[0] == 0 && steps[1] == 18 && steps[2] == 23 && steps[3] == 28 && m.row == PORT_MENU_QUIT);
+    CHECK(n == 4 && steps[0] == 0 && steps[1] == 18 && steps[2] == 23 && steps[3] == 28 && m.row == PORT_MENU_RETURN);
     /* a shorter hold than 18 steps does not repeat, but taps in a row each act */
     start(0);
     m.row = PORT_MENU_FILTER;

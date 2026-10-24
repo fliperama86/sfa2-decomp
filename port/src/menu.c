@@ -24,6 +24,11 @@ static const int window_sizes[][2] = {
     {640, 480}, {960, 720}, {1280, 960}, {1440, 1080}, {1600, 1200}, {1920, 1440}, {2560, 1920}, {2880, 2160},
 };
 #define WINDOW_SIZES ((int)(sizeof window_sizes / sizeof window_sizes[0]))
+/* the window's sizes with widescreen on (port/widescreen.md): 16:9 */
+static const int wide_window_sizes[][2] = {
+    {1280, 720}, {1600, 900}, {1920, 1080}, {2560, 1440}, {3840, 2160},
+};
+#define WIDE_WINDOW_SIZES ((int)(sizeof wide_window_sizes / sizeof wide_window_sizes[0]))
 
 static const char *const hint = "UP/DOWN SELECT  LEFT/RIGHT CHANGE  F1 BACK";
 
@@ -73,13 +78,15 @@ int port_menu_sizes(const struct port_settings *s, const struct port_menu_host *
         if (modes > PORT_MENU_MODES_MAX) modes = PORT_MENU_MODES_MAX;
     }
     if (s->screen == PORT_SCREEN_WINDOW) {
-        for (i = 0; i < WINDOW_SIZES; i++) {
-            if (dw > 0 && dh > 0 && (window_sizes[i][0] > dw || window_sizes[i][1] > dh)) continue;
-            list[2 * n] = window_sizes[i][0];
-            list[2 * n + 1] = window_sizes[i][1];
+        const int (*sizes)[2] = s->widescreen ? wide_window_sizes : window_sizes;
+        int count = s->widescreen ? WIDE_WINDOW_SIZES : WINDOW_SIZES;
+        for (i = 0; i < count; i++) {
+            if (dw > 0 && dh > 0 && (sizes[i][0] > dw || sizes[i][1] > dh)) continue;
+            list[2 * n] = sizes[i][0];
+            list[2 * n + 1] = sizes[i][1];
             n++;
         }
-        if (!n) { list[0] = window_sizes[0][0]; list[1] = window_sizes[0][1]; n = 1; }
+        if (!n) { list[0] = sizes[0][0]; list[1] = sizes[0][1]; n = 1; }
         if (find_size(list, n, s->window_w, s->window_h) < 0) {
             long long a = area(s->window_w, s->window_h);
             for (i = 0; i < n && area(list[2 * i], list[2 * i + 1]) <= a; i++) {}
@@ -116,6 +123,10 @@ static int change_value(int row, int delta, const struct port_menu_host *host, s
     }
     if (row == PORT_MENU_FILTER) {
         s->filter = cycle(s->filter, 3, delta);
+        return 1;
+    }
+    if (row == PORT_MENU_WIDESCREEN) {
+        s->widescreen = !s->widescreen;           /* two values: either direction toggles; the stored sizes stay as they are */
         return 1;
     }
     if (row == PORT_MENU_RESOLUTION) {
@@ -180,7 +191,7 @@ int port_menu_step(struct port_menu *m, unsigned pad, const struct port_menu_hos
 
 void port_menu_row_text(int row, const struct port_settings *s, char *label, size_t lsize, char *value, size_t vsize)
 {
-    static const char *const labels[PORT_MENU_ROWS] = { "DISPLAY", "RESOLUTION", "FILTER", "RETURN TO GAME", "QUIT GAME" };
+    static const char *const labels[PORT_MENU_ROWS] = { "DISPLAY", "RESOLUTION", "FILTER", "WIDESCREEN", "RETURN TO GAME", "QUIT GAME" };
     static const char *const screens[] = { "WINDOW", "FULLSCREEN", "BORDERLESS" };
     static const char *const filters[] = { "NEAREST", "BILINEAR", "SHARP BILINEAR" };
     char text[48] = "";
@@ -188,6 +199,8 @@ void port_menu_row_text(int row, const struct port_settings *s, char *label, siz
         snprintf(text, sizeof text, "%s", s->screen >= 0 && s->screen <= 2 ? screens[s->screen] : "UNKNOWN");
     else if (row == PORT_MENU_FILTER)
         snprintf(text, sizeof text, "%s", s->filter >= 0 && s->filter <= 2 ? filters[s->filter] : "UNKNOWN");
+    else if (row == PORT_MENU_WIDESCREEN)
+        snprintf(text, sizeof text, "%s", s->widescreen ? "ON" : "OFF");
     else if (row == PORT_MENU_RESOLUTION) {
         if (s->screen == PORT_SCREEN_WINDOW) snprintf(text, sizeof text, "%dX%d", s->window_w, s->window_h);
         else if (s->screen == PORT_SCREEN_FULLSCREEN && (s->fullscreen_w || s->fullscreen_h))

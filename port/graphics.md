@@ -19,7 +19,7 @@ filter = sharp_bilinear
 ```
 
 The file has two sections: `[experimental]` (the switches of the changes below, and
-`settings_menu`) and `[display]` (`screen`, `window_size`, `fullscreen_size` and
+`settings_menu`, `widescreen`) and `[display]` (`screen`, `window_size`, `fullscreen_size` and
 `filter`). [settings-menu.md](settings-menu.md) is the contract of the whole file.
 
 `pixel_perfect_ui` corrects **super-meter and life-frame tile sampling**. It maps
@@ -107,6 +107,7 @@ CLI overrides address these same settings, with the last override winning:
 | Common UI position | `--center-ui` | `--ps1-ui-layout` |
 | Picture filter (`[display] filter`) | `--sharp-bilinear` (filter = sharp_bilinear) | `--nearest-scaling` (filter = nearest) |
 | Settings menu (`[experimental] settings_menu`) | `--settings-menu` | `--no-settings-menu` |
+| Widescreen (`[experimental] widescreen`, default off; [widescreen.md](widescreen.md)) | `--widescreen` | `--no-widescreen` |
 | Loading waits (not graphics) | `--fast-loads` | `--ps1-loading` |
 | Memory cards (not graphics) | `--memory-card` | `--no-memory-card` |
 
@@ -133,7 +134,7 @@ same-directory temporary file, keeping the prior file on failure.
 ## Build and validation
 
 Rebuild PsyZ with the existing `psyzbuild.py` and updated `port/psyz.patch` before
-linking. Its metadata advertises `port_video_api = 4`; the host build refuses
+linking. Its metadata advertises `port_video_api = 5`; the host build refuses
 stale SDK caches before compiling any game units. The tool copies the
 project-owned `video.h` policy into the dependency
 build copy, never modifying the source submodule. Patch context and changes
@@ -155,7 +156,13 @@ python port/tools/test_ui_layout.py
 SDK. It opens a short-lived window, never initializes audio or reads a disc,
 checks mirrors/transparent 4bpp/direct textures, mixed-span life tiles, full/
 partial/damage/empty fills and unmarked/flag-off negative controls,
-and checks original canvas sizes before/after opting in. Its expectations do
+and checks original canvas sizes before/after opting in. Its wide case
+(port_video_api 5, [widescreen.md](widescreen.md)) draws rectangles left of and
+inside the draw area and reads the wide canvas back, also at internal resolution 2;
+it checks clears, the stale canvas after a LoadImage or MoveImage, and the off state.
+It is built with the compiler flags of the runtime files, `-D__psyz`, PsyZ's
+include folder and the libraries of `psyz.json`, and runs in under a second
+(the case sets PsyZ's frame limiter off). Its expectations do
 not come from game screenshots. `video_bridge_test.c` links the real GPU bridge
 and an already built SDK to check selection against generated mapped RAM. It
 exits without video/audio initialization and needs no game or disc. Tests do not

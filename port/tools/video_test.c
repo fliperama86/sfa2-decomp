@@ -140,6 +140,25 @@ int main(void)
     assert(port_video_sharp_fit(384,224,INT_MAX,INT_MAX,&view));assert(view.w>0 && view.h>0 && view.w%384==0 && view.h%224==0);
     assert(port_video_arcade_fit(1280,960,&view));assert(view.x==0 && view.y==0 && view.w==1280 && view.h==960);
     assert(port_video_arcade_fit(1920,1080,&view));assert(view.x==240 && view.y==0 && view.w==1440 && view.h==1080);
+    /* The wide canvas in a window: 16:9 whole units, nothing below 512 x 288. */
+    assert(PORT_WIDE_W==512 && PORT_ARCADE_W+2*PORT_WIDE_EXTRA==PORT_WIDE_W);
+    assert(!port_video_wide_fit(511,288,&view));assert(!view.w && !view.h);
+    assert(!port_video_wide_fit(512,287,&view));assert(!view.w && !view.h);
+    assert(!port_video_wide_fit(480,270,&view));assert(!view.w && !view.h);
+    assert(port_video_wide_fit(512,288,&view));assert(view.x==0 && view.y==0 && view.w==512 && view.h==288);
+    assert(port_video_wide_fit(1920,1080,&view));assert(view.x==0 && view.y==0 && view.w==1920 && view.h==1080);
+    assert(port_video_wide_fit(2560,1440,&view));assert(view.x==0 && view.y==0 && view.w==2560 && view.h==1440);
+    assert(port_video_wide_fit(1280,720,&view));assert(view.x==0 && view.y==0 && view.w==1280 && view.h==720);
+    /* A 4:3 window letterboxes the 16:9 picture; a wider one pillarboxes it. */
+    assert(port_video_wide_fit(1280,960,&view));assert(view.x==0 && view.y==120 && view.w==1280 && view.h==720);
+    assert(port_video_wide_fit(2560,1080,&view));assert(view.x==320 && view.y==0 && view.w==1920 && view.h==1080);
+    assert(port_video_wide_fit(INT_MAX,INT_MAX,&view));assert((long long)view.w*9==(long long)view.h*16);
+    for(i=512;i<4000;i+=37)for(base=288;base<2200;base+=41) {
+        assert(port_video_wide_fit(i,base,&view));
+        assert(view.w%16==0 && (long long)view.w*9==(long long)view.h*16 && view.w<=i && view.h<=base);
+        assert(view.x==(i-view.w)/2 && view.y==(base-view.h)/2);
+        assert(view.w+16>i || view.h+9>base); /* The largest unit that fits. */
+    }
     assert(!port_video_arcade_fit(383,288,&view));assert(!port_video_arcade_fit(384,287,&view));
     assert(port_video_arcade_fit(INT_MAX,INT_MAX,&view));assert((long long)view.w*3==(long long)view.h*4);
     assert(!port_video_canvas_allowed(384,240,0,0));assert(port_video_canvas_allowed(384,240,0,1));
