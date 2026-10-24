@@ -177,6 +177,31 @@ Sakura (`PL0D` against `PL15`) and Gen (`PL11`, `PL13` against `PL17`)
 have mirror modules too; whether their sets are cut the same way is
 `full_sets.py`'s report.
 
+## Endings (the owner's go of 2026-10-24)
+
+The owner is fine with the game ending up as the arcade has it, and the
+PS1's own additions need not be kept. Each ending file `ENDnn.PAC` holds
+the shared ending module (code, then 14 KB of text and the cell lists of
+all 18 endings), the fighter's ending art, the last screen's logos, four
+full-colour PS1 illustrations (Sakura, Ryu, Chun-Li, and Sakura with
+"CONGRATULATIONS!", the same four in every file) and a sound bank.
+
+- **Text.** The PS1's endings are in English: the US arcade's text, word
+  for word in the endings checked. The arcade keeps it as a 16-bit word a
+  character (the staff credits as plain bytes); the PS1 as characters, then
+  "@@", then zeros. `texts.c` makes the PS1's strings from the arcade's
+  (table from `texts.py --c-table`), for the endings and every other screen
+  module whose strings the arcade has: 9,072 of the endings' 10,356
+  strings, 263 KB over the 21 files, all equal to the disc's. The rest
+  differ from the arcade's (the PS1 rewrote some lines and added its own
+  staff names and grade words) and stay the pack's.
+- **Art.** The ending art (76 to 94% arcade tiles a file) and its cell lists
+  are built by the screens' recipes and `screen_lists.c`; the PS1's own
+  tiles in them come from the pack.
+- **Not from the arcade.** The four illustrations, most of the logo screen
+  (the US set's own logo says "Alpha 2"), and the PS1's own lines. They
+  stay the pack's until something replaces them.
+
 ## What the game reads, in order
 
 A run of 150 seconds on 2026-10-23 (title, menus, a fight of Ryu against

@@ -11,6 +11,7 @@
 #include "../arcade/screen_lists.h"
 #include "../arcade/sounds.h"
 #include "../arcade/full_sets.h"
+#include "../arcade/texts.h"
 #include "settings.h"
 #include "port_tables.h"
 #include "parallel.h"
@@ -867,6 +868,39 @@ static void screen_lists(struct port_disc *d, int check)
     fflush(stdout);
 }
 
+/* The screen modules' text (texts.c: the endings' story and credits, and what else the arcade has), served where equal to the
+ * disc's. */
+static void texts(struct port_disc *d, int check)
+{
+    unsigned i, k, at, n, strings = 0;
+    unsigned long long served = 0;
+    for (i = 0; i < arcade_text_module_count; i++) {
+        const struct arcade_text_module *m = &arcade_text_modules[i];
+        int f = file_index(d, m->file);
+        unsigned char *bytes, *known;
+        if (arcade_text_module_valid(m) != 0 || pac_chunk(d, &files[f], m->slot, &at, &n) != 0 || n != m->size)
+            port_halt(PORT_EXIT_PROGRAM, "arcade: %s: no chunk of slot 0x%x as the text table says", m->file, m->slot);
+        if (!(bytes = calloc(n ? n : 1, 1)) || !(known = calloc(n ? n : 1, 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+        for (k = 0; k < m->count; k++) {
+            const struct arcade_text_string *t = &m->strings[k];
+            strings++;
+            if (arcade_text_build(rom.program, ARCADE_PROGRAM_SIZE, t, bytes + t->offset) != 0) continue;
+            memset(known + t->offset, 1, t->size);
+        }
+        for (k = 0; k < n;) {   /* each run of built bytes, served where equal */
+            unsigned e = k;
+            while (e < n && known[e]) e++;
+            if (e > k) served += serve_units(d, f, at + k, bytes + k, known + k, e - k, 1, check);
+            k = e + 1;
+        }
+        free(known);
+        if (check) free(bytes);   /* else the ranges point into it */
+    }
+    printf("arcade%s: screens: %llu bytes of text in %u strings of %u modules built from the arcade's text and %s\n", check ? " check" : "",
+           served, strings, arcade_text_module_count, check ? "equal to the disc's" : "used");
+    fflush(stdout);
+}
+
 /* The screens' backdrop maps (screen_lists.c): the cell map built from the arcade's scroll-1 sets over the picture the screens table
  * builds, served where built and equal to the disc's. */
 static void backdrops(struct port_disc *d, int check)
@@ -1588,6 +1622,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     screen_lists(d, check);
     backdrops(d, check);
     arcade_screen_lists_end();
+    texts(d, check);
     if (check) full_sets(d, 1);
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
