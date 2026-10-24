@@ -27,9 +27,10 @@ struct port_settings port_settings;
 struct port_settings port_settings_file;
 const char *port_settings_path = "settings.ini";
 
-/* The defaults, by the owner's decision of 2026-10-23: every setting on but the arcade intro, which needs a pack that the player makes,
- * and the arcade assets (arcade_assets, later that day), which need the player's arcade set and are work in progress. The settings
- * menu (settings-menu.md) is off, and so is widescreen (widescreen.md), which is work in progress.
+/* The defaults, by the owner's decisions of 2026-10-23 and 2026-10-24 ("turn the arcade intro and pc settings default on"): every
+ * setting on but the arcade assets (arcade_assets), which need the player's arcade set and are work in progress, and widescreen
+ * (widescreen.md), which is work in progress. The arcade intro needs a pack that the player makes; without one the PS1 opening
+ * plays, with a line (main.c).
  * The graphics settings need PsyZ's patched backend: a build without PsyZ (the controls, which open no window) keeps them off, and
  * its filter is nearest, so that its defaults never ask for what it cannot do. The build tools compile this file with PORT_HAVE_PSYZ
  * when they link PsyZ. */
@@ -43,7 +44,7 @@ const char *port_settings_path = "settings.ini";
 void port_settings_defaults(struct port_settings *out)
 {
     out->pixel_perfect_ui=GRAPHICS_DEFAULT;out->arcade_video=GRAPHICS_DEFAULT;out->center_ui=GRAPHICS_DEFAULT;
-    out->fast_loads=1;out->memory_card=1;out->arcade_intro=0;out->arcade_assets=0;out->settings_menu=0;out->widescreen=0;
+    out->fast_loads=1;out->memory_card=1;out->arcade_intro=GRAPHICS_DEFAULT;out->arcade_assets=0;out->settings_menu=GRAPHICS_DEFAULT;out->widescreen=0;
     out->screen=PORT_SCREEN_WINDOW;out->window_w=PORT_WINDOW_DEFAULT_W;out->window_h=PORT_WINDOW_DEFAULT_H;
     out->fullscreen_w=0;out->fullscreen_h=0;out->filter=FILTER_DEFAULT;
 }

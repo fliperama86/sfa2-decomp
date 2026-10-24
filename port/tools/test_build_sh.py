@@ -388,6 +388,22 @@ def case_no_default_settings_file_is_made_when_one_is_named(root: Path):
     assert not (tree.root / "local").exists(), "no -r"
 
 
+def case_the_intro_pack_is_given_when_it_exists(root: Path):
+    tree = Tree(root)
+    linux = "port/build/linux/sfa2"
+    same(tree.run("-r", "linux", SFA2_DISC=DISC)[1][-1], ["program", linux, "--skip-programs", "--settings", "local/settings.ini", DISC], "no pack: nothing added")
+    tree.write("port/local/intro-asset-probe/intro-full.dat", "")
+    same(tree.run("-r", "linux", SFA2_DISC=DISC)[1][-1],
+         ["program", linux, "--skip-programs", "--intro-data", "port/local/intro-asset-probe/intro-full.dat", "--settings", "local/settings.ini", DISC], "the default pack")
+    same(tree.run("-r", "linux", "--intro-data", "mine.dat", SFA2_DISC=DISC)[1][-1],
+         ["program", linux, "--skip-programs", "--settings", "local/settings.ini", "--intro-data", "mine.dat", DISC], "a pack of the caller's")
+    other = tree.write("local/other.dat", "")
+    same(tree.run("-r", "linux", SFA2_DISC=DISC, SFA2_INTRO_DATA=str(other))[1][-1],
+         ["program", linux, "--skip-programs", "--intro-data", str(other), "--settings", "local/settings.ini", DISC], "SFA2_INTRO_DATA")
+    same(tree.run("-r", "linux", SFA2_DISC=DISC, SFA2_INTRO_DATA="no such.dat")[1][-1],
+         ["program", linux, "--skip-programs", "--settings", "local/settings.ini", DISC], "a pack named that is not there is not given")
+
+
 def case_without_wslpath_paths_stay(root: Path):
     tree = Tree(root, wslpath=False)
     disc = tree.write("local/a disc.cue", "")
@@ -409,7 +425,7 @@ CASES = [
     case_the_program_step_runs_again_when_an_input_changed, case_a_failed_program_step_is_not_remembered,
     case_a_tree_that_is_no_git_tree_builds_the_program_every_time, case_the_submodule_is_fetched_only_when_missing, case_the_program_s_command_line, case_the_default_settings_file_is_copied_when_missing,
     case_no_default_settings_file_is_made_when_one_is_named,
-    case_without_wslpath_paths_stay, case_the_local_file_is_read,
+    case_without_wslpath_paths_stay, case_the_local_file_is_read, case_the_intro_pack_is_given_when_it_exists,
 ]
 
 

@@ -78,7 +78,8 @@ return 2;
             run(['--memory-card'], 0, False, False, False, True, True)
             run(['--memory-card', '--no-memory-card'], 0, False, False, False, True, False)
             run(['--card1', 'a.mcr', '--card2', 'b.mcr'], 0, False, False, False, True, True)
-            volume([], 0, 'arcade_intro = false')
+            volume([], 0, 'arcade_intro = false')   # a build without PsyZ
+            volume(['--ps1-intro'], 0, 'arcade_intro = false')
             volume(['--arcade-intro'], 0, 'arcade_intro = true')
             volume(['--arcade-intro','--ps1-intro'], 0, 'arcade_intro = false')
             volume([], 0, 'arcade_assets = false')
@@ -97,7 +98,8 @@ return 2;
             volume(['--no-widescreen', '--widescreen'], 0, 'widescreen = true')
             volume(['--widescreen=1'], 2)
             volume(['--no-widescreen=1'], 2)
-            volume([], 0, 'settings_menu = false')
+            volume([], 0, 'settings_menu = false')   # a build without PsyZ
+            volume(['--no-settings-menu'], 0, 'settings_menu = false')
             volume(['--settings-menu'], 0, 'settings_menu = true')
             volume(['--settings-menu', '--no-settings-menu'], 0, 'settings_menu = false')
             volume(['--no-settings-menu', '--settings-menu'], 0, 'settings_menu = true')
@@ -228,7 +230,7 @@ return 2;
             shown = subprocess.run([str(psyz), '--no-audio', '--show-settings'], cwd=empty, capture_output=True, text=True, timeout=3)
             self.assertEqual(shown.returncode, 0, shown.stdout + shown.stderr)
             for line in ('pixel_perfect_ui = true', 'arcade_video = true', 'center_ui = true', 'fast_loads = true', 'memory_card = true',
-                         'arcade_intro = false', 'arcade_assets = false', 'settings_menu = false', 'widescreen = false', 'screen = window', 'window_size = 1280x960',
+                         'arcade_intro = true', 'arcade_assets = false', 'settings_menu = true', 'widescreen = false', 'screen = window', 'window_size = 1280x960',
                          'fullscreen_size = desktop', 'filter = sharp_bilinear'):
                 self.assertIn(line, shown.stdout.splitlines())
             self.assertNotIn('sharp_bilinear =', shown.stdout)

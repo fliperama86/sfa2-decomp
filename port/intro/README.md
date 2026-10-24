@@ -1,7 +1,9 @@
 # Native arcade intro
 
 The complete eight-phase intro now runs as native C in the normal port behind
-`[experimental] arcade_intro`, default off. It includes the opening, character
+`[experimental] arcade_intro`, on by default since 2026-10-24 (the owner: "turn
+the arcade intro and pc settings default on"); without a pack at the default path
+the PS1 opening plays, with a line. It includes the opening, character
 strips and portraits, montage, Ryu/Ken sequence, animated title, fades and sound.
 Nothing under `ps1/` changes. This does not implement the rest of arcade attract
 mode or change the game's asset source to CPS2.
@@ -32,7 +34,7 @@ Paths above are placeholders in the host's native syntax. Alternatively set
 `arcade_intro = true` under `[experimental]` in the shared settings file.
 `--ps1-intro` restores the original movie route and does not read an intro pack.
 Start skips and returns to the normal game; Return is keyboard Start. Escape
-closes the port window. The source feature remains default off.
+closes the port window (with the settings menu on, Escape opens the menu).
 
 **Old first-scene packs are rejected with an explicit re-import message.** They
 cannot silently launch the old Akuma/flames-only slice again. Historical slice

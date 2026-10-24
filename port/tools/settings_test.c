@@ -85,7 +85,7 @@ int main(int argc,char **argv)
     assert(argc>=2);
     /* defaults */
     d=dflt();
-    assert(d.pixel_perfect_ui==G && d.arcade_video==G && d.center_ui==G && d.fast_loads==1 && d.memory_card==1 && d.arcade_intro==0 && d.arcade_assets==0 && d.settings_menu==0 && d.widescreen==0);
+    assert(d.pixel_perfect_ui==G && d.arcade_video==G && d.center_ui==G && d.fast_loads==1 && d.memory_card==1 && d.arcade_intro==G && d.arcade_assets==0 && d.settings_menu==G && d.widescreen==0);
     assert(d.screen==PORT_SCREEN_WINDOW && d.window_w==1280 && d.window_h==960 && d.fullscreen_w==0 && d.fullscreen_h==0 && d.filter==FILTER);
     assert(PORT_WINDOW_DEFAULT_W==1280 && PORT_WINDOW_DEFAULT_H==960 && PORT_SIZE_MIN==320 && PORT_SIZE_MAX==16384);
     /* names */
@@ -105,7 +105,7 @@ int main(int argc,char **argv)
         assert(!port_settings_load(argv[2],&t,0,err,sizeof err));assert(same(&t,&d));
 #else
         assert(!port_settings_load(argv[2],&t,0,err,sizeof err));
-        t.filter=PORT_FILTER_NEAREST;t.pixel_perfect_ui=t.arcade_video=t.center_ui=0;assert(same(&t,&d));   /* the template is the PsyZ build's defaults */
+        t.filter=PORT_FILTER_NEAREST;t.pixel_perfect_ui=t.arcade_video=t.center_ui=t.arcade_intro=t.settings_menu=0;assert(same(&t,&d));   /* the template is the PsyZ build's defaults */
 #endif
     }
     /* reads */
@@ -174,9 +174,9 @@ int main(int argc,char **argv)
     /* save: golden bytes of the defaults of this build, then every field round-trips */
     assert(!port_settings_save(argv[1],&d,err,sizeof err));
     slurp(argv[1],text,sizeof text);
-    snprintf(golden,sizeof golden,"[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = true\nmemory_card = true\narcade_intro = false\n"
-        "arcade_assets = false\nsettings_menu = false\nwidescreen = false\n\n[display]\nscreen = window\nwindow_size = 1280x960\nfullscreen_size = desktop\nfilter = %s\n",
-        G?"true":"false",G?"true":"false",G?"true":"false",G?"sharp_bilinear":"nearest");
+    snprintf(golden,sizeof golden,"[experimental]\npixel_perfect_ui = %s\narcade_video = %s\ncenter_ui = %s\nfast_loads = true\nmemory_card = true\narcade_intro = %s\n"
+        "arcade_assets = false\nsettings_menu = %s\nwidescreen = false\n\n[display]\nscreen = window\nwindow_size = 1280x960\nfullscreen_size = desktop\nfilter = %s\n",
+        G?"true":"false",G?"true":"false",G?"true":"false",G?"true":"false",G?"true":"false",G?"sharp_bilinear":"nearest");
     if(strcmp(text,golden)) { fprintf(stderr,"saved:\n%s\nwanted:\n%s\n",text,golden);abort(); }
     assert(!strstr(text,"sharp_bilinear =") );
     for(a=0;a<256;a++) {

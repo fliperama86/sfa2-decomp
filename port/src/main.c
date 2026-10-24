@@ -213,6 +213,7 @@ int main(int argc, char **argv)
     const char *settings_path = "settings.ini";
     int explicit_settings=0,show_settings=0,ui_override=-1,canvas_override=-1,center_override=-1,loads_override=-1,card_override=-1,filter_override=-1,menu_override=-1,intro_override=-1,assets_override=-1,wide_override=-1,arcade_check=0;
     const char *intro_path="intro.dat";
+    int intro_given=0;   /* --intro-data FILE: a pack named here that cannot be read refuses the start */
     const char *arcade_path="sfa2u.zip";   /* --arcade-rom FILE: the arcade set of the setting arcade_assets */
     const char *import_path = NULL, *pack_path = NULL;   /* --arcade-import FILE (write the pack, with the disc); --arcade-pack FILE (play from it) */
     const char *card1_path = "card1.mcr", *card2_path = NULL;   /* --card1, --card2: the card files of the setting memory_card */
@@ -237,7 +238,7 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--show-settings") == 0) show_settings=1;
         else if (strcmp(argv[i], "--arcade-intro") == 0) intro_override=1;
         else if (strcmp(argv[i], "--ps1-intro") == 0) intro_override=0;
-        else if (strcmp(argv[i], "--intro-data") == 0 && i+1<argc && argv[i+1][0]) intro_path=argv[++i];
+        else if (strcmp(argv[i], "--intro-data") == 0 && i+1<argc && argv[i+1][0]) { intro_path=argv[++i]; intro_given=1; }
         else if (strcmp(argv[i], "--arcade-assets") == 0) assets_override=1;
         else if (strcmp(argv[i], "--ps1-assets") == 0) assets_override=0;
         else if (strcmp(argv[i], "--arcade-rom") == 0 && i+1<argc && argv[i+1][0]) arcade_path=argv[++i];
@@ -325,6 +326,15 @@ int main(int argc, char **argv)
         printf("usage: %s [--settings FILE] [--sharp-bilinear | --nearest-scaling] [--settings-menu | --no-settings-menu] [--widescreen | --no-widescreen] [--arcade-intro --intro-data FILE] [--arcade-assets --arcade-rom FILE [--arcade-check | --arcade-import PACK | --arcade-pack PACK]] [--trace --trace-file FILE] [--input FILE] [--audio-dump FILE] [--audio | --no-audio] [--volume PERCENT] [--card1 FILE] [--card2 FILE] DISC (a .cue or the .bin itself)\n       %s --list-library | --show-settings\n", argc > 0 ? argv[0] : "sfa2", argc > 0 ? argv[0] : "sfa2");
         fflush(stdout);
         return 2;
+    }
+    if(port_settings.arcade_intro && !intro_given) {
+        /* On by default (2026-10-24), and the pack is the player's to make: without one at the default path the PS1 opening plays. */
+        FILE *pack=fopen(intro_path,"rb");
+        if(!pack) {
+            printf("arcade intro: no data pack at %s; the PS1 opening plays (port/intro/README.md makes one, --intro-data FILE names it)\n",intro_path);
+            fflush(stdout);
+            port_settings.arcade_intro=0;
+        } else fclose(pack);
     }
     if(port_intro_configure(port_settings.arcade_intro,intro_path,err,sizeof err))return refuse(err);
     if(port_arcade_configure(port_settings.arcade_assets,arcade_path,err,sizeof err))return refuse(err);

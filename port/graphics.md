@@ -1,8 +1,9 @@
 # Optional graphics and settings
 
-The normal port has one build and one settings model. Since 2026-10-23, by the
-owner's decision, every experimental setting is on by default but the arcade
-intro, which needs an intro pack. A build without PsyZ (the controls, which open
+The normal port has one build and one settings model. By the owner's decisions
+of 2026-10-23 and 2026-10-24, every experimental setting is on by default but
+the arcade assets and widescreen, both work in progress; the arcade intro plays
+when its pack is there (without one, the PS1 opening, with a line). A build without PsyZ (the controls, which open
 no window) keeps the graphics settings off by default, since it cannot draw
 them; the build tools compile `settings.c` with PsyZ's define for that. Each
 setting can still be turned off in the settings file or on the command line.

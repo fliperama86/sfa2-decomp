@@ -50,6 +50,8 @@
 #                  an existing file, which is turned into that form with wslpath. The Mac and Linux programs take
 #                  the path as it is.
 #   SFA2_SETTINGS  the settings file for -r in place of local/settings.ini (a file named here is never created)
+#   SFA2_INTRO_DATA  the arcade intro's data pack for -r in place of port/local/intro-asset-probe/intro-full.dat (port/intro/README.md);
+#                  given to the program as --intro-data when the file exists and no PROGRAM OPTION is --intro-data
 #   SFA2_PYTHON    the Python to run the tools with, by default python3
 #
 # Status: 0 built (with -r, the program's status); 2 a wrong command line or -r without SFA2_DISC, before anything
@@ -180,5 +182,15 @@ if [ $settings = 1 ]; then
         fi
     fi
     set -- --settings "$(native "$SFA2_SETTINGS")" "$@"
+fi
+intro=1
+for option do
+    [ "$option" != --intro-data ] || intro=0
+done
+if [ $intro = 1 ]; then
+    SFA2_INTRO_DATA=${SFA2_INTRO_DATA:-port/local/intro-asset-probe/intro-full.dat}
+    if [ -e "$SFA2_INTRO_DATA" ]; then
+        set -- --intro-data "$(native "$SFA2_INTRO_DATA")" "$@"
+    fi
 fi
 exec $PROGRAM --skip-programs "$@" "$(native "$SFA2_DISC")"

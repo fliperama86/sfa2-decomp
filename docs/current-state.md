@@ -22,8 +22,8 @@ end.
 
 The port-only experimental arcade intro now completes all eight native phases
 in the normal Windows executable, with an adapted PS1-disc soundtrack, then
-returns to the game. It is ready for owner testing, not yet accepted or merged;
-the flag stays default off. See the
+returns to the game. Since 2026-10-24 it is on by default (the PS1 opening plays
+when there is no intro pack). See the
 [runtime evidence and fidelity limits](records/2026-10-14-intro-full-runtime.md).
 
 By the owner's direction of 2026-10-23 the port is to need no PS1 disc: the

@@ -2,7 +2,9 @@
 
 Experimental graphics now use the normal port and shared settings. Since
 2026-10-23, by the owner's decision, every option is on by default but the
-arcade intro (in a build without PsyZ the graphics options stay off). See [graphics and settings](graphics.md) for super/life
+arcade assets and widescreen; since 2026-10-24 the arcade intro and the settings
+menu are on by default too (in a build without PsyZ the graphics options, the intro
+and the menu stay off). See [graphics and settings](graphics.md) for super/life
 pixel-grid sampling, the independently optional arcade canvas, WIP common-UI
 centering and scoped checks.
 
@@ -11,13 +13,15 @@ progress) builds what the game reads from the user's arcade set, so that in
 the end no PS1 disc is needed; for now the disc gives what it cannot build.
 
 The opt-in [PC settings menu](settings-menu.md) (2026-10-23, setting
-`settings_menu`, default off) opens in the game with F1 or Escape: window,
+`settings_menu`, on by default since 2026-10-24) opens in the game with F1 or Escape: window,
 fullscreen or borderless, the resolution and the picture's filter, drawn with
 the game's own font and saved to the settings file at once.
 
 The opt-in [complete native arcade intro](intro/README.md) runs in the normal
 Windows executable, using imported CPS2 artwork/tables and the PS1-disc
-soundtrack. It stays default off; exact QSound audio and the rest of attract
+soundtrack. It is on by default since 2026-10-24 and plays when its pack is
+there (`build.sh -r` gives the program `port/local/intro-asset-probe/intro-full.dat`
+when it exists); exact QSound audio and the rest of attract
 mode are outside this increment. Owner-authorized PR review is pending.
 
 Groundwork for a port of the game to macOS on Apple Silicon, Windows and

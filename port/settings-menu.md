@@ -2,7 +2,8 @@
 
 An in-game menu of the PC program's own settings, drawn with the game's font
 and in the style of its menus, behind the setting `[experimental]
-settings_menu` (default off). Asked for by the owner on 2026-10-23 ("a PC
+settings_menu` (on by default since 2026-10-24, by the owner's word "turn the
+arcade intro and pc settings default on"). Asked for by the owner on 2026-10-23 ("a PC
 settings menu using the same structure and fonts, but in a way that it won't
 be lost after the assets retarget"), with this first content: window or
 fullscreen, resolutions, scaling (sharp bilinear, nearest and the like), "all
