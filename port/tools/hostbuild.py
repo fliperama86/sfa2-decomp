@@ -383,7 +383,8 @@ On Linux the process's own image must stay out of the memory that the runtime ma
 (`verify_elf`, a function of the file's bytes) reads the linked file's ELF header and program headers: 32-bit
 (ELFCLASS32), little-endian, machine EM_386, type ET_EXEC (a position-independent ET_DYN is a miss); no PT_LOAD segment
 overlaps `[0, 0x200000)` (the console's copy of RAM and the page below it), `[0x1f800000, 0x1f810000)` (the scratchpad
-and the I/O page) or `[0x80000000, 0x80200000)` (RAM); a PT_GNU_STACK header exists and does not have the execute flag
+and the I/O page), `[0x80000000, 0x80200000)` (RAM) or `[0x80200000, 0x80400000)` (the extra memory); a PT_GNU_STACK header
+exists and does not have the execute flag
 (an executable stack gives a 32-bit program READ_IMPLIES_EXEC, and the runtime could not take execution away from a
 page). A miss ends the build with status 1, as the check of the PE header does. The names and markers checks are the
 same ones (an ELF target has no underscore, which the tool finds out as before).
@@ -541,7 +542,7 @@ TARGET_FLAGS: list[str] = []  # flags that every compiler and assembler run take
 LINUX_TARGET_FLAGS = ["-m32", "-maccumulate-outgoing-args"]
 LINUX_RUNTIME_FLAGS = ["-fno-pie", "-D_GNU_SOURCE", "-pthread"]   # besides the target flags, on the runtime's files
 LINUX_LINK_FLAGS = ["-m32", "-no-pie", "-pthread", "-Wl,-z,noexecstack"]
-LINUX_FREE = ((0x0, 0x200000), (0x1F800000, 0x1F810000), (0x80000000, 0x80200000))   # what no segment of the Linux program may overlap
+LINUX_FREE = ((0x0, 0x200000), (0x1F800000, 0x1F810000), (0x80000000, 0x80200000), (0x80200000, 0x80400000))   # what no segment of the Linux program may overlap
 RUNTIME_FLAGS: list[str] = []   # flags of the runtime's compiler runs only; `--linux` sets them
 
 NONMATCHING = re.compile(r"^func_([0-9a-fA-F]{8})(?:_(.+))?$")

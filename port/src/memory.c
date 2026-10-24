@@ -22,6 +22,8 @@ static int within(unsigned long long a, unsigned long long n, unsigned long long
     return a >= base && a < base + size && a + n <= base + size;
 }
 
+static int mapped_extra;   /* the extra memory (port_map_extra) is the game's memory too: its data is read through the game's own offsets */
+
 int port_game_span(const void *p, size_t n)
 {
     unsigned long long a = (uintptr_t)p;
@@ -29,7 +31,8 @@ int port_game_span(const void *p, size_t n)
      * fiber or thread now running, which the system keeps in the thread's block and changes at every fiber switch. */
     unsigned long long low = (uintptr_t)__builtin_frame_address(0);
     unsigned long long high = (uintptr_t)((NT_TIB *)NtCurrentTeb())->StackBase;
-    return within(a, n, PORT_RAM_BASE, PORT_RAM_SIZE) || within(a, n, PORT_SCRATCH, PORT_SCRATCH_SIZE) || (low < high && within(a, n, low, high - low));
+    return within(a, n, PORT_RAM_BASE, PORT_RAM_SIZE) || within(a, n, PORT_SCRATCH, PORT_SCRATCH_SIZE) || (mapped_extra && within(a, n, PORT_EXTRA_BASE, PORT_EXTRA_SIZE)) ||
+           (low < high && within(a, n, low, high - low));
 }
 
 int port_map(char *err, size_t errsize)
@@ -41,8 +44,6 @@ int port_map(char *err, size_t errsize)
     }
     return 0;
 }
-
-static int mapped_extra;
 
 int port_map_extra(char *err, size_t errsize)
 {
@@ -79,7 +80,7 @@ void port_unmap(void)
 
 #define LOW_VIEW PORT_MIRROR_LOW   /* the first address a process can map: the copy of RAM is mapped from here */
 
-static int mapped_ram, mapped_low, mapped_scratch;
+static int mapped_ram, mapped_low, mapped_scratch, mapped_extra;   /* the extra memory (port_map_extra) is the game's memory too */
 
 /* Within [base, base + size), the whole span (64-bit sums). */
 static int within(unsigned long long a, unsigned long long n, unsigned long long base, unsigned long long size)
@@ -93,7 +94,8 @@ int port_game_span(const void *p, size_t n)
     /* The live stack runs from this frame up to the top of the stack of the task that runs now (threads.c keeps it). */
     unsigned long long low = (uintptr_t)__builtin_frame_address(0);
     unsigned long long high = port_stack_top();
-    return within(a, n, PORT_RAM_BASE, PORT_RAM_SIZE) || within(a, n, PORT_SCRATCH, PORT_SCRATCH_SIZE) || (low < high && within(a, n, low, high - low));
+    return within(a, n, PORT_RAM_BASE, PORT_RAM_SIZE) || within(a, n, PORT_SCRATCH, PORT_SCRATCH_SIZE) || (mapped_extra && within(a, n, PORT_EXTRA_BASE, PORT_EXTRA_SIZE)) ||
+           (low < high && within(a, n, low, high - low));
 }
 
 /* Map at exactly `address`, never over a mapping that is there: MAP_FIXED_NOREPLACE (Linux 4.17). A kernel that does not know the flag
@@ -145,8 +147,6 @@ int port_map(char *err, size_t errsize)
     mapped_scratch = 1;
     return 0;
 }
-
-static int mapped_extra;
 
 int port_map_extra(char *err, size_t errsize)
 {

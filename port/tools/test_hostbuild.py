@@ -865,7 +865,7 @@ def elf_cases():
     good = [(PT_LOAD, 0x08048000, 0x4000, 5), (PT_GNU_STACK, 0, 0, 6)]
     stack = lambda *rows: [*rows, (PT_GNU_STACK, 0, 0, 6)]   # noqa: E731
     yield "elf-good-header", same(check(), [])
-    yield "elf-free-ranges-are-the-ones-of-the-design", same(hb.LINUX_FREE, ((0, 0x200000), (0x1F800000, 0x1F810000), (0x80000000, 0x80200000)))
+    yield "elf-free-ranges-are-the-ones-of-the-design", same(hb.LINUX_FREE, ((0, 0x200000), (0x1F800000, 0x1F810000), (0x80000000, 0x80200000), (0x80200000, 0x80400000)))
     yield "elf-link-flags", same(hb.LINUX_LINK_FLAGS, ["-m32", "-no-pie", "-pthread", "-Wl,-z,noexecstack"])
     yield "elf-not-elf", same(hb.verify_elf(b"MZ" + bytes(100)), ["the file has no ELF header"])
     yield "elf-short-file", same(hb.verify_elf(b"\x7fELF"), ["the file has no ELF header"])
@@ -882,7 +882,8 @@ def elf_cases():
     yield "elf-segment-just-below-scratchpad-is-fine", same(check(segments=stack((PT_LOAD, 0x1F7FFF00, 0x100, 6))), [])
     yield "elf-segment-in-ram", same(check(segments=stack((PT_LOAD, 0x801FF000, 0x1000, 6))), ["a segment at 0x801ff000, 0x1000 bytes, overlaps 0x80000000-0x80200000"])
     yield "elf-segment-starting-below-ram", same(check(segments=stack((PT_LOAD, 0x7FFFF000, 0x2000, 6))), ["a segment at 0x7ffff000, 0x2000 bytes, overlaps 0x80000000-0x80200000"])
-    yield "elf-segment-above-ram-is-fine", same(check(segments=stack((PT_LOAD, 0x80200000, 0x1000, 6))), [])
+    yield "elf-segment-in-extra-memory", same(check(segments=stack((PT_LOAD, 0x80200000, 0x1000, 6))), ["a segment at 0x80200000, 0x1000 bytes, overlaps 0x80200000-0x80400000"])
+    yield "elf-segment-above-extra-memory-is-fine", same(check(segments=stack((PT_LOAD, 0x80400000, 0x1000, 6))), [])
     yield "elf-empty-segment-is-ignored", same(check(segments=stack((PT_LOAD, 0x10000, 0, 6))), [])
     yield "elf-other-segment-types-are-not-loads", same(check(segments=stack((4, 0x10000, 0x40, 4))), [])
     yield "elf-two-misses-both-named", same(len(check(segments=stack((PT_LOAD, 0x10000, 0x1000, 5), (PT_LOAD, 0x80000000, 0x1000, 6)))), 2)
