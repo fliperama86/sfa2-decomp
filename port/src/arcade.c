@@ -13,6 +13,7 @@
 #include "../arcade/full_sets.h"
 #include "../arcade/texts.h"
 #include "../arcade/quotes.h"
+#include "../arcade/talk.h"
 #include "settings.h"
 #include "port_tables.h"
 #include "parallel.h"
@@ -1149,6 +1150,49 @@ static unsigned win_quotes(struct port_disc *d, int check)
     return built_files;
 }
 
+/* The talk before a fight in the arcade's English (talk.c): each talk file's text page, and the line counts of its script, served to the
+ * game's reads only (the module's chunk is pinned by modules.c). With check, build only. Returns the files built. */
+static unsigned talks(struct port_disc *d, int check)
+{
+    unsigned i, built_files = 0;
+    char err[PORT_ERR];
+    for (i = 0; i < arcade_talk.count; i++) {
+        const struct arcade_talk_page *t = &arcade_talk.pages[i];
+        int f = file_index(d, t->file);
+        unsigned pat, pn, mat, mn, k;
+        unsigned char *page, *module, *changed;
+        if (pac_chunk_nth(d, &files[f], (unsigned)arcade_talk.page_table << 16 | arcade_talk.page_slot, arcade_talk.page_ordinal, &pat, &pn) != 0 ||
+            pn != ARCADE_TALK_PAGE || pac_chunk(d, &files[f], arcade_talk.module_slot, &mat, &mn) != 0) {
+            printf("arcade%s: talk: %s: the chunks are not where the table says; its talk stays the PS1's\n", check ? " check" : "", t->file);
+            continue;
+        }
+        if (!(page = malloc(ARCADE_TALK_PAGE)) || !(module = served_bytes(d, f, mat, mn)) || !(changed = malloc(mn ? mn : 1)))
+            port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+        if (arcade_talk_page_build(t, rom.program, ARCADE_PROGRAM_SIZE, rom.tiles, ARCADE_TILES_SIZE, page, err, sizeof err) != 0 ||
+            arcade_talk_script_build(t, rom.program, ARCADE_PROGRAM_SIZE, module, changed, mn, err, sizeof err) != 0) {
+            printf("arcade%s: talk: %s: %s; its talk stays the PS1's\n", check ? " check" : "", t->file, err);
+            free(page); free(module); free(changed);
+            continue;
+        }
+        built_files++;
+        if (check) {
+            free(page); free(module); free(changed);
+            continue;
+        }
+        add_game_range(f, pat, page, ARCADE_TALK_PAGE);
+        for (k = 0; k < mn;) {   /* the written runs of the module */
+            unsigned e = k;
+            while (e < mn && changed[e]) e++;
+            if (e > k) add_game_range(f, mat + k, module + k, e - k);
+            k = e + 1;
+        }
+        free(changed);   /* the page and the module stay: the ranges point into them */
+    }
+    printf("arcade%s: talk: %u of %u talk files say the arcade's English\n", check ? " check" : "", built_files, arcade_talk.count);
+    fflush(stdout);
+    return built_files;
+}
+
 /* ---- music: the arcade's songs in place of the disc's recorded streams (port/arcade/music.md, section 11) */
 
 /* The PS1's music code (file * 256 + channel of ZERO2_XA/ZERO20N.XA) and the arcade song that is the same music, for all 57 codes,
@@ -1671,6 +1715,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     texts(d, check);
     if (check) full_sets(d, 1);
     if (check) win_quotes(d, 1);
+    if (check) talks(d, 1);
     if (check) coverage(check);
     if (check) return wrong ? 1 : 0;
     index_ranges();
@@ -1704,6 +1749,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     {
         unsigned more = full_sets(d, 0);
         more += win_quotes(d, 0);
+        more += talks(d, 0);
         if (more) index_ranges();
     }
     music_attach();

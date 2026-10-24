@@ -227,6 +227,23 @@ module's ranges are served to the game's reads only (`modules.c` pins the
 chunk). `quotes.py --compare-c` draws every built quote as the game reads it
 and compares it, glyph by glyph, with the arcade's lines.
 
+## Talk before a fight (2026-10-24, with the win quotes)
+
+The rival talk (`RDMnn`), the talk before the last fight (`BOSSnn`) and the
+hidden challenger's (`GDEMOnn`) are a script in the shared module (6-byte
+records: box, side, timer, the box's line count) and a text page of the
+file, a 256 x 256 picture whose boxes of 3 lines of 16 rows the module
+draws as two 128 x 48 sprites each. The PS1's page is Japanese. The US
+arcade keeps the talks in English (16-bit text, boxes of 3 lines of 32
+characters). With `arcade_assets` the loader (`talk.c`, table from
+`talk.py --c-table`) draws each talk's English into the page in the
+arcade's 8 x 16 font, writes the English line counts into the script's
+records, and ends the one talk with three English boxes after its third
+(bit 15 of a record's first word ends a talk). Which arcade talk is which
+file is inferred from the content (the anchors are in `talk.py`; Gouki's by
+elimination). BOSS0D's fifth English box (one line) does not fit the
+four-box page and is not shown.
+
 ## What the game reads, in order
 
 A run of 150 seconds on 2026-10-23 (title, menus, a fight of Ryu against

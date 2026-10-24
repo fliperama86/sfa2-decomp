@@ -31,3 +31,5 @@ texts.c
 texts_table.c
 quotes.c
 quotes_table.c
+talk.c
+talk_table.c
