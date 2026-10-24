@@ -790,15 +790,19 @@ static void backdrops(struct port_disc *d, int check)
 
 /* ---- music: the arcade's songs in place of the disc's recorded streams (port/arcade/music.md, section 11) */
 
-/* The PS1's music code (file * 256 + channel of ZERO2_XA/ZERO20N.XA) and the arcade song that is the same music: the fighters'
- * themes by the two games' tables of the same index, the others by measurement where it was decisive. Codes not here keep the
- * recorded stream. */
+/* The PS1's music code (file * 256 + channel of ZERO2_XA/ZERO20N.XA) and the arcade song that is the same music, for all 57 codes,
+ * from `port/arcade/music_map.py --c-table --all`: paired state by state through the two games' own music requests (the fighters'
+ * themes and the endings by the tables of the same index, the other screens by the shape of the code around the request), 0x604 and
+ * 0x700 by elimination. The arcade's jingles are shorter than the PS1's recordings: they end and the rest of the track is silent. */
 static const struct { unsigned short code, song; } songs[] = {
     {0x000, 1}, {0x001, 2}, {0x002, 11}, {0x003, 9}, {0x004, 3}, {0x005, 6}, {0x006, 5}, {0x007, 8},
     {0x100, 7}, {0x101, 10}, {0x102, 12}, {0x103, 4}, {0x104, 13}, {0x105, 18}, {0x106, 17}, {0x107, 14},
-    {0x200, 15}, {0x201, 16}, {0x202, 53},
-    {0x600, 28}, {0x601, 29}, {0x300, 30}, {0x304, 31}, {0x404, 32}, {0x405, 37}, {0x403, 39}, {0x206, 40},
-    {0x301, 41}, {0x302, 42}, {0x401, 43}, {0x506, 45}, {0x507, 46}, {0x303, 48}, {0x502, 54}, {0x402, 55},
+    {0x200, 15}, {0x201, 16}, {0x202, 53}, {0x203, 50}, {0x204, 51}, {0x205, 57}, {0x206, 40}, {0x207, 36},
+    {0x300, 30}, {0x301, 41}, {0x302, 42}, {0x303, 48}, {0x304, 31}, {0x305, 33}, {0x306, 47}, {0x307, 20},
+    {0x400, 35}, {0x401, 43}, {0x402, 55}, {0x403, 39}, {0x404, 32}, {0x405, 37}, {0x406, 23}, {0x407, 52},
+    {0x500, 34}, {0x501, 38}, {0x502, 54}, {0x503, 58}, {0x504, 44}, {0x505, 56}, {0x506, 45}, {0x507, 46},
+    {0x600, 28}, {0x601, 29}, {0x602, 49}, {0x603, 27}, {0x604, 21}, {0x605, 22}, {0x606, 26}, {0x607, 25},
+    {0x700, 24},
 };
 /* The arcade song for a music code, or -1. */
 static int song_of(unsigned code)

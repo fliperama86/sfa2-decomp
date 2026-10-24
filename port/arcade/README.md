@@ -340,10 +340,12 @@ scripts (nothing of it is in the tree):
   `music.c` is the player of the port's own (the driver's rules and a mixer
   of 16 voices of the arcade's samples, 44.1 kHz; the pan law and the echo
   are the guesses `music.md` section 13 names), about 1,000 times faster
-  than real time. In the runtime, when the game starts one of the 35
-  recorded tracks whose arcade song is known, the arcade's song plays in its
-  place, the stream still read and consumed so the game's timing and its
-  volume changes hold; other tracks keep the recording.
+  than real time. In the runtime, when the game starts one of its 57 recorded
+  tracks, the arcade's song for it plays in its place (`music_map.py`: all
+  57 paired state by state through the two games' own music requests, two by
+  elimination), the stream still read and consumed so the game's timing
+  holds. The arcade's jingles are shorter than the PS1's recordings; the
+  rest of such a track is silent.
 - **Samples** (`samples.py`, all banks). 355 of the 409 distinct PS1
   samples are arcade samples: the chip's sample taken as 24,000 Hz,
   resampled to a rate the bank's tone gives (44100 times 2 to the power of
