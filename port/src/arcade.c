@@ -666,6 +666,58 @@ static unsigned sprite_chunks(struct port_disc *d, int check)
     return bad;
 }
 
+/* Files the port reads only in form with the arcade assets, built whole (served as built from the arcade alone, so a pack keeps none of
+ * them): the stand-alone programs, which the game loads before the port skips them or plays the arcade intro in their place (programs.c),
+ * need only their header (the game's loader checks the first word, "PS-X", and reads t_size bytes to t_addr; the numbers are the disc's);
+ * the Capcom logo's files, which only the skipped logo program reads, are zeros. */
+static const struct { const char *name; unsigned pc0, t_addr, t_size; } synth_programs[] = {
+    {"logo.exe", 0x80011840u, 0x80010000u, 0x1f000u},
+    {"z2o.exe", 0x80011ac8u, 0x80010000u, 0x1f800u},
+    {"a2o.exe", 0x80011ac8u, 0x80010000u, 0x1f800u},
+    {"bf3.exe", 0x80011ac8u, 0x80010000u, 0x1f800u},
+};
+static const char *const synth_zeros[] = {"capcom.bin", "capcom.inf"};
+
+static void put_le32(unsigned char *p, unsigned v)
+{
+    p[0] = (unsigned char)v; p[1] = (unsigned char)(v >> 8); p[2] = (unsigned char)(v >> 16); p[3] = (unsigned char)(v >> 24);
+}
+
+static void synth_files(struct port_disc *d, int check)
+{
+    unsigned i, k, n = 0;
+    for (i = 0; i < sizeof synth_programs / sizeof synth_programs[0] + sizeof synth_zeros / sizeof synth_zeros[0]; i++) {
+        int prog = i < sizeof synth_programs / sizeof synth_programs[0];
+        const char *name = prog ? synth_programs[i].name : synth_zeros[i - sizeof synth_programs / sizeof synth_programs[0]];
+        unsigned char *bytes;
+        int f = -1;
+        for (k = 0; k < file_count; k++)
+            if (!strcmp(files[k].name, name)) f = (int)k;
+        if (f < 0 || !files[f].size) continue;
+        if (prog && files[f].size < 0x800u + synth_programs[i].t_size) continue;
+        if (!(bytes = calloc(files[f].size, 1))) port_halt(PORT_EXIT_PROGRAM, "arcade: out of memory");
+        if (prog) {
+            memcpy(bytes, "PS-X EXE", 8);
+            put_le32(bytes + 0x10, synth_programs[i].pc0);
+            put_le32(bytes + 0x18, synth_programs[i].t_addr);
+            put_le32(bytes + 0x1c, synth_programs[i].t_size);
+        }
+        if (check) {   /* the header's words the game reads are the disc's */
+            unsigned char *disc = disc_bytes(d, &files[f], 0, 0x20);
+            if (prog && (!disc || memcmp(disc, bytes, 8) || memcmp(disc + 0x10, bytes + 0x10, 4) || memcmp(disc + 0x18, bytes + 0x18, 8)))
+                printf("arcade check: %s: the header differs from the disc's\n", name);
+            free(disc);
+            free(bytes);
+        } else {
+            add_range_kind(f, 0, bytes, files[f].size, 0);
+            ranges[range_count - 1].owned = 1;
+        }
+        n++;
+    }
+    printf("arcade%s: %u files built in form (the stand-alone programs' headers, the logo's files)\n", check ? " check" : "", n);
+    fflush(stdout);
+}
+
 /* The index of the disc's file `name`; halts if there is none. */
 static int file_index(struct port_disc *d, const char *name)
 {
@@ -1924,6 +1976,7 @@ int port_arcade_attach(struct port_disc *d, int check, char *err, size_t size)
     memset(built_bytes, 0, sizeof built_bytes);
     wrong = fighters(d, check);
     wrong += sprite_chunks(d, check);
+    synth_files(d, check);
     wrong += parts(d, check);
     module_data(d, check);
     stages(d, check);
